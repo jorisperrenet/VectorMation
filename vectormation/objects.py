@@ -1,6 +1,7 @@
 """Here we define all objects like squares, texobjects, morphobjects, ...
 First we create a general object that defines the necessary functions and a fadein-fadeout function
 """
+import os
 import sys
 from abc import ABC, abstractmethod
 from copy import copy, deepcopy
@@ -26,6 +27,7 @@ class VectorMathAnim:
     """Video where we can ask a frame at a certain time"""
     def __init__(self, save_dir, width=1000, height=1000):
         self.save_dir = save_dir  # Directory to save frames in
+        os.makedirs(save_dir, exist_ok=True)
         self.filename = f'{save_dir}/gen.svg'
         self.width = width
         self.height = height
