@@ -11,14 +11,14 @@ import math
 import datetime
 
 # Local imports
-import easings
-import attributes
-from tex_file_writing import tex_content_to_svg_file
-from tex_file_writing import get_characters
-from utils import keyevent_to_string
-from window import SVGViewer  # NOTE: TODO is this import necessary or can we disable it
-import style
-import morphing
+import vectormation.easings as easings
+import vectormation.attributes as attributes
+from vectormation.tex_file_writing import tex_content_to_svg_file
+from vectormation.tex_file_writing import get_characters
+from vectormation.utils import keyevent_to_string
+from vectormation.window import SVGViewer  # NOTE: TODO is this import necessary or can we disable it
+import vectormation.style as style
+import vectormation.morphing as morphing
 
 # MARKER: Above code is not checked, restucture files; NOTE: TODO
 

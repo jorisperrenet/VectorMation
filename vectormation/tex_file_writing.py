@@ -53,6 +53,7 @@ def tex_content_to_svg_file(
     if not os.path.exists(svg_file):
         # If svg doesn't exist, create it
         # with display_during_execution("Writing " + short_tex):
+        os.makedirs(dir_name, exist_ok=True)
         create_tex_svg(full_tex, svg_file, compiler)
     return svg_file
 

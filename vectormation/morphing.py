@@ -38,8 +38,8 @@ import svgpathtools
 import numpy as np
 import math
 ### Local imports
-import style
-import easings
+import vectormation.style as style
+import vectormation.easings as easings
 
 def sigmoid(x):
   return 1 / (1 + math.exp(-x))

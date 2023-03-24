@@ -1,6 +1,6 @@
 import math
-import colors
-import easings
+import vectormation.colors as colors
+import vectormation.easings as easings
 
 def sigmoid(x):
   return 1 / (1 + math.exp(-x))

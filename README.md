@@ -2,5 +2,5 @@
 Create SVG-based math animations
 
 <p align="center">
-    <img width="1000" height="1000" src="./explanation.svg">
+    <img width="800" height="800" src="./explanation.svg">
 </p>

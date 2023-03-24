@@ -1,5 +1,5 @@
-import attributes
-import easings
+import vectormation.attributes as attributes
+import vectormation.easings as easings
 
 
 class Styling:
