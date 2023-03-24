@@ -1,5 +1,10 @@
 # Example Gallery
 Find the code to generate these SVGs and more in the above codes.
+
+# Note
+Some of these examples are remade from the [Maxim Community Example Gallery](https://docs.manim.community/en/stable/examples.html).
+
+# Some of the end results
 Also, if there was an animation in the code, the below SVGs are the last frame of the animation.
 
 `heart.py`
@@ -21,6 +26,3 @@ Also, if there was an animation in the code, the below SVGs are the last frame o
 <p align="center">
     <img width="400" padding-top="100%" src="./svgs/spiral.svg">
 </p>
-
-# Note
-Some of these examples are remade from the [Maxim Community Example Gallery](https://docs.manim.community/en/stable/examples.html).
