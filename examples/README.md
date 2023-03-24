@@ -4,22 +4,22 @@ Also, if there was an animation in the code, the below SVGs are the last frame o
 
 `heart.py`
 <p align="center">
-    <img width="400" padding-top="100%" src="./heart.svg">
+    <img width="400" padding-top="100%" src="./svgs/heart.svg">
 </p>
 
 `moving_frame_box.py`
 <p align="center">
-    <img width="600" padding-top="100%" src="./moving_frame_box.svg">
+    <img width="600" padding-top="100%" src="./svgs/moving_frame_box.svg">
 </p>
 
 `sierpinski_triangle.py`
 <p align="center">
-    <img width="400" padding-top="100%" src="./sierpinski_triangle.svg">
+    <img width="400" padding-top="100%" src="./svgs/sierpinski_triangle.svg">
 </p>
 
 `spiral.py`
 <p align="center">
-    <img width="400" padding-top="100%" src="./spiral.svg">
+    <img width="400" padding-top="100%" src="./svgs/spiral.svg">
 </p>
 
 # Note
