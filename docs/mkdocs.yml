@@ -11,6 +11,8 @@ repo_url: https://github.com/jorisperrenet/VectorMation
 use_directory_urls: false
 theme:
   name: material
+  logo: logo.svg
+  favicon: logo.svg
   palette:
     primary: black
   language: en
@@ -35,6 +37,8 @@ markdown_extensions:
 extra:
   generator: false
 
+extra_css:
+  - css/main.css
 
 extra_javascript:
   - 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
