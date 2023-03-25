@@ -46,11 +46,11 @@ The code to generate the below SVG can be found in `examples/code_explanation.py
 All attributes are functions of time, after evaluating these functions at a certain time we get precise information about the object, combining all objects then results in the frame at that time.
 Repeatedly doing this for different times gives a video, which can be displayed using an SVG-viewer.
 
-This method allows for very precise an low-level alterations to objects, it all boils down to changing functions of attributes.
+This method allows for very precise and low-level alterations to objects, it all boils down to changing functions of attributes.
 
 
 ## Further ideas
 These are generally included in the code itself, there is, however a main idea to add the ability to use this for (math) presentations.
 Implementing this, the animation script will automatically stop at certain moments and wait for a keyevent to continue.
 
-Also, at the moment it is not possible to directly export the animation to a video.
+Also, at the moment it is not possible to directly export the animation to a regular video.
