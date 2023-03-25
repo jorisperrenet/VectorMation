@@ -1,4 +1,7 @@
-# VectorMation
+<p align="center">
+    <img width="300" padding-top="100%" src="./examples/svgs/logo.svg">
+</p>
+
 VectorMation is an entirely vector-based math-oriented animation engine.
 It allows for immensely compact representations of animations (using SVGs).
 
