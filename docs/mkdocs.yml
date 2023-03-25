@@ -1,0 +1,25 @@
+# Project Information
+site_name: vectormation
+site_url: https://jorisperrenet.github.io/VectorMation
+site_description: Create SVG-based math animations
+site_author: Joris Perrenet
+
+# Repository
+repo_name: VectorMation
+repo_url: https://github.com/jorisperrenet/VectorMation
+
+# Configuration
+theme:
+  name: mkdocs
+  palette:
+    primary: black
+  icon:
+    repo: fontawesome/brands/github-alt
+  logo: img/logo-white.png
+  favicon: img/logo-white.png
+  language: en
+
+# Navigation
+nav:
+  - index.md
+  - Changelog: release_notes.md
