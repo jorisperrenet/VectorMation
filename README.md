@@ -34,7 +34,7 @@ canvas.standard_display(fps=60)
 Look through the [examples](https://github.com/jorisperrenet/VectorMation/tree/main/examples) to get a sense of how to use the library.
 
 ### Documentation
-Documentation is in progress at [jorisperrenet.github.io/vectormation](https://jorisperrenet.github.io/vectormation/).
+Documentation is in progress at [jorisperrenet.github.io/VectorMation](https://jorisperrenet.github.io/VectorMation/).
 
 
 ## Explanation/General structuring of the code
