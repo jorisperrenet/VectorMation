@@ -8,7 +8,6 @@ It allows for immensely compact representations of animations (using SVGs).
 VectorMation also provides an alternative for [manim](https://github.com/3b1b/manim).
 The reason I started this project were some pet peeves about manim (like the coordinate system, the timing of animations, the immense amount of functions and not being able to export to SVG).
 
-
 ## Instalation
 ```{bash}
 pip install vectormation
