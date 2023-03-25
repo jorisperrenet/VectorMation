@@ -1,0 +1,42 @@
+# Project Information
+site_name: VectorMation
+site_description: Create SVG-based math animations
+site_author: Joris Perrenet
+
+# Repository
+repo_name: VectorMation
+repo_url: https://github.com/jorisperrenet/VectorMation
+
+# Configuration
+use_directory_urls: false
+theme:
+  name: material
+  palette:
+    primary: black
+  language: en
+
+# Navigation
+nav:
+  - Home: index.md
+  - Changelog: release_notes.md
+
+# Plugins
+plugins:
+  - search
+
+markdown_extensions:
+  - pymdownx.arithmatex:
+      generic: true
+  - toc:
+      permalink: true
+      toc_depth: 3
+
+# Remove footer 'made with mkdocs'
+extra:
+  generator: false
+
+
+extra_javascript:
+  - 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+
+copyright: "Copyright (c) 2023 Joris Perrenet"
