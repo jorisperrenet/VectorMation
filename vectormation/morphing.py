@@ -145,6 +145,11 @@ class Path(svgpathtools.Path):
                 if len(vals) == 1: y = 0
                 else: y = vals[1]
                 segs = [i.translated(x + y*1j) for i in segs]
+            elif command == 'rotate':
+                degrees = vals[0]
+                pivotx, pivoty = vals[1], vals[2]
+
+                segs = Path(*segs).rotated(degrees, origin=pivotx+pivoty*1j)._segments
             else:
                 raise NotImplementedError('Transform not yet implemented')
         return Path(*segs)

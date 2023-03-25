@@ -251,9 +251,9 @@ class VObject(ABC):  # Vector Object
             if transforms == '':
                 # No transforms to be done
                 xmin, xmax, ymin, ymax = morphing.Path(path).bbox()
-                return (xmin, ymin, xmax-xmin, ymax-ymin)
-            transforms = transforms[1:].split(' ')
-            xmin, xmax, ymin, ymax = morphing.Path(path).adjusted_bbox(*transforms)
+            else:
+                transforms = transforms[1:].split(' ')
+                xmin, xmax, ymin, ymax = morphing.Path(path).adjusted_bbox(*transforms)
         return (xmin, ymin, xmax-xmin, ymax-ymin)
 
     def center_to_pos(self, posx=500, posy=500, start_time=0, end_time=None, easing=easings.smooth):
@@ -622,11 +622,26 @@ class Lines(VObject):
         super().__init__(creation=creation, z=z)
         self.vertices = [attributes.Coor(creation, v) for v in vertices]
         # The styling arguments
-        self.styling = style.Styling(styling_kwargs, creation=creation, stroke='#fff', stroke_width=3)
+        self.styling = style.Styling(styling_kwargs, creation=creation, stroke='#fff', stroke_width=3, fill_opacity=0)
 
     @property
     def last_change(self):
         return max(max(v.last_change for v in self.vertices), self.styling.last_change, self.z.last_change, self.show.last_change)
+
+    def path(self, time):
+        vert = [v.at_time(time) for v in self.vertices]
+        path = f'M {vert[0][0]},{vert[0][1]}'
+        for x, y in vert:
+            path += f' L {x},{y}'
+        return path
+
+    def shift(self, dx=0, dy=0, start_time=0, end_time=None, easing=easings.smooth):
+        if end_time == None:  # We do not animate this movement
+            for v in self.vertices:
+                v.add_onward(start_time, (dx, dy))
+        else:
+            raise NotImplementedError('Animation for shifting Lines is not yet implemented')
+        return self
 
     def to_svg(self, time):
         string = '<polyline'
@@ -928,6 +943,17 @@ class Path(VObject):
 
     def shift(self, dx=0, dy=0, start_time=0, end_time=None, easing=easings.smooth):
         """Shift the object dx and dy (by changing the transformation styling)"""
+        # Note that we have to account for the rotation of the object
+        def rotate(origin, point, angle):
+            """Rotate a point counterclockwise by a given angle around a given origin."""
+            ox, oy = origin
+            px, py = point
+            qx = ox + math.cos(angle) * (px - ox) - math.sin(angle) * (py - oy)
+            qy = oy + math.sin(angle) * (px - ox) + math.cos(angle) * (py - oy)
+            return qx, qy
+        rot = self.styling.rotation.at_time(0)
+        if rot[0] != 0:
+            dx, dy = rotate((rot[1], rot[2]), (dx, dy), (-rot[0])*math.pi/180)
         if end_time == None:  # We do not animate this movement
             self.styling.dx.add_onward(start_time, dx)
             self.styling.dy.add_onward(start_time, dy)

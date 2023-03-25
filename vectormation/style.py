@@ -108,6 +108,9 @@ class Styling:
         args = {arg: getattr(self, arg).at_time(time) for arg in self.transforms}
 
         transform = ''
+        if not args['rotation'] == self.global_defaults['rotation']:
+            r, x, y = args['rotation']
+            transform += f" rotate({r%360},{x},{y})"
         if not args['dx'] == args['dy'] == self.global_defaults['dx'] == self.global_defaults['dy']:
             transform += f" translate({args['dx']},{args['dy']})"
         if not args['scale_x'] == args['scale_y'] == self.global_defaults['scale_x'] == self.global_defaults['scale_y']:
@@ -116,9 +119,6 @@ class Styling:
             transform += f" skewX({args['skew_x']})"
         if not args['skew_y'] == self.global_defaults['skew_y']:
             transform += f" skewY({args['skew_y']})"
-        if not args['rotation'] == self.global_defaults['rotation']:
-            r, x, y = args['rotation']
-            transform += f" rotate({r%360},{x},{y})"
         if not args['skew_x_after'] == self.global_defaults['skew_x_after']:
             transform += f" skewX({args['skew_x_after']})"
         if not args['skew_y_after'] == self.global_defaults['skew_y_after']:
