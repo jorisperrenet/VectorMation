@@ -9,7 +9,7 @@ repo_url: https://github.com/jorisperrenet/VectorMation
 
 # Configuration
 theme:
-  name: material
+  name: mkdocs
   palette:
     primary: black
   icon:
