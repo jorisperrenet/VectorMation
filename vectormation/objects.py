@@ -980,17 +980,19 @@ def from_svg(specifyer, **styles):
     if specifyer.name == 'path':
         path = specifyer['d']
         del specifyer['d']
-        specifyer['x'] = float(specifyer['x'])
-        specifyer['y'] = float(specifyer['y'])
-        return Path(path, **(styles | specifyer.attrs))
+        attrs = dict(specifyer.attrs)
+        attrs['x'] = float(attrs['x'])
+        attrs['y'] = float(attrs['y'])
+        return Path(path, **(styles | attrs))
     elif specifyer.name == 'rect':
         width = float(specifyer['width'])
         height = float(specifyer['height'])
         del specifyer['width']
         del specifyer['height']
-        specifyer['x'] = float(specifyer['x'])
-        specifyer['y'] = float(specifyer['y'])
-        return Path(Rectangle(width, height, x=0, y=0).path(0), **(styles | specifyer.attrs))
+        attrs = dict(specifyer.attrs)
+        attrs['x'] = float(attrs['x'])
+        attrs['y'] = float(attrs['y'])
+        return Path(Rectangle(width, height, x=0, y=0).path(0), **(styles | attrs))
         # print(Rectangle(width, height, x=0, y=0).path(0))
         return Rectangle(width, height, **(styles | specifyer.attrs))
     else:
