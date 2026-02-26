@@ -23,6 +23,10 @@ from vectormation.objects import (
     NumberedList, SpeechBubble, Badge, Divider,
     Checklist, Stepper, TagCloud,
     StatusIndicator, Meter, Breadcrumb,
+    Paragraph, EquilateralTriangle, Star, AnnularSector, CubicBezier,
+    DashedLine, RegularPolygon, FunctionGraph, Annulus, ArcBetweenPoints,
+    Elbow, SurroundingCircle, BulletedList,
+    DoubleArrow, CurvedArrow, NumberLine,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -1304,6 +1308,108 @@ class TestAxesNewMethods:
     def test_breadcrumb_active(self):
         bc = Breadcrumb('A', 'B', 'C', active_index=1)
         assert len(bc) == 5
+
+
+class TestUntested:
+    """Tests for previously untested shape and composite classes."""
+
+    def test_paragraph(self):
+        p = Paragraph('Line one', 'Line two', 'Line three')
+        svg = p.to_svg(0)
+        assert 'Line one' in svg
+        assert 'Line two' in svg
+
+    def test_paragraph_alignment(self):
+        p = Paragraph('Left', 'Aligned', alignment='center', font_size=24)
+        svg = p.to_svg(0)
+        assert 'Left' in svg
+
+    def test_equilateral_triangle(self):
+        t = EquilateralTriangle(side_length=100)
+        assert t.path(0) != ''
+        bx, by, bw, bh = t.bbox(0)
+        assert bw > 0 and bh > 0
+
+    def test_star(self):
+        s = Star(n=5, outer_radius=100)
+        assert s.path(0) != ''
+
+    def test_star_custom(self):
+        s = Star(n=6, outer_radius=80, inner_radius=40)
+        assert s.path(0) != ''
+
+    def test_annular_sector(self):
+        a = AnnularSector(inner_radius=40, outer_radius=80,
+                          start_angle=0, end_angle=90)
+        assert a.path(0) != ''
+
+    def test_cubic_bezier(self):
+        cb = CubicBezier(p0=(100, 100), p1=(150, 50),
+                         p2=(250, 50), p3=(300, 100))
+        path = cb.path(0)
+        assert 'C' in path or 'c' in path
+
+    def test_dashed_line(self):
+        dl = DashedLine(x1=0, y1=0, x2=200, y2=200, dash='8,4')
+        svg = dl.to_svg(0)
+        assert '8,4' in svg
+
+    def test_regular_polygon_hex(self):
+        h = RegularPolygon(6, radius=100)
+        path = h.path(0)
+        assert path != ''
+
+    def test_regular_polygon_triangle(self):
+        t = RegularPolygon(3, radius=50)
+        assert t.path(0) != ''
+
+    def test_function_graph(self):
+        import math
+        fg = FunctionGraph(math.sin, x_range=(-3, 3), num_points=50)
+        path = fg.path(0)
+        assert path != ''
+
+    def test_annulus(self):
+        a = Annulus(inner_radius=40, outer_radius=80)
+        path = a.path(0)
+        assert path != ''
+        bx, by, bw, bh = a.bbox(0)
+        assert bw > 0 and bh > 0
+
+    def test_arc_between_points(self):
+        ab = ArcBetweenPoints(start=(100, 200), end=(300, 200), angle=60)
+        path = ab.path(0)
+        assert path != ''
+
+    def test_elbow(self):
+        e = Elbow(cx=500, cy=500, width=40, height=40)
+        path = e.path(0)
+        assert path != ''
+
+    def test_surrounding_circle(self):
+        dot = Dot(cx=500, cy=500, r=20)
+        sc = SurroundingCircle(dot, buff=10)
+        assert sc.path(0) != ''
+
+    def test_bulleted_list(self):
+        bl = BulletedList('Item A', 'Item B', 'Item C')
+        svg = bl.to_svg(0)
+        assert '\u2022' in svg
+        assert 'Item A' in svg
+
+    def test_double_arrow(self):
+        da = DoubleArrow(x1=100, y1=200, x2=400, y2=200)
+        assert isinstance(da, VCollection)
+        assert len(da) >= 3  # shaft + 2 tips
+
+    def test_curved_arrow(self):
+        ca = CurvedArrow(x1=100, y1=300, x2=400, y2=300, angle=0.5)
+        assert isinstance(ca, VCollection)
+
+    def test_number_line(self):
+        nl = NumberLine(x_range=(-3, 3, 1), length=600)
+        assert isinstance(nl, VCollection)
+        assert len(nl) > 0
 
 
 class TestVCollectionNew:
