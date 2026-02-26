@@ -588,27 +588,33 @@ class Axes(VCollection):
                                num_points=200, easing=easings.smooth,
                                creation=0, z=0, **styling_kwargs):
         """Draw a function curve progressively from left to right."""
-        xmin = x_range[0] if x_range else self.x_min.at_time(0)
-        xmax = x_range[1] if x_range else self.x_max.at_time(0)
+        _axes = self
+        _x_range = x_range
+        _easing = easing
 
         def _make_d(time):
+            if _x_range:
+                xmin, xmax = _x_range[0], _x_range[1]
+            else:
+                xmin = _axes.x_min.at_time(time)
+                xmax = _axes.x_max.at_time(time)
             dur = end - start
             if dur <= 0:
                 progress = 1.0
             else:
-                progress = easing(max(0, min(1, (time - start) / dur)))
-            cur_xmax = xmin + (xmax - xmin) * progress
-            if cur_xmax <= xmin:
+                progress = _easing(max(0, min(1, (time - start) / dur)))
+            if progress <= 0:
                 return ''
-            # Sample and convert to SVG coords
+            xlo, xhi = min(xmin, xmax), max(xmin, xmax)
+            cur_xhi = xlo + (xhi - xlo) * progress
             pts = []
             n = max(2, int(num_points * progress))
             for i in range(n + 1):
-                xv = xmin + i * (cur_xmax - xmin) / n
+                xv = xlo + i * (cur_xhi - xlo) / n
                 yv = func(xv)
                 if not math.isfinite(yv):
                     continue
-                sx, sy = self.coords_to_point(xv, yv, time)
+                sx, sy = _axes.coords_to_point(xv, yv, time)
                 pts.append((sx, sy))
             if not pts:
                 return ''

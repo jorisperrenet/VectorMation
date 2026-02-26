@@ -1094,25 +1094,26 @@ class VObject(ABC):  # Vector Object
         off_x, off_y = src_x - tgt_x, src_y - tgt_y
         s, d = start, max(dur, 1e-9)
         # Move all coordinate attrs from source offset back to target
+        _easing = easing
         for coor in self._shift_coors():
             ox, oy = coor.at_time(start)
-            coor.set(s, end, lambda t, _s=s, _d=d, _ox=ox, _oy=oy, _offx=off_x, _offy=off_y:
-                     (_ox + _offx * (1 - easing((t - _s) / _d)),
-                      _oy + _offy * (1 - easing((t - _s) / _d))),
+            coor.set(s, end, lambda t, _s=s, _d=d, _ox=ox, _oy=oy, _offx=off_x, _offy=off_y, _e=_easing:
+                     (_ox + _offx * (1 - _e((t - _s) / _d)),
+                      _oy + _offy * (1 - _e((t - _s) / _d))),
                      stay=True)
         for xa, ya in self._shift_reals():
             ox_val = xa.at_time(start)
             oy_val = ya.at_time(start)
-            xa.set(s, end, lambda t, _s=s, _d=d, _o=ox_val, _off=off_x:
-                   _o + _off * (1 - easing((t - _s) / _d)),
+            xa.set(s, end, lambda t, _s=s, _d=d, _o=ox_val, _off=off_x, _e=_easing:
+                   _o + _off * (1 - _e((t - _s) / _d)),
                    stay=True)
-            ya.set(s, end, lambda t, _s=s, _d=d, _o=oy_val, _off=off_y:
-                   _o + _off * (1 - easing((t - _s) / _d)),
+            ya.set(s, end, lambda t, _s=s, _d=d, _o=oy_val, _off=off_y, _e=_easing:
+                   _o + _off * (1 - _e((t - _s) / _d)),
                    stay=True)
         # Fade in opacity
         end_op = self.styling.opacity.at_time(end)
         self.styling.opacity.set(s, end,
-            lambda t, _s=s, _d=d, _eo=end_op: _eo * easing((t - _s) / _d), stay=True)
+            lambda t, _s=s, _d=d, _eo=end_op, _e=_easing: _eo * _e((t - _s) / _d), stay=True)
         return self
 
     def flip(self, axis='horizontal', start: float = 0, end: float = 0.5, easing=easings.smooth):
@@ -2941,11 +2942,14 @@ class VCollection:
             return self
         if delay is None:
             delay = dur / max(n, 1) * 0.5
+        # Clamp delay so children don't overflow past end
+        max_delay = dur / max(n, 2)
+        delay = min(delay, max_delay)
+        child_dur = max(dur - (n - 1) * delay, 0.01)
         items = list(reversed(self.objects)) if reverse else list(self.objects)
         for i, obj in enumerate(items):
             obj_start = start + i * delay
-            obj_end = obj_start + (dur - (n - 1) * delay)
-            obj_end = max(obj_end, obj_start + 0.01)
+            obj_end = obj_start + child_dur
             getattr(obj, method)(start=obj_start, end=obj_end, **method_kwargs)
         return self
 
