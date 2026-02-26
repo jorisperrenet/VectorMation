@@ -263,6 +263,11 @@ class Rectangle(VObject):
         """Return the perimeter (2 * (width + height))."""
         return 2 * (self.width.at_time(time) + self.height.at_time(time))
 
+    @classmethod
+    def square(cls, side, **kwargs):
+        """Create a square with equal width and height."""
+        return cls(side, side, **kwargs)
+
     def __repr__(self):
         return f'{self.__class__.__name__}({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f})'
 
@@ -338,6 +343,16 @@ class Line(VObject):
     def between(cls, p1, p2, **kwargs):
         """Create a Line from two (x, y) tuples."""
         return cls(p1[0], p1[1], p2[0], p2[1], **kwargs)
+
+    @classmethod
+    def vertical(cls, x, y1, y2, **kwargs):
+        """Create a vertical line at x from y1 to y2."""
+        return cls(x, y1, x, y2, **kwargs)
+
+    @classmethod
+    def horizontal(cls, y, x1, x2, **kwargs):
+        """Create a horizontal line at y from x1 to x2."""
+        return cls(x1, y, x2, y, **kwargs)
 
     def __repr__(self):
         p1, p2 = self.p1.at_time(0), self.p2.at_time(0)

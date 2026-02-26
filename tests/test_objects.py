@@ -3988,3 +3988,77 @@ class TestCanvasFind:
         found = anim.find(lambda obj: obj.get_x() < 100)
         assert len(found) == 1
         assert found[0] is c1
+
+
+class TestShapeFactories:
+    def test_rectangle_square(self):
+        sq = Rectangle.square(100, x=50, y=50)
+        assert sq.width.at_time(0) == 100
+        assert sq.height.at_time(0) == 100
+
+    def test_line_vertical(self):
+        ln = Line.vertical(100, 0, 200)
+        s = ln.get_start()
+        e = ln.get_end()
+        assert s[0] == pytest.approx(100)
+        assert e[0] == pytest.approx(100)
+        assert s[1] == pytest.approx(0)
+        assert e[1] == pytest.approx(200)
+
+    def test_line_horizontal(self):
+        ln = Line.horizontal(50, 0, 300)
+        s = ln.get_start()
+        e = ln.get_end()
+        assert s[1] == pytest.approx(50)
+        assert e[1] == pytest.approx(50)
+        assert s[0] == pytest.approx(0)
+        assert e[0] == pytest.approx(300)
+
+
+class TestMeasurementMethods:
+    def test_get_diagonal_vobject(self):
+        r = Rectangle(30, 40, x=0, y=0)
+        d = r.get_diagonal()
+        assert d == pytest.approx(50, abs=1)
+
+    def test_get_aspect_ratio_vobject(self):
+        r = Rectangle(200, 100, x=0, y=0)
+        assert r.get_aspect_ratio() == pytest.approx(2.0, abs=0.1)
+
+    def test_get_diagonal_vcollection(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=30, cy=40)
+        g = VCollection(c1, c2)
+        d = g.get_diagonal()
+        assert d > 0
+
+    def test_get_aspect_ratio_vcollection(self):
+        r = Rectangle(200, 100, x=0, y=0)
+        g = VCollection(r)
+        assert g.get_aspect_ratio() == pytest.approx(2.0, abs=0.1)
+
+
+class TestDistanceAndOverlap:
+    def test_vcollection_distance_to(self):
+        c1 = Circle(r=5, cx=0, cy=0)
+        c2 = Circle(r=5, cx=100, cy=0)
+        g1 = VCollection(c1)
+        g2 = VCollection(c2)
+        assert g1.distance_to(g2) == pytest.approx(100, abs=2)
+
+    def test_is_overlapping_true(self):
+        r1 = Rectangle(100, 100, x=0, y=0)
+        r2 = Rectangle(100, 100, x=50, y=50)
+        assert r1.is_overlapping(r2)
+
+    def test_is_overlapping_false(self):
+        r1 = Rectangle(100, 100, x=0, y=0)
+        r2 = Rectangle(100, 100, x=500, y=500)
+        assert not r1.is_overlapping(r2)
+
+    def test_vcollection_is_overlapping(self):
+        c1 = Circle(r=10, cx=50, cy=50)
+        c2 = Circle(r=10, cx=55, cy=55)
+        g1 = VCollection(c1)
+        g2 = VCollection(c2)
+        assert g1.is_overlapping(g2)

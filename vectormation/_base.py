@@ -141,6 +141,22 @@ class VObject(ABC):  # Vector Object
         x2, y2 = other.center(time)
         return math.hypot(x2 - x1, y2 - y1)
 
+    def get_diagonal(self, time=0):
+        """Return the diagonal length of the bounding box."""
+        _, _, w, h = self.bbox(time)
+        return math.hypot(w, h)
+
+    def get_aspect_ratio(self, time=0):
+        """Return width/height ratio of the bounding box."""
+        _, _, w, h = self.bbox(time)
+        return w / h if h != 0 else float('inf')
+
+    def is_overlapping(self, other, time=0):
+        """Return True if this object's bbox overlaps with other's bbox."""
+        x1, y1, w1, h1 = self.bbox(time)
+        x2, y2, w2, h2 = other.bbox(time)
+        return not (x1 + w1 < x2 or x2 + w2 < x1 or y1 + h1 < y2 or y2 + h2 < y1)
+
     def get_edge(self, edge, time=0):
         """Return coordinate of a named edge point.
         edge: 'top', 'bottom', 'left', 'right',
@@ -2106,6 +2122,28 @@ class VCollection:
 
     def get_height(self, time=0):
         return self.bbox(time)[3]
+
+    def get_diagonal(self, time=0):
+        """Return the diagonal length of the bounding box."""
+        _, _, w, h = self.bbox(time)
+        return math.hypot(w, h)
+
+    def get_aspect_ratio(self, time=0):
+        """Return width/height ratio of the bounding box."""
+        _, _, w, h = self.bbox(time)
+        return w / h if h != 0 else float('inf')
+
+    def distance_to(self, other, time=0):
+        """Return the distance between this collection's center and another object's center."""
+        x1, y1 = self.center(time)
+        x2, y2 = other.center(time)
+        return math.hypot(x2 - x1, y2 - y1)
+
+    def is_overlapping(self, other, time=0):
+        """Return True if this collection's bbox overlaps with other's bbox."""
+        x1, y1, w1, h1 = self.bbox(time)
+        x2, y2, w2, h2 = other.bbox(time)
+        return not (x1 + w1 < x2 or x2 + w2 < x1 or y1 + h1 < y2 or y2 + h2 < y1)
 
     def get_edge(self, edge, time=0):
         """Return coordinate of a named edge point (same API as VObject.get_edge)."""
