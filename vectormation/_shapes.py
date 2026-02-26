@@ -774,7 +774,9 @@ class Text(VObject):
             scale = max_width / current_width
             new_fs = current_fs * scale
             if max_height is not None:
-                new_fs = min(new_fs, max_height)
+                # Estimate line height as ~1.2x font size; cap so text height fits
+                max_fs_from_height = max_height / 1.2
+                new_fs = min(new_fs, max_fs_from_height)
             self.font_size.set_onward(time, new_fs)
         return self
 

@@ -2775,7 +2775,7 @@ class VCollection:
     def stagger_scale(self, start: float = 0, end: float = 1, target_scale=1.5, easing=easings.smooth):
         """Sequentially scale each child up then back to 1."""
         n = len(self.objects)
-        if n == 0:
+        if n == 0 or end <= start:
             return self
         dur = end - start
         child_dur = dur / n * 1.5  # overlap
@@ -2789,7 +2789,7 @@ class VCollection:
     def stagger_rotate(self, start: float = 0, end: float = 1, degrees=360, easing=easings.smooth):
         """Sequentially rotate each child."""
         n = len(self.objects)
-        if n == 0:
+        if n == 0 or end <= start:
             return self
         dur = end - start
         child_dur = dur / n * 1.5
