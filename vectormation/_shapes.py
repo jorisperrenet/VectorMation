@@ -1106,6 +1106,57 @@ class BulletedList(VObject):
         return '\n'.join(parts)
 
 
+class NumberedList(VObject):
+    """List of items with numeric labels (1. 2. 3. ...).
+
+    indent: pixel indentation for item text after the number.
+    start_number: first number in the sequence.
+    """
+    def __init__(self, *items, x=200, y=200, font_size=36, indent=50,
+                 line_spacing=1.6, start_number=1, creation=0, z=0, **styling_kwargs):
+        super().__init__(creation=creation, z=z)
+        self.items = list(items)
+        self.x = attributes.Real(creation, x)
+        self.y = attributes.Real(creation, y)
+        self.font_size = font_size
+        self.indent = indent
+        self.line_spacing = line_spacing
+        self.start_number = start_number
+        defaults = dict(fill='#fff', stroke_width=0)
+        self.styling = style.Styling(styling_kwargs, creation=creation, **defaults)
+
+    def _extra_attrs(self):
+        return [self.x, self.y]
+
+    def _shift_reals(self):
+        return [(self.x, self.y)]
+
+    def snap_points(self, time):
+        return [(self.x.at_time(time), self.y.at_time(time))]
+
+    def path(self, time):
+        return ''
+
+    def bbox(self, time=0):
+        x, y = self.x.at_time(time), self.y.at_time(time)
+        max_chars = max((len(item) for item in self.items), default=0)
+        w = self.indent + max_chars * self.font_size * 0.6
+        h = len(self.items) * self.font_size * self.line_spacing
+        return (x, y - self.font_size, w, h)
+
+    def to_svg(self, time):
+        x, y = self.x.at_time(time), self.y.at_time(time)
+        parts = []
+        for i, item in enumerate(self.items):
+            ly = y + i * self.font_size * self.line_spacing
+            num = f'{self.start_number + i}.'
+            parts.append(f"<text x='{x}' y='{ly}' font-size='{self.font_size}'"
+                         f"{self.styling.svg_style(time)}>{num}</text>")
+            parts.append(f"<text x='{x + self.indent}' y='{ly}' font-size='{self.font_size}'"
+                         f"{self.styling.svg_style(time)}>{item}</text>")
+        return '\n'.join(parts)
+
+
 class FunctionGraph(Lines):
     """Plot a mathematical function as a polyline (no axes, ticks, or labels).
 

@@ -30,7 +30,7 @@ from vectormation._shapes import (
     RegularPolygon, Star, EquilateralTriangle,
     Arc, Wedge, Annulus,
     ArcBetweenPoints, Elbow, AnnularSector,
-    CubicBezier, Paragraph, BulletedList,
+    CubicBezier, Paragraph, BulletedList, NumberedList,
     SurroundingRectangle, SurroundingCircle, BackgroundRectangle, ScreenRectangle,
 )
 # Alias
@@ -60,6 +60,7 @@ from vectormation._composites import (
     WaffleChart, MindMap,
     CircularProgressBar, Scoreboard,
     MatrixHeatmap, BoxPlot, TextBox, Bracket, IconGrid,
+    SpeechBubble, Badge, Divider,
     from_svg, from_svg_file, always_redraw, parse_args,
     _parse_inline_style,
 )

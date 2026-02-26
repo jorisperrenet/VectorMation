@@ -19,6 +19,19 @@ from vectormation._shapes import (
     Text, Path, Arc, Wedge,
 )
 
+# Marching squares segment table: maps 4-bit case to list of (edge1, edge2) pairs.
+_MARCH_SEGS = {
+    1: [('left', 'top')], 2: [('top', 'right')],
+    3: [('left', 'right')], 4: [('right', 'bottom')],
+    5: [('left', 'bottom'), ('top', 'right')],
+    6: [('top', 'bottom')], 7: [('left', 'bottom')],
+    8: [('bottom', 'left')], 9: [('bottom', 'top')],
+    10: [('left', 'top'), ('right', 'bottom')],
+    11: [('right', 'bottom')], 12: [('right', 'left')],
+    13: [('top', 'right')], 14: [('top', 'left')],
+}
+
+
 class MorphObject(VCollection):
     """Morphs one object/collection into another over a time range.
     Must be added to the canvas. The source becomes hidden at start, target appears at end."""
@@ -1594,31 +1607,29 @@ class Axes(VCollection):
         for xv, yv, err in zip(x_data, y_data, y_err):
             # Vertical bar
             bar = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
-            _xv, _yv, _err = xv, yv, err
             bar.p1.set_onward(creation,
-                lambda t, _x=_xv, _y=_yv, _e=_err: self.coords_to_point(_x, _y - _e, t))
+                lambda t, _x=xv, _y=yv, _e=err: self.coords_to_point(_x, _y - _e, t))
             bar.p2.set_onward(creation,
-                lambda t, _x=_xv, _y=_yv, _e=_err: self.coords_to_point(_x, _y + _e, t))
+                lambda t, _x=xv, _y=yv, _e=err: self.coords_to_point(_x, _y + _e, t))
             self._add_plot_obj(bar)
             lines.append(bar)
             # Top cap
             top = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
-            _cw = cap_width
             top.p1.set_onward(creation,
-                lambda t, _x=_xv, _y=_yv, _e=_err, _cw=_cw: (
+                lambda t, _x=xv, _y=yv, _e=err, _cw=cap_width: (
                     (_p := self.coords_to_point(_x, _y + _e, t))[0] - _cw, _p[1]))
             top.p2.set_onward(creation,
-                lambda t, _x=_xv, _y=_yv, _e=_err, _cw=_cw: (
+                lambda t, _x=xv, _y=yv, _e=err, _cw=cap_width: (
                     (_p := self.coords_to_point(_x, _y + _e, t))[0] + _cw, _p[1]))
             self._add_plot_obj(top)
             lines.append(top)
             # Bottom cap
             bot = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
             bot.p1.set_onward(creation,
-                lambda t, _x=_xv, _y=_yv, _e=_err, _cw=_cw: (
+                lambda t, _x=xv, _y=yv, _e=err, _cw=cap_width: (
                     (_p := self.coords_to_point(_x, _y - _e, t))[0] - _cw, _p[1]))
             bot.p2.set_onward(creation,
-                lambda t, _x=_xv, _y=_yv, _e=_err, _cw=_cw: (
+                lambda t, _x=xv, _y=yv, _e=err, _cw=cap_width: (
                     (_p := self.coords_to_point(_x, _y - _e, t))[0] + _cw, _p[1]))
             self._add_plot_obj(bot)
             lines.append(bot)
@@ -1720,53 +1731,48 @@ class Axes(VCollection):
             box = Rectangle(width=0, height=0, x=0, y=0,
                              fill=fill_kw, fill_opacity=0.15,
                              creation=creation, z=z, **line_kw)
-            _xp, _hw, _q1, _q3 = xp, hw, q1, q3
-            box.x.set_onward(creation, lambda t, _xp=_xp, _hw=_hw: self._math_to_svg_x(_xp - _hw, t))
-            box.width.set_onward(creation, lambda t, _xp=_xp, _hw=_hw: abs(
+            box.x.set_onward(creation, lambda t, _xp=xp, _hw=hw: self._math_to_svg_x(_xp - _hw, t))
+            box.width.set_onward(creation, lambda t, _xp=xp, _hw=hw: abs(
                 self._math_to_svg_x(_xp + _hw, t) - self._math_to_svg_x(_xp - _hw, t)))
-            box.y.set_onward(creation, lambda t, _q3=_q3: self._math_to_svg_y(_q3, t))
-            box.height.set_onward(creation, lambda t, _q1=_q1, _q3=_q3: abs(
+            box.y.set_onward(creation, lambda t, _q3=q3: self._math_to_svg_y(_q3, t))
+            box.height.set_onward(creation, lambda t, _q1=q1, _q3=q3: abs(
                 self._math_to_svg_y(_q1, t) - self._math_to_svg_y(_q3, t)))
             objs.append(box)
             # Median line
             med = Line(x1=0, y1=0, x2=0, y2=0, stroke=style_kw.get('stroke', '#58C4DD'),
                         stroke_width=style_kw.get('stroke_width', 2) + 1, creation=creation, z=z + 1)
-            _q2 = q2
             med.p1.set_onward(creation,
-                lambda t, _xp=_xp, _hw=_hw, _q2=_q2: (self._math_to_svg_x(_xp - _hw, t),
-                                                         self._math_to_svg_y(_q2, t)))
+                lambda t, _xp=xp, _hw=hw, _q2=q2: (self._math_to_svg_x(_xp - _hw, t),
+                                                      self._math_to_svg_y(_q2, t)))
             med.p2.set_onward(creation,
-                lambda t, _xp=_xp, _hw=_hw, _q2=_q2: (self._math_to_svg_x(_xp + _hw, t),
-                                                         self._math_to_svg_y(_q2, t)))
+                lambda t, _xp=xp, _hw=hw, _q2=q2: (self._math_to_svg_x(_xp + _hw, t),
+                                                      self._math_to_svg_y(_q2, t)))
             objs.append(med)
             # Whiskers (vertical lines from whisker_lo to q1 and q3 to whisker_hi)
-            _wlo, _whi = whisker_lo, whisker_hi
             lo_whisk = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z,
                              **line_kw)
             lo_whisk.p1.set_onward(creation,
-                lambda t, _xp=_xp, _wlo=_wlo: (self._math_to_svg_x(_xp, t), self._math_to_svg_y(_wlo, t)))
+                lambda t, _xp=xp, _wlo=whisker_lo: (self._math_to_svg_x(_xp, t), self._math_to_svg_y(_wlo, t)))
             lo_whisk.p2.set_onward(creation,
-                lambda t, _xp=_xp, _q1=_q1: (self._math_to_svg_x(_xp, t), self._math_to_svg_y(_q1, t)))
+                lambda t, _xp=xp, _q1=q1: (self._math_to_svg_x(_xp, t), self._math_to_svg_y(_q1, t)))
             objs.append(lo_whisk)
             hi_whisk = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z,
                              **line_kw)
             hi_whisk.p1.set_onward(creation,
-                lambda t, _xp=_xp, _q3=_q3: (self._math_to_svg_x(_xp, t), self._math_to_svg_y(_q3, t)))
+                lambda t, _xp=xp, _q3=q3: (self._math_to_svg_x(_xp, t), self._math_to_svg_y(_q3, t)))
             hi_whisk.p2.set_onward(creation,
-                lambda t, _xp=_xp, _whi=_whi: (self._math_to_svg_x(_xp, t), self._math_to_svg_y(_whi, t)))
+                lambda t, _xp=xp, _whi=whisker_hi: (self._math_to_svg_x(_xp, t), self._math_to_svg_y(_whi, t)))
             objs.append(hi_whisk)
             # Whisker caps
             cap_w = hw * 0.5
-            _cw = cap_w
-            for wval in (_wlo, _whi):
+            for wval in (whisker_lo, whisker_hi):
                 cap = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z,
                             **line_kw)
-                _wv = wval
                 cap.p1.set_onward(creation,
-                    lambda t, _xp=_xp, _cw=_cw, _wv=_wv: (
+                    lambda t, _xp=xp, _cw=cap_w, _wv=wval: (
                         self._math_to_svg_x(_xp - _cw, t), self._math_to_svg_y(_wv, t)))
                 cap.p2.set_onward(creation,
-                    lambda t, _xp=_xp, _cw=_cw, _wv=_wv: (
+                    lambda t, _xp=xp, _cw=cap_w, _wv=wval: (
                         self._math_to_svg_x(_xp + _cw, t), self._math_to_svg_y(_wv, t)))
                 objs.append(cap)
         for obj in objs:
@@ -2583,17 +2589,7 @@ class Axes(VCollection):
                         'bottom': (_interp(v[3], v[2], cx0, cx1), cy1),
                         'left': (cx0, _interp(v[0], v[3], cy0, cy1)),
                     }
-                    SEGS = {
-                        1: [('left', 'top')], 2: [('top', 'right')],
-                        3: [('left', 'right')], 4: [('right', 'bottom')],
-                        5: [('left', 'bottom'), ('top', 'right')],
-                        6: [('top', 'bottom')], 7: [('left', 'bottom')],
-                        8: [('bottom', 'left')], 9: [('bottom', 'top')],
-                        10: [('left', 'top'), ('right', 'bottom')],
-                        11: [('right', 'bottom')], 12: [('right', 'left')],
-                        13: [('top', 'right')], 14: [('top', 'left')],
-                    }
-                    for e1, e2 in SEGS.get(case, []):
+                    for e1, e2 in _MARCH_SEGS.get(case, []):
                         segments.append((edges[e1], edges[e2]))
             if not segments:
                 continue
@@ -2740,14 +2736,13 @@ class Axes(VCollection):
                 angle = math.atan(slope) if abs(slope) < 1e9 else math.copysign(math.pi / 2, slope)
                 dx = seg_length * math.cos(angle)
                 dy = seg_length * math.sin(angle)
-                _x, _y, _dx, _dy = x, y, dx, dy
                 line = Line(x1=0, y1=0, x2=0, y2=0,
                             creation=creation, z=z, **style_kw)
                 line.p1.set_onward(creation,
-                    lambda t, _x=_x, _y=_y, _dx=_dx, _dy=_dy:
+                    lambda t, _x=x, _y=y, _dx=dx, _dy=dy:
                         self.coords_to_point(_x - _dx, _y - _dy, t))
                 line.p2.set_onward(creation,
-                    lambda t, _x=_x, _y=_y, _dx=_dx, _dy=_dy:
+                    lambda t, _x=x, _y=y, _dx=dx, _dy=dy:
                         self.coords_to_point(_x + _dx, _y + _dy, t))
                 self._add_plot_obj(line)
                 lines.append(line)
@@ -2767,13 +2762,12 @@ class Axes(VCollection):
                       tip_length=tip_length, tip_width=tip_width,
                       creation=creation, z=z, **style_kw)
         # Dynamic endpoints
-        _ox, _oy, _tx, _ty = origin_x, origin_y, x, y
         arrow.shaft.p1.set_onward(creation,
-            lambda t, _ox=_ox, _oy=_oy: self.coords_to_point(_ox, _oy, t))
+            lambda t, _ox=origin_x, _oy=origin_y: self.coords_to_point(_ox, _oy, t))
         arrow.shaft.p2.set_onward(creation,
-            lambda t, _tx=_tx, _ty=_ty: self.coords_to_point(_tx, _ty, t))
+            lambda t, _tx=x, _ty=y: self.coords_to_point(_tx, _ty, t))
         # Dynamic arrowhead
-        def _tip_base(t, _ox=_ox, _oy=_oy, _tx=_tx, _ty=_ty):
+        def _tip_base(t, _ox=origin_x, _oy=origin_y, _tx=x, _ty=y):
             p1 = self.coords_to_point(_ox, _oy, t)
             p2 = self.coords_to_point(_tx, _ty, t)
             return p1, p2
@@ -7024,6 +7018,126 @@ class IconGrid(VCollection):
                 obj = Rectangle(width=size, height=size, x=px, y=py,
                                 fill=color, stroke_width=0, creation=creation, z=z)
             objects.append(obj)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class SpeechBubble(VCollection):
+    """Rounded rectangle with a triangular tail, useful for dialogue/annotations.
+
+    text: string to display inside.
+    tail_direction: 'down', 'up', 'left', 'right' — where the tail points.
+    tail_width: width of the tail base.
+    tail_height: length of the tail.
+    """
+    def __init__(self, text='', x=100, y=100, font_size=20, padding=14,
+                 width=None, height=None, corner_radius=10,
+                 box_fill='#1e1e2e', box_opacity=0.95, text_color='#fff',
+                 tail_direction='down', tail_width=20, tail_height=18,
+                 creation=0, z=0, **styling_kwargs):
+        from vectormation._shapes import RoundedRectangle, Text as SText
+        char_w = font_size * 0.6
+        if width is None:
+            width = max(len(text) * char_w + padding * 2, 60)
+        if height is None:
+            height = font_size + padding * 2
+        box_kw = {'stroke': '#555', 'stroke_width': 1} | styling_kwargs
+        box = RoundedRectangle(width=width, height=height, x=x, y=y,
+                               corner_radius=corner_radius,
+                               fill=box_fill, fill_opacity=box_opacity,
+                               creation=creation, z=z, **box_kw)
+        cx, cy = x + width / 2, y + height / 2
+        hw, hh = tail_width / 2, tail_height
+        if tail_direction == 'down':
+            pts = [(cx - hw, y + height), (cx + hw, y + height), (cx, y + height + hh)]
+        elif tail_direction == 'up':
+            pts = [(cx - hw, y), (cx + hw, y), (cx, y - hh)]
+        elif tail_direction == 'left':
+            pts = [(x, cy - hw), (x, cy + hw), (x - hh, cy)]
+        else:  # right
+            pts = [(x + width, cy - hw), (x + width, cy + hw), (x + width + hh, cy)]
+        tail = Polygon(*pts, fill=box_fill, fill_opacity=box_opacity,
+                       stroke=box_fill, stroke_width=1, creation=creation, z=z - 0.1)
+        lbl = SText(text=text, x=cx, y=cy + font_size * 0.35,
+                    font_size=font_size, fill=text_color, stroke_width=0,
+                    text_anchor='middle', creation=creation, z=z + 0.1)
+        super().__init__(tail, box, lbl, creation=creation, z=z)
+        self.box = box
+        self.tail = tail
+        self.label = lbl
+
+
+class Badge(VCollection):
+    """Pill-shaped label (fully rounded corners), like GitHub badges/tags.
+
+    text: string to display.
+    bg_color: background fill color.
+    """
+    def __init__(self, text='Label', x=100, y=100, font_size=16, padding_x=14,
+                 padding_y=6, bg_color='#58C4DD', text_color='#000',
+                 creation=0, z=0, **styling_kwargs):
+        from vectormation._shapes import RoundedRectangle, Text as SText
+        char_w = font_size * 0.6
+        width = len(text) * char_w + padding_x * 2
+        height = font_size + padding_y * 2
+        corner_radius = height / 2  # fully rounded = pill shape
+        box = RoundedRectangle(width=width, height=height, x=x, y=y,
+                               corner_radius=corner_radius,
+                               fill=bg_color, fill_opacity=1,
+                               stroke_width=0, creation=creation, z=z,
+                               **styling_kwargs)
+        lbl = SText(text=text, x=x + width / 2, y=y + height / 2 + font_size * 0.35,
+                    font_size=font_size, fill=text_color, stroke_width=0,
+                    text_anchor='middle', creation=creation, z=z + 0.1)
+        super().__init__(box, lbl, creation=creation, z=z)
+        self.box = box
+        self.label = lbl
+
+
+class Divider(VCollection):
+    """Horizontal or vertical line with an optional centered text label.
+
+    direction: 'horizontal' or 'vertical'.
+    length: total line length in pixels.
+    label: optional text to center on the divider (splits the line).
+    """
+    def __init__(self, x=100, y=300, length=400, direction='horizontal',
+                 label=None, font_size=16, gap=12,
+                 creation=0, z=0, **styling_kwargs):
+        from vectormation._shapes import Text as SText, Line as SLine
+        style_kw = {'stroke': '#555', 'stroke_width': 1} | styling_kwargs
+        objects = []
+        if label:
+            char_w = font_size * 0.6
+            label_w = len(label) * char_w + gap * 2
+            if direction == 'horizontal':
+                half = (length - label_w) / 2
+                l1 = SLine(x1=x, y1=y, x2=x + half, y2=y,
+                           creation=creation, z=z, **style_kw)
+                l2 = SLine(x1=x + half + label_w, y1=y, x2=x + length, y2=y,
+                           creation=creation, z=z, **style_kw)
+                lbl = SText(text=label, x=x + length / 2, y=y + font_size * 0.35,
+                            font_size=font_size, fill=style_kw.get('stroke', '#555'),
+                            stroke_width=0, text_anchor='middle',
+                            creation=creation, z=z + 0.1)
+            else:
+                half = (length - label_w) / 2
+                l1 = SLine(x1=x, y1=y, x2=x, y2=y + half,
+                           creation=creation, z=z, **style_kw)
+                l2 = SLine(x1=x, y1=y + half + label_w, x2=x, y2=y + length,
+                           creation=creation, z=z, **style_kw)
+                lbl = SText(text=label, x=x, y=y + length / 2 + font_size * 0.35,
+                            font_size=font_size, fill=style_kw.get('stroke', '#555'),
+                            stroke_width=0, text_anchor='middle',
+                            creation=creation, z=z + 0.1)
+            objects = [l1, l2, lbl]
+        else:
+            if direction == 'horizontal':
+                ln = SLine(x1=x, y1=y, x2=x + length, y2=y,
+                           creation=creation, z=z, **style_kw)
+            else:
+                ln = SLine(x1=x, y1=y, x2=x, y2=y + length,
+                           creation=creation, z=z, **style_kw)
+            objects = [ln]
         super().__init__(*objects, creation=creation, z=z)
 
 

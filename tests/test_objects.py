@@ -20,6 +20,7 @@ from vectormation.objects import (
     WaffleChart, MindMap,
     CircularProgressBar, Scoreboard,
     MatrixHeatmap, BoxPlot, TextBox, Bracket, IconGrid,
+    NumberedList, SpeechBubble, Badge, Divider,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -1197,6 +1198,48 @@ class TestAxesNewMethods:
     def test_icon_grid_squares(self):
         ig = IconGrid([(4, '#ff0000')], shape='square')
         assert len(ig) == 4
+
+    def test_numbered_list(self):
+        nl = NumberedList('First', 'Second', 'Third')
+        svg = nl.to_svg(0)
+        assert '1.' in svg
+        assert '2.' in svg
+        assert '3.' in svg
+        assert 'First' in svg
+
+    def test_numbered_list_start(self):
+        nl = NumberedList('A', 'B', start_number=5)
+        svg = nl.to_svg(0)
+        assert '5.' in svg
+        assert '6.' in svg
+
+    def test_speech_bubble(self):
+        sb = SpeechBubble('Hello!', x=100, y=100)
+        assert isinstance(sb, VCollection)
+        assert len(sb) == 3  # tail, box, label
+
+    def test_speech_bubble_directions(self):
+        for d in ('down', 'up', 'left', 'right'):
+            sb = SpeechBubble('Test', tail_direction=d)
+            assert len(sb) == 3
+
+    def test_badge(self):
+        b = Badge('v1.0', bg_color='#83C167')
+        assert isinstance(b, VCollection)
+        assert len(b) == 2  # box, label
+
+    def test_divider_horizontal(self):
+        d = Divider(x=0, y=300, length=400)
+        assert isinstance(d, VCollection)
+        assert len(d) == 1  # single line
+
+    def test_divider_with_label(self):
+        d = Divider(x=0, y=300, length=400, label='OR')
+        assert len(d) == 3  # line, line, label
+
+    def test_divider_vertical(self):
+        d = Divider(x=300, y=0, length=600, direction='vertical', label='Section')
+        assert len(d) == 3
 
 
 class TestVCollectionNew:
