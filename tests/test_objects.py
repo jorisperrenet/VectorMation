@@ -98,8 +98,8 @@ class TestFromSvg:
         assert isinstance(obj, Lines)
 
     def test_from_svg_unknown_raises(self):
-        soup = BeautifulSoup("<g/>", 'html.parser')
-        elem = soup.find('g')
+        soup = BeautifulSoup("<defs/>", 'html.parser')
+        elem = soup.find('defs')
         with pytest.raises(NotImplementedError):
             from_svg(elem)
 
@@ -3381,3 +3381,111 @@ class TestRectangleGeometry:
         r.width.set(0, 1, lambda t: 100 + 100 * t)
         assert r.get_area(time=0) == 10000
         assert r.get_area(time=1) == 20000
+
+
+class TestFunctionGraphQuery:
+    def test_get_point_from_x_identity(self):
+        fg = FunctionGraph(lambda x: x, x_range=(0, 10), y_range=(0, 10),
+                           x=0, y=0, width=1000, height=1000)
+        sx, sy = fg.get_point_from_x(5)
+        assert sx == pytest.approx(500, abs=1)
+        assert sy == pytest.approx(500, abs=1)
+
+    def test_get_point_from_x_endpoints(self):
+        fg = FunctionGraph(lambda x: x * x, x_range=(-2, 2))
+        sx0, sy0 = fg.get_point_from_x(-2)
+        sx1, sy1 = fg.get_point_from_x(2)
+        # Both endpoints should have the same y (since (-2)^2 == 2^2)
+        assert sy0 == pytest.approx(sy1, abs=1)
+
+    def test_get_slope_at_linear(self):
+        fg = FunctionGraph(lambda x: 3 * x + 1, x_range=(-5, 5))
+        assert fg.get_slope_at(0) == pytest.approx(3.0, abs=1e-4)
+        assert fg.get_slope_at(2) == pytest.approx(3.0, abs=1e-4)
+
+    def test_get_slope_at_quadratic(self):
+        fg = FunctionGraph(lambda x: x ** 2, x_range=(-5, 5))
+        assert fg.get_slope_at(0) == pytest.approx(0.0, abs=1e-4)
+        assert fg.get_slope_at(3) == pytest.approx(6.0, abs=1e-4)
+
+    def test_stores_function(self):
+        f = lambda x: x + 1
+        fg = FunctionGraph(f, x_range=(0, 5))
+        assert fg._func is f
+
+
+class TestFromSvgGroup:
+    def test_g_element_returns_vcollection(self):
+        from bs4 import BeautifulSoup
+        svg = '<g><circle r="50" cx="100" cy="100"/><rect width="60" height="30"/></g>'
+        soup = BeautifulSoup(svg, features='xml')
+        g = soup.find('g')
+        result = from_svg(g)
+        assert isinstance(result, VCollection)
+        assert len(result.objects) == 2
+
+    def test_g_inherits_styles(self):
+        from bs4 import BeautifulSoup
+        svg = '<g fill="#ff0000"><circle r="50" cx="100" cy="100"/></g>'
+        soup = BeautifulSoup(svg, features='xml')
+        g = soup.find('g')
+        result = from_svg(g)
+        assert len(result.objects) == 1
+        circle = result.objects[0]
+        svg_out = circle.to_svg(0)
+        assert 'ff0000' in svg_out or 'rgb(255' in svg_out
+
+    def test_nested_g(self):
+        from bs4 import BeautifulSoup
+        svg = '<g><g><circle r="50" cx="10" cy="10"/></g></g>'
+        soup = BeautifulSoup(svg, features='xml')
+        g = soup.find('g')
+        result = from_svg(g)
+        assert isinstance(result, VCollection)
+        # Inner <g> is a VCollection with the circle
+        inner = result.objects[0]
+        assert isinstance(inner, VCollection)
+        assert len(inner.objects) == 1
+
+    def test_from_svg_file_with_group(self):
+        svg_content = '<svg xmlns="http://www.w3.org/2000/svg"><g><circle r="30" cx="50" cy="50"/><line x1="0" y1="0" x2="100" y2="100"/></g></svg>'
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.svg', delete=False) as f:
+            f.write(svg_content)
+            f.flush()
+            result = from_svg_file(f.name)
+        os.unlink(f.name)
+        # Should get one VCollection (the <g>), not separate shapes
+        assert len(result.objects) == 1
+        assert isinstance(result.objects[0], VCollection)
+        assert len(result.objects[0].objects) == 2
+
+
+class TestCodeLanguages:
+    def test_c_keywords(self):
+        code = Code('int main() {\n    return 0;\n}', language='c')
+        svg = code.to_svg(0)
+        assert 'int' in svg
+        assert 'return' in svg
+
+    def test_java_keywords(self):
+        code = Code('public class Main {\n}', language='java')
+        svg = code.to_svg(0)
+        assert 'public' in svg
+        assert 'class' in svg
+
+    def test_rust_keywords(self):
+        code = Code('fn main() {\n    let x = 5;\n}', language='rust')
+        svg = code.to_svg(0)
+        assert 'fn' in svg
+        assert 'let' in svg
+
+    def test_go_keywords(self):
+        code = Code('func main() {\n    var x int\n}', language='go')
+        svg = code.to_svg(0)
+        assert 'func' in svg
+        assert 'var' in svg
+
+    def test_unknown_language_no_error(self):
+        code = Code('hello world', language='brainfuck')
+        svg = code.to_svg(0)
+        assert 'hello' in svg

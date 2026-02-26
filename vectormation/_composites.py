@@ -4175,11 +4175,21 @@ def from_svg(element, **styles):
         anchor = element.get('text-anchor', inline.get('text-anchor', None))
         return Text(text=content, x=g('x', 960), y=g('y', 540),
                     font_size=fs, text_anchor=anchor, **kw)
+    elif tag == 'g':
+        children = []
+        group_styles = _merged_attrs()
+        for child in element.children:
+            if getattr(child, 'name', None) in _SVG_SHAPE_TAGS:
+                try:
+                    children.append(from_svg(child, **group_styles))
+                except (KeyError, NotImplementedError, ValueError):
+                    continue
+        return VCollection(*children)
     else:
         raise NotImplementedError(f'Type "{tag}" has no from_svg implemented')
 
 
-_SVG_SHAPE_TAGS = frozenset({'path', 'rect', 'circle', 'ellipse', 'line', 'polygon', 'polyline', 'text'})
+_SVG_SHAPE_TAGS = frozenset({'path', 'rect', 'circle', 'ellipse', 'line', 'polygon', 'polyline', 'text', 'g'})
 
 def from_svg_file(filepath, creation=0, z=0, **styles):
     """Load an SVG file and return a VCollection of all parseable elements."""
@@ -4191,14 +4201,19 @@ def from_svg_file(filepath, creation=0, z=0, **styles):
         raise ValueError(f'No <svg> element found in {filepath}')
     objects = []
     for elem in svg.descendants:
-        if getattr(elem, 'name', None) in _SVG_SHAPE_TAGS:
-            try:
-                obj = from_svg(elem, **styles)
-                obj.show.set_onward(creation, True)
-                obj.z = attributes.Real(creation, z)
-                objects.append(obj)
-            except (KeyError, NotImplementedError, ValueError):
-                continue
+        tag = getattr(elem, 'name', None)
+        if tag not in _SVG_SHAPE_TAGS:
+            continue
+        # Skip elements inside a <g> — they are handled by the <g> recursion
+        if getattr(elem.parent, 'name', None) == 'g':
+            continue
+        try:
+            obj = from_svg(elem, **styles)
+            obj.show.set_onward(creation, True)
+            obj.z = attributes.Real(creation, z)
+            objects.append(obj)
+        except (KeyError, NotImplementedError, ValueError):
+            continue
     return VCollection(*objects, creation=creation, z=z)
 
 
@@ -4646,6 +4661,27 @@ class Code(VCollection):
                        'for', 'while', 'class', 'import', 'export', 'from', 'new',
                        'this', 'async', 'await', 'try', 'catch', 'throw', 'true',
                        'false', 'null', 'undefined', 'typeof', 'instanceof'},
+        'c': {'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break',
+              'continue', 'return', 'struct', 'typedef', 'enum', 'union',
+              'void', 'int', 'char', 'float', 'double', 'long', 'short',
+              'unsigned', 'signed', 'const', 'static', 'extern', 'sizeof',
+              'NULL', 'include', 'define', 'ifdef', 'endif'},
+        'java': {'class', 'public', 'private', 'protected', 'static', 'final',
+                 'abstract', 'interface', 'extends', 'implements', 'new',
+                 'return', 'if', 'else', 'for', 'while', 'do', 'switch',
+                 'case', 'break', 'continue', 'try', 'catch', 'finally',
+                 'throw', 'throws', 'import', 'package', 'void', 'int',
+                 'boolean', 'String', 'true', 'false', 'null', 'this', 'super'},
+        'rust': {'fn', 'let', 'mut', 'if', 'else', 'for', 'while', 'loop',
+                 'match', 'return', 'struct', 'enum', 'impl', 'trait', 'pub',
+                 'use', 'mod', 'crate', 'self', 'super', 'where', 'async',
+                 'await', 'move', 'ref', 'type', 'const', 'static', 'unsafe',
+                 'true', 'false', 'None', 'Some', 'Ok', 'Err'},
+        'go': {'func', 'var', 'const', 'type', 'struct', 'interface', 'map',
+               'chan', 'if', 'else', 'for', 'range', 'switch', 'case',
+               'default', 'break', 'continue', 'return', 'go', 'select',
+               'defer', 'package', 'import', 'true', 'false', 'nil',
+               'make', 'append', 'len', 'cap'},
     }
 
     def __init__(self, text, language='python', x=120, y=120, font_size=24,

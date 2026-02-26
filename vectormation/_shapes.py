@@ -1302,7 +1302,22 @@ class FunctionGraph(Lines):
                  x=120, y=60, width=1440, height=840,
                  creation=0, z=0, **styling_kwargs):
         x_min, x_max = x_range
-        _, _, _, clamped = _sample_function(
+        y_lo, y_hi, _, clamped = _sample_function(
             func, x_min, x_max, y_range, num_points, x, y, width, height)
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 5, 'fill_opacity': 0} | styling_kwargs
         super().__init__(*clamped, creation=creation, z=z, **style_kw)
+        self._func = func
+        self._x_min, self._x_max = x_min, x_max
+        self._y_min, self._y_max = y_lo, y_hi
+        self._px, self._py, self._pw, self._ph = x, y, width, height
+
+    def get_point_from_x(self, math_x):
+        """Return (svg_x, svg_y) for a given math x coordinate."""
+        yv = self._func(math_x)
+        sx = self._px + (math_x - self._x_min) / (self._x_max - self._x_min) * self._pw
+        sy = self._py + (1 - (yv - self._y_min) / (self._y_max - self._y_min)) * self._ph
+        return (sx, sy)
+
+    def get_slope_at(self, math_x, dx=1e-6):
+        """Return the numerical derivative (in math coordinates) at math_x."""
+        return (self._func(math_x + dx) - self._func(math_x - dx)) / (2 * dx)
