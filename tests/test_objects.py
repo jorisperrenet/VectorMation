@@ -5273,3 +5273,49 @@ class TestTableBatchOps:
         assert result is t
         assert t.get_entry(0, 0).text.at_time(0) == 'X'
         assert t.get_entry(1, 1).text.at_time(0) == 'Y'
+
+
+class TestSurfaceCheckerboard:
+    def test_set_checkerboard(self):
+        from vectormation._threed import ThreeDAxes, Surface
+        axes = ThreeDAxes()
+        s = Surface(lambda u, v: (u, v, 0), u_range=(0, 1), v_range=(0, 1))
+        s.set_checkerboard('#FF0000', '#0000FF')
+        assert s._checkerboard_colors == ('#FF0000', '#0000FF')
+
+
+class TestCanvasUtilities:
+    def test_get_object_count(self):
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add_objects(Circle(r=50), Rectangle(width=100, height=50))
+        assert canvas.get_object_count() >= 2
+
+    def test_list_objects_by_type(self):
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add_objects(Circle(r=50), Circle(r=30), Rectangle(width=100, height=50))
+        types = canvas.list_objects_by_type()
+        assert 'Circle' in types
+        assert len(types['Circle']) == 2
+
+
+class TestBarChartGetByLabel:
+    def test_found(self):
+        bc = BarChart(values=[10, 20, 30], labels=['A', 'B', 'C'])
+        bar = bc.get_bar_by_label('B')
+        assert bar is not None
+
+    def test_not_found(self):
+        bc = BarChart(values=[10, 20], labels=['X', 'Y'])
+        assert bc.get_bar_by_label('Z') is None
+
+
+class TestAngleSetRadius:
+    def test_set_radius_instant(self):
+        a = Angle(vertex=(500, 500), p1=(600, 500), p2=(500, 400))
+        a.set_radius(50, start=0)
+        assert a  # no crash
+
+    def test_set_radius_animated(self):
+        a = Angle(vertex=(500, 500), p1=(600, 500), p2=(500, 400))
+        result = a.set_radius(80, start=0, end=1)
+        assert result is a

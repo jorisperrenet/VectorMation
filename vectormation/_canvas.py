@@ -217,6 +217,26 @@ class VectorMathAnim:
         """Return all objects where predicate(obj) returns True."""
         return [obj for obj in self.get_all_objects() if predicate(obj)]
 
+    def get_object_count(self, time=None):
+        """Return the number of visible objects at the given time."""
+        if time is None:
+            time = 0
+        return sum(1 for obj in self.objects.values()
+                   if obj is not self.background and obj.show.at_time(time))
+
+    def list_objects_by_type(self, time=None):
+        """Return a dict mapping class names to lists of objects of that type."""
+        if time is None:
+            time = 0
+        result = {}
+        for obj in self.objects.values():
+            if obj is self.background:
+                continue
+            if obj.show.at_time(time):
+                cls_name = type(obj).__name__
+                result.setdefault(cls_name, []).append(obj)
+        return result
+
     add = add_objects
     add_gradient = add_def
     add_clip_path = add_def

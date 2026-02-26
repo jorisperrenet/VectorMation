@@ -636,6 +636,11 @@ class Surface(VObject):
 
         return patches
 
+    def set_checkerboard(self, color_a, color_b):
+        """Update the checkerboard colors for this surface."""
+        self._checkerboard_colors = (color_a, color_b)
+        return self
+
     def to_svg(self, time):
         return ''
 

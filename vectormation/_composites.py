@@ -3956,6 +3956,14 @@ class Angle(VCollection):
         p2x, p2y = self.p2.at_time(t)
         return self._angles_from_points(vx, vy, p1x, p1y, p2x, p2y)
 
+    def set_radius(self, new_radius, start=0, end=None, easing=easings.smooth):
+        """Animate the angle arc radius to new_radius."""
+        if end is None:
+            self.arc.r.set_onward(start, new_radius)
+        else:
+            self.arc.r.move_to(start, end, new_radius, easing=easing)
+        return self
+
     def shift(self, dx=0, dy=0, start_time: float = 0, end_time: float | None = None, easing=easings.smooth):
         """Shift the angle by moving vertex, p1, p2 (label follows automatically)."""
         for c in [self.vertex, self.p1, self.p2]:
@@ -4309,7 +4317,7 @@ class BarChart(VCollection):
         n = len(values)
         if n == 0:
             super().__init__(creation=creation, z=z)
-            self.values, self.bar_count, self._bars = [], 0, []
+            self.values, self.bar_count, self._bars, self._labels = [], 0, [], []
             self._height, self._y = height, y
             return
         max_val = max(abs(v) for v in values) if values else 1
@@ -4317,6 +4325,7 @@ class BarChart(VCollection):
         inner_width = bar_width * (1 - bar_spacing)
         objects: list[VObject] = []
         bars: list = []
+        label_objs: list = []
 
         for i, val in enumerate(values):
             bar_h = abs(val) / max_val * height * 0.85
@@ -4335,6 +4344,9 @@ class BarChart(VCollection):
                            font_size=14, text_anchor='middle',
                            creation=creation, z=z, fill='#aaa', stroke_width=0)
                 objects.append(lbl)
+                label_objs.append(lbl)
+            else:
+                label_objs.append(None)
 
         # Baseline
         baseline = Line(x1=x, y1=y + height, x2=x + width, y2=y + height,
@@ -4344,6 +4356,7 @@ class BarChart(VCollection):
         self.values = values
         self.bar_count = n
         self._bars = bars
+        self._labels = label_objs
         self._height = height
         self._y = y
 
@@ -4399,6 +4412,13 @@ class BarChart(VCollection):
         bar = self._bars[index]
         bar.flash_color(color, start=start, duration=end - start)
         return self
+
+    def get_bar_by_label(self, label):
+        """Return the bar (Rectangle) matching the given label text, or None."""
+        for i, lbl in enumerate(self._labels):
+            if lbl is not None and lbl.text.at_time(0) == label:
+                return self._bars[i]
+        return None
 
 
 class Table(VCollection):
