@@ -4545,3 +4545,144 @@ class TestPlotBar:
         ax = Axes(x_range=(0, 5), y_range=(0, 10))
         bars = ax.plot_bar([1, 2], [5, 8], bar_width=0.4)
         assert len(bars) == 2
+
+
+class TestStyleGetters:
+    def test_get_fill_color(self):
+        from vectormation.objects import Circle
+        c = Circle(cx=100, cy=100, fill='#FF0000')
+        assert c.get_fill_color(0) == '#ff0000'
+
+    def test_get_stroke_width(self):
+        from vectormation.objects import Rectangle
+        r = Rectangle(100, 100, stroke_width=3)
+        assert r.get_stroke_width(0) == 3
+
+    def test_get_fill_opacity(self):
+        from vectormation.objects import Circle
+        c = Circle(fill_opacity=0.5)
+        assert c.get_fill_opacity(0) == 0.5
+
+    def test_get_stroke_opacity(self):
+        from vectormation.objects import Circle
+        c = Circle(stroke_opacity=0.8)
+        assert c.get_stroke_opacity(0) == 0.8
+
+
+class TestCollectionSearch:
+    def test_find(self):
+        from vectormation.objects import VCollection, Circle, Rectangle
+        col = VCollection(Circle(), Rectangle(50, 50), Circle())
+        found = col.find(lambda obj, t: isinstance(obj, Rectangle))
+        assert isinstance(found, Rectangle)
+
+    def test_find_none(self):
+        from vectormation.objects import VCollection, Circle
+        col = VCollection(Circle(), Circle())
+        found = col.find(lambda obj, t: isinstance(obj, int))
+        assert found is None
+
+    def test_find_by_type(self):
+        from vectormation.objects import VCollection, Circle, Rectangle, Dot
+        col = VCollection(Circle(), Rectangle(10, 10), Dot(), Circle())
+        circles = col.find_by_type(Circle)
+        # Dot extends Circle, so it should be included
+        assert len(circles) >= 2
+
+    def test_find_index(self):
+        from vectormation.objects import VCollection, Circle, Rectangle
+        col = VCollection(Circle(), Rectangle(50, 50), Circle())
+        idx = col.find_index(lambda obj, t: isinstance(obj, Rectangle))
+        assert idx == 1
+
+    def test_group_by(self):
+        from vectormation.objects import VCollection, Circle, Rectangle
+        col = VCollection(Circle(), Rectangle(10, 10), Circle())
+        groups = col.group_by(lambda obj, t: type(obj).__name__)
+        assert 'Circle' in groups
+        assert len(groups['Circle']) == 2
+
+
+class TestAnimateRange:
+    def test_animate_x_range(self):
+        from vectormation.objects import Axes
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        ax.animate_range(0, 1, x_range=(0, 20))
+        # After animation, x_max should be 20
+        assert abs(ax.x_max.at_time(1) - 20) < 0.1
+
+    def test_animate_y_range(self):
+        from vectormation.objects import Axes
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        ax.animate_range(0, 1, y_range=(-5, 5))
+        assert abs(ax.y_min.at_time(1) - (-5)) < 0.1
+        assert abs(ax.y_max.at_time(1) - 5) < 0.1
+
+
+class TestPieAnimateValues:
+    def test_animate_values(self):
+        from vectormation.objects import PieChart
+        pc = PieChart(values=[30, 20, 50])
+        result = pc.animate_values([40, 40, 20], start=0, end=1)
+        assert result is pc
+        assert pc.values == [40, 40, 20]
+
+    def test_animate_values_wrong_length(self):
+        from vectormation.objects import PieChart
+        pc = PieChart(values=[30, 20, 50])
+        result = pc.animate_values([40, 60], start=0, end=1)
+        assert result is pc
+        assert pc.values == [30, 20, 50]  # unchanged
+
+
+class TestCircleGeometricMethods:
+    def test_point_on_circle(self):
+        from vectormation.objects import Circle
+        c = Circle(cx=500, cy=500, r=100)
+        # Angle 0 = right
+        px, py = c.point_on_circle(0, 0)
+        assert abs(px - 600) < 1
+        assert abs(py - 500) < 1
+
+    def test_point_on_circle_90(self):
+        from vectormation.objects import Circle
+        c = Circle(cx=500, cy=500, r=100)
+        # Angle 90 = down (SVG coords)
+        px, py = c.point_on_circle(90, 0)
+        assert abs(px - 500) < 1
+        assert abs(py - 600) < 1
+
+    def test_tangent_line(self):
+        from vectormation.objects import Circle, Line
+        c = Circle(cx=500, cy=500, r=100)
+        tl = c.tangent_line(0, length=200)
+        assert isinstance(tl, Line)
+
+
+class TestHighlightSubstring:
+    def test_basic(self):
+        from vectormation.objects import Text, Rectangle
+        t = Text(text='Hello World', x=100, y=100, font_size=24)
+        rect = t.highlight_substring('World')
+        assert isinstance(rect, Rectangle)
+
+    def test_not_found(self):
+        from vectormation.objects import Text, Rectangle
+        t = Text(text='Hello', x=100, y=100, font_size=24)
+        rect = t.highlight_substring('xyz')
+        assert isinstance(rect, Rectangle)
+
+
+class TestDiode:
+    def test_creates(self):
+        from vectormation.objects import Diode
+        d = Diode(x1=300, y1=500, x2=600, y2=500)
+        svg = d.to_svg(0)
+        assert svg
+        assert len(d.objects) >= 3
+
+    def test_with_label(self):
+        from vectormation.objects import Diode
+        d = Diode(label='D1')
+        svg = d.to_svg(0)
+        assert 'D1' in svg

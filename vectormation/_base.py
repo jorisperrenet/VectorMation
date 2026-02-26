@@ -1973,6 +1973,42 @@ class VObject(ABC):  # Vector Object
                 attr.set_onward(start, value)
         return self
 
+    def get_fill_color(self, time=0):
+        """Return the fill color (hex string) at the given time."""
+        rgb = self.styling.fill.time_func(time)
+        if isinstance(rgb, str):
+            return rgb
+        if isinstance(rgb, tuple) and len(rgb) == 3:
+            return '#{:02x}{:02x}{:02x}'.format(
+                int(min(255, max(0, rgb[0]))),
+                int(min(255, max(0, rgb[1]))),
+                int(min(255, max(0, rgb[2]))))
+        return str(rgb)
+
+    def get_stroke_color(self, time=0):
+        """Return the stroke color (hex string) at the given time."""
+        rgb = self.styling.stroke.time_func(time)
+        if isinstance(rgb, str):
+            return rgb
+        if isinstance(rgb, tuple) and len(rgb) == 3:
+            return '#{:02x}{:02x}{:02x}'.format(
+                int(min(255, max(0, rgb[0]))),
+                int(min(255, max(0, rgb[1]))),
+                int(min(255, max(0, rgb[2]))))
+        return str(rgb)
+
+    def get_stroke_width(self, time=0):
+        """Return the stroke width at the given time."""
+        return self.styling.stroke_width.at_time(time)
+
+    def get_fill_opacity(self, time=0):
+        """Return the fill opacity at the given time."""
+        return self.styling.fill_opacity.at_time(time)
+
+    def get_stroke_opacity(self, time=0):
+        """Return the stroke opacity at the given time."""
+        return self.styling.stroke_opacity.at_time(time)
+
     def animate_style(self, start: float, end: float, easing=easings.smooth, **kwargs):
         """Animate style changes over [start, end].
         Example: obj.animate_style(1, 2, fill='#f00', fill_opacity=0.5, stroke_width=6)"""
@@ -2250,6 +2286,32 @@ class VCollection:
     def filter_by_type(self, cls):
         """Return a new VCollection with only children of the given type."""
         return self.filter(lambda obj: isinstance(obj, cls))
+
+    def find(self, predicate, time=0):
+        """Return the first child satisfying predicate(obj, time), or None."""
+        for obj in self.objects:
+            if predicate(obj, time):
+                return obj
+        return None
+
+    def find_by_type(self, cls):
+        """Return a list of all children that are instances of cls."""
+        return [obj for obj in self.objects if isinstance(obj, cls)]
+
+    def find_index(self, predicate, time=0):
+        """Return the index of the first child satisfying predicate, or -1."""
+        for i, obj in enumerate(self.objects):
+            if predicate(obj, time):
+                return i
+        return -1
+
+    def group_by(self, key, time=0):
+        """Group children by a key function. Returns dict of {key_value: [objects]}."""
+        groups = {}
+        for obj in self.objects:
+            k = key(obj, time)
+            groups.setdefault(k, []).append(obj)
+        return groups
 
     def partition(self, predicate):
         """Split into two VCollections: (matching, non_matching)."""

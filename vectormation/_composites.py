@@ -1390,6 +1390,29 @@ class Axes(VCollection):
         self._add_plot_obj(rect)
         return rect
 
+    def animate_range(self, start, end, x_range=None, y_range=None, easing=easings.smooth):
+        """Animate the axis range to new bounds.
+        x_range: (new_xmin, new_xmax) or None to keep current.
+        y_range: (new_ymin, new_ymax) or None to keep current."""
+        dur = end - start
+        if dur <= 0:
+            return self
+        if x_range is not None:
+            self.x_min.set(start, end,
+                lambda t, _s=start, _d=max(dur, 1e-9), _old=self.x_min.at_time(start), _new=x_range[0]:
+                    _old + (_new - _old) * easing((t - _s) / _d), stay=True)
+            self.x_max.set(start, end,
+                lambda t, _s=start, _d=max(dur, 1e-9), _old=self.x_max.at_time(start), _new=x_range[1]:
+                    _old + (_new - _old) * easing((t - _s) / _d), stay=True)
+        if y_range is not None and self.y_min is not None:
+            self.y_min.set(start, end,
+                lambda t, _s=start, _d=max(dur, 1e-9), _old=self.y_min.at_time(start), _new=y_range[0]:
+                    _old + (_new - _old) * easing((t - _s) / _d), stay=True)
+            self.y_max.set(start, end,
+                lambda t, _s=start, _d=max(dur, 1e-9), _old=self.y_max.at_time(start), _new=y_range[1]:
+                    _old + (_new - _old) * easing((t - _s) / _d), stay=True)
+        return self
+
     def add_shaded_inequality(self, func, direction='below', x_range=None,
                                samples=100, creation=0, z=-1, **styling_kwargs):
         """Shade the region above or below a curve (inequality visualization).
@@ -3977,6 +4000,38 @@ class PieChart(VCollection):
         if dur <= 0:
             return self
         sector.shift(dx=dx, dy=dy, start_time=start, end_time=start + dur / 2, easing=easing)
+        return self
+
+    def animate_values(self, new_values, start=0, end=1, easing=easings.smooth):
+        """Animate pie chart to new values by morphing sector angles."""
+        if len(new_values) != len(self.values):
+            return self
+        old_values = list(self.values)
+        old_total = sum(old_values) or 1
+        new_total = sum(new_values) or 1
+        dur = end - start
+        if dur <= 0:
+            return self
+        # Update stored values
+        self.values = list(new_values)
+        # Animate each sector's start/end angles
+        cum_old, cum_new = 0, 0
+        for i, sector in enumerate(self._sectors):
+            old_start_angle = 360 * cum_old / old_total + 90
+            old_end_angle = 360 * (cum_old + old_values[i]) / old_total + 90
+            new_start_angle = 360 * cum_new / new_total + 90
+            new_end_angle = 360 * (cum_new + new_values[i]) / new_total + 90
+            _s, _d = start, max(dur, 1e-9)
+            _osa, _oea = old_start_angle, old_end_angle
+            _nsa, _nea = new_start_angle, new_end_angle
+            sector.start_angle.set(start, end,
+                lambda t, _s=_s, _d=_d, _o=_osa, _n=_nsa:
+                    _o + (_n - _o) * easing((t - _s) / _d), stay=True)
+            sector.end_angle.set(start, end,
+                lambda t, _s=_s, _d=_d, _o=_oea, _n=_nea:
+                    _o + (_n - _o) * easing((t - _s) / _d), stay=True)
+            cum_old += old_values[i]
+            cum_new += new_values[i]
         return self
 
 
@@ -8214,6 +8269,45 @@ class Inductor(VCollection):
             mx = (x1 + x2) / 2 + px * (arc_r + 16)
             my = (y1 + y2) / 2 + py * (arc_r + 16)
             objects.append(Text(text=label, x=mx, y=my, font_size=18,
+                                fill='#aaa', stroke_width=0, text_anchor='middle',
+                                creation=creation, z=z + 0.1))
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class Diode(VCollection):
+    """Electrical diode symbol (triangle with bar)."""
+    def __init__(self, x1=400, y1=540, x2=600, y2=540, label='D',
+                 creation=0, z=0, **styling_kwargs):
+        style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
+        dx, dy = x2 - x1, y2 - y1
+        length = math.hypot(dx, dy) or 1
+        ux, uy = dx / length, dy / length
+        px, py = -uy, ux
+        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+        tri_h, tri_w = length * 0.2, 20
+        # Triangle vertices: tip pointing in direction of current flow
+        tip_x = mx + ux * tri_h
+        tip_y = my + uy * tri_h
+        base1_x = mx - ux * tri_h + px * tri_w
+        base1_y = my - uy * tri_h + py * tri_w
+        base2_x = mx - ux * tri_h - px * tri_w
+        base2_y = my - uy * tri_h - py * tri_w
+        triangle = Polygon((base1_x, base1_y), (base2_x, base2_y), (tip_x, tip_y),
+                           creation=creation, z=z, fill_opacity=0, **style_kw)
+        # Bar at the tip
+        bar = Line(x1=tip_x + px * tri_w, y1=tip_y + py * tri_w,
+                   x2=tip_x - px * tri_w, y2=tip_y - py * tri_w,
+                   creation=creation, z=z, **style_kw)
+        # Lead wires
+        lead1 = Line(x1=x1, y1=y1, x2=mx - ux * tri_h, y2=my - uy * tri_h,
+                     creation=creation, z=z, **style_kw)
+        lead2 = Line(x1=tip_x, y1=tip_y, x2=x2, y2=y2,
+                     creation=creation, z=z, **style_kw)
+        objects = [lead1, triangle, bar, lead2]
+        if label:
+            lx = mx + px * (tri_w + 16)
+            ly = my + py * (tri_w + 16)
+            objects.append(Text(text=label, x=lx, y=ly, font_size=18,
                                 fill='#aaa', stroke_width=0, text_anchor='middle',
                                 creation=creation, z=z + 0.1))
         super().__init__(*objects, creation=creation, z=z)

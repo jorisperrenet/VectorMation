@@ -189,6 +189,26 @@ class Circle(Ellipse):
         """Return the circumference (2 * pi * r)."""
         return 2 * math.pi * self.rx.at_time(time)
 
+    def point_on_circle(self, angle_degrees, time=0):
+        """Return (x, y) coordinates of a point on the circle at the given angle (degrees).
+        Angle 0 = right, 90 = down (SVG coordinates)."""
+        cx, cy = self.c.at_time(time)
+        r = self.rx.at_time(time)
+        rad = math.radians(angle_degrees)
+        return (cx + r * math.cos(rad), cy + r * math.sin(rad))
+
+    def tangent_line(self, angle_degrees, length=100, time=0, creation=0, **line_kwargs):
+        """Return a Line tangent to the circle at the given angle.
+        Angle 0 = right, 90 = down (SVG coordinates)."""
+        px, py = self.point_on_circle(angle_degrees, time)
+        rad = math.radians(angle_degrees)
+        # Tangent is perpendicular to radius
+        tx, ty = -math.sin(rad), math.cos(rad)
+        half = length / 2
+        return Line(x1=px - tx * half, y1=py - ty * half,
+                    x2=px + tx * half, y2=py + ty * half,
+                    creation=creation, **line_kwargs)
+
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)
         return f"<circle cx='{cx}' cy='{cy}' r='{self.rx.at_time(time)}'{self.styling.svg_style(time)} />"
@@ -443,6 +463,35 @@ class Text(VObject):
             return rect
         rect.styling.fill_opacity.set(start, end,
             lambda t, _s=start, _d=dur: opacity * easing((t - _s) / _d), stay=True)
+        return rect
+
+    def highlight_substring(self, substring, color='#FFFF00', start=0, end=1,
+                            opacity=0.3, easing=easings.there_and_back):
+        """Highlight a substring with a colored background rectangle.
+        Returns the highlight Rectangle (must be added to canvas)."""
+        text_val = str(self.text.at_time(start))
+        idx = text_val.find(substring)
+        if idx < 0:
+            return Rectangle(0, 0, x=0, y=0)  # empty rect
+        fs = self.font_size.at_time(start)
+        char_w = fs * CHAR_WIDTH_FACTOR
+        x = self.x.at_time(start)
+        y = self.y.at_time(start)
+        # Adjust for text anchor
+        total_w = self._estimate_width(text_val, fs)
+        xl = self._text_left(x, total_w)
+        # Approximate x offset to the substring
+        prefix_w = self._estimate_width(text_val[:idx], fs)
+        sub_w = self._estimate_width(substring, fs)
+        rx = xl + prefix_w
+        ry = y - fs * 0.8
+        rh = fs * 1.2
+        rect = Rectangle(sub_w, rh, x=rx, y=ry, creation=start,
+                         fill=color, fill_opacity=0, stroke_width=0)
+        dur = end - start
+        if dur > 0:
+            rect.styling.fill_opacity.set(start, end,
+                lambda t, _s=start, _d=dur: opacity * easing((t - _s) / _d), stay=True)
         return rect
 
     def typewrite(self, start=0, end=1, cursor='|', change_existence=True):
