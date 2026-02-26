@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='400' height='340' viewBox='0 0 400 340'>
+<rect x='0' y='0' width='400' height='340' rx='0' ry='0' fill='rgb(30,30,46)' stroke='rgb(0,0,0)' stroke-width='0' />
+<circle cx='200' cy='160' r='110' fill-opacity='0' stroke='rgb(69,71,90)' stroke-width='0.8' stroke-dasharray='4,3' />
+<circle cx='200' cy='160' r='44' fill-opacity='0' stroke='rgb(69,71,90)' stroke-width='0.8' stroke-dasharray='4,3' />
+<polygon points='200.0,50.0 174.14,124.4 95.38,126.01 158.15,173.6 135.34,248.99 200.0,204.0 264.66,248.99 241.85,173.6 304.62,126.01 225.86,124.4' fill='rgb(88,196,221)' fill-opacity='0.15' stroke='rgb(88,196,221)' stroke-width='2.5' />
+<circle cx='200' cy='160' r='4' fill='rgb(243,139,168)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='200' y1='160' x2='200' y2='50' stroke='rgb(205,214,244)' stroke-width='1.2' stroke-dasharray='5,3' />
+<g>
+<line x1='200' y1='60' x2='200' y2='50' stroke='rgb(205,214,244)' stroke-width='0' />
+<polygon points='200,50 202.5,56.0 197.5,56.0' fill='rgb(205,214,244)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<text x='110' y='105' font-size='12' fill='rgb(205,214,244)' stroke='rgb(0,0,0)' stroke-width='0'>outer_radius</text>
+<line x1='200' y1='160' x2='225.86' y2='124.4' stroke='rgb(166,227,161)' stroke-width='1.2' stroke-dasharray='5,3' />
+<g>
+<line x1='230.86' y1='121.4' x2='225.86' y2='124.4' stroke='rgb(166,227,161)' stroke-width='0' />
+<polygon points='225.86,124.4 229.72,119.17 232.29,123.46' fill='rgb(166,227,161)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<text x='30' y='155' font-size='12' fill='rgb(166,227,161)' stroke='rgb(0,0,0)' stroke-width='0'>inner_radius</text>
+<text x='110' y='315' font-size='13' fill='rgb(249,226,175)' stroke='rgb(0,0,0)' stroke-width='0'>n = 5 (number of points)</text>
+</svg>

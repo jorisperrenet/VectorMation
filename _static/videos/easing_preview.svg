@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' />
+<line x1='100' y1='100' x2='300' y2='100' stroke='rgb(51,51,51)' />
+<text x='100' y='70' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>linear</text>
+<circle cx='200.0' cy='100' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='400' y1='100' x2='600' y2='100' stroke='rgb(51,51,51)' />
+<text x='400' y='70' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>smooth</text>
+<circle cx='500.0' cy='100' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='700' y1='100' x2='900' y2='100' stroke='rgb(51,51,51)' />
+<text x='700' y='70' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>ease_in_sine</text>
+<circle cx='758.58' cy='100' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='100' y1='260' x2='300' y2='260' stroke='rgb(51,51,51)' />
+<text x='100' y='230' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>ease_out_sine</text>
+<circle cx='241.42' cy='260' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='400' y1='260' x2='600' y2='260' stroke='rgb(51,51,51)' />
+<text x='400' y='230' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>ease_in_out_sine</text>
+<circle cx='500.0' cy='260' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='700' y1='260' x2='900' y2='260' stroke='rgb(51,51,51)' />
+<text x='700' y='230' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>ease_in_quad</text>
+<circle cx='750.0' cy='260' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='100' y1='420' x2='300' y2='420' stroke='rgb(51,51,51)' />
+<text x='100' y='390' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>ease_out_quad</text>
+<circle cx='250.0' cy='420' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='400' y1='420' x2='600' y2='420' stroke='rgb(51,51,51)' />
+<text x='400' y='390' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>ease_in_cubic</text>
+<circle cx='425.0' cy='420' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='700' y1='420' x2='900' y2='420' stroke='rgb(51,51,51)' />
+<text x='700' y='390' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>ease_out_cubic</text>
+<circle cx='875.0' cy='420' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='100' y1='580' x2='300' y2='580' stroke='rgb(51,51,51)' />
+<text x='100' y='550' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>ease_in_out_cubic</text>
+<circle cx='200.0' cy='580' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='400' y1='580' x2='600' y2='580' stroke='rgb(51,51,51)' />
+<text x='400' y='550' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>ease_in_expo</text>
+<circle cx='406.25' cy='580' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='700' y1='580' x2='900' y2='580' stroke='rgb(51,51,51)' />
+<text x='700' y='550' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>ease_out_expo</text>
+<circle cx='893.75' cy='580' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='100' y1='740' x2='300' y2='740' stroke='rgb(51,51,51)' />
+<text x='100' y='710' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>ease_in_bounce</text>
+<circle cx='146.88' cy='740' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='400' y1='740' x2='600' y2='740' stroke='rgb(51,51,51)' />
+<text x='400' y='710' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>ease_out_bounce</text>
+<circle cx='553.12' cy='740' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='700' y1='740' x2='900' y2='740' stroke='rgb(51,51,51)' />
+<text x='700' y='710' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>ease_in_elastic</text>
+<circle cx='696.88' cy='740' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='100' y1='900' x2='300' y2='900' stroke='rgb(51,51,51)' />
+<text x='100' y='870' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>ease_out_elastic</text>
+<circle cx='303.12' cy='900' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='400' y1='900' x2='600' y2='900' stroke='rgb(51,51,51)' />
+<text x='400' y='870' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>ease_in_back</text>
+<circle cx='382.46' cy='900' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='700' y1='900' x2='900' y2='900' stroke='rgb(51,51,51)' />
+<text x='700' y='870' font-size='12' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>ease_out_back</text>
+<circle cx='917.54' cy='900' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</svg>

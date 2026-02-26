@@ -1,0 +1,760 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Shapes" href="shapes.html"><link rel="prev" title="VectorMathAnim" href="canvas.html">
+        <link rel="prefetch" href="../_static/logo.svg" as="image">
+
+    <link rel="shortcut icon" href="../_static/logo.svg"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>VObject - VectorMation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=0df419bc" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #000000;
+  --color-brand-content: #000000;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">VectorMation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/logo.svg" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">VectorMation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial: Your First Animation</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../reference.html">Reference Manual</a><input aria-label="Toggle navigation of Reference Manual" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="canvas.html">VectorMathAnim</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">VObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shapes.html">Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">Text &amp; LaTeX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collections.html">Collections &amp; Arrows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graphing.html">Graphing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attributes.html">Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utilities.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../attributes.html">Attributes: Time-Varying Values</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../animation.html">Animation &amp; Playback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../graphing.html">Graphing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vs_manim.html">vs Manim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/reference/vobject.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="vobject">
+<h1>VObject<a class="headerlink" href="#vobject" title="Link to this heading">¶</a></h1>
+<section id="coordinate-system">
+<h2>Coordinate System<a class="headerlink" href="#coordinate-system" title="Link to this heading">¶</a></h2>
+<p>All positions use SVG pixel coordinates on a 1920 x 1080 canvas. <code class="docutils literal notranslate"><span class="pre">ORIGIN</span></code> is
+the centre at <code class="docutils literal notranslate"><span class="pre">(960,</span> <span class="pre">540)</span></code>. Direction constants use screen conventions where
+<strong>Y increases downward</strong>.</p>
+<a class="reference internal image-reference" href="../_images/coordinate_system.svg"><img alt="../_images/coordinate_system.svg" class="align-center" src="../_images/coordinate_system.svg" width="520" />
+</a>
+<dl class="py class">
+<dt class="sig sig-object py" id="VObject">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject" title="Link to this definition">¶</a></dt>
+<dd><p>Abstract base class for all visual objects. Every VObject has a
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">styling</span></code> instance controlling fill, stroke, opacity, and transforms,
+plus time-varying <code class="xref py py-attr docutils literal notranslate"><span class="pre">show</span></code> and <code class="xref py py-attr docutils literal notranslate"><span class="pre">z</span></code> attributes.</p>
+<p class="rubric">Measurement</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.bbox">
+<span class="sig-name descname"><span class="pre">bbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.bbox" title="Link to this definition">¶</a></dt>
+<dd><p>Bounding box at <em>time</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">(xmin,</span> <span class="pre">ymin,</span> <span class="pre">width,</span> <span class="pre">height)</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.center">
+<span class="sig-name descname"><span class="pre">center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.center" title="Link to this definition">¶</a></dt>
+<dd><p>Centre of the bounding box.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">(cx,</span> <span class="pre">cy)</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.get_width">
+<span class="sig-name descname"><span class="pre">get_width</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.get_width" title="Link to this definition">¶</a></dt>
+<dd><p>Width of the bounding box.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.get_height">
+<span class="sig-name descname"><span class="pre">get_height</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.get_height" title="Link to this definition">¶</a></dt>
+<dd><p>Height of the bounding box.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.get_edge">
+<span class="sig-name descname"><span class="pre">get_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.get_edge" title="Link to this definition">¶</a></dt>
+<dd><p>Coordinate of a named edge.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>edge</strong> (<em>str</em>) – One of <code class="docutils literal notranslate"><span class="pre">'top'</span></code>, <code class="docutils literal notranslate"><span class="pre">'bottom'</span></code>, <code class="docutils literal notranslate"><span class="pre">'left'</span></code>, <code class="docutils literal notranslate"><span class="pre">'right'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'center'</span></code>, <code class="docutils literal notranslate"><span class="pre">'top_left'</span></code>, <code class="docutils literal notranslate"><span class="pre">'top_right'</span></code>, <code class="docutils literal notranslate"><span class="pre">'bottom_left'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'bottom_right'</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y)</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<a class="reference internal image-reference" href="../_images/edges.svg"><img alt="../_images/edges.svg" class="align-center" src="../_images/edges.svg" width="440" />
+</a>
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.path">
+<span class="sig-name descname"><span class="pre">path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.path" title="Link to this definition">¶</a></dt>
+<dd><p>SVG path string (<code class="docutils literal notranslate"><span class="pre">d</span></code> attribute) for this object at <em>time</em>.</p>
+</dd></dl>
+
+<p class="rubric">Movement</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.shift">
+<span class="sig-name descname"><span class="pre">shift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.shift" title="Link to this definition">¶</a></dt>
+<dd><p>Translate by <code class="docutils literal notranslate"><span class="pre">(dx,</span> <span class="pre">dy)</span></code>. If <em>end_time</em> is given, the shift is animated.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.move_to">
+<span class="sig-name descname"><span class="pre">move_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.move_to" title="Link to this definition">¶</a></dt>
+<dd><p>Move the object’s centre to <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y)</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.center_to_pos">
+<span class="sig-name descname"><span class="pre">center_to_pos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.center_to_pos" title="Link to this definition">¶</a></dt>
+<dd><p>Alias for <a class="reference internal" href="#VObject.move_to" title="VObject.move_to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">move_to()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.along_path">
+<span class="sig-name descname"><span class="pre">along_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.along_path" title="Link to this definition">¶</a></dt>
+<dd><p>Move the object’s centre along an SVG path string over <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.next_to">
+<span class="sig-name descname"><span class="pre">next_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'right'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.next_to" title="Link to this definition">¶</a></dt>
+<dd><p>Position adjacent to <em>other</em>. <code class="docutils literal notranslate"><span class="pre">direction</span></code> can be <code class="docutils literal notranslate"><span class="pre">'right'</span></code>, <code class="docutils literal notranslate"><span class="pre">'left'</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'up'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'down'</span></code>.</p>
+</dd></dl>
+
+<a class="reference internal image-reference" href="../_images/next_to.svg"><img alt="../_images/next_to.svg" class="align-center" src="../_images/next_to.svg" width="440" />
+</a>
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.align_to">
+<span class="sig-name descname"><span class="pre">align_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'left'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.align_to" title="Link to this definition">¶</a></dt>
+<dd><p>Align the given edge with the same edge of <em>other</em>.</p>
+</dd></dl>
+
+<p class="rubric">Rotation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.rotate_by">
+<span class="sig-name descname"><span class="pre">rotate_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.rotate_by" title="Link to this definition">¶</a></dt>
+<dd><p>Rotate by <em>degrees</em> (counterclockwise) over <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code>.
+Rotates around the object’s centre unless <code class="docutils literal notranslate"><span class="pre">cx,</span> <span class="pre">cy</span></code> are given.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.rotate_to">
+<span class="sig-name descname"><span class="pre">rotate_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.rotate_to" title="Link to this definition">¶</a></dt>
+<dd><p>Rotate to an absolute angle.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.spin">
+<span class="sig-name descname"><span class="pre">spin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">360</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">linear</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.spin" title="Link to this definition">¶</a></dt>
+<dd><p>Full rotation (default 360 degrees).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.always_rotate">
+<span class="sig-name descname"><span class="pre">always_rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees_per_second</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.always_rotate" title="Link to this definition">¶</a></dt>
+<dd><p>Continuous rotation at a constant speed.</p>
+</dd></dl>
+
+<p class="rubric">Scale</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.scale">
+<span class="sig-name descname"><span class="pre">scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.scale" title="Link to this definition">¶</a></dt>
+<dd><p>Uniform scale. Animated if <em>end</em> is given.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.scale_by">
+<span class="sig-name descname"><span class="pre">scale_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.scale_by" title="Link to this definition">¶</a></dt>
+<dd><p>Animate scale by a relative factor over <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.scale_to">
+<span class="sig-name descname"><span class="pre">scale_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.scale_to" title="Link to this definition">¶</a></dt>
+<dd><p>Animate to an absolute scale factor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.stretch">
+<span class="sig-name descname"><span class="pre">stretch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.stretch" title="Link to this definition">¶</a></dt>
+<dd><p>Non-uniform scale.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.match_width">
+<span class="sig-name descname"><span class="pre">match_width</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.match_width" title="Link to this definition">¶</a></dt>
+<dd><p>Scale uniformly to match <em>other</em>’s width.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.match_height">
+<span class="sig-name descname"><span class="pre">match_height</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.match_height" title="Link to this definition">¶</a></dt>
+<dd><p>Scale uniformly to match <em>other</em>’s height.</p>
+</dd></dl>
+
+<p class="rubric">Creation &amp; Visibility</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.fadein">
+<span class="sig-name descname"><span class="pre">fadein</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_existence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.fadein" title="Link to this definition">¶</a></dt>
+<dd><p>Fade opacity from 0 to current value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.fadeout">
+<span class="sig-name descname"><span class="pre">fadeout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_existence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.fadeout" title="Link to this definition">¶</a></dt>
+<dd><p>Fade opacity to 0.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_stroke_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_existence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.write" title="Link to this definition">¶</a></dt>
+<dd><p>Handwriting reveal: strokes the outline then fills.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.create">
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_existence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.create" title="Link to this definition">¶</a></dt>
+<dd><p>Draw the path progressively from nothing. Returns a new <a class="reference internal" href="shapes.html#Path" title="Path"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.draw_along">
+<span class="sig-name descname"><span class="pre">draw_along</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_existence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.draw_along" title="Link to this definition">¶</a></dt>
+<dd><p>Reveal stroke via animated dashoffset.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.grow_from_center">
+<span class="sig-name descname"><span class="pre">grow_from_center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_existence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.grow_from_center" title="Link to this definition">¶</a></dt>
+<dd><p>Scale from 0 to 1.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.shrink_to_center">
+<span class="sig-name descname"><span class="pre">shrink_to_center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_existence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.shrink_to_center" title="Link to this definition">¶</a></dt>
+<dd><p>Scale from 1 to 0.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.grow_from_edge">
+<span class="sig-name descname"><span class="pre">grow_from_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bottom'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_existence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.grow_from_edge" title="Link to this definition">¶</a></dt>
+<dd><p>Grow from a specified edge.</p>
+</dd></dl>
+
+<p class="rubric">Colour &amp; Styling</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.set_color">
+<span class="sig-name descname"><span class="pre">set_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stroke</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rgb'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.set_color" title="Link to this definition">¶</a></dt>
+<dd><p>Animate a colour change over <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.set_fill">
+<span class="sig-name descname"><span class="pre">set_fill</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_space</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rgb'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.set_fill" title="Link to this definition">¶</a></dt>
+<dd><p>Set the fill colour.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.set_stroke">
+<span class="sig-name descname"><span class="pre">set_stroke</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.set_stroke" title="Link to this definition">¶</a></dt>
+<dd><p>Set stroke colour and/or width.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.set_opacity">
+<span class="sig-name descname"><span class="pre">set_opacity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.set_opacity" title="Link to this definition">¶</a></dt>
+<dd><p>Set overall opacity.</p>
+</dd></dl>
+
+<p class="rubric">Effects</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.indicate">
+<span class="sig-name descname"><span class="pre">indicate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">there_and_back</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.indicate" title="Link to this definition">¶</a></dt>
+<dd><p>Brief scale-up highlight.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.flash">
+<span class="sig-name descname"><span class="pre">flash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#FFFF00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">there_and_back</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.flash" title="Link to this definition">¶</a></dt>
+<dd><p>Flash the fill colour then return to original.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.pulse">
+<span class="sig-name descname"><span class="pre">pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">there_and_back</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.pulse" title="Link to this definition">¶</a></dt>
+<dd><p>Scale-with-fade pulse.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.blink">
+<span class="sig-name descname"><span class="pre">blink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.blink" title="Link to this definition">¶</a></dt>
+<dd><p>Opacity blink.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.wiggle">
+<span class="sig-name descname"><span class="pre">wiggle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amplitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_wiggles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">there_and_back</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.wiggle" title="Link to this definition">¶</a></dt>
+<dd><p>Horizontal shake.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.wave">
+<span class="sig-name descname"><span class="pre">wave</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amplitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_waves</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'up'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">there_and_back</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.wave" title="Link to this definition">¶</a></dt>
+<dd><p>Wave distortion.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.circumscribe">
+<span class="sig-name descname"><span class="pre">circumscribe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#FFFF00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stroke_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.circumscribe" title="Link to this definition">¶</a></dt>
+<dd><p>Draw then remove a tracing rectangle. Returns a <a class="reference internal" href="shapes.html#Path" title="Path"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.show_passing_flash">
+<span class="sig-name descname"><span class="pre">show_passing_flash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flash_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">linear</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.show_passing_flash" title="Link to this definition">¶</a></dt>
+<dd><p>Travelling highlight along stroke.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.spiral_in">
+<span class="sig-name descname"><span class="pre">spiral_in</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_turns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_existence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.spiral_in" title="Link to this definition">¶</a></dt>
+<dd><p>Spiral in with rotation.</p>
+</dd></dl>
+
+<p class="rubric">Transform</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.become">
+<span class="sig-name descname"><span class="pre">become</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.become" title="Link to this definition">¶</a></dt>
+<dd><p>Copy <em>other</em>’s styling from <em>time</em> onward.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.fade_transform">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fade_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.fade_transform" title="Link to this definition">¶</a></dt>
+<dd><p>Cross-fade between <em>source</em> and <em>target</em>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.swap">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.swap" title="Link to this definition">¶</a></dt>
+<dd><p>Swap positions of two objects.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.surround">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">surround</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">follow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.surround" title="Link to this definition">¶</a></dt>
+<dd><p>Create a surrounding rectangle around <em>other</em>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.brect">
+<span class="sig-name descname"><span class="pre">brect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">follow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.brect" title="Link to this definition">¶</a></dt>
+<dd><p>Bounding rectangle. Returns a <a class="reference internal" href="shapes.html#Rectangle" title="Rectangle"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rectangle</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#VObject.copy" title="Link to this definition">¶</a></dt>
+<dd><p>Deep copy with independent animations.</p>
+</dd></dl>
+
+<p class="rubric">Z-Order</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.set_z">
+<span class="sig-name descname"><span class="pre">set_z</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.set_z" title="Link to this definition">¶</a></dt>
+<dd><p>Set z-order value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.to_front">
+<span class="sig-name descname"><span class="pre">to_front</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.to_front" title="Link to this definition">¶</a></dt>
+<dd><p>Bring to front (z = 999).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VObject.to_back">
+<span class="sig-name descname"><span class="pre">to_back</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VObject.to_back" title="Link to this definition">¶</a></dt>
+<dd><p>Send to back (z = -999).</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="shapes.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Shapes</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="canvas.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">VectorMathAnim</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023-2025 Joris Perrenet
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">VObject</a><ul>
+<li><a class="reference internal" href="#coordinate-system">Coordinate System</a><ul>
+<li><a class="reference internal" href="#VObject"><code class="docutils literal notranslate"><span class="pre">VObject</span></code></a><ul>
+<li><a class="reference internal" href="#VObject.bbox"><code class="docutils literal notranslate"><span class="pre">VObject.bbox()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.center"><code class="docutils literal notranslate"><span class="pre">VObject.center()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.get_width"><code class="docutils literal notranslate"><span class="pre">VObject.get_width()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.get_height"><code class="docutils literal notranslate"><span class="pre">VObject.get_height()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.get_edge"><code class="docutils literal notranslate"><span class="pre">VObject.get_edge()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.path"><code class="docutils literal notranslate"><span class="pre">VObject.path()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.shift"><code class="docutils literal notranslate"><span class="pre">VObject.shift()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.move_to"><code class="docutils literal notranslate"><span class="pre">VObject.move_to()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.center_to_pos"><code class="docutils literal notranslate"><span class="pre">VObject.center_to_pos()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.along_path"><code class="docutils literal notranslate"><span class="pre">VObject.along_path()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.next_to"><code class="docutils literal notranslate"><span class="pre">VObject.next_to()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.align_to"><code class="docutils literal notranslate"><span class="pre">VObject.align_to()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.rotate_by"><code class="docutils literal notranslate"><span class="pre">VObject.rotate_by()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.rotate_to"><code class="docutils literal notranslate"><span class="pre">VObject.rotate_to()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.spin"><code class="docutils literal notranslate"><span class="pre">VObject.spin()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.always_rotate"><code class="docutils literal notranslate"><span class="pre">VObject.always_rotate()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.scale"><code class="docutils literal notranslate"><span class="pre">VObject.scale()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.scale_by"><code class="docutils literal notranslate"><span class="pre">VObject.scale_by()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.scale_to"><code class="docutils literal notranslate"><span class="pre">VObject.scale_to()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.stretch"><code class="docutils literal notranslate"><span class="pre">VObject.stretch()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.match_width"><code class="docutils literal notranslate"><span class="pre">VObject.match_width()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.match_height"><code class="docutils literal notranslate"><span class="pre">VObject.match_height()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.fadein"><code class="docutils literal notranslate"><span class="pre">VObject.fadein()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.fadeout"><code class="docutils literal notranslate"><span class="pre">VObject.fadeout()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.write"><code class="docutils literal notranslate"><span class="pre">VObject.write()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.create"><code class="docutils literal notranslate"><span class="pre">VObject.create()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.draw_along"><code class="docutils literal notranslate"><span class="pre">VObject.draw_along()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.grow_from_center"><code class="docutils literal notranslate"><span class="pre">VObject.grow_from_center()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.shrink_to_center"><code class="docutils literal notranslate"><span class="pre">VObject.shrink_to_center()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.grow_from_edge"><code class="docutils literal notranslate"><span class="pre">VObject.grow_from_edge()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.set_color"><code class="docutils literal notranslate"><span class="pre">VObject.set_color()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.set_fill"><code class="docutils literal notranslate"><span class="pre">VObject.set_fill()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.set_stroke"><code class="docutils literal notranslate"><span class="pre">VObject.set_stroke()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.set_opacity"><code class="docutils literal notranslate"><span class="pre">VObject.set_opacity()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.indicate"><code class="docutils literal notranslate"><span class="pre">VObject.indicate()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.flash"><code class="docutils literal notranslate"><span class="pre">VObject.flash()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.pulse"><code class="docutils literal notranslate"><span class="pre">VObject.pulse()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.blink"><code class="docutils literal notranslate"><span class="pre">VObject.blink()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.wiggle"><code class="docutils literal notranslate"><span class="pre">VObject.wiggle()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.wave"><code class="docutils literal notranslate"><span class="pre">VObject.wave()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.circumscribe"><code class="docutils literal notranslate"><span class="pre">VObject.circumscribe()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.show_passing_flash"><code class="docutils literal notranslate"><span class="pre">VObject.show_passing_flash()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.spiral_in"><code class="docutils literal notranslate"><span class="pre">VObject.spiral_in()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.become"><code class="docutils literal notranslate"><span class="pre">VObject.become()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.fade_transform"><code class="docutils literal notranslate"><span class="pre">VObject.fade_transform()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.swap"><code class="docutils literal notranslate"><span class="pre">VObject.swap()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.surround"><code class="docutils literal notranslate"><span class="pre">VObject.surround()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.brect"><code class="docutils literal notranslate"><span class="pre">VObject.brect()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.copy"><code class="docutils literal notranslate"><span class="pre">VObject.copy()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.set_z"><code class="docutils literal notranslate"><span class="pre">VObject.set_z()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.to_front"><code class="docutils literal notranslate"><span class="pre">VObject.to_front()</span></code></a></li>
+<li><a class="reference internal" href="#VObject.to_back"><code class="docutils literal notranslate"><span class="pre">VObject.to_back()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    </body>
+</html>

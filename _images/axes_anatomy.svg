@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='520' height='380' viewBox='0 0 520 380'>
+<rect x='0' y='0' width='520' height='380' rx='0' ry='0' fill='rgb(30,30,46)' stroke='rgb(0,0,0)' stroke-width='0' />
+<rect x='90' y='40' width='360' height='260' rx='0' ry='0' fill-opacity='0' stroke='rgb(69,71,90)' stroke-dasharray='4,3' />
+<line x1='90' y1='300' x2='450' y2='300' stroke='rgb(88,196,221)' stroke-width='2' />
+<line x1='90' y1='40' x2='90' y2='300' stroke='rgb(88,196,221)' stroke-width='2' />
+<line x1='90' y1='295' x2='90' y2='305' stroke='rgb(88,196,221)' stroke-width='1.5' />
+<text x='86' y='318' font-size='10' fill='rgb(205,214,244)' stroke='rgb(0,0,0)' stroke-width='0'>-2</text>
+<line x1='162' y1='295' x2='162' y2='305' stroke='rgb(88,196,221)' stroke-width='1.5' />
+<text x='158' y='318' font-size='10' fill='rgb(205,214,244)' stroke='rgb(0,0,0)' stroke-width='0'>-1</text>
+<line x1='234' y1='295' x2='234' y2='305' stroke='rgb(88,196,221)' stroke-width='1.5' />
+<text x='230' y='318' font-size='10' fill='rgb(205,214,244)' stroke='rgb(0,0,0)' stroke-width='0'>0</text>
+<line x1='306' y1='295' x2='306' y2='305' stroke='rgb(88,196,221)' stroke-width='1.5' />
+<text x='302' y='318' font-size='10' fill='rgb(205,214,244)' stroke='rgb(0,0,0)' stroke-width='0'>1</text>
+<line x1='378' y1='295' x2='378' y2='305' stroke='rgb(88,196,221)' stroke-width='1.5' />
+<text x='374' y='318' font-size='10' fill='rgb(205,214,244)' stroke='rgb(0,0,0)' stroke-width='0'>2</text>
+<line x1='450' y1='295' x2='450' y2='305' stroke='rgb(88,196,221)' stroke-width='1.5' />
+<text x='446' y='318' font-size='10' fill='rgb(205,214,244)' stroke='rgb(0,0,0)' stroke-width='0'>3</text>
+<line x1='85' y1='300' x2='95' y2='300' stroke='rgb(88,196,221)' stroke-width='1.5' />
+<text x='72' y='304' font-size='10' fill='rgb(205,214,244)' stroke='rgb(0,0,0)' stroke-width='0'>-2</text>
+<line x1='85' y1='248' x2='95' y2='248' stroke='rgb(88,196,221)' stroke-width='1.5' />
+<text x='72' y='252' font-size='10' fill='rgb(205,214,244)' stroke='rgb(0,0,0)' stroke-width='0'>-1</text>
+<line x1='85' y1='196' x2='95' y2='196' stroke='rgb(88,196,221)' stroke-width='1.5' />
+<text x='72' y='200' font-size='10' fill='rgb(205,214,244)' stroke='rgb(0,0,0)' stroke-width='0'>0</text>
+<line x1='85' y1='144' x2='95' y2='144' stroke='rgb(88,196,221)' stroke-width='1.5' />
+<text x='72' y='148' font-size='10' fill='rgb(205,214,244)' stroke='rgb(0,0,0)' stroke-width='0'>1</text>
+<line x1='85' y1='92' x2='95' y2='92' stroke='rgb(88,196,221)' stroke-width='1.5' />
+<text x='72' y='96' font-size='10' fill='rgb(205,214,244)' stroke='rgb(0,0,0)' stroke-width='0'>2</text>
+<line x1='85' y1='40' x2='95' y2='40' stroke='rgb(88,196,221)' stroke-width='1.5' />
+<text x='72' y='44' font-size='10' fill='rgb(205,214,244)' stroke='rgb(0,0,0)' stroke-width='0'>3</text>
+<polyline points='90.0,207.01 93.64,212.82 97.27,218.54 100.91,224.12 104.55,229.55 108.18,234.78 111.82,239.79 115.45,244.55 119.09,249.03 122.73,253.21 126.36,257.06 130.0,260.56 133.64,263.69 137.27,266.43 140.91,268.76 144.55,270.68 148.18,272.17 151.82,273.22 155.45,273.83 159.09,274 162.73,273.71 166.36,272.98 170.0,271.81 173.64,270.21 177.27,268.17 180.91,265.73 184.55,262.88 188.18,259.65 191.82,256.06 195.45,252.12 199.09,247.86 202.73,243.3 206.36,238.47 210.0,233.4 213.64,228.11 217.27,222.63 220.91,217.01 224.55,211.26 228.18,205.43 231.82,199.54 235.45,193.64 239.09,187.74 242.73,181.9 246.36,176.13 250.0,170.48 253.64,164.97 257.27,159.65 260.91,154.53 264.55,149.65 268.18,145.03 271.82,140.71 275.45,136.7 279.09,133.04 282.73,129.73 286.36,126.81 290.0,124.28 293.64,122.17 297.27,120.48 300.91,119.22 304.55,118.4 308.18,118.03 311.82,118.1 315.45,118.62 319.09,119.58 322.73,120.99 326.36,122.82 330.0,125.07 333.64,127.73 337.27,130.79 340.91,134.21 344.55,137.99 348.18,142.11 351.82,146.53 355.45,151.23 359.09,156.2 362.73,161.39 366.36,166.78 370.0,172.33 373.64,178.03 377.27,183.82 380.91,189.69 384.55,195.59 388.18,201.5 391.82,207.37 395.45,213.18 399.09,218.89 402.73,224.46 406.36,229.88 410.0,235.1 413.64,240.1 417.27,244.84 420.91,249.3 424.55,253.46 428.18,257.29 431.82,260.76 435.45,263.87 439.09,266.58 442.73,268.89 446.36,270.78 450.0,272.25' fill-opacity='0' stroke='rgb(166,227,161)' stroke-width='2' />
+<text x='255' y='335' font-size='12' fill='rgb(249,226,175)' stroke='rgb(0,0,0)' stroke-width='0'>x_label</text>
+<g>
+<line x1='295' y1='330' x2='460' y2='305' stroke='rgb(249,226,175)' stroke-width='0.8' />
+<polygon points='460,305 454.44,308.37 453.69,303.43' fill='rgb(249,226,175)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<text x='15' y='150' font-size='12' fill='rgb(249,226,175)' stroke='rgb(0,0,0)' stroke-width='0'>y_label</text>
+<g>
+<line x1='35' y1='160' x2='85' y2='35' stroke='rgb(249,226,175)' stroke-width='0.8' />
+<polygon points='85,35 85.09,41.5 80.45,39.64' fill='rgb(249,226,175)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='95' y1='32' x2='450' y2='32' stroke='rgb(205,214,244)' stroke-width='0.8' />
+<polygon points='450,32 445.0,34.0 445.0,30.0' fill='rgb(205,214,244)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='445' y1='32' x2='90' y2='32' stroke='rgb(205,214,244)' stroke-width='0.8' />
+<polygon points='90,32 95.0,30.0 95.0,34.0' fill='rgb(205,214,244)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<text x='245' y='26' font-size='10' fill='rgb(205,214,244)' stroke='rgb(0,0,0)' stroke-width='0'>plot_width</text>
+<g>
+<line x1='460' y1='45' x2='460' y2='300' stroke='rgb(205,214,244)' stroke-width='0.8' />
+<polygon points='460,300 458.0,295.0 462.0,295.0' fill='rgb(205,214,244)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='460' y1='295' x2='460' y2='40' stroke='rgb(205,214,244)' stroke-width='0.8' />
+<polygon points='460,40 462.0,45.0 458.0,45.0' fill='rgb(205,214,244)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<text x='466' y='170' font-size='10' fill='rgb(205,214,244)' stroke='rgb(0,0,0)' stroke-width='0'>plot_height</text>
+<text x='420' y='318' font-size='9' fill='rgb(88,91,112)' stroke='rgb(0,0,0)' stroke-width='0'>ticks</text>
+<text x='380' y='75' font-size='11' fill='rgb(166,227,161)' stroke='rgb(0,0,0)' stroke-width='0'>plot(func)</text>
+<text x='200' y='350' font-size='11' fill='rgb(243,139,168)' stroke='rgb(0,0,0)' stroke-width='0'>x_range</text>
+<text x='15' y='180' font-size='11' fill='rgb(243,139,168)' stroke='rgb(0,0,0)' stroke-width='0'>y_range</text>
+</svg>
