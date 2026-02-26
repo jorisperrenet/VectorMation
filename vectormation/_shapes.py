@@ -302,12 +302,9 @@ class Circle(Ellipse):
         return 2 * math.pi * self.rx.at_time(time)
 
     def point_on_circle(self, angle_degrees, time=0):
-        """Return (x, y) coordinates of a point on the circle at the given angle (degrees).
-        Angle 0 = right, 90 = down (SVG coordinates)."""
-        cx, cy = self.c.at_time(time)
-        r = self.rx.at_time(time)
-        rad = math.radians(angle_degrees)
-        return (cx + r * math.cos(rad), cy + r * math.sin(rad))
+        """Return (x, y) on the circle at the given angle (degrees, CCW from right).
+        Alias for point_at_angle."""
+        return self.point_at_angle(angle_degrees, time)
 
     def tangent_line(self, angle_degrees, length=100, time=0, creation=0, **line_kwargs):
         """Return a Line tangent to the circle at the given angle.
@@ -561,11 +558,12 @@ class Line(VObject):
         p1, p2 = self.p1.at_time(0), self.p2.at_time(0)
         return f'Line(({p1[0]:.0f},{p1[1]:.0f})->({p2[0]:.0f},{p2[1]:.0f}))'
 
-    def perpendicular(self, at_proportion=0.5, length=None, time=0):
+    def perpendicular(self, at_proportion=0.5, length=None, time=0, **kwargs):
         """Return a new Line perpendicular to this line at the given proportion.
 
         at_proportion: 0 = start, 1 = end (default 0.5 = midpoint).
         length: length of the new line (defaults to same as this line).
+        Extra kwargs are forwarded to the new Line constructor.
         """
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
@@ -573,44 +571,40 @@ class Line(VObject):
         line_len = math.sqrt(dx * dx + dy * dy)
         if length is None:
             length = line_len
-        # Point on this line at the given proportion
         px = x1 + dx * at_proportion
         py = y1 + dy * at_proportion
-        # Perpendicular direction (rotate 90 degrees)
         if line_len == 0:
-            return Line(px, py, px, py)
+            return Line(px, py, px, py, **kwargs)
         nx, ny = -dy / line_len, dx / line_len
         half = length / 2
         return Line(px - nx * half, py - ny * half,
-                    px + nx * half, py + ny * half)
+                    px + nx * half, py + ny * half, **kwargs)
 
-    def extend(self, factor=1.5, time=0):
+    def extend(self, factor=1.5, time=0, **kwargs):
         """Return a new Line extended in both directions by factor.
 
-        factor=1.5 means 50% longer on each side (total length = original * (1 + 2*(factor-1)) = 2*factor - 1).
+        factor=1.5 means 50% longer on each side.
+        Extra kwargs are forwarded to the new Line constructor.
         """
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         dx, dy = x2 - x1, y2 - y1
         extra = factor - 1
-        new_x1 = x1 - dx * extra
-        new_y1 = y1 - dy * extra
-        new_x2 = x2 + dx * extra
-        new_y2 = y2 + dy * extra
-        return Line(new_x1, new_y1, new_x2, new_y2)
+        return Line(x1 - dx * extra, y1 - dy * extra,
+                    x2 + dx * extra, y2 + dy * extra, **kwargs)
 
-    def parallel(self, offset=50, time=0):
-        """Return a new Line parallel to this one, offset perpendicular by offset pixels."""
+    def parallel(self, offset=50, time=0, **kwargs):
+        """Return a new Line parallel to this one, offset perpendicular by offset pixels.
+        Extra kwargs are forwarded to the new Line constructor."""
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         dx, dy = x2 - x1, y2 - y1
         line_len = math.sqrt(dx * dx + dy * dy)
         if line_len == 0:
-            return Line(x1, y1, x2, y2)
-        # Perpendicular unit normal
+            return Line(x1, y1, x2, y2, **kwargs)
         nx, ny = -dy / line_len, dx / line_len
         return Line(x1 + nx * offset, y1 + ny * offset,
-                    x2 + nx * offset, y2 + ny * offset)
+                    x2 + nx * offset, y2 + ny * offset, **kwargs)
 
     def intersect_line(self, other, time=0):
         """Return intersection point (x, y) of this line with another, or None if parallel."""

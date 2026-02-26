@@ -3583,6 +3583,8 @@ class Arrow(VCollection):
         """Set shaft stroke and tip fill to *color* from *start* onward."""
         self.shaft.styling.stroke.set_onward(start, color)
         self.tip.styling.fill.set_onward(start, color)
+        if hasattr(self, 'tail'):
+            self.tail.styling.fill.set_onward(start, color)
         return self
 
     def __repr__(self):

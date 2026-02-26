@@ -2434,7 +2434,10 @@ class VCollection:
         if n < 2 or len(colors) < 2:
             if colors and n:
                 for obj in self.objects:
-                    obj.set_color(colors[0], start)
+                    if attr == 'fill':
+                        obj.set_fill(colors[0], start=start)
+                    else:
+                        obj.set_stroke(colors[0], start=start)
             return self
         from vectormation.colors import interpolate_color
         for i, obj in enumerate(self.objects):

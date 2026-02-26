@@ -4705,10 +4705,10 @@ class TestCircleGeometricMethods:
     def test_point_on_circle_90(self):
         from vectormation.objects import Circle
         c = Circle(cx=500, cy=500, r=100)
-        # Angle 90 = down (SVG coords)
+        # Angle 90 = up (CCW from right, same as point_at_angle)
         px, py = c.point_on_circle(90, 0)
         assert abs(px - 500) < 1
-        assert abs(py - 600) < 1
+        assert abs(py - 400) < 1
 
     def test_tangent_line(self):
         from vectormation.objects import Circle, Line
