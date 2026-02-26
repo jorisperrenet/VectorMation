@@ -275,6 +275,26 @@ def complementary(color):
     return adjust_hue(color, 180)
 
 
+def set_saturation(color, level):
+    """Set the saturation of a color to an absolute level (0.0-1.0)."""
+    h, s, l = _hex_to_hsl(color)
+    return _hsl_to_hex(h, max(0, min(1, level)), l)
+
+
+def set_lightness(color, level):
+    """Set the lightness of a color to an absolute level (0.0-1.0)."""
+    h, s, l = _hex_to_hsl(color)
+    return _hsl_to_hex(h, s, max(0, min(1, level)))
+
+
+def invert(color):
+    """Return the inverse (complementary negative) of a color."""
+    if color in colors:
+        color = colors[color]
+    r, g, b = _hex_to_rgb(color)
+    return f'#{255-r:02x}{255-g:02x}{255-b:02x}'
+
+
 # Named palette presets
 PALETTE_BLUE = ['#58C4DD', '#29ABCA', '#1C758A', '#236B8E', '#2C6FAC']
 PALETTE_GREEN = ['#83C167', '#77B05D', '#699C52', '#5B8845', '#4E7438']

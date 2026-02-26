@@ -327,6 +327,19 @@ class VObject(ABC):  # Vector Object
             self.show.set_onward(end, False)
         return self
 
+    def hide_during(self, *ranges):
+        """Hide this object during the specified time ranges, visible otherwise.
+
+        Each range is a (start, end) tuple. Object is visible outside all ranges.
+        Usage: obj.hide_during((2, 4))
+        """
+        if len(ranges) == 1 and isinstance(ranges[0], list):
+            ranges = ranges[0]
+        for start, end in ranges:
+            self.show.set_onward(start, False)
+            self.show.set_onward(end, True)
+        return self
+
     def __repr__(self):
         return f'{self.__class__.__name__}(z={self.z.at_time(0)})'
 

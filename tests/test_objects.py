@@ -5116,3 +5116,97 @@ class TestGlow:
         c.glow(start=0, end=1, color='#FF0000')
         svg = c.to_svg(0.5)
         assert svg  # just verify no crash
+
+
+class TestHideDuring:
+    def test_basic(self):
+        c = Circle(r=50)
+        c.hide_during((1, 3))
+        # Should be visible before 1
+        svg_before = c.to_svg(0.5)
+        assert svg_before
+        # Should be hidden during 1-3
+        # Should be visible after 3
+        svg_after = c.to_svg(4)
+        assert svg_after
+
+    def test_return_self(self):
+        c = Circle(r=50)
+        assert c.hide_during((0, 1)) is c
+
+
+class TestColorSetters:
+    def test_set_saturation(self):
+        from vectormation.colors import set_saturation
+        result = set_saturation('#ff0000', 0.5)
+        assert isinstance(result, str)
+        assert result.startswith('#')
+
+    def test_set_lightness(self):
+        from vectormation.colors import set_lightness
+        result = set_lightness('#ff0000', 0.5)
+        assert isinstance(result, str)
+
+    def test_invert(self):
+        from vectormation.colors import invert
+        assert invert('#000000') == '#ffffff'
+        assert invert('#ffffff') == '#000000'
+        assert invert('#ff0000') == '#00ffff'
+
+
+class TestBarChartAccessors:
+    def test_get_bar(self):
+        bc = BarChart(values=[10, 20, 30], labels=['A', 'B', 'C'])
+        bar = bc.get_bar(0)
+        assert bar is not None
+        svg = bar.to_svg(0)
+        assert 'rect' in svg.lower()
+
+    def test_get_bars(self):
+        bc = BarChart(values=[10, 20, 30], labels=['A', 'B', 'C'])
+        bars = bc.get_bars(0, 2)
+        assert len(bars.objects) == 2
+
+    def test_get_bars_no_args(self):
+        bc = BarChart(values=[10, 20, 30], labels=['A', 'B', 'C'])
+        bars = bc.get_bars()
+        assert len(bars.objects) == 3
+
+    def test_highlight_bar(self):
+        bc = BarChart(values=[10, 20, 30], labels=['A', 'B', 'C'])
+        result = bc.highlight_bar(1, start=0, end=1)
+        assert result is bc
+
+
+class TestAnimatePointer:
+    def test_basic(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        ptr = nl.add_pointer(3)
+        nl.animate_pointer(ptr, 7, start=0, end=1)
+        svg = nl.to_svg(0.5)
+        assert svg
+
+    def test_pointer_moves_to_target(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        ptr = nl.add_pointer(3)
+        nl.animate_pointer(ptr, 7, start=0, end=1)
+        tri = ptr.objects[0]
+        # After animation ends, tip should be at value 7
+        tip_x = tri.vertices[2].at_time(1)[0]
+        target_x = nl.number_to_point(7)[0]
+        assert abs(tip_x - target_x) < 1
+
+    def test_with_label(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        ptr = nl.add_pointer(3, label='P')
+        nl.animate_pointer(ptr, 7, start=0, end=1)
+        # Label x should move to target position
+        lbl = ptr.objects[1]
+        target_x = nl.number_to_point(7)[0]
+        assert abs(lbl.x.at_time(1) - target_x) < 1
+
+    def test_returns_self(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        ptr = nl.add_pointer(5)
+        result = nl.animate_pointer(ptr, 8, start=0, end=1)
+        assert result is nl

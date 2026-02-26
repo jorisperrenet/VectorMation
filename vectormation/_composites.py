@@ -4117,6 +4117,34 @@ class NumberLine(VCollection):
         self.objects.append(group)
         return group
 
+    def animate_pointer(self, pointer_group, target_value, start=0, end=1, easing=easings.smooth):
+        """Animate a pointer (from add_pointer) to a new value.
+
+        pointer_group: the VCollection returned by add_pointer()
+        target_value: the new value to point to
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        # Get the pointer's triangle (first object in group)
+        tri = pointer_group.objects[0]
+        # Current tip x at start time
+        current_x = tri.vertices[2].at_time(start)[0]
+        target_x = self.number_to_point(target_value)[0]
+        dx = target_x - current_x
+        # Animate all vertices of the triangle
+        for vert in tri.vertices:
+            base = vert.at_time(start)
+            vert.move_to(start, end, (base[0] + dx, base[1]), easing=easing)
+        # If there's a label (second object), animate it too
+        if len(pointer_group.objects) > 1:
+            lbl = pointer_group.objects[1]
+            lbl_x = lbl.x.at_time(start)
+            lbl_y = lbl.y.at_time(start)
+            lbl.x.move_to(start, end, lbl_x + dx, easing=easing)
+            lbl.y.move_to(start, end, lbl_y, easing=easing)
+        return self
+
     def __repr__(self):
         return f'NumberLine([{self.x_start}, {self.x_end}], step={self.x_step})'
 
@@ -4355,6 +4383,21 @@ class BarChart(VCollection):
         for i, color in enumerate(colors):
             if i < len(self._bars):
                 self._bars[i].styling.fill = attributes.Color(start, color)
+        return self
+
+    def get_bar(self, index):
+        """Return the bar VObject at the given index."""
+        return self._bars[index]
+
+    def get_bars(self, start=None, end=None):
+        """Return a VCollection of bars, optionally sliced by index range."""
+        bars = self._bars[start:end]
+        return VCollection(*bars)
+
+    def highlight_bar(self, index, start=0, end=1, color='#FFD700'):
+        """Temporarily highlight a bar by changing its color."""
+        bar = self._bars[index]
+        bar.flash_color(color, start=start, duration=end - start)
         return self
 
 
