@@ -21,6 +21,7 @@ from vectormation.objects import (
     CircularProgressBar, Scoreboard,
     MatrixHeatmap, BoxPlot, TextBox, Bracket, IconGrid,
     NumberedList, SpeechBubble, Badge, Divider,
+    Checklist, Stepper, TagCloud,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -1240,6 +1241,37 @@ class TestAxesNewMethods:
     def test_divider_vertical(self):
         d = Divider(x=300, y=0, length=600, direction='vertical', label='Section')
         assert len(d) == 3
+
+    def test_checklist_strings(self):
+        cl = Checklist('Item A', 'Item B', 'Item C')
+        assert isinstance(cl, VCollection)
+        assert len(cl._boxes) == 3
+
+    def test_checklist_tuples(self):
+        cl = Checklist(('Task 1', True), ('Task 2', False), ('Task 3', True))
+        assert len(cl._labels) == 3
+
+    def test_stepper_int(self):
+        s = Stepper(4, active=2)
+        assert isinstance(s, VCollection)
+        assert len(s._circles) == 4
+
+    def test_stepper_labels(self):
+        s = Stepper(['Setup', 'Build', 'Test', 'Deploy'], active=1)
+        assert len(s._circles) == 4
+
+    def test_stepper_vertical(self):
+        s = Stepper(3, direction='vertical')
+        assert len(s._circles) == 3
+
+    def test_tagcloud(self):
+        tc = TagCloud([('Python', 10), ('Rust', 7), ('Go', 5), ('JS', 8)])
+        assert isinstance(tc, VCollection)
+        assert len(tc) == 4
+
+    def test_tagcloud_empty(self):
+        tc = TagCloud([])
+        assert len(tc) == 0
 
 
 class TestVCollectionNew:

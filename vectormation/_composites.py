@@ -2837,9 +2837,8 @@ class Axes(VCollection):
         Returns a VCollection with (dot, h_line, v_line, label)."""
         style_kw = {'stroke': '#FFFF00', 'fill': '#FFFF00'} | styling_kwargs
         # Shared base point (cached per-frame to avoid 5 coords_to_point calls)
-        _x, _y = x, y
         _pt_cache = [None, None]
-        def _pt(t, _xv=_x, _yv=_y):
+        def _pt(t, _xv=x, _yv=y):
             if _pt_cache[0] == t:
                 return _pt_cache[1]
             _pt_cache[0] = t
@@ -7138,6 +7137,132 @@ class Divider(VCollection):
                 ln = SLine(x1=x, y1=y, x2=x, y2=y + length,
                            creation=creation, z=z, **style_kw)
             objects = [ln]
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class Checklist(VCollection):
+    """List of items with checkbox indicators (checked or unchecked).
+
+    items: list of (text, checked) tuples, or just strings (all unchecked).
+    check_color: fill color for checked boxes.
+    uncheck_color: fill color for unchecked boxes.
+    """
+    def __init__(self, *items, x=100, y=100, font_size=24, spacing=1.6,
+                 box_size=None, check_color='#83C167', uncheck_color='#555',
+                 text_color='#fff', creation=0, z=0):
+        from vectormation._shapes import RoundedRectangle, Text as SText
+        if box_size is None:
+            box_size = font_size * 0.75
+        objects = []
+        self._boxes = []
+        self._labels = []
+        for i, item in enumerate(items):
+            if isinstance(item, str):
+                label_text, checked = item, False
+            else:
+                label_text, checked = item
+            ly = y + i * font_size * spacing
+            fill = check_color if checked else uncheck_color
+            box = RoundedRectangle(width=box_size, height=box_size,
+                                   x=x, y=ly, corner_radius=3,
+                                   fill=fill, fill_opacity=0.9, stroke_width=0,
+                                   creation=creation, z=z)
+            # Checkmark or empty
+            mark = SText(text='\u2713' if checked else '',
+                         x=x + box_size / 2, y=ly + box_size * 0.8,
+                         font_size=font_size * 0.7, fill='#fff', stroke_width=0,
+                         text_anchor='middle', creation=creation, z=z + 0.1)
+            lbl = SText(text=label_text, x=x + box_size + 10,
+                        y=ly + box_size * 0.75,
+                        font_size=font_size, fill=text_color, stroke_width=0,
+                        creation=creation, z=z)
+            objects.extend([box, mark, lbl])
+            self._boxes.append(box)
+            self._labels.append(lbl)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class Stepper(VCollection):
+    """Step indicator: numbered circles connected by a line, with active step highlight.
+
+    steps: list of step labels (strings), or int for numbered steps.
+    active: 0-based index of the currently active step.
+    """
+    def __init__(self, steps, x=100, y=300, spacing=150, radius=20,
+                 active=0, direction='horizontal', font_size=16,
+                 active_color='#58C4DD', inactive_color='#555',
+                 text_color='#fff', creation=0, z=0):
+        if isinstance(steps, int):
+            steps = [str(i + 1) for i in range(steps)]
+        objects = []
+        self._circles = []
+        n = len(steps)
+        for i, label in enumerate(steps):
+            if direction == 'horizontal':
+                cx, cy = x + i * spacing, y
+            else:
+                cx, cy = x, y + i * spacing
+            fill = active_color if i <= active else inactive_color
+            circ = Circle(cx=cx, cy=cy, r=radius,
+                          fill=fill, fill_opacity=1, stroke_width=0,
+                          creation=creation, z=z + 1)
+            lbl = Text(text=label, x=cx, y=cy + font_size * 0.35,
+                       font_size=font_size, fill=text_color, stroke_width=0,
+                       text_anchor='middle', creation=creation, z=z + 2)
+            objects.extend([circ, lbl])
+            self._circles.append(circ)
+            # Connecting line to next step
+            if i < n - 1:
+                if direction == 'horizontal':
+                    nx, ny = x + (i + 1) * spacing, y
+                    lx1, ly1, lx2, ly2 = cx + radius, cy, nx - radius, ny
+                else:
+                    nx, ny = x, y + (i + 1) * spacing
+                    lx1, ly1, lx2, ly2 = cx, cy + radius, nx, ny - radius
+                line_color = active_color if i < active else inactive_color
+                conn = Line(x1=lx1, y1=ly1, x2=lx2, y2=ly2,
+                            stroke=line_color, stroke_width=2,
+                            creation=creation, z=z)
+                objects.append(conn)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class TagCloud(VCollection):
+    """Word/tag cloud with varying font sizes based on weights.
+
+    data: list of (text, weight) tuples. Higher weight = larger font.
+    """
+    def __init__(self, data, x=100, y=100, width=500, min_font=14, max_font=48,
+                 colors=None, creation=0, z=0):
+        if colors is None:
+            colors = ['#58C4DD', '#83C167', '#FF6B6B', '#FFFF00',
+                      '#FF79C6', '#BD93F9', '#F1FA8C', '#8BE9FD']
+        if not data:
+            super().__init__(creation=creation, z=z)
+            return
+        weights = [w for _, w in data]
+        wmin, wmax = min(weights), max(weights)
+        wrange = wmax - wmin if wmax > wmin else 1
+        objects = []
+        cx, cy = x, y
+        row_height = 0
+        for i, (text, weight) in enumerate(data):
+            frac = (weight - wmin) / wrange
+            fs = min_font + frac * (max_font - min_font)
+            char_w = fs * 0.6
+            tw = len(text) * char_w + 12  # word width + gap
+            # Wrap to next row if exceeding width
+            if cx + tw > x + width and cx > x:
+                cx = x
+                cy += row_height + 8
+                row_height = 0
+            color = colors[i % len(colors)]
+            lbl = Text(text=text, x=cx, y=cy + fs,
+                       font_size=fs, fill=color, stroke_width=0,
+                       creation=creation, z=z)
+            objects.append(lbl)
+            cx += tw
+            row_height = max(row_height, fs + 4)
         super().__init__(*objects, creation=creation, z=z)
 
 
