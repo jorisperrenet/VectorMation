@@ -19,7 +19,7 @@ from vectormation.objects import (
     KPICard, BulletChart, CalendarHeatmap,
     WaffleChart, MindMap,
     CircularProgressBar, Scoreboard,
-    MatrixHeatmap, BoxPlot,
+    MatrixHeatmap, BoxPlot, TextBox, Bracket, IconGrid,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -1164,6 +1164,39 @@ class TestAxesNewMethods:
         dp = ax.plot_dot_plot([1, 1, 2, 2, 2, 3])
         assert isinstance(dp, VCollection)
         assert len(dp) == 6
+
+    def test_plot_area(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 5), plot_width=300, plot_height=200)
+        area = ax.plot_area(lambda x: x, baseline=0)
+        assert isinstance(area, Path)
+        d = area.d.at_time(0)
+        assert 'M' in d and 'Z' in d
+
+    def test_text_box(self):
+        tb = TextBox('Hello', x=100, y=100)
+        assert isinstance(tb, VCollection)
+        assert len(tb) == 2  # box + label
+        svg = tb.to_svg(0)
+        assert 'Hello' in svg
+
+    def test_bracket(self):
+        br = Bracket(x=100, y=100, width=200, text='span')
+        assert isinstance(br, VCollection)
+        svg = br.to_svg(0)
+        assert 'span' in svg
+
+    def test_bracket_no_text(self):
+        br = Bracket(x=100, y=100, width=200)
+        assert len(br) == 1  # just the bracket lines
+
+    def test_icon_grid(self):
+        ig = IconGrid([(5, '#ff0000'), (3, '#00ff00'), (2, '#0000ff')])
+        assert isinstance(ig, VCollection)
+        assert len(ig) == 10
+
+    def test_icon_grid_squares(self):
+        ig = IconGrid([(4, '#ff0000')], shape='square')
+        assert len(ig) == 4
 
 
 class TestVCollectionNew:

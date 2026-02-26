@@ -2642,6 +2642,36 @@ class Axes(VCollection):
             x += x_step
         return VCollection(*objs, creation=creation, z=z)
 
+    def plot_area(self, func, x_range=None, baseline=0, num_points=100,
+                   creation=0, z=0, **styling_kwargs):
+        """Filled area chart between func(x) and a baseline value.
+        Returns a dynamic Path."""
+        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.3,
+                    'stroke': '#58C4DD', 'stroke_width': 1.5} | styling_kwargs
+        func = self._resolve_func(func)
+        x_lo = x_range[0] if x_range else self.x_min.at_time(creation)
+        x_hi = x_range[1] if x_range else self.x_max.at_time(creation)
+        xs = [x_lo + i * (x_hi - x_lo) / max(num_points - 1, 1) for i in range(num_points)]
+        data = [(x, func(x)) for x in xs]
+        area = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
+        def _d(time, _data=data, _bl=baseline):
+            if not _data:
+                return ''
+            pts = [f'{"M" if i == 0 else "L"}{self.coords_to_point(x, y, time)[0]:.1f},'
+                   f'{self.coords_to_point(x, y, time)[1]:.1f}'
+                   for i, (x, y) in enumerate(_data)]
+            # Close to baseline
+            last_x = _data[-1][0]
+            first_x = _data[0][0]
+            sx_last, sy_bl = self.coords_to_point(last_x, _bl, time)
+            sx_first, _ = self.coords_to_point(first_x, _bl, time)
+            pts.append(f'L{sx_last:.1f},{sy_bl:.1f}')
+            pts.append(f'L{sx_first:.1f},{sy_bl:.1f}Z')
+            return ''.join(pts)
+        area.d.set_onward(creation, _d)
+        self._add_plot_obj(area)
+        return area
+
     def plot_dot_plot(self, values, stack_spacing=0.3, r=4,
                        creation=0, z=0, **styling_kwargs):
         """Dot plot: stack of dots at each value along the x-axis.
@@ -6901,6 +6931,99 @@ class BoxPlot(VCollection):
             stem_hi = Line(x1=cx, y1=py_q3, x2=cx, y2=py_hi,
                            stroke=whisker_color, stroke_width=1, creation=creation, z=z)
             objects.extend([stem_lo, stem_hi])
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class TextBox(VCollection):
+    """Text with a surrounding rectangle. Useful for labels and callouts.
+
+    text: string to display.
+    Sizing: padding around the text, auto-computed from font_size if width/height not given.
+    """
+    def __init__(self, text, x=100, y=100, font_size=20, padding=12,
+                 width=None, height=None, corner_radius=6,
+                 box_fill='#333', box_opacity=0.9, text_color='#fff',
+                 creation=0, z=0, **styling_kwargs):
+        char_w = font_size * 0.6
+        if width is None:
+            width = len(text) * char_w + padding * 2
+        if height is None:
+            height = font_size + padding * 2
+        from vectormation._shapes import RoundedRectangle
+        box = RoundedRectangle(width=width, height=height, x=x, y=y,
+                                corner_radius=corner_radius,
+                                fill=box_fill, fill_opacity=box_opacity,
+                                stroke_width=0, creation=creation, z=z,
+                                **styling_kwargs)
+        lbl = Text(text=text, x=x + width / 2, y=y + height / 2 + font_size * 0.35,
+                   font_size=font_size, fill=text_color, stroke_width=0,
+                   text_anchor='middle', creation=creation, z=z + 0.1)
+        super().__init__(box, lbl, creation=creation, z=z)
+        self.box = box
+        self.label = lbl
+
+
+class Bracket(VCollection):
+    """Square bracket decoration pointing at a range.
+
+    direction: 'up', 'down', 'left', 'right' — which way the bracket opens.
+    """
+    def __init__(self, x=100, y=100, width=100, height=20,
+                 direction='down', stroke='#fff', stroke_width=2,
+                 text='', font_size=16, text_color='#aaa',
+                 creation=0, z=0):
+        tip = height
+        if direction in ('down', 'up'):
+            sign = 1 if direction == 'down' else -1
+            bracket = Lines(
+                (x, y), (x, y + sign * tip),
+                (x + width, y + sign * tip), (x + width, y),
+                stroke=stroke, stroke_width=stroke_width,
+                fill_opacity=0, creation=creation, z=z)
+            tx, ty = x + width / 2, y + sign * (tip + font_size + 4)
+        else:
+            sign = 1 if direction == 'right' else -1
+            bracket = Lines(
+                (x, y), (x + sign * tip, y),
+                (x + sign * tip, y + width), (x, y + width),
+                stroke=stroke, stroke_width=stroke_width,
+                fill_opacity=0, creation=creation, z=z)
+            tx, ty = x + sign * (tip + font_size), y + width / 2
+        objects = [bracket]
+        if text:
+            lbl = Text(text=text, x=tx, y=ty + font_size * 0.35,
+                       font_size=font_size, fill=text_color, stroke_width=0,
+                       text_anchor='middle', creation=creation, z=z + 0.1)
+            objects.append(lbl)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class IconGrid(VCollection):
+    """Grid of colored shapes (circles, squares) for infographic-style visualizations.
+
+    data: list of (count, color) tuples.
+    shape: 'circle' or 'square'.
+    """
+    def __init__(self, data, x=100, y=100, cols=10, size=15, gap=3,
+                 shape='circle', creation=0, z=0):
+        objects = []
+        idx = 0
+        # Flatten data into a list of colors
+        colors = []
+        for count, color in data:
+            colors.extend([color] * count)
+        for i, color in enumerate(colors):
+            r = i // cols
+            c = i % cols
+            px = x + c * (size + gap)
+            py = y + r * (size + gap)
+            if shape == 'circle':
+                obj = Dot(cx=px + size / 2, cy=py + size / 2, r=size / 2,
+                          fill=color, stroke_width=0, creation=creation, z=z)
+            else:
+                obj = Rectangle(width=size, height=size, x=px, y=py,
+                                fill=color, stroke_width=0, creation=creation, z=z)
+            objects.append(obj)
         super().__init__(*objects, creation=creation, z=z)
 
 
