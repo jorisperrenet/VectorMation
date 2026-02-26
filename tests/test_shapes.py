@@ -811,7 +811,7 @@ class TestFromSvgInlineStyle:
         svg = '<rect width="100" height="50" style="fill:#0000ff" />'
         elem = BeautifulSoup(svg, 'html.parser').find('rect')
         obj = from_svg(elem)
-        assert isinstance(obj, Path)
+        assert isinstance(obj, Rectangle)
 
     def test_parse_inline_style(self):
         from vectormation.objects import _parse_inline_style

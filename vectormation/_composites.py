@@ -3766,6 +3766,16 @@ class NumberLine(VCollection):
         t = (value - self.x_start) / span
         return (self.origin_x + t * self.length, self.origin_y)
 
+    def point_to_number(self, x, y=None):
+        """Convert an SVG x coordinate (or (x,y) tuple) back to a value on the line."""
+        if isinstance(x, (tuple, list)):
+            x = x[0]
+        span = self.x_end - self.x_start
+        if self.length == 0:
+            return self.x_start
+        t = (x - self.origin_x) / self.length
+        return self.x_start + t * span
+
     def add_pointer(self, value, label=None, color='#FF6B6B', creation=0, z=1):
         """Add a triangular pointer above the number line at *value*.
         Returns an Arrow pointing down at the position."""
@@ -4229,27 +4239,44 @@ def from_svg(element, **styles):
             if k in attrs: attrs[k] = float(attrs[k])
         return styles | attrs
 
+    # Parse SVG transform attribute (translate only for now)
+    transform_str = element.get('transform', '')
+    tx, ty = 0.0, 0.0
+    if transform_str:
+        m = re.search(r'translate\(\s*([-\d.]+)[\s,]+([-\d.]+)\s*\)', transform_str)
+        if m:
+            tx, ty = float(m.group(1)), float(m.group(2))
+
     if tag == 'path':
-        return Path(element['d'], **_merged_attrs('d'))
+        obj = Path(element['d'], **_merged_attrs('d', 'transform'))
+        if tx or ty:
+            obj.shift(dx=tx, dy=ty, start_time=0)
+        return obj
     elif tag == 'rect':
-        return Path(f'M0,0l{g("width")},0l0,{g("height")}l-{g("width")},0z',
-                    **_merged_attrs('width', 'height'))
+        rx, ry = g('x', 0) + tx, g('y', 0) + ty
+        return Rectangle(width=g('width'), height=g('height'), x=rx, y=ry,
+                         **_merged_attrs('width', 'height', 'x', 'y', 'transform'))
     elif tag == 'circle':
-        return Circle(r=g('r', 100), cx=g('cx'), cy=g('cy'), **_merged_attrs('r', 'cx', 'cy'))
+        return Circle(r=g('r', 100), cx=g('cx') + tx, cy=g('cy') + ty,
+                      **_merged_attrs('r', 'cx', 'cy', 'transform'))
     elif tag == 'ellipse':
-        return Ellipse(rx=g('rx', 100), ry=g('ry', 50), cx=g('cx'), cy=g('cy'), **_merged_attrs('rx', 'ry', 'cx', 'cy'))
+        return Ellipse(rx=g('rx', 100), ry=g('ry', 50), cx=g('cx') + tx, cy=g('cy') + ty,
+                       **_merged_attrs('rx', 'ry', 'cx', 'cy', 'transform'))
     elif tag == 'line':
-        return Line(x1=g('x1'), y1=g('y1'), x2=g('x2'), y2=g('y2'), **_merged_attrs('x1', 'y1', 'x2', 'y2'))
+        return Line(x1=g('x1') + tx, y1=g('y1') + ty, x2=g('x2') + tx, y2=g('y2') + ty,
+                    **_merged_attrs('x1', 'y1', 'x2', 'y2', 'transform'))
     elif tag == 'polygon':
-        return Polygon(*_parse_svg_points(element.get('points', '')), **_merged_attrs('points'))
+        pts = [(x + tx, y + ty) for x, y in _parse_svg_points(element.get('points', ''))]
+        return Polygon(*pts, **_merged_attrs('points', 'transform'))
     elif tag == 'polyline':
-        return Lines(*_parse_svg_points(element.get('points', '')), **_merged_attrs('points'))
+        pts = [(x + tx, y + ty) for x, y in _parse_svg_points(element.get('points', ''))]
+        return Lines(*pts, **_merged_attrs('points', 'transform'))
     elif tag == 'text':
         content = element.get_text(strip=True)
-        kw = _merged_attrs('x', 'y', 'font-size', 'text-anchor')
+        kw = _merged_attrs('x', 'y', 'font-size', 'text-anchor', 'transform')
         fs = float(element.get('font-size', inline.get('font-size', 48)))
         anchor = element.get('text-anchor', inline.get('text-anchor', None))
-        return Text(text=content, x=g('x', 960), y=g('y', 540),
+        return Text(text=content, x=g('x', 960) + tx, y=g('y', 540) + ty,
                     font_size=fs, text_anchor=anchor, **kw)
     elif tag == 'g':
         children = []

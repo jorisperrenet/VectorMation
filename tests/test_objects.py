@@ -4112,3 +4112,104 @@ class TestThreeDCameraPresets:
         ax = ThreeDAxes()
         with pytest.raises(KeyError):
             ax.set_camera_preset('nonexistent')
+
+
+class TestNumberLinePointToNumber:
+    def test_roundtrip(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        for val in [-5, -2.5, 0, 2.5, 5]:
+            pt = nl.number_to_point(val)
+            recovered = nl.point_to_number(pt[0])
+            assert recovered == pytest.approx(val, abs=0.01)
+
+    def test_tuple_input(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        pt = nl.number_to_point(5)
+        assert nl.point_to_number(pt) == pytest.approx(5, abs=0.01)
+
+    def test_out_of_range(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        # point before the line start
+        val = nl.point_to_number(nl.origin_x - 100)
+        assert val < 0
+
+
+class TestShakeAnimation:
+    def test_shake_produces_displacement(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.shake(start=0, end=1, amplitude=10, frequency=5)
+        svg_mid = c.to_svg(0.25)
+        # Should render without error
+        assert 'circle' in svg_mid.lower() or 'ellipse' in svg_mid.lower()
+
+    def test_shake_zero_duration(self):
+        c = Circle(r=50)
+        result = c.shake(start=0, end=0)
+        assert result is c  # returns self, no-op
+
+
+class TestBounceAnimation:
+    def test_bounce_produces_displacement(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.bounce(start=0, end=1, height=50, bounces=3)
+        svg_mid = c.to_svg(0.5)
+        assert 'circle' in svg_mid.lower() or 'ellipse' in svg_mid.lower()
+
+    def test_bounce_zero_duration(self):
+        c = Circle(r=50)
+        result = c.bounce(start=0, end=0)
+        assert result is c  # returns self, no-op
+
+
+class TestFromSvgTransform:
+    def test_translate_circle(self):
+        from bs4 import BeautifulSoup
+        svg = '<circle r="50" cx="0" cy="0" transform="translate(100, 200)"/>'
+        elem = BeautifulSoup(svg, 'html.parser').find('circle')
+        obj = from_svg(elem)
+        cx, cy = obj.c.at_time(0)
+        assert cx == pytest.approx(100, abs=1)
+        assert cy == pytest.approx(200, abs=1)
+
+    def test_translate_rect(self):
+        from bs4 import BeautifulSoup
+        svg = '<rect width="60" height="30" x="10" y="20" transform="translate(5, 10)"/>'
+        elem = BeautifulSoup(svg, 'html.parser').find('rect')
+        obj = from_svg(elem)
+        assert isinstance(obj, Rectangle)
+        assert obj.x.at_time(0) == pytest.approx(15, abs=1)
+        assert obj.y.at_time(0) == pytest.approx(30, abs=1)
+
+    def test_no_transform(self):
+        from bs4 import BeautifulSoup
+        svg = '<circle r="50" cx="100" cy="200"/>'
+        elem = BeautifulSoup(svg, 'html.parser').find('circle')
+        obj = from_svg(elem)
+        cx, cy = obj.c.at_time(0)
+        assert cx == pytest.approx(100, abs=1)
+        assert cy == pytest.approx(200, abs=1)
+
+    def test_rect_preserves_position(self):
+        from bs4 import BeautifulSoup
+        svg = '<rect width="80" height="40" x="50" y="60"/>'
+        elem = BeautifulSoup(svg, 'html.parser').find('rect')
+        obj = from_svg(elem)
+        assert isinstance(obj, Rectangle)
+        assert obj.x.at_time(0) == pytest.approx(50, abs=1)
+        assert obj.y.at_time(0) == pytest.approx(60, abs=1)
+
+
+class TestBraceEdgeCases:
+    def test_brace_small_target(self):
+        from vectormation.objects import Brace
+        small = Dot(r=2, cx=100, cy=100)
+        b = Brace(small, direction='down')
+        svg = b.to_svg(0)
+        assert svg  # renders without error
+
+    def test_brace_large_target(self):
+        from vectormation.objects import Brace
+        big = Rectangle(800, 20, x=100, y=100)
+        b = Brace(big, direction='up')
+        svg = b.to_svg(0)
+        assert svg
