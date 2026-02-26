@@ -15,6 +15,7 @@ from vectormation.objects import (
     ZoomedInset, Intersection, Difference, Union, Exclusion,
     ThreeDAxes, WaterfallChart, DonutChart, GanttChart, SankeyDiagram,
     FunnelChart, TreeMap, GaugeChart, SparkLine,
+    VennDiagram, OrgChart,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -901,6 +902,48 @@ class TestAxesNewMethods:
         sl = SparkLine([1, 2, 3], show_endpoint=True)
         svg = sl.to_svg(0)
         assert '<circle' in svg
+
+    def test_add_moving_label(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10), plot_width=400, plot_height=300, x=100, y=100)
+        curve = ax.plot(lambda x: x ** 2 / 10)
+        ml = ax.add_moving_label(curve, 'Track', x_start=1, x_end=5, start=0, end=2)
+        assert isinstance(ml, VCollection)
+        assert len(ml) == 2  # dot + label
+
+    def test_add_vertical_span(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10), plot_width=400, plot_height=300, x=100, y=100)
+        rect = ax.add_vertical_span(2, 5)
+        assert isinstance(rect, Rectangle)
+        svg = rect.to_svg(0)
+        assert '<rect' in svg
+
+    def test_add_horizontal_span(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10), plot_width=400, plot_height=300, x=100, y=100)
+        rect = ax.add_horizontal_span(3, 7)
+        assert isinstance(rect, Rectangle)
+        svg = rect.to_svg(0)
+        assert '<rect' in svg
+
+    def test_venn_diagram_2(self):
+        vd = VennDiagram(['A', 'B'])
+        assert isinstance(vd, VCollection)
+        assert len(vd) >= 4  # 2 circles + 2 labels
+        svg = vd.to_svg(0)
+        assert '<circle' in svg or '<ellipse' in svg
+
+    def test_venn_diagram_3(self):
+        vd = VennDiagram(['X', 'Y', 'Z'], radius=100)
+        assert len(vd) >= 6  # 3 circles + 3 labels
+
+    def test_org_chart(self):
+        tree = ('CEO', [('CTO', [('Dev', [])]), ('CFO', [])])
+        oc = OrgChart(tree)
+        assert isinstance(oc, VCollection)
+        assert len(oc) > 0
+        svg = oc.to_svg(0)
+        assert 'CEO' in svg
+        assert 'CTO' in svg
+        assert 'Dev' in svg
 
 
 class TestVCollectionNew:

@@ -2214,6 +2214,62 @@ class Axes(VCollection):
             objs += [line, dot]
         return VCollection(*objs, creation=creation, z=z)
 
+    def add_moving_label(self, func, text, x_start, x_end, start=0, end=2,
+                          font_size=16, offset_y=-15, creation=0, z=3, **styling_kwargs):
+        """A text label that follows a curve point from x_start to x_end over [start, end].
+        Returns a VCollection with the dot and the label."""
+        style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
+        f = self._resolve_func(func)
+        dot = Dot(cx=0, cy=0, r=4, fill='#fff', stroke_width=0,
+                  creation=creation, z=z + 0.1)
+        lbl = Text(text=str(text), x=0, y=0, font_size=font_size,
+                    text_anchor='middle', creation=creation, z=z + 0.2, **style_kw)
+        dur = max(end - start, 1e-9)
+        _xs, _xe, _s = x_start, x_end, start
+        _cache = [None, None]  # [time, (sx, sy)]
+        def _pos(t):
+            if _cache[0] == t:
+                return _cache[1]
+            frac = max(0, min(1, (t - _s) / dur))
+            xv = _xs + (_xe - _xs) * frac
+            pt = self.coords_to_point(xv, f(xv), t)
+            _cache[0], _cache[1] = t, pt
+            return pt
+        dot.c.set_onward(creation, lambda t: _pos(t))
+        lbl.x.set_onward(creation, lambda t: _pos(t)[0])
+        lbl.y.set_onward(creation, lambda t, _oy=offset_y: _pos(t)[1] + _oy)
+        dot._show_from(start)
+        lbl._show_from(start)
+        self._add_plot_obj(dot)
+        self._add_plot_obj(lbl)
+        return VCollection(dot, lbl, creation=creation, z=z)
+
+    def add_vertical_span(self, x0, x1, creation=0, z=-1, **styling_kwargs):
+        """Shade a vertical band between x0 and x1 (math coords).
+        Returns a Rectangle with dynamic position."""
+        style_kw = {'fill': '#FFFF00', 'fill_opacity': 0.15, 'stroke_width': 0} | styling_kwargs
+        rect = Rectangle(width=0, height=0, x=0, y=0, creation=creation, z=z, **style_kw)
+        rect.x.set_onward(creation, lambda t, _a=x0: self._math_to_svg_x(_a, t))
+        rect.y.set_onward(creation, lambda t: self.plot_y)
+        rect.width.set_onward(creation,
+            lambda t, _a=x0, _b=x1: self._math_to_svg_x(_b, t) - self._math_to_svg_x(_a, t))
+        rect.height.set_onward(creation, lambda t: self.plot_height)
+        self._add_plot_obj(rect)
+        return rect
+
+    def add_horizontal_span(self, y0, y1, creation=0, z=-1, **styling_kwargs):
+        """Shade a horizontal band between y0 and y1 (math coords).
+        Returns a Rectangle with dynamic position."""
+        style_kw = {'fill': '#FFFF00', 'fill_opacity': 0.15, 'stroke_width': 0} | styling_kwargs
+        rect = Rectangle(width=0, height=0, x=0, y=0, creation=creation, z=z, **style_kw)
+        rect.x.set_onward(creation, lambda t: self.plot_x)
+        rect.y.set_onward(creation, lambda t, _a=y1: self._math_to_svg_y(_a, t))
+        rect.width.set_onward(creation, lambda t: self.plot_width)
+        rect.height.set_onward(creation,
+            lambda t, _a=y0, _b=y1: self._math_to_svg_y(_a, t) - self._math_to_svg_y(_b, t))
+        self._add_plot_obj(rect)
+        return rect
+
     def add_slope_field(self, func, x_step=1, y_step=1, seg_length=0.4,
                          creation=0, z=-1, **styling_kwargs):
         """Draw a direction/slope field for dy/dx = func(x, y).
@@ -5835,6 +5891,131 @@ class SparkLine(VObject):
             color = f'rgb({int(sc[0])},{int(sc[1])},{int(sc[2])})' if isinstance(sc, tuple) else str(sc)
             svg += f'<circle cx="{ex:.1f}" cy="{ey:.1f}" r="{self._endpoint_r}" fill="{color}"/>'
         return svg
+
+
+class VennDiagram(VCollection):
+    """Venn diagram with 2 or 3 overlapping circles.
+
+    labels: list of 2 or 3 labels.
+    sizes: optional list of radii (default equal).
+    """
+    def __init__(self, labels, sizes=None, x=960, y=540, radius=150,
+                 colors=None, font_size=24, creation=0, z=0):
+        n = len(labels)
+        if n < 2 or n > 3:
+            super().__init__(creation=creation, z=z)
+            return
+        if colors is None:
+            colors = ['#58C4DD', '#FF6B6B', '#83C167']
+        if sizes is None:
+            sizes = [radius] * n
+        objects = []
+        # Circle positions
+        if n == 2:
+            sep = radius * 0.7
+            positions = [(x - sep / 2, y), (x + sep / 2, y)]
+        else:
+            sep = radius * 0.65
+            ang120 = 2 * math.pi / 3
+            positions = [(x + sep * math.cos(math.pi / 2 + i * ang120),
+                          y - sep * math.sin(math.pi / 2 + i * ang120))
+                         for i in range(3)]
+        for i, (cx, cy) in enumerate(positions):
+            c = Circle(r=sizes[i], cx=cx, cy=cy,
+                       fill=colors[i % len(colors)], fill_opacity=0.25,
+                       stroke=colors[i % len(colors)], stroke_width=2,
+                       creation=creation, z=z)
+            objects.append(c)
+        # Labels outside circles
+        for i, (cx, cy) in enumerate(positions):
+            if n == 2:
+                lx = cx + (-1 if i == 0 else 1) * sizes[i] * 0.5
+                ly = cy - sizes[i] - 15
+            else:
+                dx = cx - x
+                dy = cy - y
+                dist = math.sqrt(dx * dx + dy * dy) or 1
+                lx = cx + dx / dist * (sizes[i] + 20)
+                ly = cy + dy / dist * (sizes[i] + 20) + font_size * 0.35
+            lbl = Text(text=str(labels[i]), x=lx, y=ly,
+                       font_size=font_size, fill=colors[i % len(colors)],
+                       stroke_width=0, text_anchor='middle',
+                       creation=creation, z=z + 0.1)
+            objects.append(lbl)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class OrgChart(VCollection):
+    """Organization chart from a tree structure.
+
+    root: (label, [children]) where children are the same structure.
+    Example: ('CEO', [('CTO', [('Dev', [])]), ('CFO', [])])
+    """
+    def __init__(self, root, x=960, y=80, h_spacing=180, v_spacing=100,
+                 box_width=120, box_height=40, font_size=16,
+                 colors=None, creation=0, z=0):
+        if colors is None:
+            colors = ['#58C4DD', '#83C167', '#FF6B6B', '#FFFF00',
+                      '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C']
+        # Layout: BFS to compute positions
+        levels = []
+        queue = [(root, 0)]
+        while queue:
+            node, depth = queue.pop(0)
+            while len(levels) <= depth:
+                levels.append([])
+            levels[depth].append(node)
+            label, children = node
+            for child in children:
+                queue.append((child, depth + 1))
+        # Assign x positions per level
+        positions = {}
+        for depth, nodes in enumerate(levels):
+            total_w = len(nodes) * h_spacing
+            start_x = x - total_w / 2 + h_spacing / 2
+            for i, node in enumerate(nodes):
+                nx = start_x + i * h_spacing
+                ny = y + depth * v_spacing
+                positions[id(node)] = (nx, ny)
+        objects = []
+        # Draw connections then boxes (so boxes are on top)
+        self._draw_tree(root, positions, objects, colors, 0,
+                        box_width, box_height, font_size, creation, z)
+        super().__init__(*objects, creation=creation, z=z)
+
+    def _draw_tree(self, node, positions, objects, colors, depth,
+                   box_width, box_height, font_size, creation, z):
+        label, children = node
+        nx, ny = positions[id(node)]
+        color = colors[depth % len(colors)]
+        # Connection lines to children
+        for child in children:
+            cx, cy = positions[id(child)]
+            mid_y = ny + box_height / 2 + (cy - ny - box_height / 2) / 2
+            # L-shaped connector: down, across, down
+            d = (f'M{nx:.1f},{ny + box_height:.1f} '
+                 f'L{nx:.1f},{mid_y:.1f} '
+                 f'L{cx:.1f},{mid_y:.1f} '
+                 f'L{cx:.1f},{cy:.1f}')
+            conn = Path(d, stroke='#666', stroke_width=1.5,
+                        fill_opacity=0, creation=creation, z=z)
+            objects.append(conn)
+        # Box
+        from vectormation._shapes import RoundedRectangle
+        rect = RoundedRectangle(width=box_width, height=box_height,
+                                 x=nx - box_width / 2, y=ny,
+                                 corner_radius=6, fill=color, fill_opacity=0.85,
+                                 stroke=color, stroke_width=1,
+                                 creation=creation, z=z + 0.1)
+        objects.append(rect)
+        # Label
+        lbl = Text(text=str(label), x=nx, y=ny + box_height / 2 + font_size * 0.35,
+                   font_size=font_size, fill='#fff', stroke_width=0,
+                   text_anchor='middle', creation=creation, z=z + 0.2)
+        objects.append(lbl)
+        for child in children:
+            self._draw_tree(child, positions, objects, colors, depth + 1,
+                            box_width, box_height, font_size, creation, z)
 
 
 def parse_args():
