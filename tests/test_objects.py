@@ -22,6 +22,7 @@ from vectormation.objects import (
     MatrixHeatmap, BoxPlot, TextBox, Bracket, IconGrid,
     NumberedList, SpeechBubble, Badge, Divider,
     Checklist, Stepper, TagCloud,
+    StatusIndicator, Meter, Breadcrumb,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -1272,6 +1273,37 @@ class TestAxesNewMethods:
     def test_tagcloud_empty(self):
         tc = TagCloud([])
         assert len(tc) == 0
+
+    def test_status_indicator(self):
+        si = StatusIndicator('API Server', status='online')
+        assert isinstance(si, VCollection)
+        assert len(si) == 2  # dot + label
+
+    def test_status_indicator_custom_color(self):
+        si = StatusIndicator('Custom', status='#FF00FF')
+        assert len(si) == 2
+
+    def test_meter_vertical(self):
+        m = Meter(value=0.75)
+        assert isinstance(m, VCollection)
+        assert len(m) == 2  # bg + fill
+
+    def test_meter_horizontal(self):
+        m = Meter(value=0.3, direction='horizontal', width=200, height=30)
+        assert len(m) == 2
+
+    def test_meter_clamped(self):
+        m = Meter(value=2.0)  # should clamp to 1.0
+        assert len(m) == 2
+
+    def test_breadcrumb(self):
+        bc = Breadcrumb('Home', 'Products', 'Details')
+        assert isinstance(bc, VCollection)
+        assert len(bc) == 5  # 3 labels + 2 separators
+
+    def test_breadcrumb_active(self):
+        bc = Breadcrumb('A', 'B', 'C', active_index=1)
+        assert len(bc) == 5
 
 
 class TestVCollectionNew:

@@ -62,6 +62,7 @@ from vectormation._composites import (
     MatrixHeatmap, BoxPlot, TextBox, Bracket, IconGrid,
     SpeechBubble, Badge, Divider,
     Checklist, Stepper, TagCloud,
+    StatusIndicator, Meter, Breadcrumb,
     from_svg, from_svg_file, always_redraw, parse_args,
     _parse_inline_style,
 )

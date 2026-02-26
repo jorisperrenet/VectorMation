@@ -150,7 +150,7 @@ class TexObject(VCollection):
     font_size: target height in pixels (default 30, matching Text).
     scale_x/scale_y in styles act as multipliers on the font_size-derived scale.
     """
-    def __init__(self, to_render, x=0, y=0, font_size=48, creation=0, **styles):
+    def __init__(self, to_render, x=0, y=0, font_size=48, creation=0, z=0, **styles):
         from vectormation.tex_file_writing import get_characters
         import vectormation._canvas as _cm
         tex_dir = f'{_cm.save_directory}/tex' if hasattr(_cm, 'save_directory') else tempfile.mkdtemp()
@@ -167,7 +167,7 @@ class TexObject(VCollection):
         chars = [from_svg(char, **st) for char in chars]
 
         # Init the collection of VObjects
-        super().__init__(*chars, creation=creation)
+        super().__init__(*chars, creation=creation, z=z)
 
         # Initialize the position and scale/width of the group viewbox
         self.x = attributes.Real(creation, x)
@@ -806,8 +806,7 @@ class Axes(VCollection):
                     'stroke': '#58C4DD', 'stroke_width': 2} | styling_kwargs
         data = list(zip(x_values, y_values))
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
-        _bl = baseline
-        def _compute_d(time, _data=data):
+        def _compute_d(time, _data=data, _bl=baseline):
             if not _data:
                 return ''
             parts = []
@@ -7263,6 +7262,93 @@ class TagCloud(VCollection):
             objects.append(lbl)
             cx += tw
             row_height = max(row_height, fs + 4)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class StatusIndicator(VCollection):
+    """Colored dot with a text label, like a server/service status indicator.
+
+    status: 'online', 'offline', 'warning', or a custom color string.
+    """
+    _STATUS_COLORS = {
+        'online': '#83C167', 'ok': '#83C167', 'success': '#83C167',
+        'offline': '#FF6B6B', 'error': '#FF6B6B', 'fail': '#FF6B6B',
+        'warning': '#FFFF00', 'warn': '#FFFF00',
+        'pending': '#888', 'unknown': '#888',
+    }
+
+    def __init__(self, label, status='online', x=100, y=100, font_size=18,
+                 dot_radius=6, gap=10, creation=0, z=0):
+        color = self._STATUS_COLORS.get(status, status)
+        dot = Dot(cx=x + dot_radius, cy=y, r=dot_radius,
+                  fill=color, stroke_width=0, creation=creation, z=z)
+        lbl = Text(text=label, x=x + dot_radius * 2 + gap, y=y + font_size * 0.35,
+                   font_size=font_size, fill='#fff', stroke_width=0,
+                   creation=creation, z=z)
+        super().__init__(dot, lbl, creation=creation, z=z)
+        self.dot = dot
+        self.label = lbl
+
+
+class Meter(VCollection):
+    """Vertical or horizontal bar meter (like a battery level or VU meter).
+
+    value: current level (0.0 to 1.0).
+    """
+    def __init__(self, value=0.5, x=100, y=100, width=30, height=150,
+                 direction='vertical', fill_color='#58C4DD',
+                 bg_color='#333', border_color='#888',
+                 creation=0, z=0):
+        from vectormation._shapes import RoundedRectangle
+        bg = RoundedRectangle(width=width, height=height, x=x, y=y,
+                              corner_radius=3, fill=bg_color, fill_opacity=0.8,
+                              stroke=border_color, stroke_width=1,
+                              creation=creation, z=z)
+        value = max(0.0, min(1.0, value))
+        if direction == 'vertical':
+            fh = height * value
+            fill_rect = Rectangle(width=width - 4, height=fh,
+                                  x=x + 2, y=y + height - fh - 2,
+                                  fill=fill_color, fill_opacity=0.9,
+                                  stroke_width=0, creation=creation, z=z + 0.1)
+        else:
+            fw = width * value
+            fill_rect = Rectangle(width=fw, height=height - 4,
+                                  x=x + 2, y=y + 2,
+                                  fill=fill_color, fill_opacity=0.9,
+                                  stroke_width=0, creation=creation, z=z + 0.1)
+        super().__init__(bg, fill_rect, creation=creation, z=z)
+        self.bg = bg
+        self.fill_rect = fill_rect
+
+
+class Breadcrumb(VCollection):
+    """Navigation breadcrumb trail (e.g., Home > Products > Details).
+
+    items: list of breadcrumb strings.
+    separator: character between items.
+    active_index: index of the active/current item (highlighted).
+    """
+    def __init__(self, *items, x=100, y=100, font_size=18, separator='\u203a',
+                 gap=8, active_index=None, active_color='#58C4DD',
+                 inactive_color='#888', creation=0, z=0):
+        objects = []
+        cx = x
+        if active_index is None:
+            active_index = len(items) - 1
+        for i, item in enumerate(items):
+            color = active_color if i == active_index else inactive_color
+            lbl = Text(text=item, x=cx, y=y,
+                       font_size=font_size, fill=color, stroke_width=0,
+                       creation=creation, z=z)
+            objects.append(lbl)
+            cx += len(item) * font_size * 0.6 + gap
+            if i < len(items) - 1:
+                sep = Text(text=separator, x=cx, y=y,
+                           font_size=font_size, fill=inactive_color, stroke_width=0,
+                           creation=creation, z=z)
+                objects.append(sep)
+                cx += font_size * 0.6 + gap
         super().__init__(*objects, creation=creation, z=z)
 
 
