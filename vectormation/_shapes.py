@@ -258,19 +258,158 @@ class Text(VObject):
         if change_existence:
             self._show_from(start)
         s, e = start, end
-        self.text.set(s, e, lambda t: full_text[:max(1, int(n * (t - s) / (e - s)))], stay=True)
+        dur = e - s
+        if dur <= 0:
+            self.text.set_onward(s, full_text)
+            return self
+        self.text.set(s, e, lambda t, _s=s, _d=dur, _n=n: full_text[:max(1, int(_n * (t - _s) / _d))], stay=True)
+        return self
+
+    def highlight(self, start=0, end=1, color='#FFFF00', opacity=0.3, padding=4, easing=easings.there_and_back):
+        """Highlight the text with a colored background rectangle that fades in/out.
+        Returns the highlight Rectangle (must be added to canvas separately)."""
+        bx, by, bw, bh = self.bbox(start)
+        rect = Rectangle(bw + 2 * padding, bh + 2 * padding,
+                         x=bx - padding, y=by - padding,
+                         creation=start, fill=color, fill_opacity=0, stroke_width=0)
+        dur = end - start
+        if dur <= 0:
+            return rect
+        rect.styling.fill_opacity.set(start, end,
+            lambda t, _s=start, _d=dur: opacity * easing((t - _s) / _d), stay=True)
+        return rect
+
+    def typewrite(self, start=0, end=1, cursor='|', change_existence=True):
+        """Reveal text character by character like a typewriter.
+        The text attribute is updated progressively with an optional cursor character."""
+        if change_existence:
+            self._show_from(start)
+        full_text = self.text.at_time(start)
+        n = len(full_text)
+        if n == 0:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        s = start
+        def _typed(t):
+            progress = min(1, (t - s) / dur)
+            chars = int(progress * n)
+            shown = full_text[:chars]
+            if chars < n:
+                return shown + cursor
+            return shown
+        self.text.set(s, end, _typed, stay=True)
+        self.text.set_onward(end, full_text)
+        return self
+
+    def untype(self, start=0, end=1, change_existence=True):
+        """Reverse typewriter: remove characters right-to-left."""
+        full_text = self.text.at_time(start)
+        n = len(full_text)
+        if n == 0:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        s = start
+        def _untyped(t, _s=s, _d=dur, _n=n, _ft=full_text):
+            progress = min(1, (t - _s) / _d)
+            remaining = _n - int(progress * _n)
+            return _ft[:max(0, remaining)]
+        self.text.set(s, end, _untyped, stay=True)
+        self.text.set_onward(end, '')
+        if change_existence:
+            self._hide_from(end)
+        return self
+
+    def scramble(self, start=0, end=1, charset=None, change_existence=True):
+        """Decode/reveal text from random characters. Characters settle left-to-right."""
+        if change_existence:
+            self._show_from(start)
+        full_text = self.text.at_time(start)
+        n = len(full_text)
+        if n == 0:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        if charset is None:
+            charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*'
+        import random
+        rng = random.Random(42)  # deterministic for reproducibility
+        _randoms = [[rng.choice(charset) for _ in range(20)] for _ in range(n)]
+        s = start
+        def _scrambled(t):
+            progress = min(1, (t - s) / dur)
+            settled = int(progress * n)
+            result = list(full_text[:settled])
+            frame = int((t - s) * 15) % 20  # cycle through pre-generated randoms
+            for i in range(settled, n):
+                if full_text[i] == ' ':
+                    result.append(' ')
+                else:
+                    result.append(_randoms[i][frame])
+            return ''.join(result)
+        self.text.set(s, end, _scrambled, stay=True)
+        self.text.set_onward(end, full_text)
         return self
 
     def set_text(self, start: float, end: float, new_text, easing=easings.smooth):
         """Fade out old text and fade in new text over [start, end].
         Opacity goes to 0 at midpoint, text changes, opacity returns."""
+        if start >= end:
+            self.text.set_onward(start, new_text)
+            return self
         mid = (start + end) / 2
+        dur1, dur2 = mid - start, end - mid
         self.styling.opacity.set(start, mid,
-            lambda t: 1 - easing((t - start) / (mid - start)), stay=True)
+            lambda t, _s=start, _d=dur1: 1 - easing((t - _s) / _d), stay=True)
         self.text.set_onward(mid, new_text)
         self.styling.opacity.set(mid, end,
-            lambda t: easing((t - mid) / (end - mid)), stay=True)
+            lambda t, _m=mid, _d=dur2: easing((t - _m) / _d), stay=True)
         return self
+
+    def underline_anim(self, start: float = 0, end: float = 1, color=None,
+                        stroke_width=2, offset_y=5):
+        """Create an animated underline under this text. Returns a Line object."""
+        bx, by, bw, bh = self.bbox(start)
+        line_y = by + bh + offset_y
+        line_color = color or self.styling.fill.at_time(start)
+        line = Line(x1=bx, y1=line_y, x2=bx, y2=line_y, creation=start,
+                    stroke=line_color, stroke_width=stroke_width)
+        dur = end - start
+        if dur > 0:
+            s, x1, x2 = start, bx, bx + bw
+            line.p2.set(s, end,
+                lambda t, _s=s, _d=dur, _x1=x1, _x2=x2, _y=line_y: (
+                    _x1 + (_x2 - _x1) * easings.smooth((t - _s) / _d), _y),
+                stay=True)
+        return line
+
+    def split_words(self, time=0):
+        """Split text into a VCollection of individual word Text objects.
+        Words are positioned horizontally at approximate character offsets."""
+        from vectormation._base import VCollection
+        full = str(self.text.at_time(time))
+        words = full.split()
+        if not words:
+            return VCollection()
+        x = self.x.at_time(time)
+        y = self.y.at_time(time)
+        fs = self.font_size.at_time(time)
+        char_width = fs * 0.6  # approximate monospace char width
+        parts = []
+        cursor = 0
+        for word in words:
+            idx = full.index(word, cursor)
+            wx = x + idx * char_width
+            t = Text(text=word, x=wx, y=y, font_size=fs,
+                     creation=time, stroke_width=0,
+                     fill=self.styling.fill.at_time(time))
+            parts.append(t)
+            cursor = idx + len(word)
+        return VCollection(*parts)
 
     def to_svg(self, time):
         anchor = f" text-anchor='{self._text_anchor}'" if self._text_anchor else ''
@@ -289,9 +428,31 @@ class CountAnimation(Text):
                          font_size=font_size, text_anchor=text_anchor,
                          creation=creation, z=z, **styling_kwargs)
         s, e = start, end
-        self.text.set(s, e,
-            lambda t: fmt.format(start_val + (end_val - start_val) * easing((t - s) / (e - s))),
-            stay=True)
+        dur = e - s
+        if dur <= 0:
+            self.text.set_onward(s, fmt.format(end_val))
+        else:
+            self.text.set(s, e,
+                lambda t, _s=s, _d=dur, _sv=start_val, _ev=end_val, _fmt=fmt: _fmt.format(_sv + (_ev - _sv) * easing((t - _s) / _d)),
+                stay=True)
+        self._fmt = fmt
+        self._last_val = end_val
+
+    def count_to(self, target, start, end, easing=easings.smooth):
+        """Animate counting from the current value to a new target."""
+        from_val = self._last_val
+        fmt = self._fmt
+        dur = end - start
+        if dur <= 0:
+            self.text.set_onward(start, fmt.format(target))
+        else:
+            s = start
+            self.text.set(s, end,
+                lambda t, _f=from_val, _t=target, _s=s, _d=dur, _fmt=fmt:
+                    _fmt.format(_f + (_t - _f) * easing((t - _s) / _d)),
+                stay=True)
+        self._last_val = target
+        return self
 
 
 class ValueTracker:
@@ -387,8 +548,9 @@ class Trace(VObject):
             self.styling.dy.add_onward(start_time, dy)
         else:
             s, e = start_time, end_time
-            self.styling.dx.add_onward(s, lambda t, _s=s, _e=e: dx * easing((t-_s)/(_e-_s)), last_change=e)
-            self.styling.dy.add_onward(s, lambda t, _s=s, _e=e: dy * easing((t-_s)/(_e-_s)), last_change=e)
+            d = max(e - s, 1e-9)
+            self.styling.dx.add_onward(s, lambda t, _s=s, _d=d: dx * easing((t-_s)/_d), last_change=e)
+            self.styling.dy.add_onward(s, lambda t, _s=s, _d=d: dy * easing((t-_s)/_d), last_change=e)
         return self
 
     def path(self, time):
@@ -456,9 +618,27 @@ class Path(VObject):
             self.styling.dy.add_onward(start_time, dy)
         else:
             s, e = start_time, end_time
-            self.styling.dx.add_onward(s, lambda t, _s=s, _e=e: dx * easing((t-_s)/(_e-_s)), last_change=e)
-            self.styling.dy.add_onward(s, lambda t, _s=s, _e=e: dy * easing((t-_s)/(_e-_s)), last_change=e)
+            d = max(e - s, 1e-9)
+            self.styling.dx.add_onward(s, lambda t, _s=s, _d=d: dx * easing((t-_s)/_d), last_change=e)
+            self.styling.dy.add_onward(s, lambda t, _s=s, _d=d: dy * easing((t-_s)/_d), last_change=e)
         return self
+
+    def point_from_proportion(self, proportion, time=0):
+        """Return (x, y) at a proportional distance along the path (0-1)."""
+        try:
+            from svgpathtools import parse_path
+        except ImportError:
+            raise ImportError("svgpathtools is required for point_from_proportion")
+        d = self.d.at_time(time)
+        if not d:
+            return (0, 0)
+        parsed = parse_path(d)
+        total = parsed.length()
+        if total == 0:
+            pt = parsed.point(0)
+            return (pt.real, pt.imag)
+        pt = parsed.point(parsed.ilength(total * max(0, min(1, proportion))))
+        return (pt.real, pt.imag)
 
     def path(self, time):
         return self.d.at_time(time)
@@ -500,10 +680,10 @@ class Image(VObject):
                 f"{self.styling.svg_style(time)} />")
 
 
-
 class RegularPolygon(Polygon):
     """Regular n-sided polygon inscribed in a circle of given radius."""
     def __init__(self, n, radius=120, cx=960, cy=540, angle=0, creation=0, z=0, **styling_kwargs):
+        n = max(n, 1)
         angle_rad = angle * math.pi / 180
         vertices = [
             (cx + radius * math.cos(2 * math.pi * k / n + angle_rad),
@@ -517,6 +697,7 @@ class Star(Polygon):
     """Star polygon with n outer points. outer_radius and inner_radius control the shape."""
     def __init__(self, n=5, outer_radius=120, inner_radius=None, cx=960, cy=540,
                  angle=90, creation=0, z=0, **styling_kwargs):
+        n = max(n, 1)
         if inner_radius is None:
             inner_radius = outer_radius * 0.4
         angle_rad = angle * math.pi / 180
@@ -564,6 +745,30 @@ class SurroundingRectangle(RoundedRectangle):
             self.y.set_onward(creation, lambda t: _bbox(t)[1] - buff)
             self.width.set_onward(creation, lambda t: _bbox(t)[2] + 2*buff)
             self.height.set_onward(creation, lambda t: _bbox(t)[3] + 2*buff)
+
+
+class SurroundingCircle(Circle):
+    """Circle that surrounds a target object with padding.
+    If follow=True (default), tracks the target as it moves."""
+    def __init__(self, target, buff=SMALL_BUFF, follow=True,
+                 creation=0, z=0, **styling_kwargs):
+        bx, by, bw, bh = target.bbox(creation)
+        r = math.sqrt(bw**2 + bh**2) / 2 + buff
+        cx, cy = bx + bw / 2, by + bh / 2
+        style_kw = {'fill_opacity': 0, 'stroke': '#FFFF00'} | styling_kwargs
+        super().__init__(r=r, cx=cx, cy=cy, creation=creation, z=z, **style_kw)
+        if follow:
+            _cache = {}
+            def _bbox(t):
+                if t not in _cache:
+                    _cache.clear()
+                    _cache[t] = target.bbox(t)
+                return _cache[t]
+            self.c.set_onward(creation, lambda t: (_bbox(t)[0] + _bbox(t)[2] / 2,
+                                                    _bbox(t)[1] + _bbox(t)[3] / 2))
+            _r_func = lambda t: math.sqrt(_bbox(t)[2]**2 + _bbox(t)[3]**2) / 2 + buff
+            self.rx.set_onward(creation, _r_func)
+            self.ry.set_onward(creation, _r_func)
 
 
 class BackgroundRectangle(Rectangle):
@@ -636,7 +841,6 @@ class Wedge(Arc):
         return super().path(time) + f'L{self.cx.at_time(time)},{self.cy.at_time(time)}Z'
 
 
-
 class Annulus(VObject):
     """Ring/donut shape defined by inner and outer radius."""
     def __init__(self, inner_radius=60, outer_radius=120, cx=960, cy=540,
@@ -681,7 +885,6 @@ class DashedLine(Line):
                          **({'stroke_dasharray': dash} | styling_kwargs))
 
 
-
 class ScreenRectangle(Rectangle):
     """A rectangle with the canvas aspect ratio (16:9).
     height is derived from width automatically."""
@@ -690,6 +893,217 @@ class ScreenRectangle(Rectangle):
         super().__init__(width=width, height=height, creation=creation, z=z, **kwargs)
 
 
+class ArcBetweenPoints(Arc):
+    """Arc connecting two points, bulging by a given angle.
+
+    angle: how much the arc bulges (degrees). Positive = left of start→end.
+    """
+    def __init__(self, start, end, angle=60, creation=0, z=0, **styling_kwargs):
+        x1, y1 = start
+        x2, y2 = end
+        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+        dx, dy = x2 - x1, y2 - y1
+        dist = math.sqrt(dx * dx + dy * dy) or 1
+        # Compute radius from chord length and angle
+        half_angle = math.radians(abs(angle) / 2)
+        r = dist / (2 * math.sin(half_angle)) if half_angle > 1e-9 else dist * 1000
+        # Perpendicular direction (pointing left of start→end)
+        px, py = -dy / dist, dx / dist
+        sign = 1 if angle > 0 else -1
+        sagitta = r - r * math.cos(half_angle)
+        cx = mx + sign * px * (r - sagitta)
+        cy = my + sign * py * (r - sagitta)
+        sa = math.degrees(math.atan2(-(y1 - cy), x1 - cx))
+        ea = math.degrees(math.atan2(-(y2 - cy), x2 - cx))
+        if angle > 0 and (ea - sa) % 360 > 180:
+            sa, ea = ea, sa
+        elif angle < 0 and (sa - ea) % 360 > 180:
+            sa, ea = ea, sa
+        super().__init__(cx=cx, cy=cy, r=r, start_angle=sa, end_angle=ea,
+                         creation=creation, z=z, **styling_kwargs)
+
+
+class Elbow(Lines):
+    """Right-angle connector (L-shape) between two directions.
+
+    width/height: pixel size of each arm.
+    """
+    def __init__(self, cx=960, cy=540, width=40, height=40,
+                 creation=0, z=0, **styling_kwargs):
+        style_kw = {'stroke': '#fff', 'stroke_width': DEFAULT_STROKE_WIDTH, 'fill_opacity': 0} | styling_kwargs
+        super().__init__(
+            (cx + width, cy), (cx, cy), (cx, cy + height),
+            creation=creation, z=z, **style_kw)
+
+
+class AnnularSector(Arc):
+    """Sector of an annulus (ring wedge).
+
+    Like a Wedge but with an inner radius cut out.
+    """
+    def __init__(self, inner_radius=60, outer_radius=120, cx=960, cy=540,
+                 start_angle=0, end_angle=90, creation=0, z=0, **styling_kwargs):
+        super().__init__(cx=cx, cy=cy, r=outer_radius, start_angle=start_angle,
+                         end_angle=end_angle, creation=creation, z=z,
+                         **({'fill_opacity': 0.7, 'stroke': '#fff', 'stroke_width': DEFAULT_STROKE_WIDTH} | styling_kwargs))
+        self.inner_r = attributes.Real(creation, inner_radius)
+
+    def _extra_attrs(self):
+        return super()._extra_attrs() + [self.inner_r]
+
+    def path(self, time):
+        cx, cy, ro = self.cx.at_time(time), self.cy.at_time(time), self.r.at_time(time)
+        ri = self.inner_r.at_time(time)
+        sa, ea = self.start_angle.at_time(time), self.end_angle.at_time(time)
+        sa_rad, ea_rad = math.radians(sa), math.radians(ea)
+        # Outer arc
+        ox1, oy1 = cx + ro * math.cos(sa_rad), cy - ro * math.sin(sa_rad)
+        ox2, oy2 = cx + ro * math.cos(ea_rad), cy - ro * math.sin(ea_rad)
+        # Inner arc (reversed)
+        ix1, iy1 = cx + ri * math.cos(ea_rad), cy - ri * math.sin(ea_rad)
+        ix2, iy2 = cx + ri * math.cos(sa_rad), cy - ri * math.sin(sa_rad)
+        large = 1 if abs(ea - sa) % 360 > 180 else 0
+        sweep_out = 0 if ea > sa else 1
+        sweep_in = 1 - sweep_out
+        return (f'M{ox1},{oy1}A{ro},{ro} 0 {large},{sweep_out} {ox2},{oy2}'
+                f'L{ix1},{iy1}A{ri},{ri} 0 {large},{sweep_in} {ix2},{iy2}Z')
+
+    def to_svg(self, time):
+        return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"
+
+
+class CubicBezier(VObject):
+    """Cubic Bezier curve from four control points."""
+    def __init__(self, p0=(860, 540), p1=(910, 440), p2=(1010, 440), p3=(1060, 540),
+                 creation=0, z=0, **styling_kwargs):
+        super().__init__(creation=creation, z=z)
+        self.p0 = attributes.Coor(creation, p0)
+        self.p1 = attributes.Coor(creation, p1)
+        self.p2 = attributes.Coor(creation, p2)
+        self.p3 = attributes.Coor(creation, p3)
+        defaults = dict(stroke='#fff', stroke_width=DEFAULT_STROKE_WIDTH, fill_opacity=0)
+        self.styling = style.Styling(styling_kwargs, creation=creation, **defaults)
+
+    def _extra_attrs(self):
+        return [self.p0, self.p1, self.p2, self.p3]
+
+    def _shift_coors(self):
+        return [self.p0, self.p1, self.p2, self.p3]
+
+    def snap_points(self, time):
+        return [self.p0.at_time(time), self.p3.at_time(time)]
+
+    def path(self, time):
+        x0, y0 = self.p0.at_time(time)
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        x3, y3 = self.p3.at_time(time)
+        return f'M{x0},{y0}C{x1},{y1} {x2},{y2} {x3},{y3}'
+
+    def to_svg(self, time):
+        return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"
+
+
+class Paragraph(VObject):
+    """Multi-line text with alignment and line spacing.
+
+    alignment: 'left', 'center', or 'right'.
+    line_spacing: multiplier for vertical spacing between lines.
+    """
+    def __init__(self, *lines, x=960, y=540, font_size=36, alignment='left',
+                 line_spacing=1.4, creation=0, z=0, **styling_kwargs):
+        super().__init__(creation=creation, z=z)
+        self.lines = list(lines)
+        self.x = attributes.Real(creation, x)
+        self.y = attributes.Real(creation, y)
+        self.font_size = font_size
+        self.alignment = alignment
+        self.line_spacing = line_spacing
+        defaults = dict(fill='#fff', stroke_width=0)
+        self.styling = style.Styling(styling_kwargs, creation=creation, **defaults)
+
+    def _extra_attrs(self):
+        return [self.x, self.y]
+
+    def _shift_reals(self):
+        return [(self.x, self.y)]
+
+    def snap_points(self, time):
+        return [(self.x.at_time(time), self.y.at_time(time))]
+
+    def path(self, time):
+        return ''
+
+    def bbox(self, time=0):
+        x, y = self.x.at_time(time), self.y.at_time(time)
+        max_chars = max((len(line) for line in self.lines), default=0)
+        w = max_chars * self.font_size * 0.6
+        h = len(self.lines) * self.font_size * self.line_spacing
+        if self.alignment == 'center':
+            return (x - w / 2, y - self.font_size, w, h)
+        elif self.alignment == 'right':
+            return (x - w, y - self.font_size, w, h)
+        return (x, y - self.font_size, w, h)
+
+    def to_svg(self, time):
+        x, y = self.x.at_time(time), self.y.at_time(time)
+        anchor = {'left': 'start', 'center': 'middle', 'right': 'end'}[self.alignment]
+        parts = []
+        for i, line in enumerate(self.lines):
+            ly = y + i * self.font_size * self.line_spacing
+            parts.append(f"<text x='{x}' y='{ly}' text-anchor='{anchor}' "
+                         f"font-size='{self.font_size}'{self.styling.svg_style(time)}>{line}</text>")
+        return '\n'.join(parts)
+
+
+class BulletedList(VObject):
+    """List of items with bullet points.
+
+    bullet: character to use as bullet marker.
+    indent: pixel indentation for each item.
+    """
+    def __init__(self, *items, x=200, y=200, font_size=36, bullet='\u2022',
+                 indent=40, line_spacing=1.6, creation=0, z=0, **styling_kwargs):
+        super().__init__(creation=creation, z=z)
+        self.items = list(items)
+        self.x = attributes.Real(creation, x)
+        self.y = attributes.Real(creation, y)
+        self.font_size = font_size
+        self.bullet = bullet
+        self.indent = indent
+        self.line_spacing = line_spacing
+        defaults = dict(fill='#fff', stroke_width=0)
+        self.styling = style.Styling(styling_kwargs, creation=creation, **defaults)
+
+    def _extra_attrs(self):
+        return [self.x, self.y]
+
+    def _shift_reals(self):
+        return [(self.x, self.y)]
+
+    def snap_points(self, time):
+        return [(self.x.at_time(time), self.y.at_time(time))]
+
+    def path(self, time):
+        return ''
+
+    def bbox(self, time=0):
+        x, y = self.x.at_time(time), self.y.at_time(time)
+        max_chars = max((len(item) for item in self.items), default=0)
+        w = self.indent + max_chars * self.font_size * 0.6
+        h = len(self.items) * self.font_size * self.line_spacing
+        return (x, y - self.font_size, w, h)
+
+    def to_svg(self, time):
+        x, y = self.x.at_time(time), self.y.at_time(time)
+        parts = []
+        for i, item in enumerate(self.items):
+            ly = y + i * self.font_size * self.line_spacing
+            parts.append(f"<text x='{x}' y='{ly}' font-size='{self.font_size}'"
+                         f"{self.styling.svg_style(time)}>{self.bullet}</text>")
+            parts.append(f"<text x='{x + self.indent}' y='{ly}' font-size='{self.font_size}'"
+                         f"{self.styling.svg_style(time)}>{item}</text>")
+        return '\n'.join(parts)
 
 
 class FunctionGraph(Lines):

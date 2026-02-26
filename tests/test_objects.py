@@ -13,7 +13,7 @@ from vectormation.objects import (
     SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS,
     always_redraw, UP, DOWN, LEFT, RIGHT,
     ZoomedInset, Intersection, Difference, Union, Exclusion,
-    ThreeDAxes, WaterfallChart, DonutChart, GanttChart,
+    ThreeDAxes, WaterfallChart, DonutChart, GanttChart, SankeyDiagram,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -821,6 +821,36 @@ class TestAxesNewMethods:
         svg = gc.to_svg(0)
         assert '<rect' in svg
         assert '<text' in svg
+
+    def test_add_threshold_line(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        th = ax.add_threshold_line(5, label='Max')
+        assert isinstance(th, VCollection)
+        assert len(th) == 2  # line + label
+        svg = th.to_svg(0)
+        assert '<line' in svg
+        assert '<text' in svg
+
+    def test_add_data_labels(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 10))
+        labels = ax.add_data_labels([1, 2, 3], [4, 7, 3])
+        assert isinstance(labels, VCollection)
+        assert len(labels) == 3
+
+    def test_plot_lollipop(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 4))
+        lp = ax.plot_lollipop([1, 2, 3], [5, 8, 3])
+        assert isinstance(lp, VCollection)
+        assert len(lp) == 6  # 3 lines + 3 dots
+
+    def test_sankey_diagram(self):
+        flows = [('A', 'X', 10), ('A', 'Y', 5), ('B', 'X', 3), ('B', 'Y', 8)]
+        sk = SankeyDiagram(flows)
+        assert isinstance(sk, VCollection)
+        assert len(sk) > 0
+        svg = sk.to_svg(0)
+        assert '<path' in svg  # flow paths
+        assert '<rect' in svg  # node rects
 
     def test_donut_chart_no_labels(self):
         dc = DonutChart([10, 20, 30])

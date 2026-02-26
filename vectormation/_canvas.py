@@ -71,9 +71,12 @@ class VectorMathAnim:
 
     def camera_shift(self, dx, dy, start, end, easing=easings.smooth):
         """Pan the camera by (dx, dy) pixels over [start, end]."""
-        s, e = start, end
-        self.vb_x.add_onward(s, lambda t: dx * easing((t-s)/(e-s)), last_change=e)
-        self.vb_y.add_onward(s, lambda t: dy * easing((t-s)/(e-s)), last_change=e)
+        dur = end - start
+        if dur <= 0:
+            return self
+        s = start
+        self.vb_x.add_onward(s, lambda t, _s=s, _d=dur: dx * easing((t-_s)/_d), last_change=end)
+        self.vb_y.add_onward(s, lambda t, _s=s, _d=dur: dy * easing((t-_s)/_d), last_change=end)
         return self
 
     def camera_zoom(self, factor, start, end, cx=None, cy=None, easing=easings.smooth):
@@ -121,6 +124,31 @@ class VectorMathAnim:
         self.vb_h.move_to(start, end, self.height, easing=easing)
         return self
 
+    def focus_on(self, *objects, start, end, padding=100, easing=easings.smooth):
+        """Pan and zoom the camera to fit the given objects with padding."""
+        from vectormation._base import VCollection
+        group = VCollection(*objects) if len(objects) > 1 else objects[0]
+        bx, by, bw, bh = group.bbox(start)
+        target_x = bx - padding
+        target_y = by - padding
+        target_w = bw + 2 * padding
+        target_h = bh + 2 * padding
+        if target_w <= 0 or target_h <= 0:
+            return self
+        # Maintain aspect ratio
+        aspect = self.width / self.height
+        if target_w / target_h > aspect:
+            target_h = target_w / aspect
+            target_y = by + bh / 2 - target_h / 2
+        else:
+            target_w = target_h * aspect
+            target_x = bx + bw / 2 - target_w / 2
+        self.vb_x.move_to(start, end, target_x, easing=easing)
+        self.vb_y.move_to(start, end, target_y, easing=easing)
+        self.vb_w.move_to(start, end, target_w, easing=easing)
+        self.vb_h.move_to(start, end, target_h, easing=easing)
+        return self
+
     def set_background(self, creation=0, z=-1, grid=False, grid_spacing=60, grid_color='#333', **styling):
         """Sets the background of the animation (otherwise no background is added).
         grid: if True, draw a grid on top of the background.
@@ -142,6 +170,7 @@ class VectorMathAnim:
                 self.add_objects(Line(x1=0, y1=gy, x2=self.width, y2=gy,
                                      creation=creation, z=z, stroke=grid_color, stroke_width=1))
                 gy += grid_spacing
+        return self
 
     def add_section(self, time):
         """Add a section break at the given time.
@@ -149,15 +178,18 @@ class VectorMathAnim:
         for the user to press Space to continue to the next section."""
         self.sections.append(time)
         self.sections.sort()
+        return self
 
     def add_objects(self, *args):
         """Register objects to be displayed."""
         for obj in args:
             self.objects[id(obj)] = obj
+        return self
 
     def add_def(self, def_obj):
         """Register a gradient or clip path for the <defs> block."""
         self.defs[def_obj.id] = def_obj
+        return self
 
     # Backward compatibility aliases
     add_gradient = add_def
@@ -347,6 +379,7 @@ class VectorMathAnim:
 
     def _frame_times(self, start_time, end_time, fps):
         """Generate frame timestamps from start_time to end_time at given fps."""
+        fps = max(fps, 1)
         dt = 1.0 / fps
         t = start_time
         while t <= end_time + dt * 0.5:

@@ -2129,6 +2129,91 @@ class Axes(VCollection):
         self._add_plot_obj(area)
         return area
 
+    def add_threshold_line(self, y, label=None, direction='horizontal',
+                            font_size=14, creation=0, z=2, **styling_kwargs):
+        """Add a threshold/reference line with optional label.
+        direction: 'horizontal' (y=value) or 'vertical' (x=value).
+        Returns a VCollection with line and optional label."""
+        style_kw = {'stroke': '#FF6B6B', 'stroke_width': 1.5,
+                    'stroke_dasharray': '6 3'} | styling_kwargs
+        line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+        _v = y
+        if direction == 'horizontal':
+            line.p1.set_onward(creation,
+                lambda t, _v=_v: (self.plot_x, self._math_to_svg_y(_v, t)))
+            line.p2.set_onward(creation,
+                lambda t, _v=_v: (self.plot_x + self.plot_width, self._math_to_svg_y(_v, t)))
+        else:
+            line.p1.set_onward(creation,
+                lambda t, _v=_v: (self._math_to_svg_x(_v, t), self.plot_y))
+            line.p2.set_onward(creation,
+                lambda t, _v=_v: (self._math_to_svg_x(_v, t), self.plot_y + self.plot_height))
+        self._add_plot_obj(line)
+        objs = [line]
+        if label is not None:
+            lbl_color = style_kw.get('stroke', '#FF6B6B')
+            if direction == 'horizontal':
+                lbl = Text(text=str(label),
+                           x=self.plot_x + self.plot_width + 5, y=0,
+                           font_size=font_size, fill=lbl_color, stroke_width=0,
+                           text_anchor='start', creation=creation, z=z + 0.1)
+                lbl.y.set_onward(creation,
+                    lambda t, _v=_v: self._math_to_svg_y(_v, t) + font_size * 0.35)
+            else:
+                lbl = Text(text=str(label),
+                           x=0, y=self.plot_y - 5,
+                           font_size=font_size, fill=lbl_color, stroke_width=0,
+                           text_anchor='middle', creation=creation, z=z + 0.1)
+                lbl.x.set_onward(creation,
+                    lambda t, _v=_v: self._math_to_svg_x(_v, t))
+            self._add_plot_obj(lbl)
+            objs.append(lbl)
+        return VCollection(*objs, creation=creation, z=z)
+
+    def add_data_labels(self, x_data, y_data, fmt='{:.1f}', offset_y=-12,
+                         font_size=14, creation=0, z=3, **styling_kwargs):
+        """Add value labels above/below data points.
+        Returns a VCollection of Text objects."""
+        style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
+        objs = []
+        for xv, yv in zip(x_data, y_data):
+            lbl = Text(text=fmt.format(yv), x=0, y=0, font_size=font_size,
+                        text_anchor='middle', creation=creation, z=z, **style_kw)
+            lbl.x.set_onward(creation,
+                lambda t, _x=xv, _y=yv: self.coords_to_point(_x, _y, t)[0])
+            lbl.y.set_onward(creation,
+                lambda t, _x=xv, _y=yv, _oy=offset_y: self.coords_to_point(_x, _y, t)[1] + _oy)
+            self._add_plot_obj(lbl)
+            objs.append(lbl)
+        return VCollection(*objs, creation=creation, z=z)
+
+    def plot_lollipop(self, y_positions, values, baseline=0, r=6,
+                       creation=0, z=1, **styling_kwargs):
+        """Plot a horizontal lollipop chart: horizontal lines from baseline to value with dot.
+        y_positions: category y-coordinates.  values: x-values.
+        Returns a VCollection."""
+        line_kw = {'stroke': '#58C4DD', 'stroke_width': 2}
+        dot_kw = {'fill': '#58C4DD', 'stroke_width': 0}
+        for k, v in styling_kwargs.items():
+            if k.startswith('dot_'):
+                dot_kw[k[4:]] = v
+            else:
+                line_kw[k] = v
+        objs = []
+        for yp, xv in zip(y_positions, values):
+            line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **line_kw)
+            line.p1.set_onward(creation,
+                lambda t, _y=yp, _x=baseline: self.coords_to_point(_x, _y, t))
+            line.p2.set_onward(creation,
+                lambda t, _y=yp, _x=xv: self.coords_to_point(_x, _y, t))
+            dot = Dot(cx=0, cy=0, r=r, creation=creation, z=z + 1, **dot_kw)
+            dot.c.set_onward(creation,
+                lambda t, _y=yp, _x=xv: self.coords_to_point(_x, _y, t))
+            self._add_plot_obj(line)
+            self._add_plot_obj(dot)
+            objs += [line, dot]
+        return VCollection(*objs, creation=creation, z=z)
+
     def add_slope_field(self, func, x_step=1, y_step=1, seg_length=0.4,
                          creation=0, z=-1, **styling_kwargs):
         """Draw a direction/slope field for dy/dx = func(x, y).
@@ -5399,6 +5484,76 @@ class GanttChart(VCollection):
                         x2=chart_x + chart_w, y2=by + bar_height + bar_spacing / 2,
                         stroke='#333', stroke_width=0.5, creation=creation, z=z - 0.1)
             objects.append(grid)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class SankeyDiagram(VCollection):
+    """Sankey flow diagram showing flows between nodes.
+
+    flows: list of (source_label, target_label, value) tuples.
+    """
+    def __init__(self, flows, x=100, y=100, width=1200, height=600,
+                 node_width=30, node_spacing=20, colors=None,
+                 font_size=16, creation=0, z=0):
+        if not flows:
+            super().__init__(creation=creation, z=z)
+            return
+        if colors is None:
+            colors = ['#58C4DD', '#83C167', '#FF6B6B', '#FFFF00',
+                      '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C']
+        sources = list(dict.fromkeys(src for src, _, _ in flows))
+        targets = list(dict.fromkeys(tgt for _, tgt, _ in flows))
+        src_totals = {s: sum(v for ss, _, v in flows if ss == s) for s in sources}
+        tgt_totals = {t: sum(v for _, tt, v in flows if tt == t) for t in targets}
+        max_total = max(max(src_totals.values()), max(tgt_totals.values())) or 1
+
+        def _layout(names, totals, left_x):
+            sc = (height - (len(names) - 1) * node_spacing) / max_total
+            rects, cy = {}, y
+            for n in names:
+                h = max(totals[n] * sc, 2)
+                rects[n] = (left_x, cy, node_width, h)
+                cy += h + node_spacing
+            return rects, sc
+
+        src_rects, scale = _layout(sources, src_totals, x)
+        tgt_rects, tgt_scale = _layout(targets, tgt_totals, x + width - node_width)
+        objects = []
+        # Flow paths (cubic bezier)
+        src_offsets = {s: 0.0 for s in sources}
+        tgt_offsets = {t: 0.0 for t in targets}
+        for i, (src, tgt, val) in enumerate(flows):
+            color = colors[i % len(colors)]
+            sx, sy, sw, _ = src_rects[src]
+            tx, ty, _, _ = tgt_rects[tgt]
+            fhs, fht = val * scale, val * tgt_scale
+            y0, y1 = sy + src_offsets[src], ty + tgt_offsets[tgt]
+            src_offsets[src] += fhs
+            tgt_offsets[tgt] += fht
+            x0, x3 = sx + sw, tx
+            cx1, cx2 = x0 + (x3 - x0) * 0.4, x0 + (x3 - x0) * 0.6
+            d = (f'M{x0:.1f},{y0:.1f} '
+                 f'C{cx1:.1f},{y0:.1f} {cx2:.1f},{y1:.1f} {x3:.1f},{y1:.1f} '
+                 f'L{x3:.1f},{y1 + fht:.1f} '
+                 f'C{cx2:.1f},{y1 + fht:.1f} {cx1:.1f},{y0 + fhs:.1f} '
+                 f'{x0:.1f},{y0 + fhs:.1f} Z')
+            objects.append(Path(d, x=0, y=0, fill=color, fill_opacity=0.4,
+                                stroke=color, stroke_width=0.5, stroke_opacity=0.6,
+                                creation=creation, z=z + 0.1))
+        # Node rectangles + labels
+        def _draw_nodes(names, rects, color_offset, anchor, lbl_dx):
+            for i, n in enumerate(names):
+                bx, by, bw, bh = rects[n]
+                c = colors[(color_offset + i) % len(colors)]
+                objects.append(Rectangle(width=bw, height=bh, x=bx, y=by,
+                                         fill=c, fill_opacity=0.9, stroke_width=0,
+                                         creation=creation, z=z + 0.2))
+                objects.append(Text(text=n, x=bx + lbl_dx,
+                                    y=by + bh / 2 + font_size * 0.35,
+                                    font_size=font_size, fill='#ddd', stroke_width=0,
+                                    text_anchor=anchor, creation=creation, z=z + 0.3))
+        _draw_nodes(sources, src_rects, 0, 'end', -5)
+        _draw_nodes(targets, tgt_rects, len(sources), 'start', node_width + 5)
         super().__init__(*objects, creation=creation, z=z)
 
 

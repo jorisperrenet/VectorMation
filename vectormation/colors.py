@@ -195,3 +195,22 @@ def interpolate_color(color1, color2, t):
     r1, g1, b1 = _hex_to_rgb(color1)
     r2, g2, b2 = _hex_to_rgb(color2)
     return _rgb_to_hex(r1 + (r2 - r1) * t, g1 + (g2 - g1) * t, b1 + (b2 - b1) * t)
+
+
+def lighten(color, amount=0.3):
+    """Lighten a color by mixing with white."""
+    return interpolate_color(color, '#FFFFFF', amount)
+
+
+def darken(color, amount=0.3):
+    """Darken a color by mixing with black."""
+    return interpolate_color(color, '#000000', amount)
+
+
+# Named palette presets
+PALETTE_BLUE = ['#58C4DD', '#29ABCA', '#1C758A', '#236B8E', '#2C6FAC']
+PALETTE_GREEN = ['#83C167', '#77B05D', '#699C52', '#5B8845', '#4E7438']
+PALETTE_RED = ['#FC6255', '#E65A4C', '#CF4044', '#C5352F', '#B42727']
+PALETTE_WARM = ['#FFFF00', '#FFD700', '#FF8C00', '#FF4500', '#DC143C']
+PALETTE_COOL = ['#58C4DD', '#9CDCEB', '#A8E6CF', '#83C167', '#29ABCA']
+PALETTE_RAINBOW = ['#FF0000', '#FF8C00', '#FFFF00', '#00FF00', '#0000FF', '#8B00FF']

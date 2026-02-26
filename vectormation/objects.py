@@ -53,7 +53,7 @@ from vectormation._composites import (
     Label, LabeledArrow, StreamLines, PolarAxes,
     Callout, DimensionLine, Tooltip, Tree,
     Stamp, TimelineBar, Legend, RadarChart, ProgressBar, FlowChart,
-    WaterfallChart, GanttChart,
+    WaterfallChart, GanttChart, SankeyDiagram,
     from_svg, from_svg_file, always_redraw, parse_args,
     _parse_inline_style,
 )

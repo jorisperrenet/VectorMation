@@ -17,7 +17,11 @@ from vectormation.objects import (
     ZoomedInset, Intersection, Difference, Union, Exclusion,
     ThreeDAxes, Title, ScreenRectangle,
 )
-from vectormation.colors import LinearGradient, RadialGradient, color_gradient, interpolate_color
+from vectormation.colors import (
+    LinearGradient, RadialGradient, color_gradient, interpolate_color,
+    lighten, darken,
+    PALETTE_BLUE, PALETTE_GREEN, PALETTE_RED, PALETTE_WARM, PALETTE_COOL, PALETTE_RAINBOW,
+)
 
 # Export color constants (WHITE, RED, BLUE, etc.) as module-level names
 import vectormation.colors as _colors_module

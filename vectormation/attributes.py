@@ -174,8 +174,13 @@ class Real:
         start_val = self.time_func(start_time)
         diff = start_val - end_val
         s, e = start_time, end_time
-        self.set(s, e, lambda t: diff * (1-easing((t-s)/(e-s))) + end_val, stay=stay)
+        dur = e - s
+        if dur <= 0:
+            self.set_onward(s, end_val)
+        else:
+            self.set(s, e, lambda t: diff * (1-easing((t-s)/dur)) + end_val, stay=stay)
         self.last_change = max(self.last_change, end_time)
+        return self
 
     def apply(self, func):
         """Return a new Real where ``result.at_time(t) = func(self.at_time(t))``.
@@ -196,9 +201,10 @@ class Real:
         assert other.__class__ == Real
         start_val = self.time_func(start)
         end_val = other.time_func(end)
-        s, e = start, end
+        d = max(end - start, 1e-9)
+        s = start
         new = Real(0)
-        new.time_func = lambda t: start_val + (end_val-start_val) * easing((t-s)/(e-s))
+        new.time_func = lambda t, _s=s, _d=d, _sv=start_val, _ev=end_val: _sv + (_ev - _sv) * easing((t - _s) / _d)
         new.last_change = end
         return new
 
@@ -239,8 +245,11 @@ class Tup(Real):
         assert other.__class__ == Tup
         start_val = self.time_func(start)
         end_val = other.time_func(end)
+        d = max(end - start, 1e-9)
+        _s = start
         new = Tup(0, ())
-        new.time_func = lambda t: tuple(s + (e-s) * easing((t-start)/(end-start)) for s, e in zip(start_val, end_val))
+        new.time_func = lambda t, _st=_s, _d=d, _sv=start_val, _ev=end_val: tuple(
+            sv + (ev - sv) * easing((t - _st) / _d) for sv, ev in zip(_sv, _ev))
         new.last_change = end
         return new
 
@@ -279,16 +288,20 @@ class Coor(Real):
         """
         old_func = self.time_func
         sign = -1 if clockwise else 1
+        dur = end_time - start_time
+        if dur <= 0:
+            return self
         def f(t):
             now = old_func(t)
             pp: tuple = pivot_point(t) if callable(pivot_point) else pivot_point  # type: ignore[assignment]
             dx, dy = now[0] - pp[0], now[1] - pp[1]
             r = math.sqrt(dx*dx + dy*dy)
             base_angle = math.atan2(dy, dx)
-            phi = base_angle + sign * math.radians(degrees * (t - start_time) / (end_time - start_time))
+            phi = base_angle + sign * math.radians(degrees * (t - start_time) / dur)
             return (pp[0] + r * math.cos(phi), pp[1] + r * math.sin(phi))
         self.set(start_time, end_time, f, stay=stay)
         self.last_change = end_time
+        return self
 
     def move_to(self, start_time, end_time, end_val, stay=True, easing=easings.smooth):
         """Animate smoothly from the current position to ``end_val``.
@@ -298,11 +311,16 @@ class Coor(Real):
         start_pos = self.time_func(start_time)
         dx, dy = start_pos[0]-end_val[0], start_pos[1]-end_val[1]
         s, e = start_time, end_time
-        self.set(s, e, lambda t: (
-            dx * (1-easing((t-s)/(e-s))) + end_val[0],
-            dy * (1-easing((t-s)/(e-s))) + end_val[1],
-        ), stay=stay)
+        dur = e - s
+        if dur <= 0:
+            self.set_onward(s, end_val)
+        else:
+            self.set(s, e, lambda t: (
+                dx * (1-easing((t-s)/dur)) + end_val[0],
+                dy * (1-easing((t-s)/dur)) + end_val[1],
+            ), stay=stay)
         self.last_change = max(self.last_change, end_time)
+        return self
 
     def add(self, start, end, func_inner, lincl=True, rincl=True, stay=False):
         """Add a (dx, dy) function's output to the current position on [start, end].
@@ -324,12 +342,16 @@ class Coor(Real):
         parsed = svgpathtools.parse_path(path_d)
         total_length = parsed.length()
         _s, _e = start_time, end_time
+        dur = _e - _s
+        if dur <= 0:
+            return self
         def position_at(t):
-            progress = max(0, min(1, easing((t - _s) / (_e - _s))))
+            progress = max(0, min(1, easing((t - _s) / dur)))
             point = parsed.point(parsed.ilength(progress * total_length))  # type: ignore[operator]
             return (point.real, point.imag)
         self.set(_s, _e, position_at, stay=stay)
         self.last_change = max(self.last_change, end_time)
+        return self
 
 
 class String(Real):
@@ -442,8 +464,11 @@ class Color:
         if self.use == other.use == 'rgb':
             start_val = self.time_func(start)
             end_val = other.time_func(end)
+            d = max(end - start, 1e-9)
+            _s = start
             new = Color(use='rgb')
-            new.time_func = lambda t: tuple(s + (e-s) * easing((t-start)/(end-start)) for s, e in zip(start_val, end_val))
+            new.time_func = lambda t, _st=_s, _d=d, _sv=start_val, _ev=end_val: tuple(
+                sv + (ev - sv) * easing((t - _st) / _d) for sv, ev in zip(_sv, _ev))
             new.last_change = end
             return new
         else:
@@ -465,11 +490,12 @@ class Color:
         elif dh < -0.5: dh += 1.0
 
         new = Color(use='rgb')
-        _s, _e = start, end
+        _s = start
+        _d = max(end - start, 1e-9)
         _dh, _ds, _dl = dh, s2 - s1, l2 - l1
-        def _interp(t):
-            p = easing((t - _s) / (_e - _s))
-            return _hsl_to_rgb((h1 + _dh * p) % 1.0, s1 + _ds * p, l1 + _dl * p)
+        def _interp(t, _st=_s, _dur=_d, _h1=h1, _s1=s1, _l1=l1, _ddh=_dh, _dds=_ds, _ddl=_dl):
+            p = easing((t - _st) / _dur)
+            return _hsl_to_rgb((_h1 + _ddh * p) % 1.0, _s1 + _dds * p, _l1 + _ddl * p)
         new.time_func = _interp
         new.last_change = end
         return new

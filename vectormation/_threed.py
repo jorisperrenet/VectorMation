@@ -165,12 +165,15 @@ class ThreeDAxes(VCollection):
 
     def set_camera_orientation(self, start, end, phi=None, theta=None, easing=easings.smooth):
         """Animate camera angles over [start, end]."""
+        dur = max(end - start, 1e-9)
         if phi is not None:
             phi0 = self.phi.at_time(start)
-            self.phi.set(start, end, lambda t: phi0 + (phi - phi0) * easing((t - start) / (end - start)))
+            self.phi.set(start, end,
+                lambda t, _s=start, _d=dur, _p0=phi0, _p=phi: _p0 + (_p - _p0) * easing((t - _s) / _d))
         if theta is not None:
             theta0 = self.theta.at_time(start)
-            self.theta.set(start, end, lambda t: theta0 + (theta - theta0) * easing((t - start) / (end - start)))
+            self.theta.set(start, end,
+                lambda t, _s=start, _d=dur, _t0=theta0, _th=theta: _t0 + (_th - _t0) * easing((t - _s) / _d))
         return self
 
     def _build_axis_label(self, label_text, pos_3d, creation):
@@ -488,7 +491,7 @@ class Surface(VObject):
 
     def to_patches(self, axes, time):
         """Generate (depth, svg_str) for each face quad."""
-        u_steps, v_steps = self._resolution
+        u_steps, v_steps = max(self._resolution[0], 1), max(self._resolution[1], 1)
         u0, u1 = self._u_range
         v0, v1 = self._v_range
         du = (u1 - u0) / u_steps
@@ -597,8 +600,8 @@ class _WireframeSurface:
         patches = []
         x0, x1 = self._x_range
         y0, y1 = self._y_range
-        dx = (x1 - x0) / self._x_steps
-        dy = (y1 - y0) / self._y_steps
+        dx = (x1 - x0) / max(self._x_steps, 1)
+        dy = (y1 - y0) / max(self._y_steps, 1)
         stroke = self._style.get('stroke', '#4488ff')
         sw = self._style.get('stroke_width', 1)
 
@@ -657,8 +660,8 @@ class _ParametricWireframe:
         patches = []
         u0, u1 = self._u_range
         v0, v1 = self._v_range
-        du = (u1 - u0) / self._u_steps
-        dv = (v1 - v0) / self._v_steps
+        du = (u1 - u0) / max(self._u_steps, 1)
+        dv = (v1 - v0) / max(self._v_steps, 1)
         stroke = self._style.get('stroke', '#4488ff')
         sw = self._style.get('stroke_width', 1)
 
@@ -811,7 +814,7 @@ class ParametricCurve3D:
 
     def to_patches(self, axes, time):
         t0, t1 = self._t_range
-        dt = (t1 - t0) / self._num_points
+        dt = (t1 - t0) / max(self._num_points, 1)
         pts = []
         total_depth = 0
         for i in range(self._num_points + 1):
