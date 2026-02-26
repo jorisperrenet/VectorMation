@@ -1830,11 +1830,6 @@ class VObject(ABC):  # Vector Object
             clones.append(c)
         return VCollection(*clones)
 
-    def copy(self):
-        """Return a deep copy of this object."""
-        from copy import deepcopy
-        return deepcopy(self)
-
     def get_angle_to(self, other, time=0):
         """Return the angle (in degrees) from this object's center to another's."""
         cx1, cy1 = self.get_center(time)

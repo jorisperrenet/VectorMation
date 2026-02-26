@@ -134,6 +134,10 @@ class Ellipse(VObject):
         a, b = self.rx.at_time(time), self.ry.at_time(time)
         return math.pi * (3 * (a + b) - math.sqrt((3 * a + b) * (a + 3 * b)))
 
+    def __repr__(self):
+        cx, cy = self.c.at_time(0)
+        return f'Ellipse(rx={self.rx.at_time(0):.0f}, ry={self.ry.at_time(0):.0f}, cx={cx:.0f}, cy={cy:.0f})'
+
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)
         return f"<ellipse cx='{cx}' cy='{cy}' rx='{self.rx.at_time(time)}' ry='{self.ry.at_time(time)}'{self.styling.svg_style(time)} />"
@@ -183,6 +187,10 @@ class Dot(Circle):
     def __init__(self, r: float = DEFAULT_DOT_RADIUS, cx: float = 960, cy: float = 540, z=0, creation=0, **styling_kwargs):
         super().__init__(r=r, cx=cx, cy=cy, z=z, creation=creation,
                          **({'fill': '#fff', 'fill_opacity': 1, 'stroke_width': 0} | styling_kwargs))
+
+    def __repr__(self):
+        cx, cy = self.c.at_time(0)
+        return f'Dot(cx={cx:.0f}, cy={cy:.0f})'
 
 
 class Rectangle(VObject):
@@ -739,6 +747,22 @@ class Path(VObject):
             self.styling.dy.add_onward(s, lambda t, _s=s, _d=d: dy * easing((t-_s)/_d), last_change=e)
         return self
 
+    def __repr__(self):
+        d = self.d.at_time(0)
+        short = d[:30] + '...' if len(d) > 30 else d
+        return f"Path(d='{short}')"
+
+    def get_length(self, time=0):
+        """Return the total length of the path."""
+        try:
+            from svgpathtools import parse_path
+        except ImportError:
+            raise ImportError("svgpathtools is required for get_length")
+        d = self.d.at_time(time)
+        if not d:
+            return 0.0
+        return parse_path(d).length()
+
     def point_from_proportion(self, proportion, time=0):
         """Return (x, y) at a proportional distance along the path (0-1)."""
         try:
@@ -789,6 +813,9 @@ class Image(VObject):
         x, y = self.x.at_time(time), self.y.at_time(time)
         w, h = self.width.at_time(time), self.height.at_time(time)
         return self._bbox_from_points([(x,y),(x+w,y),(x+w,y+h),(x,y+h)], time) or super().bbox(time)
+
+    def __repr__(self):
+        return f'Image({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f})'
 
     def to_svg(self, time):
         return (f"<image href='{self.href}' x='{self.x.at_time(time)}' y='{self.y.at_time(time)}'"
@@ -959,6 +986,9 @@ class Arc(VObject):
         r = self.r.at_time(time)
         sweep = abs(self.end_angle.at_time(time) - self.start_angle.at_time(time))
         return r * math.radians(sweep)
+
+    def __repr__(self):
+        return f'Arc(r={self.r.at_time(0):.0f}, {self.start_angle.at_time(0):.0f}°-{self.end_angle.at_time(0):.0f}°)'
 
     def to_svg(self, time):
         return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"
@@ -1310,6 +1340,9 @@ class FunctionGraph(Lines):
         self._x_min, self._x_max = x_min, x_max
         self._y_min, self._y_max = y_lo, y_hi
         self._px, self._py, self._pw, self._ph = x, y, width, height
+
+    def __repr__(self):
+        return f'FunctionGraph(x=[{self._x_min}, {self._x_max}])'
 
     def get_point_from_x(self, math_x):
         """Return (svg_x, svg_y) for a given math x coordinate."""

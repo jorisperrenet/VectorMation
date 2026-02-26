@@ -3489,3 +3489,68 @@ class TestCodeLanguages:
         code = Code('hello world', language='brainfuck')
         svg = code.to_svg(0)
         assert 'hello' in svg
+
+
+class TestShapeRepr:
+    def test_ellipse_repr(self):
+        e = Ellipse(rx=100, ry=50, cx=400, cy=300)
+        assert repr(e) == 'Ellipse(rx=100, ry=50, cx=400, cy=300)'
+
+    def test_dot_repr(self):
+        d = Dot(cx=200, cy=100)
+        assert repr(d) == 'Dot(cx=200, cy=100)'
+
+    def test_path_repr_short(self):
+        p = Path('M0,0L10,10')
+        assert repr(p) == "Path(d='M0,0L10,10')"
+
+    def test_path_repr_truncated(self):
+        long_d = 'M0,0' + 'L100,200' * 10
+        p = Path(long_d)
+        r = repr(p)
+        assert r.endswith("...')")
+        assert len(r) < 60
+
+    def test_arc_repr(self):
+        a = Arc(r=100, start_angle=30, end_angle=150)
+        assert repr(a) == 'Arc(r=100, 30°-150°)'
+
+    def test_image_repr(self):
+        img = Image('test.png', width=200, height=100)
+        assert repr(img) == 'Image(200x100)'
+
+    def test_function_graph_repr(self):
+        fg = FunctionGraph(lambda x: x, x_range=(-3, 3))
+        assert repr(fg) == 'FunctionGraph(x=[-3, 3])'
+
+    def test_circle_repr_unchanged(self):
+        c = Circle(r=50, cx=100, cy=200)
+        assert 'Circle' in repr(c) and 'r=50' in repr(c)
+
+
+class TestPathGetLength:
+    def test_straight_line(self):
+        p = Path('M0,0L100,0')
+        assert p.get_length() == pytest.approx(100, abs=1)
+
+    def test_closed_square(self):
+        p = Path('M0,0L100,0L100,100L0,100Z')
+        assert p.get_length() == pytest.approx(400, abs=1)
+
+    def test_empty_path(self):
+        p = Path('')
+        assert p.get_length() == 0.0
+
+
+class TestCopyConsolidation:
+    def test_vobject_copy(self):
+        c = Circle(r=50, cx=100, cy=200)
+        c2 = c.copy()
+        assert isinstance(c2, Circle)
+        assert c2 is not c
+
+    def test_vcollection_copy(self):
+        g = VCollection(Circle(r=10), Rectangle(20, 30))
+        g2 = g.copy()
+        assert len(g2.objects) == 2
+        assert g2.objects[0] is not g.objects[0]
