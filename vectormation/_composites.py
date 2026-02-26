@@ -4069,17 +4069,27 @@ class DynamicObject(VObject):
     def __init__(self, func, creation=0, z=0):
         super().__init__(creation=creation, z=z)
         self._func = func
+        self._cache = [None, None]  # [time, result]
         self.styling = style.Styling({}, creation=creation)
 
+    def _eval(self, time):
+        """Evaluate func(time) with per-frame caching."""
+        if self._cache[0] == time:
+            return self._cache[1]
+        result = self._func(time)
+        self._cache[0] = time
+        self._cache[1] = result
+        return result
+
     def to_svg(self, time):
-        return self._func(time).to_svg(time)
+        return self._eval(time).to_svg(time)
 
     def path(self, time):
-        obj = self._func(time)
+        obj = self._eval(time)
         return obj.path(time) if hasattr(obj, 'path') else ''
 
     def bbox(self, time):
-        return self._func(time).bbox(time)
+        return self._eval(time).bbox(time)
 
 
 class Matrix(VCollection):

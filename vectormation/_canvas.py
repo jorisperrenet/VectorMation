@@ -204,6 +204,11 @@ class VectorMathAnim:
         return self
 
     # Aliases
+    def get_all_objects(self):
+        """Return a list of all registered objects (excluding background)."""
+        bg_id = id(self.background) if self.background else None
+        return [v for k, v in self.objects.items() if k != bg_id]
+
     add = add_objects
     add_gradient = add_def
     add_clip_path = add_def

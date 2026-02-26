@@ -3705,3 +3705,60 @@ class TestFilterByType:
         # Dot is a subclass of Circle
         circles = g.filter_by_type(Circle)
         assert len(circles) == 2
+
+
+class TestArcPointAtAngle:
+    def test_point_at_0(self):
+        a = Arc(cx=100, cy=100, r=50, start_angle=0, end_angle=180)
+        x, y = a.point_at_angle(0)
+        assert x == pytest.approx(150, abs=1)
+        assert y == pytest.approx(100, abs=1)
+
+    def test_point_at_90(self):
+        a = Arc(cx=100, cy=100, r=50, start_angle=0, end_angle=180)
+        x, y = a.point_at_angle(90)
+        assert x == pytest.approx(100, abs=1)
+        assert y == pytest.approx(50, abs=1)  # SVG y is inverted
+
+
+class TestDynamicObjectCache:
+    def test_caches_within_frame(self):
+        call_count = [0]
+        def factory(t):
+            call_count[0] += 1
+            return Circle(r=10 + t)
+        dyn = DynamicObject(factory)
+        # Call to_svg, path, bbox at same time
+        dyn.to_svg(0)
+        dyn.path(0)
+        dyn.bbox(0)
+        assert call_count[0] == 1  # only one call, cached
+
+    def test_different_time_recalculates(self):
+        call_count = [0]
+        def factory(t):
+            call_count[0] += 1
+            return Circle(r=10 + t)
+        dyn = DynamicObject(factory)
+        dyn.to_svg(0)
+        dyn.to_svg(1)
+        assert call_count[0] == 2
+
+
+class TestCanvasGetAllObjects:
+    def test_get_all_objects(self):
+        anim = VectorMathAnim(tempfile.mkdtemp())
+        c = Circle(r=10)
+        r = Rectangle(20, 30)
+        anim.add(c, r)
+        objs = anim.get_all_objects()
+        assert c in objs
+        assert r in objs
+
+    def test_excludes_background(self):
+        anim = VectorMathAnim(tempfile.mkdtemp())
+        c = Circle(r=10)
+        anim.add(c)
+        objs = anim.get_all_objects()
+        # Background should not be in the list
+        assert anim.background not in objs

@@ -1005,6 +1005,13 @@ class Arc(VObject):
         sweep = abs(self.end_angle.at_time(time) - self.start_angle.at_time(time))
         return r * math.radians(sweep)
 
+    def point_at_angle(self, degrees, time=0):
+        """Return (x, y) on the arc at the given angle (degrees, CCW from right)."""
+        cx, cy = self.cx.at_time(time), self.cy.at_time(time)
+        r = self.r.at_time(time)
+        rad = math.radians(degrees)
+        return (cx + r * math.cos(rad), cy - r * math.sin(rad))
+
     def __repr__(self):
         return f'Arc(r={self.r.at_time(0):.0f}, {self.start_angle.at_time(0):.0f}°-{self.end_angle.at_time(0):.0f}°)'
 
