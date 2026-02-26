@@ -2031,6 +2031,104 @@ class Axes(VCollection):
             areas.append(area)
         return VCollection(*areas, creation=creation, z=z)
 
+    def plot_candlestick(self, data, bar_width=0.6, creation=0, z=1,
+                          up_color='#83C167', down_color='#FF6B6B', **styling_kwargs):
+        """Plot an OHLC candlestick chart.
+        data: list of (x, open, high, low, close) tuples.
+        Returns a VCollection of all candlestick elements."""
+        objs = []
+        hw = bar_width / 2
+        for x, o, h, l, c in data:
+            is_up = c >= o
+            color = up_color if is_up else down_color
+            body_lo, body_hi = (o, c) if is_up else (c, o)
+            # Wick (high-low line)
+            wick = Line(x1=0, y1=0, x2=0, y2=0,
+                        stroke=color, stroke_width=1.5, creation=creation, z=z)
+            _x, _h, _l = x, h, l
+            wick.p1.set_onward(creation,
+                lambda t, _x=_x, _h=_h: (self._math_to_svg_x(_x, t), self._math_to_svg_y(_h, t)))
+            wick.p2.set_onward(creation,
+                lambda t, _x=_x, _l=_l: (self._math_to_svg_x(_x, t), self._math_to_svg_y(_l, t)))
+            objs.append(wick)
+            # Body (open-close rectangle)
+            rect = Rectangle(width=0, height=0, x=0, y=0,
+                              fill=color, fill_opacity=0.8, stroke=color, stroke_width=1,
+                              creation=creation, z=z + 0.1)
+            _xl, _xr = x - hw, x + hw
+            _blo, _bhi = body_lo, body_hi
+            rect.x.set_onward(creation, lambda t, _xl=_xl: self._math_to_svg_x(_xl, t))
+            rect.width.set_onward(creation, lambda t, _xl=_xl, _xr=_xr: abs(
+                self._math_to_svg_x(_xr, t) - self._math_to_svg_x(_xl, t)))
+            rect.y.set_onward(creation, lambda t, _bhi=_bhi: self._math_to_svg_y(_bhi, t))
+            rect.height.set_onward(creation, lambda t, _blo=_blo, _bhi=_bhi: max(1, abs(
+                self._math_to_svg_y(_blo, t) - self._math_to_svg_y(_bhi, t))))
+            objs.append(rect)
+        for obj in objs:
+            self._add_plot_obj(obj)
+        return VCollection(*objs, creation=creation, z=z)
+
+    def plot_dumbbell(self, y_positions, start_values, end_values,
+                       creation=0, z=1, **styling_kwargs):
+        """Plot a dumbbell chart: pairs of dots connected by a line at each y position.
+        y_positions: list of y-coordinates (categories).
+        start_values, end_values: x-coordinate pairs.
+        Returns a VCollection."""
+        start_color = styling_kwargs.pop('start_color', '#FF6B6B')
+        end_color = styling_kwargs.pop('end_color', '#58C4DD')
+        line_kw = {'stroke': '#888', 'stroke_width': 2} | styling_kwargs
+        objs = []
+        for yp, sv, ev in zip(y_positions, start_values, end_values):
+            # Connecting line
+            line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **line_kw)
+            _yp, _sv, _ev = yp, sv, ev
+            line.p1.set_onward(creation,
+                lambda t, _y=_yp, _x=_sv: self.coords_to_point(_x, _y, t))
+            line.p2.set_onward(creation,
+                lambda t, _y=_yp, _x=_ev: self.coords_to_point(_x, _y, t))
+            objs.append(line)
+            # Start dot
+            d1 = Dot(cx=0, cy=0, r=6, fill=start_color, stroke_width=0,
+                     creation=creation, z=z + 1)
+            d1.c.set_onward(creation,
+                lambda t, _y=_yp, _x=_sv: self.coords_to_point(_x, _y, t))
+            objs.append(d1)
+            # End dot
+            d2 = Dot(cx=0, cy=0, r=6, fill=end_color, stroke_width=0,
+                     creation=creation, z=z + 1)
+            d2.c.set_onward(creation,
+                lambda t, _y=_yp, _x=_ev: self.coords_to_point(_x, _y, t))
+            objs.append(d2)
+        for obj in objs:
+            self._add_plot_obj(obj)
+        return VCollection(*objs, creation=creation, z=z)
+
+    def add_parametric_area(self, func_x, func_y, t_range=(0, 1),
+                             samples=200, creation=0, z=-1, **styling_kwargs):
+        """Fill the area enclosed by a parametric curve (func_x(t), func_y(t)).
+        Returns a dynamic Path object."""
+        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.3, 'stroke_width': 0} | styling_kwargs
+        area = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
+        _t0, _t1 = t_range
+        _fx, _fy, _n = func_x, func_y, samples
+        def _param_d(time, _fx=_fx, _fy=_fy, _t0=_t0, _t1=_t1, _n=_n):
+            step = (_t1 - _t0) / max(_n, 1)
+            pts = []
+            for i in range(_n + 1):
+                tv = _t0 + i * step
+                sx, sy = self.coords_to_point(_fx(tv), _fy(tv), time)
+                pts.append((sx, sy))
+            if not pts:
+                return ''
+            parts = [f'M{pts[0][0]:.1f},{pts[0][1]:.1f}']
+            for sx, sy in pts[1:]:
+                parts.append(f'L{sx:.1f},{sy:.1f}')
+            parts.append('Z')
+            return ''.join(parts)
+        area.d.set_onward(creation, _param_d)
+        self._add_plot_obj(area)
+        return area
+
     def add_slope_field(self, func, x_step=1, y_step=1, seg_length=0.4,
                          creation=0, z=-1, **styling_kwargs):
         """Draw a direction/slope field for dy/dx = func(x, y).
@@ -5230,6 +5328,77 @@ class WaterfallChart(VCollection):
             lbl = labels[n] if labels and n < len(labels) else 'Total'
             val_text = f'{total:.1f}' if total != int(total) else f'{int(total)}'
             _add_bar(n, 0, total, total_color, lbl, val_text)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class GanttChart(VCollection):
+    """Gantt chart for project timelines.
+
+    tasks: list of (label, start, end) tuples or (label, start, end, color).
+    """
+    def __init__(self, tasks, x=100, y=80, width=1200, height=None,
+                 bar_height=30, bar_spacing=10, colors=None,
+                 font_size=16, creation=0, z=0):
+        n = len(tasks)
+        if n == 0:
+            super().__init__(creation=creation, z=z)
+            return
+        if colors is None:
+            colors = ['#58C4DD', '#83C167', '#FF6B6B', '#FFFF00',
+                      '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C']
+        total_h = height if height else n * (bar_height + bar_spacing) + 40
+        # Compute time range
+        all_starts = [t[1] for t in tasks]
+        all_ends = [t[2] for t in tasks]
+        t_min, t_max = min(all_starts), max(all_ends)
+        t_span = t_max - t_min if t_max != t_min else 1
+        label_w = 120
+        chart_x = x + label_w
+        chart_w = width - label_w
+        objects = []
+        # Header line
+        header = Line(x1=chart_x, y1=y, x2=chart_x + chart_w, y2=y,
+                      stroke='#555', stroke_width=1, creation=creation, z=z)
+        objects.append(header)
+        # Time axis ticks
+        n_ticks = min(10, int(t_span) + 1) if t_span >= 1 else 2
+        for i in range(n_ticks + 1):
+            frac = i / max(n_ticks, 1)
+            tx = chart_x + frac * chart_w
+            tv = t_min + frac * t_span
+            tick = Line(x1=tx, y1=y - 5, x2=tx, y2=y + 5,
+                        stroke='#666', stroke_width=1, creation=creation, z=z)
+            objects.append(tick)
+            label = f'{tv:.0f}' if tv == int(tv) else f'{tv:.1f}'
+            lbl = Text(text=label, x=tx, y=y - 10,
+                       font_size=font_size - 2, fill='#aaa', stroke_width=0,
+                       text_anchor='middle', creation=creation, z=z + 0.1)
+            objects.append(lbl)
+        # Task bars
+        self._bars = []
+        for i, task in enumerate(tasks):
+            task_label = task[0]
+            t_start, t_end = task[1], task[2]
+            color = task[3] if len(task) > 3 else colors[i % len(colors)]
+            by = y + 20 + i * (bar_height + bar_spacing)
+            bx = chart_x + (t_start - t_min) / t_span * chart_w
+            bw = max(2, (t_end - t_start) / t_span * chart_w)
+            rect = Rectangle(width=bw, height=bar_height, x=bx, y=by,
+                              fill=color, fill_opacity=0.8, stroke=color,
+                              stroke_width=1, rx=4, ry=4,
+                              creation=creation, z=z + 0.1)
+            self._bars.append(rect)
+            objects.append(rect)
+            # Label
+            lbl = Text(text=task_label, x=x + 5, y=by + bar_height / 2 + font_size * 0.35,
+                       font_size=font_size, fill='#ccc', stroke_width=0,
+                       text_anchor='start', creation=creation, z=z + 0.1)
+            objects.append(lbl)
+            # Grid line
+            grid = Line(x1=chart_x, y1=by + bar_height + bar_spacing / 2,
+                        x2=chart_x + chart_w, y2=by + bar_height + bar_spacing / 2,
+                        stroke='#333', stroke_width=0.5, creation=creation, z=z - 0.1)
+            objects.append(grid)
         super().__init__(*objects, creation=creation, z=z)
 
 

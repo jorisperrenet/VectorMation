@@ -13,7 +13,7 @@ from vectormation.objects import (
     SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS,
     always_redraw, UP, DOWN, LEFT, RIGHT,
     ZoomedInset, Intersection, Difference, Union, Exclusion,
-    ThreeDAxes, WaterfallChart, DonutChart,
+    ThreeDAxes, WaterfallChart, DonutChart, GanttChart,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -785,6 +785,41 @@ class TestAxesNewMethods:
         assert isinstance(dc, VCollection)
         svg = dc.to_svg(0)
         assert '<path' in svg
+        assert '<text' in svg
+
+    def test_plot_candlestick(self):
+        ax = Axes(x_range=(0, 6), y_range=(0, 20))
+        data = [(1, 10, 15, 8, 12), (2, 12, 18, 10, 9),
+                (3, 9, 14, 7, 13), (4, 13, 16, 11, 15)]
+        candles = ax.plot_candlestick(data)
+        assert isinstance(candles, VCollection)
+        assert len(candles) == 8  # 4 wicks + 4 bodies
+        svg = candles.to_svg(0)
+        assert '<rect' in svg and '<line' in svg
+
+    def test_plot_dumbbell(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 4))
+        db = ax.plot_dumbbell([1, 2, 3], [2, 3, 1], [7, 8, 5])
+        assert isinstance(db, VCollection)
+        assert len(db) == 9  # 3 lines + 3 start dots + 3 end dots
+
+    def test_add_parametric_area(self):
+        import math
+        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        area = ax.add_parametric_area(
+            lambda t: math.cos(t), lambda t: math.sin(t),
+            t_range=(0, 2 * math.pi))
+        assert isinstance(area, Path)
+        d = area.d.at_time(0)
+        assert d.startswith('M') and 'Z' in d
+
+    def test_gantt_chart(self):
+        tasks = [('Design', 0, 3), ('Build', 2, 7), ('Test', 5, 9)]
+        gc = GanttChart(tasks)
+        assert isinstance(gc, VCollection)
+        assert len(gc) > 0
+        svg = gc.to_svg(0)
+        assert '<rect' in svg
         assert '<text' in svg
 
     def test_donut_chart_no_labels(self):
