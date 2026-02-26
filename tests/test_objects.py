@@ -33,6 +33,7 @@ from vectormation.objects import (
     DEFAULT_CHART_COLORS, Variable, Underline,
     ArrowVectorField, ComplexPlane, ChessBoard, Automaton,
     PeriodicTable, BohrAtom,
+    Countdown, Filmstrip,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -2912,3 +2913,48 @@ class TestReprShapes:
         r = repr(t)
         assert '...' in r
         assert len(r) < 40
+
+
+class TestCountdown:
+    def test_creates(self):
+        c = Countdown(start_value=10, end_value=0, start=0, end=3)
+        assert isinstance(c, VCollection)
+        svg = c.to_svg(0)
+        assert '10' in svg
+
+    def test_counts_down(self):
+        c = Countdown(start_value=10, end_value=0, start=0, end=10)
+        svg_start = c.to_svg(0)
+        svg_mid = c.to_svg(5)
+        svg_end = c.to_svg(10)
+        assert '10' in svg_start
+        assert '5' in svg_mid
+        assert '0' in svg_end
+
+    def test_counts_up(self):
+        c = Countdown(start_value=0, end_value=100, start=0, end=10)
+        svg_end = c.to_svg(10)
+        assert '100' in svg_end
+
+
+class TestFilmstrip:
+    def test_creates(self):
+        f = Filmstrip(['Intro', 'Scene 1', 'Scene 2', 'End'])
+        assert isinstance(f, VCollection)
+        svg = f.to_svg(0)
+        assert 'Intro' in svg
+        assert 'End' in svg
+
+    def test_frames(self):
+        f = Filmstrip(['A', 'B', 'C'])
+        assert len(f._frames) == 3
+
+    def test_highlight_frame(self):
+        f = Filmstrip(['A', 'B', 'C'])
+        result = f.highlight_frame(1, start=0, end=1)
+        assert result is f
+
+    def test_empty(self):
+        f = Filmstrip([])
+        svg = f.to_svg(0)
+        assert svg is not None

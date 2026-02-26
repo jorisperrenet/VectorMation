@@ -33,6 +33,13 @@ _MARCH_SEGS = {
 }
 
 
+def _label_text(text, x, y, font_size, creation=0, z=0, **overrides):
+    """Create a centered white text label (common pattern in composites)."""
+    kw = {'fill': '#fff', 'stroke_width': 0} | overrides
+    return Text(text=str(text), x=x, y=y + font_size * TEXT_Y_OFFSET,
+                font_size=font_size, text_anchor='middle', creation=creation, z=z, **kw)
+
+
 class MorphObject(VCollection):
     """Morphs one object/collection into another over a time range.
     Must be added to the canvas. The source becomes hidden at start, target appears at end."""
@@ -137,9 +144,7 @@ class LabeledDot(VCollection):
         dot = Dot(r=r, cx=cx, cy=cy, creation=creation, z=z, fill=dot_fill, **dot_kw)
         if font_size is None:
             font_size = r * 0.9
-        text = Text(text=str(label), x=cx, y=cy + font_size * TEXT_Y_OFFSET,
-                    font_size=font_size, text_anchor='middle',
-                    creation=creation, z=z, fill='#fff', stroke_width=0)
+        text = _label_text(label, cx, cy, font_size, creation=creation, z=z)
         super().__init__(dot, text, creation=creation, z=z)
         self.dot = dot
         self.label = text
@@ -5120,10 +5125,7 @@ class NetworkGraph(VCollection):
                             fill='#1e1e2e', fill_opacity=0.9, stroke='#58C4DD', stroke_width=2)
             objects.append(circle)
             self._node_circles[nid] = circle
-            lbl_text = str(nodes[nid])
-            lbl = Text(text=lbl_text, x=nx, y=ny + font_size * TEXT_Y_OFFSET,
-                       font_size=font_size, text_anchor='middle',
-                       creation=creation, z=z + 2, fill='#fff', stroke_width=0)
+            lbl = _label_text(nodes[nid], nx, ny, font_size, creation=creation, z=z + 2)
             objects.append(lbl)
 
         super().__init__(*objects, creation=creation, z=z)
@@ -5167,9 +5169,7 @@ class LabeledArrow(VCollection):
         dist = math.hypot(dx, dy) or 1
         # Perpendicular offset for the label
         nx, ny = -dy / dist * label_buff, dx / dist * label_buff
-        lbl = Text(text=label, x=mx + nx, y=my + ny + font_size * TEXT_Y_OFFSET,
-                   font_size=font_size, text_anchor='middle',
-                   creation=creation, z=z + 1, fill='#fff', stroke_width=0)
+        lbl = _label_text(label, mx + nx, my + ny, font_size, creation=creation, z=z + 1)
         super().__init__(arrow, lbl, creation=creation, z=z)
         self.arrow = arrow
         self.label_obj = lbl
@@ -5446,9 +5446,7 @@ class Tree(VCollection):
             if label not in self._positions_by_label:
                 self._positions_by_label[label] = (nx, ny)
                 self._node_objects[label] = circle  # label-based lookup (first occurrence)
-            lbl = SText(text=str(label), x=nx, y=ny + font_size * TEXT_Y_OFFSET,
-                        font_size=font_size, text_anchor='middle',
-                        creation=creation, z=z + 2, fill='#fff', stroke_width=0)
+            lbl = _label_text(label, nx, ny, font_size, creation=creation, z=z + 2)
             objects.append(lbl)
 
         super().__init__(*objects, creation=creation, z=z)
@@ -7291,6 +7289,55 @@ class Breadcrumb(VCollection):
                 objects.append(sep)
                 cx += font_size * CHAR_WIDTH_FACTOR + gap
         super().__init__(*objects, creation=creation, z=z)
+
+
+class Countdown(VCollection):
+    """Animated countdown timer from start_value to end_value.
+
+    Displays a large number that counts down (or up) over the given time range.
+    """
+    def __init__(self, start_value=10, end_value=0, x=960, y=540, font_size=120,
+                 start=0, end=3, creation=0, z=0, **styling_kwargs):
+        txt = _label_text(start_value, x, y, font_size, creation=creation, z=z, **styling_kwargs)
+        _sv, _ev, _s, _e = start_value, end_value, start, end
+        dur = _e - _s
+        if dur > 0:
+            txt.text.set(_s, _e, lambda t: str(int(_sv + (_ev - _sv) * min(1, (t - _s) / dur))),
+                         stay=True)
+        super().__init__(txt, creation=creation, z=z)
+        self._text = txt
+
+
+class Filmstrip(VCollection):
+    """Horizontal row of labeled thumbnail boxes (like a storyboard/filmstrip).
+
+    labels: list of strings for each frame.
+    """
+    def __init__(self, labels, x=100, y=400, frame_width=200, frame_height=130,
+                 spacing=20, font_size=16, creation=0, z=0, **styling_kwargs):
+        from vectormation._shapes import RoundedRectangle
+        objects = []
+        self._frames = []
+        frame_style = {'fill': '#1e1e2e', 'fill_opacity': 0.9,
+                        'stroke': '#555', 'stroke_width': 1} | styling_kwargs
+        for i, label in enumerate(labels):
+            fx = x + i * (frame_width + spacing)
+            frame = RoundedRectangle(frame_width, frame_height, x=fx, y=y,
+                                     corner_radius=6, creation=creation, z=z, **frame_style)
+            lbl = _label_text(label, fx + frame_width / 2, y + frame_height + 5,
+                              font_size, creation=creation, z=z + 0.1, fill='#ccc')
+            num = _label_text(str(i + 1), fx + frame_width / 2, y + frame_height / 2,
+                              font_size * 2, creation=creation, z=z + 0.1, fill='#333')
+            self._frames.append(frame)
+            objects.extend([frame, lbl, num])
+        super().__init__(*objects, creation=creation, z=z)
+
+    def highlight_frame(self, index, start=0, end=1, color='#58C4DD',
+                        easing=easings.there_and_back):
+        """Flash-highlight a frame by index."""
+        if 0 <= index < len(self._frames):
+            self._frames[index].flash(start, end, color=color, easing=easing)
+        return self
 
 
 def parse_args():

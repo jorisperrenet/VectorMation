@@ -64,6 +64,7 @@ from vectormation._composites import (
     SpeechBubble, Badge, Divider,
     Checklist, Stepper, TagCloud,
     StatusIndicator, Meter, Breadcrumb,
+    Countdown, Filmstrip,
     from_svg, from_svg_file, always_redraw, parse_args,
     _parse_inline_style,
 )
