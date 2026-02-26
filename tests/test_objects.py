@@ -16,6 +16,7 @@ from vectormation.objects import (
     ThreeDAxes, WaterfallChart, DonutChart, GanttChart, SankeyDiagram,
     FunnelChart, TreeMap, GaugeChart, SparkLine,
     VennDiagram, OrgChart,
+    KPICard, BulletChart, CalendarHeatmap,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -944,6 +945,46 @@ class TestAxesNewMethods:
         assert 'CEO' in svg
         assert 'CTO' in svg
         assert 'Dev' in svg
+
+    def test_plot_filled_step(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 10), plot_width=400, plot_height=300, x=100, y=100)
+        fs = ax.plot_filled_step([0, 1, 2, 3, 4], [2, 5, 3, 8, 4])
+        assert isinstance(fs, Path)
+        svg = ax.to_svg(0)
+        assert 'Z' in svg  # closed path
+
+    def test_kpi_card(self):
+        kpi = KPICard('Revenue', '$1.2M', subtitle='+12% MoM',
+                      trend_data=[100, 120, 115, 135, 150])
+        assert isinstance(kpi, VCollection)
+        assert len(kpi) > 0
+        svg = kpi.to_svg(0)
+        assert 'Revenue' in svg
+        assert '$1.2M' in svg
+
+    def test_kpi_card_no_trend(self):
+        kpi = KPICard('Users', '10K')
+        svg = kpi.to_svg(0)
+        assert 'Users' in svg
+
+    def test_bullet_chart(self):
+        bc = BulletChart(actual=270, target=250, label='Revenue',
+                         ranges=[(150, '#2a2a3a'), (225, '#3a3a4a'), (300, '#4a4a5a')])
+        assert isinstance(bc, VCollection)
+        assert len(bc) > 0
+        svg = bc.to_svg(0)
+        assert '<rect' in svg
+        assert '<line' in svg
+
+    def test_calendar_heatmap(self):
+        data = {(r, c): r * c for r in range(7) for c in range(10)}
+        ch = CalendarHeatmap(data, rows=7, cols=10)
+        assert isinstance(ch, VCollection)
+        assert len(ch) == 70
+
+    def test_calendar_heatmap_flat(self):
+        ch = CalendarHeatmap(list(range(35)), rows=7, cols=5)
+        assert len(ch) == 35
 
 
 class TestVCollectionNew:

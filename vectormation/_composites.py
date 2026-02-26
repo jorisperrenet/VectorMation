@@ -786,6 +786,34 @@ class Axes(VCollection):
         self._add_plot_obj(curve)
         return curve
 
+    def plot_filled_step(self, x_values, y_values, baseline=0, creation=0, z=0, **styling_kwargs):
+        """Plot a step function with shaded area down to baseline.
+        Returns a Path object."""
+        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.3,
+                    'stroke': '#58C4DD', 'stroke_width': 2} | styling_kwargs
+        data = list(zip(x_values, y_values))
+        curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
+        _bl = baseline
+        def _compute_d(time, _data=data):
+            if not _data:
+                return ''
+            parts = []
+            base_y = self._math_to_svg_y(_bl, time)
+            sx = self._math_to_svg_x(_data[0][0], time)
+            sy = self._math_to_svg_y(_data[0][1], time)
+            last_x = sx
+            parts.append(f'M{sx},{base_y}L{sx},{sy}')
+            for i in range(1, len(_data)):
+                last_x = self._math_to_svg_x(_data[i][0], time)
+                parts.append(f'L{last_x},{sy}')
+                sy = self._math_to_svg_y(_data[i][1], time)
+                parts.append(f'L{last_x},{sy}')
+            parts.append(f'L{last_x},{base_y}Z')
+            return ''.join(parts)
+        curve.d.set_onward(creation, _compute_d)
+        self._add_plot_obj(curve)
+        return curve
+
     def plot_histogram(self, data, bins=10, creation=0, z=0, **styling_kwargs):
         """Plot a histogram from raw data values.
         bins: int (number of bins) or list of bin edges.
@@ -6016,6 +6044,143 @@ class OrgChart(VCollection):
         for child in children:
             self._draw_tree(child, positions, objects, colors, depth + 1,
                             box_width, box_height, font_size, creation, z)
+
+
+class KPICard(VCollection):
+    """Metric card showing a title, large value, optional subtitle and trend sparkline.
+
+    title: metric name.  value: displayed value string.
+    """
+    def __init__(self, title, value, subtitle=None, trend_data=None,
+                 x=100, y=100, width=280, height=160,
+                 bg_color='#1a1a2e', title_color='#aaa', value_color='#fff',
+                 font_size=48, creation=0, z=0):
+        objects = []
+        # Background card
+        from vectormation._shapes import RoundedRectangle
+        bg = RoundedRectangle(width=width, height=height, x=x, y=y,
+                               corner_radius=10, fill=bg_color, fill_opacity=0.9,
+                               stroke='#333', stroke_width=1,
+                               creation=creation, z=z)
+        objects.append(bg)
+        # Title
+        t_lbl = Text(text=str(title), x=x + width / 2, y=y + 30,
+                     font_size=font_size * 0.35, fill=title_color, stroke_width=0,
+                     text_anchor='middle', creation=creation, z=z + 0.1)
+        objects.append(t_lbl)
+        # Value
+        v_lbl = Text(text=str(value), x=x + width / 2, y=y + height * 0.5 + font_size * 0.3,
+                     font_size=font_size, fill=value_color, stroke_width=0,
+                     text_anchor='middle', creation=creation, z=z + 0.1)
+        objects.append(v_lbl)
+        # Subtitle
+        if subtitle:
+            s_lbl = Text(text=str(subtitle), x=x + width / 2,
+                         y=y + height * 0.5 + font_size * 0.3 + font_size * 0.6,
+                         font_size=font_size * 0.3, fill=title_color, stroke_width=0,
+                         text_anchor='middle', creation=creation, z=z + 0.1)
+            objects.append(s_lbl)
+        # Trend sparkline
+        if trend_data and len(trend_data) >= 2:
+            sl_w = width * 0.6
+            sl_h = height * 0.15
+            sl_x = x + (width - sl_w) / 2
+            sl_y = y + height - sl_h - 15
+            spark = SparkLine(trend_data, x=sl_x, y=sl_y, width=sl_w, height=sl_h,
+                              stroke='#58C4DD', stroke_width=1, show_endpoint=True,
+                              creation=creation, z=z + 0.1)
+            objects.append(spark)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class BulletChart(VCollection):
+    """Bullet chart: qualitative ranges + actual bar + target marker.
+
+    actual: actual value.  target: target value.
+    ranges: list of (value, color) tuples for qualitative ranges, sorted ascending.
+    """
+    def __init__(self, actual, target, ranges=None, label=None,
+                 x=100, y=100, width=500, height=40,
+                 bar_color='#333', target_color='#fff',
+                 font_size=16, max_val=None, creation=0, z=0):
+        if ranges is None:
+            ranges = [(0.5, '#2a2a3a'), (0.75, '#3a3a4a'), (1.0, '#4a4a5a')]
+        if max_val is None:
+            max_val = max(actual, target, max(v for v, _ in ranges) if ranges else 1)
+            if max_val <= 0:
+                max_val = 1
+        objects = []
+        # Qualitative range backgrounds
+        prev = 0
+        for val, color in sorted(ranges, key=lambda vc: vc[0]):
+            rw = (val - prev) / max_val * width
+            rect = Rectangle(width=max(rw, 0), height=height,
+                              x=x + prev / max_val * width, y=y,
+                              fill=color, fill_opacity=1, stroke_width=0,
+                              creation=creation, z=z)
+            objects.append(rect)
+            prev = val
+        # Actual value bar
+        bar_h = height * 0.5
+        bar_w = max(actual / max_val * width, 0)
+        bar = Rectangle(width=bar_w, height=bar_h,
+                         x=x, y=y + (height - bar_h) / 2,
+                         fill=bar_color, fill_opacity=1, stroke_width=0,
+                         creation=creation, z=z + 0.1)
+        objects.append(bar)
+        # Target marker
+        tx = x + target / max_val * width
+        marker = Line(x1=tx, y1=y + height * 0.15, x2=tx, y2=y + height * 0.85,
+                      stroke=target_color, stroke_width=2.5,
+                      creation=creation, z=z + 0.2)
+        objects.append(marker)
+        # Label
+        if label:
+            lbl = Text(text=str(label), x=x - 10, y=y + height / 2 + font_size * 0.35,
+                       font_size=font_size, fill='#ddd', stroke_width=0,
+                       text_anchor='end', creation=creation, z=z + 0.1)
+            objects.append(lbl)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class CalendarHeatmap(VCollection):
+    """Grid heatmap like a GitHub contribution graph.
+
+    data: dict mapping (row, col) to a value, or a flat list (auto-arranged into rows).
+    """
+    def __init__(self, data, rows=7, cols=52, x=100, y=100,
+                 cell_size=14, gap=2, colormap=None,
+                 creation=0, z=0):
+        if colormap is None:
+            colormap = ['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353']
+        # Normalize data to dict
+        if isinstance(data, dict):
+            grid = data
+        else:
+            grid = {}
+            flat = list(data)
+            for idx, val in enumerate(flat):
+                r = idx % rows
+                c = idx // rows
+                grid[(r, c)] = val
+        if not grid:
+            super().__init__(creation=creation, z=z)
+            return
+        vals = list(grid.values())
+        mn, mx = min(vals), max(vals)
+        rng = mx - mn if mx != mn else 1
+        objects = []
+        for (r, c), val in grid.items():
+            frac = (val - mn) / rng
+            ci = min(int(frac * (len(colormap) - 1) + 0.5), len(colormap) - 1)
+            color = colormap[ci]
+            rx = x + c * (cell_size + gap)
+            ry = y + r * (cell_size + gap)
+            rect = Rectangle(width=cell_size, height=cell_size, x=rx, y=ry,
+                              fill=color, fill_opacity=1, stroke_width=0,
+                              creation=creation, z=z)
+            objects.append(rect)
+        super().__init__(*objects, creation=creation, z=z)
 
 
 def parse_args():
