@@ -13,7 +13,7 @@ from vectormation.objects import (
     SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS,
     always_redraw, UP, DOWN, LEFT, RIGHT,
     ZoomedInset, Intersection, Difference, Union, Exclusion,
-    ThreeDAxes, WaterfallChart,
+    ThreeDAxes, WaterfallChart, DonutChart,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -754,6 +754,43 @@ class TestAxesNewMethods:
         svg = wf.to_svg(0)
         assert '<rect' in svg
         assert '<text' in svg
+
+    def test_plot_bubble(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        bubbles = ax.plot_bubble([1, 3, 5, 7], [2, 8, 4, 6], [10, 50, 20, 80])
+        assert isinstance(bubbles, VCollection)
+        assert len(bubbles) == 4
+
+    def test_add_color_bar(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 5))
+        cb = ax.add_color_bar(vmin=0, vmax=10, label='Temperature')
+        assert isinstance(cb, VCollection)
+        assert len(cb) > 0
+        svg = cb.to_svg(0)
+        assert '<rect' in svg
+        assert '<text' in svg
+
+    def test_plot_stacked_area(self):
+        ax = Axes(x_range=(0, 4), y_range=(0, 20))
+        data = [[1, 3, 2, 4], [2, 1, 3, 2], [3, 2, 1, 3]]
+        areas = ax.plot_stacked_area(data)
+        assert isinstance(areas, VCollection)
+        assert len(areas) == 3
+        svg = areas.to_svg(0)
+        assert '<path' in svg
+
+    def test_donut_chart(self):
+        dc = DonutChart([30, 40, 30], labels=['A', 'B', 'C'],
+                        center_text='100%')
+        assert isinstance(dc, VCollection)
+        svg = dc.to_svg(0)
+        assert '<path' in svg
+        assert '<text' in svg
+
+    def test_donut_chart_no_labels(self):
+        dc = DonutChart([10, 20, 30])
+        assert isinstance(dc, VCollection)
+        assert len(dc._sectors) == 3
 
 
 class TestVCollectionNew:

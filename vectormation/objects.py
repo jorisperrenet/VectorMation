@@ -42,7 +42,7 @@ from vectormation._composites import (
     Arrow, DoubleArrow, CurvedArrow, Brace,
     ClipPath, BlurFilter, DropShadowFilter, LinearGradient, RadialGradient,
     Angle, RightAngle, Cross, NumberLine,
-    PieChart, BarChart, Table, Matrix,
+    PieChart, DonutChart, BarChart, Table, Matrix,
     DynamicObject, ZoomedInset,
     Union, Difference, Intersection, Exclusion,
     Title,

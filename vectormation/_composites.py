@@ -931,6 +931,21 @@ class Axes(VCollection):
         return group
 
     @staticmethod
+    def _lerp_colormap(frac, colormap):
+        """Interpolate a color from a colormap: list of (frac, '#rrggbb') stops."""
+        frac = max(0, min(1, frac))
+        for i in range(len(colormap) - 1):
+            f0, c0 = colormap[i]
+            f1, c1 = colormap[i + 1]
+            if f0 <= frac <= f1:
+                t = (frac - f0) / max(f1 - f0, 1e-9)
+                a = int(c0[1:3], 16), int(c0[3:5], 16), int(c0[5:7], 16)
+                b = int(c1[1:3], 16), int(c1[3:5], 16), int(c1[5:7], 16)
+                return '#{:02x}{:02x}{:02x}'.format(
+                    *(int(a[j] + (b[j] - a[j]) * t) for j in range(3)))
+        return colormap[-1][1]
+
+    @staticmethod
     def _resolve_func(obj, label='argument'):
         """Extract a callable from a function or a curve with ._func."""
         if hasattr(obj, '_func'):
@@ -1751,19 +1766,6 @@ class Axes(VCollection):
             vmax = vmin + 1
         if colormap is None:
             colormap = [(0, '#0000FF'), (0.5, '#FFFF00'), (1, '#FF0000')]
-        def _hex_rgb(h):
-            return int(h[1:3], 16), int(h[3:5], 16), int(h[5:7], 16)
-        def _lerp_color(frac):
-            frac = max(0, min(1, frac))
-            for i in range(len(colormap) - 1):
-                f0, c0 = colormap[i]
-                f1, c1 = colormap[i + 1]
-                if f0 <= frac <= f1:
-                    t = (frac - f0) / max(f1 - f0, 1e-9)
-                    a, b = _hex_rgb(c0), _hex_rgb(c1)
-                    return '#{:02x}{:02x}{:02x}'.format(
-                        *(int(a[j] + (b[j] - a[j]) * t) for j in range(3)))
-            return colormap[-1][1]
         cell_w = (xhi - xlo) / ncols
         cell_h = (yhi - ylo) / nrows
         rects = []
@@ -1771,7 +1773,7 @@ class Axes(VCollection):
             for ci in range(ncols):
                 val = data[ri][ci]
                 frac = (val - vmin) / (vmax - vmin)
-                color = _lerp_color(frac)
+                color = self._lerp_colormap(frac, colormap)
                 x_math = xlo + ci * cell_w
                 y_math = yhi - ri * cell_h  # top row = highest y
                 _xl, _xr = x_math, x_math + cell_w
@@ -1906,6 +1908,128 @@ class Axes(VCollection):
         for obj in objs:
             self._add_plot_obj(obj)
         return VCollection(*objs, creation=creation, z=z)
+
+    def plot_bubble(self, x_data, y_data, sizes, max_radius=20, creation=0, z=1,
+                     **styling_kwargs):
+        """Plot a bubble chart: scatter plot where dot size encodes a third variable.
+        x_data, y_data: coordinates.  sizes: list of numeric values controlling bubble radius.
+        max_radius: maximum bubble radius in SVG px.
+        Returns a VCollection of Dot objects."""
+        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.6, 'stroke_width': 0} | styling_kwargs
+        if not sizes:
+            return VCollection(creation=creation, z=z)
+        smin, smax = min(sizes), max(sizes)
+        srange = smax - smin if smax != smin else 1
+        dots = []
+        for xv, yv, sv in zip(x_data, y_data, sizes):
+            r = max(3, max_radius * ((sv - smin) / srange) ** 0.5)
+            dot = Dot(cx=0, cy=0, r=r, creation=creation, z=z, **style_kw)
+            _xv, _yv = xv, yv
+            dot.c.set_onward(creation,
+                lambda t, _x=_xv, _y=_yv: self.coords_to_point(_x, _y, t))
+            self._add_plot_obj(dot)
+            dots.append(dot)
+        return VCollection(*dots, creation=creation, z=z)
+
+    def add_color_bar(self, colormap=None, vmin=0, vmax=1, label='', n_stops=50,
+                       width=20, height=None, side='right', buff=20,
+                       font_size=14, creation=0, z=5, **styling_kwargs):
+        """Add a vertical color bar legend (e.g. for heatmaps).
+        colormap: list of (frac, '#hex') stops.
+        Returns a VCollection with the gradient bar and labels."""
+        if colormap is None:
+            colormap = [(0, '#0000FF'), (0.5, '#FFFF00'), (1, '#FF0000')]
+        bar_h = height if height else self.plot_height
+        if side == 'left':
+            bx = self.plot_x - buff - width
+        else:
+            bx = self.plot_x + self.plot_width + buff
+        by = self.plot_y
+        objs = []
+        strip_h = bar_h / n_stops
+        for i in range(n_stops):
+            frac = 1 - i / max(n_stops - 1, 1)  # top = high, bottom = low
+            color = self._lerp_colormap(frac, colormap)
+            rect = Rectangle(width=width, height=strip_h + 0.5, x=bx,
+                              y=by + i * strip_h, fill=color, stroke_width=0,
+                              creation=creation, z=z)
+            objs.append(rect)
+        # Border
+        border = Rectangle(width=width, height=bar_h, x=bx, y=by,
+                            fill_opacity=0, stroke='#888', stroke_width=1,
+                            creation=creation, z=z + 0.1)
+        objs.append(border)
+        # Tick labels
+        n_ticks = 5
+        for i in range(n_ticks):
+            frac = i / (n_ticks - 1)
+            val = vmin + (vmax - vmin) * frac
+            ly = by + bar_h - frac * bar_h
+            lx = bx + width + 5 if side == 'right' else bx - 5
+            anchor = 'start' if side == 'right' else 'end'
+            lbl = Text(text=f'{val:.1f}', x=lx, y=ly + font_size * 0.35,
+                        font_size=font_size, fill='#ccc', stroke_width=0,
+                        text_anchor=anchor, creation=creation, z=z + 0.1)
+            objs.append(lbl)
+        # Title label
+        if label:
+            tx = bx + width / 2
+            ty = by - 10
+            title = Text(text=label, x=tx, y=ty, font_size=font_size,
+                          fill='#ccc', stroke_width=0, text_anchor='middle',
+                          creation=creation, z=z + 0.1)
+            objs.append(title)
+        group = VCollection(*objs, creation=creation, z=z)
+        self._add_plot_obj(group)
+        return group
+
+    def plot_stacked_area(self, data, labels=None, colors=None, x_values=None,
+                           creation=0, z=-1, **styling_kwargs):
+        """Plot a stacked area chart.
+        data: list of lists (each inner list is one series, same length).
+        x_values: optional x coords (defaults to 0, 1, 2, ...).
+        Returns a VCollection of Path objects (one per series)."""
+        if not data or not data[0]:
+            return VCollection(creation=creation, z=z)
+        n_series = len(data)
+        n_points = len(data[0])
+        if x_values is None:
+            x_values = list(range(n_points))
+        if colors is None:
+            colors = ['#58C4DD', '#83C167', '#FF6B6B', '#FFFF00',
+                      '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C']
+        # Compute cumulative sums
+        cumulative = [[0] * n_points]
+        for series in data:
+            prev = cumulative[-1]
+            cumulative.append([prev[j] + series[j] for j in range(n_points)])
+        areas = []
+        for si in range(n_series):
+            color = colors[si % len(colors)]
+            style_kw = {'fill': color, 'fill_opacity': 0.6, 'stroke': color,
+                        'stroke_width': 1} | styling_kwargs
+            area = Path('', x=0, y=0, creation=creation, z=z + si * 0.01, **style_kw)
+            _lower = cumulative[si]
+            _upper = cumulative[si + 1]
+            _xv = x_values
+            def _area_d(time, _lo=_lower, _hi=_upper, _xs=_xv):
+                pts_hi = [self.coords_to_point(_xs[j], _hi[j], time)
+                          for j in range(len(_xs))]
+                pts_lo = [self.coords_to_point(_xs[j], _lo[j], time)
+                          for j in range(len(_xs))]
+                if not pts_hi:
+                    return ''
+                parts = [f'M{pts_hi[0][0]:.1f},{pts_hi[0][1]:.1f}']
+                for sx, sy in pts_hi[1:]:
+                    parts.append(f'L{sx:.1f},{sy:.1f}')
+                for sx, sy in reversed(pts_lo):
+                    parts.append(f'L{sx:.1f},{sy:.1f}')
+                parts.append('Z')
+                return ''.join(parts)
+            area.d.set_onward(creation, _area_d)
+            self._add_plot_obj(area)
+            areas.append(area)
+        return VCollection(*areas, creation=creation, z=z)
 
     def add_slope_field(self, func, x_step=1, y_step=1, seg_length=0.4,
                          creation=0, z=-1, **styling_kwargs):
@@ -3017,6 +3141,64 @@ class PieChart(VCollection):
             return self
         sector.shift(dx=dx, dy=dy, start_time=start, end_time=start + dur / 2, easing=easing)
         return self
+
+
+class DonutChart(VCollection):
+    """Donut (ring) chart — PieChart with a hollow center.
+
+    values: list of numeric values (proportional sizes).
+    labels: optional list of labels.
+    inner_radius: radius of the hole (0 < inner_radius < r).
+    """
+    def __init__(self, values, labels=None, colors=None, cx=960, cy=540,
+                 r=240, inner_radius=120, start_angle=90,
+                 center_text=None, font_size=17, creation=0, z=0):
+        if colors is None:
+            colors = ['#58C4DD', '#83C167', '#FC6255', '#FFFF00', '#9A72AC',
+                      '#F0AC5F', '#C55F73', '#5CD0B3']
+        total = sum(values)
+        if total == 0:
+            total = 1
+        objects: list[VObject] = []
+        angle = start_angle
+        sectors = []
+        for i, val in enumerate(values):
+            sweep = 360 * val / total
+            color = colors[i % len(colors)]
+            # Draw arc sector as a Path (outer arc CW, inner arc CCW)
+            a1 = math.radians(angle)
+            a2 = math.radians(angle + sweep)
+            ox1, oy1 = cx + r * math.cos(a1), cy - r * math.sin(a1)
+            ox2, oy2 = cx + r * math.cos(a2), cy - r * math.sin(a2)
+            ix1, iy1 = cx + inner_radius * math.cos(a2), cy - inner_radius * math.sin(a2)
+            ix2, iy2 = cx + inner_radius * math.cos(a1), cy - inner_radius * math.sin(a1)
+            large = 1 if sweep > 180 else 0
+            d = (f'M{ox1:.1f},{oy1:.1f} '
+                 f'A{r},{r} 0 {large} 0 {ox2:.1f},{oy2:.1f} '
+                 f'L{ix1:.1f},{iy1:.1f} '
+                 f'A{inner_radius},{inner_radius} 0 {large} 1 {ix2:.1f},{iy2:.1f} Z')
+            sector = Path(d, x=0, y=0, fill=color, fill_opacity=0.85,
+                          stroke='#222', stroke_width=2, creation=creation, z=z)
+            sectors.append(sector)
+            objects.append(sector)
+            if labels and i < len(labels):
+                mid_r = (r + inner_radius) / 2
+                mid_angle = math.radians(angle + sweep / 2)
+                lx = cx + mid_r * math.cos(mid_angle)
+                ly = cy - mid_r * math.sin(mid_angle)
+                lbl = Text(text=str(labels[i]), x=lx, y=ly,
+                           font_size=font_size, text_anchor='middle',
+                           creation=creation, z=z + 0.1, fill='#fff', stroke_width=0)
+                objects.append(lbl)
+            angle += sweep
+        self._sectors = sectors
+        if center_text is not None:
+            ct = Text(text=str(center_text), x=cx, y=cy + font_size * 0.35,
+                      font_size=int(font_size * 1.5), text_anchor='middle',
+                      fill='#fff', stroke_width=0, creation=creation, z=z + 0.1)
+            objects.append(ct)
+        super().__init__(*objects, creation=creation, z=z)
+        self.values = values
 
 
 class BarChart(VCollection):
