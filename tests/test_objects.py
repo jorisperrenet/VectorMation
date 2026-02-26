@@ -4062,3 +4062,53 @@ class TestDistanceAndOverlap:
         g1 = VCollection(c1)
         g2 = VCollection(c2)
         assert g1.is_overlapping(g2)
+
+
+class TestArrowUtilities:
+    def test_get_midpoint(self):
+        a = Arrow(0, 0, 100, 0)
+        mx, my = a.get_midpoint()
+        assert mx == pytest.approx(50, abs=1)
+        assert my == pytest.approx(0, abs=1)
+
+    def test_get_length(self):
+        a = Arrow(0, 0, 100, 0)
+        assert a.get_length() == pytest.approx(100, abs=1)
+
+
+class TestTableExtended:
+    def test_highlight_cells(self):
+        t = Table([[1, 2], [3, 4]])
+        t.highlight_cells([(0, 0), (1, 1)], start=0, end=1)
+        # No exception means success
+
+    def test_set_cell_value(self):
+        t = Table([[1, 2], [3, 4]])
+        t.set_cell_value(0, 0, 'X', start=0.5)
+        entry = t.get_entry(0, 0)
+        assert entry.text.at_time(0.5) == 'X'
+
+    def test_set_cell_value_preserves_original(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        t.set_cell_value(1, 1, 'Z', start=1)
+        assert t.get_entry(1, 1).text.at_time(0) == 'd'
+        assert t.get_entry(1, 1).text.at_time(1) == 'Z'
+
+
+class TestThreeDCameraPresets:
+    def test_preset_isometric(self):
+        ax = ThreeDAxes()
+        ax.set_camera_preset('isometric', start=0, end=1)
+        import math as m
+        assert ax.phi.at_time(1) == pytest.approx(m.radians(54.7), abs=0.05)
+        assert ax.theta.at_time(1) == pytest.approx(m.radians(-45), abs=0.05)
+
+    def test_preset_top(self):
+        ax = ThreeDAxes()
+        ax.set_camera_preset('top', start=0, end=1)
+        assert ax.phi.at_time(1) == pytest.approx(0, abs=0.05)
+
+    def test_invalid_preset_raises(self):
+        ax = ThreeDAxes()
+        with pytest.raises(KeyError):
+            ax.set_camera_preset('nonexistent')

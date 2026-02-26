@@ -200,6 +200,19 @@ class ThreeDAxes(VCollection):
         self._light_dir = (x / mag, y / mag, z / mag)
         return self
 
+    _CAMERA_PRESETS = {
+        'default': (math.radians(75), math.radians(-30)),
+        'isometric': (math.radians(54.7), math.radians(-45)),
+        'front': (math.radians(90), 0),
+        'top': (0, 0),
+        'side': (math.radians(90), math.radians(-90)),
+    }
+
+    def set_camera_preset(self, name, start=0, end=0.5, easing=easings.smooth):
+        """Animate camera to a named preset: 'default', 'isometric', 'front', 'top', 'side'."""
+        phi, theta = self._CAMERA_PRESETS[name]
+        return self.set_camera_orientation(start, end, phi=phi, theta=theta, easing=easing)
+
     def begin_ambient_camera_rotation(self, start=0, end=None, rate=0.1):
         """Continuously rotate the camera theta at *rate* radians per second.
 

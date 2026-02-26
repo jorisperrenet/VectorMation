@@ -3282,6 +3282,14 @@ class Arrow(VCollection):
         return self.shaft.p2.at_time(time)
 
 
+    def get_midpoint(self, time=0):
+        """Return the midpoint of the arrow shaft."""
+        return self.shaft.get_midpoint(time)
+
+    def get_length(self, time=0):
+        """Return the length of the arrow shaft."""
+        return self.shaft.get_length(time)
+
     def __repr__(self):
         s, e = self.get_start(), self.get_end()
         return f'Arrow(({s[0]:.0f},{s[1]:.0f})->({e[0]:.0f},{e[1]:.0f}))'
@@ -4081,6 +4089,17 @@ class Table(VCollection):
         for row in self.entries:
             if col < len(row):
                 row[col].flash(start, end, color=color, easing=easing)
+        return self
+
+    def highlight_cells(self, cells, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+        """Flash-highlight multiple cells. cells: list of (row, col) tuples."""
+        for r, c in cells:
+            self.entries[r][c].flash(start, end, color=color, easing=easing)
+        return self
+
+    def set_cell_value(self, row, col, new_value, start=0):
+        """Change the text of a cell at the given time."""
+        self.entries[row][col].text.set_onward(start, str(new_value))
         return self
 
     def __repr__(self):
