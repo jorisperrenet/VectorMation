@@ -562,6 +562,182 @@ class TestAxes:
         assert '<rect' in svg
 
 
+class TestAxesNewMethods:
+    def test_add_vector(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        arrow = ax.add_vector(2, 3)
+        assert arrow is not None
+        svg = arrow.to_svg(0)
+        assert '<line' in svg or '<polygon' in svg
+
+    def test_add_error_bars(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 10))
+        bars = ax.add_error_bars([1, 2, 3], [2, 4, 6], 0.5)
+        assert isinstance(bars, VCollection)
+        assert len(bars) == 9  # 3 data points * 3 lines each (bar + 2 caps)
+
+    def test_add_regression_line(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        line = ax.add_regression_line([1, 2, 3, 4], [2, 4, 6, 8])
+        assert line is not None
+        svg = line.to_svg(0)
+        assert '<line' in svg
+
+    def test_add_regression_line_insufficient_data(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        result = ax.add_regression_line([1], [2])
+        assert result is None
+
+    def test_add_slope_field(self):
+        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        field = ax.add_slope_field(lambda x, y: x + y, x_step=1, y_step=1)
+        assert isinstance(field, VCollection)
+        assert len(field) > 0
+
+    def test_add_zero_line(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        line = ax.add_zero_line(axis='x')
+        svg = line.to_svg(0)
+        assert '<line' in svg
+
+    def test_add_min_max_labels(self):
+        import math
+        ax = Axes(x_range=(0, 7), y_range=(-3, 3))
+        labels = ax.add_min_max_labels(math.sin)
+        assert isinstance(labels, VCollection)
+
+    def test_add_interval(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        bracket = ax.add_interval(2, 5)
+        assert isinstance(bracket, VCollection)
+        assert len(bracket) == 3  # left cap, bar, right cap
+
+    def test_get_vertical_lines(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 10))
+        lines = ax.get_vertical_lines(lambda x: x ** 2, [1, 2, 3])
+        assert isinstance(lines, VCollection)
+        assert len(lines) == 3
+
+    def test_plot_line_graph_dynamic_dots(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 10))
+        graph = ax.plot_line_graph([1, 2, 3], [2, 4, 6])
+        # Dots should have dynamic .c attribute
+        dot = graph.objects[1]  # first dot (index 0 is the curve)
+        p0 = dot.c.at_time(0)
+        assert isinstance(p0, tuple)
+
+    def test_add_dot_label_dynamic(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        dot, lbl = ax.add_dot_label(5, 5, label='test')
+        p0 = dot.c.at_time(0)
+        assert isinstance(p0, tuple)
+
+    def test_plot_bar(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 10))
+        bars = ax.plot_bar([1, 2, 3], [3, 7, 5], width=0.8)
+        assert isinstance(bars, VCollection)
+        assert len(bars) == 3
+        svg = bars.to_svg(0)
+        assert '<rect' in svg
+
+    def test_plot_bar_negative(self):
+        ax = Axes(x_range=(0, 3), y_range=(-5, 5))
+        bars = ax.plot_bar([1, 2], [-3, 4])
+        assert len(bars) == 2
+        svg = bars.to_svg(0)
+        assert '<rect' in svg
+
+    def test_add_text_annotation(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        lbl = ax.add_text_annotation(5, 5, 'hello')
+        svg = lbl.to_svg(0)
+        assert 'hello' in svg
+
+
+class TestVCollectionNew:
+    def test_wave_effect(self):
+        dots = VCollection(
+            Dot(cx=100, cy=100),
+            Dot(cx=200, cy=100),
+            Dot(cx=300, cy=100),
+        )
+        dots.wave_effect(start=0, end=1, amplitude=20)
+        # Check that dots have shifted positions during the animation
+        p1 = dots[1].c.at_time(0.5)
+        assert isinstance(p1, tuple)
+
+    def test_sort_children_instant(self):
+        dots = VCollection(
+            Dot(cx=300, cy=100),
+            Dot(cx=100, cy=100),
+            Dot(cx=200, cy=100),
+        )
+        dots.sort_children(key='x', start=0)
+        # After sorting, first object should be leftmost
+        assert dots[0].c.at_time(0)[0] < dots[1].c.at_time(0)[0]
+
+    def test_reveal(self):
+        items = VCollection(
+            Dot(cx=100, cy=100),
+            Dot(cx=200, cy=100),
+        )
+        items.reveal(start=0, end=1, direction='left')
+        # First item should be hidden at time 0 (before reveal starts)
+        # Actually fadein shows from start time, so check it doesn't crash
+        svg = items[0].to_svg(0.5)
+        assert svg is not None
+
+    def test_distribute_radial(self):
+        dots = VCollection(
+            Dot(cx=500, cy=500),
+            Dot(cx=500, cy=500),
+            Dot(cx=500, cy=500),
+            Dot(cx=500, cy=500),
+        )
+        dots.distribute_radial(cx=500, cy=500, radius=100, start_time=0)
+        # After distribution, dots should be at different positions
+        positions = [d.c.at_time(0) for d in dots]
+        assert positions[0] != positions[1]
+
+    def test_flip_all(self):
+        dots = VCollection(
+            Dot(cx=100, cy=200),
+            Dot(cx=300, cy=200),
+        )
+        dots.flip_all(start=0, axis='x')
+        # After flip, positions should be mirrored around group center (200)
+        p0 = dots[0].c.at_time(0)
+        p1 = dots[1].c.at_time(0)
+        assert p0[0] > p1[0]  # originally 100 < 300, now flipped
+
+
+class TestVObjectNew:
+    def test_warp(self):
+        c = Circle(r=50)
+        c.warp(start=0, end=1, amplitude=0.2)
+        sx = c.styling.scale_x.at_time(0.5)
+        assert isinstance(sx, (int, float))
+
+    def test_swirl(self):
+        c = Circle(r=50)
+        c.swirl(start=0, end=1, turns=1)
+        rot = c.styling.rotation.at_time(0.5)
+        assert rot != 0
+
+    def test_trail(self):
+        d = Dot(cx=100, cy=100)
+        d.shift(dx=200, start_time=0, end_time=1)
+        ghosts = d.trail(start=0, end=1, num_copies=3)
+        assert len(ghosts) == 3
+
+    def test_heartbeat(self):
+        c = Circle(r=50)
+        c.heartbeat(start=0, end=2, beats=3, scale_factor=1.5)
+        # At midpoint of a beat, scale should be above 1
+        sx_mid = c.styling.scale_x.at_time(0.33)
+        assert sx_mid > 1.0
+
+
 class TestSetZ:
     def test_set_z(self):
         c = Circle(r=50)

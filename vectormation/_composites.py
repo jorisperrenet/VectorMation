@@ -1,6 +1,5 @@
 """Composite classes: Arrow, Axes, Graph, NumberLine, Table, etc."""
 import math
-import os
 import re
 import tempfile
 from collections import defaultdict
@@ -96,10 +95,13 @@ class MorphObject(VCollection):
             new = Path('', x=0, y=0, creation=start, z=z)
             new.show.set_onward(end, False)
             def _make_d_func(pfs):
+                dur = end - start
+                if dur <= 0:
+                    dur = 1
                 if len(pfs) == 1:
                     pf = pfs[0]
-                    return lambda t: pf((t - start) / (end - start))
-                return lambda t: ' '.join(pf((t - start) / (end - start)) for pf in pfs)
+                    return lambda t: pf((t - start) / dur)
+                return lambda t: ' '.join(pf((t - start) / dur) for pf in pfs)
             new.d.set(start, end, _make_d_func(path_funcs))
             # Interpolate styling, optionally adding rotation during the morph
             new.styling = styling_from.interpolate(
@@ -165,7 +167,6 @@ class TexObject(VCollection):
             obj.styling.dy.add_onward(creation, lambda t: self.y.at_time(t) - ymin)
 
 
-
 class SplitTexObject:
     """Renders multiple lines of LaTeX, each as a separate TexObject.
     Supports indexing, iteration, and conversion to a single VCollection."""
@@ -176,7 +177,6 @@ class SplitTexObject:
     def __iter__(self): return iter(self.lines)
     def __getitem__(self, idx): return self.lines[idx]
     def __len__(self): return len(self.lines)
-
 
 
 def _nice_ticks(vmin, vmax, target_count=7):
@@ -211,15 +211,17 @@ def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_widt
                             show_grid, time):
     """Build axis lines, ticks, tick labels, and grid as VObjects for a single frame."""
     objects = []
-    y_zero = plot_y + (1 - (0 - y_min) / (y_max - y_min)) * plot_height if y_min <= 0 <= y_max else plot_y + plot_height
-    x_zero = plot_x + (0 - x_min) / (x_max - x_min) * plot_width if x_min <= 0 <= x_max else plot_x
+    x_span = x_max - x_min if x_max != x_min else 1
+    y_span = y_max - y_min if y_max != y_min else 1
+    y_zero = plot_y + (1 - (0 - y_min) / y_span) * plot_height if y_min <= 0 <= y_max else plot_y + plot_height
+    x_zero = plot_x + (0 - x_min) / x_span * plot_width if x_min <= 0 <= x_max else plot_x
     tick_len = SMALL_BUFF
 
     def _to_svg_x(val):
-        return plot_x + (val - x_min) / (x_max - x_min) * plot_width
+        return plot_x + (val - x_min) / x_span * plot_width
 
     def _to_svg_y(val):
-        return plot_y + (1 - (val - y_min) / (y_max - y_min)) * plot_height
+        return plot_y + (1 - (val - y_min) / y_span) * plot_height
 
     # Grid lines (behind axes)
     if show_grid:
@@ -273,7 +275,7 @@ class Axes(VCollection):
                  show_grid=False, equal_aspect=False, creation=0, z=0):
         self.x_min = attributes.Real(creation, x_range[0])
         self.x_max = attributes.Real(creation, x_range[1])
-        if equal_aspect and y_range is not None:
+        if equal_aspect and y_range is not None and x_range[1] != x_range[0]:
             plot_height = int(plot_width * (y_range[1] - y_range[0])
                               / (x_range[1] - x_range[0]))
             y = (1080 - plot_height) // 2
@@ -308,17 +310,8 @@ class Axes(VCollection):
                             fill='#fff', stroke_width=0)
             _, _, lw, lh = lbl.bbox(creation)
             if is_x:
-                def _cx(t, _lw=lw):
-                    ymin = self.y_min.at_time(t)
-                    ymax = self.y_max.at_time(t)
-                    y_zero = self.plot_y + (1 - (0 - ymin) / (ymax - ymin)) * self.plot_height if ymin <= 0 <= ymax else self.plot_y + self.plot_height
-                    return self.plot_x + self.plot_width + _LABEL_GAP + _lw / 2
-                def _cy(t):
-                    ymin = self.y_min.at_time(t)
-                    ymax = self.y_max.at_time(t)
-                    return self.plot_y + (1 - (0 - ymin) / (ymax - ymin)) * self.plot_height if ymin <= 0 <= ymax else self.plot_y + self.plot_height
-                lbl.x.set_onward(creation, lambda t, _lw=lw: _cx(t) - _lw / 2)
-                lbl.y.set_onward(creation, lambda t, _lh=lh: _cy(t) - _lh / 2)
+                lbl.x.set_onward(creation, self.plot_x + self.plot_width + _LABEL_GAP)
+                lbl.y.set_onward(creation, lambda t, _lh=lh: self._baseline_y(t) - _lh / 2)
             else:
                 def _cx_y(t):
                     xmin = self.x_min.at_time(t)
@@ -347,15 +340,34 @@ class Axes(VCollection):
             coll.objects.append(lbl)
         return coll
 
+    def _get_bounds(self, time=0):
+        """Return (xmin, xmax, ymin, ymax) at the given time."""
+        return (self.x_min.at_time(time), self.x_max.at_time(time),
+                self.y_min.at_time(time), self.y_max.at_time(time))
+
     def _math_to_svg_x(self, val, time=0):
-        xmin = self.x_min.at_time(time)
-        xmax = self.x_max.at_time(time)
-        return self.plot_x + (val - xmin) / (xmax - xmin) * self.plot_width
+        xmin, xmax = self.x_min.at_time(time), self.x_max.at_time(time)
+        span = xmax - xmin
+        if span == 0:
+            span = 1
+        return self.plot_x + (val - xmin) / span * self.plot_width
 
     def _math_to_svg_y(self, val, time=0):
-        ymin = self.y_min.at_time(time)
-        ymax = self.y_max.at_time(time)
-        return self.plot_y + (1 - (val - ymin) / (ymax - ymin)) * self.plot_height
+        ymin, ymax = self.y_min.at_time(time), self.y_max.at_time(time)
+        span = ymax - ymin
+        if span == 0:
+            span = 1
+        return self.plot_y + (1 - (val - ymin) / span) * self.plot_height
+
+    def _baseline_y(self, time=0):
+        """SVG y-coordinate of y=0 (or bottom edge if 0 is out of range)."""
+        ymin, ymax = self.y_min.at_time(time), self.y_max.at_time(time)
+        if ymin <= 0 <= ymax:
+            span = ymax - ymin
+            if span == 0:
+                return self.plot_y + self.plot_height
+            return self.plot_y + (1 - (0 - ymin) / span) * self.plot_height
+        return self.plot_y + self.plot_height
 
     def _make_curve(self, func, creation, z, num_points=None, x_range=None,
                     lincl=True, rincl=True, **style_kwargs):
@@ -486,24 +498,105 @@ class Axes(VCollection):
 
     plot = add_function
 
+    def add_coordinates(self, creation=0, font_size=None, color='#aaa'):
+        """Add coordinate labels at each tick mark on both axes."""
+        if font_size is None:
+            font_size = _TICK_FONT_SIZE
+        xmin, xmax = self.x_min.at_time(creation), self.x_max.at_time(creation)
+        ymin = self.y_min.at_time(creation) if self.y_min is not None else -5
+        ymax = self.y_max.at_time(creation) if self.y_max is not None else 5
+        for val in _nice_ticks(xmin, xmax):
+            sx = self._math_to_svg_x(val, creation)
+            sy = self.plot_y + self.plot_height + font_size + 4
+            lbl = Text(text=f'{val:g}', x=sx, y=sy, font_size=font_size,
+                       text_anchor='middle', fill=color, stroke_width=0, creation=creation)
+            self._add_plot_obj(lbl)
+        for val in _nice_ticks(ymin, ymax):
+            sx = self.plot_x - 8
+            sy = self._math_to_svg_y(val, creation) + font_size * 0.35
+            lbl = Text(text=f'{val:g}', x=sx, y=sy, font_size=font_size,
+                       text_anchor='end', fill=color, stroke_width=0, creation=creation)
+            self._add_plot_obj(lbl)
+        return self
+
+    def add_grid(self):
+        """Enable background grid lines on the axes."""
+        self._show_grid = True
+        return self
+
+    def add_zero_line(self, axis='x', creation=0, z=-1, **styling_kwargs):
+        """Add a prominent zero line (y=0 for axis='x', x=0 for axis='y').
+        Useful to visually separate positive/negative regions."""
+        styling_kwargs.setdefault('stroke', '#888')
+        styling_kwargs.setdefault('stroke_width', 2)
+        styling_kwargs.setdefault('stroke_dasharray', '6 3')
+        # Use placeholder coords; set_onward overrides them dynamically
+        line = Line(x1=0, y1=0, x2=0, y2=0,
+                    creation=creation, z=z, **styling_kwargs)
+        if axis == 'x':
+            line.p1.set_onward(creation,
+                lambda t: self.coords_to_point(self.x_min.at_time(t), 0, t))
+            line.p2.set_onward(creation,
+                lambda t: self.coords_to_point(self.x_max.at_time(t), 0, t))
+        else:
+            line.p1.set_onward(creation,
+                lambda t: self.coords_to_point(0, self.y_min.at_time(t), t))
+            line.p2.set_onward(creation,
+                lambda t: self.coords_to_point(0, self.y_max.at_time(t), t))
+        self._add_plot_obj(line)
+        return line
+
     def set_x_range(self, start_time, end_time, x_range, **kwargs):
         """Animate the x-axis range to new bounds."""
         self.x_min.move_to(start_time, end_time, x_range[0], **kwargs)
         self.x_max.move_to(start_time, end_time, x_range[1], **kwargs)
+        return self
 
     def set_y_range(self, start_time, end_time, y_range, **kwargs):
         """Animate the y-axis range to new bounds."""
         self.y_min.move_to(start_time, end_time, y_range[0], **kwargs)
         self.y_max.move_to(start_time, end_time, y_range[1], **kwargs)
+        return self
 
     def set_ranges(self, start_time, end_time, x_range, y_range, **kwargs):
         """Animate both axis ranges to new bounds."""
         self.set_x_range(start_time, end_time, x_range, **kwargs)
         self.set_y_range(start_time, end_time, y_range, **kwargs)
+        return self
 
     def coords_to_point(self, x, y, time=0):
         """Convert math coordinates to SVG pixel coordinates."""
         return (self._math_to_svg_x(x, time), self._math_to_svg_y(y, time))
+
+    def annotate_point(self, x, y, label='', direction='up', buff=15,
+                       creation=0, z=0, **styling_kwargs):
+        """Add a dot and label at a math coordinate.
+
+        Returns a VCollection containing the dot and optional label.
+        """
+        sx, sy = self.coords_to_point(x, y, creation)
+        style_kw = {'fill': '#FFFF00', 'stroke_width': 0} | styling_kwargs
+        dot = Dot(cx=sx, cy=sy, r=6, creation=creation, z=z + 1, **style_kw)
+        dot.c.set_onward(creation,
+            lambda t, _x=x, _y=y: self.coords_to_point(_x, _y, t))
+        objs = [dot]
+        if label:
+            offsets = {'up': (0, -buff - 10), 'down': (0, buff + 15),
+                       'left': (-buff - 10, 5), 'right': (buff + 10, 5)}
+            dx, dy = offsets.get(direction, offsets['up'])
+            lbl = Text(text=label, x=sx + dx, y=sy + dy,
+                       font_size=20, text_anchor='middle',
+                       creation=creation, z=z + 2,
+                       fill=style_kw.get('fill', '#FFFF00'), stroke_width=0)
+            _dx, _dy = dx, dy
+            lbl.x.set_onward(creation,
+                lambda t, _x=x, _y=y, _dx=_dx: self.coords_to_point(_x, _y, t)[0] + _dx)
+            lbl.y.set_onward(creation,
+                lambda t, _x=x, _y=y, _dy=_dy: self.coords_to_point(_x, _y, t)[1] + _dy)
+            objs.append(lbl)
+        group = VCollection(*objs, creation=creation, z=z)
+        self._add_plot_obj(group)
+        return group
 
     def input_to_graph_point(self, x, func, time=0):
         """Convert a math x-value and function to SVG pixel coordinates: (x, f(x))."""
@@ -532,12 +625,7 @@ class Axes(VCollection):
         offsets = {'up': (0, -buff - lh/2), 'down': (0, buff + lh/2),
                    'left': (-buff - lw/2, 0), 'right': (buff + lw/2, 0)}
         off_dx, off_dy = offsets.get(direction, offsets['up'])
-        if x_val is not None:
-            def _get_xv(t, _xv=x_val):
-                return _xv
-        else:
-            def _get_xv(t):
-                return self.x_max.at_time(t)
+        _get_xv = (lambda t, _xv=x_val: _xv) if x_val is not None else (lambda t: self.x_max.at_time(t))
         def _label_x(t):
             xv = _get_xv(t)
             sx = self._math_to_svg_x(xv, t)
@@ -550,6 +638,88 @@ class Axes(VCollection):
         label_obj.y.set_onward(creation, _label_y)
         self.objects.append(label_obj)
         return label_obj
+
+    def plot_parametric(self, func, t_range=(0, 1), num_points=200,
+                        creation=0, z=0, **styling_kwargs):
+        """Plot a parametric curve func(t) -> (x, y) in math coordinates.
+
+        t_range: (t_min, t_max) parameter range.
+        Returns a Path object.
+        """
+        style_kw = {'stroke': '#58C4DD', 'stroke_width': 5, 'fill_opacity': 0} | styling_kwargs
+        curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
+        def _compute_d(time, _func=func, _np=num_points, _tr=t_range):
+            t0, t1 = _tr
+            pts = []
+            for i in range(_np + 1):
+                t = t0 + i * (t1 - t0) / _np
+                mx, my = _func(t)
+                sx, sy = self._math_to_svg_x(mx, time), self._math_to_svg_y(my, time)
+                pts.append(f'{sx},{sy}')
+            return 'M' + 'L'.join(pts) if pts else ''
+        curve.d.set_onward(creation, _compute_d)
+        curve._func = func
+        self._add_plot_obj(curve)
+        return curve
+
+    def plot_polar(self, func, theta_range=(0, 2 * math.pi), num_points=200,
+                    creation=0, z=0, **styling_kwargs):
+        """Plot a polar curve r=func(theta) on these axes.
+        theta_range: (min, max) in radians.
+        Returns a Path object."""
+        def _parametric(theta):
+            r = func(theta)
+            return (r * math.cos(theta), r * math.sin(theta))
+        return self.plot_parametric(_parametric, t_range=theta_range,
+                                    num_points=num_points, creation=creation,
+                                    z=z, **styling_kwargs)
+
+    def plot_implicit(self, func, num_points=100, creation=0, z=0, **styling_kwargs):
+        """Plot an implicit curve f(x, y) = 0 using marching squares.
+
+        func: callable(x, y) -> float; the zero contour is drawn.
+        Returns a Path object.
+        """
+        style_kw = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
+        curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
+        def _compute_d(time, _func=func, _n=num_points):
+            xmin, xmax, ymin, ymax = self._get_bounds(time)
+            dx = (xmax - xmin) / _n
+            dy = (ymax - ymin) / _n
+            segments = []
+            for i in range(_n):
+                for j in range(_n):
+                    x0 = xmin + i * dx
+                    y0 = ymin + j * dy
+                    x1, y1 = x0 + dx, y0 + dy
+                    vals = [_func(x0, y0), _func(x1, y0), _func(x1, y1), _func(x0, y1)]
+                    case = sum(1 << k for k, v in enumerate(vals) if v > 0)
+                    if case == 0 or case == 15:
+                        continue
+                    # Linear interpolation along edges
+                    def _lerp(v0, v1, p0, p1):
+                        if abs(v1 - v0) < 1e-12:
+                            return ((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2)
+                        t = -v0 / (v1 - v0)
+                        return (p0[0] + t * (p1[0] - p0[0]), p0[1] + t * (p1[1] - p0[1]))
+                    corners = [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
+                    edges = [(0, 1), (1, 2), (2, 3), (3, 0)]
+                    pts = []
+                    for a, b in edges:
+                        if (vals[a] > 0) != (vals[b] > 0):
+                            mx, my = _lerp(vals[a], vals[b], corners[a], corners[b])
+                            sx = self._math_to_svg_x(mx, time)
+                            sy = self._math_to_svg_y(my, time)
+                            pts.append((sx, sy))
+                    if len(pts) == 2:
+                        segments.append(f'M{pts[0][0]},{pts[0][1]}L{pts[1][0]},{pts[1][1]}')
+                    elif len(pts) == 4:
+                        segments.append(f'M{pts[0][0]},{pts[0][1]}L{pts[1][0]},{pts[1][1]}')
+                        segments.append(f'M{pts[2][0]},{pts[2][1]}L{pts[3][0]},{pts[3][1]}')
+            return ''.join(segments)
+        curve.d.set_onward(creation, _compute_d)
+        self._add_plot_obj(curve)
+        return curve
 
     def plot_line_graph(self, x_values, y_values, creation=0, z=0, **styling_kwargs):
         """Plot a line graph from discrete data points. Returns a VCollection."""
@@ -564,13 +734,139 @@ class Axes(VCollection):
                 return ''
             return 'M' + 'L'.join(f'{x},{y}' for x, y in pts)
         curve.d.set_onward(creation, _compute_d)
-        # Static dots at initial positions
-        dots = [Dot(cx=self._math_to_svg_x(x, creation), cy=self._math_to_svg_y(y, creation),
-                    r=3, creation=creation, z=z,
-                    fill=style_kw.get('stroke', '#58C4DD')) for x, y in data]
+        # Dynamic dots that track animated axis ranges
+        dots = []
+        for x, y in data:
+            dot = Dot(cx=self._math_to_svg_x(x, creation), cy=self._math_to_svg_y(y, creation),
+                      r=3, creation=creation, z=z,
+                      fill=style_kw.get('stroke', '#58C4DD'))
+            dot.c.set_onward(creation,
+                lambda t, _x=x, _y=y: self.coords_to_point(_x, _y, t))
+            dots.append(dot)
         group = VCollection(curve, *dots, creation=creation, z=z)
         self._add_plot_obj(group)
         return group
+
+    def plot_scatter(self, x_values, y_values, r=5, creation=0, z=0, **styling_kwargs):
+        """Plot a scatter plot (dots only, no connecting lines).
+        Returns a VCollection of Dot objects."""
+        style_kw = {'fill': '#58C4DD', 'stroke_width': 0} | styling_kwargs
+        data = list(zip(x_values, y_values))
+        dots = []
+        for x, y in data:
+            dot = Dot(cx=0, cy=0, r=r, creation=creation, z=z, **style_kw)
+            _x, _y = x, y
+            dot.c.set_onward(creation, lambda t, _xv=_x, _yv=_y: self.coords_to_point(_xv, _yv, t))
+            dots.append(dot)
+        group = VCollection(*dots, creation=creation, z=z)
+        self._add_plot_obj(group)
+        return group
+
+    def plot_step(self, x_values, y_values, creation=0, z=0, **styling_kwargs):
+        """Plot a step function (horizontal then vertical segments).
+        Returns a Path object."""
+        style_kw = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
+        data = list(zip(x_values, y_values))
+        curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
+        def _compute_d(time, _data=data):
+            if not _data:
+                return ''
+            parts = []
+            sx, sy = self._math_to_svg_x(_data[0][0], time), self._math_to_svg_y(_data[0][1], time)
+            parts.append(f'M{sx},{sy}')
+            for i in range(1, len(_data)):
+                # Horizontal step to new x
+                nx = self._math_to_svg_x(_data[i][0], time)
+                parts.append(f'L{nx},{sy}')
+                # Vertical step to new y
+                sy = self._math_to_svg_y(_data[i][1], time)
+                parts.append(f'L{nx},{sy}')
+            return ''.join(parts)
+        curve.d.set_onward(creation, _compute_d)
+        self._add_plot_obj(curve)
+        return curve
+
+    def plot_histogram(self, data, bins=10, creation=0, z=0, **styling_kwargs):
+        """Plot a histogram from raw data values.
+        bins: int (number of bins) or list of bin edges.
+        Returns a VCollection of Rectangle objects."""
+        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.5,
+                    'stroke': '#58C4DD', 'stroke_width': 1} | styling_kwargs
+        if isinstance(bins, int):
+            lo, hi = min(data), max(data)
+            if lo == hi:
+                lo, hi = lo - 1, hi + 1
+            step = (hi - lo) / bins
+            edges = [lo + i * step for i in range(bins + 1)]
+        else:
+            edges = list(bins)
+        counts = [0] * (len(edges) - 1)
+        for v in data:
+            for i in range(len(edges) - 1):
+                if edges[i] <= v < edges[i + 1] or (i == len(edges) - 2 and v == edges[i + 1]):
+                    counts[i] += 1
+                    break
+        rects = []
+        for i, count in enumerate(counts):
+            if count == 0:
+                continue
+            x_lo, x_hi = edges[i], edges[i + 1]
+            rect = Rectangle(width=0, height=0, x=0, y=0, creation=creation, z=z, **style_kw)
+            _xl, _xh, _c = x_lo, x_hi, count
+            rect.x.set_onward(creation, lambda t, _xl=_xl: self._math_to_svg_x(_xl, t))
+            rect.width.set_onward(creation, lambda t, _xl=_xl, _xh=_xh: abs(
+                self._math_to_svg_x(_xh, t) - self._math_to_svg_x(_xl, t)))
+            rect.y.set_onward(creation, lambda t, _c=_c: self._math_to_svg_y(_c, t))
+            rect.height.set_onward(creation, lambda t, _c=_c: abs(
+                self._math_to_svg_y(0, t) - self._math_to_svg_y(_c, t)))
+            rects.append(rect)
+        group = VCollection(*rects, creation=creation, z=z)
+        self._add_plot_obj(group)
+        return group
+
+    def plot_bar(self, x_values, y_values, width=0.8, creation=0, z=0,
+                  align='center', **styling_kwargs):
+        """Plot bars at x_values with heights y_values.
+        width: bar width in math units.  align: 'center', 'left', or 'right'.
+        Returns a VCollection of Rectangle objects."""
+        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.7,
+                    'stroke': '#58C4DD', 'stroke_width': 1} | styling_kwargs
+        rects = []
+        for xv, yv in zip(x_values, y_values):
+            if align == 'left':
+                xl = xv
+            elif align == 'right':
+                xl = xv - width
+            else:
+                xl = xv - width / 2
+            xr = xl + width
+            rect = Rectangle(width=0, height=0, x=0, y=0,
+                              creation=creation, z=z, **style_kw)
+            _xl, _xr, _yv = xl, xr, yv
+            rect.x.set_onward(creation, lambda t, _xl=_xl: self._math_to_svg_x(_xl, t))
+            rect.width.set_onward(creation, lambda t, _xl=_xl, _xr=_xr: abs(
+                self._math_to_svg_x(_xr, t) - self._math_to_svg_x(_xl, t)))
+            if yv >= 0:
+                rect.y.set_onward(creation, lambda t, _yv=_yv: self._math_to_svg_y(_yv, t))
+                rect.height.set_onward(creation, lambda t, _yv=_yv: abs(
+                    self._math_to_svg_y(0, t) - self._math_to_svg_y(_yv, t)))
+            else:
+                rect.y.set_onward(creation, lambda t: self._math_to_svg_y(0, t))
+                rect.height.set_onward(creation, lambda t, _yv=_yv: abs(
+                    self._math_to_svg_y(_yv, t) - self._math_to_svg_y(0, t)))
+            rects.append(rect)
+        group = VCollection(*rects, creation=creation, z=z)
+        self._add_plot_obj(group)
+        return group
+
+    @staticmethod
+    def _resolve_func(obj, label='argument'):
+        """Extract a callable from a function or a curve with ._func."""
+        if hasattr(obj, '_func'):
+            return obj._func
+        if callable(obj):
+            return obj
+        raise TypeError(f'{label} must be a function or a curve returned by plot()')
 
     def get_area(self, curve_or_func, x_range=None, bounded_graph=None, creation=0, z=0, **styling_kwargs):
         """Create a shaded area under a curve/function (or between two curves).
@@ -578,60 +874,88 @@ class Axes(VCollection):
         *curve_or_func* can be a function, or a Path returned by plot() (which has ._func).
         """
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.3, 'stroke_width': 0} | styling_kwargs
-        # Resolve the function
-        if callable(curve_or_func) and not hasattr(curve_or_func, '_func'):
-            func = curve_or_func
-        elif hasattr(curve_or_func, '_func'):
-            func = curve_or_func._func
-        else:
-            raise TypeError('get_area requires a function or a curve returned by plot()')
-
-        bound_func = None
-        if bounded_graph is not None:
-            if callable(bounded_graph) and not hasattr(bounded_graph, '_func'):
-                bound_func = bounded_graph
-            elif hasattr(bounded_graph, '_func'):
-                bound_func = bounded_graph._func
-            else:
-                raise TypeError('bounded_graph must be a function or a curve returned by plot()')
+        func = self._resolve_func(curve_or_func, 'curve_or_func')
+        bound_func = self._resolve_func(bounded_graph, 'bounded_graph') if bounded_graph is not None else None
 
         area = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
         def _compute_area_d(time, _func=func, _bfunc=bound_func, _xr=x_range):
-            xmin = self.x_min.at_time(time)
-            xmax = self.x_max.at_time(time)
-            ymin = self.y_min.at_time(time)
-            ymax = self.y_max.at_time(time)
+            xmin, xmax = self.x_min.at_time(time), self.x_max.at_time(time)
             lo = _xr[0] if _xr else xmin
             hi = _xr[1] if _xr else xmax
             n = 200
             step = (hi - lo) / n
-            verts = []
-            for i in range(n + 1):
-                xv = lo + i * step
-                yv = _func(xv)
-                sx = self.plot_x + (xv - xmin) / (xmax - xmin) * self.plot_width
-                sy = self.plot_y + (1 - (yv - ymin) / (ymax - ymin)) * self.plot_height
-                sy = max(self.plot_y, min(self.plot_y + self.plot_height, sy))
-                verts.append((sx, sy))
-            if _bfunc is not None:
-                bound_verts = []
+            def _sample(f):
+                pts = []
                 for i in range(n + 1):
                     xv = lo + i * step
-                    yv = _bfunc(xv)
-                    sx = self.plot_x + (xv - xmin) / (xmax - xmin) * self.plot_width
-                    sy = self.plot_y + (1 - (yv - ymin) / (ymax - ymin)) * self.plot_height
+                    sx = self._math_to_svg_x(xv, time)
+                    sy = self._math_to_svg_y(f(xv), time)
                     sy = max(self.plot_y, min(self.plot_y + self.plot_height, sy))
-                    bound_verts.append((sx, sy))
-                all_verts = verts + list(reversed(bound_verts))
+                    pts.append((sx, sy))
+                return pts
+            verts = _sample(_func)
+            if _bfunc is not None:
+                all_verts = verts + list(reversed(_sample(_bfunc)))
             else:
-                baseline_y = self.plot_y + (1 - (0 - ymin) / (ymax - ymin)) * self.plot_height if ymin <= 0 <= ymax else self.plot_y + self.plot_height
-                all_verts = verts + [(verts[-1][0], baseline_y), (verts[0][0], baseline_y)]
+                by = self._baseline_y(time)
+                all_verts = verts + [(verts[-1][0], by), (verts[0][0], by)]
             if not all_verts:
                 return ''
             return 'M' + 'L'.join(f'{x},{y}' for x, y in all_verts) + 'Z'
         area.d.set_onward(creation, _compute_area_d)
         self._add_plot_obj(area)
         return area
+
+    def add_legend(self, entries, position='upper right', font_size=18,
+                    bg_color='#1a1a2e', bg_opacity=0.8, creation=0, z=10):
+        """Add a legend box.
+        entries: list of (label_str, color_str) pairs.
+        position: 'upper right', 'upper left', 'lower right', 'lower left'.
+        Returns a VCollection."""
+        if not entries:
+            return VCollection(creation=creation, z=z)
+        row_h = font_size + 8
+        swatch_w = 16
+        max_label_w = max(len(e[0]) for e in entries) * font_size * 0.55
+        box_w = swatch_w + max_label_w + 30
+        box_h = len(entries) * row_h + 12
+        # Position relative to the axes plot area
+        margin = 10
+        if 'right' in position:
+            bx = self.plot_x + self.plot_width - box_w - margin
+        else:
+            bx = self.plot_x + margin
+        if 'upper' in position or 'top' in position:
+            by = self.plot_y + margin
+        else:
+            by = self.plot_y + self.plot_height - box_h - margin
+        objs = []
+        bg = Rectangle(width=box_w, height=box_h, x=bx, y=by,
+                        fill=bg_color, fill_opacity=bg_opacity,
+                        stroke='#555', stroke_width=1, rx=4, ry=4,
+                        creation=creation, z=z)
+        objs.append(bg)
+        for i, (label, color) in enumerate(entries):
+            ry = by + 8 + i * row_h
+            swatch = Rectangle(width=swatch_w, height=swatch_w,
+                                x=bx + 8, y=ry, fill=color, stroke_width=0,
+                                creation=creation, z=z + 1)
+            lbl = Text(text=label, x=bx + 8 + swatch_w + 8, y=ry + font_size - 2,
+                        font_size=font_size, fill='#ddd', stroke_width=0,
+                        creation=creation, z=z + 1)
+            objs.extend([swatch, lbl])
+        group = VCollection(*objs, creation=creation, z=z)
+        self._add_plot_obj(group)
+        return group
+
+    def get_area_between(self, func1, func2, x_range=None, creation=0, z=0, **styling_kwargs):
+        """Shade the area between two functions.
+        func1, func2: callables. The area between them is shaded.
+        x_range: optional (min, max) to limit domain.
+        Returns a Path object."""
+        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.3, 'stroke_width': 0} | styling_kwargs
+        return self.get_area(func1, bounded_graph=func2, x_range=x_range,
+                             creation=creation, z=z, **style_kw)
 
     def get_rect(self, x1, y1, x2, y2, creation=0, z=0, **styling_kwargs):
         """Create a Rectangle from two corners in math coordinates.
@@ -684,28 +1008,757 @@ class Axes(VCollection):
         self._add_plot_obj(line)
         return line
 
+    def add_dot_label(self, x, y, label=None, dot_color='#FF6B6B', dot_radius=6,
+                       label_offset=(10, -10), font_size=20, creation=0, z=0):
+        """Add a labeled dot at math coordinates (x, y). Returns (dot, text) or dot."""
+        from vectormation._shapes import Dot as _Dot, Text as _Text
+        sx, sy = self.coords_to_point(x, y, time=creation)
+        dot = _Dot(cx=sx, cy=sy, r=dot_radius, fill=dot_color,
+                   creation=creation, z=z)
+        dot.c.set_onward(creation,
+            lambda t, _x=x, _y=y: self.coords_to_point(_x, _y, t))
+        self._add_plot_obj(dot)
+        if label is not None:
+            lx, ly = sx + label_offset[0], sy + label_offset[1]
+            lbl = _Text(text=str(label), x=lx, y=ly, font_size=font_size,
+                        fill=dot_color, stroke_width=0, creation=creation, z=z)
+            _ox, _oy = label_offset
+            lbl.x.set_onward(creation,
+                lambda t, _x=x, _y=y, _ox=_ox: self.coords_to_point(_x, _y, t)[0] + _ox)
+            lbl.y.set_onward(creation,
+                lambda t, _x=x, _y=y, _oy=_oy: self.coords_to_point(_x, _y, t)[1] + _oy)
+            self._add_plot_obj(lbl)
+            return dot, lbl
+        return dot
+
+    def add_arrow_annotation(self, x, y, text, direction='up', length=80, buff=10,
+                              font_size=20, creation=0, z=5, **styling_kwargs):
+        """Add a labeled arrow pointing to a math coordinate.
+        Returns a VCollection with arrow and label."""
+        style_kw = {'stroke': '#FFFF00', 'fill': '#FFFF00'} | styling_kwargs
+        sx, sy = self.coords_to_point(x, y, creation)
+        offsets = {
+            'up': (0, -1), 'down': (0, 1), 'left': (-1, 0), 'right': (1, 0),
+        }
+        dx, dy = offsets.get(direction, (0, -1))
+        ax1 = sx + dx * (length + buff)
+        ay1 = sy + dy * (length + buff)
+        ax2 = sx + dx * buff
+        ay2 = sy + dy * buff
+        _tl, _tw = 12, 10
+        arrow = Arrow(x1=ax1, y1=ay1, x2=ax2, y2=ay2,
+                       tip_length=_tl, tip_width=_tw,
+                       creation=creation, z=z, **style_kw)
+        # Dynamic arrow endpoints
+        _dx, _dy, _lb = dx, dy, length + buff
+        _bb = buff
+        def _base(t, _x=x, _y=y):
+            return self.coords_to_point(_x, _y, t)
+        arrow.shaft.p1.set_onward(creation,
+            lambda t, _dx=_dx, _dy=_dy, _lb=_lb: (
+                (_b := _base(t))[0] + _dx * _lb, _b[1] + _dy * _lb))
+        arrow.shaft.p2.set_onward(creation,
+            lambda t, _dx=_dx, _dy=_dy, _bb=_bb: (
+                (_b := _base(t))[0] + _dx * _bb, _b[1] + _dy * _bb))
+        # Dynamic arrowhead tip (3 vertices) — precompute constants
+        _hw = _tw / 2
+        _ln = math.sqrt(_dx * _dx + _dy * _dy) or 1
+        _ux, _uy = _dx / _ln, _dy / _ln
+        _px, _py = -_uy, _ux
+        # Precompute fixed offsets from the tip base point
+        _back_x, _back_y = -_ux * _tl, -_uy * _tl
+        _perp_x, _perp_y = _px * _hw, _py * _hw
+        _tb_cache = [None, None]  # [time, (bx, by)]
+        def _tip_base(t, _dx=_dx, _dy=_dy, _bb=_bb):
+            if _tb_cache[0] == t:
+                return _tb_cache[1]
+            b = _base(t)
+            result = b[0] + _dx * _bb, b[1] + _dy * _bb
+            _tb_cache[0], _tb_cache[1] = t, result
+            return result
+        arrow.tip.vertices[0].set_onward(creation,
+            lambda t: _tip_base(t))
+        arrow.tip.vertices[1].set_onward(creation,
+            lambda t, _bx=_back_x, _by=_back_y, _px=_perp_x, _py=_perp_y: (
+                (_tb := _tip_base(t))[0] + _bx + _px, _tb[1] + _by + _py))
+        arrow.tip.vertices[2].set_onward(creation,
+            lambda t, _bx=_back_x, _by=_back_y, _px=_perp_x, _py=_perp_y: (
+                (_tb := _tip_base(t))[0] + _bx - _px, _tb[1] + _by - _py))
+        # Label at the far end of the arrow
+        lx = ax1 + dx * 15
+        ly = ay1 + dy * 15
+        lbl = Text(text=text, x=lx, y=ly, font_size=font_size,
+                    text_anchor='middle', fill=style_kw.get('fill', '#FFFF00'),
+                    stroke_width=0, creation=creation, z=z + 1)
+        _lxo, _lyo = dx * (length + buff + 15), dy * (length + buff + 15)
+        lbl.x.set_onward(creation,
+            lambda t, _lxo=_lxo: _base(t)[0] + _lxo)
+        lbl.y.set_onward(creation,
+            lambda t, _lyo=_lyo: _base(t)[1] + _lyo)
+        group = VCollection(arrow, lbl, creation=creation, z=z)
+        self._add_plot_obj(group)
+        return group
+
+    def add_cursor(self, func, x_start, x_end, start: float = 0, end: float = 1,
+                    r=6, creation=0, z=5, easing=easings.smooth, **styling_kwargs):
+        """Add an animated dot that travels along func from x_start to x_end.
+        Returns the Dot object."""
+        style_kw = {'fill': '#FFFF00', 'stroke_width': 0} | styling_kwargs
+        dot = Dot(cx=0, cy=0, r=r, creation=creation, z=z, **style_kw)
+        dur = end - start
+        if dur <= 0:
+            sx, sy = self.coords_to_point(x_start, func(x_start), creation)
+            dot.c.set_onward(creation, (sx, sy))
+        else:
+            s, d = start, dur
+            xs, xe = x_start, x_end
+            def _pos(t, _s=s, _d=d, _xs=xs, _xe=xe, _easing=easing):
+                progress = _easing((t - _s) / _d)
+                xv = _xs + (_xe - _xs) * progress
+                return self.coords_to_point(xv, func(xv), t)
+            dot.c.set(s, end, _pos, stay=True)
+        dot._show_from(start)
+        self._add_plot_obj(dot)
+        return dot
+
+    def add_trace(self, func, x_start, x_end, start: float = 0, end: float = 1,
+                   r=5, trail_width=2, creation=0, z=5, easing=easings.smooth,
+                   **styling_kwargs):
+        """Animated dot that traces along func, leaving a trail behind it.
+        Returns a VCollection with (dot, trail_path).
+        The trail grows progressively as the dot moves."""
+        style_kw = {'fill': '#FFFF00', 'stroke': '#FFFF00', 'stroke_width': 0} | styling_kwargs
+        dot = self.add_cursor(func, x_start, x_end, start=start, end=end,
+                               r=r, creation=creation, z=z + 1, easing=easing,
+                               **{k: v for k, v in style_kw.items()
+                                  if k in ('fill', 'stroke_width')})
+        # Trail path that grows as the dot moves
+        trail = Path('', x=0, y=0, creation=creation, z=z,
+                     stroke=style_kw.get('stroke', '#FFFF00'),
+                     stroke_width=trail_width, fill_opacity=0)
+        _xs, _xe = x_start, x_end
+        _s, _d = start, max(end - start, 1e-9)
+        n_pts = 80
+        def _compute_trail(t, _s=_s, _d=_d, _xs=_xs, _xe=_xe, _n=n_pts, _easing=easing):
+            progress = max(0, min(1, _easing((t - _s) / _d)))
+            x_cur = _xs + (_xe - _xs) * progress
+            steps = max(2, int(_n * progress))
+            pts = []
+            for i in range(steps):
+                frac = i / max(steps - 1, 1)
+                xv = _xs + (x_cur - _xs) * frac
+                pts.append(self.coords_to_point(xv, func(xv), t))
+            if not pts:
+                return ''
+            return 'M' + 'L'.join(f'{px},{py}' for px, py in pts)
+        trail.d.set(start, end, _compute_trail, stay=True)
+        self._add_plot_obj(trail)
+        group = VCollection(dot, trail, creation=creation, z=z)
+        return group
+
+    def get_line_from_to(self, x1, y1, x2, y2, creation=0, z=0, **styling_kwargs):
+        """Draw a solid line between two math coordinate points.
+        Returns a Line object."""
+        style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
+        line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+        _x1, _y1, _x2, _y2 = x1, y1, x2, y2
+        line.p1.set_onward(creation, lambda t, _a=_x1, _b=_y1: self.coords_to_point(_a, _b, t))
+        line.p2.set_onward(creation, lambda t, _a=_x2, _b=_y2: self.coords_to_point(_a, _b, t))
+        self._add_plot_obj(line)
+        return line
+
+    def highlight_x_range(self, x_lo, x_hi, creation=0, z=-1, **styling_kwargs):
+        """Shade a vertical strip between x_lo and x_hi math coordinates.
+        Returns a Rectangle object."""
+        style_kw = {'fill': '#FFFF00', 'fill_opacity': 0.15, 'stroke_width': 0} | styling_kwargs
+        rect = Rectangle(width=0, height=0, x=0, y=0,
+                          creation=creation, z=z, **style_kw)
+        _lo, _hi = x_lo, x_hi
+        rect.y.set_onward(creation, lambda t: self.plot_y)
+        rect.height.set_onward(creation, lambda t: self.plot_height)
+        rect.x.set_onward(creation, lambda t, _l=_lo, _h=_hi: min(
+            self._math_to_svg_x(_l, t), self._math_to_svg_x(_h, t)))
+        rect.width.set_onward(creation, lambda t, _l=_lo, _h=_hi: abs(
+            self._math_to_svg_x(_h, t) - self._math_to_svg_x(_l, t)))
+        self._add_plot_obj(rect)
+        return rect
+
+    def highlight_y_range(self, y_lo, y_hi, creation=0, z=-1, **styling_kwargs):
+        """Shade a horizontal strip between y_lo and y_hi math coordinates.
+        Returns a Rectangle object."""
+        style_kw = {'fill': '#FFFF00', 'fill_opacity': 0.15, 'stroke_width': 0} | styling_kwargs
+        rect = Rectangle(width=0, height=0, x=0, y=0,
+                          creation=creation, z=z, **style_kw)
+        _lo, _hi = y_lo, y_hi
+        rect.x.set_onward(creation, lambda t: self.plot_x)
+        rect.width.set_onward(creation, lambda t: self.plot_width)
+        rect.y.set_onward(creation, lambda t, _l=_lo, _h=_hi: min(
+            self._math_to_svg_y(_l, t), self._math_to_svg_y(_h, t)))
+        rect.height.set_onward(creation, lambda t, _l=_lo, _h=_hi: abs(
+            self._math_to_svg_y(_h, t) - self._math_to_svg_y(_l, t)))
+        self._add_plot_obj(rect)
+        return rect
+
+    def get_dashed_line(self, x1, y1, x2, y2, creation=0, z=0, **styling_kwargs):
+        """Draw a dashed line between two math coordinate points.
+        Returns a Line object."""
+        style_kw = {'stroke': '#aaa', 'stroke_width': 2, 'stroke_dasharray': '6 4'} | styling_kwargs
+        line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+        _x1, _y1, _x2, _y2 = x1, y1, x2, y2
+        line.p1.set_onward(creation, lambda t, _a=_x1, _b=_y1: self.coords_to_point(_a, _b, t))
+        line.p2.set_onward(creation, lambda t, _a=_x2, _b=_y2: self.coords_to_point(_a, _b, t))
+        self._add_plot_obj(line)
+        return line
+
+    def add_title(self, text, font_size=32, buff=20, creation=0, z=5, **styling_kwargs):
+        """Add a title above the axes. Returns the Text object."""
+        style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
+        cx = self.plot_x + self.plot_width / 2
+        ty = self.plot_y - buff
+        lbl = Text(text=text, x=cx, y=ty, font_size=font_size,
+                    text_anchor='middle', creation=creation, z=z, **style_kw)
+        self._add_plot_obj(lbl)
+        return lbl
+
+    def add_text_annotation(self, x, y, text, font_size=18, creation=0, z=3,
+                             text_anchor='middle', **styling_kwargs):
+        """Add a text label at math coordinates (x, y). Returns the Text object."""
+        style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
+        sx, sy = self.coords_to_point(x, y, creation)
+        lbl = Text(text=str(text), x=sx, y=sy, font_size=font_size,
+                    text_anchor=text_anchor, creation=creation, z=z, **style_kw)
+        _x, _y = x, y
+        lbl.x.set_onward(creation,
+            lambda t, _x=_x, _y=_y: self.coords_to_point(_x, _y, t)[0])
+        lbl.y.set_onward(creation,
+            lambda t, _x=_x, _y=_y: self.coords_to_point(_x, _y, t)[1])
+        self._add_plot_obj(lbl)
+        return lbl
+
+    def add_horizontal_label(self, y, text, side='right', buff=10, font_size=18,
+                              creation=0, z=5, **styling_kwargs):
+        """Add a text label at y-coordinate on the specified side of the plot.
+        side: 'left' or 'right'. Returns the Text object."""
+        style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
+        if side == 'left':
+            lx = self.plot_x - buff
+            anchor = 'end'
+        else:
+            lx = self.plot_x + self.plot_width + buff
+            anchor = 'start'
+        lbl = Text(text=str(text), x=lx, y=0, font_size=font_size,
+                    text_anchor=anchor, creation=creation, z=z, **style_kw)
+        _yv = y
+        lbl.y.set_onward(creation, lambda t, _y=_yv: self._math_to_svg_y(_y, t))
+        self._add_plot_obj(lbl)
+        return lbl
+
+    def add_vertical_label(self, x, text, side='bottom', buff=10, font_size=18,
+                            creation=0, z=5, **styling_kwargs):
+        """Add a text label at x-coordinate above or below the plot.
+        side: 'top' or 'bottom'. Returns the Text object."""
+        style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
+        if side == 'top':
+            ly = self.plot_y - buff
+        else:
+            ly = self.plot_y + self.plot_height + buff + font_size
+        lbl = Text(text=str(text), x=0, y=ly, font_size=font_size,
+                    text_anchor='middle', creation=creation, z=z, **style_kw)
+        _xv = x
+        lbl.x.set_onward(creation, lambda t, _x=_xv: self._math_to_svg_x(_x, t))
+        self._add_plot_obj(lbl)
+        return lbl
+
+    def get_horizontal_line(self, x, y_val, creation=0, z=0, **styling_kwargs):
+        """Draw a horizontal line at math y-coordinate from the y-axis to x."""
+        style_kw = {'stroke': '#FFFF00', 'stroke_width': 2, 'stroke_dasharray': '5 5'} | styling_kwargs
+        line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+        def _p1(t):
+            sy = self._math_to_svg_y(y_val, t)
+            sx = self.plot_x
+            return (sx, sy)
+        def _p2(t):
+            sy = self._math_to_svg_y(y_val, t)
+            sx = self._math_to_svg_x(x, t)
+            return (sx, sy)
+        line.p1.set_onward(creation, _p1)
+        line.p2.set_onward(creation, _p2)
+        self._add_plot_obj(line)
+        return line
+
+    def add_asymptote(self, value, direction='vertical', creation=0, z=0, **styling_kwargs):
+        """Draw a dashed asymptote line spanning the full plot range.
+        direction: 'vertical' (x=value) or 'horizontal' (y=value).
+        Returns a Line object."""
+        style_kw = {'stroke': '#aaa', 'stroke_width': 1.5,
+                    'stroke_dasharray': '8 4'} | styling_kwargs
+        line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+        _v = value
+        if direction == 'vertical':
+            def _p1(t, _v=_v):
+                return (self._math_to_svg_x(_v, t), self.plot_y)
+            def _p2(t, _v=_v):
+                return (self._math_to_svg_x(_v, t), self.plot_y + self.plot_height)
+        else:
+            def _p1(t, _v=_v):
+                return (self.plot_x, self._math_to_svg_y(_v, t))
+            def _p2(t, _v=_v):
+                return (self.plot_x + self.plot_width, self._math_to_svg_y(_v, t))
+        line.p1.set_onward(creation, _p1)
+        line.p2.set_onward(creation, _p2)
+        self._add_plot_obj(line)
+        return line
+
+    def add_min_max_labels(self, func, x_range=None, samples=200, creation=0, z=3,
+                            dot_radius=5, font_size=18, **styling_kwargs):
+        """Find and label local min/max of func within x_range.
+        Returns a VCollection of (dot, label) pairs."""
+        from vectormation._shapes import Dot as _Dot, Text as _Text
+        xlo = x_range[0] if x_range else self.x_min.at_time(creation)
+        xhi = x_range[1] if x_range else self.x_max.at_time(creation)
+        step = (xhi - xlo) / samples
+        # Sample function values
+        xs = [xlo + i * step for i in range(samples + 1)]
+        ys = [func(x) for x in xs]
+        extrema = []
+        for i in range(1, len(ys) - 1):
+            if ys[i] > ys[i - 1] and ys[i] > ys[i + 1]:
+                extrema.append((xs[i], ys[i], 'max'))
+            elif ys[i] < ys[i - 1] and ys[i] < ys[i + 1]:
+                extrema.append((xs[i], ys[i], 'min'))
+        objs = []
+        colors = {'max': '#FF6B6B', 'min': '#58C4DD'}
+        for mx, my, kind in extrema:
+            color = styling_kwargs.get('fill', colors[kind])
+            sx, sy = self.coords_to_point(mx, my, creation)
+            dot = _Dot(cx=sx, cy=sy, r=dot_radius, fill=color,
+                       creation=creation, z=z + 1)
+            dot.c.set_onward(creation,
+                lambda t, _mx=mx, _my=my: self.coords_to_point(_mx, _my, t))
+            lbl_text = f'{kind}({mx:.1f}, {my:.1f})'
+            offset_y = -15 if kind == 'max' else 20
+            lbl = _Text(text=lbl_text, x=sx, y=sy + offset_y,
+                        font_size=font_size, fill=color, stroke_width=0,
+                        text_anchor='middle', creation=creation, z=z + 2)
+            _mx, _my, _oy = mx, my, offset_y
+            lbl.x.set_onward(creation,
+                lambda t, _mx=_mx, _my=_my: self.coords_to_point(_mx, _my, t)[0])
+            lbl.y.set_onward(creation,
+                lambda t, _mx=_mx, _my=_my, _oy=_oy: self.coords_to_point(_mx, _my, t)[1] + _oy)
+            self._add_plot_obj(dot)
+            self._add_plot_obj(lbl)
+            objs.extend([dot, lbl])
+        return VCollection(*objs, creation=creation, z=z)
+
+    def add_error_bars(self, x_data, y_data, y_err, creation=0, z=1,
+                        cap_width=6, **styling_kwargs):
+        """Add error bars at data points. y_err can be a single value or a list.
+        Returns a VCollection of the error bar lines."""
+        style_kw = {'stroke': '#aaa', 'stroke_width': 1.5} | styling_kwargs
+        if isinstance(y_err, (int, float)):
+            y_err = [y_err] * len(x_data)
+        lines = []
+        for xv, yv, err in zip(x_data, y_data, y_err):
+            # Vertical bar
+            bar = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+            _xv, _yv, _err = xv, yv, err
+            bar.p1.set_onward(creation,
+                lambda t, _x=_xv, _y=_yv, _e=_err: self.coords_to_point(_x, _y - _e, t))
+            bar.p2.set_onward(creation,
+                lambda t, _x=_xv, _y=_yv, _e=_err: self.coords_to_point(_x, _y + _e, t))
+            self._add_plot_obj(bar)
+            lines.append(bar)
+            # Top cap
+            top = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+            _cw = cap_width
+            top.p1.set_onward(creation,
+                lambda t, _x=_xv, _y=_yv, _e=_err, _cw=_cw: (
+                    (_p := self.coords_to_point(_x, _y + _e, t))[0] - _cw, _p[1]))
+            top.p2.set_onward(creation,
+                lambda t, _x=_xv, _y=_yv, _e=_err, _cw=_cw: (
+                    (_p := self.coords_to_point(_x, _y + _e, t))[0] + _cw, _p[1]))
+            self._add_plot_obj(top)
+            lines.append(top)
+            # Bottom cap
+            bot = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+            bot.p1.set_onward(creation,
+                lambda t, _x=_xv, _y=_yv, _e=_err, _cw=_cw: (
+                    (_p := self.coords_to_point(_x, _y - _e, t))[0] - _cw, _p[1]))
+            bot.p2.set_onward(creation,
+                lambda t, _x=_xv, _y=_yv, _e=_err, _cw=_cw: (
+                    (_p := self.coords_to_point(_x, _y - _e, t))[0] + _cw, _p[1]))
+            self._add_plot_obj(bot)
+            lines.append(bot)
+        return VCollection(*lines, creation=creation, z=z)
+
+    def add_regression_line(self, x_data, y_data, creation=0, z=1, extend=0.5,
+                             **styling_kwargs):
+        """Add a least-squares regression line through data points.
+        extend: how far to extend beyond data range (in math units).
+        Returns the Line object."""
+        style_kw = {'stroke': '#FFFF00', 'stroke_width': 2} | styling_kwargs
+        n = len(x_data)
+        if n < 2:
+            return None
+        sx = sum(x_data)
+        sy = sum(y_data)
+        sxy = sum(x * y for x, y in zip(x_data, y_data))
+        sxx = sum(x * x for x in x_data)
+        denom = n * sxx - sx * sx
+        if abs(denom) < 1e-12:
+            return None
+        slope = (n * sxy - sx * sy) / denom
+        intercept = (sy - slope * sx) / n
+        xlo = min(x_data) - extend
+        xhi = max(x_data) + extend
+        _m, _b, _xlo, _xhi = slope, intercept, xlo, xhi
+        line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+        line.p1.set_onward(creation,
+            lambda t, _m=_m, _b=_b, _xlo=_xlo: self.coords_to_point(_xlo, _m * _xlo + _b, t))
+        line.p2.set_onward(creation,
+            lambda t, _m=_m, _b=_b, _xhi=_xhi: self.coords_to_point(_xhi, _m * _xhi + _b, t))
+        self._add_plot_obj(line)
+        return line
+
+    def add_slope_field(self, func, x_step=1, y_step=1, seg_length=0.4,
+                         creation=0, z=-1, **styling_kwargs):
+        """Draw a direction/slope field for dy/dx = func(x, y).
+        func: callable(x, y) -> slope (dy/dx).
+        x_step, y_step: spacing between sample points in math units.
+        seg_length: half-length of each line segment in math units.
+        Returns a VCollection of the line segments."""
+        style_kw = {'stroke': '#888', 'stroke_width': 1.5} | styling_kwargs
+        x_step, y_step = max(abs(x_step), 1e-6), max(abs(y_step), 1e-6)
+        xlo, xhi = self.x_min.at_time(creation), self.x_max.at_time(creation)
+        ylo, yhi = self.y_min.at_time(creation), self.y_max.at_time(creation)
+        lines = []
+        x = xlo
+        while x <= xhi:
+            y = ylo
+            while y <= yhi:
+                try:
+                    slope = func(x, y)
+                except (ZeroDivisionError, ValueError):
+                    y += y_step
+                    continue
+                # Compute direction from slope
+                angle = math.atan(slope) if abs(slope) < 1e9 else math.copysign(math.pi / 2, slope)
+                dx = seg_length * math.cos(angle)
+                dy = seg_length * math.sin(angle)
+                _x, _y, _dx, _dy = x, y, dx, dy
+                line = Line(x1=0, y1=0, x2=0, y2=0,
+                            creation=creation, z=z, **style_kw)
+                line.p1.set_onward(creation,
+                    lambda t, _x=_x, _y=_y, _dx=_dx, _dy=_dy:
+                        self.coords_to_point(_x - _dx, _y - _dy, t))
+                line.p2.set_onward(creation,
+                    lambda t, _x=_x, _y=_y, _dx=_dx, _dy=_dy:
+                        self.coords_to_point(_x + _dx, _y + _dy, t))
+                self._add_plot_obj(line)
+                lines.append(line)
+                y += y_step
+            x += x_step
+        group = VCollection(*lines, creation=creation, z=z)
+        return group
+
+    def add_vector(self, x, y, origin_x=0, origin_y=0, creation=0, z=2,
+                    tip_length=20, tip_width=14, **styling_kwargs):
+        """Draw a vector arrow from (origin_x, origin_y) to (x, y) in math coordinates.
+        Returns the Arrow object."""
+        style_kw = {'stroke': '#FFFF00', 'fill': '#FFFF00', 'stroke_width': 3} | styling_kwargs
+        sx1, sy1 = self.coords_to_point(origin_x, origin_y, creation)
+        sx2, sy2 = self.coords_to_point(x, y, creation)
+        arrow = Arrow(x1=sx1, y1=sy1, x2=sx2, y2=sy2,
+                      tip_length=tip_length, tip_width=tip_width,
+                      creation=creation, z=z, **style_kw)
+        # Dynamic endpoints
+        _ox, _oy, _tx, _ty = origin_x, origin_y, x, y
+        arrow.shaft.p1.set_onward(creation,
+            lambda t, _ox=_ox, _oy=_oy: self.coords_to_point(_ox, _oy, t))
+        arrow.shaft.p2.set_onward(creation,
+            lambda t, _tx=_tx, _ty=_ty: self.coords_to_point(_tx, _ty, t))
+        # Dynamic arrowhead
+        def _tip_base(t, _ox=_ox, _oy=_oy, _tx=_tx, _ty=_ty):
+            p1 = self.coords_to_point(_ox, _oy, t)
+            p2 = self.coords_to_point(_tx, _ty, t)
+            return p1, p2
+        _tl, _tw2 = tip_length, tip_width / 2
+        _tip_cache = [None, None]  # [time, result]
+        def _tip_geom(t):
+            if _tip_cache[0] == t:
+                return _tip_cache[1]
+            p1, p2 = _tip_base(t)
+            ddx, ddy = p2[0] - p1[0], p2[1] - p1[1]
+            ln = math.sqrt(ddx * ddx + ddy * ddy) or 1
+            ux, uy = ddx / ln, ddy / ln
+            px, py = -uy, ux
+            bx, by = p2[0] - ux * _tl, p2[1] - uy * _tl
+            result = (p2[0], p2[1]), (bx + px * _tw2, by + py * _tw2), (bx - px * _tw2, by - py * _tw2)
+            _tip_cache[0], _tip_cache[1] = t, result
+            return result
+        arrow.tip.vertices[0].set_onward(creation, lambda t: _tip_geom(t)[0])
+        arrow.tip.vertices[1].set_onward(creation, lambda t: _tip_geom(t)[1])
+        arrow.tip.vertices[2].set_onward(creation, lambda t: _tip_geom(t)[2])
+        self._add_plot_obj(arrow)
+        return arrow
+
+    def get_vertical_lines(self, func, x_values, creation=0, z=0, **styling_kwargs):
+        """Draw vertical lines from x-axis to func(x) at each x in x_values.
+        Returns a VCollection of the lines."""
+        style_kw = {'stroke': '#aaa', 'stroke_width': 1,
+                    'stroke_dasharray': '4 3'} | styling_kwargs
+        lines = []
+        for xv in x_values:
+            yv = func(xv)
+            line = self.get_vertical_line(xv, y_val=yv, creation=creation, z=z, **style_kw)
+            lines.append(line)
+        return VCollection(*lines, creation=creation, z=z)
+
+    def add_interval(self, x_lo, x_hi, y=None, creation=0, z=2, bracket_height=10,
+                      **styling_kwargs):
+        """Draw an interval bracket [x_lo, x_hi] on the x-axis (or at y).
+        Returns a VCollection with the bracket shape and optional label."""
+        style_kw = {'stroke': '#FFFF00', 'stroke_width': 2} | styling_kwargs
+        _y = y if y is not None else self.y_min.at_time(creation)
+        # Three segments: left cap, horizontal bar, right cap
+        left_cap = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+        bar = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+        right_cap = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+        _xlo, _xhi, _yv, _bh = x_lo, x_hi, _y, bracket_height
+        def _lo_pt(t, _xlo=_xlo, _yv=_yv):
+            return self.coords_to_point(_xlo, _yv, t)
+        def _hi_pt(t, _xhi=_xhi, _yv=_yv):
+            return self.coords_to_point(_xhi, _yv, t)
+        left_cap.p1.set_onward(creation,
+            lambda t, _bh=_bh: (_lo_pt(t)[0], _lo_pt(t)[1] - _bh))
+        left_cap.p2.set_onward(creation,
+            lambda t, _bh=_bh: (_lo_pt(t)[0], _lo_pt(t)[1] + _bh))
+        bar.p1.set_onward(creation, _lo_pt)
+        bar.p2.set_onward(creation, _hi_pt)
+        right_cap.p1.set_onward(creation,
+            lambda t, _bh=_bh: (_hi_pt(t)[0], _hi_pt(t)[1] - _bh))
+        right_cap.p2.set_onward(creation,
+            lambda t, _bh=_bh: (_hi_pt(t)[0], _hi_pt(t)[1] + _bh))
+        for ln in (left_cap, bar, right_cap):
+            self._add_plot_obj(ln)
+        return VCollection(left_cap, bar, right_cap, creation=creation, z=z)
+
+    def coords_label(self, x, y, text=None, creation=0, z=0, **styling_kwargs):
+        """Add a labeled point with dashed guide lines to both axes.
+        Returns a VCollection with (dot, h_line, v_line, label)."""
+        style_kw = {'stroke': '#FFFF00', 'fill': '#FFFF00'} | styling_kwargs
+        # Shared base point (cached per-frame to avoid 5 coords_to_point calls)
+        _x, _y = x, y
+        _pt_cache = [None, None]
+        def _pt(t, _xv=_x, _yv=_y):
+            if _pt_cache[0] == t:
+                return _pt_cache[1]
+            _pt_cache[0] = t
+            _pt_cache[1] = self.coords_to_point(_xv, _yv, t)
+            return _pt_cache[1]
+        # Dot at the point
+        dot = Dot(cx=0, cy=0, r=5, creation=creation, z=z + 1,
+                  fill=style_kw.get('fill', '#FFFF00'), stroke_width=0)
+        dot.c.set_onward(creation, _pt)
+        # Dashed line to x-axis
+        v_line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z,
+                      stroke=style_kw.get('stroke', '#FFFF00'),
+                      stroke_width=1, stroke_dasharray='4 3')
+        v_line.p1.set_onward(creation, _pt)
+        v_line.p2.set_onward(creation, lambda t: (_pt(t)[0], self.plot_y + self.plot_height))
+        # Dashed line to y-axis
+        h_line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z,
+                      stroke=style_kw.get('stroke', '#FFFF00'),
+                      stroke_width=1, stroke_dasharray='4 3')
+        h_line.p1.set_onward(creation, _pt)
+        h_line.p2.set_onward(creation, lambda t: (self.plot_x, _pt(t)[1]))
+        # Label
+        label_text = text if text is not None else f'({x}, {y})'
+        lbl = Text(text=label_text, x=0, y=0, font_size=16,
+                   text_anchor='start', creation=creation, z=z + 1,
+                   fill=style_kw.get('fill', '#FFFF00'), stroke_width=0)
+        lbl.x.set_onward(creation, lambda t: _pt(t)[0] + 10)
+        lbl.y.set_onward(creation, lambda t: _pt(t)[1] - 10)
+        group = VCollection(dot, h_line, v_line, lbl, creation=creation, z=z)
+        self._add_plot_obj(group)
+        return group
+
+    def plot_vector_field(self, func, x_step=1, y_step=1, max_length=80,
+                           creation=0, z=0, **styling_kwargs):
+        """Draw a vector field F(x,y) = (u,v) on the axes using arrows.
+        func: callable(x, y) -> (u, v).
+        Returns a VCollection of Arrow objects."""
+        style_kw = {'stroke': '#83C167', 'stroke_width': 1.5, 'fill': '#83C167'} | styling_kwargs
+        xmin, xmax = self.x_min.at_time(creation), self.x_max.at_time(creation)
+        ymin, ymax = self.y_min.at_time(creation), self.y_max.at_time(creation)
+        arrows = []
+        x = xmin
+        while x <= xmax + 1e-9:
+            y = ymin
+            while y <= ymax + 1e-9:
+                try:
+                    u, v = func(x, y)
+                except (ZeroDivisionError, ValueError):
+                    y += y_step
+                    continue
+                mag = math.sqrt(u ** 2 + v ** 2)
+                if mag < 1e-9:
+                    y += y_step
+                    continue
+                # Scale to max_length pixels, capped
+                scale = min(max_length, mag * 30) / mag
+                sx1, sy1 = self.coords_to_point(x, y, creation)
+                sx2 = sx1 + u * scale
+                sy2 = sy1 - v * scale  # SVG y is inverted
+                arrows.append(Arrow(x1=sx1, y1=sy1, x2=sx2, y2=sy2,
+                                     tip_length=8, tip_width=6,
+                                     creation=creation, z=z, **style_kw))
+                y += y_step
+            x += x_step
+        group = VCollection(*arrows, creation=creation, z=z)
+        self._add_plot_obj(group)
+        return group
+
+    def get_tangent_line(self, func, x_val, length=200, creation=0, z=0, **styling_kwargs):
+        """Draw a tangent line to func at x=x_val.
+        Uses numerical derivative. Returns a Line object."""
+        style_kw = {'stroke': '#FFFF00', 'stroke_width': 2} | styling_kwargs
+        h = 1e-6
+        slope = (func(x_val + h) - func(x_val - h)) / (2 * h)
+        cx_svg = self._math_to_svg_x(x_val, creation)
+        cy_svg = self._math_to_svg_y(func(x_val), creation)
+        # Tangent direction in SVG: dx_svg per unit x = plot_width / (xmax - xmin)
+        # dy_svg per unit y = -plot_height / (ymax - ymin)
+        xspan = self.x_max.at_time(creation) - self.x_min.at_time(creation)
+        yspan = self.y_max.at_time(creation) - self.y_min.at_time(creation)
+        if xspan == 0 or yspan == 0:
+            return Line(x1=cx_svg, y1=cy_svg, x2=cx_svg + length, y2=cy_svg,
+                        creation=creation, z=z, **style_kw)
+        dx_px = self.plot_width / xspan
+        dy_px = -self.plot_height / yspan
+        dir_x = dx_px
+        dir_y = slope * dy_px
+        mag = math.sqrt(dir_x ** 2 + dir_y ** 2)
+        if mag == 0:
+            mag = 1
+        half = length / 2
+        nx, ny = dir_x / mag * half, dir_y / mag * half
+        line = Line(x1=cx_svg - nx, y1=cy_svg - ny, x2=cx_svg + nx, y2=cy_svg + ny,
+                    creation=creation, z=z, **style_kw)
+        self._add_plot_obj(line)
+        return line
+
+    def get_secant_line(self, func, x1, x2, length=300, creation=0, z=0, **styling_kwargs):
+        """Draw a secant line through func at x1 and x2. Returns a Line."""
+        style_kw = {'stroke': '#83C167', 'stroke_width': 2} | styling_kwargs
+        line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+        _x1, _x2, _len = x1, x2, length
+        def _secant_p1(t, _x1=_x1, _x2=_x2, _len=_len):
+            sx1, sy1 = self.coords_to_point(_x1, func(_x1), t)
+            sx2, sy2 = self.coords_to_point(_x2, func(_x2), t)
+            dx, dy = sx2 - sx1, sy2 - sy1
+            mag = max(math.sqrt(dx ** 2 + dy ** 2), 1e-9)
+            half = _len / 2
+            mx, my = (sx1 + sx2) / 2, (sy1 + sy2) / 2
+            return (mx - dx / mag * half, my - dy / mag * half)
+        def _secant_p2(t, _x1=_x1, _x2=_x2, _len=_len):
+            sx1, sy1 = self.coords_to_point(_x1, func(_x1), t)
+            sx2, sy2 = self.coords_to_point(_x2, func(_x2), t)
+            dx, dy = sx2 - sx1, sy2 - sy1
+            mag = max(math.sqrt(dx ** 2 + dy ** 2), 1e-9)
+            half = _len / 2
+            mx, my = (sx1 + sx2) / 2, (sy1 + sy2) / 2
+            return (mx + dx / mag * half, my + dy / mag * half)
+        line.p1.set_onward(creation, _secant_p1)
+        line.p2.set_onward(creation, _secant_p2)
+        self._add_plot_obj(line)
+        return line
+
+    def add_secant_fade(self, func, x, dx_start=2, dx_end=0.01,
+                         start: float = 0, end: float = 1, length=300,
+                         creation=0, z=0, easing=easings.smooth, **styling_kwargs):
+        """Animate a secant line approaching a tangent line at x.
+        dx shrinks from dx_start to dx_end over [start, end].
+        Returns a Line object with animated endpoints."""
+        style_kw = {'stroke': '#83C167', 'stroke_width': 2} | styling_kwargs
+        line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+        _x, _dxs, _dxe = x, dx_start, dx_end
+        _s, _d, _len = start, max(end - start, 1e-9), length
+        def _p1(t, _x=_x, _dxs=_dxs, _dxe=_dxe, _s=_s, _d=_d, _len=_len, _easing=easing):
+            progress = _easing((t - _s) / _d)
+            dx = _dxs + (_dxe - _dxs) * progress
+            x1, x2 = _x, _x + dx
+            sx1, sy1 = self.coords_to_point(x1, func(x1), t)
+            sx2, sy2 = self.coords_to_point(x2, func(x2), t)
+            ddx, dy = sx2 - sx1, sy2 - sy1
+            mag = max(math.sqrt(ddx ** 2 + dy ** 2), 1e-9)
+            half = _len / 2
+            mx, my = (sx1 + sx2) / 2, (sy1 + sy2) / 2
+            return (mx - ddx / mag * half, my - dy / mag * half)
+        def _p2(t, _x=_x, _dxs=_dxs, _dxe=_dxe, _s=_s, _d=_d, _len=_len, _easing=easing):
+            progress = _easing((t - _s) / _d)
+            dx = _dxs + (_dxe - _dxs) * progress
+            x1, x2 = _x, _x + dx
+            sx1, sy1 = self.coords_to_point(x1, func(x1), t)
+            sx2, sy2 = self.coords_to_point(x2, func(x2), t)
+            ddx, dy = sx2 - sx1, sy2 - sy1
+            mag = max(math.sqrt(ddx ** 2 + dy ** 2), 1e-9)
+            half = _len / 2
+            mx, my = (sx1 + sx2) / 2, (sy1 + sy2) / 2
+            return (mx + ddx / mag * half, my + dy / mag * half)
+        line.p1.set(start, end, _p1, stay=True)
+        line.p2.set(start, end, _p2, stay=True)
+        self._add_plot_obj(line)
+        return line
+
+    def get_slope_field(self, func, x_step=1, y_step=1, length=0.6, creation=0, z=0, **styling_kwargs):
+        """Draw a slope field for dy/dx = func(x, y).
+        func: callable(x, y) -> slope.
+        length: arrow length in math units.
+        Returns a VCollection of Line segments."""
+        style_kw = {'stroke': '#58C4DD', 'stroke_width': 1.5, 'stroke_opacity': 0.7} | styling_kwargs
+        xmin, xmax = self.x_min.at_time(creation), self.x_max.at_time(creation)
+        ymin, ymax = self.y_min.at_time(creation), self.y_max.at_time(creation)
+        lines = []
+        x = xmin
+        while x <= xmax + 1e-9:
+            y = ymin
+            while y <= ymax + 1e-9:
+                try:
+                    slope = func(x, y)
+                except (ZeroDivisionError, ValueError):
+                    y += y_step
+                    continue
+                angle = math.atan(slope)
+                dx = length / 2 * math.cos(angle)
+                dy = length / 2 * math.sin(angle)
+                sx1, sy1 = self.coords_to_point(x - dx, y - dy, creation)
+                sx2, sy2 = self.coords_to_point(x + dx, y + dy, creation)
+                lines.append(Line(x1=sx1, y1=sy1, x2=sx2, y2=sy2,
+                                  creation=creation, z=z, **style_kw))
+                y += y_step
+            x += x_step
+        group = VCollection(*lines, creation=creation, z=z)
+        self._add_plot_obj(group)
+        return group
+
     def get_riemann_rectangles(self, func, x_range, dx=0.1, creation=0, z=0, **styling_kwargs):
         """Create rectangles approximating the area under func.
 
         Returns a DynamicObject that rebuilds each frame."""
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.5, 'stroke': '#fff', 'stroke_width': 1} | styling_kwargs
         def _build(time):
-            xmin = self.x_min.at_time(time)
-            xmax = self.x_max.at_time(time)
-            ymin = self.y_min.at_time(time)
-            ymax = self.y_max.at_time(time)
             x_lo, x_hi = x_range
-            baseline_y = self.plot_y + (1 - (0 - ymin) / (ymax - ymin)) * self.plot_height if ymin <= 0 <= ymax else self.plot_y + self.plot_height
+            by = self._baseline_y(time)
             rects = []
             xv = x_lo
             while xv < x_hi - 1e-9:
                 x_next = min(xv + dx, x_hi)
-                yv = func(xv)
-                sx1 = self.plot_x + (xv - xmin) / (xmax - xmin) * self.plot_width
-                sx2 = self.plot_x + (x_next - xmin) / (xmax - xmin) * self.plot_width
-                sy = self.plot_y + (1 - (yv - ymin) / (ymax - ymin)) * self.plot_height
-                rects.append(Rectangle(width=sx2 - sx1, height=abs(baseline_y - sy),
-                                       x=sx1, y=min(sy, baseline_y),
+                sx1 = self._math_to_svg_x(xv, time)
+                sx2 = self._math_to_svg_x(x_next, time)
+                sy = self._math_to_svg_y(func(xv), time)
+                rects.append(Rectangle(width=sx2 - sx1, height=abs(by - sy),
+                                       x=sx1, y=min(sy, by),
                                        creation=time, z=z, **style_kw))
                 xv = x_next
             return VCollection(*rects, creation=time, z=z)
@@ -849,7 +1902,6 @@ class NumberPlane(VCollection):
         return (self._cx + x * self._unit, self._cy - y * self._unit)
 
 
-
 def _arrowhead(from_x, from_y, to_x, to_y, tip_length, tip_width, fill, creation, z):
     """Create a triangular arrowhead polygon pointing from (from_x,from_y) toward (to_x,to_y)."""
     dx, dy = to_x - from_x, to_y - from_y
@@ -877,6 +1929,15 @@ class Arrow(VCollection):
         super().__init__(*objects, creation=creation, z=z)
 
 
+    def get_start(self, time=0):
+        """Return the start point (x1, y1) of the arrow shaft."""
+        return self.shaft.p1.at_time(time)
+
+    def get_end(self, time=0):
+        """Return the end point (x2, y2) of the arrow shaft."""
+        return self.shaft.p2.at_time(time)
+
+
 class DoubleArrow(Arrow):
     """Double-ended arrow (shorthand for Arrow with double_ended=True)."""
     def __init__(self, x1=0, y1=0, x2=100, y2=100, tip_length=DEFAULT_ARROW_TIP_LENGTH, tip_width=DEFAULT_ARROW_TIP_WIDTH,
@@ -899,7 +1960,6 @@ class CurvedArrow(VCollection):
                      creation=creation, z=z, **shaft_style)
         tip = _arrowhead(cx, cy, x2, y2, tip_length, tip_width, tip_fill, creation, z)
         super().__init__(shaft, tip, creation=creation, z=z)
-
 
 
 def _transform_rel_svg_path(raw, m00, m01, m10, m11, tx, ty):
@@ -1075,7 +2135,6 @@ class Brace(VCollection):
         super().__init__(*objects, creation=creation, z=z)
 
 
-
 class ClipPath:
     """SVG clip path definition containing one or more shape objects."""
     def __init__(self, *objects):
@@ -1124,6 +2183,55 @@ class DropShadowFilter:
     def filter_ref(self):
         return f'url(#{self.id})'
 
+
+class LinearGradient:
+    """SVG linear gradient definition. Register with canvas.add_def().
+    Apply to objects: obj.set_style(fill='url(#gradient_id)').
+
+    stops: list of (offset, color) or (offset, color, opacity) tuples.
+           offset is 0-1 (0=start, 1=end).
+    """
+    def __init__(self, stops, x1='0%', y1='0%', x2='100%', y2='0%'):
+        self.id = f'lg{id(self)}'
+        self.stops = stops
+        self.x1, self.y1, self.x2, self.y2 = x1, y1, x2, y2
+
+    def to_svg_def(self, time=0):
+        parts = [f"<linearGradient id='{self.id}' x1='{self.x1}' y1='{self.y1}' "
+                 f"x2='{self.x2}' y2='{self.y2}'>"]
+        for stop in self.stops:
+            off, color = stop[0], stop[1]
+            opacity = stop[2] if len(stop) > 2 else 1
+            parts.append(f"<stop offset='{off}' stop-color='{color}' stop-opacity='{opacity}'/>")
+        parts.append("</linearGradient>")
+        return ''.join(parts)
+
+    def fill_ref(self):
+        return f'url(#{self.id})'
+
+
+class RadialGradient:
+    """SVG radial gradient definition. Register with canvas.add_def().
+    Apply to objects: obj.set_style(fill='url(#gradient_id)').
+
+    stops: list of (offset, color) or (offset, color, opacity) tuples.
+    """
+    def __init__(self, stops, cx='50%', cy='50%', r='50%'):
+        self.id = f'rg{id(self)}'
+        self.stops = stops
+        self.cx, self.cy, self.r = cx, cy, r
+
+    def to_svg_def(self, time=0):
+        parts = [f"<radialGradient id='{self.id}' cx='{self.cx}' cy='{self.cy}' r='{self.r}'>"]
+        for stop in self.stops:
+            off, color = stop[0], stop[1]
+            opacity = stop[2] if len(stop) > 2 else 1
+            parts.append(f"<stop offset='{off}' stop-color='{color}' stop-opacity='{opacity}'/>")
+        parts.append("</radialGradient>")
+        return ''.join(parts)
+
+    def fill_ref(self):
+        return f'url(#{self.id})'
 
 
 class Angle(VCollection):
@@ -1254,7 +2362,8 @@ class Angle(VCollection):
                 c.add_onward(start_time, (dx, dy))
             else:
                 s, e = start_time, end_time
-                c.add_onward(s, lambda t, _s=s, _e=e: (dx * easing((t-_s)/(_e-_s)), dy * easing((t-_s)/(_e-_s))), last_change=e)
+                d = max(e - s, 1e-9)
+                c.add_onward(s, lambda t, _s=s, _d=d: (dx * easing((t-_s)/_d), dy * easing((t-_s)/_d)), last_change=e)
         return self
 
 
@@ -1288,7 +2397,6 @@ class Cross(VCollection):
         l2 = Line(x1=cx - half, y1=cy + half, x2=cx + half, y2=cy - half,
                   creation=creation, z=z, **style_kw)
         super().__init__(l1, l2, creation=creation, z=z)
-
 
 
 class NumberLine(VCollection):
@@ -1336,9 +2444,38 @@ class NumberLine(VCollection):
 
     def number_to_point(self, value):
         """Convert a number on the line to an SVG (x, y) coordinate."""
-        t = (value - self.x_start) / (self.x_end - self.x_start)
+        span = self.x_end - self.x_start
+        if span == 0:
+            return (self.origin_x, self.origin_y)
+        t = (value - self.x_start) / span
         return (self.origin_x + t * self.length, self.origin_y)
 
+    def add_pointer(self, value, label=None, color='#FF6B6B', creation=0, z=1):
+        """Add a triangular pointer above the number line at *value*.
+        Returns an Arrow pointing down at the position."""
+        px, py = self.number_to_point(value)
+        arrow = Arrow(x1=px, y1=py - 50, x2=px, y2=py - 8,
+                      creation=creation, z=z, stroke=color, fill=color)
+        self.objects.append(arrow)
+        if label is not None:
+            from vectormation._shapes import Text as _Text
+            lbl = _Text(text=str(label), x=px, y=py - 58,
+                        font_size=20, fill=color, stroke_width=0,
+                        text_anchor='middle', creation=creation, z=z)
+            self.objects.append(lbl)
+        return arrow
+
+    def move_pointer(self, arrow, value, start=0, end=1, easing=None):
+        """Animate a pointer arrow to a new value on the number line."""
+        if easing is None:
+            import vectormation.easings as _easings
+            easing = _easings.smooth
+        px, py = self.number_to_point(value)
+        # Arrow is a VCollection with a line and tip; shift all to new x
+        cur_x = arrow.bbox(start)[0] + arrow.bbox(start)[2] / 2
+        dx = px - cur_x
+        arrow.shift(dx=dx, start_time=start, end_time=end, easing=easing)
+        return self
 
 
 class PieChart(VCollection):
@@ -1354,6 +2491,8 @@ class PieChart(VCollection):
             colors = ['#58C4DD', '#83C167', '#FC6255', '#FFFF00', '#9A72AC',
                       '#F0AC5F', '#C55F73', '#5CD0B3']
         total = sum(values)
+        if total == 0:
+            total = 1
         objects: list[VObject] = []
         angle = start_angle
         for i, val in enumerate(values):
@@ -1370,8 +2509,27 @@ class PieChart(VCollection):
                            text_anchor='middle', creation=creation, z=z, fill='#fff', stroke_width=0)
                 objects.append(lbl)
             angle += sweep
+        self._sectors = [o for o in objects if isinstance(o, Wedge)]
         super().__init__(*objects, creation=creation, z=z)
         self.values = values
+        self._cx, self._cy = cx, cy
+
+    def highlight_sector(self, index, start=0, end=1, pull_distance=30, easing=easings.there_and_back):
+        """Pull out a sector from the pie to highlight it."""
+        if index < 0 or index >= len(self._sectors):
+            return self
+        sector = self._sectors[index]
+        # Calculate angle bisector direction
+        sa = sector.start_angle.at_time(start) if hasattr(sector.start_angle, 'at_time') else 0
+        ea = sector.end_angle.at_time(start) if hasattr(sector.end_angle, 'at_time') else 0
+        mid_rad = math.radians((sa + ea) / 2)
+        dx = pull_distance * math.cos(mid_rad)
+        dy = -pull_distance * math.sin(mid_rad)
+        dur = end - start
+        if dur <= 0:
+            return self
+        sector.shift(dx=dx, dy=dy, start_time=start, end_time=start + dur / 2, easing=easing)
+        return self
 
 
 class BarChart(VCollection):
@@ -1388,10 +2546,16 @@ class BarChart(VCollection):
             colors = ['#58C4DD', '#83C167', '#FC6255', '#FFFF00', '#9A72AC',
                       '#F0AC5F', '#C55F73', '#5CD0B3']
         n = len(values)
+        if n == 0:
+            super().__init__(creation=creation, z=z)
+            self.values, self.bar_count, self._bars = [], 0, []
+            self._height, self._y = height, y
+            return
         max_val = max(abs(v) for v in values) if values else 1
         bar_width = width / n
         inner_width = bar_width * (1 - bar_spacing)
         objects: list[VObject] = []
+        bars: list = []
 
         for i, val in enumerate(values):
             bar_h = abs(val) / max_val * height * 0.85
@@ -1402,6 +2566,7 @@ class BarChart(VCollection):
                             creation=creation, z=z,
                             fill=color, fill_opacity=0.8, stroke_width=0)
             objects.append(bar)
+            bars.append(bar)
 
             if labels and i < len(labels):
                 lbl = Text(text=str(labels[i]),
@@ -1417,7 +2582,44 @@ class BarChart(VCollection):
         super().__init__(*objects, creation=creation, z=z)
         self.values = values
         self.bar_count = n
+        self._bars = bars
+        self._height = height
+        self._y = y
 
+    def animate_values(self, new_values, start=0, end=1, easing=easings.smooth):
+        """Animate bars to new values over [start, end]."""
+        max_val = max(abs(v) for v in new_values) if new_values else 1
+        dur = end - start
+        if dur <= 0:
+            dur = 1
+        for bar, new_val in zip(self._bars, new_values):
+            old_h = bar.height.at_time(start)
+            new_h = abs(new_val) / max_val * self._height * 0.85
+            old_y = bar.y.at_time(start)
+            new_y = self._y + self._height - new_h if new_val >= 0 else self._y + self._height
+            s, d = start, dur
+            bar.height.set(start, end, lambda t, _oh=old_h, _nh=new_h, _s=s, _d=d: _oh + (_nh - _oh) * easing((t - _s) / _d), stay=True)
+            bar.y.set(start, end, lambda t, _oy=old_y, _ny=new_y, _s=s, _d=d: _oy + (_ny - _oy) * easing((t - _s) / _d), stay=True)
+        self.values = new_values
+        return self
+
+    def set_bar_color(self, index, color, start=0, end=None, easing=easings.smooth):
+        """Change the color of a specific bar."""
+        if index < 0 or index >= len(self._bars):
+            return self
+        bar = self._bars[index]
+        if end is None:
+            bar.styling.fill = attributes.Color(start, color)
+        else:
+            bar.styling.fill.interpolate(attributes.Color(start, color), start, end, easing=easing)
+        return self
+
+    def set_bar_colors(self, colors, start=0):
+        """Change all bar colors at once."""
+        for i, color in enumerate(colors):
+            if i < len(self._bars):
+                self._bars[i].styling.fill = attributes.Color(start, color)
+        return self
 
 
 class Table(VCollection):
@@ -1483,6 +2685,31 @@ class Table(VCollection):
         """Return the Text object at (row, col) for animation."""
         return self.entries[row][col]
 
+    def get_row(self, row):
+        """Return a VCollection of all Text objects in the given row."""
+        return VCollection(*self.entries[row])
+
+    def get_column(self, col):
+        """Return a VCollection of all Text objects in the given column."""
+        return VCollection(*(row[col] for row in self.entries if col < len(row)))
+
+    def highlight_cell(self, row, col, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+        """Flash-highlight a single cell's text."""
+        self.entries[row][col].flash(start, end, color=color, easing=easing)
+        return self
+
+    def highlight_row(self, row, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+        """Flash-highlight all cells in a row."""
+        for entry in self.entries[row]:
+            entry.flash(start, end, color=color, easing=easing)
+        return self
+
+    def highlight_column(self, col, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+        """Flash-highlight all cells in a column."""
+        for row in self.entries:
+            if col < len(row):
+                row[col].flash(start, end, color=color, easing=easing)
+        return self
 
 
 class DynamicObject(VObject):
@@ -1502,7 +2729,6 @@ class DynamicObject(VObject):
 
     def bbox(self, time):
         return self._func(time).bbox(time)
-
 
 
 class Matrix(VCollection):
@@ -1561,6 +2787,13 @@ class Matrix(VCollection):
         """Return the Text object at (row, col) for animation."""
         return self.entries[row][col]
 
+    def get_row(self, row):
+        """Return a VCollection of all Text objects in the given row."""
+        return VCollection(*self.entries[row])
+
+    def get_column(self, col):
+        """Return a VCollection of all Text objects in the given column."""
+        return VCollection(*(row[col] for row in self.entries if col < len(row)))
 
 
 def _parse_svg_points(points_str):
@@ -1630,7 +2863,6 @@ def from_svg_file(filepath, creation=0, z=0, **styles):
             except (KeyError, NotImplementedError, ValueError):
                 continue
     return VCollection(*objects, creation=creation, z=z)
-
 
 
 class ZoomedInset(VObject):
@@ -1716,7 +2948,6 @@ class ZoomedInset(VObject):
             self.src_x.move_to(start, end, x, easing=easing)
             self.src_y.move_to(start, end, y, easing=easing)
         return self
-
 
 
 class _BooleanOp(VObject):
@@ -1900,7 +3131,6 @@ class Intersection(_BooleanOp):
         return (x + tx, y + ty, max(0, x2 - x), max(0, y2 - y))
 
 
-
 class Title(VCollection):
     """Centered title text at the top of the canvas.
     Accepts the same keyword args as Text (font_size, fill, etc.)."""
@@ -1916,11 +3146,1331 @@ class Title(VCollection):
         super().__init__(txt, underline, creation=creation, z=z)
 
 
+class Variable(VCollection):
+    """Display a variable label with an animated numeric value.
+
+    label: string label (e.g. 'x = ')
+    value: initial numeric value, or a Real/ValueTracker.
+    fmt: format string for the value.
+    """
+    def __init__(self, label='x', value=0, fmt='{:.2f}', x=960, y=540,
+                 font_size=48, creation=0, z=0, **styling_kwargs):
+        from vectormation._shapes import Text, DecimalNumber
+        style_kw = {'fill': '#fff', 'stroke_width': 0} | styling_kwargs
+        label_text = f'{label} = '
+        self.label = Text(label_text, x=x, y=y, font_size=font_size,
+                          text_anchor='end', creation=creation, z=z, **style_kw)
+        self.number = DecimalNumber(value, fmt=fmt, x=x, y=y,
+                                    font_size=font_size, creation=creation, z=z, **style_kw)
+        super().__init__(self.label, self.number, creation=creation, z=z)
+
+    @property
+    def tracker(self):
+        return self.number.tracker
+
+    def set_value(self, val, start=0):
+        self.number.set_value(val, start)
+        return self
+
+    def animate_value(self, target, start, end, easing=easings.smooth):
+        self.number.animate_value(target, start, end, easing)
+        return self
+
+
+class Underline(VCollection):
+    """Underline beneath a target object."""
+    def __init__(self, target, buff=4, follow=True, creation=0, z=0, **styling_kwargs):
+        style_kw = {'stroke': '#fff', 'stroke_width': 3} | styling_kwargs
+        bx, by, bw, bh = target.bbox(creation)
+        line = Line(x1=bx, y1=by + bh + buff, x2=bx + bw, y2=by + bh + buff,
+                    creation=creation, z=z, **style_kw)
+        if follow:
+            _cache = {}
+            def _bbox(t):
+                if t not in _cache:
+                    _cache.clear()
+                    _cache[t] = target.bbox(t)
+                return _cache[t]
+            line.p1.set_onward(creation, lambda t: (_bbox(t)[0], _bbox(t)[1] + _bbox(t)[3] + buff))
+            line.p2.set_onward(creation, lambda t: (_bbox(t)[0] + _bbox(t)[2], _bbox(t)[1] + _bbox(t)[3] + buff))
+        super().__init__(line, creation=creation, z=z)
+        self.line = line
+
+
+def brace_between_points(p1, p2, direction=None, label=None, buff=0, depth=18,
+                         creation=0, z=0, **styling_kwargs):
+    """Create a Brace between two arbitrary points.
+
+    If direction is None, it is inferred perpendicular to the line p1→p2.
+    Returns a Brace (VCollection).
+    """
+    from vectormation._shapes import Rectangle
+    x1, y1 = p1
+    x2, y2 = p2
+    # Build a thin invisible rect along the line
+    dx, dy = x2 - x1, y2 - y1
+    dist = math.sqrt(dx * dx + dy * dy) or 1
+    cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
+    # Determine direction
+    if direction is None:
+        # Perpendicular (pointing to the left of p1→p2)
+        nx, ny = -dy / dist, dx / dist
+        if ny > 0:
+            direction = 'down'
+        elif ny < 0:
+            direction = 'up'
+        elif nx > 0:
+            direction = 'right'
+        else:
+            direction = 'left'
+    # Create a dummy rectangle matching the span
+    if direction in ('down', 'up'):
+        dummy = Rectangle(dist, 1, x=cx - dist / 2, y=cy - 0.5, creation=creation)
+    else:
+        dummy = Rectangle(1, dist, x=cx - 0.5, y=cy - dist / 2, creation=creation)
+
+    return Brace(dummy, direction=direction, label=label, buff=buff,
+                 depth=depth, creation=creation, z=z, **styling_kwargs)
+
+
+class ArrowVectorField(VCollection):
+    """Vector field visualization using arrows.
+
+    func: callable(x, y) -> (vx, vy) returning the vector at (x, y).
+    x_range, y_range: (min, max, step) in pixel coordinates.
+    """
+    def __init__(self, func, x_range=(60, 1860, 120), y_range=(60, 1020, 120),
+                 max_length=80, creation=0, z=0, **styling_kwargs):
+        style_kw = {'stroke': '#58C4DD', 'stroke_width': 2} | styling_kwargs
+        x_min, x_max, x_step = x_range
+        y_min, y_max, y_step = y_range
+        objects = []
+        # Sample all vectors to find max magnitude for normalization
+        samples = []
+        x = x_min
+        while x <= x_max:
+            y = y_min
+            while y <= y_max:
+                vx, vy = func(x, y)
+                mag = math.sqrt(vx * vx + vy * vy)
+                samples.append((x, y, vx, vy, mag))
+                y += y_step
+            x += x_step
+        max_mag = max((s[4] for s in samples), default=1) or 1
+        for sx, sy, vx, vy, mag in samples:
+            if mag < 1e-9:
+                continue
+            scale = (mag / max_mag) * max_length
+            nvx, nvy = vx / mag * scale, vy / mag * scale
+            arrow = Arrow(x1=sx, y1=sy, x2=sx + nvx, y2=sy + nvy,
+                          tip_length=12, tip_width=10, creation=creation, z=z, **style_kw)
+            objects.append(arrow)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class ComplexPlane(Axes):
+    """Complex number plane with Re/Im axes.
+
+    Extends Axes with complex-number-specific methods.
+    """
+    def __init__(self, x_range=(-5, 5), y_range=(-5, 5),
+                 x_label='Re', y_label='Im', show_grid=True,
+                 creation=0, z=0, **kwargs):
+        super().__init__(x_range=x_range, y_range=y_range,
+                         x_label=x_label, y_label=y_label,
+                         show_grid=show_grid, creation=creation, z=z, **kwargs)
+
+    def number_to_point(self, z_val, time=0):
+        """Convert a complex number to SVG coordinates."""
+        if isinstance(z_val, complex):
+            return self.coords_to_point(z_val.real, z_val.imag, time)
+        return self.coords_to_point(float(z_val), 0, time)
+
+    def point_to_number(self, x, y, time=0):
+        """Convert SVG coordinates to a complex number."""
+        xmin, xmax, ymin, ymax = self._get_bounds(time)
+        re = xmin + (x - self.plot_x) / self.plot_width * (xmax - xmin)
+        im = ymax - (y - self.plot_y) / self.plot_height * (ymax - ymin)
+        return complex(re, im)
+
+
+class Code(VCollection):
+    """Syntax-highlighted code display.
+
+    text: the source code string.
+    language: programming language (used for color hints, basic highlighting).
+    """
+    _KEYWORD_COLORS = {
+        'python': {'def', 'class', 'return', 'if', 'else', 'elif', 'for', 'while',
+                   'import', 'from', 'in', 'not', 'and', 'or', 'with', 'as', 'try',
+                   'except', 'finally', 'raise', 'yield', 'lambda', 'pass', 'break',
+                   'continue', 'True', 'False', 'None', 'is', 'async', 'await'},
+        'javascript': {'function', 'const', 'let', 'var', 'return', 'if', 'else',
+                       'for', 'while', 'class', 'import', 'export', 'from', 'new',
+                       'this', 'async', 'await', 'try', 'catch', 'throw', 'true',
+                       'false', 'null', 'undefined', 'typeof', 'instanceof'},
+    }
+
+    def __init__(self, text, language='python', x=120, y=120, font_size=24,
+                 line_height=1.5, tab_width=4, creation=0, z=0, **styling_kwargs):
+        lines = text.strip('\n').split('\n')
+        objects = []
+        keywords = self._KEYWORD_COLORS.get(language, set())
+        bg_width = max(len(line) for line in lines) * font_size * 0.6 + 40 if lines else 200
+        bg_height = len(lines) * font_size * line_height + 20
+
+        from vectormation._shapes import RoundedRectangle
+        bg_style = {'fill': '#1e1e2e', 'fill_opacity': 0.95, 'stroke': '#444', 'stroke_width': 1} | styling_kwargs
+        bg = RoundedRectangle(bg_width, bg_height, x=x - 10, y=y - font_size - 5,
+                              corner_radius=8, creation=creation, z=z, **bg_style)
+        objects.append(bg)
+
+        for i, line in enumerate(lines):
+            ly = y + i * font_size * line_height
+            # Line number
+            ln = Text(text=f'{i+1:>3}', x=x, y=ly, font_size=font_size,
+                      creation=creation, z=z, fill='#666', stroke_width=0)
+            objects.append(ln)
+            # Code content with basic keyword highlighting
+            code_x = x + font_size * 2.5
+            expanded = line.replace('\t', ' ' * tab_width)
+            words = re.split(r'(\s+)', expanded)
+            wx = code_x
+            for word in words:
+                if not word:
+                    continue
+                if word.isspace():
+                    wx += len(word) * font_size * 0.6
+                    continue
+                color = '#c678dd' if word in keywords else '#abb2bf'
+                if word.startswith(('#', '//')):
+                    color = '#5c6370'
+                elif word.startswith(("'", '"')) or word.endswith(("'", '"')):
+                    color = '#98c379'
+                elif word.replace('.', '').replace('-', '').isdigit():
+                    color = '#d19a66'
+                t = Text(text=word, x=wx, y=ly, font_size=font_size,
+                         creation=creation, z=z, fill=color, stroke_width=0)
+                objects.append(t)
+                wx += len(word) * font_size * 0.6
+        super().__init__(*objects, creation=creation, z=z)
+        self._code_x = x
+        self._code_y = y
+        self._font_size = font_size
+        self._line_height = line_height
+        self._bg_width = bg_width
+        self._num_lines = len(lines)
+
+    def highlight_lines(self, line_nums, start=0, end=1, color='#FFFF00', opacity=0.15,
+                        easing=easings.there_and_back):
+        """Highlight specific code lines with a colored overlay.
+        line_nums: int or list of 1-based line numbers.
+        Returns the highlight rectangles (add to canvas)."""
+        if isinstance(line_nums, int):
+            line_nums = [line_nums]
+        rects = []
+        for ln in line_nums:
+            if ln < 1 or ln > self._num_lines:
+                continue
+            ry = self._code_y + (ln - 1) * self._font_size * self._line_height - self._font_size
+            rect = Rectangle(self._bg_width, self._font_size * self._line_height,
+                             x=self._code_x - 10, y=ry,
+                             creation=start, fill=color, fill_opacity=0, stroke_width=0)
+            dur = end - start
+            if dur > 0:
+                rect.styling.fill_opacity.set(start, end,
+                    lambda t, _s=start, _d=dur: opacity * easing((t - _s) / _d), stay=True)
+            rects.append(rect)
+        return VCollection(*rects) if rects else VCollection()
+
+
+class ChessBoard(VCollection):
+    """Chess board visualization.
+
+    size: pixel size of the board.
+    show_coordinates: whether to show rank/file labels.
+    """
+    _PIECE_SYMBOLS = {
+        'K': '\u2654', 'Q': '\u2655', 'R': '\u2656', 'B': '\u2657', 'N': '\u2658', 'P': '\u2659',
+        'k': '\u265a', 'q': '\u265b', 'r': '\u265c', 'b': '\u265d', 'n': '\u265e', 'p': '\u265f',
+    }
+
+    def __init__(self, fen='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR',
+                 cx=960, cy=540, size=600, show_coordinates=True,
+                 light_color='#f0d9b5', dark_color='#b58863',
+                 creation=0, z=0):
+        cell = size / 8
+        x0 = cx - size / 2
+        y0 = cy - size / 2
+        objects = []
+        self._pieces = {}
+        self._cell = cell
+        self._x0, self._y0 = x0, y0
+
+        # Draw squares
+        for row in range(8):
+            for col in range(8):
+                color = light_color if (row + col) % 2 == 0 else dark_color
+                sq = Rectangle(cell, cell, x=x0 + col * cell, y=y0 + row * cell,
+                               creation=creation, z=z,
+                               fill=color, fill_opacity=1, stroke_width=0)
+                objects.append(sq)
+
+        # Coordinate labels
+        if show_coordinates:
+            for col in range(8):
+                lbl = Text(text=chr(ord('a') + col),
+                           x=x0 + col * cell + cell / 2,
+                           y=y0 + size + 18,
+                           font_size=16, text_anchor='middle',
+                           creation=creation, z=z, fill='#aaa', stroke_width=0)
+                objects.append(lbl)
+            for row in range(8):
+                lbl = Text(text=str(8 - row),
+                           x=x0 - 14,
+                           y=y0 + row * cell + cell / 2 + 6,
+                           font_size=16, text_anchor='middle',
+                           creation=creation, z=z, fill='#aaa', stroke_width=0)
+                objects.append(lbl)
+
+        # Place pieces from FEN
+        rows = fen.split('/')
+        for row_idx, row_str in enumerate(rows):
+            col_idx = 0
+            for ch in row_str:
+                if ch.isdigit():
+                    col_idx += int(ch)
+                elif ch in self._PIECE_SYMBOLS:
+                    px = x0 + col_idx * cell + cell / 2
+                    py = y0 + row_idx * cell + cell / 2 + cell * 0.1
+                    piece = Text(text=self._PIECE_SYMBOLS[ch],
+                                 x=px, y=py, font_size=cell * 0.7,
+                                 text_anchor='middle',
+                                 creation=creation, z=z + 1,
+                                 fill='#fff' if ch.isupper() else '#222',
+                                 stroke_width=0)
+                    sq_name = chr(ord('a') + col_idx) + str(8 - row_idx)
+                    self._pieces[sq_name] = piece
+                    objects.append(piece)
+                    col_idx += 1
+
+        super().__init__(*objects, creation=creation, z=z)
+
+    def move_piece(self, from_sq, to_sq, start=0, end=1, easing=easings.smooth):
+        """Animate moving a piece from one square to another (e.g. 'e2' → 'e4')."""
+        piece = self._pieces.get(from_sq)
+        if piece is None:
+            return self
+        fc, fr = ord(from_sq[0]) - ord('a'), 8 - int(from_sq[1])
+        tc, tr = ord(to_sq[0]) - ord('a'), 8 - int(to_sq[1])
+        dx = (tc - fc) * self._cell
+        dy = (tr - fr) * self._cell
+        piece.shift(dx=dx, dy=dy, start_time=start, end_time=end, easing=easing)
+        # Update piece mapping
+        self._pieces[to_sq] = piece
+        del self._pieces[from_sq]
+        return self
+
+
+_ELEMENT_DATA = [
+    (1, 'H', 'Hydrogen', 1, 1), (2, 'He', 'Helium', 18, 1),
+    (3, 'Li', 'Lithium', 1, 2), (4, 'Be', 'Beryllium', 2, 2),
+    (5, 'B', 'Boron', 13, 2), (6, 'C', 'Carbon', 14, 2),
+    (7, 'N', 'Nitrogen', 15, 2), (8, 'O', 'Oxygen', 16, 2),
+    (9, 'F', 'Fluorine', 17, 2), (10, 'Ne', 'Neon', 18, 2),
+    (11, 'Na', 'Sodium', 1, 3), (12, 'Mg', 'Magnesium', 2, 3),
+    (13, 'Al', 'Aluminium', 13, 3), (14, 'Si', 'Silicon', 14, 3),
+    (15, 'P', 'Phosphorus', 15, 3), (16, 'S', 'Sulfur', 16, 3),
+    (17, 'Cl', 'Chlorine', 17, 3), (18, 'Ar', 'Argon', 18, 3),
+    (19, 'K', 'Potassium', 1, 4), (20, 'Ca', 'Calcium', 2, 4),
+    (21, 'Sc', 'Scandium', 3, 4), (22, 'Ti', 'Titanium', 4, 4),
+    (23, 'V', 'Vanadium', 5, 4), (24, 'Cr', 'Chromium', 6, 4),
+    (25, 'Mn', 'Manganese', 7, 4), (26, 'Fe', 'Iron', 8, 4),
+    (27, 'Co', 'Cobalt', 9, 4), (28, 'Ni', 'Nickel', 10, 4),
+    (29, 'Cu', 'Copper', 11, 4), (30, 'Zn', 'Zinc', 12, 4),
+    (31, 'Ga', 'Gallium', 13, 4), (32, 'Ge', 'Germanium', 14, 4),
+    (33, 'As', 'Arsenic', 15, 4), (34, 'Se', 'Selenium', 16, 4),
+    (35, 'Br', 'Bromine', 17, 4), (36, 'Kr', 'Krypton', 18, 4),
+]
+
+_CATEGORY_COLORS = {
+    'nonmetal': '#58C4DD', 'noble_gas': '#9A72AC', 'alkali': '#FC6255',
+    'alkaline': '#F0AC5F', 'metalloid': '#5CD0B3', 'halogen': '#FFFF00',
+    'transition': '#C55F73', 'post_transition': '#83C167',
+}
+
+def _element_category(z):
+    if z in (1, 6, 7, 8, 15, 16, 34): return 'nonmetal'
+    if z in (2, 10, 18, 36): return 'noble_gas'
+    if z in (3, 11, 19): return 'alkali'
+    if z in (4, 12, 20): return 'alkaline'
+    if z in (5, 14, 32, 33): return 'metalloid'
+    if z in (9, 17, 35): return 'halogen'
+    if 21 <= z <= 30: return 'transition'
+    return 'post_transition'
+
+
+class PeriodicTable(VCollection):
+    """Periodic table of elements (first 36 elements).
+
+    cell_size: pixel size of each element cell.
+    """
+    def __init__(self, cx=960, cy=540, cell_size=48, creation=0, z=0):
+        objects = []
+        total_w = 18 * cell_size
+        total_h = 4 * cell_size
+        x0 = cx - total_w / 2
+        y0 = cy - total_h / 2
+
+        self._cells = {}
+        for atomic_num, symbol, _name, col, row in _ELEMENT_DATA:
+            cat = _element_category(atomic_num)
+            color = _CATEGORY_COLORS.get(cat, '#888')
+            ex = x0 + (col - 1) * cell_size
+            ey = y0 + (row - 1) * cell_size
+            bg = Rectangle(cell_size - 2, cell_size - 2, x=ex + 1, y=ey + 1,
+                           creation=creation, z=z,
+                           fill=color, fill_opacity=0.3, stroke=color, stroke_width=1)
+            objects.append(bg)
+            num_t = Text(text=str(atomic_num), x=ex + 4, y=ey + 12,
+                         font_size=10, creation=creation, z=z,
+                         fill='#aaa', stroke_width=0)
+            objects.append(num_t)
+            sym_t = Text(text=symbol, x=ex + cell_size / 2, y=ey + cell_size / 2 + 4,
+                         font_size=18, text_anchor='middle',
+                         creation=creation, z=z, fill='#fff', stroke_width=0)
+            objects.append(sym_t)
+            self._cells[symbol] = (bg, num_t, sym_t)
+
+        super().__init__(*objects, creation=creation, z=z)
+
+    def highlight(self, symbol, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+        """Highlight an element by symbol."""
+        if symbol in self._cells:
+            bg, _, sym = self._cells[symbol]
+            bg.indicate(start, end, easing=easing)
+            sym.flash(start, end, color=color, easing=easing)
+        return self
+
+
+class BohrAtom(VCollection):
+    """Bohr model of an atom with electron shells.
+
+    protons: number of protons (atomic number).
+    neutrons: number of neutrons.
+    electrons: list of electrons per shell, e.g. [2, 8, 1] for sodium.
+    """
+    def __init__(self, protons=1, neutrons=0, electrons=None, cx=960, cy=540,
+                 nucleus_r=30, shell_spacing=40, creation=0, z=0):
+        from vectormation._shapes import Circle, Dot, Text
+        objects = []
+
+        # Nucleus
+        nucleus = Circle(r=nucleus_r, cx=cx, cy=cy, creation=creation, z=z + 1,
+                         fill='#FC6255', fill_opacity=0.8, stroke='#fff', stroke_width=2)
+        objects.append(nucleus)
+        nucleus_text = f'{protons}p\u207a' if neutrons == 0 else f'{protons}p {neutrons}n'
+        label = Text(text=nucleus_text, x=cx, y=cy + 6,
+                     font_size=max(10, nucleus_r * 0.5), text_anchor='middle',
+                     creation=creation, z=z + 2, fill='#fff', stroke_width=0)
+        objects.append(label)
+
+        if electrons is None:
+            # Auto-fill shells: 2, 8, 8, 18, ...
+            remaining = protons
+            electrons = []
+            for cap in [2, 8, 8, 18, 18, 32]:
+                if remaining <= 0:
+                    break
+                electrons.append(min(remaining, cap))
+                remaining -= electrons[-1]
+
+        # Electron shells
+        self._electron_dots = []
+        for shell_idx, n_electrons in enumerate(electrons):
+            r = nucleus_r + (shell_idx + 1) * shell_spacing
+            orbit = Circle(r=r, cx=cx, cy=cy, creation=creation, z=z,
+                           fill_opacity=0, stroke='#58C4DD', stroke_width=1, stroke_opacity=0.4)
+            objects.append(orbit)
+            for e in range(n_electrons):
+                angle = 2 * math.pi * e / n_electrons
+                ex = cx + r * math.cos(angle)
+                ey = cy - r * math.sin(angle)
+                dot = Dot(r=5, cx=ex, cy=ey, creation=creation, z=z + 1,
+                          fill='#58C4DD', fill_opacity=1)
+                objects.append(dot)
+                self._electron_dots.append(dot)
+
+        super().__init__(*objects, creation=creation, z=z)
+
+    def orbit(self, start=0, end=None, speed=45):
+        """Animate all electrons orbiting around the nucleus."""
+        for dot in self._electron_dots:
+            dot.always_rotate(start=start, end=end, degrees_per_second=speed)
+        return self
+
+
+class Automaton(VCollection):
+    """Finite state machine / automaton visualization.
+
+    states: list of state names, e.g. ['q0', 'q1', 'q2']
+    transitions: list of (from_state, to_state, label) tuples
+    accept_states: set of accepting state names (drawn with double circle)
+    initial_state: name of the initial state (gets an incoming arrow)
+    """
+    def __init__(self, states, transitions, accept_states=None, initial_state=None,
+                 cx=960, cy=540, radius=300, state_r=35, font_size=20,
+                 creation=0, z=0):
+        from vectormation._shapes import Circle, Text
+        objects = []
+        accept_states = accept_states or set()
+        n = len(states)
+        self._state_positions = {}
+        self._state_circles = {}
+        if n == 0:
+            super().__init__(creation=creation, z=z)
+            return
+
+        # Arrange states in a circle
+        for i, name in enumerate(states):
+            angle = 2 * math.pi * i / n - math.pi / 2
+            sx = cx + radius * math.cos(angle)
+            sy = cy + radius * math.sin(angle)
+            self._state_positions[name] = (sx, sy)
+
+            circle = Circle(r=state_r, cx=sx, cy=sy, creation=creation, z=z,
+                            fill='#1e1e2e', fill_opacity=0.9, stroke='#58C4DD', stroke_width=2)
+            objects.append(circle)
+            self._state_circles[name] = circle
+
+            if name in accept_states:
+                inner = Circle(r=state_r - 5, cx=sx, cy=sy, creation=creation, z=z,
+                               fill_opacity=0, stroke='#58C4DD', stroke_width=2)
+                objects.append(inner)
+
+            label = Text(text=name, x=sx, y=sy + font_size * 0.35,
+                         font_size=font_size, text_anchor='middle',
+                         creation=creation, z=z + 1, fill='#fff', stroke_width=0)
+            objects.append(label)
+
+        # Initial state arrow
+        if initial_state and initial_state in self._state_positions:
+            sx, sy = self._state_positions[initial_state]
+            objects.append(Arrow(x1=sx - state_r - 50, y1=sy, x2=sx - state_r - 2, y2=sy,
+                                 tip_length=12, tip_width=10,
+                                 creation=creation, z=z, stroke='#fff', stroke_width=2))
+
+        # Transitions
+        for from_s, to_s, label_text in transitions:
+            if from_s not in self._state_positions or to_s not in self._state_positions:
+                continue
+            fx, fy = self._state_positions[from_s]
+            tx, ty = self._state_positions[to_s]
+
+            if from_s == to_s:
+                # Self-loop: arc above the state
+                loop_r = state_r * 0.8
+                loop = Arc(cx=fx, cy=fy - state_r - loop_r, r=loop_r,
+                           start_angle=210, end_angle=330,
+                           creation=creation, z=z, stroke='#83C167', stroke_width=2)
+                objects.append(loop)
+                lbl = Text(text=label_text, x=fx, y=fy - state_r - loop_r * 2 - 8,
+                           font_size=font_size * 0.8, text_anchor='middle',
+                           creation=creation, z=z + 1, fill='#83C167', stroke_width=0)
+                objects.append(lbl)
+            else:
+                dx, dy = tx - fx, ty - fy
+                dist = math.sqrt(dx * dx + dy * dy) or 1
+                ux, uy = dx / dist, dy / dist
+                # Shorten to circle edges
+                sx, sy = fx + ux * state_r, fy + uy * state_r
+                ex, ey = tx - ux * state_r, ty - uy * state_r
+                arrow = Arrow(x1=sx, y1=sy, x2=ex, y2=ey,
+                              tip_length=12, tip_width=10,
+                              creation=creation, z=z, stroke='#83C167', stroke_width=2)
+                objects.append(arrow)
+                mx, my = (sx + ex) / 2, (sy + ey) / 2
+                # Offset label perpendicular to arrow
+                px, py = -uy * 15, ux * 15
+                lbl = Text(text=label_text, x=mx + px, y=my + py + font_size * 0.35,
+                           font_size=font_size * 0.8, text_anchor='middle',
+                           creation=creation, z=z + 1, fill='#83C167', stroke_width=0)
+                objects.append(lbl)
+
+        super().__init__(*objects, creation=creation, z=z)
+
+    def highlight_state(self, state_name, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+        """Highlight a state by flashing its circle."""
+        if state_name in self._state_circles:
+            self._state_circles[state_name].flash(start, end, color=color, easing=easing)
+        return self
+
+
+class NetworkGraph(VCollection):
+    """Network/graph visualization with nodes and edges.
+
+    nodes: dict mapping node_id -> label string, or a list of labels.
+    edges: list of (from_id, to_id) or (from_id, to_id, label) tuples.
+    layout: 'circular', 'spring', or 'grid'.
+    directed: whether to draw arrows (True) or lines (False).
+    """
+    def __init__(self, nodes, edges=None, cx=960, cy=540, radius=300,
+                 node_r=30, font_size=20, layout='circular', directed=False,
+                 creation=0, z=0):
+        from vectormation._shapes import Circle, Text, Line as SLine
+        objects = []
+        edges = edges or []
+
+        # Normalize nodes to dict
+        if isinstance(nodes, (list, tuple)):
+            nodes = {i: str(v) for i, v in enumerate(nodes)}
+
+        node_ids = list(nodes.keys())
+        n = len(node_ids)
+        self._node_positions = {}
+        self._node_circles = {}
+        if n == 0:
+            super().__init__(creation=creation, z=z)
+            return
+
+        # Layout
+        if layout == 'circular':
+            for i, nid in enumerate(node_ids):
+                angle = 2 * math.pi * i / max(n, 1) - math.pi / 2
+                nx = cx + radius * math.cos(angle)
+                ny = cy + radius * math.sin(angle)
+                self._node_positions[nid] = (nx, ny)
+        elif layout == 'grid':
+            cols = max(1, int(math.ceil(math.sqrt(n))))
+            spacing = radius * 2 / max(cols - 1, 1) if cols > 1 else 0
+            x0 = cx - (cols - 1) * spacing / 2
+            y0 = cy - ((n - 1) // cols) * spacing / 2
+            for i, nid in enumerate(node_ids):
+                r, c = divmod(i, cols)
+                self._node_positions[nid] = (x0 + c * spacing, y0 + r * spacing)
+        else:  # spring (simple force-directed, few iterations)
+            import random
+            rng = random.Random(42)
+            pos = {nid: (cx + rng.uniform(-radius, radius), cy + rng.uniform(-radius, radius))
+                   for nid in node_ids}
+            for _ in range(50):
+                forces = {nid: [0.0, 0.0] for nid in node_ids}
+                # Repulsion
+                for i, a in enumerate(node_ids):
+                    for b in node_ids[i + 1:]:
+                        dx = pos[a][0] - pos[b][0]
+                        dy = pos[a][1] - pos[b][1]
+                        d = math.sqrt(dx * dx + dy * dy) + 1
+                        f = 5000 / (d * d)
+                        forces[a][0] += f * dx / d
+                        forces[a][1] += f * dy / d
+                        forces[b][0] -= f * dx / d
+                        forces[b][1] -= f * dy / d
+                # Attraction (edges)
+                for edge in edges:
+                    a, b = edge[0], edge[1]
+                    if a not in pos or b not in pos:
+                        continue
+                    dx = pos[b][0] - pos[a][0]
+                    dy = pos[b][1] - pos[a][1]
+                    d = math.sqrt(dx * dx + dy * dy) + 1
+                    f = d * 0.01
+                    forces[a][0] += f * dx / d
+                    forces[a][1] += f * dy / d
+                    forces[b][0] -= f * dx / d
+                    forces[b][1] -= f * dy / d
+                for nid in node_ids:
+                    pos[nid] = (pos[nid][0] + forces[nid][0] * 0.1,
+                                pos[nid][1] + forces[nid][1] * 0.1)
+            # Center the layout
+            avg_x = sum(p[0] for p in pos.values()) / n if n else cx
+            avg_y = sum(p[1] for p in pos.values()) / n if n else cy
+            for nid in node_ids:
+                self._node_positions[nid] = (pos[nid][0] - avg_x + cx,
+                                             pos[nid][1] - avg_y + cy)
+
+        # Draw edges
+        for edge in edges:
+            a, b = edge[0], edge[1]
+            label = edge[2] if len(edge) > 2 else None
+            if a not in self._node_positions or b not in self._node_positions:
+                continue
+            ax, ay = self._node_positions[a]
+            bx, by = self._node_positions[b]
+            if directed:
+                dx, dy = bx - ax, by - ay
+                d = math.sqrt(dx * dx + dy * dy) or 1
+                # Shorten to not overlap circles
+                ax2 = ax + dx / d * node_r
+                ay2 = ay + dy / d * node_r
+                bx2 = bx - dx / d * node_r
+                by2 = by - dy / d * node_r
+                arrow = Arrow(x1=ax2, y1=ay2, x2=bx2, y2=by2,
+                              tip_length=12, tip_width=10,
+                              creation=creation, z=z, stroke='#888', stroke_width=2)
+                objects.append(arrow)
+            else:
+                line = SLine(x1=ax, y1=ay, x2=bx, y2=by,
+                             creation=creation, z=z, stroke='#888', stroke_width=2)
+                objects.append(line)
+            if label:
+                mx, my = (ax + bx) / 2, (ay + by) / 2
+                lbl = Text(text=str(label), x=mx, y=my - 10,
+                           font_size=font_size * 0.8, text_anchor='middle',
+                           creation=creation, z=z + 2, fill='#aaa', stroke_width=0)
+                objects.append(lbl)
+
+        # Draw nodes
+        for nid in node_ids:
+            nx, ny = self._node_positions[nid]
+            circle = Circle(r=node_r, cx=nx, cy=ny, creation=creation, z=z + 1,
+                            fill='#1e1e2e', fill_opacity=0.9, stroke='#58C4DD', stroke_width=2)
+            objects.append(circle)
+            self._node_circles[nid] = circle
+            lbl_text = str(nodes[nid])
+            lbl = Text(text=lbl_text, x=nx, y=ny + font_size * 0.35,
+                       font_size=font_size, text_anchor='middle',
+                       creation=creation, z=z + 2, fill='#fff', stroke_width=0)
+            objects.append(lbl)
+
+        super().__init__(*objects, creation=creation, z=z)
+
+    def highlight_node(self, node_id, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+        """Flash-highlight a node by its ID."""
+        if node_id in self._node_circles:
+            self._node_circles[node_id].flash(start, end, color=color, easing=easing)
+        return self
+
+    def get_node_position(self, node_id):
+        """Get the (x, y) position of a node."""
+        return self._node_positions.get(node_id, (960, 540))
+
+
+class Label(VCollection):
+    """Text label with a surrounding box/frame for annotations."""
+    def __init__(self, text, x=960, y=540, font_size=36, padding=10,
+                 corner_radius=4, creation=0, z=0, **styling_kwargs):
+        from vectormation._shapes import Text, RoundedRectangle
+        style_kw = {'fill': '#fff', 'stroke_width': 0} | styling_kwargs
+        txt = Text(text=text, x=x, y=y, font_size=font_size,
+                   text_anchor='middle', creation=creation, z=z + 1, **style_kw)
+        _, _, tw, th = txt.bbox(creation)
+        bg = RoundedRectangle(tw + 2 * padding, th + 2 * padding,
+                              x=x - tw / 2 - padding, y=y - th - padding + 4,
+                              corner_radius=corner_radius, creation=creation, z=z,
+                              fill='#1e1e2e', fill_opacity=0.9, stroke='#555', stroke_width=1)
+        super().__init__(bg, txt, creation=creation, z=z)
+
+
+class LabeledArrow(VCollection):
+    """Arrow with a text label placed at its midpoint."""
+    def __init__(self, x1=860, y1=540, x2=1060, y2=540, label='',
+                 font_size=24, label_buff=10, creation=0, z=0, **styling_kwargs):
+        from vectormation._shapes import Text
+        style_kw = {'stroke': '#fff', 'stroke_width': 3} | styling_kwargs
+        arrow = Arrow(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z, **style_kw)
+        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+        dx, dy = x2 - x1, y2 - y1
+        dist = math.sqrt(dx * dx + dy * dy) or 1
+        # Perpendicular offset for the label
+        nx, ny = -dy / dist * label_buff, dx / dist * label_buff
+        lbl = Text(text=label, x=mx + nx, y=my + ny + font_size * 0.35,
+                   font_size=font_size, text_anchor='middle',
+                   creation=creation, z=z + 1, fill='#fff', stroke_width=0)
+        super().__init__(arrow, lbl, creation=creation, z=z)
+        self.arrow = arrow
+        self.label_obj = lbl
+
+
+class StreamLines(VCollection):
+    """Animated flow lines for a vector field.
+
+    func: callable(x, y) -> (vx, vy).
+    Draws streamlines by integrating the field using Euler steps.
+    """
+    def __init__(self, func, x_range=(60, 1860, 200), y_range=(60, 1020, 200),
+                 n_steps=40, step_size=5, creation=0, z=0, **styling_kwargs):
+        from vectormation._shapes import Lines
+        style_kw = {'stroke': '#58C4DD', 'stroke_width': 2, 'fill_opacity': 0} | styling_kwargs
+        x_min, x_max, x_step = x_range
+        y_min, y_max, y_step = y_range
+        objects = []
+        x = x_min
+        while x <= x_max:
+            y = y_min
+            while y <= y_max:
+                pts = [(x, y)]
+                cx, cy = x, y
+                for _ in range(n_steps):
+                    vx, vy = func(cx, cy)
+                    mag = math.sqrt(vx * vx + vy * vy)
+                    if mag < 1e-9:
+                        break
+                    cx += vx / mag * step_size
+                    cy += vy / mag * step_size
+                    if cx < 0 or cx > 1920 or cy < 0 or cy > 1080:
+                        break
+                    pts.append((cx, cy))
+                if len(pts) > 1:
+                    line = Lines(*pts, creation=creation, z=z, **style_kw)
+                    objects.append(line)
+                y += y_step
+            x += x_step
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class PolarAxes(VCollection):
+    """Polar coordinate system with radial gridlines and angle markers.
+
+    r_range: (min, max) radius in abstract units.
+    n_rings: number of concentric rings.
+    n_sectors: number of angular sectors (lines from center).
+    """
+    def __init__(self, cx=960, cy=540, max_radius=400, r_range=(0, 5),
+                 n_rings=5, n_sectors=12, creation=0, z=0):
+        from vectormation._shapes import Circle, Line, Text
+        objects = []
+        self._cx, self._cy = cx, cy
+        self._max_radius = max_radius
+        self._r_max = r_range[1]
+        self._r_min = r_range[0]
+        r_span = r_range[1] - r_range[0]
+        px_per_unit = max_radius / r_span if r_span > 0 else 1
+
+        # Concentric rings
+        for i in range(1, max(n_rings, 1) + 1):
+            r_val = r_range[0] + i * r_span / max(n_rings, 1)
+            r_px = (r_val - r_range[0]) * px_per_unit
+            ring = Circle(r=r_px, cx=cx, cy=cy, creation=creation, z=z,
+                          stroke='#444', stroke_width=1, fill_opacity=0)
+            objects.append(ring)
+            label = Text(text=f'{r_val:g}', x=cx + r_px + 5, y=cy - 5,
+                         font_size=14, creation=creation, z=z, fill='#666', stroke_width=0)
+            objects.append(label)
+
+        # Angular sector lines
+        n_sectors = max(n_sectors, 1)
+        for i in range(n_sectors):
+            angle = 2 * math.pi * i / n_sectors
+            ex = cx + max_radius * math.cos(angle)
+            ey = cy - max_radius * math.sin(angle)
+            line = Line(x1=cx, y1=cy, x2=ex, y2=ey,
+                        creation=creation, z=z, stroke='#444', stroke_width=1)
+            objects.append(line)
+            # Angle label
+            deg = round(360 * i / n_sectors)
+            lx = cx + (max_radius + 20) * math.cos(angle)
+            ly = cy - (max_radius + 20) * math.sin(angle)
+            lbl = Text(text=f'{deg}\u00b0', x=lx, y=ly + 5,
+                       font_size=14, text_anchor='middle',
+                       creation=creation, z=z, fill='#888', stroke_width=0)
+            objects.append(lbl)
+
+        super().__init__(*objects, creation=creation, z=z)
+        self._px_per_unit = px_per_unit
+
+    def polar_to_point(self, r, theta_deg):
+        """Convert (r, theta) to SVG pixel coordinates."""
+        theta = math.radians(theta_deg)
+        px = (r - self._r_min) * self._px_per_unit
+        return (self._cx + px * math.cos(theta),
+                self._cy - px * math.sin(theta))
+
+    def plot_polar(self, func, theta_range=(0, 360), num_points=200,
+                   creation=0, z=0, **styling_kwargs):
+        """Plot r = func(theta_deg) on this polar axes."""
+        from vectormation._shapes import Lines
+        style_kw = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
+        t0, t1 = theta_range
+        num_points = max(1, num_points)
+        pts = []
+        for i in range(num_points + 1):
+            theta = t0 + i * (t1 - t0) / num_points
+            r = func(theta)
+            pts.append(self.polar_to_point(r, theta))
+        curve = Lines(*pts, creation=creation, z=z, **style_kw)
+        self.objects.append(curve)
+        return curve
+
+
+class Callout(VCollection):
+    """Text callout with a pointer line to a target position.
+
+    text: annotation text.
+    target: (x, y) tuple or VObject to point to.
+    direction: 'up', 'down', 'left', 'right' — where the callout box sits relative to target.
+    """
+    def __init__(self, text, target, direction='up', distance=80, font_size=24,
+                 padding=8, corner_radius=4, creation=0, z=0, **styling_kwargs):
+        from vectormation._shapes import Text as SText, RoundedRectangle, Line as SLine
+
+        # Resolve target position
+        if hasattr(target, 'bbox'):
+            bx, by, bw, bh = target.bbox(creation)
+            tx, ty = bx + bw / 2, by + bh / 2
+        else:
+            tx, ty = target
+
+        # Position the label box
+        offsets = {'up': (0, -distance), 'down': (0, distance),
+                   'left': (-distance, 0), 'right': (distance, 0)}
+        ox, oy = offsets.get(direction, (0, -distance))
+        lx, ly = tx + ox, ty + oy
+
+        style_kw = {'fill': '#fff', 'stroke_width': 0} | styling_kwargs
+        lbl = SText(text=text, x=lx, y=ly, font_size=font_size,
+                    text_anchor='middle', creation=creation, z=z + 2, **style_kw)
+        _, _, tw, th = lbl.bbox(creation)
+        bg = RoundedRectangle(tw + 2 * padding, th + 2 * padding,
+                              x=lx - tw / 2 - padding, y=ly - th - padding + 4,
+                              corner_radius=corner_radius, creation=creation, z=z + 1,
+                              fill='#1e1e2e', fill_opacity=0.9, stroke='#555', stroke_width=1)
+        pointer = SLine(x1=tx, y1=ty, x2=lx, y2=ly - th / 2 if direction == 'up' else ly + th / 2 if direction == 'down' else ly,
+                        creation=creation, z=z, stroke='#888', stroke_width=1)
+        super().__init__(pointer, bg, lbl, creation=creation, z=z)
+
+
+class DimensionLine(VCollection):
+    """Technical dimension line between two points with measurement label.
+
+    p1, p2: (x, y) endpoints.
+    label: text label (default: auto-calculated pixel distance).
+    offset: perpendicular offset from the line between p1 and p2.
+    """
+    def __init__(self, p1, p2, label=None, offset=30, font_size=20,
+                 tick_size=10, creation=0, z=0, **styling_kwargs):
+        from vectormation._shapes import Text as SText, Line as SLine
+        x1, y1 = p1
+        x2, y2 = p2
+        dx, dy = x2 - x1, y2 - y1
+        length = math.sqrt(dx * dx + dy * dy) or 1
+        # Perpendicular unit vector
+        nx, ny = -dy / length * offset, dx / length * offset
+        # Offset endpoints
+        ox1, oy1 = x1 + nx, y1 + ny
+        ox2, oy2 = x2 + nx, y2 + ny
+
+        style_kw = {'stroke': '#aaa', 'stroke_width': 1} | styling_kwargs
+
+        # Main dimension line
+        main = SLine(x1=ox1, y1=oy1, x2=ox2, y2=oy2, creation=creation, z=z, **style_kw)
+        # Extension lines (ticks from original points to dimension line)
+        ext1 = SLine(x1=x1, y1=y1, x2=ox1 + nx * 0.3, y2=oy1 + ny * 0.3,
+                     creation=creation, z=z, **style_kw)
+        ext2 = SLine(x1=x2, y1=y2, x2=ox2 + nx * 0.3, y2=oy2 + ny * 0.3,
+                     creation=creation, z=z, **style_kw)
+        # Tick marks at ends of dimension line
+        tnx, tny = -dy / length * tick_size / 2, dx / length * tick_size / 2
+        tick1 = SLine(x1=ox1 - tnx, y1=oy1 - tny, x2=ox1 + tnx, y2=oy1 + tny,
+                      creation=creation, z=z, **style_kw)
+        tick2 = SLine(x1=ox2 - tnx, y1=oy2 - tny, x2=ox2 + tnx, y2=oy2 + tny,
+                      creation=creation, z=z, **style_kw)
+
+        # Label
+        if label is None:
+            label = f'{length:.0f}'
+        mx, my = (ox1 + ox2) / 2, (oy1 + oy2) / 2
+        lbl = SText(text=str(label), x=mx + nx * 0.5, y=my + ny * 0.5,
+                    font_size=font_size, text_anchor='middle',
+                    creation=creation, z=z + 1, fill='#aaa', stroke_width=0)
+        super().__init__(main, ext1, ext2, tick1, tick2, lbl, creation=creation, z=z)
+
+
+class Tooltip(VCollection):
+    """Small animated tooltip that appears and disappears near a target.
+
+    text: tooltip text.
+    target: (x, y) tuple or VObject.
+    """
+    def __init__(self, text, target, start=0, duration=1.5, font_size=18,
+                 padding=6, creation=0, z=10, **styling_kwargs):
+        from vectormation._shapes import Text as SText, RoundedRectangle
+        if hasattr(target, 'bbox'):
+            bx, by, bw, bh = target.bbox(creation)
+            tx, ty = bx + bw / 2, by
+        else:
+            tx, ty = target
+
+        style_kw = {'fill': '#fff', 'stroke_width': 0} | styling_kwargs
+        lbl = SText(text=text, x=tx, y=ty - 20, font_size=font_size,
+                    text_anchor='middle', creation=creation, z=z + 1, **style_kw)
+        _, _, tw, th = lbl.bbox(creation)
+        bg = RoundedRectangle(tw + 2 * padding, th + 2 * padding,
+                              x=tx - tw / 2 - padding, y=ty - 20 - th - padding + 4,
+                              corner_radius=4, creation=creation, z=z,
+                              fill='#333', fill_opacity=0.9, stroke='#666', stroke_width=1)
+        super().__init__(bg, lbl, creation=creation, z=z)
+        # Auto-animate: fade in, hold, fade out
+        if duration <= 0:
+            duration = 0.1
+        fade_time = min(0.3, duration / 3)
+        self.fadein(start, start + fade_time)
+        self.fadeout(start + duration - fade_time, start + duration)
+
+
+class Tree(VCollection):
+    """Hierarchical tree layout visualization.
+
+    data: nested dict like {'root': {'child1': {}, 'child2': {'leaf': {}}}}
+          or a tuple tree: ('root', [('child1', []), ('child2', [('leaf', [])])])
+    layout: 'down' (root at top) or 'right' (root at left).
+    """
+    def __init__(self, data, cx=960, cy=100, h_spacing=120, v_spacing=100,
+                 node_r=20, font_size=18, layout='down',
+                 creation=0, z=0):
+        from vectormation._shapes import Circle, Text as SText, Line as SLine
+        objects = []
+
+        # Normalize data to (label, children) format
+        if isinstance(data, dict):
+            data = self._dict_to_tree(data)
+
+        # Use id(node_tuple) as key to handle duplicate labels
+        positions = {}   # id(node) -> (x, y)
+        labels = {}      # id(node) -> label string
+        widths = {}      # id(node) -> subtree width
+        node_map = {}    # label -> id(node) (first occurrence, for API)
+
+        self._collect_nodes(data, labels, node_map)
+        self._calc_widths(data, widths, h_spacing)
+        self._layout(data, cx, cy, widths, h_spacing, v_spacing, positions, layout)
+
+        # Draw edges
+        self._draw_edges_impl(data, positions, objects, creation, z, SLine)
+
+        # Draw nodes (skip empty-label nodes)
+        self._node_objects = {}
+        self._positions_by_label = {}
+        for node_tuple, (nx, ny) in [(n, positions[id(n)]) for n in self._all_nodes(data) if id(n) in positions]:
+            label = node_tuple[0]
+            if not label:
+                continue
+            circle = Circle(r=node_r, cx=nx, cy=ny, creation=creation, z=z + 1,
+                            fill='#1e1e2e', fill_opacity=0.9, stroke='#58C4DD', stroke_width=2)
+            objects.append(circle)
+            nid = id(node_tuple)
+            self._node_objects[nid] = circle
+            if label not in self._positions_by_label:
+                self._positions_by_label[label] = (nx, ny)
+                self._node_objects[label] = circle  # label-based lookup (first occurrence)
+            lbl = SText(text=str(label), x=nx, y=ny + font_size * 0.35,
+                        font_size=font_size, text_anchor='middle',
+                        creation=creation, z=z + 2, fill='#fff', stroke_width=0)
+            objects.append(lbl)
+
+        super().__init__(*objects, creation=creation, z=z)
+
+    @staticmethod
+    def _all_nodes(node):
+        """Yield all nodes in pre-order."""
+        yield node
+        for child in node[1]:
+            yield from Tree._all_nodes(child)
+
+    @staticmethod
+    def _collect_nodes(node, labels, node_map):
+        label = node[0]
+        labels[id(node)] = label
+        if label and label not in node_map:
+            node_map[label] = id(node)
+        for child in node[1]:
+            Tree._collect_nodes(child, labels, node_map)
+
+    @staticmethod
+    def _dict_to_tree(d):
+        """Convert dict tree to tuple tree."""
+        if not d:
+            return ('', [])
+        key = next(iter(d))
+        children = d[key]
+        if isinstance(children, dict):
+            return (key, [Tree._dict_to_tree({k: v}) for k, v in children.items()])
+        return (key, [])
+
+    @staticmethod
+    def _calc_widths(node, widths, spacing):
+        if not node[1]:
+            widths[id(node)] = spacing
+        else:
+            total = 0
+            for child in node[1]:
+                Tree._calc_widths(child, widths, spacing)
+                total += widths[id(child)]
+            widths[id(node)] = max(total, spacing)
+
+    @staticmethod
+    def _layout(node, x, y, widths, h_spacing, v_spacing, positions, layout):
+        positions[id(node)] = (x, y)
+        children = node[1]
+        if not children:
+            return
+        total_w = sum(widths[id(c)] for c in children)
+        cur = x - total_w / 2
+        for child in children:
+            cw = widths[id(child)]
+            child_x = cur + cw / 2
+            if layout == 'down':
+                Tree._layout(child, child_x, y + v_spacing, widths, h_spacing, v_spacing, positions, layout)
+            else:
+                Tree._layout(child, x + v_spacing, child_x, widths, h_spacing, v_spacing, positions, layout)
+            cur += cw
+
+    @staticmethod
+    def _draw_edges_impl(node, positions, objects, creation, z, LineClass):
+        px, py = positions[id(node)]
+        for child in node[1]:
+            if id(child) in positions:
+                ccx, ccy = positions[id(child)]
+                objects.append(LineClass(x1=px, y1=py, x2=ccx, y2=ccy,
+                                        creation=creation, z=z, stroke='#888', stroke_width=2))
+            Tree._draw_edges_impl(child, positions, objects, creation, z, LineClass)
+
+    def get_node_position(self, label):
+        """Get (x, y) position of a node by label (first occurrence if duplicates)."""
+        return self._positions_by_label.get(label, (960, 540))
+
+    def highlight_node(self, label, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+        """Flash-highlight a node by label."""
+        if label in self._node_objects:
+            self._node_objects[label].flash(start, end, color=color, easing=easing)
+        return self
+
 
 def always_redraw(func, creation=0, z=0):
     """Convenience wrapper: create a DynamicObject from a callable.
     func(time) should return a VObject."""
     return DynamicObject(func, creation=creation, z=z)
+
+
+class Stamp(VCollection):
+    """Place copies of a template object at specified positions.
+
+    template: the VObject to copy.
+    points: list of (x, y) positions to place copies at.
+    """
+    def __init__(self, template, points, creation=0, z=0):
+        from copy import deepcopy
+        objects = []
+        for px, py in points:
+            c = deepcopy(template)
+            bx, by, bw, bh = c.bbox(creation)
+            cx, cy = bx + bw / 2, by + bh / 2
+            c.shift(dx=px - cx, dy=py - cy, start_time=creation)
+            objects.append(c)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class TimelineBar(VCollection):
+    """Visual timeline bar with labeled markers.
+
+    markers: dict of {time_val: label} pairs.
+    total_duration: the max time value represented.
+    """
+    def __init__(self, markers, total_duration=10, x=200, y=900,
+                 width=1520, height=6, marker_color='#FFFF00',
+                 font_size=14, creation=0, z=0):
+        from vectormation._shapes import Rectangle, Line, Text, Circle
+        objects = []
+        # Track bar
+        track = Rectangle(width, height, x=x, y=y - height / 2,
+                          fill='#444', fill_opacity=0.8, stroke_width=0,
+                          creation=creation, z=z)
+        objects.append(track)
+        # Markers
+        if total_duration <= 0:
+            total_duration = 1
+        for t_val, label in markers.items():
+            frac = t_val / total_duration
+            mx = x + frac * width
+            tick = Line(x1=mx, y1=y - 15, x2=mx, y2=y + 15,
+                        stroke=marker_color, stroke_width=2,
+                        creation=creation, z=z + 0.1)
+            dot = Circle(r=4, cx=mx, cy=y, fill=marker_color,
+                         fill_opacity=1, stroke_width=0,
+                         creation=creation, z=z + 0.2)
+            txt = Text(text=str(label), x=mx, y=y - 22,
+                       font_size=font_size, fill='#ccc', stroke_width=0,
+                       text_anchor='middle', creation=creation, z=z + 0.1)
+            objects.extend([tick, dot, txt])
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class Legend(VCollection):
+    """Chart legend with colored swatches and labels.
+
+    items: list of (color, label) tuples.
+    """
+    def __init__(self, items, x=100, y=100, swatch_size=16, spacing=8,
+                 font_size=16, direction='down', creation=0, z=0):
+        from vectormation._shapes import Rectangle, Text
+        objects = []
+        horizontal = direction == 'right'
+        cursor_x, cursor_y = x, y
+        for color, label in items:
+            swatch = Rectangle(swatch_size, swatch_size, x=cursor_x, y=cursor_y,
+                               fill=color, fill_opacity=0.9, stroke_width=0,
+                               creation=creation, z=z)
+            txt = Text(text=label, x=cursor_x + swatch_size + spacing,
+                       y=cursor_y + swatch_size * 0.75,
+                       font_size=font_size, fill='#ccc', stroke_width=0,
+                       creation=creation, z=z)
+            objects.extend([swatch, txt])
+            if horizontal:
+                # estimate text width
+                cursor_x += swatch_size + spacing + len(label) * font_size * 0.6 + spacing * 2
+            else:
+                cursor_y += swatch_size + spacing
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class RadarChart(VCollection):
+    """Radar/spider chart visualization.
+
+    values: list of numeric values (one per axis).
+    labels: optional list of axis labels.
+    max_val: maximum value for the chart (scales all values).
+    """
+    def __init__(self, values, labels=None, max_val=None, colors=None,
+                 cx=960, cy=540, radius=250, font_size=16,
+                 fill_opacity=0.3, creation=0, z=0):
+        n = len(values)
+        if n < 3:
+            super().__init__(creation=creation, z=z)
+            return
+        if max_val is None:
+            max_val = max(values) if values else 1
+        if max_val == 0:
+            max_val = 1
+        if colors is None:
+            colors = ['#58C4DD']
+        objects = []
+        # Draw concentric rings (grid)
+        for level in range(1, 4):
+            r = radius * level / 3
+            ring = Circle(r=r, cx=cx, cy=cy, fill_opacity=0,
+                          stroke='#444', stroke_width=1, creation=creation, z=z)
+            objects.append(ring)
+        # Draw axis lines
+        angles = [i * 2 * math.pi / n - math.pi / 2 for i in range(n)]
+        for angle in angles:
+            lx = cx + radius * math.cos(angle)
+            ly = cy + radius * math.sin(angle)
+            line = Line(x1=cx, y1=cy, x2=lx, y2=ly,
+                        stroke='#555', stroke_width=1, creation=creation, z=z)
+            objects.append(line)
+        # Draw data polygon
+        points = []
+        for i, val in enumerate(values):
+            r = radius * min(val / max_val, 1)
+            px = cx + r * math.cos(angles[i])
+            py = cy + r * math.sin(angles[i])
+            points.append((px, py))
+        color = colors[0]
+        data_poly = Polygon(*points, fill=color, fill_opacity=fill_opacity,
+                            stroke=color, stroke_width=2, creation=creation, z=z + 0.1)
+        objects.append(data_poly)
+        # Draw data dots
+        for px, py in points:
+            dot = Dot(cx=px, cy=py, fill=color, creation=creation, z=z + 0.2)
+            objects.append(dot)
+        # Labels
+        if labels:
+            for i, label in enumerate(labels[:n]):
+                lx = cx + (radius + 30) * math.cos(angles[i])
+                ly = cy + (radius + 30) * math.sin(angles[i])
+                anchor = 'middle'
+                if math.cos(angles[i]) > 0.3:
+                    anchor = 'start'
+                elif math.cos(angles[i]) < -0.3:
+                    anchor = 'end'
+                txt = Text(text=label, x=lx, y=ly + font_size * 0.35,
+                           font_size=font_size, fill='#ccc', stroke_width=0,
+                           text_anchor=anchor, creation=creation, z=z + 0.1)
+                objects.append(txt)
+        self._data_poly = data_poly
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class ProgressBar(VCollection):
+    """Animated progress bar that fills from left to right.
+
+    width, height: dimensions of the bar.
+    x, y: top-left corner position.
+    bg_color: background track color.
+    fill_color: fill bar color.
+    """
+    def __init__(self, width=400, height=30, x=760, y=520,
+                 bg_color='#333', fill_color='#58C4DD',
+                 corner_radius=6, creation=0, z=0):
+        from vectormation._shapes import RoundedRectangle
+        self._bar_width = width
+        bg = RoundedRectangle(width, height, x=x, y=y, corner_radius=corner_radius,
+                              fill=bg_color, fill_opacity=0.5, stroke_width=0, creation=creation, z=z)
+        fill = RoundedRectangle(0.01, height, x=x, y=y, corner_radius=corner_radius,
+                                fill=fill_color, fill_opacity=1, stroke_width=0, creation=creation, z=z + 0.1)
+        self._fill = fill
+        super().__init__(bg, fill, creation=creation, z=z)
+
+    def set_progress(self, value, start=0, end=None, easing=easings.smooth):
+        """Set progress (0 to 1). Animates if end is given."""
+        target_w = max(0.01, self._bar_width * max(0, min(1, value)))
+        if end is None:
+            self._fill.width.set_onward(start, target_w)
+        else:
+            self._fill.width.move_to(start, end, target_w, easing=easing)
+        return self
+
+    def animate_to(self, value, start, end, easing=easings.smooth):
+        """Animate progress to a target value (0-1)."""
+        return self.set_progress(value, start, end, easing)
+
+
+class FlowChart(VCollection):
+    """Simple flow chart with labeled boxes connected by arrows.
+
+    steps: list of str labels for each box.
+    direction: 'right' or 'down'.
+    """
+    def __init__(self, steps, direction='right', x=200, y=400,
+                 box_width=200, box_height=60, spacing=80,
+                 box_color='#58C4DD', text_color='#fff', arrow_color='#999',
+                 font_size=20, corner_radius=8, creation=0, z=0):
+        from vectormation._shapes import RoundedRectangle, Text
+        objects = []
+        self._boxes = []
+        self._labels = []
+        horizontal = direction == 'right'
+        for i, label in enumerate(steps):
+            if horizontal:
+                bx = x + i * (box_width + spacing)
+                by = y
+            else:
+                bx = x
+                by = y + i * (box_height + spacing)
+            box = RoundedRectangle(box_width, box_height, x=bx, y=by,
+                                   corner_radius=corner_radius,
+                                   fill=box_color, fill_opacity=0.8,
+                                   stroke=box_color, creation=creation, z=z)
+            txt = Text(text=label, x=bx + box_width / 2, y=by + box_height / 2 + font_size * 0.35,
+                       font_size=font_size, fill=text_color, stroke_width=0,
+                       text_anchor='middle', creation=creation, z=z + 0.1)
+            self._boxes.append(box)
+            self._labels.append(txt)
+            objects.extend([box, txt])
+            # Arrow between boxes
+            if i > 0:
+                if horizontal:
+                    prev_bx = x + (i - 1) * (box_width + spacing)
+                    ax1, ay1 = prev_bx + box_width, y + box_height / 2
+                    ax2, ay2 = bx, y + box_height / 2
+                else:
+                    prev_by = y + (i - 1) * (box_height + spacing)
+                    ax1, ay1 = x + box_width / 2, prev_by + box_height
+                    ax2, ay2 = x + box_width / 2, by
+                arr = Arrow(ax1, ay1, ax2, ay2, stroke=arrow_color,
+                            creation=creation, z=z - 0.1)
+                objects.append(arr)
+        super().__init__(*objects, creation=creation, z=z)
 
 
 def parse_args():
