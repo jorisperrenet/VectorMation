@@ -2912,6 +2912,15 @@ class VCollection:
             func(obj, i)
         return self
 
+    def zip_with(self, other, func, time=0):
+        """Apply a function pairwise to children of this and another collection.
+        func(obj_a, obj_b, time) is called for each pair.
+        Stops at the shorter collection's length."""
+        other_objs = other.objects if hasattr(other, 'objects') else list(other)
+        for a, b in zip(self.objects, other_objs):
+            func(a, b, time)
+        return self
+
     def align_to(self, target, edge='left', start_time: float = 0):
         """Align the collection's edge to match *target*'s edge.
         target: another VObject/VCollection.

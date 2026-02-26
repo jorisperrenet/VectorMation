@@ -56,6 +56,16 @@ def _shade_color(base_rgb, normal, light_dir):
     return f'rgb({r},{g},{b})'
 
 
+def _frange(start, stop, step):
+    """Generate float range values."""
+    vals = []
+    v = start
+    while v <= stop + 1e-9:
+        vals.append(v)
+        v += step
+    return vals
+
+
 def _nice_ticks(vmin, vmax, target_count=5):
     """Generate nicely spaced tick values between vmin and vmax."""
     span = vmax - vmin
@@ -314,6 +324,55 @@ class ThreeDAxes(VCollection):
                                          u_steps, v_steps, line_style, creation=creation, z=z)
         self._threed_objects.append(wireframe)
         return wireframe
+
+    def add_grid_plane(self, plane='xz', step=1, color='#444444', opacity=0.3,
+                        stroke_width=0.5, creation=0):
+        """Add a grid plane to the 3D axes.
+
+        *plane*: ``'xz'`` (horizontal floor), ``'xy'`` (vertical front),
+        ``'yz'`` (vertical side).
+
+        Returns the grid as a ``VCollection`` of projected lines.
+        """
+        from vectormation._shapes import Line
+        lines = []
+        x_min, x_max = self._x_range[0], self._x_range[1]
+        y_min, y_max = self._y_range[0], self._y_range[1]
+        z_min, z_max = self._z_range[0], self._z_range[1]
+        line_kw = dict(stroke=color, stroke_opacity=opacity,
+                       stroke_width=stroke_width, creation=creation)
+
+        if plane == 'xz':
+            for x in _frange(x_min, x_max, step):
+                p1 = self.project_point(x, 0, z_min, creation)
+                p2 = self.project_point(x, 0, z_max, creation)
+                lines.append(Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **line_kw))
+            for z in _frange(z_min, z_max, step):
+                p1 = self.project_point(x_min, 0, z, creation)
+                p2 = self.project_point(x_max, 0, z, creation)
+                lines.append(Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **line_kw))
+        elif plane == 'xy':
+            for x in _frange(x_min, x_max, step):
+                p1 = self.project_point(x, y_min, 0, creation)
+                p2 = self.project_point(x, y_max, 0, creation)
+                lines.append(Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **line_kw))
+            for y in _frange(y_min, y_max, step):
+                p1 = self.project_point(x_min, y, 0, creation)
+                p2 = self.project_point(x_max, y, 0, creation)
+                lines.append(Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **line_kw))
+        elif plane == 'yz':
+            for y in _frange(y_min, y_max, step):
+                p1 = self.project_point(0, y, z_min, creation)
+                p2 = self.project_point(0, y, z_max, creation)
+                lines.append(Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **line_kw))
+            for z in _frange(z_min, z_max, step):
+                p1 = self.project_point(0, y_min, z, creation)
+                p2 = self.project_point(0, y_max, z, creation)
+                lines.append(Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **line_kw))
+
+        grid = VCollection(*lines, creation=creation)
+        self.add(grid)
+        return grid
 
     # -- Rendering --
 

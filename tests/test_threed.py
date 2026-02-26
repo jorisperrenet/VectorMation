@@ -529,3 +529,59 @@ class TestGetGraph3D:
         curve = ax.get_graph_3d(lambda y: y ** 2, plane='yz')
         patches = curve.to_patches(ax, 0)
         assert len(patches) == 1
+
+
+# ---------------------------------------------------------------------------
+# add_grid_plane
+# ---------------------------------------------------------------------------
+
+class TestAddGridPlane:
+    def test_xz_plane_creates_lines(self):
+        ax = ThreeDAxes(x_range=(-2, 2), z_range=(-2, 2))
+        grid = ax.add_grid_plane(plane='xz', step=1)
+        assert isinstance(grid, VCollection)
+        svg = ax.to_svg(0)
+        assert '<line' in svg
+
+    def test_xy_plane_creates_lines(self):
+        ax = ThreeDAxes(x_range=(-2, 2), y_range=(-2, 2))
+        grid = ax.add_grid_plane(plane='xy', step=1)
+        assert isinstance(grid, VCollection)
+        assert len(grid) > 0
+
+    def test_yz_plane_creates_lines(self):
+        ax = ThreeDAxes(y_range=(-2, 2), z_range=(-2, 2))
+        grid = ax.add_grid_plane(plane='yz', step=1)
+        assert isinstance(grid, VCollection)
+        assert len(grid) > 0
+
+    def test_grid_line_count_xz(self):
+        ax = ThreeDAxes(x_range=(-2, 2), z_range=(-2, 2))
+        grid = ax.add_grid_plane(plane='xz', step=1)
+        # x: -2,-1,0,1,2 = 5 lines + z: -2,-1,0,1,2 = 5 lines = 10
+        assert len(grid) == 10
+
+    def test_grid_renders_in_svg(self):
+        ax = ThreeDAxes(x_range=(-1, 1), z_range=(-1, 1))
+        grid = ax.add_grid_plane(plane='xz', step=1)
+        svg = ax.to_svg(0)
+        # Grid lines are rendered as VCollection children
+        assert svg.count("stroke-opacity='0.3'") > 0 or 'stroke-opacity' in svg
+
+    def test_custom_color_and_opacity(self):
+        ax = ThreeDAxes(x_range=(-1, 1), z_range=(-1, 1))
+        grid = ax.add_grid_plane(plane='xz', step=1, color='#ff0000', opacity=0.5)
+        svg = grid.to_svg(0)
+        assert 'rgb(255,0,0)' in svg or '#ff0000' in svg
+        assert "stroke-opacity='0.5'" in svg
+
+    def test_returns_vcollection(self):
+        ax = ThreeDAxes()
+        grid = ax.add_grid_plane()
+        assert isinstance(grid, VCollection)
+
+    def test_added_to_axes_objects(self):
+        ax = ThreeDAxes(x_label=None, y_label=None, z_label=None)
+        initial_count = len(ax.objects)
+        ax.add_grid_plane()
+        assert len(ax.objects) == initial_count + 1

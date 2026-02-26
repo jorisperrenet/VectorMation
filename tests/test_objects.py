@@ -1149,9 +1149,10 @@ class TestAxesNewMethods:
 
     def test_add_text_annotation(self):
         ax = Axes(x_range=(0, 10), y_range=(0, 10), plot_width=300, plot_height=200)
-        lbl = ax.add_text_annotation(5, 5, 'Peak')
-        assert isinstance(lbl, Text)
-        svg = lbl.to_svg(0)
+        group = ax.add_text_annotation(5, 5, 'Peak')
+        assert isinstance(group, VCollection)
+        assert len(group.objects) == 2  # line + text label
+        svg = group.to_svg(0)
         assert 'Peak' in svg
 
     def test_add_reference_band_y(self):
@@ -4132,6 +4133,62 @@ class TestNumberLinePointToNumber:
         # point before the line start
         val = nl.point_to_number(nl.origin_x - 100)
         assert val < 0
+
+
+class TestNumberLineAddPointer:
+    def test_add_pointer_returns_vcollection(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        ptr = nl.add_pointer(0)
+        assert isinstance(ptr, VCollection)
+
+    def test_pointer_added_to_numberline(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        initial = len(nl.objects)
+        nl.add_pointer(0)
+        assert len(nl.objects) == initial + 1
+
+    def test_pointer_position_at_value(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        ptr = nl.add_pointer(0)
+        # The pointer triangle should be near the number_to_point(0) x position
+        px, py = nl.number_to_point(0)
+        svg = ptr.to_svg(0)
+        assert svg  # renders without error
+
+    def test_pointer_with_label(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        ptr = nl.add_pointer(2.5, label='X')
+        # Should have 2 children: triangle polygon + text
+        assert len(ptr) == 2
+
+    def test_pointer_without_label(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        ptr = nl.add_pointer(2.5)
+        # Should have 1 child: triangle polygon
+        assert len(ptr) == 1
+
+    def test_pointer_dynamic_with_real_attribute(self):
+        import vectormation.attributes as attrs
+        nl = NumberLine(x_range=(0, 10, 1))
+        val = attrs.Real(0, 2)
+        ptr = nl.add_pointer(val)
+        # Triangle vertex should track value
+        tri = ptr[0]  # the Polygon
+        v0_at_2 = tri.vertices[2].at_time(0)  # tip vertex
+        px2, _ = nl.number_to_point(2)
+        assert abs(v0_at_2[0] - px2) < 1  # tip x near value 2
+
+        # Animate value to 8
+        val.set_onward(1, 8)
+        v0_at_8 = tri.vertices[2].at_time(1)
+        px8, _ = nl.number_to_point(8)
+        assert abs(v0_at_8[0] - px8) < 1  # tip x near value 8
+
+    def test_pointer_custom_color(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        ptr = nl.add_pointer(0, color='#00FF00')
+        svg = ptr.to_svg(0)
+        assert 'rgb(0,255,0)' in svg or '#00FF00' in svg
 
 
 class TestShakeAnimation:

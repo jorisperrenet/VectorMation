@@ -1553,20 +1553,35 @@ class Axes(VCollection):
         self._add_plot_obj(lbl)
         return lbl
 
-    def add_text_annotation(self, x, y, text, font_size=18, creation=0, z=3,
-                             text_anchor='middle', **styling_kwargs):
-        """Add a text label at math coordinates (x, y). Returns the Text object."""
-        style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
-        sx, sy = self.coords_to_point(x, y, creation)
-        lbl = Text(text=str(text), x=sx, y=sy, font_size=font_size,
-                    text_anchor=text_anchor, creation=creation, z=z, **style_kw)
-        _x, _y = x, y
-        lbl.x.set_onward(creation,
-            lambda t, _x=_x, _y=_y: self.coords_to_point(_x, _y, t)[0])
-        lbl.y.set_onward(creation,
-            lambda t, _x=_x, _y=_y: self.coords_to_point(_x, _y, t)[1])
-        self._add_plot_obj(lbl)
-        return lbl
+    def add_text_annotation(self, x, y, text, creation=0, z=0, font_size=16,
+                             dx=40, dy=-40, color='#fff', arrow_color='#888'):
+        """Add a text annotation with a line pointing to (x, y) in math coordinates.
+        dx, dy: offset of the text from the point (in pixels).
+        Returns a VCollection with the line and text (added to canvas)."""
+        from vectormation._base import VCollection
+
+        line = Line(x1=0, y1=0, x2=0, y2=0,
+                    creation=creation, z=z, stroke=arrow_color, stroke_width=1)
+        line.p1.set_onward(creation,
+            lambda t, _x=x, _y=y, _dx=dx, _dy=dy:
+                (self.coords_to_point(_x, _y, t)[0] + _dx,
+                 self.coords_to_point(_x, _y, t)[1] + _dy))
+        line.p2.set_onward(creation,
+            lambda t, _x=x, _y=y: self.coords_to_point(_x, _y, t))
+
+        label = Text(text=str(text), x=0, y=0, font_size=font_size,
+                     fill=color, stroke_width=0, text_anchor='middle',
+                     creation=creation, z=z + 0.1)
+        label.x.set_onward(creation,
+            lambda t, _x=x, _y=y, _dx=dx:
+                self.coords_to_point(_x, _y, t)[0] + _dx)
+        label.y.set_onward(creation,
+            lambda t, _x=x, _y=y, _dy=dy, _fs=font_size:
+                self.coords_to_point(_x, _y, t)[1] + _dy - _fs)
+
+        group = VCollection(line, label, creation=creation, z=z)
+        self._add_plot_obj(group)
+        return group
 
     def add_horizontal_label(self, y, text, side='right', buff=10, font_size=18,
                               creation=0, z=5, **styling_kwargs):
@@ -3916,32 +3931,57 @@ class NumberLine(VCollection):
         t = (x - self.origin_x) / self.length
         return self.x_start + t * span
 
-    def add_pointer(self, value, label=None, color='#FF6B6B', creation=0, z=1):
-        """Add a triangular pointer above the number line at *value*.
-        Returns an Arrow pointing down at the position."""
-        px, py = self.number_to_point(value)
-        arrow = Arrow(x1=px, y1=py - 50, x2=px, y2=py - 8,
-                      creation=creation, z=z, stroke=color, fill=color)
-        self.objects.append(arrow)
-        if label is not None:
-            from vectormation._shapes import Text as _Text
-            lbl = _Text(text=str(label), x=px, y=py - 58,
-                        font_size=20, fill=color, stroke_width=0,
-                        text_anchor='middle', creation=creation, z=z)
-            self.objects.append(lbl)
-        return arrow
+    def add_pointer(self, value, label=None, color='#FF6B6B', size=12,
+                     creation=0, z=1):
+        """Add an animated pointer (triangle) above the number line at *value*.
 
-    def move_pointer(self, arrow, value, start=0, end=1, easing=None):
-        """Animate a pointer arrow to a new value on the number line."""
-        if easing is None:
-            import vectormation.easings as _easings
-            easing = _easings.smooth
-        px, py = self.number_to_point(value)
-        # Arrow is a VCollection with a line and tip; shift all to new x
-        cur_x = arrow.bbox(start)[0] + arrow.bbox(start)[2] / 2
-        dx = px - cur_x
-        arrow.shift(dx=dx, start_time=start, end_time=end, easing=easing)
-        return self
+        *value* may be a number or an ``attributes.Real`` — if animatable the
+        pointer tracks the value automatically.  Returns the pointer
+        ``VCollection`` (already added to this NumberLine's objects).
+        """
+        import vectormation.attributes as _attrs
+        from vectormation._shapes import Polygon as _Polygon, Text as _Text
+
+        # Triangle pointing down at the value
+        px, py = self.number_to_point(
+            value.at_time(creation) if hasattr(value, 'at_time') else value
+        )
+        ptr = _Polygon(
+            (px - size / 2, py - size - 2),
+            (px + size / 2, py - size - 2),
+            (px, py - 2),
+            creation=creation, z=z,
+            fill=color, stroke_width=0,
+        )
+
+        # Dynamic positioning: update vertices each frame
+        _nl = self
+        _val = value
+
+        def _ptr_pos(time):
+            v = _val.at_time(time) if hasattr(_val, 'at_time') else _val
+            return _nl.number_to_point(v)
+
+        ptr.vertices[0].set_onward(creation,
+            lambda t: (_ptr_pos(t)[0] - size / 2, _ptr_pos(t)[1] - size - 2))
+        ptr.vertices[1].set_onward(creation,
+            lambda t: (_ptr_pos(t)[0] + size / 2, _ptr_pos(t)[1] - size - 2))
+        ptr.vertices[2].set_onward(creation,
+            lambda t: (_ptr_pos(t)[0], _ptr_pos(t)[1] - 2))
+
+        objects = [ptr]
+        if label is not None:
+            lbl = _Text(text=str(label), x=px, y=py - size - 18,
+                        font_size=20, fill=color, stroke_width=0,
+                        text_anchor='middle', creation=creation, z=z + 0.1)
+            lbl.x.set_onward(creation, lambda t: _ptr_pos(t)[0])
+            lbl.y.set_onward(creation, lambda t: _ptr_pos(t)[1] - size - 18)
+            objects.append(lbl)
+
+        from vectormation._base import VCollection as _VC
+        group = _VC(*objects, creation=creation, z=z)
+        self.objects.append(group)
+        return group
 
     def __repr__(self):
         return f'NumberLine([{self.x_start}, {self.x_end}], step={self.x_step})'
@@ -8307,6 +8347,44 @@ class Diode(VCollection):
         if label:
             lx = mx + px * (tri_w + 16)
             ly = my + py * (tri_w + 16)
+            objects.append(Text(text=label, x=lx, y=ly, font_size=18,
+                                fill='#aaa', stroke_width=0, text_anchor='middle',
+                                creation=creation, z=z + 0.1))
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class LED(VCollection):
+    """Light-emitting diode symbol (diode with light rays)."""
+    def __init__(self, x1=400, y1=540, x2=600, y2=540, label='LED',
+                 color='#FF0000', creation=0, z=0, **styling_kwargs):
+        # Base diode
+        diode = Diode(x1=x1, y1=y1, x2=x2, y2=y2, label='',
+                      creation=creation, z=z, **styling_kwargs)
+        dx, dy = x2 - x1, y2 - y1
+        length = math.hypot(dx, dy) or 1
+        ux, uy = dx / length, dy / length
+        px, py = -uy, ux
+        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+        # Two small arrows (rays) coming off the diode
+        ray_len = 20
+        ray_offset = 15
+        style_kw = {'stroke': color, 'stroke_width': 1.5}
+        ray1_start = (mx + px * ray_offset, my + py * ray_offset)
+        ray1_end = (ray1_start[0] + px * ray_len + ux * 5,
+                    ray1_start[1] + py * ray_len + uy * 5)
+        ray2_start = (mx + px * (ray_offset + 8), my + py * (ray_offset + 8))
+        ray2_end = (ray2_start[0] + px * ray_len + ux * 5,
+                    ray2_start[1] + py * ray_len + uy * 5)
+        ray1 = Line(x1=ray1_start[0], y1=ray1_start[1],
+                     x2=ray1_end[0], y2=ray1_end[1],
+                     creation=creation, z=z, **style_kw)
+        ray2 = Line(x1=ray2_start[0], y1=ray2_start[1],
+                     x2=ray2_end[0], y2=ray2_end[1],
+                     creation=creation, z=z, **style_kw)
+        objects = list(diode.objects) + [ray1, ray2]
+        if label:
+            lx = mx + px * (ray_offset + ray_len + 16)
+            ly = my + py * (ray_offset + ray_len + 16)
             objects.append(Text(text=label, x=lx, y=ly, font_size=18,
                                 fill='#aaa', stroke_width=0, text_anchor='middle',
                                 creation=creation, z=z + 0.1))
