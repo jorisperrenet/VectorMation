@@ -19,6 +19,7 @@ from vectormation.objects import (
     KPICard, BulletChart, CalendarHeatmap,
     WaffleChart, MindMap,
     CircularProgressBar, Scoreboard,
+    MatrixHeatmap,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -1067,6 +1068,57 @@ class TestAxesNewMethods:
     def test_scoreboard_empty(self):
         sb = Scoreboard([])
         assert len(sb) == 0
+
+    def test_plot_ribbon(self):
+        ax = Axes(x_range=(0, 4), y_range=(0, 10), plot_width=300, plot_height=200)
+        ribbon = ax.plot_ribbon([0, 1, 2, 3], [1, 2, 1, 3], [4, 5, 6, 7])
+        assert isinstance(ribbon, Path)
+        d = ribbon.d.at_time(0)
+        assert 'M' in d and 'Z' in d
+
+    def test_plot_ribbon_empty(self):
+        ax = Axes(x_range=(0, 4), y_range=(0, 10), plot_width=300, plot_height=200)
+        ribbon = ax.plot_ribbon([], [], [])
+        d = ribbon.d.at_time(0)
+        assert d == ''
+
+    def test_plot_swarm(self):
+        ax = Axes(x_range=(0, 3), y_range=(0, 10), plot_width=300, plot_height=200)
+        swarm = ax.plot_swarm([1, 2], [[3, 5, 7], [2, 4]])
+        assert isinstance(swarm, VCollection)
+        assert len(swarm) == 5  # 3 + 2 dots
+
+    def test_add_axis_break_y(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10), plot_width=300, plot_height=200)
+        brk = ax.add_axis_break(5, axis='y')
+        assert isinstance(brk, Path)
+        d = brk.d.at_time(0)
+        assert 'M' in d and 'L' in d
+
+    def test_add_axis_break_x(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10), plot_width=300, plot_height=200)
+        brk = ax.add_axis_break(5, axis='x')
+        d = brk.d.at_time(0)
+        assert 'M' in d and 'L' in d
+
+    def test_matrix_heatmap(self):
+        data = [[1, 2, 3], [4, 5, 6]]
+        mh = MatrixHeatmap(data, row_labels=['A', 'B'], col_labels=['X', 'Y', 'Z'])
+        assert isinstance(mh, VCollection)
+        svg = mh.to_svg(0)
+        assert 'A' in svg
+        assert 'X' in svg
+
+    def test_matrix_heatmap_empty(self):
+        mh = MatrixHeatmap([])
+        assert len(mh) == 0
+
+    def test_matrix_heatmap_no_values(self):
+        data = [[10, 20], [30, 40]]
+        mh = MatrixHeatmap(data, show_values=False)
+        assert isinstance(mh, VCollection)
+        # Without value labels: only 4 rects (no text)
+        assert len(mh) == 4
 
 
 class TestVCollectionNew:

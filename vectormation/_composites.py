@@ -2432,6 +2432,78 @@ class Axes(VCollection):
                 objs.append(lbl)
         return VCollection(*objs, creation=creation, z=z)
 
+    def plot_ribbon(self, x_values, y_lower, y_upper, creation=0, z=0, **styling_kwargs):
+        """Plot a ribbon (band) between y_lower and y_upper data arrays.
+        Returns a filled Path."""
+        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.3,
+                    'stroke': '#58C4DD', 'stroke_width': 1} | styling_kwargs
+        data = list(zip(x_values, y_lower, y_upper))
+        curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
+        def _compute_d(time, _data=data):
+            if not _data:
+                return ''
+            upper = [f'{"M" if i == 0 else "L"}{self._math_to_svg_x(x, time):.1f},{self._math_to_svg_y(yu, time):.1f}'
+                     for i, (x, _, yu) in enumerate(_data)]
+            lower = [f'L{self._math_to_svg_x(x, time):.1f},{self._math_to_svg_y(yl, time):.1f}'
+                     for x, yl, _ in reversed(_data)]
+            return ''.join(upper) + ''.join(lower) + 'Z'
+        curve.d.set_onward(creation, _compute_d)
+        self._add_plot_obj(curve)
+        return curve
+
+    def plot_swarm(self, x_positions, data_groups, r=4, jitter_width=0.3,
+                    creation=0, z=1, **styling_kwargs):
+        """Plot a beeswarm (jittered dot plot).
+        x_positions: list of x values for each group.
+        data_groups: list of lists, each containing y-values.
+        Returns a VCollection of Dots."""
+        style_kw = {'fill': '#58C4DD', 'stroke_width': 0} | styling_kwargs
+        import random as _rng
+        rng = _rng.Random(42)
+        objs = []
+        for xp, values in zip(x_positions, data_groups):
+            for yv in sorted(values):
+                jitter = (rng.random() - 0.5) * 2 * jitter_width
+                dot = Dot(cx=0, cy=0, r=r, creation=creation, z=z, **style_kw)
+                dot.c.set_onward(creation,
+                    lambda t, _x=xp, _y=yv, _jj=jitter: self.coords_to_point(_x + _jj, _y, t))
+                self._add_plot_obj(dot)
+                objs.append(dot)
+        return VCollection(*objs, creation=creation, z=z)
+
+    def add_axis_break(self, value, axis='y', size=15, creation=0, z=3):
+        """Add a zigzag break indicator on an axis.
+        value: position in math coords where the break appears.
+        axis: 'x' or 'y'."""
+        n_zigs = 4
+        if axis == 'y':
+            anchor = self.plot_x
+            def _d(t, _v=value):
+                sv = self._math_to_svg_y(_v, t)
+                pts = [f'M{anchor - 5},{sv - size}']
+                for i in range(n_zigs):
+                    frac = (i + 0.5) / n_zigs
+                    off = 8 if i % 2 == 0 else -8
+                    pts.append(f'L{anchor + off},{sv - size + frac * 2 * size}')
+                pts.append(f'L{anchor - 5},{sv + size}')
+                return ''.join(pts)
+        else:
+            anchor = self.plot_y + self.plot_height
+            def _d(t, _v=value):
+                sv = self._math_to_svg_x(_v, t)
+                pts = [f'M{sv - size},{anchor + 5}']
+                for i in range(n_zigs):
+                    frac = (i + 0.5) / n_zigs
+                    off = -8 if i % 2 == 0 else 8
+                    pts.append(f'L{sv - size + frac * 2 * size},{anchor + off}')
+                pts.append(f'L{sv + size},{anchor + 5}')
+                return ''.join(pts)
+        brk = Path('', x=0, y=0, stroke='#fff', stroke_width=2,
+                   fill_opacity=0, creation=creation, z=z)
+        brk.d.set_onward(creation, _d)
+        self._add_plot_obj(brk)
+        return brk
+
     def add_slope_field(self, func, x_step=1, y_step=1, seg_length=0.4,
                          creation=0, z=-1, **styling_kwargs):
         """Draw a direction/slope field for dy/dx = func(x, y).
@@ -6514,6 +6586,71 @@ class Scoreboard(VCollection):
                            stroke='#333', stroke_width=1,
                            creation=creation, z=z + 0.05)
                 objects.append(div)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class MatrixHeatmap(VCollection):
+    """Labeled matrix heatmap with colored cells.
+
+    data: 2D list of values (rows x cols).
+    row_labels / col_labels: optional label lists.
+    """
+    def __init__(self, data, row_labels=None, col_labels=None,
+                 x=100, y=100, cell_size=50, gap=2,
+                 colormap=None, font_size=14, show_values=True,
+                 creation=0, z=0):
+        if not data or not data[0]:
+            super().__init__(creation=creation, z=z)
+            return
+        if colormap is None:
+            colormap = ['#313695', '#4575b4', '#74add1', '#abd9e9',
+                        '#fee090', '#fdae61', '#f46d43', '#d73027']
+        n_rows = len(data)
+        n_cols = len(data[0])
+        # Flatten to find min/max
+        flat = [v for row in data for v in row]
+        mn, mx = min(flat), max(flat)
+        rng = mx - mn if mx != mn else 1
+        objects = []
+        label_offset = 0
+        if row_labels:
+            label_offset = max(len(str(l)) for l in row_labels) * font_size * 0.5 + 10
+        col_offset = font_size + 10 if col_labels else 0
+        for r in range(n_rows):
+            for c in range(n_cols):
+                val = data[r][c]
+                frac = (val - mn) / rng
+                ci = min(int(frac * (len(colormap) - 1) + 0.5), len(colormap) - 1)
+                color = colormap[ci]
+                rx = x + label_offset + c * (cell_size + gap)
+                ry = y + col_offset + r * (cell_size + gap)
+                rect = Rectangle(width=cell_size, height=cell_size, x=rx, y=ry,
+                                  fill=color, fill_opacity=0.9, stroke='#222',
+                                  stroke_width=0.5, creation=creation, z=z)
+                objects.append(rect)
+                if show_values:
+                    vlbl = Text(text=f'{val:.1f}' if isinstance(val, float) else str(val),
+                                x=rx + cell_size / 2, y=ry + cell_size / 2 + font_size * 0.35,
+                                font_size=font_size * 0.8, fill='#fff', stroke_width=0,
+                                text_anchor='middle', creation=creation, z=z + 0.1)
+                    objects.append(vlbl)
+        # Row labels
+        if row_labels:
+            for r, label in enumerate(row_labels[:n_rows]):
+                ry = y + col_offset + r * (cell_size + gap)
+                lbl = Text(text=str(label), x=x + label_offset - 8,
+                           y=ry + cell_size / 2 + font_size * 0.35,
+                           font_size=font_size, fill='#aaa', stroke_width=0,
+                           text_anchor='end', creation=creation, z=z + 0.1)
+                objects.append(lbl)
+        # Column labels
+        if col_labels:
+            for c, label in enumerate(col_labels[:n_cols]):
+                cx = x + label_offset + c * (cell_size + gap) + cell_size / 2
+                lbl = Text(text=str(label), x=cx, y=y + font_size * 0.8,
+                           font_size=font_size, fill='#aaa', stroke_width=0,
+                           text_anchor='middle', creation=creation, z=z + 0.1)
+                objects.append(lbl)
         super().__init__(*objects, creation=creation, z=z)
 
 
