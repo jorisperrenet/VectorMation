@@ -653,6 +653,26 @@ class TestAxesNewMethods:
         svg = lbl.to_svg(0)
         assert 'hello' in svg
 
+    def test_add_confidence_band(self):
+        import math
+        ax = Axes(x_range=(0, 7), y_range=(-3, 3))
+        band = ax.add_confidence_band(
+            lambda x: math.sin(x) - 0.5,
+            lambda x: math.sin(x) + 0.5)
+        svg = band.to_svg(0)
+        assert '<path' in svg
+
+    def test_add_boxplot(self):
+        import random
+        random.seed(42)
+        ax = Axes(x_range=(0, 4), y_range=(0, 25))
+        data = [[random.gauss(10, 3) for _ in range(30)] for _ in range(3)]
+        boxes = ax.add_boxplot(data, x_positions=[1, 2, 3])
+        assert isinstance(boxes, VCollection)
+        assert len(boxes) > 0
+        svg = boxes.to_svg(0)
+        assert '<rect' in svg or '<line' in svg
+
 
 class TestVCollectionNew:
     def test_wave_effect(self):
@@ -709,6 +729,18 @@ class TestVCollectionNew:
         p0 = dots[0].c.at_time(0)
         p1 = dots[1].c.at_time(0)
         assert p0[0] > p1[0]  # originally 100 < 300, now flipped
+
+    def test_shuffle_positions(self):
+        dots = VCollection(
+            Dot(cx=100, cy=100),
+            Dot(cx=200, cy=100),
+            Dot(cx=300, cy=100),
+        )
+        original = [d.c.at_time(0) for d in dots]
+        dots.shuffle_positions(start=0, end=1, seed=42)
+        after = [d.c.at_time(1) for d in dots]
+        # At least one dot should have moved
+        assert any(o != a for o, a in zip(original, after))
 
 
 class TestVObjectNew:

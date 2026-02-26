@@ -1420,6 +1420,126 @@ class Axes(VCollection):
         self._add_plot_obj(line)
         return line
 
+    def add_confidence_band(self, func_lo, func_hi, x_range=None, samples=100,
+                             creation=0, z=-1, **styling_kwargs):
+        """Shade a band between two functions (e.g. confidence interval).
+        func_lo/func_hi: callables (or curves with ._func).
+        Returns a dynamic Path object."""
+        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.2, 'stroke_width': 0} | styling_kwargs
+        lo_fn = self._resolve_func(func_lo, 'func_lo')
+        hi_fn = self._resolve_func(func_hi, 'func_hi')
+        band = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
+        _xr = x_range
+        def _band_d(time, _lo=lo_fn, _hi=hi_fn, _xr=_xr, _n=samples):
+            xmin, xmax = self.x_min.at_time(time), self.x_max.at_time(time)
+            x0 = _xr[0] if _xr else xmin
+            x1 = _xr[1] if _xr else xmax
+            step = (x1 - x0) / max(_n, 1)
+            pts_hi, pts_lo = [], []
+            for i in range(_n + 1):
+                xv = x0 + i * step
+                sx, sy_hi = self.coords_to_point(xv, _hi(xv), time)
+                _, sy_lo = self.coords_to_point(xv, _lo(xv), time)
+                pts_hi.append((sx, sy_hi))
+                pts_lo.append((sx, sy_lo))
+            if not pts_hi:
+                return ''
+            parts = [f'M{pts_hi[0][0]:.1f},{pts_hi[0][1]:.1f}']
+            for sx, sy in pts_hi[1:]:
+                parts.append(f'L{sx:.1f},{sy:.1f}')
+            for sx, sy in reversed(pts_lo):
+                parts.append(f'L{sx:.1f},{sy:.1f}')
+            parts.append('Z')
+            return ''.join(parts)
+        band.d.set_onward(creation, _band_d)
+        self._add_plot_obj(band)
+        return band
+
+    def add_boxplot(self, data_groups, x_positions=None, width=0.6,
+                     creation=0, z=1, **styling_kwargs):
+        """Draw box-and-whisker plots for one or more data groups.
+        data_groups: list of lists of numbers.
+        x_positions: x-coordinates for each box (defaults to 1, 2, ...).
+        Returns a VCollection of all box elements."""
+        style_kw = {'stroke': '#58C4DD', 'stroke_width': 2} | styling_kwargs
+        fill_kw = style_kw.get('fill', '#58C4DD')
+        line_kw = {k: v for k, v in style_kw.items() if k != 'fill'}
+        if x_positions is None:
+            x_positions = list(range(1, len(data_groups) + 1))
+        def _percentile(sd, p):
+            """Linear interpolation percentile (matches numpy default)."""
+            k = (len(sd) - 1) * p
+            f = int(k)
+            c = f + 1 if f + 1 < len(sd) else f
+            return sd[f] + (k - f) * (sd[c] - sd[f])
+        objs = []
+        hw = width / 2
+        for xp, data in zip(x_positions, data_groups):
+            if len(data) < 5:
+                continue
+            sd = sorted(data)
+            q1 = _percentile(sd, 0.25)
+            q2 = _percentile(sd, 0.5)
+            q3 = _percentile(sd, 0.75)
+            whisker_lo = sd[0]
+            whisker_hi = sd[-1]
+            # Box (rectangle from q1 to q3)
+            box = Rectangle(width=0, height=0, x=0, y=0,
+                             fill=fill_kw, fill_opacity=0.15,
+                             creation=creation, z=z, **line_kw)
+            _xp, _hw, _q1, _q3 = xp, hw, q1, q3
+            box.x.set_onward(creation, lambda t, _xp=_xp, _hw=_hw: self._math_to_svg_x(_xp - _hw, t))
+            box.width.set_onward(creation, lambda t, _xp=_xp, _hw=_hw: abs(
+                self._math_to_svg_x(_xp + _hw, t) - self._math_to_svg_x(_xp - _hw, t)))
+            box.y.set_onward(creation, lambda t, _q3=_q3: self._math_to_svg_y(_q3, t))
+            box.height.set_onward(creation, lambda t, _q1=_q1, _q3=_q3: abs(
+                self._math_to_svg_y(_q1, t) - self._math_to_svg_y(_q3, t)))
+            objs.append(box)
+            # Median line
+            med = Line(x1=0, y1=0, x2=0, y2=0, stroke=style_kw.get('stroke', '#58C4DD'),
+                        stroke_width=style_kw.get('stroke_width', 2) + 1, creation=creation, z=z + 1)
+            _q2 = q2
+            med.p1.set_onward(creation,
+                lambda t, _xp=_xp, _hw=_hw, _q2=_q2: (self._math_to_svg_x(_xp - _hw, t),
+                                                         self._math_to_svg_y(_q2, t)))
+            med.p2.set_onward(creation,
+                lambda t, _xp=_xp, _hw=_hw, _q2=_q2: (self._math_to_svg_x(_xp + _hw, t),
+                                                         self._math_to_svg_y(_q2, t)))
+            objs.append(med)
+            # Whiskers (vertical lines from whisker_lo to q1 and q3 to whisker_hi)
+            _wlo, _whi = whisker_lo, whisker_hi
+            lo_whisk = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z,
+                             **line_kw)
+            lo_whisk.p1.set_onward(creation,
+                lambda t, _xp=_xp, _wlo=_wlo: (self._math_to_svg_x(_xp, t), self._math_to_svg_y(_wlo, t)))
+            lo_whisk.p2.set_onward(creation,
+                lambda t, _xp=_xp, _q1=_q1: (self._math_to_svg_x(_xp, t), self._math_to_svg_y(_q1, t)))
+            objs.append(lo_whisk)
+            hi_whisk = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z,
+                             **line_kw)
+            hi_whisk.p1.set_onward(creation,
+                lambda t, _xp=_xp, _q3=_q3: (self._math_to_svg_x(_xp, t), self._math_to_svg_y(_q3, t)))
+            hi_whisk.p2.set_onward(creation,
+                lambda t, _xp=_xp, _whi=_whi: (self._math_to_svg_x(_xp, t), self._math_to_svg_y(_whi, t)))
+            objs.append(hi_whisk)
+            # Whisker caps
+            cap_w = hw * 0.5
+            _cw = cap_w
+            for wval in (_wlo, _whi):
+                cap = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z,
+                            **line_kw)
+                _wv = wval
+                cap.p1.set_onward(creation,
+                    lambda t, _xp=_xp, _cw=_cw, _wv=_wv: (
+                        self._math_to_svg_x(_xp - _cw, t), self._math_to_svg_y(_wv, t)))
+                cap.p2.set_onward(creation,
+                    lambda t, _xp=_xp, _cw=_cw, _wv=_wv: (
+                        self._math_to_svg_x(_xp + _cw, t), self._math_to_svg_y(_wv, t)))
+                objs.append(cap)
+        for obj in objs:
+            self._add_plot_obj(obj)
+        return VCollection(*objs, creation=creation, z=z)
+
     def add_slope_field(self, func, x_step=1, y_step=1, seg_length=0.4,
                          creation=0, z=-1, **styling_kwargs):
         """Draw a direction/slope field for dy/dx = func(x, y).

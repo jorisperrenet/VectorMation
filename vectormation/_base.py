@@ -2415,6 +2415,27 @@ class VCollection:
         b.path_arc(acx, acy, start=start, end=end, angle=math.pi / 3, easing=easing)
         return self
 
+    def shuffle_positions(self, start: float = 0, end: float = 1,
+                           easing=easings.smooth, seed=None):
+        """Randomly rearrange children positions with animation (visual shuffle).
+        Unlike shuffle() which reorders the list, this animates children to each
+        other's positions. seed: optional random seed for reproducibility."""
+        import random
+        n = len(self.objects)
+        if n <= 1:
+            return self
+        rng = random.Random(seed)
+        centers = []
+        for obj in self.objects:
+            bx, by, bw, bh = obj.bbox(start)
+            centers.append((bx + bw / 2, by + bh / 2))
+        indices = list(range(n))
+        rng.shuffle(indices)
+        for i, obj in enumerate(self.objects):
+            target = centers[indices[i]]
+            obj.move_to(target[0], target[1], start_time=start, end_time=end, easing=easing)
+        return self
+
     def for_each(self, method_name, **kwargs):
         """Call a method with the same arguments on all children simultaneously.
         Example: group.for_each('set_color', color='red', start=1)"""
