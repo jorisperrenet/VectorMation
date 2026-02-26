@@ -59,7 +59,7 @@ from vectormation._composites import (
     KPICard, BulletChart, CalendarHeatmap,
     WaffleChart, MindMap,
     CircularProgressBar, Scoreboard,
-    MatrixHeatmap,
+    MatrixHeatmap, BoxPlot,
     from_svg, from_svg_file, always_redraw, parse_args,
     _parse_inline_style,
 )

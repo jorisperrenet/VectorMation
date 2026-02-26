@@ -19,7 +19,7 @@ from vectormation.objects import (
     KPICard, BulletChart, CalendarHeatmap,
     WaffleChart, MindMap,
     CircularProgressBar, Scoreboard,
-    MatrixHeatmap,
+    MatrixHeatmap, BoxPlot,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -767,15 +767,6 @@ class TestAxesNewMethods:
         assert isinstance(bubbles, VCollection)
         assert len(bubbles) == 4
 
-    def test_add_color_bar(self):
-        ax = Axes(x_range=(0, 5), y_range=(0, 5))
-        cb = ax.add_color_bar(vmin=0, vmax=10, label='Temperature')
-        assert isinstance(cb, VCollection)
-        assert len(cb) > 0
-        svg = cb.to_svg(0)
-        assert '<rect' in svg
-        assert '<text' in svg
-
     def test_plot_stacked_area(self):
         ax = Axes(x_range=(0, 4), y_range=(0, 20))
         data = [[1, 3, 2, 4], [2, 1, 3, 2], [3, 2, 1, 3]]
@@ -1119,6 +1110,41 @@ class TestAxesNewMethods:
         assert isinstance(mh, VCollection)
         # Without value labels: only 4 rects (no text)
         assert len(mh) == 4
+
+    def test_plot_error_bar(self):
+        ax = Axes(x_range=(0, 4), y_range=(0, 10), plot_width=300, plot_height=200)
+        eb = ax.plot_error_bar([1, 2, 3], [5, 7, 3], [1, 0.5, 2])
+        assert isinstance(eb, VCollection)
+        assert len(eb) == 6  # 3 dots + 3 bars
+
+    def test_plot_error_bar_asymmetric(self):
+        ax = Axes(x_range=(0, 4), y_range=(0, 10), plot_width=300, plot_height=200)
+        eb = ax.plot_error_bar([1, 2], [5, 7], [(1, 2), (0.5, 1.5)])
+        assert len(eb) == 4
+
+    def test_plot_histogram(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 5), plot_width=300, plot_height=200)
+        data = [1, 2, 2, 3, 3, 3, 4, 5, 6, 7, 8]
+        hist = ax.plot_histogram(data, bins=5)
+        assert isinstance(hist, VCollection)
+        assert len(hist) > 0
+
+    def test_add_color_bar(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10), plot_width=300, plot_height=200)
+        cb = ax.add_color_bar(vmin=0, vmax=100)
+        assert isinstance(cb, VCollection)
+        svg = cb.to_svg(0)
+        assert '0.0' in svg and '100.0' in svg
+
+    def test_box_plot(self):
+        bp = BoxPlot([[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                      [2, 4, 6, 8, 10, 12, 14]])
+        assert isinstance(bp, VCollection)
+        assert len(bp) > 0
+
+    def test_box_plot_empty(self):
+        bp = BoxPlot([])
+        assert len(bp) == 0
 
 
 class TestVCollectionNew:

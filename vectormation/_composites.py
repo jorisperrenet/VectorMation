@@ -2504,6 +2504,104 @@ class Axes(VCollection):
         self._add_plot_obj(brk)
         return brk
 
+    def plot_error_bar(self, x_values, y_values, y_errors, r=4,
+                        creation=0, z=1, **styling_kwargs):
+        """Scatter plot with vertical error bars.
+        y_errors: list of (err_low, err_high) tuples, or list of symmetric errors."""
+        style_kw = {'fill': '#58C4DD', 'stroke': '#58C4DD', 'stroke_width': 1.5} | styling_kwargs
+        objs = []
+        for i, (xv, yv) in enumerate(zip(x_values, y_values)):
+            e = y_errors[i]
+            el, eh = (e, e) if not isinstance(e, (list, tuple)) else (e[0], e[1])
+            # Dot
+            dot = Dot(cx=0, cy=0, r=r, creation=creation, z=z + 0.1,
+                      fill=style_kw['fill'], stroke_width=0)
+            dot.c.set_onward(creation,
+                lambda t, _x=xv, _y=yv: self.coords_to_point(_x, _y, t))
+            self._add_plot_obj(dot)
+            objs.append(dot)
+            # Error bar (vertical line from y-el to y+eh with caps)
+            bar = Path('', x=0, y=0, stroke=style_kw['stroke'],
+                       stroke_width=style_kw['stroke_width'],
+                       fill_opacity=0, creation=creation, z=z)
+            cap = 4
+            def _bar_d(t, _x=xv, _y=yv, _el=el, _eh=eh):
+                sx, sy_lo = self.coords_to_point(_x, _y - _el, t)
+                sx2, sy_hi = self.coords_to_point(_x, _y + _eh, t)
+                return (f'M{sx - cap},{sy_lo}L{sx + cap},{sy_lo}'
+                        f'M{sx},{sy_lo}L{sx2},{sy_hi}'
+                        f'M{sx2 - cap},{sy_hi}L{sx2 + cap},{sy_hi}')
+            bar.d.set_onward(creation, _bar_d)
+            self._add_plot_obj(bar)
+            objs.append(bar)
+        return VCollection(*objs, creation=creation, z=z)
+
+    def plot_histogram(self, data, bins=10, creation=0, z=0, **styling_kwargs):
+        """Plot a histogram from raw data. Auto-computes bin edges.
+        Returns a VCollection of bar rectangles."""
+        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.7,
+                    'stroke': '#58C4DD', 'stroke_width': 1} | styling_kwargs
+        mn, mx = min(data), max(data)
+        if mn == mx:
+            mx = mn + 1
+        bin_width = (mx - mn) / bins
+        counts = [0] * bins
+        for v in data:
+            idx = min(int((v - mn) / bin_width), bins - 1)
+            counts[idx] += 1
+        objs = []
+        for i, cnt in enumerate(counts):
+            if cnt == 0:
+                continue
+            x0 = mn + i * bin_width
+            x1 = x0 + bin_width
+            rect = Rectangle(width=10, height=10, x=0, y=0, creation=creation, z=z,
+                              **style_kw)
+            rect.x.set_onward(creation, lambda t, _a=x0: self.coords_to_point(_a, 0, t)[0])
+            rect.y.set_onward(creation, lambda t, _a=x1, _c=cnt: self.coords_to_point(_a, _c, t)[1])
+            rect.width.set_onward(creation, lambda t, _a=x0, _b=x1:
+                abs(self.coords_to_point(_b, 0, t)[0] - self.coords_to_point(_a, 0, t)[0]))
+            rect.height.set_onward(creation, lambda t, _a=x0, _c=cnt:
+                abs(self.coords_to_point(_a, 0, t)[1] - self.coords_to_point(_a, _c, t)[1]))
+            self._add_plot_obj(rect)
+            objs.append(rect)
+        return VCollection(*objs, creation=creation, z=z)
+
+    def add_color_bar(self, colormap=None, vmin=0, vmax=1, n_segments=20,
+                       width=20, height=None, x_offset=30,
+                       font_size=12, creation=0, z=2):
+        """Add a vertical color bar legend to the right of the axes.
+        Returns a VCollection of rectangles + labels."""
+        if colormap is None:
+            colormap = ['#313695', '#4575b4', '#74add1', '#abd9e9',
+                        '#fee090', '#fdae61', '#f46d43', '#d73027']
+        if height is None:
+            height = self.plot_height
+        bar_x = self.plot_x + self.plot_width + x_offset
+        bar_y = self.plot_y
+        seg_h = height / n_segments
+        objs = []
+        for i in range(n_segments):
+            frac = i / max(n_segments - 1, 1)
+            ci = min(int(frac * (len(colormap) - 1) + 0.5), len(colormap) - 1)
+            color = colormap[ci]
+            ry = bar_y + height - (i + 1) * seg_h
+            rect = Rectangle(width=width, height=seg_h + 0.5, x=bar_x, y=ry,
+                              fill=color, fill_opacity=1, stroke_width=0,
+                              creation=creation, z=z)
+            objs.append(rect)
+        # Labels at bottom and top
+        for val, ly in [(vmin, bar_y + height + font_size + 2),
+                        (vmax, bar_y - 4)]:
+            fmt = f'{val:.1f}' if isinstance(val, float) else str(val)
+            lbl = Text(text=fmt, x=bar_x + width / 2, y=ly,
+                       font_size=font_size, fill='#aaa', stroke_width=0,
+                       text_anchor='middle', creation=creation, z=z + 0.1)
+            objs.append(lbl)
+        coll = VCollection(*objs, creation=creation, z=z)
+        self._add_plot_obj(coll)
+        return coll
+
     def add_slope_field(self, func, x_step=1, y_step=1, seg_length=0.4,
                          creation=0, z=-1, **styling_kwargs):
         """Draw a direction/slope field for dy/dx = func(x, y).
@@ -6651,6 +6749,75 @@ class MatrixHeatmap(VCollection):
                            font_size=font_size, fill='#aaa', stroke_width=0,
                            text_anchor='middle', creation=creation, z=z + 0.1)
                 objects.append(lbl)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class BoxPlot(VCollection):
+    """Box-and-whisker plot for one or more data groups.
+
+    data_groups: list of lists of numeric values.
+    positions: x-positions for each box (defaults to 1, 2, 3, ...).
+    """
+    def __init__(self, data_groups, positions=None, x=100, y=100,
+                 plot_width=400, plot_height=300, box_width=30,
+                 box_color='#58C4DD', whisker_color='#aaa', median_color='#FF6B6B',
+                 font_size=12, creation=0, z=0):
+        if not data_groups:
+            super().__init__(creation=creation, z=z)
+            return
+        if positions is None:
+            positions = list(range(1, len(data_groups) + 1))
+        # Compute stats for each group
+        stats = []
+        for grp in data_groups:
+            s = sorted(grp)
+            n = len(s)
+            q1 = s[n // 4] if n >= 4 else s[0]
+            med = s[n // 2]
+            q3 = s[3 * n // 4] if n >= 4 else s[-1]
+            iqr = q3 - q1
+            lo = max(s[0], q1 - 1.5 * iqr)
+            hi = min(s[-1], q3 + 1.5 * iqr)
+            stats.append((lo, q1, med, q3, hi))
+        # Determine data range
+        all_vals = [v for grp in data_groups for v in grp]
+        y_min, y_max = min(all_vals), max(all_vals)
+        y_rng = y_max - y_min if y_max != y_min else 1
+        x_min, x_max = min(positions) - 0.5, max(positions) + 0.5
+        x_rng = x_max - x_min if x_max != x_min else 1
+        def to_px(xv, yv):
+            px = x + (xv - x_min) / x_rng * plot_width
+            py = y + plot_height - (yv - y_min) / y_rng * plot_height
+            return px, py
+        objects = []
+        half = box_width / 2
+        for pos, (lo, q1, med, q3, hi) in zip(positions, stats):
+            cx, _ = to_px(pos, 0)
+            _, py_lo = to_px(0, lo)
+            _, py_q1 = to_px(0, q1)
+            _, py_med = to_px(0, med)
+            _, py_q3 = to_px(0, q3)
+            _, py_hi = to_px(0, hi)
+            # Box (Q1 to Q3)
+            bh = abs(py_q1 - py_q3)
+            box = Rectangle(width=box_width, height=bh, x=cx - half, y=min(py_q1, py_q3),
+                            fill=box_color, fill_opacity=0.3, stroke=box_color,
+                            stroke_width=1.5, creation=creation, z=z)
+            objects.append(box)
+            # Median line
+            ml = Line(x1=cx - half, y1=py_med, x2=cx + half, y2=py_med,
+                      stroke=median_color, stroke_width=2, creation=creation, z=z + 0.1)
+            objects.append(ml)
+            # Whiskers
+            for wy in [py_lo, py_hi]:
+                cap = Line(x1=cx - half * 0.6, y1=wy, x2=cx + half * 0.6, y2=wy,
+                           stroke=whisker_color, stroke_width=1.5, creation=creation, z=z)
+                objects.append(cap)
+            stem_lo = Line(x1=cx, y1=py_q1, x2=cx, y2=py_lo,
+                           stroke=whisker_color, stroke_width=1, creation=creation, z=z)
+            stem_hi = Line(x1=cx, y1=py_q3, x2=cx, y2=py_hi,
+                           stroke=whisker_color, stroke_width=1, creation=creation, z=z)
+            objects.extend([stem_lo, stem_hi])
         super().__init__(*objects, creation=creation, z=z)
 
 
