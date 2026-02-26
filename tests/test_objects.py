@@ -653,6 +653,13 @@ class TestAxesNewMethods:
         svg = lbl.to_svg(0)
         assert 'hello' in svg
 
+    def test_add_shaded_inequality(self):
+        import math
+        ax = Axes(x_range=(0, 7), y_range=(-3, 3))
+        shade = ax.add_shaded_inequality(math.sin, direction='below')
+        svg = shade.to_svg(0)
+        assert '<path' in svg
+
     def test_add_confidence_band(self):
         import math
         ax = Axes(x_range=(0, 7), y_range=(-3, 3))
@@ -742,6 +749,28 @@ class TestVCollectionNew:
         # At least one dot should have moved
         assert any(o != a for o, a in zip(original, after))
 
+    def test_scatter_from(self):
+        dots = VCollection(
+            Dot(cx=500, cy=500),
+            Dot(cx=550, cy=500),
+        )
+        dots.scatter_from(cx=500, cy=500, radius=200, start=0, end=1)
+        # After scatter, dots should be further from center
+        p = dots[1].c.at_time(1)
+        assert abs(p[0] - 500) > 100 or abs(p[1] - 500) > 100
+
+    def test_gather_to(self):
+        dots = VCollection(
+            Dot(cx=100, cy=100),
+            Dot(cx=500, cy=500),
+        )
+        dots.gather_to(start=0, end=1)
+        # After gather, both should be near center
+        p0 = dots[0].c.at_time(1)
+        p1 = dots[1].c.at_time(1)
+        assert abs(p0[0] - p1[0]) < 10
+        assert abs(p0[1] - p1[1]) < 10
+
 
 class TestVObjectNew:
     def test_warp(self):
@@ -768,6 +797,12 @@ class TestVObjectNew:
         # At midpoint of a beat, scale should be above 1
         sx_mid = c.styling.scale_x.at_time(0.33)
         assert sx_mid > 1.0
+
+    def test_color_wave(self):
+        c = Circle(r=50, fill='#FF0000')
+        c.color_wave(start=0, end=1, colors=('#FF0000', '#00FF00', '#0000FF'))
+        mid = c.styling.fill.at_time(0.5)
+        assert mid != '#FF0000'  # color should have changed
 
 
 class TestSetZ:

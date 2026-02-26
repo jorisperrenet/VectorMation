@@ -1199,6 +1199,50 @@ class Axes(VCollection):
         self._add_plot_obj(rect)
         return rect
 
+    def add_shaded_inequality(self, func, direction='below', x_range=None,
+                               samples=100, creation=0, z=-1, **styling_kwargs):
+        """Shade the region above or below a curve (inequality visualization).
+        direction: 'below' (y < f(x)) or 'above' (y > f(x)).
+        Returns a dynamic Path object."""
+        style_kw = {'fill': '#FFFF00', 'fill_opacity': 0.1, 'stroke_width': 0} | styling_kwargs
+        fn = self._resolve_func(func, 'func')
+        region = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
+        _xr, _dir = x_range, direction
+        def _region_d(time, _fn=fn, _xr=_xr, _dir=_dir, _n=samples):
+            xmin, xmax = self.x_min.at_time(time), self.x_max.at_time(time)
+            x0 = _xr[0] if _xr else xmin
+            x1 = _xr[1] if _xr else xmax
+            step = (x1 - x0) / max(_n, 1)
+            pts = []
+            for i in range(_n + 1):
+                xv = x0 + i * step
+                sx, sy = self.coords_to_point(xv, _fn(xv), time)
+                pts.append((sx, sy))
+            if not pts:
+                return ''
+            # Build path: curve points, then boundary edge
+            if _dir == 'below':
+                # Curve left-to-right, then bottom-right to bottom-left
+                bottom_y = self.plot_y + self.plot_height
+                parts = [f'M{pts[0][0]:.1f},{pts[0][1]:.1f}']
+                for sx, sy in pts[1:]:
+                    parts.append(f'L{sx:.1f},{sy:.1f}')
+                parts.append(f'L{pts[-1][0]:.1f},{bottom_y:.1f}')
+                parts.append(f'L{pts[0][0]:.1f},{bottom_y:.1f}')
+            else:
+                # Curve left-to-right, then top-right to top-left
+                top_y = self.plot_y
+                parts = [f'M{pts[0][0]:.1f},{pts[0][1]:.1f}']
+                for sx, sy in pts[1:]:
+                    parts.append(f'L{sx:.1f},{sy:.1f}')
+                parts.append(f'L{pts[-1][0]:.1f},{top_y:.1f}')
+                parts.append(f'L{pts[0][0]:.1f},{top_y:.1f}')
+            parts.append('Z')
+            return ''.join(parts)
+        region.d.set_onward(creation, _region_d)
+        self._add_plot_obj(region)
+        return region
+
     def get_dashed_line(self, x1, y1, x2, y2, creation=0, z=0, **styling_kwargs):
         """Draw a dashed line between two math coordinate points.
         Returns a Line object."""

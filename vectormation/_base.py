@@ -822,6 +822,39 @@ class VObject(ABC):  # Vector Object
             setattr(self.styling, attr_name, interp)
         return self
 
+    def color_wave(self, start: float = 0, end: float = 1, colors=('#FF6B6B', '#58C4DD', '#83C167'),
+                    attr='fill', cycles=1):
+        """Cycle through colors in a smooth wave pattern.
+        colors: tuple of hex color strings to cycle through.
+        attr: 'fill' or 'stroke'. cycles: number of full loops."""
+        if len(colors) < 2:
+            return self
+        n_colors = len(colors)
+        dur = end - start
+        if dur <= 0:
+            return self
+        # Parse hex colors to RGB tuples
+        parsed = []
+        for c in colors:
+            parsed.append((int(c[1:3], 16), int(c[3:5], 16), int(c[5:7], 16)))
+        _s, _d, _n, _p, _cyc = start, max(dur, 1e-9), n_colors, parsed, cycles
+        def _interp_rgb(t, _s=_s, _d=_d, _n=_n, _p=_p, _cyc=_cyc):
+            p = ((t - _s) / _d) * _cyc
+            p = p % 1.0  # wrap to [0, 1)
+            idx = p * _n
+            i = int(idx) % _n
+            j = (i + 1) % _n
+            frac = idx - int(idx)
+            c1, c2 = _p[i], _p[j]
+            return (c1[0] + (c2[0] - c1[0]) * frac,
+                    c1[1] + (c2[1] - c1[1]) * frac,
+                    c1[2] + (c2[2] - c1[2]) * frac)
+        style_attr = getattr(self.styling, attr)
+        # Store the function directly, preserving 'rgb' type
+        style_attr.use = 'rgb'
+        style_attr.set(start, end, _interp_rgb, stay=False)
+        return self
+
     def next_to(self, other, direction: str | tuple = 'right', buff=SMALL_BUFF, start_time: float = 0):
         """Position this object next to another.
         direction: 'left', 'right', 'up', 'down' or a direction constant (UP, DOWN, LEFT, RIGHT)."""
@@ -2462,6 +2495,44 @@ class VCollection:
             else:
                 new_cy = 2 * gcy - cy
                 obj.move_to(cx, new_cy, start_time=start, end_time=end, easing=easing)
+        return self
+
+    def scatter_from(self, cx=None, cy=None, radius=300,
+                      start: float = 0, end: float = 1, easing=easings.smooth):
+        """Explode children outward from a center point.
+        Each child moves along the ray from (cx, cy) through its center."""
+        n = len(self.objects)
+        if n == 0:
+            return self
+        gx, gy, gw, gh = self.bbox(start)
+        cx = cx if cx is not None else gx + gw / 2
+        cy = cy if cy is not None else gy + gh / 2
+        for i, obj in enumerate(self.objects):
+            bx, by, bw, bh = obj.bbox(start)
+            ocx, ocy = bx + bw / 2, by + bh / 2
+            dx, dy = ocx - cx, ocy - cy
+            dist = math.sqrt(dx * dx + dy * dy)
+            if dist < 1e-6:
+                # At center: use evenly-spaced angles
+                angle = 2 * math.pi * i / max(n, 1)
+                dx, dy = math.cos(angle), math.sin(angle)
+                dist = 1
+            tx = ocx + dx / dist * radius
+            ty = ocy + dy / dist * radius
+            obj.move_to(tx, ty, start_time=start, end_time=end, easing=easing)
+        return self
+
+    def gather_to(self, cx=None, cy=None,
+                   start: float = 0, end: float = 1, easing=easings.smooth):
+        """Converge children to a center point (reverse of scatter_from)."""
+        n = len(self.objects)
+        if n == 0:
+            return self
+        gx, gy, gw, gh = self.bbox(start)
+        cx = cx if cx is not None else gx + gw / 2
+        cy = cy if cy is not None else gy + gh / 2
+        for obj in self.objects:
+            obj.move_to(cx, cy, start_time=start, end_time=end, easing=easing)
         return self
 
     def rotate_children(self, degrees=90, start: float = 0, end: float | None = None,
