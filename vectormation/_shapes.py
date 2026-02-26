@@ -8,7 +8,7 @@ import vectormation.style as style
 from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
     SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS, CHAR_WIDTH_FACTOR,
-    _rotate_point, _sample_function,
+    _rotate_point, _sample_function, _distance,
 )
 from vectormation._base import VObject
 
@@ -75,10 +75,10 @@ class Polygon(VObject):
         pts = self.get_vertices(time)
         if len(pts) < 2:
             return 0.0
-        total = sum(math.sqrt((pts[i+1][0] - pts[i][0]) ** 2 + (pts[i+1][1] - pts[i][1]) ** 2)
+        total = sum(_distance(pts[i][0], pts[i][1], pts[i+1][0], pts[i+1][1])
                     for i in range(len(pts) - 1))
         if self.closed and len(pts) > 2:
-            total += math.sqrt((pts[0][0] - pts[-1][0]) ** 2 + (pts[0][1] - pts[-1][1]) ** 2)
+            total += _distance(pts[0][0], pts[0][1], pts[-1][0], pts[-1][1])
         return total
 
     def area(self, time=0):
@@ -440,7 +440,7 @@ class Line(VObject):
         """Return the Euclidean length of the line."""
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
-        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+        return _distance(x1, y1, x2, y2)
 
     def get_angle(self, time=0):
         """Return the angle (in degrees) from p1 to p2. 0 = right, 90 = down."""
@@ -458,7 +458,7 @@ class Line(VObject):
         """Return the normalized direction vector (dx, dy) from p1 to p2."""
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
-        length = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+        length = _distance(x1, y1, x2, y2)
         if length == 0:
             return (0.0, 0.0)
         return ((x2 - x1) / length, (y2 - y1) / length)

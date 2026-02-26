@@ -186,8 +186,8 @@ class TexObject(VCollection):
         # Get the bounding box and reset the position
         xmin, ymin, _, _ = self.bbox(creation)
         for obj in self.objects:
-            obj.styling.dx.add_onward(creation, lambda t: self.x.at_time(t) - xmin)
-            obj.styling.dy.add_onward(creation, lambda t: self.y.at_time(t) - ymin)
+            obj.styling.dx.add_onward(creation, lambda t, _xm=xmin: self.x.at_time(t) - _xm)
+            obj.styling.dy.add_onward(creation, lambda t, _ym=ymin: self.y.at_time(t) - _ym)
 
 
 class SplitTexObject:
