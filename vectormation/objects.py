@@ -15,6 +15,7 @@ from vectormation._constants import (
     DEFAULT_STROKE_WIDTH, DEFAULT_FONT_SIZE, DEFAULT_DOT_RADIUS, DEFAULT_SMALL_DOT_RADIUS,
     DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
     DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_OBJECT_TO_OBJECT_BUFF,
+    DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR,
     UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR, ORIGIN,
 )
 
@@ -40,7 +41,7 @@ from vectormation._composites import (
     MorphObject, LabeledDot, TexObject, SplitTexObject,
     Axes, Graph, NumberPlane,
     Arrow, DoubleArrow, CurvedArrow, Brace,
-    ClipPath, BlurFilter, DropShadowFilter, LinearGradient, RadialGradient,
+    ClipPath, BlurFilter, DropShadowFilter,
     Angle, RightAngle, Cross, NumberLine,
     PieChart, DonutChart, BarChart, Table, Matrix,
     DynamicObject, ZoomedInset,
@@ -66,6 +67,8 @@ from vectormation._composites import (
     from_svg, from_svg_file, always_redraw, parse_args,
     _parse_inline_style,
 )
+
+from vectormation.colors import LinearGradient, RadialGradient
 
 from vectormation._threed import (
     ThreeDAxes, Surface, Sphere3D, Cube,

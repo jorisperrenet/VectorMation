@@ -7,7 +7,7 @@ import vectormation.attributes as attributes
 import vectormation.style as style
 from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
-    SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS,
+    SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS, CHAR_WIDTH_FACTOR,
     _rotate_point, _sample_function,
 )
 from vectormation._base import VObject
@@ -399,7 +399,7 @@ class Text(VObject):
         x = self.x.at_time(time)
         y = self.y.at_time(time)
         fs = self.font_size.at_time(time)
-        char_width = fs * 0.6  # approximate monospace char width
+        char_width = fs * CHAR_WIDTH_FACTOR
         parts = []
         cursor = 0
         for word in words:
@@ -1038,7 +1038,7 @@ class Paragraph(VObject):
     def bbox(self, time=0):
         x, y = self.x.at_time(time), self.y.at_time(time)
         max_chars = max((len(line) for line in self.lines), default=0)
-        w = max_chars * self.font_size * 0.6
+        w = max_chars * self.font_size * CHAR_WIDTH_FACTOR
         h = len(self.lines) * self.font_size * self.line_spacing
         if self.alignment == 'center':
             return (x - w / 2, y - self.font_size, w, h)
@@ -1091,7 +1091,7 @@ class BulletedList(VObject):
     def bbox(self, time=0):
         x, y = self.x.at_time(time), self.y.at_time(time)
         max_chars = max((len(item) for item in self.items), default=0)
-        w = self.indent + max_chars * self.font_size * 0.6
+        w = self.indent + max_chars * self.font_size * CHAR_WIDTH_FACTOR
         h = len(self.items) * self.font_size * self.line_spacing
         return (x, y - self.font_size, w, h)
 
@@ -1141,7 +1141,7 @@ class NumberedList(VObject):
     def bbox(self, time=0):
         x, y = self.x.at_time(time), self.y.at_time(time)
         max_chars = max((len(item) for item in self.items), default=0)
-        w = self.indent + max_chars * self.font_size * 0.6
+        w = self.indent + max_chars * self.font_size * CHAR_WIDTH_FACTOR
         h = len(self.items) * self.font_size * self.line_spacing
         return (x, y - self.font_size, w, h)
 

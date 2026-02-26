@@ -11,7 +11,8 @@ import vectormation.morphing as morphing
 from vectormation._constants import (
     UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE,
     DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
-    DEFAULT_OBJECT_TO_EDGE_BUFF, _sample_function,
+    DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR,
+    _sample_function,
 )
 from vectormation._base import VObject, VCollection
 from vectormation._shapes import (
@@ -2029,8 +2030,7 @@ class Axes(VCollection):
         if x_values is None:
             x_values = list(range(n_points))
         if colors is None:
-            colors = ['#58C4DD', '#83C167', '#FF6B6B', '#FFFF00',
-                      '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C']
+            colors = list(DEFAULT_CHART_COLORS)
         # Compute cumulative sums
         cumulative = [[0] * n_points]
         for series in data:
@@ -3471,55 +3471,6 @@ class DropShadowFilter:
         return f'url(#{self.id})'
 
 
-class LinearGradient:
-    """SVG linear gradient definition. Register with canvas.add_def().
-    Apply to objects: obj.set_style(fill='url(#gradient_id)').
-
-    stops: list of (offset, color) or (offset, color, opacity) tuples.
-           offset is 0-1 (0=start, 1=end).
-    """
-    def __init__(self, stops, x1='0%', y1='0%', x2='100%', y2='0%'):
-        self.id = f'lg{id(self)}'
-        self.stops = stops
-        self.x1, self.y1, self.x2, self.y2 = x1, y1, x2, y2
-
-    def to_svg_def(self, time=0):
-        parts = [f"<linearGradient id='{self.id}' x1='{self.x1}' y1='{self.y1}' "
-                 f"x2='{self.x2}' y2='{self.y2}'>"]
-        for stop in self.stops:
-            off, color = stop[0], stop[1]
-            opacity = stop[2] if len(stop) > 2 else 1
-            parts.append(f"<stop offset='{off}' stop-color='{color}' stop-opacity='{opacity}'/>")
-        parts.append("</linearGradient>")
-        return ''.join(parts)
-
-    def fill_ref(self):
-        return f'url(#{self.id})'
-
-
-class RadialGradient:
-    """SVG radial gradient definition. Register with canvas.add_def().
-    Apply to objects: obj.set_style(fill='url(#gradient_id)').
-
-    stops: list of (offset, color) or (offset, color, opacity) tuples.
-    """
-    def __init__(self, stops, cx='50%', cy='50%', r='50%'):
-        self.id = f'rg{id(self)}'
-        self.stops = stops
-        self.cx, self.cy, self.r = cx, cy, r
-
-    def to_svg_def(self, time=0):
-        parts = [f"<radialGradient id='{self.id}' cx='{self.cx}' cy='{self.cy}' r='{self.r}'>"]
-        for stop in self.stops:
-            off, color = stop[0], stop[1]
-            opacity = stop[2] if len(stop) > 2 else 1
-            parts.append(f"<stop offset='{off}' stop-color='{color}' stop-opacity='{opacity}'/>")
-        parts.append("</radialGradient>")
-        return ''.join(parts)
-
-    def fill_ref(self):
-        return f'url(#{self.id})'
-
 
 class Angle(VCollection):
     """Draw an angle arc between two lines meeting at a vertex, with optional label.
@@ -3775,8 +3726,7 @@ class PieChart(VCollection):
     def __init__(self, values, labels=None, colors=None, cx=960, cy=540, r=240,
                  start_angle=90, creation=0, z=0):
         if colors is None:
-            colors = ['#58C4DD', '#83C167', '#FC6255', '#FFFF00', '#9A72AC',
-                      '#F0AC5F', '#C55F73', '#5CD0B3']
+            colors = list(DEFAULT_CHART_COLORS)
         total = sum(values)
         if total == 0:
             total = 1
@@ -3830,8 +3780,7 @@ class DonutChart(VCollection):
                  r=240, inner_radius=120, start_angle=90,
                  center_text=None, font_size=17, creation=0, z=0):
         if colors is None:
-            colors = ['#58C4DD', '#83C167', '#FC6255', '#FFFF00', '#9A72AC',
-                      '#F0AC5F', '#C55F73', '#5CD0B3']
+            colors = list(DEFAULT_CHART_COLORS)
         total = sum(values)
         if total == 0:
             total = 1
@@ -3888,8 +3837,7 @@ class BarChart(VCollection):
                  width=1440, height=840, bar_spacing=0.2,
                  creation=0, z=0):
         if colors is None:
-            colors = ['#58C4DD', '#83C167', '#FC6255', '#FFFF00', '#9A72AC',
-                      '#F0AC5F', '#C55F73', '#5CD0B3']
+            colors = list(DEFAULT_CHART_COLORS)
         n = len(values)
         if n == 0:
             super().__init__(creation=creation, z=z)
@@ -4661,7 +4609,7 @@ class Code(VCollection):
         lines = text.strip('\n').split('\n')
         objects = []
         keywords = self._KEYWORD_COLORS.get(language, set())
-        bg_width = max(len(line) for line in lines) * font_size * 0.6 + 40 if lines else 200
+        bg_width = max(len(line) for line in lines) * font_size * CHAR_WIDTH_FACTOR + 40 if lines else 200
         bg_height = len(lines) * font_size * line_height + 20
 
         from vectormation._shapes import RoundedRectangle
@@ -4685,7 +4633,7 @@ class Code(VCollection):
                 if not word:
                     continue
                 if word.isspace():
-                    wx += len(word) * font_size * 0.6
+                    wx += len(word) * font_size * CHAR_WIDTH_FACTOR
                     continue
                 color = '#c678dd' if word in keywords else '#abb2bf'
                 if word.startswith(('#', '//')):
@@ -4697,7 +4645,7 @@ class Code(VCollection):
                 t = Text(text=word, x=wx, y=ly, font_size=font_size,
                          creation=creation, z=z, fill=color, stroke_width=0)
                 objects.append(t)
-                wx += len(word) * font_size * 0.6
+                wx += len(word) * font_size * CHAR_WIDTH_FACTOR
         super().__init__(*objects, creation=creation, z=z)
         self._code_x = x
         self._code_y = y
@@ -5662,7 +5610,7 @@ class Legend(VCollection):
             objects.extend([swatch, txt])
             if horizontal:
                 # estimate text width
-                cursor_x += swatch_size + spacing + len(label) * font_size * 0.6 + spacing * 2
+                cursor_x += swatch_size + spacing + len(label) * font_size * CHAR_WIDTH_FACTOR + spacing * 2
             else:
                 cursor_y += swatch_size + spacing
         super().__init__(*objects, creation=creation, z=z)
@@ -5922,8 +5870,7 @@ class GanttChart(VCollection):
             super().__init__(creation=creation, z=z)
             return
         if colors is None:
-            colors = ['#58C4DD', '#83C167', '#FF6B6B', '#FFFF00',
-                      '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C']
+            colors = list(DEFAULT_CHART_COLORS)
         total_h = height if height else n * (bar_height + bar_spacing) + 40
         # Compute time range
         all_starts = [t[1] for t in tasks]
@@ -5992,8 +5939,7 @@ class SankeyDiagram(VCollection):
             super().__init__(creation=creation, z=z)
             return
         if colors is None:
-            colors = ['#58C4DD', '#83C167', '#FF6B6B', '#FFFF00',
-                      '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C']
+            colors = list(DEFAULT_CHART_COLORS)
         sources = list(dict.fromkeys(src for src, _, _ in flows))
         targets = list(dict.fromkeys(tgt for _, tgt, _ in flows))
         src_totals = {s: sum(v for ss, _, v in flows if ss == s) for s in sources}
@@ -6061,8 +6007,7 @@ class FunnelChart(VCollection):
             super().__init__(creation=creation, z=z)
             return
         if colors is None:
-            colors = ['#58C4DD', '#83C167', '#FF6B6B', '#FFFF00',
-                      '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C']
+            colors = list(DEFAULT_CHART_COLORS)
         n = len(stages)
         max_val = max(v for _, v in stages) or 1
         row_h = (height - (n - 1) * gap) / n
@@ -6097,8 +6042,7 @@ class TreeMap(VCollection):
             super().__init__(creation=creation, z=z)
             return
         if colors is None:
-            colors = ['#58C4DD', '#83C167', '#FF6B6B', '#FFFF00',
-                      '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C']
+            colors = list(DEFAULT_CHART_COLORS)
         total = sum(v for _, v in data) or 1
         # Sort descending by value for squarified layout
         sorted_data = sorted(enumerate(data), key=lambda iv: iv[1][1], reverse=True)
@@ -6392,8 +6336,7 @@ class OrgChart(VCollection):
                  box_width=120, box_height=40, font_size=16,
                  colors=None, creation=0, z=0):
         if colors is None:
-            colors = ['#58C4DD', '#83C167', '#FF6B6B', '#FFFF00',
-                      '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C']
+            colors = list(DEFAULT_CHART_COLORS)
         # Layout: BFS to compute positions
         levels = []
         queue = [(root, 0)]
@@ -6485,7 +6428,7 @@ class KPICard(VCollection):
         # Subtitle
         if subtitle:
             s_lbl = Text(text=str(subtitle), x=x + width / 2,
-                         y=y + height * 0.5 + font_size * 0.3 + font_size * 0.6,
+                         y=y + height * 0.5 + font_size * 0.3 + font_size * CHAR_WIDTH_FACTOR,
                          font_size=font_size * 0.3, fill=title_color, stroke_width=0,
                          text_anchor='middle', creation=creation, z=z + 0.1)
             objects.append(s_lbl)
@@ -6651,8 +6594,7 @@ class MindMap(VCollection):
     def __init__(self, root, cx=960, cy=540, radius=250, font_size=18,
                  colors=None, creation=0, z=0):
         if colors is None:
-            colors = ['#58C4DD', '#83C167', '#FF6B6B', '#FFFF00',
-                      '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C']
+            colors = list(DEFAULT_CHART_COLORS)
         objects = []
         root_label, children = root
         # Central node
@@ -6936,7 +6878,7 @@ class TextBox(VCollection):
                  width=None, height=None, corner_radius=6,
                  box_fill='#333', box_opacity=0.9, text_color='#fff',
                  creation=0, z=0, **styling_kwargs):
-        char_w = font_size * 0.6
+        char_w = font_size * CHAR_WIDTH_FACTOR
         if width is None:
             width = len(text) * char_w + padding * 2
         if height is None:
@@ -7033,7 +6975,7 @@ class SpeechBubble(VCollection):
                  tail_direction='down', tail_width=20, tail_height=18,
                  creation=0, z=0, **styling_kwargs):
         from vectormation._shapes import RoundedRectangle, Text as SText
-        char_w = font_size * 0.6
+        char_w = font_size * CHAR_WIDTH_FACTOR
         if width is None:
             width = max(len(text) * char_w + padding * 2, 60)
         if height is None:
@@ -7074,7 +7016,7 @@ class Badge(VCollection):
                  padding_y=6, bg_color='#58C4DD', text_color='#000',
                  creation=0, z=0, **styling_kwargs):
         from vectormation._shapes import RoundedRectangle, Text as SText
-        char_w = font_size * 0.6
+        char_w = font_size * CHAR_WIDTH_FACTOR
         width = len(text) * char_w + padding_x * 2
         height = font_size + padding_y * 2
         corner_radius = height / 2  # fully rounded = pill shape
@@ -7105,7 +7047,7 @@ class Divider(VCollection):
         style_kw = {'stroke': '#555', 'stroke_width': 1} | styling_kwargs
         objects = []
         if label:
-            char_w = font_size * 0.6
+            char_w = font_size * CHAR_WIDTH_FACTOR
             label_w = len(label) * char_w + gap * 2
             if direction == 'horizontal':
                 half = (length - label_w) / 2
@@ -7234,8 +7176,7 @@ class TagCloud(VCollection):
     def __init__(self, data, x=100, y=100, width=500, min_font=14, max_font=48,
                  colors=None, creation=0, z=0):
         if colors is None:
-            colors = ['#58C4DD', '#83C167', '#FF6B6B', '#FFFF00',
-                      '#FF79C6', '#BD93F9', '#F1FA8C', '#8BE9FD']
+            colors = list(DEFAULT_CHART_COLORS)
         if not data:
             super().__init__(creation=creation, z=z)
             return
@@ -7248,7 +7189,7 @@ class TagCloud(VCollection):
         for i, (text, weight) in enumerate(data):
             frac = (weight - wmin) / wrange
             fs = min_font + frac * (max_font - min_font)
-            char_w = fs * 0.6
+            char_w = fs * CHAR_WIDTH_FACTOR
             tw = len(text) * char_w + 12  # word width + gap
             # Wrap to next row if exceeding width
             if cx + tw > x + width and cx > x:
@@ -7342,13 +7283,13 @@ class Breadcrumb(VCollection):
                        font_size=font_size, fill=color, stroke_width=0,
                        creation=creation, z=z)
             objects.append(lbl)
-            cx += len(item) * font_size * 0.6 + gap
+            cx += len(item) * font_size * CHAR_WIDTH_FACTOR + gap
             if i < len(items) - 1:
                 sep = Text(text=separator, x=cx, y=y,
                            font_size=font_size, fill=inactive_color, stroke_width=0,
                            creation=creation, z=z)
                 objects.append(sep)
-                cx += font_size * 0.6 + gap
+                cx += font_size * CHAR_WIDTH_FACTOR + gap
         super().__init__(*objects, creation=creation, z=z)
 
 

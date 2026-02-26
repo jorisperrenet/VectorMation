@@ -15,6 +15,13 @@ DEFAULT_ARROW_TIP_LENGTH = 47
 DEFAULT_ARROW_TIP_WIDTH = 47
 DEFAULT_OBJECT_TO_EDGE_BUFF = 68
 DEFAULT_OBJECT_TO_OBJECT_BUFF = 34
+CHAR_WIDTH_FACTOR = 0.6  # Approximate character width as fraction of font_size
+
+# Default chart color palette (used by PieChart, BarChart, GanttChart, etc.)
+DEFAULT_CHART_COLORS = [
+    '#58C4DD', '#83C167', '#FF6B6B', '#FFFF00',
+    '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C',
+]
 
 # Direction constants (pixel vectors)
 UP = (0, -1)

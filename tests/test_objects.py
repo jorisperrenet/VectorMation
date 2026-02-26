@@ -27,6 +27,10 @@ from vectormation.objects import (
     DashedLine, RegularPolygon, FunctionGraph, Annulus, ArcBetweenPoints,
     Elbow, SurroundingCircle, BulletedList,
     DoubleArrow, CurvedArrow, NumberLine,
+    Code, NetworkGraph, Tree, Label, LabeledArrow,
+    Callout, DimensionLine, Tooltip, ProgressBar, Legend, FlowChart,
+    StreamLines, PolarAxes, Stamp, TimelineBar, RadarChart,
+    DEFAULT_CHART_COLORS,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -2465,3 +2469,271 @@ class TestScreenRectangle:
         from vectormation.objects import ScreenRectangle
         sr = ScreenRectangle(width=960)
         assert sr.get_height() == 540
+
+
+class TestCode:
+    def test_creates_collection(self):
+        c = Code("x = 1\nprint(x)", language='python')
+        assert isinstance(c, VCollection)
+
+    def test_to_svg(self):
+        c = Code("def f():\n    return 42")
+        svg = c.to_svg(0)
+        assert 'def' in svg
+        assert '42' in svg
+
+    def test_highlight_lines(self):
+        c = Code("a = 1\nb = 2\nc = 3")
+        rects = c.highlight_lines([1, 3], start=0, end=1)
+        assert isinstance(rects, VCollection)
+
+    def test_javascript(self):
+        c = Code("const x = 5;", language='javascript')
+        svg = c.to_svg(0)
+        assert 'const' in svg
+
+
+class TestNetworkGraph:
+    def test_circular_layout(self):
+        g = NetworkGraph(['A', 'B', 'C'], edges=[(0, 1), (1, 2)])
+        assert isinstance(g, VCollection)
+        svg = g.to_svg(0)
+        assert svg != ''
+
+    def test_grid_layout(self):
+        g = NetworkGraph(['A', 'B', 'C', 'D'], layout='grid')
+        assert len(g._node_positions) == 4
+
+    def test_spring_layout(self):
+        g = NetworkGraph(['X', 'Y', 'Z'], edges=[(0, 1), (1, 2)], layout='spring')
+        assert len(g._node_positions) == 3
+
+    def test_directed(self):
+        g = NetworkGraph(['A', 'B'], edges=[(0, 1)], directed=True)
+        svg = g.to_svg(0)
+        assert svg != ''
+
+    def test_dict_nodes(self):
+        g = NetworkGraph({0: 'Node A', 1: 'Node B'}, edges=[(0, 1)])
+        assert g.get_node_position(0) != (960, 540)
+
+    def test_edge_label(self):
+        g = NetworkGraph(['A', 'B'], edges=[(0, 1, 'weight')])
+        svg = g.to_svg(0)
+        assert 'weight' in svg
+
+    def test_empty(self):
+        g = NetworkGraph([])
+        svg = g.to_svg(0)
+        assert svg is not None
+
+    def test_highlight_node(self):
+        g = NetworkGraph(['A', 'B'])
+        result = g.highlight_node(0, start=0, end=1)
+        assert result is g
+
+
+class TestTree:
+    def test_dict_tree(self):
+        t = Tree({'root': {'child1': {}, 'child2': {}}})
+        assert isinstance(t, VCollection)
+        svg = t.to_svg(0)
+        assert 'root' in svg
+
+    def test_tuple_tree(self):
+        t = Tree(('root', [('A', []), ('B', [('C', [])])]))
+        assert t.get_node_position('root') != (960, 540)
+        assert t.get_node_position('C') != (960, 540)
+
+    def test_highlight_node(self):
+        t = Tree({'root': {'leaf': {}}})
+        result = t.highlight_node('root', start=0, end=1)
+        assert result is t
+
+    def test_right_layout(self):
+        t = Tree(('root', [('A', []), ('B', [])]), layout='right')
+        svg = t.to_svg(0)
+        assert svg != ''
+
+
+class TestLabel:
+    def test_creates_collection(self):
+        l = Label("Hello")
+        assert isinstance(l, VCollection)
+        svg = l.to_svg(0)
+        assert 'Hello' in svg
+
+    def test_custom_styling(self):
+        l = Label("Test", fill='#FF0000')
+        svg = l.to_svg(0)
+        assert svg != ''
+
+
+class TestLabeledArrow:
+    def test_creates(self):
+        la = LabeledArrow(x1=100, y1=200, x2=400, y2=200, label='dist')
+        assert isinstance(la, VCollection)
+        svg = la.to_svg(0)
+        assert 'dist' in svg
+
+    def test_arrow_ref(self):
+        la = LabeledArrow(label='test')
+        assert hasattr(la, 'arrow')
+        assert hasattr(la, 'label_obj')
+
+
+class TestCallout:
+    def test_with_tuple(self):
+        c = Callout("Note", target=(500, 300))
+        svg = c.to_svg(0)
+        assert 'Note' in svg
+
+    def test_with_vobject(self):
+        circ = Circle(r=50, cx=500, cy=300)
+        c = Callout("Tip", target=circ, direction='down')
+        svg = c.to_svg(0)
+        assert 'Tip' in svg
+
+    def test_directions(self):
+        for d in ('up', 'down', 'left', 'right'):
+            c = Callout("X", target=(500, 300), direction=d)
+            assert c.to_svg(0) != ''
+
+
+class TestDimensionLine:
+    def test_auto_label(self):
+        dl = DimensionLine(p1=(100, 300), p2=(400, 300))
+        svg = dl.to_svg(0)
+        assert '300' in svg  # auto-distance label
+
+    def test_custom_label(self):
+        dl = DimensionLine(p1=(0, 0), p2=(100, 0), label='10cm')
+        svg = dl.to_svg(0)
+        assert '10cm' in svg
+
+
+class TestTooltip:
+    def test_creates(self):
+        t = Tooltip("Info", target=(500, 300), start=0, duration=2)
+        assert isinstance(t, VCollection)
+        svg = t.to_svg(0)
+        assert 'Info' in svg
+
+    def test_with_vobject_target(self):
+        circ = Circle(r=30, cx=400, cy=400)
+        t = Tooltip("Hover", target=circ)
+        svg = t.to_svg(0)
+        assert 'Hover' in svg
+
+
+class TestProgressBar:
+    def test_creates(self):
+        pb = ProgressBar()
+        assert isinstance(pb, VCollection)
+        svg = pb.to_svg(0)
+        assert svg != ''
+
+    def test_set_progress(self):
+        pb = ProgressBar()
+        result = pb.set_progress(0.5, start=0)
+        assert result is pb
+
+    def test_animate_to(self):
+        pb = ProgressBar()
+        result = pb.animate_to(0.8, start=0, end=1)
+        assert result is pb
+
+
+class TestLegend:
+    def test_creates(self):
+        leg = Legend([('#58C4DD', 'Blue'), ('#83C167', 'Green')])
+        svg = leg.to_svg(0)
+        assert 'Blue' in svg
+        assert 'Green' in svg
+
+    def test_horizontal(self):
+        leg = Legend([('#FF0000', 'A'), ('#00FF00', 'B')], direction='right')
+        svg = leg.to_svg(0)
+        assert svg != ''
+
+
+class TestFlowChart:
+    def test_horizontal(self):
+        fc = FlowChart(['Start', 'Process', 'End'])
+        svg = fc.to_svg(0)
+        assert 'Start' in svg
+        assert 'End' in svg
+
+    def test_vertical(self):
+        fc = FlowChart(['A', 'B', 'C'], direction='down')
+        svg = fc.to_svg(0)
+        assert 'A' in svg
+
+    def test_boxes_and_labels(self):
+        fc = FlowChart(['Step 1', 'Step 2'])
+        assert len(fc._boxes) == 2
+        assert len(fc._labels) == 2
+
+
+class TestStreamLines:
+    def test_creates(self):
+        sl = StreamLines(lambda x, y: (1, 0))
+        assert isinstance(sl, VCollection)
+        svg = sl.to_svg(0)
+        assert svg != ''
+
+
+class TestPolarAxes:
+    def test_creates(self):
+        pa = PolarAxes()
+        assert isinstance(pa, VCollection)
+        svg = pa.to_svg(0)
+        assert svg != ''
+
+    def test_polar_to_point(self):
+        pa = PolarAxes(r_range=(0, 5), max_radius=400)
+        x, y = pa.polar_to_point(5, 0)
+        assert x > pa._cx  # r=max at angle 0 should be to the right
+
+    def test_plot_polar(self):
+        pa = PolarAxes()
+        curve = pa.plot_polar(lambda theta: 2)
+        assert curve is not None
+
+
+class TestStamp:
+    def test_creates(self):
+        dot = Dot(cx=0, cy=0)
+        s = Stamp(dot, [(100, 100), (200, 200), (300, 300)])
+        assert isinstance(s, VCollection)
+        assert len(s.objects) == 3
+
+
+class TestTimelineBar:
+    def test_creates(self):
+        tb = TimelineBar({0: 'Start', 5: 'Mid', 10: 'End'})
+        svg = tb.to_svg(0)
+        assert 'Start' in svg
+        assert 'End' in svg
+
+
+class TestRadarChart:
+    def test_creates(self):
+        rc = RadarChart([3, 5, 2, 4, 1], labels=['A', 'B', 'C', 'D', 'E'])
+        svg = rc.to_svg(0)
+        assert 'A' in svg
+
+    def test_too_few_values(self):
+        rc = RadarChart([1, 2])
+        svg = rc.to_svg(0)
+        assert svg is not None
+
+
+class TestDefaultChartColors:
+    def test_constant_length(self):
+        assert len(DEFAULT_CHART_COLORS) == 8
+
+    def test_all_hex(self):
+        for c in DEFAULT_CHART_COLORS:
+            assert c.startswith('#')
+            assert len(c) == 7
