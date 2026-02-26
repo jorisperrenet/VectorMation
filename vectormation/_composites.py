@@ -2602,6 +2602,136 @@ class Axes(VCollection):
         self._add_plot_obj(coll)
         return coll
 
+    def plot_contour(self, func, levels=8, x_samples=40, y_samples=40,
+                      creation=0, z=0, **styling_kwargs):
+        """Plot contour (level) curves for z = func(x, y).
+        levels: int (auto) or list of explicit z-values.
+        Returns a VCollection of Path objects (one per level)."""
+        style_kw = {'stroke_width': 1.5, 'fill_opacity': 0} | styling_kwargs
+        x_lo = self.x_min.at_time(creation)
+        x_hi = self.x_max.at_time(creation)
+        y_lo = self.y_min.at_time(creation)
+        y_hi = self.y_max.at_time(creation)
+        dx = (x_hi - x_lo) / max(x_samples - 1, 1)
+        dy = (y_hi - y_lo) / max(y_samples - 1, 1)
+        # Evaluate grid
+        grid = [[func(x_lo + c * dx, y_lo + r * dy) for c in range(x_samples)]
+                for r in range(y_samples)]
+        flat = [v for row in grid for v in row]
+        zmin, zmax = min(flat), max(flat)
+        if isinstance(levels, int):
+            n = levels
+            levels = [zmin + (i + 1) * (zmax - zmin) / (n + 1) for i in range(n)]
+        # Use _lerp_colormap if available, else generate colors
+        colors = ['#313695', '#4575b4', '#74add1', '#abd9e9',
+                  '#fee090', '#fdae61', '#f46d43', '#d73027']
+        objs = []
+        for li, lv in enumerate(levels):
+            ci = min(int(li / max(len(levels) - 1, 1) * (len(colors) - 1) + 0.5), len(colors) - 1)
+            color = style_kw.get('stroke', colors[ci])
+            # Marching squares: find segments for this level
+            segments = []
+            for r in range(y_samples - 1):
+                for c in range(x_samples - 1):
+                    v = [grid[r][c], grid[r][c + 1], grid[r + 1][c + 1], grid[r + 1][c]]
+                    case = sum(1 << i for i, val in enumerate(v) if val >= lv)
+                    if case == 0 or case == 15:
+                        continue
+                    # Corner positions in math coords
+                    cx0, cy0 = x_lo + c * dx, y_lo + r * dy
+                    cx1, cy1 = cx0 + dx, cy0 + dy
+                    def _interp(va, vb, pa, pb):
+                        t = (lv - va) / (vb - va) if abs(vb - va) > 1e-12 else 0.5
+                        return pa + t * (pb - pa)
+                    edges = {
+                        'top': (_interp(v[0], v[1], cx0, cx1), cy0),
+                        'right': (cx1, _interp(v[1], v[2], cy0, cy1)),
+                        'bottom': (_interp(v[3], v[2], cx0, cx1), cy1),
+                        'left': (cx0, _interp(v[0], v[3], cy0, cy1)),
+                    }
+                    SEGS = {
+                        1: [('left', 'top')], 2: [('top', 'right')],
+                        3: [('left', 'right')], 4: [('right', 'bottom')],
+                        5: [('left', 'bottom'), ('top', 'right')],
+                        6: [('top', 'bottom')], 7: [('left', 'bottom')],
+                        8: [('bottom', 'left')], 9: [('bottom', 'top')],
+                        10: [('left', 'top'), ('right', 'bottom')],
+                        11: [('right', 'bottom')], 12: [('right', 'left')],
+                        13: [('top', 'right')], 14: [('top', 'left')],
+                    }
+                    for e1, e2 in SEGS.get(case, []):
+                        segments.append((edges[e1], edges[e2]))
+            if not segments:
+                continue
+            contour = Path('', x=0, y=0, stroke=color, creation=creation, z=z, **style_kw)
+            def _cd(t, _segs=segments):
+                parts = []
+                for (ax, ay), (bx, by) in _segs:
+                    sa, sb = self.coords_to_point(ax, ay, t), self.coords_to_point(bx, by, t)
+                    parts.append(f'M{sa[0]:.1f},{sa[1]:.1f}L{sb[0]:.1f},{sb[1]:.1f}')
+                return ''.join(parts)
+            contour.d.set_onward(creation, _cd)
+            self._add_plot_obj(contour)
+            objs.append(contour)
+        return VCollection(*objs, creation=creation, z=z)
+
+    def plot_quiver(self, func, x_step=1, y_step=1, scale=0.3,
+                     tip_length=8, tip_width=6,
+                     creation=0, z=0, **styling_kwargs):
+        """2D vector/arrow field: func(x, y) -> (dx, dy).
+        Returns a VCollection of small Arrow objects."""
+        style_kw = {'stroke': '#58C4DD', 'stroke_width': 1.5} | styling_kwargs
+        x_lo = self.x_min.at_time(creation)
+        x_hi = self.x_max.at_time(creation)
+        y_lo = self.y_min.at_time(creation)
+        y_hi = self.y_max.at_time(creation)
+        objs = []
+        x = x_lo
+        while x <= x_hi + 1e-9:
+            y = y_lo
+            while y <= y_hi + 1e-9:
+                dx, dy = func(x, y)
+                if abs(dx) < 1e-12 and abs(dy) < 1e-12:
+                    y += y_step
+                    continue
+                arr = Arrow(x1=0, y1=0, x2=1, y2=0,
+                            tip_length=tip_length, tip_width=tip_width,
+                            creation=creation, z=z, **style_kw)
+                arr.shaft.p1.set_onward(creation,
+                    lambda t, _x=x, _y=y: self.coords_to_point(_x, _y, t))
+                arr.shaft.p2.set_onward(creation,
+                    lambda t, _x=x, _y=y, _dx=dx, _dy=dy, _s=scale:
+                        self.coords_to_point(_x + _dx * _s, _y + _dy * _s, t))
+                self._add_plot_obj(arr)
+                objs.append(arr)
+                y += y_step
+            x += x_step
+        return VCollection(*objs, creation=creation, z=z)
+
+    def add_reference_band(self, lo, hi, axis='y', creation=0, z=-1, **styling_kwargs):
+        """Shaded horizontal or vertical reference band.
+        axis='y': band between y=lo and y=hi. axis='x': between x=lo and x=hi.
+        Returns a Rectangle."""
+        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.1,
+                    'stroke_width': 0} | styling_kwargs
+        rect = Rectangle(width=0, height=0, x=0, y=0, creation=creation, z=z, **style_kw)
+        px, py = self.plot_x, self.plot_y
+        pw, ph = self.plot_width, self.plot_height
+        if axis == 'y':
+            rect.x.set_onward(creation, lambda t: px)
+            rect.width.set_onward(creation, lambda t: pw)
+            rect.y.set_onward(creation, lambda t, _hi=hi: self._math_to_svg_y(_hi, t))
+            rect.height.set_onward(creation, lambda t, _lo=lo, _hi=hi:
+                abs(self._math_to_svg_y(_lo, t) - self._math_to_svg_y(_hi, t)))
+        else:
+            rect.y.set_onward(creation, lambda t: py)
+            rect.height.set_onward(creation, lambda t: ph)
+            rect.x.set_onward(creation, lambda t, _lo=lo: self._math_to_svg_x(_lo, t))
+            rect.width.set_onward(creation, lambda t, _lo=lo, _hi=hi:
+                abs(self._math_to_svg_x(_hi, t) - self._math_to_svg_x(_lo, t)))
+        self._add_plot_obj(rect)
+        return rect
+
     def add_slope_field(self, func, x_step=1, y_step=1, seg_length=0.4,
                          creation=0, z=-1, **styling_kwargs):
         """Draw a direction/slope field for dy/dx = func(x, y).

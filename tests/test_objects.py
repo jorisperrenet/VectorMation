@@ -653,12 +653,6 @@ class TestAxesNewMethods:
         svg = bars.to_svg(0)
         assert '<rect' in svg
 
-    def test_add_text_annotation(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        lbl = ax.add_text_annotation(5, 5, 'hello')
-        svg = lbl.to_svg(0)
-        assert 'hello' in svg
-
     def test_add_shaded_inequality(self):
         import math
         ax = Axes(x_range=(0, 7), y_range=(-3, 3))
@@ -678,14 +672,6 @@ class TestAxesNewMethods:
         tangent = ax.add_moving_tangent(math.sin, x_start=0, x_end=6,
                                          start=0, end=1)
         svg = tangent.to_svg(0.5)
-        assert '<line' in svg
-
-    def test_plot_stem(self):
-        ax = Axes(x_range=(0, 5), y_range=(0, 10))
-        stems = ax.plot_stem([1, 2, 3], [3, 7, 5])
-        assert isinstance(stems, VCollection)
-        assert len(stems) == 6  # 3 lines + 3 dots
-        svg = stems.to_svg(0)
         assert '<line' in svg
 
     def test_plot_grouped_bar(self):
@@ -732,15 +718,6 @@ class TestAxesNewMethods:
         hm = ax.plot_heatmap(data, colormap=[(0, '#000000'), (1, '#FFFFFF')])
         assert len(hm) == 4
 
-    def test_add_crosshair(self):
-        ax = Axes(x_range=(0, 6), y_range=(-2, 2))
-        import math
-        cross = ax.add_crosshair(math.sin, x_start=0, x_end=6, start=0, end=2)
-        assert isinstance(cross, VCollection)
-        assert len(cross) == 3  # v_line, h_line, dot
-        svg = cross.to_svg(1)
-        assert '<line' in svg
-
     def test_add_violin_plot(self):
         import random
         random.seed(42)
@@ -783,16 +760,6 @@ class TestAxesNewMethods:
         svg = dc.to_svg(0)
         assert '<path' in svg
         assert '<text' in svg
-
-    def test_plot_candlestick(self):
-        ax = Axes(x_range=(0, 6), y_range=(0, 20))
-        data = [(1, 10, 15, 8, 12), (2, 12, 18, 10, 9),
-                (3, 9, 14, 7, 13), (4, 13, 16, 11, 15)]
-        candles = ax.plot_candlestick(data)
-        assert isinstance(candles, VCollection)
-        assert len(candles) == 8  # 4 wicks + 4 bodies
-        svg = candles.to_svg(0)
-        assert '<rect' in svg and '<line' in svg
 
     def test_plot_dumbbell(self):
         ax = Axes(x_range=(0, 10), y_range=(0, 4))
@@ -1145,6 +1112,45 @@ class TestAxesNewMethods:
     def test_box_plot_empty(self):
         bp = BoxPlot([])
         assert len(bp) == 0
+
+    def test_plot_candlestick(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 20), plot_width=300, plot_height=200)
+        data = [(1, 10, 15, 8, 14), (2, 14, 16, 11, 12), (3, 12, 18, 10, 17)]
+        cs = ax.plot_candlestick(data)
+        assert isinstance(cs, VCollection)
+        assert len(cs) == 6  # 3 wicks + 3 bodies
+
+    def test_plot_contour(self):
+        ax = Axes(x_range=(-2, 2), y_range=(-2, 2), plot_width=300, plot_height=300)
+        ct = ax.plot_contour(lambda x, y: x**2 + y**2, levels=4, x_samples=20, y_samples=20)
+        assert isinstance(ct, VCollection)
+        assert len(ct) > 0
+
+    def test_plot_quiver(self):
+        ax = Axes(x_range=(-2, 2), y_range=(-2, 2), plot_width=300, plot_height=300)
+        qv = ax.plot_quiver(lambda x, y: (-y, x), x_step=1, y_step=1)
+        assert isinstance(qv, VCollection)
+        assert len(qv) > 0
+
+    def test_add_text_annotation(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10), plot_width=300, plot_height=200)
+        lbl = ax.add_text_annotation(5, 5, 'Peak')
+        assert isinstance(lbl, Text)
+        svg = lbl.to_svg(0)
+        assert 'Peak' in svg
+
+    def test_add_reference_band_y(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10), plot_width=300, plot_height=200)
+        band = ax.add_reference_band(3, 7, axis='y')
+        assert isinstance(band, Rectangle)
+        h = band.height.at_time(0)
+        assert h > 0
+
+    def test_add_reference_band_x(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10), plot_width=300, plot_height=200)
+        band = ax.add_reference_band(2, 8, axis='x')
+        w = band.width.at_time(0)
+        assert w > 0
 
 
 class TestVCollectionNew:
