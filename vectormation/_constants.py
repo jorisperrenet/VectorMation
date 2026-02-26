@@ -16,6 +16,7 @@ DEFAULT_ARROW_TIP_WIDTH = 47
 DEFAULT_OBJECT_TO_EDGE_BUFF = 68
 DEFAULT_OBJECT_TO_OBJECT_BUFF = 34
 CHAR_WIDTH_FACTOR = 0.6  # Approximate character width as fraction of font_size
+TEXT_Y_OFFSET = 0.35  # Vertical centering offset for text (fraction of font_size)
 
 # Default chart color palette (used by PieChart, BarChart, GanttChart, etc.)
 DEFAULT_CHART_COLORS = [

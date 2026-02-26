@@ -58,6 +58,10 @@ class Polygon(VObject):
         return f"<{tag} points='{pts}'{self.styling.svg_style(time)} />"
 
 
+    def __repr__(self):
+        return f'Polygon({len(self.vertices)} vertices)'
+
+
 class Ellipse(VObject):
     def __init__(self, rx: float = 120, ry: float = 60, cx: float = 960, cy: float = 540, z=0, creation=0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
@@ -96,6 +100,10 @@ class Circle(Ellipse):
     """Circle: Ellipse with rx == ry."""
     def __init__(self, r: float = 120, cx: float = 960, cy: float = 540, z=0, creation=0, **styling_kwargs):
         super().__init__(rx=r, ry=r, cx=cx, cy=cy, z=z, creation=creation, **styling_kwargs)
+
+    def __repr__(self):
+        cx, cy = self.c.at_time(0)
+        return f'{self.__class__.__name__}(r={self.rx.at_time(0):.0f}, cx={cx:.0f}, cy={cy:.0f})'
 
     @property
     def r(self):
@@ -171,6 +179,9 @@ class Rectangle(VObject):
                 f" rx='{self.rx.at_time(time)}' ry='{self.ry.at_time(time)}'"
                 f"{self.styling.svg_style(time)} />")
 
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f})'
+
 
 class Line(VObject):
     def __init__(self, x1: float = 0, y1: float = 0, x2: float = 100, y2: float = 100, creation=0, z=0, **styling_kwargs):
@@ -200,6 +211,11 @@ class Line(VObject):
     def to_svg(self, time):
         p1, p2 = self.p1.at_time(time), self.p2.at_time(time)
         return f"<line x1='{p1[0]}' y1='{p1[1]}' x2='{p2[0]}' y2='{p2[1]}'{self.styling.svg_style(time)} />"
+
+
+    def __repr__(self):
+        p1, p2 = self.p1.at_time(0), self.p2.at_time(0)
+        return f'Line(({p1[0]:.0f},{p1[1]:.0f})->({p2[0]:.0f},{p2[1]:.0f}))'
 
 
 class Text(VObject):
@@ -249,6 +265,10 @@ class Text(VObject):
         x, y, fs = self.x.at_time(time), self.y.at_time(time), self.font_size.at_time(time)
         w = self._estimate_width(self.text.at_time(time), fs)
         return (self._text_left(x, w), y - fs, w, fs)
+
+    def __repr__(self):
+        t = self.text.at_time(0)
+        return f'Text({t!r})' if len(t) <= 20 else f'Text({t[:17]!r}...)'
 
     def typing(self, start: float = 0, end: float = 1, change_existence=True):
         """Typewriter effect: reveal text character by character over [start, end]."""

@@ -30,7 +30,9 @@ from vectormation.objects import (
     Code, NetworkGraph, Tree, Label, LabeledArrow,
     Callout, DimensionLine, Tooltip, ProgressBar, Legend, FlowChart,
     StreamLines, PolarAxes, Stamp, TimelineBar, RadarChart,
-    DEFAULT_CHART_COLORS,
+    DEFAULT_CHART_COLORS, Variable, Underline,
+    ArrowVectorField, ComplexPlane, ChessBoard, Automaton,
+    PeriodicTable, BohrAtom,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -2737,3 +2739,176 @@ class TestDefaultChartColors:
         for c in DEFAULT_CHART_COLORS:
             assert c.startswith('#')
             assert len(c) == 7
+
+
+class TestVariable:
+    def test_creates(self):
+        v = Variable('x', value=3.14)
+        assert isinstance(v, VCollection)
+        svg = v.to_svg(0)
+        assert 'x' in svg
+
+    def test_set_value(self):
+        v = Variable('n', value=0)
+        result = v.set_value(42, start=0)
+        assert result is v
+
+    def test_animate_value(self):
+        v = Variable('t', value=0)
+        result = v.animate_value(10, start=0, end=1)
+        assert result is v
+
+    def test_tracker(self):
+        from vectormation.attributes import Real
+        v = Variable('x', value=5)
+        assert isinstance(v.tracker, Real)
+
+
+class TestUnderline:
+    def test_creates(self):
+        t = Text(text='Hello', x=500, y=300)
+        u = Underline(t)
+        assert isinstance(u, VCollection)
+        svg = u.to_svg(0)
+        assert svg != ''
+
+    def test_follow(self):
+        t = Text(text='Move', x=100, y=100)
+        u = Underline(t, follow=True)
+        t.move_to(200, 200, start_time=1, end_time=2)
+        svg_at_0 = u.to_svg(0)
+        svg_at_2 = u.to_svg(2)
+        assert svg_at_0 != svg_at_2
+
+    def test_no_follow(self):
+        t = Text(text='Static', x=200, y=200)
+        u = Underline(t, follow=False)
+        svg = u.to_svg(0)
+        assert svg != ''
+
+
+class TestArrowVectorField:
+    def test_creates(self):
+        vf = ArrowVectorField(lambda x, y: (1, 0))
+        assert isinstance(vf, VCollection)
+        svg = vf.to_svg(0)
+        assert svg != ''
+
+
+class TestComplexPlane:
+    def test_creates(self):
+        cp = ComplexPlane()
+        assert isinstance(cp, Axes)
+        svg = cp.to_svg(0)
+        assert svg != ''
+
+    def test_number_to_point(self):
+        cp = ComplexPlane(x_range=(-5, 5), y_range=(-5, 5))
+        x, y = cp.number_to_point(1 + 1j)
+        # Should be right of center and above center
+        cx, cy = cp.number_to_point(0)
+        assert x > cx
+        assert y < cy
+
+    def test_point_to_number(self):
+        cp = ComplexPlane(x_range=(-5, 5), y_range=(-5, 5))
+        x, y = cp.number_to_point(2 + 3j)
+        z = cp.point_to_number(x, y)
+        assert abs(z.real - 2) < 0.1
+        assert abs(z.imag - 3) < 0.1
+
+
+class TestChessBoard:
+    def test_creates(self):
+        cb = ChessBoard()
+        assert isinstance(cb, VCollection)
+        svg = cb.to_svg(0)
+        assert svg != ''
+
+    def test_custom_fen(self):
+        cb = ChessBoard(fen='8/8/8/4K3/8/8/8/8')
+        svg = cb.to_svg(0)
+        assert svg != ''
+
+
+class TestAutomaton:
+    def test_creates(self):
+        a = Automaton(
+            states=['q0', 'q1', 'q2'],
+            transitions=[('q0', 'q1', 'a'), ('q1', 'q2', 'b')],
+            accept_states={'q2'},
+            initial_state='q0',
+        )
+        assert isinstance(a, VCollection)
+        svg = a.to_svg(0)
+        assert 'q0' in svg
+
+    def test_empty(self):
+        a = Automaton(states=[], transitions=[])
+        svg = a.to_svg(0)
+        assert svg is not None
+
+    def test_self_loop(self):
+        a = Automaton(
+            states=['q0'],
+            transitions=[('q0', 'q0', 'a')],
+        )
+        svg = a.to_svg(0)
+        assert 'q0' in svg
+
+
+class TestPeriodicTable:
+    def test_creates(self):
+        pt = PeriodicTable()
+        assert isinstance(pt, VCollection)
+        svg = pt.to_svg(0)
+        assert 'H' in svg  # Hydrogen
+
+
+class TestBohrAtom:
+    def test_creates(self):
+        ba = BohrAtom(protons=6, neutrons=6, electrons=[2, 4])
+        assert isinstance(ba, VCollection)
+        svg = ba.to_svg(0)
+        assert svg != ''
+
+    def test_default(self):
+        ba = BohrAtom()
+        svg = ba.to_svg(0)
+        assert svg != ''
+
+
+class TestReprShapes:
+    def test_polygon_repr(self):
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        assert '3 vertices' in repr(p)
+
+    def test_circle_repr(self):
+        c = Circle(r=50, cx=100, cy=200)
+        r = repr(c)
+        assert 'Circle' in r
+        assert '50' in r
+
+    def test_dot_repr(self):
+        d = Dot(cx=10, cy=20)
+        r = repr(d)
+        assert 'Dot' in r
+
+    def test_rectangle_repr(self):
+        r = Rectangle(200, 100)
+        assert '200x100' in repr(r)
+
+    def test_line_repr(self):
+        l = Line(x1=0, y1=0, x2=100, y2=100)
+        r = repr(l)
+        assert 'Line' in r
+
+    def test_text_repr(self):
+        t = Text(text='Hello')
+        assert 'Hello' in repr(t)
+
+    def test_text_long_repr(self):
+        t = Text(text='A very long text string that exceeds twenty characters')
+        r = repr(t)
+        assert '...' in r
+        assert len(r) < 40

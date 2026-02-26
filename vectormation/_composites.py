@@ -11,7 +11,7 @@ import vectormation.morphing as morphing
 from vectormation._constants import (
     UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE,
     DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
-    DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR,
+    DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
     _sample_function,
 )
 from vectormation._base import VObject, VCollection
@@ -137,7 +137,7 @@ class LabeledDot(VCollection):
         dot = Dot(r=r, cx=cx, cy=cy, creation=creation, z=z, fill=dot_fill, **dot_kw)
         if font_size is None:
             font_size = r * 0.9
-        text = Text(text=str(label), x=cx, y=cy + font_size * 0.35,
+        text = Text(text=str(label), x=cx, y=cy + font_size * TEXT_Y_OFFSET,
                     font_size=font_size, text_anchor='middle',
                     creation=creation, z=z, fill='#fff', stroke_width=0)
         super().__init__(dot, text, creation=creation, z=z)
@@ -527,7 +527,7 @@ class Axes(VCollection):
             self._add_plot_obj(lbl)
         for val in _nice_ticks(ymin, ymax):
             sx = self.plot_x - 8
-            sy = self._math_to_svg_y(val, creation) + font_size * 0.35
+            sy = self._math_to_svg_y(val, creation) + font_size * TEXT_Y_OFFSET
             lbl = Text(text=f'{val:g}', x=sx, y=sy, font_size=font_size,
                        text_anchor='end', fill=color, stroke_width=0, creation=creation)
             self._add_plot_obj(lbl)
@@ -2001,7 +2001,7 @@ class Axes(VCollection):
             ly = by + bar_h - frac * bar_h
             lx = bx + width + 5 if side == 'right' else bx - 5
             anchor = 'start' if side == 'right' else 'end'
-            lbl = Text(text=f'{val:.1f}', x=lx, y=ly + font_size * 0.35,
+            lbl = Text(text=f'{val:.1f}', x=lx, y=ly + font_size * TEXT_Y_OFFSET,
                         font_size=font_size, fill='#ccc', stroke_width=0,
                         text_anchor=anchor, creation=creation, z=z + 0.1)
             objs.append(lbl)
@@ -2191,7 +2191,7 @@ class Axes(VCollection):
                            font_size=font_size, fill=lbl_color, stroke_width=0,
                            text_anchor='start', creation=creation, z=z + 0.1)
                 lbl.y.set_onward(creation,
-                    lambda t, _v=_v: self._math_to_svg_y(_v, t) + font_size * 0.35)
+                    lambda t, _v=_v: self._math_to_svg_y(_v, t) + font_size * TEXT_Y_OFFSET)
             else:
                 lbl = Text(text=str(label),
                            x=0, y=self.plot_y - 5,
@@ -2364,7 +2364,7 @@ class Axes(VCollection):
         lbl = Text(text=str(text), x=0, y=0, font_size=font_size,
                     text_anchor='middle', creation=creation, z=z + 0.2, **style_kw)
         lbl.x.set_onward(creation, lambda t, _ox=ox: _pt(t)[0] + _ox)
-        lbl.y.set_onward(creation, lambda t, _oy=oy: _pt(t)[1] + _oy + font_size * 0.35)
+        lbl.y.set_onward(creation, lambda t, _oy=oy: _pt(t)[1] + _oy + font_size * TEXT_Y_OFFSET)
         self._add_plot_obj(arr)
         self._add_plot_obj(box)
         self._add_plot_obj(lbl)
@@ -3532,7 +3532,7 @@ class Angle(VCollection):
                 self._label_obj.y.set_onward(creation, lambda t, _lr=lr: (
                     self.vertex.at_time(t)[1] - _lr * math.sin(
                         math.radians(sum(self._compute_angles(t)) / 2))
-                    + label_font_size * 0.35))
+                    + label_font_size * TEXT_Y_OFFSET))
             else:
                 # Static TeX label (e.g. theta symbol)
                 label_text = label if '$' in label else f'${label}$'
@@ -3818,7 +3818,7 @@ class DonutChart(VCollection):
             angle += sweep
         self._sectors = sectors
         if center_text is not None:
-            ct = Text(text=str(center_text), x=cx, y=cy + font_size * 0.35,
+            ct = Text(text=str(center_text), x=cx, y=cy + font_size * TEXT_Y_OFFSET,
                       font_size=int(font_size * 1.5), text_anchor='middle',
                       fill='#fff', stroke_width=0, creation=creation, z=z + 0.1)
             objects.append(ct)
@@ -3948,7 +3948,7 @@ class Table(VCollection):
             row_entries = []
             for c in range(cols):
                 cx = x + x_off + c * cell_width + cell_width / 2
-                cy = y + y_off + r * cell_height + cell_height / 2 + font_size * 0.35
+                cy = y + y_off + r * cell_height + cell_height / 2 + font_size * TEXT_Y_OFFSET
                 t = Text(text=str(data[r][c]), x=cx, y=cy,
                          font_size=font_size, text_anchor='middle',
                          creation=creation, z=z, fill='#fff', stroke_width=0)
@@ -3959,14 +3959,14 @@ class Table(VCollection):
         if row_labels:
             for r, label in enumerate(row_labels):
                 cx = x + cell_width / 2
-                cy = y + y_off + r * cell_height + cell_height / 2 + font_size * 0.35
+                cy = y + y_off + r * cell_height + cell_height / 2 + font_size * TEXT_Y_OFFSET
                 objects.append(Text(text=str(label), x=cx, y=cy,
                                    font_size=font_size, text_anchor='middle',
                                    creation=creation, z=z, fill='#FFFF00', stroke_width=0))
         if col_labels:
             for c, label in enumerate(col_labels):
                 cx = x + x_off + c * cell_width + cell_width / 2
-                cy = y + cell_height / 2 + font_size * 0.35
+                cy = y + cell_height / 2 + font_size * TEXT_Y_OFFSET
                 objects.append(Text(text=str(label), x=cx, y=cy,
                                    font_size=font_size, text_anchor='middle',
                                    creation=creation, z=z, fill='#FFFF00', stroke_width=0))
@@ -4046,7 +4046,7 @@ class Matrix(VCollection):
             row_entries = []
             for c in range(cols):
                 tx = x - total_w / 2 + c * h_spacing
-                ty = y - total_h / 2 + r * v_spacing + font_size * 0.35
+                ty = y - total_h / 2 + r * v_spacing + font_size * TEXT_Y_OFFSET
                 t = Text(text=str(data[r][c]), x=tx, y=ty, font_size=font_size,
                          text_anchor='middle', creation=creation, z=z,
                          fill='#fff', stroke_width=0)
@@ -4941,7 +4941,7 @@ class Automaton(VCollection):
                                fill_opacity=0, stroke='#58C4DD', stroke_width=2)
                 objects.append(inner)
 
-            label = Text(text=name, x=sx, y=sy + font_size * 0.35,
+            label = Text(text=name, x=sx, y=sy + font_size * TEXT_Y_OFFSET,
                          font_size=font_size, text_anchor='middle',
                          creation=creation, z=z + 1, fill='#fff', stroke_width=0)
             objects.append(label)
@@ -4985,7 +4985,7 @@ class Automaton(VCollection):
                 mx, my = (sx + ex) / 2, (sy + ey) / 2
                 # Offset label perpendicular to arrow
                 px, py = -uy * 15, ux * 15
-                lbl = Text(text=label_text, x=mx + px, y=my + py + font_size * 0.35,
+                lbl = Text(text=label_text, x=mx + px, y=my + py + font_size * TEXT_Y_OFFSET,
                            font_size=font_size * 0.8, text_anchor='middle',
                            creation=creation, z=z + 1, fill='#83C167', stroke_width=0)
                 objects.append(lbl)
@@ -5121,7 +5121,7 @@ class NetworkGraph(VCollection):
             objects.append(circle)
             self._node_circles[nid] = circle
             lbl_text = str(nodes[nid])
-            lbl = Text(text=lbl_text, x=nx, y=ny + font_size * 0.35,
+            lbl = Text(text=lbl_text, x=nx, y=ny + font_size * TEXT_Y_OFFSET,
                        font_size=font_size, text_anchor='middle',
                        creation=creation, z=z + 2, fill='#fff', stroke_width=0)
             objects.append(lbl)
@@ -5167,7 +5167,7 @@ class LabeledArrow(VCollection):
         dist = math.hypot(dx, dy) or 1
         # Perpendicular offset for the label
         nx, ny = -dy / dist * label_buff, dx / dist * label_buff
-        lbl = Text(text=label, x=mx + nx, y=my + ny + font_size * 0.35,
+        lbl = Text(text=label, x=mx + nx, y=my + ny + font_size * TEXT_Y_OFFSET,
                    font_size=font_size, text_anchor='middle',
                    creation=creation, z=z + 1, fill='#fff', stroke_width=0)
         super().__init__(arrow, lbl, creation=creation, z=z)
@@ -5446,7 +5446,7 @@ class Tree(VCollection):
             if label not in self._positions_by_label:
                 self._positions_by_label[label] = (nx, ny)
                 self._node_objects[label] = circle  # label-based lookup (first occurrence)
-            lbl = SText(text=str(label), x=nx, y=ny + font_size * 0.35,
+            lbl = SText(text=str(label), x=nx, y=ny + font_size * TEXT_Y_OFFSET,
                         font_size=font_size, text_anchor='middle',
                         creation=creation, z=z + 2, fill='#fff', stroke_width=0)
             objects.append(lbl)
@@ -5676,7 +5676,7 @@ class RadarChart(VCollection):
                     anchor = 'start'
                 elif math.cos(angles[i]) < -0.3:
                     anchor = 'end'
-                txt = Text(text=label, x=lx, y=ly + font_size * 0.35,
+                txt = Text(text=label, x=lx, y=ly + font_size * TEXT_Y_OFFSET,
                            font_size=font_size, fill='#ccc', stroke_width=0,
                            text_anchor=anchor, creation=creation, z=z + 0.1)
                 objects.append(txt)
@@ -5744,7 +5744,7 @@ class FlowChart(VCollection):
                                    corner_radius=corner_radius,
                                    fill=box_color, fill_opacity=0.8,
                                    stroke=box_color, creation=creation, z=z)
-            txt = Text(text=label, x=bx + box_width / 2, y=by + box_height / 2 + font_size * 0.35,
+            txt = Text(text=label, x=bx + box_width / 2, y=by + box_height / 2 + font_size * TEXT_Y_OFFSET,
                        font_size=font_size, fill=text_color, stroke_width=0,
                        text_anchor='middle', creation=creation, z=z + 0.1)
             self._boxes.append(box)
@@ -5915,7 +5915,7 @@ class GanttChart(VCollection):
             self._bars.append(rect)
             objects.append(rect)
             # Label
-            lbl = Text(text=task_label, x=x + 5, y=by + bar_height / 2 + font_size * 0.35,
+            lbl = Text(text=task_label, x=x + 5, y=by + bar_height / 2 + font_size * TEXT_Y_OFFSET,
                        font_size=font_size, fill='#ccc', stroke_width=0,
                        text_anchor='start', creation=creation, z=z + 0.1)
             objects.append(lbl)
@@ -5988,7 +5988,7 @@ class SankeyDiagram(VCollection):
                                          fill=c, fill_opacity=0.9, stroke_width=0,
                                          creation=creation, z=z + 0.2))
                 objects.append(Text(text=n, x=bx + lbl_dx,
-                                    y=by + bh / 2 + font_size * 0.35,
+                                    y=by + bh / 2 + font_size * TEXT_Y_OFFSET,
                                     font_size=font_size, fill='#ddd', stroke_width=0,
                                     text_anchor=anchor, creation=creation, z=z + 0.3))
         _draw_nodes(sources, src_rects, 0, 'end', -5)
@@ -6024,7 +6024,7 @@ class FunnelChart(VCollection):
             trap = Polygon(*pts, fill=color, fill_opacity=0.85, stroke=color,
                            stroke_width=1, creation=creation, z=z)
             objects.append(trap)
-            lbl = Text(text=f'{label} ({val})', x=cx, y=ty + row_h / 2 + font_size * 0.35,
+            lbl = Text(text=f'{label} ({val})', x=cx, y=ty + row_h / 2 + font_size * TEXT_Y_OFFSET,
                        font_size=font_size, fill='#fff', stroke_width=0,
                        text_anchor='middle', creation=creation, z=z + 0.1)
             objects.append(lbl)
@@ -6056,7 +6056,7 @@ class TreeMap(VCollection):
                               creation=creation, z=z)
             objects.append(rect)
             if rw > font_size * 2 and rh > font_size * 1.5:
-                lbl = Text(text=str(label), x=rx + rw / 2, y=ry + rh / 2 + font_size * 0.35,
+                lbl = Text(text=str(label), x=rx + rw / 2, y=ry + rh / 2 + font_size * TEXT_Y_OFFSET,
                            font_size=min(font_size, rw / max(len(str(label)), 1) * 1.5),
                            fill='#fff', stroke_width=0, text_anchor='middle',
                            creation=creation, z=z + 0.1)
@@ -6317,7 +6317,7 @@ class VennDiagram(VCollection):
                 dy = cy - y
                 dist = math.hypot(dx, dy) or 1
                 lx = cx + dx / dist * (sizes[i] + 20)
-                ly = cy + dy / dist * (sizes[i] + 20) + font_size * 0.35
+                ly = cy + dy / dist * (sizes[i] + 20) + font_size * TEXT_Y_OFFSET
             lbl = Text(text=str(labels[i]), x=lx, y=ly,
                        font_size=font_size, fill=colors[i % len(colors)],
                        stroke_width=0, text_anchor='middle',
@@ -6389,7 +6389,7 @@ class OrgChart(VCollection):
                                  creation=creation, z=z + 0.1)
         objects.append(rect)
         # Label
-        lbl = Text(text=str(label), x=nx, y=ny + box_height / 2 + font_size * 0.35,
+        lbl = Text(text=str(label), x=nx, y=ny + box_height / 2 + font_size * TEXT_Y_OFFSET,
                    font_size=font_size, fill='#fff', stroke_width=0,
                    text_anchor='middle', creation=creation, z=z + 0.2)
         objects.append(lbl)
@@ -6417,7 +6417,7 @@ class KPICard(VCollection):
         objects.append(bg)
         # Title
         t_lbl = Text(text=str(title), x=x + width / 2, y=y + 30,
-                     font_size=font_size * 0.35, fill=title_color, stroke_width=0,
+                     font_size=font_size * TEXT_Y_OFFSET, fill=title_color, stroke_width=0,
                      text_anchor='middle', creation=creation, z=z + 0.1)
         objects.append(t_lbl)
         # Value
@@ -6488,7 +6488,7 @@ class BulletChart(VCollection):
         objects.append(marker)
         # Label
         if label:
-            lbl = Text(text=str(label), x=x - 10, y=y + height / 2 + font_size * 0.35,
+            lbl = Text(text=str(label), x=x - 10, y=y + height / 2 + font_size * TEXT_Y_OFFSET,
                        font_size=font_size, fill='#ddd', stroke_width=0,
                        text_anchor='end', creation=creation, z=z + 0.1)
             objects.append(lbl)
@@ -6601,7 +6601,7 @@ class MindMap(VCollection):
         root_dot = Circle(r=35, cx=cx, cy=cy, fill=colors[0], fill_opacity=0.9,
                           stroke=colors[0], stroke_width=2, creation=creation, z=z + 0.2)
         objects.append(root_dot)
-        root_txt = Text(text=str(root_label), x=cx, y=cy + font_size * 0.35,
+        root_txt = Text(text=str(root_label), x=cx, y=cy + font_size * TEXT_Y_OFFSET,
                         font_size=font_size, fill='#fff', stroke_width=0,
                         text_anchor='middle', creation=creation, z=z + 0.3)
         objects.append(root_txt)
@@ -6676,7 +6676,7 @@ class CircularProgressBar(VCollection):
             objects.append(prog)
         # Text
         if show_text:
-            lbl = Text(text=f'{pct:.0f}%', x=x, y=y + font_size * 0.35,
+            lbl = Text(text=f'{pct:.0f}%', x=x, y=y + font_size * TEXT_Y_OFFSET,
                        font_size=font_size, fill=bar_color, stroke_width=0,
                        text_anchor='middle', creation=creation, z=z + 0.2)
             objects.append(lbl)
@@ -6775,7 +6775,7 @@ class MatrixHeatmap(VCollection):
                 objects.append(rect)
                 if show_values:
                     vlbl = Text(text=f'{val:.1f}' if isinstance(val, float) else str(val),
-                                x=rx + cell_size / 2, y=ry + cell_size / 2 + font_size * 0.35,
+                                x=rx + cell_size / 2, y=ry + cell_size / 2 + font_size * TEXT_Y_OFFSET,
                                 font_size=font_size * 0.8, fill='#fff', stroke_width=0,
                                 text_anchor='middle', creation=creation, z=z + 0.1)
                     objects.append(vlbl)
@@ -6784,7 +6784,7 @@ class MatrixHeatmap(VCollection):
             for r, label in enumerate(row_labels[:n_rows]):
                 ry = y + col_offset + r * (cell_size + gap)
                 lbl = Text(text=str(label), x=x + label_offset - 8,
-                           y=ry + cell_size / 2 + font_size * 0.35,
+                           y=ry + cell_size / 2 + font_size * TEXT_Y_OFFSET,
                            font_size=font_size, fill='#aaa', stroke_width=0,
                            text_anchor='end', creation=creation, z=z + 0.1)
                 objects.append(lbl)
@@ -6889,7 +6889,7 @@ class TextBox(VCollection):
                                 fill=box_fill, fill_opacity=box_opacity,
                                 stroke_width=0, creation=creation, z=z,
                                 **styling_kwargs)
-        lbl = Text(text=text, x=x + width / 2, y=y + height / 2 + font_size * 0.35,
+        lbl = Text(text=text, x=x + width / 2, y=y + height / 2 + font_size * TEXT_Y_OFFSET,
                    font_size=font_size, fill=text_color, stroke_width=0,
                    text_anchor='middle', creation=creation, z=z + 0.1)
         super().__init__(box, lbl, creation=creation, z=z)
@@ -6925,7 +6925,7 @@ class Bracket(VCollection):
             tx, ty = x + sign * (tip + font_size), y + width / 2
         objects = [bracket]
         if text:
-            lbl = Text(text=text, x=tx, y=ty + font_size * 0.35,
+            lbl = Text(text=text, x=tx, y=ty + font_size * TEXT_Y_OFFSET,
                        font_size=font_size, fill=text_color, stroke_width=0,
                        text_anchor='middle', creation=creation, z=z + 0.1)
             objects.append(lbl)
@@ -6997,7 +6997,7 @@ class SpeechBubble(VCollection):
             pts = [(x + width, cy - hw), (x + width, cy + hw), (x + width + hh, cy)]
         tail = Polygon(*pts, fill=box_fill, fill_opacity=box_opacity,
                        stroke=box_fill, stroke_width=1, creation=creation, z=z - 0.1)
-        lbl = SText(text=text, x=cx, y=cy + font_size * 0.35,
+        lbl = SText(text=text, x=cx, y=cy + font_size * TEXT_Y_OFFSET,
                     font_size=font_size, fill=text_color, stroke_width=0,
                     text_anchor='middle', creation=creation, z=z + 0.1)
         super().__init__(tail, box, lbl, creation=creation, z=z)
@@ -7025,7 +7025,7 @@ class Badge(VCollection):
                                fill=bg_color, fill_opacity=1,
                                stroke_width=0, creation=creation, z=z,
                                **styling_kwargs)
-        lbl = SText(text=text, x=x + width / 2, y=y + height / 2 + font_size * 0.35,
+        lbl = SText(text=text, x=x + width / 2, y=y + height / 2 + font_size * TEXT_Y_OFFSET,
                     font_size=font_size, fill=text_color, stroke_width=0,
                     text_anchor='middle', creation=creation, z=z + 0.1)
         super().__init__(box, lbl, creation=creation, z=z)
@@ -7055,7 +7055,7 @@ class Divider(VCollection):
                            creation=creation, z=z, **style_kw)
                 l2 = SLine(x1=x + half + label_w, y1=y, x2=x + length, y2=y,
                            creation=creation, z=z, **style_kw)
-                lbl = SText(text=label, x=x + length / 2, y=y + font_size * 0.35,
+                lbl = SText(text=label, x=x + length / 2, y=y + font_size * TEXT_Y_OFFSET,
                             font_size=font_size, fill=style_kw.get('stroke', '#555'),
                             stroke_width=0, text_anchor='middle',
                             creation=creation, z=z + 0.1)
@@ -7065,7 +7065,7 @@ class Divider(VCollection):
                            creation=creation, z=z, **style_kw)
                 l2 = SLine(x1=x, y1=y + half + label_w, x2=x, y2=y + length,
                            creation=creation, z=z, **style_kw)
-                lbl = SText(text=label, x=x, y=y + length / 2 + font_size * 0.35,
+                lbl = SText(text=label, x=x, y=y + length / 2 + font_size * TEXT_Y_OFFSET,
                             font_size=font_size, fill=style_kw.get('stroke', '#555'),
                             stroke_width=0, text_anchor='middle',
                             creation=creation, z=z + 0.1)
@@ -7147,7 +7147,7 @@ class Stepper(VCollection):
             circ = Circle(cx=cx, cy=cy, r=radius,
                           fill=fill, fill_opacity=1, stroke_width=0,
                           creation=creation, z=z + 1)
-            lbl = Text(text=label, x=cx, y=cy + font_size * 0.35,
+            lbl = Text(text=label, x=cx, y=cy + font_size * TEXT_Y_OFFSET,
                        font_size=font_size, fill=text_color, stroke_width=0,
                        text_anchor='middle', creation=creation, z=z + 2)
             objects.extend([circ, lbl])
@@ -7223,7 +7223,7 @@ class StatusIndicator(VCollection):
         color = self._STATUS_COLORS.get(status, status)
         dot = Dot(cx=x + dot_radius, cy=y, r=dot_radius,
                   fill=color, stroke_width=0, creation=creation, z=z)
-        lbl = Text(text=label, x=x + dot_radius * 2 + gap, y=y + font_size * 0.35,
+        lbl = Text(text=label, x=x + dot_radius * 2 + gap, y=y + font_size * TEXT_Y_OFFSET,
                    font_size=font_size, fill='#fff', stroke_width=0,
                    creation=creation, z=z)
         super().__init__(dot, lbl, creation=creation, z=z)
