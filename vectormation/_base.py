@@ -2035,6 +2035,9 @@ class VCollection:
     def __len__(self):
         return len(self.objects)
 
+    def __contains__(self, obj):
+        return obj in self.objects
+
     def copy(self):
         return deepcopy(self)
 

@@ -33,7 +33,7 @@ from vectormation.objects import (
     DEFAULT_CHART_COLORS, Variable, Underline,
     ArrowVectorField, ComplexPlane, ChessBoard, Automaton,
     PeriodicTable, BohrAtom,
-    Countdown, Filmstrip, MorphObject, Title, NumberPlane,
+    Countdown, Filmstrip, MorphObject, Title, NumberPlane, Matrix,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -3183,3 +3183,70 @@ class TestCompositeRepr:
         r = repr(a)
         assert 'Axes' in r
         assert 'y' not in r
+
+
+class TestVCollectionContains:
+    def test_contains(self):
+        c = Circle(r=50)
+        r = Rectangle(100, 100)
+        col = VCollection(c, r)
+        assert c in col
+        assert r in col
+
+    def test_not_contains(self):
+        c = Circle(r=50)
+        r = Rectangle(100, 100)
+        col = VCollection(c)
+        assert r not in col
+
+
+class TestRectangleGetVertices:
+    def test_get_vertices(self):
+        r = Rectangle(200, 100, x=100, y=200)
+        verts = r.get_vertices()
+        assert len(verts) == 4
+        assert verts[0] == (100.0, 200.0)
+        assert verts[1] == (300.0, 200.0)
+        assert verts[2] == (300.0, 300.0)
+        assert verts[3] == (100.0, 300.0)
+
+
+class TestCircleGeometry:
+    def test_get_area(self):
+        from math import pi
+        c = Circle(r=100)
+        assert abs(c.get_area() - pi * 10000) < 0.01
+
+    def test_get_circumference(self):
+        from math import pi
+        c = Circle(r=50)
+        assert abs(c.get_circumference() - 2 * pi * 50) < 0.01
+
+    def test_animated_radius(self):
+        from math import pi
+        c = Circle(r=100)
+        c.rx.set(0, 1, lambda t: 100 + 100 * t)
+        assert abs(c.get_area(time=0) - pi * 10000) < 1
+        assert abs(c.get_area(time=1) - pi * 40000) < 1
+
+
+class TestInputValidation:
+    def test_numberline_zero_span(self):
+        with pytest.raises(ValueError):
+            NumberLine(x_range=(5, 5, 1))
+
+    def test_numberline_reversed(self):
+        with pytest.raises(ValueError):
+            NumberLine(x_range=(5, 3, 1))
+
+    def test_numberline_zero_step(self):
+        with pytest.raises(ValueError):
+            NumberLine(x_range=(-5, 5, 0))
+
+    def test_matrix_empty(self):
+        with pytest.raises(ValueError):
+            Matrix([])
+
+    def test_matrix_empty_rows(self):
+        with pytest.raises(ValueError):
+            Matrix([[]])

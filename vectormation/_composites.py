@@ -3674,6 +3674,10 @@ class NumberLine(VCollection):
         if len(x_range) == 2:
             x_range = (*x_range, 1)
         x_start, x_end, x_step = x_range
+        if x_end <= x_start:
+            raise ValueError(f'NumberLine requires x_end > x_start, got ({x_start}, {x_end})')
+        if x_step <= 0:
+            raise ValueError(f'NumberLine requires positive step, got {x_step}')
         self.x_start, self.x_end, self.x_step = x_start, x_end, x_step
         self.length = length
         self.origin_x, self.origin_y = x, y
@@ -4063,8 +4067,10 @@ class Matrix(VCollection):
     """
     def __init__(self, data, x=960, y=540, font_size=36, h_spacing=80, v_spacing=50,
                  creation=0, z=0, **styling_kwargs):
+        if not data or not data[0]:
+            raise ValueError('Matrix requires a non-empty 2D list of data')
         rows = len(data)
-        cols = len(data[0]) if data else 0
+        cols = len(data[0])
         total_w = (cols - 1) * h_spacing
         total_h = (rows - 1) * v_spacing
         bracket_pad = 20

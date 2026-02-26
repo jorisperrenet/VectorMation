@@ -155,6 +155,15 @@ class Circle(Ellipse):
         rad = math.radians(degrees)
         return (cx + r * math.cos(rad), cy - r * math.sin(rad))
 
+    def get_area(self, time=0):
+        """Return the area of the circle (pi * r^2)."""
+        r = self.rx.at_time(time)
+        return math.pi * r * r
+
+    def get_circumference(self, time=0):
+        """Return the circumference (2 * pi * r)."""
+        return 2 * math.pi * self.rx.at_time(time)
+
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)
         return f"<circle cx='{cx}' cy='{cy}' r='{self.rx.at_time(time)}'{self.styling.svg_style(time)} />"
@@ -212,6 +221,10 @@ class Rectangle(VObject):
                 f" width='{self.width.at_time(time)}' height='{self.height.at_time(time)}'"
                 f" rx='{self.rx.at_time(time)}' ry='{self.ry.at_time(time)}'"
                 f"{self.styling.svg_style(time)} />")
+
+    def get_vertices(self, time=0):
+        """Return the four corners: top-left, top-right, bottom-right, bottom-left."""
+        return self.snap_points(time)
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f})'
