@@ -30,12 +30,12 @@ def _make_brect(bbox_func, time, rx, ry, buff, follow, **bbox_kw):
                          fill_opacity=0, stroke_opacity=1, stroke='#ff0', stroke_width=2)
     rect = Rectangle(width=0, height=0, rx=rx, ry=ry, creation=time,
                      fill_opacity=0, stroke_opacity=1, stroke='#ff0', stroke_width=2)
-    _cache = {}
+    _cache = [None, None]
     def _bbox(t):
-        if t not in _cache:
-            _cache.clear()
-            _cache[t] = bbox_func(t, **bbox_kw)
-        return _cache[t]
+        if _cache[0] != t:
+            _cache[0] = t
+            _cache[1] = bbox_func(t, **bbox_kw)
+        return _cache[1]
     rect.x.set_onward(time, lambda t: _bbox(t)[0] - buff)
     rect.y.set_onward(time, lambda t: _bbox(t)[1] - buff)
     rect.width.set_onward(time, lambda t: _bbox(t)[2] + 2*buff)

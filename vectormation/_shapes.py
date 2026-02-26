@@ -736,12 +736,12 @@ class SurroundingRectangle(RoundedRectangle):
         super().__init__(bw + 2*buff, bh + 2*buff, x=bx - buff, y=by - buff,
                          corner_radius=corner_radius, creation=creation, z=z, **style_kw)
         if follow:
-            _cache = {}
+            _cache = [None, None]
             def _bbox(t):
-                if t not in _cache:
-                    _cache.clear()
-                    _cache[t] = target.bbox(t)
-                return _cache[t]
+                if _cache[0] != t:
+                    _cache[0] = t
+                    _cache[1] = target.bbox(t)
+                return _cache[1]
             self.x.set_onward(creation, lambda t: _bbox(t)[0] - buff)
             self.y.set_onward(creation, lambda t: _bbox(t)[1] - buff)
             self.width.set_onward(creation, lambda t: _bbox(t)[2] + 2*buff)
@@ -759,15 +759,15 @@ class SurroundingCircle(Circle):
         style_kw = {'fill_opacity': 0, 'stroke': '#FFFF00'} | styling_kwargs
         super().__init__(r=r, cx=cx, cy=cy, creation=creation, z=z, **style_kw)
         if follow:
-            _cache = {}
+            _cache = [None, None]
             def _bbox(t):
-                if t not in _cache:
-                    _cache.clear()
-                    _cache[t] = target.bbox(t)
-                return _cache[t]
+                if _cache[0] != t:
+                    _cache[0] = t
+                    _cache[1] = target.bbox(t)
+                return _cache[1]
             self.c.set_onward(creation, lambda t: (_bbox(t)[0] + _bbox(t)[2] / 2,
                                                     _bbox(t)[1] + _bbox(t)[3] / 2))
-            _r_func = lambda t: math.sqrt(_bbox(t)[2]**2 + _bbox(t)[3]**2) / 2 + buff
+            _r_func = lambda t: math.hypot(_bbox(t)[2], _bbox(t)[3]) / 2 + buff
             self.rx.set_onward(creation, _r_func)
             self.ry.set_onward(creation, _r_func)
 

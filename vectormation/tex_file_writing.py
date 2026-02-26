@@ -105,7 +105,7 @@ def create_tex_svg(full_tex: str, svg_file: str, compiler: str) -> None:
                         bang_lines = re.findall(r"^!.*$", log_content, re.MULTILINE)
                         if bang_lines:
                             error_str += "\n" + "\n".join(bang_lines[:5])
-            except Exception:
+            except OSError:
                 pass
         logger.error(error_str)
         raise RuntimeError(error_str)

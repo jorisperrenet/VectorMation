@@ -1427,7 +1427,7 @@ class Axes(VCollection):
             # Numerical derivative
             slope = (_fn(xv + _h) - _fn(xv - _h)) / (2 * _h)
             # Direction vector along tangent
-            dx = 1 / math.sqrt(1 + slope * slope) * _hl
+            dx = 1 / math.hypot(1, slope) * _hl
             dy = slope * dx
             return xv, yv, dx, dy
         _tc = [None, None]  # per-frame cache
@@ -4530,12 +4530,12 @@ class Underline(VCollection):
         line = Line(x1=bx, y1=by + bh + buff, x2=bx + bw, y2=by + bh + buff,
                     creation=creation, z=z, **style_kw)
         if follow:
-            _cache = {}
+            _cache = [None, None]
             def _bbox(t):
-                if t not in _cache:
-                    _cache.clear()
-                    _cache[t] = target.bbox(t)
-                return _cache[t]
+                if _cache[0] != t:
+                    _cache[0] = t
+                    _cache[1] = target.bbox(t)
+                return _cache[1]
             line.p1.set_onward(creation, lambda t: (_bbox(t)[0], _bbox(t)[1] + _bbox(t)[3] + buff))
             line.p2.set_onward(creation, lambda t: (_bbox(t)[0] + _bbox(t)[2], _bbox(t)[1] + _bbox(t)[3] + buff))
         super().__init__(line, creation=creation, z=z)
