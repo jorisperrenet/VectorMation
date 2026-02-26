@@ -3661,3 +3661,47 @@ class TestStaggerFadeout:
         g = VCollection(c1, c2)
         result = g.stagger_fadeout(start=0, end=2)
         assert result is g
+
+
+class TestCubicBezierImprovements:
+    def test_repr(self):
+        cb = CubicBezier(p0=(100, 200), p3=(400, 500))
+        assert repr(cb) == 'CubicBezier((100,200)->(400,500))'
+
+    def test_bbox(self):
+        cb = CubicBezier(p0=(100, 200), p1=(150, 100), p2=(350, 400), p3=(400, 300))
+        bx, by, bw, bh = cb.bbox(0)
+        # Bbox should enclose all control points
+        assert bx <= 100
+        assert by <= 100
+        assert bx + bw >= 400
+        assert by + bh >= 400
+
+    def test_bbox_not_zero(self):
+        cb = CubicBezier()
+        bx, by, bw, bh = cb.bbox(0)
+        assert bw > 0 and bh > 0
+
+
+class TestFilterByType:
+    def test_filter_circles(self):
+        c1 = Circle(r=10)
+        r1 = Rectangle(20, 30)
+        c2 = Circle(r=20)
+        g = VCollection(c1, r1, c2)
+        circles = g.filter_by_type(Circle)
+        assert len(circles) == 2
+        assert all(isinstance(obj, Circle) for obj in circles)
+
+    def test_filter_no_match(self):
+        g = VCollection(Circle(r=10), Circle(r=20))
+        rects = g.filter_by_type(Rectangle)
+        assert len(rects) == 0
+
+    def test_filter_includes_subclasses(self):
+        c = Circle(r=10)
+        d = Dot(r=5)
+        g = VCollection(c, d)
+        # Dot is a subclass of Circle
+        circles = g.filter_by_type(Circle)
+        assert len(circles) == 2

@@ -1178,8 +1178,22 @@ class CubicBezier(VObject):
     def _shift_coors(self):
         return [self.p0, self.p1, self.p2, self.p3]
 
+    def __repr__(self):
+        p0 = self.p0.at_time(0)
+        p3 = self.p3.at_time(0)
+        return f'CubicBezier(({p0[0]:.0f},{p0[1]:.0f})->({p3[0]:.0f},{p3[1]:.0f}))'
+
     def snap_points(self, time):
         return [self.p0.at_time(time), self.p3.at_time(time)]
+
+    def bbox(self, time):
+        pts = [self.p0.at_time(time), self.p1.at_time(time),
+               self.p2.at_time(time), self.p3.at_time(time)]
+        xs = [p[0] for p in pts]
+        ys = [p[1] for p in pts]
+        x_min, x_max = min(xs), max(xs)
+        y_min, y_max = min(ys), max(ys)
+        return self._bbox_from_points([(x_min, y_min), (x_max, y_max)], time) or (x_min, y_min, x_max - x_min, y_max - y_min)
 
     def path(self, time):
         x0, y0 = self.p0.at_time(time)

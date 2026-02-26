@@ -2109,6 +2109,10 @@ class VCollection:
         """Return a new VCollection with only children matching predicate(obj) -> bool."""
         return VCollection(*(obj for obj in self.objects if predicate(obj)))
 
+    def filter_by_type(self, cls):
+        """Return a new VCollection with only children of the given type."""
+        return self.filter(lambda obj: isinstance(obj, cls))
+
     def partition(self, predicate):
         """Split into two VCollections: (matching, non_matching)."""
         yes, no = [], []
