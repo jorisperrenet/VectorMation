@@ -882,6 +882,9 @@ class RoundedRectangle(Rectangle):
         super().__init__(width, height, x=x, y=y, rx=corner_radius, ry=corner_radius,
                          creation=creation, z=z, **styling_kwargs)
 
+    def __repr__(self):
+        return f'RoundedRectangle({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f}, r={self.rx.at_time(0):.0f})'
+
 
 class SurroundingRectangle(RoundedRectangle):
     """Rectangle that surrounds a target object with padding.
@@ -1016,6 +1019,9 @@ class Wedge(Arc):
         super().__init__(cx=cx, cy=cy, r=r, start_angle=start_angle, end_angle=end_angle,
                          creation=creation, z=z, **({'fill_opacity': 0.7, 'stroke': '#fff', 'stroke_width': 5} | styling_kwargs))
 
+    def __repr__(self):
+        return f'Wedge(r={self.r.at_time(0):.0f}, {self.start_angle.at_time(0):.0f}\u00b0-{self.end_angle.at_time(0):.0f}\u00b0)'
+
     def path(self, time):
         return super().path(time) + f'L{self.cx.at_time(time)},{self.cy.at_time(time)}Z'
 
@@ -1052,6 +1058,9 @@ class Annulus(VObject):
         # Outer circle CW, then inner circle CCW (creates a ring with even-odd fill)
         return (f'M{cx-ro},{cy}a{ro},{ro} 0 1,0 {ro*2},0a{ro},{ro} 0 1,0 -{ro*2},0z'
                 f'M{cx-ri},{cy}a{ri},{ri} 0 1,1 {ri*2},0a{ri},{ri} 0 1,1 -{ri*2},0z')
+
+    def __repr__(self):
+        return f'Annulus(inner={self.inner_r.at_time(0):.0f}, outer={self.outer_r.at_time(0):.0f})'
 
     def to_svg(self, time):
         return f"<path d='{self.path(time)}' fill-rule='evenodd'{self.styling.svg_style(time)} />"
@@ -1201,6 +1210,9 @@ class Paragraph(VObject):
         defaults = dict(fill='#fff', stroke_width=0)
         self.styling = style.Styling(styling_kwargs, creation=creation, **defaults)
 
+    def __repr__(self):
+        return f'Paragraph({len(self.lines)} lines)'
+
     def _extra_attrs(self):
         return [self.x, self.y]
 
@@ -1254,6 +1266,9 @@ class BulletedList(VObject):
         defaults = dict(fill='#fff', stroke_width=0)
         self.styling = style.Styling(styling_kwargs, creation=creation, **defaults)
 
+    def __repr__(self):
+        return f'BulletedList({len(self.items)} items)'
+
     def _extra_attrs(self):
         return [self.x, self.y]
 
@@ -1303,6 +1318,9 @@ class NumberedList(VObject):
         self.start_number = start_number
         defaults = dict(fill='#fff', stroke_width=0)
         self.styling = style.Styling(styling_kwargs, creation=creation, **defaults)
+
+    def __repr__(self):
+        return f'NumberedList({len(self.items)} items)'
 
     def _extra_attrs(self):
         return [self.x, self.y]

@@ -2127,6 +2127,14 @@ class VCollection:
         self.objects.sort(key=key, reverse=reverse)
         return self
 
+    def sort_by_y(self, reverse=False, time=0):
+        """Sort children by y position (top to bottom by default)."""
+        return self.sort_objects(key=lambda obj: obj.bbox(time)[1], reverse=reverse, time=time)
+
+    def sort_by_z(self, reverse=False, time=0):
+        """Sort children by z-depth."""
+        return self.sort_objects(key=lambda obj: obj.z.at_time(time), reverse=reverse, time=time)
+
     def shuffle(self):
         """Randomly shuffle the order of children in-place."""
         import random
@@ -2422,6 +2430,14 @@ class VCollection:
         Convenience wrapper around cascade + fadein."""
         kwargs = {'shift_dir': shift_dir, 'shift_amount': shift_amount, 'easing': easing}
         return self.cascade('fadein', start=start, end=end, overlap=overlap, **kwargs)
+
+    def stagger_fadeout(self, start: float = 0, end: float = 1,
+                         shift_dir=None, shift_amount=50, overlap=0.5,
+                         easing=easings.smooth):
+        """Fade out children with staggered timing and optional shift direction.
+        Convenience wrapper around cascade + fadeout."""
+        kwargs = {'shift_dir': shift_dir, 'shift_amount': shift_amount, 'easing': easing}
+        return self.cascade('fadeout', start=start, end=end, overlap=overlap, **kwargs)
 
     def reveal(self, start: float = 0, end: float = 1, direction='left',
                 easing=easings.smooth, shift_amount=30):

@@ -3603,3 +3603,61 @@ class TestAxesAddLabel:
         expected = ax.coords_to_point(3, 4)
         assert abs(dc[0] - expected[0]) < 2
         assert abs(dc[1] - expected[1]) < 2
+
+
+class TestMoreShapeRepr:
+    def test_wedge_repr(self):
+        w = Wedge(r=80, start_angle=0, end_angle=90)
+        assert repr(w) == 'Wedge(r=80, 0\u00b0-90\u00b0)'
+
+    def test_annulus_repr(self):
+        a = Annulus(inner_radius=40, outer_radius=100)
+        assert repr(a) == 'Annulus(inner=40, outer=100)'
+
+    def test_rounded_rectangle_repr(self):
+        rr = RoundedRectangle(200, 100, corner_radius=15)
+        assert repr(rr) == 'RoundedRectangle(200x100, r=15)'
+
+    def test_paragraph_repr(self):
+        p = Paragraph('Line 1', 'Line 2', 'Line 3')
+        assert repr(p) == 'Paragraph(3 lines)'
+
+    def test_bulleted_list_repr(self):
+        bl = BulletedList('A', 'B')
+        assert repr(bl) == 'BulletedList(2 items)'
+
+    def test_numbered_list_repr(self):
+        nl = NumberedList('X', 'Y', 'Z')
+        assert repr(nl) == 'NumberedList(3 items)'
+
+
+class TestVCollectionSort:
+    def test_sort_by_y(self):
+        c1 = Circle(r=10, cy=300)
+        c2 = Circle(r=10, cy=100)
+        c3 = Circle(r=10, cy=200)
+        g = VCollection(c1, c2, c3)
+        g.sort_by_y()
+        # After sort: c2 (y=100), c3 (y=200), c1 (y=300)
+        assert g.objects[0] is c2
+        assert g.objects[1] is c3
+        assert g.objects[2] is c1
+
+    def test_sort_by_z(self):
+        c1 = Circle(r=10, z=5)
+        c2 = Circle(r=10, z=1)
+        c3 = Circle(r=10, z=3)
+        g = VCollection(c1, c2, c3)
+        g.sort_by_z()
+        assert g.objects[0] is c2
+        assert g.objects[1] is c3
+        assert g.objects[2] is c1
+
+
+class TestStaggerFadeout:
+    def test_stagger_fadeout_runs(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        g = VCollection(c1, c2)
+        result = g.stagger_fadeout(start=0, end=2)
+        assert result is g
