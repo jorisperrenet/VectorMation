@@ -3893,3 +3893,98 @@ class TestVCollectionEdgeMethods:
         top = g.get_top()
         bottom = g.get_bottom()
         assert top[1] < bottom[1]
+
+
+class TestHSLColorUtilities:
+    def test_hex_to_hsl_red(self):
+        from vectormation.colors import _hex_to_hsl
+        h, s, l = _hex_to_hsl('#FF0000')
+        assert h == pytest.approx(0, abs=1)
+        assert s == pytest.approx(1, abs=0.01)
+        assert l == pytest.approx(0.5, abs=0.01)
+
+    def test_hsl_to_hex_roundtrip(self):
+        from vectormation.colors import _hex_to_hsl, _hsl_to_hex
+        original = '#58C4DD'
+        h, s, l = _hex_to_hsl(original)
+        result = _hsl_to_hex(h, s, l)
+        # Allow small rounding diff
+        from vectormation.colors import _hex_to_rgb
+        r1 = _hex_to_rgb(original)
+        r2 = _hex_to_rgb(result)
+        for a, b in zip(r1, r2):
+            assert abs(a - b) <= 2
+
+    def test_adjust_hue(self):
+        from vectormation.colors import adjust_hue, _hex_to_hsl
+        c = adjust_hue('#FF0000', 120)
+        h, s, l = _hex_to_hsl(c)
+        assert h == pytest.approx(120, abs=2)
+
+    def test_saturate(self):
+        from vectormation.colors import saturate, _hex_to_hsl
+        c = saturate('#888888', 0.5)
+        _, s, _ = _hex_to_hsl(c)
+        assert s > 0
+
+    def test_desaturate(self):
+        from vectormation.colors import desaturate, _hex_to_hsl
+        c = desaturate('#FF0000', 0.5)
+        _, s, _ = _hex_to_hsl(c)
+        assert s < 1.0
+
+    def test_complementary(self):
+        from vectormation.colors import complementary, _hex_to_hsl
+        c = complementary('#FF0000')
+        h, _, _ = _hex_to_hsl(c)
+        assert h == pytest.approx(180, abs=2)
+
+
+class TestSkewAnimation:
+    def test_skew_x(self):
+        c = Circle(r=50)
+        c.skew(start=0, end=1, x_degrees=30)
+        svg = c.to_svg(0.5)
+        assert 'skewX' in svg
+
+    def test_skew_y(self):
+        r = Rectangle(100, 50)
+        r.skew(start=0, end=1, y_degrees=20)
+        svg = r.to_svg(0.5)
+        assert 'skewY' in svg
+
+    def test_skew_both(self):
+        c = Circle(r=50)
+        c.skew(start=0, end=1, x_degrees=15, y_degrees=10)
+        svg = c.to_svg(0.5)
+        assert 'skewX' in svg
+        assert 'skewY' in svg
+
+
+class TestCanvasFind:
+    def test_find_by_type(self):
+        anim = VectorMathAnim(tempfile.mkdtemp())
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        r = Rectangle(50, 50)
+        anim.add(c1, c2, r)
+        found = anim.find_by_type(Circle)
+        assert len(found) == 2
+        assert c1 in found and c2 in found
+
+    def test_find_by_type_includes_subclass(self):
+        anim = VectorMathAnim(tempfile.mkdtemp())
+        d = Dot(r=5)
+        c = Circle(r=10)
+        anim.add(d, c)
+        found = anim.find_by_type(Circle)
+        assert len(found) == 2  # Dot is a subclass of Circle
+
+    def test_find_predicate(self):
+        anim = VectorMathAnim(tempfile.mkdtemp())
+        c1 = Circle(r=10, cx=50, cy=50)
+        c2 = Circle(r=10, cx=500, cy=500)
+        anim.add(c1, c2)
+        found = anim.find(lambda obj: obj.get_x() < 100)
+        assert len(found) == 1
+        assert found[0] is c1

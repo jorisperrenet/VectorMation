@@ -1041,6 +1041,18 @@ class VObject(ABC):  # Vector Object
         attr.set(mid, end, lambda t, _m=mid, _e=end, _c=cur: _c * (-1 + 2 * easing((t - _m) / (_e - _m))), stay=True)
         return self
 
+    def skew(self, start: float = 0, end: float = 0.5, x_degrees=0, y_degrees=0, easing=easings.smooth):
+        """Animate skew (shear) along X and/or Y axes."""
+        dur = end - start
+        if dur <= 0:
+            return self
+        s = start
+        if x_degrees:
+            self.styling.skew_x.set(s, end, lambda t, _s=s, _d=dur, _deg=x_degrees: _deg * easing((t - _s) / _d), stay=True)
+        if y_degrees:
+            self.styling.skew_y.set(s, end, lambda t, _s=s, _d=dur, _deg=y_degrees: _deg * easing((t - _s) / _d), stay=True)
+        return self
+
     def indicate(self, start: float = 0, end: float = 1, scale_factor=1.2, easing=easings.there_and_back):
         """Briefly scale up and back to draw attention."""
         dur = end - start

@@ -209,6 +209,14 @@ class VectorMathAnim:
         bg_id = id(self.background) if self.background else None
         return [v for k, v in self.objects.items() if k != bg_id]
 
+    def find_by_type(self, cls):
+        """Return all objects matching the given type (including subclasses)."""
+        return [obj for obj in self.get_all_objects() if isinstance(obj, cls)]
+
+    def find(self, predicate):
+        """Return all objects where predicate(obj) returns True."""
+        return [obj for obj in self.get_all_objects() if predicate(obj)]
+
     add = add_objects
     add_gradient = add_def
     add_clip_path = add_def

@@ -207,6 +207,74 @@ def darken(color, amount=0.3):
     return interpolate_color(color, '#000000', amount)
 
 
+def _hex_to_hsl(hex_color):
+    """Convert hex color to (h, s, l) where h in [0,360], s/l in [0,1]."""
+    if hex_color in colors:
+        hex_color = colors[hex_color]
+    r, g, b = _hex_to_rgb(hex_color)
+    r, g, b = r / 255, g / 255, b / 255
+    mx, mn = max(r, g, b), min(r, g, b)
+    l = (mx + mn) / 2
+    if mx == mn:
+        h = s = 0.0
+    else:
+        d = mx - mn
+        s = d / (2 - mx - mn) if l > 0.5 else d / (mx + mn)
+        if mx == r:
+            h = ((g - b) / d + (6 if g < b else 0)) / 6
+        elif mx == g:
+            h = ((b - r) / d + 2) / 6
+        else:
+            h = ((r - g) / d + 4) / 6
+    return (h * 360, s, l)
+
+
+def _hsl_to_hex(h, s, l):
+    """Convert (h, s, l) to hex string. h in [0,360], s/l in [0,1]."""
+    h = (h % 360) / 360
+    if s == 0:
+        v = int(round(l * 255))
+        return _rgb_to_hex(v, v, v)
+
+    def hue_to_rgb(p, q, t):
+        if t < 0: t += 1
+        if t > 1: t -= 1
+        if t < 1/6: return p + (q - p) * 6 * t
+        if t < 1/2: return q
+        if t < 2/3: return p + (q - p) * (2/3 - t) * 6
+        return p
+
+    q = l * (1 + s) if l < 0.5 else l + s - l * s
+    p = 2 * l - q
+    r = int(round(hue_to_rgb(p, q, h + 1/3) * 255))
+    g = int(round(hue_to_rgb(p, q, h) * 255))
+    b = int(round(hue_to_rgb(p, q, h - 1/3) * 255))
+    return _rgb_to_hex(r, g, b)
+
+
+def adjust_hue(color, degrees):
+    """Rotate the hue of a color by the given degrees."""
+    h, s, l = _hex_to_hsl(color)
+    return _hsl_to_hex(h + degrees, s, l)
+
+
+def saturate(color, amount=0.2):
+    """Increase saturation by amount (0-1). Clamps to [0,1]."""
+    h, s, l = _hex_to_hsl(color)
+    return _hsl_to_hex(h, min(1, s + amount), l)
+
+
+def desaturate(color, amount=0.2):
+    """Decrease saturation by amount (0-1). Clamps to [0,1]."""
+    h, s, l = _hex_to_hsl(color)
+    return _hsl_to_hex(h, max(0, s - amount), l)
+
+
+def complementary(color):
+    """Return the complementary color (hue + 180 degrees)."""
+    return adjust_hue(color, 180)
+
+
 # Named palette presets
 PALETTE_BLUE = ['#58C4DD', '#29ABCA', '#1C758A', '#236B8E', '#2C6FAC']
 PALETTE_GREEN = ['#83C167', '#77B05D', '#699C52', '#5B8845', '#4E7438']

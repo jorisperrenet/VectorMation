@@ -69,7 +69,9 @@ from vectormation._composites import (
     _parse_inline_style,
 )
 
-from vectormation.colors import LinearGradient, RadialGradient
+from vectormation.colors import (LinearGradient, RadialGradient,
+    color_gradient, interpolate_color, lighten, darken,
+    adjust_hue, saturate, desaturate, complementary)
 
 from vectormation._threed import (
     ThreeDAxes, Surface, Sphere3D, Cube,
