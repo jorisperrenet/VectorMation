@@ -36,6 +36,19 @@ DR = (1, 1)
 ORIGIN = (960, 540)  # Screen center
 
 
+def _clamp(value, min_val, max_val):
+    """Clamp value to [min_val, max_val] range."""
+    return max(min_val, min(max_val, value))
+
+def _lerp(a, b, t):
+    """Linear interpolation between a and b at parameter t."""
+    return a + (b - a) * t
+
+def _distance(x1, y1, x2, y2):
+    """Euclidean distance between two points."""
+    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+
 def _rotate_point(px, py, ox, oy, angle_rad):
     """Rotate point (px,py) around origin (ox,oy) by angle_rad radians."""
     cos_a, sin_a = math.cos(angle_rad), math.sin(angle_rad)

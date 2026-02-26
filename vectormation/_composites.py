@@ -4501,6 +4501,24 @@ class Table(VCollection):
         self.entries[row][col].text.set_onward(start, str(new_value))
         return self
 
+    def highlight_range(self, start_row, start_col, end_row, end_col,
+                        start=0, end=1, color='#FFD700', easing=easings.there_and_back):
+        """Highlight a rectangular range of cells."""
+        for r in range(start_row, end_row + 1):
+            for c in range(start_col, end_col + 1):
+                if r < self.rows and c < self.cols:
+                    self.entries[r][c].flash(start, end, color=color, easing=easing)
+        return self
+
+    def set_cell_values(self, updates, start=0):
+        """Batch update multiple cell values.
+
+        updates: dict of {(row, col): value, ...}
+        """
+        for (r, c), value in updates.items():
+            self.set_cell_value(r, c, str(value), start=start)
+        return self
+
     def __repr__(self):
         return f'Table({self.rows}x{self.cols})'
 
@@ -4599,6 +4617,25 @@ class Matrix(VCollection):
     def get_column(self, col):
         """Return a VCollection of all Text objects in the given column."""
         return VCollection(*(row[col] for row in self.entries if col < len(row)))
+
+    def highlight_entry(self, row, col, start=0, end=1, color='#FFD700'):
+        """Flash-highlight a single matrix entry."""
+        entry = self.get_entry(row, col)
+        entry.flash_color(color, start=start, duration=end - start)
+        return self
+
+    def highlight_row(self, row, start=0, end=1, color='#FFD700'):
+        """Flash-highlight all entries in a row."""
+        for entry in self.entries[row]:
+            entry.flash_color(color, start=start, duration=end - start)
+        return self
+
+    def highlight_column(self, col, start=0, end=1, color='#FFD700'):
+        """Flash-highlight all entries in a column."""
+        for row in self.entries:
+            if col < len(row):
+                row[col].flash_color(color, start=start, duration=end - start)
+        return self
 
 
 def _parse_svg_points(points_str):
@@ -6367,6 +6404,11 @@ class ProgressBar(VCollection):
     def animate_to(self, value, start, end, easing=easings.smooth):
         """Animate progress to a target value (0-1)."""
         return self.set_progress(value, start, end, easing)
+
+    def get_progress(self, time=0):
+        """Return the current progress value (0-1) at the given time."""
+        fill_w = self._fill.width.at_time(time)
+        return fill_w / self._bar_width if self._bar_width else 0
 
 
 class FlowChart(VCollection):

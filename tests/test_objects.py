@@ -5210,3 +5210,66 @@ class TestAnimatePointer:
         ptr = nl.add_pointer(5)
         result = nl.animate_pointer(ptr, 8, start=0, end=1)
         assert result is nl
+
+
+class TestUtilityFunctions:
+    def test_clamp(self):
+        from vectormation._constants import _clamp
+        assert _clamp(5, 0, 10) == 5
+        assert _clamp(-5, 0, 10) == 0
+        assert _clamp(15, 0, 10) == 10
+
+    def test_lerp(self):
+        from vectormation._constants import _lerp
+        assert _lerp(0, 10, 0.5) == 5
+        assert _lerp(0, 10, 0) == 0
+        assert _lerp(0, 10, 1) == 10
+
+    def test_distance(self):
+        from vectormation._constants import _distance
+        assert abs(_distance(0, 0, 3, 4) - 5) < 1e-10
+        assert _distance(0, 0, 0, 0) == 0
+
+
+class TestProgressBarGetProgress:
+    def test_get_progress(self):
+        pb = ProgressBar()
+        pb.set_progress(0.5, start=0)
+        val = pb.get_progress(0)
+        assert abs(val - 0.5) < 0.01
+
+    def test_get_progress_default(self):
+        pb = ProgressBar()
+        val = pb.get_progress(0)
+        assert 0 <= val <= 1
+
+
+class TestMatrixHighlight:
+    def test_highlight_entry(self):
+        m = Matrix([[1, 2], [3, 4]])
+        result = m.highlight_entry(0, 0, start=0, end=1)
+        assert result is m
+
+    def test_highlight_row(self):
+        m = Matrix([[1, 2, 3], [4, 5, 6]])
+        result = m.highlight_row(0, start=0, end=1)
+        assert result is m
+
+    def test_highlight_column(self):
+        m = Matrix([[1, 2], [3, 4], [5, 6]])
+        result = m.highlight_column(1, start=0, end=1)
+        assert result is m
+
+
+class TestTableBatchOps:
+    def test_highlight_range(self):
+        t = Table([['A', 'B', 'C'], ['D', 'E', 'F'], ['G', 'H', 'I']])
+        result = t.highlight_range(0, 0, 1, 1, start=0, end=1)
+        assert result is t
+
+    def test_set_cell_values(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        result = t.set_cell_values({(0, 0): 'X', (1, 1): 'Y'}, start=0)
+        assert result is t
+        assert t.get_entry(0, 0).text.at_time(0) == 'X'
+        assert t.get_entry(1, 1).text.at_time(0) == 'Y'
