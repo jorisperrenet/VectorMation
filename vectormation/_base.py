@@ -2095,6 +2095,30 @@ class VCollection:
     def get_height(self, time=0):
         return self.bbox(time)[3]
 
+    def get_edge(self, edge, time=0):
+        """Return coordinate of a named edge point (same API as VObject.get_edge)."""
+        x, y, w, h = self.bbox(time)
+        points = {
+            'center': (x + w / 2, y + h / 2),
+            'top': (x + w / 2, y), 'bottom': (x + w / 2, y + h),
+            'left': (x, y + h / 2), 'right': (x + w, y + h / 2),
+            'top_left': (x, y), 'top_right': (x + w, y),
+            'bottom_left': (x, y + h), 'bottom_right': (x + w, y + h),
+        }
+        return points[edge]
+
+    def get_left(self, time=0):
+        return self.get_edge('left', time)
+
+    def get_right(self, time=0):
+        return self.get_edge('right', time)
+
+    def get_top(self, time=0):
+        return self.get_edge('top', time)
+
+    def get_bottom(self, time=0):
+        return self.get_edge('bottom', time)
+
     def to_edge(self, edge: str | tuple = DOWN, buff=DEFAULT_OBJECT_TO_EDGE_BUFF,
                 start_time: float = 0, end_time: float | None = None, easing=easings.smooth):
         """Move group to a canvas edge."""

@@ -3816,3 +3816,80 @@ class TestMoreCompositeRepr:
     def test_code_stores_language(self):
         c = Code('fn main() {}', language='rust')
         assert c._language == 'rust'
+
+
+class TestEllipsePointAtAngle:
+    def test_point_at_0(self):
+        e = Ellipse(rx=100, ry=50, cx=200, cy=200)
+        x, y = e.point_at_angle(0)
+        assert x == pytest.approx(300, abs=1)
+        assert y == pytest.approx(200, abs=1)
+
+    def test_point_at_90(self):
+        e = Ellipse(rx=100, ry=50, cx=200, cy=200)
+        x, y = e.point_at_angle(90)
+        assert x == pytest.approx(200, abs=1)
+        assert y == pytest.approx(150, abs=1)  # SVG y inverted
+
+    def test_circle_consistency(self):
+        """Ellipse.point_at_angle and Circle.point_at_angle agree when rx==ry."""
+        from vectormation.objects import Circle
+        c = Circle(r=80, cx=100, cy=100)
+        ep = Ellipse(rx=80, ry=80, cx=100, cy=100).point_at_angle(45)
+        cp = c.point_at_angle(45)
+        assert ep[0] == pytest.approx(cp[0], abs=0.01)
+        assert ep[1] == pytest.approx(cp[1], abs=0.01)
+
+
+class TestLineMidpointAndFactory:
+    def test_get_midpoint(self):
+        ln = Line(0, 0, 100, 200)
+        mx, my = ln.get_midpoint()
+        assert mx == pytest.approx(50)
+        assert my == pytest.approx(100)
+
+    def test_between_factory(self):
+        ln = Line.between((10, 20), (30, 40))
+        assert ln.get_start() == pytest.approx((10, 20), abs=0.01)
+        assert ln.get_end() == pytest.approx((30, 40), abs=0.01)
+
+    def test_between_with_kwargs(self):
+        ln = Line.between((0, 0), (100, 100), stroke='red')
+        assert 'red' in ln.to_svg(0) or 'rgb' in ln.to_svg(0)
+
+
+class TestPolygonFromPoints:
+    def test_from_points(self):
+        pts = [(0, 0), (100, 0), (50, 80)]
+        p = Polygon.from_points(pts)
+        assert len(p.vertices) == 3
+        verts = p.get_vertices()
+        assert verts[0] == pytest.approx((0, 0))
+        assert verts[1] == pytest.approx((100, 0))
+        assert verts[2] == pytest.approx((50, 80))
+
+
+class TestVCollectionEdgeMethods:
+    def test_get_edge_center(self):
+        c1 = Circle(r=10, cx=50, cy=50)
+        c2 = Circle(r=10, cx=150, cy=150)
+        g = VCollection(c1, c2)
+        center = g.get_edge('center')
+        assert center[0] == pytest.approx(100, abs=5)
+        assert center[1] == pytest.approx(100, abs=5)
+
+    def test_get_left_right(self):
+        c1 = Circle(r=10, cx=50, cy=100)
+        c2 = Circle(r=10, cx=150, cy=100)
+        g = VCollection(c1, c2)
+        left = g.get_left()
+        right = g.get_right()
+        assert left[0] < right[0]
+
+    def test_get_top_bottom(self):
+        c1 = Circle(r=10, cx=100, cy=50)
+        c2 = Circle(r=10, cx=100, cy=150)
+        g = VCollection(c1, c2)
+        top = g.get_top()
+        bottom = g.get_bottom()
+        assert top[1] < bottom[1]

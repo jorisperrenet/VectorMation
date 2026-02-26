@@ -92,6 +92,11 @@ class Polygon(VObject):
         return abs(sum(pts[i][0] * pts[(i+1) % n][1] - pts[(i+1) % n][0] * pts[i][1]
                        for i in range(n))) / 2
 
+    @classmethod
+    def from_points(cls, points, **kwargs):
+        """Create a Polygon from a list of (x, y) tuples."""
+        return cls(*points, **kwargs)
+
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 
@@ -133,6 +138,13 @@ class Ellipse(VObject):
         """Return the approximate perimeter (Ramanujan's approximation)."""
         a, b = self.rx.at_time(time), self.ry.at_time(time)
         return math.pi * (3 * (a + b) - math.sqrt((3 * a + b) * (a + 3 * b)))
+
+    def point_at_angle(self, degrees, time=0):
+        """Return (x, y) on the ellipse at the given angle (degrees, CCW from right)."""
+        cx, cy = self.c.at_time(time)
+        rx, ry = self.rx.at_time(time), self.ry.at_time(time)
+        rad = math.radians(degrees)
+        return (cx + rx * math.cos(rad), cy - ry * math.sin(rad))
 
     def __repr__(self):
         cx, cy = self.c.at_time(0)
@@ -307,6 +319,12 @@ class Line(VObject):
         x2, y2 = self.p2.at_time(time)
         return math.degrees(math.atan2(y2 - y1, x2 - x1))
 
+    def get_midpoint(self, time=0):
+        """Return the midpoint (x, y) of the line."""
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        return ((x1 + x2) / 2, (y1 + y2) / 2)
+
     def get_unit_vector(self, time=0):
         """Return the normalized direction vector (dx, dy) from p1 to p2."""
         x1, y1 = self.p1.at_time(time)
@@ -315,6 +333,11 @@ class Line(VObject):
         if length == 0:
             return (0.0, 0.0)
         return ((x2 - x1) / length, (y2 - y1) / length)
+
+    @classmethod
+    def between(cls, p1, p2, **kwargs):
+        """Create a Line from two (x, y) tuples."""
+        return cls(p1[0], p1[1], p2[0], p2[1], **kwargs)
 
     def __repr__(self):
         p1, p2 = self.p1.at_time(0), self.p2.at_time(0)
