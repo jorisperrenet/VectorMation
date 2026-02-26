@@ -4340,3 +4340,125 @@ class TestThreeDCameraZoom:
         ax.set_camera_zoom(start=0, end=1, factor=2.0)
         s1 = ax._scale_3d.at_time(1)
         assert s1 == pytest.approx(s0 * 2, abs=1)
+
+
+class TestDataStructures:
+    def test_array_render(self):
+        from vectormation.objects import Array
+        arr = Array([5, 3, 8])
+        svg = arr.to_svg(0)
+        assert '5' in svg and '3' in svg and '8' in svg
+
+    def test_array_highlight(self):
+        from vectormation.objects import Array
+        arr = Array([1, 2, 3])
+        arr.highlight_cell(1, start=0, end=1)  # should not error
+
+    def test_array_swap(self):
+        from vectormation.objects import Array
+        arr = Array([10, 20, 30])
+        arr.swap_cells(0, 2, start=0, end=1)
+
+    def test_array_pointer(self):
+        from vectormation.objects import Array
+        arr = Array([1, 2, 3])
+        ptr = arr.add_pointer(1, label='i')
+        assert ptr is not None
+
+    def test_stack_render(self):
+        from vectormation.objects import Stack
+        s = Stack([10, 20, 30])
+        svg = s.to_svg(0)
+        assert '10' in svg
+
+    def test_stack_push(self):
+        from vectormation.objects import Stack
+        s = Stack([10, 20])
+        s.push(30, start=0, end=0.5)
+        assert len(s._items) == 3
+
+    def test_stack_pop(self):
+        from vectormation.objects import Stack
+        s = Stack([10, 20, 30])
+        s.pop(start=0, end=0.5)
+        assert len(s._items) == 2
+
+    def test_queue_render(self):
+        from vectormation.objects import Queue
+        q = Queue([1, 2, 3])
+        svg = q.to_svg(0)
+        assert '1' in svg
+
+    def test_queue_enqueue(self):
+        from vectormation.objects import Queue
+        q = Queue([1, 2])
+        q.enqueue(3, start=0, end=0.5)
+        assert len(q._items) == 3
+
+    def test_queue_dequeue(self):
+        from vectormation.objects import Queue
+        q = Queue([1, 2, 3])
+        q.dequeue(start=0, end=0.5)
+        assert len(q._items) == 2
+
+    def test_linked_list_render(self):
+        from vectormation.objects import LinkedList
+        ll = LinkedList(['A', 'B', 'C'])
+        svg = ll.to_svg(0)
+        assert 'A' in svg and 'null' in svg
+
+    def test_linked_list_highlight(self):
+        from vectormation.objects import LinkedList
+        ll = LinkedList([1, 2, 3])
+        ll.highlight_node(1, start=0, end=1)
+
+    def test_binary_tree_render(self):
+        from vectormation.objects import BinaryTree
+        bt = BinaryTree((5, (3, 1, 4), (7, 6, 8)))
+        svg = bt.to_svg(0)
+        assert '5' in svg and '3' in svg
+
+    def test_binary_tree_single(self):
+        from vectormation.objects import BinaryTree
+        bt = BinaryTree(42)
+        svg = bt.to_svg(0)
+        assert '42' in svg
+
+
+class TestCircuitComponents:
+    def test_resistor(self):
+        from vectormation.objects import Resistor
+        r = Resistor(x1=300, y1=500, x2=500, y2=500)
+        svg = r.to_svg(0)
+        assert svg
+
+    def test_capacitor(self):
+        from vectormation.objects import Capacitor
+        c = Capacitor(x1=300, y1=500, x2=500, y2=500)
+        svg = c.to_svg(0)
+        assert svg
+
+
+class TestMolecule2D:
+    def test_water(self):
+        from vectormation.objects import Molecule2D
+        m = Molecule2D(atoms=[('O', 0, 0), ('H', -1, 0.5), ('H', 1, 0.5)],
+                       bonds=[(0, 1, 1), (0, 2, 1)])
+        svg = m.to_svg(0)
+        assert 'O' in svg and 'H' in svg
+
+    def test_double_bond(self):
+        from vectormation.objects import Molecule2D
+        m = Molecule2D(atoms=[('O', 0, 0), ('C', 1, 0), ('O', 2, 0)],
+                       bonds=[(0, 1, 2), (1, 2, 2)])
+        svg = m.to_svg(0)
+        assert svg
+
+
+class TestComplexPlaneTransform:
+    def test_apply_complex_function(self):
+        from vectormation.objects import ComplexPlane
+        cp = ComplexPlane(x_range=(-2, 2), y_range=(-2, 2))
+        initial_count = len(cp.objects)
+        cp.apply_complex_function(lambda z: z**2, start=0, end=1, resolution=5)
+        assert len(cp.objects) > initial_count

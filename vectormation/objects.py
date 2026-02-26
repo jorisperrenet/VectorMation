@@ -66,6 +66,8 @@ from vectormation._composites import (
     StatusIndicator, Meter, Breadcrumb,
     Countdown, Filmstrip,
     SampleSpace, RoundedCornerPolygon,
+    Array, Stack, Queue, LinkedList, BinaryTree,
+    Resistor, Capacitor, Molecule2D,
     from_svg, from_svg_file, always_redraw, parse_args,
     _parse_inline_style,
 )

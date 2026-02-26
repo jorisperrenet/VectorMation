@@ -4873,6 +4873,88 @@ class ComplexPlane(Axes):
         im = ymax - (y - self.plot_y) / self.plot_height * (ymax - ymin)
         return complex(re, im)
 
+    def apply_complex_function(self, func, start=0, end=1, easing=easings.smooth,
+                               resolution=20, step=1.0):
+        """Animate a complex function transformation of the plane.
+
+        Subdivides the existing grid into many small line segments and animates
+        each segment from its original position to the position given by
+        applying *func*.
+
+        func: callable taking a complex number and returning a complex number.
+        resolution: number of sub-segments per grid line between successive
+            integer values.
+        step: spacing between grid lines in math coordinates (default 1).
+        """
+        xmin = self.x_min.at_time(0)
+        xmax = self.x_max.at_time(0)
+        ymin = self.y_min.at_time(0)
+        ymax = self.y_max.at_time(0)
+
+        dur = max(end - start, 1e-9)
+        new_objects = []
+        style_kw = {'stroke': '#4488AA', 'stroke_width': 2, 'stroke_opacity': 0.6}
+
+        def _make_seg(lx0, ly0, lx1, ly1):
+            """Create a Line that morphs from (lx0,ly0)-(lx1,ly1) to func(z)-mapped positions."""
+            z0 = complex(lx0, ly0)
+            z1 = complex(lx1, ly1)
+            try:
+                w0 = func(z0)
+                w1 = func(z1)
+            except (ZeroDivisionError, ValueError, OverflowError):
+                return None
+
+            # Skip segments where the function blows up
+            if not (math.isfinite(w0.real) and math.isfinite(w0.imag)
+                    and math.isfinite(w1.real) and math.isfinite(w1.imag)):
+                return None
+
+            sx0 = self._math_to_svg_x(lx0)
+            sy0 = self._math_to_svg_y(ly0)
+            sx1 = self._math_to_svg_x(lx1)
+            sy1 = self._math_to_svg_y(ly1)
+            tsx0 = self._math_to_svg_x(w0.real)
+            tsy0 = self._math_to_svg_y(w0.imag)
+            tsx1 = self._math_to_svg_x(w1.real)
+            tsy1 = self._math_to_svg_y(w1.imag)
+
+            seg = Line(x1=sx0, y1=sy0, x2=sx1, y2=sy1, creation=0, **style_kw)
+            seg.p1.set(start, end,
+                lambda t, _s=start, _d=dur, _a=(sx0, sy0), _b=(tsx0, tsy0):
+                    (_a[0] + (_b[0] - _a[0]) * easing((t - _s) / _d),
+                     _a[1] + (_b[1] - _a[1]) * easing((t - _s) / _d)))
+            seg.p2.set(start, end,
+                lambda t, _s=start, _d=dur, _a=(sx1, sy1), _b=(tsx1, tsy1):
+                    (_a[0] + (_b[0] - _a[0]) * easing((t - _s) / _d),
+                     _a[1] + (_b[1] - _a[1]) * easing((t - _s) / _d)))
+            return seg
+
+        # Vertical lines: for each x on the grid, subdivide the y range
+        x_val = math.ceil(xmin / step) * step
+        while x_val <= xmax + 1e-9:
+            for i in range(resolution):
+                t0 = ymin + (ymax - ymin) * i / resolution
+                t1 = ymin + (ymax - ymin) * (i + 1) / resolution
+                seg = _make_seg(x_val, t0, x_val, t1)
+                if seg is not None:
+                    new_objects.append(seg)
+            x_val += step
+
+        # Horizontal lines: for each y on the grid, subdivide the x range
+        y_val = math.ceil(ymin / step) * step
+        while y_val <= ymax + 1e-9:
+            for i in range(resolution):
+                t0 = xmin + (xmax - xmin) * i / resolution
+                t1 = xmin + (xmax - xmin) * (i + 1) / resolution
+                seg = _make_seg(t0, y_val, t1, y_val)
+                if seg is not None:
+                    new_objects.append(seg)
+            y_val += step
+
+        self.objects.extend(new_objects)
+        return self
+
 
 class Code(VCollection):
     """Syntax-highlighted code display.
@@ -7770,6 +7852,386 @@ class RoundedCornerPolygon(VObject):
         if not d:
             return ''
         return f'<path d="{d}"{self.styling.svg_style(time)} />'
+
+
+class Array(VCollection):
+    """Visual array data structure with cells, indices, and animation methods.
+
+    values: list of initial values to display in cells.
+    """
+    def __init__(self, values, x=360, y=440, cell_width=80, cell_height=60,
+                 font_size=24, index_font_size=16,
+                 fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
+                 show_indices=True, creation=0, z=0):
+        self._cell_width = cell_width
+        self._cell_height = cell_height
+        self._x, self._y = x, y
+        self._cells = []
+        self._labels = []
+        objects = []
+        for i, val in enumerate(values):
+            cx = x + i * cell_width
+            cell = Rectangle(width=cell_width, height=cell_height, x=cx, y=y,
+                             fill=fill, stroke=border_color, stroke_width=2,
+                             creation=creation, z=z)
+            lbl = _label_text(str(val), cx + cell_width / 2, y + cell_height / 2,
+                              font_size, creation=creation, z=z + 0.1, fill=text_color)
+            self._cells.append(cell)
+            self._labels.append(lbl)
+            objects.extend([cell, lbl])
+            if show_indices:
+                idx = _label_text(str(i), cx + cell_width / 2, y + cell_height + index_font_size + 4,
+                                  index_font_size, creation=creation, z=z + 0.1, fill='#888')
+                objects.append(idx)
+        super().__init__(*objects, creation=creation, z=z)
+
+    def highlight_cell(self, index, start=0, end=1, color='#58C4DD', easing=easings.there_and_back):
+        """Flash-highlight a cell by index."""
+        if 0 <= index < len(self._cells):
+            self._cells[index].flash(start, end, color=color, easing=easing)
+        return self
+
+    def swap_cells(self, i, j, start=0, end=1, easing=easings.smooth):
+        """Animate swapping the values at indices i and j."""
+        if 0 <= i < len(self._labels) and 0 <= j < len(self._labels):
+            li, lj = self._labels[i], self._labels[j]
+            bxi = li.bbox(start)[0] + li.bbox(start)[2] / 2
+            bxj = lj.bbox(start)[0] + lj.bbox(start)[2] / 2
+            dx = bxj - bxi
+            li.shift(dx=dx, start_time=start, end_time=end, easing=easing)
+            lj.shift(dx=-dx, start_time=start, end_time=end, easing=easing)
+            self._labels[i], self._labels[j] = self._labels[j], self._labels[i]
+        return self
+
+    def add_pointer(self, index, label='', color='#FF6B6B', creation=0, z=1):
+        """Add a pointer arrow above a cell."""
+        if 0 <= index < len(self._cells):
+            cx = self._x + index * self._cell_width + self._cell_width / 2
+            arrow = Arrow(x1=cx, y1=self._y - 50, x2=cx, y2=self._y - 8,
+                          creation=creation, z=z, stroke=color, fill=color)
+            self.objects.append(arrow)
+            if label:
+                lbl = _label_text(label, cx, self._y - 58, 16,
+                                  creation=creation, z=z, fill=color)
+                self.objects.append(lbl)
+            return arrow
+        return None
+
+
+class Stack(VCollection):
+    """Visual stack data structure (LIFO) with push/pop animations.
+
+    values: initial values (bottom to top).
+    """
+    def __init__(self, values=None, x=860, y=600, cell_width=100, cell_height=50,
+                 font_size=22, fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
+                 creation=0, z=0):
+        self._cell_width = cell_width
+        self._cell_height = cell_height
+        self._x, self._y_base = x, y
+        self._font_size = font_size
+        self._fill = fill
+        self._text_color = text_color
+        self._border_color = border_color
+        self._items = []
+        objects = []
+        if values:
+            for i, val in enumerate(values):
+                cy = y - i * cell_height
+                cell = Rectangle(width=cell_width, height=cell_height, x=x, y=cy,
+                                 fill=fill, stroke=border_color, stroke_width=2,
+                                 creation=creation, z=z)
+                lbl = _label_text(str(val), x + cell_width / 2, cy + cell_height / 2,
+                                  font_size, creation=creation, z=z + 0.1, fill=text_color)
+                self._items.append((cell, lbl))
+                objects.extend([cell, lbl])
+        super().__init__(*objects, creation=creation, z=z)
+
+    def push(self, value, start=0, end=0.5):
+        """Animate pushing a value onto the stack."""
+        n = len(self._items)
+        slot_y = self._y_base - n * self._cell_height
+        start_y = slot_y - self._cell_height * 2
+        cell = Rectangle(width=self._cell_width, height=self._cell_height,
+                         x=self._x, y=start_y,
+                         fill=self._fill, stroke=self._border_color, stroke_width=2,
+                         creation=start, z=0)
+        lbl = _label_text(str(value), self._x + self._cell_width / 2,
+                          start_y + self._cell_height / 2,
+                          self._font_size, creation=start, z=0.1, fill=self._text_color)
+        dy = slot_y - start_y
+        cell.shift(dy=dy, start_time=start, end_time=end, easing=easings.ease_out_back)
+        lbl.shift(dy=dy, start_time=start, end_time=end, easing=easings.ease_out_back)
+        self._items.append((cell, lbl))
+        self.objects.extend([cell, lbl])
+        return self
+
+    def pop(self, start=0, end=0.5):
+        """Animate popping the top value from the stack."""
+        if not self._items:
+            return self
+        cell, lbl = self._items.pop()
+        cell.fadeout(start=start, end=end, change_existence=True)
+        lbl.fadeout(start=start, end=end, change_existence=True)
+        return self
+
+
+class Queue(VCollection):
+    """Visual queue data structure (FIFO) with enqueue/dequeue animations.
+
+    values: initial values (front to back).
+    """
+    def __init__(self, values=None, x=360, y=440, cell_width=80, cell_height=60,
+                 font_size=22, fill='#1e1e2e', text_color='#fff', border_color='#83C167',
+                 creation=0, z=0):
+        self._cell_width = cell_width
+        self._cell_height = cell_height
+        self._x, self._y = x, y
+        self._font_size = font_size
+        self._fill = fill
+        self._text_color = text_color
+        self._border_color = border_color
+        self._items = []
+        objects = []
+        if values:
+            for i, val in enumerate(values):
+                cx = x + i * cell_width
+                cell = Rectangle(width=cell_width, height=cell_height, x=cx, y=y,
+                                 fill=fill, stroke=border_color, stroke_width=2,
+                                 creation=creation, z=z)
+                lbl = _label_text(str(val), cx + cell_width / 2, y + cell_height / 2,
+                                  font_size, creation=creation, z=z + 0.1, fill=text_color)
+                self._items.append((cell, lbl))
+                objects.extend([cell, lbl])
+        super().__init__(*objects, creation=creation, z=z)
+
+    def enqueue(self, value, start=0, end=0.5):
+        """Animate adding a value to the back of the queue."""
+        n = len(self._items)
+        target_cx = self._x + n * self._cell_width
+        start_cx = target_cx + self._cell_width
+        cell = Rectangle(width=self._cell_width, height=self._cell_height,
+                         x=start_cx, y=self._y,
+                         fill=self._fill, stroke=self._border_color, stroke_width=2,
+                         creation=start, z=0)
+        lbl = _label_text(str(value), start_cx + self._cell_width / 2,
+                          self._y + self._cell_height / 2,
+                          self._font_size, creation=start, z=0.1, fill=self._text_color)
+        cell.shift(dx=-self._cell_width, start_time=start, end_time=end,
+                   easing=easings.ease_out_back)
+        lbl.shift(dx=-self._cell_width, start_time=start, end_time=end,
+                  easing=easings.ease_out_back)
+        self._items.append((cell, lbl))
+        self.objects.extend([cell, lbl])
+        return self
+
+    def dequeue(self, start=0, end=0.5):
+        """Animate removing the front value from the queue."""
+        if not self._items:
+            return self
+        cell, lbl = self._items.pop(0)
+        cell.fadeout(start=start, end=end, change_existence=True)
+        lbl.fadeout(start=start, end=end, change_existence=True)
+        for c, l in self._items:
+            c.shift(dx=-self._cell_width, start_time=start, end_time=end, easing=easings.smooth)
+            l.shift(dx=-self._cell_width, start_time=start, end_time=end, easing=easings.smooth)
+        return self
+
+
+class LinkedList(VCollection):
+    """Visual linked list with nodes and arrow pointers.
+
+    values: list of node values.
+    """
+    def __init__(self, values, x=200, y=440, node_width=80, node_height=50,
+                 gap=40, font_size=22,
+                 fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
+                 arrow_color='#fff', creation=0, z=0):
+        self._nodes = []
+        objects = []
+        step = node_width + gap
+        for i, val in enumerate(values):
+            nx = x + i * step
+            node = Rectangle(width=node_width, height=node_height, x=nx, y=y,
+                             fill=fill, stroke=border_color, stroke_width=2,
+                             creation=creation, z=z)
+            lbl = _label_text(str(val), nx + node_width / 2, y + node_height / 2,
+                              font_size, creation=creation, z=z + 0.1, fill=text_color)
+            self._nodes.append((node, lbl))
+            objects.extend([node, lbl])
+            if i < len(values) - 1:
+                ax1 = nx + node_width
+                ax2 = nx + step
+                ay = y + node_height / 2
+                objects.append(Arrow(x1=ax1, y1=ay, x2=ax2, y2=ay,
+                                     creation=creation, z=z, stroke=arrow_color, fill=arrow_color))
+        if values:
+            nx = x + (len(values) - 1) * step + node_width + 10
+            ny = y + node_height / 2
+            objects.append(Text(text='null', x=nx, y=ny + font_size * TEXT_Y_OFFSET,
+                                font_size=font_size - 4, fill='#888', stroke_width=0,
+                                creation=creation, z=z))
+        super().__init__(*objects, creation=creation, z=z)
+
+    def highlight_node(self, index, start=0, end=1, color='#FF6B6B',
+                       easing=easings.there_and_back):
+        """Flash-highlight a node by index."""
+        if 0 <= index < len(self._nodes):
+            self._nodes[index][0].flash(start, end, color=color, easing=easing)
+        return self
+
+
+class BinaryTree(VCollection):
+    """Visual binary tree with automatic layout.
+
+    tree: nested tuple (value, left_subtree, right_subtree).
+    Leaves can be just a value or (value, None, None).
+    """
+    def __init__(self, tree, x=960, y=120, h_spacing=200, v_spacing=100,
+                 node_radius=25, font_size=20,
+                 fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
+                 edge_color='#888', creation=0, z=0):
+        objects = []
+        self._node_objects = []
+
+        def _draw(node, cx, cy, spread):
+            if node is None:
+                return
+            if isinstance(node, (int, float, str)):
+                val, left, right = node, None, None
+            elif isinstance(node, (tuple, list)) and len(node) >= 1:
+                val = node[0]
+                left = node[1] if len(node) > 1 else None
+                right = node[2] if len(node) > 2 else None
+            else:
+                return
+            child_y = cy + v_spacing
+            child_spread = spread / 2
+            if left is not None:
+                lx = cx - child_spread
+                objects.append(Line(x1=cx, y1=cy, x2=lx, y2=child_y,
+                                    stroke=edge_color, stroke_width=2,
+                                    creation=creation, z=z))
+                _draw(left, lx, child_y, child_spread)
+            if right is not None:
+                rx = cx + child_spread
+                objects.append(Line(x1=cx, y1=cy, x2=rx, y2=child_y,
+                                    stroke=edge_color, stroke_width=2,
+                                    creation=creation, z=z))
+                _draw(right, rx, child_y, child_spread)
+            node_obj = Circle(r=node_radius, cx=cx, cy=cy,
+                              fill=fill, stroke=border_color, stroke_width=2,
+                              creation=creation, z=z + 0.1)
+            lbl = _label_text(str(val), cx, cy, font_size,
+                              creation=creation, z=z + 0.2, fill=text_color)
+            self._node_objects.append(node_obj)
+            objects.extend([node_obj, lbl])
+
+        _draw(tree, x, y, h_spacing)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class Resistor(VCollection):
+    """Electrical resistor symbol (zigzag line)."""
+    def __init__(self, x1=400, y1=540, x2=600, y2=540, label='R',
+                 creation=0, z=0, **styling_kwargs):
+        style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
+        dx, dy = x2 - x1, y2 - y1
+        length = math.hypot(dx, dy) or 1
+        ux, uy = dx / length, dy / length
+        px, py = -uy, ux
+        lead, zag_end = 0.25, 0.75
+        n_zags, zag_amp = 6, 12
+        pts = [(x1, y1), (x1 + ux * length * lead, y1 + uy * length * lead)]
+        for i in range(n_zags):
+            t = lead + (zag_end - lead) * (i + 0.5) / n_zags
+            sign = 1 if i % 2 == 0 else -1
+            pts.append((x1 + ux * length * t + px * zag_amp * sign,
+                        y1 + uy * length * t + py * zag_amp * sign))
+        pts.extend([(x1 + ux * length * zag_end, y1 + uy * length * zag_end), (x2, y2)])
+        zigzag = Lines(*pts, creation=creation, z=z, fill_opacity=0, **style_kw)
+        objects = [zigzag]
+        if label:
+            mx = (x1 + x2) / 2 + px * (zag_amp + 16)
+            my = (y1 + y2) / 2 + py * (zag_amp + 16)
+            objects.append(Text(text=label, x=mx, y=my, font_size=18,
+                                fill='#aaa', stroke_width=0, text_anchor='middle',
+                                creation=creation, z=z + 0.1))
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class Capacitor(VCollection):
+    """Electrical capacitor symbol (two parallel plates)."""
+    def __init__(self, x1=400, y1=540, x2=600, y2=540, label='C',
+                 creation=0, z=0, **styling_kwargs):
+        style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
+        dx, dy = x2 - x1, y2 - y1
+        length = math.hypot(dx, dy) or 1
+        ux, uy = dx / length, dy / length
+        px, py = -uy, ux
+        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+        gap, plate_h = 8, 24
+        objects = [
+            Line(x1=x1, y1=y1, x2=mx - ux * gap, y2=my - uy * gap,
+                 creation=creation, z=z, **style_kw),
+            Line(x1=mx - ux * gap + px * plate_h, y1=my - uy * gap + py * plate_h,
+                 x2=mx - ux * gap - px * plate_h, y2=my - uy * gap - py * plate_h,
+                 creation=creation, z=z, **style_kw),
+            Line(x1=mx + ux * gap + px * plate_h, y1=my + uy * gap + py * plate_h,
+                 x2=mx + ux * gap - px * plate_h, y2=my + uy * gap - py * plate_h,
+                 creation=creation, z=z, **style_kw),
+            Line(x1=mx + ux * gap, y1=my + uy * gap, x2=x2, y2=y2,
+                 creation=creation, z=z, **style_kw),
+        ]
+        if label:
+            lx = mx + px * (plate_h + 16)
+            ly = my + py * (plate_h + 16)
+            objects.append(Text(text=label, x=lx, y=ly, font_size=18,
+                                fill='#aaa', stroke_width=0, text_anchor='middle',
+                                creation=creation, z=z + 0.1))
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class Molecule2D(VCollection):
+    """Simple 2D molecule visualization from atom positions and bonds.
+
+    atoms: list of (element_symbol, x, y) tuples.
+    bonds: list of (i, j, order) tuples (order: 1=single, 2=double, 3=triple).
+    """
+    _ATOM_COLORS = {
+        'C': '#555', 'H': '#fff', 'O': '#FF4444', 'N': '#4444FF',
+        'S': '#FFFF00', 'P': '#FF8800', 'F': '#00FF00', 'Cl': '#00FF00',
+        'Br': '#882200', 'I': '#8800FF',
+    }
+
+    def __init__(self, atoms, bonds=None, scale=80, cx=960, cy=540,
+                 atom_radius=20, font_size=16, creation=0, z=0):
+        objects = []
+        self._atom_objects = []
+        if bonds:
+            for bond in bonds:
+                i, j = bond[0], bond[1]
+                bond_order = bond[2] if len(bond) > 2 else 1
+                ax, ay = cx + atoms[i][1] * scale, cy + atoms[i][2] * scale
+                bx, by = cx + atoms[j][1] * scale, cy + atoms[j][2] * scale
+                d = math.hypot(bx - ax, by - ay) or 1
+                perpx, perpy = -(by - ay) / d * 4, (bx - ax) / d * 4
+                for k in range(bond_order):
+                    offset = (k - (bond_order - 1) / 2) * 1.5
+                    objects.append(Line(
+                        x1=ax + perpx * offset, y1=ay + perpy * offset,
+                        x2=bx + perpx * offset, y2=by + perpy * offset,
+                        stroke='#888', stroke_width=2, creation=creation, z=z))
+        for elem, ax_pos, ay_pos in atoms:
+            sx, sy = cx + ax_pos * scale, cy + ay_pos * scale
+            color = self._ATOM_COLORS.get(elem, '#888')
+            atom_c = Circle(r=atom_radius, cx=sx, cy=sy,
+                            fill=color, fill_opacity=0.9, stroke='#444', stroke_width=1,
+                            creation=creation, z=z + 0.1)
+            lbl = _label_text(elem, sx, sy, font_size, creation=creation, z=z + 0.2, fill='#fff')
+            self._atom_objects.append(atom_c)
+            objects.extend([atom_c, lbl])
+        super().__init__(*objects, creation=creation, z=z)
 
 
 def parse_args():
