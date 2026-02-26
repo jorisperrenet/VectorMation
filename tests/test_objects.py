@@ -5319,3 +5319,86 @@ class TestAngleSetRadius:
         a = Angle(vertex=(500, 500), p1=(600, 500), p2=(500, 400))
         result = a.set_radius(80, start=0, end=1)
         assert result is a
+
+
+class TestVCollectionUtilities:
+    def test_index_of_found(self):
+        a = Circle(r=10)
+        b = Circle(r=20)
+        c = VCollection(a, b)
+        assert c.index_of(a) == 0
+        assert c.index_of(b) == 1
+
+    def test_index_of_not_found(self):
+        a = Circle(r=10)
+        b = Circle(r=20)
+        c = VCollection(a)
+        assert c.index_of(b) == -1
+
+    def test_replace(self):
+        a = Circle(r=10)
+        b = Circle(r=20)
+        new_obj = Circle(r=30)
+        c = VCollection(a, b)
+        result = c.replace(a, new_obj)
+        assert result is c
+        assert c.objects[0] is new_obj
+        assert c.objects[1] is b
+
+    def test_replace_not_found(self):
+        a = Circle(r=10)
+        b = Circle(r=20)
+        c = VCollection(a)
+        result = c.replace(b, Circle(r=30))
+        assert result is c  # no-op
+        assert len(c.objects) == 1
+
+    def test_map_objects(self):
+        a = Circle(r=10)
+        b = Circle(r=20)
+        c = VCollection(a, b)
+        result = c.map_objects(lambda obj: Circle(r=obj.rx.at_time(0) * 2))
+        assert len(result.objects) == 2
+        assert result.objects[0].rx.at_time(0) == 20
+        assert result.objects[1].rx.at_time(0) == 40
+
+    def test_set_z_values(self):
+        a = Circle(r=10)
+        b = Circle(r=20)
+        c = Circle(r=30)
+        col = VCollection(a, b, c)
+        result = col.set_z_values()
+        assert result is col
+        assert a.z.at_time(0) == 0
+        assert b.z.at_time(0) == 1
+        assert c.z.at_time(0) == 2
+
+    def test_contains_point_base(self):
+        r = Rectangle(100, 50, x=10, y=20)
+        assert r.contains_point(50, 40) is True
+        assert r.contains_point(5, 20) is False
+
+
+class TestArrowSetColor:
+    def test_set_color(self):
+        a = Arrow(100, 100, 200, 100)
+        result = a.set_color('#FF0000', start=0)
+        assert result is a
+
+    def test_set_color_returns_self(self):
+        a = Arrow(100, 100, 200, 100)
+        assert a.set_color('#00FF00') is a
+
+
+class TestNumberLineSegment:
+    def test_add_segment(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        rect = nl.add_segment(-2, 2)
+        assert rect is not None
+        # Should have been added to objects
+        assert rect in nl.objects
+
+    def test_add_segment_custom_color(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        rect = nl.add_segment(0, 3, color='#FF0000')
+        assert rect is not None

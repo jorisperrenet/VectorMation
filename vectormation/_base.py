@@ -475,6 +475,11 @@ class VObject(ABC):  # Vector Object
         pts = [(xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax)]
         return self._bbox_from_points(pts, time) or (xmin, ymin, xmax - xmin, ymax - ymin)
 
+    def contains_point(self, px, py, time=0):
+        """Return True if (px, py) lies inside this object's bounding box at *time*."""
+        x, y, w, h = self.bbox(time)
+        return x <= px <= x + w and y <= py <= y + h
+
     def move_to(self, x, y, start_time: float = 0, end_time: float | None = None, easing=easings.smooth):
         """Move the object's center to (x, y), optionally animated over [start_time, end_time]."""
         xmin, ymin, w, h = self.bbox(start_time)
@@ -2396,6 +2401,30 @@ class VCollection:
     def reverse_children(self):
         """Reverse the order of children in-place."""
         self.objects.reverse()
+        return self
+
+    def index_of(self, obj):
+        """Find object index by identity. Returns -1 if not found."""
+        try:
+            return self.objects.index(obj)
+        except ValueError:
+            return -1
+
+    def replace(self, old, new):
+        """In-place swap: replace *old* child with *new*."""
+        idx = self.index_of(old)
+        if idx >= 0:
+            self.objects[idx] = new
+        return self
+
+    def map_objects(self, func):
+        """Apply *func* to each child and return a new VCollection."""
+        return VCollection(*(func(obj) for obj in self.objects))
+
+    def set_z_values(self, start=0):
+        """Assign ascending z-order values starting from *start*."""
+        for i, obj in enumerate(self.objects):
+            obj.z.set_onward(start, i)
         return self
 
     def set_color_by_gradient(self, *colors, attr='fill', start=0):

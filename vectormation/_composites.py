@@ -3579,6 +3579,12 @@ class Arrow(VCollection):
         """Return the length of the arrow shaft."""
         return self.shaft.get_length(time)
 
+    def set_color(self, color, start=0):
+        """Set shaft stroke and tip fill to *color* from *start* onward."""
+        self.shaft.styling.stroke.set_onward(start, color)
+        self.tip.styling.fill.set_onward(start, color)
+        return self
+
     def __repr__(self):
         s, e = self.get_start(), self.get_end()
         return f'Arrow(({s[0]:.0f},{s[1]:.0f})->({e[0]:.0f},{e[1]:.0f}))'
@@ -4152,6 +4158,18 @@ class NumberLine(VCollection):
             lbl.x.move_to(start, end, lbl_x + dx, easing=easing)
             lbl.y.move_to(start, end, lbl_y, easing=easing)
         return self
+
+    def add_segment(self, start_val, end_val, color='#58C4DD', height=8, creation=0, z=1):
+        """Highlight a range on the number line with a filled rectangle."""
+        from vectormation._shapes import Rectangle
+        x1, y = self.number_to_point(start_val)
+        x2, _ = self.number_to_point(end_val)
+        w = abs(x2 - x1)
+        rect = Rectangle(w, height, x=min(x1, x2), y=y - height / 2,
+                         creation=creation, z=z,
+                         fill=color, fill_opacity=0.7, stroke_width=0)
+        self.objects.append(rect)
+        return rect
 
     def __repr__(self):
         return f'NumberLine([{self.x_start}, {self.x_end}], step={self.x_step})'

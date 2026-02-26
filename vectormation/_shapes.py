@@ -179,6 +179,20 @@ class Polygon(VObject):
             return cls((0, 0), **kwargs)
         return cls(*points, **kwargs)
 
+    def contains_point(self, px, py, time=0):
+        """Point-in-polygon test using ray-casting algorithm."""
+        pts = self.get_vertices(time)
+        n = len(pts)
+        inside = False
+        j = n - 1
+        for i in range(n):
+            xi, yi = pts[i]
+            xj, yj = pts[j]
+            if ((yi > py) != (yj > py)) and (px < (xj - xi) * (py - yi) / (yj - yi + 1e-20) + xi):
+                inside = not inside
+            j = i
+        return inside
+
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 
@@ -335,6 +349,12 @@ class Circle(Ellipse):
             return [points[0]]  # tangent: single point
         return points
 
+    def contains_point(self, px, py, time=0):
+        """Point-in-circle test."""
+        cx, cy = self.c.at_time(time)
+        r = self.rx.at_time(time)
+        return _distance(cx, cy, px, py) <= r
+
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)
         return f"<circle cx='{cx}' cy='{cy}' r='{self.rx.at_time(time)}'{self.styling.svg_style(time)} />"
@@ -414,6 +434,22 @@ class Rectangle(VObject):
         """Create a square with equal width and height."""
         return cls(side, side, **kwargs)
 
+    def set_size(self, width, height, start=0, end=None, easing=easings.smooth):
+        """Set both dimensions."""
+        if end is None:
+            self.width.set_onward(start, width)
+            self.height.set_onward(start, height)
+        else:
+            self.width.move_to(start, end, width, easing=easing)
+            self.height.move_to(start, end, height, easing=easing)
+        return self
+
+    def contains_point(self, px, py, time=0):
+        """Point-in-rect test."""
+        x, y = self.x.at_time(time), self.y.at_time(time)
+        w, h = self.width.at_time(time), self.height.at_time(time)
+        return x <= px <= x + w and y <= py <= y + h
+
     def __repr__(self):
         return f'{self.__class__.__name__}({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f})'
 
@@ -484,6 +520,27 @@ class Line(VObject):
         if length == 0:
             return (0.0, 0.0)
         return ((x2 - x1) / length, (y2 - y1) / length)
+
+    def set_points(self, p1, p2, start=0):
+        """Set both endpoints at once."""
+        self.p1.set_onward(start, p1)
+        self.p2.set_onward(start, p2)
+        return self
+
+    def set_length(self, length, start=0, end=None, easing=easings.smooth):
+        """Scale line to new length keeping p1 fixed."""
+        x1, y1 = self.p1.at_time(start)
+        x2, y2 = self.p2.at_time(start)
+        cur = _distance(x1, y1, x2, y2)
+        if cur < 1e-9:
+            return self
+        factor = length / cur
+        new_p2 = (x1 + (x2 - x1) * factor, y1 + (y2 - y1) * factor)
+        if end is None:
+            self.p2.set_onward(start, new_p2)
+        else:
+            self.p2.move_to(start, end, new_p2, easing=easing)
+        return self
 
     @classmethod
     def between(cls, p1, p2, **kwargs):
@@ -1342,6 +1399,33 @@ class Arc(VObject):
         rad = math.radians(degrees)
         return (cx + r * math.cos(rad), cy - r * math.sin(rad))
 
+    def set_radius(self, value, start=0, end=None, easing=easings.smooth):
+        """Animate or set the arc radius."""
+        if end is None:
+            self.r.set_onward(start, value)
+        else:
+            self.r.move_to(start, end, value, easing=easing)
+        return self
+
+    def set_angles(self, start_angle=None, end_angle=None, start=0, end=None, easing=easings.smooth):
+        """Animate or set the arc start/end angles (degrees)."""
+        if start_angle is not None:
+            if end is None:
+                self.start_angle.set_onward(start, start_angle)
+            else:
+                self.start_angle.move_to(start, end, start_angle, easing=easing)
+        if end_angle is not None:
+            if end is None:
+                self.end_angle.set_onward(start, end_angle)
+            else:
+                self.end_angle.move_to(start, end, end_angle, easing=easing)
+        return self
+
+    def get_midpoint(self, time=0):
+        """Return the point at the midpoint angle of the arc."""
+        mid = (self.start_angle.at_time(time) + self.end_angle.at_time(time)) / 2
+        return self.point_at_angle(mid, time)
+
     def __repr__(self):
         return f'Arc(r={self.r.at_time(0):.0f}, {self.start_angle.at_time(0):.0f}°-{self.end_angle.at_time(0):.0f}°)'
 
@@ -1355,6 +1439,12 @@ class Wedge(Arc):
                  creation=0, z=0, **styling_kwargs):
         super().__init__(cx=cx, cy=cy, r=r, start_angle=start_angle, end_angle=end_angle,
                          creation=creation, z=z, **({'fill_opacity': 0.7, 'stroke': '#fff', 'stroke_width': 5} | styling_kwargs))
+
+    def get_area(self, time=0):
+        """Return the area of the wedge (0.5 * r^2 * sweep_in_radians)."""
+        r = self.r.at_time(time)
+        sweep = abs(self.end_angle.at_time(time) - self.start_angle.at_time(time))
+        return 0.5 * r * r * math.radians(sweep)
 
     def __repr__(self):
         return f'Wedge(r={self.r.at_time(0):.0f}, {self.start_angle.at_time(0):.0f}\u00b0-{self.end_angle.at_time(0):.0f}\u00b0)'
@@ -1398,6 +1488,35 @@ class Annulus(VObject):
 
     def __repr__(self):
         return f'Annulus(inner={self.inner_r.at_time(0):.0f}, outer={self.outer_r.at_time(0):.0f})'
+
+    def set_inner_radius(self, value, start=0, end=None, easing=easings.smooth):
+        """Animate or set the inner radius."""
+        if end is None:
+            self.inner_r.set_onward(start, value)
+        else:
+            self.inner_r.move_to(start, end, value, easing=easing)
+        return self
+
+    def set_outer_radius(self, value, start=0, end=None, easing=easings.smooth):
+        """Animate or set the outer radius."""
+        if end is None:
+            self.outer_r.set_onward(start, value)
+        else:
+            self.outer_r.move_to(start, end, value, easing=easing)
+        return self
+
+    def get_area(self, time=0):
+        """Return the area of the annulus (pi * (outer^2 - inner^2))."""
+        ri, ro = self.inner_r.at_time(time), self.outer_r.at_time(time)
+        return math.pi * (ro * ro - ri * ri)
+
+    def set_radii(self, inner=None, outer=None, start=0, end=None, easing=easings.smooth):
+        """Set inner and/or outer radius."""
+        if inner is not None:
+            self.set_inner_radius(inner, start, end, easing)
+        if outer is not None:
+            self.set_outer_radius(outer, start, end, easing)
+        return self
 
     def to_svg(self, time):
         return f"<path d='{self.path(time)}' fill-rule='evenodd'{self.styling.svg_style(time)} />"
@@ -1546,6 +1665,17 @@ class CubicBezier(VObject):
         x2, y2 = self.p2.at_time(time)
         x3, y3 = self.p3.at_time(time)
         return f'M{x0},{y0}C{x1},{y1} {x2},{y2} {x3},{y3}'
+
+    def point_at(self, t, time=0):
+        """Evaluate point on curve at parameter t (0 to 1)."""
+        x0, y0 = self.p0.at_time(time)
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        x3, y3 = self.p3.at_time(time)
+        u = 1 - t
+        x = u**3*x0 + 3*u**2*t*x1 + 3*u*t**2*x2 + t**3*x3
+        y = u**3*y0 + 3*u**2*t*y1 + 3*u*t**2*y2 + t**3*y3
+        return (x, y)
 
     def to_svg(self, time):
         return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"

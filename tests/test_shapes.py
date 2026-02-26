@@ -1418,3 +1418,161 @@ class TestShapePropertySetters:
         dl = DashedLine(0, 100, 200, 100)
         dl.set_dash_pattern(10, 3, start=0)
         assert dl.styling.stroke_dasharray.at_time(0) == '10,3'
+
+    def test_arc_set_radius(self):
+        a = Arc(r=50)
+        a.set_radius(100, start=0, end=1)
+        assert 50 < a.r.at_time(0.5) < 100
+        assert a.r.at_time(1) == 100
+
+    def test_arc_set_radius_instant(self):
+        a = Arc(r=50)
+        result = a.set_radius(100, start=0)
+        assert result is a
+        assert a.r.at_time(0) == 100
+
+    def test_arc_set_angles(self):
+        a = Arc(start_angle=0, end_angle=90)
+        a.set_angles(start_angle=45, end_angle=180, start=0, end=1)
+        assert a.start_angle.at_time(1) == 45
+        assert a.end_angle.at_time(1) == 180
+
+    def test_arc_set_angles_partial(self):
+        a = Arc(start_angle=0, end_angle=90)
+        a.set_angles(end_angle=270, start=0)
+        assert a.start_angle.at_time(0) == 0  # unchanged
+        assert a.end_angle.at_time(0) == 270
+
+    def test_arc_set_angles_returns_self(self):
+        a = Arc()
+        assert a.set_angles(start_angle=10, start=0) is a
+
+    def test_annulus_set_inner_radius(self):
+        an = Annulus(inner_radius=30, outer_radius=100)
+        an.set_inner_radius(50, start=0, end=1)
+        assert 30 < an.inner_r.at_time(0.5) < 50
+        assert an.inner_r.at_time(1) == 50
+
+    def test_annulus_set_inner_radius_instant(self):
+        an = Annulus(inner_radius=30, outer_radius=100)
+        result = an.set_inner_radius(50, start=0)
+        assert result is an
+        assert an.inner_r.at_time(0) == 50
+
+    def test_annulus_set_outer_radius(self):
+        an = Annulus(inner_radius=30, outer_radius=100)
+        an.set_outer_radius(150, start=0, end=1)
+        assert 100 < an.outer_r.at_time(0.5) < 150
+        assert an.outer_r.at_time(1) == 150
+
+    def test_annulus_set_outer_radius_instant(self):
+        an = Annulus(inner_radius=30, outer_radius=100)
+        result = an.set_outer_radius(150, start=0)
+        assert result is an
+        assert an.outer_r.at_time(0) == 150
+
+
+class TestGeometricQueries:
+    def test_line_set_points(self):
+        line = Line(0, 0, 100, 100)
+        result = line.set_points((50, 50), (200, 200), start=0)
+        assert result is line
+        assert line.p1.at_time(0) == (50, 50)
+        assert line.p2.at_time(0) == (200, 200)
+
+    def test_line_set_length(self):
+        line = Line(0, 0, 100, 0)
+        result = line.set_length(200, start=0)
+        assert result is line
+        p2 = line.p2.at_time(0)
+        assert abs(p2[0] - 200) < 0.01
+        assert abs(p2[1]) < 0.01
+
+    def test_line_set_length_animated(self):
+        line = Line(0, 0, 100, 0)
+        line.set_length(200, start=0, end=1)
+        p2_mid = line.p2.at_time(0.5)
+        assert 100 < p2_mid[0] < 200
+
+    def test_line_set_length_zero_length(self):
+        line = Line(50, 50, 50, 50)
+        result = line.set_length(100, start=0)
+        assert result is line  # no-op for zero-length line
+
+    def test_rectangle_set_size(self):
+        r = Rectangle(100, 50)
+        result = r.set_size(200, 100, start=0, end=1)
+        assert result is r
+        assert r.width.at_time(1) == 200
+        assert r.height.at_time(1) == 100
+
+    def test_rectangle_set_size_instant(self):
+        r = Rectangle(100, 50)
+        r.set_size(200, 100, start=0)
+        assert r.width.at_time(0) == 200
+        assert r.height.at_time(0) == 100
+
+    def test_rectangle_contains_point(self):
+        r = Rectangle(100, 50, x=10, y=20)
+        assert r.contains_point(50, 40) is True
+        assert r.contains_point(10, 20) is True  # corner
+        assert r.contains_point(5, 40) is False  # outside left
+
+    def test_circle_contains_point(self):
+        c = Circle(cx=100, cy=100, r=50)
+        assert c.contains_point(100, 100) is True  # center
+        assert c.contains_point(140, 100) is True  # inside
+        assert c.contains_point(200, 100) is False  # outside
+
+    def test_polygon_contains_point(self):
+        # Simple square
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        assert p.contains_point(50, 50) is True
+        assert p.contains_point(200, 50) is False
+
+    def test_polygon_contains_point_triangle(self):
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        assert p.contains_point(50, 30) is True
+        assert p.contains_point(0, 100) is False
+
+    def test_annulus_get_area(self):
+        import math
+        an = Annulus(inner_radius=30, outer_radius=100)
+        expected = math.pi * (100**2 - 30**2)
+        assert abs(an.get_area() - expected) < 0.01
+
+    def test_annulus_set_radii(self):
+        an = Annulus(inner_radius=30, outer_radius=100)
+        result = an.set_radii(inner=50, outer=150, start=0)
+        assert result is an
+        assert an.inner_r.at_time(0) == 50
+        assert an.outer_r.at_time(0) == 150
+
+    def test_annulus_set_radii_partial(self):
+        an = Annulus(inner_radius=30, outer_radius=100)
+        an.set_radii(outer=200, start=0)
+        assert an.inner_r.at_time(0) == 30  # unchanged
+        assert an.outer_r.at_time(0) == 200
+
+    def test_arc_get_midpoint(self):
+        a = Arc(cx=0, cy=0, r=100, start_angle=0, end_angle=180)
+        mx, my = a.get_midpoint()
+        # Midpoint at 90 degrees = top of circle
+        assert abs(mx - 0) < 0.01
+        assert abs(my - (-100)) < 0.01  # y is inverted in SVG
+
+    def test_wedge_get_area(self):
+        import math
+        w = Wedge(r=100, start_angle=0, end_angle=90)
+        expected = 0.5 * 100**2 * math.radians(90)
+        assert abs(w.get_area() - expected) < 0.01
+
+    def test_cubicbezier_point_at(self):
+        from vectormation.objects import CubicBezier
+        b = CubicBezier(p0=(0, 0), p1=(100, 0), p2=(100, 100), p3=(200, 100))
+        start = b.point_at(0)
+        end = b.point_at(1)
+        assert abs(start[0] - 0) < 0.01 and abs(start[1] - 0) < 0.01
+        assert abs(end[0] - 200) < 0.01 and abs(end[1] - 100) < 0.01
+        mid = b.point_at(0.5)
+        assert 50 < mid[0] < 150  # somewhere in the middle
