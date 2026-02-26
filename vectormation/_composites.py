@@ -3192,6 +3192,43 @@ class Axes(VCollection):
                 return lbl
         return self._axis_labels[1] if len(self._axis_labels) >= 2 else None
 
+    def plot_normal(self, mean=0, std=1, color='#4FC3F7', num_points=100,
+                    creation=0, fill=True, fill_opacity=0.3, **kwargs):
+        """Plot a normal (Gaussian) distribution curve.
+
+        Returns the curve Path.
+        """
+        inv_coeff = 1 / (std * math.sqrt(2 * math.pi))
+        def func(x):
+            return inv_coeff * math.exp(-0.5 * ((x - mean) / std) ** 2)
+        kwargs.setdefault('stroke', color)
+        curve = self.plot(func, num_points=num_points, creation=creation, **kwargs)
+        if fill:
+            self.get_area(func, creation=creation, fill=color, fill_opacity=fill_opacity)
+        return curve
+
+    def plot_exponential(self, rate=1, color='#FF8A65', num_points=100,
+                         creation=0, **kwargs):
+        """Plot an exponential distribution: f(x) = rate * exp(-rate * x) for x >= 0.
+
+        Returns the curve Path.
+        """
+        def func(x):
+            return rate * math.exp(-rate * x) if x >= 0 else 0
+        kwargs.setdefault('stroke', color)
+        return self.plot(func, num_points=num_points, creation=creation, **kwargs)
+
+    def plot_uniform(self, a=0, b=1, color='#81C784', creation=0, **kwargs):
+        """Plot a uniform distribution: f(x) = 1/(b-a) for a <= x <= b, 0 otherwise.
+
+        Returns the curve Path.
+        """
+        height = 1 / (b - a) if b != a else 0
+        def func(x):
+            return height if a <= x <= b else 0
+        kwargs.setdefault('stroke', color)
+        return self.plot(func, creation=creation, **kwargs)
+
     def __repr__(self):
         xn, xx = self.x_min.at_time(0), self.x_max.at_time(0)
         if self.y_min is not None:
@@ -3421,12 +3458,68 @@ class Arrow(VCollection):
         tip_fill = shaft_style.get('stroke', '#fff')
         self.shaft = Line(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z, **shaft_style)
         self.tip = _arrowhead(x1, y1, x2, y2, tip_length, tip_width, tip_fill, creation, z)
+        self._tip_length = tip_length
+        self._tip_width = tip_width
         objects = [self.shaft, self.tip]
         if double_ended:
             self.tail = _arrowhead(x2, y2, x1, y1, tip_length, tip_width, tip_fill, creation, z)
             objects.append(self.tail)
         super().__init__(*objects, creation=creation, z=z)
 
+
+    def _update_tip_dynamic(self, start_time):
+        """Set up dynamic arrowhead vertices that follow the shaft endpoints."""
+        tl = self._tip_length
+        hw = self._tip_width / 2
+        shaft = self.shaft
+
+        def _tip_geom(t):
+            p1 = shaft.p1.at_time(t)
+            p2 = shaft.p2.at_time(t)
+            dx, dy = p2[0] - p1[0], p2[1] - p1[1]
+            length = math.hypot(dx, dy) or 1
+            ux, uy = dx / length, dy / length
+            px, py = -uy, ux
+            bx, by = p2[0] - ux * tl, p2[1] - uy * tl
+            return (p2, (bx + px * hw, by + py * hw), (bx - px * hw, by - py * hw))
+
+        _cache = [None, None]
+        def _cached_geom(t):
+            if _cache[0] == t:
+                return _cache[1]
+            result = _tip_geom(t)
+            _cache[0], _cache[1] = t, result
+            return result
+
+        self.tip.vertices[0].set_onward(start_time, lambda t: _cached_geom(t)[0])
+        self.tip.vertices[1].set_onward(start_time, lambda t: _cached_geom(t)[1])
+        self.tip.vertices[2].set_onward(start_time, lambda t: _cached_geom(t)[2])
+
+    def set_start(self, x, y, start_time=0, end_time=None):
+        """Animate the arrow start point.
+
+        If end_time is None, set instantly at start_time.
+        Otherwise animate from current position to (x, y).
+        """
+        if end_time is None:
+            self.shaft.p1.set_onward(start_time, lambda t: (x, y))
+        else:
+            self.shaft.p1.move_to(start_time, end_time, (x, y))
+        self._update_tip_dynamic(start_time)
+        return self
+
+    def set_end(self, x, y, start_time=0, end_time=None):
+        """Animate the arrow end point.
+
+        If end_time is None, set instantly at start_time.
+        Otherwise animate from current position to (x, y).
+        """
+        if end_time is None:
+            self.shaft.p2.set_onward(start_time, lambda t: (x, y))
+        else:
+            self.shaft.p2.move_to(start_time, end_time, (x, y))
+        self._update_tip_dynamic(start_time)
+        return self
 
     def get_start(self, time=0):
         """Return the start point (x1, y1) of the arrow shaft."""

@@ -92,6 +92,55 @@ class Polygon(VObject):
         return abs(sum(pts[i][0] * pts[(i+1) % n][1] - pts[(i+1) % n][0] * pts[i][1]
                        for i in range(n))) / 2
 
+    def offset(self, distance, time=0):
+        """Return a new Polygon with vertices moved along averaged edge normals.
+
+        Positive distance moves outward, negative moves inward.
+        For each vertex, compute the average of the two adjacent edge normals,
+        then move the vertex along that average normal by distance.
+        """
+        pts = [v.at_time(time) for v in self.vertices]
+        n = len(pts)
+        if n < 2:
+            return Polygon(*[(float(p[0]), float(p[1])) for p in pts], closed=self.closed)
+        new_pts = []
+        for i in range(n):
+            if self.closed:
+                prev_idx = (i - 1) % n
+                next_idx = (i + 1) % n
+            else:
+                prev_idx = max(0, i - 1)
+                next_idx = min(n - 1, i + 1)
+            # Edge from prev to current
+            dx1 = float(pts[i][0] - pts[prev_idx][0])
+            dy1 = float(pts[i][1] - pts[prev_idx][1])
+            len1 = math.sqrt(dx1 * dx1 + dy1 * dy1)
+            # Edge from current to next
+            dx2 = float(pts[next_idx][0] - pts[i][0])
+            dy2 = float(pts[next_idx][1] - pts[i][1])
+            len2 = math.sqrt(dx2 * dx2 + dy2 * dy2)
+            # Outward normals (rotate edge direction 90 degrees CCW: (-dy, dx))
+            # In SVG coords (y-down), "outward" for a CW polygon is (-dy, dx)
+            if len1 > 0:
+                n1x, n1y = -dy1 / len1, dx1 / len1
+            else:
+                n1x, n1y = 0.0, 0.0
+            if len2 > 0:
+                n2x, n2y = -dy2 / len2, dx2 / len2
+            else:
+                n2x, n2y = 0.0, 0.0
+            # Average normal
+            avg_nx = n1x + n2x
+            avg_ny = n1y + n2y
+            avg_len = math.sqrt(avg_nx * avg_nx + avg_ny * avg_ny)
+            if avg_len > 0:
+                avg_nx /= avg_len
+                avg_ny /= avg_len
+            new_x = float(pts[i][0]) + avg_nx * distance
+            new_y = float(pts[i][1]) + avg_ny * distance
+            new_pts.append((new_x, new_y))
+        return Polygon(*new_pts, closed=self.closed)
+
     @classmethod
     def from_points(cls, points, **kwargs):
         """Create a Polygon from a list of (x, y) tuples."""
@@ -377,6 +426,57 @@ class Line(VObject):
     def __repr__(self):
         p1, p2 = self.p1.at_time(0), self.p2.at_time(0)
         return f'Line(({p1[0]:.0f},{p1[1]:.0f})->({p2[0]:.0f},{p2[1]:.0f}))'
+
+    def perpendicular(self, at_proportion=0.5, length=None, time=0):
+        """Return a new Line perpendicular to this line at the given proportion.
+
+        at_proportion: 0 = start, 1 = end (default 0.5 = midpoint).
+        length: length of the new line (defaults to same as this line).
+        """
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        dx, dy = x2 - x1, y2 - y1
+        line_len = math.sqrt(dx * dx + dy * dy)
+        if length is None:
+            length = line_len
+        # Point on this line at the given proportion
+        px = x1 + dx * at_proportion
+        py = y1 + dy * at_proportion
+        # Perpendicular direction (rotate 90 degrees)
+        if line_len == 0:
+            return Line(px, py, px, py)
+        nx, ny = -dy / line_len, dx / line_len
+        half = length / 2
+        return Line(px - nx * half, py - ny * half,
+                    px + nx * half, py + ny * half)
+
+    def extend(self, factor=1.5, time=0):
+        """Return a new Line extended in both directions by factor.
+
+        factor=1.5 means 50% longer on each side (total length = original * (1 + 2*(factor-1)) = 2*factor - 1).
+        """
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        dx, dy = x2 - x1, y2 - y1
+        extra = factor - 1
+        new_x1 = x1 - dx * extra
+        new_y1 = y1 - dy * extra
+        new_x2 = x2 + dx * extra
+        new_y2 = y2 + dy * extra
+        return Line(new_x1, new_y1, new_x2, new_y2)
+
+    def parallel(self, offset=50, time=0):
+        """Return a new Line parallel to this one, offset perpendicular by offset pixels."""
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        dx, dy = x2 - x1, y2 - y1
+        line_len = math.sqrt(dx * dx + dy * dy)
+        if line_len == 0:
+            return Line(x1, y1, x2, y2)
+        # Perpendicular unit normal
+        nx, ny = -dy / line_len, dx / line_len
+        return Line(x1 + nx * offset, y1 + ny * offset,
+                    x2 + nx * offset, y2 + ny * offset)
 
 
 class Text(VObject):

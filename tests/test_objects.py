@@ -1,4 +1,5 @@
 """Tests for VObject subclasses: draw_along, updater, from_svg, Brace, Arrow, Wedge, ClipPath, Graph, show/hide."""
+import math
 import os
 import tempfile
 import pytest
@@ -4743,3 +4744,150 @@ class TestDiode:
         d = Diode(label='D1')
         svg = d.to_svg(0)
         assert 'D1' in svg
+
+
+class TestArrowSetEndpoints:
+    def test_set_start(self):
+        a = Arrow(100, 100, 500, 500)
+        a.set_start(200, 200, start_time=0)
+        svg = a.to_svg(1)
+        assert 'line' in svg.lower() or '<path' in svg.lower()
+
+    def test_set_end_animated(self):
+        a = Arrow(100, 100, 500, 500)
+        a.set_end(600, 600, start_time=0, end_time=1)
+        svg = a.to_svg(0.5)
+        assert svg
+
+    def test_set_start_animated(self):
+        a = Arrow(100, 100, 500, 500)
+        a.set_start(300, 300, start_time=0, end_time=1)
+        svg = a.to_svg(0.5)
+        assert svg
+        # At t=0.5 the start should be between (100,100) and (300,300)
+        s = a.get_start(0.5)
+        assert 100 < s[0] < 300
+
+    def test_set_end_instant(self):
+        a = Arrow(100, 100, 500, 500)
+        a.set_end(700, 700, start_time=0)
+        e = a.get_end(0)
+        assert abs(e[0] - 700) < 1
+        assert abs(e[1] - 700) < 1
+
+    def test_tip_follows_endpoint(self):
+        a = Arrow(100, 100, 500, 500)
+        a.set_end(700, 100, start_time=0)
+        # Tip vertex 0 should be at the end point
+        tip_pt = a.tip.vertices[0].at_time(0)
+        assert abs(tip_pt[0] - 700) < 1
+        assert abs(tip_pt[1] - 100) < 1
+
+
+class TestAxesDistributions:
+    def test_plot_normal(self):
+        ax = Axes(x_range=(-4, 4, 1), y_range=(0, 0.5, 0.1))
+        curve = ax.plot_normal(mean=0, std=1)
+        assert curve is not None
+        svg = ax.to_svg(0)
+        assert '<path' in svg
+
+    def test_plot_normal_no_fill(self):
+        ax = Axes(x_range=(-4, 4, 1), y_range=(0, 0.5, 0.1))
+        curve = ax.plot_normal(mean=0, std=1, fill=False)
+        assert curve is not None
+
+    def test_plot_exponential(self):
+        ax = Axes(x_range=(0, 5, 1), y_range=(0, 2, 0.5))
+        curve = ax.plot_exponential(rate=1)
+        assert curve is not None
+
+    def test_plot_uniform(self):
+        ax = Axes(x_range=(-1, 3, 1), y_range=(0, 2, 0.5))
+        curve = ax.plot_uniform(a=0, b=1)
+        assert curve is not None
+
+
+class TestNewEasingCombinators:
+    def test_repeat_basic(self):
+        from vectormation.easings import repeat, linear
+        r = repeat(linear, 3)
+        assert abs(r(0) - 0) < 1e-9
+        assert abs(r(1) - 1) < 1e-9
+        # At 1/6, halfway through first repetition
+        assert abs(r(1/6) - 0.5) < 1e-9
+
+    def test_oscillate(self):
+        from vectormation.easings import oscillate, linear
+        o = oscillate(linear, 1)
+        assert abs(o(0) - 0) < 1e-9
+        assert abs(o(0.25) - 0.5) < 1e-9
+        # At 0.5, end of forward pass
+        assert abs(o(0.5) - 1) < 0.05
+
+    def test_clamp(self):
+        from vectormation.easings import clamp, linear
+        c = clamp(linear, 0.25, 0.75)
+        assert abs(c(0) - 0) < 1e-9
+        assert abs(c(0.25) - 0) < 1e-9
+        assert abs(c(0.5) - 0.5) < 1e-9
+        assert abs(c(0.75) - 1) < 1e-9
+        assert abs(c(1) - 1) < 1e-9
+
+    def test_blend(self):
+        from vectormation.easings import blend, linear
+        b = blend(linear, lambda t: 1 - t, 0.5)
+        assert abs(b(0) - 0.5) < 1e-9
+        assert abs(b(0.5) - 0.5) < 1e-9
+        assert abs(b(1) - 0.5) < 1e-9
+
+
+class TestLineGeometricUtils:
+    def test_perpendicular_at_midpoint(self):
+        line = Line(100, 200, 300, 200)
+        perp = line.perpendicular()
+        p1 = perp.p1.at_time(0)
+        p2 = perp.p2.at_time(0)
+        # Midpoint of original is (200, 200)
+        mx = (p1[0] + p2[0]) / 2
+        my = (p1[1] + p2[1]) / 2
+        assert abs(mx - 200) < 1
+        assert abs(my - 200) < 1
+        # Perpendicular should be vertical
+        assert abs(p1[0] - p2[0]) < 1
+
+    def test_extend(self):
+        line = Line(100, 100, 200, 100)
+        ext = line.extend(2.0)
+        p1 = ext.p1.at_time(0)
+        p2 = ext.p2.at_time(0)
+        assert p1[0] < 100
+        assert p2[0] > 200
+
+    def test_parallel(self):
+        line = Line(100, 100, 300, 100)
+        par = line.parallel(50)
+        p1 = par.p1.at_time(0)
+        p2 = par.p2.at_time(0)
+        # Should be 50 pixels offset in y
+        assert abs(p1[1] - 50) < 1 or abs(p1[1] - 150) < 1
+
+    def test_perpendicular_custom_length(self):
+        line = Line(0, 0, 100, 0)
+        perp = line.perpendicular(length=50)
+        p1, p2 = perp.p1.at_time(0), perp.p2.at_time(0)
+        length = math.sqrt((p2[0]-p1[0])**2 + (p2[1]-p1[1])**2)
+        assert abs(length - 50) < 1
+
+
+class TestPolygonOffset:
+    def test_offset_square(self):
+        sq = Polygon((100, 100), (200, 100), (200, 200), (100, 200))
+        bigger = sq.offset(10)
+        # Should have 4 vertices
+        assert len(bigger.vertices) == 4
+
+    def test_offset_preserves_closed(self):
+        p = Polygon((0, 0), (100, 0), (50, 100), closed=True)
+        off = p.offset(5)
+        assert off.closed
