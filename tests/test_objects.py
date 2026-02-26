@@ -655,7 +655,7 @@ class TestAxesNewMethods:
 
     def test_plot_bar(self):
         ax = Axes(x_range=(0, 5), y_range=(0, 10))
-        bars = ax.plot_bar([1, 2, 3], [3, 7, 5], width=0.8)
+        bars = ax.plot_bar([1, 2, 3], [3, 7, 5], bar_width=0.8)
         assert isinstance(bars, VCollection)
         assert len(bars) == 3
         svg = bars.to_svg(0)
@@ -4462,3 +4462,86 @@ class TestComplexPlaneTransform:
         initial_count = len(cp.objects)
         cp.apply_complex_function(lambda z: z**2, start=0, end=1, resolution=5)
         assert len(cp.objects) > initial_count
+
+
+class TestFocusOn:
+    def test_focus_on_tuple(self):
+        from vectormation.objects import Circle
+        c = Circle(cx=100, cy=100)
+        c.focus_on((960, 540), start=0, end=1)
+        cx, cy = c.get_center(1)
+        assert abs(cx - 960) < 5 and abs(cy - 540) < 5
+
+    def test_focus_on_object(self):
+        from vectormation.objects import Circle, Rectangle
+        c = Circle(cx=100, cy=100)
+        r = Rectangle(100, 100, x=800, y=400)
+        c.focus_on(r, start=0, end=1)
+        cx, cy = c.get_center(1)
+        rx, ry = r.get_center(0)
+        assert abs(cx - rx) < 5 and abs(cy - ry) < 5
+
+
+class TestBroadcast:
+    def test_broadcast_returns_collection(self):
+        from vectormation.objects import Circle, VCollection
+        c = Circle(cx=500, cy=500)
+        copies = c.broadcast(start=0, duration=1, num_copies=3)
+        assert isinstance(copies, VCollection)
+        assert len(copies) == 3
+
+    def test_broadcast_copies_fade(self):
+        from vectormation.objects import Dot
+        d = Dot(cx=500, cy=500)
+        copies = d.broadcast(start=0, duration=1, num_copies=2)
+        # After the animation window, copies should be hidden
+        for obj in copies.objects:
+            assert not obj.show.at_time(5)
+
+
+class TestInductor:
+    def test_creates(self):
+        from vectormation.objects import Inductor
+        ind = Inductor(x1=300, y1=500, x2=600, y2=500)
+        svg = ind.to_svg(0)
+        assert svg
+        assert len(ind.objects) >= 1
+
+    def test_with_label(self):
+        from vectormation.objects import Inductor
+        ind = Inductor(label='L1')
+        svg = ind.to_svg(0)
+        assert 'L1' in svg
+
+
+class TestUnitInterval:
+    def test_creates(self):
+        from vectormation.objects import UnitInterval
+        ui = UnitInterval()
+        svg = ui.to_svg(0)
+        assert svg
+        assert len(ui.objects) > 0
+
+    def test_range(self):
+        from vectormation.objects import UnitInterval
+        ui = UnitInterval()
+        # The number line should display 0 and 1
+        svg = ui.to_svg(0)
+        assert '0' in svg and '1' in svg
+
+
+class TestPlotBar:
+    def test_plot_bar_basic(self):
+        from vectormation.objects import Axes, VCollection
+        ax = Axes(x_range=(0, 5), y_range=(0, 10))
+        bars = ax.plot_bar([1, 2, 3], [4, 7, 3])
+        assert isinstance(bars, VCollection)
+        assert len(bars) == 3
+        svg = bars.to_svg(0)
+        assert '<rect' in svg
+
+    def test_plot_bar_custom_width(self):
+        from vectormation.objects import Axes
+        ax = Axes(x_range=(0, 5), y_range=(0, 10))
+        bars = ax.plot_bar([1, 2], [5, 8], bar_width=0.4)
+        assert len(bars) == 2

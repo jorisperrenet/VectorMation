@@ -16,7 +16,7 @@ from vectormation._constants import (
 )
 from vectormation._base import VObject, VCollection
 from vectormation._shapes import (
-    Polygon, Circle, Ellipse, Dot, Rectangle, Line, Lines,
+    Polygon, Circle, Ellipse, Dot, Rectangle, RoundedRectangle, Line, Lines,
     Text, Path, Arc, Wedge,
 )
 
@@ -937,36 +937,28 @@ class Axes(VCollection):
         self._add_plot_obj(group)
         return group
 
-    def plot_bar(self, x_values, y_values, width=0.8, creation=0, z=0,
-                  align='center', **styling_kwargs):
-        """Plot bars at x_values with heights y_values.
-        width: bar width in math units.  align: 'center', 'left', or 'right'.
+    def plot_bar(self, x_values, y_values, bar_width=0.6, creation=0, z=0, **styling_kwargs):
+        """Plot a bar chart inside the axes coordinate system.
+        x_values: list of x positions (numeric), y_values: corresponding heights.
         Returns a VCollection of Rectangle objects."""
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.7,
                     'stroke': '#58C4DD', 'stroke_width': 1} | styling_kwargs
+        data = list(zip(x_values, y_values))
         rects = []
-        for xv, yv in zip(x_values, y_values):
-            if align == 'left':
-                xl = xv
-            elif align == 'right':
-                xl = xv - width
-            else:
-                xl = xv - width / 2
-            xr = xl + width
-            rect = Rectangle(width=0, height=0, x=0, y=0,
-                              creation=creation, z=z, **style_kw)
-            _xl, _xr, _yv = xl, xr, yv
-            rect.x.set_onward(creation, lambda t, _xl=_xl: self._math_to_svg_x(_xl, t))
-            rect.width.set_onward(creation, lambda t, _xl=_xl, _xr=_xr: abs(
-                self._math_to_svg_x(_xr, t) - self._math_to_svg_x(_xl, t)))
-            if yv >= 0:
-                rect.y.set_onward(creation, lambda t, _yv=_yv: self._math_to_svg_y(_yv, t))
-                rect.height.set_onward(creation, lambda t, _yv=_yv: abs(
-                    self._math_to_svg_y(0, t) - self._math_to_svg_y(_yv, t)))
-            else:
-                rect.y.set_onward(creation, lambda t: self._math_to_svg_y(0, t))
-                rect.height.set_onward(creation, lambda t, _yv=_yv: abs(
-                    self._math_to_svg_y(_yv, t) - self._math_to_svg_y(0, t)))
+        for xv, yv in data:
+            # Each bar: from baseline (y=0) up to yv
+            rect = Rectangle(1, 1, x=0, y=0, creation=creation, z=z, **style_kw)
+            _xv, _yv, _bw = xv, yv, bar_width
+            def _compute_rect(time, _xv=_xv, _yv=_yv, _bw=_bw):
+                left = self._math_to_svg_x(_xv - _bw / 2, time)
+                right = self._math_to_svg_x(_xv + _bw / 2, time)
+                top = self._math_to_svg_y(_yv, time)
+                bottom = self._math_to_svg_y(0, time)
+                return left, min(top, bottom), right - left, abs(top - bottom)
+            rect.x.set_onward(creation, lambda t, _f=_compute_rect: _f(t)[0])
+            rect.y.set_onward(creation, lambda t, _f=_compute_rect: _f(t)[1])
+            rect.width.set_onward(creation, lambda t, _f=_compute_rect: _f(t)[2])
+            rect.height.set_onward(creation, lambda t, _f=_compute_rect: _f(t)[3])
             rects.append(rect)
         group = VCollection(*rects, creation=creation, z=z)
         self._add_plot_obj(group)
@@ -2435,7 +2427,7 @@ class Axes(VCollection):
         """Add a text box with an arrow pointing to (x_coord, y_coord).
         offset: (dx, dy) from the point to the box center.
         Returns a VCollection with arrow, box, and label."""
-        from vectormation._shapes import RoundedRectangle
+
         style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
         ox, oy = offset
         # Point SVG coordinates
@@ -5002,7 +4994,7 @@ class Code(VCollection):
         bg_width = max(len(line) for line in lines) * font_size * CHAR_WIDTH_FACTOR + 40 if lines else 200
         bg_height = len(lines) * font_size * line_height + 20
 
-        from vectormation._shapes import RoundedRectangle
+
         bg_style = {'fill': '#1e1e2e', 'fill_opacity': 0.95, 'stroke': '#444', 'stroke_width': 1} | styling_kwargs
         bg = RoundedRectangle(bg_width, bg_height, x=x - 10, y=y - font_size - 5,
                               corner_radius=8, creation=creation, z=z, **bg_style)
@@ -6082,7 +6074,7 @@ class ProgressBar(VCollection):
     def __init__(self, width=400, height=30, x=760, y=520,
                  bg_color='#333', fill_color='#58C4DD',
                  corner_radius=6, creation=0, z=0):
-        from vectormation._shapes import RoundedRectangle
+
         self._bar_width = width
         bg = RoundedRectangle(width, height, x=x, y=y, corner_radius=corner_radius,
                               fill=bg_color, fill_opacity=0.5, stroke_width=0, creation=creation, z=z)
@@ -6115,7 +6107,7 @@ class FlowChart(VCollection):
                  box_width=200, box_height=60, spacing=80,
                  box_color='#58C4DD', text_color='#fff', arrow_color='#999',
                  font_size=20, corner_radius=8, creation=0, z=0):
-        from vectormation._shapes import RoundedRectangle, Text
+
         objects = []
         self._boxes = []
         self._labels = []
@@ -6768,7 +6760,7 @@ class OrgChart(VCollection):
                         fill_opacity=0, creation=creation, z=z)
             objects.append(conn)
         # Box
-        from vectormation._shapes import RoundedRectangle
+
         rect = RoundedRectangle(width=box_width, height=box_height,
                                  x=nx - box_width / 2, y=ny,
                                  corner_radius=6, fill=color, fill_opacity=0.85,
@@ -6796,7 +6788,7 @@ class KPICard(VCollection):
                  font_size=48, creation=0, z=0):
         objects = []
         # Background card
-        from vectormation._shapes import RoundedRectangle
+
         bg = RoundedRectangle(width=width, height=height, x=x, y=y,
                                corner_radius=10, fill=bg_color, fill_opacity=0.9,
                                stroke='#333', stroke_width=1,
@@ -7086,7 +7078,7 @@ class Scoreboard(VCollection):
         rows_count = math.ceil(len(entries) / cols)
         total_w = cols * col_width
         total_h = rows_count * row_height
-        from vectormation._shapes import RoundedRectangle
+
         objects = []
         # Background
         bg = RoundedRectangle(width=total_w + 20, height=total_h + 20,
@@ -7270,7 +7262,7 @@ class TextBox(VCollection):
             width = len(text) * char_w + padding * 2
         if height is None:
             height = font_size + padding * 2
-        from vectormation._shapes import RoundedRectangle
+
         box = RoundedRectangle(width=width, height=height, x=x, y=y,
                                 corner_radius=corner_radius,
                                 fill=box_fill, fill_opacity=box_opacity,
@@ -7361,7 +7353,7 @@ class SpeechBubble(VCollection):
                  box_fill='#1e1e2e', box_opacity=0.95, text_color='#fff',
                  tail_direction='down', tail_width=20, tail_height=18,
                  creation=0, z=0, **styling_kwargs):
-        from vectormation._shapes import RoundedRectangle, Text as SText
+        SText = Text  # local alias to avoid shadowing parameter
         char_w = font_size * CHAR_WIDTH_FACTOR
         if width is None:
             width = max(len(text) * char_w + padding * 2, 60)
@@ -7402,7 +7394,7 @@ class Badge(VCollection):
     def __init__(self, text='Label', x=100, y=100, font_size=16, padding_x=14,
                  padding_y=6, bg_color='#58C4DD', text_color='#000',
                  creation=0, z=0, **styling_kwargs):
-        from vectormation._shapes import RoundedRectangle, Text as SText
+        SText = Text  # local alias to avoid shadowing parameter
         char_w = font_size * CHAR_WIDTH_FACTOR
         width = len(text) * char_w + padding_x * 2
         height = font_size + padding_y * 2
@@ -7478,7 +7470,7 @@ class Checklist(VCollection):
     def __init__(self, *items, x=100, y=100, font_size=24, spacing=1.6,
                  box_size=None, check_color='#83C167', uncheck_color='#555',
                  text_color='#fff', creation=0, z=0):
-        from vectormation._shapes import RoundedRectangle, Text as SText
+        SText = Text  # local alias to avoid shadowing parameter
         if box_size is None:
             box_size = font_size * 0.75
         objects = []
@@ -7627,7 +7619,7 @@ class Meter(VCollection):
                  direction='vertical', fill_color='#58C4DD',
                  bg_color='#333', border_color='#888',
                  creation=0, z=0):
-        from vectormation._shapes import RoundedRectangle
+
         bg = RoundedRectangle(width=width, height=height, x=x, y=y,
                               corner_radius=3, fill=bg_color, fill_opacity=0.8,
                               stroke=border_color, stroke_width=1,
@@ -7704,7 +7696,7 @@ class Filmstrip(VCollection):
     """
     def __init__(self, labels, x=100, y=400, frame_width=200, frame_height=130,
                  spacing=20, font_size=16, creation=0, z=0, **styling_kwargs):
-        from vectormation._shapes import RoundedRectangle
+
         objects = []
         self._frames = []
         frame_style = {'fill': '#1e1e2e', 'fill_opacity': 0.9,
@@ -8190,6 +8182,53 @@ class Capacitor(VCollection):
                                 fill='#aaa', stroke_width=0, text_anchor='middle',
                                 creation=creation, z=z + 0.1))
         super().__init__(*objects, creation=creation, z=z)
+
+
+class Inductor(VCollection):
+    """Electrical inductor symbol (coil/solenoid)."""
+    def __init__(self, x1=400, y1=540, x2=600, y2=540, label='L',
+                 n_loops=4, creation=0, z=0, **styling_kwargs):
+        style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
+        dx, dy = x2 - x1, y2 - y1
+        length = math.hypot(dx, dy) or 1
+        ux, uy = dx / length, dy / length
+        px, py = -uy, ux
+        lead = 0.2
+        coil_start = lead
+        coil_end = 1 - lead
+        coil_len = coil_end - coil_start
+        # Build semicircular arcs for coil
+        arc_r = length * coil_len / (2 * n_loops)
+        d_parts = [f'M{x1},{y1} L{x1 + ux * length * lead},{y1 + uy * length * lead}']
+        for i in range(n_loops):
+            end_t = coil_start + coil_len * (i + 1) / n_loops
+            ex = x1 + ux * length * end_t
+            ey = y1 + uy * length * end_t
+            d_parts.append(f'A{arc_r},{arc_r} 0 0 1 {ex},{ey}')
+        d_parts.append(f'L{x2},{y2}')
+        d_str = ' '.join(d_parts)
+        from vectormation._shapes import Path
+        coil = Path(d_str, x=0, y=0, creation=creation, z=z, fill_opacity=0, **style_kw)
+        objects = [coil]
+        if label:
+            mx = (x1 + x2) / 2 + px * (arc_r + 16)
+            my = (y1 + y2) / 2 + py * (arc_r + 16)
+            objects.append(Text(text=label, x=mx, y=my, font_size=18,
+                                fill='#aaa', stroke_width=0, text_anchor='middle',
+                                creation=creation, z=z + 0.1))
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class UnitInterval(NumberLine):
+    """A NumberLine from 0 to 1 — commonly used for probabilities and parameters.
+    Convenience subclass with sensible defaults for [0, 1] range."""
+    def __init__(self, x=360, y=540, length=600, tick_step=0.1,
+                 show_labels=True, label_step=0.2, font_size=18,
+                 creation=0, z=0, **styling_kwargs):
+        super().__init__(x_range=(0, 1, tick_step), length=length,
+                         x=x, y=y, include_numbers=show_labels,
+                         font_size=font_size,
+                         creation=creation, z=z, **styling_kwargs)
 
 
 class Molecule2D(VCollection):

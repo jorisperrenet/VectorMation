@@ -252,7 +252,7 @@ class VObject(ABC):  # Vector Object
 
     def save_state(self, time: float = 0):
         """Save the current visual state (position, opacity, scale, color) for later restore."""
-        from copy import deepcopy
+
         self._saved_state = {
             'time': time,
             'styling': deepcopy(self.styling),
@@ -1792,9 +1792,73 @@ class VObject(ABC):  # Vector Object
         cross.write(start, end)
         return cross
 
+    def focus_on(self, target=(960, 540), start: float = 0, end: float = 1,
+                  easing=easings.smooth):
+        """Move this object to a target position (or another object's position).
+        target: (x, y) tuple or a VObject whose center to move to."""
+        dur = end - start
+        if dur <= 0:
+            return self
+        if hasattr(target, 'get_center'):
+            tx, ty = target.get_center(start)
+        else:
+            tx, ty = target
+        cx, cy = self.get_center(start)
+        ddx, ddy = tx - cx, ty - cy
+        _s, _d = start, max(dur, 1e-9)
+        for xa, ya in self._shift_reals():
+            xa.add(start, end,
+                lambda t, _s=_s, _d=_d, _dx=ddx, _easing=easing: _dx * _easing((t - _s) / _d),
+                stay=True)
+            ya.add(start, end,
+                lambda t, _s=_s, _d=_d, _dy=ddy, _easing=easing: _dy * _easing((t - _s) / _d),
+                stay=True)
+        for c in self._shift_coors():
+            c.add(start, end,
+                lambda t, _s=_s, _d=_d, _dx=ddx, _dy=ddy, _easing=easing:
+                    (_dx * _easing((t - _s) / _d), _dy * _easing((t - _s) / _d)),
+                stay=True)
+        return self
+
+    def broadcast(self, start: float = 0, duration=0.5, num_copies=3,
+                   max_scale=3, color=None):
+        """Emit expanding, fading copies from this object's center.
+        Returns a VCollection of copies (must be added to canvas)."""
+
+        copies = []
+        for i in range(num_copies):
+            t0 = start + i * (duration / max(num_copies, 1))
+            t1 = t0 + duration / max(num_copies, 1)
+            copy = deepcopy(self)
+            copy._ensure_scale_origin(t0)
+            copy.show.set_onward(0, False)
+            copy.show.set_onward(t0, True)
+            sx0 = copy.styling.scale_x.at_time(t0)
+            sy0 = copy.styling.scale_y.at_time(t0)
+            _s, _d = t0, max(t1 - t0, 1e-9)
+            _sx0, _sy0, _ms = sx0, sy0, max_scale
+            copy.styling.scale_x.set(t0, t1,
+                lambda t, _s=_s, _d=_d, _sx0=_sx0, _ms=_ms:
+                    _sx0 * (1 + (_ms - 1) * ((t - _s) / _d)),
+                stay=True)
+            copy.styling.scale_y.set(t0, t1,
+                lambda t, _s=_s, _d=_d, _sy0=_sy0, _ms=_ms:
+                    _sy0 * (1 + (_ms - 1) * ((t - _s) / _d)),
+                stay=True)
+            copy.styling.fill_opacity.set(t0, t1,
+                lambda t, _s=_s, _d=_d: max(0, 1 - (t - _s) / _d), stay=True)
+            copy.styling.stroke_opacity.set(t0, t1,
+                lambda t, _s=_s, _d=_d: max(0, 1 - (t - _s) / _d), stay=True)
+            if color:
+                copy.styling.stroke.set_onward(t0, color)
+                copy.styling.fill.set_onward(t0, color)
+            copy.show.set_onward(t1, False)
+            copies.append(copy)
+        return VCollection(*copies)
+
     def stamp(self, time: float = 0, opacity=0.3):
         """Leave a faded copy (ghost) at the current position. Returns the copy (add to canvas)."""
-        from copy import deepcopy
+
         ghost = deepcopy(self)
         ghost.styling.fill_opacity.set_onward(time, opacity)
         ghost.styling.stroke_opacity.set_onward(time, opacity)
@@ -1805,7 +1869,7 @@ class VObject(ABC):  # Vector Object
     def trail(self, start: float = 0, end: float = 1, num_copies=5, fade=True):
         """Leave fading ghost copies at intervals during [start, end].
         Returns a list of ghost VObjects (must be added to canvas separately)."""
-        from copy import deepcopy
+
         ghosts = []
         for i in range(num_copies):
             t = start + (end - start) * (i + 1) / (num_copies + 1)
@@ -1850,7 +1914,7 @@ class VObject(ABC):  # Vector Object
     def clone(self, count=1, dx=0, dy=0, start_time=0):
         """Create copies of this object with position offsets.
         Returns a VCollection of the clones (does NOT include the original)."""
-        from copy import deepcopy
+
         clones = []
         for i in range(1, count + 1):
             c = deepcopy(self)
