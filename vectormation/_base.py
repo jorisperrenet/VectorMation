@@ -428,6 +428,10 @@ class VObject(ABC):  # Vector Object
                    start_time=start_time, end_time=end_time, easing=easing)
         return self
 
+    def teleport(self, x, y, time: float = 0):
+        """Instantly move object center to (x, y) at the given time (no animation)."""
+        return self.move_to(x, y, start_time=time)
+
     def center_to_pos(self, posx: float = 960, posy: float = 540, start_time: float = 0, end_time: float | None = None, easing=easings.smooth):
         """Shifts the center to pos, animated from start_time to end_time."""
         return self.move_to(posx, posy, start_time, end_time, easing)
@@ -742,6 +746,45 @@ class VObject(ABC):  # Vector Object
         res.styling.fill_opacity.set_onward(0, 0)
         if change_existence:
             res._show_from(start)
+        return res
+
+    def uncreate(self, start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
+        """Reverse of create — wipes the path from end to start.
+        The original object is hidden at `end`."""
+        if change_existence:
+            self.show.set_onward(end, False)
+
+        p = morphing.Path(self.path(start))
+
+        def _sample_by_length_reverse(path, t):
+            """Sample from end. t=0 → full path, t=1 → nothing."""
+            tot_length = path.length()
+            length_to_keep = (1 - t) * tot_length
+            segs = []
+            idx = 0
+            while length_to_keep > 0 and idx < len(path):
+                s = path[idx]
+                l = s.length()
+                if l <= length_to_keep:
+                    segs.append(s)
+                    length_to_keep -= l
+                else:
+                    segs.append(s.split(length_to_keep / l)[0])
+                    length_to_keep = 0
+                idx += 1
+            return morphing.Path(*segs)
+
+        _dur = end - start
+        def f(t): return easing((t - start) / _dur) if _dur > 0 else 1
+
+        from vectormation._shapes import Path
+        res = Path('')
+        res.d.set(start, end, lambda t: _sample_by_length_reverse(p, f(t)).d())
+        res.styling = deepcopy(self.styling)
+        res.styling.fill_opacity.set_onward(0, 0)
+        if change_existence:
+            res._show_from(start)
+            res.show.set_onward(end, False)
         return res
 
     def draw_along(self, start: float = 0, end: float = 1, easing=easings.smooth, change_existence=True):

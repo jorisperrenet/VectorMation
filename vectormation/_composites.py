@@ -859,6 +859,77 @@ class Axes(VCollection):
         self._add_plot_obj(group)
         return group
 
+    def plot_stem(self, x_values, y_values, baseline=0, r=4, creation=0, z=0,
+                   **styling_kwargs):
+        """Plot a stem chart: vertical lines from baseline to each data point with a dot marker.
+        Returns a VCollection of lines and dots."""
+        line_kw = {'stroke': '#58C4DD', 'stroke_width': 1.5}
+        dot_kw = {'fill': '#58C4DD', 'stroke_width': 0}
+        for k, v in styling_kwargs.items():
+            if k.startswith('dot_'):
+                dot_kw[k[4:]] = v
+            else:
+                line_kw[k] = v
+        objs = []
+        for xv, yv in zip(x_values, y_values):
+            # Stem line
+            stem = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **line_kw)
+            _xv, _yv, _bl = xv, yv, baseline
+            stem.p1.set_onward(creation,
+                lambda t, _x=_xv, _bl=_bl: self.coords_to_point(_x, _bl, t))
+            stem.p2.set_onward(creation,
+                lambda t, _x=_xv, _y=_yv: self.coords_to_point(_x, _y, t))
+            self._add_plot_obj(stem)
+            objs.append(stem)
+            # Dot marker
+            dot = Dot(cx=0, cy=0, r=r, creation=creation, z=z + 1, **dot_kw)
+            dot.c.set_onward(creation,
+                lambda t, _x=_xv, _y=_yv: self.coords_to_point(_x, _y, t))
+            self._add_plot_obj(dot)
+            objs.append(dot)
+        return VCollection(*objs, creation=creation, z=z)
+
+    def plot_grouped_bar(self, data, group_labels=None, bar_width=0.25,
+                          group_spacing=1.0, colors=None, creation=0, z=0,
+                          **styling_kwargs):
+        """Plot grouped bar chart. data: list of lists (each inner list is one series).
+        Returns a VCollection of all bars."""
+        n_series = len(data)
+        if n_series == 0:
+            return VCollection(creation=creation, z=z)
+        n_groups = max(len(s) for s in data)
+        if colors is None:
+            colors = ['#FF6B6B', '#58C4DD', '#83C167', '#FFFF00',
+                      '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C']
+        style_kw = {'stroke_width': 1} | styling_kwargs
+        rects = []
+        for si, series in enumerate(data):
+            color = colors[si % len(colors)]
+            for gi, yv in enumerate(series):
+                x_center = (gi + 1) * group_spacing
+                x_offset = (si - n_series / 2 + 0.5) * bar_width
+                xl = x_center + x_offset - bar_width / 2
+                xr = xl + bar_width
+                rect = Rectangle(width=0, height=0, x=0, y=0,
+                                  fill=color, fill_opacity=0.7, stroke=color,
+                                  creation=creation, z=z, **style_kw)
+                _xl, _xr, _yv = xl, xr, yv
+                rect.x.set_onward(creation, lambda t, _xl=_xl: self._math_to_svg_x(_xl, t))
+                rect.width.set_onward(creation, lambda t, _xl=_xl, _xr=_xr: abs(
+                    self._math_to_svg_x(_xr, t) - self._math_to_svg_x(_xl, t)))
+                if yv >= 0:
+                    rect.y.set_onward(creation, lambda t, _yv=_yv: self._math_to_svg_y(_yv, t))
+                    rect.height.set_onward(creation, lambda t, _yv=_yv: abs(
+                        self._math_to_svg_y(0, t) - self._math_to_svg_y(_yv, t)))
+                else:
+                    rect.y.set_onward(creation, lambda t: self._math_to_svg_y(0, t))
+                    rect.height.set_onward(creation, lambda t, _yv=_yv: abs(
+                        self._math_to_svg_y(_yv, t) - self._math_to_svg_y(0, t)))
+                rects.append(rect)
+        group = VCollection(*rects, creation=creation, z=z)
+        self._add_plot_obj(group)
+        return group
+
     @staticmethod
     def _resolve_func(obj, label='argument'):
         """Extract a callable from a function or a curve with ._func."""

@@ -674,6 +674,23 @@ class TestAxesNewMethods:
         svg = tangent.to_svg(0.5)
         assert '<line' in svg
 
+    def test_plot_stem(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 10))
+        stems = ax.plot_stem([1, 2, 3], [3, 7, 5])
+        assert isinstance(stems, VCollection)
+        assert len(stems) == 6  # 3 lines + 3 dots
+        svg = stems.to_svg(0)
+        assert '<line' in svg
+
+    def test_plot_grouped_bar(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 12))
+        data = [[3, 7], [5, 4]]
+        bars = ax.plot_grouped_bar(data)
+        assert isinstance(bars, VCollection)
+        assert len(bars) == 4  # 2 series * 2 groups
+        svg = bars.to_svg(0)
+        assert '<rect' in svg
+
     def test_add_confidence_band(self):
         import math
         ax = Axes(x_range=(0, 7), y_range=(-3, 3))
@@ -828,6 +845,13 @@ class TestVObjectNew:
         c.color_wave(start=0, end=1, colors=('#FF0000', '#00FF00', '#0000FF'))
         mid = c.styling.fill.at_time(0.5)
         assert mid != '#FF0000'  # color should have changed
+
+    def test_teleport(self):
+        d = Dot(cx=100, cy=100)
+        d.teleport(500, 500, time=0)
+        p = d.c.at_time(0)
+        assert abs(p[0] - 500) < 5
+        assert abs(p[1] - 500) < 5
 
 
 class TestSetZ:
