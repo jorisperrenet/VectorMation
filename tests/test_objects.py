@@ -5001,3 +5001,118 @@ class TestAxesLabeledPoints:
         rect = ax.add_marked_region(2, 5, color='#FF0000')
         svg = ax.to_svg(0)
         assert 'rect' in svg.lower() or '<rect' in svg
+
+
+class TestLineIntersections:
+    def test_intersect_line_basic(self):
+        l1 = Line(0, 0, 100, 100)
+        l2 = Line(100, 0, 0, 100)
+        pt = l1.intersect_line(l2)
+        assert pt is not None
+        assert abs(pt[0] - 50) < 1
+        assert abs(pt[1] - 50) < 1
+
+    def test_intersect_line_parallel(self):
+        l1 = Line(0, 0, 100, 0)
+        l2 = Line(0, 50, 100, 50)
+        assert l1.intersect_line(l2) is None
+
+    def test_project_point(self):
+        line = Line(0, 0, 100, 0)
+        px, py = line.project_point(50, 75)
+        assert abs(px - 50) < 1
+        assert abs(py - 0) < 1
+
+    def test_project_point_off_segment(self):
+        line = Line(0, 0, 100, 0)
+        px, py = line.project_point(200, 50)
+        assert abs(px - 200) < 1
+        assert abs(py - 0) < 1
+
+
+class TestCircleIntersectLine:
+    def test_two_intersections(self):
+        c = Circle(r=50, cx=100, cy=100)
+        l = Line(0, 100, 200, 100)
+        pts = c.intersect_line(l)
+        assert len(pts) == 2
+        xs = sorted(p[0] for p in pts)
+        assert abs(xs[0] - 50) < 1
+        assert abs(xs[1] - 150) < 1
+
+    def test_no_intersection(self):
+        c = Circle(r=50, cx=100, cy=100)
+        l = Line(0, 0, 200, 0)  # far from circle
+        pts = c.intersect_line(l)
+        assert len(pts) == 0
+
+    def test_tangent(self):
+        c = Circle(r=50, cx=100, cy=100)
+        l = Line(0, 50, 200, 50)  # tangent at top
+        pts = c.intersect_line(l)
+        assert len(pts) == 1
+        assert abs(pts[0][0] - 100) < 1
+
+
+class TestShowDuring:
+    def test_show_during_single_range(self):
+        c = Circle(r=50)
+        c.show_during((1, 3))
+        # show attribute is checked by the canvas, not by to_svg
+        assert not c.show.at_time(0.5)  # hidden before range
+        assert c.show.at_time(2)  # visible during range
+        assert not c.show.at_time(4)  # hidden after range
+
+    def test_show_during_multiple_ranges(self):
+        c = Circle(r=50)
+        c.show_during((0, 1), (3, 5))
+        assert c.show.at_time(0.5)  # visible in first range
+        assert not c.show.at_time(2)  # hidden between ranges
+        assert c.show.at_time(4)  # visible in second range
+        assert not c.show.at_time(6)  # hidden after all ranges
+
+    def test_show_during_list_form(self):
+        c = Circle(r=50)
+        c.show_during([(1, 2), (4, 6)])
+        assert c.show.at_time(1.5)  # visible
+        assert not c.show.at_time(3)  # hidden between
+        assert c.show.at_time(5)  # visible
+
+    def test_show_during_returns_self(self):
+        c = Circle(r=50)
+        result = c.show_during((0, 1))
+        assert result is c
+
+
+class TestGlow:
+    def test_glow_basic(self):
+        c = Circle(r=50)
+        result = c.glow(start=0, end=1)
+        assert result is c
+        svg = c.to_svg(0.5)
+        assert svg
+
+    def test_glow_zero_duration(self):
+        c = Circle(r=50)
+        c.glow(start=1, end=1)  # should not crash
+
+    def test_glow_stroke_width_at_midpoint(self):
+        c = Circle(r=50)
+        orig_sw = c.styling.stroke_width.at_time(0)
+        c.glow(start=0, end=2, radius=10)
+        mid_sw = c.styling.stroke_width.at_time(1)
+        # At midpoint, there_and_back returns ~1.0, so width should be near orig + radius
+        assert mid_sw > orig_sw + 5
+
+    def test_glow_stroke_reverts_after_end(self):
+        c = Circle(r=50)
+        orig_sw = c.styling.stroke_width.at_time(0)
+        c.glow(start=0, end=1, radius=10)
+        after_sw = c.styling.stroke_width.at_time(2)
+        assert after_sw == orig_sw
+
+    def test_glow_custom_color(self):
+        c = Circle(r=50)
+        c.glow(start=0, end=1, color='#FF0000')
+        svg = c.to_svg(0.5)
+        assert svg  # just verify no crash

@@ -311,6 +311,22 @@ class VObject(ABC):  # Vector Object
         """Hide from time onward."""
         self.show.set_onward(time, False)
 
+    def show_during(self, *ranges):
+        """Show this object only during the specified time ranges.
+
+        Each range is a (start, end) tuple. Object is hidden outside all ranges.
+        Usage: obj.show_during((0, 1), (3, 5))
+        """
+        # Flatten if passed a list of tuples
+        if len(ranges) == 1 and isinstance(ranges[0], list):
+            ranges = ranges[0]
+        # Hide from the very beginning, then toggle on/off for each range
+        self.show.set_onward(0, False)
+        for start, end in ranges:
+            self.show.set_onward(start, True)
+            self.show.set_onward(end, False)
+        return self
+
     def __repr__(self):
         return f'{self.__class__.__name__}(z={self.z.at_time(0)})'
 
@@ -1139,6 +1155,28 @@ class VObject(ABC):  # Vector Object
         end = start + duration
         self.indicate(start, end, scale_factor=scale_factor, easing=easing)
         self.flash(start, end, color=color, easing=easing)
+        return self
+
+    def glow(self, start: float = 0, end: float = 1, color='#FFD700', radius=10):
+        """Add an animated glow effect (stroke pulses outward then fades).
+
+        The stroke expands to ``radius`` extra width at the midpoint, then
+        shrinks back while the stroke opacity fades in and out.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        s, d = start, max(dur, 1e-9)
+        orig_sw = self.styling.stroke_width.at_time(start)
+        _, glow_rgb = attributes.Color(0, color).parse(color)
+        self.styling.stroke.set(s, end,
+            lambda t, _rgb=glow_rgb: _rgb, stay=False)
+        self.styling.stroke_width.set(s, end,
+            lambda t, _s=s, _d=d, _r=radius, _osw=orig_sw: _osw + _r * easings.there_and_back((t - _s) / _d),
+            stay=False)
+        self.styling.stroke_opacity.set(s, end,
+            lambda t, _s=s, _d=d: 0.7 * easings.there_and_back((t - _s) / _d),
+            stay=False)
         return self
 
     def circumscribe(self, start: float = 0, end: float = 1, buff=SMALL_BUFF, color=None, easing=easings.smooth, **styling_kwargs):

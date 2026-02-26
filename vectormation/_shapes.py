@@ -291,6 +291,28 @@ class Circle(Ellipse):
                     x2=px + tx * half, y2=py + ty * half,
                     creation=creation, **line_kwargs)
 
+    def intersect_line(self, line, time=0):
+        """Return list of intersection points [(x,y), ...] with a Line (0, 1, or 2 points)."""
+        cx, cy = self.c.at_time(time)
+        r = self.r.at_time(time)
+        x1, y1 = line.p1.at_time(time)
+        x2, y2 = line.p2.at_time(time)
+        dx, dy = x2 - x1, y2 - y1
+        fx, fy = x1 - cx, y1 - cy
+        a = dx * dx + dy * dy
+        b = 2 * (fx * dx + fy * dy)
+        c = fx * fx + fy * fy - r * r
+        disc = b * b - 4 * a * c
+        if a < 1e-20 or disc < 0:
+            return []
+        sq = math.sqrt(disc)
+        points = []
+        for t_val in [(-b - sq) / (2 * a), (-b + sq) / (2 * a)]:
+            points.append((x1 + t_val * dx, y1 + t_val * dy))
+        if abs(disc) < 1e-10:
+            return [points[0]]  # tangent: single point
+        return points
+
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)
         return f"<circle cx='{cx}' cy='{cy}' r='{self.rx.at_time(time)}'{self.styling.svg_style(time)} />"
@@ -510,6 +532,31 @@ class Line(VObject):
         nx, ny = -dy / line_len, dx / line_len
         return Line(x1 + nx * offset, y1 + ny * offset,
                     x2 + nx * offset, y2 + ny * offset)
+
+    def intersect_line(self, other, time=0):
+        """Return intersection point (x, y) of this line with another, or None if parallel."""
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        x3, y3 = other.p1.at_time(time)
+        x4, y4 = other.p2.at_time(time)
+        denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+        if abs(denom) < 1e-10:
+            return None
+        t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom
+        ix = x1 + t * (x2 - x1)
+        iy = y1 + t * (y2 - y1)
+        return (ix, iy)
+
+    def project_point(self, px, py, time=0):
+        """Return the closest point on this line (extended) to point (px, py)."""
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        dx, dy = x2 - x1, y2 - y1
+        len_sq = dx * dx + dy * dy
+        if len_sq < 1e-20:
+            return (x1, y1)
+        t = ((px - x1) * dx + (py - y1) * dy) / len_sq
+        return (x1 + t * dx, y1 + t * dy)
 
 
 class Text(VObject):
