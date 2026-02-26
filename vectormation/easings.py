@@ -381,12 +381,12 @@ def clamp(easing, start_t=0.0, end_t=1.0):
     Before start_t returns easing(0), after end_t returns easing(1).
     Between start_t and end_t, remap to [0,1].
     """
+    if start_t >= end_t:
+        return lambda t: easing(0.0) if t < start_t else easing(1.0)
     def _clamped(t):
         if t <= start_t:
             return easing(0.0)
         if t >= end_t:
-            return easing(1.0)
-        if start_t >= end_t:
             return easing(1.0)
         remapped = (t - start_t) / (end_t - start_t)
         return easing(remapped)

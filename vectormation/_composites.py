@@ -3198,6 +3198,8 @@ class Axes(VCollection):
 
         Returns the curve Path.
         """
+        if std <= 0:
+            raise ValueError("std must be positive")
         inv_coeff = 1 / (std * math.sqrt(2 * math.pi))
         def func(x):
             return inv_coeff * math.exp(-0.5 * ((x - mean) / std) ** 2)
@@ -8515,6 +8517,8 @@ class Molecule2D(VCollection):
         if bonds:
             for bond in bonds:
                 i, j = bond[0], bond[1]
+                if i >= len(atoms) or j >= len(atoms):
+                    continue
                 bond_order = bond[2] if len(bond) > 2 else 1
                 ax, ay = cx + atoms[i][1] * scale, cy + atoms[i][2] * scale
                 bx, by = cx + atoms[j][1] * scale, cy + atoms[j][2] * scale
