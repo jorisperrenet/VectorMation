@@ -33,7 +33,7 @@ from vectormation.objects import (
     DEFAULT_CHART_COLORS, Variable, Underline,
     ArrowVectorField, ComplexPlane, ChessBoard, Automaton,
     PeriodicTable, BohrAtom,
-    Countdown, Filmstrip, MorphObject, Title,
+    Countdown, Filmstrip, MorphObject, Title, NumberPlane,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -3071,3 +3071,38 @@ class TestTitleStyling:
         t = Title('Big', font_size=80)
         svg = t.to_svg(0)
         assert 'font-size' in svg
+
+
+class TestNumberPlane:
+    def test_creation(self):
+        np = NumberPlane()
+        svg = np.to_svg(0)
+        assert svg is not None
+
+    def test_coords_to_point(self):
+        np = NumberPlane()
+        x, y = np.coords_to_point(0, 0)
+        assert x == 960
+        assert y == 540
+
+    def test_coords_to_point_offset(self):
+        np = NumberPlane()
+        x, y = np.coords_to_point(1, 0)
+        assert x == 960 + 135  # UNIT = 135
+
+    def test_custom_ranges(self):
+        np = NumberPlane(x_range=(-5, 5, 1), y_range=(-3, 3, 1))
+        svg = np.to_svg(0)
+        assert svg is not None
+
+    def test_custom_styles(self):
+        np = NumberPlane(background_line_style={'stroke': '#ff0000'},
+                         axis_style={'stroke': '#00ff00'})
+        svg = np.to_svg(0)
+        assert 'rgb(255,0,0)' in svg
+        assert 'rgb(0,255,0)' in svg
+
+    def test_no_faded_lines(self):
+        np = NumberPlane(faded_line_ratio=1)
+        svg = np.to_svg(0)
+        assert svg is not None

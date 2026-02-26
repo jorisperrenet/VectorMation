@@ -33,6 +33,10 @@ _MARCH_SEGS = {
 }
 
 
+_AREA_STYLE = {'fill': '#58C4DD', 'fill_opacity': 0.3, 'stroke_width': 0}
+_HIGHLIGHT_STYLE = {'fill': '#FFFF00', 'fill_opacity': 0.15, 'stroke_width': 0}
+
+
 def _label_text(text, x, y, font_size, creation=0, z=0, **overrides):
     """Create a centered white text label (common pattern in composites)."""
     kw = {'fill': '#fff', 'stroke_width': 0} | overrides
@@ -1005,7 +1009,7 @@ class Axes(VCollection):
 
         *curve_or_func* can be a function, or a Path returned by plot() (which has ._func).
         """
-        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.3, 'stroke_width': 0} | styling_kwargs
+        style_kw = _AREA_STYLE | styling_kwargs
         func = self._resolve_func(curve_or_func, 'curve_or_func')
         bound_func = self._resolve_func(bounded_graph, 'bounded_graph') if bounded_graph is not None else None
 
@@ -1085,7 +1089,7 @@ class Axes(VCollection):
         func1, func2: callables. The area between them is shaded.
         x_range: optional (min, max) to limit domain.
         Returns a Path object."""
-        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.3, 'stroke_width': 0} | styling_kwargs
+        style_kw = _AREA_STYLE | styling_kwargs
         return self.get_area(func1, bounded_graph=func2, x_range=x_range,
                              creation=creation, z=z, **style_kw)
 
@@ -1302,7 +1306,7 @@ class Axes(VCollection):
     def highlight_x_range(self, x_lo, x_hi, creation=0, z=-1, **styling_kwargs):
         """Shade a vertical strip between x_lo and x_hi math coordinates.
         Returns a Rectangle object."""
-        style_kw = {'fill': '#FFFF00', 'fill_opacity': 0.15, 'stroke_width': 0} | styling_kwargs
+        style_kw = _HIGHLIGHT_STYLE | styling_kwargs
         rect = Rectangle(width=0, height=0, x=0, y=0,
                           creation=creation, z=z, **style_kw)
         _lo, _hi = x_lo, x_hi
@@ -1318,7 +1322,7 @@ class Axes(VCollection):
     def highlight_y_range(self, y_lo, y_hi, creation=0, z=-1, **styling_kwargs):
         """Shade a horizontal strip between y_lo and y_hi math coordinates.
         Returns a Rectangle object."""
-        style_kw = {'fill': '#FFFF00', 'fill_opacity': 0.15, 'stroke_width': 0} | styling_kwargs
+        style_kw = _HIGHLIGHT_STYLE | styling_kwargs
         rect = Rectangle(width=0, height=0, x=0, y=0,
                           creation=creation, z=z, **style_kw)
         _lo, _hi = y_lo, y_hi
@@ -2145,7 +2149,7 @@ class Axes(VCollection):
                              samples=200, creation=0, z=-1, **styling_kwargs):
         """Fill the area enclosed by a parametric curve (func_x(t), func_y(t)).
         Returns a dynamic Path object."""
-        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.3, 'stroke_width': 0} | styling_kwargs
+        style_kw = _AREA_STYLE | styling_kwargs
         area = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
         _t0, _t1 = t_range
         _fx, _fy, _n = func_x, func_y, samples
@@ -2285,7 +2289,7 @@ class Axes(VCollection):
     def add_vertical_span(self, x0, x1, creation=0, z=-1, **styling_kwargs):
         """Shade a vertical band between x0 and x1 (math coords).
         Returns a Rectangle with dynamic position."""
-        style_kw = {'fill': '#FFFF00', 'fill_opacity': 0.15, 'stroke_width': 0} | styling_kwargs
+        style_kw = _HIGHLIGHT_STYLE | styling_kwargs
         rect = Rectangle(width=0, height=0, x=0, y=0, creation=creation, z=z, **style_kw)
         rect.x.set_onward(creation, lambda t, _a=x0: self._math_to_svg_x(_a, t))
         rect.y.set_onward(creation, lambda t: self.plot_y)
@@ -2298,7 +2302,7 @@ class Axes(VCollection):
     def add_horizontal_span(self, y0, y1, creation=0, z=-1, **styling_kwargs):
         """Shade a horizontal band between y0 and y1 (math coords).
         Returns a Rectangle with dynamic position."""
-        style_kw = {'fill': '#FFFF00', 'fill_opacity': 0.15, 'stroke_width': 0} | styling_kwargs
+        style_kw = _HIGHLIGHT_STYLE | styling_kwargs
         rect = Rectangle(width=0, height=0, x=0, y=0, creation=creation, z=z, **style_kw)
         rect.x.set_onward(creation, lambda t: self.plot_x)
         rect.y.set_onward(creation, lambda t, _a=y1: self._math_to_svg_y(_a, t))
