@@ -58,6 +58,7 @@ from vectormation._composites import (
     VennDiagram, OrgChart,
     KPICard, BulletChart, CalendarHeatmap,
     WaffleChart, MindMap,
+    CircularProgressBar, Scoreboard,
     from_svg, from_svg_file, always_redraw, parse_args,
     _parse_inline_style,
 )

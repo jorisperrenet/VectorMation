@@ -2365,6 +2365,73 @@ class Axes(VCollection):
         self._add_plot_obj(lbl)
         return VCollection(arr, box, lbl, creation=creation, z=z)
 
+    def plot_population_pyramid(self, categories, left_values, right_values,
+                                 bar_height=0.6, creation=0, z=0,
+                                 left_color='#58C4DD', right_color='#FF79C6'):
+        """Plot a back-to-back horizontal bar chart (population pyramid).
+        categories: y-positions (e.g. [1,2,3,...]).
+        left_values: values extending left (shown as negative).
+        right_values: values extending right.
+        Returns a VCollection."""
+        objs = []
+        for yp, lv, rv in zip(categories, left_values, right_values):
+            # Shared lambdas for y position and height
+            y_fn = lambda t, _y=yp, _h=bar_height: self.coords_to_point(0, _y + _h / 2, t)[1]
+            h_fn = lambda t, _y=yp, _h=bar_height: abs(
+                self.coords_to_point(0, _y - _h / 2, t)[1] - self.coords_to_point(0, _y + _h / 2, t)[1])
+            for val, color, x_fn in [
+                (lv, left_color,
+                 lambda t, _v=lv: self.coords_to_point(-_v, 0, t)[0]),
+                (rv, right_color,
+                 lambda t: self.coords_to_point(0, 0, t)[0]),
+            ]:
+                bar = Rectangle(width=0, height=0, x=0, y=0,
+                                 fill=color, fill_opacity=0.8, stroke_width=0,
+                                 creation=creation, z=z)
+                bar.x.set_onward(creation, x_fn)
+                bar.y.set_onward(creation, y_fn)
+                bar.width.set_onward(creation,
+                    lambda t, _v=val: self.coords_to_point(_v, 0, t)[0] - self.coords_to_point(0, 0, t)[0])
+                bar.height.set_onward(creation, h_fn)
+                self._add_plot_obj(bar)
+                objs.append(bar)
+        return VCollection(*objs, creation=creation, z=z)
+
+    def add_data_table(self, headers, rows, x_offset=0, y_offset=30,
+                        font_size=12, cell_width=80, cell_height=22,
+                        creation=0, z=5):
+        """Add a simple data table below the axes.
+        headers: list of column header strings.
+        rows: list of lists (each row is a list of cell values).
+        Returns a VCollection."""
+        objs = []
+        base_x = self.plot_x + x_offset
+        base_y = self.plot_y + self.plot_height + y_offset
+        # Header row
+        for j, h in enumerate(headers):
+            hx = base_x + j * cell_width + cell_width / 2
+            hy = base_y + font_size * 0.8
+            lbl = Text(text=str(h), x=hx, y=hy, font_size=font_size,
+                        fill='#aaa', stroke_width=0, text_anchor='middle',
+                        creation=creation, z=z)
+            objs.append(lbl)
+        # Separator line
+        sep = Line(x1=base_x, y1=base_y + cell_height * 0.8,
+                   x2=base_x + len(headers) * cell_width,
+                   y2=base_y + cell_height * 0.8,
+                   stroke='#555', stroke_width=0.5, creation=creation, z=z)
+        objs.append(sep)
+        # Data rows
+        for i, row in enumerate(rows):
+            ry = base_y + (i + 1) * cell_height + font_size * 0.8
+            for j, val in enumerate(row):
+                cx = base_x + j * cell_width + cell_width / 2
+                lbl = Text(text=str(val), x=cx, y=ry, font_size=font_size,
+                            fill='#ddd', stroke_width=0, text_anchor='middle',
+                            creation=creation, z=z)
+                objs.append(lbl)
+        return VCollection(*objs, creation=creation, z=z)
+
     def add_slope_field(self, func, x_step=1, y_step=1, seg_length=0.4,
                          creation=0, z=-1, **styling_kwargs):
         """Draw a direction/slope field for dy/dx = func(x, y).
@@ -6364,6 +6431,89 @@ class MindMap(VCollection):
                                 font_size=font_size * 0.65, fill='#ddd', stroke_width=0,
                                 text_anchor='middle', creation=creation, z=z + 0.3)
                     objects.append(gtxt)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class CircularProgressBar(VCollection):
+    """Circular progress indicator with percentage text.
+
+    value: 0-100 (percent complete).
+    """
+    def __init__(self, value, x=960, y=540, radius=80, stroke_width=12,
+                 track_color='#2a2a3a', bar_color='#58C4DD',
+                 font_size=36, show_text=True, creation=0, z=0):
+        objects = []
+        # Background track (full circle arc)
+        track = Arc(cx=x, cy=y, r=radius, start_angle=90, end_angle=90 - 359.99,
+                    stroke=track_color, stroke_width=stroke_width,
+                    creation=creation, z=z)
+        objects.append(track)
+        # Progress arc
+        pct = max(0, min(100, value))
+        sweep = 360 * pct / 100
+        if sweep > 0.1:
+            prog = Arc(cx=x, cy=y, r=radius, start_angle=90,
+                       end_angle=90 - sweep,
+                       stroke=bar_color, stroke_width=stroke_width,
+                       creation=creation, z=z + 0.1)
+            objects.append(prog)
+        # Text
+        if show_text:
+            lbl = Text(text=f'{pct:.0f}%', x=x, y=y + font_size * 0.35,
+                       font_size=font_size, fill=bar_color, stroke_width=0,
+                       text_anchor='middle', creation=creation, z=z + 0.2)
+            objects.append(lbl)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class Scoreboard(VCollection):
+    """Score/metric display panel.
+
+    entries: list of (label, value) tuples.
+    """
+    def __init__(self, entries, x=100, y=100, col_width=200, row_height=60,
+                 bg_color='#1a1a2e', label_color='#aaa', value_color='#fff',
+                 font_size=28, cols=None, creation=0, z=0):
+        if not entries:
+            super().__init__(creation=creation, z=z)
+            return
+        if cols is None:
+            cols = min(len(entries), 4)
+        rows_count = math.ceil(len(entries) / cols)
+        total_w = cols * col_width
+        total_h = rows_count * row_height
+        from vectormation._shapes import RoundedRectangle
+        objects = []
+        # Background
+        bg = RoundedRectangle(width=total_w + 20, height=total_h + 20,
+                               x=x - 10, y=y - 10, corner_radius=10,
+                               fill=bg_color, fill_opacity=0.9,
+                               stroke='#333', stroke_width=1,
+                               creation=creation, z=z)
+        objects.append(bg)
+        for i, (label, value) in enumerate(entries):
+            r = i // cols
+            c = i % cols
+            cx = x + c * col_width + col_width / 2
+            cy = y + r * row_height
+            # Value
+            v_lbl = Text(text=str(value), x=cx, y=cy + font_size * 0.9,
+                         font_size=font_size, fill=value_color, stroke_width=0,
+                         text_anchor='middle', creation=creation, z=z + 0.1)
+            objects.append(v_lbl)
+            # Label
+            l_lbl = Text(text=str(label), x=cx,
+                         y=cy + font_size * 0.9 + font_size * 0.7,
+                         font_size=font_size * 0.4, fill=label_color, stroke_width=0,
+                         text_anchor='middle', creation=creation, z=z + 0.1)
+            objects.append(l_lbl)
+            # Divider (between columns)
+            if c < cols - 1 and i < len(entries) - 1:
+                dx = x + (c + 1) * col_width
+                div = Line(x1=dx, y1=cy + 5, x2=dx, y2=cy + row_height - 5,
+                           stroke='#333', stroke_width=1,
+                           creation=creation, z=z + 0.05)
+                objects.append(div)
         super().__init__(*objects, creation=creation, z=z)
 
 

@@ -18,6 +18,7 @@ from vectormation.objects import (
     VennDiagram, OrgChart,
     KPICard, BulletChart, CalendarHeatmap,
     WaffleChart, MindMap,
+    CircularProgressBar, Scoreboard,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -1026,6 +1027,46 @@ class TestAxesNewMethods:
     def test_mind_map_no_children(self):
         mm = MindMap(('Solo', []))
         assert len(mm) == 2  # circle + text
+
+    def test_plot_population_pyramid(self):
+        ax = Axes(x_range=(-50, 50), y_range=(0, 6), plot_width=400, plot_height=300, x=100, y=100)
+        pp = ax.plot_population_pyramid([1, 2, 3, 4, 5],
+                                         [30, 25, 20, 15, 10],
+                                         [28, 24, 22, 16, 12])
+        assert isinstance(pp, VCollection)
+        assert len(pp) == 10  # 5 left + 5 right bars
+
+    def test_add_data_table(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 10), plot_width=400, plot_height=300, x=100, y=100)
+        dt = ax.add_data_table(['X', 'Y', 'Z'], [[1, 2, 3], [4, 5, 6]])
+        assert isinstance(dt, VCollection)
+        assert len(dt) > 0
+        svg = dt.to_svg(0)
+        assert 'X' in svg
+        assert '6' in svg
+
+    def test_circular_progress_bar(self):
+        cp = CircularProgressBar(75)
+        assert isinstance(cp, VCollection)
+        assert len(cp) >= 2  # track + progress arc (+ optional text)
+        svg = cp.to_svg(0)
+        assert '75%' in svg
+
+    def test_circular_progress_bar_zero(self):
+        cp = CircularProgressBar(0)
+        assert len(cp) >= 1  # at least track
+
+    def test_scoreboard(self):
+        entries = [('Goals', '3'), ('Assists', '7'), ('Saves', '12')]
+        sb = Scoreboard(entries)
+        assert isinstance(sb, VCollection)
+        svg = sb.to_svg(0)
+        assert 'Goals' in svg
+        assert '12' in svg
+
+    def test_scoreboard_empty(self):
+        sb = Scoreboard([])
+        assert len(sb) == 0
 
 
 class TestVCollectionNew:
