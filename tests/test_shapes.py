@@ -1576,3 +1576,22 @@ class TestGeometricQueries:
         assert abs(end[0] - 200) < 0.01 and abs(end[1] - 100) < 0.01
         mid = b.point_at(0.5)
         assert 50 < mid[0] < 150  # somewhere in the middle
+
+    def test_cubicbezier_tangent_at(self):
+        import math
+        from vectormation.objects import CubicBezier
+        b = CubicBezier(p0=(0, 0), p1=(100, 0), p2=(100, 0), p3=(200, 0))
+        dx, dy = b.tangent_at(0.5)
+        # Horizontal line, tangent should point right
+        assert abs(dx - 1.0) < 0.1
+        assert abs(dy) < 0.1
+        # Unit vector
+        assert abs(math.hypot(dx, dy) - 1.0) < 0.01
+
+    def test_arc_get_sweep(self):
+        a = Arc(start_angle=30, end_angle=120)
+        assert a.get_sweep() == 90
+
+    def test_arc_get_sweep_large(self):
+        a = Arc(start_angle=0, end_angle=270)
+        assert a.get_sweep() == 270

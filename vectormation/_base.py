@@ -1074,6 +1074,47 @@ class VObject(ABC):  # Vector Object
         """Shrink to a specific point (px, py) using scale transform. Opposite of grow_from_point."""
         return self._scale_from_to_point(px, py, start, end, lambda p: 1 - p, change_existence, False, easing)
 
+    def appear_from(self, source, start: float = 0, end: float = 1,
+                    change_existence=True, easing=easings.smooth):
+        """Appear from *source*'s center position, sliding and fading into place.
+
+        source: a VObject (uses get_center) or an (x, y) tuple.
+        The object fades in while moving from the source position to its own.
+        """
+        if change_existence:
+            self._show_from(start)
+        dur = end - start
+        if dur <= 0:
+            return self
+        if hasattr(source, 'get_center'):
+            src_x, src_y = source.get_center(start)
+        else:
+            src_x, src_y = source
+        tgt_x, tgt_y = self.get_center(start)
+        off_x, off_y = src_x - tgt_x, src_y - tgt_y
+        s, d = start, max(dur, 1e-9)
+        # Move all coordinate attrs from source offset back to target
+        for coor in self._shift_coors():
+            ox, oy = coor.at_time(start)
+            coor.set(s, end, lambda t, _s=s, _d=d, _ox=ox, _oy=oy, _offx=off_x, _offy=off_y:
+                     (_ox + _offx * (1 - easing((t - _s) / _d)),
+                      _oy + _offy * (1 - easing((t - _s) / _d))),
+                     stay=True)
+        for xa, ya in self._shift_reals():
+            ox_val = xa.at_time(start)
+            oy_val = ya.at_time(start)
+            xa.set(s, end, lambda t, _s=s, _d=d, _o=ox_val, _off=off_x:
+                   _o + _off * (1 - easing((t - _s) / _d)),
+                   stay=True)
+            ya.set(s, end, lambda t, _s=s, _d=d, _o=oy_val, _off=off_y:
+                   _o + _off * (1 - easing((t - _s) / _d)),
+                   stay=True)
+        # Fade in opacity
+        end_op = self.styling.opacity.at_time(end)
+        self.styling.opacity.set(s, end,
+            lambda t, _s=s, _d=d, _eo=end_op: _eo * easing((t - _s) / _d), stay=True)
+        return self
+
     def flip(self, axis='horizontal', start: float = 0, end: float = 0.5, easing=easings.smooth):
         """Quick 3D-like flip by animating scaleX or scaleY to -1 and back."""
         dur = end - start
@@ -2881,6 +2922,31 @@ class VCollection:
             s = start + i * step
             e = min(s + child_dur, end)
             obj.rotate_by(s, e, degrees, easing=easing)
+        return self
+
+    def animate_each(self, method, start: float = 0, end: float = 1,
+                     delay=None, reverse=False, **method_kwargs):
+        """Call *method* on each child with staggered timing.
+
+        method: string name of a VObject method (e.g. 'fadein', 'wiggle', 'indicate').
+        delay: time between each child's start (auto-computed from duration if None).
+        reverse: iterate children in reverse order.
+        Extra keyword arguments are forwarded to the method.
+        """
+        n = len(self.objects)
+        if n == 0:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        if delay is None:
+            delay = dur / max(n, 1) * 0.5
+        items = list(reversed(self.objects)) if reverse else list(self.objects)
+        for i, obj in enumerate(items):
+            obj_start = start + i * delay
+            obj_end = obj_start + (dur - (n - 1) * delay)
+            obj_end = max(obj_end, obj_start + 0.01)
+            getattr(obj, method)(start=obj_start, end=obj_end, **method_kwargs)
         return self
 
     def scatter_from(self, cx=None, cy=None, radius=300,

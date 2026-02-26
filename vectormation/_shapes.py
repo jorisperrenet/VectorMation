@@ -1386,6 +1386,10 @@ class Arc(VObject):
         sweep = abs(self.end_angle.at_time(time) - self.start_angle.at_time(time))
         return r * math.radians(sweep)
 
+    def get_sweep(self, time=0):
+        """Return the total sweep angle in degrees."""
+        return abs(self.end_angle.at_time(time) - self.start_angle.at_time(time))
+
     def point_at_angle(self, degrees, time=0):
         """Return (x, y) on the arc at the given angle (degrees, CCW from right)."""
         cx, cy = self.cx.at_time(time), self.cy.at_time(time)
@@ -1670,6 +1674,18 @@ class CubicBezier(VObject):
         x = u**3*x0 + 3*u**2*t*x1 + 3*u*t**2*x2 + t**3*x3
         y = u**3*y0 + 3*u**2*t*y1 + 3*u*t**2*y2 + t**3*y3
         return (x, y)
+
+    def tangent_at(self, t, time=0):
+        """Return the unit tangent direction (dx, dy) at parameter t."""
+        x0, y0 = self.p0.at_time(time)
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        x3, y3 = self.p3.at_time(time)
+        u = 1 - t
+        dx = 3*u*u*(x1-x0) + 6*u*t*(x2-x1) + 3*t*t*(x3-x2)
+        dy = 3*u*u*(y1-y0) + 6*u*t*(y2-y1) + 3*t*t*(y3-y2)
+        mag = math.hypot(dx, dy)
+        return (dx / mag, dy / mag) if mag > 1e-9 else (1.0, 0.0)
 
     def to_svg(self, time):
         return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"

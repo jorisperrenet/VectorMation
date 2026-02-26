@@ -5402,3 +5402,68 @@ class TestNumberLineSegment:
         nl = NumberLine(x_range=(-5, 5, 1))
         rect = nl.add_segment(0, 3, color='#FF0000')
         assert rect is not None
+
+
+class TestAppearFrom:
+    def test_appear_from_object(self):
+        src = Circle(cx=100, cy=100, r=20)
+        tgt = Circle(cx=500, cy=500, r=50)
+        result = tgt.appear_from(src, start=0, end=1)
+        assert result is tgt
+
+    def test_appear_from_tuple(self):
+        tgt = Rectangle(100, 50, x=400, y=400)
+        result = tgt.appear_from((100, 100), start=0, end=1)
+        assert result is tgt
+
+    def test_appear_from_changes_existence(self):
+        tgt = Circle(cx=500, cy=500, r=50)
+        tgt.appear_from(Circle(cx=100, cy=100), start=1, end=2)
+        assert tgt.show.at_time(0.5) is False
+        assert tgt.show.at_time(1.5) is True
+
+
+class TestAnimateEach:
+    def test_animate_each_fadein(self):
+        a = Circle(r=10)
+        b = Circle(r=20)
+        c = Circle(r=30)
+        col = VCollection(a, b, c)
+        result = col.animate_each('fadein', start=0, end=3)
+        assert result is col
+
+    def test_animate_each_empty(self):
+        col = VCollection()
+        result = col.animate_each('fadein', start=0, end=1)
+        assert result is col
+
+    def test_animate_each_reverse(self):
+        a = Circle(r=10)
+        b = Circle(r=20)
+        col = VCollection(a, b)
+        result = col.animate_each('fadein', start=0, end=2, reverse=True)
+        assert result is col
+
+
+class TestBarChartValueLabels:
+    def test_add_value_labels(self):
+        bc = BarChart(values=[10, 20, 30], labels=['A', 'B', 'C'])
+        initial_count = len(bc.objects)
+        result = bc.add_value_labels()
+        assert result is bc
+        assert len(bc.objects) > initial_count  # labels were added
+
+
+class TestAxesAnimateDrawFunction:
+    def test_animate_draw_function(self):
+        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
+        path = ax.animate_draw_function(lambda x: x**2, start=0, end=2)
+        assert path is not None
+        # Path should have a d attribute
+        d_val = path.d.at_time(1)  # midway
+        assert isinstance(d_val, str)
+
+    def test_animate_draw_function_returns_path(self):
+        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
+        path = ax.animate_draw_function(lambda x: x, start=0, end=1)
+        assert path in ax.objects

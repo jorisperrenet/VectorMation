@@ -584,6 +584,46 @@ class Axes(VCollection):
 
     plot = add_function
 
+    def animate_draw_function(self, func, start=0, end=1, x_range=None,
+                               num_points=200, easing=easings.smooth,
+                               creation=0, z=0, **styling_kwargs):
+        """Draw a function curve progressively from left to right."""
+        xmin = x_range[0] if x_range else self.x_min.at_time(0)
+        xmax = x_range[1] if x_range else self.x_max.at_time(0)
+
+        def _make_d(time):
+            dur = end - start
+            if dur <= 0:
+                progress = 1.0
+            else:
+                progress = easing(max(0, min(1, (time - start) / dur)))
+            cur_xmax = xmin + (xmax - xmin) * progress
+            if cur_xmax <= xmin:
+                return ''
+            # Sample and convert to SVG coords
+            pts = []
+            n = max(2, int(num_points * progress))
+            for i in range(n + 1):
+                xv = xmin + i * (cur_xmax - xmin) / n
+                yv = func(xv)
+                if not math.isfinite(yv):
+                    continue
+                sx, sy = self.coords_to_point(xv, yv, time)
+                pts.append((sx, sy))
+            if not pts:
+                return ''
+            d = f'M{pts[0][0]},{pts[0][1]}'
+            for sx, sy in pts[1:]:
+                d += f'L{sx},{sy}'
+            return d
+
+        defaults = dict(stroke='#58C4DD', stroke_width=3, fill_opacity=0)
+        defaults.update(styling_kwargs)
+        path = Path('', creation=creation, z=z, **defaults)
+        path.d.set_onward(start, _make_d)
+        self.objects.append(path)
+        return path
+
     def add_coordinates(self, creation=0, font_size=None, color='#aaa'):
         """Add coordinate labels at each tick mark on both axes."""
         if font_size is None:
@@ -4439,6 +4479,20 @@ class BarChart(VCollection):
             if lbl is not None and lbl.text.at_time(0) == label:
                 return self._bars[i]
         return None
+
+    def add_value_labels(self, fmt='{:.0f}', offset=10, font_size=20, creation=0):
+        """Add text labels showing each bar's value above (or below) the bar."""
+        from vectormation._shapes import Text as _Text
+        for bar, val in zip(self._bars, self.values):
+            bx, by, bw, bh = bar.bbox(creation)
+            lx = bx + bw / 2
+            ly = by - offset if val >= 0 else by + bh + offset + font_size
+            label_text = fmt.format(val)
+            label = _Text(text=label_text, font_size=font_size, x=lx, y=ly,
+                          creation=creation, fill='#fff', text_anchor='middle',
+                          stroke_width=0)
+            self.objects.append(label)
+        return self
 
 
 class Table(VCollection):
