@@ -2536,72 +2536,6 @@ class Axes(VCollection):
             objs.append(bar)
         return VCollection(*objs, creation=creation, z=z)
 
-    def plot_histogram(self, data, bins=10, creation=0, z=0, **styling_kwargs):
-        """Plot a histogram from raw data. Auto-computes bin edges.
-        Returns a VCollection of bar rectangles."""
-        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.7,
-                    'stroke': '#58C4DD', 'stroke_width': 1} | styling_kwargs
-        mn, mx = min(data), max(data)
-        if mn == mx:
-            mx = mn + 1
-        bin_width = (mx - mn) / bins
-        counts = [0] * bins
-        for v in data:
-            idx = min(int((v - mn) / bin_width), bins - 1)
-            counts[idx] += 1
-        objs = []
-        for i, cnt in enumerate(counts):
-            if cnt == 0:
-                continue
-            x0 = mn + i * bin_width
-            x1 = x0 + bin_width
-            rect = Rectangle(width=10, height=10, x=0, y=0, creation=creation, z=z,
-                              **style_kw)
-            rect.x.set_onward(creation, lambda t, _a=x0: self.coords_to_point(_a, 0, t)[0])
-            rect.y.set_onward(creation, lambda t, _a=x1, _c=cnt: self.coords_to_point(_a, _c, t)[1])
-            rect.width.set_onward(creation, lambda t, _a=x0, _b=x1:
-                abs(self.coords_to_point(_b, 0, t)[0] - self.coords_to_point(_a, 0, t)[0]))
-            rect.height.set_onward(creation, lambda t, _a=x0, _c=cnt:
-                abs(self.coords_to_point(_a, 0, t)[1] - self.coords_to_point(_a, _c, t)[1]))
-            self._add_plot_obj(rect)
-            objs.append(rect)
-        return VCollection(*objs, creation=creation, z=z)
-
-    def add_color_bar(self, colormap=None, vmin=0, vmax=1, n_segments=20,
-                       width=20, height=None, x_offset=30,
-                       font_size=12, creation=0, z=2):
-        """Add a vertical color bar legend to the right of the axes.
-        Returns a VCollection of rectangles + labels."""
-        if colormap is None:
-            colormap = ['#313695', '#4575b4', '#74add1', '#abd9e9',
-                        '#fee090', '#fdae61', '#f46d43', '#d73027']
-        if height is None:
-            height = self.plot_height
-        bar_x = self.plot_x + self.plot_width + x_offset
-        bar_y = self.plot_y
-        seg_h = height / n_segments
-        objs = []
-        for i in range(n_segments):
-            frac = i / max(n_segments - 1, 1)
-            ci = min(int(frac * (len(colormap) - 1) + 0.5), len(colormap) - 1)
-            color = colormap[ci]
-            ry = bar_y + height - (i + 1) * seg_h
-            rect = Rectangle(width=width, height=seg_h + 0.5, x=bar_x, y=ry,
-                              fill=color, fill_opacity=1, stroke_width=0,
-                              creation=creation, z=z)
-            objs.append(rect)
-        # Labels at bottom and top
-        for val, ly in [(vmin, bar_y + height + font_size + 2),
-                        (vmax, bar_y - 4)]:
-            fmt = f'{val:.1f}' if isinstance(val, float) else str(val)
-            lbl = Text(text=fmt, x=bar_x + width / 2, y=ly,
-                       font_size=font_size, fill='#aaa', stroke_width=0,
-                       text_anchor='middle', creation=creation, z=z + 0.1)
-            objs.append(lbl)
-        coll = VCollection(*objs, creation=creation, z=z)
-        self._add_plot_obj(coll)
-        return coll
-
     def plot_contour(self, func, levels=8, x_samples=40, y_samples=40,
                       creation=0, z=0, **styling_kwargs):
         """Plot contour (level) curves for z = func(x, y).
@@ -2707,61 +2641,6 @@ class Axes(VCollection):
                 y += y_step
             x += x_step
         return VCollection(*objs, creation=creation, z=z)
-
-    def plot_implicit(self, func, x_samples=40, y_samples=40,
-                       creation=0, z=0, **styling_kwargs):
-        """Plot the implicit curve f(x,y) = 0 using marching squares.
-        Returns a Path."""
-        style_kw = {'stroke': '#FF79C6', 'stroke_width': 2, 'fill_opacity': 0} | styling_kwargs
-        x_lo = self.x_min.at_time(creation)
-        x_hi = self.x_max.at_time(creation)
-        y_lo = self.y_min.at_time(creation)
-        y_hi = self.y_max.at_time(creation)
-        dx = (x_hi - x_lo) / max(x_samples - 1, 1)
-        dy = (y_hi - y_lo) / max(y_samples - 1, 1)
-        grid = [[func(x_lo + c * dx, y_lo + r * dy) for c in range(x_samples)]
-                for r in range(y_samples)]
-        segments = []
-        for r in range(y_samples - 1):
-            for c in range(x_samples - 1):
-                v = [grid[r][c], grid[r][c + 1], grid[r + 1][c + 1], grid[r + 1][c]]
-                case = sum(1 << i for i, val in enumerate(v) if val >= 0)
-                if case == 0 or case == 15:
-                    continue
-                cx0, cy0 = x_lo + c * dx, y_lo + r * dy
-                cx1, cy1 = cx0 + dx, cy0 + dy
-                def _interp(va, vb, pa, pb):
-                    t = (0 - va) / (vb - va) if abs(vb - va) > 1e-12 else 0.5
-                    return pa + t * (pb - pa)
-                edges = {
-                    'top': (_interp(v[0], v[1], cx0, cx1), cy0),
-                    'right': (cx1, _interp(v[1], v[2], cy0, cy1)),
-                    'bottom': (_interp(v[3], v[2], cx0, cx1), cy1),
-                    'left': (cx0, _interp(v[0], v[3], cy0, cy1)),
-                }
-                SEGS = {
-                    1: [('left', 'top')], 2: [('top', 'right')],
-                    3: [('left', 'right')], 4: [('right', 'bottom')],
-                    5: [('left', 'bottom'), ('top', 'right')],
-                    6: [('top', 'bottom')], 7: [('left', 'bottom')],
-                    8: [('bottom', 'left')], 9: [('bottom', 'top')],
-                    10: [('left', 'top'), ('right', 'bottom')],
-                    11: [('right', 'bottom')], 12: [('right', 'left')],
-                    13: [('top', 'right')], 14: [('top', 'left')],
-                }
-                for e1, e2 in SEGS.get(case, []):
-                    segments.append((edges[e1], edges[e2]))
-        curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
-        def _d(time, _segs=segments):
-            parts = []
-            for (ax, ay), (bx, by) in _segs:
-                sa = self.coords_to_point(ax, ay, time)
-                sb = self.coords_to_point(bx, by, time)
-                parts.append(f'M{sa[0]:.1f},{sa[1]:.1f}L{sb[0]:.1f},{sb[1]:.1f}')
-            return ''.join(parts)
-        curve.d.set_onward(creation, _d)
-        self._add_plot_obj(curve)
-        return curve
 
     def plot_dot_plot(self, values, stack_spacing=0.3, r=4,
                        creation=0, z=0, **styling_kwargs):

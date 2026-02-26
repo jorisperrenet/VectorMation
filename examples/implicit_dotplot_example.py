@@ -17,13 +17,13 @@ ax1.fadein(0.5, 1.5)
 
 circle_curve = ax1.plot_implicit(
     lambda x, y: x**2 + y**2 - 4,
-    x_samples=40, y_samples=40, stroke='#FF79C6', stroke_width=2.5)
+    num_points=40, stroke='#FF79C6', stroke_width=2.5)
 circle_curve.fadein(1.5, 2.5)
 
 # Also plot an implicit ellipse
 ellipse_curve = ax1.plot_implicit(
     lambda x, y: (x / 2.5)**2 + (y / 1.5)**2 - 1,
-    x_samples=40, y_samples=40, stroke='#83C167', stroke_width=2)
+    num_points=40, stroke='#83C167', stroke_width=2)
 ellipse_curve.fadein(2, 3)
 
 imp_label = Text(text='Implicit Curves', x=225, y=105,

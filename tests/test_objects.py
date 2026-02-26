@@ -1154,7 +1154,7 @@ class TestAxesNewMethods:
 
     def test_plot_implicit(self):
         ax = Axes(x_range=(-2, 2), y_range=(-2, 2), plot_width=300, plot_height=300)
-        curve = ax.plot_implicit(lambda x, y: x**2 + y**2 - 1, x_samples=20, y_samples=20)
+        curve = ax.plot_implicit(lambda x, y: x**2 + y**2 - 1, num_points=20)
         assert isinstance(curve, Path)
         d = curve.d.at_time(0)
         assert 'M' in d
