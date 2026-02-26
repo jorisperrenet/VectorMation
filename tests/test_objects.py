@@ -4891,3 +4891,113 @@ class TestPolygonOffset:
         p = Polygon((0, 0), (100, 0), (50, 100), closed=True)
         off = p.offset(5)
         assert off.closed
+
+
+class TestGetBounds:
+    def test_basic(self):
+        r = Rectangle(width=100, height=50, x=200, y=300)
+        b = r.get_bounds()
+        assert b['width'] == 100
+        assert b['height'] == 50
+        assert b['left'] == 200
+        assert b['right'] == 300
+        assert b['top'] == 300
+        assert b['bottom'] == 350
+
+    def test_center(self):
+        r = Rectangle(width=100, height=100, x=0, y=0)
+        b = r.get_bounds()
+        assert b['center'] == (50, 50)
+
+
+class TestStaggerScaleRotate:
+    def test_stagger_scale(self):
+        objs = VCollection(Circle(r=20, cx=100), Circle(r=20, cx=200), Circle(r=20, cx=300))
+        objs.stagger_scale(start=0, end=2, target_scale=2)
+        svg = objs.to_svg(0.5)
+        assert svg
+
+    def test_stagger_rotate(self):
+        objs = VCollection(Rectangle(width=50, height=50, x=100, y=100),
+                           Rectangle(width=50, height=50, x=200, y=100))
+        objs.stagger_rotate(start=0, end=2, degrees=180)
+        svg = objs.to_svg(1)
+        assert svg
+
+
+class TestPolygonFromSvgPath:
+    def test_basic(self):
+        p = Polygon.from_svg_path("M 0 0 L 100 0 L 100 100 L 0 100 Z")
+        assert len(p.vertices) == 4
+
+    def test_relative(self):
+        p = Polygon.from_svg_path("m 0 0 l 100 0 l 0 100 l -100 0")
+        assert len(p.vertices) == 4
+
+    def test_empty_path(self):
+        p = Polygon.from_svg_path("")
+        assert len(p.vertices) == 1  # fallback single vertex at (0,0)
+
+    def test_coordinates_absolute(self):
+        p = Polygon.from_svg_path("M 10 20 L 30 40 L 50 60 Z")
+        pts = p.get_vertices()
+        assert abs(pts[0][0] - 10) < 0.01
+        assert abs(pts[0][1] - 20) < 0.01
+        assert abs(pts[1][0] - 30) < 0.01
+        assert abs(pts[2][1] - 60) < 0.01
+
+    def test_coordinates_relative(self):
+        p = Polygon.from_svg_path("m 10 20 l 5 0 l 0 5")
+        pts = p.get_vertices()
+        assert abs(pts[0][0] - 10) < 0.01
+        assert abs(pts[1][0] - 15) < 0.01
+        assert abs(pts[2][1] - 25) < 0.01
+
+
+class TestTextFitToBox:
+    def test_fit_shrinks(self):
+        t = Text(text="Hello World", font_size=48)
+        t.fit_to_box(max_width=50)
+        fs = t.font_size.at_time(0)
+        assert fs < 48
+
+    def test_fit_grows(self):
+        t = Text(text="Hi", font_size=10)
+        t.fit_to_box(max_width=500)
+        fs = t.font_size.at_time(0)
+        assert fs > 10
+
+    def test_max_height_caps(self):
+        t = Text(text="Hi", font_size=10)
+        t.fit_to_box(max_width=5000, max_height=20)
+        fs = t.font_size.at_time(0)
+        assert fs <= 20
+
+    def test_empty_text(self):
+        t = Text(text="", font_size=48)
+        t.fit_to_box(max_width=50)
+        # Should not crash, font_size unchanged
+        assert t.font_size.at_time(0) == 48
+
+    def test_returns_self(self):
+        t = Text(text="Test", font_size=48)
+        result = t.fit_to_box(max_width=100)
+        assert result is t
+
+
+class TestAxesLabeledPoints:
+    def test_add_labeled_points(self):
+        ax = Axes(x_range=(0, 10, 1), y_range=(0, 10, 1))
+        group = ax.add_labeled_points([(1, 2, 'A'), (3, 4, 'B'), (5, 6)])
+        assert len(group.objects) >= 4  # 3 dots + 2 labels
+
+    def test_add_labeled_points_no_labels(self):
+        ax = Axes(x_range=(0, 10, 1), y_range=(0, 10, 1))
+        group = ax.add_labeled_points([(1, 2), (3, 4)])
+        assert len(group.objects) == 2  # 2 dots, no labels
+
+    def test_add_marked_region(self):
+        ax = Axes(x_range=(0, 10, 1), y_range=(0, 10, 1))
+        rect = ax.add_marked_region(2, 5, color='#FF0000')
+        svg = ax.to_svg(0)
+        assert 'rect' in svg.lower() or '<rect' in svg

@@ -1222,6 +1222,45 @@ class Axes(VCollection):
             return dot, lbl
         return dot
 
+    def add_labeled_points(self, points, dot_color='#FF6B6B', dot_radius=6,
+                            font_size=14, creation=0, z=1):
+        """Add multiple labeled dots to the axes.
+
+        points: list of (x, y, label) tuples in math coordinates.
+        Returns VCollection of all dots and labels.
+        """
+        objs = []
+        for item in points:
+            x, y = item[0], item[1]
+            label = item[2] if len(item) > 2 else ''
+            sx, sy = self.coords_to_point(x, y)
+            dot = Dot(cx=sx, cy=sy, r=dot_radius, fill=dot_color,
+                      creation=creation, z=z)
+            objs.append(dot)
+            if label:
+                lbl = Text(text=str(label), x=sx, y=sy - dot_radius - 8,
+                           font_size=font_size, fill='#ddd', stroke_width=0,
+                           text_anchor='middle', creation=creation, z=z)
+                objs.append(lbl)
+        group = VCollection(*objs, creation=creation, z=z)
+        self._add_plot_obj(group)
+        return group
+
+    def add_marked_region(self, x1, x2, color='#FFFF00', opacity=0.15, creation=0, z=0):
+        """Highlight a vertical region on the axes between x1 and x2.
+
+        Returns the Rectangle highlight.
+        """
+        sx1 = self._math_to_svg_x(x1)
+        sx2 = self._math_to_svg_x(x2)
+        rect = Rectangle(
+            width=abs(sx2 - sx1), height=self.plot_height,
+            x=min(sx1, sx2), y=self.plot_y,
+            fill=color, fill_opacity=opacity, stroke_width=0,
+            creation=creation, z=z)
+        self._add_plot_obj(rect)
+        return rect
+
     def add_arrow_annotation(self, x, y, text, direction='up', length=80, buff=10,
                               font_size=20, creation=0, z=5, **styling_kwargs):
         """Add a labeled arrow pointing to a math coordinate.

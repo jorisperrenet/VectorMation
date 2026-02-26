@@ -146,6 +146,39 @@ class Polygon(VObject):
         """Create a Polygon from a list of (x, y) tuples."""
         return cls(*points, **kwargs)
 
+    @classmethod
+    def from_svg_path(cls, path_d, **kwargs):
+        """Create a Polygon from a simple SVG path string (M/L/Z commands only).
+
+        Parses MoveTo (M/m), LineTo (L/l), and ClosePath (Z/z) commands.
+        """
+        import re
+        points = []
+        cx, cy = 0.0, 0.0
+        for cmd, coords_str in re.findall(r'([MmLlZz])\s*([^MmLlZz]*)', path_d):
+            nums = [float(n) for n in re.findall(r'-?[\d.]+', coords_str)]
+            pairs = [(nums[i], nums[i+1]) for i in range(0, len(nums) - 1, 2)]
+            if cmd == 'M':
+                for x, y in pairs:
+                    cx, cy = x, y
+                    points.append((cx, cy))
+            elif cmd == 'm':
+                for x, y in pairs:
+                    cx += x; cy += y
+                    points.append((cx, cy))
+            elif cmd == 'L':
+                for x, y in pairs:
+                    cx, cy = x, y
+                    points.append((cx, cy))
+            elif cmd == 'l':
+                for x, y in pairs:
+                    cx += x; cy += y
+                    points.append((cx, cy))
+            # Z/z: just close, don't add point
+        if not points:
+            return cls((0, 0), **kwargs)
+        return cls(*points, **kwargs)
+
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 
@@ -725,6 +758,25 @@ class Text(VObject):
             parts.append(t)
             cursor = idx + len(word)
         return VCollection(*parts)
+
+    def fit_to_box(self, max_width, max_height=None, time=0):
+        """Adjust font_size so the text fits within the given box dimensions.
+
+        Uses width estimation to find appropriate font size.
+        Returns self for chaining.
+        """
+        text = self.text.at_time(time)
+        if not text:
+            return self
+        current_fs = self.font_size.at_time(time)
+        current_width = self._estimate_width(text, current_fs)
+        if current_width > 0 and max_width > 0:
+            scale = max_width / current_width
+            new_fs = current_fs * scale
+            if max_height is not None:
+                new_fs = min(new_fs, max_height)
+            self.font_size.set_onward(time, new_fs)
+        return self
 
     def to_svg(self, time):
         anchor = f" text-anchor='{self._text_anchor}'" if self._text_anchor else ''

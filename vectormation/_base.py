@@ -171,6 +171,15 @@ class VObject(ABC):  # Vector Object
         }
         return points[edge]
 
+    def get_bounds(self, time=0):
+        """Return a dict with bounding box properties: x, y, width, height, left, right, top, bottom, center."""
+        bx, by, bw, bh = self.bbox(time)
+        return {
+            'x': bx, 'y': by, 'width': bw, 'height': bh,
+            'left': bx, 'right': bx + bw, 'top': by, 'bottom': by + bh,
+            'center': (bx + bw / 2, by + bh / 2),
+        }
+
     def get_left(self, time=0):
         return self.get_edge('left', time)
 
@@ -2761,6 +2770,34 @@ class VCollection:
             t0 = start + i * per_child
             t1 = min(t0 + per_child * 2, end)
             obj.color_wave(start=t0, end=t1, colors=colors, attr=attr, cycles=1)
+        return self
+
+    def stagger_scale(self, start: float = 0, end: float = 1, target_scale=1.5, easing=easings.smooth):
+        """Sequentially scale each child up then back to 1."""
+        n = len(self.objects)
+        if n == 0:
+            return self
+        dur = end - start
+        child_dur = dur / n * 1.5  # overlap
+        step = dur / n
+        for i, obj in enumerate(self.objects):
+            s = start + i * step
+            e = min(s + child_dur, end)
+            obj.pulsate(start=s, end=e, scale_factor=target_scale, easing=easing)
+        return self
+
+    def stagger_rotate(self, start: float = 0, end: float = 1, degrees=360, easing=easings.smooth):
+        """Sequentially rotate each child."""
+        n = len(self.objects)
+        if n == 0:
+            return self
+        dur = end - start
+        child_dur = dur / n * 1.5
+        step = dur / n
+        for i, obj in enumerate(self.objects):
+            s = start + i * step
+            e = min(s + child_dur, end)
+            obj.rotate_by(s, e, degrees, easing=easing)
         return self
 
     def scatter_from(self, cx=None, cy=None, radius=300,
