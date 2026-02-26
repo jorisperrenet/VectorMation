@@ -14,6 +14,7 @@ from vectormation.objects import (
     always_redraw, UP, DOWN, LEFT, RIGHT,
     ZoomedInset, Intersection, Difference, Union, Exclusion,
     ThreeDAxes, WaterfallChart, DonutChart, GanttChart, SankeyDiagram,
+    FunnelChart, TreeMap, GaugeChart, SparkLine,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -856,6 +857,50 @@ class TestAxesNewMethods:
         dc = DonutChart([10, 20, 30])
         assert isinstance(dc, VCollection)
         assert len(dc._sectors) == 3
+
+    def test_funnel_chart(self):
+        stages = [('Visits', 1000), ('Signups', 400), ('Trials', 150), ('Paid', 60)]
+        fc = FunnelChart(stages)
+        assert isinstance(fc, VCollection)
+        assert len(fc) > 0
+        svg = fc.to_svg(0)
+        assert 'Visits' in svg
+        assert 'Paid' in svg
+
+    def test_funnel_chart_empty(self):
+        fc = FunnelChart([])
+        assert len(fc) == 0
+
+    def test_treemap(self):
+        data = [('A', 50), ('B', 30), ('C', 15), ('D', 5)]
+        tm = TreeMap(data)
+        assert isinstance(tm, VCollection)
+        assert len(tm) > 0
+        svg = tm.to_svg(0)
+        assert '<rect' in svg
+
+    def test_treemap_single(self):
+        tm = TreeMap([('Only', 100)])
+        assert len(tm) >= 1
+
+    def test_gauge_chart(self):
+        gc = GaugeChart(72, min_val=0, max_val=100, label='Speed')
+        assert isinstance(gc, VCollection)
+        assert len(gc) > 0
+        svg = gc.to_svg(0)
+        assert '72' in svg
+        assert 'Speed' in svg
+
+    def test_sparkline(self):
+        sl = SparkLine([3, 7, 2, 8, 5, 9, 1])
+        svg = sl.to_svg(0)
+        assert '<path' in svg
+        assert 'M' in svg
+
+    def test_sparkline_endpoint(self):
+        sl = SparkLine([1, 2, 3], show_endpoint=True)
+        svg = sl.to_svg(0)
+        assert '<circle' in svg
 
 
 class TestVCollectionNew:

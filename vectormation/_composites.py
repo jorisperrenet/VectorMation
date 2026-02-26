@@ -5557,6 +5557,286 @@ class SankeyDiagram(VCollection):
         super().__init__(*objects, creation=creation, z=z)
 
 
+class FunnelChart(VCollection):
+    """Funnel chart showing progressive narrowing stages.
+
+    stages: list of (label, value) tuples, ordered top-to-bottom.
+    """
+    def __init__(self, stages, x=100, y=100, width=600, height=500,
+                 colors=None, font_size=18, gap=4, creation=0, z=0):
+        if not stages:
+            super().__init__(creation=creation, z=z)
+            return
+        if colors is None:
+            colors = ['#58C4DD', '#83C167', '#FF6B6B', '#FFFF00',
+                      '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C']
+        n = len(stages)
+        max_val = max(v for _, v in stages) or 1
+        row_h = (height - (n - 1) * gap) / n
+        cx = x + width / 2
+        objects = []
+        for i, (label, val) in enumerate(stages):
+            top_w = width if i == 0 else width * stages[i - 1][1] / max_val
+            bot_w = width * val / max_val
+            ty = y + i * (row_h + gap)
+            by = ty + row_h
+            pts = [(cx - top_w / 2, ty), (cx + top_w / 2, ty),
+                   (cx + bot_w / 2, by), (cx - bot_w / 2, by)]
+            color = colors[i % len(colors)]
+            trap = Polygon(*pts, fill=color, fill_opacity=0.85, stroke=color,
+                           stroke_width=1, creation=creation, z=z)
+            objects.append(trap)
+            lbl = Text(text=f'{label} ({val})', x=cx, y=ty + row_h / 2 + font_size * 0.35,
+                       font_size=font_size, fill='#fff', stroke_width=0,
+                       text_anchor='middle', creation=creation, z=z + 0.1)
+            objects.append(lbl)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class TreeMap(VCollection):
+    """Treemap visualization using squarified layout.
+
+    data: list of (label, value) tuples.
+    """
+    def __init__(self, data, x=100, y=100, width=800, height=600,
+                 colors=None, font_size=14, padding=2, creation=0, z=0):
+        if not data:
+            super().__init__(creation=creation, z=z)
+            return
+        if colors is None:
+            colors = ['#58C4DD', '#83C167', '#FF6B6B', '#FFFF00',
+                      '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C']
+        total = sum(v for _, v in data) or 1
+        # Sort descending by value for squarified layout
+        sorted_data = sorted(enumerate(data), key=lambda iv: iv[1][1], reverse=True)
+        rects = self._squarify(sorted_data, x, y, width, height, total)
+        objects = []
+        for orig_idx, (label, val), (rx, ry, rw, rh) in rects:
+            color = colors[orig_idx % len(colors)]
+            rect = Rectangle(width=max(rw - padding, 1), height=max(rh - padding, 1),
+                              x=rx + padding / 2, y=ry + padding / 2,
+                              fill=color, fill_opacity=0.8, stroke='#222', stroke_width=1,
+                              creation=creation, z=z)
+            objects.append(rect)
+            if rw > font_size * 2 and rh > font_size * 1.5:
+                lbl = Text(text=str(label), x=rx + rw / 2, y=ry + rh / 2 + font_size * 0.35,
+                           font_size=min(font_size, rw / max(len(str(label)), 1) * 1.5),
+                           fill='#fff', stroke_width=0, text_anchor='middle',
+                           creation=creation, z=z + 0.1)
+                objects.append(lbl)
+        super().__init__(*objects, creation=creation, z=z)
+
+    @staticmethod
+    def _squarify(items, x, y, w, h, total):
+        """Squarified treemap layout. Returns list of (orig_idx, (label, val), (rx, ry, rw, rh))."""
+        if not items:
+            return []
+        if len(items) == 1:
+            idx, (label, val) = items[0]
+            return [(idx, (label, val), (x, y, w, h))]
+        area = w * h
+        result = []
+        remaining = list(items)
+        cx, cy, cw, ch = x, y, w, h
+        while remaining:
+            if len(remaining) == 1:
+                idx, (label, val) = remaining[0]
+                result.append((idx, (label, val), (cx, cy, cw, ch)))
+                break
+            # Lay out along shorter side
+            short = min(cw, ch)
+            row = [remaining.pop(0)]
+            row_area = row[0][1][1] / total * area
+
+            def _worst(row_items, side, r_area):
+                if side <= 0 or r_area <= 0:
+                    return float('inf')
+                s2 = side * side
+                return max(max(s2 * r_area / (itm[1][1] / total * area) ** 2,
+                               (itm[1][1] / total * area) ** 2 / (s2 * r_area))
+                           for itm in row_items)
+
+            while remaining:
+                candidate = remaining[0]
+                new_area = row_area + candidate[1][1] / total * area
+                if _worst(row + [candidate], short, new_area) <= _worst(row, short, row_area):
+                    row.append(remaining.pop(0))
+                    row_area = new_area
+                else:
+                    break
+            # Place row
+            if cw <= ch:  # horizontal strip at top
+                strip_h = row_area / max(cw, 1)
+                rx = cx
+                for idx, (label, val) in row:
+                    rw = (val / total * area) / max(strip_h, 1)
+                    result.append((idx, (label, val), (rx, cy, rw, strip_h)))
+                    rx += rw
+                cy += strip_h
+                ch -= strip_h
+            else:  # vertical strip at left
+                strip_w = row_area / max(ch, 1)
+                ry = cy
+                for idx, (label, val) in row:
+                    rh = (val / total * area) / max(strip_w, 1)
+                    result.append((idx, (label, val), (cx, ry, strip_w, rh)))
+                    ry += rh
+                cx += strip_w
+                cw -= strip_w
+        return result
+
+
+class GaugeChart(VCollection):
+    """Speedometer / gauge chart.
+
+    value: current value.  min_val/max_val: gauge range.
+    """
+    def __init__(self, value, min_val=0, max_val=100, x=960, y=540,
+                 radius=200, start_angle=225, end_angle=-45,
+                 colors=None, label=None, font_size=36,
+                 tick_count=5, creation=0, z=0):
+        if colors is None:
+            colors = [('#83C167', 0.0), ('#FFFF00', 0.5), ('#FF6B6B', 1.0)]
+        objects = []
+        # Background arc segments (colored bands)
+        n_segments = 60
+        sa_rad = math.radians(start_angle)
+        ea_rad = math.radians(end_angle)
+        if ea_rad > sa_rad:
+            ea_rad -= 2 * math.pi
+        total_sweep = ea_rad - sa_rad
+        for i in range(n_segments):
+            frac = i / n_segments
+            a0 = sa_rad + total_sweep * frac
+            a1 = sa_rad + total_sweep * (frac + 1 / n_segments)
+            # Interpolate color
+            seg_color = GaugeChart._interp_gauge_color(frac, colors)
+            arc = Arc(cx=x, cy=y, r=radius, start_angle=math.degrees(a0),
+                      end_angle=math.degrees(a1), stroke=seg_color,
+                      stroke_width=20, creation=creation, z=z)
+            objects.append(arc)
+        # Tick marks + labels
+        for i in range(tick_count + 1):
+            frac = i / tick_count
+            angle = sa_rad + total_sweep * frac
+            tick_val = min_val + (max_val - min_val) * frac
+            ix = x + (radius + 18) * math.cos(angle)
+            iy = y - (radius + 18) * math.sin(angle)
+            ox = x + (radius - 15) * math.cos(angle)
+            oy = y - (radius - 15) * math.sin(angle)
+            tick = Line(x1=ox, y1=oy, x2=ix, y2=iy, stroke='#888',
+                        stroke_width=1.5, creation=creation, z=z + 0.1)
+            objects.append(tick)
+            lx = x + (radius + 35) * math.cos(angle)
+            ly = y - (radius + 35) * math.sin(angle)
+            tlbl = Text(text=f'{tick_val:.0f}', x=lx, y=ly + font_size * 0.2,
+                        font_size=font_size * 0.4, fill='#aaa', stroke_width=0,
+                        text_anchor='middle', creation=creation, z=z + 0.1)
+            objects.append(tlbl)
+        # Needle
+        val_frac = max(0, min(1, (value - min_val) / max(max_val - min_val, 1)))
+        needle_angle = sa_rad + total_sweep * val_frac
+        nx = x + (radius - 30) * math.cos(needle_angle)
+        ny = y - (radius - 30) * math.sin(needle_angle)
+        needle = Line(x1=x, y1=y, x2=nx, y2=ny, stroke='#fff',
+                      stroke_width=3, creation=creation, z=z + 0.2)
+        objects.append(needle)
+        # Center dot
+        center = Dot(cx=x, cy=y, r=8, fill='#fff', stroke_width=0,
+                     creation=creation, z=z + 0.3)
+        objects.append(center)
+        # Value label
+        val_lbl = Text(text=f'{value:.0f}', x=x, y=y + radius * 0.4,
+                       font_size=font_size, fill='#fff', stroke_width=0,
+                       text_anchor='middle', creation=creation, z=z + 0.3)
+        objects.append(val_lbl)
+        if label:
+            sub_lbl = Text(text=str(label), x=x, y=y + radius * 0.4 + font_size * 1.2,
+                           font_size=font_size * 0.5, fill='#aaa', stroke_width=0,
+                           text_anchor='middle', creation=creation, z=z + 0.3)
+            objects.append(sub_lbl)
+        super().__init__(*objects, creation=creation, z=z)
+
+    @staticmethod
+    def _interp_gauge_color(frac, colors):
+        """Interpolate gauge color from color stops list [(color, position), ...]."""
+        if frac <= colors[0][1]:
+            return colors[0][0]
+        if frac >= colors[-1][1]:
+            return colors[-1][0]
+        for i in range(len(colors) - 1):
+            c0, p0 = colors[i]
+            c1, p1 = colors[i + 1]
+            if p0 <= frac <= p1:
+                t = (frac - p0) / max(p1 - p0, 1e-9)
+                r0, g0, b0 = int(c0[1:3], 16), int(c0[3:5], 16), int(c0[5:7], 16)
+                r1, g1, b1 = int(c1[1:3], 16), int(c1[3:5], 16), int(c1[5:7], 16)
+                r = int(r0 + (r1 - r0) * t)
+                g = int(g0 + (g1 - g0) * t)
+                b = int(b0 + (b1 - b0) * t)
+                return f'#{r:02x}{g:02x}{b:02x}'
+        return colors[-1][0]
+
+
+class SparkLine(VObject):
+    """Minimal inline chart (sparkline) rendered as a single SVG path.
+
+    data: list of numeric values.
+    """
+    def __init__(self, data, x=100, y=100, width=120, height=30,
+                 stroke='#58C4DD', stroke_width=1.5,
+                 show_endpoint=False, creation=0, z=0, **styling_kwargs):
+        kw = {'stroke': stroke, 'stroke_width': stroke_width,
+              'fill_opacity': 0} | styling_kwargs
+        super().__init__(creation=creation, z=z)
+        self.styling = style.Styling(kw, creation=creation, stroke='#58C4DD')
+        self._data = list(data)
+        self._x = x
+        self._y = y
+        self._width = width
+        self._height = height
+        self._show_endpoint = show_endpoint
+        self._endpoint_r = 2.5
+
+    def _extra_attrs(self):
+        return []
+
+    def path(self, time):
+        data = self._data
+        if len(data) < 2:
+            return ''
+        mn, mx = min(data), max(data)
+        rng = mx - mn if mx != mn else 1
+        n = len(data)
+        dx = self._width / (n - 1)
+        pts = []
+        for i, v in enumerate(data):
+            px = self._x + i * dx
+            py = self._y + self._height - (v - mn) / rng * self._height
+            pts.append(f'{px:.1f},{py:.1f}')
+        return 'M' + 'L'.join(pts)
+
+    def snap_points(self, time):
+        return [(self._x, self._y), (self._x + self._width, self._y + self._height)]
+
+    def to_svg(self, time):
+        d = self.path(time)
+        if not d:
+            return ''
+        s = self.styling.svg_style(time)
+        svg = f'<path d="{d}"{s}/>'
+        if self._show_endpoint and len(self._data) >= 2:
+            mn, mx = min(self._data), max(self._data)
+            rng = mx - mn if mx != mn else 1
+            last = self._data[-1]
+            ex = self._x + self._width
+            ey = self._y + self._height - (last - mn) / rng * self._height
+            sc = self.styling.stroke.time_func(time)
+            color = f'rgb({int(sc[0])},{int(sc[1])},{int(sc[2])})' if isinstance(sc, tuple) else str(sc)
+            svg += f'<circle cx="{ex:.1f}" cy="{ey:.1f}" r="{self._endpoint_r}" fill="{color}"/>'
+        return svg
+
+
 def parse_args():
     """Parse common CLI arguments for VectorMation scripts."""
     import argparse

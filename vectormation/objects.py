@@ -54,6 +54,7 @@ from vectormation._composites import (
     Callout, DimensionLine, Tooltip, Tree,
     Stamp, TimelineBar, Legend, RadarChart, ProgressBar, FlowChart,
     WaterfallChart, GanttChart, SankeyDiagram,
+    FunnelChart, TreeMap, GaugeChart, SparkLine,
     from_svg, from_svg_file, always_redraw, parse_args,
     _parse_inline_style,
 )
