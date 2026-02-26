@@ -630,7 +630,7 @@ class Axes(VCollection):
             line.p2.set_onward(creation,
                 lambda t: self.coords_to_point(0, self.y_max.at_time(t), t))
         self._add_plot_obj(line)
-        return line
+        return self
 
     def set_x_range(self, start_time, end_time, x_range, **kwargs):
         """Animate the x-axis range to new bounds."""
@@ -1127,11 +1127,11 @@ class Axes(VCollection):
                         creation=creation, z=z)
         objs.append(bg)
         for i, (label, color) in enumerate(entries):
-            ry = by + 8 + i * row_h
+            row_y = by + 8 + i * row_h
             swatch = Rectangle(width=swatch_w, height=swatch_w,
-                                x=bx + 8, y=ry, fill=color, stroke_width=0,
+                                x=bx + 8, y=row_y, fill=color, stroke_width=0,
                                 creation=creation, z=z + 1)
-            lbl = Text(text=label, x=bx + 8 + swatch_w + 8, y=ry + font_size - 2,
+            lbl = Text(text=label, x=bx + 8 + swatch_w + 8, y=row_y + font_size - 2,
                         font_size=font_size, fill='#ddd', stroke_width=0,
                         creation=creation, z=z + 1)
             objs.extend([swatch, lbl])
@@ -4465,8 +4465,8 @@ def from_svg(element, **styles):
             obj.shift(dx=tx, dy=ty, start_time=0)
         return obj
     elif tag == 'rect':
-        rx, ry = g('x', 0) + tx, g('y', 0) + ty
-        return Rectangle(width=g('width'), height=g('height'), x=rx, y=ry,
+        rect_x, rect_y = g('x', 0) + tx, g('y', 0) + ty
+        return Rectangle(width=g('width'), height=g('height'), x=rect_x, y=rect_y,
                          **_merged_attrs('width', 'height', 'x', 'y', 'transform'))
     elif tag == 'circle':
         return Circle(r=g('r', 100), cx=g('cx') + tx, cy=g('cy') + ty,

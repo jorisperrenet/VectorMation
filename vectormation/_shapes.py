@@ -843,27 +843,25 @@ class Path(VObject):
         short = d[:30] + '...' if len(d) > 30 else d
         return f"Path(d='{short}')"
 
-    def get_length(self, time=0):
-        """Return the total length of the path."""
+    @staticmethod
+    def _parse_path_lazy(d):
         try:
             from svgpathtools import parse_path
         except ImportError:
-            raise ImportError("svgpathtools is required for get_length")
+            raise ImportError("svgpathtools is required for path operations")
+        return parse_path(d)
+
+    def get_length(self, time=0):
+        """Return the total length of the path."""
         d = self.d.at_time(time)
-        if not d:
-            return 0.0
-        return parse_path(d).length()
+        return self._parse_path_lazy(d).length() if d else 0.0
 
     def point_from_proportion(self, proportion, time=0):
         """Return (x, y) at a proportional distance along the path (0-1)."""
-        try:
-            from svgpathtools import parse_path
-        except ImportError:
-            raise ImportError("svgpathtools is required for point_from_proportion")
         d = self.d.at_time(time)
         if not d:
             return (0, 0)
-        parsed = parse_path(d)
+        parsed = self._parse_path_lazy(d)
         total = parsed.length()
         if total == 0:
             pt = parsed.point(0)

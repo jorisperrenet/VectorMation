@@ -973,75 +973,63 @@ class VObject(ABC):  # Vector Object
             self._hide_from(end)
         return self
 
-    def zoom_in(self, start: float = 0, end: float = 1, start_scale=3,
-                 change_existence=True, easing=easings.smooth):
-        """Zoom in: start large and transparent, end at normal size and opacity."""
+    def _zoom_anim(self, start, end, from_scale, to_scale, fade_in, change_existence, easing):
+        """Shared helper for zoom_in / zoom_out."""
         dur = end - start
         if dur <= 0:
             return self
-        if change_existence:
+        if change_existence and fade_in:
             self._show_from(start)
         self._ensure_scale_origin(start)
-        s = start
-        self.styling.scale_x.set(s, end,
-            lambda t, _s=s, _d=dur, _ss=start_scale: _ss + (1 - _ss) * easing((t - _s) / _d), stay=True)
-        self.styling.scale_y.set(s, end,
-            lambda t, _s=s, _d=dur, _ss=start_scale: _ss + (1 - _ss) * easing((t - _s) / _d), stay=True)
-        target_op = self.styling.fill_opacity.at_time(start)
-        self.styling.fill_opacity.set(s, end,
-            lambda t, _s=s, _d=dur, _to=target_op: _to * easing((t - _s) / _d), stay=True)
+        s, fs, ts = start, from_scale, to_scale
+        scale_fn = lambda t, _s=s, _d=dur, _fs=fs, _ts=ts: _fs + (_ts - _fs) * easing((t - _s) / _d)
+        self.styling.scale_x.set(s, end, scale_fn, stay=True)
+        self.styling.scale_y.set(s, end, scale_fn, stay=True)
+        base_op = self.styling.fill_opacity.at_time(start)
+        if fade_in:
+            self.styling.fill_opacity.set(s, end,
+                lambda t, _s=s, _d=dur, _bo=base_op: _bo * easing((t - _s) / _d), stay=True)
+        else:
+            self.styling.fill_opacity.set(s, end,
+                lambda t, _s=s, _d=dur, _bo=base_op: _bo * (1 - easing((t - _s) / _d)), stay=True)
+        if change_existence and not fade_in:
+            self._hide_from(end)
         return self
+
+    def zoom_in(self, start: float = 0, end: float = 1, start_scale=3,
+                 change_existence=True, easing=easings.smooth):
+        """Zoom in: start large and transparent, end at normal size and opacity."""
+        return self._zoom_anim(start, end, start_scale, 1, True, change_existence, easing)
 
     def zoom_out(self, start: float = 0, end: float = 1, end_scale=3,
                   change_existence=True, easing=easings.smooth):
         """Zoom out: grow large while fading out."""
+        return self._zoom_anim(start, end, 1, end_scale, False, change_existence, easing)
+
+    def _scale_from_to_point(self, px, py, start, end, scale_func, change_existence, show_at_start, easing):
+        """Shared helper for grow_from_point / shrink_to_point."""
+        if change_existence:
+            (self._show_from if show_at_start else self._hide_from)(start if show_at_start else end)
         dur = end - start
         if dur <= 0:
             return self
-        self._ensure_scale_origin(start)
         s = start
-        self.styling.scale_x.set(s, end,
-            lambda t, _s=s, _d=dur, _es=end_scale: 1 + (_es - 1) * easing((t - _s) / _d), stay=True)
-        self.styling.scale_y.set(s, end,
-            lambda t, _s=s, _d=dur, _es=end_scale: 1 + (_es - 1) * easing((t - _s) / _d), stay=True)
-        cur_op = self.styling.fill_opacity.at_time(start)
-        self.styling.fill_opacity.set(s, end,
-            lambda t, _s=s, _d=dur, _co=cur_op: _co * (1 - easing((t - _s) / _d)), stay=True)
-        if change_existence:
-            self._hide_from(end)
+        self._ensure_scale_origin(start)
+        self.styling._scale_origin = (px, py)
+        scale = lambda t, _s=s, _d=dur: scale_func(easing((t - _s) / _d))
+        self.styling.scale_x.set(s, end, scale, stay=True)
+        self.styling.scale_y.set(s, end, scale, stay=True)
         return self
 
     def grow_from_point(self, px, py, start: float = 0, end: float = 1,
                          change_existence=True, easing=easings.smooth):
         """Grow from a specific point (px, py) using scale transform."""
-        if change_existence:
-            self._show_from(start)
-        dur = end - start
-        if dur <= 0:
-            return self
-        s = start
-        self._ensure_scale_origin(start)
-        self.styling._scale_origin = (px, py)
-        scale = lambda t, _s=s, _d=dur: easing((t - _s) / _d)
-        self.styling.scale_x.set(s, end, scale, stay=True)
-        self.styling.scale_y.set(s, end, scale, stay=True)
-        return self
+        return self._scale_from_to_point(px, py, start, end, lambda p: p, change_existence, True, easing)
 
     def shrink_to_point(self, px, py, start: float = 0, end: float = 1,
                          change_existence=True, easing=easings.smooth):
         """Shrink to a specific point (px, py) using scale transform. Opposite of grow_from_point."""
-        if change_existence:
-            self._hide_from(end)
-        dur = end - start
-        if dur <= 0:
-            return self
-        s = start
-        self._ensure_scale_origin(start)
-        self.styling._scale_origin = (px, py)
-        scale = lambda t, _s=s, _d=dur: 1 - easing((t - _s) / _d)
-        self.styling.scale_x.set(s, end, scale, stay=True)
-        self.styling.scale_y.set(s, end, scale, stay=True)
-        return self
+        return self._scale_from_to_point(px, py, start, end, lambda p: 1 - p, change_existence, False, easing)
 
     def flip(self, axis='horizontal', start: float = 0, end: float = 0.5, easing=easings.smooth):
         """Quick 3D-like flip by animating scaleX or scaleY to -1 and back."""
