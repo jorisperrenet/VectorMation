@@ -369,6 +369,10 @@ class Text(VObject):
         w = self._estimate_width(self.text.at_time(time), fs)
         return (self._text_left(x, w), y - fs, w, fs)
 
+    def get_text(self, time=0):
+        """Return the text string at the given time."""
+        return self.text.at_time(time)
+
     def __repr__(self):
         t = self.text.at_time(0)
         return f'Text({t!r})' if len(t) <= 20 else f'Text({t[:17]!r}...)'

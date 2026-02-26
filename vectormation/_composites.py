@@ -3085,6 +3085,20 @@ class Axes(VCollection):
         self._add_plot_obj(dyn)
         return dyn
 
+    def get_x_axis_label(self):
+        """Return the x-axis label object, or None if no label was set."""
+        for lbl in self._axis_labels:
+            if hasattr(lbl, 'x') and lbl.x.at_time(0) > self.plot_x + self.plot_width:
+                return lbl
+        return self._axis_labels[0] if len(self._axis_labels) >= 1 else None
+
+    def get_y_axis_label(self):
+        """Return the y-axis label object, or None if no label was set."""
+        for lbl in self._axis_labels:
+            if hasattr(lbl, 'y') and lbl.y.at_time(0) < self.plot_y:
+                return lbl
+        return self._axis_labels[1] if len(self._axis_labels) >= 2 else None
+
     def __repr__(self):
         xn, xx = self.x_min.at_time(0), self.x_max.at_time(0)
         if self.y_min is not None:
@@ -3120,6 +3134,10 @@ class Graph(Axes):
             self.get_graph_label(func, label, x_val=label_x_val,
                                 direction=label_direction,
                                 fill=curve_style['stroke'], creation=creation, z=z)
+
+    def __repr__(self):
+        xn, xx = self.x_min.at_time(0), self.x_max.at_time(0)
+        return f'Graph(x=[{xn:.1f}, {xx:.1f}])'
 
 
 class NumberPlane(VCollection):
@@ -3806,6 +3824,9 @@ class PieChart(VCollection):
         self.values = values
         self._cx, self._cy = cx, cy
 
+    def __repr__(self):
+        return f'PieChart({len(self.values)} sectors)'
+
     def highlight_sector(self, index, start=0, end=1, pull_distance=30, easing=easings.there_and_back):
         """Pull out a sector from the pie to highlight it."""
         if index < 0 or index >= len(self._sectors):
@@ -3933,6 +3954,9 @@ class BarChart(VCollection):
         self._bars = bars
         self._height = height
         self._y = y
+
+    def __repr__(self):
+        return f'BarChart({self.bar_count} bars)'
 
     def animate_values(self, new_values, start=0, end=1, easing=easings.smooth):
         """Animate bars to new values over [start, end]."""
@@ -4766,6 +4790,10 @@ class Code(VCollection):
         self._line_height = line_height
         self._bg_width = bg_width
         self._num_lines = len(lines)
+        self._language = language
+
+    def __repr__(self):
+        return f'Code({self._num_lines} lines, lang={self._language!r})'
 
     def highlight_lines(self, line_nums, start=0, end=1, color='#FFFF00', opacity=0.15,
                         easing=easings.there_and_back):

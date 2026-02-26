@@ -3762,3 +3762,57 @@ class TestCanvasGetAllObjects:
         objs = anim.get_all_objects()
         # Background should not be in the list
         assert anim.background not in objs
+
+
+class TestTextGetText:
+    def test_get_text_static(self):
+        t = Text(text='hello', x=0, y=0)
+        assert t.get_text() == 'hello'
+
+    def test_get_text_animated(self):
+        t = Text(text='before', x=0, y=0)
+        t.text.set_onward(1, 'after')
+        assert t.get_text(0) == 'before'
+        assert t.get_text(1) == 'after'
+
+
+class TestAxesLabelAccess:
+    def test_get_x_axis_label(self):
+        ax = Axes(x_range=[-3, 3], y_range=[-2, 2], x_label='X')
+        lbl = ax.get_x_axis_label()
+        assert lbl is not None
+
+    def test_get_y_axis_label(self):
+        ax = Axes(x_range=[-3, 3], y_range=[-2, 2], y_label='Y')
+        lbl = ax.get_y_axis_label()
+        assert lbl is not None
+
+    def test_no_label_returns_none(self):
+        ax = Axes(x_range=[-3, 3], y_range=[-2, 2])
+        assert ax.get_x_axis_label() is None
+        assert ax.get_y_axis_label() is None
+
+
+class TestMoreCompositeRepr:
+    def test_graph_repr(self):
+        g = Graph(lambda x: x**2, x_range=[-2, 2])
+        r = repr(g)
+        assert 'Graph' in r
+        assert '-2.0' in r
+        assert '2.0' in r
+
+    def test_piechart_repr(self):
+        pc = PieChart([30, 40, 30])
+        assert repr(pc) == 'PieChart(3 sectors)'
+
+    def test_barchart_repr(self):
+        bc = BarChart([10, 20, 30])
+        assert repr(bc) == 'BarChart(3 bars)'
+
+    def test_code_repr(self):
+        c = Code('x = 1\ny = 2', language='python')
+        assert repr(c) == "Code(2 lines, lang='python')"
+
+    def test_code_stores_language(self):
+        c = Code('fn main() {}', language='rust')
+        assert c._language == 'rust'
