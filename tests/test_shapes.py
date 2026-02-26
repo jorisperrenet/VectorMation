@@ -1324,3 +1324,97 @@ class TestMatchWidthHeight:
         _, _, cw, _ = c.bbox(0)
         _, _, rw, _ = r.bbox(0)
         assert cw == pytest.approx(rw, abs=1)
+
+
+class TestShapePropertySetters:
+    def test_circle_set_radius(self):
+        c = Circle(r=50)
+        c.set_radius(100, start=0, end=1)
+        r_mid = c.r.at_time(0.5)
+        assert 50 < r_mid < 100
+
+    def test_circle_set_radius_instant(self):
+        c = Circle(r=50)
+        c.set_radius(100, start=0)
+        assert c.r.at_time(0) == 100
+
+    def test_circle_set_radius_returns_self(self):
+        c = Circle(r=50)
+        result = c.set_radius(100, start=0)
+        assert result is c
+
+    def test_ellipse_set_rx_ry(self):
+        e = Ellipse(rx=50, ry=30)
+        e.set_rx(80, start=0, end=1)
+        e.set_ry(60, start=0, end=1)
+        assert e.rx.at_time(1) == 80
+        assert e.ry.at_time(1) == 60
+
+    def test_ellipse_set_rx_instant(self):
+        e = Ellipse(rx=50, ry=30)
+        e.set_rx(80, start=0)
+        assert e.rx.at_time(0) == 80
+
+    def test_ellipse_set_ry_instant(self):
+        e = Ellipse(rx=50, ry=30)
+        e.set_ry(60, start=0)
+        assert e.ry.at_time(0) == 60
+
+    def test_ellipse_set_rx_returns_self(self):
+        e = Ellipse(rx=50, ry=30)
+        assert e.set_rx(80, start=0) is e
+
+    def test_ellipse_set_ry_returns_self(self):
+        e = Ellipse(rx=50, ry=30)
+        assert e.set_ry(60, start=0) is e
+
+    def test_text_set_font_size(self):
+        t = Text(text='Hello', font_size=24)
+        result = t.set_font_size(48, start=0, end=1)
+        assert result is t
+        assert t.font_size.at_time(1) == 48
+
+    def test_text_set_font_size_instant(self):
+        t = Text(text='Hello', font_size=24)
+        t.set_font_size(48, start=0)
+        assert t.font_size.at_time(0) == 48
+
+    def test_text_set_font_size_midpoint(self):
+        t = Text(text='Hello', font_size=24)
+        t.set_font_size(48, start=0, end=1)
+        mid = t.font_size.at_time(0.5)
+        assert 24 < mid < 48
+
+    def test_rounded_rect_set_corner_radius(self):
+        rr = RoundedRectangle(200, 100, corner_radius=10)
+        result = rr.set_corner_radius(30, start=0, end=1)
+        assert result is rr
+        assert rr.rx.at_time(1) == 30
+        assert rr.ry.at_time(1) == 30
+
+    def test_rounded_rect_set_corner_radius_instant(self):
+        rr = RoundedRectangle(200, 100, corner_radius=10)
+        rr.set_corner_radius(30, start=0)
+        assert rr.rx.at_time(0) == 30
+        assert rr.ry.at_time(0) == 30
+
+    def test_rounded_rect_set_corner_radius_midpoint(self):
+        rr = RoundedRectangle(200, 100, corner_radius=10)
+        rr.set_corner_radius(30, start=0, end=1)
+        mid = rr.rx.at_time(0.5)
+        assert 10 < mid < 30
+
+    def test_dashed_line_set_pattern(self):
+        dl = DashedLine(0, 100, 200, 100)
+        result = dl.set_dash_pattern(10, 5, start=0)
+        assert result is dl
+
+    def test_dashed_line_set_pattern_default_gap(self):
+        dl = DashedLine(0, 100, 200, 100)
+        dl.set_dash_pattern(8, start=0)
+        assert dl.styling.stroke_dasharray.at_time(0) == '8,8'
+
+    def test_dashed_line_set_pattern_custom_gap(self):
+        dl = DashedLine(0, 100, 200, 100)
+        dl.set_dash_pattern(10, 3, start=0)
+        assert dl.styling.stroke_dasharray.at_time(0) == '10,3'

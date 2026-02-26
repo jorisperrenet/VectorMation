@@ -228,6 +228,22 @@ class Ellipse(VObject):
         rad = math.radians(degrees)
         return (cx + rx * math.cos(rad), cy - ry * math.sin(rad))
 
+    def set_rx(self, value, start=0, end=None, easing=easings.smooth):
+        """Animate the x-radius to value."""
+        if end is None:
+            self.rx.set_onward(start, value)
+        else:
+            self.rx.move_to(start, end, value, easing=easing)
+        return self
+
+    def set_ry(self, value, start=0, end=None, easing=easings.smooth):
+        """Animate the y-radius to value."""
+        if end is None:
+            self.ry.set_onward(start, value)
+        else:
+            self.ry.move_to(start, end, value, easing=easing)
+        return self
+
     def __repr__(self):
         cx, cy = self.c.at_time(0)
         return f'Ellipse(rx={self.rx.at_time(0):.0f}, ry={self.ry.at_time(0):.0f}, cx={cx:.0f}, cy={cy:.0f})'
@@ -290,6 +306,12 @@ class Circle(Ellipse):
         return Line(x1=px - tx * half, y1=py - ty * half,
                     x2=px + tx * half, y2=py + ty * half,
                     creation=creation, **line_kwargs)
+
+    def set_radius(self, value, start=0, end=None, easing=easings.smooth):
+        """Animate the radius to value."""
+        self.set_rx(value, start, end, easing)
+        self.set_ry(value, start, end, easing)
+        return self
 
     def intersect_line(self, line, time=0):
         """Return list of intersection points [(x,y), ...] with a Line (0, 1, or 2 points)."""
@@ -750,6 +772,14 @@ class Text(VObject):
         self.text.set_onward(end, full_text)
         return self
 
+    def set_font_size(self, size, start=0, end=None, easing=easings.smooth):
+        """Animate font size to new value."""
+        if end is None:
+            self.font_size.set_onward(start, size)
+        else:
+            self.font_size.move_to(start, end, size, easing=easing)
+        return self
+
     def set_text(self, start: float, end: float, new_text, easing=easings.smooth):
         """Fade out old text and fade in new text over [start, end].
         Opacity goes to 0 at midpoint, text changes, opacity returns."""
@@ -1175,6 +1205,16 @@ class RoundedRectangle(Rectangle):
     def __repr__(self):
         return f'RoundedRectangle({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f}, r={self.rx.at_time(0):.0f})'
 
+    def set_corner_radius(self, value, start=0, end=None, easing=easings.smooth):
+        """Animate corner radius to value."""
+        if end is None:
+            self.rx.set_onward(start, value)
+            self.ry.set_onward(start, value)
+        else:
+            self.rx.move_to(start, end, value, easing=easing)
+            self.ry.move_to(start, end, value, easing=easing)
+        return self
+
 
 class SurroundingRectangle(RoundedRectangle):
     """Rectangle that surrounds a target object with padding.
@@ -1368,6 +1408,14 @@ class DashedLine(Line):
     def __init__(self, x1: float = 0, y1: float = 0, x2: float = 100, y2: float = 100, dash='10,5', creation=0, z=0, **styling_kwargs):
         super().__init__(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z,
                          **({'stroke_dasharray': dash} | styling_kwargs))
+
+    def set_dash_pattern(self, dash, gap=None, start=0, end=None, easing=easings.smooth):
+        """Set the dash pattern. If gap is None, gap = dash."""
+        if gap is None:
+            gap = dash
+        pattern = f'{dash},{gap}'
+        self.styling.stroke_dasharray.set_onward(start, pattern)
+        return self
 
 
 class ScreenRectangle(Rectangle):
