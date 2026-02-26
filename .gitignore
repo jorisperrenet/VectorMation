@@ -1,0 +1,21 @@
+**/__pycache__/
+svgs/
+.coverage
+*.egg-info/
+dist/
+venv/
+manim_reference/
+
+# Docs
+docs/build/
+docs/source/_static/images/*
+docs/source/_static/videos/*
+
+# OS
+.DS_Store
+
+# TeX intermediates
+*.aux
+*.log
+*.dvi
+*.xdv

@@ -1,0 +1,1035 @@
+"""3D objects: ThreeDAxes, Surface, primitives (Line3D, Dot3D, Arrow3D, etc.)."""
+import math
+from xml.sax.saxutils import escape as _xml_escape
+
+import vectormation.easings as easings
+import vectormation.attributes as attributes
+from vectormation._base import VObject, VCollection
+
+# ---------------------------------------------------------------------------
+# Projection helpers
+# ---------------------------------------------------------------------------
+
+def _project_point(x, y, z, phi, theta, scale, cx, cy):
+    """Orthographic projection of (x, y, z) to (svg_x, svg_y, depth).
+
+    *phi*: elevation angle from the z-axis (0 = looking straight down).
+    *theta*: azimuthal rotation in the xy-plane.
+    """
+    sp, cp = math.sin(phi), math.cos(phi)
+    st, ct = math.sin(theta), math.cos(theta)
+    screen_x = -st * x + ct * y
+    screen_y = -cp * ct * x - cp * st * y + sp * z
+    depth = sp * ct * x + sp * st * y + cp * z
+    svg_x = cx + screen_x * scale
+    svg_y = cy - screen_y * scale
+    return svg_x, svg_y, depth
+
+
+def _face_normal(p0, p1, p2):
+    """Cross product of (p1 - p0) x (p2 - p0)."""
+    ax, ay, az = p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]
+    bx, by, bz = p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2]
+    return (ay * bz - az * by, az * bx - ax * bz, ax * by - ay * bx)
+
+
+def _parse_color_to_rgb(color_str):
+    """Parse '#rrggbb' or '#rgb' to (r, g, b) ints."""
+    c = color_str.lstrip('#')
+    if len(c) == 3:
+        c = c[0] * 2 + c[1] * 2 + c[2] * 2
+    return int(c[0:2], 16), int(c[2:4], 16), int(c[4:6], 16)
+
+
+def _shade_color(base_rgb, normal, light_dir):
+    """Lambertian shading returning 'rgb(r,g,b)'."""
+    nx, ny, nz = normal
+    mag = math.sqrt(nx * nx + ny * ny + nz * nz) or 1
+    nx, ny, nz = nx / mag, ny / mag, nz / mag
+    lx, ly, lz = light_dir
+    dot = nx * lx + ny * ly + nz * lz
+    # Ambient + diffuse
+    intensity = max(0.25, min(1.0, 0.3 + 0.7 * abs(dot)))
+    r = min(255, int(base_rgb[0] * intensity))
+    g = min(255, int(base_rgb[1] * intensity))
+    b = min(255, int(base_rgb[2] * intensity))
+    return f'rgb({r},{g},{b})'
+
+
+def _nice_ticks(vmin, vmax, target_count=5):
+    """Generate nicely spaced tick values between vmin and vmax."""
+    span = vmax - vmin
+    if span <= 0:
+        return []
+    rough_step = span / target_count
+    mag = 10 ** math.floor(math.log10(rough_step))
+    step = rough_step
+    for nice in [1, 2, 2.5, 5, 10]:
+        step = nice * mag
+        if span / step <= target_count * 1.5:
+            break
+    start = math.ceil(vmin / step) * step
+    ticks = []
+    val = start
+    while val <= vmax + step * 0.01:
+        if abs(val) < step * 0.01:
+            val = 0.0
+        ticks.append(val)
+        val += step
+    return ticks
+
+
+# ---------------------------------------------------------------------------
+# ThreeDAxes
+# ---------------------------------------------------------------------------
+
+class ThreeDAxes(VCollection):
+    """3D coordinate axes with camera control, ticks, labels, and depth-sorted rendering.
+
+    *phi*: elevation from the z-axis (radians). Default 60° (pi/3).
+    *theta*: azimuthal angle (radians). Default -45° (-pi/4).
+    *scale*: pixels per math unit.
+
+    Camera angles are animatable ``attributes.Real`` values — use
+    ``set_camera_orientation()`` or animate them directly.
+    """
+
+    def __init__(self, x_range=(-3, 3), y_range=(-3, 3), z_range=(-3, 3),
+                 cx=960, cy=540, scale=160,
+                 phi=math.radians(75), theta=math.radians(-30),
+                 show_ticks=True, show_labels=True, show_grid=False,
+                 x_label='x', y_label='y', z_label='z',
+                 creation=0, z=0, **styling_kwargs):
+        self._cx, self._cy = cx, cy
+        self._x_range = x_range
+        self._y_range = y_range
+        self._z_range = z_range
+        self._show_ticks = show_ticks
+        self._show_labels = show_labels
+        self._show_grid = show_grid
+        self._x_label = x_label
+        self._y_label = y_label
+        self._z_label = z_label
+        self._axis_style = {'stroke': '#888', 'stroke_width': 2}
+        self._axis_style.update(styling_kwargs)
+
+        # Animatable camera
+        self.phi = attributes.Real(creation, phi)
+        self.theta = attributes.Real(creation, theta)
+        self._scale_3d = attributes.Real(creation, scale)
+
+        # Registered 3D objects for depth-sorted rendering
+        self._surfaces = []  # Surface objects
+        self._threed_objects = []  # Line3D, Dot3D, Arrow3D, ParametricCurve3D
+
+        # Light direction (normalized, in world space)
+        self._light_dir = (0.5, -0.5, 0.7071)
+
+        super().__init__(creation=creation, z=z)
+
+        # Build LaTeX axis labels as child TexObjects
+        self._label_positions_3d = {}
+        label_offset = 0.4
+        for label_text, pos_3d in [
+            (x_label, (x_range[1] + label_offset, 0, 0)),
+            (y_label, (0, y_range[1] + label_offset, 0)),
+            (z_label, (0, 0, z_range[1] + label_offset)),
+        ]:
+            if label_text:
+                self._label_positions_3d[label_text] = pos_3d
+                self._build_axis_label(label_text, pos_3d, creation)
+
+    @property
+    def last_change(self):
+        lc = max(self.phi.last_change, self.theta.last_change, self._scale_3d.last_change,
+                 self.z.last_change, self.show.last_change)
+        for obj in self.objects:
+            lc = max(lc, obj.last_change)
+        for s in self._surfaces:
+            lc = max(lc, s.last_change)
+        for o in self._threed_objects:
+            lc = max(lc, o.last_change)
+        return lc
+
+    def project_point(self, x, y, z, time=0):
+        """Project 3D math coords to (svg_x, svg_y, depth)."""
+        p = self.phi.at_time(time)
+        t = self.theta.at_time(time)
+        s = self._scale_3d.at_time(time)
+        return _project_point(x, y, z, p, t, s, self._cx, self._cy)
+
+    def coords_to_point(self, x, y, z=0, time=0):
+        """Project 3D coordinates to 2D SVG pixel coordinates (backward compat)."""
+        sx, sy, _ = self.project_point(x, y, z, time)
+        return (sx, sy)
+
+    def set_camera_orientation(self, start, end, phi=None, theta=None, easing=easings.smooth):
+        """Animate camera angles over [start, end]."""
+        if phi is not None:
+            phi0 = self.phi.at_time(start)
+            self.phi.set(start, end, lambda t: phi0 + (phi - phi0) * easing((t - start) / (end - start)))
+        if theta is not None:
+            theta0 = self.theta.at_time(start)
+            self.theta.set(start, end, lambda t: theta0 + (theta - theta0) * easing((t - start) / (end - start)))
+        return self
+
+    def _build_axis_label(self, label_text, pos_3d, creation):
+        """Create a TexObject for an axis label, positioned dynamically."""
+        from vectormation._composites import TexObject
+        tex = f'${label_text}$' if '$' not in label_text else label_text
+        lbl = TexObject(tex, font_size=28, creation=creation,
+                        fill='#aaa', stroke_width=0)
+        _, _, lw, lh = lbl.bbox(creation)
+        # Dynamic positioning based on camera projection
+        def _lbl_x(t, _lw=lw, _pos=pos_3d):
+            sx, _, _ = self.project_point(*_pos, t)
+            return sx - _lw / 2
+        def _lbl_y(t, _lh=lh, _pos=pos_3d):
+            _, sy, _ = self.project_point(*_pos, t)
+            return sy - _lh / 2
+        lbl.x.set_onward(creation, _lbl_x)
+        lbl.y.set_onward(creation, _lbl_y)
+        self.add(lbl)
+
+    def set_light_direction(self, x, y, z):
+        """Set the light direction vector (will be used as-is, should be normalized)."""
+        mag = math.sqrt(x * x + y * y + z * z) or 1
+        self._light_dir = (x / mag, y / mag, z / mag)
+        return self
+
+    def begin_ambient_camera_rotation(self, start=0, end=None, rate=0.1):
+        """Continuously rotate the camera theta at *rate* radians per second.
+
+        If *end* is None, runs until ``last_change`` of other animations + 10s.
+        """
+        theta0 = self.theta.at_time(start)
+        if end is None:
+            self.theta.set_onward(start, lambda t: theta0 + rate * (t - start))
+        else:
+            self.theta.set(start, end, lambda t: theta0 + rate * (t - start))
+        return self
+
+    def add_surface(self, surface):
+        """Register a Surface for depth-sorted rendering."""
+        self._surfaces.append(surface)
+        return self
+
+    def add_3d(self, obj):
+        """Register a 3D primitive (Line3D, Dot3D, etc.) for depth-sorted rendering."""
+        self._threed_objects.append(obj)
+        return self
+
+    def plot_surface(self, func, u_range=None, v_range=None, resolution=(20, 20),
+                     fill_color='#4488ff', checkerboard_colors=None,
+                     stroke_color='#333', stroke_width=0.5, fill_opacity=0.8,
+                     creation=0, z=0):
+        """Create and register a Surface for z = func(x, y).
+
+        If u_range/v_range are not given, defaults to x_range/y_range.
+        """
+        if u_range is None:
+            u_range = self._x_range
+        if v_range is None:
+            v_range = self._y_range
+        surface = Surface(func, u_range, v_range, resolution=resolution,
+                          fill_color=fill_color, checkerboard_colors=checkerboard_colors,
+                          stroke_color=stroke_color, stroke_width=stroke_width,
+                          fill_opacity=fill_opacity, creation=creation, z=z)
+        self.add_surface(surface)
+        return surface
+
+    def get_graph_3d(self, func, x_range=None, plane='xz', num_points=100,
+                     stroke='#FFFF00', stroke_width=2, creation=0, z=0):
+        """Plot a 2D function as a curve in 3D space.
+
+        *func*: callable f(x) -> y.
+        *plane*: which plane to draw in — 'xz' means f maps x->z (y=0),
+                 'xy' means x->y (z=0), 'yz' means y->z (x=0).
+        Returns a ParametricCurve3D added to this axes.
+        """
+        if x_range is None:
+            x_range = self._x_range
+        x0, x1 = x_range
+        def _make_curve_func(p, _x0, _x1, _yr, _f):
+            if p == 'xz':
+                return lambda t: (_x0 + (_x1 - _x0) * t, 0, _f(_x0 + (_x1 - _x0) * t))
+            elif p == 'xy':
+                return lambda t: (_x0 + (_x1 - _x0) * t, _f(_x0 + (_x1 - _x0) * t), 0)
+            else:
+                _y0, _y1 = _yr
+                return lambda t: (0, _y0 + (_y1 - _y0) * t, _f(_y0 + (_y1 - _y0) * t))
+        curve_func = _make_curve_func(plane, x0, x1, self._y_range, func)
+        curve = ParametricCurve3D(curve_func, t_range=(0, 1), num_points=num_points,
+                                  stroke=stroke, stroke_width=stroke_width,
+                                  creation=creation, z=z)
+        self.add_3d(curve)
+        return curve
+
+    def plot_surface_wireframe(self, func, x_steps=20, y_steps=20,
+                               creation=0, z=0, **styling_kwargs):
+        """Plot a z=f(x,y) surface as a wireframe (backward compat).
+
+        Returns a VCollection of projected Lines added to this axes.
+        """
+        line_style = {'stroke': '#4488ff', 'stroke_width': 1}
+        line_style.update(styling_kwargs)
+        wireframe = _WireframeSurface(self, func, self._x_range, self._y_range,
+                                      x_steps, y_steps, line_style, creation=creation, z=z)
+        self._threed_objects.append(wireframe)
+        return wireframe
+
+    def plot_parametric_surface(self, func, u_range=(0, math.tau),
+                                v_range=(-math.pi / 2, math.pi / 2),
+                                u_steps=32, v_steps=16,
+                                creation=0, z=0, **styling_kwargs):
+        """Plot a parametric wireframe surface (backward compat)."""
+        line_style = {'stroke': '#4488ff', 'stroke_width': 1}
+        line_style.update(styling_kwargs)
+        wireframe = _ParametricWireframe(self, func, u_range, v_range,
+                                         u_steps, v_steps, line_style, creation=creation, z=z)
+        self._threed_objects.append(wireframe)
+        return wireframe
+
+    # -- Rendering --
+
+    def _render_axis_line(self, p0, p1, time):
+        """Render a single axis line as SVG."""
+        sx0, sy0, _ = self.project_point(*p0, time)
+        sx1, sy1, _ = self.project_point(*p1, time)
+        stroke = self._axis_style.get('stroke', '#888')
+        sw = self._axis_style.get('stroke_width', 2)
+        return f'<line x1="{sx0:.1f}" y1="{sy0:.1f}" x2="{sx1:.1f}" y2="{sy1:.1f}" stroke="{stroke}" stroke-width="{sw}"/>'
+
+    def _render_arrow_tip(self, p_base, p_tip, time, size=8):
+        """Render a small arrowhead at p_tip."""
+        sx0, sy0, _ = self.project_point(*p_base, time)
+        sx1, sy1, _ = self.project_point(*p_tip, time)
+        dx, dy = sx1 - sx0, sy1 - sy0
+        length = math.sqrt(dx * dx + dy * dy) or 1
+        ux, uy = dx / length, dy / length
+        px, py = -uy, ux
+        # Triangle
+        ax = sx1 - ux * size + px * size * 0.4
+        ay = sy1 - uy * size + py * size * 0.4
+        bx = sx1 - ux * size - px * size * 0.4
+        by = sy1 - uy * size - py * size * 0.4
+        stroke = self._axis_style.get('stroke', '#888')
+        return (f'<polygon points="{sx1:.1f},{sy1:.1f} {ax:.1f},{ay:.1f} {bx:.1f},{by:.1f}" '
+                f'fill="{stroke}" stroke="none"/>')
+
+    def _render_tick_3d(self, pos_3d, perp_3d, value, time, font_size=18):
+        """Render a tick mark and optional label at a 3D position."""
+        sp = self.project_point(*pos_3d, time)
+        tick_len = 4
+        pp = self.project_point(pos_3d[0] + perp_3d[0] * 0.1,
+                                pos_3d[1] + perp_3d[1] * 0.1,
+                                pos_3d[2] + perp_3d[2] * 0.1, time)
+        # Tick direction in screen space
+        tdx, tdy = pp[0] - sp[0], pp[1] - sp[1]
+        tmag = math.sqrt(tdx * tdx + tdy * tdy) or 1
+        tdx, tdy = tdx / tmag * tick_len, tdy / tmag * tick_len
+        stroke = self._axis_style.get('stroke', '#888')
+        parts = [f'<line x1="{sp[0] - tdx:.1f}" y1="{sp[1] - tdy:.1f}" '
+                 f'x2="{sp[0] + tdx:.1f}" y2="{sp[1] + tdy:.1f}" '
+                 f'stroke="{stroke}" stroke-width="1"/>']
+        if self._show_labels:
+            label = f'{value:g}'
+            lx = sp[0] + tdx * 4
+            ly = sp[1] + tdy * 4 + font_size * 0.3
+            parts.append(f'<text x="{lx:.1f}" y="{ly:.1f}" font-size="{font_size}" '
+                         f'fill="#aaa" text-anchor="middle" font-family="sans-serif">'
+                         f'{_xml_escape(label)}</text>')
+        return '\n'.join(parts), sp[2]
+
+    def _render_grid_line(self, p0_3d, p1_3d, time):
+        """Render a grid line in 3D space."""
+        sx0, sy0, d0 = self.project_point(*p0_3d, time)
+        sx1, sy1, d1 = self.project_point(*p1_3d, time)
+        depth = (d0 + d1) / 2
+        return (f'<line x1="{sx0:.1f}" y1="{sy0:.1f}" x2="{sx1:.1f}" y2="{sy1:.1f}" '
+                f'stroke="#444" stroke-width="0.5" opacity="0.4"/>'), depth
+
+    def _render_axes_patches(self, time):
+        """Generate (depth, svg_str) patches for axes, ticks, labels, grid."""
+        patches = []
+        xr, yr, zr = self._x_range, self._y_range, self._z_range
+
+        # Axis lines + arrow tips
+        for axis_start, axis_end in [
+            ((xr[0], 0, 0), (xr[1], 0, 0)),
+            ((0, yr[0], 0), (0, yr[1], 0)),
+            ((0, 0, zr[0]), (0, 0, zr[1])),
+        ]:
+            _, _, d0 = self.project_point(*axis_start, time)
+            _, _, d1 = self.project_point(*axis_end, time)
+            depth = (d0 + d1) / 2
+            svg = self._render_axis_line(axis_start, axis_end, time)
+            svg += '\n' + self._render_arrow_tip(axis_start, axis_end, time)
+            patches.append((depth, svg))
+
+        # Ticks
+        if self._show_ticks:
+            for val in _nice_ticks(xr[0], xr[1]):
+                svg, depth = self._render_tick_3d((val, 0, 0), (0, 1, 0), val, time)
+                patches.append((depth, svg))
+            for val in _nice_ticks(yr[0], yr[1]):
+                svg, depth = self._render_tick_3d((0, val, 0), (1, 0, 0), val, time)
+                patches.append((depth, svg))
+            for val in _nice_ticks(zr[0], zr[1]):
+                svg, depth = self._render_tick_3d((0, 0, val), (1, 0, 0), val, time)
+                patches.append((depth, svg))
+
+        # Grid
+        if self._show_grid:
+            # XY plane at z = z_min
+            z_grid = zr[0]
+            for val in _nice_ticks(xr[0], xr[1]):
+                svg, depth = self._render_grid_line(
+                    (val, yr[0], z_grid), (val, yr[1], z_grid), time)
+                patches.append((depth, svg))
+            for val in _nice_ticks(yr[0], yr[1]):
+                svg, depth = self._render_grid_line(
+                    (xr[0], val, z_grid), (xr[1], val, z_grid), time)
+                patches.append((depth, svg))
+
+        return patches
+
+    def to_svg(self, time):
+        if not self.show.at_time(time):
+            return ''
+
+        # Collect all patches with depth
+        patches = self._render_axes_patches(time)
+
+        # Child VObjects (rendered as flat 2D overlays, e.g. TexObjects)
+        for obj in self.objects:
+            if obj.show.at_time(time):
+                z_val = obj.z.at_time(time) if hasattr(obj, 'z') else 0
+                patches.append((z_val, obj.to_svg(time)))
+
+        # Surface patches
+        for surface in self._surfaces:
+            if surface.show.at_time(time):
+                patches.extend(surface.to_patches(self, time))
+
+        # 3D primitive patches
+        for obj3d in self._threed_objects:
+            if obj3d.show.at_time(time):
+                patches.extend(obj3d.to_patches(self, time))
+
+        # Depth sort: back to front (lowest depth first)
+        patches.sort(key=lambda p: p[0])
+        inner = '\n'.join(svg for _, svg in patches)
+        return f'<g>\n{inner}\n</g>'
+
+    def bbox(self, time=0, start_idx=0, end_idx=None):
+        """Bounding box based on projected axis endpoints."""
+        xr, yr, zr = self._x_range, self._y_range, self._z_range
+        corners = [
+            (xr[0], yr[0], zr[0]), (xr[1], yr[0], zr[0]),
+            (xr[0], yr[1], zr[0]), (xr[1], yr[1], zr[0]),
+            (xr[0], yr[0], zr[1]), (xr[1], yr[0], zr[1]),
+            (xr[0], yr[1], zr[1]), (xr[1], yr[1], zr[1]),
+        ]
+        projected = [self.project_point(*c, time) for c in corners]
+        xs = [p[0] for p in projected]
+        ys = [p[1] for p in projected]
+        xmin, xmax = min(xs), max(xs)
+        ymin, ymax = min(ys), max(ys)
+        return (xmin, ymin, xmax - xmin, ymax - ymin)
+
+
+# ---------------------------------------------------------------------------
+# Surface
+# ---------------------------------------------------------------------------
+
+class Surface(VObject):
+    """Filled surface with depth sorting and Lambertian shading.
+
+    *func*: callable ``(u, v) -> z`` for height-map or ``(u, v) -> (x, y, z)`` for parametric.
+    *u_range*/*v_range*: parameter ranges ``(min, max)``.
+    *resolution*: ``(u_steps, v_steps)`` number of subdivisions.
+    *checkerboard_colors*: optional ``(color_a, color_b)`` for alternating face colors.
+    """
+
+    def __init__(self, func, u_range=(-3, 3), v_range=(-3, 3),
+                 resolution=(20, 20),
+                 fill_color='#4488ff', checkerboard_colors=None,
+                 stroke_color='#333', stroke_width=0.5, fill_opacity=0.8,
+                 creation=0, z=0):
+        self.show = attributes.Real(creation, True)
+        self.z = attributes.Real(creation, z)
+        self._func = func
+        self._u_range = u_range
+        self._v_range = v_range
+        self._resolution = resolution
+        self._fill_color = fill_color
+        self._checkerboard_colors = checkerboard_colors
+        self._stroke_color = stroke_color
+        self._stroke_width = stroke_width
+        self._fill_opacity = fill_opacity
+        self._is_parametric = None  # auto-detect
+
+    @property
+    def last_change(self):
+        return max(self.show.last_change, self.z.last_change)
+
+    def _eval(self, u, v):
+        """Evaluate func and return (x, y, z)."""
+        result = self._func(u, v)
+        if isinstance(result, (tuple, list)) and len(result) == 3:
+            if self._is_parametric is None:
+                self._is_parametric = True
+            return tuple(result)
+        # Height-map: u=x, v=y, result=z
+        if self._is_parametric is None:
+            self._is_parametric = False
+        return (u, v, result)
+
+    def to_patches(self, axes, time):
+        """Generate (depth, svg_str) for each face quad."""
+        u_steps, v_steps = self._resolution
+        u0, u1 = self._u_range
+        v0, v1 = self._v_range
+        du = (u1 - u0) / u_steps
+        dv = (v1 - v0) / v_steps
+
+        # Build vertex grid
+        grid = []
+        for i in range(u_steps + 1):
+            row = []
+            for j in range(v_steps + 1):
+                u = u0 + i * du
+                v = v0 + j * dv
+                row.append(self._eval(u, v))
+            grid.append(row)
+
+        # Parse colors
+        if self._checkerboard_colors:
+            rgb_a = _parse_color_to_rgb(self._checkerboard_colors[0])
+            rgb_b = _parse_color_to_rgb(self._checkerboard_colors[1])
+        else:
+            rgb_a = _parse_color_to_rgb(self._fill_color)
+            rgb_b = rgb_a
+
+        light_dir = axes._light_dir
+
+        patches = []
+        for i in range(u_steps):
+            for j in range(v_steps):
+                # 4 corners of the quad in 3D
+                p00 = grid[i][j]
+                p10 = grid[i + 1][j]
+                p11 = grid[i + 1][j + 1]
+                p01 = grid[i][j + 1]
+
+                # Project
+                s00 = axes.project_point(*p00, time)
+                s10 = axes.project_point(*p10, time)
+                s11 = axes.project_point(*p11, time)
+                s01 = axes.project_point(*p01, time)
+
+                # Average depth
+                depth = (s00[2] + s10[2] + s11[2] + s01[2]) / 4
+
+                # Face normal for shading
+                normal = _face_normal(p00, p10, p01)
+
+                # Pick color
+                base_rgb = rgb_a if (i + j) % 2 == 0 else rgb_b
+                fill = _shade_color(base_rgb, normal, light_dir)
+
+                points_str = (f'{s00[0]:.1f},{s00[1]:.1f} {s10[0]:.1f},{s10[1]:.1f} '
+                              f'{s11[0]:.1f},{s11[1]:.1f} {s01[0]:.1f},{s01[1]:.1f}')
+
+                stroke_attr = ''
+                if self._stroke_width > 0:
+                    stroke_attr = f' stroke="{self._stroke_color}" stroke-width="{self._stroke_width}"'
+
+                svg = (f'<polygon points="{points_str}" fill="{fill}" '
+                       f'fill-opacity="{self._fill_opacity}"{stroke_attr}/>')
+                patches.append((depth, svg))
+
+        return patches
+
+    def to_svg(self, time):
+        return ''
+
+    def path(self, time):
+        return ''
+
+    def bbox(self, time=0):
+        return (0, 0, 0, 0)
+
+    def _extra_attrs(self):
+        return []
+
+    def _shift_coors(self):
+        return []
+
+    def _shift_reals(self):
+        return []
+
+
+# ---------------------------------------------------------------------------
+# Wireframe helpers (backward compat, rendered as 3D patches)
+# ---------------------------------------------------------------------------
+
+class _WireframeSurface:
+    """Internal: wireframe z=f(x,y) rendered via to_patches."""
+
+    def __init__(self, axes, func, x_range, y_range, x_steps, y_steps, style, creation=0, z=0):
+        self.show = attributes.Real(creation, True)
+        self.z = attributes.Real(creation, z)
+        self._axes = axes
+        self._func = func
+        self._x_range = x_range
+        self._y_range = y_range
+        self._x_steps = x_steps
+        self._y_steps = y_steps
+        self._style = style
+
+    @property
+    def last_change(self):
+        return max(self.show.last_change, self.z.last_change)
+
+    def to_patches(self, axes, time):
+        patches = []
+        x0, x1 = self._x_range
+        y0, y1 = self._y_range
+        dx = (x1 - x0) / self._x_steps
+        dy = (y1 - y0) / self._y_steps
+        stroke = self._style.get('stroke', '#4488ff')
+        sw = self._style.get('stroke_width', 1)
+
+        # Lines along x
+        for j in range(self._y_steps + 1):
+            yv = y0 + j * dy
+            pts = []
+            total_depth = 0
+            for i in range(self._x_steps + 1):
+                xv = x0 + i * dx
+                sx, sy, d = axes.project_point(xv, yv, self._func(xv, yv), time)
+                pts.append(f'{sx:.1f},{sy:.1f}')
+                total_depth += d
+            depth = total_depth / (self._x_steps + 1)
+            svg = (f'<polyline points="{" ".join(pts)}" fill="none" '
+                   f'stroke="{stroke}" stroke-width="{sw}"/>')
+            patches.append((depth, svg))
+
+        # Lines along y
+        for i in range(self._x_steps + 1):
+            xv = x0 + i * dx
+            pts = []
+            total_depth = 0
+            for j in range(self._y_steps + 1):
+                yv = y0 + j * dy
+                sx, sy, d = axes.project_point(xv, yv, self._func(xv, yv), time)
+                pts.append(f'{sx:.1f},{sy:.1f}')
+                total_depth += d
+            depth = total_depth / (self._y_steps + 1)
+            svg = (f'<polyline points="{" ".join(pts)}" fill="none" '
+                   f'stroke="{stroke}" stroke-width="{sw}"/>')
+            patches.append((depth, svg))
+
+        return patches
+
+
+class _ParametricWireframe:
+    """Internal: parametric wireframe rendered via to_patches."""
+
+    def __init__(self, axes, func, u_range, v_range, u_steps, v_steps, style, creation=0, z=0):
+        self.show = attributes.Real(creation, True)
+        self.z = attributes.Real(creation, z)
+        self._axes = axes
+        self._func = func
+        self._u_range = u_range
+        self._v_range = v_range
+        self._u_steps = u_steps
+        self._v_steps = v_steps
+        self._style = style
+
+    @property
+    def last_change(self):
+        return max(self.show.last_change, self.z.last_change)
+
+    def to_patches(self, axes, time):
+        patches = []
+        u0, u1 = self._u_range
+        v0, v1 = self._v_range
+        du = (u1 - u0) / self._u_steps
+        dv = (v1 - v0) / self._v_steps
+        stroke = self._style.get('stroke', '#4488ff')
+        sw = self._style.get('stroke_width', 1)
+
+        # Lines along u
+        for j in range(self._v_steps + 1):
+            vv = v0 + j * dv
+            pts = []
+            total_depth = 0
+            for i in range(self._u_steps + 1):
+                uu = u0 + i * du
+                x, y, z = self._func(uu, vv)
+                sx, sy, d = axes.project_point(x, y, z, time)
+                pts.append(f'{sx:.1f},{sy:.1f}')
+                total_depth += d
+            depth = total_depth / (self._u_steps + 1)
+            svg = (f'<polyline points="{" ".join(pts)}" fill="none" '
+                   f'stroke="{stroke}" stroke-width="{sw}"/>')
+            patches.append((depth, svg))
+
+        # Lines along v
+        for i in range(self._u_steps + 1):
+            uu = u0 + i * du
+            pts = []
+            total_depth = 0
+            for j in range(self._v_steps + 1):
+                vv = v0 + j * dv
+                x, y, z = self._func(uu, vv)
+                sx, sy, d = axes.project_point(x, y, z, time)
+                pts.append(f'{sx:.1f},{sy:.1f}')
+                total_depth += d
+            depth = total_depth / (self._v_steps + 1)
+            svg = (f'<polyline points="{" ".join(pts)}" fill="none" '
+                   f'stroke="{stroke}" stroke-width="{sw}"/>')
+            patches.append((depth, svg))
+
+        return patches
+
+
+# ---------------------------------------------------------------------------
+# 3D Primitives
+# ---------------------------------------------------------------------------
+
+class Line3D:
+    """A line segment in 3D space."""
+
+    def __init__(self, start, end, stroke='#fff', stroke_width=2, creation=0, z=0):
+        self.show = attributes.Real(creation, True)
+        self.z = attributes.Real(creation, z)
+        self._start = start
+        self._end = end
+        self._stroke = stroke
+        self._stroke_width = stroke_width
+
+    @property
+    def last_change(self):
+        return max(self.show.last_change, self.z.last_change)
+
+    def to_patches(self, axes, time):
+        sx0, sy0, d0 = axes.project_point(*self._start, time)
+        sx1, sy1, d1 = axes.project_point(*self._end, time)
+        depth = (d0 + d1) / 2
+        svg = (f'<line x1="{sx0:.1f}" y1="{sy0:.1f}" x2="{sx1:.1f}" y2="{sy1:.1f}" '
+               f'stroke="{self._stroke}" stroke-width="{self._stroke_width}"/>')
+        return [(depth, svg)]
+
+
+class Dot3D:
+    """A dot in 3D space."""
+
+    def __init__(self, point=(0, 0, 0), radius=5, fill='#fff', creation=0, z=0):
+        self.show = attributes.Real(creation, True)
+        self.z = attributes.Real(creation, z)
+        self._point = point
+        self._radius = radius
+        self._fill = fill
+
+    @property
+    def last_change(self):
+        return max(self.show.last_change, self.z.last_change)
+
+    def to_patches(self, axes, time):
+        sx, sy, depth = axes.project_point(*self._point, time)
+        svg = (f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{self._radius}" '
+               f'fill="{self._fill}" stroke="none"/>')
+        return [(depth, svg)]
+
+
+class Arrow3D:
+    """An arrow in 3D space with a cone tip."""
+
+    def __init__(self, start, end, stroke='#fff', stroke_width=2,
+                 tip_length=12, tip_radius=4, creation=0, z=0):
+        self.show = attributes.Real(creation, True)
+        self.z = attributes.Real(creation, z)
+        self._start = start
+        self._end = end
+        self._stroke = stroke
+        self._stroke_width = stroke_width
+        self._tip_length = tip_length
+        self._tip_radius = tip_radius
+
+    @property
+    def last_change(self):
+        return max(self.show.last_change, self.z.last_change)
+
+    def to_patches(self, axes, time):
+        patches = []
+        sx0, sy0, d0 = axes.project_point(*self._start, time)
+        sx1, sy1, d1 = axes.project_point(*self._end, time)
+        depth = (d0 + d1) / 2
+
+        # Shaft line
+        svg = (f'<line x1="{sx0:.1f}" y1="{sy0:.1f}" x2="{sx1:.1f}" y2="{sy1:.1f}" '
+               f'stroke="{self._stroke}" stroke-width="{self._stroke_width}"/>')
+        patches.append((depth, svg))
+
+        # Arrow tip (2D triangle at the projected tip)
+        dx, dy = sx1 - sx0, sy1 - sy0
+        length = math.sqrt(dx * dx + dy * dy) or 1
+        ux, uy = dx / length, dy / length
+        px, py = -uy, ux
+        tl, tr = self._tip_length, self._tip_radius
+        ax = sx1 - ux * tl + px * tr
+        ay = sy1 - uy * tl + py * tr
+        bx = sx1 - ux * tl - px * tr
+        by = sy1 - uy * tl - py * tr
+        tip_svg = (f'<polygon points="{sx1:.1f},{sy1:.1f} {ax:.1f},{ay:.1f} {bx:.1f},{by:.1f}" '
+                   f'fill="{self._stroke}" stroke="none"/>')
+        patches.append((d1, tip_svg))
+
+        return patches
+
+
+class ParametricCurve3D:
+    """A parametric curve in 3D space."""
+
+    def __init__(self, func, t_range=(0, 1), num_points=100,
+                 stroke='#fff', stroke_width=2, creation=0, z=0):
+        self.show = attributes.Real(creation, True)
+        self.z = attributes.Real(creation, z)
+        self._func = func
+        self._t_range = t_range
+        self._num_points = num_points
+        self._stroke = stroke
+        self._stroke_width = stroke_width
+
+    @property
+    def last_change(self):
+        return max(self.show.last_change, self.z.last_change)
+
+    def to_patches(self, axes, time):
+        t0, t1 = self._t_range
+        dt = (t1 - t0) / self._num_points
+        pts = []
+        total_depth = 0
+        for i in range(self._num_points + 1):
+            t = t0 + i * dt
+            x, y, z = self._func(t)
+            sx, sy, d = axes.project_point(x, y, z, time)
+            pts.append(f'{sx:.1f},{sy:.1f}')
+            total_depth += d
+        depth = total_depth / (self._num_points + 1)
+        svg = (f'<polyline points="{" ".join(pts)}" fill="none" '
+               f'stroke="{self._stroke}" stroke-width="{self._stroke_width}"/>')
+        return [(depth, svg)]
+
+
+# ---------------------------------------------------------------------------
+# Factory functions
+# ---------------------------------------------------------------------------
+
+def Sphere3D(radius=1.5, center=(0, 0, 0), resolution=(16, 32),
+             fill_color='#FC6255', checkerboard_colors=None,
+             stroke_color='#333', stroke_width=0.3, fill_opacity=0.9,
+             creation=0, z=0):
+    """Create a Surface representing a sphere."""
+    cx, cy, cz = center
+    def sphere_func(u, v):
+        return (cx + radius * math.cos(u) * math.cos(v),
+                cy + radius * math.cos(u) * math.sin(v),
+                cz + radius * math.sin(u))
+    return Surface(sphere_func,
+                   u_range=(-math.pi / 2, math.pi / 2),
+                   v_range=(0, math.tau),
+                   resolution=resolution,
+                   fill_color=fill_color,
+                   checkerboard_colors=checkerboard_colors,
+                   stroke_color=stroke_color,
+                   stroke_width=stroke_width,
+                   fill_opacity=fill_opacity,
+                   creation=creation, z=z)
+
+
+class Text3D:
+    """A text label placed at a 3D position."""
+
+    def __init__(self, text, point=(0, 0, 0), font_size=20, fill='#fff',
+                 creation=0, z=0):
+        self.show = attributes.Real(creation, True)
+        self.z = attributes.Real(creation, z)
+        self._text = text
+        self._point = point
+        self._font_size = font_size
+        self._fill = fill
+
+    @property
+    def last_change(self):
+        return max(self.show.last_change, self.z.last_change)
+
+    def to_patches(self, axes, time):
+        sx, sy, depth = axes.project_point(*self._point, time)
+        svg = (f'<text x="{sx:.1f}" y="{sy:.1f}" font-size="{self._font_size}" '
+               f'fill="{self._fill}" text-anchor="middle" dominant-baseline="middle" '
+               f'font-family="sans-serif">{_xml_escape(self._text)}</text>')
+        return [(depth, svg)]
+
+
+def Cube(side_length=2, center=(0, 0, 0), fill_color='#58C4DD',
+         stroke_color='#333', stroke_width=0.5, fill_opacity=0.8,
+         creation=0, z=0):
+    """Create a list of 6 Surface objects representing a cube.
+
+    Returns a list; add each to the axes with ``axes.add_surface(face)``.
+    """
+    cx, cy, cz = center
+    h = side_length / 2
+    faces = []
+    # Each face is a parametric surface mapping (u, v) to a flat quad
+    face_defs = [
+        # (corner, u_dir, v_dir) — each face spans corner + u*u_dir + v*v_dir
+        ((cx - h, cy - h, cz + h), (side_length, 0, 0), (0, side_length, 0)),  # top (z+)
+        ((cx - h, cy - h, cz - h), (side_length, 0, 0), (0, side_length, 0)),  # bottom (z-)
+        ((cx - h, cy - h, cz - h), (side_length, 0, 0), (0, 0, side_length)),  # front (y-)
+        ((cx - h, cy + h, cz - h), (side_length, 0, 0), (0, 0, side_length)),  # back (y+)
+        ((cx - h, cy - h, cz - h), (0, side_length, 0), (0, 0, side_length)),  # left (x-)
+        ((cx + h, cy - h, cz - h), (0, side_length, 0), (0, 0, side_length)),  # right (x+)
+    ]
+    for corner, u_dir, v_dir in face_defs:
+        def _make_func(c, ud, vd):
+            def f(u, v):
+                return (c[0] + u * ud[0] + v * vd[0],
+                        c[1] + u * ud[1] + v * vd[1],
+                        c[2] + u * ud[2] + v * vd[2])
+            return f
+        func = _make_func(corner, u_dir, v_dir)
+        faces.append(Surface(func, u_range=(0, 1), v_range=(0, 1),
+                             resolution=(1, 1),
+                             fill_color=fill_color, stroke_color=stroke_color,
+                             stroke_width=stroke_width, fill_opacity=fill_opacity,
+                             creation=creation, z=z))
+    return faces
+
+
+def Cylinder3D(radius=1, height=2, center=(0, 0, 0), resolution=(16, 16),
+               fill_color='#58C4DD', checkerboard_colors=None,
+               stroke_color='#333', stroke_width=0.3, fill_opacity=0.9,
+               creation=0, z=0):
+    """Create a Surface representing a cylinder (open-ended, side only)."""
+    cx, cy, cz = center
+    def cyl_func(u, v):
+        # u: angle 0..tau, v: height 0..1
+        return (cx + radius * math.cos(u),
+                cy + radius * math.sin(u),
+                cz - height / 2 + v * height)
+    return Surface(cyl_func,
+                   u_range=(0, math.tau), v_range=(0, 1),
+                   resolution=resolution,
+                   fill_color=fill_color, checkerboard_colors=checkerboard_colors,
+                   stroke_color=stroke_color, stroke_width=stroke_width,
+                   fill_opacity=fill_opacity, creation=creation, z=z)
+
+
+def Cone3D(radius=1, height=2, center=(0, 0, 0), resolution=(16, 16),
+           fill_color='#58C4DD', checkerboard_colors=None,
+           stroke_color='#333', stroke_width=0.3, fill_opacity=0.9,
+           creation=0, z=0):
+    """Create a Surface representing a cone (open-ended, side only).
+
+    The apex is at center + (0, 0, height/2), the base at center - (0, 0, height/2).
+    """
+    cx, cy, cz = center
+    def cone_func(u, v):
+        # u: angle 0..tau, v: 0 (apex) to 1 (base)
+        r = radius * v
+        return (cx + r * math.cos(u),
+                cy + r * math.sin(u),
+                cz + height / 2 - v * height)
+    return Surface(cone_func,
+                   u_range=(0, math.tau), v_range=(0, 1),
+                   resolution=resolution,
+                   fill_color=fill_color, checkerboard_colors=checkerboard_colors,
+                   stroke_color=stroke_color, stroke_width=stroke_width,
+                   fill_opacity=fill_opacity, creation=creation, z=z)
+
+
+def Torus3D(major_radius=2, minor_radius=0.5, center=(0, 0, 0),
+            resolution=(24, 12),
+            fill_color='#58C4DD', checkerboard_colors=None,
+            stroke_color='#333', stroke_width=0.3, fill_opacity=0.9,
+            creation=0, z=0):
+    """Create a Surface representing a torus."""
+    cx, cy, cz = center
+    R, r = major_radius, minor_radius
+    def torus_func(u, v):
+        return (cx + (R + r * math.cos(v)) * math.cos(u),
+                cy + (R + r * math.cos(v)) * math.sin(u),
+                cz + r * math.sin(v))
+    return Surface(torus_func,
+                   u_range=(0, math.tau), v_range=(0, math.tau),
+                   resolution=resolution,
+                   fill_color=fill_color, checkerboard_colors=checkerboard_colors,
+                   stroke_color=stroke_color, stroke_width=stroke_width,
+                   fill_opacity=fill_opacity, creation=creation, z=z)
+
+
+def Prism3D(n_sides=6, radius=1, height=2, center=(0, 0, 0),
+            fill_color='#58C4DD', stroke_color='#333', stroke_width=0.5,
+            fill_opacity=0.8, creation=0, z=0):
+    """Create a list of Surfaces representing an n-sided prism.
+
+    Returns a list of Surface objects (side faces + top + bottom caps).
+    """
+    cx, cy, cz = center
+    h = height / 2
+    faces = []
+
+    # Side faces — each is a flat quad
+    for i in range(n_sides):
+        a0 = math.tau * i / n_sides
+        a1 = math.tau * (i + 1) / n_sides
+        c0 = (cx + radius * math.cos(a0), cy + radius * math.sin(a0))
+        c1 = (cx + radius * math.cos(a1), cy + radius * math.sin(a1))
+
+        def _make_side(p0, p1, _cz=cz, _h=h):
+            def f(u, v):
+                x = p0[0] + u * (p1[0] - p0[0])
+                y = p0[1] + u * (p1[1] - p0[1])
+                return (x, y, _cz - _h + v * 2 * _h)
+            return f
+
+        faces.append(Surface(_make_side(c0, c1), u_range=(0, 1), v_range=(0, 1),
+                             resolution=(1, 1),
+                             fill_color=fill_color, stroke_color=stroke_color,
+                             stroke_width=stroke_width, fill_opacity=fill_opacity,
+                             creation=creation, z=z))
+
+    # Top and bottom caps as triangle fans (each triangle is a Surface)
+    for z_off in [h, -h]:
+        for i in range(n_sides):
+            a0 = math.tau * i / n_sides
+            a1 = math.tau * (i + 1) / n_sides
+
+            def _make_cap(angle0, angle1, _cx=cx, _cy=cy, _r=radius, _cz=cz, _zo=z_off):
+                def f(u, v):
+                    # Map (u, v) in [0,1]x[0,1] to triangle: center, p0, p1
+                    p0x = _cx + _r * math.cos(angle0)
+                    p0y = _cy + _r * math.sin(angle0)
+                    p1x = _cx + _r * math.cos(angle1)
+                    p1y = _cy + _r * math.sin(angle1)
+                    # Interpolate: center*(1-u) + edge*u, then between p0 and p1 via v
+                    ex = p0x + v * (p1x - p0x)
+                    ey = p0y + v * (p1y - p0y)
+                    x = _cx + u * (ex - _cx)
+                    y = _cy + u * (ey - _cy)
+                    return (x, y, _cz + _zo)
+                return f
+
+            faces.append(Surface(_make_cap(a0, a1), u_range=(0, 1), v_range=(0, 1),
+                                 resolution=(1, 1),
+                                 fill_color=fill_color, stroke_color=stroke_color,
+                                 stroke_width=stroke_width, fill_opacity=fill_opacity,
+                                 creation=creation, z=z))
+
+    return faces

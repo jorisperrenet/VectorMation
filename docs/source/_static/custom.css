@@ -1,0 +1,41 @@
+video, img {
+    max-width: 100%;
+    border-radius: 4px;
+}
+
+.admonition.example {
+    padding: 0;
+}
+
+.admonition.example > .admonition-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin: 0;
+    padding-left: 0.6rem;
+}
+
+.admonition.example > .admonition-title::before {
+    display: none;
+}
+
+.admonition.example > .highlight-python,
+.admonition.example > div > .highlight-python {
+    margin: 0;
+}
+
+.admonition.example pre {
+    font-size: 0.95rem;
+}
+
+.admonition.example img,
+.admonition.example video {
+    width: 100%;
+    margin-bottom: 0;
+    border-radius: 0;
+}
+
+.admonition.example > p {
+    padding: 0.4rem 0.6rem;
+    margin: 0;
+    font-size: 0.9rem;
+}

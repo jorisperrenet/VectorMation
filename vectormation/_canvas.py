@@ -1,0 +1,481 @@
+"""VectorMathAnim: the main canvas/video object."""
+import os
+import re
+import sys
+import logging
+import tempfile
+
+import vectormation.easings as easings
+import vectormation.attributes as attributes
+import vectormation.style as style
+
+logger = logging.getLogger('vectormation')
+
+class VectorMathAnim:
+    """Canvas/video where we can ask a frame at a certain time.
+
+    This is the top-level object that manages all VObjects and controls
+    animation playback, frame generation, and display.
+
+    width/height: canvas dimensions in pixels (default 1920x1080 Full HD).
+    scale: output resolution multiplier (default 1). Use scale=2 for 4K.
+    """
+    def __init__(self, save_dir, width=1920, height=1080, scale=1, verbose=False):
+        if verbose:
+            logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
+        else:
+            logging.basicConfig(level=logging.WARNING)
+
+        self.save_dir = save_dir  # Directory to save frames in
+        os.makedirs(save_dir, exist_ok=True)
+        self.filename = f'{save_dir}/gen.svg'
+        self.width = width
+        self.height = height
+        self.scale = scale
+        self.vb_x = attributes.Real(0, 0)
+        self.vb_y = attributes.Real(0, 0)
+        self.vb_w = attributes.Real(0, width)
+        self.vb_h = attributes.Real(0, height)
+        self.objects = {}  # {id(object): object}
+        self.defs = {}  # {id_str: gradient/clippath object}
+        self.time = 0  # Time of the current video
+        self.dt = 0
+        self.start_anim = None
+        self.end_anim = None
+        self.animate = None
+        self.background = None
+        self.sections = []  # List of section end times (sorted)
+        self.speed_multiplier = 1.0  # Playback speed multiplier
+        self.single_picture = False  # If True, display a single static frame
+        self.snap_enabled = False  # If True, send snap points to browser
+
+        logger.info('Initialized canvas %dx%d, saving to %s', width, height, save_dir)
+
+        # We need to set the save directory globally
+        global save_directory
+        save_directory = save_dir
+
+    @property
+    def viewbox(self):
+        t = self.time
+        return (self.vb_x.at_time(t), self.vb_y.at_time(t),
+                self.vb_w.at_time(t), self.vb_h.at_time(t))
+
+    @viewbox.setter
+    def viewbox(self, value):
+        t = self.time
+        self.vb_x.set_onward(t, value[0])
+        self.vb_y.set_onward(t, value[1])
+        self.vb_w.set_onward(t, value[2])
+        self.vb_h.set_onward(t, value[3])
+
+    def camera_shift(self, dx, dy, start, end, easing=easings.smooth):
+        """Pan the camera by (dx, dy) pixels over [start, end]."""
+        s, e = start, end
+        self.vb_x.add_onward(s, lambda t: dx * easing((t-s)/(e-s)), last_change=e)
+        self.vb_y.add_onward(s, lambda t: dy * easing((t-s)/(e-s)), last_change=e)
+        return self
+
+    def camera_zoom(self, factor, start, end, cx=None, cy=None, easing=easings.smooth):
+        """Zoom the camera by factor around (cx, cy) over [start, end].
+        factor > 1 zooms in, factor < 1 zooms out."""
+        if cx is None:
+            cx = self.width / 2
+        if cy is None:
+            cy = self.height / 2
+        cur_w, cur_h = self.vb_w.at_time(start), self.vb_h.at_time(start)
+        new_w, new_h = cur_w / factor, cur_h / factor
+        new_x = max(0, min(cx - new_w / 2, self.width - new_w))
+        new_y = max(0, min(cy - new_h / 2, self.height - new_h))
+        self.vb_x.move_to(start, end, new_x, easing=easing)
+        self.vb_y.move_to(start, end, new_y, easing=easing)
+        self.vb_w.move_to(start, end, new_w, easing=easing)
+        self.vb_h.move_to(start, end, new_h, easing=easing)
+        return self
+
+    def camera_follow(self, obj, start, end=None):
+        """Make the camera center on an object over [start, end].
+        If end is None, follows indefinitely.
+        The viewBox is clamped to stay within the canvas bounds."""
+        w, h = self.width, self.height
+        def _vb_x(t):
+            cx = obj.center(t)[0]
+            vw = self.vb_w.at_time(t)
+            return max(0, min(cx - vw / 2, w - vw))
+        def _vb_y(t):
+            cy = obj.center(t)[1]
+            vh = self.vb_h.at_time(t)
+            return max(0, min(cy - vh / 2, h - vh))
+        self.vb_x.set_onward(start, _vb_x)
+        self.vb_y.set_onward(start, _vb_y)
+        if end is not None:
+            self.vb_x.set_onward(end, self.vb_x.at_time(end))
+            self.vb_y.set_onward(end, self.vb_y.at_time(end))
+        return self
+
+    def camera_reset(self, start, end, easing=easings.smooth):
+        """Reset camera to default (full canvas) viewbox over [start, end]."""
+        self.vb_x.move_to(start, end, 0, easing=easing)
+        self.vb_y.move_to(start, end, 0, easing=easing)
+        self.vb_w.move_to(start, end, self.width, easing=easing)
+        self.vb_h.move_to(start, end, self.height, easing=easing)
+        return self
+
+    def set_background(self, creation=0, z=-1, grid=False, grid_spacing=60, grid_color='#333', **styling):
+        """Sets the background of the animation (otherwise no background is added).
+        grid: if True, draw a grid on top of the background.
+        grid_spacing: pixels between grid lines. grid_color: color of grid lines."""
+        if self.background is not None:
+            del self.objects[id(self.background)]
+        st = style.Styling(styling, creation=creation, stroke_width=0)
+        from vectormation._shapes import Rectangle, Line
+        self.background = Rectangle(self.width, self.height, x=0, y=0, rx=0, ry=0, creation=creation, z=z, **st.kwargs())
+        self.add_objects(self.background)
+        if grid:
+            gx = 0.0
+            while gx <= self.width:
+                self.add_objects(Line(x1=gx, y1=0, x2=gx, y2=self.height,
+                                     creation=creation, z=z, stroke=grid_color, stroke_width=1))
+                gx += grid_spacing
+            gy = 0.0
+            while gy <= self.height:
+                self.add_objects(Line(x1=0, y1=gy, x2=self.width, y2=gy,
+                                     creation=creation, z=z, stroke=grid_color, stroke_width=1))
+                gy += grid_spacing
+
+    def add_section(self, time):
+        """Add a section break at the given time.
+        During playback, animation pauses at each section break and waits
+        for the user to press Space to continue to the next section."""
+        self.sections.append(time)
+        self.sections.sort()
+
+    def add_objects(self, *args):
+        """Register objects to be displayed."""
+        for obj in args:
+            self.objects[id(obj)] = obj
+
+    def add_def(self, def_obj):
+        """Register a gradient or clip path for the <defs> block."""
+        self.defs[def_obj.id] = def_obj
+
+    # Backward compatibility aliases
+    add_gradient = add_def
+    add_clip_path = add_def
+
+    def get_snap_points(self, time=None):
+        """Extract snappable points (vertices, endpoints, centres) from all visible objects."""
+        if time is None:
+            time = self.time
+        points = []
+        for obj in self.objects.values():
+            if obj is self.background:
+                continue
+            if not obj.show.at_time(time):
+                continue
+            self._collect_snap_points(obj, time, points)
+        return points
+
+    @classmethod
+    def _collect_snap_points(cls, obj, time, points):
+        """Recursively collect snap points, descending into VCollections."""
+        from vectormation._base import VCollection
+        if isinstance(obj, VCollection):
+            for sub in obj.objects:
+                if hasattr(sub, 'show') and not sub.show.at_time(time):
+                    continue
+                cls._collect_snap_points(sub, time, points)
+        elif hasattr(obj, 'snap_points'):
+            points.extend(obj.snap_points(time))
+
+    @staticmethod
+    def _round_svg_values(svg, precision=2):
+        """Round floating-point numbers in SVG strings for data compression."""
+        def _round_match(m):
+            return f'{float(m.group()):.{precision}f}'.rstrip('0').rstrip('.')
+        return re.sub(r'-?\d+\.\d{3,}', _round_match, svg)
+
+    def generate_frame_svg(self, time=None):
+        """Generate the SVG content for a frame as a string."""
+        if time is None:
+            time = self.time  # The canvas time
+
+        logger.log(5, 'Generating frame at t=%.3f', time)
+        parts = []
+        parts.append("<?xml version='1.0' encoding='UTF-8'?>\n")
+        vb = (self.vb_x.at_time(time), self.vb_y.at_time(time),
+              self.vb_w.at_time(time), self.vb_h.at_time(time))
+        header = f"<svg version='1.1' xmlns='http://www.w3.org/2000/svg' " \
+                 f"xmlns:xlink='http://www.w3.org/1999/xlink' " \
+                 f"width='{self.width * self.scale}' height='{self.height * self.scale}' " \
+                 f"viewBox='{vb[0]} {vb[1]} {vb[2]} {vb[3]}'>\n"
+        parts.append(header)
+
+        # Output <defs> block for gradients and clip paths
+        if self.defs:
+            parts.append('<defs>\n')
+            for def_obj in self.defs.values():
+                if hasattr(def_obj, 'to_svg_def'):
+                    parts.append(def_obj.to_svg_def(time) + '\n')
+            parts.append('</defs>\n')
+
+        # Run updaters and add objects sorted by z-order
+        visible = [(obj.z.at_time(time), obj)
+                   for obj in self.objects.values() if obj.show.at_time(time)]
+        for _, obj in sorted(visible, key=lambda x: x[0]):
+            if hasattr(obj, '_run_updaters'):
+                obj._run_updaters(time)
+            parts.append(obj.to_svg(time) + '\n')
+
+        # Close the header
+        parts.append("</svg>")
+        svg = ''.join(parts)
+        return self._round_svg_values(svg)
+
+    def write_frame(self, time=None, filename=None):
+        """This combines all the svgs of objects alive at the canvas time and writes to disk"""
+        if filename is None:
+            filename = self.filename
+        with open(filename, 'w') as s:
+            s.write(self.generate_frame_svg(time))
+
+    def handle_browser_event(self, msg):
+        """Process a parsed JSON message from the browser viewer."""
+        msg_type = msg.get('type')
+        if msg_type == 'zoom':
+            factor = msg['factor']
+            rel_x = max(0, min(1, msg['rel_x']))
+            rel_y = max(0, min(1, msg['rel_y']))
+            v = self.viewbox
+            new_w = min(v[2] / factor, self.width * 4)
+            new_h = min(v[3] / factor, self.height * 4)
+            self.viewbox = (v[0] + rel_x * (v[2] - new_w), v[1] + rel_y * (v[3] - new_h), new_w, new_h)
+        elif msg_type == 'control':
+            handler = self._control_handlers.get(msg.get('action'))
+            if handler:
+                handler(self, msg)
+
+    def _handle_quit(self, _msg):
+        logger.info('Quitting...')
+        sys.exit()
+
+    def _handle_restart(self, _msg):
+        self.time = self.start_anim
+        self.frame_count = 0
+
+    def _handle_fit(self, _msg):
+        self.viewbox = (0, 0, self.width, self.height)
+
+    def _handle_pause(self, _msg):
+        self.animate = not self.animate
+
+    def _handle_next_section(self, _msg):
+        if not self.animate:
+            self.animate = True
+        else:
+            for t in self.sections:
+                if t > self.time + 1e-9:  # type: ignore[operator]
+                    self.time = t
+                    self.frame_count = round((t - self.start_anim) / self.dt)  # type: ignore[operator]
+                    self.animate = False
+                    break
+
+    def _handle_step(self, msg, direction=1):
+        self.animate = False
+        self.time = max(self.start_anim, min(self.time + direction * self.dt, self.end_anim))  # type: ignore[type-var,operator]
+        self.frame_count = round((self.time - self.start_anim) / self.dt)  # type: ignore[operator]
+
+    def _handle_speed(self, msg):
+        self.speed_multiplier = max(0.1, msg.get('value', 1.0))
+
+    def _handle_snap_toggle(self, _msg):
+        self.snap_enabled = not self.snap_enabled
+
+    def _handle_snap_enable(self, _msg):
+        self.snap_enabled = True
+
+    def _handle_jump(self, msg):
+        pct = max(0.0, min(1.0, msg.get('percentage', 0.0)))
+        duration = self.end_anim - self.start_anim  # type: ignore[operator]
+        self.time = self.start_anim + pct * duration  # type: ignore[operator]
+        self.frame_count = round(pct * duration / self.dt)
+        logger.info('Jumped to %.0f%%', pct * 100)
+
+    _control_handlers = {
+        'quit': _handle_quit, 'restart': _handle_restart,
+        'fit': _handle_fit, 'pause': _handle_pause,
+        'next_section': _handle_next_section,
+        'step_forward': lambda self, msg: self._handle_step(msg, 1),
+        'step_backward': lambda self, msg: self._handle_step(msg, -1),
+        'speed': _handle_speed,
+        'snap_toggle': _handle_snap_toggle, 'snap_enable': _handle_snap_enable,
+        'jump': _handle_jump,
+    }
+
+    def export_sections(self, prefix='section'):
+        """Export each section as a standalone SVG file.
+        Writes one SVG per section boundary (plus the start time)."""
+        times = [self.start_anim or 0] + self.sections
+        for i, t in enumerate(times):
+            filename = os.path.join(self.save_dir, f'{prefix}_{i:03d}.svg')
+            self.write_frame(time=t, filename=filename)
+            logger.info('Exported section %d at t=%.2f to %s', i, t, filename)
+
+    def export_png(self, time=0, filename='frame.png', scale=None):
+        """Export a single frame as PNG using cairosvg.
+
+        scale: output resolution multiplier. Defaults to self.scale (1).
+        With the default 1920x1080 canvas, output is 1920x1080 (Full HD).
+        Use scale=2 for 3840x2160 (4K)."""
+        try:
+            import cairosvg  # type: ignore[import-not-found]
+        except ImportError:
+            raise ImportError('cairosvg is required for PNG export. Install it with: pip install cairosvg')
+        scale = scale or self.scale
+        svg = self.generate_frame_svg(time)
+        cairosvg.svg2png(bytestring=svg.encode(), write_to=filename,
+                         output_width=int(self.width * scale),
+                         output_height=int(self.height * scale))
+        logger.info('Exported PNG to %s', filename)
+
+    def _resolve_end_time(self, end_time):
+        if end_time is None:
+            candidates = [obj.last_change for obj in self.objects.values()]
+            candidates.extend(a.last_change for a in (self.vb_x, self.vb_y, self.vb_w, self.vb_h))
+            return max(candidates)
+        return end_time
+
+    def _frame_times(self, start_time, end_time, fps):
+        """Generate frame timestamps from start_time to end_time at given fps."""
+        dt = 1.0 / fps
+        t = start_time
+        while t <= end_time + dt * 0.5:
+            yield t
+            t += dt
+
+    def export_video(self, filename='animation.mp4', start_time=0, end_time=None, fps=60, scale=None):
+        """Export animation as video using cairosvg + ffmpeg.
+
+        scale: output resolution multiplier. Defaults to self.scale (1).
+        With the default 1920x1080 canvas, output is 1920x1080 (Full HD).
+        Use scale=2 for 3840x2160 (4K)."""
+        import subprocess, shutil
+        try:
+            import cairosvg  # type: ignore[import-not-found]
+        except ImportError:
+            raise ImportError('cairosvg is required for video export. Install it with: pip install cairosvg')
+        if shutil.which('ffmpeg') is None:
+            raise RuntimeError('ffmpeg is required for video export. Install it from https://ffmpeg.org/')
+
+        end_time = self._resolve_end_time(end_time)
+        scale = scale or self.scale
+        output_w, output_h = int(self.width * scale), int(self.height * scale)
+        tmpdir = tempfile.mkdtemp(prefix='vectormation_')
+        try:
+            n_frames = 0
+            for i, t in enumerate(self._frame_times(start_time, end_time, fps)):
+                svg = self.generate_frame_svg(t)
+                cairosvg.svg2png(bytestring=svg.encode(),
+                                 output_width=output_w, output_height=output_h,
+                                 write_to=os.path.join(tmpdir, f'frame_{i:05d}.png'))
+                n_frames = i + 1
+            subprocess.run([
+                'ffmpeg', '-y', '-framerate', str(fps),
+                '-i', os.path.join(tmpdir, 'frame_%05d.png'),
+                '-c:v', 'libx264', '-pix_fmt', 'yuv420p', filename
+            ], check=True, capture_output=True)
+            logger.info('Exported video to %s (%d frames, %dx%d)', filename, n_frames, output_w, output_h)
+        finally:
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+    def export_gif(self, filename='animation.gif', start_time=0, end_time=None, fps=30, scale=None, loop=0):
+        """Export animation as an animated GIF using cairosvg + Pillow.
+
+        scale: output resolution multiplier. Defaults to self.scale (1).
+        With the default 1920x1080 canvas, output is 1920x1080 (Full HD).
+        Use scale=2 for 3840x2160 (4K)."""
+        try:
+            import cairosvg  # type: ignore[import-not-found]
+        except ImportError:
+            raise ImportError('cairosvg is required for GIF export. Install it with: pip install cairosvg')
+        try:
+            from PIL import Image as PILImage  # type: ignore[import-not-found]
+        except ImportError:
+            raise ImportError('Pillow is required for GIF export. Install it with: pip install Pillow')
+        import io
+
+        end_time = self._resolve_end_time(end_time)
+        scale = scale or self.scale
+        output_w, output_h = int(self.width * scale), int(self.height * scale)
+        frames = []
+        for t in self._frame_times(start_time, end_time, fps):
+            svg = self.generate_frame_svg(t)
+            png_data: bytes = cairosvg.svg2png(bytestring=svg.encode(),
+                                               output_width=output_w, output_height=output_h)  # type: ignore[assignment]
+            rgba = PILImage.open(io.BytesIO(png_data)).convert('RGBA')
+            rgb = PILImage.new('RGB', rgba.size, (255, 255, 255))
+            rgb.paste(rgba, mask=rgba.split()[3])
+            frames.append(rgb)
+
+        if not frames:
+            logger.warning('No frames generated for GIF export')
+            return
+
+        frames[0].save(filename, save_all=True, append_images=frames[1:],
+                       duration=int(1000 / fps), loop=loop, optimize=True)
+        logger.info('Exported GIF to %s (%d frames, %dx%d)', filename, len(frames), output_w, output_h)
+
+    def get_visible_objects_info(self, time=None):
+        """Return info about visible objects at the given time.
+        Returns a list of dicts with 'class' and 'id' keys."""
+        if time is None:
+            time = self.time
+        result = []
+        for obj in self.objects.values():
+            if obj is self.background:
+                continue
+            if not obj.show.at_time(time):
+                continue
+            result.append({
+                'class': obj.__class__.__name__,
+                'id': id(obj),
+            })
+        return result
+
+    def browser_display(self, start_time=0, end_time=None, fps=60,
+                        port=8765, hot_reload=False):
+        """View the animation in a browser via WebSocket.
+        If end_time == 0, displays a single static picture (no animation)."""
+        import inspect
+        from vectormation.browser import BrowserViewer
+
+        if end_time == 0:
+            # Single picture mode: just display the frame at start_time
+            self.single_picture = True
+            end_time = start_time
+            logger.info('Single picture mode at t=%.2f', start_time)
+        elif end_time is None:
+            end_time = self._resolve_end_time(None)
+            logger.info('Found that the ending time is %s', end_time)
+        self.end_anim = end_time
+        if start_time < 0:
+            self.start_anim = end_time + start_time
+        else:
+            self.start_anim = start_time
+        self.animate = not self.single_picture
+        self.time = start_time
+        self.frame_count = 0
+        self.dt = 1 / fps
+
+        logger.info('Starting browser viewer on port %d', port)
+
+        script_path = None
+        if hot_reload:
+            # Detect the calling script
+            frame = inspect.stack()[1]
+            script_path = os.path.abspath(frame.filename)
+
+        viewer = BrowserViewer(self, fps=fps, port=port,
+                               hot_reload=hot_reload, script_path=script_path)
+        viewer.start()
+
