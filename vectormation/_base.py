@@ -2497,6 +2497,23 @@ class VCollection:
                 obj.move_to(cx, new_cy, start_time=start, end_time=end, easing=easing)
         return self
 
+    def stagger_color(self, start: float = 0, end: float = 1, colors=('#FF6B6B', '#58C4DD'),
+                       attr='fill'):
+        """Propagate a color wave through children — each child transitions
+        through the color sequence with a delay."""
+        n = len(self.objects)
+        if n == 0 or len(colors) < 2:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        per_child = dur / n
+        for i, obj in enumerate(self.objects):
+            t0 = start + i * per_child
+            t1 = min(t0 + per_child * 2, end)
+            obj.color_wave(start=t0, end=t1, colors=colors, attr=attr, cycles=1)
+        return self
+
     def scatter_from(self, cx=None, cy=None, radius=300,
                       start: float = 0, end: float = 1, easing=easings.smooth):
         """Explode children outward from a center point.

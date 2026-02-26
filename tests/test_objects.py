@@ -660,6 +660,20 @@ class TestAxesNewMethods:
         svg = shade.to_svg(0)
         assert '<path' in svg
 
+    def test_add_area_label(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 10))
+        lbl = ax.add_area_label(lambda x: x, x_range=(0, 3))
+        svg = lbl.to_svg(0)
+        assert 'A =' in svg
+
+    def test_add_moving_tangent(self):
+        import math
+        ax = Axes(x_range=(0, 7), y_range=(-2, 4))
+        tangent = ax.add_moving_tangent(math.sin, x_start=0, x_end=6,
+                                         start=0, end=1)
+        svg = tangent.to_svg(0.5)
+        assert '<line' in svg
+
     def test_add_confidence_band(self):
         import math
         ax = Axes(x_range=(0, 7), y_range=(-3, 3))
@@ -770,6 +784,17 @@ class TestVCollectionNew:
         p1 = dots[1].c.at_time(1)
         assert abs(p0[0] - p1[0]) < 10
         assert abs(p0[1] - p1[1]) < 10
+
+    def test_stagger_color(self):
+        dots = VCollection(
+            Dot(cx=100, cy=100, fill='#FF0000'),
+            Dot(cx=200, cy=100, fill='#FF0000'),
+            Dot(cx=300, cy=100, fill='#FF0000'),
+        )
+        dots.stagger_color(start=0, end=1, colors=('#FF0000', '#00FF00'))
+        # First dot should start changing before last
+        c0 = dots[0].styling.fill.at_time(0.2)
+        assert c0 is not None
 
 
 class TestVObjectNew:

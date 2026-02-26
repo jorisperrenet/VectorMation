@@ -1243,6 +1243,81 @@ class Axes(VCollection):
         self._add_plot_obj(region)
         return region
 
+    def add_area_label(self, func, x_range=None, text=None, font_size=20,
+                        creation=0, z=3, samples=100, **styling_kwargs):
+        """Add a text label positioned at the centroid of the area under func.
+        If text is None, computes and displays the numerical area value.
+        Returns the Text label object."""
+        style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
+        fn = self._resolve_func(func, 'func')
+        xlo = x_range[0] if x_range else self.x_min.at_time(creation)
+        xhi = x_range[1] if x_range else self.x_max.at_time(creation)
+        # Compute area and centroid
+        step = (xhi - xlo) / max(samples, 1)
+        total_area = 0
+        cx_sum = 0
+        cy_sum = 0
+        for i in range(samples):
+            x = xlo + (i + 0.5) * step
+            y = fn(x)
+            total_area += y * step
+            cx_sum += x * abs(y) * step
+            cy_sum += (y / 2) * abs(y) * step
+        abs_area = sum(abs(fn(xlo + (i + 0.5) * step)) * step for i in range(samples))
+        if abs_area < 1e-9:
+            cx_math = (xlo + xhi) / 2
+            cy_math = 0
+        else:
+            cx_math = cx_sum / abs_area
+            cy_math = cy_sum / abs_area
+        label_text = text if text is not None else f'A = {total_area:.2f}'
+        sx, sy = self.coords_to_point(cx_math, cy_math, creation)
+        lbl = Text(text=label_text, x=sx, y=sy, font_size=font_size,
+                    text_anchor='middle', creation=creation, z=z, **style_kw)
+        _cx, _cy = cx_math, cy_math
+        lbl.x.set_onward(creation,
+            lambda t, _cx=_cx, _cy=_cy: self.coords_to_point(_cx, _cy, t)[0])
+        lbl.y.set_onward(creation,
+            lambda t, _cx=_cx, _cy=_cy: self.coords_to_point(_cx, _cy, t)[1])
+        self._add_plot_obj(lbl)
+        return lbl
+
+    def add_moving_tangent(self, func, x_start, x_end, start: float = 0, end: float = 1,
+                            length=200, creation=0, z=2, easing=easings.smooth,
+                            **styling_kwargs):
+        """Draw a tangent line that slides along func from x_start to x_end.
+        Returns a Line object with dynamic endpoints."""
+        style_kw = {'stroke': '#FFFF00', 'stroke_width': 2} | styling_kwargs
+        fn = self._resolve_func(func, 'func')
+        line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+        _xs, _xe, _s, _d = x_start, x_end, start, max(end - start, 1e-9)
+        _hl = length / 2
+        _h = 1e-6  # numerical derivative step
+        def _tangent_pts(t, _xs=_xs, _xe=_xe, _s=_s, _d=_d, _hl=_hl, _h=_h,
+                          _fn=fn, _easing=easing):
+            p = _easing((t - _s) / _d) if t >= _s else 0
+            xv = _xs + (_xe - _xs) * p
+            yv = _fn(xv)
+            # Numerical derivative
+            slope = (_fn(xv + _h) - _fn(xv - _h)) / (2 * _h)
+            # Direction vector along tangent
+            dx = 1 / math.sqrt(1 + slope * slope) * _hl
+            dy = slope * dx
+            return xv, yv, dx, dy
+        _tc = [None, None]  # per-frame cache
+        def _cached(t):
+            if _tc[0] == t:
+                return _tc[1]
+            _tc[1] = _tangent_pts(t)
+            _tc[0] = t
+            return _tc[1]
+        line.p1.set_onward(creation,
+            lambda t: (lambda xv, yv, dx, dy: self.coords_to_point(xv - dx, yv - dy, t))(*_cached(t)))
+        line.p2.set_onward(creation,
+            lambda t: (lambda xv, yv, dx, dy: self.coords_to_point(xv + dx, yv + dy, t))(*_cached(t)))
+        self._add_plot_obj(line)
+        return line
+
     def get_dashed_line(self, x1, y1, x2, y2, creation=0, z=0, **styling_kwargs):
         """Draw a dashed line between two math coordinate points.
         Returns a Line object."""
