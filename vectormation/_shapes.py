@@ -235,6 +235,14 @@ class Rectangle(VObject):
         """Return the four corners: top-left, top-right, bottom-right, bottom-left."""
         return self.snap_points(time)
 
+    def get_area(self, time=0):
+        """Return the area (width * height)."""
+        return self.width.at_time(time) * self.height.at_time(time)
+
+    def get_perimeter(self, time=0):
+        """Return the perimeter (2 * (width + height))."""
+        return 2 * (self.width.at_time(time) + self.height.at_time(time))
+
     def __repr__(self):
         return f'{self.__class__.__name__}({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f})'
 

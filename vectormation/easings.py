@@ -275,3 +275,38 @@ def ease_in_out_bounce(t: float) -> float:
         return (1 - ease_out_bounce(1 - 2 * t)) / 2
     else:
         return (1 + ease_out_bounce(2 * t - 1)) / 2
+
+
+# ── Easing combinators ──
+
+def step(num_steps):
+    """Return a step easing that quantizes t into num_steps discrete levels."""
+    n = max(1, num_steps)
+    def _step(t):
+        t = max(0, min(1, t))
+        return min(1.0, int(t * n) / (n - 1)) if n > 1 else 1.0 if t >= 1 else 0.0
+    return _step
+
+
+def reverse(easing):
+    """Return an easing that runs in reverse (1→0 instead of 0→1)."""
+    def _reversed(t):
+        return 1 - easing(1 - t)
+    return _reversed
+
+
+def compose(*easings_list):
+    """Chain multiple easings in sequence, each occupying an equal time slice."""
+    n = len(easings_list)
+    if n == 0:
+        return linear
+    if n == 1:
+        return easings_list[0]
+    def _composed(t):
+        t = max(0, min(1, t))
+        idx = min(int(t * n), n - 1)
+        local_t = t * n - idx
+        start_val = idx / n
+        end_val = (idx + 1) / n
+        return start_val + (end_val - start_val) * easings_list[idx](local_t)
+    return _composed

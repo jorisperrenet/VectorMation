@@ -3324,3 +3324,60 @@ class TestFromSvgText:
         obj = from_svg(elem)
         result = obj.to_svg(0)
         assert 'World' in result
+
+
+class TestEasingCombinators:
+    def test_step_basic(self):
+        s = easings.step(4)
+        assert s(0.0) == 0.0
+        assert s(0.1) == 0.0
+        assert s(0.3) == pytest.approx(1/3)
+        assert s(1.0) == 1.0
+
+    def test_step_two(self):
+        s = easings.step(2)
+        assert s(0.0) == 0.0
+        assert s(0.4) == 0.0
+        assert s(0.5) == 1.0
+        assert s(1.0) == 1.0
+
+    def test_step_one(self):
+        s = easings.step(1)
+        assert s(0.0) == 0.0
+        assert s(0.5) == 0.0
+        assert s(1.0) == 1.0
+
+    def test_reverse(self):
+        rev = easings.reverse(easings.ease_in_quad)
+        # reverse(ease_in) acts like ease_out: 0→0, 1→1 but reversed curve shape
+        assert rev(0) == pytest.approx(0.0)
+        assert rev(1) == pytest.approx(1.0)
+        # Midpoint: ease_in_quad(0.5)=0.25, reverse(0.5)=1-ease_in_quad(0.5)=0.75
+        assert rev(0.5) == pytest.approx(0.75)
+
+    def test_compose_two(self):
+        c = easings.compose(easings.linear, easings.linear)
+        assert c(0.0) == pytest.approx(0.0)
+        assert c(0.5) == pytest.approx(0.5)
+        assert c(1.0) == pytest.approx(1.0)
+
+    def test_compose_preserves_endpoints(self):
+        c = easings.compose(easings.ease_in_quad, easings.ease_out_quad)
+        assert c(0.0) == pytest.approx(0.0)
+        assert c(1.0) == pytest.approx(1.0)
+
+
+class TestRectangleGeometry:
+    def test_get_area(self):
+        r = Rectangle(200, 100)
+        assert r.get_area() == 20000
+
+    def test_get_perimeter(self):
+        r = Rectangle(200, 100)
+        assert r.get_perimeter() == 600
+
+    def test_animated(self):
+        r = Rectangle(100, 100)
+        r.width.set(0, 1, lambda t: 100 + 100 * t)
+        assert r.get_area(time=0) == 10000
+        assert r.get_area(time=1) == 20000
