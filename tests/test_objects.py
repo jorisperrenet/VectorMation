@@ -33,7 +33,7 @@ from vectormation.objects import (
     DEFAULT_CHART_COLORS, Variable, Underline,
     ArrowVectorField, ComplexPlane, ChessBoard, Automaton,
     PeriodicTable, BohrAtom,
-    Countdown, Filmstrip,
+    Countdown, Filmstrip, MorphObject, Title,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -2958,3 +2958,116 @@ class TestFilmstrip:
         f = Filmstrip([])
         svg = f.to_svg(0)
         assert svg is not None
+
+
+class TestLineUtilities:
+    def test_get_start_end(self):
+        l = Line(x1=100, y1=200, x2=400, y2=600)
+        assert l.get_start() == (100, 200)
+        assert l.get_end() == (400, 600)
+
+    def test_get_length(self):
+        l = Line(x1=0, y1=0, x2=300, y2=400)
+        assert abs(l.get_length() - 500.0) < 0.01
+
+    def test_get_length_zero(self):
+        l = Line(x1=100, y1=100, x2=100, y2=100)
+        assert l.get_length() == 0.0
+
+    def test_get_angle_horizontal(self):
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        assert abs(l.get_angle() - 0.0) < 0.01
+
+    def test_get_angle_vertical_down(self):
+        l = Line(x1=0, y1=0, x2=0, y2=100)
+        assert abs(l.get_angle() - 90.0) < 0.01
+
+    def test_get_angle_diagonal(self):
+        l = Line(x1=0, y1=0, x2=100, y2=100)
+        assert abs(l.get_angle() - 45.0) < 0.01
+
+    def test_get_unit_vector(self):
+        l = Line(x1=0, y1=0, x2=300, y2=400)
+        ux, uy = l.get_unit_vector()
+        assert abs(ux - 0.6) < 0.01
+        assert abs(uy - 0.8) < 0.01
+
+    def test_get_unit_vector_zero_length(self):
+        l = Line(x1=50, y1=50, x2=50, y2=50)
+        assert l.get_unit_vector() == (0.0, 0.0)
+
+    def test_animated_line_at_time(self):
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        l.p2.set(0, 1, lambda t: (100 + 200 * t, 0))
+        assert abs(l.get_length(time=0) - 100) < 1
+        assert abs(l.get_length(time=1) - 300) < 1
+
+
+class TestArcUtilities:
+    def test_get_start_point(self):
+        a = Arc(cx=0, cy=0, r=100, start_angle=0, end_angle=90)
+        sx, sy = a.get_start_point()
+        assert abs(sx - 100) < 0.01
+        assert abs(sy - 0) < 0.01
+
+    def test_get_end_point(self):
+        a = Arc(cx=0, cy=0, r=100, start_angle=0, end_angle=90)
+        ex, ey = a.get_end_point()
+        assert abs(ex - 0) < 0.01
+        assert abs(ey - (-100)) < 0.01  # 90 degrees: y = -r*sin(90) = -100
+
+    def test_get_arc_length(self):
+        from math import pi
+        a = Arc(cx=0, cy=0, r=100, start_angle=0, end_angle=180)
+        assert abs(a.get_arc_length() - 100 * pi) < 0.01
+
+    def test_get_arc_length_quarter(self):
+        from math import pi
+        a = Arc(cx=0, cy=0, r=200, start_angle=0, end_angle=90)
+        assert abs(a.get_arc_length() - 200 * pi / 2) < 0.01
+
+
+class TestMorphObject:
+    def test_creation(self):
+        c = Circle(r=50, cx=100, cy=100)
+        r = Rectangle(100, 100, x=300, y=300)
+        m = MorphObject(c, r, start=0, end=1)
+        svg = m.to_svg(0.5)
+        assert svg is not None
+
+    def test_source_hidden_after_start(self):
+        c = Circle(r=50, cx=100, cy=100)
+        r = Rectangle(100, 100, x=300, y=300)
+        m = MorphObject(c, r, start=0, end=1)
+        assert not c.show.at_time(0.5)
+
+    def test_target_visible_after_end(self):
+        c = Circle(r=50, cx=100, cy=100)
+        r = Rectangle(100, 100, x=300, y=300)
+        m = MorphObject(c, r, start=0, end=1)
+        assert r.show.at_time(1.5)
+
+    def test_target_hidden_before_end(self):
+        c = Circle(r=50, cx=100, cy=100)
+        r = Rectangle(100, 100, x=300, y=300)
+        m = MorphObject(c, r, start=1, end=2)
+        assert not r.show.at_time(0.5)
+
+    def test_with_rotation(self):
+        c = Circle(r=50, cx=100, cy=100)
+        r = Rectangle(100, 100, x=300, y=300)
+        m = MorphObject(c, r, start=0, end=1, rotation_degrees=180)
+        svg = m.to_svg(0.5)
+        assert svg is not None
+
+
+class TestTitleStyling:
+    def test_has_underline(self):
+        t = Title('Test')
+        svg = t.to_svg(0)
+        assert '<line' in svg
+
+    def test_custom_font_size(self):
+        t = Title('Big', font_size=80)
+        svg = t.to_svg(0)
+        assert 'font-size' in svg

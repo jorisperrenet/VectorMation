@@ -213,6 +213,37 @@ class Line(VObject):
         return f"<line x1='{p1[0]}' y1='{p1[1]}' x2='{p2[0]}' y2='{p2[1]}'{self.styling.svg_style(time)} />"
 
 
+    def get_start(self, time=0):
+        """Return the start point (x, y)."""
+        p = self.p1.at_time(time)
+        return (float(p[0]), float(p[1]))
+
+    def get_end(self, time=0):
+        """Return the end point (x, y)."""
+        p = self.p2.at_time(time)
+        return (float(p[0]), float(p[1]))
+
+    def get_length(self, time=0):
+        """Return the Euclidean length of the line."""
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+    def get_angle(self, time=0):
+        """Return the angle (in degrees) from p1 to p2. 0 = right, 90 = down."""
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        return math.degrees(math.atan2(y2 - y1, x2 - x1))
+
+    def get_unit_vector(self, time=0):
+        """Return the normalized direction vector (dx, dy) from p1 to p2."""
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        length = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+        if length == 0:
+            return (0.0, 0.0)
+        return ((x2 - x1) / length, (y2 - y1) / length)
+
     def __repr__(self):
         p1, p2 = self.p1.at_time(0), self.p2.at_time(0)
         return f'Line(({p1[0]:.0f},{p1[1]:.0f})->({p2[0]:.0f},{p2[1]:.0f}))'
@@ -846,6 +877,24 @@ class Arc(VObject):
         large = 1 if abs(ea - sa) % 360 > 180 else 0
         sweep = 0 if ea > sa else 1
         return f'M{x1},{y1}A{r},{r} 0 {large},{sweep} {x2},{y2}'
+
+    def get_start_point(self, time=0):
+        """Return the (x, y) position at the start of the arc."""
+        cx, cy, r = self.cx.at_time(time), self.cy.at_time(time), self.r.at_time(time)
+        sa = math.radians(self.start_angle.at_time(time))
+        return (cx + r * math.cos(sa), cy - r * math.sin(sa))
+
+    def get_end_point(self, time=0):
+        """Return the (x, y) position at the end of the arc."""
+        cx, cy, r = self.cx.at_time(time), self.cy.at_time(time), self.r.at_time(time)
+        ea = math.radians(self.end_angle.at_time(time))
+        return (cx + r * math.cos(ea), cy - r * math.sin(ea))
+
+    def get_arc_length(self, time=0):
+        """Return the arc length (r * angle_in_radians)."""
+        r = self.r.at_time(time)
+        sweep = abs(self.end_angle.at_time(time) - self.start_angle.at_time(time))
+        return r * math.radians(sweep)
 
     def to_svg(self, time):
         return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"
