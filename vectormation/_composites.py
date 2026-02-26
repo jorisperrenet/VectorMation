@@ -2708,6 +2708,80 @@ class Axes(VCollection):
             x += x_step
         return VCollection(*objs, creation=creation, z=z)
 
+    def plot_implicit(self, func, x_samples=40, y_samples=40,
+                       creation=0, z=0, **styling_kwargs):
+        """Plot the implicit curve f(x,y) = 0 using marching squares.
+        Returns a Path."""
+        style_kw = {'stroke': '#FF79C6', 'stroke_width': 2, 'fill_opacity': 0} | styling_kwargs
+        x_lo = self.x_min.at_time(creation)
+        x_hi = self.x_max.at_time(creation)
+        y_lo = self.y_min.at_time(creation)
+        y_hi = self.y_max.at_time(creation)
+        dx = (x_hi - x_lo) / max(x_samples - 1, 1)
+        dy = (y_hi - y_lo) / max(y_samples - 1, 1)
+        grid = [[func(x_lo + c * dx, y_lo + r * dy) for c in range(x_samples)]
+                for r in range(y_samples)]
+        segments = []
+        for r in range(y_samples - 1):
+            for c in range(x_samples - 1):
+                v = [grid[r][c], grid[r][c + 1], grid[r + 1][c + 1], grid[r + 1][c]]
+                case = sum(1 << i for i, val in enumerate(v) if val >= 0)
+                if case == 0 or case == 15:
+                    continue
+                cx0, cy0 = x_lo + c * dx, y_lo + r * dy
+                cx1, cy1 = cx0 + dx, cy0 + dy
+                def _interp(va, vb, pa, pb):
+                    t = (0 - va) / (vb - va) if abs(vb - va) > 1e-12 else 0.5
+                    return pa + t * (pb - pa)
+                edges = {
+                    'top': (_interp(v[0], v[1], cx0, cx1), cy0),
+                    'right': (cx1, _interp(v[1], v[2], cy0, cy1)),
+                    'bottom': (_interp(v[3], v[2], cx0, cx1), cy1),
+                    'left': (cx0, _interp(v[0], v[3], cy0, cy1)),
+                }
+                SEGS = {
+                    1: [('left', 'top')], 2: [('top', 'right')],
+                    3: [('left', 'right')], 4: [('right', 'bottom')],
+                    5: [('left', 'bottom'), ('top', 'right')],
+                    6: [('top', 'bottom')], 7: [('left', 'bottom')],
+                    8: [('bottom', 'left')], 9: [('bottom', 'top')],
+                    10: [('left', 'top'), ('right', 'bottom')],
+                    11: [('right', 'bottom')], 12: [('right', 'left')],
+                    13: [('top', 'right')], 14: [('top', 'left')],
+                }
+                for e1, e2 in SEGS.get(case, []):
+                    segments.append((edges[e1], edges[e2]))
+        curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
+        def _d(time, _segs=segments):
+            parts = []
+            for (ax, ay), (bx, by) in _segs:
+                sa = self.coords_to_point(ax, ay, time)
+                sb = self.coords_to_point(bx, by, time)
+                parts.append(f'M{sa[0]:.1f},{sa[1]:.1f}L{sb[0]:.1f},{sb[1]:.1f}')
+            return ''.join(parts)
+        curve.d.set_onward(creation, _d)
+        self._add_plot_obj(curve)
+        return curve
+
+    def plot_dot_plot(self, values, stack_spacing=0.3, r=4,
+                       creation=0, z=0, **styling_kwargs):
+        """Dot plot: stack of dots at each value along the x-axis.
+        values: list of x-values (can have duplicates).
+        Returns a VCollection of Dots."""
+        style_kw = {'fill': '#58C4DD', 'stroke_width': 0} | styling_kwargs
+        from collections import Counter
+        counts = Counter(values)
+        objs = []
+        for xv, cnt in sorted(counts.items()):
+            for i in range(cnt):
+                dot = Dot(cx=0, cy=0, r=r, creation=creation, z=z, **style_kw)
+                yv = stack_spacing * (i + 0.5)
+                dot.c.set_onward(creation,
+                    lambda t, _x=xv, _y=yv: self.coords_to_point(_x, _y, t))
+                self._add_plot_obj(dot)
+                objs.append(dot)
+        return VCollection(*objs, creation=creation, z=z)
+
     def add_reference_band(self, lo, hi, axis='y', creation=0, z=-1, **styling_kwargs):
         """Shaded horizontal or vertical reference band.
         axis='y': band between y=lo and y=hi. axis='x': between x=lo and x=hi.

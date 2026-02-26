@@ -1152,6 +1152,19 @@ class TestAxesNewMethods:
         w = band.width.at_time(0)
         assert w > 0
 
+    def test_plot_implicit(self):
+        ax = Axes(x_range=(-2, 2), y_range=(-2, 2), plot_width=300, plot_height=300)
+        curve = ax.plot_implicit(lambda x, y: x**2 + y**2 - 1, x_samples=20, y_samples=20)
+        assert isinstance(curve, Path)
+        d = curve.d.at_time(0)
+        assert 'M' in d
+
+    def test_plot_dot_plot(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 3), plot_width=300, plot_height=200)
+        dp = ax.plot_dot_plot([1, 1, 2, 2, 2, 3])
+        assert isinstance(dp, VCollection)
+        assert len(dp) == 6
+
 
 class TestVCollectionNew:
     def test_wave_effect(self):
