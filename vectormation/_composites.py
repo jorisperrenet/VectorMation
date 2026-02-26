@@ -2344,6 +2344,29 @@ class Axes(VCollection):
         self._add_plot_obj(curve)
         return curve
 
+    def add_label(self, x_coord, y_coord, text, offset=(0, -25), font_size=18,
+                  creation=0, z=5, **styling_kwargs):
+        """Add a text label at data coordinates (x_coord, y_coord).
+        offset: (dx, dy) pixel offset from the point. Returns the Text object."""
+        style_kw = {'fill': '#fff', 'stroke_width': 0, 'text_anchor': 'middle'} | styling_kwargs
+        _xc, _yc = x_coord, y_coord
+        ox, oy = offset
+        lbl = Text(text=str(text), x=0, y=0, font_size=font_size,
+                   creation=creation, z=z, **style_kw)
+        lbl.x.set_onward(creation, lambda t: self.coords_to_point(_xc, _yc, t)[0] + ox)
+        lbl.y.set_onward(creation, lambda t: self.coords_to_point(_xc, _yc, t)[1] + oy)
+        self._add_plot_obj(lbl)
+        return lbl
+
+    def add_dot(self, x_coord, y_coord, r=6, creation=0, z=5, **styling_kwargs):
+        """Add a dot at data coordinates (x_coord, y_coord). Returns the Dot."""
+        style_kw = {'fill': '#FFFF00', 'fill_opacity': 1, 'stroke_width': 0} | styling_kwargs
+        _xc, _yc = x_coord, y_coord
+        dot = Dot(r=r, cx=0, cy=0, creation=creation, z=z, **style_kw)
+        dot.c.set_onward(creation, lambda t: self.coords_to_point(_xc, _yc, t))
+        self._add_plot_obj(dot)
+        return dot
+
     def add_annotation_box(self, x_coord, y_coord, text, box_width=120, box_height=40,
                             offset=(60, -60), font_size=14, creation=0, z=5, **styling_kwargs):
         """Add a text box with an arrow pointing to (x_coord, y_coord).

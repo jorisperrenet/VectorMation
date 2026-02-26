@@ -3554,3 +3554,52 @@ class TestCopyConsolidation:
         g2 = g.copy()
         assert len(g2.objects) == 2
         assert g2.objects[0] is not g.objects[0]
+
+
+class TestPolygonSubclassRepr:
+    def test_regular_polygon_repr(self):
+        rp = RegularPolygon(6, radius=100)
+        assert repr(rp) == 'RegularPolygon(n=6, r=100)'
+
+    def test_star_repr(self):
+        s = Star(n=5, outer_radius=100)
+        assert 'Star(n=5' in repr(s)
+        assert 'outer=100' in repr(s)
+
+    def test_star_repr_custom_inner(self):
+        s = Star(n=7, outer_radius=200, inner_radius=80)
+        assert repr(s) == 'Star(n=7, outer=200, inner=80)'
+
+    def test_equilateral_triangle_repr(self):
+        t = EquilateralTriangle(side_length=150)
+        assert repr(t) == 'EquilateralTriangle(side=150)'
+
+
+class TestAxesAddLabel:
+    def test_add_label_returns_text(self):
+        ax = Axes(x_range=[-5, 5, 1], y_range=[-5, 5, 1])
+        lbl = ax.add_label(2, 3, 'Hello')
+        assert isinstance(lbl, Text)
+
+    def test_add_label_position(self):
+        ax = Axes(x_range=[-5, 5, 1], y_range=[-5, 5, 1])
+        lbl = ax.add_label(0, 0, 'Origin')
+        # Label x should be near the center of the axes
+        lx = lbl.x.at_time(0)
+        ly = lbl.y.at_time(0)
+        cx, cy = ax.coords_to_point(0, 0)
+        assert abs(lx - cx) < 50
+        assert abs(ly - cy) < 50
+
+    def test_add_dot_returns_dot(self):
+        ax = Axes(x_range=[-5, 5, 1], y_range=[-5, 5, 1])
+        d = ax.add_dot(1, 2)
+        assert isinstance(d, Dot)
+
+    def test_add_dot_position(self):
+        ax = Axes(x_range=[-5, 5, 1], y_range=[-5, 5, 1])
+        d = ax.add_dot(3, 4)
+        dc = d.c.at_time(0)
+        expected = ax.coords_to_point(3, 4)
+        assert abs(dc[0] - expected[0]) < 2
+        assert abs(dc[1] - expected[1]) < 2

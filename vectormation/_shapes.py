@@ -827,6 +827,8 @@ class RegularPolygon(Polygon):
     """Regular n-sided polygon inscribed in a circle of given radius."""
     def __init__(self, n, radius=120, cx=960, cy=540, angle=0, creation=0, z=0, **styling_kwargs):
         n = max(n, 1)
+        self._n = n
+        self._radius = radius
         angle_rad = angle * math.pi / 180
         vertices = [
             (cx + radius * math.cos(2 * math.pi * k / n + angle_rad),
@@ -834,6 +836,9 @@ class RegularPolygon(Polygon):
             for k in range(n)
         ]
         super().__init__(*vertices, creation=creation, z=z, **styling_kwargs)
+
+    def __repr__(self):
+        return f'RegularPolygon(n={self._n}, r={self._radius:.0f})'
 
 
 class Star(Polygon):
@@ -843,6 +848,9 @@ class Star(Polygon):
         n = max(n, 1)
         if inner_radius is None:
             inner_radius = outer_radius * 0.4
+        self._n = n
+        self._outer_radius = outer_radius
+        self._inner_radius = inner_radius
         angle_rad = angle * math.pi / 180
         vertices = []
         for k in range(2 * n):
@@ -851,14 +859,21 @@ class Star(Polygon):
             vertices.append((cx + r * math.cos(a), cy - r * math.sin(a)))
         super().__init__(*vertices, creation=creation, z=z, **styling_kwargs)
 
+    def __repr__(self):
+        return f'Star(n={self._n}, outer={self._outer_radius:.0f}, inner={self._inner_radius:.0f})'
+
 
 class EquilateralTriangle(RegularPolygon):
     """Equilateral triangle: RegularPolygon with n=3.
     side_length is converted to the circumscribed radius."""
     def __init__(self, side_length, angle=0, cx=960, cy=540, creation=0, z=0, **styling_kwargs):
+        self._side_length = side_length
         radius = side_length / math.sqrt(3)
         super().__init__(3, radius=radius, cx=cx, cy=cy, angle=angle + 90,
                          creation=creation, z=z, **styling_kwargs)
+
+    def __repr__(self):
+        return f'EquilateralTriangle(side={self._side_length:.0f})'
 
 
 class RoundedRectangle(Rectangle):
