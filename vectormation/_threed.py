@@ -44,7 +44,7 @@ def _parse_color_to_rgb(color_str):
 def _shade_color(base_rgb, normal, light_dir):
     """Lambertian shading returning 'rgb(r,g,b)'."""
     nx, ny, nz = normal
-    mag = math.sqrt(nx * nx + ny * ny + nz * nz) or 1
+    mag = math.hypot(nx, ny, nz) or 1
     nx, ny, nz = nx / mag, ny / mag, nz / mag
     lx, ly, lz = light_dir
     dot = nx * lx + ny * ly + nz * lz
@@ -196,7 +196,7 @@ class ThreeDAxes(VCollection):
 
     def set_light_direction(self, x, y, z):
         """Set the light direction vector (will be used as-is, should be normalized)."""
-        mag = math.sqrt(x * x + y * y + z * z) or 1
+        mag = math.hypot(x, y, z) or 1
         self._light_dir = (x / mag, y / mag, z / mag)
         return self
 
@@ -308,7 +308,7 @@ class ThreeDAxes(VCollection):
         sx0, sy0, _ = self.project_point(*p_base, time)
         sx1, sy1, _ = self.project_point(*p_tip, time)
         dx, dy = sx1 - sx0, sy1 - sy0
-        length = math.sqrt(dx * dx + dy * dy) or 1
+        length = math.hypot(dx, dy) or 1
         ux, uy = dx / length, dy / length
         px, py = -uy, ux
         # Triangle
@@ -329,7 +329,7 @@ class ThreeDAxes(VCollection):
                                 pos_3d[2] + perp_3d[2] * 0.1, time)
         # Tick direction in screen space
         tdx, tdy = pp[0] - sp[0], pp[1] - sp[1]
-        tmag = math.sqrt(tdx * tdx + tdy * tdy) or 1
+        tmag = math.hypot(tdx, tdy) or 1
         tdx, tdy = tdx / tmag * tick_len, tdy / tmag * tick_len
         stroke = self._axis_style.get('stroke', '#888')
         parts = [f'<line x1="{sp[0] - tdx:.1f}" y1="{sp[1] - tdy:.1f}" '
@@ -780,7 +780,7 @@ class Arrow3D:
 
         # Arrow tip (2D triangle at the projected tip)
         dx, dy = sx1 - sx0, sy1 - sy0
-        length = math.sqrt(dx * dx + dy * dy) or 1
+        length = math.hypot(dx, dy) or 1
         ux, uy = dx / length, dy / length
         px, py = -uy, ux
         tl, tr = self._tip_length, self._tip_radius

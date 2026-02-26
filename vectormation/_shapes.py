@@ -1,5 +1,6 @@
 """Shape classes: Polygon, Circle, Rectangle, Line, Text, Arc, etc."""
 import math
+from xml.sax.saxutils import escape as _xml_escape
 
 import vectormation.easings as easings
 import vectormation.attributes as attributes
@@ -413,7 +414,7 @@ class Text(VObject):
 
     def to_svg(self, time):
         anchor = f" text-anchor='{self._text_anchor}'" if self._text_anchor else ''
-        txt = str(self.text.at_time(time)).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        txt = _xml_escape(str(self.text.at_time(time)))
         return (f"<text x='{self.x.at_time(time)}' y='{self.y.at_time(time)}'"
                 f" font-size='{self.font_size.at_time(time)}'{anchor}{self.styling.svg_style(time)}"
                 f">{txt}</text>")
@@ -753,7 +754,7 @@ class SurroundingCircle(Circle):
     def __init__(self, target, buff=SMALL_BUFF, follow=True,
                  creation=0, z=0, **styling_kwargs):
         bx, by, bw, bh = target.bbox(creation)
-        r = math.sqrt(bw**2 + bh**2) / 2 + buff
+        r = math.hypot(bw, bh) / 2 + buff
         cx, cy = bx + bw / 2, by + bh / 2
         style_kw = {'fill_opacity': 0, 'stroke': '#FFFF00'} | styling_kwargs
         super().__init__(r=r, cx=cx, cy=cy, creation=creation, z=z, **style_kw)
@@ -903,7 +904,7 @@ class ArcBetweenPoints(Arc):
         x2, y2 = end
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
         dx, dy = x2 - x1, y2 - y1
-        dist = math.sqrt(dx * dx + dy * dy) or 1
+        dist = math.hypot(dx, dy) or 1
         # Compute radius from chord length and angle
         half_angle = math.radians(abs(angle) / 2)
         r = dist / (2 * math.sin(half_angle)) if half_angle > 1e-9 else dist * 1000
@@ -1052,7 +1053,7 @@ class Paragraph(VObject):
         for i, line in enumerate(self.lines):
             ly = y + i * self.font_size * self.line_spacing
             parts.append(f"<text x='{x}' y='{ly}' text-anchor='{anchor}' "
-                         f"font-size='{self.font_size}'{self.styling.svg_style(time)}>{line}</text>")
+                         f"font-size='{self.font_size}'{self.styling.svg_style(time)}>{_xml_escape(line)}</text>")
         return '\n'.join(parts)
 
 
@@ -1100,9 +1101,9 @@ class BulletedList(VObject):
         for i, item in enumerate(self.items):
             ly = y + i * self.font_size * self.line_spacing
             parts.append(f"<text x='{x}' y='{ly}' font-size='{self.font_size}'"
-                         f"{self.styling.svg_style(time)}>{self.bullet}</text>")
+                         f"{self.styling.svg_style(time)}>{_xml_escape(self.bullet)}</text>")
             parts.append(f"<text x='{x + self.indent}' y='{ly}' font-size='{self.font_size}'"
-                         f"{self.styling.svg_style(time)}>{item}</text>")
+                         f"{self.styling.svg_style(time)}>{_xml_escape(item)}</text>")
         return '\n'.join(parts)
 
 
@@ -1153,7 +1154,7 @@ class NumberedList(VObject):
             parts.append(f"<text x='{x}' y='{ly}' font-size='{self.font_size}'"
                          f"{self.styling.svg_style(time)}>{num}</text>")
             parts.append(f"<text x='{x + self.indent}' y='{ly}' font-size='{self.font_size}'"
-                         f"{self.styling.svg_style(time)}>{item}</text>")
+                         f"{self.styling.svg_style(time)}>{_xml_escape(item)}</text>")
         return '\n'.join(parts)
 
 

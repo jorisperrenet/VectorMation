@@ -295,7 +295,7 @@ class Coor(Real):
             now = old_func(t)
             pp: tuple = pivot_point(t) if callable(pivot_point) else pivot_point  # type: ignore[assignment]
             dx, dy = now[0] - pp[0], now[1] - pp[1]
-            r = math.sqrt(dx*dx + dy*dy)
+            r = math.hypot(dx, dy)
             base_angle = math.atan2(dy, dx)
             phi = base_angle + sign * math.radians(degrees * (t - start_time) / dur)
             return (pp[0] + r * math.cos(phi), pp[1] + r * math.sin(phi))

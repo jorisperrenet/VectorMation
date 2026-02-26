@@ -1324,6 +1324,14 @@ class TestUntested:
         svg = p.to_svg(0)
         assert 'Left' in svg
 
+    def test_text_escaping(self):
+        t = Text(text='a < b & c > d', x=100, y=100, font_size=20, stroke_width=0)
+        svg = t.to_svg(0)
+        assert '&lt;' in svg
+        assert '&amp;' in svg
+        assert '&gt;' in svg
+        assert ' < ' not in svg
+
     def test_equilateral_triangle(self):
         t = EquilateralTriangle(side_length=100)
         assert t.path(0) != ''

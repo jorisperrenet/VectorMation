@@ -1188,7 +1188,7 @@ class Axes(VCollection):
                 (_b := _base(t))[0] + _dx * _bb, _b[1] + _dy * _bb))
         # Dynamic arrowhead tip (3 vertices) — precompute constants
         _hw = _tw / 2
-        _ln = math.sqrt(_dx * _dx + _dy * _dy) or 1
+        _ln = math.hypot(_dx, _dy) or 1
         _ux, _uy = _dx / _ln, _dy / _ln
         _px, _py = -_uy, _ux
         # Precompute fixed offsets from the tip base point
@@ -2777,7 +2777,7 @@ class Axes(VCollection):
                 return _tip_cache[1]
             p1, p2 = _tip_base(t)
             ddx, ddy = p2[0] - p1[0], p2[1] - p1[1]
-            ln = math.sqrt(ddx * ddx + ddy * ddy) or 1
+            ln = math.hypot(ddx, ddy) or 1
             ux, uy = ddx / ln, ddy / ln
             px, py = -uy, ux
             bx, by = p2[0] - ux * _tl, p2[1] - uy * _tl
@@ -2888,7 +2888,7 @@ class Axes(VCollection):
                 except (ZeroDivisionError, ValueError):
                     y += y_step
                     continue
-                mag = math.sqrt(u ** 2 + v ** 2)
+                mag = math.hypot(u, v)
                 if mag < 1e-9:
                     y += y_step
                     continue
@@ -2925,7 +2925,7 @@ class Axes(VCollection):
         dy_px = -self.plot_height / yspan
         dir_x = dx_px
         dir_y = slope * dy_px
-        mag = math.sqrt(dir_x ** 2 + dir_y ** 2)
+        mag = math.hypot(dir_x, dir_y)
         if mag == 0:
             mag = 1
         half = length / 2
@@ -2944,7 +2944,7 @@ class Axes(VCollection):
             sx1, sy1 = self.coords_to_point(_x1, func(_x1), t)
             sx2, sy2 = self.coords_to_point(_x2, func(_x2), t)
             dx, dy = sx2 - sx1, sy2 - sy1
-            mag = max(math.sqrt(dx ** 2 + dy ** 2), 1e-9)
+            mag = max(math.hypot(dx, dy), 1e-9)
             half = _len / 2
             mx, my = (sx1 + sx2) / 2, (sy1 + sy2) / 2
             return (mx - dx / mag * half, my - dy / mag * half)
@@ -2952,7 +2952,7 @@ class Axes(VCollection):
             sx1, sy1 = self.coords_to_point(_x1, func(_x1), t)
             sx2, sy2 = self.coords_to_point(_x2, func(_x2), t)
             dx, dy = sx2 - sx1, sy2 - sy1
-            mag = max(math.sqrt(dx ** 2 + dy ** 2), 1e-9)
+            mag = max(math.hypot(dx, dy), 1e-9)
             half = _len / 2
             mx, my = (sx1 + sx2) / 2, (sy1 + sy2) / 2
             return (mx + dx / mag * half, my + dy / mag * half)
@@ -2978,7 +2978,7 @@ class Axes(VCollection):
             sx1, sy1 = self.coords_to_point(x1, func(x1), t)
             sx2, sy2 = self.coords_to_point(x2, func(x2), t)
             ddx, dy = sx2 - sx1, sy2 - sy1
-            mag = max(math.sqrt(ddx ** 2 + dy ** 2), 1e-9)
+            mag = max(math.hypot(ddx, dy), 1e-9)
             half = _len / 2
             mx, my = (sx1 + sx2) / 2, (sy1 + sy2) / 2
             return (mx - ddx / mag * half, my - dy / mag * half)
@@ -2989,7 +2989,7 @@ class Axes(VCollection):
             sx1, sy1 = self.coords_to_point(x1, func(x1), t)
             sx2, sy2 = self.coords_to_point(x2, func(x2), t)
             ddx, dy = sx2 - sx1, sy2 - sy1
-            mag = max(math.sqrt(ddx ** 2 + dy ** 2), 1e-9)
+            mag = max(math.hypot(ddx, dy), 1e-9)
             half = _len / 2
             mx, my = (sx1 + sx2) / 2, (sy1 + sy2) / 2
             return (mx + ddx / mag * half, my + dy / mag * half)
@@ -3192,7 +3192,7 @@ class NumberPlane(VCollection):
 def _arrowhead(from_x, from_y, to_x, to_y, tip_length, tip_width, fill, creation, z):
     """Create a triangular arrowhead polygon pointing from (from_x,from_y) toward (to_x,to_y)."""
     dx, dy = to_x - from_x, to_y - from_y
-    length = math.sqrt(dx * dx + dy * dy) or 1
+    length = math.hypot(dx, dy) or 1
     ux, uy = dx / length, dy / length
     px, py = -uy, ux
     bx, by = to_x - ux * tip_length, to_y - uy * tip_length
@@ -3660,8 +3660,8 @@ class RightAngle(VCollection):
         vx, vy = vertex
         d1x, d1y = p1[0] - vx, p1[1] - vy
         d2x, d2y = p2[0] - vx, p2[1] - vy
-        len1 = math.sqrt(d1x*d1x + d1y*d1y) or 1
-        len2 = math.sqrt(d2x*d2x + d2y*d2y) or 1
+        len1 = math.hypot(d1x, d1y) or 1
+        len2 = math.hypot(d2x, d2y) or 1
         u1x, u1y = d1x / len1 * size, d1y / len1 * size
         u2x, u2y = d2x / len2 * size, d2y / len2 * size
         style_kw = {'stroke': '#FFFF00', 'stroke_width': 4, 'fill_opacity': 0} | styling_kwargs
@@ -4554,7 +4554,7 @@ def brace_between_points(p1, p2, direction=None, label=None, buff=0, depth=18,
     x2, y2 = p2
     # Build a thin invisible rect along the line
     dx, dy = x2 - x1, y2 - y1
-    dist = math.sqrt(dx * dx + dy * dy) or 1
+    dist = math.hypot(dx, dy) or 1
     cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
     # Determine direction
     if direction is None:
@@ -4597,7 +4597,7 @@ class ArrowVectorField(VCollection):
             y = y_min
             while y <= y_max:
                 vx, vy = func(x, y)
-                mag = math.sqrt(vx * vx + vy * vy)
+                mag = math.hypot(vx, vy)
                 samples.append((x, y, vx, vy, mag))
                 y += y_step
             x += x_step
@@ -5025,7 +5025,7 @@ class Automaton(VCollection):
                 objects.append(lbl)
             else:
                 dx, dy = tx - fx, ty - fy
-                dist = math.sqrt(dx * dx + dy * dy) or 1
+                dist = math.hypot(dx, dy) or 1
                 ux, uy = dx / dist, dy / dist
                 # Shorten to circle edges
                 sx, sy = fx + ux * state_r, fy + uy * state_r
@@ -5105,7 +5105,7 @@ class NetworkGraph(VCollection):
                     for b in node_ids[i + 1:]:
                         dx = pos[a][0] - pos[b][0]
                         dy = pos[a][1] - pos[b][1]
-                        d = math.sqrt(dx * dx + dy * dy) + 1
+                        d = math.hypot(dx, dy) + 1
                         f = 5000 / (d * d)
                         forces[a][0] += f * dx / d
                         forces[a][1] += f * dy / d
@@ -5118,7 +5118,7 @@ class NetworkGraph(VCollection):
                         continue
                     dx = pos[b][0] - pos[a][0]
                     dy = pos[b][1] - pos[a][1]
-                    d = math.sqrt(dx * dx + dy * dy) + 1
+                    d = math.hypot(dx, dy) + 1
                     f = d * 0.01
                     forces[a][0] += f * dx / d
                     forces[a][1] += f * dy / d
@@ -5144,7 +5144,7 @@ class NetworkGraph(VCollection):
             bx, by = self._node_positions[b]
             if directed:
                 dx, dy = bx - ax, by - ay
-                d = math.sqrt(dx * dx + dy * dy) or 1
+                d = math.hypot(dx, dy) or 1
                 # Shorten to not overlap circles
                 ax2 = ax + dx / d * node_r
                 ay2 = ay + dy / d * node_r
@@ -5216,7 +5216,7 @@ class LabeledArrow(VCollection):
         arrow = Arrow(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z, **style_kw)
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
         dx, dy = x2 - x1, y2 - y1
-        dist = math.sqrt(dx * dx + dy * dy) or 1
+        dist = math.hypot(dx, dy) or 1
         # Perpendicular offset for the label
         nx, ny = -dy / dist * label_buff, dx / dist * label_buff
         lbl = Text(text=label, x=mx + nx, y=my + ny + font_size * 0.35,
@@ -5248,7 +5248,7 @@ class StreamLines(VCollection):
                 cx, cy = x, y
                 for _ in range(n_steps):
                     vx, vy = func(cx, cy)
-                    mag = math.sqrt(vx * vx + vy * vy)
+                    mag = math.hypot(vx, vy)
                     if mag < 1e-9:
                         break
                     cx += vx / mag * step_size
@@ -5388,7 +5388,7 @@ class DimensionLine(VCollection):
         x1, y1 = p1
         x2, y2 = p2
         dx, dy = x2 - x1, y2 - y1
-        length = math.sqrt(dx * dx + dy * dy) or 1
+        length = math.hypot(dx, dy) or 1
         # Perpendicular unit vector
         nx, ny = -dy / length * offset, dx / length * offset
         # Offset endpoints
@@ -6371,7 +6371,7 @@ class VennDiagram(VCollection):
             else:
                 dx = cx - x
                 dy = cy - y
-                dist = math.sqrt(dx * dx + dy * dy) or 1
+                dist = math.hypot(dx, dy) or 1
                 lx = cx + dx / dist * (sizes[i] + 20)
                 ly = cy + dy / dist * (sizes[i] + 20) + font_size * 0.35
             lbl = Text(text=str(labels[i]), x=lx, y=ly,

@@ -139,7 +139,7 @@ class VObject(ABC):  # Vector Object
         """Return the distance between this object's center and another's."""
         x1, y1 = self.center(time)
         x2, y2 = other.center(time)
-        return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+        return math.hypot(x2 - x1, y2 - y1)
 
     def get_edge(self, edge, time=0):
         """Return coordinate of a named edge point.
@@ -497,7 +497,7 @@ class VObject(ABC):  # Vector Object
         # Compute arc center: perpendicular bisector of (sx,sy)→(tx,ty)
         mx, my = (sx + tx) / 2, (sy + ty) / 2
         dx, dy = tx - sx, ty - sy
-        chord = math.sqrt(dx * dx + dy * dy)
+        chord = math.hypot(dx, dy)
         if chord < 1e-9:
             return self
         half_angle = angle / 2
@@ -517,7 +517,7 @@ class VObject(ABC):  # Vector Object
         def _pos(t, _s=_s, _d=_d, _a0=_a0, _ang=_ang, _cx=_cx, _cy=_cy, _sx=_sx, _sy=_sy, _easing=easing):
             progress = _easing((t - _s) / _d)
             a = _a0 + _ang * progress
-            r = math.sqrt((_sx - _cx) ** 2 + (_sy - _cy) ** 2)
+            r = math.hypot(_sx - _cx, _sy - _cy)
             return (_cx + r * math.cos(a) - _sx, _cy + r * math.sin(a) - _sy)
         for c in self._shift_coors():
             c.add(start, end, _pos, stay=True)
@@ -1349,7 +1349,7 @@ class VObject(ABC):  # Vector Object
         bx, by, bw, bh = self.bbox(start)
         obj_cx, obj_cy = bx + bw / 2, by + bh / 2
         if radius is None:
-            radius = math.sqrt((obj_cx - cx) ** 2 + (obj_cy - cy) ** 2)
+            radius = math.hypot(obj_cx - cx, obj_cy - cy)
             if radius == 0:
                 radius = 100
         start_angle = math.atan2(obj_cy - cy, obj_cx - cx)
@@ -2571,7 +2571,7 @@ class VCollection:
             bx, by, bw, bh = obj.bbox(start)
             ocx, ocy = bx + bw / 2, by + bh / 2
             dx, dy = ocx - cx, ocy - cy
-            dist = math.sqrt(dx * dx + dy * dy)
+            dist = math.hypot(dx, dy)
             if dist < 1e-6:
                 # At center: use evenly-spaced angles
                 angle = 2 * math.pi * i / max(n, 1)

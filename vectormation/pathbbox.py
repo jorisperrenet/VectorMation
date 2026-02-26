@@ -227,7 +227,7 @@ def _arc_bbox(cx_cur, cy_cur, rx, ry, rotation, large_arc, sweep, ex, ey):
 
     # Step 2: compute start and end angles
     def angle(ux, uy, vx, vy):
-        n = math.sqrt(ux * ux + uy * uy) * math.sqrt(vx * vx + vy * vy)
+        n = math.hypot(ux, uy) * math.hypot(vx, vy)
         if n < 1e-12:
             return 0
         c = (ux * vx + uy * vy) / n
