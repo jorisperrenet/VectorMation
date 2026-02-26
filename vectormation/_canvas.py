@@ -186,12 +186,25 @@ class VectorMathAnim:
             self.objects[id(obj)] = obj
         return self
 
+    def remove(self, *args):
+        """Remove objects from the canvas."""
+        for obj in args:
+            self.objects.pop(id(obj), None)
+        return self
+
+    def clear(self):
+        """Remove all objects from the canvas (keeps background and defs)."""
+        bg_id = id(self.background) if self.background else None
+        self.objects = {k: v for k, v in self.objects.items() if k == bg_id}
+        return self
+
     def add_def(self, def_obj):
         """Register a gradient or clip path for the <defs> block."""
         self.defs[def_obj.id] = def_obj
         return self
 
-    # Backward compatibility aliases
+    # Aliases
+    add = add_objects
     add_gradient = add_def
     add_clip_path = add_def
 

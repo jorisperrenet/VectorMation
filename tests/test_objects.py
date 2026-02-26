@@ -34,6 +34,7 @@ from vectormation.objects import (
     ArrowVectorField, ComplexPlane, ChessBoard, Automaton,
     PeriodicTable, BohrAtom,
     Countdown, Filmstrip, MorphObject, Title, NumberPlane, Matrix,
+    Ellipse, from_svg,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -3250,3 +3251,76 @@ class TestInputValidation:
     def test_matrix_empty_rows(self):
         with pytest.raises(ValueError):
             Matrix([[]])
+
+
+class TestEllipseGeometry:
+    def test_get_area(self):
+        from math import pi
+        e = Ellipse(rx=100, ry=50)
+        assert abs(e.get_area() - pi * 100 * 50) < 0.01
+
+    def test_get_circumference(self):
+        # For a circle (rx==ry==100), should give 2*pi*100
+        from math import pi
+        e = Ellipse(rx=100, ry=100)
+        assert abs(e.get_circumference() - 2 * pi * 100) < 0.01
+
+    def test_circle_inherits(self):
+        from math import pi
+        c = Circle(r=50)
+        # Circle inherits from Ellipse, should work
+        assert abs(c.get_area() - pi * 2500) < 0.01
+        assert abs(c.get_circumference() - 2 * pi * 50) < 0.01
+
+
+class TestCanvasRemoveClear:
+    def setup_method(self):
+        self.tmpdir = tempfile.mkdtemp()
+
+    def test_remove(self):
+        anim = VectorMathAnim(self.tmpdir)
+        c = Circle(r=50)
+        r = Rectangle(100, 100)
+        anim.add(c)
+        anim.add(r)
+        anim.remove(c)
+        svg = anim.generate_frame_svg(0)
+        assert 'circle' not in svg
+        assert 'rect' in svg
+
+    def test_clear(self):
+        anim = VectorMathAnim(self.tmpdir)
+        c = Circle(r=50)
+        r = Rectangle(100, 100)
+        anim.add(c)
+        anim.add(r)
+        anim.clear()
+        svg = anim.generate_frame_svg(0)
+        assert 'circle' not in svg
+        assert 'rect' not in svg
+
+    def test_clear_keeps_background(self):
+        anim = VectorMathAnim(self.tmpdir)
+        c = Circle(r=50)
+        anim.add(c)
+        anim.clear()
+        svg = anim.generate_frame_svg(0)
+        assert '<svg' in svg
+
+
+class TestFromSvgText:
+    def test_text_element(self):
+        from bs4 import BeautifulSoup
+        svg = "<text x='100' y='200' font-size='24'>Hello</text>"
+        elem = BeautifulSoup(svg, 'xml').find('text')
+        obj = from_svg(elem)
+        result = obj.to_svg(0)
+        assert 'Hello' in result
+
+    def test_text_with_style(self):
+        from bs4 import BeautifulSoup
+        svg = "<text x='50' y='60' style='font-size:32; fill:#ff0000'>World</text>"
+        elem = BeautifulSoup(svg, 'xml').find('text')
+        obj = from_svg(elem)
+        result = obj.to_svg(0)
+        assert 'World' in result

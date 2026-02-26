@@ -4168,11 +4168,18 @@ def from_svg(element, **styles):
         return Polygon(*_parse_svg_points(element.get('points', '')), **_merged_attrs('points'))
     elif tag == 'polyline':
         return Lines(*_parse_svg_points(element.get('points', '')), **_merged_attrs('points'))
+    elif tag == 'text':
+        content = element.get_text(strip=True)
+        kw = _merged_attrs('x', 'y', 'font-size', 'text-anchor')
+        fs = float(element.get('font-size', inline.get('font-size', 48)))
+        anchor = element.get('text-anchor', inline.get('text-anchor', None))
+        return Text(text=content, x=g('x', 960), y=g('y', 540),
+                    font_size=fs, text_anchor=anchor, **kw)
     else:
         raise NotImplementedError(f'Type "{tag}" has no from_svg implemented')
 
 
-_SVG_SHAPE_TAGS = frozenset({'path', 'rect', 'circle', 'ellipse', 'line', 'polygon', 'polyline'})
+_SVG_SHAPE_TAGS = frozenset({'path', 'rect', 'circle', 'ellipse', 'line', 'polygon', 'polyline', 'text'})
 
 def from_svg_file(filepath, creation=0, z=0, **styles):
     """Load an SVG file and return a VCollection of all parseable elements."""

@@ -125,6 +125,15 @@ class Ellipse(VObject):
         cx, cy = self.c.at_time(time)
         return f'M{cx-rx},{cy}a{rx},{ry} 0 1,0 {rx*2},0a{rx},{ry} 0 1,0 -{rx*2},0z'
 
+    def get_area(self, time=0):
+        """Return the area (pi * rx * ry)."""
+        return math.pi * self.rx.at_time(time) * self.ry.at_time(time)
+
+    def get_circumference(self, time=0):
+        """Return the approximate perimeter (Ramanujan's approximation)."""
+        a, b = self.rx.at_time(time), self.ry.at_time(time)
+        return math.pi * (3 * (a + b) - math.sqrt((3 * a + b) * (a + 3 * b)))
+
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)
         return f"<ellipse cx='{cx}' cy='{cy}' rx='{self.rx.at_time(time)}' ry='{self.ry.at_time(time)}'{self.styling.svg_style(time)} />"
@@ -156,7 +165,7 @@ class Circle(Ellipse):
         return (cx + r * math.cos(rad), cy - r * math.sin(rad))
 
     def get_area(self, time=0):
-        """Return the area of the circle (pi * r^2)."""
+        """Return the area (pi * r^2)."""
         r = self.rx.at_time(time)
         return math.pi * r * r
 
