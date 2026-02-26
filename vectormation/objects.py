@@ -65,6 +65,7 @@ from vectormation._composites import (
     Checklist, Stepper, TagCloud,
     StatusIndicator, Meter, Breadcrumb,
     Countdown, Filmstrip,
+    SampleSpace, RoundedCornerPolygon,
     from_svg, from_svg_file, always_redraw, parse_args,
     _parse_inline_style,
 )

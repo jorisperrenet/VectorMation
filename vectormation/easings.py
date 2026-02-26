@@ -277,6 +277,30 @@ def ease_in_out_bounce(t: float) -> float:
         return (1 + ease_out_bounce(2 * t - 1)) / 2
 
 
+@unit_interval
+def running_start(t: float, pull_factor: float = -0.5) -> float:
+    """Ease that pulls back slightly before accelerating forward."""
+    return _bezier_y(0, pull_factor, 1, t)
+
+
+@unit_interval
+def smoothstep(t: float) -> float:
+    """Hermite interpolation (3t^2 - 2t^3)."""
+    return t * t * (3 - 2 * t)
+
+
+@unit_interval
+def smootherstep(t: float) -> float:
+    """Ken Perlin's improved smoothstep (6t^5 - 15t^4 + 10t^3)."""
+    return t * t * t * (t * (t * 6 - 15) + 10)
+
+
+def _bezier_y(y0, y1, y2, t):
+    """Evaluate a quadratic Bézier y-value at parameter t."""
+    s = 1 - t
+    return s * s * y0 + 2 * s * t * y1 + t * t * y2
+
+
 # ── Easing combinators ──
 
 def step(num_steps):

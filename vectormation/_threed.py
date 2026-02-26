@@ -213,6 +213,15 @@ class ThreeDAxes(VCollection):
         phi, theta = self._CAMERA_PRESETS[name]
         return self.set_camera_orientation(start, end, phi=phi, theta=theta, easing=easing)
 
+    def set_camera_zoom(self, start, end, factor, easing=easings.smooth):
+        """Animate the 3D camera zoom (scale) over [start, end]."""
+        dur = max(end - start, 1e-9)
+        s0 = self._scale_3d.at_time(start)
+        target = s0 * factor
+        self._scale_3d.set(start, end,
+            lambda t, _s=start, _d=dur, _s0=s0, _tgt=target: _s0 + (_tgt - _s0) * easing((t - _s) / _d))
+        return self
+
     def begin_ambient_camera_rotation(self, start=0, end=None, rate=0.1):
         """Continuously rotate the camera theta at *rate* radians per second.
 

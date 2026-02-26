@@ -1413,7 +1413,7 @@ class VObject(ABC):  # Vector Object
             phase = progress * _b * 2 * math.pi
             decay = 1 - progress
             return -abs(math.sin(phase)) * _h * decay * _easing(min(1, progress * 3))
-        for xa, ya in self._shift_reals():
+        for _, ya in self._shift_reals():
             ya.add(start, end, _dy)
         for c in self._shift_coors():
             c.add(start, end, lambda t, _f=_dy: (0, _f(t)))
@@ -2426,7 +2426,7 @@ class VCollection:
             def _dy(t, _s=s, _d=d, _a=a, _p=p, _w=w):
                 progress = (t - _s) / _d
                 return -_a * math.sin(2 * math.pi * _w * progress + _p) * (1 - progress)
-            for xa, ya in obj._shift_reals():
+            for _, ya in obj._shift_reals():
                 ya.add(start, end, _dy)
             for c in obj._shift_coors():
                 c.add(start, end, lambda t, _f=_dy: (0, _f(t)))

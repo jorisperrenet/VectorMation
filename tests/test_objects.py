@@ -4213,3 +4213,130 @@ class TestBraceEdgeCases:
         b = Brace(big, direction='up')
         svg = b.to_svg(0)
         assert svg
+
+
+class TestLogAxes:
+    def test_log_axes_render(self):
+        ax = Axes(x_range=(0.1, 1000), y_range=(1, 100), x_scale='log', y_scale='log')
+        svg = ax.to_svg(0)
+        assert '10' in svg
+        assert '100' in svg
+
+    def test_log_math_to_svg_x(self):
+        ax = Axes(x_range=(1, 1000), y_range=(1, 10), x_scale='log')
+        # x=1 should be at left edge, x=1000 at right edge
+        left = ax._math_to_svg_x(1, 0)
+        right = ax._math_to_svg_x(1000, 0)
+        mid = ax._math_to_svg_x(31.62, 0)  # sqrt(1000) ~ middle in log space
+        assert left < mid < right
+        assert left == pytest.approx(ax.plot_x, abs=1)
+        assert right == pytest.approx(ax.plot_x + ax.plot_width, abs=1)
+
+    def test_log_math_to_svg_y(self):
+        ax = Axes(x_range=(1, 10), y_range=(1, 100), y_scale='log')
+        top = ax._math_to_svg_y(100, 0)
+        bottom = ax._math_to_svg_y(1, 0)
+        assert top < bottom  # SVG y is inverted
+
+    def test_linear_axes_unchanged(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        sx = ax._math_to_svg_x(0, 0)
+        expected = ax.plot_x + ax.plot_width / 2
+        assert sx == pytest.approx(expected, abs=1)
+
+
+class TestTickFormat:
+    def test_callable_format(self):
+        ax = Axes(x_range=(0, 100), y_range=(0, 1), tick_format=lambda v: f'{v:.0f}%')
+        svg = ax.to_svg(0)
+        assert '%' in svg
+
+    def test_format_string(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 5), tick_format='{:.1f}')
+        svg = ax.to_svg(0)
+        assert '.0' in svg
+
+
+class TestSampleSpace:
+    def test_basic_render(self):
+        from vectormation.objects import SampleSpace
+        ss = SampleSpace(width=400, height=300)
+        svg = ss.to_svg(0)
+        assert 'rect' in svg.lower() or '<' in svg
+
+    def test_divide_horizontally(self):
+        from vectormation.objects import SampleSpace
+        ss = SampleSpace()
+        ss.divide_horizontally(0.6, labels=['A', 'B'])
+        svg = ss.to_svg(0)
+        assert 'A' in svg
+        assert 'B' in svg
+
+    def test_divide_vertically(self):
+        from vectormation.objects import SampleSpace
+        ss = SampleSpace()
+        ss.divide_vertically(0.4, labels=['Top', 'Bottom'])
+        svg = ss.to_svg(0)
+        assert 'Top' in svg
+        assert 'Bottom' in svg
+
+
+class TestRoundedCornerPolygon:
+    def test_basic_render(self):
+        from vectormation.objects import RoundedCornerPolygon
+        p = RoundedCornerPolygon((100, 100), (300, 100), (300, 300), (100, 300), radius=20)
+        svg = p.to_svg(0)
+        assert 'A' in svg  # arc commands
+        assert 'Z' in svg  # closed path
+
+    def test_small_radius(self):
+        from vectormation.objects import RoundedCornerPolygon
+        p = RoundedCornerPolygon((0, 0), (50, 0), (50, 50), (0, 50), radius=5)
+        svg = p.to_svg(0)
+        assert svg
+
+
+class TestDrawBorderThenFill:
+    def test_basic(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#f00')
+        c.draw_border_then_fill(start=0, end=2)
+        # At start, fill should be reduced/hidden
+        fo_start = c.styling.fill_opacity.at_time(0)
+        fo_end = c.styling.fill_opacity.at_time(2)
+        assert fo_start < fo_end or fo_start == pytest.approx(0, abs=0.1)
+
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.draw_border_then_fill(start=0, end=1)
+        assert result is c
+
+
+class TestNewEasings:
+    def test_running_start(self):
+        from vectormation.easings import running_start
+        assert running_start(0) == pytest.approx(0, abs=0.01)
+        assert running_start(1) == pytest.approx(1, abs=0.01)
+        # Should pull back (negative) early on
+        val_early = running_start(0.2)
+        assert val_early < 0.2  # pulls back
+
+    def test_smoothstep(self):
+        from vectormation.easings import smoothstep
+        assert smoothstep(0) == pytest.approx(0, abs=0.01)
+        assert smoothstep(1) == pytest.approx(1, abs=0.01)
+        assert smoothstep(0.5) == pytest.approx(0.5, abs=0.01)
+
+    def test_smootherstep(self):
+        from vectormation.easings import smootherstep
+        assert smootherstep(0) == pytest.approx(0, abs=0.01)
+        assert smootherstep(1) == pytest.approx(1, abs=0.01)
+        assert smootherstep(0.5) == pytest.approx(0.5, abs=0.01)
+
+
+class TestThreeDCameraZoom:
+    def test_set_camera_zoom(self):
+        ax = ThreeDAxes()
+        s0 = ax._scale_3d.at_time(0)
+        ax.set_camera_zoom(start=0, end=1, factor=2.0)
+        s1 = ax._scale_3d.at_time(1)
+        assert s1 == pytest.approx(s0 * 2, abs=1)

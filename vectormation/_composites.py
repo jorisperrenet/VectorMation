@@ -230,29 +230,75 @@ _TICK_FONT_SIZE = DEFAULT_FONT_SIZE // 2  # 24
 _TICK_GAP = SMALL_BUFF // 2               # 7 (gap between tick and label)
 _LABEL_GAP = SMALL_BUFF + 2              # 16 (gap between axis end and label)
 
+def _log_ticks(vmin, vmax):
+    """Generate log-scale tick values (powers of 10) between vmin and vmax (both > 0)."""
+    if vmin <= 0 or vmax <= 0:
+        return []
+    start_exp = math.floor(math.log10(vmin))
+    end_exp = math.ceil(math.log10(vmax))
+    ticks = []
+    for e in range(start_exp, end_exp + 1):
+        val = 10 ** e
+        if vmin <= val <= vmax:
+            ticks.append(val)
+    return ticks
+
+
+def _format_tick(val, tick_format):
+    """Format a tick value using the given format (None, callable, or format string)."""
+    if tick_format is None:
+        return f'{val:g}'
+    if callable(tick_format):
+        return tick_format(val)
+    return tick_format.format(val)
+
+
 def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_width, plot_height,
-                            show_grid, time):
+                            show_grid, time, x_scale='linear', y_scale='linear', tick_format=None):
     """Build axis lines, ticks, tick labels, and grid as VObjects for a single frame."""
     objects = []
-    x_span = x_max - x_min if x_max != x_min else 1
-    y_span = y_max - y_min if y_max != y_min else 1
-    y_zero = plot_y + (1 - (0 - y_min) / y_span) * plot_height if y_min <= 0 <= y_max else plot_y + plot_height
-    x_zero = plot_x + (0 - x_min) / x_span * plot_width if x_min <= 0 <= x_max else plot_x
-    tick_len = SMALL_BUFF
+
+    # For log scale, transform bounds to log space for positioning
+    if x_scale == 'log' and x_min > 0 and x_max > 0:
+        lx_min, lx_max = math.log10(x_min), math.log10(x_max)
+    else:
+        lx_min, lx_max = x_min, x_max
+    if y_scale == 'log' and y_min > 0 and y_max > 0:
+        ly_min, ly_max = math.log10(y_min), math.log10(y_max)
+    else:
+        ly_min, ly_max = y_min, y_max
+
+    x_span = lx_max - lx_min if lx_max != lx_min else 1
+    y_span = ly_max - ly_min if ly_max != ly_min else 1
 
     def _to_svg_x(val):
-        return plot_x + (val - x_min) / x_span * plot_width
+        v = math.log10(val) if x_scale == 'log' and val > 0 else val
+        return plot_x + (v - lx_min) / x_span * plot_width
 
     def _to_svg_y(val):
-        return plot_y + (1 - (val - y_min) / y_span) * plot_height
+        v = math.log10(val) if y_scale == 'log' and val > 0 else val
+        return plot_y + (1 - (v - ly_min) / y_span) * plot_height
+
+    # Axis baseline positions
+    if x_scale == 'log':
+        y_zero = plot_y + plot_height  # log axes have no zero; use bottom
+        x_zero = plot_x               # use left edge
+    else:
+        y_zero = plot_y + (1 - (0 - ly_min) / y_span) * plot_height if ly_min <= 0 <= ly_max else plot_y + plot_height
+        x_zero = plot_x + (0 - lx_min) / x_span * plot_width if lx_min <= 0 <= lx_max else plot_x
+    tick_len = SMALL_BUFF
+
+    # Choose tick values based on scale
+    x_ticks = _log_ticks(x_min, x_max) if x_scale == 'log' else _nice_ticks(x_min, x_max)
+    y_ticks = _log_ticks(y_min, y_max) if y_scale == 'log' else _nice_ticks(y_min, y_max)
 
     # Grid lines (behind axes)
     if show_grid:
-        for tx in _nice_ticks(x_min, x_max):
+        for tx in x_ticks:
             sx = _to_svg_x(tx)
             objects.append(Line(x1=sx, y1=plot_y, x2=sx, y2=plot_y + plot_height,
                                 creation=time, stroke='#333', stroke_width=1))
-        for ty in _nice_ticks(y_min, y_max):
+        for ty in y_ticks:
             sy = _to_svg_y(ty)
             objects.append(Line(x1=plot_x, y1=sy, x2=plot_x + plot_width, y2=sy,
                                 creation=time, stroke='#333', stroke_width=1))
@@ -264,22 +310,26 @@ def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_widt
                         creation=time, stroke='#fff', stroke_width=_AXIS_STROKE_WIDTH))
 
     # X-axis ticks and labels
-    for tx in _nice_ticks(x_min, x_max):
+    for tx in x_ticks:
         sx = _to_svg_x(tx)
         objects.append(Line(x1=sx, y1=y_zero - tick_len, x2=sx, y2=y_zero + tick_len,
                             creation=time, stroke='#fff', stroke_width=_AXIS_STROKE_WIDTH))
-        if abs(tx) > 1e-9:
-            objects.append(Text(text=f'{tx:g}', x=sx, y=y_zero + tick_len + _TICK_GAP + _TICK_FONT_SIZE * 0.35,
+        skip = (x_scale != 'log' and abs(tx) < 1e-9)
+        if not skip:
+            label = _format_tick(tx, tick_format)
+            objects.append(Text(text=label, x=sx, y=y_zero + tick_len + _TICK_GAP + _TICK_FONT_SIZE * 0.35,
                                 font_size=_TICK_FONT_SIZE, text_anchor='middle',
                                 creation=time, fill='#aaa', stroke_width=0))
 
     # Y-axis ticks and labels
-    for ty in _nice_ticks(y_min, y_max):
+    for ty in y_ticks:
         sy = _to_svg_y(ty)
         objects.append(Line(x1=x_zero - tick_len, y1=sy, x2=x_zero + tick_len, y2=sy,
                             creation=time, stroke='#fff', stroke_width=_AXIS_STROKE_WIDTH))
-        if abs(ty) > 1e-9:
-            objects.append(Text(text=f'{ty:g}', x=x_zero - tick_len - _TICK_GAP, y=sy + _TICK_FONT_SIZE * 0.35,
+        skip = (y_scale != 'log' and abs(ty) < 1e-9)
+        if not skip:
+            label = _format_tick(ty, tick_format)
+            objects.append(Text(text=label, x=x_zero - tick_len - _TICK_GAP, y=sy + _TICK_FONT_SIZE * 0.35,
                                 font_size=_TICK_FONT_SIZE, text_anchor='end',
                                 creation=time, fill='#aaa', stroke_width=0))
 
@@ -295,7 +345,9 @@ class Axes(VCollection):
     def __init__(self, x_range=(-5, 5), y_range=None,
                  x=260, y=100, plot_width=1400, plot_height=880,
                  x_label=None, y_label=None,
-                 show_grid=False, equal_aspect=False, creation=0, z=0):
+                 show_grid=False, equal_aspect=False,
+                 x_scale='linear', y_scale='linear',
+                 tick_format=None, creation=0, z=0):
         self.x_min = attributes.Real(creation, x_range[0])
         self.x_max = attributes.Real(creation, x_range[1])
         if equal_aspect and y_range is not None and x_range[1] != x_range[0]:
@@ -306,6 +358,9 @@ class Axes(VCollection):
         self.plot_width, self.plot_height = plot_width, plot_height
         self.num_points = 200
         self._show_grid = show_grid
+        self._x_scale = x_scale  # 'linear' or 'log'
+        self._y_scale = y_scale  # 'linear' or 'log'
+        self._tick_format = tick_format  # None, callable, or format string
 
         self._axis_labels = []
 
@@ -357,7 +412,7 @@ class Axes(VCollection):
         coll = _build_axes_decoration(
             self.x_min.at_time(time), self.x_max.at_time(time), y_min, y_max,
             self.plot_x, self.plot_y, self.plot_width, self.plot_height,
-            self._show_grid, time)
+            self._show_grid, time, self._x_scale, self._y_scale, self._tick_format)
         # Include the persistent axis title labels (TexObjects created once)
         for lbl in self._axis_labels:
             coll.objects.append(lbl)
@@ -370,6 +425,10 @@ class Axes(VCollection):
 
     def _math_to_svg_x(self, val, time=0):
         xmin, xmax = self.x_min.at_time(time), self.x_max.at_time(time)
+        if self._x_scale == 'log':
+            if val <= 0 or xmin <= 0 or xmax <= 0:
+                return self.plot_x
+            val, xmin, xmax = math.log10(val), math.log10(xmin), math.log10(xmax)
         span = xmax - xmin
         if span == 0:
             span = 1
@@ -377,6 +436,10 @@ class Axes(VCollection):
 
     def _math_to_svg_y(self, val, time=0):
         ymin, ymax = self.y_min.at_time(time), self.y_max.at_time(time)
+        if self._y_scale == 'log':
+            if val <= 0 or ymin <= 0 or ymax <= 0:
+                return self.plot_y + self.plot_height
+            val, ymin, ymax = math.log10(val), math.log10(ymin), math.log10(ymax)
         span = ymax - ymin
         if span == 0:
             span = 1
@@ -3244,6 +3307,68 @@ class NumberPlane(VCollection):
     def coords_to_point(self, x, y):
         """Convert logical coordinates to SVG pixel coordinates."""
         return (self._cx + x * self._unit, self._cy - y * self._unit)
+
+    def apply_function(self, func, start=0, end=1, easing=easings.smooth, resolution=20):
+        """Animate a non-linear transformation of the grid.
+
+        *func* takes (x, y) in logical coords and returns (x', y').
+        Each grid intersection is smoothly moved from its original to its transformed position.
+        *resolution* controls the number of sample points per grid line segment.
+        """
+        # Rebuild grid as individual short line segments so they warp smoothly
+        unit = self._unit
+        cx, cy = self._cx, self._cy
+        x_min, x_max, x_step = self._x_range
+        y_min, y_max, y_step = self._y_range
+
+        # Clear existing objects and rebuild with segmented lines
+        new_objects = []
+        dur = max(end - start, 1e-9)
+
+        def _make_segment(lx0, ly0, lx1, ly1, style_kw, creation_t, z_val):
+            """Create a Line segment that morphs from original to transformed position."""
+            sx0, sy0 = cx + lx0 * unit, cy - ly0 * unit
+            sx1, sy1 = cx + lx1 * unit, cy - ly1 * unit
+            tx0, ty0 = func(lx0, ly0)
+            tx1, ty1 = func(lx1, ly1)
+            tsx0, tsy0 = cx + tx0 * unit, cy - ty0 * unit
+            tsx1, tsy1 = cx + tx1 * unit, cy - ty1 * unit
+            seg = Line(x1=sx0, y1=sy0, x2=sx1, y2=sy1,
+                       creation=creation_t, z=z_val, **style_kw)
+            seg.shift(dx=0, dy=0, start_time=start, end_time=start)  # anchor
+            # Animate endpoints
+            seg.p1.set(start, end,
+                lambda t, _s=start, _d=dur, _a=(sx0, sy0), _b=(tsx0, tsy0):
+                    (_a[0] + (_b[0] - _a[0]) * easing((t - _s) / _d),
+                     _a[1] + (_b[1] - _a[1]) * easing((t - _s) / _d)))
+            seg.p2.set(start, end,
+                lambda t, _s=start, _d=dur, _a=(sx1, sy1), _b=(tsx1, tsy1):
+                    (_a[0] + (_b[0] - _a[0]) * easing((t - _s) / _d),
+                     _a[1] + (_b[1] - _a[1]) * easing((t - _s) / _d)))
+            return seg
+
+        style = {'stroke': '#4488AA', 'stroke_width': 2, 'stroke_opacity': 0.6}
+
+        # Vertical lines (varying x, stepping through y)
+        v = x_min
+        while v <= x_max + 1e-9:
+            for i in range(resolution):
+                t0 = y_min + (y_max - y_min) * i / resolution
+                t1 = y_min + (y_max - y_min) * (i + 1) / resolution
+                new_objects.append(_make_segment(v, t0, v, t1, style, 0, 0))
+            v += x_step
+
+        # Horizontal lines (varying y, stepping through x)
+        v = y_min
+        while v <= y_max + 1e-9:
+            for i in range(resolution):
+                t0 = x_min + (x_max - x_min) * i / resolution
+                t1 = x_min + (x_max - x_min) * (i + 1) / resolution
+                new_objects.append(_make_segment(t0, v, t1, v, style, 0, 0))
+            v += y_step
+
+        self.objects = new_objects
+        return self
 
 
 def _arrowhead(from_x, from_y, to_x, to_y, tip_length, tip_width, fill, creation, z):
@@ -7520,6 +7645,131 @@ class Filmstrip(VCollection):
         if 0 <= index < len(self._frames):
             self._frames[index].flash(start, end, color=color, easing=easing)
         return self
+
+
+class SampleSpace(VCollection):
+    """Rectangle representing a probability sample space, divisible into regions.
+
+    Useful for visualizing conditional probability, Bayes' theorem, etc.
+    """
+    def __init__(self, width=500, height=400, x=710, y=340, creation=0, z=0, **styling_kwargs):
+        style_kw = {'fill': '#222', 'fill_opacity': 0.5,
+                    'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
+        self._rect = Rectangle(width=width, height=height, x=x, y=y,
+                               creation=creation, z=z, **style_kw)
+        self._width, self._height = width, height
+        self._x, self._y = x, y
+        self._parts = []
+        super().__init__(self._rect, creation=creation, z=z)
+
+    def divide_horizontally(self, proportion, colors=('#58C4DD', '#FC6255'), labels=None,
+                            creation=0, z=0):
+        """Split the space horizontally by proportion (0-1). Left gets first color."""
+        w1 = self._width * proportion
+        w2 = self._width - w1
+        r1 = Rectangle(width=w1, height=self._height,
+                       x=self._x, y=self._y,
+                       fill=colors[0], fill_opacity=0.4, stroke_width=0,
+                       creation=creation, z=z + 0.1)
+        r2 = Rectangle(width=w2, height=self._height,
+                       x=self._x + w1, y=self._y,
+                       fill=colors[1], fill_opacity=0.4, stroke_width=0,
+                       creation=creation, z=z + 0.1)
+        self.objects.extend([r1, r2])
+        self._parts = [r1, r2]
+        if labels:
+            for i, (rect, label) in enumerate(zip([r1, r2], labels)):
+                bx, by, bw, bh = rect.bbox(creation)
+                self.objects.append(
+                    _label_text(label, bx + bw / 2, by + bh / 2, 24,
+                                creation=creation, z=z + 0.2))
+        return self
+
+    def divide_vertically(self, proportion, colors=('#58C4DD', '#FC6255'), labels=None,
+                          creation=0, z=0):
+        """Split the space vertically by proportion (0-1). Top gets first color."""
+        h1 = self._height * proportion
+        h2 = self._height - h1
+        r1 = Rectangle(width=self._width, height=h1,
+                       x=self._x, y=self._y,
+                       fill=colors[0], fill_opacity=0.4, stroke_width=0,
+                       creation=creation, z=z + 0.1)
+        r2 = Rectangle(width=self._width, height=h2,
+                       x=self._x, y=self._y + h1,
+                       fill=colors[1], fill_opacity=0.4, stroke_width=0,
+                       creation=creation, z=z + 0.1)
+        self.objects.extend([r1, r2])
+        self._parts = [r1, r2]
+        if labels:
+            for i, (rect, label) in enumerate(zip([r1, r2], labels)):
+                bx, by, bw, bh = rect.bbox(creation)
+                self.objects.append(
+                    _label_text(label, bx + bw / 2, by + bh / 2, 24,
+                                creation=creation, z=z + 0.2))
+        return self
+
+
+class RoundedCornerPolygon(VObject):
+    """Polygon with rounded (filleted) corners.
+
+    *vertices*: sequence of (x, y) tuples.
+    *radius*: fillet radius applied to each vertex.
+    """
+    def __init__(self, *vertices, radius=20, creation=0, z=0, **styling_kwargs):
+        super().__init__(creation=creation, z=z)
+        self._vertices = list(vertices)
+        self._radius = radius
+        defaults = {'fill': '#58C4DD', 'fill_opacity': 0.5,
+                    'stroke': '#fff', 'stroke_width': 2}
+        self.styling = style.Styling(styling_kwargs, creation=creation, **defaults)
+
+    def _extra_attrs(self):
+        return [self.styling]
+
+    def _compute_path(self):
+        pts = self._vertices
+        n = len(pts)
+        if n < 3:
+            return ''
+        r = self._radius
+        segs = []
+        for i in range(n):
+            p_prev = pts[(i - 1) % n]
+            p_curr = pts[i]
+            p_next = pts[(i + 1) % n]
+            # Vectors from current to previous and next
+            dx1, dy1 = p_prev[0] - p_curr[0], p_prev[1] - p_curr[1]
+            dx2, dy2 = p_next[0] - p_curr[0], p_next[1] - p_curr[1]
+            d1 = math.hypot(dx1, dy1) or 1
+            d2 = math.hypot(dx2, dy2) or 1
+            # Limit radius to half the shorter edge
+            max_r = min(d1, d2) / 2
+            cr = min(r, max_r)
+            # Points on edges where the arc starts/ends
+            sx = p_curr[0] + dx1 / d1 * cr
+            sy = p_curr[1] + dy1 / d1 * cr
+            ex = p_curr[0] + dx2 / d2 * cr
+            ey = p_curr[1] + dy2 / d2 * cr
+            # Determine sweep direction
+            cross = dx1 * dy2 - dy1 * dx2
+            sweep = 0 if cross > 0 else 1
+            if i == 0:
+                segs.append(f'M{sx:.1f} {sy:.1f}')
+            else:
+                segs.append(f'L{sx:.1f} {sy:.1f}')
+            segs.append(f'A{cr:.1f} {cr:.1f} 0 0 {sweep} {ex:.1f} {ey:.1f}')
+        segs.append('Z')
+        return ''.join(segs)
+
+    def path(self, time=0):
+        return self._compute_path()
+
+    def to_svg(self, time):
+        self._run_updaters(time)
+        d = self._compute_path()
+        if not d:
+            return ''
+        return f'<path d="{d}"{self.styling.svg_style(time)} />'
 
 
 def parse_args():
