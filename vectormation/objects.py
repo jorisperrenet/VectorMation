@@ -57,6 +57,7 @@ from vectormation._composites import (
     FunnelChart, TreeMap, GaugeChart, SparkLine,
     VennDiagram, OrgChart,
     KPICard, BulletChart, CalendarHeatmap,
+    WaffleChart, MindMap,
     from_svg, from_svg_file, always_redraw, parse_args,
     _parse_inline_style,
 )

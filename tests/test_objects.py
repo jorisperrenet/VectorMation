@@ -17,6 +17,7 @@ from vectormation.objects import (
     FunnelChart, TreeMap, GaugeChart, SparkLine,
     VennDiagram, OrgChart,
     KPICard, BulletChart, CalendarHeatmap,
+    WaffleChart, MindMap,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -985,6 +986,46 @@ class TestAxesNewMethods:
     def test_calendar_heatmap_flat(self):
         ch = CalendarHeatmap(list(range(35)), rows=7, cols=5)
         assert len(ch) == 35
+
+    def test_plot_density(self):
+        ax = Axes(x_range=(-5, 5), y_range=(0, 0.5), plot_width=400, plot_height=300, x=100, y=100)
+        data = [0, 0.5, -0.5, 1, -1, 0.2, -0.3, 0.8]
+        curve = ax.plot_density(data)
+        assert isinstance(curve, Path)
+        svg = ax.to_svg(0)
+        assert '<path' in svg
+
+    def test_add_annotation_box(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10), plot_width=400, plot_height=300, x=100, y=100)
+        ab = ax.add_annotation_box(5, 5, 'Peak value')
+        assert isinstance(ab, VCollection)
+        assert len(ab) == 3  # arrow + box + label
+
+    def test_waffle_chart(self):
+        cats = [('A', 30, '#58C4DD'), ('B', 50, '#83C167'), ('C', 20, '#FF6B6B')]
+        wc = WaffleChart(cats, grid_size=10)
+        assert isinstance(wc, VCollection)
+        assert len(wc) > 0
+        svg = wc.to_svg(0)
+        assert '<rect' in svg
+
+    def test_mind_map(self):
+        root = ('Central', [
+            ('Branch1', [('Leaf1', []), ('Leaf2', [])]),
+            ('Branch2', []),
+            ('Branch3', [('Leaf3', [])]),
+        ])
+        mm = MindMap(root)
+        assert isinstance(mm, VCollection)
+        assert len(mm) > 0
+        svg = mm.to_svg(0)
+        assert 'Central' in svg
+        assert 'Branch1' in svg
+        assert 'Leaf1' in svg
+
+    def test_mind_map_no_children(self):
+        mm = MindMap(('Solo', []))
+        assert len(mm) == 2  # circle + text
 
 
 class TestVCollectionNew:

@@ -2298,6 +2298,73 @@ class Axes(VCollection):
         self._add_plot_obj(rect)
         return rect
 
+    def plot_density(self, data, bandwidth=None, samples=200, creation=0, z=0, **styling_kwargs):
+        """Plot a kernel density estimate (KDE) curve from raw data.
+        Uses Gaussian kernel. Returns a Path object."""
+        style_kw = {'stroke': '#FF79C6', 'stroke_width': 2, 'fill_opacity': 0} | styling_kwargs
+        data = sorted(data)
+        n = len(data)
+        if n == 0:
+            p = Path('', creation=creation, z=z, **style_kw)
+            self._add_plot_obj(p)
+            return p
+        if bandwidth is None:
+            std = (sum((x - sum(data) / n) ** 2 for x in data) / n) ** 0.5
+            bandwidth = 1.06 * std * n ** (-0.2) if std > 0 else 1
+        h = bandwidth
+        xmin, xmax = min(data), max(data)
+        margin = 3 * h
+        xs = [xmin - margin + i * (xmax - xmin + 2 * margin) / (samples - 1) for i in range(samples)]
+        def _kde(xv):
+            return sum(math.exp(-0.5 * ((xv - d) / h) ** 2) for d in data) / (n * h * math.sqrt(2 * math.pi))
+        ys = [_kde(xv) for xv in xs]
+        curve_data = list(zip(xs, ys))
+        curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
+        def _compute_d(time, _cd=curve_data):
+            parts = []
+            for i, (xv, yv) in enumerate(_cd):
+                sx, sy = self.coords_to_point(xv, yv, time)
+                parts.append(f'{"M" if i == 0 else "L"}{sx:.1f},{sy:.1f}')
+            return ''.join(parts)
+        curve.d.set_onward(creation, _compute_d)
+        self._add_plot_obj(curve)
+        return curve
+
+    def add_annotation_box(self, x_coord, y_coord, text, box_width=120, box_height=40,
+                            offset=(60, -60), font_size=14, creation=0, z=5, **styling_kwargs):
+        """Add a text box with an arrow pointing to (x_coord, y_coord).
+        offset: (dx, dy) from the point to the box center.
+        Returns a VCollection with arrow, box, and label."""
+        from vectormation._shapes import RoundedRectangle
+        style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
+        ox, oy = offset
+        # Point SVG coordinates
+        _xc, _yc = x_coord, y_coord
+        def _pt(t):
+            return self.coords_to_point(_xc, _yc, t)
+        # Arrow from point to box edge
+        arr = Arrow(x1=0, y1=0, x2=0, y2=0, stroke='#aaa', stroke_width=1.5,
+                    creation=creation, z=z)
+        arr.shaft.p1.set_onward(creation, lambda t: _pt(t))
+        arr.shaft.p2.set_onward(creation, lambda t, _ox=ox, _oy=oy: (_pt(t)[0] + _ox, _pt(t)[1] + _oy))
+        # Box
+        box = RoundedRectangle(width=box_width, height=box_height,
+                                x=0, y=0, corner_radius=5,
+                                fill='#1a1a2e', fill_opacity=0.9,
+                                stroke='#aaa', stroke_width=1,
+                                creation=creation, z=z + 0.1)
+        box.x.set_onward(creation, lambda t, _ox=ox: _pt(t)[0] + _ox - box_width / 2)
+        box.y.set_onward(creation, lambda t, _oy=oy: _pt(t)[1] + _oy - box_height / 2)
+        # Label
+        lbl = Text(text=str(text), x=0, y=0, font_size=font_size,
+                    text_anchor='middle', creation=creation, z=z + 0.2, **style_kw)
+        lbl.x.set_onward(creation, lambda t, _ox=ox: _pt(t)[0] + _ox)
+        lbl.y.set_onward(creation, lambda t, _oy=oy: _pt(t)[1] + _oy + font_size * 0.35)
+        self._add_plot_obj(arr)
+        self._add_plot_obj(box)
+        self._add_plot_obj(lbl)
+        return VCollection(arr, box, lbl, creation=creation, z=z)
+
     def add_slope_field(self, func, x_step=1, y_step=1, seg_length=0.4,
                          creation=0, z=-1, **styling_kwargs):
         """Draw a direction/slope field for dy/dx = func(x, y).
@@ -6180,6 +6247,123 @@ class CalendarHeatmap(VCollection):
                               fill=color, fill_opacity=1, stroke_width=0,
                               creation=creation, z=z)
             objects.append(rect)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class WaffleChart(VCollection):
+    """Waffle chart: grid of colored squares showing category proportions.
+
+    categories: list of (label, value, color) tuples.
+    """
+    def __init__(self, categories, x=100, y=100, grid_size=10,
+                 cell_size=20, gap=3, font_size=14, creation=0, z=0):
+        total = sum(v for _, v, _ in categories) or 1
+        n_cells = grid_size * grid_size
+        objects = []
+        cell_idx = 0
+        legend_objs = []
+        for label, val, color in categories:
+            count = round(val / total * n_cells)
+            for _ in range(count):
+                if cell_idx >= n_cells:
+                    break
+                r = cell_idx // grid_size
+                c = cell_idx % grid_size
+                rx = x + c * (cell_size + gap)
+                ry = y + r * (cell_size + gap)
+                rect = Rectangle(width=cell_size, height=cell_size, x=rx, y=ry,
+                                  fill=color, fill_opacity=0.9, stroke_width=0,
+                                  creation=creation, z=z)
+                objects.append(rect)
+                cell_idx += 1
+            # Legend entry
+            lx = x + grid_size * (cell_size + gap) + 15
+            ly = y + len(legend_objs) * (font_size * 1.5)
+            swatch = Rectangle(width=font_size, height=font_size,
+                                x=lx, y=ly, fill=color, fill_opacity=0.9,
+                                stroke_width=0, creation=creation, z=z + 0.1)
+            lbl = Text(text=f'{label} ({val})', x=lx + font_size + 5,
+                       y=ly + font_size * 0.8, font_size=font_size,
+                       fill='#ddd', stroke_width=0, text_anchor='start',
+                       creation=creation, z=z + 0.1)
+            legend_objs += [swatch, lbl]
+        # Fill remaining cells with empty color
+        while cell_idx < n_cells:
+            r = cell_idx // grid_size
+            c = cell_idx % grid_size
+            rx = x + c * (cell_size + gap)
+            ry = y + r * (cell_size + gap)
+            rect = Rectangle(width=cell_size, height=cell_size, x=rx, y=ry,
+                              fill='#1a1a2e', fill_opacity=0.5, stroke_width=0,
+                              creation=creation, z=z)
+            objects.append(rect)
+            cell_idx += 1
+        super().__init__(*(objects + legend_objs), creation=creation, z=z)
+
+
+class MindMap(VCollection):
+    """Radial mind map diagram.
+
+    root: (label, [children]) where children have the same structure.
+    """
+    def __init__(self, root, cx=960, cy=540, radius=250, font_size=18,
+                 colors=None, creation=0, z=0):
+        if colors is None:
+            colors = ['#58C4DD', '#83C167', '#FF6B6B', '#FFFF00',
+                      '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C']
+        objects = []
+        root_label, children = root
+        # Central node
+        root_dot = Circle(r=35, cx=cx, cy=cy, fill=colors[0], fill_opacity=0.9,
+                          stroke=colors[0], stroke_width=2, creation=creation, z=z + 0.2)
+        objects.append(root_dot)
+        root_txt = Text(text=str(root_label), x=cx, y=cy + font_size * 0.35,
+                        font_size=font_size, fill='#fff', stroke_width=0,
+                        text_anchor='middle', creation=creation, z=z + 0.3)
+        objects.append(root_txt)
+        if not children:
+            super().__init__(*objects, creation=creation, z=z)
+            return
+        n = len(children)
+        for i, (child_label, grandchildren) in enumerate(children):
+            angle = 2 * math.pi * i / n - math.pi / 2
+            bx = cx + radius * math.cos(angle)
+            by = cy + radius * math.sin(angle)
+            color = colors[(i + 1) % len(colors)]
+            # Branch line
+            line = Line(x1=cx, y1=cy, x2=bx, y2=by, stroke=color,
+                        stroke_width=2, stroke_opacity=0.5,
+                        creation=creation, z=z)
+            objects.append(line)
+            # Branch node
+            br = 25
+            bdot = Circle(r=br, cx=bx, cy=by, fill=color, fill_opacity=0.85,
+                          stroke=color, stroke_width=1.5, creation=creation, z=z + 0.2)
+            objects.append(bdot)
+            btxt = Text(text=str(child_label), x=bx, y=by + font_size * 0.3,
+                        font_size=font_size * 0.85, fill='#fff', stroke_width=0,
+                        text_anchor='middle', creation=creation, z=z + 0.3)
+            objects.append(btxt)
+            # Grandchildren as smaller nodes
+            if grandchildren:
+                gn = len(grandchildren)
+                spread = math.pi * 0.6
+                base_angle = angle - spread / 2
+                for j, (gc_label, _) in enumerate(grandchildren):
+                    ga = base_angle + spread * j / max(gn - 1, 1)
+                    gx = bx + radius * 0.5 * math.cos(ga)
+                    gy = by + radius * 0.5 * math.sin(ga)
+                    gl = Line(x1=bx, y1=by, x2=gx, y2=gy, stroke=color,
+                              stroke_width=1, stroke_opacity=0.4,
+                              creation=creation, z=z)
+                    objects.append(gl)
+                    gdot = Dot(cx=gx, cy=gy, r=15, fill=color, fill_opacity=0.7,
+                               stroke_width=0, creation=creation, z=z + 0.2)
+                    objects.append(gdot)
+                    gtxt = Text(text=str(gc_label), x=gx, y=gy + font_size * 0.25,
+                                font_size=font_size * 0.65, fill='#ddd', stroke_width=0,
+                                text_anchor='middle', creation=creation, z=z + 0.3)
+                    objects.append(gtxt)
         super().__init__(*objects, creation=creation, z=z)
 
 
