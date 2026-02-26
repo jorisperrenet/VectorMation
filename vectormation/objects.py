@@ -29,7 +29,9 @@ from vectormation._shapes import (
     Path, Image, Trace,
     RegularPolygon, Star, EquilateralTriangle,
     Arc, Wedge, Annulus,
-    SurroundingRectangle, BackgroundRectangle, ScreenRectangle,
+    ArcBetweenPoints, Elbow, AnnularSector,
+    CubicBezier, Paragraph, BulletedList,
+    SurroundingRectangle, SurroundingCircle, BackgroundRectangle, ScreenRectangle,
 )
 # Alias
 Sector = Wedge
@@ -38,12 +40,19 @@ from vectormation._composites import (
     MorphObject, LabeledDot, TexObject, SplitTexObject,
     Axes, Graph, NumberPlane,
     Arrow, DoubleArrow, CurvedArrow, Brace,
-    ClipPath, BlurFilter, DropShadowFilter,
+    ClipPath, BlurFilter, DropShadowFilter, LinearGradient, RadialGradient,
     Angle, RightAngle, Cross, NumberLine,
     PieChart, BarChart, Table, Matrix,
     DynamicObject, ZoomedInset,
     Union, Difference, Intersection, Exclusion,
     Title,
+    Variable, Underline, brace_between_points,
+    ArrowVectorField, ComplexPlane, Code,
+    ChessBoard, PeriodicTable, BohrAtom, Automaton,
+    NetworkGraph,
+    Label, LabeledArrow, StreamLines, PolarAxes,
+    Callout, DimensionLine, Tooltip, Tree,
+    Stamp, TimelineBar, Legend, RadarChart, ProgressBar, FlowChart, WaterfallChart,
     from_svg, from_svg_file, always_redraw, parse_args,
     _parse_inline_style,
 )

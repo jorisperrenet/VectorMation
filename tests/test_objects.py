@@ -13,7 +13,7 @@ from vectormation.objects import (
     SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS,
     always_redraw, UP, DOWN, LEFT, RIGHT,
     ZoomedInset, Intersection, Difference, Union, Exclusion,
-    ThreeDAxes,
+    ThreeDAxes, WaterfallChart,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -710,6 +710,50 @@ class TestAxesNewMethods:
         assert len(boxes) > 0
         svg = boxes.to_svg(0)
         assert '<rect' in svg or '<line' in svg
+
+    def test_plot_heatmap(self):
+        ax = Axes(x_range=(0, 3), y_range=(0, 3))
+        data = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        hm = ax.plot_heatmap(data)
+        assert isinstance(hm, VCollection)
+        assert len(hm) == 9  # 3x3 grid
+        svg = hm.to_svg(0)
+        assert '<rect' in svg
+
+    def test_plot_heatmap_custom_colormap(self):
+        ax = Axes(x_range=(0, 2), y_range=(0, 2))
+        data = [[0, 1], [2, 3]]
+        hm = ax.plot_heatmap(data, colormap=[(0, '#000000'), (1, '#FFFFFF')])
+        assert len(hm) == 4
+
+    def test_add_crosshair(self):
+        ax = Axes(x_range=(0, 6), y_range=(-2, 2))
+        import math
+        cross = ax.add_crosshair(math.sin, x_start=0, x_end=6, start=0, end=2)
+        assert isinstance(cross, VCollection)
+        assert len(cross) == 3  # v_line, h_line, dot
+        svg = cross.to_svg(1)
+        assert '<line' in svg
+
+    def test_add_violin_plot(self):
+        import random
+        random.seed(42)
+        ax = Axes(x_range=(0, 4), y_range=(0, 25))
+        data = [[random.gauss(10, 3) for _ in range(50)] for _ in range(3)]
+        violins = ax.add_violin_plot(data, x_positions=[1, 2, 3])
+        assert isinstance(violins, VCollection)
+        assert len(violins) > 0
+        svg = violins.to_svg(0)
+        assert '<path' in svg or '<line' in svg
+
+    def test_waterfall_chart(self):
+        wf = WaterfallChart([10, -3, 5, -2, 8],
+                            labels=['Q1', 'Q2', 'Q3', 'Q4', 'Q5'])
+        assert isinstance(wf, VCollection)
+        assert len(wf) > 0
+        svg = wf.to_svg(0)
+        assert '<rect' in svg
+        assert '<text' in svg
 
 
 class TestVCollectionNew:

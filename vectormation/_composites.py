@@ -1730,6 +1730,183 @@ class Axes(VCollection):
             self._add_plot_obj(obj)
         return VCollection(*objs, creation=creation, z=z)
 
+    def plot_heatmap(self, data, x_range=None, y_range=None, colormap=None,
+                     creation=0, z=-1, **styling_kwargs):
+        """Plot a heatmap grid on the axes.
+        data: 2D list (rows × cols) of numeric values.
+        x_range/y_range: optional (lo, hi) for axis mapping; defaults to (0, cols)/(0, rows).
+        colormap: list of (value_fraction, '#hex') stops, default blue-red.
+        Returns a VCollection of Rectangle cells."""
+        if not data or not data[0]:
+            return VCollection(creation=creation, z=z)
+        nrows = len(data)
+        ncols = len(data[0])
+        xlo = x_range[0] if x_range else 0
+        xhi = x_range[1] if x_range else ncols
+        ylo = y_range[0] if y_range else 0
+        yhi = y_range[1] if y_range else nrows
+        flat = [v for row in data for v in row]
+        vmin, vmax = min(flat), max(flat)
+        if vmax == vmin:
+            vmax = vmin + 1
+        if colormap is None:
+            colormap = [(0, '#0000FF'), (0.5, '#FFFF00'), (1, '#FF0000')]
+        def _hex_rgb(h):
+            return int(h[1:3], 16), int(h[3:5], 16), int(h[5:7], 16)
+        def _lerp_color(frac):
+            frac = max(0, min(1, frac))
+            for i in range(len(colormap) - 1):
+                f0, c0 = colormap[i]
+                f1, c1 = colormap[i + 1]
+                if f0 <= frac <= f1:
+                    t = (frac - f0) / max(f1 - f0, 1e-9)
+                    a, b = _hex_rgb(c0), _hex_rgb(c1)
+                    return '#{:02x}{:02x}{:02x}'.format(
+                        *(int(a[j] + (b[j] - a[j]) * t) for j in range(3)))
+            return colormap[-1][1]
+        cell_w = (xhi - xlo) / ncols
+        cell_h = (yhi - ylo) / nrows
+        rects = []
+        for ri in range(nrows):
+            for ci in range(ncols):
+                val = data[ri][ci]
+                frac = (val - vmin) / (vmax - vmin)
+                color = _lerp_color(frac)
+                x_math = xlo + ci * cell_w
+                y_math = yhi - ri * cell_h  # top row = highest y
+                _xl, _xr = x_math, x_math + cell_w
+                _yt, _yb = y_math, y_math - cell_h
+                rect = Rectangle(width=0, height=0, x=0, y=0,
+                                  fill=color, fill_opacity=0.85, stroke=color,
+                                  stroke_width=0.5, creation=creation, z=z)
+                rect.x.set_onward(creation, lambda t, _xl=_xl: self._math_to_svg_x(_xl, t))
+                rect.width.set_onward(creation, lambda t, _xl=_xl, _xr=_xr: abs(
+                    self._math_to_svg_x(_xr, t) - self._math_to_svg_x(_xl, t)))
+                rect.y.set_onward(creation, lambda t, _yt=_yt, _yb=_yb: min(
+                    self._math_to_svg_y(_yt, t), self._math_to_svg_y(_yb, t)))
+                rect.height.set_onward(creation, lambda t, _yt=_yt, _yb=_yb: abs(
+                    self._math_to_svg_y(_yt, t) - self._math_to_svg_y(_yb, t)))
+                rects.append(rect)
+        group = VCollection(*rects, creation=creation, z=z)
+        self._add_plot_obj(group)
+        return group
+
+    def add_crosshair(self, func, x_start, x_end, start: float = 0, end: float = 1,
+                       creation=0, z=3, easing=easings.smooth, **styling_kwargs):
+        """Add animated crosshair lines (horizontal + vertical) that follow func.
+        Returns a VCollection with (h_line, v_line, dot)."""
+        style_kw = {'stroke': '#FFFF00', 'stroke_width': 1,
+                    'stroke_dasharray': '4 3'} | styling_kwargs
+        dot_color = style_kw.get('fill', '#FFFF00')
+        fn = self._resolve_func(func, 'func')
+        _xs, _xe, _s, _d = x_start, x_end, start, max(end - start, 1e-9)
+        _easing = easing
+        def _cur_point(t, _fn=fn, _xs=_xs, _xe=_xe, _s=_s, _d=_d, _easing=_easing):
+            p = max(0, min(1, _easing((t - _s) / _d)))
+            xv = _xs + (_xe - _xs) * p
+            return xv, _fn(xv)
+        _cache = [None, None, None]  # [time, (xv, yv), (sx, sy)]
+        def _cached(t):
+            if _cache[0] == t:
+                return _cache[1], _cache[2]
+            mp = _cur_point(t)
+            sp = self.coords_to_point(mp[0], mp[1], t)
+            _cache[0], _cache[1], _cache[2] = t, mp, sp
+            return mp, sp
+        # Vertical line from x-axis to curve point
+        v_line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+        v_line.p1.set_onward(creation,
+            lambda t: (_cached(t)[1][0], self.plot_y + self.plot_height))
+        v_line.p2.set_onward(creation, lambda t: _cached(t)[1])
+        # Horizontal line from y-axis to curve point
+        h_line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+        h_line.p1.set_onward(creation,
+            lambda t: (self.plot_x, _cached(t)[1][1]))
+        h_line.p2.set_onward(creation, lambda t: _cached(t)[1])
+        # Dot at intersection
+        dot = Dot(cx=0, cy=0, r=5, fill=dot_color, stroke_width=0,
+                  creation=creation, z=z + 1)
+        dot.c.set_onward(creation, lambda t: _cached(t)[1])
+        for obj in (v_line, h_line, dot):
+            obj._show_from(start)
+            self._add_plot_obj(obj)
+        return VCollection(v_line, h_line, dot, creation=creation, z=z)
+
+    def add_violin_plot(self, data_groups, x_positions=None, width=0.8,
+                         samples=50, creation=0, z=1, **styling_kwargs):
+        """Draw violin plots for one or more data groups.
+        data_groups: list of lists of numbers.
+        x_positions: x-coordinates for each violin (defaults to 1, 2, ...).
+        width: max width of each violin in math units.
+        Returns a VCollection of all violin elements."""
+        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.3,
+                    'stroke': '#58C4DD', 'stroke_width': 2} | styling_kwargs
+        if x_positions is None:
+            x_positions = list(range(1, len(data_groups) + 1))
+        objs = []
+        hw = width / 2
+        for xp, data in zip(x_positions, data_groups):
+            if len(data) < 2:
+                continue
+            sd = sorted(data)
+            lo, hi = sd[0], sd[-1]
+            span = hi - lo
+            if span < 1e-9:
+                continue
+            n = len(sd)
+            # Kernel density estimation (Silverman's rule bandwidth)
+            mean = sum(sd) / n
+            bw = 1.06 * (sum((v - mean) ** 2 for v in sd) / n) ** 0.5 * n ** (-0.2)
+            bw = max(bw, span * 0.05)
+            ys = [lo + i * span / max(samples, 1) for i in range(samples + 1)]
+            densities = []
+            for yv in ys:
+                d = sum(math.exp(-0.5 * ((yv - v) / bw) ** 2) for v in sd) / (n * bw * 2.5066)
+                densities.append(d)
+            max_d = max(densities) if densities else 1
+            if max_d < 1e-12:
+                max_d = 1
+            # Build violin shape as a Path: right side top-to-bottom, left side bottom-to-top
+            violin = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
+            _xp, _hw, _ys, _dens, _maxd = xp, hw, ys, densities, max_d
+            def _violin_d(time, _xp=_xp, _hw=_hw, _ys=_ys, _dens=_dens, _maxd=_maxd):
+                right_pts = []
+                left_pts = []
+                for yv, d in zip(_ys, _dens):
+                    w = (d / _maxd) * _hw
+                    sx_r, sy = self.coords_to_point(_xp + w, yv, time)
+                    sx_l, _ = self.coords_to_point(_xp - w, yv, time)
+                    right_pts.append((sx_r, sy))
+                    left_pts.append((sx_l, sy))
+                if not right_pts:
+                    return ''
+                parts = [f'M{right_pts[0][0]:.1f},{right_pts[0][1]:.1f}']
+                for sx, sy in right_pts[1:]:
+                    parts.append(f'L{sx:.1f},{sy:.1f}')
+                for sx, sy in reversed(left_pts):
+                    parts.append(f'L{sx:.1f},{sy:.1f}')
+                parts.append('Z')
+                return ''.join(parts)
+            violin.d.set_onward(creation, _violin_d)
+            objs.append(violin)
+            # Median line
+            median = sd[n // 2] if n % 2 else (sd[n // 2 - 1] + sd[n // 2]) / 2
+            med_line = Line(x1=0, y1=0, x2=0, y2=0,
+                            stroke=style_kw.get('stroke', '#58C4DD'),
+                            stroke_width=style_kw.get('stroke_width', 2) + 1,
+                            creation=creation, z=z + 1)
+            _med, _xp2, _hw2 = median, xp, hw * 0.6
+            med_line.p1.set_onward(creation,
+                lambda t, _xp=_xp2, _hw=_hw2, _m=_med: (
+                    self._math_to_svg_x(_xp - _hw, t), self._math_to_svg_y(_m, t)))
+            med_line.p2.set_onward(creation,
+                lambda t, _xp=_xp2, _hw=_hw2, _m=_med: (
+                    self._math_to_svg_x(_xp + _hw, t), self._math_to_svg_y(_m, t)))
+            objs.append(med_line)
+        for obj in objs:
+            self._add_plot_obj(obj)
+        return VCollection(*objs, creation=creation, z=z)
+
     def add_slope_field(self, func, x_step=1, y_step=1, seg_length=0.4,
                          creation=0, z=-1, **styling_kwargs):
         """Draw a direction/slope field for dy/dx = func(x, y).
@@ -4780,6 +4957,97 @@ class FlowChart(VCollection):
                 arr = Arrow(ax1, ay1, ax2, ay2, stroke=arrow_color,
                             creation=creation, z=z - 0.1)
                 objects.append(arr)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+class WaterfallChart(VCollection):
+    """Waterfall chart showing cumulative effect of positive/negative values.
+
+    values: list of numbers (positive = increase, negative = decrease).
+    labels: optional list of labels for each bar.
+    show_total: if True, adds a total bar at the end.
+    """
+    def __init__(self, values, labels=None, x=200, y=100,
+                 width=800, height=400, bar_width=0.7,
+                 pos_color='#83C167', neg_color='#FF6B6B', total_color='#58C4DD',
+                 connector_color='#666', font_size=16,
+                 show_total=True, creation=0, z=0):
+        n = len(values)
+        if n == 0:
+            super().__init__(creation=creation, z=z)
+            return
+        # Compute cumulative running totals
+        cumulative = [0.0]
+        for v in values:
+            cumulative.append(cumulative[-1] + v)
+        all_vals = list(cumulative)
+        if show_total:
+            all_vals.append(cumulative[-1])
+        n_bars = n + (1 if show_total else 0)
+        vmin = min(all_vals + [0])
+        vmax = max(all_vals + [0])
+        vspan = vmax - vmin if vmax != vmin else 1
+        # Axes geometry
+        margin_left = 60
+        margin_bottom = 50
+        plot_w = width - margin_left
+        plot_h = height - margin_bottom
+        bar_step = plot_w / max(n_bars, 1)
+        def _val_to_y(v):
+            return y + plot_h - (v - vmin) / vspan * plot_h
+        objects = []
+        # Y-axis line
+        y_axis = Line(x1=x + margin_left, y1=y, x2=x + margin_left, y2=y + plot_h,
+                      stroke='#888', stroke_width=1, creation=creation, z=z)
+        objects.append(y_axis)
+        # Zero line
+        zero_y = _val_to_y(0)
+        zero_line = Line(x1=x + margin_left, y1=zero_y,
+                         x2=x + width, y2=zero_y,
+                         stroke='#555', stroke_width=1,
+                         stroke_dasharray='4 3', creation=creation, z=z)
+        objects.append(zero_line)
+        def _bar_x(idx):
+            return x + margin_left + idx * bar_step + bar_step * (1 - bar_width) / 2
+        bw = bar_step * bar_width
+        def _add_bar(idx, base_y, top_y, color, lbl_text, val_text):
+            bx = _bar_x(idx)
+            by_top = _val_to_y(max(base_y, top_y))
+            bh = abs(_val_to_y(base_y) - _val_to_y(top_y))
+            rect = Rectangle(width=bw, height=max(bh, 1), x=bx, y=by_top,
+                              fill=color, fill_opacity=0.8, stroke=color, stroke_width=1,
+                              creation=creation, z=z + 0.1)
+            self._bars.append(rect)
+            objects.append(rect)
+            objects.append(Text(text=lbl_text, x=bx + bw / 2, y=y + plot_h + 20,
+                                font_size=font_size, fill='#ccc', stroke_width=0,
+                                text_anchor='middle', creation=creation, z=z + 0.2))
+            objects.append(Text(text=val_text, x=bx + bw / 2, y=by_top - 5,
+                                font_size=font_size - 2, fill=color, stroke_width=0,
+                                text_anchor='middle', creation=creation, z=z + 0.2))
+        # Bars
+        self._bars = []
+        for i in range(n):
+            v = values[i]
+            base, top = cumulative[i], cumulative[i + 1]
+            color = pos_color if v >= 0 else neg_color
+            lbl = labels[i] if labels and i < len(labels) else str(i)
+            val_text = f'{v:+.1f}' if v != int(v) else f'{v:+.0f}'
+            _add_bar(i, base, top, color, lbl, val_text)
+            # Connector line to next bar
+            if i < n - 1 or show_total:
+                bx = _bar_x(i)
+                conn = Line(x1=bx + bw, y1=_val_to_y(top),
+                            x2=_bar_x(i + 1), y2=_val_to_y(top),
+                            stroke=connector_color, stroke_width=1,
+                            stroke_dasharray='3 2', creation=creation, z=z + 0.05)
+                objects.append(conn)
+        # Total bar
+        if show_total:
+            total = cumulative[-1]
+            lbl = labels[n] if labels and n < len(labels) else 'Total'
+            val_text = f'{total:.1f}' if total != int(total) else f'{int(total)}'
+            _add_bar(n, 0, total, total_color, lbl, val_text)
         super().__init__(*objects, creation=creation, z=z)
 
 
