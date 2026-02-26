@@ -3106,3 +3106,80 @@ class TestNumberPlane:
         np = NumberPlane(faded_line_ratio=1)
         svg = np.to_svg(0)
         assert svg is not None
+
+
+class TestPolygonUtilities:
+    def test_get_vertices(self):
+        p = Polygon((0, 0), (100, 0), (100, 100))
+        verts = p.get_vertices()
+        assert len(verts) == 3
+        assert verts[0] == (0.0, 0.0)
+        assert verts[1] == (100.0, 0.0)
+
+    def test_get_center(self):
+        p = Polygon((0, 0), (300, 0), (300, 300), (0, 300))
+        cx, cy = p.get_center()
+        assert abs(cx - 150) < 0.01
+        assert abs(cy - 150) < 0.01
+
+    def test_perimeter_square(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        assert abs(p.perimeter() - 400) < 0.01
+
+    def test_perimeter_open(self):
+        from vectormation.objects import Lines as Polyline
+        l = Polyline((0, 0), (100, 0), (100, 100))
+        # Open: only 2 segments, no closing edge
+        assert abs(l.perimeter() - 200) < 0.01
+
+    def test_area_square(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        assert abs(p.area() - 10000) < 0.01
+
+    def test_area_triangle(self):
+        p = Polygon((0, 0), (200, 0), (100, 100))
+        assert abs(p.area() - 10000) < 0.01
+
+    def test_area_open_is_zero(self):
+        from vectormation.objects import Lines as Polyline
+        l = Polyline((0, 0), (100, 0), (100, 100))
+        assert l.area() == 0.0
+
+
+class TestCompositeRepr:
+    def test_arrow_repr(self):
+        a = Arrow(x1=100, y1=200, x2=300, y2=400)
+        r = repr(a)
+        assert 'Arrow' in r
+        assert '100' in r
+        assert '300' in r
+
+    def test_brace_repr(self):
+        rect = Rectangle(200, 100, x=400, y=300)
+        b = Brace(rect, direction='down')
+        assert 'Brace' in repr(b)
+        assert 'down' in repr(b)
+
+    def test_numberline_repr(self):
+        nl = NumberLine(x_range=(-3, 3, 1))
+        r = repr(nl)
+        assert 'NumberLine' in r
+        assert '-3' in r
+        assert '3' in r
+
+    def test_table_repr(self):
+        t = Table([[1, 2], [3, 4]])
+        assert repr(t) == 'Table(2x2)'
+
+    def test_axes_repr(self):
+        a = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        r = repr(a)
+        assert 'Axes' in r
+        assert '-5' in r
+        assert '-3' in r
+
+    def test_axes_no_y_range_repr(self):
+        a = Axes(x_range=(-5, 5))
+        r = repr(a)
+        assert 'Axes' in r
+        assert 'y' not in r

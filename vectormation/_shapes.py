@@ -58,6 +58,40 @@ class Polygon(VObject):
         return f"<{tag} points='{pts}'{self.styling.svg_style(time)} />"
 
 
+    def get_vertices(self, time=0):
+        """Return a list of (x, y) tuples for each vertex."""
+        return [(float(x), float(y)) for x, y in (v.at_time(time) for v in self.vertices)]
+
+    def get_center(self, time=0):
+        """Return the centroid (average of vertices)."""
+        pts = self.get_vertices(time)
+        if not pts:
+            return (0.0, 0.0)
+        n = len(pts)
+        return (sum(p[0] for p in pts) / n, sum(p[1] for p in pts) / n)
+
+    def perimeter(self, time=0):
+        """Return the perimeter (sum of edge lengths)."""
+        pts = self.get_vertices(time)
+        if len(pts) < 2:
+            return 0.0
+        total = sum(math.sqrt((pts[i+1][0] - pts[i][0]) ** 2 + (pts[i+1][1] - pts[i][1]) ** 2)
+                    for i in range(len(pts) - 1))
+        if self.closed and len(pts) > 2:
+            total += math.sqrt((pts[0][0] - pts[-1][0]) ** 2 + (pts[0][1] - pts[-1][1]) ** 2)
+        return total
+
+    def area(self, time=0):
+        """Return the area using the shoelace formula (0 for open polylines)."""
+        if not self.closed:
+            return 0.0
+        pts = self.get_vertices(time)
+        n = len(pts)
+        if n < 3:
+            return 0.0
+        return abs(sum(pts[i][0] * pts[(i+1) % n][1] - pts[(i+1) % n][0] * pts[i][1]
+                       for i in range(n))) / 2
+
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 

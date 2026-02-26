@@ -3062,6 +3062,13 @@ class Axes(VCollection):
         self._add_plot_obj(dyn)
         return dyn
 
+    def __repr__(self):
+        xn, xx = self.x_min.at_time(0), self.x_max.at_time(0)
+        if self.y_min is not None:
+            yn, yx = self.y_min.at_time(0), self.y_max.at_time(0)
+            return f'Axes(x=[{xn:.1f}, {xx:.1f}], y=[{yn:.1f}, {yx:.1f}])'
+        return f'Axes(x=[{xn:.1f}, {xx:.1f}])'
+
 
 class Graph(Axes):
     """Axes with an initial function curve plotted.
@@ -3232,6 +3239,11 @@ class Arrow(VCollection):
     def get_end(self, time=0):
         """Return the end point (x2, y2) of the arrow shaft."""
         return self.shaft.p2.at_time(time)
+
+
+    def __repr__(self):
+        s, e = self.get_start(), self.get_end()
+        return f'Arrow(({s[0]:.0f},{s[1]:.0f})->({e[0]:.0f},{e[1]:.0f}))'
 
 
 class DoubleArrow(Arrow):
@@ -3429,6 +3441,10 @@ class Brace(VCollection):
             objects.append(label_obj)
 
         super().__init__(*objects, creation=creation, z=z)
+        self._direction = direction
+
+    def __repr__(self):
+        return f'Brace(direction={self._direction!r})'
 
 
 class ClipPath:
@@ -3724,6 +3740,9 @@ class NumberLine(VCollection):
         arrow.shift(dx=dx, start_time=start, end_time=end, easing=easing)
         return self
 
+    def __repr__(self):
+        return f'NumberLine([{self.x_start}, {self.x_end}], step={self.x_step})'
+
 
 class PieChart(VCollection):
     """Pie chart visualization using Wedge sectors.
@@ -4012,6 +4031,9 @@ class Table(VCollection):
             if col < len(row):
                 row[col].flash(start, end, color=color, easing=easing)
         return self
+
+    def __repr__(self):
+        return f'Table({self.rows}x{self.cols})'
 
 
 class DynamicObject(VObject):
