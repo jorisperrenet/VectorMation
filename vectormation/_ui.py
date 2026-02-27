@@ -13,6 +13,9 @@ from vectormation._shapes import (
     Polygon, Circle, Dot, Rectangle, RoundedRectangle, Line, Lines,
     Text,
 )
+
+_TEXT_STYLE = {'fill': '#fff', 'stroke_width': 0}
+_LINE_STYLE = {'stroke': '#fff', 'stroke_width': 3}
 _Text = Text  # module-level alias; avoids shadowing in methods that accept 'text' param
 
 # ---------------------------------------------------------------------------
@@ -40,7 +43,7 @@ class Variable(VCollection):
     def __init__(self, label='x', value: float = 0, fmt='{:.2f}', x=960, y=540,
                  font_size=48, creation: float = 0, z: float = 0, **styling_kwargs):
         from vectormation._shapes import Text, DecimalNumber
-        style_kw = {'fill': '#fff', 'stroke_width': 0} | styling_kwargs
+        style_kw = _TEXT_STYLE | styling_kwargs
         label_text = f'{label} = '
         self.label = Text(label_text, x=x, y=y, font_size=font_size,
                           text_anchor='end', creation=creation, z=z, **style_kw)
@@ -66,7 +69,7 @@ class Variable(VCollection):
 class Underline(VCollection):
     """Underline beneath a target object."""
     def __init__(self, target, buff=4, follow=True, creation: float = 0, z: float = 0, **styling_kwargs):
-        style_kw = {'stroke': '#fff', 'stroke_width': 3} | styling_kwargs
+        style_kw = _LINE_STYLE | styling_kwargs
         bx, by, bw, bh = target.bbox(creation)
         line = Line(x1=bx, y1=by + bh + buff, x2=bx + bw, y2=by + bh + buff,
                     creation=creation, z=z, **style_kw)
@@ -237,7 +240,7 @@ class Label(VCollection):
     def __init__(self, text, x=960, y=540, font_size=36, padding=10,
                  corner_radius=4, creation: float = 0, z: float = 0, **styling_kwargs):
         from vectormation._shapes import Text, RoundedRectangle
-        style_kw = {'fill': '#fff', 'stroke_width': 0} | styling_kwargs
+        style_kw = _TEXT_STYLE | styling_kwargs
         txt = Text(text=text, x=x, y=y, font_size=font_size,
                    text_anchor='middle', creation=creation, z=z + 1, **style_kw)
         _, _, tw, th = txt.bbox(creation)
@@ -265,7 +268,7 @@ class LabeledLine(VCollection):
     """Line with a text label placed at its midpoint."""
     def __init__(self, x1=860, y1=540, x2=1060, y2=540, label='',
                  font_size=24, label_buff=10, creation: float = 0, z: float = 0, **styling_kwargs):
-        style_kw = {'stroke': '#fff', 'stroke_width': 3} | styling_kwargs
+        style_kw = _LINE_STYLE | styling_kwargs
         line = Line(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z, **style_kw)
         _labeled_line_init(self, line, x1, y1, x2, y2, label, font_size, label_buff, creation, z)
 
@@ -277,7 +280,7 @@ class LabeledArrow(VCollection):
     def __init__(self, x1=860, y1=540, x2=1060, y2=540, label='',
                  font_size=24, label_buff=10, creation: float = 0, z: float = 0, **styling_kwargs):
         Arrow = _get_arrow()
-        style_kw = {'stroke': '#fff', 'stroke_width': 3} | styling_kwargs
+        style_kw = _LINE_STYLE | styling_kwargs
         arrow = Arrow(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z, **style_kw)
         _labeled_line_init(self, arrow, x1, y1, x2, y2, label, font_size, label_buff, creation, z)
         self.arrow = arrow  # backward compat alias
@@ -308,7 +311,7 @@ class Callout(VCollection):
         ox, oy = offsets.get(direction, (0, -distance))
         lx, ly = tx + ox, ty + oy
 
-        style_kw = {'fill': '#fff', 'stroke_width': 0} | styling_kwargs
+        style_kw = _TEXT_STYLE | styling_kwargs
         lbl = SText(text=text, x=lx, y=ly, font_size=font_size,
                     text_anchor='middle', creation=creation, z=z + 2, **style_kw)
         _, _, tw, th = lbl.bbox(creation)
@@ -378,7 +381,7 @@ class Tooltip(VCollection):
         else:
             tx, ty = target
 
-        style_kw = {'fill': '#fff', 'stroke_width': 0} | styling_kwargs
+        style_kw = _TEXT_STYLE | styling_kwargs
         lbl = SText(text=text, x=tx, y=ty - 20, font_size=font_size,
                     text_anchor='middle', creation=creation, z=z + 1, **style_kw)
         _, _, tw, th = lbl.bbox(creation)
