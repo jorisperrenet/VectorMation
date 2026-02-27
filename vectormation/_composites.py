@@ -72,30 +72,24 @@ class MorphObject(VCollection):
         for path_func, styling_from, styling_to, compound_id in mapping:
             groups[compound_id].append((path_func, styling_from, styling_to))
 
+        def _make_d_func(pfs):
+            dur = max(end - start, 1)
+            if len(pfs) == 1:
+                pf = pfs[0]
+                return lambda t: pf((t - start) / dur)
+            return lambda t: ' '.join(pf((t - start) / dur) for pf in pfs)
+
         objects = []
         for group_entries in groups.values():
             path_funcs = [e[0] for e in group_entries]
-            styling_from = group_entries[0][1]
-            styling_to = group_entries[0][2]
-            compound = len(path_funcs) > 1
-
             new = Path('', x=0, y=0, creation=start, z=z)
             new.show.set_onward(end, False)
-            def _make_d_func(pfs):
-                dur = end - start
-                if dur <= 0:
-                    dur = 1
-                if len(pfs) == 1:
-                    pf = pfs[0]
-                    return lambda t: pf((t - start) / dur)
-                return lambda t: ' '.join(pf((t - start) / dur) for pf in pfs)
             new.d.set(start, end, _make_d_func(path_funcs))
-            # Interpolate styling, optionally adding rotation during the morph
-            new.styling = styling_from.interpolate(
-                styling_to, start, end, easing=easing,
+            new.styling = group_entries[0][1].interpolate(
+                group_entries[0][2], start, end, easing=easing,
                 rotation_degrees=rotation_degrees, rotation_center=(cx, cy)
             )
-            if compound:
+            if len(path_funcs) > 1:
                 new.styling.fill_rule = attributes.String(start, 'evenodd')
             objects.append(new)
 
@@ -121,6 +115,20 @@ class LabeledDot(VCollection):
     def __repr__(self):
         return 'LabeledDot()'
 
+def _strip_tex_commands(tex: str) -> str:
+    """Strip LaTeX commands and braces to get approximate visible characters.
+
+    Removes backslash-commands (e.g. \\frac, \\alpha), curly braces, dollar signs,
+    and whitespace, leaving only the characters that dvisvgm renders as glyphs.
+    """
+    import re
+    # Remove LaTeX commands like \frac, \alpha, \text, etc.
+    result = re.sub(r'\\[a-zA-Z]+\*?', '', tex)
+    # Remove remaining braces, dollar signs, carets, underscores, spaces
+    result = re.sub(r'[{}$^_\s]', '', result)
+    return result
+
+
 class TexObject(VCollection):
     """Renders LaTeX content as SVG paths via dvisvgm."""
     def __init__(self, to_render, x=0, y=0, font_size=48, creation: float = 0, z: float = 0, **styles):
@@ -128,6 +136,7 @@ class TexObject(VCollection):
         import vectormation._canvas as _cm
         tex_dir = f'{_cm.save_directory}/tex' if hasattr(_cm, 'save_directory') else tempfile.mkdtemp()
         self._tex = to_render
+        t2c = styles.pop('t2c', None)
         self.char_viewbox, chars = get_characters(tex_dir, to_render, 'latex', '')
 
         # Normalize: scale raw dvisvgm pt coordinates to pixel size
@@ -139,6 +148,10 @@ class TexObject(VCollection):
         st = {'stroke_width': 0, 'fill': '#fff',
               'scale_x': base_scale * user_sx, 'scale_y': base_scale * user_sy} | styles
         chars = [from_svg(char, **st) for char in chars]
+
+        # Build a mapping from each char object index to the visible-char it represents.
+        # _strip_tex_commands approximates which characters dvisvgm renders as glyphs.
+        self._visible_tex = _strip_tex_commands(to_render)
 
         # Init the collection of VObjects
         super().__init__(*chars, creation=creation, z=z)
@@ -152,6 +165,54 @@ class TexObject(VCollection):
         for obj in self.objects:
             obj.styling.dx.add_onward(creation, lambda t, _xm=xmin: self.x.at_time(t) - _xm)
             obj.styling.dy.add_onward(creation, lambda t, _ym=ymin: self.y.at_time(t) - _ym)
+
+        if t2c is not None:
+            self.set_color_by_tex(t2c, creation)
+
+    def get_part_by_tex(self, substring: str) -> 'VCollection':
+        """Return a VCollection of character objects whose source LaTeX matches *substring*.
+
+        The mapping is approximate: LaTeX commands are stripped from both the full
+        TeX string and the query, and the resulting visible characters are matched
+        positionally against the rendered glyph objects.
+
+        Returns an empty VCollection when no match is found or the number of glyphs
+        does not align with the visible-character count.
+        """
+        visible = self._visible_tex
+        query = _strip_tex_commands(substring) if substring else substring
+        if not query:
+            return VCollection()
+
+        matched: list = []
+        start = 0
+        while True:
+            idx = visible.find(query, start)
+            if idx == -1:
+                break
+            end = idx + len(query)
+            # Collect glyph objects corresponding to this span
+            span_objs = self.objects[idx:end]
+            matched.extend(span_objs)
+            start = end
+
+        return VCollection(*matched) if matched else VCollection()
+
+    def set_color_by_tex(self, tex_to_color_map: dict, start: float = 0) -> 'TexObject':
+        """Color character objects by matching TeX substrings.
+
+        For each key in *tex_to_color_map*, calls ``get_part_by_tex(key)`` and
+        sets the fill color of the returned characters to the corresponding value.
+        Returns *self* for chaining.
+        """
+        for substring, color in tex_to_color_map.items():
+            part = self.get_part_by_tex(substring)
+            for obj in part.objects:
+                obj.set_fill(color, start=start)
+        return self
+
+    # Manim compatibility alias
+    set_color_by_tex_to_color_map = set_color_by_tex
 
     def __repr__(self):
         return f'TexObject({self._tex!r})'
@@ -231,30 +292,19 @@ class NumberLine(VCollection):
         t = (x - self.origin_x) / self.length
         return self.x_start + t * span
 
-    def get_range(self):
-        """Return (min_val, max_val) tuple for the number line's value range."""
-        return (self.x_start, self.x_end)
-
-    def get_range_length(self):
-        """Return ``x_end - x_start``."""
-        return self.x_end - self.x_start
+    def get_range(self): return (self.x_start, self.x_end)
+    def get_range_length(self): return self.x_end - self.x_start
 
     def snap_to_tick(self, value):
         """Return the nearest tick mark value, clamped to ``[x_start, x_end]``."""
-        if value <= self.x_start:
-            return self.x_start
-        if value >= self.x_end:
-            return self.x_end
-        # Number of steps from x_start
+        if value <= self.x_start: return self.x_start
+        if value >= self.x_end: return self.x_end
         k = round((value - self.x_start) / self.x_step)
-        snapped = self.x_start + k * self.x_step
-        # Clamp to range (rounding could overshoot)
-        return max(self.x_start, min(self.x_end, snapped))
+        return max(self.x_start, min(self.x_end, self.x_start + k * self.x_step))
 
     def add_pointer(self, value, label=None, color='#FF6B6B', size=12,
                      creation=0, z=1):
         """Add an animated pointer (triangle) above the number line at *value*."""
-        # Triangle pointing down at the value
         px, py = self.number_to_point(
             value.at_time(creation) if hasattr(value, 'at_time') else value
         )
@@ -262,24 +312,16 @@ class NumberLine(VCollection):
             (px - size / 2, py - size - 2),
             (px + size / 2, py - size - 2),
             (px, py - 2),
-            creation=creation, z=z,
-            fill=color, stroke_width=0,
+            creation=creation, z=z, fill=color, stroke_width=0,
         )
 
-        # Dynamic positioning: update vertices each frame
-        _nl = self
-        _val = value
-
         def _ptr_pos(time):
-            v = _val.at_time(time) if hasattr(_val, 'at_time') else _val
-            return _nl.number_to_point(v)
+            v = value.at_time(time) if hasattr(value, 'at_time') else value
+            return self.number_to_point(v)
 
-        ptr.vertices[0].set_onward(creation,
-            lambda t: (_ptr_pos(t)[0] - size / 2, _ptr_pos(t)[1] - size - 2))
-        ptr.vertices[1].set_onward(creation,
-            lambda t: (_ptr_pos(t)[0] + size / 2, _ptr_pos(t)[1] - size - 2))
-        ptr.vertices[2].set_onward(creation,
-            lambda t: (_ptr_pos(t)[0], _ptr_pos(t)[1] - 2))
+        ptr.vertices[0].set_onward(creation, lambda t: (_ptr_pos(t)[0] - size / 2, _ptr_pos(t)[1] - size - 2))
+        ptr.vertices[1].set_onward(creation, lambda t: (_ptr_pos(t)[0] + size / 2, _ptr_pos(t)[1] - size - 2))
+        ptr.vertices[2].set_onward(creation, lambda t: (_ptr_pos(t)[0], _ptr_pos(t)[1] - 2))
 
         objects = [ptr]
         if label is not None:
@@ -290,8 +332,7 @@ class NumberLine(VCollection):
             lbl.y.set_onward(creation, lambda t: _ptr_pos(t)[1] - size - 18)
             objects.append(lbl)
 
-        from vectormation._base import VCollection as _VC
-        group = _VC(*objects, creation=creation, z=z)
+        group = VCollection(*objects, creation=creation, z=z)
         self.objects.append(group)
         return group
 
@@ -425,8 +466,7 @@ class NumberLine(VCollection):
 
     def animate_add_tick(self, value, start=0, end=1, label=None, easing=None):
         """Dynamically add a tick mark at *value* with a pop-in animation."""
-        if easing is None:
-            easing = easings.smooth
+        easing = easing or easings.smooth
         px, py = self.number_to_point(value)
         tick_size = 2 * SMALL_BUFF
         tick = Line(x1=px, y1=py - tick_size / 2, x2=px, y2=py + tick_size / 2,
@@ -449,44 +489,35 @@ class NumberLine(VCollection):
                              label=True):
         """Add a pointer (triangle) that tracks a dynamic value function over time."""
         size = 12
-        _nl = self
-        _vf = value_func
         _cache = [None, None]  # [last_t, last_result]
 
         def _ptr_pos(t):
             if _cache[0] != t:
                 _cache[0] = t
-                _cache[1] = _nl.number_to_point(_vf(t))
+                _cache[1] = self.number_to_point(value_func(t))
             return _cache[1]
 
-        # Initial position
         px, py = _ptr_pos(start)
         ptr = Polygon(
             (px - size / 2, py - size - 2),
             (px + size / 2, py - size - 2),
             (px, py - 2),
-            creation=start, z=1,
-            fill=color, stroke_width=0,
+            creation=start, z=1, fill=color, stroke_width=0,
         )
-        ptr.vertices[0].set_onward(start,
-            lambda t: (_ptr_pos(t)[0] - size / 2, _ptr_pos(t)[1] - size - 2))
-        ptr.vertices[1].set_onward(start,
-            lambda t: (_ptr_pos(t)[0] + size / 2, _ptr_pos(t)[1] - size - 2))
-        ptr.vertices[2].set_onward(start,
-            lambda t: (_ptr_pos(t)[0], _ptr_pos(t)[1] - 2))
-
+        ptr.vertices[0].set_onward(start, lambda t: (_ptr_pos(t)[0] - size / 2, _ptr_pos(t)[1] - size - 2))
+        ptr.vertices[1].set_onward(start, lambda t: (_ptr_pos(t)[0] + size / 2, _ptr_pos(t)[1] - size - 2))
+        ptr.vertices[2].set_onward(start, lambda t: (_ptr_pos(t)[0], _ptr_pos(t)[1] - 2))
         if end is not None:
             ptr._hide_from(end)
-
         self.objects.append(ptr)
 
         if label:
-            lbl = Text(text=str(round(_vf(start), 2)), x=px, y=py - size - 18,
+            lbl = Text(text=str(round(value_func(start), 2)), x=px, y=py - size - 18,
                         font_size=20, fill=color, stroke_width=0,
                         text_anchor='middle', creation=start, z=1.1)
             lbl.x.set_onward(start, lambda t: _ptr_pos(t)[0])
             lbl.y.set_onward(start, lambda t: _ptr_pos(t)[1] - size - 18)
-            lbl.text.set_onward(start, lambda t: str(round(_vf(t), 2)))
+            lbl.text.set_onward(start, lambda t: str(round(value_func(t), 2)))
             if end is not None:
                 lbl._hide_from(end)
             self.objects.append(lbl)
@@ -500,14 +531,14 @@ class NumberLine(VCollection):
         length = self.length
         ox = self.origin_x
         dur = end - start
+        old_span = old_end - old_start
+        new_span = new_end - new_start
 
         def _old_val_to_x(val):
-            span = old_end - old_start
-            return ox + (val - old_start) / span * length if span else ox
+            return ox + (val - old_start) / old_span * length if old_span else ox
 
         def _new_val_to_x(val):
-            span = new_end - new_start
-            return ox + (val - new_start) / span * length if span else ox
+            return ox + (val - new_start) / new_span * length if new_span else ox
 
         # Skip object 0 (the main line/arrow) -- it spans the full length
         # and does not move.
@@ -611,20 +642,18 @@ class Table(VCollection):
                 row_entries.append(t)
             self.entries.append(row_entries)
 
+        def _label(lx, ly):
+            return Text(text=str(label), x=lx, y=ly, font_size=font_size,
+                        text_anchor='middle', creation=creation, z=z,
+                        fill='#FFFF00', stroke_width=0)
         if row_labels:
             for r, label in enumerate(row_labels):
-                cx = x + cell_width / 2
-                cy = y + y_off + r * cell_height + cell_height / 2 + font_size * TEXT_Y_OFFSET
-                objects.append(Text(text=str(label), x=cx, y=cy,
-                                   font_size=font_size, text_anchor='middle',
-                                   creation=creation, z=z, fill='#FFFF00', stroke_width=0))
+                objects.append(_label(x + cell_width / 2,
+                    y + y_off + r * cell_height + cell_height / 2 + font_size * TEXT_Y_OFFSET))
         if col_labels:
             for c, label in enumerate(col_labels):
-                cx = x + x_off + c * cell_width + cell_width / 2
-                cy = y + cell_height / 2 + font_size * TEXT_Y_OFFSET
-                objects.append(Text(text=str(label), x=cx, y=cy,
-                                   font_size=font_size, text_anchor='middle',
-                                   creation=creation, z=z, fill='#FFFF00', stroke_width=0))
+                objects.append(_label(x + x_off + c * cell_width + cell_width / 2,
+                    y + cell_height / 2 + font_size * TEXT_Y_OFFSET))
 
         super().__init__(*objects, creation=creation, z=z)
         self.rows, self.cols = rows, cols
@@ -638,10 +667,7 @@ class Table(VCollection):
         self._line_kw = line_kw
         self._z = z
 
-    def get_entry(self, row, col):
-        """Return the Text object at (row, col) for animation."""
-        return self.entries[row][col]
-
+    def get_entry(self, row, col): return self.entries[row][col]
     get_cell = get_entry
 
     def get_cell_rect(self, row, col, padding=2, **kwargs):
@@ -653,13 +679,8 @@ class Table(VCollection):
         kw = {'fill': '#FFFF00', 'fill_opacity': 0.15, 'stroke_width': 0} | kwargs
         return Rectangle(w, h, x=rx, y=ry, **kw)
 
-    def get_row(self, row):
-        """Return a VCollection of all Text objects in the given row."""
-        return VCollection(*self.entries[row])
-
-    def get_column(self, col):
-        """Return a VCollection of all Text objects in the given column."""
-        return VCollection(*(row[col] for row in self.entries if col < len(row)))
+    def get_row(self, row): return VCollection(*self.entries[row])
+    def get_column(self, col): return VCollection(*(row[col] for row in self.entries if col < len(row)))
 
     def highlight_cell(self, row, col, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
         """Flash-highlight a single cell's text."""
@@ -668,14 +689,12 @@ class Table(VCollection):
 
     def highlight_row(self, row_idx, start=0, end=1, color='#FFFF00', opacity=0.3, easing=None):
         """Highlight all cells in a row by setting their fill color."""
-        if easing is None:
-            easing = easings.there_and_back
+        easing = easing or easings.there_and_back
+        dur = end - start
         for entry in self.entries[row_idx]:
             entry.set_fill(color=color, start=start)
-            dur = end - start
             if dur > 0:
-                entry.styling.fill_opacity.set(start, end,
-                    _ramp(start, dur, opacity, easing))
+                entry.styling.fill_opacity.set(start, end, _ramp(start, dur, opacity, easing))
         return self
 
     def highlight_column(self, col, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
@@ -713,12 +732,9 @@ class Table(VCollection):
 
     def sort_by_column(self, col, start=0, end=1, reverse=False, easing=easings.smooth):
         """Animate rows sliding to sorted positions based on column values."""
-        # Get text values from the column
-        values = [(self.entries[r][col].text.at_time(start), r) for r in range(len(self.entries))]
-        values.sort(key=lambda x: x[0], reverse=reverse)
-        # Get current y positions of each row (using first cell as reference)
+        values = sorted([(self.entries[r][col].text.at_time(start), r)
+                         for r in range(len(self.entries))], reverse=reverse)
         ys = [self.entries[r][0].y.at_time(start) for r in range(len(self.entries))]
-        # Animate each row to its new y position
         for new_pos, (_, old_row) in enumerate(values):
             if new_pos != old_row:
                 dy = ys[new_pos] - ys[old_row]
@@ -728,180 +744,118 @@ class Table(VCollection):
 
     def transpose(self, start=0, end=None, easing=None):
         """Transpose the table so rows become columns and vice versa."""
-        if easing is None:
-            easing = easings.smooth
-        x = self._table_x
+        easing = easing or easings.smooth
+        x, y_off, cw, ch, x_off, fs, _ = self._tp()
         y = self._table_y
-        x_off = self._x_off
-        y_off = self._y_off
-        cw = self._cell_width
-        ch = self._cell_height
-        fs = self._font_size
-
-        # Animate each cell to its transposed position
         for r in range(self.rows):
             for c in range(self.cols):
-                entry = self.entries[r][c]
-                # Target position: swap row and col
-                new_cx = x + x_off + r * cw + cw / 2
-                new_cy = y + y_off + c * ch + ch / 2 + fs * TEXT_Y_OFFSET
-                entry.center_to_pos(posx=new_cx, posy=new_cy,
-                                    start=start, end=end, easing=easing)
-
-        # Rebuild entries grid as transposed
-        new_entries = []
-        for c in range(self.cols):
-            new_row = []
-            for r in range(self.rows):
-                new_row.append(self.entries[r][c])
-            new_entries.append(new_row)
-        self.entries = new_entries
+                self.entries[r][c].center_to_pos(
+                    posx=x + x_off + r * cw + cw / 2,
+                    posy=y + y_off + c * ch + ch / 2 + fs * TEXT_Y_OFFSET,
+                    start=start, end=end, easing=easing)
+        self.entries = [[self.entries[r][c] for r in range(self.rows)] for c in range(self.cols)]
         self.rows, self.cols = self.cols, self.rows
         return self
 
     def animate_cell_values(self, data, start=0, end=1, easing=None):
         """Animate table cells changing to new values with numeric interpolation."""
-        if easing is None:
-            easing = easings.smooth
+        easing = easing or easings.smooth
         dur = end - start
         for r, row in enumerate(data):
             for c, new_val in enumerate(row):
                 if r >= self.rows or c >= self.cols:
                     continue
                 entry = self.entries[r][c]
-                old_text = entry.text.at_time(start)
                 new_text = str(new_val)
-                # Try numeric interpolation
+                old_text = entry.text.at_time(start)
                 try:
-                    old_num = float(old_text)
-                    new_num = float(new_text)
-                    # Detect if we should use integer formatting
+                    old_num, new_num = float(old_text), float(new_text)
                     is_int = ('.' not in old_text and '.' not in new_text
                               and old_num == int(old_num) and new_num == int(new_num))
                     if dur <= 0:
                         entry.text.set_onward(start, new_text)
+                    elif is_int:
+                        entry.text.set(start, end,
+                            lambda t, _s=start, _d=dur, _ov=old_num, _nv=new_num, _e=easing:
+                                str(int(round(_ov + (_nv - _ov) * _e((t - _s) / _d)))),
+                            stay=True)
                     else:
-                        if is_int:
-                            entry.text.set(start, end,
-                                lambda t, _s=start, _d=dur, _ov=old_num, _nv=new_num, _e=easing:
-                                    str(int(round(_ov + (_nv - _ov) * _e((t - _s) / _d)))),
-                                stay=True)
-                        else:
-                            # Preserve decimal places from the new value
-                            dot_pos = new_text.find('.')
-                            decimals = len(new_text) - dot_pos - 1 if dot_pos >= 0 else 1
-                            fmt = f'{{:.{decimals}f}}'
-                            entry.text.set(start, end,
-                                lambda t, _s=start, _d=dur, _ov=old_num, _nv=new_num,
-                                       _e=easing, _fmt=fmt:
-                                    _fmt.format(_ov + (_nv - _ov) * _e((t - _s) / _d)),
-                                stay=True)
+                        dot_pos = new_text.find('.')
+                        decimals = len(new_text) - dot_pos - 1 if dot_pos >= 0 else 1
+                        fmt = f'{{:.{decimals}f}}'
+                        entry.text.set(start, end,
+                            lambda t, _s=start, _d=dur, _ov=old_num, _nv=new_num,
+                                   _e=easing, _fmt=fmt:
+                                _fmt.format(_ov + (_nv - _ov) * _e((t - _s) / _d)),
+                            stay=True)
                 except (ValueError, TypeError):
-                    # Non-numeric: swap at midpoint
                     if dur <= 0:
                         entry.text.set_onward(start, new_text)
                     else:
-                        mid = start + dur / 2
-                        entry.text.set_onward(mid, new_text)
+                        entry.text.set_onward(start + dur / 2, new_text)
         return self
 
     def animate_cells(self, cells, method_name='flash', start=0, delay=0.15, **kwargs):
         """Apply an animation method to specific cells with a stagger delay."""
         for i, (r, c) in enumerate(cells):
-            entry = self.entries[r][c]
-            method = getattr(entry, method_name)
-            t = start + i * delay
-            method(start=t, **kwargs)
+            getattr(self.entries[r][c], method_name)(start=start + i * delay, **kwargs)
         return self
 
     @classmethod
     def from_dict(cls, data, **kwargs):
         """Create a Table from a dict (keys become column headers, values become rows)."""
-        headers = list(data.keys())
-        # Normalize all values to lists
-        columns = []
-        for v in data.values():
-            columns.append(v if isinstance(v, (list, tuple)) else [v])
-        n_rows = max(len(col) for col in columns) if columns else 0
-        # Build the 2D data grid (rows x cols)
-        grid = []
-        for r in range(n_rows):
-            row = []
-            for col in columns:
-                row.append(col[r] if r < len(col) else '')
-            grid.append(row)
-        return cls(grid, col_labels=headers, **kwargs)
+        columns = [v if isinstance(v, (list, tuple)) else [v] for v in data.values()]
+        n_rows = max((len(col) for col in columns), default=0)
+        grid = [[col[r] if r < len(col) else '' for col in columns] for r in range(n_rows)]
+        return cls(grid, col_labels=list(data.keys()), **kwargs)
+
+    def _tp(self):
+        """Return unpacked table layout parameters."""
+        return (self._table_x, self._y_off, self._cell_width, self._cell_height,
+                self._x_off, self._font_size, self._z)
+
+    def _make_cell_text(self, val, cx, cy, start):
+        x, y_off, cw, ch, x_off, fs, z = self._tp()
+        return Text(text=str(val), x=cx, y=cy, font_size=fs, text_anchor='middle',
+                    creation=start, z=z, fill='#fff', stroke_width=0)
 
     def add_row(self, values, start=0, animate=True):
         """Append a new row to the bottom of the table."""
-        x = self._table_x
-        y_off = self._y_off
-        cw = self._cell_width
-        ch = self._cell_height
-        x_off = self._x_off
-        fs = self._font_size
-        z = self._z
-
-        new_row_idx = self.rows
-        row_y = self._table_y + y_off + new_row_idx * ch
-
-        # Horizontal line at the bottom of the new row
+        x, y_off, cw, ch, x_off, fs, z = self._tp()
+        row_y = self._table_y + y_off + self.rows * ch
         total_w = self.cols * cw + x_off
-        new_line_y = row_y + ch
-        h_line = Line(x1=x, y1=new_line_y, x2=x + total_w, y2=new_line_y,
+        h_line = Line(x1=x, y1=row_y + ch, x2=x + total_w, y2=row_y + ch,
                       creation=start, z=z, **self._line_kw)
 
         # Extend existing vertical lines downward by one cell height
-        # Vertical lines were created with y2 = y + total_h, so we need to
-        # extend them.  Instead, we just lengthen them.
         for obj in self.objects:
             if isinstance(obj, Line):
-                p1 = obj.p1.at_time(start)
-                p2 = obj.p2.at_time(start)
-                # Vertical line: same x for p1 and p2, goes from top to bottom
+                p1, p2 = obj.p1.at_time(start), obj.p2.at_time(start)
                 if abs(p1[0] - p2[0]) < 0.1 and p2[1] > p1[1]:
                     old_y2 = p2[1]
-                    expected_bottom = self._table_y + y_off + self.rows * ch
-                    if abs(old_y2 - expected_bottom) < 1:
+                    if abs(old_y2 - (self._table_y + y_off + self.rows * ch)) < 1:
                         obj.p2.add_onward(start, (p2[0], old_y2 + ch))
 
-        # Create text entries for the new row
         new_entries = []
         new_objects = [h_line]
         for c in range(self.cols):
             val = values[c] if c < len(values) else ''
-            cx = x + x_off + c * cw + cw / 2
-            cy = row_y + ch / 2 + fs * TEXT_Y_OFFSET
-            t = Text(text=str(val), x=cx, y=cy,
-                     font_size=fs, text_anchor='middle',
-                     creation=start, z=z, fill='#fff', stroke_width=0)
+            t = self._make_cell_text(val, x + x_off + c * cw + cw / 2,
+                                     row_y + ch / 2 + fs * TEXT_Y_OFFSET, start)
             new_entries.append(t)
             new_objects.append(t)
 
         if animate:
-            for obj in new_objects:
-                obj.fadein(start=start, end=start + 0.5)
-
+            for obj in new_objects: obj.fadein(start=start, end=start + 0.5)
         self.entries.append(new_entries)
         self.rows += 1
-        for obj in new_objects:
-            self.objects.append(obj)
+        self.objects.extend(new_objects)
         return self
 
     def add_column(self, values, start=0, animate=True):
         """Append a new column to the right of the table."""
-        x = self._table_x
-        y_off = self._y_off
-        cw = self._cell_width
-        ch = self._cell_height
-        x_off = self._x_off
-        fs = self._font_size
-        z = self._z
-
-        new_col_idx = self.cols
-        col_x = x + x_off + new_col_idx * cw
-
-        # Vertical line at the right edge of the new column
+        x, y_off, cw, ch, x_off, fs, z = self._tp()
+        col_x = x + x_off + self.cols * cw
         total_h = self.rows * ch + y_off
         v_line = Line(x1=col_x + cw, y1=self._table_y + y_off,
                       x2=col_x + cw, y2=self._table_y + total_h,
@@ -910,36 +864,25 @@ class Table(VCollection):
         # Extend existing horizontal lines to the right by one cell width
         for obj in self.objects:
             if isinstance(obj, Line):
-                p1 = obj.p1.at_time(start)
-                p2 = obj.p2.at_time(start)
-                # Horizontal line: same y for p1 and p2
+                p1, p2 = obj.p1.at_time(start), obj.p2.at_time(start)
                 if abs(p1[1] - p2[1]) < 0.1 and p2[0] > p1[0]:
                     old_x2 = p2[0]
-                    expected_right = x + self.cols * cw + x_off
-                    if abs(old_x2 - expected_right) < 1:
+                    if abs(old_x2 - (x + self.cols * cw + x_off)) < 1:
                         obj.p2.add_onward(start, (old_x2 + cw, p2[1]))
 
-        # Create text entries for the new column
         new_objects = [v_line]
         for r in range(self.rows):
             val = values[r] if r < len(values) else ''
-            cx = col_x + cw / 2
-            cy = self._table_y + y_off + r * ch + ch / 2 + fs * TEXT_Y_OFFSET
-            t = Text(text=str(val), x=cx, y=cy,
-                     font_size=fs, text_anchor='middle',
-                     creation=start, z=z, fill='#fff', stroke_width=0)
-            # Extend the row's entry list
+            t = self._make_cell_text(val, col_x + cw / 2,
+                                     self._table_y + y_off + r * ch + ch / 2 + fs * TEXT_Y_OFFSET, start)
             if r < len(self.entries):
                 self.entries[r].append(t)
             new_objects.append(t)
 
         if animate:
-            for obj in new_objects:
-                obj.fadein(start=start, end=start + 0.5)
-
+            for obj in new_objects: obj.fadein(start=start, end=start + 0.5)
         self.cols += 1
-        for obj in new_objects:
-            self.objects.append(obj)
+        self.objects.extend(new_objects)
         return self
 
     def swap_rows(self, i, j, start=0, end=1, easing=easings.smooth):
@@ -977,22 +920,20 @@ class Table(VCollection):
                     self.entries[r][c].flash(start, end, color=color, easing=easing)
         return self
 
+    def _fade_or_remove(self, cell, start, animate):
+        if animate: cell.fadeout(start=start, end=start + 0.3)
+        else: self.objects.remove(cell)
+
     def remove_row(self, index, start=0, animate=True):
         """Remove a row by index, fading out its cells."""
         if index < 0 or index >= self.rows:
             raise IndexError(f"row index {index} out of range (0..{self.rows - 1})")
-        ch = self._cell_height
-        # Fade out and remove cells in the target row
-        removed = self.entries.pop(index)
-        for cell in removed:
-            if animate:
-                cell.fadeout(start=start, end=start + 0.3)
-            else:
-                self.objects.remove(cell)
-        # Shift rows below upward by one cell height
+        for cell in self.entries.pop(index):
+            self._fade_or_remove(cell, start, animate)
+        end_t = start + 0.3 if animate else start
         for r in range(index, len(self.entries)):
             for cell in self.entries[r]:
-                cell.shift(dy=-ch, start=start, end=start + 0.3 if animate else start)
+                cell.shift(dy=-self._cell_height, start=start, end=end_t)
         self.rows -= 1
         return self
 
@@ -1000,19 +941,12 @@ class Table(VCollection):
         """Remove a column by index, fading out its cells."""
         if index < 0 or index >= self.cols:
             raise IndexError(f"column index {index} out of range (0..{self.cols - 1})")
-        cw = self._cell_width
-        # Fade out and remove cells in the target column
+        end_t = start + 0.3 if animate else start
         for r in range(self.rows):
-            cell = self.entries[r].pop(index)
-            if animate:
-                cell.fadeout(start=start, end=start + 0.3)
-            else:
-                self.objects.remove(cell)
-        # Shift columns to the right leftward by one cell width
+            self._fade_or_remove(self.entries[r].pop(index), start, animate)
         for r in range(self.rows):
             for c in range(index, len(self.entries[r])):
-                self.entries[r][c].shift(dx=-cw, start=start,
-                                         end=start + 0.3 if animate else start)
+                self.entries[r][c].shift(dx=-self._cell_width, start=start, end=end_t)
         self.cols -= 1
         return self
 
@@ -1030,12 +964,10 @@ class DynamicObject(VObject):
 
     def _eval(self, time):
         """Evaluate func(time) with per-frame caching."""
-        if self._cache[0] == time:
-            return self._cache[1]
-        result = self._func(time)
-        self._cache[0] = time
-        self._cache[1] = result
-        return result
+        if self._cache[0] != time:
+            self._cache[0] = time
+            self._cache[1] = self._func(time)
+        return self._cache[1]
 
     def to_svg(self, time): return self._eval(time).to_svg(time)
 
@@ -1074,39 +1006,29 @@ class Matrix(VCollection):
         bracket_pad = 20
         bracket_w = 8
 
-        objects: list = []
-        self.entries = []
+        bracket_kw = {'stroke': '#fff', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
+        yt, yb = y - total_h / 2 - bracket_pad, y + total_h / 2 + bracket_pad
 
+        self.entries = []
+        objects = []
         for r in range(rows):
             row_entries = []
             for c in range(cols):
-                tx = x - total_w / 2 + c * h_spacing
-                ty = y - total_h / 2 + r * v_spacing + font_size * TEXT_Y_OFFSET
-                t = Text(text=str(data[r][c]), x=tx, y=ty, font_size=font_size,
-                         text_anchor='middle', creation=creation, z=z,
-                         fill='#fff', stroke_width=0)
+                t = Text(text=str(data[r][c]),
+                         x=x - total_w / 2 + c * h_spacing,
+                         y=y - total_h / 2 + r * v_spacing + font_size * TEXT_Y_OFFSET,
+                         font_size=font_size, text_anchor='middle',
+                         creation=creation, z=z, fill='#fff', stroke_width=0)
                 objects.append(t)
                 row_entries.append(t)
             self.entries.append(row_entries)
 
-        # Left bracket
         lx = x - total_w / 2 - bracket_pad
-        bracket_kw = {'stroke': '#fff', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
-        objects.append(Lines(
-            (lx + bracket_w, y - total_h / 2 - bracket_pad),
-            (lx, y - total_h / 2 - bracket_pad),
-            (lx, y + total_h / 2 + bracket_pad),
-            (lx + bracket_w, y + total_h / 2 + bracket_pad),
-            creation=creation, z=z, **bracket_kw))
-
-        # Right bracket
+        objects.append(Lines((lx + bracket_w, yt), (lx, yt), (lx, yb), (lx + bracket_w, yb),
+                             creation=creation, z=z, **bracket_kw))
         rx = x + total_w / 2 + bracket_pad
-        objects.append(Lines(
-            (rx - bracket_w, y - total_h / 2 - bracket_pad),
-            (rx, y - total_h / 2 - bracket_pad),
-            (rx, y + total_h / 2 + bracket_pad),
-            (rx - bracket_w, y + total_h / 2 + bracket_pad),
-            creation=creation, z=z, **bracket_kw))
+        objects.append(Lines((rx - bracket_w, yt), (rx, yt), (rx, yb), (rx - bracket_w, yb),
+                             creation=creation, z=z, **bracket_kw))
 
         super().__init__(*objects, creation=creation, z=z)
         self.rows, self.cols = rows, cols
@@ -1114,35 +1036,24 @@ class Matrix(VCollection):
     def __repr__(self):
         return f'Matrix({self.rows}x{self.cols})'
 
-    def get_entry(self, row, col):
-        """Return the Text object at (row, col)."""
-        return self.entries[row][col]
+    def get_entry(self, row, col): return self.entries[row][col]
+    def get_row(self, row): return VCollection(*self.entries[row])
+    def get_column(self, col): return VCollection(*(row[col] for row in self.entries if col < len(row)))
 
-    def get_row(self, row):
-        """Return a VCollection of all Text objects in the given row."""
-        return VCollection(*self.entries[row])
-
-    def get_column(self, col):
-        """Return a VCollection of all Text objects in the given column."""
-        return VCollection(*(row[col] for row in self.entries if col < len(row)))
+    def _flash(self, entries, start, end, color):
+        for e in entries: e.flash_color(color, start=start, duration=end - start)
 
     def highlight_entry(self, row, col, start=0, end=1, color='#FFD700'):
         """Flash-highlight a single matrix entry."""
-        self.entries[row][col].flash_color(color, start=start, duration=end - start)
-        return self
+        return self._flash([self.entries[row][col]], start, end, color) or self
 
     def highlight_row(self, row, start=0, end=1, color='#FFD700'):
         """Flash-highlight all entries in a row."""
-        for entry in self.entries[row]:
-            entry.flash_color(color, start=start, duration=end - start)
-        return self
+        return self._flash(self.entries[row], start, end, color) or self
 
     def highlight_column(self, col, start=0, end=1, color='#FFD700'):
         """Flash-highlight all entries in a column."""
-        for row in self.entries:
-            if col < len(row):
-                row[col].flash_color(color, start=start, duration=end - start)
-        return self
+        return self._flash([row[col] for row in self.entries if col < len(row)], start, end, color) or self
 
     def set_entry_value(self, row, col, new_value, start=0):
         """Change the text of a matrix entry at the given time."""
@@ -1211,18 +1122,16 @@ class Matrix(VCollection):
     def set_row_colors(self, *colors, start=0):
         """Set colors for each row. Cycles if fewer colors than rows."""
         for r in range(self.rows):
-            c = colors[r % len(colors)]
             for entry in self.entries[r]:
-                entry.styling.fill.set_onward(start, c)
+                entry.styling.fill.set_onward(start, colors[r % len(colors)])
         return self
 
     def set_column_colors(self, *colors, start=0):
         """Set colors for each column. Cycles if fewer colors than columns."""
         for ci in range(self.cols):
-            c = colors[ci % len(colors)]
             for row in self.entries:
                 if ci < len(row):
-                    row[ci].styling.fill.set_onward(start, c)
+                    row[ci].styling.fill.set_onward(start, colors[ci % len(colors)])
         return self
 
     @classmethod
@@ -1232,26 +1141,20 @@ class Matrix(VCollection):
         rows = max(rows_l, rows_r)
         cols_l = len(left_data[0]) if left_data else 0
         cols_r = len(right_data[0]) if right_data else 0
-        # Merge into one data grid
-        merged = []
-        for r in range(rows):
-            row = list(left_data[r]) if r < rows_l else [''] * cols_l
-            row += list(right_data[r]) if r < rows_r else [''] * cols_r
-            merged.append(row)
+        merged = [(list(left_data[r]) if r < rows_l else [''] * cols_l) +
+                  (list(right_data[r]) if r < rows_r else [''] * cols_r)
+                  for r in range(rows)]
         m = cls(merged, **kwargs)
         m._augment_col = cols_l
-        # Add vertical divider line
-        entry00 = m.entries[0][0]
-        x0 = entry00.x.at_time(0)
         h_sp = kwargs.get('h_spacing', 80)
-        div_x = x0 + (cols_l - 0.5) * h_sp
         v_sp = kwargs.get('v_spacing', 50)
-        y_top = entry00.y.at_time(0) - v_sp * 0.6
+        x0 = m.entries[0][0].x.at_time(0)
+        div_x = x0 + (cols_l - 0.5) * h_sp
+        y_top = m.entries[0][0].y.at_time(0) - v_sp * 0.6
         y_bot = m.entries[-1][0].y.at_time(0) + v_sp * 0.6
-        div_line = Line(x1=div_x, y1=y_top, x2=div_x, y2=y_bot,
-                        stroke='#888', stroke_width=2, creation=kwargs.get('creation', 0),
-                        z=kwargs.get('z', 0) + 0.05)
-        m.objects.append(div_line)
+        m.objects.append(Line(x1=div_x, y1=y_top, x2=div_x, y2=y_bot,
+                              stroke='#888', stroke_width=2,
+                              creation=kwargs.get('creation', 0), z=kwargs.get('z', 0) + 0.05))
         return m
 
 class DecimalMatrix(Matrix):
@@ -1288,32 +1191,19 @@ class TexCountAnimation(DynamicObject):
 
         cache_key = (tex_dir, font_size)
         if cache_key not in TexCountAnimation._glyph_cache:
-            glyphs = {}
-            for ch in '0123456789.-':
-                tex_str = f'${ch}$' if ch != '.' else '$.$'
-                vb, chars = get_characters(tex_dir, tex_str, 'latex', '')
-                glyphs[ch] = (vb, chars)
-            TexCountAnimation._glyph_cache[cache_key] = glyphs
-
+            TexCountAnimation._glyph_cache[cache_key] = {
+                ch: get_characters(tex_dir, f'${ch}$', 'latex', '')
+                for ch in '0123456789.-'
+            }
         self._glyphs = TexCountAnimation._glyph_cache[cache_key]
-        self._x = x
-        self._y = y
-        self._font_size = font_size
+        self._x, self._y, self._font_size = x, y, font_size
         self._styles = {'stroke_width': 0, 'fill': '#fff'} | styles
-        self._fmt = fmt
-        self._start_val = start_val
-        self._end_val = end_val
-        self._anim_start = start
-        self._anim_dur = max(end - start, 1e-9)
-        self._easing = easing
-        self._last_val = end_val
+        self._fmt, self._start_val, self._end_val = fmt, start_val, end_val
+        self._anim_start, self._anim_dur = start, max(end - start, 1e-9)
+        self._easing, self._last_val = easing, end_val
         self._extra_segments = []  # [(from_val, to_val, start, dur, easing)]
-
-        def build_fn(t):
-            val = self._compute_value(t)
-            return self._build_number(val, creation=t)
-
-        super().__init__(build_fn, creation=creation, z=z)
+        super().__init__(lambda t: self._build_number(self._compute_value(t), creation=t),
+                         creation=creation, z=z)
 
     def __repr__(self):
         return f'TexCountAnimation({self._last_val})'
@@ -1344,21 +1234,17 @@ class TexCountAnimation(DynamicObject):
         for ch in text:
             glyph_data = self._glyphs.get(ch)
             if glyph_data is None:
-                # Space or unrecognized char — advance cursor
                 cursor_x += self._font_size * 0.3
                 continue
             vb, chars = glyph_data
             vb_height = abs(vb[3]) if vb[3] else 1
-            vb_width = abs(vb[2]) if vb[2] else 1
             base_scale = self._font_size / vb_height
-            char_width = vb_width * base_scale
-
-            st = dict(self._styles)
-            st['scale_x'] = base_scale * st.pop('scale_x', 1)
-            st['scale_y'] = base_scale * st.pop('scale_y', 1)
+            char_width = (abs(vb[2]) if vb[2] else 1) * base_scale
+            st = {**self._styles,
+                  'scale_x': base_scale * self._styles.get('scale_x', 1),
+                  'scale_y': base_scale * self._styles.get('scale_y', 1)}
             for char_svg in chars:
                 obj = from_svg(char_svg, **st)
-                # Position: shift glyph so it starts at cursor_x
                 obj.styling.dx.set_onward(creation, cursor_x)
                 obj.styling.dy.set_onward(creation, self._y)
                 objects.append(obj)

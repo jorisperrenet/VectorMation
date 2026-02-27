@@ -1,4 +1,5 @@
 """Example: Line and Arc utility methods."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import tempfile
 from vectormation.objects import VectorMathAnim, Line, Arc, Text, Dot, parse_args
 

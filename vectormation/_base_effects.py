@@ -47,8 +47,7 @@ class _VObjectEffectsMixin:
             factors.append(height / cur_h)
         if not factors:
             return self
-        factor = min(factors)
-        return self.scale(factor, start=start, end=end, easing=easing)
+        return self.scale(min(factors), start=start, end=end, easing=easing)
 
     def match_position(self, other, time: float = 0):
         """Move this object so its center matches *other*'s center at *time*."""
@@ -96,10 +95,8 @@ class _VObjectEffectsMixin:
 
     def match_style(self, other, time=0):
         """Copy fill, stroke, opacity, and stroke_width from *other* at *time*."""
-        # Copy fill and stroke colors using set_onward to preserve earlier animations
         self.styling.fill.set_onward(time, other.styling.fill.time_func(time))
         self.styling.stroke.set_onward(time, other.styling.stroke.time_func(time))
-        # Copy numeric styling attributes
         self.styling.fill_opacity.set_onward(time, other.styling.fill_opacity.at_time(time))
         self.styling.stroke_opacity.set_onward(time, other.styling.stroke_opacity.at_time(time))
         self.styling.stroke_width.set_onward(time, other.styling.stroke_width.at_time(time))
@@ -114,13 +111,10 @@ class _VObjectEffectsMixin:
         end = start + duration
         self._ensure_scale_origin(start)
         _s, _d = start, max(duration, 1e-9)
-        # Scale spike
         scale_fn = _lerp(_s, _d, 1, scale_factor, easing)
         self.styling.scale_x.set(_s, end, scale_fn)
         self.styling.scale_y.set(_s, end, scale_fn)
-        # Opacity dip (brief dim at peak)
         self.styling.opacity.set(_s, end, _lerp(_s, _d, 1, 0.7, easing))
-        # Rapid horizontal shake
         shake_freq = 12
         def _dx(t, _s=_s, _d=_d, _a=shake_amplitude, _freq=shake_freq, _e=easing):
             p = (t - _s) / _d
@@ -145,14 +139,10 @@ class _VObjectEffectsMixin:
         _s, _d, _freq, _mo = start, max(end - start, 1e-9), frequency, min_opacity
         def _opacity(t, _s=_s, _d=_d, _freq=_freq, _mo=_mo, _e=easing):
             p = (t - _s) / _d
-            # Layered sine waves for pseudo-random flicker
             flicker = (math.sin(_freq * math.tau * p) *
                        math.sin(_freq * 3.7 * math.pi * p) *
                        math.sin(_freq * 5.3 * math.pi * p))
-            # flicker is in [-1, 1]; map to [min_opacity, 1]
-            # Envelope decays toward end so object returns to full opacity
-            envelope = 1 - _e(p)
-            depth = (1 - _mo) * max(0, -flicker) * envelope
+            depth = (1 - _mo) * max(0, -flicker) * (1 - _e(p))
             return 1 - depth
         self.styling.opacity.set(start, end, _opacity, stay=True)
         return self
@@ -167,26 +157,21 @@ class _VObjectEffectsMixin:
         total_dx, total_dy = tx - ox, ty - oy
         _s, _d = start, max(end - start, 1e-9)
         _pb, _os = pullback, overshoot
-        _tdx, _tdy = total_dx, total_dy
         def _progress(t, _s=_s, _d=_d, _pb=_pb, _os=_os, _e=easing):
             p = _e((t - _s) / _d)
-            # Three phases: pullback (0-0.2), launch (0.2-0.8), settle (0.8-1.0)
             if p < 0.2:
-                # Pull back: go from 0 to -pullback
                 return -_pb * math.sin(p / 0.2 * math.pi / 2)
             elif p < 0.8:
-                # Launch: go from -pullback to (1 + overshoot)
                 phase = (p - 0.2) / 0.6
                 return -_pb + (-_pb - (1 + _os)) * (math.cos(phase * math.pi) - 1) / 2
             else:
-                # Settle: go from (1 + overshoot) to 1
                 phase = (p - 0.8) / 0.2
                 return (1 + _os) - _os * math.sin(phase * math.pi / 2)
-        def _dx(t, _f=_progress, _tdx=_tdx):
-            return _f(t) * _tdx
-        def _dy(t, _f=_progress, _tdy=_tdy):
-            return _f(t) * _tdy
-        self._apply_shift_effect(start, end, dx_func=_dx, dy_func=_dy, stay=True)
+        _tdx, _tdy = total_dx, total_dy
+        self._apply_shift_effect(start, end,
+            dx_func=lambda t, _f=_progress, _tdx=_tdx: _f(t) * _tdx,
+            dy_func=lambda t, _f=_progress, _tdy=_tdy: _f(t) * _tdy,
+            stay=True)
         return self
 
     def elastic_bounce(self, start: float = 0, end: float = 1, height=100,
@@ -205,38 +190,26 @@ class _VObjectEffectsMixin:
             p = _easing((t - _s) / _d)
             if p >= 1.0:
                 return (0.0, 0.0)
-            # Each bounce occupies a segment; amplitude decays
             phase = p * _b
             bounce_idx = min(int(phase), _b - 1)
-            frac = phase - bounce_idx  # 0..1 within each bounce
-            # Parabolic arc within each bounce: y = 4*frac*(1-frac) gives 0→1→0
+            frac = phase - bounce_idx
             arc = 4 * frac * (1 - frac)
-            # Decay: each bounce is smaller; also fade out near end
             decay = (1.0 - p) / (1 + bounce_idx)
             vert = -arc * decay
-            # Squash peaks at impact (frac near 0 or 1)
-            # Use a narrow bell curve at frac=0 and frac=1
             impact = max(math.exp(-((frac * 4) ** 2)),
                          math.exp(-(((1 - frac) * 4) ** 2)))
-            squash = impact * decay
-            return (vert, squash)
+            return (vert, impact * decay)
 
-        def _dy(t, _h=_h):
-            vert, _ = _bounce_progress(t)
-            return vert * _h
-
-        def _ssx(t, _sf=_sf, _sx0=_sx0):
-            _, squash = _bounce_progress(t)
-            return _sx0 * (1 + (_sf - 1) * squash)
-
-        def _ssy(t, _sf=_sf, _sy0=_sy0):
-            _, squash = _bounce_progress(t)
-            peak = 1 + (_sf - 1) * squash
-            return _sy0 / peak if peak > 1e-9 else _sy0
-
-        self._apply_shift_effect(start, end, dy_func=_dy)
-        self.styling.scale_x.set(start, end, _ssx, stay=False)
-        self.styling.scale_y.set(start, end, _ssy, stay=False)
+        self._apply_shift_effect(start, end,
+            dy_func=lambda t, _h=_h: _bounce_progress(t)[0] * _h)
+        self.styling.scale_x.set(start, end,
+            lambda t, _sf=_sf, _sx0=_sx0: _sx0 * (1 + (_sf - 1) * _bounce_progress(t)[1]),
+            stay=False)
+        self.styling.scale_y.set(start, end,
+            lambda t, _sf=_sf, _sy0=_sy0: (
+                lambda peak: _sy0 / peak if peak > 1e-9 else _sy0)(
+                    1 + (_sf - 1) * _bounce_progress(t)[1]),
+            stay=False)
         return self
 
     def morph_scale(self, target_scale: float = 2.0, start: float = 0, end: float = 1,
@@ -248,31 +221,20 @@ class _VObjectEffectsMixin:
             return self
         sx0, sy0 = self._init_scale_anim(start)
         _s, _d = start, max(dur, 1e-9)
-        _ts, _os, _osc = target_scale, overshoot, oscillations
-        _sx0, _sy0 = sx0, sy0
+        _ts = target_scale
+        _damp = 3.0 / max(overshoot, 0.01)
+        _freq = math.tau * (oscillations + 0.25)
 
-        # Map overshoot to damping: higher overshoot -> lower damping -> more ring
-        _damp = 3.0 / max(_os, 0.01)
-        _freq = math.tau * (_osc + 0.25)
-
-        def _spring_curve(p, _ts=_ts, _damp=_damp, _freq=_freq):
-            """Map progress p in [0,1] to a damped-oscillation scale multiplier."""
-            if p >= 1.0:
-                return _ts
-            if p <= 0.0:
-                return 1.0
+        def _spring_curve(p):
+            if p >= 1.0: return _ts
+            if p <= 0.0: return 1.0
             return _ts + (1.0 - _ts) * math.exp(-_damp * p) * math.cos(_freq * p)
 
-        def _msx(t, _s=_s, _d=_d, _sx0=_sx0, _easing=easing, _sc=_spring_curve):
-            p = _easing((t - _s) / _d)
-            return _sx0 * _sc(p)
+        def _make_ms(s0):
+            return lambda t, _s=_s, _d=_d, _s0=s0, _e=easing: _s0 * _spring_curve(_e((t - _s) / _d))
 
-        def _msy(t, _s=_s, _d=_d, _sy0=_sy0, _easing=easing, _sc=_spring_curve):
-            p = _easing((t - _s) / _d)
-            return _sy0 * _sc(p)
-
-        self.styling.scale_x.set(start, end, _msx, stay=True)
-        self.styling.scale_y.set(start, end, _msy, stay=True)
+        self.styling.scale_x.set(start, end, _make_ms(sx0), stay=True)
+        self.styling.scale_y.set(start, end, _make_ms(sy0), stay=True)
         return self
 
     def strobe(self, start: float = 0, end: float = 1, flashes: int = 5,
@@ -283,13 +245,10 @@ class _VObjectEffectsMixin:
             return self
         duty = max(0.0, min(1.0, duty))
         _s, _d, _fl, _du = start, dur, flashes, duty
-
-        def _opacity(t, _s=_s, _d=_d, _fl=_fl, _du=_du):
-            p = (t - _s) / _d
-            cycle_pos = (p * _fl) % 1.0
-            return 1.0 if cycle_pos < _du else 0.0
-
-        self.styling.opacity.set(start, end, _opacity, stay=False)
+        self.styling.opacity.set(start, end,
+            lambda t, _s=_s, _d=_d, _fl=_fl, _du=_du: (
+                1.0 if ((t - _s) / _d * _fl) % 1.0 < _du else 0.0),
+            stay=False)
         return self
 
     def zoom_to(self, canvas, start: float = 0, end: float = 1,
@@ -299,21 +258,18 @@ class _VObjectEffectsMixin:
         if dur <= 0:
             return self
         bx, by, bw, bh = self.bbox(start)
-        target_x = bx - padding
-        target_y = by - padding
         target_w = bw + 2 * padding
         target_h = bh + 2 * padding
         if target_w <= 0 or target_h <= 0:
             return self
-        # Maintain canvas aspect ratio
         cx, cy = bx + bw / 2, by + bh / 2
         aspect = canvas.width / canvas.height
         if target_w / target_h > aspect:
             target_h = target_w / aspect
-            target_y = cy - target_h / 2
         else:
             target_w = target_h * aspect
-            target_x = cx - target_w / 2
+        target_x = cx - target_w / 2
+        target_y = cy - target_h / 2
         canvas.vb_x.move_to(start, end, target_x, easing=easing)
         canvas.vb_y.move_to(start, end, target_y, easing=easing)
         canvas.vb_w.move_to(start, end, target_w, easing=easing)
@@ -334,21 +290,15 @@ class _VObjectEffectsMixin:
         self._hide_from(end)
         bx, by, bw, bh = self.bbox(start)
         if direction == 'left':
-            pivot_x = bx
-            pivot_y = by + bh
-            target_angle = -angle
+            pivot_x, pivot_y, target_angle = bx, by + bh, -angle
         else:
-            pivot_x = bx + bw
-            pivot_y = by + bh
-            target_angle = angle
+            pivot_x, pivot_y, target_angle = bx + bw, by + bh, angle
         _s, _d = start, max(dur, 1e-9)
         _px, _py, _ta = pivot_x, pivot_y, target_angle
-
-        def _rot(t, _s=_s, _d=_d, _ta=_ta, _px=_px, _py=_py, _e=easing):
-            p = _e((t - _s) / _d)
-            return (_ta * p, _px, _py)
-
-        self.styling.rotation.set(start, end, _rot, stay=True)
+        self.styling.rotation.set(start, end,
+            lambda t, _s=_s, _d=_d, _ta=_ta, _px=_px, _py=_py, _e=easing: (
+                _ta * _e((t - _s) / _d), _px, _py),
+            stay=True)
         return self
 
     def stamp_trail(self, start: float = 0, end: float = 1, count=8,
@@ -362,10 +312,8 @@ class _VObjectEffectsMixin:
             t_appear = start + dur * (i + 1) / (count + 1)
             ghost = deepcopy(self)
             _apply_pos_offset(ghost, t_appear, 0, 0)
-            # Hidden before appearance
             ghost.show.set_onward(0, False)
             ghost.show.set_onward(t_appear, True)
-            # Fade out over fade_duration
             t_gone = t_appear + fade_duration
             ghost.show.set_onward(t_gone, False)
             fd = max(fade_duration, 1e-9)
@@ -385,7 +333,6 @@ class _VObjectEffectsMixin:
             self._show_from(start)
         bx, by, bw, bh = self.bbox(start)
         cx, cy = bx + bw / 2, by + bh / 2
-        # Determine anchor point and which axis to scale
         horizontal = direction in ('left', 'right')
         if direction == 'right':
             self.styling._scale_origin = (bx, cy)
@@ -393,7 +340,7 @@ class _VObjectEffectsMixin:
             self.styling._scale_origin = (bx + bw, cy)
         elif direction == 'down':
             self.styling._scale_origin = (cx, by)
-        else:  # up
+        else:
             self.styling._scale_origin = (cx, by + bh)
         scale_fn = _ramp(start, dur, 1, easing)
         if horizontal:
@@ -428,12 +375,10 @@ class _VObjectEffectsMixin:
         if dur <= 0:
             return self
         _s, _d, _a, _freq = start, max(dur, 1e-9), amplitude, frequency
-
         def _wave(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
             progress = (t - _s) / _d
             envelope = _easing(progress) * (1 - _easing(progress)) * 4
             return _a * math.sin(math.tau * _freq * progress) * envelope
-
         if direction == 'y':
             return self._apply_shift_effect(start, end, dy_func=_wave)
         else:
@@ -447,9 +392,7 @@ class _VObjectEffectsMixin:
             return self
         step_dur = dur / from_val
         for i in range(from_val):
-            t = start + i * step_dur
-            val = from_val - i
-            self.text.set_onward(t, str(val))
+            self.text.set_onward(start + i * step_dur, str(from_val - i))
         return self
 
     def squeeze(self, start: float = 0, end: float = 1, axis='x',
@@ -462,35 +405,25 @@ class _VObjectEffectsMixin:
         _s, _d, _f = start, max(dur, 1e-9), factor
         compensate = 1.0 / _f if _f > 1e-9 else 1.0
 
-        def _primary(t, _s=_s, _d=_d, _f=_f, _easing=easing):
-            progress = _easing((t - _s) / _d)
-            return 1 + (_f - 1) * progress
-
-        def _compensate(t, _s=_s, _d=_d, _c=compensate, _easing=easing):
-            progress = _easing((t - _s) / _d)
-            return 1 + (_c - 1) * progress
+        def _make_squeeze(s0, f):
+            return lambda t, _s=_s, _d=_d, _s0=s0, _f=f, _e=easing: \
+                _s0 * (1 + (_f - 1) * _e((t - _s) / _d))
 
         if axis == 'x':
-            self.styling.scale_x.set(start, end,
-                lambda t, _b=sx0: _b * _primary(t), stay=True)
-            self.styling.scale_y.set(start, end,
-                lambda t, _b=sy0: _b * _compensate(t), stay=True)
+            self.styling.scale_x.set(start, end, _make_squeeze(sx0, _f), stay=True)
+            self.styling.scale_y.set(start, end, _make_squeeze(sy0, compensate), stay=True)
         else:
-            self.styling.scale_y.set(start, end,
-                lambda t, _b=sy0: _b * _primary(t), stay=True)
-            self.styling.scale_x.set(start, end,
-                lambda t, _b=sx0: _b * _compensate(t), stay=True)
+            self.styling.scale_y.set(start, end, _make_squeeze(sy0, _f), stay=True)
+            self.styling.scale_x.set(start, end, _make_squeeze(sx0, compensate), stay=True)
         return self
 
     def bind_to(self, other, offset_x=0, offset_y=0, start=0, end=None):
         """Keep this object at a fixed offset relative to another object's center."""
         def _bind(obj, time, _other=other, _ox=offset_x, _oy=offset_y):
             ocx, ocy = _other.center(time)
-            target_x = ocx + _ox
-            target_y = ocy + _oy
             scx, scy = obj.center(time)
-            dx = target_x - scx
-            dy = target_y - scy
+            dx = ocx + _ox - scx
+            dy = ocy + _oy - scy
             if abs(dx) > 0.01 or abs(dy) > 0.01:
                 _apply_pos_offset(obj, time, dx, dy)
         self.add_updater(_bind, start, end)
@@ -554,8 +487,7 @@ class _VObjectEffectsMixin:
 
     def set_dash_pattern(self, pattern='dashes', start=0):
         """Set the stroke-dasharray at a given time. Accepts preset names or a custom string."""
-        pattern_str = self._DASH_PRESETS.get(pattern, pattern)
-        self.styling.stroke_dasharray.set_onward(start, pattern_str)
+        self.styling.stroke_dasharray.set_onward(start, self._DASH_PRESETS.get(pattern, pattern))
         return self
 
     def show_if(self, condition_func, start=0, end=None):
@@ -575,16 +507,14 @@ class _VObjectEffectsMixin:
         return _make_brect(other.bbox, start, rx, ry, buff, follow)
 
     def fade_to_color(self, target_color, start=0, end=1, easing=easings.smooth):
-        """Smoothly transition both fill and stroke to target_color over [start, end].
-        Returns self."""
+        """Smoothly transition both fill and stroke to target_color over [start, end]."""
         self.set_fill(color=target_color, start=start, end=end, easing=easing)
         self.set_stroke(color=target_color, start=start, end=end, easing=easing)
         return self
 
     def spin_and_fade(self, start=0, end=1, spins=1.5, direction=1, easing=easings.smooth):
         """Rotate and fade out simultaneously over [start, end]."""
-        degrees = spins * 360 * direction
-        self.rotate_by(start, end, degrees, easing=easing)
+        self.rotate_by(start, end, spins * 360 * direction, easing=easing)
         self.set_opacity(0, start=start, end=end, easing=easing)
         return self
 
@@ -595,24 +525,18 @@ class _VObjectEffectsMixin:
         if cur_w <= 0 or cur_h <= 0:
             return self
         if target_width is not None and target_height is not None:
-            sx = target_width / cur_w
-            sy = target_height / cur_h
-            self.stretch(sx, sy, start=start, end=end, easing=easing)
+            self.stretch(target_width / cur_w, target_height / cur_h,
+                         start=start, end=end, easing=easing)
         elif target_width is not None:
-            factor = target_width / cur_w
-            self.scale(factor, start=start, end=end, easing=easing)
+            self.scale(target_width / cur_w, start=start, end=end, easing=easing)
         elif target_height is not None:
-            factor = target_height / cur_h
-            self.scale(factor, start=start, end=end, easing=easing)
+            self.scale(target_height / cur_h, start=start, end=end, easing=easing)
         return self
 
     def tilt_towards(self, target_x, target_y, max_angle=15, start=0, end=1, easing=easings.smooth):
         """Rotate the object to tilt toward a target point by *max_angle* degrees."""
         _, cy = self.center(start)
-        dy = target_y - cy
-        # In SVG coordinates (y-down), positive dy means target is below,
-        # so tilt clockwise (positive degrees); negative dy means above.
-        tilt = max_angle if dy >= 0 else -max_angle
+        tilt = max_angle if target_y - cy >= 0 else -max_angle
         self.rotate_by(start, end, tilt, easing=easing)
         return self
 
@@ -659,17 +583,13 @@ class _VObjectEffectsMixin:
 
     def repeat_animation(self, method_name, count=2, start=0, end=1, **kwargs):
         """Repeat an animation method *count* times within [start, end]."""
-        if count <= 0:
+        if count <= 0 or end <= start:
             return self
-        dur = end - start
-        if dur <= 0:
-            return self
-        slice_dur = dur / count
+        slice_dur = (end - start) / count
         method = getattr(self, method_name)
         for i in range(count):
             s = start + i * slice_dur
-            e = s + slice_dur
-            method(start=s, end=e, **kwargs)
+            method(start=s, end=s + slice_dur, **kwargs)
         return self
 
     # -- Elastic scale --
@@ -685,18 +605,13 @@ class _VObjectEffectsMixin:
         _freq = math.tau * 2.5
 
         def _elastic_envelope(p):
-            """Damped cosine: 1 at p=0, oscillates toward 0 at p=1."""
-            if p <= 0:
-                return 1.0
-            if p >= 1:
-                return 0.0
+            if p <= 0: return 1.0
+            if p >= 1: return 0.0
             return math.cos(_freq * p) * math.exp(-_damp * p)
 
         def _make_elastic(s0):
-            def _es(t, _s=_s, _d=_d, _f=_f, _s0=s0, _easing=easing):
-                p = _easing((t - _s) / _d)
-                return _s0 * (1 + (_f - 1) * _elastic_envelope(p))
-            return _es
+            return lambda t, _s=_s, _d=_d, _f=_f, _s0=s0, _e=easing: \
+                _s0 * (1 + (_f - 1) * _elastic_envelope(_e((t - _s) / _d)))
 
         self.styling.scale_x.set(start, end, _make_elastic(sx0), stay=True)
         self.styling.scale_y.set(start, end, _make_elastic(sy0), stay=True)
@@ -707,17 +622,16 @@ class _VObjectEffectsMixin:
         cx, cy = self.center(start)
         target_x = round(cx / grid_size) * grid_size
         target_y = round(cy / grid_size) * grid_size
-        dx = target_x - cx
-        dy = target_y - cy
+        dx, dy = target_x - cx, target_y - cy
         if dx != 0 or dy != 0:
             self.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
 
     def add_background(self, color='#000000', opacity=0.5, padding=20, creation=0, z=-1):
         """Create a semi-transparent Rectangle behind the object as a readability backdrop."""
-        from vectormation._shapes import Rectangle  # lazy to avoid circular import
+        from vectormation._shapes import Rectangle
         x, y, w, h = self.bbox(creation)
-        rect = Rectangle(
+        return Rectangle(
             width=w + 2 * padding,
             height=h + 2 * padding,
             x=x - padding,
@@ -728,7 +642,6 @@ class _VObjectEffectsMixin:
             fill_opacity=opacity,
             stroke_width=0,
         )
-        return rect
 
     def cycle_colors(self, colors, start=0, end=1, easing=easings.linear):
         """Cycle the fill color through a list of colors over [start, end]."""
@@ -736,27 +649,19 @@ class _VObjectEffectsMixin:
         if dur <= 0 or len(colors) < 2:
             return self
         n = len(colors)
-        # Parse all colors to RGB tuples
-        parsed = []
-        for c in colors:
-            _, rgb = attributes.Color(0, '#000').parse(c)
-            parsed.append(rgb)
-        # Set initial color at start
+        parsed = [attributes.Color(0, '#000').parse(c)[1] for c in colors]
         self.set_fill(color=colors[0], start=start)
-        # Use Color.set to define each interpolation segment
         src = self.styling.fill
         def _make_interp(_cf, _ct, _ss, _dd, _easing):
-            def _interp(t):
-                p = _easing((t - _ss) / _dd)
-                return tuple(_cf[j] + (_ct[j] - _cf[j]) * p for j in range(len(_cf)))
-            return _interp
+            return lambda t: tuple(
+                _cf[j] + (_ct[j] - _cf[j]) * _easing((t - _ss) / _dd)
+                for j in range(len(_cf)))
         for i in range(n - 1):
             seg_s = start + dur * i / (n - 1)
             seg_e = start + dur * (i + 1) / (n - 1)
-            c_from = parsed[i]
-            c_to = parsed[i + 1]
             _d = max(seg_e - seg_s, 1e-9)
-            src.set(seg_s, seg_e, _make_interp(c_from, c_to, seg_s, _d, easing), stay=(i == n - 2))
+            src.set(seg_s, seg_e, _make_interp(parsed[i], parsed[i + 1], seg_s, _d, easing),
+                    stay=(i == n - 2))
         return self
 
     def freeze(self, start, end=None):
@@ -765,12 +670,9 @@ class _VObjectEffectsMixin:
 
         def _capture(obj, t):
             if not _captured:
-                # Snapshot every styling attribute at the freeze time
                 for name, _, cls, _, _ in style._ATTR_SCHEMA:
-                    attr = getattr(obj.styling, name)
-                    _captured[name] = attr.at_time(start)
+                    _captured[name] = getattr(obj.styling, name).at_time(start)
                 _captured['_z'] = obj.z.at_time(start)
-            # Restore all attributes to their frozen values
             for name, _, cls, _, _ in style._ATTR_SCHEMA:
                 val = _captured[name]
                 attr = getattr(obj.styling, name)
@@ -802,20 +704,15 @@ class _VObjectEffectsMixin:
             return self
         _s, _d, _a, _freq = start, max(dur, 1e-9), intensity, frequency
 
-        # Shift component: two different sine frequencies for organic feel
         def _dx(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
             p = (t - _s) / _d
-            envelope = 1 - _easing(p)
-            return _a * math.sin(math.tau * _freq * p) * envelope
+            return _a * math.sin(math.tau * _freq * p) * (1 - _easing(p))
 
         def _dy(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
             p = (t - _s) / _d
-            envelope = 1 - _easing(p)
-            return _a * 0.7 * math.sin(math.tau * _freq * 1.3 * p) * envelope
+            return _a * 0.7 * math.sin(math.tau * _freq * 1.3 * p) * (1 - _easing(p))
 
         self._apply_shift_effect(start, end, _dx, _dy)
-
-        # Rotation component: slight wobbling rotation
         cx, cy = self.center(start)
         self.styling.rotation.set(start, end,
             lambda t, _s=_s, _d=_d, _a=_a, _freq=_freq, _cx=cx, _cy=cy, _easing=easing: (
@@ -831,8 +728,8 @@ class _VObjectEffectsMixin:
         self._ensure_scale_origin(start)
         _s, _d, _zf = start, max(dur, 1e-9), zoom_factor
         def _make_zoom(s0):
-            return lambda t, _s=_s, _d=_d, _zf=_zf, _s0=s0, _easing=easing: \
-                _s0 * (1 + (_zf - 1) * math.sin(math.pi * _easing((t - _s) / _d)))
+            return lambda t, _s=_s, _d=_d, _zf=_zf, _s0=s0, _e=easing: \
+                _s0 * (1 + (_zf - 1) * math.sin(math.pi * _e((t - _s) / _d)))
         self.styling.scale_x.set(start, end, _make_zoom(self.styling.scale_x.at_time(start)))
         self.styling.scale_y.set(start, end, _make_zoom(self.styling.scale_y.at_time(start)))
         return self
@@ -841,16 +738,11 @@ class _VObjectEffectsMixin:
         """For Text objects only: gradually reveal text character by character."""
         _ensure_text(self, 'typewriter_effect')
         n = len(text)
-        if n == 0:
+        if n == 0 or end <= start:
             return self
-        dur = end - start
-        if dur <= 0:
-            return self
-        _s, _d, _txt = start, max(dur, 1e-9), text
+        _s, _d, _txt = start, max(end - start, 1e-9), text
         def _reveal(t, _s=_s, _d=_d, _txt=_txt, _n=n, _easing=easing):
-            p = min(1.0, _easing((t - _s) / _d))
-            chars = int(p * _n)
-            return _txt[:chars]
+            return _txt[:int(min(1.0, _easing((t - _s) / _d)) * _n)]
         self.text.set(start, end, _reveal, stay=True)
         self.text.set_onward(end, text)
         return self
@@ -859,14 +751,12 @@ class _VObjectEffectsMixin:
         """Rotate so this object points toward *target*."""
         if easing is None:
             easing = easings.smooth
-        # Resolve target coordinates
         if isinstance(target, tuple):
             tx, ty = target
         else:
             tx, ty = target.get_center(start)
         cx, cy = self.get_center(start)
-        angle_rad = math.atan2(ty - cy, tx - cx)
-        angle_deg = math.degrees(angle_rad)
+        angle_deg = math.degrees(math.atan2(ty - cy, tx - cx))
         if end is None:
             return self.rotate_to(start, start, angle_deg, easing=easing)
         return self.rotate_to(start, end, angle_deg, easing=easing)
@@ -875,21 +765,15 @@ class _VObjectEffectsMixin:
         """Animate position, scale, and colors to match *target_obj*."""
         if easing is None:
             easing = easings.smooth
-        # Move to target center
         tx, ty = target_obj.get_center(start)
         self.center_to_pos(posx=tx, posy=ty, start=start, end=end, easing=easing)
-        # Scale to match target width
         tw = target_obj.get_width(start)
         cur_w = self.get_width(start)
         if cur_w > 0 and tw > 0:
-            factor = tw / cur_w
-            self.scale(factor, start=start, end=end, easing=easing)
-        # Transition fill color — use raw tuple from time_func to avoid
-        # round-tripping through at_time()'s "rgb(...)" string format.
+            self.scale(tw / cur_w, start=start, end=end, easing=easing)
         target_fill = target_obj.styling.fill.time_func(start)
         if target_fill:
             self.set_color(start, end, fill=self._rgb_to_hex(target_fill), easing=easing)
-        # Transition stroke color
         target_stroke = target_obj.styling.stroke.time_func(start)
         if target_stroke:
             self.set_color(start, end, stroke=self._rgb_to_hex(target_stroke), easing=easing)
@@ -904,27 +788,19 @@ class _VObjectEffectsMixin:
             for i, c in enumerate(colors)
         )
         if direction == 'radial':
-            grad_def = (
-                f"<radialGradient id='{gid}'>"
-                f"{stops}</radialGradient>"
-            )
+            grad_def = f"<radialGradient id='{gid}'>{stops}</radialGradient>"
         else:
-            if direction == 'vertical':
-                x1, y1, x2, y2 = 0, 0, 0, 1
-            else:  # horizontal
-                x1, y1, x2, y2 = 0, 0, 1, 0
+            x1, y1, x2, y2 = (0, 0, 0, 1) if direction == 'vertical' else (0, 0, 1, 0)
             grad_def = (
                 f"<linearGradient id='{gid}' x1='{x1}' y1='{y1}' x2='{x2}' y2='{y2}'>"
                 f"{stops}</linearGradient>"
             )
         _orig_to_svg = self.to_svg
 
-        def _gradient_to_svg(time, _orig=_orig_to_svg, _gid=gid,
-                             _def=grad_def, _start=start):
+        def _gradient_to_svg(time, _orig=_orig_to_svg, _gid=gid, _def=grad_def, _start=start):
             inner = _orig(time)
             if time >= _start:
-                return (f"<g><defs>{_def}</defs>"
-                        f"<g fill='url(#{_gid})'>{inner}</g></g>")
+                return f"<g><defs>{_def}</defs><g fill='url(#{_gid})'>{inner}</g></g>"
             return inner
 
         self.to_svg = _gradient_to_svg  # type: ignore[assignment]
@@ -971,14 +847,14 @@ class _VObjectEffectsMixin:
         """Move a fraction of the way toward another object or point."""
         cx, cy = self.get_center(start)
         tx, ty = _coords_of(other, start)
-        nx = cx + fraction * (tx - cx)
-        ny = cy + fraction * (ty - cy)
-        return self.center_to_pos(posx=nx, posy=ny, start=start,
-                                  end=end, easing=easing or easings.smooth)
+        return self.center_to_pos(
+            posx=cx + fraction * (tx - cx),
+            posy=cy + fraction * (ty - cy),
+            start=start, end=end, easing=easing or easings.smooth)
 
     def add_label(self, text, direction=UP, buff=20, font_size=None, follow=False, creation=0, **kwargs):
         """Attach a text label next to this object. Returns a VCollection(self, label)."""
-        from vectormation._shapes import Text as _Text  # lazy import
+        from vectormation._shapes import Text as _Text
         label_kwargs = dict(creation=creation)
         if font_size is not None:
             label_kwargs['font_size'] = font_size
@@ -986,8 +862,7 @@ class _VObjectEffectsMixin:
         label = _Text(text, **label_kwargs)
         label.next_to(self, direction, buff, start=creation)
         if follow:
-            _dir = direction
-            _buff = buff
+            _dir, _buff = direction, buff
             def _follow_updater(lbl, t, _parent=self, _d=_dir, _b=_buff):
                 lbl.next_to(_parent, _d, _b, start=t)
             label.add_updater(_follow_updater, start=creation)
@@ -998,37 +873,31 @@ class _VObjectEffectsMixin:
         """Position this object between two other objects or points."""
         ax, ay = _coords_of(obj_a, start)
         bx, by = _coords_of(obj_b, start)
-        tx = (1 - fraction) * ax + fraction * bx
-        ty = (1 - fraction) * ay + fraction * by
-        return self.center_to_pos(posx=tx, posy=ty, start=start,
-                                  end=end, easing=easing or easings.smooth)
+        return self.center_to_pos(
+            posx=(1 - fraction) * ax + fraction * bx,
+            posy=(1 - fraction) * ay + fraction * by,
+            start=start, end=end, easing=easing or easings.smooth)
 
     def homotopy(self, func, start: float = 0, end: float = 1):
-        """Apply a continuous point-wise transformation *func(x, y, t) -> (x', y')* over time.
-        """
+        """Apply a continuous point-wise transformation *func(x, y, t) -> (x', y')* over time."""
         dur = end - start
         if dur <= 0:
             return self
-        coors = self._shift_coors()
-        reals = self._shift_reals()
-        for c in coors:
+        for c in self._shift_coors():
             orig = c.at_time(start)
             ox, oy = float(orig[0]), float(orig[1])
             def _h(t, _s=start, _d=dur, _ox=ox, _oy=oy, _f=func):
-                alpha = min(1.0, (t - _s) / _d)
-                return _f(_ox, _oy, alpha)
+                return _f(_ox, _oy, min(1.0, (t - _s) / _d))
             c.set(start, end, _h, stay=True)
             fx, fy = func(ox, oy, 1.0)
             c.set_onward(end, (fx, fy))
-        for rx, ry in reals:
+        for rx, ry in self._shift_reals():
             ox = float(rx.at_time(start))
             oy = float(ry.at_time(start))
             def _hx(t, _s=start, _d=dur, _ox=ox, _oy=oy, _f=func):
-                alpha = min(1.0, (t - _s) / _d)
-                return _f(_ox, _oy, alpha)[0]
+                return _f(_ox, _oy, min(1.0, (t - _s) / _d))[0]
             def _hy(t, _s=start, _d=dur, _ox=ox, _oy=oy, _f=func):
-                alpha = min(1.0, (t - _s) / _d)
-                return _f(_ox, _oy, alpha)[1]
+                return _f(_ox, _oy, min(1.0, (t - _s) / _d))[1]
             rx.set(start, end, _hx, stay=True)
             ry.set(start, end, _hy, stay=True)
             fx, fy = func(ox, oy, 1.0)

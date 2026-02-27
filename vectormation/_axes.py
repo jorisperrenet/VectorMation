@@ -2036,6 +2036,65 @@ class NumberPlane(VCollection):
         self.objects = new_objects
         return self
 
+    def add_coordinate_labels(self, font_size=18, x_values=None, y_values=None, creation=0):
+        """Create Text labels at tick positions on both axes. Skips 0."""
+        x_min, x_max, x_step = self._x_range
+        y_min, y_max, y_step = self._y_range
+
+        if x_values is None:
+            v = math.ceil(x_min / x_step - 1e-9) * x_step
+            x_values = []
+            while v <= x_max + 1e-9:
+                x_values.append(v)
+                v += x_step
+
+        if y_values is None:
+            v = math.ceil(y_min / y_step - 1e-9) * y_step
+            y_values = []
+            while v <= y_max + 1e-9:
+                y_values.append(v)
+                v += y_step
+
+        labels = []
+        for x in x_values:
+            if abs(x) < 1e-9:
+                continue
+            px, py = self.coords_to_point(x, 0)
+            lbl = Text(
+                str(int(x) if x == int(x) else x),
+                x=px, y=py + font_size * 1.2,
+                font_size=font_size, creation=creation,
+            )
+            labels.append(lbl)
+
+        for y in y_values:
+            if abs(y) < 1e-9:
+                continue
+            px, py = self.coords_to_point(0, y)
+            lbl = Text(
+                str(int(y) if y == int(y) else y),
+                x=px - font_size * 1.2, y=py,
+                font_size=font_size, creation=creation,
+            )
+            labels.append(lbl)
+
+        self.objects.extend(labels)
+        return self
+
+    def apply_matrix(self, matrix, start=0, end=1, easing=easings.smooth, resolution=20):
+        """Apply a 2x2 linear transformation matrix as an animated grid transformation."""
+        return self.apply_function(
+            lambda x, y: (
+                matrix[0][0] * x + matrix[0][1] * y,
+                matrix[1][0] * x + matrix[1][1] * y,
+            ),
+            start=start, end=end, easing=easing, resolution=resolution,
+        )
+
+    def point_to_coords(self, x, y):
+        """Inverse of coords_to_point. Returns logical coordinates from SVG pixel coordinates."""
+        return ((x - self._cx) / self._unit, -(y - self._cy) / self._unit)
+
 class ComplexPlane(Axes):
     """Complex number plane with Re/Im axes."""
     def __init__(self, x_range=(-5, 5), y_range=(-5, 5),
@@ -2128,4 +2187,51 @@ class ComplexPlane(Axes):
             y_val += step
 
         self.objects.extend(new_objects)
+        return self
+
+    n2p = number_to_point
+    p2n = point_to_number
+
+    def add_coordinate_labels(self, font_size=18, creation=0):
+        """Create Text labels on real and imaginary axes (e.g. '2', '-3i')."""
+        xmin, xmax, ymin, ymax = self._get_bounds(0)
+        x_step = max(1, round((xmax - xmin) / 10))
+        y_step = max(1, round((ymax - ymin) / 10))
+
+        labels = []
+
+        # Real axis labels (integers along x, y=0)
+        v = math.ceil(xmin / x_step - 1e-9) * x_step
+        while v <= xmax + 1e-9:
+            if abs(v) > 1e-9:
+                px = self._math_to_svg_x(v)
+                py = self._math_to_svg_y(0)
+                iv = int(round(v))
+                lbl = Text(
+                    str(iv),
+                    x=px, y=py + font_size * 1.2,
+                    font_size=font_size, creation=creation,
+                )
+                labels.append(lbl)
+            v += x_step
+
+        # Imaginary axis labels (integers along y, x=0)
+        v = math.ceil(ymin / y_step - 1e-9) * y_step
+        while v <= ymax + 1e-9:
+            if abs(v) > 1e-9:
+                px = self._math_to_svg_x(0)
+                py = self._math_to_svg_y(v)
+                iv = int(round(v))
+                text = f'{iv}i' if iv != 1 else 'i'
+                if iv == -1:
+                    text = '-i'
+                lbl = Text(
+                    text,
+                    x=px - font_size * 1.2, y=py,
+                    font_size=font_size, creation=creation,
+                )
+                labels.append(lbl)
+            v += y_step
+
+        self.objects.extend(labels)
         return self

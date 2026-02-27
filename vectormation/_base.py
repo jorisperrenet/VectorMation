@@ -413,10 +413,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                    start=start, end=end, easing=easing)
         return self
 
-    def teleport(self, x: float, y: float, start: float = 0, time: float | None = None):
+    def teleport(self, x: float, y: float, start: float = 0):
         """Instantly move object center to (x, y) at the given time (no animation)."""
-        t = time if time is not None else start
-        return self.center_to_pos(posx=x, posy=y, start=t)
+        return self.center_to_pos(posx=x, posy=y, start=start)
 
     def center_to_pos(self, posx: float = 960, posy: float = 540, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Shifts the center to pos, animated from start to end."""

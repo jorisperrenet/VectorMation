@@ -77,6 +77,29 @@ class TestColorGradient:
         result = color_gradient('RED', 'BLUE', 5)
         assert len(result) == 5
 
+    def test_multi_stop_list(self):
+        result = color_gradient(['#ff0000', '#00ff00', '#0000ff'], n=5)
+        assert len(result) == 5
+        assert result[0] == '#ff0000'
+        assert result[-1] == '#0000ff'
+
+    def test_multi_stop_midpoint(self):
+        result = color_gradient(['#ff0000', '#0000ff'], n=3)
+        assert len(result) == 3
+        assert result[0] == '#ff0000'
+        assert result[2] == '#0000ff'
+
+    def test_multi_stop_single(self):
+        result = color_gradient(['#ff0000', '#0000ff'], n=1)
+        assert len(result) == 1
+        assert result[0] == '#ff0000'
+
+    def test_multi_stop_three_colors(self):
+        result = color_gradient(['#000000', '#ffffff', '#000000'], n=5)
+        assert len(result) == 5
+        # Middle should be white
+        assert result[2] == '#ffffff'
+
 
 class TestInterpolateColor:
     def test_start(self):

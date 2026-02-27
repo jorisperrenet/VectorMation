@@ -1,4 +1,5 @@
 """Animated pendulum with a bob tracing its path."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from vectormation.objects import *
 
 canvas = VectorMathAnim(save_dir='svgs/pendulum')

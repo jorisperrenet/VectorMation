@@ -256,6 +256,10 @@ class Automaton(VCollection):
         n = len(states)
         self._state_positions = {}
         self._state_circles = {}
+        self._transitions = list(transitions)
+        self._transition_arrows = {}
+        self._accept_states = set(accept_states)
+        self._initial_state = initial_state
         if n == 0:
             super().__init__(creation=creation, z=z)
             return
@@ -303,6 +307,7 @@ class Automaton(VCollection):
                            start_angle=210, end_angle=330,
                            creation=creation, z=z, stroke='#83C167', stroke_width=2)
                 objects.append(loop)
+                self._transition_arrows[(from_s, to_s)] = loop
                 lbl = Text(text=label_text, x=fx, y=fy - state_r - loop_r * 2 - 8,
                            font_size=font_size * 0.8, text_anchor='middle',
                            creation=creation, z=z + 1, fill='#83C167', stroke_width=0)
@@ -317,6 +322,7 @@ class Automaton(VCollection):
                               tip_length=12, tip_width=10,
                               creation=creation, z=z, stroke='#83C167', stroke_width=2)
                 objects.append(arrow)
+                self._transition_arrows[(from_s, to_s)] = arrow
                 mx, my = (sx + ex) / 2, (sy + ey) / 2
                 # Offset label perpendicular to arrow
                 px, py = -uy * 15, ux * 15
@@ -330,10 +336,67 @@ class Automaton(VCollection):
     def __repr__(self):
         return f'Automaton({len(self._state_positions)} states)'
 
-    def highlight_state(self, state_name, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+    def highlight_state(self, state_name, start: float = 0, end: float = 1, color='#FFFF00', easing=easings.there_and_back):
         """Highlight a state by flashing its circle."""
         if state_name in self._state_circles:
             self._state_circles[state_name].flash(start, end, color=color, easing=easing)
+        return self
+
+    def highlight_transition(self, from_state, to_state, start: float = 0, end: float = 1, color='#FFFF00'):
+        """Highlight the arrow between from_state and to_state by flashing its color."""
+        arrow = self._transition_arrows.get((from_state, to_state))
+        if arrow is None:
+            return self
+        duration = max(end - start, 0)
+        # Arrow is a VCollection (shaft + tip); Arc is a VObject — handle both
+        if hasattr(arrow, 'shaft'):
+            arrow.shaft.flash_color(color, start=start, duration=duration, attr='stroke')
+            arrow.tip.flash_color(color, start=start, duration=duration, attr='fill')
+        else:
+            # Arc (self-loop): flash the stroke color
+            arrow.flash_color(color, start=start, duration=duration, attr='stroke')
+        return self
+
+    def simulate_input(self, word, start=0, delay=0.5, color='#FFFF00', transitions=None):
+        """Animate stepping through the automaton one character at a time.
+
+        For each character in *word*, highlights the current state, then the
+        transition arrow, then the next state.  If no transition exists the
+        current state is highlighted red (rejected).  At the end the final
+        state is highlighted green if it is an accept state, red otherwise.
+        """
+        trans_list = transitions if transitions is not None else self._transitions
+        # Build lookup: (state, char) -> next_state
+        lookup = {}
+        for from_s, to_s, label in trans_list:
+            lookup[(from_s, label)] = to_s
+
+        current = self._initial_state
+        t = start
+
+        for ch in word:
+            # Highlight current state
+            self.highlight_state(current, start=t, end=t + delay, color=color)
+            t += delay
+
+            next_state = lookup.get((current, ch))
+            if next_state is None:
+                # No transition — reject
+                self.highlight_state(current, start=t, end=t + delay, color='#FF0000')
+                return self
+
+            # Highlight transition arrow
+            self.highlight_transition(current, next_state, start=t, end=t + delay, color=color)
+            t += delay
+
+            # Highlight next state arriving
+            self.highlight_state(next_state, start=t, end=t + delay, color=color)
+            t += delay
+            current = next_state
+
+        # Final state: green if accept, red if reject
+        final_color = '#00FF00' if current in self._accept_states else '#FF0000'
+        self.highlight_state(current, start=t, end=t + delay, color=final_color)
         return self
 
 # ---------------------------------------------------------------------------

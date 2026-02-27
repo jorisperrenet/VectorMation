@@ -1174,27 +1174,25 @@ class VCollection(_BBoxMethodsMixin):
             func(obj, i, start + i * delay)
         return self
 
-    def zip_with(self, other, method_name_or_func, start=0, end=1, time=None, **kwargs):
+    def zip_with(self, other, method_name_or_func, start=0, end=1, **kwargs):
         """Apply a method or function pairwise to children of this and another collection."""
-        if time is None:
-            time = start
         other_objs = other.objects if hasattr(other, 'objects') else list(other)
         if isinstance(method_name_or_func, str):
             for a, b in zip(self.objects, other_objs):
                 getattr(a, method_name_or_func)(b, **kwargs)
         else:
             for a, b in zip(self.objects, other_objs):
-                method_name_or_func(a, b, time)
+                method_name_or_func(a, b, start)
         return self
 
-    def align_to(self, target, edge='left', start: float = 0, end: float | None = None, easing=None):
-        """Align the collection's edge to match *target*'s edge.
-        target: another VObject/VCollection.
+    def align_to(self, other, edge='left', start: float = 0, end: float | None = None, easing=None):
+        """Align the collection's edge to match *other*'s edge.
+        other: another VObject/VCollection.
         edge: 'left', 'right', 'top', 'bottom' or direction constant.
         When *end* is given, animate the movement over [start, end]."""
         edge = _norm_edge(edge, 'left')
         mx, my, mw, mh = self.bbox(start)
-        ox, oy, ow, oh = target.bbox(start)
+        ox, oy, ow, oh = other.bbox(start)
         offsets = {
             'left': (ox - mx, 0),
             'right': ((ox + ow) - (mx + mw), 0),

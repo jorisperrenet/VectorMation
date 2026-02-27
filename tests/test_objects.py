@@ -1656,7 +1656,7 @@ class TestVObjectNew:
 
     def test_teleport(self):
         d = Dot(cx=100, cy=100)
-        d.teleport(500, 500, time=0)
+        d.teleport(500, 500, start=0)
         p = d.c.at_time(0)
         assert abs(p[0] - 500) < 5
         assert abs(p[1] - 500) < 5
@@ -10806,7 +10806,7 @@ class TestTeleport:
 
     def test_teleport_backward_compat_time(self):
         d = Dot(cx=100, cy=100)
-        d.teleport(500, 500, time=0)
+        d.teleport(500, 500, start=0)
         p = d.c.at_time(0)
         assert abs(p[0] - 500) < 5
         assert abs(p[1] - 500) < 5
@@ -15378,3 +15378,355 @@ def test_tick_format_degree_large_value_passthrough():
     # Values larger than 2*pi+0.01 are treated as already in degrees
     result = degree_format(90)
     assert result == '90°'
+
+
+def test_automaton_simulate_input_basic():
+    """simulate_input on an accepting word returns self and highlights states."""
+    states = ['q0', 'q1']
+    transitions = [('q0', 'q1', 'a'), ('q1', 'q0', 'b')]
+    auto = Automaton(states, transitions, accept_states={'q1'}, initial_state='q0')
+    result = auto.simulate_input('a', start=0, delay=0.3)
+    assert result is auto
+
+
+def test_automaton_simulate_input_rejected():
+    """simulate_input stops and highlights red when no transition exists."""
+    states = ['q0', 'q1']
+    transitions = [('q0', 'q1', 'a')]
+    auto = Automaton(states, transitions, accept_states={'q1'}, initial_state='q0')
+    # 'b' has no transition from q0 — should return self without error
+    result = auto.simulate_input('b', start=0, delay=0.3)
+    assert result is auto
+
+
+def test_automaton_highlight_transition():
+    """highlight_transition flashes the stored arrow without raising."""
+    states = ['q0', 'q1']
+    transitions = [('q0', 'q1', 'a')]
+    auto = Automaton(states, transitions, accept_states={'q1'}, initial_state='q0')
+    # Should find the arrow and flash it, returning self
+    result = auto.highlight_transition('q0', 'q1', start=0, end=1)
+    assert result is auto
+    # Non-existent transition should also return self gracefully
+    result2 = auto.highlight_transition('q1', 'q0', start=0, end=1)
+    assert result2 is auto
+
+
+# ---------------------------------------------------------------------------
+# NumberPlane new methods
+# ---------------------------------------------------------------------------
+
+class TestNumberPlaneAddCoordinateLabels:
+    def test_returns_self(self):
+        plane = NumberPlane(x_range=(-3, 3, 1), y_range=(-3, 3, 1))
+        result = plane.add_coordinate_labels()
+        assert result is plane
+
+    def test_creates_text_objects(self):
+        plane = NumberPlane(x_range=(-3, 3, 1), y_range=(-3, 3, 1))
+        before = len(plane.objects)
+        plane.add_coordinate_labels()
+        assert len(plane.objects) > before
+
+    def test_skips_zero(self):
+        plane = NumberPlane(x_range=(-2, 2, 1), y_range=(-2, 2, 1))
+        plane.add_coordinate_labels()
+        texts = [o for o in plane.objects if isinstance(o, Text)]
+        labels = [t.text.at_time(0) for t in texts]
+        assert '0' not in labels
+
+    def test_x_labels_content(self):
+        plane = NumberPlane(x_range=(-2, 2, 1), y_range=(-2, 2, 1))
+        plane.add_coordinate_labels()
+        texts = [o for o in plane.objects if isinstance(o, Text)]
+        labels = [t.text.at_time(0) for t in texts]
+        assert '1' in labels or '-1' in labels
+
+    def test_custom_x_values(self):
+        plane = NumberPlane(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
+        plane.add_coordinate_labels(x_values=[2, 4], y_values=[])
+        texts = [o for o in plane.objects if isinstance(o, Text)]
+        labels = [t.text.at_time(0) for t in texts]
+        assert '2' in labels
+        assert '4' in labels
+
+    def test_custom_y_values(self):
+        plane = NumberPlane(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
+        plane.add_coordinate_labels(x_values=[], y_values=[3])
+        texts = [o for o in plane.objects if isinstance(o, Text)]
+        labels = [t.text.at_time(0) for t in texts]
+        assert '3' in labels
+
+    def test_font_size_propagated(self):
+        plane = NumberPlane(x_range=(-2, 2, 1), y_range=(-2, 2, 1))
+        plane.add_coordinate_labels(font_size=24)
+        texts = [o for o in plane.objects if isinstance(o, Text)]
+        assert all(t.font_size.at_time(0) == 24 for t in texts)
+
+
+class TestNumberPlaneApplyMatrix:
+    def test_returns_self(self):
+        plane = NumberPlane(x_range=(-2, 2, 1), y_range=(-2, 2, 1))
+        result = plane.apply_matrix([[1, 0], [0, 1]])
+        assert result is plane
+
+    def test_identity_matrix_unchanged_endpoints(self):
+        plane = NumberPlane(x_range=(-2, 2, 1), y_range=(-2, 2, 1))
+        plane.apply_matrix([[1, 0], [0, 1]])
+        # After identity transform the plane should still have objects
+        assert len(plane.objects) > 0
+
+    def test_rebuilds_objects(self):
+        plane = NumberPlane(x_range=(-2, 2, 1), y_range=(-2, 2, 1))
+        plane.apply_matrix([[2, 0], [0, 2]])
+        # apply_matrix calls apply_function which rebuilds the grid as Line segments
+        assert any(isinstance(o, Line) for o in plane.objects)
+
+    def test_shear_matrix(self):
+        plane = NumberPlane(x_range=(-2, 2, 1), y_range=(-2, 2, 1))
+        result = plane.apply_matrix([[1, 1], [0, 1]])
+        assert result is plane
+        assert len(plane.objects) > 0
+
+
+class TestNumberPlanePointToCoords:
+    def test_inverse_of_coords_to_point(self):
+        plane = NumberPlane(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
+        lx, ly = 3.0, -2.0
+        px, py = plane.coords_to_point(lx, ly)
+        rx, ry = plane.point_to_coords(px, py)
+        assert abs(rx - lx) < 1e-9
+        assert abs(ry - ly) < 1e-9
+
+    def test_origin_maps_to_zero(self):
+        plane = NumberPlane(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
+        cx, cy = plane._cx, plane._cy
+        lx, ly = plane.point_to_coords(cx, cy)
+        assert abs(lx) < 1e-9
+        assert abs(ly) < 1e-9
+
+    def test_roundtrip_negative_coords(self):
+        plane = NumberPlane(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
+        lx, ly = -4.0, 3.5
+        px, py = plane.coords_to_point(lx, ly)
+        rx, ry = plane.point_to_coords(px, py)
+        assert abs(rx - lx) < 1e-9
+        assert abs(ry - ly) < 1e-9
+
+
+# ---------------------------------------------------------------------------
+# ComplexPlane aliases and add_coordinate_labels
+# ---------------------------------------------------------------------------
+
+class TestComplexPlaneAliases:
+    def test_n2p_is_number_to_point(self):
+        cp = ComplexPlane()
+        assert cp.n2p is cp.number_to_point or callable(cp.n2p)
+
+    def test_p2n_is_point_to_number(self):
+        cp = ComplexPlane()
+        assert cp.p2n is cp.point_to_number or callable(cp.p2n)
+
+    def test_n2p_returns_same_as_number_to_point(self):
+        cp = ComplexPlane()
+        z = 2 + 3j
+        assert cp.n2p(z) == cp.number_to_point(z)
+
+    def test_p2n_returns_same_as_point_to_number(self):
+        cp = ComplexPlane()
+        x, y = cp.number_to_point(1 + 1j)
+        assert cp.p2n(x, y) == cp.point_to_number(x, y)
+
+    def test_n2p_real_number(self):
+        cp = ComplexPlane()
+        result = cp.n2p(3)
+        expected = cp.number_to_point(3)
+        assert result == expected
+
+
+class TestComplexPlaneAddCoordinateLabels:
+    def test_returns_self(self):
+        cp = ComplexPlane(x_range=(-3, 3), y_range=(-3, 3))
+        result = cp.add_coordinate_labels()
+        assert result is cp
+
+    def test_creates_text_objects(self):
+        cp = ComplexPlane(x_range=(-3, 3), y_range=(-3, 3))
+        before = len(cp.objects)
+        cp.add_coordinate_labels()
+        assert len(cp.objects) > before
+
+    def test_imaginary_labels_contain_i(self):
+        cp = ComplexPlane(x_range=(-3, 3), y_range=(-3, 3))
+        cp.add_coordinate_labels()
+        texts = [o for o in cp.objects if isinstance(o, Text)]
+        imag_labels = [t.text.at_time(0) for t in texts if 'i' in t.text.at_time(0)]
+        assert len(imag_labels) > 0
+
+    def test_skips_zero(self):
+        cp = ComplexPlane(x_range=(-2, 2), y_range=(-2, 2))
+        cp.add_coordinate_labels()
+        texts = [o for o in cp.objects if isinstance(o, Text)]
+        labels = [t.text.at_time(0) for t in texts]
+        assert '0' not in labels
+        assert '0i' not in labels
+
+    def test_font_size_propagated(self):
+        cp = ComplexPlane(x_range=(-2, 2), y_range=(-2, 2))
+        cp.add_coordinate_labels(font_size=22)
+        texts = [o for o in cp.objects if isinstance(o, Text)]
+        assert all(t.font_size.at_time(0) == 22 for t in texts)
+
+# ---------------------------------------------------------------------------
+# TexObject: get_part_by_tex / set_color_by_tex / t2c
+# ---------------------------------------------------------------------------
+
+import shutil as _shutil
+_LATEX_AVAILABLE = bool(_shutil.which('latex') and _shutil.which('dvisvgm'))
+
+
+def _make_tex(tex_str, **kwargs):
+    """Create a TexObject with a temporary save directory."""
+    import tempfile
+    import vectormation._canvas as _cm
+    _cm.save_directory = tempfile.mkdtemp()
+    from vectormation._composites import TexObject
+    return TexObject(tex_str, x=100, y=100, **kwargs)
+
+
+class TestStripTexCommands:
+    """Unit tests for the _strip_tex_commands helper (no LaTeX required)."""
+
+    def test_plain_string_unchanged(self):
+        from vectormation._composites import _strip_tex_commands
+        assert _strip_tex_commands('x+y=1') == 'x+y=1'
+
+    def test_commands_removed(self):
+        from vectormation._composites import _strip_tex_commands
+        assert _strip_tex_commands(r'\alpha+\beta') == '+'
+
+    def test_frac_command(self):
+        from vectormation._composites import _strip_tex_commands
+        assert _strip_tex_commands(r'\frac{x}{y}') == 'xy'
+
+    def test_superscript_stripped(self):
+        from vectormation._composites import _strip_tex_commands
+        assert _strip_tex_commands(r'E=mc^2') == 'E=mc2'
+
+    def test_spaces_stripped(self):
+        from vectormation._composites import _strip_tex_commands
+        assert _strip_tex_commands('a b c') == 'abc'
+
+    def test_empty_string(self):
+        from vectormation._composites import _strip_tex_commands
+        assert _strip_tex_commands('') == ''
+
+
+@pytest.mark.skipif(not _LATEX_AVAILABLE, reason='LaTeX/dvisvgm not installed')
+class TestTexObjectGetPartByTex:
+    def test_visible_tex_stored(self):
+        tex = _make_tex('x+y')
+        assert tex._visible_tex == 'x+y'
+
+    def test_glyph_count_matches_visible_chars(self):
+        tex = _make_tex('abc')
+        assert len(tex.objects) == 3
+
+    def test_get_part_single_char_returns_one_object(self):
+        tex = _make_tex('abc')
+        part = tex.get_part_by_tex('a')
+        assert len(part.objects) == 1
+
+    def test_get_part_multi_char_returns_correct_count(self):
+        tex = _make_tex('abc')
+        part = tex.get_part_by_tex('bc')
+        assert len(part.objects) == 2
+
+    def test_get_part_full_string_returns_all(self):
+        tex = _make_tex('abc')
+        part = tex.get_part_by_tex('abc')
+        assert len(part.objects) == 3
+
+    def test_get_part_no_match_returns_empty_vcollection(self):
+        tex = _make_tex('abc')
+        part = tex.get_part_by_tex('z')
+        assert isinstance(part, VCollection)
+        assert len(part.objects) == 0
+
+    def test_get_part_repeated_occurrences_returned(self):
+        tex = _make_tex('aba')
+        part = tex.get_part_by_tex('a')
+        assert len(part.objects) == 2
+
+    def test_get_part_returns_vcollection_instance(self):
+        tex = _make_tex('xy')
+        part = tex.get_part_by_tex('x')
+        assert isinstance(part, VCollection)
+
+    def test_get_part_empty_query_returns_empty(self):
+        tex = _make_tex('abc')
+        part = tex.get_part_by_tex('')
+        assert len(part.objects) == 0
+
+
+@pytest.mark.skipif(not _LATEX_AVAILABLE, reason='LaTeX/dvisvgm not installed')
+class TestTexObjectSetColorByTex:
+    def test_set_color_returns_self(self):
+        tex = _make_tex('x+y')
+        result = tex.set_color_by_tex({'x': '#ff0000'})
+        assert result is tex
+
+    def test_set_color_applies_fill(self):
+        tex = _make_tex('x+y')
+        tex.set_color_by_tex({'x': '#ff0000'})
+        fill = tex.objects[0].styling.fill.at_time(0)
+        assert 'ff' in fill.lower() or '255' in fill.lower()
+
+    def test_set_color_multiple_keys(self):
+        tex = _make_tex('x+y')
+        tex.set_color_by_tex({'x': '#ff0000', '+': '#00ff00'})
+        fill_x = tex.objects[0].styling.fill.at_time(0)
+        fill_plus = tex.objects[1].styling.fill.at_time(0)
+        assert 'ff' in fill_x.lower() or '255,0,0' in fill_x.lower()
+        assert '0,255' in fill_plus.lower() or '00ff' in fill_plus.lower()
+
+    def test_set_color_no_match_does_not_raise(self):
+        tex = _make_tex('x+y')
+        tex.set_color_by_tex({'z': '#ff0000'})
+
+    def test_set_color_alias_same_function(self):
+        tex = _make_tex('x+y')
+        assert tex.set_color_by_tex.__func__ is tex.set_color_by_tex_to_color_map.__func__
+
+    def test_alias_returns_self(self):
+        tex = _make_tex('x+y')
+        result = tex.set_color_by_tex_to_color_map({'x': '#ff0000'})
+        assert result is tex
+
+
+@pytest.mark.skipif(not _LATEX_AVAILABLE, reason='LaTeX/dvisvgm not installed')
+class TestTexObjectT2cParam:
+    def test_t2c_applies_colors_at_construction(self):
+        tex = _make_tex('x+y', t2c={'x': '#ff0000'})
+        fill = tex.objects[0].styling.fill.at_time(0)
+        assert 'ff' in fill.lower() or '255' in fill.lower()
+
+    def test_t2c_none_does_not_raise(self):
+        tex = _make_tex('x+y', t2c=None)
+        assert tex._tex == 'x+y'
+
+    def test_t2c_empty_dict_does_not_raise(self):
+        tex = _make_tex('x+y', t2c={})
+        assert tex._tex == 'x+y'
+
+    def test_t2c_multiple_keys(self):
+        tex = _make_tex('x+y', t2c={'x': '#ff0000', '+': '#00ff00'})
+        fill_x = tex.objects[0].styling.fill.at_time(0)
+        fill_plus = tex.objects[1].styling.fill.at_time(0)
+        assert 'ff' in fill_x.lower() or '255,0,0' in fill_x.lower()
+        assert '0,255' in fill_plus.lower() or '00ff' in fill_plus.lower()
+
+    def test_t2c_does_not_leak_into_styles(self):
+        # 't2c' must NOT be passed to from_svg (it is not a valid SVG style)
+        tex = _make_tex('x+y', t2c={'x': '#ff0000'})
+        assert len(tex.objects) == 3

@@ -21,7 +21,7 @@ def lorenz(_t, state, sigma=10, rho=28, beta=8/3):
 n_curves = 8
 eps = 1e-5
 T = 25
-colors = color_gradient(['#2244FF', '#58C4DD', '#83C167', '#FFFF00'], n_curves)
+colors = color_gradient(['#2244FF', '#58C4DD', '#83C167', '#FFFF00'], n=n_curves)
 
 solutions = []
 for i in range(n_curves):

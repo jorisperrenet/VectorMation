@@ -2940,16 +2940,6 @@ class TestZipWithStartEnd:
         # The callable form receives time=start when time is not specified
         assert called_with == [5]
 
-    def test_zip_with_time_overrides_start(self):
-        """Legacy time parameter overrides start for callable form."""
-        c1 = Circle(r=10, cx=100, cy=100)
-        c2 = Circle(r=10, cx=200, cy=100)
-        col_a = VCollection(c1)
-        col_b = VCollection(c2)
-        called_with = []
-        col_a.zip_with(col_b, lambda a, b, t: called_with.append(t), start=5, time=42)
-        assert called_with == [42]
-
     def test_zip_with_method_name_with_kwargs(self):
         """Method-name form passes kwargs through."""
         c1 = Circle(r=10, cx=100, cy=100)

@@ -1,4 +1,5 @@
 """Network graph and tree visualization example."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from vectormation.objects import (
     VectorMathAnim, NetworkGraph, Tree, FlowChart, Legend,
     parse_args,

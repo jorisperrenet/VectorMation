@@ -1045,12 +1045,12 @@ class TestFromSvgInlineStyle:
         assert isinstance(obj, Rectangle)
 
     def test_parse_inline_style(self):
-        from vectormation.objects import _parse_inline_style
+        from vectormation._svg_utils import _parse_inline_style
         result = _parse_inline_style('fill:#ff0; stroke-width:2; opacity:0.5')
         assert result == {'fill': '#ff0', 'stroke-width': '2', 'opacity': '0.5'}
 
     def test_parse_inline_style_empty(self):
-        from vectormation.objects import _parse_inline_style
+        from vectormation._svg_utils import _parse_inline_style
         assert _parse_inline_style('') == {}
 
 

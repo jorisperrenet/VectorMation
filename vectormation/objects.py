@@ -72,7 +72,7 @@ from vectormation._svg_utils import (
     Union, Difference, Intersection, Exclusion,
     brace_between_points,
     ArrowVectorField, StreamLines, Cutout, ConvexHull,
-    from_svg, from_svg_file, _parse_inline_style,
+    from_svg, from_svg_file,
 )
 
 from vectormation._charts import (
@@ -109,7 +109,6 @@ from vectormation._ui import (
 from vectormation._data_structures import (
     Array, Stack, Queue, LinkedList, BinaryTree,
     ArrayViz, LinkedListViz, StackViz, QueueViz,
-    _flash_fill,
 )
 
 from vectormation._science import (

@@ -172,9 +172,28 @@ def _rgb_to_hex(r, g, b):
     return f'#{int(r):02x}{int(g):02x}{int(b):02x}'
 
 
-def color_gradient(color1, color2, n=5):
-    """Generate a list of n hex colors interpolated between color1 and color2.
-    Colors can be hex strings or named colors."""
+def color_gradient(color1, color2=None, n=5):
+    """Generate a list of *n* hex colors.
+
+    Accepts two forms:
+    - ``color_gradient(color1, color2, n)`` — interpolate between two colors.
+    - ``color_gradient([c1, c2, ...], n=k)`` — interpolate through a list of
+      color stops, producing *k* evenly-spaced samples.
+    """
+    if isinstance(color1, (list, tuple)):
+        stops = [_hex_to_rgb(c) for c in color1]
+        if n <= 1:
+            return [_rgb_to_hex(*stops[0])]
+        result = []
+        for i in range(n):
+            t = i / (n - 1) * (len(stops) - 1)
+            idx = min(int(t), len(stops) - 2)
+            frac = t - idx
+            r = stops[idx][0] + (stops[idx + 1][0] - stops[idx][0]) * frac
+            g = stops[idx][1] + (stops[idx + 1][1] - stops[idx][1]) * frac
+            b = stops[idx][2] + (stops[idx + 1][2] - stops[idx][2]) * frac
+            result.append(_rgb_to_hex(r, g, b))
+        return result
     r1, g1, b1 = _hex_to_rgb(color1)
     r2, g2, b2 = _hex_to_rgb(color2)
     if n <= 1:
