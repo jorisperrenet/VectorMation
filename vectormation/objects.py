@@ -64,7 +64,7 @@ from vectormation._composites import (
 from vectormation._svg_utils import (
     ClipPath, BlurFilter, DropShadowFilter,
     Angle, RightAngle, Cross,
-    ZoomedInset, Spotlight,
+    ZoomedInset, Spotlight, AnimatedBoundary,
     Union, Difference, Intersection, Exclusion,
     brace_between_points,
     ArrowVectorField, StreamLines, Cutout, ConvexHull,

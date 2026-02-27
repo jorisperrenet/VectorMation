@@ -917,3 +917,79 @@ class Spotlight(VObject):
 
     def __repr__(self):
         return f'Spotlight(r={self._r.at_time(0):.0f})'
+
+
+class AnimatedBoundary(VObject):
+    """Animated colour-cycling dashed border around another VObject.
+
+    Parameters
+    ----------
+    target : VObject
+        The object to surround with an animated border.
+    colors : list[str]
+        Colours to cycle through.
+    cycle_rate : float
+        Full colour cycles per second.
+    buff : float
+        Extra padding around the target's bounding box.
+    stroke_width : float
+        Border stroke width.
+    """
+
+    def __init__(self, target, colors=None, cycle_rate=1.0, buff=8,
+                 stroke_width=3, creation: float = 0, z: float = 0):
+        super().__init__(creation=creation, z=z)
+        self._target = target
+        self._buff = buff
+        self._stroke_width = stroke_width
+        self._colors = colors or ['#58C4DD', '#FF6B6B', '#83C167', '#FFFF00']
+        self._cycle_rate = cycle_rate
+        # Animate dash offset for motion effect
+        self._dash_offset = attributes.Real(creation, 0)
+
+    def _shift_reals(self):
+        return []
+
+    def _shift_coors(self):
+        return []
+
+    def _get_color_at(self, time):
+        """Return interpolated colour at *time* from the cycle."""
+        from vectormation.colors import interpolate_color
+        colors = self._colors
+        n = len(colors)
+        if n == 0:
+            return '#fff'
+        if n == 1:
+            return colors[0]
+        phase = (time * self._cycle_rate) % 1.0
+        idx = phase * n
+        i = int(idx) % n
+        frac = idx - int(idx)
+        return interpolate_color(colors[i], colors[(i + 1) % n], frac)
+
+    def path(self, time):
+        x, y, w, h = self._target.bbox(time)
+        b = self._buff
+        return (f'M{x - b},{y - b} '
+                f'L{x + w + b},{y - b} '
+                f'L{x + w + b},{y + h + b} '
+                f'L{x - b},{y + h + b} Z')
+
+    def to_svg(self, time):
+        color = self._get_color_at(time)
+        perimeter = 2 * sum(self._target.bbox(time)[2:4]) + 8 * self._buff
+        dash = perimeter / 8
+        offset = (time * self._cycle_rate * perimeter) % perimeter
+        return (f"<path d='{self.path(time)}' "
+                f"fill='none' stroke='{color}' stroke-width='{self._stroke_width}' "
+                f"stroke-dasharray='{dash:.1f}' stroke-dashoffset='{offset:.1f}' "
+                f"stroke-linecap='round' />")
+
+    def bbox(self, time):
+        x, y, w, h = self._target.bbox(time)
+        b = self._buff + self._stroke_width
+        return (x - b, y - b, w + 2 * b, h + 2 * b)
+
+    def __repr__(self):
+        return 'AnimatedBoundary()'

@@ -14049,3 +14049,32 @@ class TestSpotlight:
         from vectormation.objects import Spotlight
         s = Spotlight(radius=120)
         assert 'Spotlight' in repr(s)
+
+
+class TestAnimatedBoundary:
+    def test_basic(self):
+        from vectormation.objects import AnimatedBoundary, Rectangle
+        r = Rectangle(width=100, height=60, x=400, y=300)
+        ab = AnimatedBoundary(r)
+        svg = ab.to_svg(0)
+        assert 'stroke-dasharray' in svg
+        assert 'AnimatedBoundary' in repr(ab)
+
+    def test_color_cycling(self):
+        from vectormation.objects import AnimatedBoundary, Circle
+        c = Circle(r=50, cx=500, cy=400)
+        ab = AnimatedBoundary(c, colors=['#ff0000', '#00ff00'])
+        svg0 = ab.to_svg(0)
+        svg1 = ab.to_svg(0.5)
+        # At t=0 should be first color, at t=0.5 should differ
+        assert 'stroke=' in svg0
+        assert 'stroke=' in svg1
+
+    def test_bbox(self):
+        from vectormation.objects import AnimatedBoundary, Rectangle
+        r = Rectangle(width=100, height=60, x=400, y=300)
+        ab = AnimatedBoundary(r, buff=10, stroke_width=4)
+        x, y, w, h = ab.bbox(0)
+        # Should be larger than the target
+        rx, ry, rw, rh = r.bbox(0)
+        assert x < rx and y < ry and w > rw and h > rh
