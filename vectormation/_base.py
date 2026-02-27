@@ -332,33 +332,27 @@ class VObject(ABC):  # Vector Object
         dy = y - self.get_y(start)
         return self.shift(dy=dy, start=start)
 
-    def set_width(self, width, start: float = 0, end: float | None = None,
-                  stretch=False, easing=None):
-        """Scale so the bounding box has the given width. If stretch=True, only scale X."""
-        cur = self.get_width(start)
+    def _set_dim(self, getter, scale_attr, value, start, end, stretch, easing):
+        cur = getter(start)
         if cur == 0:
             return self
-        factor = width / cur
+        factor = value / cur
         if stretch:
             self._ensure_scale_origin(start)
-            self.styling.scale_x.set_onward(start, self.styling.scale_x.at_time(start) * factor)
+            scale_attr.set_onward(start, scale_attr.at_time(start) * factor)
         else:
             self.scale(factor, start=start, end=end, easing=easing or easings.smooth)
         return self
 
+    def set_width(self, width, start: float = 0, end: float | None = None,
+                  stretch=False, easing=None):
+        """Scale so the bounding box has the given width. If stretch=True, only scale X."""
+        return self._set_dim(self.get_width, self.styling.scale_x, width, start, end, stretch, easing)
+
     def set_height(self, height, start: float = 0, end: float | None = None,
                    stretch=False, easing=None):
         """Scale so the bounding box has the given height. If stretch=True, only scale Y."""
-        cur = self.get_height(start)
-        if cur == 0:
-            return self
-        factor = height / cur
-        if stretch:
-            self._ensure_scale_origin(start)
-            self.styling.scale_y.set_onward(start, self.styling.scale_y.at_time(start) * factor)
-        else:
-            self.scale(factor, start=start, end=end, easing=easing or easings.smooth)
-        return self
+        return self._set_dim(self.get_height, self.styling.scale_y, height, start, end, stretch, easing)
 
     def to_edge(self, edge: str | tuple = DOWN, buff=DEFAULT_OBJECT_TO_EDGE_BUFF,
                 start: float = 0, end: float | None = None, easing=easings.smooth):
@@ -3146,18 +3140,17 @@ class VObject(ABC):  # Vector Object
 
     def match_width(self, other, time: float = 0):
         """Scale this object so its width matches *other*'s width at *time*."""
-        _, _, mw, _ = self.bbox(time)
-        _, _, ow, _ = other.bbox(time)
-        if mw > 0:
-            self.scale(ow / mw, start=time)
-        return self
+        return self._match_dim(other, time, 2)
 
     def match_height(self, other, time: float = 0):
         """Scale this object so its height matches *other*'s height at *time*."""
-        _, _, _, mh = self.bbox(time)
-        _, _, _, oh = other.bbox(time)
-        if mh > 0:
-            self.scale(oh / mh, start=time)
+        return self._match_dim(other, time, 3)
+
+    def _match_dim(self, other, time, idx):
+        my_dim = self.bbox(time)[idx]
+        other_dim = other.bbox(time)[idx]
+        if my_dim > 0:
+            self.scale(other_dim / my_dim, start=time)
         return self
 
     def scale_to_fit(self, width=None, height=None, start=0, end=None, easing=easings.smooth):
