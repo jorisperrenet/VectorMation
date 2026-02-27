@@ -1061,6 +1061,53 @@ class Matrix(VCollection):
                 row[col].flash_color(color, start=start, duration=end - start)
         return self
 
+    def set_entry_value(self, row, col, new_value, start=0):
+        """Change the text of a matrix entry at the given time."""
+        self.entries[row][col].text.set_onward(start, str(new_value))
+        return self
+
+    def swap_rows(self, i, j, start=0, end=1, easing=easings.smooth):
+        """Animate swapping two rows via arc paths."""
+        if i == j or not (0 <= i < self.rows) or not (0 <= j < self.rows):
+            return self
+        import math as _math
+        for c in range(self.cols):
+            a, b = self.entries[i][c], self.entries[j][c]
+            ax, ay = a.x.at_time(start), a.y.at_time(start)
+            bx, by = b.x.at_time(start), b.y.at_time(start)
+            a.path_arc(bx, by, start=start, end=end, angle=_math.pi / 4, easing=easing)
+            b.path_arc(ax, ay, start=start, end=end, angle=-_math.pi / 4, easing=easing)
+        self.entries[i], self.entries[j] = self.entries[j], self.entries[i]
+        return self
+
+    def row_operation(self, target_row, source_row, scalar=1, start=0, end=1,
+                      easing=easings.smooth):
+        """Animate an elementary row operation: R_target += scalar * R_source.
+
+        Each target entry is animated to its new numeric value."""
+        dur = end - start
+        for c in range(self.cols):
+            tgt = self.entries[target_row][c]
+            src_text = self.entries[source_row][c].text.at_time(start)
+            tgt_text = tgt.text.at_time(start)
+            try:
+                src_val = float(src_text)
+                tgt_val = float(tgt_text)
+            except (ValueError, TypeError):
+                continue
+            new_val = tgt_val + scalar * src_val
+            is_int = (tgt_val == int(tgt_val) and src_val == int(src_val)
+                      and new_val == int(new_val))
+            if dur <= 0:
+                tgt.text.set_onward(start, str(int(new_val)) if is_int else f'{new_val:g}')
+            else:
+                tgt.text.set(start, end,
+                    lambda t, _s=start, _d=dur, _ov=tgt_val, _nv=new_val, _e=easing, _ii=is_int:
+                        str(int(round(_ov + (_nv - _ov) * _e((t - _s) / _d)))) if _ii
+                        else f'{_ov + (_nv - _ov) * _e((t - _s) / _d):g}',
+                    stay=True)
+        return self
+
 class TexCountAnimation(DynamicObject):
     """Animated number display using pre-rendered LaTeX digit glyphs."""
 

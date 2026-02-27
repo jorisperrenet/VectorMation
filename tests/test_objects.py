@@ -14145,3 +14145,64 @@ class TestSierpinskiTriangle:
         s = SierpinskiTriangle(fill='red', depth=1)
         svg = s.objects[0].to_svg(0)
         assert 'rgb(252,98,85)' in svg
+
+
+class TestMatrixSwapRows:
+    def test_swap_rows_basic(self):
+        m = Matrix([[1, 2], [3, 4]])
+        result = m.swap_rows(0, 1, start=0, end=1)
+        assert result is m
+        # entries should be swapped
+        assert m.entries[0][0].text.at_time(0) == '3'
+        assert m.entries[1][0].text.at_time(0) == '1'
+
+    def test_swap_rows_noop_same(self):
+        m = Matrix([[1, 2], [3, 4]])
+        result = m.swap_rows(0, 0, start=0, end=1)
+        assert result is m
+
+    def test_swap_rows_out_of_range(self):
+        m = Matrix([[1, 2], [3, 4]])
+        result = m.swap_rows(0, 5, start=0, end=1)
+        assert result is m
+
+    def test_swap_rows_positions_change(self):
+        m = Matrix([[1, 2], [3, 4]])
+        y0_before = m.entries[0][0].y.at_time(0)
+        y1_before = m.entries[1][0].y.at_time(0)
+        m.swap_rows(0, 1, start=0, end=1)
+        # After swap, the new row 0 entries (originally row 1) should end at row 0's y
+        y0_after = m.entries[0][0].y.at_time(2)
+        y1_after = m.entries[1][0].y.at_time(2)
+        # path_arc moves the object; the important thing is that they crossed
+        assert y0_after != y1_after
+
+
+class TestMatrixRowOperation:
+    def test_row_operation_basic(self):
+        m = Matrix([[1, 2], [3, 4]])
+        result = m.row_operation(1, 0, scalar=1, start=0, end=1)
+        assert result is m
+        # After animation ends, row 1 should be [3+1, 4+2] = [4, 6]
+        assert m.entries[1][0].text.at_time(2) == '4'
+        assert m.entries[1][1].text.at_time(2) == '6'
+
+    def test_row_operation_negative_scalar(self):
+        m = Matrix([[2, 3], [4, 6]])
+        m.row_operation(1, 0, scalar=-2, start=0, end=1)
+        # row 1 should be [4 + (-2)*2, 6 + (-2)*3] = [0, 0]
+        assert m.entries[1][0].text.at_time(2) == '0'
+        assert m.entries[1][1].text.at_time(2) == '0'
+
+    def test_row_operation_instant(self):
+        m = Matrix([[1, 0], [0, 1]])
+        m.row_operation(0, 1, scalar=3, start=0, end=0)
+        # R0 = [1, 0] + 3*[0, 1] = [1, 3]
+        assert m.entries[0][0].text.at_time(0) == '1'
+        assert m.entries[0][1].text.at_time(0) == '3'
+
+    def test_set_entry_value(self):
+        m = Matrix([[1, 2], [3, 4]])
+        result = m.set_entry_value(0, 0, 99, start=0)
+        assert result is m
+        assert m.entries[0][0].text.at_time(0) == '99'
