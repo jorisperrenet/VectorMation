@@ -41,6 +41,16 @@ def _ramp_down(start, dur, val, easing):
     return lambda t, _s=start, _d=dur, _v=val, _e=easing: _v * (1 - _e((t - _s) / _d))
 
 
+def _clip_reveal(tmpl, start, dur, easing):
+    """Return a clip-path function that reveals (100% clipped → 0%) over [start, start+dur]."""
+    return lambda t, _s=start, _d=dur, _tmpl=tmpl, _e=easing: _tmpl(100 * (1 - _e((t - _s) / _d)))
+
+
+def _clip_hide(tmpl, start, dur, easing):
+    """Return a clip-path function that hides (0% clipped → 100%) over [start, start+dur]."""
+    return lambda t, _s=start, _d=dur, _tmpl=tmpl, _e=easing: _tmpl(100 * _e((t - _s) / _d))
+
+
 def _norm_dir(direction, default='right'):
     """Convert a tuple direction constant to its string name."""
     return _DIR_NAMES.get(direction, default) if isinstance(direction, tuple) else direction
@@ -2010,11 +2020,9 @@ class VObject(ABC):  # Vector Object
         self.styling.stroke.set(s, end,
             lambda t, _rgb=glow_rgb: _rgb, stay=False)
         self.styling.stroke_width.set(s, end,
-            lambda t, _s=s, _d=d, _r=radius, _osw=orig_sw: _osw + _r * easings.there_and_back((t - _s) / _d),
-            stay=False)
+            _lerp(s, d, orig_sw, orig_sw + radius, easings.there_and_back), stay=False)
         self.styling.stroke_opacity.set(s, end,
-            lambda t, _s=s, _d=d: 0.7 * easings.there_and_back((t - _s) / _d),
-            stay=False)
+            _ramp(s, d, 0.7, easings.there_and_back), stay=False)
         return self
 
     def drop_shadow(self, color='#000000', dx=4, dy=4, blur=6, start=0):
@@ -2155,37 +2163,40 @@ class VObject(ABC):  # Vector Object
             return sign * amplitude * math.sin(2 * math.pi * n_waves * progress) * easing(progress)
         return self._apply_shift_effect(start, end, dy_func=dy)
 
-    def _scale_edge_anim(self, edge, start, end, grow, change_existence, easing):
-        """Shared helper for grow_from_edge / shrink_to_edge."""
-        edge = _norm_edge(edge)
+    def _scale_anchor_anim(self, origin, start, end, grow, change_existence, easing):
+        """Shared helper for grow/shrink from edge, corner, or point."""
         if grow and change_existence:
             self._show_from(start)
-        bx, by, bw, bh = self.bbox(start)
+        self.styling._scale_origin = origin
+        dur = end - start
+        if dur <= 0:
+            return self
+        scale = _ramp(start, dur, 1, easing) if grow else _ramp_down(start, dur, 1, easing)
+        self.styling.scale_x.set(start, end, scale, stay=True)
+        self.styling.scale_y.set(start, end, scale, stay=True)
+        if not grow and change_existence:
+            self._hide_from(end)
+        return self
+
+    def _edge_origin(self, edge, time):
+        """Return the scale origin for a named edge."""
+        edge = _norm_edge(edge)
+        bx, by, bw, bh = self.bbox(time)
         origins = {
             'bottom': (bx + bw / 2, by + bh),
             'top':    (bx + bw / 2, by),
             'left':   (bx, by + bh / 2),
             'right':  (bx + bw, by + bh / 2),
         }
-        self.styling._scale_origin = origins[edge]
-        s, e = start, end
-        dur = e - s
-        if dur <= 0:
-            return self
-        scale = _ramp(s, dur, 1, easing) if grow else _ramp_down(s, dur, 1, easing)
-        self.styling.scale_x.set(s, e, scale, stay=True)
-        self.styling.scale_y.set(s, e, scale, stay=True)
-        if not grow and change_existence:
-            self._hide_from(end)
-        return self
+        return origins[edge]
 
     def grow_from_edge(self, edge: str | tuple = 'bottom', start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
         """Grow the object from a specific edge (bottom, top, left, right)."""
-        return self._scale_edge_anim(edge, start, end, True, change_existence, easing)
+        return self._scale_anchor_anim(self._edge_origin(edge, start), start, end, True, change_existence, easing)
 
     def shrink_to_edge(self, edge: str | tuple = 'bottom', start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
         """Shrink the object to zero at a specific edge. Reverse of grow_from_edge."""
-        return self._scale_edge_anim(edge, start, end, False, change_existence, easing)
+        return self._scale_anchor_anim(self._edge_origin(edge, start), start, end, False, change_existence, easing)
 
     def _corner_point(self, corner, time):
         """Return the SVG pixel coordinate for a bbox corner direction."""
@@ -2195,29 +2206,13 @@ class VObject(ABC):  # Vector Object
         return (x if corner[0] <= 0 else x + w,
                 y if corner[1] <= 0 else y + h)
 
-    def _scale_corner_anim(self, start, end, corner, grow, change_existence, easing):
-        """Shared helper for grow_from_corner / shrink_to_corner."""
-        self.styling._scale_origin = self._corner_point(corner, start)
-        if grow and change_existence:
-            self._show_from(start)
-        s, e = start, end
-        dur = e - s
-        if dur <= 0:
-            return self
-        scale = _ramp(s, dur, 1, easing) if grow else _ramp_down(s, dur, 1, easing)
-        self.styling.scale_x.set(s, e, scale, stay=True)
-        self.styling.scale_y.set(s, e, scale, stay=True)
-        if not grow and change_existence:
-            self._hide_from(end)
-        return self
-
     def grow_from_corner(self, start=0, end=1, corner=None, change_existence=True, easing=easings.smooth):
         """Grow from zero size anchored at a corner."""
-        return self._scale_corner_anim(start, end, corner, True, change_existence, easing)
+        return self._scale_anchor_anim(self._corner_point(corner, start), start, end, True, change_existence, easing)
 
     def shrink_to_corner(self, start=0, end=1, corner=None, change_existence=True, easing=easings.smooth):
         """Shrink to zero size anchored at a corner. Reverse of grow_from_corner."""
-        return self._scale_corner_anim(start, end, corner, False, change_existence, easing)
+        return self._scale_anchor_anim(self._corner_point(corner, start), start, end, False, change_existence, easing)
 
     def _spiral_anim(self, start, end, n_turns, spiral_in, change_existence, easing):
         """Shared helper for spiral_in / spiral_out."""
@@ -2571,8 +2566,7 @@ class VObject(ABC):  # Vector Object
         s = start
         key = self._CLIP_REVERSE.get(direction, direction) if reverse else direction
         tmpl = self._CLIP_INSET[key]
-        func = lambda t, _s=s, _d=dur, _tmpl=tmpl: _tmpl(100 * (1 - easing((t - _s) / _d)))
-        self.styling.clip_path.set(s, end, func, stay=True)
+        self.styling.clip_path.set(s, end, _clip_reveal(tmpl, s, dur, easing), stay=True)
         if reverse:
             self._hide_from(end)
         else:
@@ -3039,15 +3033,10 @@ class VObject(ABC):  # Vector Object
             self._show_from(start)
         else:
             self._hide_from(end)
-        _s, _d = start, max(dur, 1e-9)
+        d = max(dur, 1e-9)
         tmpl = self._CLIP_INSET.get(direction, self._CLIP_INSET['right'])
-        if reveal:
-            def _clip(t, _s=_s, _d=_d, _tmpl=tmpl, _e=easing):
-                return _tmpl(100 * (1 - _e((t - _s) / _d)))
-        else:
-            def _clip(t, _s=_s, _d=_d, _tmpl=tmpl, _e=easing):
-                return _tmpl(100 * _e((t - _s) / _d))
-        self.styling.clip_path.set(start, end, _clip, stay=True)
+        clip_fn = _clip_reveal(tmpl, start, d, easing) if reveal else _clip_hide(tmpl, start, d, easing)
+        self.styling.clip_path.set(start, end, clip_fn, stay=True)
         return self
 
     def typewriter_reveal(self, start: float = 0, end: float = 1,
@@ -4608,17 +4597,14 @@ class VObject(ABC):  # Vector Object
         if dur <= 0:
             return self
         self._show_from(start)
-        _s, _d = start, max(dur, 1e-9)
         key = self._REVEAL_DIR.get(direction)
         if key is None:
             raise ValueError(
                 f"Unsupported reveal direction '{direction}'. "
                 f"Must be one of: {', '.join(sorted(self._REVEAL_DIR))}"
             )
-        tmpl = self._CLIP_INSET[key]
-        def _clip(t, _s=_s, _d=_d, _tmpl=tmpl, _e=easing):
-            return _tmpl(100 * (1 - _e((t - _s) / _d)))
-        self.styling.clip_path.set(start, end, _clip, stay=True)
+        self.styling.clip_path.set(start, end,
+            _clip_reveal(self._CLIP_INSET[key], start, max(dur, 1e-9), easing), stay=True)
         return self
 
     # -- Repeat animation --
@@ -4866,24 +4852,14 @@ class VObject(ABC):  # Vector Object
     def delay_animation(self, method_name, delay, *args, **kwargs):
         """Schedule an animation to start after a delay.
 
-        Calls ``getattr(self, method_name)(*args, start=<adjusted>, end=<adjusted>, **rest)``
-        where the ``start`` (or ``start``) and ``end`` (or ``end``)
-        keywords are both increased by *delay*.  Convenience for offsetting
-        animation timing.
-
-        Returns self.
+        Shifts ``start`` and ``end`` kwargs by *delay* before calling the method.
         """
         import inspect
         method = getattr(self, method_name)
-        sig = inspect.signature(method)
-        params = sig.parameters
+        params = inspect.signature(method).parameters
         if 'start' in params:
             kwargs['start'] = kwargs.get('start', 0) + delay
-        elif 'start' in params:
-            kwargs['start'] = kwargs.get('start', 0) + delay
         if 'end' in params and 'end' in kwargs:
-            kwargs['end'] = kwargs['end'] + delay
-        elif 'end' in params and 'end' in kwargs:
             kwargs['end'] = kwargs['end'] + delay
         method(*args, **kwargs)
         return self
