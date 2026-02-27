@@ -7,8 +7,7 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 from vectormation._constants import ORIGIN, SMALL_BUFF, UP, RIGHT
 from vectormation._base import (
-    VObject, _norm_dir, _norm_edge, _ramp, _lerp_point,
-    _DIR_NAMES, _EDGE_NAMES,
+    VObject, _norm_dir, _norm_edge, _ramp,
     _make_brect, _set_attr, _parse_path,
     _BBoxMethodsMixin,
 )

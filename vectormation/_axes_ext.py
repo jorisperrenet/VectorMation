@@ -3,13 +3,12 @@ import math
 
 import vectormation.easings as easings
 from vectormation._constants import (
-    UNIT, DEFAULT_FONT_SIZE,
-    DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
+    DEFAULT_FONT_SIZE, DEFAULT_CHART_COLORS, TEXT_Y_OFFSET,
     _sample_function, _normalize,
 )
 from vectormation._base import VCollection
 from vectormation._shapes import (
-    Polygon, Circle, Dot, Rectangle, RoundedRectangle, Line,
+    Polygon, Dot, Rectangle, RoundedRectangle, Line,
     Text, Path,
 )
 from vectormation._axes_helpers import (

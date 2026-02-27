@@ -10,7 +10,7 @@ from vectormation._constants import (
 )
 from vectormation._base import VObject, VCollection, _lerp
 from vectormation._shapes import (
-    Polygon, Circle, Ellipse, Dot, Rectangle, RoundedRectangle, Line, Lines,
+    Polygon, Circle, Dot, Rectangle, RoundedRectangle, Line,
     Text, Path, Arc, Wedge,
 )
 

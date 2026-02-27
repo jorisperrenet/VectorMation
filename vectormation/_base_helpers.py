@@ -218,17 +218,10 @@ class _BBoxMethodsMixin:
         """Return coordinate of a named edge point."""
         return _get_edge_impl(self.bbox, edge, time)
 
-    def get_left(self, time=0):
-        return self.get_edge('left', time)
-
-    def get_right(self, time=0):
-        return self.get_edge('right', time)
-
-    def get_top(self, time=0):
-        return self.get_edge('top', time)
-
-    def get_bottom(self, time=0):
-        return self.get_edge('bottom', time)
+    def get_left(self, time=0): return self.get_edge('left', time)
+    def get_right(self, time=0): return self.get_edge('right', time)
+    def get_top(self, time=0): return self.get_edge('top', time)
+    def get_bottom(self, time=0): return self.get_edge('bottom', time)
 
     def to_edge(self, edge=DOWN, buff=DEFAULT_OBJECT_TO_EDGE_BUFF,
                 start: float = 0, end=None, easing=easings.smooth):

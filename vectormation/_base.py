@@ -28,9 +28,8 @@ style.Styling.mix_blend_mode: attributes.String
 from vectormation._base_helpers import (
     _lerp, _ramp, _ramp_down, _lerp_point, _clip_reveal, _clip_hide,
     _norm_dir, _norm_edge, _coords_of, _set_attr, _parse_path, _path_prefix,
-    _DIR_NAMES, _EDGE_NAMES, _CORNER_MAP, _EDGE_POINTS,
-    _make_brect, _to_edge_impl, _get_edge_impl, _to_corner_impl,
-    _BBoxMethodsMixin,
+    _DIR_NAMES, _EDGE_NAMES, _EDGE_POINTS,
+    _make_brect, _BBoxMethodsMixin,
 )
 from vectormation._base_effects import _VObjectEffectsMixin
 
