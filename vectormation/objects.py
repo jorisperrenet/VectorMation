@@ -50,9 +50,11 @@ Sector = Wedge
 from vectormation._arrows import Arrow, DoubleArrow, CurvedArrow, Brace
 
 from vectormation._axes import Axes, Graph, NumberPlane, ComplexPlane
+from vectormation._axes_helpers import pi_format, pi_ticks
 
 from vectormation._composites import (
     MorphObject, LabeledDot, TexObject, SplitTexObject,
+    TexCountAnimation,
     NumberLine, Table, Matrix,
     DynamicObject,
     always_redraw, parse_args,

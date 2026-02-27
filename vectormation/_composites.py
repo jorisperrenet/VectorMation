@@ -1464,6 +1464,112 @@ class Matrix(VCollection):
 
 
 
+class TexCountAnimation(DynamicObject):
+    """Animated number display using pre-rendered LaTeX digit glyphs.
+
+    Pre-renders digits 0-9, minus sign, and decimal point as SVGs at init,
+    then composites them dynamically each frame — much faster than re-rendering
+    LaTeX per frame.
+
+    >>> counter = TexCountAnimation(0, 100, start=0, end=3)
+    """
+
+    _glyph_cache = {}  # class-level: {(tex_dir, font_size): {char: (vb, chars)}}
+
+    def __init__(self, start_val=0, end_val=100, start: float = 0, end: float = 1,
+                 fmt='{:.0f}', easing=easings.smooth,
+                 x: float = 960, y: float = 540, font_size=48,
+                 creation: float = 0, z: float = 0, **styles):
+        from vectormation.tex_file_writing import get_characters
+        import vectormation._canvas as _cm
+        import tempfile as _tmpmod
+        tex_dir = f'{_cm.save_directory}/tex' if hasattr(_cm, 'save_directory') else _tmpmod.mkdtemp()
+
+        cache_key = (tex_dir, font_size)
+        if cache_key not in TexCountAnimation._glyph_cache:
+            glyphs = {}
+            for ch in '0123456789.-':
+                tex_str = f'${ch}$' if ch != '.' else '$.$'
+                vb, chars = get_characters(tex_dir, tex_str, 'latex', '')
+                glyphs[ch] = (vb, chars)
+            TexCountAnimation._glyph_cache[cache_key] = glyphs
+
+        self._glyphs = TexCountAnimation._glyph_cache[cache_key]
+        self._x = x
+        self._y = y
+        self._font_size = font_size
+        self._styles = {'stroke_width': 0, 'fill': '#fff'} | styles
+        self._fmt = fmt
+        self._start_val = start_val
+        self._end_val = end_val
+        self._anim_start = start
+        self._anim_dur = max(end - start, 1e-9)
+        self._easing = easing
+        self._last_val = end_val
+        self._extra_segments = []  # [(from_val, to_val, start, dur, easing)]
+
+        def build_fn(t):
+            val = self._compute_value(t)
+            return self._build_number(val, creation=t)
+
+        super().__init__(build_fn, creation=creation, z=z)
+
+    def _compute_value(self, t):
+        """Compute the displayed number at time t."""
+        # Check extra segments in reverse order (latest wins)
+        for from_val, to_val, seg_start, seg_dur, seg_easing in reversed(self._extra_segments):
+            if t >= seg_start:
+                if t >= seg_start + seg_dur:
+                    return to_val
+                alpha = seg_easing((t - seg_start) / seg_dur)
+                return from_val + (to_val - from_val) * alpha
+
+        # Base animation
+        if t >= self._anim_start + self._anim_dur:
+            return self._end_val
+        if t < self._anim_start:
+            return self._start_val
+        alpha = self._easing((t - self._anim_start) / self._anim_dur)
+        return self._start_val + (self._end_val - self._start_val) * alpha
+
+    def _build_number(self, val, creation=0):
+        """Assemble digit glyphs into a VCollection for the given numeric value."""
+        text = self._fmt.format(val)
+        objects = []
+        cursor_x = self._x
+        for ch in text:
+            glyph_data = self._glyphs.get(ch)
+            if glyph_data is None:
+                # Space or unrecognized char — advance cursor
+                cursor_x += self._font_size * 0.3
+                continue
+            vb, chars = glyph_data
+            vb_height = abs(vb[3]) if vb[3] else 1
+            vb_width = abs(vb[2]) if vb[2] else 1
+            base_scale = self._font_size / vb_height
+            char_width = vb_width * base_scale
+
+            st = dict(self._styles)
+            st['scale_x'] = base_scale * st.pop('scale_x', 1)
+            st['scale_y'] = base_scale * st.pop('scale_y', 1)
+            for char_svg in chars:
+                obj = from_svg(char_svg, **st)
+                # Position: shift glyph so it starts at cursor_x
+                obj.styling.dx.set_onward(creation, cursor_x)
+                obj.styling.dy.set_onward(creation, self._y)
+                objects.append(obj)
+            cursor_x += char_width + self._font_size * 0.05
+
+        return VCollection(*objects, creation=creation)
+
+    def count_to(self, target, start, end, easing=easings.smooth):
+        """Animate counting from the current value to a new target."""
+        dur = max(end - start, 1e-9)
+        self._extra_segments.append((self._last_val, target, start, dur, easing))
+        self._last_val = target
+        return self
+
+
 def always_redraw(func, creation=0, z=0):
     """Convenience wrapper: create a DynamicObject from a callable.
     func(time) should return a VObject."""

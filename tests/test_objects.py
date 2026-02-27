@@ -38,6 +38,7 @@ from vectormation.objects import (
     NeuralNetwork, Pendulum, StandingWave,
     ArrayViz, LinkedListViz, StackViz, QueueViz, LED,
     CANVAS_WIDTH, CANVAS_HEIGHT,
+    pi_format, pi_ticks,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -13729,3 +13730,75 @@ class TestAutomatonHighlight:
             accept_states={'q1'},
         )
         a.highlight_state('q0', start=0, end=1)
+
+
+class TestPiTickFormat:
+    def test_pi_format_zero(self):
+        assert pi_format(0) == '0'
+
+    def test_pi_format_pi(self):
+        import math
+        assert pi_format(math.pi) == '\u03c0'
+
+    def test_pi_format_neg_pi(self):
+        import math
+        assert pi_format(-math.pi) == '-\u03c0'
+
+    def test_pi_format_half_pi(self):
+        import math
+        assert pi_format(math.pi / 2) == '\u03c0/2'
+
+    def test_pi_format_two_pi(self):
+        import math
+        assert pi_format(2 * math.pi) == '2\u03c0'
+
+    def test_pi_format_fraction(self):
+        import math
+        assert pi_format(3 * math.pi / 4) == '3\u03c0/4'
+
+    def test_pi_format_neg_fraction(self):
+        import math
+        assert pi_format(-math.pi / 3) == '-\u03c0/3'
+
+    def test_pi_ticks_generates_values(self):
+        import math
+        ticks = pi_ticks(-math.pi, math.pi)
+        assert len(ticks) > 0
+        assert any(abs(v) < 1e-9 for v in ticks)  # includes 0
+
+    def test_pi_ticks_with_custom_step(self):
+        import math
+        ticks = pi_ticks(0, 2 * math.pi, step=math.pi / 2)
+        labels = [pi_format(v) for v in ticks]
+        assert '0' in labels
+        assert '\u03c0/2' in labels
+        assert '\u03c0' in labels
+
+    def test_axes_with_tick_format(self):
+        import math
+        ax = Axes(x_range=(-math.pi, math.pi),
+                  x_tick_format=pi_format,
+                  x_ticks=pi_ticks(-math.pi, math.pi))
+        svg = ax.to_svg(0)
+        assert '\u03c0' in svg
+
+    def test_axes_with_y_tick_format(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 100),
+                  y_tick_format=lambda v: f'{v:.0f}%')
+        svg = ax.to_svg(0)
+        assert '%' in svg
+
+    def test_axes_tick_format_callable(self):
+        ax = Axes(x_range=(0, 5), tick_format=lambda v: f'${v:.1f}')
+        svg = ax.to_svg(0)
+        assert '$' in svg
+
+    def test_axes_custom_x_ticks(self):
+        ax = Axes(x_range=(0, 10), x_ticks=[0, 5, 10])
+        svg = ax.to_svg(0)
+        assert '5' in svg
+
+    def test_axes_custom_y_ticks(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 100), y_ticks=[0, 50, 100])
+        svg = ax.to_svg(0)
+        assert '50' in svg

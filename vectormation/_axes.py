@@ -38,7 +38,9 @@ class Axes(_AxesExtMixin, VCollection):
                  x_label=None, y_label=None,
                  show_grid=False, equal_aspect=False,
                  x_scale='linear', y_scale='linear',
-                 tick_format=None, creation=0, z=0):
+                 tick_format=None, x_tick_format=None, y_tick_format=None,
+                 x_ticks=None, y_ticks=None,
+                 creation=0, z=0):
         self.x_min = attributes.Real(creation, x_range[0])
         self.x_max = attributes.Real(creation, x_range[1])
         if equal_aspect and y_range is not None and x_range[1] != x_range[0]:
@@ -52,6 +54,10 @@ class Axes(_AxesExtMixin, VCollection):
         self._x_scale = x_scale  # 'linear' or 'log'
         self._y_scale = y_scale  # 'linear' or 'log'
         self._tick_format = tick_format  # None, callable, or format string
+        self._x_tick_format = x_tick_format
+        self._y_tick_format = y_tick_format
+        self._x_ticks = x_ticks  # None or list of tick values
+        self._y_ticks = y_ticks
 
         self._axis_labels = []
 
@@ -103,7 +109,9 @@ class Axes(_AxesExtMixin, VCollection):
         coll = _build_axes_decoration(
             self.x_min.at_time(time), self.x_max.at_time(time), y_min, y_max,
             self.plot_x, self.plot_y, self.plot_width, self.plot_height,
-            self._show_grid, time, self._x_scale, self._y_scale, self._tick_format)
+            self._show_grid, time, self._x_scale, self._y_scale, self._tick_format,
+            x_tick_format=self._x_tick_format, y_tick_format=self._y_tick_format,
+            x_ticks=self._x_ticks, y_ticks=self._y_ticks)
         # Include the persistent axis title labels (TexObjects created once)
         for lbl in self._axis_labels:
             coll.objects.append(lbl)
@@ -2651,14 +2659,6 @@ class ComplexPlane(Axes):
 
         self.objects.extend(new_objects)
         return self
-
-
-from vectormation._diagrams import ChessBoard as ChessBoard  # noqa: E402,F811
-from vectormation._diagrams import PeriodicTable as PeriodicTable  # noqa: E402,F811
-
-
-from vectormation._diagrams import BohrAtom as BohrAtom  # noqa: E402,F811
-from vectormation._diagrams import Automaton as Automaton  # noqa: E402,F811
 from vectormation._diagrams import NetworkGraph as NetworkGraph  # noqa: E402,F811
 
 

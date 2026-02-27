@@ -88,8 +88,49 @@ def _format_tick(val, tick_format):
     return tick_format.format(val)
 
 
+def pi_format(val):
+    """Format a numeric value as a multiple of pi using Unicode (e.g. 'pi/2', '2pi')."""
+    if abs(val) < 1e-9:
+        return '0'
+    ratio = val / math.pi
+    for denom in [1, 2, 3, 4, 6, 8, 12]:
+        numer = round(ratio * denom)
+        if abs(ratio - numer / denom) < 1e-9:
+            if denom == 1:
+                if numer == 1: return '\u03c0'
+                if numer == -1: return '-\u03c0'
+                return f'{numer}\u03c0'
+            if numer == 1: return f'\u03c0/{denom}'
+            if numer == -1: return f'-\u03c0/{denom}'
+            return f'{numer}\u03c0/{denom}'
+    return f'{ratio:.2g}\u03c0'
+
+
+def pi_ticks(vmin, vmax, step=None):
+    """Generate tick values at multiples of pi. Auto-selects step if None."""
+    pi = math.pi
+    if step is None:
+        span = vmax - vmin
+        pi_span = span / pi
+        if pi_span <= 2: step = pi / 4
+        elif pi_span <= 4: step = pi / 2
+        elif pi_span <= 8: step = pi
+        else: step = 2 * pi
+    start = math.ceil(vmin / step - 0.01) * step
+    ticks = []
+    val = start
+    while val <= vmax + step * 0.01:
+        if abs(val) < step * 0.01:
+            val = 0.0
+        ticks.append(val)
+        val += step
+    return ticks
+
+
 def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_width, plot_height,
-                            show_grid, time, x_scale='linear', y_scale='linear', tick_format=None):
+                            show_grid, time, x_scale='linear', y_scale='linear', tick_format=None,
+                            x_tick_format=None, y_tick_format=None,
+                            x_ticks=None, y_ticks=None):
     """Build axis lines, ticks, tick labels, and grid as VObjects for a single frame."""
     objects = []
 
@@ -123,9 +164,14 @@ def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_widt
         x_zero = plot_x + (0 - lx_min) / x_span * plot_width if lx_min <= 0 <= lx_max else plot_x
     tick_len = SMALL_BUFF
 
-    # Choose tick values based on scale
-    x_ticks = _log_ticks(x_min, x_max) if x_scale == 'log' else _nice_ticks(x_min, x_max)
-    y_ticks = _log_ticks(y_min, y_max) if y_scale == 'log' else _nice_ticks(y_min, y_max)
+    # Choose tick values based on scale (allow user override)
+    if x_ticks is None:
+        x_ticks = _log_ticks(x_min, x_max) if x_scale == 'log' else _nice_ticks(x_min, x_max)
+    if y_ticks is None:
+        y_ticks = _log_ticks(y_min, y_max) if y_scale == 'log' else _nice_ticks(y_min, y_max)
+    # Per-axis tick format falls back to shared tick_format
+    _x_fmt = x_tick_format if x_tick_format is not None else tick_format
+    _y_fmt = y_tick_format if y_tick_format is not None else tick_format
 
     # Grid lines (behind axes)
     if show_grid:
@@ -145,7 +191,7 @@ def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_widt
                         creation=time, stroke='#fff', stroke_width=_AXIS_STROKE_WIDTH))
 
     # Ticks and labels for both axes
-    def _add_ticks(ticks, scale, to_svg_fn, is_x_axis):
+    def _add_ticks(ticks, scale, to_svg_fn, is_x_axis, fmt):
         for val in ticks:
             sv = to_svg_fn(val)
             if is_x_axis:
@@ -156,7 +202,7 @@ def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_widt
                                     creation=time, stroke='#fff', stroke_width=_AXIS_STROKE_WIDTH))
             if scale != 'log' and abs(val) < 1e-9:
                 continue
-            label = _format_tick(val, tick_format)
+            label = _format_tick(val, fmt)
             if is_x_axis:
                 objects.append(Text(text=label, x=sv, y=y_zero + tick_len + _TICK_GAP + _TICK_FONT_SIZE * 0.35,
                                     font_size=_TICK_FONT_SIZE, text_anchor='middle',
@@ -165,8 +211,8 @@ def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_widt
                 objects.append(Text(text=label, x=x_zero - tick_len - _TICK_GAP, y=sv + _TICK_FONT_SIZE * 0.35,
                                     font_size=_TICK_FONT_SIZE, text_anchor='end',
                                     creation=time, fill='#aaa', stroke_width=0))
-    _add_ticks(x_ticks, x_scale, _to_svg_x, is_x_axis=True)
-    _add_ticks(y_ticks, y_scale, _to_svg_y, is_x_axis=False)
+    _add_ticks(x_ticks, x_scale, _to_svg_x, is_x_axis=True, fmt=_x_fmt)
+    _add_ticks(y_ticks, y_scale, _to_svg_y, is_x_axis=False, fmt=_y_fmt)
 
     return VCollection(*objects, creation=time)
 

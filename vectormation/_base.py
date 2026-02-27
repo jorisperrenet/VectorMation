@@ -408,8 +408,9 @@ class VObject(_VObjectEffectsMixin, ABC):  # Vector Object
                 ya.add_onward(s, _ramp(s, e - s, dy, easing), last_change=e)
         return self
 
-    # Alias
-    scale_by = lambda self, start, end, factor, easing=easings.smooth: self.scale(factor, start, end, easing=easing)
+    def scale_by(self, start, end, factor, easing=easings.smooth):
+        """Alias for :meth:`scale` with (start, end, factor) parameter order."""
+        return self.scale(factor, start, end, easing=easing)
 
     def _apply_rotation(self, start: float, end: float, target_deg, cx, cy, easing):
         """Set rotation from current angle to target_deg around (cx, cy)."""
