@@ -1536,3 +1536,129 @@ class TestDiverge:
         assert cy1 == pytest.approx(100, abs=2)
         assert cx2 == pytest.approx(300, abs=2)
         assert cy2 == pytest.approx(300, abs=2)
+
+
+class TestPairUp:
+    def test_even_count(self):
+        """Four children should produce two pairs."""
+        c1, c2, c3, c4 = [Circle(r=10, cx=i * 50, cy=50) for i in range(4)]
+        col = VCollection(c1, c2, c3, c4)
+        pairs = col.pair_up()
+        assert len(pairs) == 2
+        assert len(pairs[0].objects) == 2
+        assert len(pairs[1].objects) == 2
+        assert pairs[0].objects[0] is c1
+        assert pairs[0].objects[1] is c2
+        assert pairs[1].objects[0] is c3
+        assert pairs[1].objects[1] is c4
+
+    def test_odd_count(self):
+        """Five children should produce two pairs + one singleton."""
+        circles = [Circle(r=10, cx=i * 50, cy=50) for i in range(5)]
+        col = VCollection(*circles)
+        pairs = col.pair_up()
+        assert len(pairs) == 3
+        assert len(pairs[0].objects) == 2
+        assert len(pairs[1].objects) == 2
+        assert len(pairs[2].objects) == 1
+        assert pairs[2].objects[0] is circles[4]
+
+    def test_single_child(self):
+        """One child should produce one singleton collection."""
+        c1 = Circle(r=10, cx=50, cy=50)
+        col = VCollection(c1)
+        pairs = col.pair_up()
+        assert len(pairs) == 1
+        assert len(pairs[0].objects) == 1
+        assert pairs[0].objects[0] is c1
+
+    def test_empty_raises(self):
+        """Empty collection should raise ValueError."""
+        col = VCollection()
+        with pytest.raises(ValueError):
+            col.pair_up()
+
+    def test_returns_vcollections(self):
+        """Each pair should be a VCollection."""
+        c1, c2 = Circle(r=10, cx=50, cy=50), Circle(r=10, cx=100, cy=50)
+        col = VCollection(c1, c2)
+        pairs = col.pair_up()
+        for p in pairs:
+            assert isinstance(p, VCollection)
+
+    def test_two_children(self):
+        """Two children should produce exactly one pair."""
+        c1, c2 = Circle(r=10, cx=50, cy=50), Circle(r=10, cx=100, cy=50)
+        col = VCollection(c1, c2)
+        pairs = col.pair_up()
+        assert len(pairs) == 1
+        assert pairs[0].objects == [c1, c2]
+
+
+class TestSlidingWindow:
+    def test_basic_window(self):
+        """Window of 3 with step 1 over 5 elements produces 3 windows."""
+        circles = [Circle(r=10, cx=i * 50, cy=50) for i in range(5)]
+        col = VCollection(*circles)
+        windows = col.sliding_window(3, step=1)
+        assert len(windows) == 3
+        assert [len(w.objects) for w in windows] == [3, 3, 3]
+        # Check first and last window contents
+        assert windows[0].objects[0] is circles[0]
+        assert windows[0].objects[2] is circles[2]
+        assert windows[2].objects[0] is circles[2]
+        assert windows[2].objects[2] is circles[4]
+
+    def test_step_greater_than_one(self):
+        """Window of 2 with step 2 (non-overlapping) over 6 elements."""
+        circles = [Circle(r=10, cx=i * 50, cy=50) for i in range(6)]
+        col = VCollection(*circles)
+        windows = col.sliding_window(2, step=2)
+        assert len(windows) == 3
+        assert windows[0].objects == [circles[0], circles[1]]
+        assert windows[1].objects == [circles[2], circles[3]]
+        assert windows[2].objects == [circles[4], circles[5]]
+
+    def test_window_equals_length(self):
+        """Window size equal to collection length produces one window."""
+        circles = [Circle(r=10, cx=i * 50, cy=50) for i in range(4)]
+        col = VCollection(*circles)
+        windows = col.sliding_window(4)
+        assert len(windows) == 1
+        assert len(windows[0].objects) == 4
+
+    def test_window_larger_than_collection(self):
+        """Window larger than collection should produce no windows."""
+        circles = [Circle(r=10, cx=i * 50, cy=50) for i in range(3)]
+        col = VCollection(*circles)
+        windows = col.sliding_window(5)
+        assert len(windows) == 0
+
+    def test_invalid_size_raises(self):
+        col = VCollection(Circle(r=10, cx=50, cy=50))
+        with pytest.raises(ValueError):
+            col.sliding_window(0)
+
+    def test_invalid_step_raises(self):
+        col = VCollection(Circle(r=10, cx=50, cy=50))
+        with pytest.raises(ValueError):
+            col.sliding_window(1, step=0)
+
+    def test_empty_collection(self):
+        col = VCollection()
+        windows = col.sliding_window(2)
+        assert len(windows) == 0
+
+    def test_returns_vcollections(self):
+        circles = [Circle(r=10, cx=i * 50, cy=50) for i in range(5)]
+        col = VCollection(*circles)
+        windows = col.sliding_window(2)
+        for w in windows:
+            assert isinstance(w, VCollection)
+
+    def test_step_default_is_one(self):
+        """Default step should be 1."""
+        circles = [Circle(r=10, cx=i * 50, cy=50) for i in range(4)]
+        col = VCollection(*circles)
+        windows = col.sliding_window(2)
+        assert len(windows) == 3

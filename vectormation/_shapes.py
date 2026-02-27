@@ -583,6 +583,108 @@ class Polygon(VObject):
                 angles[i] = 360 - angles[i]
         return angles
 
+    def is_clockwise(self, time=0):
+        """Return True if the polygon vertices are in clockwise order.
+
+        In SVG coordinates (y-axis pointing down), a positive signed area
+        from the shoelace formula indicates clockwise winding.  This method
+        returns True when the signed area is positive (CW in SVG), False
+        when it is negative (CCW) or zero (degenerate).
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read vertex positions.
+
+        Returns
+        -------
+        bool
+        """
+        return self.signed_area(time) > 0
+
+    def bounding_circle(self, time=0, **kwargs):
+        """Return the smallest enclosing circle of the polygon's vertices.
+
+        Uses Welzl's algorithm (randomised, expected linear time) to compute
+        the minimum bounding circle.  The returned :class:`Circle` is a static
+        snapshot at the given *time*.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read vertex positions.
+        **kwargs:
+            Extra keyword arguments forwarded to :class:`Circle` (e.g.
+            ``stroke``, ``fill``).
+
+        Returns
+        -------
+        Circle
+            The smallest circle that contains all vertices of this polygon.
+
+        Raises
+        ------
+        ValueError
+            If the polygon has no vertices.
+        """
+        pts = self.get_vertices(time)
+        if not pts:
+            raise ValueError("bounding_circle requires at least one vertex")
+
+        import random as _random
+        rng = _random.Random(0)  # deterministic seed for reproducibility
+
+        def _circle_from_1(p):
+            return (p[0], p[1], 0.0)
+
+        def _circle_from_2(p1, p2):
+            cx = (p1[0] + p2[0]) / 2
+            cy = (p1[1] + p2[1]) / 2
+            r = math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / 2
+            return (cx, cy, r)
+
+        def _circle_from_3(p1, p2, p3):
+            ax, ay = p1
+            bx, by = p2
+            cx, cy = p3
+            d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
+            if abs(d) < 1e-14:
+                # Collinear: return circle from the two farthest points
+                pairs = [(p1, p2), (p1, p3), (p2, p3)]
+                best = max(pairs, key=lambda ab: math.hypot(ab[1][0] - ab[0][0], ab[1][1] - ab[0][1]))
+                return _circle_from_2(*best)
+            a2 = ax * ax + ay * ay
+            b2 = bx * bx + by * by
+            c2 = cx * cx + cy * cy
+            ux = (a2 * (by - cy) + b2 * (cy - ay) + c2 * (ay - by)) / d
+            uy = (a2 * (cx - bx) + b2 * (ax - cx) + c2 * (bx - ax)) / d
+            r = math.hypot(ax - ux, ay - uy)
+            return (ux, uy, r)
+
+        def _in_circle(circ, p):
+            return math.hypot(p[0] - circ[0], p[1] - circ[1]) <= circ[2] + 1e-10
+
+        def _welzl(points, boundary, n):
+            if n == 0 or len(boundary) == 3:
+                if len(boundary) == 0:
+                    return (0, 0, 0)
+                elif len(boundary) == 1:
+                    return _circle_from_1(boundary[0])
+                elif len(boundary) == 2:
+                    return _circle_from_2(boundary[0], boundary[1])
+                else:
+                    return _circle_from_3(boundary[0], boundary[1], boundary[2])
+            p = points[n - 1]
+            circ = _welzl(points, boundary, n - 1)
+            if _in_circle(circ, p):
+                return circ
+            return _welzl(points, boundary + [p], n - 1)
+
+        shuffled = list(pts)
+        rng.shuffle(shuffled)
+        cx, cy, r = _welzl(shuffled, [], len(shuffled))
+        return Circle(r=r, cx=cx, cy=cy, **kwargs)
+
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 
@@ -1225,6 +1327,76 @@ class Circle(Ellipse):
         dy = -r * math.sin(rad)   # negate: SVG y-axis points down
         return Line(x1=cx - dx, y1=cy - dy, x2=cx + dx, y2=cy + dy, **kwargs)
 
+    def segment_area(self, start_angle, end_angle, time=0):
+        """Return the area of a circular segment between two angles.
+
+        A circular segment is the region between a chord and the arc it
+        subtends.  The segment area is computed as::
+
+            segment_area = sector_area - triangle_area
+
+        where the sector is the pie-slice from *start_angle* to *end_angle*
+        and the triangle is formed by the two radii and the chord.
+
+        Parameters
+        ----------
+        start_angle, end_angle:
+            Angles in degrees defining the arc.
+        time:
+            Animation time at which to read the circle's radius.
+
+        Returns
+        -------
+        float
+            The area of the circular segment (always non-negative).
+
+        Example
+        -------
+        >>> c = Circle(r=100)
+        >>> c.segment_area(0, 180)   # semicircle area = pi*r^2/2
+        """
+        r = self.get_radius(time)
+        sweep_deg = abs(end_angle - start_angle) % 360
+        if sweep_deg == 0:
+            return 0.0
+        theta = math.radians(sweep_deg)
+        # Sector area = 0.5 * r^2 * theta
+        # Triangle area = 0.5 * r^2 * sin(theta)
+        return abs(0.5 * r * r * (theta - math.sin(theta)))
+
+    def power_of_point(self, px, py, time=0):
+        """Return the power of point (px, py) with respect to this circle.
+
+        The power of a point is defined as::
+
+            power = d^2 - r^2
+
+        where *d* is the distance from the point to the circle center and
+        *r* is the radius.
+
+        * Negative: the point is inside the circle.
+        * Zero: the point is on the circle.
+        * Positive: the point is outside the circle.
+
+        This value is useful in computational geometry for determining
+        point-circle relationships and for constructing radical axes.
+
+        Parameters
+        ----------
+        px, py:
+            Coordinates of the query point.
+        time:
+            Animation time at which to read the circle's position and radius.
+
+        Returns
+        -------
+        float
+        """
+        cx, cy = self.c.at_time(time)
+        r = self.get_radius(time)
+        d_sq = (px - cx) ** 2 + (py - cy) ** 2
+        return d_sq - r * r
+
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)
         return f"<circle cx='{cx}' cy='{cy}' r='{self.rx.at_time(time)}'{self.styling.svg_style(time)} />"
@@ -1851,6 +2023,54 @@ class Line(VObject):
         dot = d1[0] * d2[0] + d1[1] * d2[1]
         dot = max(-1.0, min(1.0, dot))  # clamp for numerical safety
         return math.degrees(math.acos(dot))
+
+    def is_parallel(self, other, time=0, tol=1e-6):
+        """Return True if this line is parallel to *other*.
+
+        Two lines are parallel when the cross product of their direction
+        vectors is (approximately) zero.
+
+        Parameters
+        ----------
+        other:
+            Another :class:`Line` instance.
+        time:
+            Animation time at which to read both lines.
+        tol:
+            Absolute tolerance for the cross product magnitude.
+
+        Returns
+        -------
+        bool
+        """
+        d1 = self.get_direction(time)
+        d2 = other.get_direction(time)
+        cross = d1[0] * d2[1] - d1[1] * d2[0]
+        return abs(cross) < tol
+
+    def is_perpendicular(self, other, time=0, tol=1e-6):
+        """Return True if this line is perpendicular to *other*.
+
+        Two lines are perpendicular when the dot product of their direction
+        vectors is (approximately) zero.
+
+        Parameters
+        ----------
+        other:
+            Another :class:`Line` instance.
+        time:
+            Animation time at which to read both lines.
+        tol:
+            Absolute tolerance for the dot product magnitude.
+
+        Returns
+        -------
+        bool
+        """
+        d1 = self.get_direction(time)
+        d2 = other.get_direction(time)
+        dot_val = d1[0] * d2[0] + d1[1] * d2[1]
+        return abs(dot_val) < tol
 
     def get_slope(self, time=0):
         """Return the slope (dy/dx) of the line, or float('inf') for vertical lines.

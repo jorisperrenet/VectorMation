@@ -5835,3 +5835,231 @@ class TestArcSplitInto:
         assert len(parts) == 3
         assert parts[0].start_angle.at_time(0) == pytest.approx(90)
         assert parts[2].end_angle.at_time(0) == pytest.approx(0)
+
+
+class TestPolygonIsClockwise:
+    def test_clockwise_triangle(self):
+        """A visually CW triangle in SVG coords (y-down) has positive signed area."""
+        # In SVG coords (y-down), going top-left -> top-right -> bottom is visually CW
+        # and gives positive signed area via the shoelace formula.
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        assert p.is_clockwise() is True
+
+    def test_counter_clockwise_triangle(self):
+        """A visually CCW triangle has negative signed area in SVG coords."""
+        p = Polygon((0, 0), (50, 100), (100, 0))
+        assert p.is_clockwise() is False
+
+    def test_degenerate_polygon(self):
+        """A polygon with fewer than 3 vertices has zero area (not CW)."""
+        p = Polygon((0, 0), (100, 0))
+        assert p.is_clockwise() is False
+
+    def test_square_cw(self):
+        """A visually clockwise square should be detected as clockwise."""
+        # Visually CW in SVG (y-down): top-left, top-right, bottom-right, bottom-left
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        assert p.is_clockwise() is True
+
+    def test_square_ccw(self):
+        """A visually counter-clockwise square should not be clockwise."""
+        # Visually CCW in SVG: top-left, bottom-left, bottom-right, top-right
+        p = Polygon((0, 0), (0, 100), (100, 100), (100, 0))
+        assert p.is_clockwise() is False
+
+
+class TestPolygonBoundingCircle:
+    def test_equilateral_triangle(self):
+        """The bounding circle of an equilateral triangle should circumscribe it."""
+        import math
+        r = 100
+        pts = [(960 + r * math.cos(math.radians(a)),
+                540 + r * math.sin(math.radians(a)))
+               for a in [0, 120, 240]]
+        p = Polygon(*pts)
+        bc = p.bounding_circle()
+        # The circumscribed circle radius should equal r
+        assert bc.get_radius() == pytest.approx(r, abs=1)
+        # Center should be at (960, 540)
+        cx, cy = bc.c.at_time(0)
+        assert cx == pytest.approx(960, abs=1)
+        assert cy == pytest.approx(540, abs=1)
+
+    def test_single_point(self):
+        """Bounding circle of a single point should have radius 0."""
+        p = Polygon((100, 200))
+        bc = p.bounding_circle()
+        assert bc.get_radius() == pytest.approx(0, abs=1e-6)
+        cx, cy = bc.c.at_time(0)
+        assert cx == pytest.approx(100, abs=1e-6)
+        assert cy == pytest.approx(200, abs=1e-6)
+
+    def test_two_points(self):
+        """Bounding circle of two points should have diameter = distance."""
+        p = Polygon((0, 0), (200, 0))
+        bc = p.bounding_circle()
+        assert bc.get_radius() == pytest.approx(100, abs=1)
+        cx, cy = bc.c.at_time(0)
+        assert cx == pytest.approx(100, abs=1)
+        assert cy == pytest.approx(0, abs=1)
+
+    def test_all_vertices_inside(self):
+        """All polygon vertices should be inside or on the bounding circle."""
+        p = Polygon((10, 20), (100, 50), (80, 120), (5, 90), (50, 10))
+        bc = p.bounding_circle()
+        r = bc.get_radius()
+        cx, cy = bc.c.at_time(0)
+        for vx, vy in p.get_vertices():
+            dist = ((vx - cx) ** 2 + (vy - cy) ** 2) ** 0.5
+            assert dist <= r + 1e-6
+
+    def test_empty_polygon_raises(self):
+        """Bounding circle of an empty polygon should raise ValueError."""
+        p = Polygon()
+        with pytest.raises(ValueError):
+            p.bounding_circle()
+
+    def test_kwargs_forwarded(self):
+        """Styling kwargs should be forwarded to the resulting Circle."""
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        bc = p.bounding_circle(stroke='#ff0000')
+        # Verifying the returned object is a Circle with the right geometry
+        assert isinstance(bc, Circle)
+        # Stroke gets set (colour may be normalised to rgb(...) format)
+        svg = bc.to_svg(0)
+        assert 'stroke' in svg
+
+
+class TestCircleSegmentArea:
+    def test_semicircle(self):
+        """Segment area for 180 degrees should equal the semicircle area."""
+        import math
+        c = Circle(r=100)
+        # A semicircular segment = sector (pi*r^2/2) - triangle (area 0 for 180 deg)
+        # For 180 degrees: theta = pi, sin(pi) = 0, so segment = sector = pi*r^2/2
+        area = c.segment_area(0, 180)
+        expected = 0.5 * 100 * 100 * (math.pi - math.sin(math.pi))
+        assert area == pytest.approx(expected, abs=0.1)
+
+    def test_quarter_circle(self):
+        """Segment area for 90 degrees should be correct."""
+        import math
+        c = Circle(r=100)
+        area = c.segment_area(0, 90)
+        theta = math.pi / 2
+        expected = 0.5 * 100 * 100 * (theta - math.sin(theta))
+        assert area == pytest.approx(expected, abs=0.1)
+
+    def test_zero_sweep(self):
+        """Segment area for 0 degrees should be 0."""
+        c = Circle(r=100)
+        assert c.segment_area(45, 45) == 0.0
+
+    def test_full_circle(self):
+        """Segment area for 360 degrees should equal the full circle area."""
+        c = Circle(r=50)
+        area = c.segment_area(0, 360)
+        # 360 % 360 == 0, so area should be 0 (a "segment" of zero sweep)
+        assert area == pytest.approx(0, abs=0.01)
+
+    def test_negative_sweep(self):
+        """Segment area should be non-negative regardless of angle order."""
+        c = Circle(r=100)
+        area = c.segment_area(90, 0)
+        assert area >= 0
+
+
+class TestCirclePowerOfPoint:
+    def test_point_on_circle(self):
+        """Power of a point on the circle should be 0."""
+        c = Circle(r=100, cx=500, cy=300)
+        # Point at angle 0: (600, 300)
+        power = c.power_of_point(600, 300)
+        assert power == pytest.approx(0, abs=1e-6)
+
+    def test_point_inside(self):
+        """Power of a point inside the circle should be negative."""
+        c = Circle(r=100, cx=500, cy=300)
+        power = c.power_of_point(500, 300)  # center
+        assert power < 0
+        assert power == pytest.approx(-10000, abs=1e-6)
+
+    def test_point_outside(self):
+        """Power of a point outside the circle should be positive."""
+        c = Circle(r=100, cx=500, cy=300)
+        power = c.power_of_point(700, 300)  # 200 away from center
+        assert power > 0
+        expected = 200**2 - 100**2
+        assert power == pytest.approx(expected, abs=1e-6)
+
+    def test_symmetry(self):
+        """Power should be the same for points equidistant from center."""
+        c = Circle(r=50, cx=0, cy=0)
+        p1 = c.power_of_point(80, 0)
+        p2 = c.power_of_point(0, 80)
+        assert p1 == pytest.approx(p2, abs=1e-6)
+
+
+class TestLineIsParallel:
+    def test_parallel_horizontal_lines(self):
+        """Two horizontal lines should be parallel."""
+        l1 = Line(0, 0, 100, 0)
+        l2 = Line(0, 50, 100, 50)
+        assert l1.is_parallel(l2) is True
+
+    def test_parallel_vertical_lines(self):
+        """Two vertical lines should be parallel."""
+        l1 = Line(0, 0, 0, 100)
+        l2 = Line(50, 0, 50, 100)
+        assert l1.is_parallel(l2) is True
+
+    def test_parallel_diagonal_lines(self):
+        """Two diagonal lines with same slope should be parallel."""
+        l1 = Line(0, 0, 100, 100)
+        l2 = Line(50, 0, 150, 100)
+        assert l1.is_parallel(l2) is True
+
+    def test_not_parallel(self):
+        """Two lines at different angles should not be parallel."""
+        l1 = Line(0, 0, 100, 0)
+        l2 = Line(0, 0, 100, 100)
+        assert l1.is_parallel(l2) is False
+
+    def test_antiparallel(self):
+        """Lines pointing in opposite directions should be parallel."""
+        l1 = Line(0, 0, 100, 0)
+        l2 = Line(100, 50, 0, 50)
+        assert l1.is_parallel(l2) is True
+
+
+class TestLineIsPerpendicular:
+    def test_perpendicular_axes(self):
+        """A horizontal and vertical line should be perpendicular."""
+        l1 = Line(0, 0, 100, 0)
+        l2 = Line(50, -50, 50, 50)
+        assert l1.is_perpendicular(l2) is True
+
+    def test_perpendicular_diagonal(self):
+        """Two diagonal lines at 90 degrees should be perpendicular."""
+        l1 = Line(0, 0, 100, 100)
+        l2 = Line(0, 100, 100, 0)
+        assert l1.is_perpendicular(l2) is True
+
+    def test_not_perpendicular(self):
+        """Two parallel lines should not be perpendicular."""
+        l1 = Line(0, 0, 100, 0)
+        l2 = Line(0, 50, 100, 50)
+        assert l1.is_perpendicular(l2) is False
+
+    def test_parallel_not_perpendicular(self):
+        """Lines with the same direction are not perpendicular."""
+        l1 = Line(0, 0, 100, 100)
+        l2 = Line(50, 50, 150, 150)
+        assert l1.is_perpendicular(l2) is False
+
+    def test_perpendicular_consistency_with_angle_to(self):
+        """Perpendicular lines should have angle_to approximately 90 degrees."""
+        l1 = Line(0, 0, 100, 0)
+        l2 = Line(0, 0, 0, 100)
+        assert l1.is_perpendicular(l2)
+        assert l1.angle_to(l2) == pytest.approx(90, abs=0.1)

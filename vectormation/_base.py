@@ -3375,6 +3375,169 @@ class VObject(ABC):  # Vector Object
         self._apply_shift_effect(start, end, dx_func=_dx, dy_func=_dy, stay=True)
         return self
 
+    def elastic_bounce(self, start: float = 0, end: float = 1, height=100,
+                       bounces=3, squash_factor=1.4, easing=easings.smooth):
+        """Bounce the object with squash-and-stretch deformation at each impact.
+
+        Simulates a ball bouncing: the object falls, hits the ground with a
+        squash (wide+short), then stretches (narrow+tall) as it rebounds.
+        Each successive bounce is smaller than the previous one.
+
+        Parameters
+        ----------
+        start, end:
+            Animation time window.
+        height:
+            Peak bounce height in pixels for the first bounce.
+        bounces:
+            Number of bounces.
+        squash_factor:
+            Peak horizontal scale factor at each impact (>1 = wider).
+            The vertical axis squashes by 1/squash_factor.
+        easing:
+            Easing applied to overall progress.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        self._ensure_scale_origin(start)
+        sx0 = self.styling.scale_x.at_time(start)
+        sy0 = self.styling.scale_y.at_time(start)
+        _s, _d = start, max(dur, 1e-9)
+        _h, _b, _sf = height, bounces, squash_factor
+        _sx0, _sy0 = sx0, sy0
+
+        def _bounce_progress(t, _s=_s, _d=_d, _b=_b, _easing=easing):
+            """Return (vertical_offset, squash_envelope) at time t.
+            vertical_offset: 0 at ground, negative upward.
+            squash_envelope: 0 normally, peaks at 1.0 at impact moments."""
+            p = _easing((t - _s) / _d)
+            if p >= 1.0:
+                return (0.0, 0.0)
+            # Each bounce occupies a segment; amplitude decays
+            phase = p * _b
+            bounce_idx = min(int(phase), _b - 1)
+            frac = phase - bounce_idx  # 0..1 within each bounce
+            # Parabolic arc within each bounce: y = 4*frac*(1-frac) gives 0→1→0
+            arc = 4 * frac * (1 - frac)
+            # Decay: each bounce is smaller; also fade out near end
+            decay = (1.0 - p) / (1 + bounce_idx)
+            vert = -arc * decay
+            # Squash peaks at impact (frac near 0 or 1)
+            # Use a narrow bell curve at frac=0 and frac=1
+            impact = max(math.exp(-((frac * 4) ** 2)),
+                         math.exp(-(((1 - frac) * 4) ** 2)))
+            squash = impact * decay
+            return (vert, squash)
+
+        def _dy(t, _s=_s, _d=_d, _h=_h, _b=_b, _easing=easing):
+            vert, _ = _bounce_progress(t)
+            return vert * _h
+
+        def _ssx(t, _s=_s, _d=_d, _sf=_sf, _sx0=_sx0):
+            _, squash = _bounce_progress(t)
+            return _sx0 * (1 + (_sf - 1) * squash)
+
+        def _ssy(t, _s=_s, _d=_d, _sf=_sf, _sy0=_sy0):
+            _, squash = _bounce_progress(t)
+            peak = 1 + (_sf - 1) * squash
+            return _sy0 / peak if peak > 1e-9 else _sy0
+
+        self._apply_shift_effect(start, end, dy_func=_dy)
+        self.styling.scale_x.set(start, end, _ssx, stay=False)
+        self.styling.scale_y.set(start, end, _ssy, stay=False)
+        return self
+
+    def morph_scale(self, target_scale: float = 2.0, start: float = 0, end: float = 1,
+                    overshoot: float = 0.3, oscillations: int = 2,
+                    easing=easings.smooth):
+        """Scale to *target_scale* with a spring-like overshoot that settles.
+
+        Unlike :meth:`slingshot` (which overshoots in position), this method
+        overshoots in *scale*.  The object scales past the target, oscillates
+        with decreasing amplitude, and settles exactly at *target_scale*.
+
+        Parameters
+        ----------
+        target_scale:
+            Final scale factor to settle at (e.g. 2.0 = double size).
+        start, end:
+            Animation time window.
+        overshoot:
+            Fraction of the scale delta to overshoot (0.3 = 30% past target).
+        oscillations:
+            Number of damped oscillations before settling.
+        easing:
+            Easing applied to the overall progress.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        self._ensure_scale_origin(start)
+        sx0 = self.styling.scale_x.at_time(start)
+        sy0 = self.styling.scale_y.at_time(start)
+        _s, _d = start, max(dur, 1e-9)
+        _ts, _os, _osc = target_scale, overshoot, oscillations
+        _sx0, _sy0 = sx0, sy0
+
+        # Map overshoot to damping: higher overshoot -> lower damping -> more ring
+        _damp = 3.0 / max(_os, 0.01)
+        _freq = 2 * math.pi * (_osc + 0.25)
+
+        def _spring_curve(p, _ts=_ts, _damp=_damp, _freq=_freq):
+            """Map progress p in [0,1] to a scale multiplier that overshoots
+            *_ts* and settles at *_ts*.
+            Uses a classic damped oscillation: target + (1-target)*exp(-d*p)*cos(f*p).
+            At p=0 this equals 1.0 (original); it decays toward target."""
+            if p >= 1.0:
+                return _ts
+            if p <= 0.0:
+                return 1.0
+            return _ts + (1.0 - _ts) * math.exp(-_damp * p) * math.cos(_freq * p)
+
+        def _msx(t, _s=_s, _d=_d, _sx0=_sx0, _easing=easing, _sc=_spring_curve):
+            p = _easing((t - _s) / _d)
+            return _sx0 * _sc(p)
+
+        def _msy(t, _s=_s, _d=_d, _sy0=_sy0, _easing=easing, _sc=_spring_curve):
+            p = _easing((t - _s) / _d)
+            return _sy0 * _sc(p)
+
+        self.styling.scale_x.set(start, end, _msx, stay=True)
+        self.styling.scale_y.set(start, end, _msy, stay=True)
+        return self
+
+    def strobe(self, start: float = 0, end: float = 1, flashes: int = 5,
+               duty: float = 0.5):
+        """Rapid hard on/off blink effect like a strobe light.
+
+        Unlike :meth:`blink_opacity` which uses smooth sinusoidal fading,
+        this method produces a sharp square-wave visibility pattern.
+
+        Parameters
+        ----------
+        start, end:
+            Time interval during which the strobe is active.
+        flashes:
+            Number of on/off cycles.
+        duty:
+            Fraction of each cycle the object is visible (0.0-1.0).
+            0.5 = equal on/off time.  Lower values = shorter flashes.
+        """
+        dur = end - start
+        if dur <= 0 or flashes <= 0:
+            return self
+        duty = max(0.0, min(1.0, duty))
+        _s, _d, _fl, _du = start, dur, flashes, duty
+
+        def _opacity(t, _s=_s, _d=_d, _fl=_fl, _du=_du):
+            p = (t - _s) / _d
+            cycle_pos = (p * _fl) % 1.0
+            return 1.0 if cycle_pos < _du else 0.0
+
+        self.styling.opacity.set(start, end, _opacity, stay=False)
+        return self
+
     @staticmethod
     def surround(other, buff=SMALL_BUFF, rx=6, ry=6, start_time: float = 0, follow=True):
         """Create a rectangle surrounding another object. Returns a Rectangle."""
@@ -5045,6 +5208,91 @@ class VCollection:
     def any_match(self, predicate):
         """Return True if any child matches the predicate."""
         return any(predicate(obj) for obj in self.objects)
+
+    def pair_up(self):
+        """Group adjacent children into pairs.
+
+        Returns a list of :class:`VCollection` objects, each containing
+        exactly two children.  If the number of children is odd, the last
+        child is placed alone in a final single-element collection.
+
+        This is useful for pairing labels with shapes, creating before/after
+        pairs, or processing children two at a time.
+
+        Returns
+        -------
+        list of VCollection
+            Each collection contains two adjacent children (or one if the
+            total count is odd).
+
+        Raises
+        ------
+        ValueError
+            If the collection is empty.
+
+        Examples
+        --------
+        >>> col = VCollection(a, b, c, d)
+        >>> pairs = col.pair_up()
+        >>> len(pairs)
+        2
+        >>> len(pairs[0].objects)
+        2
+        """
+        if len(self.objects) == 0:
+            raise ValueError("Cannot pair_up an empty collection")
+        result = []
+        objs = self.objects
+        for i in range(0, len(objs), 2):
+            group = objs[i:i + 2]
+            result.append(VCollection(*group))
+        return result
+
+    def sliding_window(self, size: int, step: int = 1):
+        """Yield overlapping sub-collections using a sliding window.
+
+        Slides a window of *size* elements across the children list,
+        advancing by *step* each time.  Each window is returned as a
+        :class:`VCollection`.
+
+        Parameters
+        ----------
+        size:
+            Number of children in each window.  Must be >= 1.
+        step:
+            Number of positions to advance between windows.  Must be >= 1.
+
+        Returns
+        -------
+        list of VCollection
+            Each sub-collection contains *size* children (the last window
+            may contain fewer if *step* does not divide evenly).
+
+        Raises
+        ------
+        ValueError
+            If *size* or *step* is less than 1.
+
+        Examples
+        --------
+        >>> col = VCollection(a, b, c, d, e)
+        >>> windows = col.sliding_window(3, step=1)
+        >>> len(windows)
+        3
+        >>> [len(w.objects) for w in windows]
+        [3, 3, 3]
+        """
+        if size < 1:
+            raise ValueError(f"window size must be >= 1, got {size!r}")
+        if step < 1:
+            raise ValueError(f"step must be >= 1, got {step!r}")
+        objs = self.objects
+        result = []
+        i = 0
+        while i + size <= len(objs):
+            result.append(VCollection(*objs[i:i + size]))
+            i += step
+        return result
 
 
 VGroup = VCollection

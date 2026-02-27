@@ -8664,3 +8664,219 @@ class TestAxesAddInflectionPoints:
         result = ax.add_inflection_points(lambda x: math.sin(x), x_range=(0.5, 2.5), samples=200)
         dots = [o for o in result.objects if isinstance(o, Dot)]
         assert len(dots) == 0
+
+
+class TestGetCriticalPoints:
+    def test_quadratic_has_one_minimum(self):
+        """x^2 should have exactly one critical point (minimum) at x=0."""
+        ax = Axes(x_range=(-3, 3), y_range=(-1, 10))
+        result = ax.get_critical_points(lambda x: x**2, samples=400)
+        dots = [o for o in result.objects if isinstance(o, Dot)]
+        assert len(dots) == 1
+        assert dots[0]._critical_type == 'min'
+
+    def test_negative_quadratic_has_one_maximum(self):
+        """-(x^2) should have exactly one critical point (maximum) at x=0."""
+        ax = Axes(x_range=(-3, 3), y_range=(-10, 1))
+        result = ax.get_critical_points(lambda x: -(x**2), samples=400)
+        dots = [o for o in result.objects if isinstance(o, Dot)]
+        assert len(dots) == 1
+        assert dots[0]._critical_type == 'max'
+
+    def test_cubic_has_two_critical_points(self):
+        """x^3 - 3x should have two critical points: min at x=1, max at x=-1."""
+        ax = Axes(x_range=(-3, 3), y_range=(-5, 5))
+        result = ax.get_critical_points(lambda x: x**3 - 3 * x, samples=400)
+        dots = [o for o in result.objects if isinstance(o, Dot)]
+        assert len(dots) == 2
+        types = sorted([d._critical_type for d in dots])
+        assert types == ['max', 'min']
+
+    def test_linear_has_no_critical_points(self):
+        """A linear function should have no critical points."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.get_critical_points(lambda x: 2 * x + 1, samples=200)
+        dots = [o for o in result.objects if isinstance(o, Dot)]
+        assert len(dots) == 0
+
+    def test_returns_vcollection(self):
+        """Result should be a VCollection."""
+        ax = Axes(x_range=(-3, 3), y_range=(-10, 10))
+        result = ax.get_critical_points(lambda x: x**2)
+        assert isinstance(result, VCollection)
+
+    def test_custom_x_range(self):
+        """Should only find critical points within the given x_range."""
+        ax = Axes(x_range=(-10, 10), y_range=(-5, 5))
+        # x^3 - 3x has critical points at x=-1 and x=1
+        # Restrict to [1.5, 5]: no critical points expected
+        result = ax.get_critical_points(lambda x: x**3 - 3 * x, x_range=(1.5, 5), samples=200)
+        dots = [o for o in result.objects if isinstance(o, Dot)]
+        assert len(dots) == 0
+
+    def test_sin_critical_points(self):
+        """sin(x) on [0, 2*pi] should have a max near pi/2 and a min near 3*pi/2."""
+        import math
+        ax = Axes(x_range=(0.1, 6.1), y_range=(-2, 2))
+        result = ax.get_critical_points(lambda x: math.sin(x), samples=400)
+        dots = [o for o in result.objects if isinstance(o, Dot)]
+        assert len(dots) == 2
+
+    def test_label_type_coords(self):
+        """With label_type='coords', labels should show coordinates."""
+        ax = Axes(x_range=(-3, 3), y_range=(-1, 10))
+        result = ax.get_critical_points(lambda x: x**2, label_type='coords', samples=400)
+        from vectormation.objects import Text
+        labels = [o for o in result.objects if isinstance(o, Text)]
+        assert len(labels) == 1
+        lbl_text = labels[0].text.at_time(0)
+        assert '(' in lbl_text and ')' in lbl_text
+
+    def test_label_type_type_only(self):
+        """With label_type='type', labels should show 'min' or 'max'."""
+        ax = Axes(x_range=(-3, 3), y_range=(-1, 10))
+        result = ax.get_critical_points(lambda x: x**2, label_type='type', samples=400)
+        from vectormation.objects import Text
+        labels = [o for o in result.objects if isinstance(o, Text)]
+        assert len(labels) == 1
+        assert labels[0].text.at_time(0) == 'min'
+
+
+class TestElasticBounce:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=400, cy=400)
+        result = c.elastic_bounce(start=0, end=2)
+        assert result is c
+
+    def test_zero_duration_noop(self):
+        c = Circle(r=50, cx=400, cy=400)
+        sx_before = c.styling.scale_x.at_time(0)
+        c.elastic_bounce(start=1, end=1)
+        assert c.styling.scale_x.at_time(1) == pytest.approx(sx_before)
+
+    def test_position_changes_during_animation(self):
+        """Object should move vertically during the bounce."""
+        c = Circle(r=50, cx=400, cy=400)
+        c.elastic_bounce(start=0, end=2, height=100, bounces=3)
+        # At midpoint of first bounce, object should be displaced upward
+        bbox_mid = c.bbox(0.3)
+        bbox_start = c.bbox(0)
+        # The y position should differ from start
+        cy_start = bbox_start[1] + bbox_start[3] / 2
+        cy_mid = bbox_mid[1] + bbox_mid[3] / 2
+        assert cy_mid != pytest.approx(cy_start, abs=1)
+
+    def test_squash_at_impact(self):
+        """Scale_x should be wider (squashed) near impact points."""
+        c = Circle(r=50, cx=400, cy=400)
+        c.elastic_bounce(start=0, end=2, height=100, bounces=3, squash_factor=1.5)
+        # At t=0 (impact), scale_x should be increased
+        sx_impact = c.styling.scale_x.at_time(0.001)
+        sx_mid = c.styling.scale_x.at_time(0.3)
+        # Near impact (start of bounce), squash should be more than mid-air
+        assert sx_impact > sx_mid
+
+    def test_returns_to_normal_scale(self):
+        """At the end, scale should return to original."""
+        c = Circle(r=50, cx=400, cy=400)
+        c.elastic_bounce(start=0, end=2, bounces=3, squash_factor=1.4)
+        sx_end = c.styling.scale_x.at_time(2.0)
+        sy_end = c.styling.scale_y.at_time(2.0)
+        assert sx_end == pytest.approx(1.0, abs=0.1)
+        assert sy_end == pytest.approx(1.0, abs=0.1)
+
+    def test_multiple_bounces(self):
+        """With more bounces, there should be more oscillation cycles."""
+        c = Circle(r=50, cx=400, cy=400)
+        c.elastic_bounce(start=0, end=2, height=100, bounces=5)
+        # Sample multiple points and count zero crossings in dy
+        displacements = []
+        for i in range(40):
+            t = i * 2.0 / 39
+            by = c.bbox(t)[1]
+            displacements.append(by)
+        # Check we have variation
+        assert max(displacements) - min(displacements) > 10
+
+
+class TestMorphScale:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=400, cy=400)
+        result = c.morph_scale(target_scale=2.0, start=0, end=1)
+        assert result is c
+
+    def test_zero_duration_noop(self):
+        c = Circle(r=50, cx=400, cy=400)
+        c.morph_scale(target_scale=2.0, start=1, end=1)
+        assert c.styling.scale_x.at_time(1) == pytest.approx(1.0)
+
+    def test_settles_at_target(self):
+        """At end time, scale should be at the target value."""
+        c = Circle(r=50, cx=400, cy=400)
+        c.morph_scale(target_scale=2.0, start=0, end=1)
+        sx = c.styling.scale_x.at_time(1.0)
+        sy = c.styling.scale_y.at_time(1.0)
+        assert sx == pytest.approx(2.0, abs=0.05)
+        assert sy == pytest.approx(2.0, abs=0.05)
+
+    def test_overshoots_during_animation(self):
+        """The scale should exceed target_scale at some point during the animation."""
+        c = Circle(r=50, cx=400, cy=400)
+        c.morph_scale(target_scale=2.0, start=0, end=1, overshoot=0.5, oscillations=2)
+        max_sx = max(c.styling.scale_x.at_time(t * 0.01) for t in range(100))
+        assert max_sx > 2.0
+
+    def test_starts_at_original(self):
+        c = Circle(r=50, cx=400, cy=400)
+        c.morph_scale(target_scale=3.0, start=0, end=1)
+        sx = c.styling.scale_x.at_time(0.0)
+        assert sx == pytest.approx(1.0, abs=0.01)
+
+    def test_scale_down(self):
+        """morph_scale should work for scaling down too."""
+        c = Circle(r=50, cx=400, cy=400)
+        c.morph_scale(target_scale=0.5, start=0, end=1, overshoot=0.2)
+        sx = c.styling.scale_x.at_time(1.0)
+        assert sx == pytest.approx(0.5, abs=0.05)
+
+
+class TestStrobe:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=400, cy=400)
+        result = c.strobe(start=0, end=1, flashes=3)
+        assert result is c
+
+    def test_zero_duration_noop(self):
+        c = Circle(r=50, cx=400, cy=400)
+        c.strobe(start=1, end=1, flashes=3)
+        # Should not crash and opacity should remain 1
+        assert c.styling.opacity.at_time(1) == pytest.approx(1.0)
+
+    def test_zero_flashes_noop(self):
+        c = Circle(r=50, cx=400, cy=400)
+        c.strobe(start=0, end=1, flashes=0)
+        assert c.styling.opacity.at_time(0.5) == pytest.approx(1.0)
+
+    def test_alternates_visibility(self):
+        """With duty=0.5, first half of each cycle should be on, second half off."""
+        c = Circle(r=50, cx=400, cy=400)
+        c.strobe(start=0, end=1, flashes=4, duty=0.5)
+        # First quarter of first cycle (cycle = 0.25s): visible
+        assert c.styling.opacity.at_time(0.06) == pytest.approx(1.0)
+        # Third quarter of first cycle: invisible
+        assert c.styling.opacity.at_time(0.19) == pytest.approx(0.0)
+
+    def test_duty_cycle(self):
+        """With duty=0.2, object should be visible only 20% of each cycle."""
+        c = Circle(r=50, cx=400, cy=400)
+        c.strobe(start=0, end=1, flashes=2, duty=0.2)
+        # At 5% of first cycle (0.025): visible (0.05 * 2 = 0.1 < 0.2)
+        assert c.styling.opacity.at_time(0.025) == pytest.approx(1.0)
+        # At 30% of first cycle (0.15): invisible (0.3 > 0.2)
+        assert c.styling.opacity.at_time(0.15) == pytest.approx(0.0)
+
+    def test_stays_off_if_clamp(self):
+        """duty=0 means always off during strobe period."""
+        c = Circle(r=50, cx=400, cy=400)
+        c.strobe(start=0, end=1, flashes=3, duty=0.0)
+        assert c.styling.opacity.at_time(0.5) == pytest.approx(0.0)

@@ -2740,6 +2740,130 @@ class Axes(VCollection):
             objs.extend([dot, lbl])
         return VCollection(*objs, creation=creation, z=z)
 
+    def get_critical_points(self, func, x_range=None, samples=200, h=1e-5,
+                            creation=0, z=3, dot_radius=5, font_size=18,
+                            color='#E040FB', label_type='both',
+                            **styling_kwargs):
+        """Find and mark critical points (local minima and maxima) of *func*.
+
+        A critical point is where the first derivative changes sign.  This
+        method numerically approximates the derivative at evenly-spaced
+        sample points, detects sign changes, and classifies each as a
+        local minimum (negative-to-positive) or local maximum
+        (positive-to-negative).
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x) -> y`` or a curve returned by :meth:`plot`.
+        x_range:
+            ``(x_min, x_max)`` in math coordinates.  Defaults to the current
+            axis range.
+        samples:
+            Number of sample points for scanning (default 200).
+        h:
+            Step size for the numerical derivative (default 1e-5).
+        creation:
+            Creation time for the resulting objects.
+        z:
+            Z-index for the dots and labels.
+        dot_radius:
+            Radius of the marker dots (default 5).
+        font_size:
+            Font size for the labels (default 18).
+        color:
+            Default colour for dots and labels (default '#E040FB', purple).
+        label_type:
+            What to show in labels: ``'coords'`` for ``(x, y)`` values,
+            ``'type'`` for ``'min'``/``'max'``, or ``'both'`` (default)
+            for type and coordinates.
+        **styling_kwargs:
+            Extra styling overrides (e.g. ``fill``).
+
+        Returns
+        -------
+        VCollection
+            A collection of (dot, label) pairs for each critical point found.
+            Each dot has a ``._critical_type`` attribute set to ``'min'`` or
+            ``'max'``.
+        """
+        fn = self._resolve_func(func, 'func')
+        xlo = x_range[0] if x_range else self.x_min.at_time(creation)
+        xhi = x_range[1] if x_range else self.x_max.at_time(creation)
+        step = (xhi - xlo) / samples
+
+        def _deriv(x):
+            return (fn(x + h) - fn(x - h)) / (2 * h)
+
+        xs = [xlo + i * step for i in range(samples + 1)]
+        ds = []
+        for x in xs:
+            try:
+                d = _deriv(x)
+                ds.append(d if math.isfinite(d) else None)
+            except Exception:
+                ds.append(None)
+
+        criticals = []
+        for i in range(len(ds) - 1):
+            if ds[i] is None or ds[i + 1] is None:
+                continue
+            if ds[i] * ds[i + 1] < 0:
+                # Strict sign change: interpolate to find approximate zero
+                denom = abs(ds[i]) + abs(ds[i + 1])
+                t = abs(ds[i]) / denom if denom > 0 else 0.5
+                cx = xs[i] + t * step
+                try:
+                    cy = fn(cx)
+                except Exception:
+                    continue
+                if not math.isfinite(cy):
+                    continue
+                # Classify: derivative goes from positive to negative = max
+                ctype = 'max' if ds[i] > 0 else 'min'
+                criticals.append((cx, cy, ctype))
+            elif abs(ds[i]) < 1e-8 and i > 0:
+                # Derivative is ~0 at sample i: check if there's a sign
+                # change across this zero (from i-1 to i+1)
+                if ds[i - 1] is not None and ds[i + 1] is not None and ds[i - 1] * ds[i + 1] < 0:
+                    cx = xs[i]
+                    try:
+                        cy = fn(cx)
+                    except Exception:
+                        continue
+                    if not math.isfinite(cy):
+                        continue
+                    ctype = 'max' if ds[i - 1] > 0 else 'min'
+                    criticals.append((cx, cy, ctype))
+
+        fill_color = styling_kwargs.get('fill', color)
+        objs = []
+        for cx, cy, ctype in criticals:
+            sx, sy = self.coords_to_point(cx, cy, creation)
+            dot = Dot(cx=sx, cy=sy, r=dot_radius, fill=fill_color,
+                      creation=creation, z=z + 1)
+            dot.c.set_onward(creation,
+                lambda t, _cx=cx, _cy=cy: self.coords_to_point(_cx, _cy, t))
+            dot._critical_type = ctype
+            if label_type == 'coords':
+                lbl_text = f'({cx:.2f}, {cy:.2f})'
+            elif label_type == 'type':
+                lbl_text = ctype
+            else:
+                lbl_text = f'{ctype} ({cx:.2f}, {cy:.2f})'
+            offset_y = 15 if ctype == 'min' else -15
+            lbl = Text(text=lbl_text, x=sx, y=sy + offset_y,
+                       font_size=font_size, fill=fill_color, stroke_width=0,
+                       text_anchor='middle', creation=creation, z=z + 2)
+            lbl.x.set_onward(creation,
+                lambda t, _cx=cx, _cy=cy: self.coords_to_point(_cx, _cy, t)[0])
+            lbl.y.set_onward(creation,
+                lambda t, _cx=cx, _cy=cy, _oy=offset_y: self.coords_to_point(_cx, _cy, t)[1] + _oy)
+            self._add_plot_obj(dot)
+            self._add_plot_obj(lbl)
+            objs.extend([dot, lbl])
+        return VCollection(*objs, creation=creation, z=z)
+
     def add_error_bars(self, x_data, y_data, y_err, creation=0, z=1,
                         cap_width=6, **styling_kwargs):
         """Add error bars at data points. y_err can be a single value or a list.
