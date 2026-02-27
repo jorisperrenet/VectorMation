@@ -15,7 +15,7 @@ from vectormation._constants import (
     DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
     _sample_function, _normalize,
 )
-from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _ramp, _ramp_down, _lerp_point
+from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _ramp, _lerp_point
 from vectormation._shapes import (
     Polygon, Circle, Ellipse, Dot, Rectangle, RoundedRectangle, Line, Lines,
     Text, Path, Arc, Wedge,
@@ -952,36 +952,6 @@ class Axes(VCollection):
         cx = self.plot_x + self.plot_width / 2
         cy = self.plot_y + self.plot_height / 2
         return (cx, cy)
-
-    def annotate_point(self, x, y, label='', direction='up', buff=SMALL_BUFF,
-                       creation=0, z=0, **styling_kwargs):
-        """Add a dot and label at a math coordinate.
-
-        Returns a VCollection containing the dot and optional label.
-        """
-        sx, sy = self.coords_to_point(x, y, creation)
-        style_kw = {'fill': '#FFFF00', 'stroke_width': 0} | styling_kwargs
-        dot = Dot(cx=sx, cy=sy, r=6, creation=creation, z=z + 1, **style_kw)
-        dot.c.set_onward(creation,
-            lambda t, _x=x, _y=y: self.coords_to_point(_x, _y, t))
-        objs = [dot]
-        if label:
-            offsets = {'up': (0, -buff - 10), 'down': (0, buff + 15),
-                       'left': (-buff - 10, 5), 'right': (buff + 10, 5)}
-            dx, dy = offsets.get(direction, offsets['up'])
-            lbl = Text(text=label, x=sx + dx, y=sy + dy,
-                       font_size=20, text_anchor='middle',
-                       creation=creation, z=z + 2,
-                       fill=style_kw.get('fill', '#FFFF00'), stroke_width=0)
-            _dx, _dy = dx, dy
-            lbl.x.set_onward(creation,
-                lambda t, _x=x, _y=y, _dx=_dx: self.coords_to_point(_x, _y, t)[0] + _dx)
-            lbl.y.set_onward(creation,
-                lambda t, _x=x, _y=y, _dy=_dy: self.coords_to_point(_x, _y, t)[1] + _dy)
-            objs.append(lbl)
-        group = VCollection(*objs, creation=creation, z=z)
-        self._add_plot_obj(group)
-        return group
 
     def input_to_graph_point(self, x, func, time=0):
         """Convert a math x-value and function to SVG pixel coordinates: (x, f(x))."""

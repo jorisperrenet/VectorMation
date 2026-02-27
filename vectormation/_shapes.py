@@ -4236,23 +4236,6 @@ class Text(VObject):
         """Return the text content reversed (does not modify the object)."""
         return self.text.at_time(time)[::-1]
 
-    def underline_set_attr(self, start: float = 0, end: float = 1, color=None,
-                        stroke_width=2, offset_y=5):
-        """Create an animated underline under this text. Returns a Line object."""
-        bx, by, bw, bh = self.bbox(start)
-        line_y = by + bh + offset_y
-        line_color = color or self.styling.fill.at_time(start)
-        line = Line(x1=bx, y1=line_y, x2=bx, y2=line_y, creation=start,
-                    stroke=line_color, stroke_width=stroke_width)
-        dur = end - start
-        if dur > 0:
-            s, x1, x2 = start, bx, bx + bw
-            line.p2.set(s, end,
-                lambda t, _s=s, _d=dur, _x1=x1, _x2=x2, _y=line_y: (
-                    _x1 + (_x2 - _x1) * easings.smooth((t - _s) / _d), _y),
-                stay=True)
-        return line
-
     def split_words(self, time=0):
         """Split text into a VCollection of individual word Text objects.
         Words are positioned horizontally at approximate character offsets."""

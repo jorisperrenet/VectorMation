@@ -2818,12 +2818,6 @@ class VObject(ABC):  # Vector Object
             c.shift(dx=offset_x, dy=offset_y)
         return c
 
-    def get_angle_to(self, other, time=0):
-        """Return the angle (in degrees) from this object's center to another's."""
-        cx1, cy1 = self.get_center(time)
-        cx2, cy2 = _coords_of(other, time)
-        return math.degrees(math.atan2(cy2 - cy1, cx2 - cx1))
-
     def align_to(self, other, edge: str | tuple = 'left', start: float = 0, end: float | None = None, easing=None):
         """Align an edge of this object with the same edge of another.
         edge: 'left', 'right', 'top', 'bottom' or a direction constant (UP, DOWN, LEFT, RIGHT).
