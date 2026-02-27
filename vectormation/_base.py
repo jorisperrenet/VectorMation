@@ -68,6 +68,15 @@ def _norm_edge(edge, default='bottom'):
     return _EDGE_NAMES.get(edge, default) if isinstance(edge, tuple) else edge
 
 
+def _coords_of(obj, time=0):
+    """Extract (x, y) from an object's center or a raw (x, y) tuple."""
+    if hasattr(obj, 'center'):
+        return obj.center(time)
+    if hasattr(obj, 'get_center'):
+        return obj.get_center(time)
+    return obj
+
+
 def _path_prefix(path, t):
     """Return the first t-fraction (0-1) of a morphing.Path by arc length."""
     length_to_keep = t * path.length()
@@ -1475,10 +1484,7 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        if hasattr(source, 'get_center'):
-            src_x, src_y = source.get_center(start)
-        else:
-            src_x, src_y = source
+        src_x, src_y = _coords_of(source, start)
         tgt_x, tgt_y = self.get_center(start)
         off_x, off_y = src_x - tgt_x, src_y - tgt_y
         s, d = start, max(dur, 1e-9)
@@ -2662,10 +2668,7 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        if hasattr(target, 'get_center'):
-            tx, ty = target.get_center(start)
-        else:
-            tx, ty = target
+        tx, ty = _coords_of(target, start)
         cx, cy = self.get_center(start)
         ddx, ddy = tx - cx, ty - cy
         _d = max(dur, 1e-9)
@@ -2823,7 +2826,7 @@ class VObject(ABC):  # Vector Object
     def get_angle_to(self, other, time=0):
         """Return the angle (in degrees) from this object's center to another's."""
         cx1, cy1 = self.get_center(time)
-        cx2, cy2 = other.get_center(time) if hasattr(other, 'get_center') else other
+        cx2, cy2 = _coords_of(other, time)
         return math.degrees(math.atan2(cy2 - cy1, cx2 - cx1))
 
     def align_to(self, other, edge: str | tuple = 'left', start: float = 0, end: float | None = None, easing=None):
@@ -3186,7 +3189,7 @@ class VObject(ABC):  # Vector Object
 
     def match_position(self, other, time: float = 0):
         """Move this object so its center matches *other*'s center at *time*."""
-        ox, oy = other.center(time) if hasattr(other, 'center') else other
+        ox, oy = _coords_of(other, time)
         return self.move_to(ox, oy, start=time)
 
     def point_from_proportion(self, t, time=0):
@@ -4672,10 +4675,7 @@ class VObject(ABC):  # Vector Object
             Easing function for the animation.
         """
         cx, cy = self.get_center(start)
-        if hasattr(other, 'get_center'):
-            tx, ty = other.get_center(start)
-        else:
-            tx, ty = other
+        tx, ty = _coords_of(other, start)
         nx = cx + fraction * (tx - cx)
         ny = cy + fraction * (ty - cy)
         return self.center_to_pos(posx=nx, posy=ny, start=start,
@@ -4746,14 +4746,8 @@ class VObject(ABC):  # Vector Object
 
         Returns self.
         """
-        if hasattr(obj_a, 'get_center'):
-            ax, ay = obj_a.get_center(start)
-        else:
-            ax, ay = obj_a
-        if hasattr(obj_b, 'get_center'):
-            bx, by = obj_b.get_center(start)
-        else:
-            bx, by = obj_b
+        ax, ay = _coords_of(obj_a, start)
+        bx, by = _coords_of(obj_b, start)
         tx = (1 - fraction) * ax + fraction * bx
         ty = (1 - fraction) * ay + fraction * by
         return self.center_to_pos(posx=tx, posy=ty, start=start,
