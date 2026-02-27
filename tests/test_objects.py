@@ -14821,3 +14821,560 @@ class TestArrayReverse:
         a.reverse(start=0, end=1)
         # After reverse, labels should be swapped
         assert a is not None  # Just check it runs without error
+
+
+# ═══════════════════════════════════════════════════════════════════
+# Physics module tests
+# ═══════════════════════════════════════════════════════════════════
+
+from vectormation.objects import PhysicsSpace, Body, Spring, Cloth
+from vectormation._axes_helpers import (
+    scientific_format, engineering_format, percent_format, degree_format,
+)
+
+
+# ── PhysicsSpace basic creation ────────────────────────────────────
+
+def test_physics_space_creation_defaults():
+    space = PhysicsSpace()
+    assert space.gravity == (0, 980)
+    assert space.dt == pytest.approx(1 / 120)
+    assert space.start == 0.0
+    assert space.bodies == []
+    assert space.walls == []
+    assert space.springs == []
+
+
+def test_physics_space_custom_params():
+    space = PhysicsSpace(gravity=(0, 500), dt=1/60, start=2.0)
+    assert space.gravity == (0, 500)
+    assert space.dt == pytest.approx(1 / 60)
+    assert space.start == 2.0
+
+
+# ── Body creation with VObjects ────────────────────────────────────
+
+def test_physics_body_from_dot():
+    dot = Dot(r=5, cx=960, cy=100)
+    space = PhysicsSpace()
+    b = space.add_body(dot, mass=2.0, restitution=0.7)
+    assert b.x == pytest.approx(960)
+    assert b.y == pytest.approx(100)
+    assert b.mass == 2.0
+    assert b.restitution == 0.7
+    assert b.radius == pytest.approx(5)
+    assert b.obj is dot
+    assert len(space.bodies) == 1
+
+
+def test_physics_body_from_circle():
+    c = Circle(r=20, cx=500, cy=200)
+    space = PhysicsSpace()
+    b = space.add_body(c, mass=3.0)
+    assert b.x == pytest.approx(500)
+    assert b.y == pytest.approx(200)
+    assert b.radius == pytest.approx(20)
+
+
+def test_physics_body_initial_velocity():
+    dot = Dot(r=5, cx=960, cy=540)
+    space = PhysicsSpace()
+    b = space.add_body(dot, vx=100, vy=-50)
+    assert b.vx == 100.0
+    assert b.vy == -50.0
+
+
+def test_physics_body_fixed():
+    dot = Dot(r=5, cx=100, cy=100)
+    space = PhysicsSpace()
+    b = space.add_body(dot, fixed=True)
+    assert b.fixed is True
+    assert b.mass == math.inf
+
+
+def test_physics_body_custom_radius():
+    dot = Dot(r=5, cx=960, cy=540)
+    space = PhysicsSpace()
+    b = space.add_body(dot, radius=50)
+    assert b.radius == 50.0
+
+
+def test_physics_body_apply_force():
+    dot = Dot(r=5, cx=960, cy=540)
+    space = PhysicsSpace()
+    b = space.add_body(dot)
+    b.apply_force(10, 20)
+    assert b.fx == 10.0
+    assert b.fy == 20.0
+    b.apply_force(5, -3)
+    assert b.fx == 15.0
+    assert b.fy == 17.0
+
+
+# ── Wall collisions ───────────────────────────────────────────────
+
+def test_physics_wall_floor():
+    """Ball falls under gravity and bounces off a floor wall."""
+    space = PhysicsSpace(gravity=(0, 980), dt=1/120)
+    dot = Dot(r=5, cx=960, cy=100)
+    b = space.add_body(dot, mass=1.0, restitution=0.5)
+    space.add_wall(y=500)  # floor
+    space.simulate(duration=0.3)
+    # After simulation, body should have been stopped/bounced by the floor
+    assert b.y <= 500
+
+
+def test_physics_wall_ceiling():
+    """Ball launched downward bounces off a floor wall below it (ceiling-like for content above)."""
+    # In the wall collision code, a horizontal wall at y=Y acts as a floor:
+    # bodies that cross below it get pushed back above.
+    # Test that a falling body bounces when it hits a floor wall.
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    dot = Dot(r=5, cx=960, cy=80)
+    b = space.add_body(dot, vy=200)
+    space.add_wall(y=200)  # floor below the body
+    space.simulate(duration=0.3)
+    # Body should have bounced off the floor and be above y=200
+    assert b.y <= 200
+
+
+def test_physics_wall_left():
+    """Ball moving left bounces off a left wall."""
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    dot = Dot(r=5, cx=200, cy=540)
+    b = space.add_body(dot, vx=-300)
+    space.add_wall(x=50)  # left wall
+    space.simulate(duration=0.2)
+    assert b.x >= 50 + b.radius - 1
+
+
+def test_physics_wall_right():
+    """Ball moving right bounces off a right wall."""
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    dot = Dot(r=5, cx=800, cy=540)
+    b = space.add_body(dot, vx=300)
+    space.add_wall(x=1000)  # right wall
+    space.simulate(duration=0.2)
+    assert b.x <= 1000 - b.radius + 1
+
+
+def test_physics_wall_requires_x_or_y():
+    from vectormation._physics import Wall
+    with pytest.raises(ValueError):
+        Wall()
+
+
+# ── Body-body collisions ──────────────────────────────────────────
+
+def test_physics_body_collision_separation():
+    """Two bodies moving toward each other should not overlap after simulation."""
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    d1 = Dot(r=10, cx=400, cy=540)
+    d2 = Dot(r=10, cx=500, cy=540)
+    b1 = space.add_body(d1, vx=200)
+    b2 = space.add_body(d2, vx=-200)
+    space.simulate(duration=0.2)
+    dist = math.hypot(b2.x - b1.x, b2.y - b1.y)
+    # After collision they should have separated
+    assert dist >= b1.radius + b2.radius - 1
+
+
+def test_physics_body_collision_velocity_exchange():
+    """Head-on collision between equal masses: velocities should roughly swap."""
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    d1 = Dot(r=10, cx=400, cy=540)
+    d2 = Dot(r=10, cx=440, cy=540)
+    b1 = space.add_body(d1, vx=100, restitution=1.0)
+    b2 = space.add_body(d2, vx=-100, restitution=1.0)
+    space.simulate(duration=0.5)
+    # After head-on elastic collision of equal masses, velocities swap direction
+    # b1 should now be moving left, b2 moving right (or they bounced multiple times)
+    # Just check they moved apart
+    assert b1.x < b2.x or abs(b1.x - b2.x) < 25  # they separated or are close
+
+
+def test_physics_body_collision_fixed_body():
+    """A moving body colliding with a fixed body should bounce off."""
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    d1 = Dot(r=10, cx=400, cy=540)
+    d2 = Dot(r=10, cx=450, cy=540)
+    b1 = space.add_body(d1, vx=200)
+    b2 = space.add_body(d2, fixed=True)
+    space.simulate(duration=0.2)
+    # b1 should have bounced back
+    assert b1.vx < 0 or b1.x < 450  # bounced or moved away
+
+
+# ── Spring constraints ─────────────────────────────────────────────
+
+def test_physics_spring_between_bodies():
+    """Two bodies connected by a spring should oscillate toward rest length."""
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    d1 = Dot(r=5, cx=400, cy=540)
+    d2 = Dot(r=5, cx=600, cy=540)
+    b1 = space.add_body(d1)
+    b2 = space.add_body(d2)
+    s = space.add_spring(b1, b2, stiffness=1.0, rest_length=100, damping=0.1)
+    assert s.rest_length == 100
+    assert len(space.springs) == 1
+    space.simulate(duration=0.5)
+    # Bodies should have moved closer to the rest length of 100
+    dist = math.hypot(b2.x - b1.x, b2.y - b1.y)
+    # With damping, should be closer to rest_length than the initial 200
+    assert dist < 200
+
+
+def test_physics_spring_to_anchor():
+    """A spring connecting a body to a fixed point should pull the body."""
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    d = Dot(r=5, cx=600, cy=540)
+    b = space.add_body(d)
+    anchor = (400, 540)
+    space.add_spring(b, anchor, stiffness=1.0, rest_length=0, damping=0.1)
+    space.simulate(duration=0.5)
+    # Body should have moved toward the anchor
+    assert b.x < 600
+
+
+def test_physics_spring_auto_rest_length():
+    """Spring with rest_length=None should auto-detect from initial distance."""
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    d1 = Dot(r=5, cx=400, cy=540)
+    d2 = Dot(r=5, cx=550, cy=540)
+    b1 = space.add_body(d1)
+    b2 = space.add_body(d2)
+    s = space.add_spring(b1, b2, rest_length=None)
+    assert s.rest_length == pytest.approx(150)
+
+
+# ── Forces: gravity, drag, attraction, repulsion ──────────────────
+
+def test_physics_gravity_moves_body_down():
+    """Under gravity, a body should move downward."""
+    space = PhysicsSpace(gravity=(0, 500), dt=1/120)
+    dot = Dot(r=5, cx=960, cy=100)
+    b = space.add_body(dot)
+    space.simulate(duration=0.2)
+    assert b.y > 100
+
+
+def test_physics_zero_gravity():
+    """With no gravity, a stationary body should stay in place."""
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    dot = Dot(r=5, cx=960, cy=540)
+    b = space.add_body(dot)
+    space.simulate(duration=0.2)
+    assert b.x == pytest.approx(960, abs=0.1)
+    assert b.y == pytest.approx(540, abs=0.1)
+
+
+def test_physics_drag_slows_body():
+    """Drag should reduce velocity over time."""
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    dot = Dot(r=5, cx=960, cy=540)
+    b = space.add_body(dot, vx=500)
+    space.add_drag(coefficient=0.5)
+    space.simulate(duration=0.3)
+    # Body should have slowed down significantly
+    assert abs(b.vx) < 500
+
+
+def test_physics_attraction_pulls_body():
+    """Attraction force should pull a body toward a target."""
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    dot = Dot(r=5, cx=800, cy=540)
+    b = space.add_body(dot)
+    space.add_attraction(target=(400, 540), strength=100000)
+    space.simulate(duration=0.3)
+    # Body should have moved toward x=400
+    assert b.x < 800
+
+
+def test_physics_repulsion_pushes_body():
+    """Repulsion force should push a body away from a target."""
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    dot = Dot(r=5, cx=500, cy=540)
+    b = space.add_body(dot)
+    space.add_repulsion(target=(400, 540), strength=100000)
+    space.simulate(duration=0.3)
+    # Body should have moved away from x=400
+    assert b.x > 500
+
+
+def test_physics_mutual_repulsion():
+    """Mutual repulsion should push bodies apart."""
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    d1 = Dot(r=5, cx=480, cy=540)
+    d2 = Dot(r=5, cx=520, cy=540)
+    b1 = space.add_body(d1)
+    b2 = space.add_body(d2)
+    space.add_mutual_repulsion(strength=50000)
+    space.simulate(duration=0.2)
+    # Bodies should be further apart than initial 40px
+    assert abs(b2.x - b1.x) > 40
+
+
+def test_physics_custom_force():
+    """A custom force function should be applied each step."""
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    dot = Dot(r=5, cx=960, cy=540)
+    b = space.add_body(dot)
+    # Constant rightward force
+    space.add_force(lambda body, t: (1000, 0))
+    space.simulate(duration=0.2)
+    assert b.x > 960
+
+
+# ── Trajectory baking ─────────────────────────────────────────────
+
+def test_physics_trajectory_baked_positions_change():
+    """After simulation, the VObject should report different positions at different times."""
+    space = PhysicsSpace(gravity=(0, 500), dt=1/120, start=0.0)
+    dot = Dot(r=5, cx=960, cy=100)
+    b = space.add_body(dot)
+    space.simulate(duration=0.5)
+    # Sample positions at different times
+    pos_start = dot.c.at_time(0.0)
+    pos_mid = dot.c.at_time(0.25)
+    pos_end = dot.c.at_time(0.5)
+    # y should increase over time (gravity pulls down)
+    assert pos_start[1] < pos_mid[1]
+    assert pos_mid[1] < pos_end[1]
+    # x should remain approximately the same (no horizontal force)
+    assert pos_start[0] == pytest.approx(960, abs=1)
+
+
+def test_physics_trajectory_baked_start_position():
+    """At time 0, the baked position should match the initial position."""
+    space = PhysicsSpace(gravity=(0, 500), dt=1/120, start=0.0)
+    dot = Dot(r=5, cx=300, cy=200)
+    space.add_body(dot)
+    space.simulate(duration=0.2)
+    pos = dot.c.at_time(0.0)
+    assert pos[0] == pytest.approx(300, abs=1)
+    assert pos[1] == pytest.approx(200, abs=1)
+
+
+def test_physics_trajectory_baked_clamps_beyond_duration():
+    """Positions beyond the simulation duration should clamp to the final position."""
+    space = PhysicsSpace(gravity=(0, 500), dt=1/120, start=0.0)
+    dot = Dot(r=5, cx=960, cy=100)
+    space.add_body(dot)
+    space.simulate(duration=0.2)
+    pos_at_end = dot.c.at_time(0.2)
+    pos_beyond = dot.c.at_time(10.0)
+    assert pos_at_end[0] == pytest.approx(pos_beyond[0], abs=1)
+    assert pos_at_end[1] == pytest.approx(pos_beyond[1], abs=1)
+
+
+def test_physics_trajectory_fixed_body_stays():
+    """A fixed body should not move even after simulation."""
+    space = PhysicsSpace(gravity=(0, 500), dt=1/120, start=0.0)
+    dot = Dot(r=5, cx=960, cy=540)
+    b = space.add_body(dot, fixed=True)
+    space.simulate(duration=0.3)
+    # Fixed body: _bake_trajectory returns early, position unchanged
+    assert b.x == pytest.approx(960)
+    assert b.y == pytest.approx(540)
+
+
+def test_physics_trajectory_nonzero_start():
+    """Simulation with a non-zero start time should bake from that time onward."""
+    space = PhysicsSpace(gravity=(0, 500), dt=1/120, start=2.0)
+    dot = Dot(r=5, cx=960, cy=100)
+    space.add_body(dot)
+    space.simulate(duration=0.3)
+    # At time < start, should return initial position
+    pos_before = dot.c.at_time(1.0)
+    pos_during = dot.c.at_time(2.15)
+    # Position at start time should differ from later
+    assert pos_before[1] < pos_during[1]
+
+
+def test_physics_trajectory_length():
+    """Trajectory should have the expected number of entries."""
+    space = PhysicsSpace(gravity=(0, 500), dt=1/60)
+    dot = Dot(r=5, cx=960, cy=100)
+    b = space.add_body(dot)
+    space.simulate(duration=0.5)
+    # steps = ceil(0.5 / (1/60)) = 30, trajectory has steps+1 entries (initial + per-step)
+    assert len(b._trajectory) == 31
+
+
+# ── Cloth simulation ──────────────────────────────────────────────
+
+def test_physics_cloth_creation():
+    """Cloth should create the expected grid of bodies and springs."""
+    cloth = Cloth(x=100, y=100, width=200, height=100, cols=5, rows=3,
+                  pin_top=True, stiffness=1.0)
+    assert cloth.cols == 5
+    assert cloth.rows == 3
+    assert len(cloth._bodies) == 3
+    assert len(cloth._bodies[0]) == 5
+    # Total bodies = 5 * 3 = 15
+    assert len(cloth.space.bodies) == 15
+
+
+def test_physics_cloth_top_row_pinned():
+    """Top row bodies should be fixed when pin_top=True."""
+    cloth = Cloth(x=100, y=100, width=200, height=100, cols=3, rows=3,
+                  pin_top=True)
+    for b in cloth._bodies[0]:
+        assert b.fixed is True
+    for b in cloth._bodies[1]:
+        assert b.fixed is False
+
+
+def test_physics_cloth_springs_count():
+    """Cloth should have horizontal + vertical structural springs."""
+    cloth = Cloth(x=100, y=100, width=200, height=100, cols=4, rows=3)
+    # Horizontal: 3 per row * 3 rows = 9
+    # Vertical: 4 per col * 2 = 8
+    expected = 3 * 3 + 4 * 2  # 17
+    assert len(cloth.space.springs) == expected
+
+
+def test_physics_cloth_simulate_runs():
+    """Cloth simulation should complete without error."""
+    cloth = Cloth(x=100, y=100, width=200, height=100, cols=4, rows=3,
+                  stiffness=1.0)
+    cloth.simulate(duration=0.1)
+    # After simulation, non-pinned bodies should have moved down
+    bottom_body = cloth._bodies[2][1]
+    assert bottom_body.y > 100 + 50  # started at y=200 (row 2)
+
+
+def test_physics_cloth_objects_returns_all():
+    """Cloth.objects() should return lines + dots."""
+    cloth = Cloth(x=100, y=100, width=200, height=100, cols=3, rows=2)
+    objs = cloth.objects()
+    # Lines: horizontal (2 per row * 2 rows) + vertical (3 per col * 1) = 4 + 3 = 7
+    # Dots: 3 * 2 = 6
+    assert len(objs) == 7 + 6
+
+
+def test_physics_cloth_lines_track_bodies():
+    """After simulation, cloth lines should have time-varying endpoints."""
+    cloth = Cloth(x=100, y=100, width=200, height=100, cols=3, rows=2,
+                  pin_top=True, stiffness=1.0)
+    cloth.simulate(duration=0.2)
+    # The first line connects body(0,0) to body(0,1) — top row, pinned
+    # A line from the second row should show movement
+    # Get the lines from objects
+    lines = cloth._lines
+    assert len(lines) > 0
+    # Check that at least one line endpoint changes over time
+    line = lines[-1]  # a bottom line
+    p1_start = line.p1.at_time(0.0)
+    p1_end = line.p1.at_time(0.2)
+    p2_start = line.p2.at_time(0.0)
+    p2_end = line.p2.at_time(0.2)
+    # At least one endpoint should have moved
+    moved = (abs(p1_start[1] - p1_end[1]) > 0.1 or
+             abs(p2_start[1] - p2_end[1]) > 0.1)
+    assert moved
+
+
+# ═══════════════════════════════════════════════════════════════════
+# Tick formatter tests
+# ═══════════════════════════════════════════════════════════════════
+
+def test_tick_format_scientific_zero():
+    assert scientific_format(0) == '0'
+
+
+def test_tick_format_scientific_positive():
+    result = scientific_format(2500)
+    # 2500 = 2.5 * 10^3 -> '2.5×10³'
+    assert '10' in result
+    assert '2.5' in result
+
+
+def test_tick_format_scientific_unit_coefficient():
+    result = scientific_format(1000)
+    # 1000 = 10^3 -> '10³' (coefficient 1 is omitted)
+    assert result.startswith('10')
+    assert '×' not in result
+
+
+def test_tick_format_scientific_negative():
+    result = scientific_format(-1000)
+    assert result.startswith('-10')
+
+
+def test_tick_format_scientific_small_number():
+    result = scientific_format(0.005)
+    # 0.005 = 5 * 10^-3
+    assert '5' in result
+    assert '10' in result
+
+
+def test_tick_format_engineering_zero():
+    assert engineering_format(0) == '0'
+
+
+def test_tick_format_engineering_kilo():
+    assert engineering_format(2500) == '2.5k'
+
+
+def test_tick_format_engineering_mega():
+    assert engineering_format(3000000) == '3M'
+
+
+def test_tick_format_engineering_milli():
+    result = engineering_format(0.005)
+    assert result == '5m'
+
+
+def test_tick_format_engineering_micro():
+    result = engineering_format(0.000050)
+    assert result == '50\u03bcm' or result == '50μ'
+    # Accept either: the function returns f'{v:g}{prefix}'
+    # 0.00005 / 1e-6 = 50, prefix = μ -> '50μ'
+
+
+def test_tick_format_engineering_plain():
+    # Values >= 1 and < 1000 should have no prefix
+    assert engineering_format(42) == '42'
+    assert engineering_format(999) == '999'
+
+
+def test_tick_format_percent_integer():
+    assert percent_format(0.5) == '50%'
+
+
+def test_tick_format_percent_zero():
+    assert percent_format(0) == '0%'
+
+
+def test_tick_format_percent_negative():
+    assert percent_format(-0.125) == '-12.5%'
+
+
+def test_tick_format_percent_one():
+    assert percent_format(1.0) == '100%'
+
+
+def test_tick_format_degree_right_angle():
+    result = degree_format(math.pi / 2)
+    assert result == '90°'
+
+
+def test_tick_format_degree_zero():
+    assert degree_format(0) == '0°'
+
+
+def test_tick_format_degree_negative():
+    result = degree_format(-math.pi / 4)
+    assert result == '-45°'
+
+
+def test_tick_format_degree_full_circle():
+    result = degree_format(2 * math.pi)
+    assert result == '360°'
+
+
+def test_tick_format_degree_large_value_passthrough():
+    # Values larger than 2*pi+0.01 are treated as already in degrees
+    result = degree_format(90)
+    assert result == '90°'

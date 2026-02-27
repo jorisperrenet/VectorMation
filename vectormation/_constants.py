@@ -139,7 +139,7 @@ def _sample_function(func, x_min, x_max, y_range, num_points, px, py, pw, ph,
     return y_min, y_max, segments, clamped
 
 
-def _label_text(text, x, y, font_size, creation=0, z=0, **overrides):
+def _label_text(text, x, y, font_size, creation: float = 0, z: float = 0, **overrides):
     """Create a centered white text label (common pattern in composites)."""
     from vectormation._shapes import Text  # lazy to avoid circular import
     kw = {'fill': '#fff', 'stroke_width': 0} | overrides

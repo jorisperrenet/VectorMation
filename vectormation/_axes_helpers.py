@@ -120,6 +120,56 @@ def pi_ticks(vmin, vmax, step=None):
     return ticks
 
 
+def scientific_format(val):
+    """Format a numeric value in scientific notation (e.g. '2.5×10³')."""
+    if val == 0:
+        return '0'
+    exp = math.floor(math.log10(abs(val)))
+    coeff = val / (10 ** exp)
+    if abs(coeff - round(coeff)) < 1e-9:
+        coeff = round(coeff)
+    superscripts = str.maketrans('0123456789-', '⁰¹²³⁴⁵⁶⁷⁸⁹⁻')
+    exp_str = str(exp).translate(superscripts)
+    if coeff == 1:
+        return f'10{exp_str}'
+    if coeff == -1:
+        return f'-10{exp_str}'
+    return f'{coeff:g}×10{exp_str}'
+
+
+def engineering_format(val):
+    """Format using SI prefixes (e.g. '2.5k', '300μ')."""
+    if val == 0:
+        return '0'
+    _SI = [
+        (1e-15, 'f'), (1e-12, 'p'), (1e-9, 'n'), (1e-6, 'μ'),
+        (1e-3, 'm'), (1, ''), (1e3, 'k'), (1e6, 'M'),
+        (1e9, 'G'), (1e12, 'T'), (1e15, 'P'),
+    ]
+    av = abs(val)
+    for scale, prefix in reversed(_SI):
+        if av >= scale * 0.9999:
+            v = val / scale
+            return f'{v:g}{prefix}'
+    return f'{val:g}'
+
+
+def percent_format(val):
+    """Format as percentage (e.g. '50%', '-12.5%')."""
+    pct = val * 100
+    if abs(pct - round(pct)) < 0.01:
+        return f'{round(pct)}%'
+    return f'{pct:g}%'
+
+
+def degree_format(val):
+    """Format as degrees (e.g. '90°', '-45°')."""
+    deg = math.degrees(val) if abs(val) < 2 * math.pi + 0.01 else val
+    if abs(deg - round(deg)) < 0.01:
+        return f'{round(deg)}°'
+    return f'{deg:g}°'
+
+
 def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_width, plot_height,
                             show_grid, time, x_scale='linear', y_scale='linear', tick_format=None,
                             x_tick_format=None, y_tick_format=None,

@@ -52,7 +52,10 @@ Triangle = EquilateralTriangle
 from vectormation._arrows import Arrow, DoubleArrow, CurvedArrow, Brace, Vector
 
 from vectormation._axes import Axes, Graph, NumberPlane, ComplexPlane
-from vectormation._axes_helpers import pi_format, pi_ticks
+from vectormation._axes_helpers import (
+    pi_format, pi_ticks,
+    scientific_format, engineering_format, percent_format, degree_format,
+)
 
 from vectormation._composites import (
     MorphObject, LabeledDot, TexObject, SplitTexObject,
@@ -126,3 +129,5 @@ from vectormation._threed import (
     Cylinder3D, Cone3D, Torus3D, Prism3D,
     Tetrahedron, Octahedron, Icosahedron, Dodecahedron,
 )
+
+from vectormation._physics import PhysicsSpace, Body, Spring, Cloth

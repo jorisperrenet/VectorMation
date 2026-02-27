@@ -8,7 +8,7 @@ from vectormation._base import VCollection
 from vectormation._shapes import Circle, Rectangle, Line, Text
 
 def _make_cell(x, y, w, h, val, font_size, fill, border_color, text_color,
-               creation=0, z=0):
+               creation: float = 0, z: float = 0):
     """Create a rectangle cell + centered label text pair."""
     cell = Rectangle(width=w, height=h, x=x, y=y,
                      fill=fill, stroke=border_color, stroke_width=2,
@@ -24,18 +24,34 @@ def _flash_fill(obj, color, start, end, default='#264653'):
     obj.set_fill(color=color, start=start)
     obj.set_fill(color=orig_hex, start=end)
 
+def _shift_pair(cell, lbl, **kwargs):
+    """Shift a cell+label pair with identical parameters."""
+    cell.shift(**kwargs)
+    lbl.shift(**kwargs)
+
+def _fadeout_pair(cell, lbl, start, end, change_existence=False):
+    """Fade out a cell+label pair."""
+    cell.fadeout(start=start, end=end, change_existence=change_existence)
+    lbl.fadeout(start=start, end=end, change_existence=change_existence)
+
+def _make_viz_cell(x, y, w, h, val, font_size, fill, creation: float = 0, z: float = 0):
+    """Create a Rectangle + Text pair for Viz-style classes (white stroke, centered text)."""
+    cell = Rectangle(w, h, x=x, y=y, fill=fill, fill_opacity=0.9,
+                     stroke='#fff', stroke_width=2, creation=creation, z=z)
+    lbl = Text(text=str(val), x=x + w / 2, y=y + h * 0.65,
+               font_size=font_size, fill='#fff', stroke_width=0,
+               text_anchor='middle', creation=creation, z=z + 0.1)
+    return cell, lbl
+
 class Array(VCollection):
     """Visual array data structure with cells, indices, and animation methods."""
     def __init__(self, values, x=360, y=440, cell_width=80, cell_height=60,
                  font_size=24, index_font_size=16,
                  fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
                  show_indices=True, creation: float = 0, z: float = 0):
-        self._cell_width = cell_width
-        self._cell_height = cell_height
+        self._cell_width, self._cell_height = cell_width, cell_height
         self._x, self._y = x, y
-        self._cells = []
-        self._labels = []
-        objects = []
+        self._cells, self._labels, objects = [], [], []
         for i, val in enumerate(values):
             cx = x + i * cell_width
             cell, lbl = _make_cell(cx, y, cell_width, cell_height, val, font_size,
@@ -44,13 +60,12 @@ class Array(VCollection):
             self._labels.append(lbl)
             objects.extend([cell, lbl])
             if show_indices:
-                idx = _label_text(str(i), cx + cell_width / 2, y + cell_height + index_font_size + 4,
-                                  index_font_size, creation=creation, z=z + 0.1, fill='#888')
-                objects.append(idx)
+                objects.append(_label_text(str(i), cx + cell_width / 2,
+                               y + cell_height + index_font_size + 4,
+                               index_font_size, creation=creation, z=z + 0.1, fill='#888'))
         super().__init__(*objects, creation=creation, z=z)
 
-    def __repr__(self):
-        return f'Array({len(self._cells)} cells)'
+    def __repr__(self): return f'Array({len(self._cells)} cells)'
 
     def _check_index(self, index):
         n = len(self._cells)
@@ -63,10 +78,9 @@ class Array(VCollection):
         self._cells[index].flash(start, end, color=color, easing=easing)
         return self
 
-    def swap_cells(self, i, j, start=0, end=1, easing=easings.smooth):
+    def swap_cells(self, i, j, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate swapping the values at indices i and j."""
-        self._check_index(i)
-        self._check_index(j)
+        self._check_index(i); self._check_index(j)
         li, lj = self._labels[i], self._labels[j]
         dx = lj.center(start)[0] - li.center(start)[0]
         li.shift(dx=dx, start=start, end=end, easing=easing)
@@ -83,83 +97,62 @@ class Array(VCollection):
     def sort(self, start=0, end=2, easing=easings.smooth, delay=0.15):
         """Animate a bubble sort, staggering swaps over [start, end]."""
         n = len(self._labels)
-        # Pre-compute the swap sequence (bubble sort)
-        swaps = []
-        values = [self._labels[i].text.at_time(start) for i in range(n)]
+        swaps, values = [], [self._labels[i].text.at_time(start) for i in range(n)]
         for _ in range(n):
             for j in range(n - 1):
                 if str(values[j]) > str(values[j + 1]):
                     values[j], values[j + 1] = values[j + 1], values[j]
                     swaps.append((j, j + 1))
-        # Animate the swaps with staggered timing
         t = start
         for i_idx, j_idx in swaps:
-            swap_end = min(t + delay, end)
-            self.swap_cells(i_idx, j_idx, start=t, end=swap_end, easing=easing)
+            self.swap_cells(i_idx, j_idx, start=t, end=min(t + delay, end), easing=easing)
             t += delay
         return self
 
     def reverse(self, start=0, end=2, easing=easings.smooth, delay=0.15):
         """Animate reversing the array by swapping from outside in."""
-        n = len(self._labels)
-        t = start
+        n, t = len(self._labels), start
         for i in range(n // 2):
-            j = n - 1 - i
-            swap_end = min(t + delay, end)
-            self.swap_cells(i, j, start=t, end=swap_end, easing=easing)
+            self.swap_cells(i, n - 1 - i, start=t, end=min(t + delay, end), easing=easing)
             t += delay
         return self
 
     def add_pointer(self, index, label='', color='#FF6B6B', creation=0, z=1):
         """Add a pointer arrow above a cell."""
         Arrow = _get_arrow()
-        if 0 <= index < len(self._cells):
-            cx = self._x + index * self._cell_width + self._cell_width / 2
-            arrow = Arrow(x1=cx, y1=self._y - 50, x2=cx, y2=self._y - 8,
-                          creation=creation, z=z, stroke=color, fill=color)
-            self.objects.append(arrow)
-            if label:
-                lbl = _label_text(label, cx, self._y - 58, 16,
-                                  creation=creation, z=z, fill=color)
-                self.objects.append(lbl)
-            return arrow
-        return None
+        if not (0 <= index < len(self._cells)):
+            return None
+        cx = self._x + index * self._cell_width + self._cell_width / 2
+        arrow = Arrow(x1=cx, y1=self._y - 50, x2=cx, y2=self._y - 8,
+                      creation=creation, z=z, stroke=color, fill=color)
+        self.objects.append(arrow)
+        if label:
+            self.objects.append(_label_text(label, cx, self._y - 58, 16,
+                                            creation=creation, z=z, fill=color))
+        return arrow
 
 class Stack(VCollection):
     """Visual stack data structure (LIFO) with push/pop animations."""
     def __init__(self, values=None, x=860, y=600, cell_width=100, cell_height=50,
                  font_size=22, fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
                  creation: float = 0, z: float = 0):
-        self._cell_width = cell_width
-        self._cell_height = cell_height
+        self._cell_width, self._cell_height = cell_width, cell_height
         self._x, self._y_base = x, y
-        self._font_size = font_size
-        self._fill = fill
-        self._text_color = text_color
-        self._border_color = border_color
-        self._items = []
-        objects = []
+        self._font_size, self._fill = font_size, fill
+        self._text_color, self._border_color = text_color, border_color
+        self._items, objects = [], []
         if values:
             for i, val in enumerate(values):
-                cy = y - i * cell_height
-                cell, lbl = _make_cell(x, cy, cell_width, cell_height, val, font_size,
-                                       fill, border_color, text_color, creation, z)
+                cell, lbl = _make_cell(x, y - i * cell_height, cell_width, cell_height,
+                                       val, font_size, fill, border_color, text_color,
+                                       creation, z)
                 self._items.append((cell, lbl))
                 objects.extend([cell, lbl])
         super().__init__(*objects, creation=creation, z=z)
 
-    def __repr__(self):
-        return f'Stack({len(self._items)} items)'
-
-    def peek(self):
-        """Return the top value without popping, or None if empty."""
-        if not self._items:
-            return None
-        return self._items[-1][1].text.at_time(0)
-
-    def is_empty(self):
-        """Return True if the stack has no items."""
-        return len(self._items) == 0
+    def __repr__(self): return f'Stack({len(self._items)} items)'
+    def peek(self): return self._items[-1][1].text.at_time(0) if self._items else None
+    def is_empty(self): return len(self._items) == 0
 
     def push(self, value, start=0, end=0.5):
         """Animate pushing a value onto the stack."""
@@ -169,9 +162,8 @@ class Stack(VCollection):
         cell, lbl = _make_cell(self._x, start_y, self._cell_width, self._cell_height,
                                value, self._font_size, self._fill, self._border_color,
                                self._text_color, start, 0)
-        dy = slot_y - start_y
-        cell.shift(dy=dy, start=start, end=end, easing=easings.ease_out_back)
-        lbl.shift(dy=dy, start=start, end=end, easing=easings.ease_out_back)
+        _shift_pair(cell, lbl, dy=slot_y - start_y, start=start, end=end,
+                    easing=easings.ease_out_back)
         self._items.append((cell, lbl))
         self.objects.extend([cell, lbl])
         return self
@@ -181,8 +173,7 @@ class Stack(VCollection):
         if not self._items:
             return self
         cell, lbl = self._items.pop()
-        cell.fadeout(start=start, end=end, change_existence=True)
-        lbl.fadeout(start=start, end=end, change_existence=True)
+        _fadeout_pair(cell, lbl, start, end, change_existence=True)
         return self
 
 class Queue(VCollection):
@@ -190,49 +181,33 @@ class Queue(VCollection):
     def __init__(self, values=None, x=360, y=440, cell_width=80, cell_height=60,
                  font_size=22, fill='#1e1e2e', text_color='#fff', border_color='#83C167',
                  creation: float = 0, z: float = 0):
-        self._cell_width = cell_width
-        self._cell_height = cell_height
+        self._cell_width, self._cell_height = cell_width, cell_height
         self._x, self._y = x, y
-        self._font_size = font_size
-        self._fill = fill
-        self._text_color = text_color
-        self._border_color = border_color
-        self._items = []
-        objects = []
+        self._font_size, self._fill = font_size, fill
+        self._text_color, self._border_color = text_color, border_color
+        self._items, objects = [], []
         if values:
             for i, val in enumerate(values):
-                cx = x + i * cell_width
-                cell, lbl = _make_cell(cx, y, cell_width, cell_height, val, font_size,
-                                       fill, border_color, text_color, creation, z)
+                cell, lbl = _make_cell(x + i * cell_width, y, cell_width, cell_height,
+                                       val, font_size, fill, border_color, text_color,
+                                       creation, z)
                 self._items.append((cell, lbl))
                 objects.extend([cell, lbl])
         super().__init__(*objects, creation=creation, z=z)
 
-    def __repr__(self):
-        return f'Queue({len(self._items)} items)'
-
-    def peek(self):
-        """Return the front value without dequeuing, or None if empty."""
-        if not self._items:
-            return None
-        return self._items[0][1].text.at_time(0)
-
-    def is_empty(self):
-        """Return True if the queue has no items."""
-        return len(self._items) == 0
+    def __repr__(self): return f'Queue({len(self._items)} items)'
+    def peek(self): return self._items[0][1].text.at_time(0) if self._items else None
+    def is_empty(self): return len(self._items) == 0
 
     def enqueue(self, value, start=0, end=0.5):
         """Animate adding a value to the back of the queue."""
         n = len(self._items)
-        target_cx = self._x + n * self._cell_width
-        start_cx = target_cx + self._cell_width
+        start_cx = self._x + (n + 1) * self._cell_width
         cell, lbl = _make_cell(start_cx, self._y, self._cell_width, self._cell_height,
                                value, self._font_size, self._fill, self._border_color,
                                self._text_color, start, 0)
-        cell.shift(dx=-self._cell_width, start=start, end=end,
-                   easing=easings.ease_out_back)
-        lbl.shift(dx=-self._cell_width, start=start, end=end,
-                  easing=easings.ease_out_back)
+        _shift_pair(cell, lbl, dx=-self._cell_width, start=start, end=end,
+                    easing=easings.ease_out_back)
         self._items.append((cell, lbl))
         self.objects.extend([cell, lbl])
         return self
@@ -242,11 +217,10 @@ class Queue(VCollection):
         if not self._items:
             return self
         cell, lbl = self._items.pop(0)
-        cell.fadeout(start=start, end=end, change_existence=True)
-        lbl.fadeout(start=start, end=end, change_existence=True)
+        _fadeout_pair(cell, lbl, start, end, change_existence=True)
         for c, l in self._items:
-            c.shift(dx=-self._cell_width, start=start, end=end, easing=easings.smooth)
-            l.shift(dx=-self._cell_width, start=start, end=end, easing=easings.smooth)
+            _shift_pair(c, l, dx=-self._cell_width, start=start, end=end,
+                        easing=easings.smooth)
         return self
 
 class LinkedList(VCollection):
@@ -256,13 +230,12 @@ class LinkedList(VCollection):
                  fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
                  arrow_color='#fff', creation: float = 0, z: float = 0):
         Arrow = _get_arrow()
-        self._nodes = []
+        self._nodes, objects = [], []
         self._x, self._y = x, y
         self._node_width, self._node_height = node_width, node_height
         self._gap, self._font_size = gap, font_size
         self._fill, self._text_color = fill, text_color
         self._border_color, self._arrow_color = border_color, arrow_color
-        objects = []
         step = node_width + gap
         for i, val in enumerate(values):
             nx = x + i * step
@@ -271,21 +244,17 @@ class LinkedList(VCollection):
             self._nodes.append((node, lbl))
             objects.extend([node, lbl])
             if i < len(values) - 1:
-                ax1 = nx + node_width
-                ax2 = nx + step
                 ay = y + node_height / 2
-                objects.append(Arrow(x1=ax1, y1=ay, x2=ax2, y2=ay,
+                objects.append(Arrow(x1=nx + node_width, y1=ay, x2=nx + step, y2=ay,
                                      creation=creation, z=z, stroke=arrow_color, fill=arrow_color))
         if values:
             nx = x + (len(values) - 1) * step + node_width + 10
-            ny = y + node_height / 2
-            objects.append(Text(text='null', x=nx, y=ny + font_size * TEXT_Y_OFFSET,
+            objects.append(Text(text='null', x=nx, y=y + node_height / 2 + font_size * TEXT_Y_OFFSET,
                                 font_size=font_size - 4, fill='#888', stroke_width=0,
                                 creation=creation, z=z))
         super().__init__(*objects, creation=creation, z=z)
 
-    def __repr__(self):
-        return f'LinkedList({len(self._nodes)} nodes)'
+    def __repr__(self): return f'LinkedList({len(self._nodes)} nodes)'
 
     def highlight_node(self, index, start=0, end=1, color='#FF6B6B',
                        easing=easings.there_and_back):
@@ -299,19 +268,15 @@ class LinkedList(VCollection):
         Arrow = _get_arrow()
         n = len(self._nodes)
         step = self._node_width + self._gap
-        nx = self._x + n * step
-        ay = self._y + self._node_height / 2
-        # Create the new node and label
+        nx, ay = self._x + n * step, self._y + self._node_height / 2
         node, lbl = _make_cell(nx, self._y, self._node_width, self._node_height,
                                value, self._font_size, self._fill, self._border_color,
                                self._text_color, start, 0)
-        # Arrow from previous node to new node
         if n > 0:
             ax1 = self._x + (n - 1) * step + self._node_width
-            arrow = Arrow(x1=ax1, y1=ay, x2=nx, y2=ay,
-                          creation=start, z=0, stroke=self._arrow_color,
-                          fill=self._arrow_color)
-            self.objects.append(arrow)
+            self.objects.append(Arrow(x1=ax1, y1=ay, x2=nx, y2=ay,
+                                      creation=start, z=0, stroke=self._arrow_color,
+                                      fill=self._arrow_color))
         self._nodes.append((node, lbl))
         node.fadein(start=start, end=end)
         lbl.fadein(start=start, end=end)
@@ -323,8 +288,7 @@ class LinkedList(VCollection):
         if index < 0 or index >= len(self._nodes):
             return self
         node, lbl = self._nodes.pop(index)
-        node.fadeout(start=start, end=end)
-        lbl.fadeout(start=start, end=end)
+        _fadeout_pair(node, lbl, start, end)
         return self
 
 class BinaryTree(VCollection):
@@ -347,33 +311,25 @@ class BinaryTree(VCollection):
                 right = node[2] if len(node) > 2 else None
             else:
                 return
-            child_y = cy + v_spacing
-            child_spread = spread / 2
-            if left is not None:
-                lx = cx - child_spread
-                objects.append(Line(x1=cx, y1=cy, x2=lx, y2=child_y,
-                                    stroke=edge_color, stroke_width=2,
-                                    creation=creation, z=z))
-                _draw(left, lx, child_y, child_spread)
-            if right is not None:
-                rx = cx + child_spread
-                objects.append(Line(x1=cx, y1=cy, x2=rx, y2=child_y,
-                                    stroke=edge_color, stroke_width=2,
-                                    creation=creation, z=z))
-                _draw(right, rx, child_y, child_spread)
-            node_obj = Circle(r=node_radius, cx=cx, cy=cy,
-                              fill=fill, stroke=border_color, stroke_width=2,
-                              creation=creation, z=z + 0.1)
-            lbl = _label_text(str(val), cx, cy, font_size,
-                              creation=creation, z=z + 0.2, fill=text_color)
-            self._node_objects.append(node_obj)
-            objects.extend([node_obj, lbl])
+            child_y, child_spread = cy + v_spacing, spread / 2
+            for child, sign in ((left, -1), (right, 1)):
+                if child is not None:
+                    child_x = cx + sign * child_spread
+                    objects.append(Line(x1=cx, y1=cy, x2=child_x, y2=child_y,
+                                        stroke=edge_color, stroke_width=2,
+                                        creation=creation, z=z))
+                    _draw(child, child_x, child_y, child_spread)
+            self._node_objects.append(
+                Circle(r=node_radius, cx=cx, cy=cy, fill=fill, stroke=border_color,
+                       stroke_width=2, creation=creation, z=z + 0.1))
+            objects.append(self._node_objects[-1])
+            objects.append(_label_text(str(val), cx, cy, font_size,
+                                       creation=creation, z=z + 0.2, fill=text_color))
 
         _draw(tree, x, y, h_spacing)
         super().__init__(*objects, creation=creation, z=z)
 
-    def __repr__(self):
-        return f'BinaryTree({len(self._node_objects)} nodes)'
+    def __repr__(self): return f'BinaryTree({len(self._node_objects)} nodes)'
 
     def highlight_node(self, index, color='#E9C46A', start=0, end=0.5):
         """Temporarily highlight a node by index (depth-first order)."""
@@ -395,13 +351,9 @@ class ArrayViz(VCollection):
                  colors=None, default_fill='#264653', show_indices=True,
                  font_size=32, creation: float = 0, z: float = 0):
         n = len(values)
-        if x is None:
-            x = ORIGIN[0] - n * cell_size / 2
-        if y is None:
-            y = ORIGIN[1] - cell_size / 2
-        self._cells = []
-        self._labels = []
-        self._index_labels = []
+        if x is None: x = ORIGIN[0] - n * cell_size / 2
+        if y is None: y = ORIGIN[1] - cell_size / 2
+        self._cells, self._labels, self._index_labels = [], [], []
         self._cell_size = cell_size
         self.values = list(values)
         objects = []
@@ -428,8 +380,7 @@ class ArrayViz(VCollection):
                 objects.append(idx_lbl)
         super().__init__(*objects, creation=creation, z=z)
 
-    def __repr__(self):
-        return f'ArrayViz({self.values})'
+    def __repr__(self): return f'ArrayViz({self.values})'
 
     def highlight(self, index, start=0, end=1, color='#FFFF00'):
         """Temporarily highlight a cell by changing its fill color."""
@@ -469,16 +420,17 @@ class ArrayViz(VCollection):
         cell = self._cells[index]
         cx = cell.x.at_time(start) + self._cell_size / 2
         cy = cell.y.at_time(start)
+        fade_end = start + 0.3 if end is None else end
         arr = Arrow(x1=cx, y1=cy - 50, x2=cx, y2=cy - 8,
                     stroke=color, fill=color, fill_opacity=1,
                     stroke_width=2, creation=start)
-        arr.fadein(start, start + 0.3 if end is None else end)
+        arr.fadein(start, fade_end)
         self.objects.append(arr)
         if label:
             lbl = Text(text=label, x=cx, y=cy - 60,
                        font_size=20, fill=color, stroke_width=0,
                        text_anchor='middle', creation=start)
-            lbl.fadein(start, start + 0.3 if end is None else end)
+            lbl.fadein(start, fade_end)
             self.objects.append(lbl)
         return arr
 
@@ -490,13 +442,9 @@ class LinkedListViz(VCollection):
                  font_size=28, creation: float = 0, z: float = 0):
         Arrow = _get_arrow()
         n = len(values)
-        if x is None:
-            x = ORIGIN[0] - (n - 1) * spacing / 2
-        self._nodes = []
-        self._labels = []
-        self._arrows = []
-        self._node_radius = node_radius
-        self._spacing = spacing
+        if x is None: x = ORIGIN[0] - (n - 1) * spacing / 2
+        self._nodes, self._labels, self._arrows = [], [], []
+        self._node_radius, self._spacing = node_radius, spacing
         self.values = list(values)
         objects = []
         for i, val in enumerate(values):
@@ -530,14 +478,12 @@ class LinkedListViz(VCollection):
                          stroke='#888', fill='#888', fill_opacity=1,
                          stroke_width=2, creation=creation, z=z)
         objects.extend([null_arr, null_lbl])
-        self._null_lbl = null_lbl
-        self._null_arr = null_arr
+        self._null_lbl, self._null_arr = null_lbl, null_arr
         super().__init__(*objects, creation=creation, z=z)
 
-    def __repr__(self):
-        return f'LinkedListViz({self.values})'
+    def __repr__(self): return f'LinkedListViz({self.values})'
 
-    def highlight(self, index, start=0, end=1, color='#FFFF00'):
+    def highlight(self, index, start: float = 0, end: float = 1, color='#FFFF00'):
         """Temporarily highlight a node."""
         if 0 <= index < len(self._nodes):
             _flash_fill(self._nodes[index], color, start, end)
@@ -558,30 +504,17 @@ class StackViz(VCollection):
                  font_size=28, creation: float = 0, z: float = 0):
         Arrow = _get_arrow()
         n = len(values)
-        if x is None:
-            x = ORIGIN[0] - cell_width / 2
-        if y is None:
-            y = ORIGIN[1] + n * cell_height / 2
-        self._cell_width = cell_width
-        self._cell_height = cell_height
-        self._base_x = x
-        self._base_y = y
-        self._fill = fill
-        self._font_size = font_size
-        self._stack_cells = []
-        self._stack_labels = []
-        self._z = z
+        if x is None: x = ORIGIN[0] - cell_width / 2
+        if y is None: y = ORIGIN[1] + n * cell_height / 2
+        self._cell_width, self._cell_height = cell_width, cell_height
+        self._base_x, self._base_y = x, y
+        self._fill, self._font_size, self._z = fill, font_size, z
+        self._stack_cells, self._stack_labels = [], []
         self.values = list(values)
         objects = []
         for i, val in enumerate(values):
-            cy = y - i * cell_height
-            cell = Rectangle(cell_width, cell_height, x=x, y=cy,
-                              fill=fill, fill_opacity=0.9, stroke='#fff',
-                              stroke_width=2, creation=creation, z=z)
-            lbl = Text(text=str(val), x=x + cell_width / 2,
-                       y=cy + cell_height * 0.65,
-                       font_size=font_size, fill='#fff', stroke_width=0,
-                       text_anchor='middle', creation=creation, z=z + 0.1)
+            cell, lbl = _make_viz_cell(x, y - i * cell_height, cell_width, cell_height,
+                                       val, font_size, fill, creation, z)
             self._stack_cells.append(cell)
             self._stack_labels.append(lbl)
             objects.extend([cell, lbl])
@@ -591,52 +524,39 @@ class StackViz(VCollection):
                                 x2=x - 8, y2=top_y + cell_height / 2,
                                 stroke='#FC6255', fill='#FC6255', fill_opacity=1,
                                 stroke_width=2, creation=creation, z=z)
-        top_lbl = Text(text='TOP', x=x - 58, y=top_y + cell_height * 0.65,
-                       font_size=int(font_size * 0.7), fill='#FC6255', stroke_width=0,
-                       text_anchor='end', creation=creation, z=z)
-        self._top_label = top_lbl
-        objects.extend([self._top_arrow, top_lbl])
+        self._top_label = Text(text='TOP', x=x - 58, y=top_y + cell_height * 0.65,
+                               font_size=int(font_size * 0.7), fill='#FC6255', stroke_width=0,
+                               text_anchor='end', creation=creation, z=z)
+        objects.extend([self._top_arrow, self._top_label])
         super().__init__(*objects, creation=creation, z=z)
 
-    def __repr__(self):
-        return f'StackViz({self.values})'
+    def __repr__(self): return f'StackViz({self.values})'
 
     def push(self, value, start=0, end=0.5):
         """Animate pushing a value onto the stack."""
-        n = len(self._stack_cells)
-        cy = self._base_y - n * self._cell_height
-        cell = Rectangle(self._cell_width, self._cell_height,
-                         x=self._base_x, y=cy,
-                         fill=self._fill, fill_opacity=0.9, stroke='#fff',
-                         stroke_width=2, creation=start, z=self._z)
-        lbl = Text(text=str(value), x=self._base_x + self._cell_width / 2,
-                   y=cy + self._cell_height * 0.65,
-                   font_size=self._font_size, fill='#fff', stroke_width=0,
-                   text_anchor='middle', creation=start, z=self._z + 0.1)
+        cy = self._base_y - len(self._stack_cells) * self._cell_height
+        cell, lbl = _make_viz_cell(self._base_x, cy, self._cell_width, self._cell_height,
+                                   value, self._font_size, self._fill, start, self._z)
         cell.fadein(start, end)
         lbl.fadein(start, end)
         self._stack_cells.append(cell)
         self._stack_labels.append(lbl)
         self.values.append(value)
         self.objects.extend([cell, lbl])
-        # Move TOP arrow up
-        self._top_arrow.shift(dy=-self._cell_height, start=start, end=end)
-        self._top_label.shift(dy=-self._cell_height, start=start, end=end)
+        _shift_pair(self._top_arrow, self._top_label,
+                    dy=-self._cell_height, start=start, end=end)
         return self
 
     def pop(self, start=0, end=0.5):
         """Animate popping the top value from the stack."""
         if not self._stack_cells:
             return self
-        cell = self._stack_cells.pop()
-        lbl = self._stack_labels.pop()
+        self._stack_cells.pop().fadeout(start, end)
+        self._stack_labels.pop().fadeout(start, end)
         self.values.pop()
-        cell.fadeout(start, end)
-        lbl.fadeout(start, end)
-        # Move TOP arrow down
         if self._stack_cells:
-            self._top_arrow.shift(dy=self._cell_height, start=start, end=end)
-            self._top_label.shift(dy=self._cell_height, start=start, end=end)
+            _shift_pair(self._top_arrow, self._top_label,
+                        dy=self._cell_height, start=start, end=end)
         return self
 
 class QueueViz(VCollection):
@@ -646,19 +566,12 @@ class QueueViz(VCollection):
                  x=None, y=None, fill='#264653',
                  font_size=28, creation: float = 0, z: float = 0):
         n = len(values)
-        if x is None:
-            x = ORIGIN[0] - n * cell_width / 2
-        if y is None:
-            y = ORIGIN[1] - cell_height / 2
-        self._cell_width = cell_width
-        self._cell_height = cell_height
-        self._base_x = x
-        self._base_y = y
-        self._fill = fill
-        self._font_size = font_size
-        self._z = z
-        self._queue_cells = []
-        self._queue_labels = []
+        if x is None: x = ORIGIN[0] - n * cell_width / 2
+        if y is None: y = ORIGIN[1] - cell_height / 2
+        self._cell_width, self._cell_height = cell_width, cell_height
+        self._base_x, self._base_y = x, y
+        self._fill, self._font_size, self._z = fill, font_size, z
+        self._queue_cells, self._queue_labels = [], []
         self.values = list(values)
         objects = []
         for i, val in enumerate(values):
@@ -672,27 +585,24 @@ class QueueViz(VCollection):
             self._queue_labels.append(lbl)
             objects.extend([cell, lbl])
         # FRONT / BACK labels
-        front_x = x - 8
-        back_x = x + n * cell_width + 8
         mid_y = y + cell_height * 0.65
-        self._front_label = Text(text='FRONT', x=front_x, y=mid_y,
-                                  font_size=int(font_size * 0.7), fill='#50FA7B',
+        sm_font = int(font_size * 0.7)
+        self._front_label = Text(text='FRONT', x=x - 8, y=mid_y,
+                                  font_size=sm_font, fill='#50FA7B',
                                   stroke_width=0, text_anchor='end',
                                   creation=creation, z=z)
-        self._back_label = Text(text='BACK', x=back_x, y=mid_y,
-                                 font_size=int(font_size * 0.7), fill='#FC6255',
+        self._back_label = Text(text='BACK', x=x + n * cell_width + 8, y=mid_y,
+                                 font_size=sm_font, fill='#FC6255',
                                  stroke_width=0, text_anchor='start',
                                  creation=creation, z=z)
         objects.extend([self._front_label, self._back_label])
         super().__init__(*objects, creation=creation, z=z)
 
-    def __repr__(self):
-        return f'QueueViz({self.values})'
+    def __repr__(self): return f'QueueViz({self.values})'
 
     def enqueue(self, value, start=0, end=0.5):
         """Animate adding a value to the back of the queue."""
-        n = len(self._queue_cells)
-        cx = self._base_x + n * self._cell_width
+        cx = self._base_x + len(self._queue_cells) * self._cell_width
         cell = Rectangle(self._cell_width, self._cell_height,
                          x=cx, y=self._base_y,
                          fill=self._fill, fill_opacity=0.9, stroke='#fff',
@@ -713,15 +623,11 @@ class QueueViz(VCollection):
         """Animate removing the front value from the queue."""
         if not self._queue_cells:
             return self
-        cell = self._queue_cells.pop(0)
-        lbl = self._queue_labels.pop(0)
+        self._queue_cells.pop(0).fadeout(start, end)
+        self._queue_labels.pop(0).fadeout(start, end)
         self.values.pop(0)
-        cell.fadeout(start, end)
-        lbl.fadeout(start, end)
-        # Slide remaining cells left
         for c, l in zip(self._queue_cells, self._queue_labels):
-            c.shift(dx=-self._cell_width, start=start, end=end)
-            l.shift(dx=-self._cell_width, start=start, end=end)
+            _shift_pair(c, l, dx=-self._cell_width, start=start, end=end)
         self._back_label.shift(dx=-self._cell_width, start=start, end=end)
         return self
 

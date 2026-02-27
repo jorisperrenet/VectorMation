@@ -273,7 +273,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
     def copy(self):
         return deepcopy(self)
 
-    def always_rotate(self, start: float = 0, end: float | None = None, degrees_per_second=90, cx=None, cy=None):
+    def always_rotate(self, start: float = 0, end: float | None = None, degrees_per_second: float = 90, cx: float | None = None, cy: float | None = None):
         """Continuously rotate the object around its center (or given cx, cy)."""
         if cx is None or cy is None:
             cx, cy = self.center(start)
@@ -344,7 +344,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.styling.rotation.last_change = max(self.styling.rotation.last_change, end)
         return self
 
-    def rotate_by(self, start: float, end: float, degrees, cx=None, cy=None, easing=easings.smooth):
+    def rotate_by(self, start: float, end: float, degrees: float, cx: float | None = None, cy: float | None = None, easing=easings.smooth):
         """Animate rotating by degrees from current rotation."""
         start_deg = self.styling.rotation.at_time(start)[0]
         return self._apply_rotation(start, end, start_deg + degrees, cx, cy, easing)
@@ -413,7 +413,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                    start=start, end=end, easing=easing)
         return self
 
-    def teleport(self, x, y, start: float = 0, time: float | None = None):
+    def teleport(self, x: float, y: float, start: float = 0, time: float | None = None):
         """Instantly move object center to (x, y) at the given time (no animation)."""
         t = time if time is not None else start
         return self.center_to_pos(posx=x, posy=y, start=t)
@@ -903,7 +903,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             _set_attr(attr, start, end, attr.at_time(start) * f, easing)
         return self
 
-    def rotate_to(self, start: float, end: float, degrees, cx=None, cy=None, easing=easings.smooth):
+    def rotate_to(self, start: float, end: float, degrees: float, cx: float | None = None, cy: float | None = None, easing=easings.smooth):
         """Animate rotating this object to the given angle in degrees."""
         return self._apply_rotation(start, end, degrees, cx, cy, easing)
 
@@ -1237,7 +1237,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         attr.set(mid, end, lambda t, _m=mid, _e=end, _c=cur: _c * (-1 + 2 * easing((t - _m) / (_e - _m))), stay=True)
         return self
 
-    def skew(self, start: float = 0, end: float = 0.5, x_degrees=0, y_degrees=0, easing=easings.smooth):
+    def skew(self, start: float = 0, end: float = 0.5, x_degrees: float = 0, y_degrees: float = 0, easing=easings.smooth):
         """Animate skew (shear) along X and/or Y axes."""
         dur = end - start
         if dur <= 0:
@@ -1359,7 +1359,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.styling.scale_y.set_onward(end, sy0)
         return self
 
-    def spin(self, start: float = 0, end: float = 1, degrees=360, cx=None, cy=None, easing=easings.linear):
+    def spin(self, start: float = 0, end: float = 1, degrees: float = 360, cx: float | None = None, cy: float | None = None, easing=easings.linear):
         """Continuous rotation by degrees over [start, end]."""
         return self._apply_rotation(start, end,
             self.styling.rotation.at_time(start)[0] + degrees, cx, cy, easing)

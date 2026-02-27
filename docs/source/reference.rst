@@ -90,7 +90,47 @@ Class Hierarchy
    +-- Stamp                    Repeated copies of a template
    +-- TimelineBar              Timeline with markers
    +-- Legend                   Chart legend
+   +-- ProgressBar              Animated progress bar
+   +-- WaterfallChart           Waterfall chart
+   +-- GanttChart               Gantt timeline chart
+   +-- SankeyDiagram            Sankey flow diagram
+   +-- FunnelChart              Funnel chart
+   +-- TreeMap                  Treemap visualization
+   +-- GaugeChart               Speedometer gauge
+   +-- BulletChart              Bullet chart
+   +-- CalendarHeatmap          Calendar heatmap
+   +-- WaffleChart              Waffle chart
+   +-- CircularProgressBar      Circular progress indicator
+   +-- Scoreboard               Metric display panel
+   +-- MatrixHeatmap            Matrix heatmap
+   +-- BoxPlot                  Box-and-whisker plot
+   +-- SampleSpace              Probability sample space
+   +-- KPICard                  KPI metric card
+   +-- SparkLine                Inline sparkline
+   +-- TextBox                  Text with box background
+   +-- SpeechBubble             Speech bubble annotation
+   +-- Badge                    Pill-shaped label
+   +-- Divider                  Separator line
+   +-- Checklist                Checkbox list
+   +-- Stepper                  Step indicator
+   +-- TagCloud                 Word cloud
+   +-- StatusIndicator          Status dot + label
+   +-- Meter                    Bar meter
+   +-- Breadcrumb               Breadcrumb trail
+   +-- Countdown                Animated countdown
+   +-- Filmstrip                Storyboard filmstrip
+   +-- Bracket                  Bracket decoration
+   +-- IconGrid                 Icon grid
+   +-- RoundedCornerPolygon     Polygon with rounded corners
+   +-- VennDiagram              Venn diagram
+   +-- OrgChart                 Organization chart
+   +-- MindMap                  Radial mind map
    +-- ZoomedInset              Zoomed inset viewport
+
+   PhysicsSpace                 2D physics simulation
+   +-- Body                     Physics body wrapper
+   +-- Spring                   Spring constraint
+   +-- Cloth                    Cloth simulation
 
    SplitTexObject               Multi-line LaTeX container
    DynamicObject                Object rebuilt each frame
@@ -111,6 +151,10 @@ Class Hierarchy
    reference/text
    reference/collections
    reference/graphing
+   reference/charts
+   reference/ui
+   reference/diagrams
+   reference/physics
    reference/threed
    reference/attributes
    reference/utilities

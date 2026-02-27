@@ -444,7 +444,7 @@ class VCollection(_BBoxMethodsMixin):
             return delegated
         raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
 
-    def _resolve_center(self, start, cx=None, cy=None):
+    def _resolve_center(self, start: float, cx: float | None = None, cy: float | None = None):
         if cx is None or cy is None:
             _cx, _cy = self.center(start)
             return (_cx if cx is None else cx, _cy if cy is None else cy)
@@ -467,11 +467,11 @@ class VCollection(_BBoxMethodsMixin):
             _set_attr(attr, start, end, attr.at_time(start) * factor, easing)
         return self
 
-    def rotate_to(self, start: float, end: float, degrees, cx=None, cy=None, easing=easings.smooth):
+    def rotate_to(self, start: float, end: float, degrees: float, cx: float | None = None, cy: float | None = None, easing=easings.smooth):
         cx, cy = self._resolve_center(start, cx, cy)
         return self._delegate('rotate_to', start, end, degrees, cx=cx, cy=cy, easing=easing)
 
-    def rotate_by(self, start: float, end: float, degrees, cx=None, cy=None, easing=easings.smooth):
+    def rotate_by(self, start: float, end: float, degrees: float, cx: float | None = None, cy: float | None = None, easing=easings.smooth):
         cx, cy = self._resolve_center(start, cx, cy)
         return self._delegate('rotate_by', start, end, degrees, cx=cx, cy=cy, easing=easing)
 
@@ -1037,7 +1037,7 @@ class VCollection(_BBoxMethodsMixin):
             getattr(obj, method)(start=obj_start, end=obj_end, **method_kwargs)
         return self
 
-    def scatter_from(self, cx=None, cy=None, radius=300,
+    def scatter_from(self, cx: float | None = None, cy: float | None = None, radius: float = 300,
                       start: float = 0, end: float = 1, easing=easings.smooth):
         """Explode children outward from a center point.
         Each child moves along the ray from (cx, cy) through its center."""
@@ -1059,7 +1059,7 @@ class VCollection(_BBoxMethodsMixin):
             obj.move_to(tx, ty, start=start, end=end, easing=easing)
         return self
 
-    def gather_to(self, cx=None, cy=None,
+    def gather_to(self, cx: float | None = None, cy: float | None = None,
                    start: float = 0, end: float = 1, easing=easings.smooth):
         """Converge children to a center point (reverse of scatter_from)."""
         n = len(self.objects)
@@ -1366,7 +1366,7 @@ class VCollection(_BBoxMethodsMixin):
                 c.add(cs, ce, lambda t, _f=_dy: (0, _f(t)), stay=True)
         return self
 
-    def orbit_around(self, cx=None, cy=None, radius=None,
+    def orbit_around(self, cx: float | None = None, cy: float | None = None, radius: float | None = None,
                      start: float = 0, end: float = 1, revolutions: float = 1,
                      easing=easings.linear):
         """Animate children orbiting around a center point with equal angular spacing."""
