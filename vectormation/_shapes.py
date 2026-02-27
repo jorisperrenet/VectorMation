@@ -1,6 +1,5 @@
 """Shape classes: Polygon, Circle, Rectangle, Line, Text, Arc, etc."""
 import math
-from xml.sax.saxutils import escape as _xml_escape
 
 import vectormation.easings as easings
 import vectormation.attributes as attributes

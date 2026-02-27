@@ -1,9 +1,7 @@
 """Science and electronics classes: Resistor, NeuralNetwork, Pendulum, etc."""
 import math
-import vectormation.easings as easings
-import vectormation.attributes as attributes
 from vectormation._constants import _normalize, _label_text
-from vectormation._base import VCollection, _lerp
+from vectormation._base import VCollection
 from vectormation._shapes import Circle, Dot, Line, Lines, Text, Path, Polygon
 
 
