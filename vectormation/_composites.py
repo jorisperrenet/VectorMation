@@ -784,8 +784,7 @@ class Axes(VCollection):
                 d += f'L{sx},{sy}'
             return d
 
-        defaults = dict(stroke='#58C4DD', stroke_width=3, fill_opacity=0)
-        defaults.update(styling_kwargs)
+        defaults = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
         path = Path('', creation=creation, z=z, **defaults)
         path.d.set_onward(start, _make_d)
         self.objects.append(path)
@@ -5670,18 +5669,16 @@ class Brace(VCollection):
             label_obj = TexObject(label, font_size=30, creation=creation, z=z,
                                   fill='#fff', stroke_width=0)
             _, _, lw, lh = label_obj.bbox(creation)
+            tcx, tcy = bx + bw / 2, by + bh / 2
+            arm = buff + depth + label_gap
             if direction == 'down':
-                lx = bx + bw / 2
-                ly = by + bh + buff + depth + label_gap + lh / 2
+                lx, ly = tcx, by + bh + arm + lh / 2
             elif direction == 'up':
-                lx = bx + bw / 2
-                ly = by - buff - depth - label_gap - lh / 2
+                lx, ly = tcx, by - arm - lh / 2
             elif direction == 'right':
-                lx = bx + bw + buff + depth + label_gap + lw / 2
-                ly = by + bh / 2
+                lx, ly = bx + bw + arm + lw / 2, tcy
             else:  # left
-                lx = bx - buff - depth - label_gap - lw / 2
-                ly = by + bh / 2
+                lx, ly = bx - arm - lw / 2, tcy
             label_obj.center_to_pos(posx=lx, posy=ly)
             objects.append(label_obj)
 
@@ -7075,8 +7072,8 @@ class BarChart(VCollection):
     def add_value_labels(self, fmt='{:.0f}', offset=10, font_size=20, creation=0):
         """Add text labels showing each bar's value above (or below) the bar."""
         for bar, val in zip(self._bars, self.values):
-            bx, by, bw, bh = bar.bbox(creation)
-            lx = bx + bw / 2
+            bx, by, _, bh = bar.bbox(creation)
+            lx = bar.center(creation)[0]
             ly = by - offset if val >= 0 else by + bh + offset + font_size
             label_text = fmt.format(val)
             label = Text(text=label_text, font_size=font_size, x=lx, y=ly,
@@ -7100,17 +7097,17 @@ class BarChart(VCollection):
 
     def get_max_bar(self) -> 'Rectangle | None':
         """Return the bar Rectangle with the maximum value, or None if no bars."""
-        if not self._bars:
-            return None
-        max_idx = max(range(len(self.values)), key=lambda i: self.values[i])
-        return self._bars[max_idx]
+        return self._bar_by_extreme(max)
 
     def get_min_bar(self) -> 'Rectangle | None':
         """Return the bar Rectangle with the minimum value, or None if no bars."""
+        return self._bar_by_extreme(min)
+
+    def _bar_by_extreme(self, func) -> 'Rectangle | None':
         if not self._bars:
             return None
-        min_idx = min(range(len(self.values)), key=lambda i: self.values[i])
-        return self._bars[min_idx]
+        idx = func(range(len(self.values)), key=lambda i: self.values[i])
+        return self._bars[idx]
 
     def sort_bars(self, key=None, reverse=False, start=0, end=1, easing=easings.smooth):
         """Animate reordering bars by value (or custom key function).
@@ -8379,8 +8376,7 @@ class Title(VCollection):
     Accepts the same keyword args as Text (font_size, fill, etc.)."""
     def __init__(self, text, creation: float = 0, z: float = 0, **kwargs):
         defaults = {'font_size': 60, 'text_anchor': 'middle', 'fill': '#fff',
-                    'stroke_width': 0}
-        defaults.update(kwargs)
+                    'stroke_width': 0} | kwargs
         txt = Text(text, x=ORIGIN[0], y=DEFAULT_OBJECT_TO_EDGE_BUFF + 60,
                    creation=creation, z=z, **defaults)
         underline = Line(x1=ORIGIN[0] - 200, y1=DEFAULT_OBJECT_TO_EDGE_BUFF + 80,
@@ -9471,8 +9467,8 @@ class Tooltip(VCollection):
                  padding=6, creation: float = 0, z=10, **styling_kwargs):
         from vectormation._shapes import Text as SText, RoundedRectangle
         if hasattr(target, 'bbox'):
-            bx, by, bw, _bh = target.bbox(creation)
-            tx, ty = bx + bw / 2, by
+            tx = target.center(creation)[0]
+            ty = target.bbox(creation)[1]
         else:
             tx, ty = target
 

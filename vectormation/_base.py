@@ -306,7 +306,7 @@ class VObject(ABC):  # Vector Object
         return {
             'x': bx, 'y': by, 'width': bw, 'height': bh,
             'left': bx, 'right': bx + bw, 'top': by, 'bottom': by + bh,
-            'center': (bx + bw / 2, by + bh / 2),
+            'center': self.center(time),
         }
 
     def get_left(self, time=0):
@@ -1851,11 +1851,12 @@ class VObject(ABC):  # Vector Object
         """Return the scale origin for a named edge."""
         edge = _norm_edge(edge)
         bx, by, bw, bh = self.bbox(time)
+        cx, cy = bx + bw / 2, by + bh / 2
         origins = {
-            'bottom': (bx + bw / 2, by + bh),
-            'top':    (bx + bw / 2, by),
-            'left':   (bx, by + bh / 2),
-            'right':  (bx + bw, by + bh / 2),
+            'bottom': (cx, by + bh),
+            'top':    (cx, by),
+            'left':   (bx, cy),
+            'right':  (bx + bw, cy),
         }
         return origins[edge]
 
@@ -2838,10 +2839,8 @@ class VObject(ABC):  # Vector Object
     @staticmethod
     def swap(a, b, start: float = 0, end: float = 1, easing=easings.smooth):
         """Swap positions of two objects over [start, end]."""
-        ax, ay, aw, ah = a.bbox(start)
-        bx, by, bw, bh = b.bbox(start)
-        acx, acy = ax + aw / 2, ay + ah / 2
-        bcx, bcy = bx + bw / 2, by + bh / 2
+        acx, acy = a.center(start)
+        bcx, bcy = b.center(start)
         a.move_to(bcx, bcy, start=start, end=end, easing=easing)
         b.move_to(acx, acy, start=start, end=end, easing=easing)
 
@@ -3608,13 +3607,14 @@ class VObject(ABC):  # Vector Object
         if target_w <= 0 or target_h <= 0:
             return self
         # Maintain canvas aspect ratio
+        cx, cy = bx + bw / 2, by + bh / 2
         aspect = canvas.width / canvas.height
         if target_w / target_h > aspect:
             target_h = target_w / aspect
-            target_y = by + bh / 2 - target_h / 2
+            target_y = cy - target_h / 2
         else:
             target_w = target_h * aspect
-            target_x = bx + bw / 2 - target_w / 2
+            target_x = cx - target_w / 2
         canvas.vb_x.move_to(start, end, target_x, easing=easing)
         canvas.vb_y.move_to(start, end, target_y, easing=easing)
         canvas.vb_w.move_to(start, end, target_w, easing=easing)
@@ -3726,16 +3726,17 @@ class VObject(ABC):  # Vector Object
         if change_existence:
             self._show_from(start)
         bx, by, bw, bh = self.bbox(start)
+        cx, cy = bx + bw / 2, by + bh / 2
         # Determine anchor point and which axis to scale
         horizontal = direction in ('left', 'right')
         if direction == 'right':
-            self.styling._scale_origin = (bx, by + bh / 2)
+            self.styling._scale_origin = (bx, cy)
         elif direction == 'left':
-            self.styling._scale_origin = (bx + bw, by + bh / 2)
+            self.styling._scale_origin = (bx + bw, cy)
         elif direction == 'down':
-            self.styling._scale_origin = (bx + bw / 2, by)
+            self.styling._scale_origin = (cx, by)
         else:  # up
-            self.styling._scale_origin = (bx + bw / 2, by + bh)
+            self.styling._scale_origin = (cx, by + bh)
         scale_fn = _ramp(start, dur, 1, easing)
         if horizontal:
             self.styling.scale_x.set(start, end, scale_fn, stay=True)
@@ -5861,10 +5862,8 @@ class VCollection:
         if i < 0 or j < 0 or i >= n or j >= n or i == j:
             return self
         a, b = self.objects[i], self.objects[j]
-        ax, ay, aw, ah = a.bbox(start)
-        bx, by, bw, bh = b.bbox(start)
-        acx, acy = ax + aw / 2, ay + ah / 2
-        bcx, bcy = bx + bw / 2, by + bh / 2
+        acx, acy = a.center(start)
+        bcx, bcy = b.center(start)
         a.path_arc(bcx, bcy, start=start, end=end, angle=math.pi / 3, easing=easing)
         b.path_arc(acx, acy, start=start, end=end, angle=-math.pi / 3, easing=easing)
         return self
@@ -6433,9 +6432,9 @@ class VCollection:
         if not self.objects or end <= start:
             return self
         if cx is None or cy is None:
-            bx, by, bw, bh = self.bbox(start)
-            cx = bx + bw / 2
-            cy = by + bh / 2
+            _cx, _cy = self.center(start)
+            cx = _cx if cx is None else cx
+            cy = _cy if cy is None else cy
         for obj in self.objects:
             obj_cx, obj_cy = obj.center(start)
             dx = (obj_cx - cx) * (factor - 1)
@@ -6636,9 +6635,9 @@ class VCollection:
             return self
         # Resolve center
         if cx is None or cy is None:
-            bx, by, bw, bh = self.bbox(start)
-            cx = bx + bw / 2 if cx is None else cx
-            cy = by + bh / 2 if cy is None else cy
+            _cx, _cy = self.center(start)
+            cx = _cx if cx is None else cx
+            cy = _cy if cy is None else cy
         # Compute initial angle and radius for each child
         child_data = []
         for obj in self.objects:
@@ -6817,16 +6816,16 @@ class VCollection:
         if n == 0:
             return self
         if value is None:
-            gx, gy, gw, gh = self.bbox(start)
-            value = (gx + gw / 2) if axis == 'x' else (gy + gh / 2)
+            gc = self.center(start)
+            value = gc[0] if axis == 'x' else gc[1]
         for obj in self.objects:
-            bx, by, bw, bh = obj.bbox(start)
+            oc = obj.center(start)
             if axis == 'x':
-                dx = value - (bx + bw / 2)
+                dx = value - oc[0]
                 dy = 0
             else:
                 dx = 0
-                dy = value - (by + bh / 2)
+                dy = value - oc[1]
             if dx != 0 or dy != 0:
                 obj.shift(dx=dx, dy=dy, start=start,
                           end=end, easing=easing)
@@ -7111,9 +7110,10 @@ class VCollection:
         Returns self.
         """
         px, py = point
+        centers = {id(obj): obj.center(start) for obj in self.objects}
         self.objects.sort(
-            key=lambda obj: math.hypot(obj.center(start)[0] - px,
-                                       obj.center(start)[1] - py),
+            key=lambda obj: math.hypot(centers[id(obj)][0] - px,
+                                       centers[id(obj)][1] - py),
             reverse=reverse,
         )
         return self

@@ -110,8 +110,7 @@ class ThreeDAxes(VCollection):
         self._show_ticks = show_ticks
         self._show_labels = show_labels
         self._show_grid = show_grid
-        self._axis_style = {'stroke': '#888', 'stroke_width': 2}
-        self._axis_style.update(styling_kwargs)
+        self._axis_style = {'stroke': '#888', 'stroke_width': 2} | styling_kwargs
 
         # Animatable camera
         self.phi = attributes.Real(creation, phi)
@@ -288,8 +287,7 @@ class ThreeDAxes(VCollection):
 
         Returns a VCollection of projected Lines added to this axes.
         """
-        line_style = {'stroke': '#4488ff', 'stroke_width': 1}
-        line_style.update(styling_kwargs)
+        line_style = {'stroke': '#4488ff', 'stroke_width': 1} | styling_kwargs
         wireframe = _WireframeSurface(self, func, self._x_range, self._y_range,
                                       x_steps, y_steps, line_style, creation=creation, z=z)
         self._threed_objects.append(wireframe)
@@ -300,8 +298,7 @@ class ThreeDAxes(VCollection):
                                 u_steps=32, v_steps=16,
                                 creation=0, z=0, **styling_kwargs):
         """Plot a parametric wireframe surface (backward compat)."""
-        line_style = {'stroke': '#4488ff', 'stroke_width': 1}
-        line_style.update(styling_kwargs)
+        line_style = {'stroke': '#4488ff', 'stroke_width': 1} | styling_kwargs
         wireframe = _ParametricWireframe(self, func, u_range, v_range,
                                          u_steps, v_steps, line_style, creation=creation, z=z)
         self._threed_objects.append(wireframe)
