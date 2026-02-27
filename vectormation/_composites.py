@@ -14,7 +14,7 @@ from vectormation._constants import (
     DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
     _sample_function,
 )
-from vectormation._base import VObject, VCollection, _norm_dir
+from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _ramp
 from vectormation._shapes import (
     Polygon, Circle, Ellipse, Dot, Rectangle, RoundedRectangle, Line, Lines,
     Text, Path, Arc, Wedge,
@@ -7151,15 +7151,11 @@ class PieChart(VCollection):
             old_end_angle = 360 * (cum_old + old_values[i]) / old_total + 90
             new_start_angle = 360 * cum_new / new_total + 90
             new_end_angle = 360 * (cum_new + new_values[i]) / new_total + 90
-            _s, _d = start, max(dur, 1e-9)
-            _osa, _oea = old_start_angle, old_end_angle
-            _nsa, _nea = new_start_angle, new_end_angle
+            _d = max(dur, 1e-9)
             sector.start_angle.set(start, end,
-                lambda t, _s=_s, _d=_d, _o=_osa, _n=_nsa:
-                    _o + (_n - _o) * easing((t - _s) / _d), stay=True)
+                _lerp(start, _d, old_start_angle, new_start_angle, easing), stay=True)
             sector.end_angle.set(start, end,
-                lambda t, _s=_s, _d=_d, _o=_oea, _n=_nea:
-                    _o + (_n - _o) * easing((t - _s) / _d), stay=True)
+                _lerp(start, _d, old_end_angle, new_end_angle, easing), stay=True)
             cum_old += old_values[i]
             cum_new += new_values[i]
         return self
@@ -7420,9 +7416,8 @@ class BarChart(VCollection):
             new_h = abs(new_val) / max_val * self._height * 0.85
             old_y = bar.y.at_time(start)
             new_y = self._y + self._height - new_h if new_val >= 0 else self._y + self._height
-            s, d = start, dur
-            bar.height.set(start, end, lambda t, _oh=old_h, _nh=new_h, _s=s, _d=d: _oh + (_nh - _oh) * easing((t - _s) / _d), stay=True)
-            bar.y.set(start, end, lambda t, _oy=old_y, _ny=new_y, _s=s, _d=d: _oy + (_ny - _oy) * easing((t - _s) / _d), stay=True)
+            bar.height.set(start, end, _lerp(start, dur, old_h, new_h, easing), stay=True)
+            bar.y.set(start, end, _lerp(start, dur, old_y, new_y, easing), stay=True)
         self.values = new_values
         return self
 
@@ -7626,17 +7621,10 @@ class BarChart(VCollection):
             bar.y.set_onward(start, self._y + self._height)
             dur = end - start
             if dur > 0:
-                _oh, _nh = 0, bar_h
-                _oy = self._y + self._height
-                _ny = by
-                _s, _d = start, dur
                 bar.height.set(start, end,
-                    lambda t, _oh=_oh, _nh=_nh, _s=_s, _d=_d:
-                        _oh + (_nh - _oh) * easings.smooth((t - _s) / _d),
-                    stay=True)
+                    _lerp(start, dur, 0, bar_h, easings.smooth), stay=True)
                 bar.y.set(start, end,
-                    lambda t, _oy=_oy, _ny=_ny, _s=_s, _d=_d:
-                        _oy + (_ny - _oy) * easings.smooth((t - _s) / _d),
+                    _lerp(start, dur, self._y + self._height, by, easings.smooth),
                     stay=True)
         self.objects.append(bar)
         self._bars.append(bar)
@@ -7688,15 +7676,10 @@ class BarChart(VCollection):
                 _oh = bar.height.at_time(start)
                 _oy = bar.y.at_time(start)
                 _by = self._y + self._height
-                _s, _d = start, dur
                 bar.height.set(start, end,
-                    lambda t, _oh=_oh, _s=_s, _d=_d:
-                        _oh * (1 - easings.smooth((t - _s) / _d)),
-                    stay=True)
+                    _lerp(start, dur, _oh, 0, easings.smooth), stay=True)
                 bar.y.set(start, end,
-                    lambda t, _oy=_oy, _by=_by, _s=_s, _d=_d:
-                        _oy + (_by - _oy) * easings.smooth((t - _s) / _d),
-                    stay=True)
+                    _lerp(start, dur, _oy, _by, easings.smooth), stay=True)
             # Hide bar and label after animation
             bar._hide_from(end)
             if lbl is not None:

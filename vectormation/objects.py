@@ -17,6 +17,7 @@ from vectormation._constants import (
     DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_OBJECT_TO_OBJECT_BUFF,
     DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
     UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR, ORIGIN,
+    interpolate_value, smooth_index,
 )
 
 from vectormation._base import VObject, VCollection, VGroup

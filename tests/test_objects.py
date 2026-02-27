@@ -12742,3 +12742,57 @@ class TestVCollectionSpread:
         col = VCollection(*objs)
         col.spread(100, 100, 500, 100)
         assert len(col) == 3
+
+
+class TestSmoothIndex:
+    def test_basic_interpolation(self):
+        from vectormation.objects import smooth_index
+        assert smooth_index([0, 10, 20], 0.0) == 0
+        assert smooth_index([0, 10, 20], 0.5) == 10
+        assert smooth_index([0, 10, 20], 1.0) == 20
+
+    def test_midpoint(self):
+        from vectormation.objects import smooth_index
+        result = smooth_index([0, 10], 0.5)
+        assert abs(result - 5) < 1e-9
+
+    def test_tuple_interpolation(self):
+        from vectormation.objects import smooth_index
+        result = smooth_index([(0, 0), (10, 20)], 0.5)
+        assert abs(result[0] - 5) < 1e-9
+        assert abs(result[1] - 10) < 1e-9
+
+    def test_single_element(self):
+        from vectormation.objects import smooth_index
+        assert smooth_index([42], 0.5) == 42
+
+    def test_empty_list_raises(self):
+        from vectormation.objects import smooth_index
+        with pytest.raises(ValueError):
+            smooth_index([], 0.5)
+
+
+class TestInterpolateValue:
+    def test_basic(self):
+        from vectormation.objects import interpolate_value
+        assert interpolate_value(0, 10, 0.5) == 5
+        assert interpolate_value(0, 10, 0.0) == 0
+        assert interpolate_value(0, 10, 1.0) == 10
+
+    def test_negative(self):
+        from vectormation.objects import interpolate_value
+        assert interpolate_value(-10, 10, 0.5) == 0
+
+
+class TestBarChartAnimateValues:
+    def test_animate_values(self):
+        chart = BarChart([3, 5, 2])
+        result = chart.animate_values([5, 3, 4], start=0, end=1)
+        assert result is chart
+        assert chart.values == [5, 3, 4]
+
+    def test_pie_chart_animate_values(self):
+        chart = PieChart([30, 40, 30])
+        result = chart.animate_values([50, 25, 25], start=0, end=1)
+        assert result is chart
+        assert chart.values == [50, 25, 25]

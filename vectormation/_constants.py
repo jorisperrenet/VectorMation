@@ -153,3 +153,37 @@ def _sample_function(func, x_min, x_max, y_range, num_points, px, py, pw, ph,
     if current:
         segments.append(current)
     return y_min, y_max, segments, clamped
+
+
+def interpolate_value(a, b, alpha):
+    """Linearly interpolate between two scalar values."""
+    return a + (b - a) * alpha
+
+
+def smooth_index(lst, real_index):
+    """Smoothly index into a list with a float index in [0, 1].
+
+    Returns the linearly interpolated value between adjacent list items.
+    Useful for sampling parametric curves from discrete point lists.
+
+    Parameters
+    ----------
+    lst : list
+        List of numeric values (or tuples for 2D/3D points).
+    real_index : float
+        Index in [0, 1], where 0 maps to lst[0] and 1 maps to lst[-1].
+    """
+    n = len(lst)
+    if n == 0:
+        raise ValueError('Cannot index into an empty list')
+    if n == 1:
+        return lst[0]
+    scaled = real_index * (n - 1)
+    i = int(scaled)
+    if i >= n - 1:
+        return lst[-1]
+    alpha = scaled - i
+    a, b = lst[i], lst[i + 1]
+    if isinstance(a, (tuple, list)):
+        return tuple(ai + (bi - ai) * alpha for ai, bi in zip(a, b))
+    return a + (b - a) * alpha
