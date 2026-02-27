@@ -3364,3 +3364,147 @@ class TestAlignChildren:
         cx2 = c2.center(0)[0]
         assert cx1 == pytest.approx(50, abs=1)
         assert cx2 == pytest.approx(50, abs=1)
+
+
+class TestShuffleAnimate:
+    def test_returns_self(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=200)
+        c3 = Circle(r=10, cx=300, cy=300)
+        col = VCollection(c1, c2, c3)
+        result = col.shuffle_animate(start=0, end=1)
+        assert result is col
+
+    def test_positions_change(self):
+        """After animation completes, at least some children should have moved."""
+        import random
+        random.seed(42)
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=300, cy=100)
+        c3 = Circle(r=10, cx=500, cy=100)
+        col = VCollection(c1, c2, c3)
+        orig_centers = [obj.center(0) for obj in col.objects]
+        col.shuffle_animate(start=0, end=1, easing=easings.linear)
+        # At t=1 (end), all objects should be at their final positions
+        end_centers = [obj.center(1) for obj in col.objects]
+        # With seed 42, some permutation should differ
+        moved = sum(1 for o, e in zip(orig_centers, end_centers)
+                    if abs(o[0] - e[0]) > 1 or abs(o[1] - e[1]) > 1)
+        # At least one should have moved (unless identity permutation)
+        # With 3 objects and seed 42, very unlikely to be identity
+        assert moved >= 1
+
+    def test_single_child_noop(self):
+        """With a single child, shuffle_animate should be a no-op."""
+        c1 = Circle(r=10, cx=100, cy=100)
+        col = VCollection(c1)
+        center_before = c1.center(0)
+        col.shuffle_animate(start=0, end=1)
+        center_after = c1.center(1)
+        assert center_after[0] == pytest.approx(center_before[0], abs=1)
+        assert center_after[1] == pytest.approx(center_before[1], abs=1)
+
+    def test_empty_collection(self):
+        """Empty collection should not raise."""
+        col = VCollection()
+        result = col.shuffle_animate(start=0, end=1)
+        assert result is col
+
+    def test_animation_intermediate(self):
+        """At intermediate time, positions should be between start and end."""
+        import random
+        random.seed(123)
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=400, cy=0)
+        col = VCollection(c1, c2)
+        col.shuffle_animate(start=0, end=2, easing=easings.linear)
+        # At t=1 (midpoint), each child should be roughly halfway
+        cx1_mid = c1.center(1)[0]
+        cx2_mid = c2.center(1)[0]
+        # One of them should have moved if the permutation swapped them
+        total_x = cx1_mid + cx2_mid
+        assert total_x == pytest.approx(400, abs=5)  # center of mass preserved
+
+
+class TestArrangeInCircle:
+    def test_returns_self(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c1, c2)
+        result = col.arrange_in_circle(radius=100)
+        assert result is col
+
+    def test_positions_on_circle(self):
+        """Children should be at correct angles on the circle."""
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=0, cy=0)
+        c3 = Circle(r=10, cx=0, cy=0)
+        c4 = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c1, c2, c3, c4)
+        col.arrange_in_circle(radius=200, center=(500, 500), start_angle=0)
+        # Child 0: angle=0 -> (700, 500)
+        cx0, cy0 = c1.center(0)
+        assert cx0 == pytest.approx(700, abs=2)
+        assert cy0 == pytest.approx(500, abs=2)
+        # Child 1: angle=pi/2 -> (500, 700)
+        cx1, cy1 = c2.center(0)
+        assert cx1 == pytest.approx(500, abs=2)
+        assert cy1 == pytest.approx(700, abs=2)
+        # Child 2: angle=pi -> (300, 500)
+        cx2, cy2 = c3.center(0)
+        assert cx2 == pytest.approx(300, abs=2)
+        assert cy2 == pytest.approx(500, abs=2)
+        # Child 3: angle=3pi/2 -> (500, 300)
+        cx3, cy3 = c4.center(0)
+        assert cx3 == pytest.approx(500, abs=2)
+        assert cy3 == pytest.approx(300, abs=2)
+
+    def test_default_center_is_canvas_center(self):
+        """Default center should be (960, 540)."""
+        c1 = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c1)
+        col.arrange_in_circle(radius=100)
+        cx, cy = c1.center(0)
+        # Single child at angle 0: (960 + 100, 540)
+        assert cx == pytest.approx(1060, abs=2)
+        assert cy == pytest.approx(540, abs=2)
+
+    def test_custom_start_angle(self):
+        """start_angle should offset all children."""
+        c1 = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c1)
+        col.arrange_in_circle(radius=100, center=(500, 500), start_angle=math.pi)
+        cx, cy = c1.center(0)
+        # angle=pi -> (400, 500)
+        assert cx == pytest.approx(400, abs=2)
+        assert cy == pytest.approx(500, abs=2)
+
+    def test_animated_mode(self):
+        """With end, children should animate to their positions."""
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c1, c2)
+        col.arrange_in_circle(radius=200, center=(500, 500),
+                              start=0, end=2, easing=easings.linear)
+        # At t=0, objects are at their starting positions
+        cx_start = c1.center(0)[0]
+        # At t=2, objects should be at final positions
+        cx_end = c1.center(2)[0]
+        # Child 0 target: (700, 500) - should have moved
+        assert cx_end == pytest.approx(700, abs=2)
+
+    def test_empty_collection(self):
+        """Empty collection should not raise."""
+        col = VCollection()
+        result = col.arrange_in_circle(radius=100)
+        assert result is col
+
+    def test_equidistant_spacing(self):
+        """All children should be equidistant from the center."""
+        circles = [Circle(r=5, cx=i*50, cy=i*50) for i in range(6)]
+        col = VCollection(*circles)
+        col.arrange_in_circle(radius=150, center=(400, 400))
+        for c in circles:
+            cx, cy = c.center(0)
+            dist = math.sqrt((cx - 400)**2 + (cy - 400)**2)
+            assert dist == pytest.approx(150, abs=2)

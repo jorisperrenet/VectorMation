@@ -1494,6 +1494,87 @@ class VObject(ABC):  # Vector Object
         self.add_updater(_update, start=start, end=end)
         return self
 
+    def always_next_to(self, other, direction=RIGHT, buff=MED_SMALL_BUFF, start=0, end=None):
+        """Continuously position self next to *other* as it moves.
+
+        Uses an updater that calls ``next_to`` each frame so that
+        ``self`` stays anchored even when the target moves.
+
+        Parameters
+        ----------
+        other:
+            The reference object to stay next to.
+        direction:
+            Direction tuple, e.g. ``RIGHT``, ``LEFT``, ``UP``, ``DOWN``.
+        buff:
+            Pixel buffer between the two objects.
+        start:
+            Time at which the tracking begins.
+        end:
+            Time at which the tracking ends (``None`` = forever).
+        """
+        _dir = direction
+        _buff = buff
+        def _update(obj, t):
+            obj.next_to(other, _dir, _buff, start_time=t)
+        self.add_updater(_update, start=start, end=end)
+        return self
+
+    def set_color_if(self, predicate, color, start=0, end=None):
+        """Conditional color change based on a runtime predicate.
+
+        Adds an updater that checks ``predicate(t)`` each frame.  When
+        True the fill is set to *color*; when False the original fill
+        color (captured at *start*) is restored.
+
+        Parameters
+        ----------
+        predicate:
+            A callable ``(t) -> bool`` evaluated each frame.
+        color:
+            The fill color to apply when the predicate is True.
+        start:
+            Time at which the updater begins.
+        end:
+            Time at which the updater ends (``None`` = forever).
+        """
+        _orig_rgb = self.styling.fill.time_func(start)
+        _new_color = attributes.Color(0, color)
+        _new_rgb = _new_color.time_func(0)
+        def _update(obj, t):
+            if predicate(t):
+                obj.styling.fill.set_onward(t, lambda _t, _c=_new_rgb: _c)
+            else:
+                obj.styling.fill.set_onward(t, lambda _t, _c=_orig_rgb: _c)
+        self.add_updater(_update, start=start, end=end)
+        return self
+
+    def apply_pointwise(self, func, time=0):
+        """Apply an arbitrary ``(x, y) -> (x', y')`` function to the object's position.
+
+        Gets the current center, applies *func*, and moves to the new
+        position.  For :class:`Polygon` subclasses, each vertex is also
+        individually transformed.
+
+        Parameters
+        ----------
+        func:
+            A callable that takes ``(x, y)`` and returns ``(x', y')``.
+        time:
+            The time at which to evaluate the current position.
+        """
+        from vectormation._shapes import Polygon as _Polygon
+        if isinstance(self, _Polygon):
+            for v in self.vertices:
+                vx, vy = v.at_time(time)
+                nx, ny = func(vx, vy)
+                v.set_onward(time, (nx, ny))
+        else:
+            cx, cy = self.center(time)
+            nx, ny = func(cx, cy)
+            self.move_to(nx, ny, start_time=time)
+        return self
+
     def follow(self, other, start=0, end=None):
         """Continuously track *other*'s center via an updater."""
         _init_cx, _init_cy = self.center(start)
@@ -5693,6 +5774,32 @@ class VCollection:
         random.shuffle(self.objects)
         return self
 
+    def shuffle_animate(self, start=0, end=1, easing=None):
+        """Animated random shuffle — all children smoothly slide to randomly reassigned positions.
+
+        Records each child's current center, generates a random permutation,
+        then animates each child to its new position.
+
+        Parameters
+        ----------
+        start:
+            Animation start time.
+        end:
+            Animation end time.
+        easing:
+            Easing function (default: None = smooth).
+        """
+        import random
+        n = len(self.objects)
+        if n < 2:
+            return self
+        centers = [obj.center(start) for obj in self.objects]
+        perm = random.sample(range(n), n)
+        for i, obj in enumerate(self.objects):
+            tx, ty = centers[perm[i]]
+            obj.center_to_pos(tx, ty, start_time=start, end_time=end, easing=easing)
+        return self
+
     def reverse_children(self):
         """Reverse the order of children in-place."""
         self.objects.reverse()
@@ -5955,6 +6062,41 @@ class VCollection:
             else:
                 obj.shift(dy=offset, start_time=start_time)
             cursor += size + gap
+        return self
+
+    def arrange_in_circle(self, radius=150, center=None, start_angle=0,
+                          start=0, end=None, easing=None):
+        """Arrange children in a circle.
+
+        If *center* is ``None``, the canvas center ``(960, 540)`` is used.
+        Each child is placed at angle ``start_angle + i * 2*pi/n``.
+
+        Parameters
+        ----------
+        radius:
+            Distance from center to each child's center.
+        center:
+            ``(cx, cy)`` tuple, or ``None`` for canvas center.
+        start_angle:
+            Angle in radians for the first child (0 = right).
+        start:
+            Animation start time.
+        end:
+            Animation end time.  ``None`` = instant placement.
+        easing:
+            Easing function for animated mode.
+        """
+        n = len(self.objects)
+        if n == 0:
+            return self
+        if center is None:
+            center = (960, 540)
+        cx, cy = center
+        for i, obj in enumerate(self.objects):
+            angle = start_angle + i * 2 * math.pi / n
+            tx = cx + radius * math.cos(angle)
+            ty = cy + radius * math.sin(angle)
+            obj.center_to_pos(tx, ty, start_time=start, end_time=end, easing=easing)
         return self
 
     def distribute_radial(self, cx=960, cy=540, radius=200, start_angle=0,

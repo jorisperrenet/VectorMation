@@ -10513,3 +10513,267 @@ class TestLineIntersection:
         l = Line(0, 0, 100, 0)
         with pytest.raises(TypeError):
             l.intersection("not a shape")
+
+
+# ---- Tests for new features ----
+
+
+class TestPolygonApplyPointwise:
+    def test_translate_all_vertices(self):
+        """apply_pointwise should translate all vertices."""
+        poly = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        poly.apply_pointwise(lambda x, y: (x + 10, y + 20))
+        verts = poly.get_vertices(0)
+        assert verts[0] == pytest.approx((10, 20))
+        assert verts[1] == pytest.approx((110, 20))
+        assert verts[2] == pytest.approx((110, 120))
+        assert verts[3] == pytest.approx((10, 120))
+
+    def test_scale_vertices(self):
+        """apply_pointwise with scaling function."""
+        poly = Polygon((10, 20), (30, 40))
+        poly.apply_pointwise(lambda x, y: (x * 2, y * 3))
+        verts = poly.get_vertices(0)
+        assert verts[0] == pytest.approx((20, 60))
+        assert verts[1] == pytest.approx((60, 120))
+
+    def test_returns_self(self):
+        """apply_pointwise should return self for chaining."""
+        poly = Polygon((0, 0), (1, 0), (0, 1))
+        result = poly.apply_pointwise(lambda x, y: (x, y))
+        assert result is poly
+
+    def test_identity_preserves_positions(self):
+        """Identity function should not change vertex positions."""
+        poly = Polygon((50, 60), (70, 80), (90, 100))
+        original = poly.get_vertices(0)
+        poly.apply_pointwise(lambda x, y: (x, y))
+        assert poly.get_vertices(0) == pytest.approx(original, abs=1e-9)
+
+    def test_rotation_90_degrees(self):
+        """apply_pointwise with 90-degree rotation around origin."""
+        poly = Polygon((100, 0), (0, 100))
+        poly.apply_pointwise(lambda x, y: (-y, x))
+        verts = poly.get_vertices(0)
+        assert verts[0] == pytest.approx((0, 100), abs=1e-9)
+        assert verts[1] == pytest.approx((-100, 0), abs=1e-9)
+
+    def test_empty_polygon(self):
+        """apply_pointwise on a polygon with no vertices should not error."""
+        poly = Polygon()
+        poly.apply_pointwise(lambda x, y: (x + 1, y + 1))
+        assert poly.get_vertices(0) == []
+
+
+class TestLineBisectorGeometry:
+    def test_horizontal_line_bisector(self):
+        """Bisector of a horizontal line should be vertical through midpoint."""
+        line = Line(x1=0, y1=0, x2=200, y2=0)
+        bis = line.bisector()
+        mid = bis.get_midpoint()
+        assert mid[0] == pytest.approx(100)
+        assert mid[1] == pytest.approx(0)
+        # The bisector should be perpendicular (vertical)
+        angle = abs(line.angle_to(bis))
+        assert angle == pytest.approx(90, abs=1)
+
+    def test_vertical_line_bisector(self):
+        """Bisector of a vertical line should be horizontal through midpoint."""
+        line = Line(x1=50, y1=0, x2=50, y2=200)
+        bis = line.bisector()
+        mid = bis.get_midpoint()
+        assert mid[0] == pytest.approx(50)
+        assert mid[1] == pytest.approx(100)
+        angle = abs(line.angle_to(bis))
+        assert angle == pytest.approx(90, abs=1)
+
+    def test_bisector_default_length(self):
+        """Default bisector length should equal the original line length."""
+        line = Line(x1=0, y1=0, x2=300, y2=400)
+        bis = line.bisector()
+        assert bis.get_length() == pytest.approx(line.get_length(), abs=1e-6)
+
+    def test_bisector_custom_length(self):
+        """Custom length should be respected."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        bis = line.bisector(length=50)
+        assert bis.get_length() == pytest.approx(50, abs=1e-6)
+
+    def test_bisector_perpendicular(self):
+        """Bisector should be perpendicular to the original line."""
+        line = Line(x1=10, y1=20, x2=130, y2=70)
+        bis = line.bisector()
+        angle = line.angle_to(bis)
+        assert angle == pytest.approx(90, abs=1e-3)
+
+    def test_bisector_passes_through_midpoint(self):
+        """Bisector's midpoint should be at the original line's midpoint."""
+        line = Line(x1=30, y1=40, x2=150, y2=200)
+        bis = line.bisector()
+        orig_mid = line.get_midpoint()
+        bis_mid = bis.get_midpoint()
+        assert bis_mid[0] == pytest.approx(orig_mid[0], abs=1e-6)
+        assert bis_mid[1] == pytest.approx(orig_mid[1], abs=1e-6)
+
+    def test_bisector_kwargs_forwarded(self):
+        """Extra kwargs should be forwarded to the Line constructor."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        bis = line.bisector(stroke='#ff0000')
+        svg = bis.to_svg(0)
+        assert 'rgb(255,0,0)' in svg or '#ff0000' in svg
+
+
+class TestCircleTangentLineFromPoint:
+    def test_external_point_two_tangents(self):
+        """External point should produce two tangent lines."""
+        c = Circle(r=100, cx=400, cy=400)
+        lines = c.tangent_line_from_point(700, 400)
+        assert len(lines) == 2
+
+    def test_internal_point_no_tangents(self):
+        """Point inside the circle should return empty list."""
+        c = Circle(r=100, cx=400, cy=400)
+        lines = c.tangent_line_from_point(400, 400)
+        assert lines == []
+
+    def test_point_on_circle_one_tangent(self):
+        """Point on the circle boundary should produce one tangent."""
+        c = Circle(r=100, cx=400, cy=400)
+        # Point on the right of the circle
+        lines = c.tangent_line_from_point(500, 400)
+        assert len(lines) == 1
+
+    def test_tangent_touch_points_on_circle(self):
+        """Each tangent line's midpoint should be on the circle surface."""
+        c = Circle(r=100, cx=0, cy=0)
+        lines = c.tangent_line_from_point(200, 0)
+        assert len(lines) == 2
+        for tl in lines:
+            mid = tl.get_midpoint()
+            dist = math.hypot(mid[0], mid[1])
+            assert dist == pytest.approx(100, abs=1)
+
+    def test_tangent_perpendicular_to_radius(self):
+        """Each tangent line should be perpendicular to the radius at the touch point."""
+        c = Circle(r=100, cx=0, cy=0)
+        lines = c.tangent_line_from_point(300, 0)
+        for tl in lines:
+            mid = tl.get_midpoint()
+            # Radius direction from center to touch point
+            radius_line = Line(x1=0, y1=0, x2=mid[0], y2=mid[1])
+            angle = tl.angle_to(radius_line)
+            assert angle == pytest.approx(90, abs=1)
+
+    def test_custom_length(self):
+        """Custom length parameter should be respected."""
+        c = Circle(r=50, cx=0, cy=0)
+        lines = c.tangent_line_from_point(200, 0, length=400)
+        for tl in lines:
+            assert tl.get_length() == pytest.approx(400, abs=1)
+
+    def test_slightly_inside_no_tangents(self):
+        """Point slightly inside the circle should return empty list."""
+        c = Circle(r=100, cx=0, cy=0)
+        lines = c.tangent_line_from_point(50, 0)
+        assert lines == []
+
+
+class TestBarChartFromDict:
+    def test_basic_creation(self):
+        """from_dict should create a BarChart with correct values and labels."""
+        data = {'A': 10, 'B': 20, 'C': 30}
+        chart = BarChart.from_dict(data)
+        assert chart.values == [10, 20, 30]
+        assert chart.bar_count == 3
+
+    def test_empty_dict(self):
+        """from_dict with empty dict should create empty chart."""
+        chart = BarChart.from_dict({})
+        assert chart.values == []
+        assert chart.bar_count == 0
+
+    def test_single_entry(self):
+        """from_dict with a single entry."""
+        chart = BarChart.from_dict({'X': 42})
+        assert chart.values == [42]
+        assert chart.bar_count == 1
+
+    def test_kwargs_forwarded(self):
+        """Extra kwargs should be forwarded to the constructor."""
+        data = {'A': 1, 'B': 2}
+        chart = BarChart.from_dict(data, width=800)
+        assert isinstance(chart, BarChart)
+        assert chart.bar_count == 2
+
+    def test_repr(self):
+        """repr should work correctly."""
+        chart = BarChart.from_dict({'a': 1, 'b': 2, 'c': 3})
+        assert '3 bars' in repr(chart)
+
+
+class TestPieChartFromDict:
+    def test_basic_creation(self):
+        """from_dict should create a PieChart with correct values."""
+        data = {'Apples': 40, 'Bananas': 30, 'Cherries': 30}
+        chart = PieChart.from_dict(data)
+        assert chart.values == [40, 30, 30]
+
+    def test_empty_dict(self):
+        """from_dict with empty dict should create empty chart."""
+        chart = PieChart.from_dict({})
+        assert chart.values == []
+
+    def test_single_entry(self):
+        """from_dict with a single entry."""
+        chart = PieChart.from_dict({'Only': 100})
+        assert chart.values == [100]
+
+    def test_kwargs_forwarded(self):
+        """Extra kwargs should be forwarded to the constructor."""
+        data = {'A': 50, 'B': 50}
+        chart = PieChart.from_dict(data, r=300)
+        assert isinstance(chart, PieChart)
+
+    def test_repr(self):
+        """repr should work correctly."""
+        chart = PieChart.from_dict({'x': 1, 'y': 2})
+        assert '2 sectors' in repr(chart)
+
+
+class TestAxesAddFilledCurve:
+    def test_returns_vcollection(self):
+        """add_filled_curve should return a VCollection."""
+        ax = Axes(x_range=(-5, 5), y_range=(-2, 2))
+        result = ax.add_filled_curve(lambda x: x**2, reveal=False)
+        assert isinstance(result, VCollection)
+
+    def test_collection_has_two_objects(self):
+        """The returned VCollection should contain curve and area."""
+        ax = Axes(x_range=(-3, 3), y_range=(-1, 10))
+        result = ax.add_filled_curve(lambda x: x**2, reveal=False)
+        assert len(result.objects) == 2
+
+    def test_with_x_range(self):
+        """add_filled_curve with x_range should not error."""
+        ax = Axes(x_range=(-5, 5), y_range=(-2, 30))
+        result = ax.add_filled_curve(lambda x: x**2, x_range=(-2, 2), reveal=False)
+        assert isinstance(result, VCollection)
+
+    def test_with_reveal_animation(self):
+        """add_filled_curve with reveal=True and end should not error."""
+        ax = Axes(x_range=(-5, 5), y_range=(-2, 2))
+        result = ax.add_filled_curve(math.sin, start=0, end=2, reveal=True)
+        assert isinstance(result, VCollection)
+
+    def test_without_reveal(self):
+        """add_filled_curve with reveal=False should create instant objects."""
+        ax = Axes(x_range=(0, 5), y_range=(0, 5))
+        result = ax.add_filled_curve(lambda x: x, reveal=False)
+        assert isinstance(result, VCollection)
+
+    def test_custom_color_and_opacity(self):
+        """Custom color and opacity should be accepted."""
+        ax = Axes(x_range=(-3, 3), y_range=(-1, 10))
+        result = ax.add_filled_curve(lambda x: x**2, color='#FF0000',
+                                     opacity=0.5, reveal=False)
+        assert isinstance(result, VCollection)

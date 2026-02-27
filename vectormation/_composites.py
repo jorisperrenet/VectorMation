@@ -592,6 +592,58 @@ class Axes(VCollection):
 
     plot = add_function
 
+    def add_filled_curve(self, func, x_range=None, baseline=0, color='#58C4DD',
+                         opacity=0.3, start=0, end=None, reveal=True, **kwargs):
+        """Plot a curve AND its filled area underneath in one call.
+
+        Combines :meth:`add_function` for the curve and :meth:`get_area`
+        for the shaded region.  When *reveal* is ``True`` the curve is
+        animated with ``draw_along`` and the area fades in over
+        ``[start, end]``.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x)`` to plot.
+        x_range:
+            Optional ``(x_min, x_max)`` domain for the curve and area.
+        baseline:
+            The y-value at which the area starts (in math coords).
+            Default 0 (the x-axis).
+        color:
+            Stroke colour for the curve and fill colour for the area.
+        opacity:
+            Fill opacity for the shaded area.
+        start:
+            Animation start time for the reveal animation.
+        end:
+            Animation end time.  ``None`` means no animation — the curve
+            and area appear instantly at *start*.
+        reveal:
+            If ``True`` and *end* is not ``None``, animate the curve with
+            ``draw_along`` and fade the area in.
+        **kwargs:
+            Extra keyword arguments forwarded to :meth:`add_function`
+            (e.g. ``num_points``, ``stroke_width``).
+
+        Returns
+        -------
+        VCollection
+            A two-element collection ``[curve, area]``.
+        """
+        curve_kwargs = {k: v for k, v in kwargs.items()
+                        if k not in ('fill', 'fill_opacity')}
+        curve = self.add_function(func, x_range=x_range, creation=start,
+                                  stroke=color, **curve_kwargs)
+        area = self.get_area(func, x_range=x_range, creation=start,
+                             fill=color, fill_opacity=opacity, stroke_width=0)
+        if reveal and end is not None and end > start:
+            curve.draw_along(start, end)
+            area.set_opacity(0, start=0)
+            area.set_opacity(1, start=start, end=end)
+        result = VCollection(curve, area, creation=start)
+        return result
+
     def add_parametric_plot(self, fx, fy, t_range=(0, 1), num_points=100,
                             creation=0, z=0, **styling_kwargs):
         """Plot a parametric curve x=fx(t), y=fy(t).
@@ -6703,6 +6755,27 @@ class PieChart(VCollection):
         self.values = values
         self._cx, self._cy = cx, cy
 
+    @classmethod
+    def from_dict(cls, data, **kwargs):
+        """Create a PieChart from a dictionary.
+
+        Keys become labels and values become sector sizes.
+
+        Parameters
+        ----------
+        data:
+            A dictionary mapping label strings to numeric values.
+        **kwargs:
+            Extra keyword arguments forwarded to the PieChart constructor.
+
+        Returns
+        -------
+        PieChart
+        """
+        values = list(data.values())
+        labels = list(data.keys())
+        return cls(values, labels=labels, **kwargs)
+
     def __repr__(self):
         return f'PieChart({len(self.values)} sectors)'
 
@@ -7005,6 +7078,27 @@ class BarChart(VCollection):
         self._labels = label_objs
         self._height = height
         self._y = y
+
+    @classmethod
+    def from_dict(cls, data, **kwargs):
+        """Create a BarChart from a dictionary.
+
+        Keys become labels and values become bar heights.
+
+        Parameters
+        ----------
+        data:
+            A dictionary mapping label strings to numeric values.
+        **kwargs:
+            Extra keyword arguments forwarded to the BarChart constructor.
+
+        Returns
+        -------
+        BarChart
+        """
+        values = list(data.values())
+        labels = list(data.keys())
+        return cls(values, labels=labels, **kwargs)
 
     def __repr__(self):
         return f'BarChart({self.bar_count} bars)'

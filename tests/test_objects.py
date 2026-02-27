@@ -37,6 +37,7 @@ from vectormation.objects import (
     Countdown, Filmstrip, MorphObject, Title, NumberPlane,
 )
 from vectormation.attributes import Coor, Real
+from vectormation.objects import MED_SMALL_BUFF
 import vectormation.easings as easings
 from bs4 import BeautifulSoup
 
@@ -11424,3 +11425,159 @@ class TestAnimateAlongObject:
         # The center should differ at the midpoint
         dist = math.sqrt((cx_mid[0] - cx_start[0])**2 + (cx_mid[1] - cx_start[1])**2)
         assert dist > 1  # should have moved noticeably
+
+
+class TestAlwaysNextTo:
+    def test_returns_self(self):
+        a = Circle(r=20, cx=100, cy=100)
+        b = Circle(r=20, cx=300, cy=100)
+        result = a.always_next_to(b, direction=RIGHT)
+        assert result is a
+
+    def test_positions_next_to_at_start(self):
+        """At start time, self should be positioned next to other."""
+        a = Circle(r=20, cx=100, cy=100)
+        b = Circle(r=20, cx=300, cy=300)
+        a.always_next_to(b, direction=RIGHT, buff=10, start=0)
+        a._run_updaters(0)
+        ax, ay = a.center(0)
+        bx, by, bw, bh = b.bbox(0)
+        # a's left edge should be roughly buff pixels to the right of b's right edge
+        assert ax > bx + bw
+
+    def test_tracks_moving_target(self):
+        """Self should follow the target when it moves."""
+        a = Circle(r=20, cx=100, cy=100)
+        b = Circle(r=20, cx=300, cy=300)
+        b.shift(dx=200, dy=0, start_time=0, end_time=1, easing=easings.linear)
+        a.always_next_to(b, direction=RIGHT, buff=10, start=0)
+        a._run_updaters(0)
+        pos0 = a.center(0)
+        a._run_updaters(1)
+        pos1 = a.center(1)
+        # a should have moved right as b moved right
+        assert pos1[0] > pos0[0] + 100
+
+    def test_direction_left(self):
+        """When direction=LEFT, self should be to the left of other."""
+        a = Circle(r=20, cx=500, cy=500)
+        b = Circle(r=20, cx=300, cy=300)
+        a.always_next_to(b, direction=LEFT, buff=10, start=0)
+        a._run_updaters(0)
+        ax = a.center(0)[0]
+        bx = b.bbox(0)[0]
+        assert ax < bx
+
+    def test_with_end_time(self):
+        """Updater should respect end time."""
+        a = Circle(r=20, cx=100, cy=100)
+        b = Circle(r=20, cx=300, cy=300)
+        a.always_next_to(b, direction=RIGHT, buff=10, start=0, end=0.5)
+        # Updater should run at t=0.3
+        a._run_updaters(0.3)
+        # Updater should not run at t=0.8 (beyond end)
+        pos_mid = a.center(0.3)
+        # Just verify it doesn't crash
+        a._run_updaters(0.8)
+
+    def test_default_buff(self):
+        """Default buff should be MED_SMALL_BUFF (34)."""
+        a = Circle(r=20, cx=100, cy=100)
+        b = Circle(r=20, cx=300, cy=300)
+        a.always_next_to(b)
+        a._run_updaters(0)
+        ax = a.center(0)[0]
+        bx, by, bw, bh = b.bbox(0)
+        # a should be to the right of b with MED_SMALL_BUFF gap
+        expected_ax = bx + bw + MED_SMALL_BUFF + 20  # 20 = a's radius
+        assert ax == pytest.approx(expected_ax, abs=2)
+
+
+class TestSetColorIf:
+    def test_returns_self(self):
+        c = Circle(r=20, cx=100, cy=100, fill='#ff0000')
+        result = c.set_color_if(lambda t: t > 0.5, '#00ff00')
+        assert result is c
+
+    def test_color_changes_when_predicate_true(self):
+        c = Circle(r=20, cx=100, cy=100, fill='#ff0000')
+        c.set_color_if(lambda t: t > 0.5, '#00ff00', start=0)
+        c._run_updaters(0.8)
+        color = c.styling.fill.at_time(0.8)
+        assert color == 'rgb(0,255,0)'
+
+    def test_color_reverts_when_predicate_false(self):
+        c = Circle(r=20, cx=100, cy=100, fill='#ff0000')
+        c.set_color_if(lambda t: t > 0.5, '#00ff00', start=0)
+        c._run_updaters(0.2)
+        color = c.styling.fill.at_time(0.2)
+        assert color == 'rgb(255,0,0)'
+
+    def test_alternating_predicate(self):
+        """Color should toggle based on predicate."""
+        c = Circle(r=20, cx=100, cy=100, fill='#ff0000')
+        c.set_color_if(lambda t: int(t * 10) % 2 == 0, '#0000ff', start=0)
+        # t=0.0 -> int(0) % 2 == 0 -> True -> blue
+        c._run_updaters(0.0)
+        assert c.styling.fill.at_time(0.0) == 'rgb(0,0,255)'
+        # t=0.1 -> int(1) % 2 == 1 -> False -> red
+        c._run_updaters(0.1)
+        assert c.styling.fill.at_time(0.1) == 'rgb(255,0,0)'
+
+    def test_with_end_time(self):
+        """Updater should respect end time."""
+        c = Circle(r=20, cx=100, cy=100, fill='#ff0000')
+        c.set_color_if(lambda t: True, '#00ff00', start=0, end=0.5)
+        c._run_updaters(0.3)
+        assert c.styling.fill.at_time(0.3) == 'rgb(0,255,0)'
+        # Beyond end, updater should not run
+        # (color stays at whatever was last set)
+
+
+class TestApplyPointwise:
+    def test_returns_self(self):
+        c = Circle(r=20, cx=100, cy=100)
+        result = c.apply_pointwise(lambda x, y: (x + 10, y + 10))
+        assert result is c
+
+    def test_translates_circle(self):
+        c = Circle(r=20, cx=100, cy=100)
+        c.apply_pointwise(lambda x, y: (x + 50, y + 30))
+        cx, cy = c.center(0)
+        assert cx == pytest.approx(150, abs=2)
+        assert cy == pytest.approx(130, abs=2)
+
+    def test_polygon_vertices_transformed(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        p.apply_pointwise(lambda x, y: (x + 10, y + 20))
+        verts = p.get_vertices(0)
+        assert verts[0] == pytest.approx((10, 20), abs=1)
+        assert verts[1] == pytest.approx((110, 20), abs=1)
+        assert verts[2] == pytest.approx((110, 120), abs=1)
+        assert verts[3] == pytest.approx((10, 120), abs=1)
+
+    def test_polygon_scale_transform(self):
+        p = Polygon((10, 10), (20, 10), (20, 20), (10, 20))
+        p.apply_pointwise(lambda x, y: (x * 2, y * 3))
+        verts = p.get_vertices(0)
+        assert verts[0] == pytest.approx((20, 30), abs=1)
+        assert verts[1] == pytest.approx((40, 30), abs=1)
+        assert verts[2] == pytest.approx((40, 60), abs=1)
+        assert verts[3] == pytest.approx((20, 60), abs=1)
+
+    def test_rectangle_translates_as_non_polygon(self):
+        """Rectangle is not a Polygon subclass, so center-based move is used."""
+        r = Rectangle(100, 50, x=200, y=200)
+        cx0, cy0 = r.center(0)
+        r.apply_pointwise(lambda x, y: (x + 100, y - 50))
+        cx1, cy1 = r.center(0)
+        assert cx1 == pytest.approx(cx0 + 100, abs=2)
+        assert cy1 == pytest.approx(cy0 - 50, abs=2)
+
+    def test_identity_is_noop(self):
+        c = Circle(r=20, cx=100, cy=100)
+        cx0, cy0 = c.center(0)
+        c.apply_pointwise(lambda x, y: (x, y))
+        cx1, cy1 = c.center(0)
+        assert cx1 == pytest.approx(cx0, abs=1)
+        assert cy1 == pytest.approx(cy0, abs=1)

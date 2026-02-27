@@ -1212,6 +1212,31 @@ class Polygon(VObject):
         d = ' '.join(parts)
         return Path(d, **kwargs)
 
+    def apply_pointwise(self, func, time=0):
+        """Apply an arbitrary function to all vertices.
+
+        *func* is called as ``func(x, y)`` for each vertex and must return
+        an ``(x', y')`` tuple.  The vertex position is read at *time* via
+        ``at_time`` and the result is written back with ``set_onward``.
+
+        Parameters
+        ----------
+        func:
+            A callable ``(x, y) -> (x', y')``.
+        time:
+            Animation time at which to read current positions and write
+            the transformed positions.
+
+        Returns
+        -------
+        self
+        """
+        for v in self.vertices:
+            x, y = v.at_time(time)
+            nx, ny = func(float(x), float(y))
+            v.set_onward(time, (nx, ny))
+        return self
+
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 
@@ -2314,6 +2339,57 @@ class Circle(Ellipse):
         r = self.rx.at_time(time)
         return Annulus(inner_radius=r * inner_ratio, outer_radius=r,
                        cx=cx, cy=cy, **kwargs)
+
+    def tangent_line_from_point(self, px, py, time=0, length=200, **kwargs):
+        """Return tangent line(s) from an external point to this circle.
+
+        Uses the standard geometric construction: compute the distance from
+        the point to the circle center, then find the tangent touch points.
+
+        Parameters
+        ----------
+        px, py:
+            Coordinates of the external point.
+        time:
+            Animation time at which to read the circle's position/radius.
+        length:
+            Total length of each returned tangent Line segment.
+        **kwargs:
+            Extra styling keyword arguments forwarded to :class:`Line`.
+
+        Returns
+        -------
+        list of Line
+            0 lines if the point is inside the circle, 1 if on the
+            boundary, or 2 if outside.
+        """
+        cx, cy = self.c.at_time(time)
+        r = self.rx.at_time(time)
+        d = _distance(cx, cy, px, py)
+        if d < r - 1e-9:
+            return []
+        if abs(d) < 1e-12:
+            return []
+        ux, uy = (px - cx) / d, (py - cy) / d
+        if d <= r + 1e-9:
+            tx, ty = -uy, ux
+            half = length / 2
+            return [Line(x1=px - tx * half, y1=py - ty * half,
+                         x2=px + tx * half, y2=py + ty * half, **kwargs)]
+        half_angle = math.acos(max(-1.0, min(1.0, r / d)))
+        base_angle = math.atan2(py - cy, px - cx)
+        lines = []
+        for sign in (1, -1):
+            touch_angle = base_angle + sign * half_angle
+            tx_touch = cx + r * math.cos(touch_angle)
+            ty_touch = cy + r * math.sin(touch_angle)
+            td_x = -math.sin(touch_angle)
+            td_y = math.cos(touch_angle)
+            half = length / 2
+            lines.append(Line(x1=tx_touch - td_x * half, y1=ty_touch - td_y * half,
+                               x2=tx_touch + td_x * half, y2=ty_touch + td_y * half,
+                               **kwargs))
+        return lines
 
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)
@@ -4174,6 +4250,37 @@ class Line(VObject):
         r1 = (2 * proj1[0] - s1[0], 2 * proj1[1] - s1[1])
         r2 = (2 * proj2[0] - s2[0], 2 * proj2[1] - s2[1])
         return Line(x1=r1[0], y1=r1[1], x2=r2[0], y2=r2[1], **kwargs)
+
+    def bisector(self, time=0, length=None, **kwargs):
+        """Return the perpendicular bisector of this line.
+
+        The bisector passes through the midpoint and is perpendicular to
+        the direction from p1 to p2.  Its total length defaults to the
+        length of this line if *length* is not specified.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read the line's endpoints.
+        length:
+            Total length of the returned bisector line.  ``None`` means
+            use this line's own length.
+        **kwargs:
+            Extra keyword arguments forwarded to the :class:`Line`
+            constructor (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        Line
+            A new Line centred at the midpoint, perpendicular to this line.
+        """
+        mx, my = self.get_midpoint(time)
+        nx, ny = self.get_normal(time)
+        if length is None:
+            length = self.get_length(time)
+        half = length / 2
+        return Line(x1=mx - nx * half, y1=my - ny * half,
+                    x2=mx + nx * half, y2=my + ny * half, **kwargs)
 
 
 class Text(VObject):
