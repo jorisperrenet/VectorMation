@@ -13487,3 +13487,245 @@ class TestReverseChildren:
         g.reverse_children()
         assert g.objects[0] is c2
         assert g.objects[1] is c1
+
+
+class TestBrect:
+    def test_vobject_brect_returns_rectangle(self):
+        c = Circle(r=50, cx=100, cy=100)
+        r = c.brect(time=0)
+        assert r is not None
+        bx, by, bw, bh = r.bbox(0)
+        # brect should be larger than the circle's bbox due to buff
+        cx_bb, cy_bb, cw, ch = c.bbox(0)
+        assert bw >= cw
+        assert bh >= ch
+
+    def test_vobject_brect_with_buff(self):
+        r = Rectangle(100, 50, x=200, y=100)
+        br = r.brect(time=0, buff=20)
+        bx, by, bw, bh = br.bbox(0)
+        assert bw == pytest.approx(140, abs=2)
+        assert bh == pytest.approx(90, abs=2)
+
+    def test_vcollection_brect(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=200)
+        g = VGroup(c1, c2)
+        br = g.brect(time=0)
+        bx, by, bw, bh = br.bbox(0)
+        assert bw > 0
+        assert bh > 0
+
+
+class TestSurround:
+    def test_surround_creates_rectangle(self):
+        c = Circle(r=30, cx=100, cy=100)
+        sr = Circle.surround(c, buff=10)
+        assert sr is not None
+        bx, by, bw, bh = sr.bbox(0)
+        assert bw > 0
+
+
+class TestAnimateStyle:
+    def test_animate_fill(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#ff0000')
+        result = c.animate_style(0, 1, fill='#0000ff')
+        assert result is c
+
+    def test_animate_stroke_width(self):
+        c = Circle(r=50, cx=100, cy=100, stroke_width=2)
+        result = c.animate_style(0, 1, stroke_width=8)
+        assert result is c
+        # At end time, stroke_width should be ~8
+        assert c.styling.stroke_width.at_time(1) == pytest.approx(8, abs=0.5)
+
+    def test_instant_set_when_dur_zero(self):
+        c = Circle(r=50, cx=100, cy=100, fill_opacity=1.0)
+        c.animate_style(0, 0, fill_opacity=0.5)
+        assert c.styling.fill_opacity.at_time(0) == pytest.approx(0.5, abs=0.01)
+
+
+class TestSplitWords:
+    def test_split_words_count(self):
+        t = Text("Hello World Foo", x=100, y=100)
+        words = t.split_words()
+        assert len(words.objects) == 3
+
+    def test_split_words_empty(self):
+        t = Text("", x=100, y=100)
+        words = t.split_words()
+        assert len(words.objects) == 0
+
+
+class TestAxesSetRanges:
+    def test_set_ranges_animates_both_axes(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.set_ranges(0, 1, x_range=(-10, 10), y_range=(-10, 10))
+        assert result is ax
+
+    def test_animate_x_range(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        ax.animate_x_range(0, 1, (-10, 10))
+        assert ax.x_min.at_time(1) == pytest.approx(-10, abs=0.5)
+        assert ax.x_max.at_time(1) == pytest.approx(10, abs=0.5)
+
+    def test_animate_y_range(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        ax.animate_y_range(0, 1, (-10, 10))
+        assert ax.y_min.at_time(1) == pytest.approx(-10, abs=0.5)
+        assert ax.y_max.at_time(1) == pytest.approx(10, abs=0.5)
+
+
+class TestAxesPlotMethods:
+    def test_plot_scatter(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        result = ax.plot_scatter([1, 3, 5], [2, 4, 6])
+        assert result is not None
+
+    def test_plot_step(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        result = ax.plot_step([1, 3, 5, 7], [2, 4, 6, 8])
+        assert result is not None
+
+    def test_plot_parametric(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.plot_parametric(lambda t: (math.cos(t), math.sin(t)))
+        assert result is not None
+
+    def test_plot_stem(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 5))
+        result = ax.plot_stem([1, 2, 3], [2, 3, 4])
+        assert result is not None
+
+    def test_plot_vector_field(self):
+        ax = Axes(x_range=(-3, 3), y_range=(-3, 3))
+        result = ax.plot_vector_field(lambda x, y: (-y, x))
+        assert result is not None
+
+
+class TestAxesDecorations:
+    def test_get_horizontal_line(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        ax.plot(lambda x: x)
+        line = ax.get_horizontal_line(5, 5)
+        assert line is not None
+
+    def test_get_dashed_line(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        line = ax.get_dashed_line(1, 2, 5, 6)
+        assert line is not None
+
+    def test_get_line_from_to(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        line = ax.get_line_from_to(1, 2, 5, 6)
+        assert line is not None
+
+    def test_highlight_x_range(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        rect = ax.highlight_x_range(2, 8)
+        assert rect is not None
+
+    def test_highlight_y_range(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        rect = ax.highlight_y_range(2, 8)
+        assert rect is not None
+
+    def test_get_rect(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        rect = ax.get_rect(1, 2, 5, 6)
+        assert rect is not None
+
+    def test_get_area_between(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        f1 = ax.plot(lambda x: x)
+        f2 = ax.plot(lambda x: x ** 2 / 10)
+        area = ax.get_area_between(f1, f2)
+        assert area is not None
+
+    def test_get_secant_line(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        curve = ax.plot(lambda x: x ** 2 / 10)
+        line = ax.get_secant_line(curve, 2, 5)
+        assert line is not None
+
+    def test_get_graph_label(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        curve = ax.plot(lambda x: x)
+        label = ax.get_graph_label(curve, "f(x)")
+        assert label is not None
+
+    def test_coords_label(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        label = ax.coords_label(3, 5)
+        assert label is not None
+
+    def test_add_legend(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        ax.plot(lambda x: x, stroke='#ff0000')
+        legend = ax.add_legend([("f(x)", "#ff0000")])
+        assert legend is not None
+
+    def test_add_horizontal_label(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        label = ax.add_horizontal_label(5, "y=5")
+        assert label is not None
+
+    def test_add_vertical_label(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        label = ax.add_vertical_label(5, "x=5")
+        assert label is not None
+
+    def test_add_asymptote(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        line = ax.add_asymptote(5)
+        assert line is not None
+
+    def test_add_arrow_annotation(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        ann = ax.add_arrow_annotation(3, 4, "point")
+        assert ann is not None
+
+
+class TestNeuralNetworkActivate:
+    def test_activate_returns_self(self):
+        nn = NeuralNetwork([3, 4, 2])
+        result = nn.activate(0, 0, start=0, end=1)
+        assert result is nn
+
+
+class TestAxesAdvancedMethods:
+    def test_add_cursor(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        dot = ax.add_cursor(lambda x: x, 0, 10, start=0, end=1)
+        assert dot is not None
+
+    def test_add_trace(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        result = ax.add_trace(lambda x: x, 0, 10, start=0, end=1)
+        assert result is not None
+
+    def test_add_crosshair(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        result = ax.add_crosshair(lambda x: x, 0, 10, start=0, end=1)
+        assert result is not None
+
+    def test_add_secant_fade(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        result = ax.add_secant_fade(lambda x: x ** 2 / 10, 5)
+        assert result is not None
+
+    def test_get_slope_field(self):
+        ax = Axes(x_range=(-3, 3), y_range=(-3, 3))
+        result = ax.get_slope_field(lambda x, y: y - x)
+        assert result is not None
+
+
+class TestAutomatonHighlight:
+    def test_highlight_state(self):
+        a = Automaton(
+            states=['q0', 'q1'],
+            transitions=[('q0', 'q1', 'a')],
+            initial_state='q0',
+            accept_states={'q1'},
+        )
+        a.highlight_state('q0', start=0, end=1)
