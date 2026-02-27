@@ -72,6 +72,7 @@ Class Hierarchy
    +-- ArrayViz                 Array visualisation
    +-- LinkedListViz            Linked list visualisation
    +-- StackViz                 Stack (LIFO) visualisation
+   +-- QueueViz                 Queue (FIFO) visualisation
    +-- Automaton                Finite state machine
    +-- BohrAtom                 Bohr atom model
    +-- ChessBoard               Chess board

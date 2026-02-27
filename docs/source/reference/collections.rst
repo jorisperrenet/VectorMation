@@ -22,9 +22,53 @@ VCollection
 
       Remove an object from the collection.
 
+   .. py:method:: insert_at(index, *objs)
+
+      Insert objects at a specific index.
+
+   .. py:method:: remove_at(index)
+
+      Remove the child at *index*.
+
+   .. py:method:: clear()
+
+      Remove all children.
+
    .. py:method:: copy()
 
       Deep copy with independent animations.
+
+   .. rubric:: Child access
+
+   .. py:method:: first()
+
+      Return the first child.
+
+   .. py:method:: last()
+
+      Return the last child.
+
+   .. py:method:: nth(n)
+
+      Return the *n*-th child.
+
+   .. py:method:: get_child(index)
+
+      Return child at *index*.
+
+   .. py:method:: select(start=0, end=None)
+
+      Return a new VCollection with a slice of children.
+
+   .. rubric:: Z-order
+
+   .. py:method:: send_to_back(child)
+
+      Move *child* to the back (lowest z-order).
+
+   .. py:method:: bring_to_front(child)
+
+      Move *child* to the front (highest z-order).
 
    .. rubric:: Layout
 
@@ -97,6 +141,18 @@ VCollection
 
       Place children in a circle.
 
+   .. py:method:: space_evenly(direction='right', total_span=None, start=0)
+
+      Space children evenly along an axis.
+
+   .. py:method:: spread(x1, y1, x2, y2, start=0)
+
+      Distribute children evenly between two points.
+
+   .. py:method:: align_submobjects(edge='left', start=0)
+
+      Align all children's edges.
+
    .. rubric:: Animation
 
    .. py:method:: write(start, end, processing=10, max_stroke_width=2, change_existence=True)
@@ -119,6 +175,38 @@ VCollection
 
       Animated random shuffle of children.
 
+   .. py:method:: reveal(start=0, end=1, direction='left', easing=smooth)
+
+      Staggered reveal of children sliding into view.
+
+   .. py:method:: stagger_fadein(start=0, end=1, direction='right')
+
+      Staggered fade-in of children from one side.
+
+   .. py:method:: wave_anim(start=0, end=1, amplitude=20, waves=1)
+
+      Wave animation through children.
+
+   .. py:method:: highlight_child(index, start=0, end=1, color='#E9C46A')
+
+      Temporarily highlight a specific child.
+
+   .. py:method:: wave_effect(start=0, end=1, amplitude=20, axis='y', phase_spread=2)
+
+      Wave displacement through children.
+
+   .. py:method:: stagger_along_path(method_name, path_d, start=0, end=1, **kwargs)
+
+      Stagger method calls along an SVG path.
+
+   .. py:method:: stagger_random(method_name, start=0, end=1, seed=None, **kwargs)
+
+      Stagger method calls with random timing.
+
+   .. py:method:: label_children(labels, direction=UP, buff=20, font_size=None, creation=0)
+
+      Add text labels above (or beside) each child.
+
    .. rubric:: Filtering & Iteration
 
    .. py:method:: filter(func)
@@ -136,6 +224,10 @@ VCollection
    .. py:method:: sort_children(key, reverse=False)
 
       Sort children by a key function.
+
+   .. py:method:: shuffle()
+
+      Randomly shuffle children order.
 
    .. rubric:: Color
 
@@ -262,3 +354,113 @@ Brace
    :param str label: Optional text label.
    :param float buff: Distance from target.
    :param float depth: Brace depth.
+
+----
+
+Data Structures
+---------------
+
+ArrayViz
+~~~~~~~~
+
+.. py:class:: ArrayViz(values, cell_size=80, x=None, y=None, colors=None, default_fill='#264653', show_indices=True, font_size=32, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Visualise an array as a row of labeled cells. Supports animated swaps,
+   highlights, and value changes.
+
+   :param list values: Initial values to display.
+   :param float cell_size: Width and height of each cell.
+
+   .. py:method:: highlight(index, color='#E9C46A', start=0, end=0.5)
+
+      Temporarily highlight a cell.
+
+   .. py:method:: swap(i, j, start=0, end=0.5)
+
+      Animate swapping two cells.
+
+   .. py:method:: set_value(index, value, start=0, end=0.5)
+
+      Animate changing a cell's value.
+
+   .. py:method:: pointer(index, label='', start=0, color='#FC6255')
+
+      Add a labelled pointer arrow above a cell.
+
+LinkedListViz
+~~~~~~~~~~~~~
+
+.. py:class:: LinkedListViz(values, cell_width=80, cell_height=50, x=None, y=None, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Visualise a singly linked list with boxes and arrows.
+
+   :param list values: Initial node values.
+
+   .. py:method:: highlight(index, color='#E9C46A', start=0, end=0.5)
+
+      Temporarily highlight a node.
+
+   .. py:method:: traverse(start=0, delay=0.3, color='#E9C46A')
+
+      Animate traversal through all nodes sequentially.
+
+StackViz
+~~~~~~~~
+
+.. py:class:: StackViz(values, cell_width=120, cell_height=50, x=None, y=None, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Visualise a stack (LIFO) as vertically stacked cells with a TOP pointer.
+
+   :param list values: Initial values (bottom to top).
+
+   .. py:method:: push(value, start=0, end=0.5)
+
+      Animate pushing a value onto the stack.
+
+   .. py:method:: pop(start=0, end=0.5)
+
+      Animate popping the top value.
+
+QueueViz
+~~~~~~~~
+
+.. py:class:: QueueViz(values, cell_width=80, cell_height=60, x=None, y=None, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Visualise a queue (FIFO) as a horizontal row of cells with FRONT/BACK labels.
+
+   :param list values: Initial values (front on the left).
+
+   .. py:method:: enqueue(value, start=0, end=0.5)
+
+      Animate adding a value to the back of the queue.
+
+   .. py:method:: dequeue(start=0, end=0.5)
+
+      Animate removing the front value.
+
+   .. py:method:: highlight(index, color='#E9C46A', start=0, end=0.5)
+
+      Temporarily highlight a cell.
+
+BinaryTree
+~~~~~~~~~~
+
+.. py:class:: BinaryTree(tree, x=960, y=120, h_spacing=200, v_spacing=100, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Visual binary tree with automatic layout.
+
+   :param tuple tree: Nested tuple ``(value, left_subtree, right_subtree)``.
+
+   .. py:method:: highlight_node(index, color='#E9C46A', start=0, end=0.5)
+
+      Temporarily highlight a node by depth-first index.

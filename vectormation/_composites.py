@@ -14,7 +14,7 @@ from vectormation._constants import (
     DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
     _sample_function,
 )
-from vectormation._base import VObject, VCollection
+from vectormation._base import VObject, VCollection, _norm_dir
 from vectormation._shapes import (
     Polygon, Circle, Ellipse, Dot, Rectangle, RoundedRectangle, Line, Lines,
     Text, Path, Arc, Wedge,
@@ -6024,6 +6024,7 @@ class Brace(VCollection):
     """
     def __init__(self, target, direction='down', label=None, buff=SMALL_BUFF,
                  depth=18, creation: float = 0, z: float = 0, **styling_kwargs):
+        direction = _norm_dir(direction, 'down')
         bx, by, bw, bh = target.bbox(creation)
 
         if direction in ('down', 'up'):
@@ -6738,11 +6739,7 @@ class NumberLine(VCollection):
             The Brace object (already appended to this NumberLine's
             objects list).
         """
-        # Convert direction constant tuples to string
-        _dir_map = {(0, 1): 'down', (0, -1): 'up',
-                    (-1, 0): 'left', (1, 0): 'right'}
-        if isinstance(direction, (tuple, list)):
-            direction = _dir_map.get(tuple(direction), 'down')
+        direction = _norm_dir(direction, 'down')
         p1x, p1y = self.number_to_point(x1)
         p2x, p2y = self.number_to_point(x2)
         lx, rx_ = min(p1x, p2x), max(p1x, p2x)
@@ -8932,6 +8929,8 @@ def brace_between_points(p1, p2, direction=None, label=None, buff=0, depth=18,
             direction = 'right'
         else:
             direction = 'left'
+    else:
+        direction = _norm_dir(direction, 'down')
     # Create a dummy rectangle matching the span
     if direction in ('down', 'up'):
         dummy = Rectangle(dist, 1, x=cx - dist / 2, y=cy - 0.5, creation=creation)
@@ -9862,6 +9861,7 @@ class Callout(VCollection):
     def __init__(self, text, target, direction='up', distance=80, font_size=24,
                  padding=8, corner_radius=4, creation: float = 0, z: float = 0, **styling_kwargs):
         from vectormation._shapes import Text as SText, RoundedRectangle, Line as SLine
+        direction = _norm_dir(direction, 'up')
 
         # Resolve target position
         if hasattr(target, 'bbox'):
@@ -13274,5 +13274,10 @@ def parse_args():
     parser.add_argument('--port', type=int, default=8765, help='Browser viewer port')
     parser.add_argument('--fps', type=int, default=60, help='Frames per second')
     parser.add_argument('--no-display', action='store_true', help='Skip browser display')
+    parser.add_argument('-o', '--output', type=str, default=None, help='Output file path (e.g. out.mp4)')
+    parser.add_argument('-d', '--duration', type=float, default=None, help='Animation duration in seconds')
+    parser.add_argument('--start', type=float, default=None, help='Start time in seconds')
+    parser.add_argument('--end', type=float, default=None, help='End time in seconds')
+    parser.add_argument('--hot-reload', action='store_true', help='Enable hot reload in browser')
     return parser.parse_args()
 
