@@ -2286,7 +2286,7 @@ class TestBooleanOps:
             assert hasattr(obj, 'path')
 
 
-class TestThreeDAxes:
+class TestThreeDAxesBasic:
     def test_creates_collection(self):
         ax = ThreeDAxes()
         assert isinstance(ax, VCollection)

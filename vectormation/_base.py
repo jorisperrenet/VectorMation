@@ -4736,7 +4736,6 @@ class VCollection:
             return self
         if cols is None:
             cols = math.ceil(math.sqrt(n))
-        rows = math.ceil(n / cols)
         boxes = [obj.bbox(start_time) for obj in self.objects]
         max_w = max(b[2] for b in boxes)
         max_h = max(b[3] for b in boxes)

@@ -4226,6 +4226,7 @@ class Axes(VCollection):
 
         Returns a DynamicObject that rebuilds each frame."""
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.5, 'stroke': '#fff', 'stroke_width': 1} | styling_kwargs
+        fn = self._resolve_func(func, 'func')
         def _build(time):
             x_lo, x_hi = x_range
             by = self._baseline_y(time)
@@ -4235,7 +4236,11 @@ class Axes(VCollection):
                 x_next = min(xv + dx, x_hi)
                 sx1 = self._math_to_svg_x(xv, time)
                 sx2 = self._math_to_svg_x(x_next, time)
-                sy = self._math_to_svg_y(func(xv), time)
+                try:
+                    sy = self._math_to_svg_y(fn(xv), time)
+                except (ValueError, ZeroDivisionError):
+                    xv = x_next
+                    continue
                 rects.append(Rectangle(width=sx2 - sx1, height=abs(by - sy),
                                        x=sx1, y=min(sy, by),
                                        creation=time, z=z, **style_kw))
@@ -4280,9 +4285,8 @@ class Axes(VCollection):
             added to the axes.
         """
         fn = self._resolve_func(func, 'func')
-        _h = h
 
-        def _deriv(x, _f=fn, _hh=_h):
+        def _deriv(x, _f=fn, _hh=h):
             try:
                 return (_f(x + _hh) - _f(x - _hh)) / (2 * _hh)
             except (ValueError, ZeroDivisionError):
@@ -4335,7 +4339,6 @@ class Axes(VCollection):
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.4,
                     'stroke': '#fff', 'stroke_width': 1} | styling_kwargs
         fn = self._resolve_func(func, 'func')
-        _dx = dx
 
         def _build(time):
             x_lo, x_hi = x_range
@@ -4343,7 +4346,7 @@ class Axes(VCollection):
             traps = []
             xv = x_lo
             while xv < x_hi - 1e-9:
-                x_next = min(xv + _dx, x_hi)
+                x_next = min(xv + dx, x_hi)
                 # Four corners of the trapezoid: bottom-left, top-left, top-right, bottom-right
                 sx1 = self._math_to_svg_x(xv, time)
                 sx2 = self._math_to_svg_x(x_next, time)

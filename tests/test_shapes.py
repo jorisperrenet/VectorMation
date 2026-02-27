@@ -1076,7 +1076,7 @@ class TestAlongPath:
         assert bx_end > bx_start + 100
 
 
-class TestCountAnimation:
+class TestCountAnimationValues:
     def test_count_animation_start_value(self):
         c = CountAnimation(start_val=0, end_val=100, start=0, end=1, x=100, y=100)
         assert c.text.at_time(0) == '0'
@@ -1145,7 +1145,7 @@ class TestSwap:
         assert bx + bw / 2 == pytest.approx(a_center[0], abs=5)
 
 
-class TestDrawAlong:
+class TestDrawAlongCircle:
     def test_draw_along_returns_self(self):
         c = Circle(r=50, cx=100, cy=100)
         assert c.draw_along(start=0, end=1) is c
@@ -1242,7 +1242,7 @@ class TestPulse:
         assert sx > 1.0
 
 
-class TestArcBbox:
+class TestArcBboxShape:
     def test_arc_bbox_quarter(self):
         """Quarter arc from 0° to 90°."""
         a = Arc(cx=100, cy=100, r=50, start_angle=0, end_angle=90)
