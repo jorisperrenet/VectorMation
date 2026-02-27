@@ -844,6 +844,41 @@ class VObject(ABC):  # Vector Object
         direction: 'left', 'right', 'up', 'down'."""
         return self._slide_anim(direction, start, end, False, change_existence, easing)
 
+    def _fade_slide_anim(self, direction, distance, start, end, fade_in, change_existence, easing):
+        """Shared helper for fade_slide_in / fade_slide_out."""
+        direction = direction or DOWN
+        dur = end - start
+        if dur <= 0:
+            if not fade_in and change_existence:
+                self._hide_from(start)
+            return self
+        if fade_in and change_existence:
+            self._show_from(start)
+        # For fade_in: start offset in -direction, slide to current pos
+        # For fade_out: slide away in +direction from current pos
+        sign = -1 if fade_in else 1
+        dx = sign * direction[0] * distance
+        dy = sign * direction[1] * distance
+        s = start
+        if fade_in:
+            dx_func = (lambda t, _s=s, _d=dur, _dx=dx, _e=easing: _dx * (1 - _e((t - _s) / _d))) if dx else None
+            dy_func = (lambda t, _s=s, _d=dur, _dy=dy, _e=easing: _dy * (1 - _e((t - _s) / _d))) if dy else None
+        else:
+            dx_func = (lambda t, _s=s, _d=dur, _dx=dx, _e=easing: _dx * _e((t - _s) / _d)) if dx else None
+            dy_func = (lambda t, _s=s, _d=dur, _dy=dy, _e=easing: _dy * _e((t - _s) / _d)) if dy else None
+        self._apply_shift_effect(start, end, dx_func, dy_func, stay=True)
+        if fade_in:
+            end_val = self.styling.opacity.at_time(end)
+            self.styling.opacity.set(s, end,
+                lambda t, _s=s, _d=dur, _ev=end_val, _e=easing: _ev * _e((t - _s) / _d))
+        else:
+            start_val = self.styling.opacity.at_time(start)
+            self.styling.opacity.set(s, end,
+                lambda t, _s=s, _d=dur, _sv=start_val, _e=easing: _sv * (1 - _e((t - _s) / _d)))
+            if change_existence:
+                self._hide_from(end)
+        return self
+
     def fade_slide_in(self, direction=None, distance=200, start: float = 0, end: float = 1,
                       change_existence=True, easing=easings.smooth):
         """Slide in from a direction while fading from 0 to 1.
@@ -870,23 +905,7 @@ class VObject(ABC):  # Vector Object
         -------
         self
         """
-        direction = direction or DOWN
-        dur = end - start
-        if dur <= 0:
-            return self
-        if change_existence:
-            self._show_from(start)
-        dx = -direction[0] * distance
-        dy = -direction[1] * distance
-        s, e = start, end
-        dx_func = (lambda t, _s=s, _d=dur, _dx=dx, _e=easing: _dx * (1 - _e((t - _s) / _d))) if dx else None
-        dy_func = (lambda t, _s=s, _d=dur, _dy=dy, _e=easing: _dy * (1 - _e((t - _s) / _d))) if dy else None
-        self._apply_shift_effect(start, end, dx_func, dy_func, stay=True)
-        # Fade in opacity from 0 to current value
-        end_val = self.styling.opacity.at_time(end)
-        self.styling.opacity.set(s, e,
-            lambda t, _s=s, _d=dur, _ev=end_val, _e=easing: _ev * _e((t - _s) / _d))
-        return self
+        return self._fade_slide_anim(direction, distance, start, end, True, change_existence, easing)
 
     def fade_slide_out(self, direction=None, distance=200, start: float = 0, end: float = 1,
                        change_existence=True, easing=easings.smooth):
@@ -914,25 +933,7 @@ class VObject(ABC):  # Vector Object
         -------
         self
         """
-        direction = direction or DOWN
-        dur = end - start
-        if dur <= 0:
-            if change_existence:
-                self._hide_from(start)
-            return self
-        dx = direction[0] * distance
-        dy = direction[1] * distance
-        s, e = start, end
-        dx_func = (lambda t, _s=s, _d=dur, _dx=dx, _e=easing: _dx * _e((t - _s) / _d)) if dx else None
-        dy_func = (lambda t, _s=s, _d=dur, _dy=dy, _e=easing: _dy * _e((t - _s) / _d)) if dy else None
-        self._apply_shift_effect(start, end, dx_func, dy_func, stay=True)
-        # Fade out opacity from current value to 0
-        start_val = self.styling.opacity.at_time(start)
-        self.styling.opacity.set(s, e,
-            lambda t, _s=s, _d=dur, _sv=start_val, _e=easing: _sv * (1 - _e((t - _s) / _d)))
-        if change_existence:
-            self._hide_from(end)
-        return self
+        return self._fade_slide_anim(direction, distance, start, end, False, change_existence, easing)
 
     def write(self, start: float = 0, end: float = 1, max_stroke_width=2, change_existence=True, easing=easings.smooth, stroke_easing=easings.there_and_back):
         """Animate fill_opacity from 0 to current with a stroke pulse effect."""
@@ -1355,33 +1356,33 @@ class VObject(ABC):  # Vector Object
         self.styling.scale_y.set(s, e, f, stay=stay)
         return self
 
+    def _scale_in_out(self, start, end, fade_in, change_existence, easing):
+        """Shared helper for scale-based appear/disappear animations."""
+        if fade_in:
+            if change_existence:
+                self._show_from(start)
+            self._scale_anim(start, end, lambda p: p, easing, stay=True)
+        else:
+            self._scale_anim(start, end, lambda p: 1 - p, easing, stay=True)
+            if change_existence:
+                self._hide_from(end)
+        return self
+
     def grow_from_center(self, start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
         """Animate scaling from 0 to 1 (grow in from nothing), scaling around the object's center."""
-        if change_existence:
-            self._show_from(start)
-        self._scale_anim(start, end, lambda p: p, easing, stay=True)
-        return self
+        return self._scale_in_out(start, end, True, change_existence, easing)
 
     def shrink_to_center(self, start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
         """Animate scaling from 1 to 0 (shrink out to nothing), scaling around the object's center."""
-        self._scale_anim(start, end, lambda p: 1 - p, easing, stay=True)
-        if change_existence:
-            self._hide_from(end)
-        return self
+        return self._scale_in_out(start, end, False, change_existence, easing)
 
     def elastic_in(self, start: float = 0, end: float = 1, change_existence=True):
         """Scale in with elastic bounce (overshoot then settle)."""
-        if change_existence:
-            self._show_from(start)
-        self._scale_anim(start, end, lambda p: p, easings.ease_out_elastic, stay=True)
-        return self
+        return self._scale_in_out(start, end, True, change_existence, easings.ease_out_elastic)
 
     def elastic_out(self, start: float = 0, end: float = 1, change_existence=True):
         """Scale out with elastic bounce."""
-        self._scale_anim(start, end, lambda p: 1 - p, easings.ease_in_elastic, stay=True)
-        if change_existence:
-            self._hide_from(end)
-        return self
+        return self._scale_in_out(start, end, False, change_existence, easings.ease_in_elastic)
 
     def bounce_in(self, start: float = 0, end: float = 1, change_existence=True,
                   easing=easings.ease_out_bounce):
@@ -1391,10 +1392,7 @@ class VObject(ABC):  # Vector Object
         small bounces.  Uses ease_out_bounce by default, unlike pop_in (which
         uses a custom overshoot curve) or elastic_in (which uses elastic easing).
         """
-        if change_existence:
-            self._show_from(start)
-        self._scale_anim(start, end, lambda p: p, easing, stay=True)
-        return self
+        return self._scale_in_out(start, end, True, change_existence, easing)
 
     def bounce_out(self, start: float = 0, end: float = 1, change_existence=True,
                    easing=easings.ease_in_bounce):
@@ -1403,10 +1401,7 @@ class VObject(ABC):  # Vector Object
         Scales from 1 to 0 using ease_in_bounce by default, giving a
         "bouncing away" feel before vanishing.
         """
-        self._scale_anim(start, end, lambda p: 1 - p, easing, stay=True)
-        if change_existence:
-            self._hide_from(end)
-        return self
+        return self._scale_in_out(start, end, False, change_existence, easing)
 
     def _zoom_anim(self, start, end, from_scale, to_scale, fade_in, change_existence, easing):
         """Shared helper for zoom_in / zoom_out."""
@@ -1658,6 +1653,34 @@ class VObject(ABC):  # Vector Object
                 _b * (1 + (_f - 1) * math.sin(math.pi * _e((t - _s) / _d)))
         self.styling.scale_x.set(start, end, _make_flash(sx0))
         self.styling.scale_y.set(start, end, _make_flash(sy0))
+        return self
+
+    def hover_scale(self, factor=1.2, start: float = 0, end: float = 1, easing=easings.smooth):
+        """Scale to *factor* at *start* and hold until *end*, then return to 1.0.
+
+        Unlike :meth:`flash_scale` (which peaks at the midpoint and returns),
+        this method holds the scaled size for the entire duration and only
+        snaps back at *end*.  Useful for hover/emphasis effects where the
+        object should stay enlarged while "active".
+
+        Parameters
+        ----------
+        factor:
+            Scale factor to hold during [start, end] (default 1.2).
+        start:
+            Time at which the object scales to *factor*.
+        end:
+            Time at which the object returns to its original scale.
+        easing:
+            Easing applied to the scale-up and scale-down transitions.
+        """
+        self._ensure_scale_origin(start)
+        sx0 = self.styling.scale_x.at_time(start)
+        sy0 = self.styling.scale_y.at_time(start)
+        self.styling.scale_x.set_onward(start, sx0 * factor)
+        self.styling.scale_y.set_onward(start, sy0 * factor)
+        self.styling.scale_x.set_onward(end, sx0)
+        self.styling.scale_y.set_onward(end, sy0)
         return self
 
     def spin(self, start: float = 0, end: float = 1, degrees=360, cx=None, cy=None, easing=easings.linear):
@@ -3524,6 +3547,18 @@ class VCollection:
         """Sort children by key_func(child). Does not animate — instant reorder."""
         self.objects.sort(key=key_func, reverse=reverse)
         return self
+
+    def max_by(self, key):
+        """Return the child with the maximum key value."""
+        if not self.objects:
+            return None
+        return max(self.objects, key=key)
+
+    def min_by(self, key):
+        """Return the child with the minimum key value."""
+        if not self.objects:
+            return None
+        return min(self.objects, key=key)
 
     def shuffle(self):
         """Randomly shuffle the order of children in-place."""

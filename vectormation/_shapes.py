@@ -168,6 +168,24 @@ class Polygon(VObject):
         """Return the polygon's area (alias for area())."""
         return self.area(time)
 
+    def signed_area(self, time=0):
+        """Return the signed area using the shoelace formula.
+
+        Positive for counter-clockwise winding, negative for clockwise
+        (in standard math coordinates).  In SVG coordinates (y-down) the
+        sign is flipped.
+        """
+        pts = self.get_vertices(time)
+        n = len(pts)
+        if n < 3:
+            return 0
+        total = 0
+        for i in range(n):
+            x0, y0 = pts[i]
+            x1, y1 = pts[(i + 1) % n]
+            total += x0 * y1 - x1 * y0
+        return total / 2
+
     def is_regular(self, tol=1e-3, time=0):
         """Return True if all edges have the same length (within tolerance).
 
@@ -1563,6 +1581,18 @@ class Line(VObject):
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         return math.degrees(math.atan2(-(y2 - y1), x2 - x1))
+
+    def is_horizontal(self, time=0, tol=1e-3):
+        """Return True if this line is approximately horizontal."""
+        _, y1 = self.get_start(time)
+        _, y2 = self.get_end(time)
+        return abs(y2 - y1) < tol
+
+    def is_vertical(self, time=0, tol=1e-3):
+        """Return True if this line is approximately vertical."""
+        x1, _ = self.get_start(time)
+        x2, _ = self.get_end(time)
+        return abs(x2 - x1) < tol
 
     def set_start(self, point, start=0, end=None, easing=easings.smooth):
         _anim(self.p1, start, end, point, easing)

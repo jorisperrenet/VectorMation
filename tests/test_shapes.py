@@ -4,7 +4,7 @@ from vectormation.objects import (
     Circle, Rectangle, Polygon, Line, Lines, RegularPolygon, Arc, Ellipse,
     Path, Trace, Text, Dot, Wedge, Sector, Star, RoundedRectangle, DashedLine,
     NumberLine, EquilateralTriangle, Arrow, CurvedArrow, VObject, VCollection,
-    from_svg, CountAnimation, Annulus, DoubleArrow, FunctionGraph,
+    from_svg, CountAnimation, Annulus, FunctionGraph,
     AnnularSector, PieChart, DonutChart, Axes,
 )
 from vectormation.attributes import Coor
@@ -2825,7 +2825,7 @@ class TestAxesGetIntersectionPoint:
     def test_returns_tuple(self):
         """Result is a (x, y) tuple."""
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        result = ax.get_intersection_point(lambda x: x, lambda x: 0, (-2, 2))  # noqa: E731
+        result = ax.get_intersection_point(lambda x: x, lambda _x: 0, (-2, 2))  # noqa: E731
         assert result is not None
         assert len(result) == 2
 
@@ -3033,7 +3033,7 @@ class TestAxesAddAreaLabel:
     def test_area_value_in_text(self):
         """For f(x)=1 over [0,3], area = 3.00."""
         ax = Axes(x_range=(0, 4), y_range=(0, 4))
-        lbl = ax.add_area_label(lambda x: 1, x_start=0, x_end=3)
+        lbl = ax.add_area_label(lambda _x: 1, x_start=0, x_end=3)
         assert 'A = 3.00' in lbl.text.at_time(0)
 
     def test_custom_text(self):
@@ -3044,7 +3044,7 @@ class TestAxesAddAreaLabel:
     def test_x_range_backwards_compat(self):
         """x_range=[a,b] should still work."""
         ax = Axes(x_range=(0, 4), y_range=(0, 4))
-        lbl = ax.add_area_label(lambda x: 1, x_range=[0, 2])
+        lbl = ax.add_area_label(lambda _x: 1, x_range=[0, 2])
         assert 'A = 2.00' in lbl.text.at_time(0)
 
     def test_trapezoidal_quadratic(self):
@@ -3522,7 +3522,7 @@ class TestAxesGetAreaValue:
     def test_constant_function(self):
         ax = Axes(x_range=(0, 5), y_range=(0, 5))
         # integral of 2 from 1 to 4 = 6.0
-        result = ax.get_area_value(lambda _x: 2.0, 1, 4)
+        result = ax.get_area_value(lambda _: 2.0, 1, 4)
         assert result == pytest.approx(6.0, rel=1e-6)
 
     def test_linear_function(self):
@@ -4890,3 +4890,62 @@ class TestArcGetChordLength:
         arc = Arc(cx=0, cy=0, r=100, start_angle=45, end_angle=45)
         chord = arc.get_chord_length(time=0)
         assert chord == pytest.approx(0.0, abs=0.01)
+
+
+class TestLineIsHorizontal:
+    def test_horizontal_line(self):
+        """A perfectly horizontal line should return True."""
+        line = Line(0, 100, 200, 100)
+        assert line.is_horizontal() is True
+
+    def test_non_horizontal_line(self):
+        """A diagonal line should return False."""
+        line = Line(0, 0, 100, 100)
+        assert line.is_horizontal() is False
+
+    def test_nearly_horizontal_within_tol(self):
+        """A nearly horizontal line within tolerance should return True."""
+        line = Line(0, 100, 200, 100.0005)
+        assert line.is_horizontal(tol=1e-3) is True
+
+
+class TestLineIsVertical:
+    def test_vertical_line(self):
+        """A perfectly vertical line should return True."""
+        line = Line(100, 0, 100, 200)
+        assert line.is_vertical() is True
+
+    def test_non_vertical_line(self):
+        """A diagonal line should return False."""
+        line = Line(0, 0, 100, 100)
+        assert line.is_vertical() is False
+
+    def test_nearly_vertical_within_tol(self):
+        """A nearly vertical line within tolerance should return True."""
+        line = Line(100, 0, 100.0005, 200)
+        assert line.is_vertical(tol=1e-3) is True
+
+
+class TestPolygonSignedArea:
+    def test_cw_in_svg_positive(self):
+        """Vertices (0,0)->(100,0)->(100,100) are CW in math coords (y-up),
+        but in SVG y-down the shoelace gives positive signed area."""
+        tri = Polygon((0, 0), (100, 0), (100, 100))
+        sa = tri.signed_area()
+        assert sa == pytest.approx(5000.0)
+
+    def test_reversed_order_flips_sign(self):
+        """Reversing vertex order should flip the sign of signed area."""
+        tri = Polygon((0, 0), (100, 100), (100, 0))
+        sa = tri.signed_area()
+        assert sa == pytest.approx(-5000.0)
+
+    def test_signed_area_abs_matches_area(self):
+        """The absolute value of signed_area should match area()."""
+        poly = Polygon((0, 0), (100, 0), (100, 50), (0, 50))
+        assert abs(poly.signed_area()) == pytest.approx(poly.area())
+
+    def test_signed_area_fewer_than_3_vertices(self):
+        """With fewer than 3 vertices, signed_area should return 0."""
+        line = Polygon((0, 0), (100, 100), closed=False)
+        assert line.signed_area() == 0

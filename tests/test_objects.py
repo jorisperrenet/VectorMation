@@ -437,7 +437,7 @@ class TestGetEdge:
 
     def test_top(self):
         r = Rectangle(100, 50, x=10, y=20)
-        x, y = r.get_edge('top', 0)
+        _x, y = r.get_edge('top', 0)
         assert y == pytest.approx(20)
 
     def test_bottom_right(self):
@@ -1382,7 +1382,7 @@ class TestUntested:
     def test_equilateral_triangle(self):
         t = EquilateralTriangle(side_length=100)
         assert t.path(0) != ''
-        bx, by, bw, bh = t.bbox(0)
+        _bx, _by, bw, bh = t.bbox(0)
         assert bw > 0 and bh > 0
 
     def test_star(self):
@@ -1428,7 +1428,7 @@ class TestUntested:
         a = Annulus(inner_radius=40, outer_radius=80)
         path = a.path(0)
         assert path != ''
-        bx, by, bw, bh = a.bbox(0)
+        _bx, _by, bw, bh = a.bbox(0)
         assert bw > 0 and bh > 0
 
     def test_arc_between_points(self):
@@ -1887,7 +1887,7 @@ class TestDynamicObject:
 
     def test_dynamic_bbox(self):
         d = DynamicObject(lambda t: Rectangle(100 + t * 10, 50, x=0, y=0))
-        bx, by, bw, bh = d.bbox(0)
+        _bx, _by, bw, _bh = d.bbox(0)
         assert bw == pytest.approx(100)
 
 
@@ -2049,7 +2049,7 @@ class TestSetStyle:
 
 class TestAlwaysRedraw:
     def test_creates_dynamic_object(self):
-        d = always_redraw(lambda t: Circle(r=50))
+        d = always_redraw(lambda _t: Circle(r=50))
         assert isinstance(d, DynamicObject)
 
     def test_regenerates_per_frame(self):
@@ -7880,4 +7880,62 @@ class TestGetPointOnGraph:
         import math
         ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
         result = ax.get_point_on_graph(lambda x: math.sqrt(x), -1)
+        assert result is None
+
+
+class TestHoverScale:
+    def test_hover_scale_holds_factor(self):
+        """During [start, end] the scale should be factor * original."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.hover_scale(factor=2.0, start=1, end=3)
+        sx = c.styling.scale_x.at_time(1.5)
+        assert sx == pytest.approx(2.0)
+
+    def test_hover_scale_returns_to_original(self):
+        """After end the scale should return to the original value."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.hover_scale(factor=1.5, start=1, end=3)
+        sx = c.styling.scale_x.at_time(3)
+        assert sx == pytest.approx(1.0)
+
+    def test_hover_scale_returns_self(self):
+        """hover_scale should return self for chaining."""
+        c = Circle(r=50)
+        result = c.hover_scale(factor=1.3, start=0, end=1)
+        assert result is c
+
+
+class TestAxesGetXIntercept:
+    def test_x_intercept_linear(self):
+        """x intercept of f(x) = x - 2 should be 2."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.get_x_intercept(lambda x: x - 2)
+        assert result is not None
+        assert result == pytest.approx(2.0, abs=0.01)
+
+    def test_x_intercept_no_zero(self):
+        """A function with no zero in range should return None."""
+        ax = Axes(x_range=(1, 5), y_range=(-5, 5))
+        result = ax.get_x_intercept(lambda x: x + 10)
+        assert result is None
+
+    def test_x_intercept_custom_range(self):
+        """Custom x_start and x_end should restrict the search."""
+        ax = Axes(x_range=(-10, 10), y_range=(-5, 5))
+        # f(x) = x has a zero at 0, but we search only [1, 5]
+        result = ax.get_x_intercept(lambda x: x, x_start=1, x_end=5)
+        assert result is None
+
+
+class TestAxesGetYIntercept:
+    def test_y_intercept_linear(self):
+        """y intercept of f(x) = 2x + 3 should be 3."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.get_y_intercept(lambda x: 2 * x + 3)
+        assert result == pytest.approx(3.0)
+
+    def test_y_intercept_undefined(self):
+        """Functions undefined at 0 should return None."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.get_y_intercept(lambda x: 1 / x)
         assert result is None

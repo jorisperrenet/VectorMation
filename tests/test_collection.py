@@ -1147,3 +1147,33 @@ class TestEach:
         col.each(lambda obj: obj.shift(dx=10, dy=0, start_time=0))
         assert c1.c.at_time(0)[0] == pytest.approx(10)
         assert c2.c.at_time(0)[0] == pytest.approx(110)
+
+
+class TestMaxByMinBy:
+    def test_max_by_radius(self):
+        """max_by should return the child with the largest key value."""
+        c1 = Circle(r=10)
+        c2 = Circle(r=50)
+        c3 = Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        result = col.max_by(key=lambda c: c.r.at_time(0))
+        assert result is c2
+
+    def test_min_by_radius(self):
+        """min_by should return the child with the smallest key value."""
+        c1 = Circle(r=10)
+        c2 = Circle(r=50)
+        c3 = Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        result = col.min_by(key=lambda c: c.r.at_time(0))
+        assert result is c1
+
+    def test_max_by_empty_returns_none(self):
+        """max_by on an empty collection should return None."""
+        col = VCollection()
+        assert col.max_by(key=lambda c: 0) is None
+
+    def test_min_by_empty_returns_none(self):
+        """min_by on an empty collection should return None."""
+        col = VCollection()
+        assert col.min_by(key=lambda c: 0) is None

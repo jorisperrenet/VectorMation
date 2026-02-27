@@ -1617,6 +1617,47 @@ class Axes(VCollection):
         zeros.sort(key=lambda p: p[0])
         return zeros
 
+    def get_x_intercept(self, func, x_start=None, x_end=None):
+        """Return the first x where func(x) is approximately 0.
+
+        Delegates to :meth:`get_zeros` to find all zero crossings, then
+        returns the x coordinate of the first one.  Returns ``None`` if
+        no zero is found.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x)`` or a curve Path with a ``._func`` attribute.
+        x_start, x_end:
+            Domain bounds (default to the axis x range).
+        """
+        if x_start is None:
+            x_start = float(self.x_min.at_time(0))
+        if x_end is None:
+            x_end = float(self.x_max.at_time(0))
+        zeros = self.get_zeros(func, x_start, x_end)
+        if zeros:
+            return zeros[0][0]
+        return None
+
+    def get_y_intercept(self, func):
+        """Return func(0) — the y-intercept.
+
+        Evaluates the function at x = 0 and returns the result.  Returns
+        ``None`` if the function raises an exception at x = 0 (e.g. for
+        functions undefined at the origin).
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x)`` or a curve Path with a ``._func`` attribute.
+        """
+        fn = self._resolve_func(func, 'func')
+        try:
+            return fn(0)
+        except Exception:
+            return None
+
     def get_derivative(self, func, x_val, h=0.001):
         """Return the numerical derivative of *func* at *x_val*.
 
@@ -2373,12 +2414,7 @@ class Axes(VCollection):
         """Draw a dashed line between two math coordinate points.
         Returns a Line object."""
         style_kw = {'stroke': '#aaa', 'stroke_width': 2, 'stroke_dasharray': '6 4'} | styling_kwargs
-        line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
-        _x1, _y1, _x2, _y2 = x1, y1, x2, y2
-        line.p1.set_onward(creation, lambda t, _a=_x1, _b=_y1: self.coords_to_point(_a, _b, t))
-        line.p2.set_onward(creation, lambda t, _a=_x2, _b=_y2: self.coords_to_point(_a, _b, t))
-        self._add_plot_obj(line)
-        return line
+        return self.get_line_from_to(x1, y1, x2, y2, creation=creation, z=z, **style_kw)
 
     def add_title(self, text, font_size=32, buff=20, creation=0, z=5, **styling_kwargs):
         """Add a title above the axes. Returns the Text object."""
@@ -4022,24 +4058,18 @@ class Axes(VCollection):
         style_kw = {'stroke': '#83C167', 'stroke_width': 2} | styling_kwargs
         line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
         _x1, _x2, _len = x1, x2, length
-        def _secant_p1(t, _x1=_x1, _x2=_x2, _len=_len):
-            sx1, sy1 = self.coords_to_point(_x1, func(_x1), t)
-            sx2, sy2 = self.coords_to_point(_x2, func(_x2), t)
-            dx, dy = sx2 - sx1, sy2 - sy1
-            mag = max(math.hypot(dx, dy), 1e-9)
-            half = _len / 2
-            mx, my = (sx1 + sx2) / 2, (sy1 + sy2) / 2
-            return (mx - dx / mag * half, my - dy / mag * half)
-        def _secant_p2(t, _x1=_x1, _x2=_x2, _len=_len):
-            sx1, sy1 = self.coords_to_point(_x1, func(_x1), t)
-            sx2, sy2 = self.coords_to_point(_x2, func(_x2), t)
-            dx, dy = sx2 - sx1, sy2 - sy1
-            mag = max(math.hypot(dx, dy), 1e-9)
-            half = _len / 2
-            mx, my = (sx1 + sx2) / 2, (sy1 + sy2) / 2
-            return (mx + dx / mag * half, my + dy / mag * half)
-        line.p1.set_onward(creation, _secant_p1)
-        line.p2.set_onward(creation, _secant_p2)
+        def _secant_endpoint(sign):
+            def _pt(t, _x1=_x1, _x2=_x2, _len=_len, _sign=sign):
+                sx1, sy1 = self.coords_to_point(_x1, func(_x1), t)
+                sx2, sy2 = self.coords_to_point(_x2, func(_x2), t)
+                dx, dy = sx2 - sx1, sy2 - sy1
+                mag = max(math.hypot(dx, dy), 1e-9)
+                half = _len / 2
+                mx, my = (sx1 + sx2) / 2, (sy1 + sy2) / 2
+                return (mx + _sign * dx / mag * half, my + _sign * dy / mag * half)
+            return _pt
+        line.p1.set_onward(creation, _secant_endpoint(-1))
+        line.p2.set_onward(creation, _secant_endpoint(+1))
         self._add_plot_obj(line)
         return line
 
