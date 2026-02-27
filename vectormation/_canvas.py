@@ -64,10 +64,8 @@ class VectorMathAnim:
     @viewbox.setter
     def viewbox(self, value):
         t = self.time
-        self.vb_x.set_onward(t, value[0])
-        self.vb_y.set_onward(t, value[1])
-        self.vb_w.set_onward(t, value[2])
-        self.vb_h.set_onward(t, value[3])
+        for attr, val in zip((self.vb_x, self.vb_y, self.vb_w, self.vb_h), value):
+            attr.set_onward(t, val)
 
     def camera_shift(self, dx, dy, start, end, easing=easings.smooth):
         """Pan the camera by (dx, dy) pixels over [start, end]."""
@@ -158,15 +156,14 @@ class VectorMathAnim:
         self.background = Rectangle(self.width, self.height, x=0, y=0, rx=0, ry=0, creation=creation, z=z, **st.kwargs())
         self.add_objects(self.background)
         if grid:
+            kw = dict(creation=creation, z=z, stroke=grid_color, stroke_width=1)
             gx = 0.0
             while gx <= self.width:
-                self.add_objects(Line(x1=gx, y1=0, x2=gx, y2=self.height,
-                                     creation=creation, z=z, stroke=grid_color, stroke_width=1))
+                self.add_objects(Line(x1=gx, y1=0, x2=gx, y2=self.height, **kw))
                 gx += grid_spacing
             gy = 0.0
             while gy <= self.height:
-                self.add_objects(Line(x1=0, y1=gy, x2=self.width, y2=gy,
-                                     creation=creation, z=z, stroke=grid_color, stroke_width=1))
+                self.add_objects(Line(x1=0, y1=gy, x2=self.width, y2=gy, **kw))
                 gy += grid_spacing
         return self
 
