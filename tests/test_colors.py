@@ -1,6 +1,10 @@
-"""Tests for vectormation.colors: color_from_name, gradients."""
+"""Tests for vectormation.colors: color_from_name, gradients, color harmony."""
 import pytest
-from vectormation.colors import color_from_name, LinearGradient, RadialGradient, color_gradient, interpolate_color
+from vectormation.colors import (
+    color_from_name, LinearGradient, RadialGradient, color_gradient,
+    interpolate_color, triadic, analogous, split_complementary,
+    _hex_to_hsl,
+)
 
 
 class TestColorFromName:
@@ -79,3 +83,56 @@ class TestInterpolateColor:
         result = interpolate_color('RED', 'BLUE', 0.5)
         assert isinstance(result, str)
         assert result.startswith('#')
+
+
+class TestTriadic:
+    def test_returns_two_colors(self):
+        result = triadic('#ff0000')
+        assert len(result) == 2
+        assert all(c.startswith('#') for c in result)
+
+    def test_hue_offsets(self):
+        # Pure red hue=0, triadic should give hue=120 and hue=240
+        colors = triadic('#ff0000')
+        h1 = _hex_to_hsl(colors[0])[0]
+        h2 = _hex_to_hsl(colors[1])[0]
+        assert h1 == pytest.approx(120, abs=2)
+        assert h2 == pytest.approx(240, abs=2)
+
+
+class TestAnalogous:
+    def test_returns_two_colors(self):
+        result = analogous('#ff0000')
+        assert len(result) == 2
+        assert all(c.startswith('#') for c in result)
+
+    def test_custom_angle(self):
+        result = analogous('#ff0000', angle=45)
+        assert len(result) == 2
+        h1 = _hex_to_hsl(result[0])[0]
+        h2 = _hex_to_hsl(result[1])[0]
+        # hue 0 - 45 = 315, hue 0 + 45 = 45
+        assert h1 == pytest.approx(315, abs=2)
+        assert h2 == pytest.approx(45, abs=2)
+
+    def test_default_angle(self):
+        result = analogous('#ff0000')
+        h1 = _hex_to_hsl(result[0])[0]
+        h2 = _hex_to_hsl(result[1])[0]
+        assert h1 == pytest.approx(330, abs=2)
+        assert h2 == pytest.approx(30, abs=2)
+
+
+class TestSplitComplementary:
+    def test_returns_two_colors(self):
+        result = split_complementary('#ff0000')
+        assert len(result) == 2
+        assert all(c.startswith('#') for c in result)
+
+    def test_hue_offsets(self):
+        # Pure red hue=0, split complementary = hue+150 and hue+210
+        colors = split_complementary('#ff0000')
+        h1 = _hex_to_hsl(colors[0])[0]
+        h2 = _hex_to_hsl(colors[1])[0]
+        assert h1 == pytest.approx(150, abs=2)
+        assert h2 == pytest.approx(210, abs=2)

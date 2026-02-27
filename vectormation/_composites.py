@@ -1105,6 +1105,40 @@ class Axes(VCollection):
             return obj
         raise TypeError(f'{label} must be a function or a curve returned by plot()')
 
+    def get_graph_intersection(self, f1, f2, x_range=None, n=1000):
+        """Find approximate intersection points between two functions/curves.
+
+        Returns a list of (math_x, math_y) tuples where f1(x) ~= f2(x).
+        Uses sign-change detection with linear interpolation for sub-step accuracy.
+        """
+        func1 = self._resolve_func(f1, 'f1')
+        func2 = self._resolve_func(f2, 'f2')
+        xmin = x_range[0] if x_range else self.x_min.at_time(0)
+        xmax = x_range[1] if x_range else self.x_max.at_time(0)
+        step = (xmax - xmin) / n
+        points = []
+        prev_diff = None
+        prev_x = xmin
+        for i in range(n + 1):
+            x = xmin + i * step
+            try:
+                diff = func1(x) - func2(x)
+            except (ValueError, ZeroDivisionError):
+                prev_diff = None
+                continue
+            if abs(diff) < 1e-12:
+                # Exact (or near-exact) intersection at sample point
+                points.append((x, func1(x)))
+            elif prev_diff is not None and prev_diff * diff < 0:
+                # Sign change: linear interpolation for sub-step accuracy
+                t = prev_diff / (prev_diff - diff)
+                ix = prev_x + t * step
+                iy = func1(ix)
+                points.append((ix, iy))
+            prev_diff = diff
+            prev_x = x
+        return points
+
     def get_area(self, curve_or_func, x_range=None, bounded_graph=None, creation=0, z=0, **styling_kwargs):
         """Create a shaded area under a curve/function (or between two curves).
 

@@ -674,12 +674,33 @@ class VObject(ABC):  # Vector Object
             return self
         self._ensure_scale_origin(start)
         s = start
-        self.styling.scale_x.set(s, end,
-            lambda t, _s=s, _d=dur: 1 - easing((t - _s) / _d), stay=True)
-        self.styling.scale_y.set(s, end,
-            lambda t, _s=s, _d=dur: 1 - easing((t - _s) / _d), stay=True)
+        scale_fn = lambda t, _s=s, _d=dur: 1 - easing((t - _s) / _d)
+        self.styling.scale_x.set(s, end, scale_fn, stay=True)
+        self.styling.scale_y.set(s, end, scale_fn, stay=True)
         if change_existence:
             self._hide_from(end)
+        return self
+
+    def _apply_shift_effect(self, start, end, dx_func=None, dy_func=None, stay=False):
+        """Apply displacement functions to all shift attributes.
+        dx_func/dy_func: callable(t) -> float, or None to skip that axis."""
+        kw = {'stay': True} if stay else {}
+        if dx_func and dy_func:
+            for xa, ya in self._shift_reals():
+                xa.add(start, end, dx_func, **kw)
+                ya.add(start, end, dy_func, **kw)
+            for c in self._shift_coors():
+                c.add(start, end, lambda t, _fdx=dx_func, _fdy=dy_func: (_fdx(t), _fdy(t)), **kw)
+        elif dx_func:
+            for xa, _ in self._shift_reals():
+                xa.add(start, end, dx_func, **kw)
+            for c in self._shift_coors():
+                c.add(start, end, lambda t, _f=dx_func: (_f(t), 0), **kw)
+        elif dy_func:
+            for _, ya in self._shift_reals():
+                ya.add(start, end, dy_func, **kw)
+            for c in self._shift_coors():
+                c.add(start, end, lambda t, _f=dy_func: (0, _f(t)), **kw)
         return self
 
     def float_anim(self, start: float = 0, end: float = 1, amplitude=10, speed=1.0):
@@ -691,11 +712,17 @@ class VObject(ABC):  # Vector Object
         def _dy(t, _s=_s, _spd=_spd, _a=_a):
             p = (t - _s) * _spd
             return _a * math.sin(p * 2 * math.pi)
-        for xa, ya in self._shift_reals():
-            ya.add(start, end, _dy)
-        for c in self._shift_coors():
-            c.add(start, end, lambda t, _f=_dy: (0, _f(t)))
-        return self
+        return self._apply_shift_effect(start, end, dy_func=_dy)
+
+    def _slide_offsets(self, direction, start):
+        bx, by, bw, bh = self.bbox(start)
+        offsets = {
+            'left': (-bx - bw, 0),
+            'right': (1920 - bx, 0),
+            'up': (0, -by - bh),
+            'down': (0, 1080 - by),
+        }
+        return offsets.get(direction, (0, 0))
 
     def slide_in(self, direction='left', start: float = 0, end: float = 1,
                   easing=easings.smooth, change_existence=True):
@@ -706,24 +733,11 @@ class VObject(ABC):  # Vector Object
             return self
         if change_existence:
             self._show_from(start)
-        bx, by, bw, bh = self.bbox(start)
-        offsets = {
-            'left': (-bx - bw, 0),     # slide from left edge
-            'right': (1920 - bx, 0),    # slide from right edge
-            'up': (0, -by - bh),        # slide from top
-            'down': (0, 1080 - by),     # slide from bottom
-        }
-        ox, oy = offsets.get(direction, (0, 0))
+        ox, oy = self._slide_offsets(direction, start)
         s = start
-        def _shift(t, _s=s, _d=dur, _ox=ox, _oy=oy):
-            p = 1 - easing((t - _s) / _d)
-            return (_ox * p, _oy * p)
-        for xa, ya in self._shift_reals():
-            xa.add(s, end, lambda t, _f=_shift: _f(t)[0], stay=True)
-            ya.add(s, end, lambda t, _f=_shift: _f(t)[1], stay=True)
-        for c in self._shift_coors():
-            c.add(s, end, _shift, stay=True)
-        return self
+        dx = (lambda t, _s=s, _d=dur, _ox=ox: _ox * (1 - easing((t - _s) / _d))) if ox else None
+        dy = (lambda t, _s=s, _d=dur, _oy=oy: _oy * (1 - easing((t - _s) / _d))) if oy else None
+        return self._apply_shift_effect(start, end, dx, dy, stay=True)
 
     def slide_out(self, direction='right', start: float = 0, end: float = 1,
                    easing=easings.smooth, change_existence=True):
@@ -732,23 +746,11 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        bx, by, bw, bh = self.bbox(start)
-        offsets = {
-            'left': (-bx - bw, 0),
-            'right': (1920 - bx, 0),
-            'up': (0, -by - bh),
-            'down': (0, 1080 - by),
-        }
-        ox, oy = offsets.get(direction, (0, 0))
+        ox, oy = self._slide_offsets(direction, start)
         s = start
-        def _shift(t, _s=s, _d=dur, _ox=ox, _oy=oy):
-            p = easing((t - _s) / _d)
-            return (_ox * p, _oy * p)
-        for xa, ya in self._shift_reals():
-            xa.add(s, end, lambda t, _f=_shift: _f(t)[0], stay=True)
-            ya.add(s, end, lambda t, _f=_shift: _f(t)[1], stay=True)
-        for c in self._shift_coors():
-            c.add(s, end, _shift, stay=True)
+        dx = (lambda t, _s=s, _d=dur, _ox=ox: _ox * easing((t - _s) / _d)) if ox else None
+        dy = (lambda t, _s=s, _d=dur, _oy=oy: _oy * easing((t - _s) / _d)) if oy else None
+        self._apply_shift_effect(start, end, dx, dy, stay=True)
         if change_existence:
             self._hide_from(end)
         return self
@@ -1191,17 +1193,12 @@ class VObject(ABC):  # Vector Object
         if dur <= 0:
             return self
         self._ensure_scale_origin(start)
-        sx0 = self.styling.scale_x.at_time(start)
-        sy0 = self.styling.scale_y.at_time(start)
         _s, _d, _sf, _p = start, max(dur, 1e-9), scale_factor, pulses
-        def _scale_x(t, _s=_s, _d=_d, _sf=_sf, _p=_p, _sx0=sx0, _easing=easing):
-            progress = _easing((t - _s) / _d)
-            return _sx0 * (1 + (_sf - 1) * abs(math.sin(math.pi * _p * progress)))
-        def _scale_y(t, _s=_s, _d=_d, _sf=_sf, _p=_p, _sy0=sy0, _easing=easing):
-            progress = _easing((t - _s) / _d)
-            return _sy0 * (1 + (_sf - 1) * abs(math.sin(math.pi * _p * progress)))
-        self.styling.scale_x.set(start, end, _scale_x)
-        self.styling.scale_y.set(start, end, _scale_y)
+        def _make_pulse(s0):
+            return lambda t, _s=_s, _d=_d, _sf=_sf, _p=_p, _s0=s0, _easing=easing: \
+                _s0 * (1 + (_sf - 1) * abs(math.sin(math.pi * _p * _easing((t - _s) / _d))))
+        self.styling.scale_x.set(start, end, _make_pulse(self.styling.scale_x.at_time(start)))
+        self.styling.scale_y.set(start, end, _make_pulse(self.styling.scale_y.at_time(start)))
         return self
 
     def spin(self, start: float = 0, end: float = 1, degrees=360, cx=None, cy=None, easing=easings.linear):
@@ -1262,11 +1259,7 @@ class VObject(ABC):  # Vector Object
         def dx(t):
             progress = (t - s) / dur
             return amplitude * math.sin(2 * math.pi * n_wiggles * progress) * easing(progress)
-        for xa, _ in self._shift_reals():
-            xa.add(s, end, dx)
-        for c in self._shift_coors():
-            c.add(s, end, lambda t, _f=dx: (_f(t), 0))
-        return self
+        return self._apply_shift_effect(start, end, dx_func=dx)
 
     def swing(self, start: float = 0, end: float = 1, amplitude=15, n_swings=3,
               cx=None, cy=None, easing=easings.there_and_back):
@@ -1301,11 +1294,7 @@ class VObject(ABC):  # Vector Object
         def dy(t):
             progress = (t - s) / dur
             return sign * amplitude * math.sin(2 * math.pi * n_waves * progress) * easing(progress)
-        for _, ya in self._shift_reals():
-            ya.add(s, end, dy)
-        for c in self._shift_coors():
-            c.add(s, end, lambda t, _f=dy: (0, _f(t)))
-        return self
+        return self._apply_shift_effect(start, end, dy_func=dy)
 
     def grow_from_edge(self, edge: str | tuple = 'bottom', start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
         """Grow the object from a specific edge (bottom, top, left, right) or direction constant."""
@@ -1410,12 +1399,7 @@ class VObject(ABC):  # Vector Object
         def _dy(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
             progress = (t - _s) / _d
             return _a * math.cos(_freq * 2.7 * math.pi * progress) * _easing(progress)
-        for xa, ya in self._shift_reals():
-            xa.add(start, end, _dx)
-            ya.add(start, end, _dy)
-        for c in self._shift_coors():
-            c.add(start, end, lambda t, _fdx=_dx, _fdy=_dy: (_fdx(t), _fdy(t)))
-        return self
+        return self._apply_shift_effect(start, end, _dx, _dy)
 
     def undulate(self, start: float = 0, end: float = 1, amplitude=0.15, waves=2, easing=easings.smooth):
         """Wavy pulsing scale effect, like a heartbeat or breathing."""
@@ -1458,12 +1442,7 @@ class VObject(ABC):  # Vector Object
             p = (t - _s) / _d
             decay = 1 - _easing(p)
             return _amt * math.cos(p * 29.3) * decay
-        for xa, ya in self._shift_reals():
-            xa.add(start, end, _dx)
-            ya.add(start, end, _dy)
-        for c in self._shift_coors():
-            c.add(start, end, lambda t, _fdx=_dx, _fdy=_dy: (_fdx(t), _fdy(t)))
-        return self
+        return self._apply_shift_effect(start, end, _dx, _dy)
 
     def orbit(self, cx, cy, radius=None, start: float = 0, end: float = 1,
               degrees=360, easing=easings.linear):
@@ -1508,11 +1487,7 @@ class VObject(ABC):  # Vector Object
             phase = progress * _b * 2 * math.pi
             decay = 1 - progress
             return -abs(math.sin(phase)) * _h * decay * _easing(min(1, progress * 3))
-        for _, ya in self._shift_reals():
-            ya.add(start, end, _dy)
-        for c in self._shift_coors():
-            c.add(start, end, lambda t, _f=_dy: (0, _f(t)))
-        return self
+        return self._apply_shift_effect(start, end, dy_func=_dy)
 
     def spring(self, start: float = 0, end: float = 1, amplitude=30,
                 damping=5, frequency=4, axis='y'):
@@ -1525,17 +1500,9 @@ class VObject(ABC):  # Vector Object
         def _osc(t, _s=_s, _d=_d, _a=_a, _damp=_damp, _freq=_freq):
             progress = (t - _s) / _d
             return _a * math.exp(-_damp * progress) * math.sin(2 * math.pi * _freq * progress)
-        if axis in ('y', 'both'):
-            for xa, ya in self._shift_reals():
-                ya.add(start, end, _osc)
-            for c in self._shift_coors():
-                c.add(start, end, lambda t, _f=_osc: (0, _f(t)))
-        if axis in ('x', 'both'):
-            for xa, ya in self._shift_reals():
-                xa.add(start, end, _osc)
-            for c in self._shift_coors():
-                c.add(start, end, lambda t, _f=_osc: (_f(t), 0))
-        return self
+        dx = _osc if axis in ('x', 'both') else None
+        dy = _osc if axis in ('y', 'both') else None
+        return self._apply_shift_effect(start, end, dx, dy)
 
     def ripple(self, start: float = 0, count=3, duration=0.5, max_radius=100,
                color='#58C4DD', stroke_width=2):
@@ -1838,42 +1805,19 @@ class VObject(ABC):  # Vector Object
                 (_deg0 + 360 * _turns * _easing((t - _s) / _d), _rcx, _rcy),
             stay=False)
         if shrink:
-            sx0 = self.styling.scale_x.at_time(start)
-            sy0 = self.styling.scale_y.at_time(start)
-            def _scale(t, _s=_s, _d=_d, _sx0=sx0, _easing=easing):
-                p = _easing((t - _s) / _d)
-                factor = 1 - 0.5 * math.sin(math.pi * p)
-                return _sx0 * factor
-            def _scale_y(t, _s=_s, _d=_d, _sy0=sy0, _easing=easing):
-                p = _easing((t - _s) / _d)
-                factor = 1 - 0.5 * math.sin(math.pi * p)
-                return _sy0 * factor
-            self.styling.scale_x.set(start, end, _scale, stay=False)
-            self.styling.scale_y.set(start, end, _scale_y, stay=False)
+            def _make_scale(s0):
+                return lambda t, _s=_s, _d=_d, _s0=s0, _easing=easing: \
+                    _s0 * (1 - 0.5 * math.sin(math.pi * _easing((t - _s) / _d)))
+            self.styling.scale_x.set(start, end, _make_scale(self.styling.scale_x.at_time(start)), stay=False)
+            self.styling.scale_y.set(start, end, _make_scale(self.styling.scale_y.at_time(start)), stay=False)
         return self
 
     def heartbeat(self, start: float = 0, end: float = 1, beats=3,
                    scale_factor=1.3, easing=easings.smooth):
         """Rhythmic pulsing like a heartbeat — repeated grow/shrink cycles.
         beats: number of pulses. scale_factor: peak scale multiplier."""
-        dur = end - start
-        if dur <= 0 or beats <= 0:
-            return self
-        self._ensure_scale_origin(start)
-        sx0 = self.styling.scale_x.at_time(start)
-        sy0 = self.styling.scale_y.at_time(start)
-        _s, _d, _b, _f = start, max(dur, 1e-9), beats, scale_factor
-        def _hbx(t, _s=_s, _d=_d, _b=_b, _f=_f, _sx0=sx0, _easing=easing):
-            p = _easing((t - _s) / _d)
-            pulse = abs(math.sin(math.pi * _b * p))
-            return _sx0 * (1 + (_f - 1) * pulse)
-        def _hby(t, _s=_s, _d=_d, _b=_b, _f=_f, _sy0=sy0, _easing=easing):
-            p = _easing((t - _s) / _d)
-            pulse = abs(math.sin(math.pi * _b * p))
-            return _sy0 * (1 + (_f - 1) * pulse)
-        self.styling.scale_x.set(start, end, _hbx, stay=False)
-        self.styling.scale_y.set(start, end, _hby, stay=False)
-        return self
+        return self.pulsate(start=start, end=end, scale_factor=scale_factor,
+                            pulses=beats, easing=easing)
 
     def cross_out(self, start: float = 0, end: float = 0.5, color='#FC6255',
                    stroke_width=4, buff=5):
@@ -2068,9 +2012,8 @@ class VObject(ABC):  # Vector Object
                 attr.set_onward(start, value)
         return self
 
-    def get_fill_color(self, time=0):
-        """Return the fill color (hex string) at the given time."""
-        rgb = self.styling.fill.time_func(time)
+    @staticmethod
+    def _rgb_to_hex(rgb):
         if isinstance(rgb, str):
             return rgb
         if isinstance(rgb, tuple) and len(rgb) == 3:
@@ -2080,17 +2023,13 @@ class VObject(ABC):  # Vector Object
                 int(min(255, max(0, rgb[2]))))
         return str(rgb)
 
+    def get_fill_color(self, time=0):
+        """Return the fill color (hex string) at the given time."""
+        return self._rgb_to_hex(self.styling.fill.time_func(time))
+
     def get_stroke_color(self, time=0):
         """Return the stroke color (hex string) at the given time."""
-        rgb = self.styling.stroke.time_func(time)
-        if isinstance(rgb, str):
-            return rgb
-        if isinstance(rgb, tuple) and len(rgb) == 3:
-            return '#{:02x}{:02x}{:02x}'.format(
-                int(min(255, max(0, rgb[0]))),
-                int(min(255, max(0, rgb[1]))),
-                int(min(255, max(0, rgb[2]))))
-        return str(rgb)
+        return self._rgb_to_hex(self.styling.stroke.time_func(time))
 
     def get_stroke_width(self, time=0):
         """Return the stroke width at the given time."""
@@ -2203,6 +2142,11 @@ class VObject(ABC):  # Vector Object
         if mh > 0:
             self.scale(oh / mh, start=time)
         return self
+
+    def match_position(self, other, time: float = 0):
+        """Move this object so its center matches *other*'s center at *time*."""
+        ox, oy = other.center(time) if hasattr(other, 'center') else other
+        return self.move_to(ox, oy, start_time=time)
 
     @staticmethod
     def surround(other, buff=SMALL_BUFF, rx=6, ry=6, start_time: float = 0, follow=True):

@@ -5572,3 +5572,61 @@ class TestTableSortByColumn:
         t = Table(data=[['B', '2'], ['A', '1'], ['C', '3']])
         result = t.sort_by_column(0, start=0, end=1)
         assert result is t
+
+
+class TestGetGraphIntersection:
+    def test_linear_intersection(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        # y=x and y=-x intersect at (0, 0)
+        pts = ax.get_graph_intersection(lambda x: x, lambda x: -x)
+        assert len(pts) >= 1
+        # The intersection should be near (0, 0)
+        closest = min(pts, key=lambda p: abs(p[0]))
+        assert closest[0] == pytest.approx(0, abs=0.02)
+        assert closest[1] == pytest.approx(0, abs=0.02)
+
+    def test_parabola_line_intersection(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 10))
+        # y=x^2 and y=4 intersect at x=-2 and x=2
+        pts = ax.get_graph_intersection(lambda x: x**2, lambda x: 4)
+        assert len(pts) == 2
+        xs = sorted(p[0] for p in pts)
+        assert xs[0] == pytest.approx(-2, abs=0.02)
+        assert xs[1] == pytest.approx(2, abs=0.02)
+
+    def test_no_intersection(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        # y=1 and y=-1 never intersect
+        pts = ax.get_graph_intersection(lambda x: 1, lambda x: -1)
+        assert len(pts) == 0
+
+    def test_custom_x_range(self):
+        ax = Axes(x_range=(-10, 10), y_range=(-10, 10))
+        # y=x^2 and y=4 intersect at x=-2 and x=2, but limit to positive x
+        pts = ax.get_graph_intersection(lambda x: x**2, lambda x: 4, x_range=(0, 10))
+        assert len(pts) == 1
+        assert pts[0][0] == pytest.approx(2, abs=0.02)
+
+
+class TestMatchPosition:
+    def test_match_position_circle_to_rect(self):
+        c = Circle(r=50, cx=100, cy=100)
+        r = Rectangle(width=80, height=60, x=400, y=300)
+        c.match_position(r)
+        cx, cy = c.center(0)
+        rx, ry = r.center(0)
+        assert cx == pytest.approx(rx, abs=0.1)
+        assert cy == pytest.approx(ry, abs=0.1)
+
+    def test_match_position_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        r = Circle(r=30, cx=500, cy=400)
+        result = c.match_position(r)
+        assert result is c
+
+    def test_match_position_with_tuple(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.match_position((500, 300))
+        cx, cy = c.center(0)
+        assert cx == pytest.approx(500, abs=0.1)
+        assert cy == pytest.approx(300, abs=0.1)

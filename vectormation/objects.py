@@ -75,7 +75,8 @@ from vectormation._composites import (
 from vectormation.colors import (LinearGradient, RadialGradient,
     color_gradient, interpolate_color, lighten, darken,
     adjust_hue, saturate, desaturate, complementary,
-    set_saturation, set_lightness, invert)
+    set_saturation, set_lightness, invert,
+    triadic, analogous, split_complementary)
 
 from vectormation._threed import (
     ThreeDAxes, Surface, Sphere3D, Cube,

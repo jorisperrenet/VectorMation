@@ -295,6 +295,21 @@ def invert(color):
     return f'#{255-r:02x}{255-g:02x}{255-b:02x}'
 
 
+def triadic(color):
+    """Return the two triadic harmony colors (hue +/- 120 degrees)."""
+    return [adjust_hue(color, 120), adjust_hue(color, 240)]
+
+
+def analogous(color, angle=30):
+    """Return two analogous colors (hue +/- angle degrees, default 30)."""
+    return [adjust_hue(color, -angle), adjust_hue(color, angle)]
+
+
+def split_complementary(color):
+    """Return the two split-complementary colors (hue +/- 150 degrees)."""
+    return [adjust_hue(color, 150), adjust_hue(color, 210)]
+
+
 # Named palette presets
 PALETTE_BLUE = ['#58C4DD', '#29ABCA', '#1C758A', '#236B8E', '#2C6FAC']
 PALETTE_GREEN = ['#83C167', '#77B05D', '#699C52', '#5B8845', '#4E7438']

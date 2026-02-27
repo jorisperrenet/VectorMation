@@ -1635,3 +1635,71 @@ class TestGeometricExtras:
     def test_line_angle_down(self):
         line = Line(0, 0, 0, 100)  # points down in SVG
         assert abs(line.angle() - (-90)) < 0.01
+
+
+class TestRegularPolygonMethods:
+    def test_get_side_length_square(self):
+        import math
+        sq = RegularPolygon(4, radius=100)
+        # side of square inscribed in r=100: 2*100*sin(pi/4) = 100*sqrt(2)
+        expected = 100 * math.sqrt(2)
+        assert sq.get_side_length() == pytest.approx(expected, rel=1e-6)
+
+    def test_get_side_length_hexagon(self):
+        # Regular hexagon: side length == radius
+        hex_ = RegularPolygon(6, radius=120)
+        assert hex_.get_side_length() == pytest.approx(120, rel=1e-6)
+
+    def test_get_inradius_square(self):
+        import math
+        sq = RegularPolygon(4, radius=100)
+        # inradius of square inscribed in r=100: 100*cos(pi/4) = 50*sqrt(2)
+        expected = 100 * math.cos(math.pi / 4)
+        assert sq.get_inradius() == pytest.approx(expected, rel=1e-6)
+
+    def test_get_inradius_triangle(self):
+        import math
+        tri = RegularPolygon(3, radius=100)
+        # inradius = r * cos(pi/3) = 100 * 0.5 = 50
+        assert tri.get_inradius() == pytest.approx(50, rel=1e-6)
+
+
+class TestStarMethods:
+    def test_get_outer_radius(self):
+        s = Star(n=5, outer_radius=150, inner_radius=60)
+        assert s.get_outer_radius() == 150
+
+    def test_get_inner_radius(self):
+        s = Star(n=5, outer_radius=150, inner_radius=60)
+        assert s.get_inner_radius() == 60
+
+    def test_get_inner_radius_default(self):
+        s = Star(n=5, outer_radius=100)
+        # Default inner_radius = outer_radius * 0.4
+        assert s.get_inner_radius() == pytest.approx(40)
+
+    def test_get_outer_radius_default(self):
+        s = Star(n=7, outer_radius=200)
+        assert s.get_outer_radius() == 200
+
+
+class TestLineGetSlope:
+    def test_horizontal_line(self):
+        line = Line(0, 0, 100, 0)
+        assert line.get_slope() == pytest.approx(0)
+
+    def test_diagonal_line(self):
+        line = Line(0, 0, 100, 100)
+        assert line.get_slope() == pytest.approx(1.0)
+
+    def test_negative_slope(self):
+        line = Line(0, 100, 100, 0)
+        assert line.get_slope() == pytest.approx(-1.0)
+
+    def test_vertical_line_returns_inf(self):
+        line = Line(50, 0, 50, 100)
+        assert line.get_slope() == float('inf')
+
+    def test_steep_slope(self):
+        line = Line(0, 0, 10, 50)
+        assert line.get_slope() == pytest.approx(5.0)

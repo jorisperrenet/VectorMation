@@ -545,6 +545,16 @@ class Line(VObject):
             return (0.0, 0.0)
         return ((x2 - x1) / length, (y2 - y1) / length)
 
+    def get_slope(self, time=0):
+        """Return the slope (dy/dx) of the line, or float('inf') for vertical lines.
+        Uses SVG coordinates (y increases downward)."""
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        dx = x2 - x1
+        if abs(dx) < 1e-10:
+            return float('inf')
+        return (y2 - y1) / dx
+
     def angle(self, time=0):
         """Return the angle of this line in degrees (0 = right, CCW positive)."""
         x1, y1 = self.p1.at_time(time)
@@ -1263,6 +1273,16 @@ class RegularPolygon(Polygon):
         ]
         super().__init__(*vertices, creation=creation, z=z, **styling_kwargs)
 
+    def get_side_length(self, time=0):
+        """Return the side length of the regular polygon.
+        Computed from the circumradius: side = 2 * r * sin(pi / n)."""
+        return 2 * self._radius * math.sin(math.pi / self._n)
+
+    def get_inradius(self, time=0):
+        """Return the inradius (apothem) of the regular polygon.
+        Computed from the circumradius: inradius = r * cos(pi / n)."""
+        return self._radius * math.cos(math.pi / self._n)
+
     def __repr__(self):
         return f'RegularPolygon(n={self._n}, r={self._radius:.0f})'
 
@@ -1284,6 +1304,14 @@ class Star(Polygon):
             a = math.pi * k / n + angle_rad
             vertices.append((cx + r * math.cos(a), cy - r * math.sin(a)))
         super().__init__(*vertices, creation=creation, z=z, **styling_kwargs)
+
+    def get_outer_radius(self):
+        """Return the outer (tip) radius of the star."""
+        return self._outer_radius
+
+    def get_inner_radius(self):
+        """Return the inner (valley) radius of the star."""
+        return self._inner_radius
 
     def __repr__(self):
         return f'Star(n={self._n}, outer={self._outer_radius:.0f}, inner={self._inner_radius:.0f})'
