@@ -427,6 +427,22 @@ class Polygon(VObject):
             edges.append(Line(x1=x1, y1=y1, x2=x2, y2=y2))
         return edges
 
+    def translate(self, dx, dy):
+        """Translate all vertices by (*dx*, *dy*).
+
+        This is a geometric operation on the polygon's vertices (applied
+        immediately at time 0), not an SVG transform.
+
+        Parameters
+        ----------
+        dx, dy:
+            Horizontal and vertical offset to apply to every vertex.
+        """
+        for v in self.vertices:
+            v.add_onward(0, (dx, dy))
+        self._bbox_version += 1
+        return self
+
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 
@@ -1072,6 +1088,12 @@ class Rectangle(VObject):
     def get_size(self, time=0):
         return (self.width.at_time(time), self.height.at_time(time))
 
+    def is_square(self, time=0, tol=1e-3):
+        """Return True if width equals height (within tolerance)."""
+        w = self.width.at_time(time)
+        h = self.height.at_time(time)
+        return abs(w - h) < tol
+
     @classmethod
     def square(cls, side, **kwargs):
         """Create a square with equal width and height."""
@@ -1425,6 +1447,25 @@ class Line(VObject):
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         return _normalize(x2 - x1, y2 - y1)
+
+    def get_vector(self, time=0):
+        """Return the direction vector (dx, dy) from start to end.
+
+        Unlike :meth:`get_direction` which returns a normalized unit vector,
+        this returns the raw (unnormalized) vector from p1 to p2.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read p1 and p2.
+
+        Returns
+        -------
+        (dx, dy) tuple of floats.
+        """
+        x1, y1 = self.get_start(time)
+        x2, y2 = self.get_end(time)
+        return (x2 - x1, y2 - y1)
 
     def get_normal(self, time=0):
         """Return the normal vector perpendicular to the line direction.
@@ -2155,6 +2196,20 @@ class Text(VObject):
             self.font_size.set_onward(time, new_fs)
         return self
 
+    def to_upper(self, time=0):
+        """Change text to uppercase at given time."""
+        full = self.text.at_time(time)
+        if isinstance(full, str):
+            self.text.set_onward(time, full.upper())
+        return self
+
+    def to_lower(self, time=0):
+        """Change text to lowercase at given time."""
+        full = self.text.at_time(time)
+        if isinstance(full, str):
+            self.text.set_onward(time, full.lower())
+        return self
+
     def to_svg(self, time):
         anchor = f" text-anchor='{self._text_anchor}'" if self._text_anchor else ''
         txt = _xml_escape(str(self.text.at_time(time)))
@@ -2748,6 +2803,22 @@ class Arc(VObject):
         """Return the point at the midpoint angle of the arc."""
         mid = (self.start_angle.at_time(time) + self.end_angle.at_time(time)) / 2
         return self.point_at_angle(mid, time)
+
+    def get_midpoint_on_arc(self, time=0):
+        """Return the point at the middle of the arc curve.
+
+        This computes the angle midway between ``start_angle`` and
+        ``end_angle`` and returns the corresponding (x, y) point on the arc.
+        Equivalent to :meth:`get_midpoint` — provided for API clarity when the
+        caller wants to emphasise that the result lies *on the arc* rather
+        than at the midpoint of the chord.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to evaluate the arc geometry.
+        """
+        return self.get_midpoint(time)
 
     def to_wedge(self, time=0, **kwargs):
         """Return a :class:`Wedge` with the same geometry as this arc at *time*.

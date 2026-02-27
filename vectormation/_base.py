@@ -1746,6 +1746,41 @@ class VObject(ABC):  # Vector Object
         self.styling.scale_y.set(s, e, scale, stay=True)
         return self
 
+    def shrink_to_corner(self, start=0, end=1, corner=None, change_existence=True, easing=easings.smooth):
+        """Shrink to zero size anchored at a corner.
+
+        The reverse of :meth:`grow_from_corner`.  The object scales from its
+        current size down to zero, with the specified corner remaining fixed.
+
+        Parameters
+        ----------
+        start, end:
+            Time range for the animation.
+        corner:
+            Direction tuple indicating which corner to anchor, e.g. UL, UR,
+            DL, DR from ``_constants``.  Defaults to DL (bottom-left in SVG).
+        change_existence:
+            If True, the object is hidden from *end* onward.
+        easing:
+            Easing function for the scale interpolation.
+        """
+        from vectormation._constants import DL
+        corner = corner or DL
+        x, y, w, h = self.bbox(start)
+        cx = x if corner[0] <= 0 else x + w
+        cy = y if corner[1] <= 0 else y + h
+        self.styling._scale_origin = (cx, cy)
+        s, e = start, end
+        dur = e - s
+        if dur <= 0:
+            return self
+        scale = lambda t, _s=s, _d=dur: 1 - easing((t - _s) / _d)
+        self.styling.scale_x.set(s, e, scale, stay=True)
+        self.styling.scale_y.set(s, e, scale, stay=True)
+        if change_existence:
+            self._hide_from(end)
+        return self
+
     def _spiral_anim(self, start, end, n_turns, spiral_in, change_existence, easing):
         """Shared helper for spiral_in / spiral_out."""
         dur = end - start
@@ -2862,6 +2897,31 @@ class VCollection:
     def remove(self, obj):
         """Remove an object from this collection."""
         self.objects.remove(obj)
+        return self
+
+    def send_to_back(self, child):
+        """Move a child to the back (rendered first, behind others)."""
+        if isinstance(child, int):
+            child = self.objects[child]
+        if child in self.objects:
+            self.objects.remove(child)
+            self.objects.insert(0, child)
+        return self
+
+    def bring_to_front(self, child):
+        """Move a child to the front (rendered last, on top).
+
+        Parameters
+        ----------
+        child:
+            Either the child object itself or its integer index in
+            ``self.objects``.
+        """
+        if isinstance(child, int):
+            child = self.objects[child]
+        if child in self.objects:
+            self.objects.remove(child)
+            self.objects.append(child)
         return self
 
     def get_child(self, index):

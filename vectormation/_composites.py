@@ -1606,6 +1606,27 @@ class Axes(VCollection):
         fn = self._resolve_func(func, 'func')
         return (fn(x_val + h) - fn(x_val - h)) / (2 * h)
 
+    def get_slope(self, func, x_val, h=0.001):
+        """Return the slope of *func* at *x_val*.
+
+        This is a convenience alias for :meth:`get_derivative`.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x)`` or a curve Path with a ``._func`` attribute.
+        x_val:
+            The x value at which to evaluate the slope.
+        h:
+            Step size for the central-difference approximation.
+
+        Returns
+        -------
+        float
+            The approximate slope f'(x_val).
+        """
+        return self.get_derivative(func, x_val, h=h)
+
     def add_legend(self, entries, position='upper right', font_size=18,
                     bg_color='#1a1a2e', bg_opacity=0.8, creation=0, z=10):
         """Add a legend box.

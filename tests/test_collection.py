@@ -1006,3 +1006,80 @@ class TestSetZOrder:
         col = VCollection(c1, c2, c3)
         col.set_z_order([2, 1, 0])
         assert col.objects == [c3, c2, c1]
+
+
+class TestSendToBack:
+    def test_send_to_back_by_reference(self):
+        """send_to_back moves a child to the front of the objects list (rendered first)."""
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        c3 = Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        col.send_to_back(c3)
+        assert col.objects == [c3, c1, c2]
+
+    def test_send_to_back_by_index(self):
+        """send_to_back accepts an integer index."""
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        c3 = Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        col.send_to_back(2)  # index 2 is c3
+        assert col.objects[0] is c3
+
+    def test_send_to_back_returns_self(self):
+        """send_to_back should return self for chaining."""
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        col = VCollection(c1, c2)
+        result = col.send_to_back(c2)
+        assert result is col
+
+    def test_send_to_back_already_first(self):
+        """send_to_back on the first child keeps order unchanged."""
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        col = VCollection(c1, c2)
+        col.send_to_back(c1)
+        assert col.objects == [c1, c2]
+
+
+class TestBringToFront:
+    def test_bring_to_front_by_object(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        c3 = Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        col.bring_to_front(c1)
+        assert col.objects == [c2, c3, c1]
+
+    def test_bring_to_front_by_index(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        c3 = Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        col.bring_to_front(0)
+        assert col.objects == [c2, c3, c1]
+
+    def test_bring_to_front_returns_self(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        col = VCollection(c1, c2)
+        result = col.bring_to_front(c1)
+        assert result is col
+
+    def test_bring_to_front_already_last(self):
+        """bring_to_front on the last child keeps order unchanged."""
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        col = VCollection(c1, c2)
+        col.bring_to_front(c2)
+        assert col.objects == [c1, c2]
+
+    def test_bring_to_front_preserves_length(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        c3 = Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        col.bring_to_front(c2)
+        assert len(col.objects) == 3

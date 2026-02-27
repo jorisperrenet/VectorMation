@@ -7609,3 +7609,79 @@ class TestPlotPiecewise:
         ax.plot_piecewise(pieces)
         # Each piece adds a curve to the axes
         assert len(ax.objects) == initial_count + 2
+
+
+class TestShrinkToCorner:
+    def test_shrink_to_corner_returns_self(self):
+        c = Circle(r=50, cx=200, cy=200)
+        result = c.shrink_to_corner(start=0, end=1)
+        assert result is c
+
+    def test_shrink_to_corner_hides_after_end(self):
+        c = Circle(r=50, cx=200, cy=200)
+        c.shrink_to_corner(start=0, end=1)
+        assert not c.show.at_time(1.5)
+
+    def test_shrink_to_corner_visible_before_end(self):
+        c = Circle(r=50, cx=200, cy=200)
+        c.shrink_to_corner(start=0, end=1)
+        assert c.show.at_time(0)
+
+    def test_shrink_to_corner_scale_at_start_and_end(self):
+        from vectormation.objects import DL
+        c = Circle(r=50, cx=200, cy=200)
+        c.shrink_to_corner(start=0, end=1, corner=DL, easing=easings.linear)
+        # At start, scale should be 1
+        assert c.styling.scale_x.at_time(0) == pytest.approx(1.0)
+        assert c.styling.scale_y.at_time(0) == pytest.approx(1.0)
+        # At end, scale should be 0
+        assert c.styling.scale_x.at_time(1) == pytest.approx(0.0)
+        assert c.styling.scale_y.at_time(1) == pytest.approx(0.0)
+
+    def test_shrink_to_corner_anchor_point_ur(self):
+        from vectormation.objects import UR
+        r = Rectangle(100, 80, x=300, y=300)
+        r.shrink_to_corner(start=0, end=1, corner=UR, easing=easings.linear)
+        ox, oy = r.styling._scale_origin
+        bx, by, bw, bh = r.bbox(0)
+        assert ox == pytest.approx(bx + bw)  # right edge
+        assert oy == pytest.approx(by)        # top edge
+
+    def test_shrink_to_corner_default_corner_is_dl(self):
+        r = Rectangle(100, 80, x=300, y=300)
+        r.shrink_to_corner(start=0, end=1, easing=easings.linear)
+        ox, oy = r.styling._scale_origin
+        bx, by, bw, bh = r.bbox(0)
+        assert ox == pytest.approx(bx)        # left edge
+        assert oy == pytest.approx(by + bh)   # bottom edge
+
+    def test_shrink_to_corner_no_change_existence(self):
+        c = Circle(r=50, cx=200, cy=200)
+        c.shrink_to_corner(start=0, end=1, change_existence=False)
+        # Object should remain visible after end
+        assert c.show.at_time(1.5) == True
+
+
+class TestAxesGetSlope:
+    def test_get_slope_linear(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        slope = ax.get_slope(lambda x: 3 * x + 1, 2.0)
+        assert slope == pytest.approx(3.0, abs=0.01)
+
+    def test_get_slope_quadratic(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-25, 25])
+        slope = ax.get_slope(lambda x: x**2, 3.0)
+        assert slope == pytest.approx(6.0, abs=0.01)
+
+    def test_get_slope_matches_get_derivative(self):
+        import math
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        f = lambda x: math.sin(x)
+        slope = ax.get_slope(f, 0.0)
+        deriv = ax.get_derivative(f, 0.0)
+        assert slope == pytest.approx(deriv)
+
+    def test_get_slope_custom_h(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        slope = ax.get_slope(lambda x: x**3, 2.0, h=0.0001)
+        assert slope == pytest.approx(12.0, abs=0.01)

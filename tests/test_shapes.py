@@ -4496,3 +4496,157 @@ class TestRectangleExpand:
         cy_after = r.y.at_time(1) + r.height.at_time(1) / 2
         assert cx_after == pytest.approx(cx_before)
         assert cy_after == pytest.approx(cy_before)
+
+
+class TestTextToUpper:
+    def test_to_upper_basic(self):
+        """to_upper changes text to uppercase."""
+        t = Text('hello world')
+        t.to_upper(time=0)
+        assert t.text.at_time(0) == 'HELLO WORLD'
+
+    def test_to_upper_at_later_time(self):
+        """to_upper at a later time preserves original text before that time."""
+        t = Text('hello')
+        t.to_upper(time=2)
+        assert t.text.at_time(0) == 'hello'
+        assert t.text.at_time(2) == 'HELLO'
+
+    def test_to_upper_returns_self(self):
+        """to_upper should return self for chaining."""
+        t = Text('abc')
+        result = t.to_upper(time=0)
+        assert result is t
+
+    def test_to_upper_already_upper(self):
+        """to_upper on already uppercase text is a no-op."""
+        t = Text('HELLO')
+        t.to_upper(time=0)
+        assert t.text.at_time(0) == 'HELLO'
+
+
+class TestTextToLower:
+    def test_to_lower_basic(self):
+        """to_lower changes text to lowercase."""
+        t = Text('Hello World')
+        t.to_lower(time=0)
+        assert t.text.at_time(0) == 'hello world'
+
+    def test_to_lower_at_later_time(self):
+        """to_lower at a later time preserves original text before that time."""
+        t = Text('HELLO')
+        t.to_lower(time=2)
+        assert t.text.at_time(0) == 'HELLO'
+        assert t.text.at_time(2) == 'hello'
+
+    def test_to_lower_returns_self(self):
+        """to_lower should return self for chaining."""
+        t = Text('ABC')
+        result = t.to_lower(time=0)
+        assert result is t
+
+
+class TestLineGetVector:
+    def test_get_vector_basic(self):
+        """get_vector returns unnormalized direction vector."""
+        l = Line(x1=0, y1=0, x2=3, y2=4)
+        dx, dy = l.get_vector()
+        assert dx == pytest.approx(3.0)
+        assert dy == pytest.approx(4.0)
+
+    def test_get_vector_vs_get_direction(self):
+        """get_vector returns unnormalized while get_direction returns normalized."""
+        l = Line(x1=0, y1=0, x2=6, y2=8)
+        vx, vy = l.get_vector()
+        dx, dy = l.get_direction()
+        # Vector should be (6, 8), direction should be (0.6, 0.8)
+        assert vx == pytest.approx(6.0)
+        assert vy == pytest.approx(8.0)
+        assert dx == pytest.approx(0.6)
+        assert dy == pytest.approx(0.8)
+
+    def test_get_vector_zero_length(self):
+        """get_vector on a zero-length line returns (0, 0)."""
+        l = Line(x1=5, y1=5, x2=5, y2=5)
+        dx, dy = l.get_vector()
+        assert dx == pytest.approx(0.0)
+        assert dy == pytest.approx(0.0)
+
+
+class TestRectangleIsSquare:
+    def test_is_square_true(self):
+        """A square rectangle should return True."""
+        r = Rectangle(width=100, height=100)
+        assert r.is_square() is True
+
+    def test_is_square_false(self):
+        """A non-square rectangle should return False."""
+        r = Rectangle(width=100, height=50)
+        assert r.is_square() is False
+
+    def test_is_square_within_tolerance(self):
+        """Rectangles within tolerance should be considered square."""
+        r = Rectangle(width=100, height=100.0005)
+        assert r.is_square(tol=1e-3) is True
+
+    def test_is_square_outside_tolerance(self):
+        """Rectangles outside tolerance should not be considered square."""
+        r = Rectangle(width=100, height=100.01)
+        assert r.is_square(tol=1e-3) is False
+
+    def test_is_square_class_method(self):
+        """Rectangle.square() factory should produce a square."""
+        r = Rectangle.square(50)
+        assert r.is_square() is True
+
+
+class TestPolygonTranslate:
+    def test_translate_shifts_vertices(self):
+        p = Polygon((100, 100), (200, 100), (150, 200))
+        p.translate(10, 20)
+        verts = p.get_vertices(0)
+        assert verts[0] == pytest.approx((110, 120))
+        assert verts[1] == pytest.approx((210, 120))
+        assert verts[2] == pytest.approx((160, 220))
+
+    def test_translate_returns_self(self):
+        p = Polygon((100, 100), (200, 100), (150, 200))
+        result = p.translate(5, -5)
+        assert result is p
+
+    def test_translate_updates_bbox(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        p.translate(50, 50)
+        bx, by, bw, bh = p.bbox(0)
+        assert bx == pytest.approx(50)
+        assert by == pytest.approx(50)
+        assert bw == pytest.approx(100)
+        assert bh == pytest.approx(100)
+
+
+class TestArcGetMidpointOnArc:
+    def test_midpoint_on_arc_matches_get_midpoint(self):
+        a = Arc(cx=100, cy=100, r=50, start_angle=0, end_angle=90)
+        mid = a.get_midpoint(0)
+        mid_on_arc = a.get_midpoint_on_arc(0)
+        assert mid_on_arc[0] == pytest.approx(mid[0])
+        assert mid_on_arc[1] == pytest.approx(mid[1])
+
+    def test_midpoint_on_arc_is_on_arc(self):
+        import math
+        cx, cy, r = 200.0, 200.0, 80.0
+        a = Arc(cx=cx, cy=cy, r=r, start_angle=0, end_angle=180)
+        mx, my = a.get_midpoint_on_arc(0)
+        # Distance from center should equal radius
+        dist = math.sqrt((mx - cx)**2 + (my - cy)**2)
+        assert dist == pytest.approx(r, abs=0.01)
+
+    def test_midpoint_on_arc_angle(self):
+        import math
+        a = Arc(cx=0, cy=0, r=100, start_angle=30, end_angle=90)
+        mx, my = a.get_midpoint_on_arc(0)
+        # Midpoint angle should be 60 degrees
+        expected_x = 100 * math.cos(math.radians(60))
+        expected_y = -100 * math.sin(math.radians(60))  # SVG y is inverted
+        assert mx == pytest.approx(expected_x, abs=0.01)
+        assert my == pytest.approx(expected_y, abs=0.01)
