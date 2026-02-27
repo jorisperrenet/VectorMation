@@ -2158,3 +2158,109 @@ class TestDonutChart:
     def test_donutchart_repr(self):
         dc = DonutChart([1, 2, 3])
         assert repr(dc) == 'DonutChart(3 sectors)'
+
+
+class TestPathFromPoints:
+    def test_straight_segments(self):
+        pts = [(0, 0), (100, 50), (200, 0)]
+        p = Path.from_points(pts)
+        d = p.d.at_time(0)
+        assert d.startswith('M0,0')
+        assert 'L100,50' in d
+        assert 'L200,0' in d
+
+    def test_closed_path_has_z(self):
+        pts = [(0, 0), (100, 0), (50, 100)]
+        p = Path.from_points(pts, closed=True)
+        d = p.d.at_time(0)
+        assert d.endswith('Z')
+
+    def test_open_path_no_z(self):
+        pts = [(0, 0), (100, 0), (50, 100)]
+        p = Path.from_points(pts, closed=False)
+        d = p.d.at_time(0)
+        assert not d.endswith('Z')
+
+    def test_smooth_path_uses_cubic_bezier(self):
+        pts = [(0, 0), (100, 50), (200, 0), (300, 50)]
+        p = Path.from_points(pts, smooth=True)
+        d = p.d.at_time(0)
+        assert 'C' in d
+
+    def test_smooth_closed_path(self):
+        pts = [(0, 0), (100, 50), (200, 0)]
+        p = Path.from_points(pts, smooth=True, closed=True)
+        d = p.d.at_time(0)
+        assert 'C' in d
+        assert d.endswith('Z')
+
+    def test_single_point(self):
+        p = Path.from_points([(42, 99)])
+        d = p.d.at_time(0)
+        assert d == 'M42,99'
+
+    def test_empty_points(self):
+        p = Path.from_points([])
+        d = p.d.at_time(0)
+        assert d == ''
+
+    def test_returns_path_instance(self):
+        p = Path.from_points([(0, 0), (10, 10)])
+        assert isinstance(p, Path)
+
+    def test_kwargs_passed_through(self):
+        p = Path.from_points([(0, 0), (10, 10)], stroke='#f00')
+        assert 'rgb(255,0,0)' in p.styling.stroke.at_time(0)
+
+    def test_two_points_straight(self):
+        p = Path.from_points([(10, 20), (30, 40)])
+        d = p.d.at_time(0)
+        assert 'M10,20' in d
+        assert 'L30,40' in d
+
+
+class TestRectangleRoundCorners:
+    def test_returns_rounded_rectangle(self):
+        r = Rectangle(200, 100, x=10, y=20)
+        rr = r.round_corners(radius=15)
+        assert isinstance(rr, RoundedRectangle)
+
+    def test_preserves_dimensions(self):
+        r = Rectangle(200, 100, x=10, y=20)
+        rr = r.round_corners(radius=12)
+        assert rr.width.at_time(0) == pytest.approx(200)
+        assert rr.height.at_time(0) == pytest.approx(100)
+
+    def test_preserves_position(self):
+        r = Rectangle(200, 100, x=10, y=20)
+        rr = r.round_corners(radius=8)
+        assert rr.x.at_time(0) == pytest.approx(10)
+        assert rr.y.at_time(0) == pytest.approx(20)
+
+    def test_sets_corner_radius(self):
+        r = Rectangle(200, 100, x=10, y=20)
+        rr = r.round_corners(radius=20)
+        assert rr.rx.at_time(0) == pytest.approx(20)
+        assert rr.ry.at_time(0) == pytest.approx(20)
+
+    def test_default_radius_is_ten(self):
+        r = Rectangle(100, 60)
+        rr = r.round_corners()
+        assert rr.rx.at_time(0) == pytest.approx(10)
+
+    def test_preserves_fill_opacity(self):
+        r = Rectangle(100, 60, fill_opacity=0.5)
+        rr = r.round_corners(radius=5)
+        assert rr.styling.fill_opacity.at_time(0) == pytest.approx(0.5)
+
+    def test_kwargs_override_style(self):
+        r = Rectangle(100, 60, fill_opacity=0.5)
+        rr = r.round_corners(radius=5, fill_opacity=0.9)
+        assert rr.styling.fill_opacity.at_time(0) == pytest.approx(0.9)
+
+    def test_svg_has_rect_tag(self):
+        r = Rectangle(100, 60, x=5, y=5)
+        rr = r.round_corners(radius=10)
+        svg = rr.to_svg(0)
+        assert '<rect' in svg
+        assert "rx='10'" in svg

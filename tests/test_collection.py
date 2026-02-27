@@ -188,3 +188,51 @@ class TestVCollection:
         bx, by, bw, bh = col.bbox(0)
         assert bx + bw/2 == pytest.approx(500, abs=2)
         assert by + bh/2 == pytest.approx(300, abs=2)
+
+
+class TestSortBy:
+    def test_sort_by_x_position(self):
+        c1 = Circle(r=10, cx=300, cy=0)
+        c2 = Circle(r=10, cx=100, cy=0)
+        c3 = Circle(r=10, cx=200, cy=0)
+        col = VCollection(c1, c2, c3)
+        col.sort_by(lambda obj: obj.bbox(0)[0])
+        # cx=100 < cx=200 < cx=300 → c2, c3, c1
+        assert col.objects[0] is c2
+        assert col.objects[1] is c3
+        assert col.objects[2] is c1
+
+    def test_sort_by_reverse(self):
+        c1 = Circle(r=10, cx=300, cy=0)
+        c2 = Circle(r=10, cx=100, cy=0)
+        c3 = Circle(r=10, cx=200, cy=0)
+        col = VCollection(c1, c2, c3)
+        col.sort_by(lambda obj: obj.bbox(0)[0], reverse=True)
+        assert col.objects[0] is c1
+        assert col.objects[1] is c3
+        assert col.objects[2] is c2
+
+    def test_sort_by_returns_self(self):
+        c1 = Circle(r=10, cx=100)
+        c2 = Circle(r=10, cx=200)
+        col = VCollection(c1, c2)
+        result = col.sort_by(lambda o: o.bbox(0)[0])
+        assert result is col
+
+    def test_sort_by_size(self):
+        c1 = Circle(r=50)
+        c2 = Circle(r=10)
+        c3 = Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        col.sort_by(lambda obj: obj.rx.at_time(0))
+        assert col.objects[0] is c2
+        assert col.objects[1] is c3
+        assert col.objects[2] is c1
+
+    def test_sort_by_preserves_all_objects(self):
+        circles = [Circle(r=10, cx=i * 50) for i in range(5)]
+        col = VCollection(*circles)
+        col.sort_by(lambda obj: -obj.bbox(0)[0])  # reverse by x
+        assert len(col.objects) == 5
+        xs = [obj.bbox(0)[0] for obj in col.objects]
+        assert xs == sorted(xs, reverse=True)

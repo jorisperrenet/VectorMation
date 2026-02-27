@@ -1314,6 +1314,23 @@ class Axes(VCollection):
             return dot, lbl
         return dot
 
+    def add_point_label(self, x, y, text=None, dot_radius=6, font_size=20, buff=10,
+                        creation=0, **kwargs):
+        """Add a dot at math coordinates (x, y) with an optional text label.
+
+        text: label string.  If None, defaults to '(x, y)' format.
+        buff: pixel offset above the dot for the label.
+        Returns (dot, label) if a label is shown, else just the dot.
+        """
+        if text is None:
+            text = f'({x:g}, {y:g})'
+        dot_color = kwargs.pop('dot_color', '#FF6B6B')
+        return self.add_dot_label(x, y, label=str(text),
+                                  dot_color=dot_color, dot_radius=dot_radius,
+                                  label_offset=(0, -dot_radius - buff),
+                                  font_size=font_size, creation=creation,
+                                  z=kwargs.pop('z', 0))
+
     def add_labeled_points(self, points, dot_color='#FF6B6B', dot_radius=6,
                             font_size=14, creation=0, z=1):
         """Add multiple labeled dots to the axes.
@@ -4294,6 +4311,27 @@ class NumberLine(VCollection):
         self.objects.append(rect)
         return rect
 
+    def add_label(self, value, text, buff=10, font_size=24, side='below', creation=0, **kwargs):
+        """Add a text label at the given value on the number line.
+
+        value: the numeric position on the line.
+        text: the string to display.
+        buff: pixel distance above or below the line.
+        side: 'below' (default) or 'above'.
+        Returns self.
+        """
+        from vectormation._shapes import Text as _Text
+        px, py = self.number_to_point(value)
+        kw = {'fill': '#fff', 'stroke_width': 0, 'text_anchor': 'middle'} | kwargs
+        if side == 'above':
+            ty = py - buff - font_size
+        else:
+            ty = py + buff + font_size
+        lbl = _Text(text=str(text), x=px, y=ty,
+                    font_size=font_size, creation=creation, **kw)
+        self.objects.append(lbl)
+        return self
+
     def __repr__(self):
         return f'NumberLine([{self.x_start}, {self.x_end}], step={self.x_step})'
 
@@ -4688,6 +4726,20 @@ class BarChart(VCollection):
             bar.grow_from_edge('bottom', bar_start, bar_end, easing=easing)
         return self
 
+    def get_max_bar(self):
+        """Return the bar Rectangle with the maximum value."""
+        if not self._bars:
+            return None
+        max_idx = max(range(len(self.values)), key=lambda i: self.values[i])
+        return self._bars[max_idx]
+
+    def get_min_bar(self):
+        """Return the bar Rectangle with the minimum value."""
+        if not self._bars:
+            return None
+        min_idx = min(range(len(self.values)), key=lambda i: self.values[i])
+        return self._bars[min_idx]
+
 
 class Table(VCollection):
     """Table for displaying tabular data with optional row/column labels.
@@ -4747,10 +4799,29 @@ class Table(VCollection):
 
         super().__init__(*objects, creation=creation, z=z)
         self.rows, self.cols = rows, cols
+        self._table_x = x
+        self._table_y = y
+        self._cell_width = cell_width
+        self._cell_height = cell_height
+        self._x_off = x_off
+        self._y_off = y_off
 
     def get_entry(self, row, col):
         """Return the Text object at (row, col) for animation."""
         return self.entries[row][col]
+
+    def get_cell_rect(self, row, col, padding=2, **kwargs):
+        """Return a Rectangle covering the cell at (row, col).
+
+        The Rectangle is not added to the table; callers can animate or add it
+        to a canvas independently.  padding shrinks the rect inward on all sides.
+        """
+        rx = self._table_x + self._x_off + col * self._cell_width + padding
+        ry = self._table_y + self._y_off + row * self._cell_height + padding
+        w = self._cell_width - 2 * padding
+        h = self._cell_height - 2 * padding
+        kw = {'fill': '#FFFF00', 'fill_opacity': 0.15, 'stroke_width': 0} | kwargs
+        return Rectangle(w, h, x=rx, y=ry, **kw)
 
     def get_row(self, row):
         """Return a VCollection of all Text objects in the given row."""

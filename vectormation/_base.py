@@ -1588,6 +1588,26 @@ class VObject(ABC):  # Vector Object
             lambda t, _s=s, _d=dur: easing((t - _s) / _d), stay=True)
         return self
 
+    def flash_highlight(self, start: float = 0, end: float = 1, color='#FFFF00',
+                        width=3, easing=easings.there_and_back):
+        """Briefly highlight the object with a colored border flash using a surrounding rectangle.
+        Creates a Rectangle slightly larger than this object whose stroke flashes the given color
+        and then fades back out. Returns the highlight rectangle (must be added to canvas).
+        """
+        from vectormation._shapes import Rectangle  # lazy to avoid circular import
+        bx, by, bw, bh = self.bbox(start)
+        buff = 6
+        rect = Rectangle(bw + 2 * buff, bh + 2 * buff,
+                         x=bx - buff, y=by - buff,
+                         creation=start, fill_opacity=0,
+                         stroke=color, stroke_width=width, stroke_opacity=0)
+        dur = end - start
+        if dur > 0:
+            s = start
+            rect.styling.stroke_opacity.set(s, end,
+                lambda t, _s=s, _d=dur: easing((t - _s) / _d), stay=True)
+        return rect
+
     def color_cycle(self, colors, start: float = 0, end: float = 1, attr='fill',
                      easing=easings.linear):
         """Cycle through a list of colors over [start, end]."""
@@ -2390,6 +2410,11 @@ class VCollection:
     def sort_by_z(self, reverse=False, time=0):
         """Sort children by z-depth."""
         return self.sort_objects(key=lambda obj: obj.z.at_time(time), reverse=reverse, time=time)
+
+    def sort_by(self, key_func, reverse=False):
+        """Sort children by key_func(child). Does not animate — instant reorder."""
+        self.objects.sort(key=key_func, reverse=reverse)
+        return self
 
     def shuffle(self):
         """Randomly shuffle the order of children in-place."""

@@ -5901,3 +5901,294 @@ class TestSetPosition:
         cx1, cy1 = c.center(1)
         assert cx1 == pytest.approx(500, abs=1)
         assert cy1 == pytest.approx(300, abs=1)
+
+
+# ---------------------------------------------------------------------------
+# New utility methods added in this session
+# ---------------------------------------------------------------------------
+
+class TestNumberLineAddLabel:
+    def test_returns_self(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        result = nl.add_label(0, 'origin')
+        assert result is nl
+
+    def test_label_added_to_objects(self):
+        from vectormation._shapes import Text
+        nl = NumberLine(x_range=(-5, 5, 1))
+        before = len(nl.objects)
+        nl.add_label(2, 'two')
+        assert len(nl.objects) == before + 1
+        assert isinstance(nl.objects[-1], Text)
+
+    def test_label_text_content(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        nl.add_label(3, 'hello')
+        lbl = nl.objects[-1]
+        assert lbl.text.at_time(0) == 'hello'
+
+    def test_label_x_position(self):
+        # Label should be positioned at number_to_point(value).x
+        nl = NumberLine(x_range=(0, 10, 1), length=1000, x=100, y=300)
+        nl.add_label(5, '5')
+        lbl = nl.objects[-1]
+        expected_x, _ = nl.number_to_point(5)
+        assert lbl.x.at_time(0) == pytest.approx(expected_x, abs=1)
+
+    def test_label_below(self):
+        nl = NumberLine(x_range=(0, 10, 1), length=1000, x=100, y=300)
+        nl.add_label(5, '5', buff=10, font_size=24, side='below')
+        lbl = nl.objects[-1]
+        _, py = nl.number_to_point(5)
+        assert lbl.y.at_time(0) > py  # SVG y increases downward
+
+    def test_label_above(self):
+        nl = NumberLine(x_range=(0, 10, 1), length=1000, x=100, y=300)
+        nl.add_label(5, '5', buff=10, font_size=24, side='above')
+        lbl = nl.objects[-1]
+        _, py = nl.number_to_point(5)
+        assert lbl.y.at_time(0) < py  # above means smaller SVG y
+
+    def test_svg_contains_label(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        nl.add_label(0, 'CENTER')
+        svg = nl.to_svg(0)
+        assert 'CENTER' in svg
+
+    def test_custom_font_size(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        nl.add_label(1, 'x', font_size=30)
+        lbl = nl.objects[-1]
+        # font_size is a direct attribute on Text, not in styling
+        assert lbl.font_size.at_time(0) == pytest.approx(30, abs=1)
+
+
+class TestBarChartGetMaxMinBar:
+    def test_get_max_bar_returns_rectangle(self):
+        from vectormation._shapes import Rectangle
+        bc = BarChart([10, 30, 20])
+        bar = bc.get_max_bar()
+        assert isinstance(bar, Rectangle)
+
+    def test_get_min_bar_returns_rectangle(self):
+        from vectormation._shapes import Rectangle
+        bc = BarChart([10, 30, 20])
+        bar = bc.get_min_bar()
+        assert isinstance(bar, Rectangle)
+
+    def test_get_max_bar_is_tallest(self):
+        bc = BarChart([10, 30, 20])
+        max_bar = bc.get_max_bar()
+        # The tallest bar has the greatest height attribute value
+        max_h = max_bar.height.at_time(0)
+        for bar in bc._bars:
+            assert bar.height.at_time(0) <= max_h + 1e-6
+
+    def test_get_min_bar_is_shortest(self):
+        bc = BarChart([10, 30, 20])
+        min_bar = bc.get_min_bar()
+        min_h = min_bar.height.at_time(0)
+        for bar in bc._bars:
+            assert bar.height.at_time(0) >= min_h - 1e-6
+
+    def test_max_bar_corresponds_to_max_value(self):
+        values = [5, 99, 42]
+        bc = BarChart(values)
+        max_bar = bc.get_max_bar()
+        assert max_bar is bc._bars[1]
+
+    def test_min_bar_corresponds_to_min_value(self):
+        values = [5, 99, 42]
+        bc = BarChart(values)
+        min_bar = bc.get_min_bar()
+        assert min_bar is bc._bars[0]
+
+    def test_single_bar(self):
+        bc = BarChart([7])
+        assert bc.get_max_bar() is bc._bars[0]
+        assert bc.get_min_bar() is bc._bars[0]
+
+    def test_empty_chart_returns_none(self):
+        bc = BarChart([])
+        assert bc.get_max_bar() is None
+        assert bc.get_min_bar() is None
+
+    def test_negative_values_max(self):
+        bc = BarChart([-1, -10, -5])
+        max_bar = bc.get_max_bar()
+        assert max_bar is bc._bars[0]  # -1 is the max
+
+    def test_negative_values_min(self):
+        bc = BarChart([-1, -10, -5])
+        min_bar = bc.get_min_bar()
+        assert min_bar is bc._bars[1]  # -10 is the min
+
+
+class TestTableGetCellRect:
+    def test_returns_rectangle(self):
+        from vectormation._shapes import Rectangle
+        t = Table([[1, 2], [3, 4]])
+        rect = t.get_cell_rect(0, 0)
+        assert isinstance(rect, Rectangle)
+
+    def test_not_added_to_table(self):
+        t = Table([[1, 2], [3, 4]])
+        before = len(t.objects)
+        t.get_cell_rect(0, 0)
+        assert len(t.objects) == before  # should NOT be added automatically
+
+    def test_cell_position_row0_col0(self):
+        cw, ch = 100, 50
+        t = Table([[1, 2], [3, 4]], x=0, y=0, cell_width=cw, cell_height=ch)
+        padding = 2
+        rect = t.get_cell_rect(0, 0, padding=padding)
+        assert rect.x.at_time(0) == pytest.approx(padding, abs=1)
+        assert rect.y.at_time(0) == pytest.approx(padding, abs=1)
+
+    def test_cell_position_row1_col1(self):
+        cw, ch = 100, 50
+        t = Table([[1, 2], [3, 4]], x=0, y=0, cell_width=cw, cell_height=ch)
+        padding = 2
+        rect = t.get_cell_rect(1, 1, padding=padding)
+        assert rect.x.at_time(0) == pytest.approx(cw + padding, abs=1)
+        assert rect.y.at_time(0) == pytest.approx(ch + padding, abs=1)
+
+    def test_cell_size(self):
+        cw, ch = 160, 60
+        t = Table([[1, 2], [3, 4]], x=0, y=0, cell_width=cw, cell_height=ch)
+        padding = 2
+        rect = t.get_cell_rect(0, 0, padding=padding)
+        assert rect.width.at_time(0) == pytest.approx(cw - 2 * padding, abs=1)
+        assert rect.height.at_time(0) == pytest.approx(ch - 2 * padding, abs=1)
+
+    def test_custom_styling_forwarded(self):
+        t = Table([[1, 2], [3, 4]])
+        rect = t.get_cell_rect(0, 0, fill='#FF0000')
+        # Colors may be normalized to 'rgb(...)' form internally
+        fill_val = rect.styling.fill.at_time(0)
+        assert '255' in fill_val and '0' in fill_val  # red channel is 255
+
+    def test_zero_padding(self):
+        cw, ch = 100, 50
+        t = Table([[1, 2], [3, 4]], x=0, y=0, cell_width=cw, cell_height=ch)
+        rect = t.get_cell_rect(0, 0, padding=0)
+        assert rect.width.at_time(0) == pytest.approx(cw, abs=1)
+        assert rect.height.at_time(0) == pytest.approx(ch, abs=1)
+
+    def test_with_row_labels_offset(self):
+        cw, ch = 100, 50
+        t = Table([[1, 2], [3, 4]], x=0, y=0,
+                  cell_width=cw, cell_height=ch, row_labels=['R1', 'R2'])
+        padding = 0
+        # x_off = cw because row_labels present
+        rect = t.get_cell_rect(0, 0, padding=padding)
+        assert rect.x.at_time(0) == pytest.approx(cw, abs=1)
+
+    def test_svg_renderable(self):
+        t = Table([[1, 2], [3, 4]])
+        rect = t.get_cell_rect(0, 0)
+        svg = rect.to_svg(0)
+        assert '<rect' in svg
+
+
+class TestAxesAddPointLabel:
+    def test_returns_dot_and_label(self):
+        from vectormation._shapes import Dot, Text
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_point_label(1, 2, text='P')
+        assert isinstance(result, tuple)
+        dot, lbl = result
+        assert isinstance(dot, Dot)
+        assert isinstance(lbl, Text)
+
+    def test_default_text_format(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        _, lbl = ax.add_point_label(3, 4)
+        assert lbl.text.at_time(0) == '(3, 4)'
+
+    def test_custom_text(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        _, lbl = ax.add_point_label(0, 0, text='origin')
+        assert lbl.text.at_time(0) == 'origin'
+
+    def test_dot_added_to_axes(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        before = len(ax)
+        ax.add_point_label(1, 1, text='Q')
+        assert len(ax) > before
+
+    def test_dot_position_at_coords(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10), x=0, y=0,
+                  plot_width=1000, plot_height=1000)
+        dot, _ = ax.add_point_label(5, 5, text='mid')
+        sx, sy = ax.coords_to_point(5, 5, time=0)
+        cx, cy = dot.c.at_time(0)
+        assert cx == pytest.approx(sx, abs=2)
+        assert cy == pytest.approx(sy, abs=2)
+
+    def test_label_above_dot(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10), x=0, y=0,
+                  plot_width=1000, plot_height=1000)
+        dot, lbl = ax.add_point_label(5, 5, text='T', buff=10, dot_radius=6)
+        dot_cy = dot.c.at_time(0)[1]
+        assert lbl.y.at_time(0) < dot_cy  # label SVG y < dot SVG y means above
+
+    def test_no_text_uses_coord_format(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        _, lbl = ax.add_point_label(2, 7)
+        assert '2' in lbl.text.at_time(0)
+        assert '7' in lbl.text.at_time(0)
+
+    def test_svg_contains_dot_and_text(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        ax.add_point_label(0, 0, text='Z')
+        svg = ax.to_svg(0)
+        assert '<circle' in svg
+        assert 'Z' in svg
+
+
+class TestFlashHighlight:
+    def test_returns_rectangle(self):
+        c = Circle(r=50, cx=200, cy=200)
+        rect = c.flash_highlight(start=0, end=1)
+        assert isinstance(rect, Rectangle)
+
+    def test_stroke_opacity_fades_in_and_out(self):
+        c = Circle(r=50, cx=200, cy=200)
+        rect = c.flash_highlight(start=0, end=1, color='#ff0')
+        # starts at 0
+        assert rect.styling.stroke_opacity.at_time(0) == pytest.approx(0)
+        # peak at midpoint
+        assert rect.styling.stroke_opacity.at_time(0.5) == pytest.approx(1)
+        # returns to 0 at end
+        assert rect.styling.stroke_opacity.at_time(1) == pytest.approx(0)
+
+    def test_fill_opacity_is_zero(self):
+        c = Circle(r=50, cx=100, cy=100)
+        rect = c.flash_highlight(start=0, end=1)
+        assert rect.styling.fill_opacity.at_time(0) == pytest.approx(0)
+        assert rect.styling.fill_opacity.at_time(0.5) == pytest.approx(0)
+
+    def test_custom_color(self):
+        c = Circle(r=50, cx=100, cy=100)
+        rect = c.flash_highlight(start=0, end=1, color='#f00')
+        stroke = rect.styling.stroke.at_time(0)
+        assert '255' in stroke  # red component present
+
+    def test_rect_larger_than_object(self):
+        c = Circle(r=50, cx=200, cy=200)
+        bx, by, bw, bh = c.bbox(0)
+        rect = c.flash_highlight(start=0, end=1)
+        rx, ry, rw, rh = rect.bbox(0)
+        assert rw >= bw
+        assert rh >= bh
+
+    def test_zero_duration_still_returns_rect(self):
+        c = Circle(r=50, cx=100, cy=100)
+        rect = c.flash_highlight(start=1, end=1)
+        assert isinstance(rect, Rectangle)
+
+    def test_custom_stroke_width(self):
+        c = Circle(r=50, cx=100, cy=100)
+        rect = c.flash_highlight(start=0, end=1, width=6)
+        assert rect.styling.stroke_width.at_time(0) == pytest.approx(6)

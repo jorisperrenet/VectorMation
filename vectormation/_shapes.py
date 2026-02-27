@@ -564,6 +564,22 @@ class Rectangle(VObject):
         w, h = self.width.at_time(time), self.height.at_time(time)
         return x <= px <= x + w and y <= py <= y + h
 
+    def round_corners(self, radius=10, time=0, **kwargs):
+        """Return a RoundedRectangle with the same size/position and the given corner radius."""
+        from vectormation.style import _STYLES
+        x = self.x.at_time(time)
+        y = self.y.at_time(time)
+        w = self.width.at_time(time)
+        h = self.height.at_time(time)
+        style_kw = {}
+        for name in _STYLES:
+            attr = getattr(self.styling, name)
+            # Color.time_func returns a raw tuple; for other attrs use at_time
+            val = attr.time_func(time) if isinstance(attr, attributes.Color) else attr.at_time(time)
+            style_kw[name] = val
+        style_kw.update(kwargs)
+        return RoundedRectangle(w, h, x=x, y=y, corner_radius=radius, **style_kw)
+
     def __repr__(self):
         return f'{self.__class__.__name__}({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f})'
 
@@ -1329,6 +1345,70 @@ class Path(VObject):
 
     def to_svg(self, time):
         return f"<path d='{self.d.at_time(time)}'{self.styling.svg_style(time)} />"
+
+    @classmethod
+    def from_points(cls, points, closed=False, smooth=False, **kwargs):
+        """Create a Path from a list of (x, y) points.
+
+        If smooth=False, straight line segments are used (M x,y L x,y ...).
+        If smooth=True, Catmull-Rom splines are used for smooth interpolation,
+        converted to cubic Bezier curves.
+        If closed=True, the path ends with a Z command.
+        """
+        pts = list(points)
+        if not pts:
+            return cls('', **kwargs)
+        if len(pts) == 1:
+            x, y = pts[0]
+            return cls(f'M{x},{y}', **kwargs)
+
+        if not smooth:
+            parts = [f'M{pts[0][0]},{pts[0][1]}']
+            for x, y in pts[1:]:
+                parts.append(f'L{x},{y}')
+            if closed:
+                parts.append('Z')
+            return cls(' '.join(parts), **kwargs)
+
+        # Smooth: Catmull-Rom → cubic Bezier conversion
+        # For open curves, duplicate the first and last points to anchor the tangents.
+        if closed:
+            # For closed curves, wrap around
+            ctrl_pts = pts + [pts[0], pts[1]]
+            prev_pts = [pts[-1]] + pts
+        else:
+            ctrl_pts = [pts[0]] + pts + [pts[-1]]
+            prev_pts = [pts[0]] + pts
+
+        n = len(pts)
+        parts = [f'M{pts[0][0]},{pts[0][1]}']
+        for i in range(n - 1 if not closed else n):
+            # Catmull-Rom: p0=prev, p1=current, p2=next, p3=after-next
+            if closed:
+                p0 = pts[(i - 1) % n]
+                p1 = pts[i % n]
+                p2 = pts[(i + 1) % n]
+                p3 = pts[(i + 2) % n]
+            else:
+                p0 = pts[max(i - 1, 0)]
+                p1 = pts[i]
+                p2 = pts[i + 1]
+                p3 = pts[min(i + 2, n - 1)]
+
+            # Convert to cubic Bezier control points (tension=0.5)
+            alpha = 0.5
+            cp1x = p1[0] + (p2[0] - p0[0]) * alpha / 3
+            cp1y = p1[1] + (p2[1] - p0[1]) * alpha / 3
+            cp2x = p2[0] - (p3[0] - p1[0]) * alpha / 3
+            cp2y = p2[1] - (p3[1] - p1[1]) * alpha / 3
+            if closed and i == n - 1:
+                ex, ey = pts[0]
+            else:
+                ex, ey = p2
+            parts.append(f'C{cp1x},{cp1y} {cp2x},{cp2y} {ex},{ey}')
+        if closed:
+            parts.append('Z')
+        return cls(' '.join(parts), **kwargs)
 
 
 class Image(VObject):
