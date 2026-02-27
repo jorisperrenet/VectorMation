@@ -1164,6 +1164,31 @@ class ValueTracker:
     def at_time(self, time):
         return self.value.at_time(time)
 
+    def increment_value(self, delta, start=0):
+        """Add *delta* to the current value at *start*."""
+        self.value.set_onward(start, self.value.at_time(start) + delta)
+        return self
+
+    def __add__(self, other):
+        return ValueTracker(self.get_value() + (other.get_value() if isinstance(other, ValueTracker) else other))
+
+    def __sub__(self, other):
+        return ValueTracker(self.get_value() - (other.get_value() if isinstance(other, ValueTracker) else other))
+
+    def __mul__(self, other):
+        return ValueTracker(self.get_value() * (other.get_value() if isinstance(other, ValueTracker) else other))
+
+    def __truediv__(self, other):
+        return ValueTracker(self.get_value() / (other.get_value() if isinstance(other, ValueTracker) else other))
+
+    def __iadd__(self, other):
+        self.increment_value(other.get_value() if isinstance(other, ValueTracker) else other)
+        return self
+
+    def __isub__(self, other):
+        self.increment_value(-(other.get_value() if isinstance(other, ValueTracker) else other))
+        return self
+
     def __repr__(self):
         return f'ValueTracker({self.value.at_time(0)})'
 

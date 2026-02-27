@@ -1960,6 +1960,47 @@ class TestValueTracker:
         assert vt.at_time(0.5) == pytest.approx(5)
         assert vt.at_time(1) == pytest.approx(10)
 
+    def test_add(self):
+        vt = ValueTracker(5)
+        result = vt + 3
+        assert result.get_value() == 8
+
+    def test_sub(self):
+        vt = ValueTracker(10)
+        result = vt - 4
+        assert result.get_value() == 6
+
+    def test_mul(self):
+        vt = ValueTracker(3)
+        result = vt * 4
+        assert result.get_value() == 12
+
+    def test_truediv(self):
+        vt = ValueTracker(10)
+        result = vt / 2
+        assert result.get_value() == 5
+
+    def test_iadd(self):
+        vt = ValueTracker(5)
+        vt += 3
+        assert vt.get_value() == 8
+
+    def test_isub(self):
+        vt = ValueTracker(10)
+        vt -= 4
+        assert vt.get_value() == 6
+
+    def test_increment_value(self):
+        vt = ValueTracker(5)
+        vt.increment_value(3)
+        assert vt.get_value() == 8
+
+    def test_add_two_trackers(self):
+        a = ValueTracker(3)
+        b = ValueTracker(7)
+        result = a + b
+        assert result.get_value() == 10
+
 
 class TestDecimalNumber:
     def test_creates_text(self):
