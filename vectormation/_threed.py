@@ -96,9 +96,6 @@ class ThreeDAxes(VCollection):
         self._show_ticks = show_ticks
         self._show_labels = show_labels
         self._show_grid = show_grid
-        self._x_label = x_label
-        self._y_label = y_label
-        self._z_label = z_label
         self._axis_style = {'stroke': '#888', 'stroke_width': 2}
         self._axis_style.update(styling_kwargs)
 
@@ -117,7 +114,6 @@ class ThreeDAxes(VCollection):
         super().__init__(creation=creation, z=z)
 
         # Build LaTeX axis labels as child TexObjects
-        self._label_positions_3d = {}
         label_offset = 0.4
         for label_text, pos_3d in [
             (x_label, (x_range[1] + label_offset, 0, 0)),
@@ -125,7 +121,6 @@ class ThreeDAxes(VCollection):
             (z_label, (0, 0, z_range[1] + label_offset)),
         ]:
             if label_text:
-                self._label_positions_3d[label_text] = pos_3d
                 self._build_axis_label(label_text, pos_3d, creation)
 
     @property
