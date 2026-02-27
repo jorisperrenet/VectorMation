@@ -1451,6 +1451,10 @@ class Circle(Ellipse):
         """Alias for get_perimeter. Returns the exact circumference (2 * pi * r)."""
         return self.get_perimeter(time)
 
+    def circumference(self, time=0):
+        """Return the circumference (2 * pi * r)."""
+        return 2 * math.pi * self.rx.at_time(time)
+
     def point_on_circle(self, angle_degrees, time=0):
         """Return (x, y) on the circle at the given angle (degrees, CCW from right).
         Alias for point_at_angle."""
@@ -2325,6 +2329,10 @@ class Rectangle(VObject):
         h = self.height.at_time(time)
         return math.hypot(w, h)
 
+    def diagonal_length(self, time=0):
+        """Return the length of the diagonal (alias for get_diagonal_length)."""
+        return self.get_diagonal_length(time)
+
     def get_size(self, time=0):
         return (self.width.at_time(time), self.height.at_time(time))
 
@@ -2930,6 +2938,10 @@ class Line(VObject):
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         return _distance(x1, y1, x2, y2)
+
+    def length(self, time=0):
+        """Return the Euclidean length of the line (alias for get_length)."""
+        return self.get_length(time)
 
     def get_angle(self, time=0):
         """Return the angle (in degrees) from p1 to p2. 0 = right, 90 = down.

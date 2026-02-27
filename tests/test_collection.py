@@ -2883,3 +2883,85 @@ class TestGroupInto:
         assert result.objects[0].objects[1] is c2
         assert result.objects[1].objects[0] is c3
         assert result.objects[1].objects[1] is c4
+
+
+class TestReverseOrder:
+    def test_returns_self(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=100)
+        col = VCollection(c1, c2)
+        result = col.reverse_order()
+        assert result is col
+
+    def test_reverses_children(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=100)
+        c3 = Circle(r=10, cx=300, cy=100)
+        col = VCollection(c1, c2, c3)
+        col.reverse_order()
+        assert col.objects[0] is c3
+        assert col.objects[1] is c2
+        assert col.objects[2] is c1
+
+    def test_reverse_order_empty(self):
+        col = VCollection()
+        result = col.reverse_order()
+        assert result is col
+        assert len(col.objects) == 0
+
+    def test_reverse_order_single(self):
+        c = Circle(r=10, cx=100, cy=100)
+        col = VCollection(c)
+        col.reverse_order()
+        assert col.objects[0] is c
+
+    def test_double_reverse_restores_order(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=100)
+        c3 = Circle(r=10, cx=300, cy=100)
+        col = VCollection(c1, c2, c3)
+        col.reverse_order()
+        col.reverse_order()
+        assert col.objects[0] is c1
+        assert col.objects[1] is c2
+        assert col.objects[2] is c3
+
+
+class TestZipWithStartEnd:
+    def test_zip_with_start_end_params(self):
+        """zip_with accepts start and end keyword arguments."""
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=100)
+        col_a = VCollection(c1)
+        col_b = VCollection(c2)
+        # Use callable form to verify start/end are available
+        called_with = []
+        col_a.zip_with(col_b, lambda a, b, t: called_with.append(t), start=5, end=10)
+        # The callable form receives time=start when time is not specified
+        assert called_with == [5]
+
+    def test_zip_with_time_overrides_start(self):
+        """Legacy time parameter overrides start for callable form."""
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=100)
+        col_a = VCollection(c1)
+        col_b = VCollection(c2)
+        called_with = []
+        col_a.zip_with(col_b, lambda a, b, t: called_with.append(t), start=5, time=42)
+        assert called_with == [42]
+
+    def test_zip_with_method_name_with_kwargs(self):
+        """Method-name form passes kwargs through."""
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=100)
+        col_a = VCollection(c1)
+        col_b = VCollection(c2)
+        # 'become' takes only (other, time=0), verify it still works
+        col_a.zip_with(col_b, 'become')
+        # Should not raise
+
+    def test_zip_with_returns_self(self):
+        col_a = VCollection(Circle(r=10, cx=0, cy=0))
+        col_b = VCollection(Circle(r=10, cx=100, cy=100))
+        result = col_a.zip_with(col_b, lambda a, b, t: None, start=0, end=1)
+        assert result is col_a

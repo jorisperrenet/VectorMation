@@ -9204,3 +9204,154 @@ class TestTableGetCell:
         for r in range(3):
             for c in range(3):
                 assert t.get_cell(r, c).text.at_time(0) == str(data[r][c])
+
+
+# ── New feature tests ──────────────────────────────────────────────────────
+
+
+class TestPolygonArea:
+    def test_triangle_area(self):
+        """Area of a right triangle with legs 100 and 200."""
+        tri = Polygon((0, 0), (100, 0), (0, 200), closed=True)
+        assert tri.area() == pytest.approx(10000.0)
+
+    def test_square_area(self):
+        sq = Polygon((0, 0), (100, 0), (100, 100), (0, 100), closed=True)
+        assert sq.area() == pytest.approx(10000.0)
+
+    def test_area_always_positive(self):
+        """area() returns positive regardless of winding order."""
+        cw = Polygon((0, 0), (100, 0), (100, 100), (0, 100), closed=True)
+        ccw = Polygon((0, 0), (0, 100), (100, 100), (100, 0), closed=True)
+        assert cw.area() == pytest.approx(ccw.area())
+        assert cw.area() > 0
+
+    def test_area_equals_abs_signed_area(self):
+        tri = Polygon((0, 0), (300, 0), (0, 400), closed=True)
+        assert tri.area() == pytest.approx(abs(tri.signed_area()))
+
+    def test_open_polygon_area_is_zero(self):
+        poly = Polygon((0, 0), (100, 0), (100, 100), closed=False)
+        assert poly.area() == 0.0
+
+
+class TestLineLength:
+    def test_horizontal_line(self):
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        assert line.length() == pytest.approx(100.0)
+
+    def test_vertical_line(self):
+        line = Line(x1=0, y1=0, x2=0, y2=200)
+        assert line.length() == pytest.approx(200.0)
+
+    def test_diagonal_line(self):
+        line = Line(x1=0, y1=0, x2=3, y2=4)
+        assert line.length() == pytest.approx(5.0)
+
+    def test_length_matches_get_length(self):
+        line = Line(x1=10, y1=20, x2=50, y2=80)
+        assert line.length() == pytest.approx(line.get_length())
+
+    def test_zero_length_line(self):
+        line = Line(x1=42, y1=42, x2=42, y2=42)
+        assert line.length() == pytest.approx(0.0)
+
+
+class TestCircleCircumference:
+    def test_unit_circle(self):
+        c = Circle(r=1)
+        assert c.circumference() == pytest.approx(2 * math.pi)
+
+    def test_radius_50(self):
+        c = Circle(r=50)
+        assert c.circumference() == pytest.approx(2 * math.pi * 50)
+
+    def test_matches_get_circumference(self):
+        c = Circle(r=120)
+        assert c.circumference() == pytest.approx(c.get_circumference())
+
+    def test_matches_get_perimeter(self):
+        c = Circle(r=75)
+        assert c.circumference() == pytest.approx(c.get_perimeter())
+
+
+class TestAxesShadeBetween:
+    def test_returns_path(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        p = ax.shade_between(lambda x: x, lambda x: x**2)
+        assert isinstance(p, Path)
+
+    def test_custom_color_and_opacity(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        p = ax.shade_between(lambda x: 0, lambda x: x, color='#FF0000', opacity=0.5)
+        svg = p.to_svg(0)
+        # Color may be rendered as hex '#FF0000' or as 'rgb(255,0,0)'
+        assert '#FF0000' in svg or 'rgb(255,0,0)' in svg
+
+    def test_with_x_range(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        p = ax.shade_between(lambda x: 0, lambda x: 1, x_range=(0, 2))
+        # The path should be created with a non-empty d attribute
+        d = p.d.at_time(0)
+        assert len(d) > 0
+
+    def test_with_curve_objects(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        c1 = ax.plot(lambda x: x)
+        c2 = ax.plot(lambda x: x**2)
+        p = ax.shade_between(c1, c2)
+        assert isinstance(p, Path)
+        d = p.d.at_time(0)
+        assert len(d) > 0
+
+
+class TestNumberLineAddDotAt:
+    def test_returns_dot(self):
+        nl = NumberLine(x_range=(-5, 5))
+        dot = nl.add_dot_at(0)
+        assert isinstance(dot, Dot)
+
+    def test_dot_position(self):
+        nl = NumberLine(x_range=(0, 10))
+        dot = nl.add_dot_at(5)
+        expected_x, expected_y = nl.number_to_point(5)
+        cx, cy = dot.c.at_time(0)
+        assert cx == pytest.approx(expected_x)
+        assert cy == pytest.approx(expected_y)
+
+    def test_custom_color(self):
+        nl = NumberLine(x_range=(0, 10))
+        dot = nl.add_dot_at(3, color='#00FF00')
+        svg = dot.to_svg(0)
+        # Color may be rendered as hex '#00FF00' or as 'rgb(0,255,0)'
+        assert '#00FF00' in svg or 'rgb(0,255,0)' in svg
+
+    def test_custom_radius(self):
+        nl = NumberLine(x_range=(0, 10))
+        dot = nl.add_dot_at(5, radius=15)
+        r = dot.rx.at_time(0)
+        assert r == pytest.approx(15)
+
+    def test_dot_appended_to_objects(self):
+        nl = NumberLine(x_range=(0, 10))
+        n_before = len(nl.objects)
+        nl.add_dot_at(2)
+        assert len(nl.objects) == n_before + 1
+
+
+class TestRectangleDiagonalLength:
+    def test_3_4_rectangle(self):
+        r = Rectangle(width=3, height=4)
+        assert r.diagonal_length() == pytest.approx(5.0)
+
+    def test_square(self):
+        r = Rectangle(width=100, height=100)
+        assert r.diagonal_length() == pytest.approx(100 * math.sqrt(2))
+
+    def test_matches_get_diagonal_length(self):
+        r = Rectangle(width=200, height=150)
+        assert r.diagonal_length() == pytest.approx(r.get_diagonal_length())
+
+    def test_zero_dimensions(self):
+        r = Rectangle(width=0, height=0)
+        assert r.diagonal_length() == pytest.approx(0.0)

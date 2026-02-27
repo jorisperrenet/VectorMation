@@ -10651,3 +10651,131 @@ class TestWobble:
         c.wobble(start=0, end=1)
         svg = c.to_svg(0.5)
         assert svg
+
+
+class TestFocusZoom:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.focus_zoom(start=0, end=1, zoom_factor=1.3)
+        assert result is c
+
+    def test_scale_at_midpoint(self):
+        c = Circle(r=50, cx=100, cy=100)
+        s0 = c.styling.scale_x.at_time(0)
+        c.focus_zoom(start=0, end=1, zoom_factor=1.5)
+        # At midpoint (t=0.5), sin(pi * easing(0.5)) should peak
+        sx_mid = c.styling.scale_x.at_time(0.5)
+        # Should be larger than the initial scale
+        assert sx_mid > s0
+
+    def test_scale_returns_to_original(self):
+        c = Circle(r=50, cx=100, cy=100)
+        s0_x = c.styling.scale_x.at_time(0)
+        s0_y = c.styling.scale_y.at_time(0)
+        c.focus_zoom(start=0, end=1, zoom_factor=1.3)
+        # At end (t=1), should return to original scale
+        # The .set() interval ends at t=1, so at_time(1) should be the endpoint
+        # Check that at time just before end the scale is close to original
+        sx_end = c.styling.scale_x.at_time(1)
+        sy_end = c.styling.scale_y.at_time(1)
+        assert sx_end == pytest.approx(s0_x, abs=0.05)
+        assert sy_end == pytest.approx(s0_y, abs=0.05)
+
+    def test_zero_duration_is_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        s0 = c.styling.scale_x.at_time(0)
+        c.focus_zoom(start=0, end=0, zoom_factor=1.5)
+        # Should be unchanged
+        assert c.styling.scale_x.at_time(0) == pytest.approx(s0)
+
+    def test_both_axes_scale(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.focus_zoom(start=0, end=1, zoom_factor=1.3)
+        sx = c.styling.scale_x.at_time(0.5)
+        sy = c.styling.scale_y.at_time(0.5)
+        assert sx == pytest.approx(sy)
+
+    def test_custom_zoom_factor(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.focus_zoom(start=0, end=2, zoom_factor=2.0)
+        # At midpoint the scale should approach zoom_factor
+        sx_mid = c.styling.scale_x.at_time(1.0)
+        assert sx_mid > 1.5
+
+
+class TestTypewriterEffect:
+    def test_returns_self(self):
+        t = Text(text='', x=100, y=100)
+        result = t.typewriter_effect('Hello', start=0, end=1)
+        assert result is t
+
+    def test_reveals_characters_progressively(self):
+        t = Text(text='', x=100, y=100)
+        t.typewriter_effect('Hello', start=0, end=1)
+        # At start, no characters shown
+        assert t.text.at_time(0) == ''
+        # At midpoint, about half the characters shown
+        mid_text = t.text.at_time(0.5)
+        assert 1 <= len(mid_text) <= 4
+        # At end, full text
+        assert t.text.at_time(1) == 'Hello'
+
+    def test_full_text_at_end(self):
+        t = Text(text='', x=100, y=100)
+        t.typewriter_effect('World!', start=0, end=2)
+        assert t.text.at_time(2) == 'World!'
+
+    def test_empty_text_is_noop(self):
+        t = Text(text='', x=100, y=100)
+        result = t.typewriter_effect('', start=0, end=1)
+        assert result is t
+
+    def test_non_text_raises_type_error(self):
+        c = Circle(r=50, cx=100, cy=100)
+        with pytest.raises(TypeError):
+            c.typewriter_effect('Hello', start=0, end=1)
+
+    def test_zero_duration(self):
+        t = Text(text='', x=100, y=100)
+        result = t.typewriter_effect('Hello', start=1, end=1)
+        assert result is t
+
+    def test_custom_time_range(self):
+        t = Text(text='', x=100, y=100)
+        t.typewriter_effect('ABCDE', start=2, end=4)
+        # Before start, text should still be empty
+        # At start, 0 chars
+        assert t.text.at_time(2) == ''
+        # At end, full text
+        assert t.text.at_time(4) == 'ABCDE'
+
+
+class TestTeleport:
+    def test_teleport_with_start(self):
+        d = Dot(cx=100, cy=100)
+        d.teleport(500, 500, start=0)
+        p = d.c.at_time(0)
+        assert abs(p[0] - 500) < 5
+        assert abs(p[1] - 500) < 5
+
+    def test_teleport_returns_self(self):
+        d = Dot(cx=100, cy=100)
+        result = d.teleport(200, 300, start=0)
+        assert result is d
+
+    def test_teleport_backward_compat_time(self):
+        d = Dot(cx=100, cy=100)
+        d.teleport(500, 500, time=0)
+        p = d.c.at_time(0)
+        assert abs(p[0] - 500) < 5
+        assert abs(p[1] - 500) < 5
+
+    def test_teleport_instant(self):
+        d = Dot(cx=100, cy=100)
+        d.teleport(400, 300, start=1)
+        # Before teleport, should be at original position
+        p_before = d.c.at_time(0)
+        assert abs(p_before[0] - 100) < 5
+        # After teleport
+        p_after = d.c.at_time(1)
+        assert abs(p_after[0] - 400) < 5

@@ -588,9 +588,11 @@ class VObject(ABC):  # Vector Object
                    start_time=start_time, end_time=end_time, easing=easing)
         return self
 
-    def teleport(self, x, y, time: float = 0):
-        """Instantly move object center to (x, y) at the given time (no animation)."""
-        return self.move_to(x, y, start_time=time)
+    def teleport(self, x, y, start: float = 0, time: float | None = None):
+        """Instantly move object center to (x, y) at the given time (no animation).
+        Uses center_to_pos with set_onward for an instant jump."""
+        t = time if time is not None else start
+        return self.center_to_pos(posx=x, posy=y, start_time=t)
 
     def center_to_pos(self, posx: float = 960, posy: float = 540, start_time: float = 0, end_time: float | None = None, easing=easings.smooth):
         """Shifts the center to pos, animated from start_time to end_time."""
@@ -4618,6 +4620,52 @@ class VObject(ABC):  # Vector Object
                 _cx, _cy))
         return self
 
+    def focus_zoom(self, start=0, end=1, zoom_factor=1.3, easing=easings.smooth):
+        """Zoom in slightly on the object then back to normal, like a camera focus effect.
+
+        Scale up to *zoom_factor* at the midpoint, then back to 1.0 at end.
+        Uses a sin-based envelope so the transition is smooth.
+
+        Returns self.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        self._ensure_scale_origin(start)
+        _s, _d, _zf = start, max(dur, 1e-9), zoom_factor
+        def _make_zoom(s0):
+            return lambda t, _s=_s, _d=_d, _zf=_zf, _s0=s0, _easing=easing: \
+                _s0 * (1 + (_zf - 1) * math.sin(math.pi * _easing((t - _s) / _d)))
+        self.styling.scale_x.set(start, end, _make_zoom(self.styling.scale_x.at_time(start)))
+        self.styling.scale_y.set(start, end, _make_zoom(self.styling.scale_y.at_time(start)))
+        return self
+
+    def typewriter_effect(self, text, start=0, end=1, easing=easings.linear):
+        """For Text objects only: gradually reveal text character by character.
+
+        At progress p, show the first floor(p * len(text)) characters.
+        Uses self.text.set() to animate the text attribute.
+
+        Returns self.
+        """
+        from vectormation._shapes import Text as _Text
+        if not isinstance(self, _Text):
+            raise TypeError("typewriter_effect() can only be called on Text objects")
+        n = len(text)
+        if n == 0:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        _s, _d, _txt = start, max(dur, 1e-9), text
+        def _reveal(t, _s=_s, _d=_d, _txt=_txt, _n=n, _easing=easing):
+            p = min(1.0, _easing((t - _s) / _d))
+            chars = int(p * _n)
+            return _txt[:chars]
+        self.text.set(start, end, _reveal, stay=True)
+        self.text.set_onward(end, text)
+        return self
+
 
 class VCollection:
     """Container for a group of VObjects, delegating operations to children."""
@@ -5244,6 +5292,11 @@ class VCollection:
 
     def reverse(self):
         """Reverse the order of children in-place. Alias for reverse_children."""
+        self.objects.reverse()
+        return self
+
+    def reverse_order(self):
+        """Reverse the order of children in-place. Returns self."""
         self.objects.reverse()
         return self
 
@@ -6170,7 +6223,7 @@ class VCollection:
             func(obj, i)
         return self
 
-    def zip_with(self, other, method_name_or_func, time=0, **kwargs):
+    def zip_with(self, other, method_name_or_func, start=0, end=1, time=None, **kwargs):
         """Apply a method or function pairwise to children of this and another collection.
 
         Two calling styles are supported:
@@ -6197,13 +6250,19 @@ class VCollection:
         method_name_or_func:
             Either a ``str`` naming a method on each child object, or a
             callable with signature ``(obj_a, obj_b, time)``.
+        start:
+            Start time. Default 0.
+        end:
+            End time. Default 1.
         time:
-            Passed through to the callable form; ignored in the method-name
-            form unless it is also part of ``**kwargs``.
+            Legacy parameter for the callable form. If not provided, defaults
+            to *start*.
         **kwargs:
             Extra keyword arguments forwarded to the method when using the
             string form.  Ignored in the callable form.
         """
+        if time is None:
+            time = start
         other_objs = other.objects if hasattr(other, 'objects') else list(other)
         if isinstance(method_name_or_func, str):
             for a, b in zip(self.objects, other_objs):

@@ -1901,6 +1901,40 @@ class Axes(VCollection):
         return self.get_area(func1, bounded_graph=func2, x_range=x_range,
                              creation=creation, z=z, **style_kw)
 
+    def shade_between(self, func1, func2, x_range=None, color='#58C4DD',
+                      opacity=0.2, creation=0, z=0, **styling_kwargs):
+        """Shade the region between two functions.
+
+        A convenience wrapper around :meth:`get_area_between` that accepts
+        *color* and *opacity* as top-level parameters.  Both *func1* and
+        *func2* may be callables or curve objects returned by :meth:`plot`.
+
+        Parameters
+        ----------
+        func1, func2:
+            Callables ``f(x)`` or curve Paths with ``._func`` attribute.
+        x_range:
+            Optional ``(min, max)`` to limit the shaded domain.
+        color:
+            Fill color (default ``'#58C4DD'``).
+        opacity:
+            Fill opacity (default 0.2).
+        creation:
+            Creation time.
+        z:
+            Z-layer.
+        **styling_kwargs:
+            Additional styling forwarded to the Path.
+
+        Returns
+        -------
+        Path
+            The filled area Path (already added to the axes).
+        """
+        kw = {'fill': color, 'fill_opacity': opacity} | styling_kwargs
+        return self.get_area_between(func1, func2, x_range=x_range,
+                                     creation=creation, z=z, **kw)
+
     def get_rect(self, x1, y1, x2, y2, creation=0, z=0, **styling_kwargs):
         """Create a Rectangle from two corners in math coordinates.
 
@@ -6135,6 +6169,35 @@ class NumberLine(VCollection):
                          fill=color, fill_opacity=0.7, stroke_width=0)
         self.objects.append(rect)
         return rect
+
+    def add_dot_at(self, value, color='#FF6B6B', radius=8, creation=0, **kwargs):
+        """Add a colored dot at a specific value on the number line.
+
+        Uses :meth:`number_to_point` to convert the value to SVG coordinates.
+
+        Parameters
+        ----------
+        value:
+            Numeric position on the line.
+        color:
+            Fill color for the dot (default ``'#FF6B6B'``).
+        radius:
+            Radius of the dot in SVG pixels (default 8).
+        creation:
+            Creation time for the Dot.
+        **kwargs:
+            Extra keyword arguments forwarded to the Dot constructor.
+
+        Returns
+        -------
+        Dot
+            The created Dot (already appended to this NumberLine's objects).
+        """
+        px, py = self.number_to_point(value)
+        kw = {'fill': color, 'stroke_width': 0} | kwargs
+        dot = Dot(cx=px, cy=py, r=radius, creation=creation, **kw)
+        self.objects.append(dot)
+        return dot
 
     def highlight_range(self, start_val, end_val, color='#FFFF00',
                         height=16, opacity=0.4, creation=0, z=1, **kwargs):
