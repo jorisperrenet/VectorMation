@@ -678,39 +678,38 @@ class VObject(ABC):  # Vector Object
         """Rotate away while fading out. Reverse of rotate_in."""
         return self._rotate_fade_anim(start, end, angle, False, change_existence, easing)
 
-    def pop_in(self, start: float = 0, duration=0.3, overshoot=1.2, change_existence=True, easing=easings.smooth):
-        """Quick pop-in: scale from 0 to 1 with optional overshoot."""
-        if change_existence:
-            self._show_from(start)
-        end = start + duration
-        dur = duration
+    def _pop_anim(self, start, end, duration, overshoot, pop_in, change_existence, easing):
+        """Shared helper for pop_in / pop_out."""
+        dur = duration if duration > 0 else end - start
         if dur <= 0:
             return self
+        if change_existence and pop_in:
+            self._show_from(start)
         self._ensure_scale_origin(start)
         s = start
-        def _scale(t):
-            p = easing((t - s) / dur)
-            if p < 0.7:
-                return p / 0.7 * overshoot
-            return overshoot + (1 - overshoot) * ((p - 0.7) / 0.3)
-        self.styling.scale_x.set(s, end, _scale, stay=True)
-        self.styling.scale_y.set(s, end, _scale, stay=True)
+        if pop_in:
+            def scale_fn(t, _s=s, _d=dur, _o=overshoot, _e=easing):
+                p = _e((t - _s) / _d)
+                if p < 0.7:
+                    return p / 0.7 * _o
+                return _o + (1 - _o) * ((p - 0.7) / 0.3)
+        else:
+            scale_fn = lambda t, _s=s, _d=dur, _e=easing: 1 - _e((t - _s) / _d)
+        self.styling.scale_x.set(s, end, scale_fn, stay=True)
+        self.styling.scale_y.set(s, end, scale_fn, stay=True)
+        if change_existence and not pop_in:
+            self._hide_from(end)
         return self
+
+    def pop_in(self, start: float = 0, duration=0.3, overshoot=1.2, change_existence=True, easing=easings.smooth):
+        """Quick pop-in: scale from 0 to 1 with optional overshoot."""
+        end = start + duration
+        return self._pop_anim(start, end, duration, overshoot, True, change_existence, easing)
 
     def pop_out(self, start: float = 0, duration=0.3, change_existence=True, easing=easings.smooth):
         """Quick pop-out: scale from 1 to 0."""
         end = start + duration
-        dur = duration
-        if dur <= 0:
-            return self
-        self._ensure_scale_origin(start)
-        s = start
-        scale_fn = lambda t, _s=s, _d=dur: 1 - easing((t - _s) / _d)
-        self.styling.scale_x.set(s, end, scale_fn, stay=True)
-        self.styling.scale_y.set(s, end, scale_fn, stay=True)
-        if change_existence:
-            self._hide_from(end)
-        return self
+        return self._pop_anim(start, end, duration, 0, False, change_existence, easing)
 
     def _apply_shift_effect(self, start, end, dx_func=None, dy_func=None, stay=False):
         """Apply displacement functions to all shift attributes.
@@ -755,36 +754,37 @@ class VObject(ABC):  # Vector Object
         }
         return offsets.get(direction, (0, 0))
 
+    def _slide_anim(self, direction, start, end, slide_in, change_existence, easing):
+        """Shared helper for slide_in / slide_out."""
+        dur = end - start
+        if dur <= 0:
+            return self
+        if change_existence and slide_in:
+            self._show_from(start)
+        ox, oy = self._slide_offsets(direction, start)
+        s = start
+        if slide_in:
+            dx = (lambda t, _s=s, _d=dur, _ox=ox, _e=easing: _ox * (1 - _e((t - _s) / _d))) if ox else None
+            dy = (lambda t, _s=s, _d=dur, _oy=oy, _e=easing: _oy * (1 - _e((t - _s) / _d))) if oy else None
+        else:
+            dx = (lambda t, _s=s, _d=dur, _ox=ox, _e=easing: _ox * _e((t - _s) / _d)) if ox else None
+            dy = (lambda t, _s=s, _d=dur, _oy=oy, _e=easing: _oy * _e((t - _s) / _d)) if oy else None
+        self._apply_shift_effect(start, end, dx, dy, stay=True)
+        if change_existence and not slide_in:
+            self._hide_from(end)
+        return self
+
     def slide_in(self, direction='left', start: float = 0, end: float = 1,
                   easing=easings.smooth, change_existence=True):
         """Slide in from outside the canvas edge.
         direction: 'left', 'right', 'up', 'down'."""
-        dur = end - start
-        if dur <= 0:
-            return self
-        if change_existence:
-            self._show_from(start)
-        ox, oy = self._slide_offsets(direction, start)
-        s = start
-        dx = (lambda t, _s=s, _d=dur, _ox=ox: _ox * (1 - easing((t - _s) / _d))) if ox else None
-        dy = (lambda t, _s=s, _d=dur, _oy=oy: _oy * (1 - easing((t - _s) / _d))) if oy else None
-        return self._apply_shift_effect(start, end, dx, dy, stay=True)
+        return self._slide_anim(direction, start, end, True, change_existence, easing)
 
     def slide_out(self, direction='right', start: float = 0, end: float = 1,
                    easing=easings.smooth, change_existence=True):
         """Slide out to outside the canvas edge.
         direction: 'left', 'right', 'up', 'down'."""
-        dur = end - start
-        if dur <= 0:
-            return self
-        ox, oy = self._slide_offsets(direction, start)
-        s = start
-        dx = (lambda t, _s=s, _d=dur, _ox=ox: _ox * easing((t - _s) / _d)) if ox else None
-        dy = (lambda t, _s=s, _d=dur, _oy=oy: _oy * easing((t - _s) / _d)) if oy else None
-        self._apply_shift_effect(start, end, dx, dy, stay=True)
-        if change_existence:
-            self._hide_from(end)
-        return self
+        return self._slide_anim(direction, start, end, False, change_existence, easing)
 
     def write(self, start: float = 0, end: float = 1, max_stroke_width=2, change_existence=True, easing=easings.smooth, stroke_easing=easings.there_and_back):
         """Animate fill_opacity from 0 to current with a stroke pulse effect."""
@@ -1915,6 +1915,48 @@ class VObject(ABC):  # Vector Object
                 return _sx0 / squeeze if squeeze > 1e-9 else _sx0
             self.styling.scale_y.set(start, end, _sy2, stay=False)
             self.styling.scale_x.set(start, end, _sx2, stay=False)
+        return self
+
+    def squash_and_stretch(self, start: float = 0, end: float = 1,
+                           factor: float = 1.3, easing=easings.smooth):
+        """Classic animation squash-and-stretch: scales x by *factor* while
+        y scales by 1/factor (preserving area), then returns to normal.
+
+        The first half squashes/stretches to the peak deformation, the second
+        half returns to the original shape.  The effect creates a bouncy,
+        organic feel often used when objects land or are hit.
+
+        Parameters
+        ----------
+        start, end:
+            Animation time window.
+        factor:
+            Peak horizontal scale factor (>1 = wide/squashed).  The vertical
+            axis scales by 1/factor to preserve visual area.
+        easing:
+            Controls the acceleration of the deformation curve.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        bx, by, bw, bh = self.bbox(start)
+        cx, cy = bx + bw / 2, by + bh / 2
+        self.styling._scale_origin = (cx, cy)
+        sx0 = self.styling.scale_x.at_time(start)
+        sy0 = self.styling.scale_y.at_time(start)
+        _s, _d, _f, _sx0, _sy0 = start, max(dur, 1e-9), factor, sx0, sy0
+        # there_and_back envelope: 0 → peak → 0
+        def _ssx(t, _s=_s, _d=_d, _f=_f, _sx0=_sx0, _easing=easing):
+            p = _easing((t - _s) / _d)
+            envelope = easings.there_and_back(p)
+            return _sx0 * (1 + (_f - 1) * envelope)
+        def _ssy(t, _s=_s, _d=_d, _f=_f, _sy0=_sy0, _easing=easing):
+            p = _easing((t - _s) / _d)
+            envelope = easings.there_and_back(p)
+            peak = 1 + (_f - 1) * envelope
+            return _sy0 / peak if peak > 1e-9 else _sy0
+        self.styling.scale_x.set(start, end, _ssx, stay=False)
+        self.styling.scale_y.set(start, end, _ssy, stay=False)
         return self
 
     def warp(self, start: float = 0, end: float = 1, amplitude=0.15, frequency=3,
@@ -3338,6 +3380,20 @@ class VCollection:
     def apply(self, func):
         """Apply a function to each child. The function receives (child, index).
         Returns self for chaining."""
+        for i, obj in enumerate(self.objects):
+            func(obj, i)
+        return self
+
+    def apply_function(self, func):
+        """Apply a transformation function to each child.
+
+        The function receives the child and its index: ``func(child, index)``.
+        Returns self for chaining.
+
+        Example
+        -------
+        >>> col.apply_function(lambda obj, i: obj.set_color(0, 1, fill='red'))
+        """
         for i, obj in enumerate(self.objects):
             func(obj, i)
         return self

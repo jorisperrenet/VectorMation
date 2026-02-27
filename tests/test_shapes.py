@@ -79,6 +79,28 @@ class TestPolygon:
         assert bh == pytest.approx(100)
 
 
+class TestPolygonGetPerimeter:
+    def test_equilateral_triangle(self):
+        """Equilateral triangle with side 100 should have perimeter ~300."""
+        import math
+        # 3-4-5 right triangle for easy exact check
+        p = Polygon((0, 0), (3, 0), (3, 4))
+        assert p.get_perimeter() == pytest.approx(12.0, abs=1e-9)
+
+    def test_matches_perimeter_alias(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        assert p.get_perimeter() == pytest.approx(p.perimeter())
+
+    def test_open_polyline_excludes_closing_edge(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), closed=False)
+        # Two edges: horizontal 100 + vertical 100 = 200
+        assert p.get_perimeter() == pytest.approx(200.0, abs=1e-9)
+
+    def test_closed_square_perimeter(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        assert p.get_perimeter() == pytest.approx(400.0, abs=1e-9)
+
+
 class TestConvexHull:
     def test_triangle_unchanged(self):
         # Three points already forming a triangle should produce exactly those 3 hull points
@@ -524,6 +546,70 @@ class TestDashedLine:
         assert r == 'DashedLine((0,0)->(100,100))'
 
 
+class TestCircleGetTangentLines:
+    def test_external_point_returns_two_lines(self):
+        """A point clearly outside the circle yields exactly two tangent lines."""
+        c = Circle(r=50, cx=0, cy=0)
+        lines = c.get_tangent_lines(200, 0)
+        assert len(lines) == 2
+
+    def test_internal_point_returns_empty(self):
+        """A point inside the circle yields no tangent lines."""
+        c = Circle(r=100, cx=0, cy=0)
+        lines = c.get_tangent_lines(10, 0)
+        assert lines == []
+
+    def test_point_on_circle_returns_one_line(self):
+        """A point exactly on the circle yields exactly one tangent line."""
+        c = Circle(r=50, cx=0, cy=0)
+        lines = c.get_tangent_lines(50, 0)
+        assert len(lines) == 1
+
+    def test_tangent_lines_are_line_objects(self):
+        """Returned objects are Line instances."""
+        from vectormation.objects import Line
+        c = Circle(r=50, cx=100, cy=100)
+        lines = c.get_tangent_lines(300, 100)
+        assert all(isinstance(l, Line) for l in lines)
+
+    def test_tangent_touch_point_on_circle(self):
+        """The midpoint of each tangent line should be close to the circle boundary."""
+        import math
+        c = Circle(r=50, cx=0, cy=0)
+        # External point to the right on the x-axis
+        lines = c.get_tangent_lines(150, 0, length=4)
+        assert len(lines) == 2
+        for ln in lines:
+            # Midpoint of the short line segment ≈ touch point
+            p1 = ln.p1.at_time(0)
+            p2 = ln.p2.at_time(0)
+            mx, my = (p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2
+            dist = math.sqrt(mx ** 2 + my ** 2)
+            assert dist == pytest.approx(50.0, abs=1.0)
+
+    def test_styling_kwargs_forwarded(self):
+        """Extra kwargs (e.g. stroke) are forwarded to the Line objects."""
+        c = Circle(r=50, cx=0, cy=0)
+        lines = c.get_tangent_lines(200, 0, stroke='#FF0000')
+        for ln in lines:
+            svg = ln.to_svg(0)
+            # Colors are rendered as rgb(r,g,b) in SVG output
+            assert 'rgb(255,0,0)' in svg
+
+    def test_time_parameter(self):
+        """get_tangent_lines respects the time= parameter."""
+        import vectormation.attributes as attrs
+        c = Circle(r=50, cx=0, cy=0)
+        # Animate radius to 80 at t=1
+        c.rx.set_onward(1, 80)
+        c.ry.set_onward(1, 80)
+        lines_t0 = c.get_tangent_lines(200, 0, time=0)
+        lines_t1 = c.get_tangent_lines(200, 0, time=1)
+        # Both should give 2 lines (point is external at both times)
+        assert len(lines_t0) == 2
+        assert len(lines_t1) == 2
+
+
 class TestNumberLine:
     def test_is_vcollection(self):
         nl = NumberLine(x_range=(-3, 3, 1), length=400, x=100, y=500)
@@ -541,6 +627,53 @@ class TestNumberLine:
     def test_auto_step(self):
         nl = NumberLine(x_range=(-5, 5), length=600, x=200, y=500)
         assert nl.x_step == 1
+
+
+class TestNumberLineHighlightRange:
+    def test_returns_rectangle(self):
+        from vectormation.objects import Rectangle
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500)
+        rect = nl.highlight_range(2, 6)
+        assert isinstance(rect, Rectangle)
+
+    def test_rect_appended_to_objects(self):
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500)
+        before = len(nl.objects)
+        nl.highlight_range(2, 6)
+        assert len(nl.objects) == before + 1
+
+    def test_width_proportional_to_range(self):
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500)
+        rect = nl.highlight_range(0, 5)
+        # Range 0-5 is half of 0-10 (length=500), so width ≈ 250
+        assert rect.width.at_time(0) == pytest.approx(250.0, abs=1e-9)
+
+    def test_custom_color_in_svg(self):
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500)
+        rect = nl.highlight_range(1, 4, color='#FF0000')
+        svg = rect.to_svg(0)
+        # Colors are rendered as rgb(r,g,b) in SVG output
+        assert 'rgb(255,0,0)' in svg
+
+    def test_default_color_is_yellow(self):
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500)
+        rect = nl.highlight_range(1, 3)
+        svg = rect.to_svg(0)
+        # Yellow #FFFF00 → rgb(255,255,0)
+        assert 'rgb(255,255,0)' in svg
+
+    def test_reversed_range_handled(self):
+        """Passing end < start should still produce a positive-width rect."""
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500)
+        rect = nl.highlight_range(6, 2)
+        assert rect.width.at_time(0) > 0
+
+    def test_clamped_beyond_axis_bounds(self):
+        """Values outside the axis range are clamped, not clipped to zero."""
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500)
+        rect = nl.highlight_range(-5, 15)
+        # Should span the full axis
+        assert rect.width.at_time(0) == pytest.approx(500.0, abs=1e-9)
 
 
 class TestEquilateralTriangleFromRegular:

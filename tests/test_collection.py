@@ -395,3 +395,53 @@ class TestZipWith:
         col = VCollection(c1)
         col.zip_with([c2], lambda a, b, t: results.append((a is c1, b is c2)))
         assert results == [(True, True)]
+
+
+class TestApplyFunction:
+    def test_func_called_for_each_child(self):
+        """apply_function calls the function once per child."""
+        c1, c2, c3 = Circle(r=10), Circle(r=20), Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        visited = []
+        col.apply_function(lambda obj, i: visited.append(i))
+        assert visited == [0, 1, 2]
+
+    def test_func_receives_correct_objects(self):
+        """apply_function passes the actual child objects, not copies."""
+        c1, c2 = Circle(r=10), Circle(r=20)
+        col = VCollection(c1, c2)
+        seen = []
+        col.apply_function(lambda obj, i: seen.append(obj))
+        assert seen[0] is c1
+        assert seen[1] is c2
+
+    def test_returns_self(self):
+        """apply_function returns the collection for chaining."""
+        col = VCollection(Circle(r=10))
+        result = col.apply_function(lambda obj, i: None)
+        assert result is col
+
+    def test_empty_collection(self):
+        """apply_function on empty collection does not raise."""
+        col = VCollection()
+        result = col.apply_function(lambda obj, i: None)
+        assert result is col
+
+    def test_func_can_mutate_children(self):
+        """apply_function can be used to perform side-effects on children."""
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c1, c2)
+        # Shift each child by its index * 100
+        col.apply_function(lambda obj, i: obj.shift(dx=i * 100, start_time=0))
+        assert c1.c.at_time(0)[0] == pytest.approx(0)
+        assert c2.c.at_time(0)[0] == pytest.approx(100)
+
+    def test_behaves_identically_to_apply(self):
+        """apply_function and apply should produce the same results."""
+        c1a, c2a = Circle(r=10), Circle(r=20)
+        c1b, c2b = Circle(r=10), Circle(r=20)
+        log_a, log_b = [], []
+        VCollection(c1a, c2a).apply(lambda obj, i: log_a.append(i))
+        VCollection(c1b, c2b).apply_function(lambda obj, i: log_b.append(i))
+        assert log_a == log_b

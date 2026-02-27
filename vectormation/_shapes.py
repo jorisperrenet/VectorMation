@@ -90,6 +90,22 @@ class Polygon(VObject):
             total += _distance(pts[0][0], pts[0][1], pts[-1][0], pts[-1][1])
         return total
 
+    def get_perimeter(self, time=0):
+        """Return the perimeter (sum of all edge lengths).
+
+        For a closed polygon this includes the closing edge from the last
+        vertex back to the first.  For an open polyline only the segments
+        between consecutive vertices are summed.
+
+        Uses :func:`_distance` from :mod:`_constants`.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read vertex positions.
+        """
+        return self.perimeter(time)
+
     def area(self, time=0):
         """Return the area using the shoelace formula (0 for open polylines)."""
         if not self.closed:
@@ -500,6 +516,78 @@ class Circle(Ellipse):
         angle_deg = math.degrees(angle_rad)
         return self.tangent_line(angle_deg, length=length, time=time,
                                  creation=creation, **line_kwargs)
+
+    def get_tangent_lines(self, px, py, time=0, length=200, **kwargs):
+        """Return the two tangent lines from external point (px, py) to the circle.
+
+        Uses the standard geometric construction:
+
+        * Compute distance *d* from the point to the circle center.
+        * If the point is strictly inside the circle (*d* < *r*), return ``[]``.
+        * If the point lies on the circle (*d* ≈ *r*), return a single-element
+          list containing the one tangent line.
+        * Otherwise return two Line objects, one for each tangent.
+
+        Each Line runs through the tangent touch-point and is oriented along
+        the tangent direction (perpendicular to the radius at the touch point),
+        centred on the touch point with total length *length*.
+
+        Parameters
+        ----------
+        px, py:
+            Coordinates of the external (or boundary) point.
+        time:
+            Animation time at which to read the circle's position/radius.
+        length:
+            Total length of each returned tangent Line segment.
+        **kwargs:
+            Extra styling keyword arguments forwarded to Line (e.g. stroke,
+            stroke_width).
+
+        Returns
+        -------
+        list of Line
+            0, 1, or 2 Line objects.
+        """
+        cx, cy = self.c.at_time(time)
+        r = self.rx.at_time(time)
+        d = _distance(cx, cy, px, py)
+        if d < r - 1e-9:
+            # Point is inside the circle — no tangent lines exist.
+            return []
+        if abs(d) < 1e-12:
+            # Point coincides with center — degenerate case.
+            return []
+        # Vector from center to external point (normalised)
+        ux, uy = (px - cx) / d, (py - cy) / d
+        if d <= r + 1e-9:
+            # Point is on the circle — exactly one tangent.
+            # Tangent is perpendicular to the radius at the point.
+            tx, ty = -uy, ux  # 90-degree rotation
+            half = length / 2
+            return [Line(x1=px - tx * half, y1=py - ty * half,
+                         x2=px + tx * half, y2=py + ty * half, **kwargs)]
+        # Point is outside the circle — two tangent lines.
+        # Half-angle of the tangent from the line joining point to center.
+        half_angle = math.acos(max(-1.0, min(1.0, r / d)))
+        # Angle from center to the external point (in SVG coords, y-down)
+        base_angle = math.atan2(py - cy, px - cx)
+        lines = []
+        for sign in (1, -1):
+            touch_angle = base_angle + sign * half_angle
+            # Touch point on the circle
+            tx_touch = cx + r * math.cos(touch_angle)
+            ty_touch = cy + r * math.sin(touch_angle)
+            # Tangent direction: perpendicular to the radius at the touch point
+            # radius direction: (cos(touch_angle), sin(touch_angle))
+            # tangent direction: (-sin(touch_angle), cos(touch_angle))
+            td_x = -math.sin(touch_angle)
+            td_y = math.cos(touch_angle)
+            half = length / 2
+            lines.append(Line(x1=tx_touch - td_x * half, y1=ty_touch - td_y * half,
+                               x2=tx_touch + td_x * half, y2=ty_touch + td_y * half,
+                               **kwargs))
+        return lines
 
     def get_radius(self, time=0):
         return self.rx.at_time(time)

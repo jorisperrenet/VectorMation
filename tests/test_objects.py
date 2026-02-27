@@ -6623,3 +6623,50 @@ class TestAxesAddCallout:
         ax.x_min.set_onward(0, -10)
         x1 = box.x.at_time(0)
         assert x0 != x1
+
+
+class TestSquashAndStretch:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.squash_and_stretch(start=0, end=1)
+        assert result is c
+
+    def test_zero_duration_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.squash_and_stretch(start=0, end=0)
+        assert result is c
+
+    def test_scale_x_peaks_at_midpoint(self):
+        """At midpoint, scale_x should be close to factor (wider)."""
+        c = Circle(r=50, cx=100, cy=100)
+        import vectormation.easings as easings
+        c.squash_and_stretch(start=0, end=2, factor=1.5, easing=easings.linear)
+        sx_mid = c.styling.scale_x.at_time(1.0)
+        # there_and_back peaks at t=0.5 → easing(0.5)≈1 → scale_x ≈ 1.5
+        assert sx_mid == pytest.approx(1.5, abs=0.05)
+
+    def test_scale_y_is_inverse_of_scale_x(self):
+        """Area preservation: scale_x * scale_y should stay close to 1."""
+        c = Circle(r=50, cx=100, cy=100)
+        import vectormation.easings as easings
+        c.squash_and_stretch(start=0, end=2, factor=1.5, easing=easings.linear)
+        for t in (0.25, 0.5, 1.0, 1.5):
+            sx = c.styling.scale_x.at_time(t)
+            sy = c.styling.scale_y.at_time(t)
+            assert sx * sy == pytest.approx(1.0, abs=0.02)
+
+    def test_returns_to_original_at_end(self):
+        """After the animation, both scale axes should be back to 1."""
+        c = Circle(r=50, cx=100, cy=100)
+        import vectormation.easings as easings
+        c.squash_and_stretch(start=0, end=1, factor=1.3, easing=easings.linear)
+        sx_end = c.styling.scale_x.at_time(1.0)
+        sy_end = c.styling.scale_y.at_time(1.0)
+        assert sx_end == pytest.approx(1.0, abs=0.02)
+        assert sy_end == pytest.approx(1.0, abs=0.02)
+
+    def test_renders_svg(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.squash_and_stretch(start=0, end=1, factor=1.3)
+        svg = c.to_svg(0.5)
+        assert 'circle' in svg.lower() or 'ellipse' in svg.lower()

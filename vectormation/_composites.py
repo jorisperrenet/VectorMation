@@ -4552,6 +4552,59 @@ class NumberLine(VCollection):
         self.objects.append(rect)
         return rect
 
+    def highlight_range(self, start_val, end_val, color='#FFFF00',
+                        height=16, opacity=0.4, creation=0, z=1, **kwargs):
+        """Highlight a numeric range on the number line with a colored rectangle.
+
+        Creates a semi-transparent filled rectangle that spans from *start_val*
+        to *end_val* along the line.  Unlike :meth:`add_segment` (which uses a
+        fixed 0.7 opacity and blue color), this method exposes *color*,
+        *height*, and *opacity* as top-level parameters so common highlight
+        colors (yellow, green, red…) can be applied directly.
+
+        Parameters
+        ----------
+        start_val, end_val:
+            Numeric values on the line.  They are clamped to the range
+            [x_start, x_end] so the rectangle never extends beyond the axis.
+        color:
+            Fill color for the highlight rectangle.  Default ``'#FFFF00'``
+            (yellow).
+        height:
+            Pixel height of the highlight rectangle (it is centred on the
+            line).
+        opacity:
+            Fill opacity in [0, 1].  Default 0.4 gives a translucent overlay.
+        creation:
+            Creation time for the returned Rectangle.
+        z:
+            Z-layer for the rectangle.
+        **kwargs:
+            Extra styling keyword arguments forwarded to Rectangle (e.g.
+            ``stroke_width``, ``stroke``).
+
+        Returns
+        -------
+        Rectangle
+            The highlight rectangle (already appended to this NumberLine's
+            objects list).
+        """
+        from vectormation._shapes import Rectangle as _Rect
+        # Clamp to valid axis range
+        sv = max(self.x_start, min(self.x_end, start_val))
+        ev = max(self.x_start, min(self.x_end, end_val))
+        if sv > ev:
+            sv, ev = ev, sv
+        x1, y = self.number_to_point(sv)
+        x2, _ = self.number_to_point(ev)
+        w = abs(x2 - x1)
+        rect = _Rect(w, height, x=min(x1, x2), y=y - height / 2,
+                     creation=creation, z=z,
+                     fill=color, fill_opacity=opacity, stroke_width=0,
+                     **kwargs)
+        self.objects.append(rect)
+        return rect
+
     def add_label(self, value, text, buff=10, font_size=24, side='below', creation=0, **kwargs):
         """Add a text label at the given value on the number line.
 
