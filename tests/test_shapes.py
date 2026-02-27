@@ -9079,3 +9079,128 @@ class TestRectangleSplitVertical:
             assert pa.y.at_time(0) == pytest.approx(pb.y.at_time(0))
             assert pa.width.at_time(0) == pytest.approx(pb.width.at_time(0))
             assert pa.height.at_time(0) == pytest.approx(pb.height.at_time(0))
+
+
+class TestCircleGetArc:
+    def test_returns_arc_instance(self):
+        c = Circle(r=100, cx=500, cy=300)
+        arc = c.get_arc(0, 90)
+        assert isinstance(arc, Arc)
+
+    def test_default_angles(self):
+        c = Circle(r=100, cx=500, cy=300)
+        arc = c.get_arc()
+        assert arc.start_angle.at_time(0) == pytest.approx(0)
+        assert arc.end_angle.at_time(0) == pytest.approx(180)
+
+    def test_arc_has_same_center(self):
+        c = Circle(r=100, cx=500, cy=300)
+        arc = c.get_arc(0, 90)
+        assert arc.cx.at_time(0) == pytest.approx(500)
+        assert arc.cy.at_time(0) == pytest.approx(300)
+
+    def test_arc_has_same_radius(self):
+        c = Circle(r=80, cx=200, cy=400)
+        arc = c.get_arc(45, 135)
+        assert arc.r.at_time(0) == pytest.approx(80)
+
+    def test_arc_angles_preserved(self):
+        c = Circle(r=100, cx=960, cy=540)
+        arc = c.get_arc(30, 150)
+        assert arc.start_angle.at_time(0) == pytest.approx(30)
+        assert arc.end_angle.at_time(0) == pytest.approx(150)
+
+    def test_accepts_kwargs(self):
+        c = Circle(r=100)
+        arc = c.get_arc(0, 180, stroke_width=5)
+        assert arc.styling.stroke_width.at_time(0) == pytest.approx(5)
+
+    def test_respects_time(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.shift(dx=200, dy=100, start_time=1)
+        arc = c.get_arc(0, 90, time=1)
+        assert arc.cx.at_time(0) == pytest.approx(300)
+        assert arc.cy.at_time(0) == pytest.approx(200)
+
+
+class TestLineDivide:
+    def test_returns_n_plus_1_points(self):
+        line = Line(0, 0, 200, 0)
+        pts = line.divide(4)
+        assert len(pts) == 5
+
+    def test_default_n_is_2(self):
+        line = Line(0, 0, 100, 0)
+        pts = line.divide()
+        assert len(pts) == 3
+
+    def test_first_point_is_start(self):
+        line = Line(10, 20, 210, 20)
+        pts = line.divide(3)
+        assert pts[0] == pytest.approx((10.0, 20.0))
+
+    def test_last_point_is_end(self):
+        line = Line(10, 20, 210, 20)
+        pts = line.divide(3)
+        assert pts[-1] == pytest.approx((210.0, 20.0))
+
+    def test_midpoint_for_n_equals_2(self):
+        line = Line(0, 0, 200, 0)
+        pts = line.divide(2)
+        assert pts[1] == pytest.approx((100.0, 0.0))
+
+    def test_equally_spaced_horizontal(self):
+        line = Line(0, 0, 300, 0)
+        pts = line.divide(3)
+        assert pts[0] == pytest.approx((0.0, 0.0))
+        assert pts[1] == pytest.approx((100.0, 0.0))
+        assert pts[2] == pytest.approx((200.0, 0.0))
+        assert pts[3] == pytest.approx((300.0, 0.0))
+
+    def test_diagonal_line(self):
+        line = Line(0, 0, 100, 100)
+        pts = line.divide(2)
+        assert pts[0] == pytest.approx((0.0, 0.0))
+        assert pts[1] == pytest.approx((50.0, 50.0))
+        assert pts[2] == pytest.approx((100.0, 100.0))
+
+    def test_n_equals_1_returns_endpoints(self):
+        line = Line(0, 0, 100, 0)
+        pts = line.divide(1)
+        assert len(pts) == 2
+        assert pts[0] == pytest.approx((0.0, 0.0))
+        assert pts[1] == pytest.approx((100.0, 0.0))
+
+    def test_respects_time(self):
+        line = Line(0, 0, 100, 0)
+        line.shift(dx=50, start_time=1)
+        pts = line.divide(2, time=1)
+        assert pts[0] == pytest.approx((50.0, 0.0))
+        assert pts[2] == pytest.approx((150.0, 0.0))
+
+
+class TestTableGetCell:
+    def test_returns_text_object(self):
+        t = Table([[1, 2], [3, 4]])
+        cell = t.get_cell(0, 0)
+        assert isinstance(cell, Text)
+
+    def test_correct_value(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        assert t.get_cell(0, 0).text.at_time(0) == 'a'
+        assert t.get_cell(0, 1).text.at_time(0) == 'b'
+        assert t.get_cell(1, 0).text.at_time(0) == 'c'
+        assert t.get_cell(1, 1).text.at_time(0) == 'd'
+
+    def test_same_as_get_entry(self):
+        t = Table([[10, 20, 30], [40, 50, 60]])
+        for r in range(2):
+            for c in range(3):
+                assert t.get_cell(r, c) is t.get_entry(r, c)
+
+    def test_3x3_table(self):
+        data = [[i * 3 + j for j in range(3)] for i in range(3)]
+        t = Table(data)
+        for r in range(3):
+            for c in range(3):
+                assert t.get_cell(r, c).text.at_time(0) == str(data[r][c])

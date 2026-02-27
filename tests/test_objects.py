@@ -10549,3 +10549,105 @@ class TestCycleColors:
         assert c.styling.fill.at_time(0) == 'rgb(255,0,0)'
         # At end should be last color
         assert c.styling.fill.at_time(1) == 'rgb(0,0,255)'
+
+
+class TestFreeze:
+    def test_freeze_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.freeze(start=0, end=1)
+        assert result is c
+
+    def test_freeze_holds_opacity(self):
+        c = Circle(r=50, cx=100, cy=100, fill_opacity=1)
+        # Animate opacity to 0 over time
+        c.styling.fill_opacity.set(0, 2, lambda t: 1 - t / 2, stay=True)
+        # Freeze at time 0 (opacity=1) until time 2
+        c.freeze(start=0, end=2)
+        # The updater restores opacity at each frame, so at t=1 it should still be ~1
+        svg = c.to_svg(1)
+        assert svg  # renders without error
+        # The freeze updater captures at start=0, so fill_opacity should remain 1
+        # After running updaters, the value at t=1 is restored to the frozen value
+        c._run_updaters(1.0)
+        assert c.styling.fill_opacity.at_time(1.0) == pytest.approx(1.0, abs=0.01)
+
+    def test_freeze_without_end(self):
+        c = Circle(r=50, cx=100, cy=100, fill_opacity=1)
+        c.styling.fill_opacity.set(0, 5, lambda t: 1 - t / 5, stay=True)
+        c.freeze(start=0)
+        # With end=None, freeze lasts forever
+        c._run_updaters(3.0)
+        assert c.styling.fill_opacity.at_time(3.0) == pytest.approx(1.0, abs=0.01)
+
+
+class TestDelayAnimation:
+    def test_delay_animation_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.delay_animation('fadein', delay=1, start=0, end=1)
+        assert result is c
+
+    def test_delay_shifts_start_time(self):
+        c = Circle(r=50, cx=100, cy=100)
+        # fadein normally at start=0 makes object visible at t=0
+        # with delay=2, the fadein should start at t=2
+        c.delay_animation('fadein', delay=2, start=0, end=1)
+        # The actual animation start is at t=2, so show should be set at t=2
+        assert c.show.at_time(2) is True
+
+    def test_delay_shift_animation(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.delay_animation('shift', delay=0.5, dx=50, start_time=0, end_time=1)
+        # The shift should start at 0.5, so at t=0 position unchanged
+        cx_0 = c.center(0)[0]
+        assert cx_0 == pytest.approx(100, abs=1)
+        # At t=1.5 (end_time 0+0.5=0.5, end_time stays 1), shift should be active
+        cx_1 = c.center(1.5)[0]
+        assert cx_1 == pytest.approx(150, abs=1)
+
+    def test_delay_with_default_start(self):
+        c = Circle(r=50, cx=100, cy=100)
+        # No start kwarg means default=0, so delay=1 => start=1
+        c.delay_animation('shake', delay=1, end=2, amplitude=10, frequency=5)
+        # Should not error
+        svg = c.to_svg(1.5)
+        assert svg
+
+
+class TestWobble:
+    def test_wobble_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.wobble(start=0, end=1, intensity=5, frequency=3)
+        assert result is c
+
+    def test_wobble_produces_displacement(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.wobble(start=0, end=1, intensity=10, frequency=3)
+        svg_mid = c.to_svg(0.25)
+        assert 'circle' in svg_mid.lower() or 'ellipse' in svg_mid.lower()
+
+    def test_wobble_zero_duration(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.wobble(start=0, end=0)
+        assert result is c  # no-op
+
+    def test_wobble_applies_rotation(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.wobble(start=0, end=2, intensity=10, frequency=2)
+        # At a mid-point, rotation should be non-zero
+        rot = c.styling.rotation.at_time(0.5)
+        # rotation is a tuple: (degrees, cx, cy)
+        assert rot[0] != pytest.approx(0, abs=0.01)
+
+    def test_wobble_decays(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.wobble(start=0, end=1, intensity=10, frequency=3)
+        # Near the end, the rotation envelope (1-easing(p)) should be near 0
+        rot_near_end = c.styling.rotation.at_time(0.99)
+        assert abs(rot_near_end[0]) < 1.0  # should be small
+
+    def test_wobble_default_easing(self):
+        c = Circle(r=50, cx=100, cy=100)
+        # Should work with default easing
+        c.wobble(start=0, end=1)
+        svg = c.to_svg(0.5)
+        assert svg

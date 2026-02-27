@@ -2760,3 +2760,126 @@ class TestBatchAnimate:
         c2_cy = c2.center(1)[1]
         assert c1_cy == pytest.approx(110, abs=2)
         assert c2_cy == pytest.approx(110, abs=2)
+
+
+class TestSortByPosition:
+    def test_sort_by_x(self):
+        c1 = Circle(r=10, cx=300, cy=100)
+        c2 = Circle(r=10, cx=100, cy=200)
+        c3 = Circle(r=10, cx=200, cy=300)
+        col = VCollection(c1, c2, c3)
+        result = col.sort_by_position(axis='x')
+        assert result is col  # returns self
+        # Should be sorted by x: c2 (100), c3 (200), c1 (300)
+        assert col.objects[0] is c2
+        assert col.objects[1] is c3
+        assert col.objects[2] is c1
+
+    def test_sort_by_y(self):
+        c1 = Circle(r=10, cx=100, cy=300)
+        c2 = Circle(r=10, cx=200, cy=100)
+        c3 = Circle(r=10, cx=300, cy=200)
+        col = VCollection(c1, c2, c3)
+        col.sort_by_position(axis='y')
+        # Should be sorted by y: c2 (100), c3 (200), c1 (300)
+        assert col.objects[0] is c2
+        assert col.objects[1] is c3
+        assert col.objects[2] is c1
+
+    def test_sort_by_x_reverse(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=300, cy=100)
+        c3 = Circle(r=10, cx=200, cy=100)
+        col = VCollection(c1, c2, c3)
+        col.sort_by_position(axis='x', reverse=True)
+        # Descending: c2 (300), c3 (200), c1 (100)
+        assert col.objects[0] is c2
+        assert col.objects[1] is c3
+        assert col.objects[2] is c1
+
+    def test_sort_empty(self):
+        col = VCollection()
+        result = col.sort_by_position(axis='x')
+        assert result is col
+        assert len(col.objects) == 0
+
+    def test_sort_single(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        col = VCollection(c1)
+        col.sort_by_position(axis='y')
+        assert col.objects[0] is c1
+
+
+class TestGroupInto:
+    def test_group_into_even_split(self):
+        circles = [Circle(r=10, cx=i * 50, cy=100) for i in range(6)]
+        col = VCollection(*circles)
+        result = col.group_into(3)
+        assert isinstance(result, VCollection)
+        assert len(result.objects) == 3
+        # Each sub-collection should have 2 elements
+        for sub in result.objects:
+            assert isinstance(sub, VCollection)
+            assert len(sub.objects) == 2
+
+    def test_group_into_uneven_split(self):
+        circles = [Circle(r=10, cx=i * 50, cy=100) for i in range(7)]
+        col = VCollection(*circles)
+        result = col.group_into(3)
+        assert len(result.objects) == 3
+        sizes = [len(sub.objects) for sub in result.objects]
+        # 7 / 3 = 2 remainder 1, so first group gets 3, rest get 2
+        assert sorted(sizes, reverse=True) == [3, 2, 2]
+        assert sum(sizes) == 7
+
+    def test_group_into_one(self):
+        circles = [Circle(r=10, cx=i * 50, cy=100) for i in range(5)]
+        col = VCollection(*circles)
+        result = col.group_into(1)
+        assert len(result.objects) == 1
+        assert len(result.objects[0].objects) == 5
+
+    def test_group_into_n_equals_len(self):
+        circles = [Circle(r=10, cx=i * 50, cy=100) for i in range(4)]
+        col = VCollection(*circles)
+        result = col.group_into(4)
+        assert len(result.objects) == 4
+        for sub in result.objects:
+            assert len(sub.objects) == 1
+
+    def test_group_into_n_greater_than_len(self):
+        circles = [Circle(r=10, cx=i * 50, cy=100) for i in range(2)]
+        col = VCollection(*circles)
+        result = col.group_into(5)
+        assert len(result.objects) == 5
+        sizes = [len(sub.objects) for sub in result.objects]
+        assert sum(sizes) == 2
+        # First 2 groups get 1 element, rest get 0
+        assert sizes.count(1) == 2
+        assert sizes.count(0) == 3
+
+    def test_group_into_invalid_n(self):
+        col = VCollection(Circle(r=10))
+        with pytest.raises(ValueError):
+            col.group_into(0)
+        with pytest.raises(ValueError):
+            col.group_into(-1)
+
+    def test_group_into_empty(self):
+        col = VCollection()
+        result = col.group_into(3)
+        assert len(result.objects) == 3
+        for sub in result.objects:
+            assert len(sub.objects) == 0
+
+    def test_group_into_preserves_order(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=100)
+        c3 = Circle(r=10, cx=300, cy=100)
+        c4 = Circle(r=10, cx=400, cy=100)
+        col = VCollection(c1, c2, c3, c4)
+        result = col.group_into(2)
+        assert result.objects[0].objects[0] is c1
+        assert result.objects[0].objects[1] is c2
+        assert result.objects[1].objects[0] is c3
+        assert result.objects[1].objects[1] is c4

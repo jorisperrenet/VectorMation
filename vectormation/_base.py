@@ -4511,6 +4511,114 @@ class VObject(ABC):  # Vector Object
             src.set(seg_s, seg_e, _make_interp(c_from, c_to, seg_s, _d, easing), stay=(i == n - 2))
         return self
 
+    def freeze(self, start, end=None):
+        """Freeze the object's appearance at time *start*.
+
+        All animated attributes stop changing — an updater saves the object's
+        styling state at *start* and continuously restores it so the object
+        appears constant.
+
+        Parameters
+        ----------
+        start:
+            Time at which to capture the frozen state.
+        end:
+            Time at which the freeze ends.  ``None`` means forever.
+
+        Returns self.
+        """
+        _captured = {}
+
+        def _capture(obj, t):
+            if not _captured:
+                # Snapshot every styling attribute at the freeze time
+                for name, _, cls, _, _ in style._ATTR_SCHEMA:
+                    attr = getattr(obj.styling, name)
+                    if cls is attributes.Color:
+                        # Store raw RGB tuple from the time function
+                        _captured[name] = ('color', attr.time_func(start))
+                    else:
+                        _captured[name] = ('val', attr.at_time(start))
+                _captured['_z'] = ('val', obj.z.at_time(start))
+            # Restore all attributes to their frozen values
+            for name, _, cls, _, _ in style._ATTR_SCHEMA:
+                kind, val = _captured[name]
+                attr = getattr(obj.styling, name)
+                if kind == 'color':
+                    attr.time_func = lambda _t, _v=val: _v
+                else:
+                    attr.set_onward(t, val)
+            _, z_val = _captured['_z']
+            obj.z.set_onward(t, z_val)
+
+        self.add_updater(_capture, start, end)
+        return self
+
+    def delay_animation(self, method_name, delay, *args, **kwargs):
+        """Schedule an animation to start after a delay.
+
+        Calls ``getattr(self, method_name)(*args, start=<adjusted>, **rest)``
+        where the ``start`` (or ``start_time``) keyword is increased by
+        *delay*.  Convenience for offsetting animation timing.
+
+        Returns self.
+        """
+        import inspect
+        method = getattr(self, method_name)
+        sig = inspect.signature(method)
+        params = sig.parameters
+        if 'start_time' in params:
+            kwargs['start_time'] = kwargs.get('start_time', 0) + delay
+        elif 'start' in params:
+            kwargs['start'] = kwargs.get('start', 0) + delay
+        method(*args, **kwargs)
+        return self
+
+    def wobble(self, start=0, end=1, intensity=5, frequency=3, easing=easings.smooth):
+        """Organic wobbling motion combining small rotations and position shifts.
+
+        Combines sine waves at slightly different frequencies to produce a
+        natural-looking oscillation that is not perfectly periodic.
+
+        Parameters
+        ----------
+        intensity:
+            Max displacement in pixels (shift) and degrees (rotation).
+        frequency:
+            Base oscillation frequency (cycles per time unit).
+        easing:
+            Envelope easing — controls how the wobble fades out.
+
+        Returns self.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        _s, _d = start, max(dur, 1e-9)
+        _a, _freq = intensity, frequency
+
+        # Shift component: two different sine frequencies for organic feel
+        def _dx(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
+            p = (t - _s) / _d
+            envelope = 1 - _easing(p)
+            return _a * math.sin(2 * math.pi * _freq * p) * envelope
+
+        def _dy(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
+            p = (t - _s) / _d
+            envelope = 1 - _easing(p)
+            return _a * 0.7 * math.sin(2 * math.pi * _freq * 1.3 * p) * envelope
+
+        self._apply_shift_effect(start, end, _dx, _dy)
+
+        # Rotation component: slight wobbling rotation
+        bx, by, bw, bh = self.bbox(start)
+        cx, cy = bx + bw / 2, by + bh / 2
+        self.styling.rotation.set(start, end,
+            lambda t, _s=_s, _d=_d, _a=_a, _freq=_freq, _cx=cx, _cy=cy, _easing=easing: (
+                _a * math.sin(2 * math.pi * _freq * 0.7 * ((t - _s) / _d)) * (1 - _easing((t - _s) / _d)),
+                _cx, _cy))
+        return self
+
 
 class VCollection:
     """Container for a group of VObjects, delegating operations to children."""
@@ -4909,6 +5017,56 @@ class VCollection:
             raise ValueError(f"chunk size must be >= 1, got {size!r}")
         objs = self.objects
         return [VCollection(*objs[i:i + size]) for i in range(0, len(objs), size)]
+
+    def sort_by_position(self, axis='x', reverse=False):
+        """Sort children in-place by their x or y position.
+
+        Parameters
+        ----------
+        axis:
+            ``'x'`` to sort by centre x coordinate (left-to-right),
+            ``'y'`` to sort by centre y coordinate (top-to-bottom).
+        reverse:
+            If ``True``, sort in descending order.
+
+        Returns self.
+        """
+        if axis == 'x':
+            self.objects.sort(key=lambda obj: obj.center(0)[0], reverse=reverse)
+        elif axis == 'y':
+            self.objects.sort(key=lambda obj: obj.center(0)[1], reverse=reverse)
+        return self
+
+    def group_into(self, n):
+        """Split the collection into *n* sub-collections of roughly equal size.
+
+        Returns a :class:`VCollection` whose children are themselves
+        :class:`VCollection` instances.
+
+        Parameters
+        ----------
+        n:
+            Number of groups.  Must be >= 1.
+
+        Raises
+        ------
+        ValueError
+            If *n* is less than 1.
+
+        Returns a VCollection of VCollections.
+        """
+        if n < 1:
+            raise ValueError(f"n must be >= 1, got {n!r}")
+        objs = self.objects
+        total = len(objs)
+        groups = []
+        base, remainder = divmod(total, n)
+        idx = 0
+        for i in range(n):
+            size = base + (1 if i < remainder else 0)
+            groups.append(VCollection(*objs[idx:idx + size]))
+            idx += size
+        return VCollection(*groups)
 
     def enumerate_children(self):
         """Return a list of (index, child) tuples for all children.

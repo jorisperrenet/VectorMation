@@ -1849,6 +1849,33 @@ class Circle(Ellipse):
         return Arc(cx=cx, cy=cy, r=r,
                    start_angle=start_angle, end_angle=end_angle, **kwargs)
 
+    def get_arc(self, start_angle=0, end_angle=180, time=0, **kwargs):
+        """Create an Arc from this circle's center and radius.
+
+        Convenience factory that copies the circle's centre and radius at
+        the given *time* and returns a new :class:`Arc` spanning from
+        *start_angle* to *end_angle*.
+
+        Parameters
+        ----------
+        start_angle:
+            Start angle in degrees (default 0).
+        end_angle:
+            End angle in degrees (default 180).
+        time:
+            Animation time at which to read the circle's position and radius.
+        **kwargs:
+            Extra styling keyword arguments forwarded to :class:`Arc`.
+
+        Returns
+        -------
+        Arc
+        """
+        cx, cy = self.c.at_time(time)
+        r = self.rx.at_time(time)
+        return Arc(cx=cx, cy=cy, r=r,
+                   start_angle=start_angle, end_angle=end_angle, **kwargs)
+
     def diameter_line(self, angle_deg: float = 0, time: float = 0, **kwargs):
         """Return a Line representing the diameter at the given angle.
 
@@ -3391,6 +3418,39 @@ class Line(VObject):
             ey = y1 + (i + 1) * dy
             segments.append(Line(x1=sx, y1=sy, x2=ex, y2=ey, **kwargs))
         return segments
+
+    def divide(self, n=2, time=0):
+        """Return *n* + 1 points that divide the line into *n* equal segments.
+
+        Unlike :meth:`subdivide_into` which returns new :class:`Line` objects,
+        this method returns the division points themselves as a list of
+        ``(x, y)`` tuples.  The first point is always p1 and the last is
+        always p2.
+
+        Parameters
+        ----------
+        n:
+            Number of equal segments (must be >= 1).  Default is 2.
+        time:
+            Animation time at which to read the line endpoints.
+
+        Returns
+        -------
+        list[tuple[float, float]]
+            A list of *n* + 1 ``(x, y)`` points.
+
+        Example
+        -------
+        >>> line = Line(0, 0, 200, 0)
+        >>> line.divide(4)
+        [(0.0, 0.0), (50.0, 0.0), (100.0, 0.0), (150.0, 0.0), (200.0, 0.0)]
+        """
+        if n < 1:
+            n = 1
+        x1, y1 = self.get_start(time)
+        x2, y2 = self.get_end(time)
+        return [(x1 + i * (x2 - x1) / n, y1 + i * (y2 - y1) / n)
+                for i in range(n + 1)]
 
     def distance_to_point(self, px, py, time=0):
         """Return the shortest distance from point ``(px, py)`` to this line segment.
