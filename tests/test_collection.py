@@ -3028,3 +3028,50 @@ class TestApplyWithDelay:
         called = []
         col.apply_with_delay(lambda obj, i, t: called.append((i, t)), delay=0.5, start=2.0)
         assert called == [(0, 2.0)]
+
+
+class TestCollectionScaleAboutPoint:
+    def test_scale_about_point_returns_self(self):
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=300, cy=100)
+        col = VCollection(c1, c2)
+        result = col.scale_about_point(2, 0, 0)
+        assert result is col
+
+    def test_scale_about_origin_sets_transform(self):
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=200, cy=200)
+        col = VCollection(c1, c2)
+        col.scale_about_point(2, 0, 0)
+        svg = col.to_svg(0)
+        # Should have group transform with scale(2,2) about origin
+        assert 'scale(2' in svg
+        assert 'translate(0' in svg
+
+    def test_scale_about_point_factor_half(self):
+        c1 = Circle(r=50, cx=200, cy=200)
+        col = VCollection(c1)
+        col.scale_about_point(0.5, 0, 0)
+        svg = col.to_svg(0)
+        assert 'scale(0.5' in svg
+
+    def test_scale_about_pivot(self):
+        """Scaling about a specific pivot sets scale_origin correctly."""
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=200)
+        col = VCollection(c1, c2)
+        col.scale_about_point(2, 150, 150)
+        assert col._scale_origin == (150, 150)
+        svg = col.to_svg(0)
+        assert 'translate(150' in svg
+        assert 'scale(2' in svg
+
+    def test_scale_about_point_preserves_children(self):
+        """Children are unmodified; transform is on the group."""
+        c1 = Circle(r=10, cx=100, cy=100)
+        col = VCollection(c1)
+        col.scale_about_point(3, 50, 50)
+        # Child center should be unchanged
+        cx, cy = c1.center(0)
+        assert cx == pytest.approx(100, abs=1)
+        assert cy == pytest.approx(100, abs=1)

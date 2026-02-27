@@ -5589,6 +5589,59 @@ class Arrow(VCollection):
             self.tail.styling.fill.set_onward(start, color)
         return self
 
+    @classmethod
+    def between(cls, obj_a, obj_b, buff=0, **kwargs):
+        """Create an Arrow connecting two VObjects.
+
+        The arrow direction is computed from the centers of *obj_a* and
+        *obj_b*.  The endpoints are placed on the appropriate edges of each
+        object (e.g. if *obj_b* is to the right of *obj_a*, the arrow starts
+        at ``obj_a.get_edge('right')`` and ends at ``obj_b.get_edge('left')``).
+
+        Parameters
+        ----------
+        obj_a:
+            Source VObject.
+        obj_b:
+            Target VObject.
+        buff:
+            Buffer distance applied to shorten both ends of the arrow.
+        **kwargs:
+            Extra keyword arguments forwarded to the Arrow constructor.
+
+        Returns
+        -------
+        Arrow
+        """
+        ca = obj_a.get_edge('center', time=0)
+        cb = obj_b.get_edge('center', time=0)
+        dx = cb[0] - ca[0]
+        dy = cb[1] - ca[1]
+        # Choose edges based on dominant direction
+        if abs(dx) >= abs(dy):
+            if dx >= 0:
+                start = obj_a.get_edge('right', time=0)
+                end = obj_b.get_edge('left', time=0)
+            else:
+                start = obj_a.get_edge('left', time=0)
+                end = obj_b.get_edge('right', time=0)
+        else:
+            if dy >= 0:
+                start = obj_a.get_edge('bottom', time=0)
+                end = obj_b.get_edge('top', time=0)
+            else:
+                start = obj_a.get_edge('top', time=0)
+                end = obj_b.get_edge('bottom', time=0)
+        # Apply buff
+        if buff > 0:
+            length = math.hypot(end[0] - start[0], end[1] - start[1])
+            if length > 2 * buff:
+                ux = (end[0] - start[0]) / length
+                uy = (end[1] - start[1]) / length
+                start = (start[0] + ux * buff, start[1] + uy * buff)
+                end = (end[0] - ux * buff, end[1] - uy * buff)
+        return cls(x1=start[0], y1=start[1], x2=end[0], y2=end[1], **kwargs)
+
     def __repr__(self):
         s, e = self.get_start(), self.get_end()
         return f'Arrow(({s[0]:.0f},{s[1]:.0f})->({e[0]:.0f},{e[1]:.0f}))'
@@ -6915,10 +6968,39 @@ class BarChart(VCollection):
         bars = self._bars[start:end]
         return VCollection(*bars)
 
-    def highlight_bar(self, index, start=0, end=1, color='#FFD700'):
-        """Temporarily highlight a bar by changing its color."""
+    def highlight_bar(self, index, color='#FFFF00', start=0, end=None, opacity=None):
+        """Highlight a specific bar by changing its fill color.
+
+        Parameters
+        ----------
+        index:
+            Bar index (0-based).
+        color:
+            Target fill color for the bar.
+        start:
+            Time at which the highlight begins.
+        end:
+            Time at which the color transition ends.  ``None`` means
+            the color is set instantly at *start*.
+        opacity:
+            If provided, also set the bar's fill opacity.
+
+        Returns
+        -------
+        self
+        """
+        if index < 0 or index >= len(self._bars):
+            raise IndexError(f"bar index {index} out of range for chart with {len(self._bars)} bars")
         bar = self._bars[index]
-        bar.flash_color(color, start=start, duration=end - start)
+        if end is None:
+            bar.styling.fill = attributes.Color(start, color)
+        else:
+            bar.styling.fill.interpolate(attributes.Color(start, color), start, end)
+        if opacity is not None:
+            if end is None:
+                bar.styling.fill_opacity.set_onward(start, opacity)
+            else:
+                bar.styling.fill_opacity.move_to(start, end, opacity)
         return self
 
     def get_bar_by_label(self, label):
@@ -7319,6 +7401,47 @@ class Table(VCollection):
             t = start + i * delay
             method(start=t, **kwargs)
         return self
+
+    @classmethod
+    def from_dict(cls, data, **kwargs):
+        """Create a Table from a Python dict.
+
+        Keys become column headers and values become row data.  If the values
+        are lists, each element becomes a separate row.  Scalar values are
+        wrapped in a single-element list.
+
+        Parameters
+        ----------
+        data:
+            A dict mapping column header strings to values or lists of values.
+        **kwargs:
+            Extra keyword arguments forwarded to the Table constructor
+            (e.g. ``x``, ``y``, ``cell_width``, ``font_size``).
+
+        Returns
+        -------
+        Table
+
+        Examples
+        --------
+        >>> t = Table.from_dict({'Name': ['Alice', 'Bob'], 'Age': [30, 25]})
+        >>> t.rows  # 2
+        >>> t.cols  # 2
+        """
+        headers = list(data.keys())
+        # Normalize all values to lists
+        columns = []
+        for v in data.values():
+            columns.append(v if isinstance(v, (list, tuple)) else [v])
+        n_rows = max(len(col) for col in columns) if columns else 0
+        # Build the 2D data grid (rows x cols)
+        grid = []
+        for r in range(n_rows):
+            row = []
+            for col in columns:
+                row.append(col[r] if r < len(col) else '')
+            grid.append(row)
+        return cls(grid, col_labels=headers, **kwargs)
 
     def __repr__(self):
         return f'Table({self.rows}x{self.cols})'

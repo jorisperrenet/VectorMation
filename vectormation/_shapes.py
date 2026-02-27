@@ -72,6 +72,37 @@ class Polygon(VObject):
         """Return a list of (x, y) tuples for each vertex."""
         return [(float(x), float(y)) for x, y in (v.at_time(time) for v in self.vertices)]
 
+    def move_vertex(self, index, x, y, start=0, end=None, easing=easings.smooth):
+        """Animate a single vertex to a new position.
+
+        Parameters
+        ----------
+        index:
+            Vertex index (0-based). Negative indices are supported.
+        x, y:
+            Target position for the vertex.
+        start:
+            Time at which the change begins.
+        end:
+            Time at which the change ends.  ``None`` means instant.
+        easing:
+            Easing function for the animation.
+
+        Returns
+        -------
+        self
+
+        Raises
+        ------
+        IndexError
+            If *index* is out of range.
+        """
+        n = len(self.vertices)
+        if index < -n or index >= n:
+            raise IndexError(f"vertex index {index} out of range for polygon with {n} vertices")
+        _anim(self.vertices[index], start, end, (x, y), easing)
+        return self
+
     def to_path_string(self, time=0):
         """Return an SVG path d-string representation of the polygon.
 
@@ -3246,14 +3277,33 @@ class Line(VObject):
         return self
 
     def set_length(self, length, start=0, end=None, easing=easings.smooth):
-        """Scale line to new length keeping p1 fixed."""
+        """Set absolute length while keeping the midpoint fixed.
+
+        Parameters
+        ----------
+        length:
+            Target length in SVG pixels.
+        start:
+            Time at which the change begins.
+        end:
+            Time at which the change ends.  ``None`` means instant.
+        easing:
+            Easing function for the animation.
+
+        Returns
+        -------
+        self
+        """
         x1, y1 = self.p1.at_time(start)
         x2, y2 = self.p2.at_time(start)
         cur = _distance(x1, y1, x2, y2)
         if cur < 1e-9:
             return self
-        factor = length / cur
-        _anim(self.p2, start, end, (x1 + (x2 - x1) * factor, y1 + (y2 - y1) * factor), easing)
+        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+        dx, dy = _normalize(x2 - x1, y2 - y1)
+        half = length / 2
+        _anim(self.p1, start, end, (mx - dx * half, my - dy * half), easing)
+        _anim(self.p2, start, end, (mx + dx * half, my + dy * half), easing)
         return self
 
     def extend_to(self, length, anchor='start', start_time=0, end_time=None, easing=easings.smooth):
@@ -3655,18 +3705,33 @@ class Line(VObject):
         """
         return self.perpendicular_at(t=0.5, length=length, time=time, **kwargs)
 
-    def extend(self, factor=1.5, time=0, **kwargs):
-        """Return a new Line extended in both directions by factor.
+    def extend(self, factor=1.5, start=0, end=None, easing=easings.smooth):
+        """Scale the line length by *factor* while keeping the midpoint fixed.
 
-        factor=1.5 means 50% longer on each side.
-        Extra kwargs are forwarded to the new Line constructor.
+        ``factor=2`` doubles the length.  ``factor=0.5`` halves it.
+
+        Parameters
+        ----------
+        factor:
+            Multiplicative factor for the line length.
+        start:
+            Time at which the change begins.
+        end:
+            Time at which the change ends.  ``None`` means instant.
+        easing:
+            Easing function for the animation.
+
+        Returns
+        -------
+        self
         """
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
-        dx, dy = x2 - x1, y2 - y1
-        extra = factor - 1
-        return Line(x1 - dx * extra, y1 - dy * extra,
-                    x2 + dx * extra, y2 + dy * extra, **kwargs)
+        x1, y1 = self.p1.at_time(start)
+        x2, y2 = self.p2.at_time(start)
+        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+        dx, dy = (x2 - x1) / 2 * factor, (y2 - y1) / 2 * factor
+        _anim(self.p1, start, end, (mx - dx, my - dy), easing)
+        _anim(self.p2, start, end, (mx + dx, my + dy), easing)
+        return self
 
     def scale_length(self, factor=2.0, time=0):
         """Scale line length by *factor* in place, keeping the midpoint fixed.

@@ -6,7 +6,7 @@ from vectormation.objects import (
     Path, Trace, Text, Dot, Wedge, Sector, Star, RoundedRectangle, DashedLine,
     NumberLine, EquilateralTriangle, Arrow, CurvedArrow, VObject, VCollection,
     from_svg, CountAnimation, Annulus, FunctionGraph,
-    AnnularSector, PieChart, DonutChart, Axes, Brace, Table,
+    AnnularSector, PieChart, DonutChart, Axes, Brace, Table, BarChart,
 )
 from vectormation.attributes import Coor
 import vectormation.easings as easings
@@ -1682,15 +1682,20 @@ class TestGeometricQueries:
         line = Line(0, 0, 100, 0)
         result = line.set_length(200, start=0)
         assert result is line
+        # Midpoint = (50, 0). New half = 100. p1 = -50, p2 = 150
+        p1 = line.p1.at_time(0)
         p2 = line.p2.at_time(0)
-        assert p2[0] == pytest.approx(200, abs=0.01)
-        assert p2[1] == pytest.approx(0, abs=0.01)
+        assert p1[0] == pytest.approx(-50, abs=0.01)
+        assert p2[0] == pytest.approx(150, abs=0.01)
 
     def test_line_set_length_animated(self):
         line = Line(0, 0, 100, 0)
         line.set_length(200, start=0, end=1)
+        # At midpoint of animation, length should be between 100 and 200
+        p1_mid = line.p1.at_time(0.5)
         p2_mid = line.p2.at_time(0.5)
-        assert 100 < p2_mid[0] < 200
+        mid_length = p2_mid[0] - p1_mid[0]
+        assert 100 < mid_length < 200
 
     def test_line_set_length_zero_length(self):
         line = Line(50, 50, 50, 50)
@@ -7616,68 +7621,70 @@ class TestPolygonSubdivideEdges:
 
 class TestLineExtend:
     def test_extend_horizontal_factor_1_5(self):
-        """Factor 1.5 should extend a horizontal line by 50% on each side."""
+        """Factor 1.5 should extend a horizontal line by 50%, keeping midpoint fixed."""
         line = Line(x1=100, y1=200, x2=200, y2=200)
-        ext = line.extend(factor=1.5)
-        p1 = ext.p1.at_time(0)
-        p2 = ext.p2.at_time(0)
-        # Original dx=100. Extra = 0.5 * 100 = 50 on each side.
-        assert p1[0] == pytest.approx(50, abs=1e-6)
+        result = line.extend(factor=1.5)
+        assert result is line
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        # Midpoint = (150, 200). Half-length = 50 * 1.5 = 75.
+        assert p1[0] == pytest.approx(75, abs=1e-6)
         assert p1[1] == pytest.approx(200, abs=1e-6)
-        assert p2[0] == pytest.approx(250, abs=1e-6)
+        assert p2[0] == pytest.approx(225, abs=1e-6)
         assert p2[1] == pytest.approx(200, abs=1e-6)
 
     def test_extend_factor_1_no_change(self):
-        """Factor 1.0 should return a line with the same endpoints."""
+        """Factor 1.0 should leave endpoints unchanged."""
         line = Line(x1=0, y1=0, x2=100, y2=0)
-        ext = line.extend(factor=1.0)
-        p1 = ext.p1.at_time(0)
-        p2 = ext.p2.at_time(0)
+        line.extend(factor=1.0)
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
         assert p1[0] == pytest.approx(0, abs=1e-6)
         assert p2[0] == pytest.approx(100, abs=1e-6)
 
     def test_extend_shrink(self):
-        """Factor < 1 should shrink the line."""
+        """Factor < 1 should shrink the line around midpoint."""
         line = Line(x1=0, y1=0, x2=100, y2=0)
-        ext = line.extend(factor=0.5)
-        p1 = ext.p1.at_time(0)
-        p2 = ext.p2.at_time(0)
-        # Original dx=100. Extra = -0.5 * 100 = -50. So p1 moves right 50, p2 moves left 50
-        assert p1[0] == pytest.approx(50, abs=1e-6)
-        assert p2[0] == pytest.approx(50, abs=1e-6)
+        line.extend(factor=0.5)
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        # Midpoint = 50, half-length = 50 * 0.5 = 25
+        assert p1[0] == pytest.approx(25, abs=1e-6)
+        assert p2[0] == pytest.approx(75, abs=1e-6)
 
     def test_extend_diagonal(self):
-        """Extending a diagonal line should preserve direction."""
+        """Extending a diagonal line should scale length and preserve midpoint."""
         line = Line(x1=0, y1=0, x2=60, y2=80)
-        ext = line.extend(factor=2.0)
-        p1 = ext.p1.at_time(0)
-        p2 = ext.p2.at_time(0)
-        dx = p2[0] - p1[0]
-        dy = p2[1] - p1[1]
-        length = math.hypot(dx, dy)
-        # Original length = 100. Factor 2 extends by 100 on each side -> total 300?
-        # Actually: extra = factor - 1 = 1.0. new_p1 = p1 - dx*extra, new_p2 = p2 + dx*extra
-        # new_p1 = (0 - 60, 0 - 80) = (-60, -80); new_p2 = (60+60, 80+80) = (120, 160)
-        # total length = hypot(180, 240) = 300
-        assert length == pytest.approx(300, abs=1e-4)
+        line.extend(factor=2.0)
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        length = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
+        # Original length = 100. Factor 2 -> new length = 200
+        assert length == pytest.approx(200, abs=1e-4)
+        # Midpoint should still be (30, 40)
+        mx = (p1[0] + p2[0]) / 2
+        my = (p1[1] + p2[1]) / 2
+        assert mx == pytest.approx(30, abs=1e-4)
+        assert my == pytest.approx(40, abs=1e-4)
 
-    def test_extend_returns_new_line(self):
-        """extend should return a new Line, not modify in place."""
+    def test_extend_returns_self(self):
+        """extend should modify in place and return self."""
         line = Line(x1=0, y1=0, x2=100, y2=0)
-        ext = line.extend(factor=2.0)
-        assert ext is not line
-        # Original should be unchanged
-        assert line.p1.at_time(0)[0] == pytest.approx(0, abs=1e-6)
-        assert line.p2.at_time(0)[0] == pytest.approx(100, abs=1e-6)
+        result = line.extend(factor=2.0)
+        assert result is line
 
-    def test_extend_kwargs_forwarded(self):
-        """Extra kwargs should be forwarded to the new Line."""
+    def test_extend_animated(self):
+        """extend with end should animate the endpoints."""
         line = Line(x1=0, y1=0, x2=100, y2=0)
-        ext = line.extend(factor=1.5, stroke='#ff0000')
-        svg = ext.to_svg(0)
-        assert 'stroke=' in svg
-        # Color may be normalized to rgb() form
-        assert '255' in svg or '#ff0000' in svg
+        line.extend(factor=2.0, start=0, end=1)
+        # At time=0 should still be original
+        p1_0 = line.p1.at_time(0)
+        p2_0 = line.p2.at_time(0)
+        # At time=1 should be extended: midpoint=50, half=50*2=100
+        p1_1 = line.p1.at_time(1)
+        p2_1 = line.p2.at_time(1)
+        assert p1_1[0] == pytest.approx(-50, abs=1)
+        assert p2_1[0] == pytest.approx(150, abs=1)
 
 
 class TestAxesAddResidualLines:
@@ -9716,3 +9723,213 @@ class TestNumberLineAddAnimatedPointer:
         # Should be visible at t=1 and hidden at t=3
         assert ptr.show.at_time(1) == True
         assert ptr.show.at_time(3) == False
+
+
+class TestPolygonMoveVertex:
+    def test_move_vertex_instant(self):
+        """Moving a vertex instantly should update its position."""
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        result = p.move_vertex(0, 10, 20)
+        assert result is p
+        v0 = p.vertices[0].at_time(0)
+        assert v0[0] == pytest.approx(10, abs=1e-6)
+        assert v0[1] == pytest.approx(20, abs=1e-6)
+
+    def test_move_vertex_animated(self):
+        """Moving a vertex with end should animate over time."""
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        p.move_vertex(1, 200, 0, start=0, end=1)
+        # At time=0, vertex 1 should still be near original
+        v1_start = p.vertices[1].at_time(0)
+        assert v1_start[0] == pytest.approx(100, abs=1)
+        # At time=1, vertex 1 should be at target
+        v1_end = p.vertices[1].at_time(1)
+        assert v1_end[0] == pytest.approx(200, abs=1)
+        assert v1_end[1] == pytest.approx(0, abs=1)
+
+    def test_move_vertex_negative_index(self):
+        """Negative index should work (last vertex)."""
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        p.move_vertex(-1, 60, 80)
+        v_last = p.vertices[-1].at_time(0)
+        assert v_last[0] == pytest.approx(60, abs=1e-6)
+        assert v_last[1] == pytest.approx(80, abs=1e-6)
+
+    def test_move_vertex_out_of_range(self):
+        """Out of range index should raise IndexError."""
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        with pytest.raises(IndexError):
+            p.move_vertex(5, 0, 0)
+
+    def test_move_vertex_negative_out_of_range(self):
+        """Out of range negative index should raise IndexError."""
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        with pytest.raises(IndexError):
+            p.move_vertex(-4, 0, 0)
+
+    def test_move_vertex_other_vertices_unchanged(self):
+        """Only the specified vertex should move."""
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        p.move_vertex(0, 10, 10)
+        v1 = p.vertices[1].at_time(0)
+        v2 = p.vertices[2].at_time(0)
+        assert v1[0] == pytest.approx(100, abs=1e-6)
+        assert v1[1] == pytest.approx(0, abs=1e-6)
+        assert v2[0] == pytest.approx(50, abs=1e-6)
+        assert v2[1] == pytest.approx(100, abs=1e-6)
+
+
+class TestLineSetLengthMidpoint:
+    def test_set_length_keeps_midpoint(self):
+        """set_length should keep the midpoint fixed."""
+        line = Line(x1=100, y1=200, x2=200, y2=200)
+        # Midpoint = (150, 200)
+        line.set_length(200, start=0)
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        mx = (p1[0] + p2[0]) / 2
+        my = (p1[1] + p2[1]) / 2
+        assert mx == pytest.approx(150, abs=1e-6)
+        assert my == pytest.approx(200, abs=1e-6)
+        assert math.hypot(p2[0] - p1[0], p2[1] - p1[1]) == pytest.approx(200, abs=1e-4)
+
+    def test_set_length_diagonal(self):
+        """set_length should work on diagonal lines."""
+        line = Line(x1=0, y1=0, x2=60, y2=80)
+        # Original length = 100, midpoint = (30, 40)
+        line.set_length(50, start=0)
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        mx = (p1[0] + p2[0]) / 2
+        my = (p1[1] + p2[1]) / 2
+        assert mx == pytest.approx(30, abs=1e-4)
+        assert my == pytest.approx(40, abs=1e-4)
+        new_length = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
+        assert new_length == pytest.approx(50, abs=1e-4)
+
+
+class TestArrowBetween:
+    def test_between_horizontal(self):
+        """Arrow.between should connect two objects horizontally."""
+        r1 = Rectangle(50, 50, x=100, y=100)
+        r2 = Rectangle(50, 50, x=300, y=100)
+        arrow = Arrow.between(r1, r2)
+        start = arrow.get_start(0)
+        end = arrow.get_end(0)
+        # r1 right edge = 150, r2 left edge = 300
+        assert start[0] == pytest.approx(150, abs=1)
+        assert end[0] == pytest.approx(300, abs=1)
+
+    def test_between_vertical(self):
+        """Arrow.between should connect two objects vertically."""
+        r1 = Rectangle(50, 50, x=100, y=100)
+        r2 = Rectangle(50, 50, x=100, y=400)
+        arrow = Arrow.between(r1, r2)
+        start = arrow.get_start(0)
+        end = arrow.get_end(0)
+        # r1 bottom edge = 150, r2 top edge = 400
+        assert start[1] == pytest.approx(150, abs=1)
+        assert end[1] == pytest.approx(400, abs=1)
+
+    def test_between_with_buff(self):
+        """Arrow.between with buff should shorten the arrow."""
+        r1 = Rectangle(50, 50, x=100, y=100)
+        r2 = Rectangle(50, 50, x=300, y=100)
+        arrow_no_buff = Arrow.between(r1, r2)
+        arrow_with_buff = Arrow.between(r1, r2, buff=10)
+        len_no_buff = arrow_no_buff.get_length(0)
+        len_with_buff = arrow_with_buff.get_length(0)
+        assert len_with_buff == pytest.approx(len_no_buff - 20, abs=1)
+
+    def test_between_returns_arrow(self):
+        """Arrow.between should return an Arrow instance."""
+        r1 = Circle(r=25, cx=100, cy=100)
+        r2 = Circle(r=25, cx=300, cy=100)
+        arrow = Arrow.between(r1, r2)
+        assert isinstance(arrow, Arrow)
+
+    def test_between_kwargs_forwarded(self):
+        """Extra kwargs should be forwarded to the Arrow constructor."""
+        r1 = Rectangle(50, 50, x=100, y=100)
+        r2 = Rectangle(50, 50, x=300, y=100)
+        arrow = Arrow.between(r1, r2, stroke='#ff0000')
+        svg = arrow.to_svg(0)
+        # Color should be in the SVG
+        assert '255' in svg or 'ff0000' in svg or 'rgb' in svg
+
+
+class TestTableFromDict:
+    def test_from_dict_basic(self):
+        """Table.from_dict should create a table with correct dimensions."""
+        t = Table.from_dict({'Name': ['Alice', 'Bob'], 'Age': [30, 25]})
+        assert t.rows == 2
+        assert t.cols == 2
+
+    def test_from_dict_values(self):
+        """Table.from_dict should populate entries correctly."""
+        t = Table.from_dict({'Name': ['Alice', 'Bob'], 'Age': [30, 25]})
+        assert t.entries[0][0].text.at_time(0) == 'Alice'
+        assert t.entries[0][1].text.at_time(0) == '30'
+        assert t.entries[1][0].text.at_time(0) == 'Bob'
+        assert t.entries[1][1].text.at_time(0) == '25'
+
+    def test_from_dict_scalar_values(self):
+        """Scalar values should be wrapped in lists."""
+        t = Table.from_dict({'Key': 'Value', 'Foo': 'Bar'})
+        assert t.rows == 1
+        assert t.cols == 2
+        assert t.entries[0][0].text.at_time(0) == 'Value'
+        assert t.entries[0][1].text.at_time(0) == 'Bar'
+
+    def test_from_dict_unequal_lengths(self):
+        """Shorter columns should be padded with empty strings."""
+        t = Table.from_dict({'A': [1, 2, 3], 'B': [10]})
+        assert t.rows == 3
+        assert t.entries[0][1].text.at_time(0) == '10'
+        assert t.entries[1][1].text.at_time(0) == ''
+        assert t.entries[2][1].text.at_time(0) == ''
+
+    def test_from_dict_renders_svg(self):
+        """Table.from_dict result should render valid SVG."""
+        t = Table.from_dict({'X': [1, 2], 'Y': [3, 4]})
+        svg = t.to_svg(0)
+        assert '<line' in svg
+        assert '<text' in svg
+
+    def test_from_dict_kwargs_forwarded(self):
+        """Extra kwargs should be forwarded to the Table constructor."""
+        t = Table.from_dict({'A': [1]}, font_size=36)
+        # Should not raise, and table should be created
+        assert t.rows == 1
+
+
+class TestBarChartHighlightBar:
+    def test_highlight_bar_basic(self):
+        """highlight_bar should change the bar's fill color."""
+        chart = BarChart([10, 20, 30])
+        result = chart.highlight_bar(1, color='#FF0000', start=0)
+        assert result is chart
+        bar = chart._bars[1]
+        fill = bar.styling.fill.at_time(0)
+        # Color may be normalized, check it's red
+        assert '255' in fill or 'ff0000' in fill.lower() or 'FF0000' in fill
+
+    def test_highlight_bar_with_opacity(self):
+        """highlight_bar with opacity should set fill_opacity."""
+        chart = BarChart([10, 20, 30])
+        chart.highlight_bar(0, color='#00FF00', start=0, opacity=0.5)
+        bar = chart._bars[0]
+        assert bar.styling.fill_opacity.at_time(0) == pytest.approx(0.5, abs=0.01)
+
+    def test_highlight_bar_out_of_range(self):
+        """Out of range index should raise IndexError."""
+        chart = BarChart([10, 20, 30])
+        with pytest.raises(IndexError):
+            chart.highlight_bar(5)
+
+    def test_highlight_bar_animated(self):
+        """highlight_bar with end should animate the color change."""
+        chart = BarChart([10, 20, 30])
+        chart.highlight_bar(0, color='#FF0000', start=0, end=1)
+        # Should not raise and bar should exist
+        assert chart._bars[0] is not None

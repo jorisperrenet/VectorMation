@@ -10961,3 +10961,187 @@ class TestMatchStyle:
         c.match_style(r)
         assert c.get_fill_color(0).lower() == '#0000ff'
         assert c.get_stroke_width(0) == pytest.approx(8)
+
+
+class TestRemoveUpdater:
+    def test_remove_updater_by_reference(self):
+        c = Circle(r=50)
+        def mover(obj, t):
+            pass
+        c.add_updater(mover, start=0, end=1)
+        assert len(c._updaters) == 1
+        c.remove_updater(mover)
+        assert len(c._updaters) == 0
+
+    def test_remove_updater_returns_self(self):
+        c = Circle(r=50)
+        def mover(obj, t):
+            pass
+        c.add_updater(mover)
+        result = c.remove_updater(mover)
+        assert result is c
+
+    def test_remove_updater_only_removes_matching(self):
+        c = Circle(r=50)
+        def f1(obj, t): pass
+        def f2(obj, t): pass
+        c.add_updater(f1, start=0, end=1)
+        c.add_updater(f2, start=0, end=2)
+        c.remove_updater(f1)
+        assert len(c._updaters) == 1
+        assert c._updaters[0][0] is f2
+
+    def test_remove_updater_removes_all_with_same_func(self):
+        c = Circle(r=50)
+        def f1(obj, t): pass
+        c.add_updater(f1, start=0, end=1)
+        c.add_updater(f1, start=2, end=3)
+        assert len(c._updaters) == 2
+        c.remove_updater(f1)
+        assert len(c._updaters) == 0
+
+    def test_remove_updater_noop_if_not_found(self):
+        c = Circle(r=50)
+        def f1(obj, t): pass
+        def f2(obj, t): pass
+        c.add_updater(f1)
+        c.remove_updater(f2)  # not added, should not raise
+        assert len(c._updaters) == 1
+
+
+class TestClearUpdaters:
+    def test_clear_updaters_empties_list(self):
+        c = Circle(r=50)
+        def f1(obj, t): pass
+        def f2(obj, t): pass
+        c.add_updater(f1)
+        c.add_updater(f2)
+        assert len(c._updaters) == 2
+        c.clear_updaters()
+        assert len(c._updaters) == 0
+
+    def test_clear_updaters_returns_self(self):
+        c = Circle(r=50)
+        result = c.clear_updaters()
+        assert result is c
+
+    def test_clear_updaters_on_empty(self):
+        c = Circle(r=50)
+        c.clear_updaters()
+        assert len(c._updaters) == 0
+
+
+class TestIsOnScreen:
+    def test_centered_object_on_screen(self):
+        c = Circle(r=50, cx=960, cy=540)
+        assert c.is_on_screen(0) is True
+
+    def test_top_left_partially_on_screen(self):
+        c = Circle(r=50, cx=10, cy=10)
+        assert c.is_on_screen(0) is True
+
+    def test_far_off_right(self):
+        c = Circle(r=50, cx=2100, cy=540)
+        assert c.is_on_screen(0) is False
+
+    def test_far_off_left(self):
+        c = Circle(r=50, cx=-200, cy=540)
+        assert c.is_on_screen(0) is False
+
+    def test_far_off_top(self):
+        c = Circle(r=50, cx=960, cy=-200)
+        assert c.is_on_screen(0) is False
+
+    def test_far_off_bottom(self):
+        c = Circle(r=50, cx=960, cy=1300)
+        assert c.is_on_screen(0) is False
+
+    def test_just_touching_right_edge(self):
+        # Circle at x=1910, r=50 -> bbox from 1860 to 1960 -> overlaps 1920 boundary
+        c = Circle(r=50, cx=1910, cy=540)
+        assert c.is_on_screen(0) is True
+
+    def test_just_past_right_edge(self):
+        # Circle at x=1980, r=50 -> bbox from 1930 to 2030 -> starts after 1920
+        c = Circle(r=50, cx=1980, cy=540)
+        assert c.is_on_screen(0) is False
+
+    def test_at_time(self):
+        c = Circle(r=50, cx=960, cy=540)
+        c.shift(dx=2000, start_time=0, end_time=1, easing=easings.linear)
+        assert c.is_on_screen(0) is True
+        assert c.is_on_screen(1) is False
+
+
+class TestScaleAboutPoint:
+    def test_scale_about_point_returns_self(self):
+        c = Circle(r=50, cx=200, cy=200)
+        result = c.scale_about_point(2, 0, 0)
+        assert result is c
+
+    def test_scale_about_own_center(self):
+        """Scaling about own center should not move the object."""
+        c = Circle(r=50, cx=200, cy=200)
+        cx0, cy0 = c.center(0)
+        c.scale_about_point(2, cx0, cy0)
+        cx1, cy1 = c.center(0)
+        assert cx1 == pytest.approx(cx0, abs=1)
+        assert cy1 == pytest.approx(cy0, abs=1)
+
+    def test_scale_about_origin(self):
+        """Scaling about (0,0) should double the distance from origin."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.scale_about_point(2, 0, 0)
+        cx, cy = c.center(0)
+        assert cx == pytest.approx(200, abs=2)
+        assert cy == pytest.approx(200, abs=2)
+
+    def test_scale_about_point_factor_half(self):
+        """Factor 0.5 should halve the distance from pivot."""
+        c = Circle(r=50, cx=200, cy=200)
+        c.scale_about_point(0.5, 0, 0)
+        cx, cy = c.center(0)
+        assert cx == pytest.approx(100, abs=2)
+        assert cy == pytest.approx(100, abs=2)
+
+
+class TestDropShadow:
+    def test_drop_shadow_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.drop_shadow()
+        assert result is c
+
+    def test_drop_shadow_wraps_svg(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.drop_shadow(color='#333', dx=2, dy=3, blur=4)
+        svg = c.to_svg(0)
+        assert '<filter' in svg
+        assert 'feDropShadow' in svg
+        assert "flood-color='#333'" in svg
+        assert "dx='2'" in svg
+        assert "dy='3'" in svg
+        assert "stdDeviation='4'" in svg
+        assert '<circle' in svg  # original element still present
+
+    def test_drop_shadow_no_filter_before_start(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.drop_shadow(start=5)
+        svg = c.to_svg(0)
+        assert '<filter' not in svg
+        assert '<circle' in svg
+
+    def test_drop_shadow_filter_after_start(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.drop_shadow(start=5)
+        svg = c.to_svg(5)
+        assert '<filter' in svg
+        assert 'feDropShadow' in svg
+
+    def test_drop_shadow_default_params(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.drop_shadow()
+        svg = c.to_svg(0)
+        assert "flood-color='#000000'" in svg
+        assert "dx='4'" in svg
+        assert "dy='4'" in svg
+        assert "stdDeviation='6'" in svg

@@ -157,6 +157,20 @@ class VObject(ABC):  # Vector Object
             if time >= start and (end is None or time <= end):
                 func(self, time)
 
+    def remove_updater(self, func):
+        """Remove a specific updater by function reference.
+
+        Searches ``self._updaters`` for tuples whose first element is
+        *func* and removes them.  Returns self.
+        """
+        self._updaters = [(f, s, e) for f, s, e in self._updaters if f is not func]
+        return self
+
+    def clear_updaters(self):
+        """Remove all updaters. Returns self."""
+        self._updaters = []
+        return self
+
     # -- Generic implementations --
 
     @property
@@ -175,6 +189,18 @@ class VObject(ABC):  # Vector Object
     def get_height(self, time=0):
         """Return the bounding box height at the given time."""
         return self.bbox(time)[3]
+
+    def is_on_screen(self, time=0):
+        """Return True if the object's bounding box overlaps the visible canvas.
+
+        The canvas is the rectangle (0, 0, 1920, 1080).  An object with
+        zero-size bounding box is considered off-screen.
+        """
+        x, y, w, h = self.bbox(time)
+        if w <= 0 or h <= 0:
+            return False
+        # Check rectangle intersection with canvas (0,0)-(1920,1080)
+        return x + w > 0 and x < 1920 and y + h > 0 and y < 1080
 
     def get_center(self, time=0):
         """Return (x, y) of the bounding box center."""
@@ -1877,6 +1903,46 @@ class VObject(ABC):  # Vector Object
             stay=False)
         return self
 
+    def drop_shadow(self, color='#000000', dx=4, dy=4, blur=6, start=0):
+        """Apply an SVG drop-shadow filter to this object.
+
+        The filter is rendered inline by wrapping the element's SVG
+        output in a ``<g>`` with a ``<defs>`` block containing an
+        ``<feDropShadow>`` filter.
+
+        Parameters
+        ----------
+        color:
+            Shadow colour (CSS colour string).
+        dx, dy:
+            Horizontal and vertical offset of the shadow in SVG units.
+        blur:
+            Standard deviation for the Gaussian blur (``stdDeviation``).
+        start:
+            Time from which the shadow is visible.  The object is hidden
+            before *start* and the shadow only appears at *start*.
+        """
+        fid = f'ds{id(self)}'
+        filter_def = (
+            f"<filter id='{fid}' x='-50%' y='-50%' width='200%' height='200%'>"
+            f"<feDropShadow dx='{dx}' dy='{dy}' stdDeviation='{blur}' "
+            f"flood-color='{color}' flood-opacity='0.5'/>"
+            f"</filter>"
+        )
+        # Wrap the original to_svg to inject the filter
+        _orig_to_svg = self.to_svg
+
+        def _filtered_to_svg(time, _orig=_orig_to_svg, _fid=fid,
+                             _def=filter_def, _start=start):
+            inner = _orig(time)
+            if time >= _start:
+                return (f"<g filter='url(#{_fid})'>"
+                        f"<defs>{_def}</defs>{inner}</g>")
+            return inner
+
+        self.to_svg = _filtered_to_svg  # type: ignore[assignment]
+        return self
+
     def pulse_outline(self, start: float = 0, end: float = 1, color='#FFFF00',
                       max_width=8, cycles=2, easing=easings.smooth):
         """Animate the stroke pulsing between current width and *max_width*.
@@ -3267,6 +3333,37 @@ class VObject(ABC):  # Vector Object
     def scale(self, factor, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Scale the object by *factor*. Instant if end is None, animated otherwise."""
         return self.stretch(factor, factor, start, end, easing)
+
+    def scale_about_point(self, factor, px, py, start: float = 0, end: float | None = None, easing=easings.smooth):
+        """Scale the object by *factor* about the pivot point (*px*, *py*).
+
+        The pivot stays fixed while the object scales and its center
+        moves accordingly.  This is equivalent to translating so that
+        the pivot is at the origin, scaling, then translating back.
+
+        Parameters
+        ----------
+        factor:
+            Scale multiplier (e.g. 2 = double size).
+        px, py:
+            Pivot point in SVG coordinates.
+        start:
+            Time at which the change begins.
+        end:
+            Time at which the change ends (``None`` = instant).
+        easing:
+            Easing function for the animation.
+        """
+        # Override the scale origin to the pivot point so the SVG transform
+        # translate(px,py) scale(...) translate(-px,-py) keeps the pivot fixed.
+        self.styling._scale_origin = (px, py)
+        for attr in (self.styling.scale_x, self.styling.scale_y):
+            target = attr.at_time(start) * factor
+            if end is None:
+                attr.set_onward(start, target)
+            else:
+                attr.move_to(start, end, target, easing=easing)
+        return self
 
     def set_fill(self, color=None, opacity=None, start: float = 0, end: float | None = None, easing=easings.smooth, color_space='rgb'):
         """Set fill color and/or opacity. Animated if end is given."""
@@ -5525,6 +5622,21 @@ class VCollection:
     def scale(self, factor, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Scale all children around the group center."""
         return self.stretch(factor, factor, start, end, easing)
+
+    def scale_about_point(self, factor, px, py, start: float = 0, end: float | None = None, easing=easings.smooth):
+        """Scale all children about the pivot point (*px*, *py*).
+
+        Sets the group's scale origin to the pivot and applies the
+        scale factor, so the pivot stays fixed while children move.
+        """
+        self._scale_origin = (px, py)
+        for attr in (self._scale_x, self._scale_y):
+            target = attr.at_time(start) * factor
+            if end is None:
+                attr.set_onward(start, target)
+            else:
+                attr.move_to(start, end, target, easing=easing)
+        return self
 
     def stretch(self, x_factor: float = 1, y_factor: float = 1, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Non-uniform scale of all children around the group center."""
