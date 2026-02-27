@@ -1408,6 +1408,10 @@ class AnnotationDot(Dot):
         super().__init__(r=r, cx=cx, cy=cy, z=z, creation=creation,
                          **({'stroke_width': 5, 'stroke': '#fff'} | styling_kwargs))
 
+    def __repr__(self):
+        cx, cy = self.c.at_time(0)
+        return f'AnnotationDot(cx={cx:.0f}, cy={cy:.0f})'
+
 class Rectangle(VObject):
     def __init__(self, width, height, x=960, y=540, rx=0, ry=0, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
