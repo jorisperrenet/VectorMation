@@ -14,6 +14,17 @@ from vectormation._constants import (
 from vectormation._base import VObject, _ramp, _ramp_down, _set_attr
 
 
+def _cached_bbox(target):
+    """Return a function that caches target.bbox(t) per time value."""
+    _cache = [None, None]
+    def _bbox(t):
+        if _cache[0] != t:
+            _cache[0] = t
+            _cache[1] = target.bbox(t)
+        return _cache[1]
+    return _bbox
+
+
 class Polygon(VObject):
     def __init__(self, *vertices, closed=True, z: float = 0, creation: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
@@ -5153,12 +5164,7 @@ class SurroundingRectangle(RoundedRectangle):
         super().__init__(bw + 2*buff, bh + 2*buff, x=bx - buff, y=by - buff,
                          corner_radius=corner_radius, creation=creation, z=z, **style_kw)
         if follow:
-            _cache = [None, None]
-            def _bbox(t):
-                if _cache[0] != t:
-                    _cache[0] = t
-                    _cache[1] = target.bbox(t)
-                return _cache[1]
+            _bbox = _cached_bbox(target)
             self.x.set_onward(creation, lambda t: _bbox(t)[0] - buff)
             self.y.set_onward(creation, lambda t: _bbox(t)[1] - buff)
             self.width.set_onward(creation, lambda t: _bbox(t)[2] + 2*buff)
@@ -5176,12 +5182,7 @@ class SurroundingCircle(Circle):
         style_kw = {'fill_opacity': 0, 'stroke': '#FFFF00'} | styling_kwargs
         super().__init__(r=r, cx=cx, cy=cy, creation=creation, z=z, **style_kw)
         if follow:
-            _cache = [None, None]
-            def _bbox(t):
-                if _cache[0] != t:
-                    _cache[0] = t
-                    _cache[1] = target.bbox(t)
-                return _cache[1]
+            _bbox = _cached_bbox(target)
             self.c.set_onward(creation, lambda t: (_bbox(t)[0] + _bbox(t)[2] / 2,
                                                     _bbox(t)[1] + _bbox(t)[3] / 2))
             _r_func = lambda t: math.hypot(_bbox(t)[2], _bbox(t)[3]) / 2 + buff
