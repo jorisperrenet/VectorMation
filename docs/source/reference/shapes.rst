@@ -420,7 +420,7 @@ Trace
 FunctionGraph
 -------------
 
-.. py:class:: FunctionGraph(func, x_range=(-5, 5), y_range=None, x=360, y=140, width=1200, height=800, num_points=200, **styling)
+.. py:class:: FunctionGraph(func, x_range=(-5, 5), y_range=None, num_points=200, x=120, y=60, width=1440, height=840, **styling)
 
    Bases: :py:class:`Lines`
 
@@ -513,7 +513,7 @@ Paragraph
 BulletedList
 ------------
 
-.. py:class:: BulletedList(*items, bullet='•', indent=30, x=960, y=540, font_size=36, **styling)
+.. py:class:: BulletedList(*items, x=200, y=200, font_size=36, bullet='•', indent=40, **styling)
 
    List of items with bullet points.
 
@@ -526,7 +526,7 @@ BulletedList
 NumberedList
 ------------
 
-.. py:class:: NumberedList(*items, indent=30, start_number=1, x=960, y=540, font_size=36, **styling)
+.. py:class:: NumberedList(*items, x=200, y=200, font_size=36, indent=50, start_number=1, **styling)
 
    Bases: similar to :py:class:`BulletedList`
 
@@ -607,7 +607,11 @@ ValueTracker
 
    :param float value: Initial value.
 
-   .. py:method:: set_value(start, end, value, **kwargs)
+   .. py:method:: set_value(val, start=0)
+
+      Set the value from *start* onward.
+
+   .. py:method:: animate_value(target, start, end, easing=smooth)
 
       Animate to a new value over ``[start, end]``.
 

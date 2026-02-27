@@ -179,19 +179,19 @@ VCollection
 
       Staggered reveal of children sliding into view.
 
-   .. py:method:: stagger_fadein(start=0, end=1, direction='right')
+   .. py:method:: stagger_fadein(start=0, end=1, shift_dir=None, shift_amount=50, overlap=0.5, easing=smooth)
 
-      Staggered fade-in of children from one side.
+      Staggered fade-in of children with optional directional shift.
 
    .. py:method:: wave_anim(start=0, end=1, amplitude=20, waves=1)
 
       Wave animation through children.
 
-   .. py:method:: highlight_child(index, start=0, end=1, color='#E9C46A')
+   .. py:method:: highlight_child(index, start=0, end=1, dim_opacity=0.2, easing=smooth)
 
-      Temporarily highlight a specific child.
+      Emphasize child at *index* by dimming all others.
 
-   .. py:method:: wave_effect(start=0, end=1, amplitude=20, axis='y', phase_spread=2)
+   .. py:method:: wave_effect(start=0, end=1, amplitude=20, axis='y', easing=smooth)
 
       Wave displacement through children.
 
@@ -225,9 +225,17 @@ VCollection
 
       Sort children by a key function.
 
+   .. py:method:: sort_objects(key=None, reverse=False, time=0)
+
+      Sort children in-place. Default key: x position.
+
    .. py:method:: shuffle()
 
       Randomly shuffle children order.
+
+   .. py:method:: rotate_children(degrees=90, start=0, end=None, easing=smooth)
+
+      Rotate all children around the group's centre.
 
    .. rubric:: Color
 

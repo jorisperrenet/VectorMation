@@ -8,9 +8,9 @@ Graphing
 Graph
 -----
 
-.. py:class:: Graph(func, x_range=(-5, 5), y_range=None, x=120, y=60, plot_width=1440, plot_height=840, **styling)
+.. py:class:: Graph(func, x_range=(-5, 5), y_range=None, x=260, y=100, plot_width=1400, plot_height=880, **styling)
 
-   Bases: :py:class:`VCollection`
+   Bases: :py:class:`Axes`
 
    Full plot with axes, ticks, labels, and a plotted function curve.
 
@@ -173,9 +173,9 @@ Graph
 Axes
 ----
 
-.. py:class:: Axes(x_range=(-5, 5), y_range=(-5, 5), x=120, y=60, plot_width=1440, plot_height=840, **styling)
+.. py:class:: Axes(x_range=(-5, 5), y_range=None, x=260, y=100, plot_width=1400, plot_height=880, **styling)
 
-   Bases: :py:class:`Graph`
+   Bases: :py:class:`VCollection`
 
    Standalone coordinate axes. Same constructor and methods as :py:class:`Graph`
    but without an initial function plotted.
@@ -203,7 +203,7 @@ NumberLine
    :width: 500
    :align: center
 
-.. py:class:: NumberLine(x_range=(-5, 5, 1), length=720, x=240, y=540, tick_size=12, include_numbers=True, include_arrows=True, **styling)
+.. py:class:: NumberLine(x_range=(-5, 5, 1), length=720, x=240, y=540, tick_size=28, include_numbers=True, include_arrows=True, **styling)
 
    Bases: :py:class:`VCollection`
 
@@ -220,7 +220,7 @@ NumberLine
 PieChart
 --------
 
-.. py:class:: PieChart(values, colors=None, cx=960, cy=540, r=240, **styling)
+.. py:class:: PieChart(values, labels=None, colors=None, cx=960, cy=540, r=240, **styling)
 
    Bases: :py:class:`VCollection`
 
@@ -234,7 +234,7 @@ PieChart
 BarChart
 --------
 
-.. py:class:: BarChart(values, colors=None, x=120, y=60, width=1440, height=840, bar_spacing=0.2, **styling)
+.. py:class:: BarChart(values, labels=None, colors=None, x=120, y=60, width=1440, height=840, bar_spacing=0.2, **styling)
 
    Bases: :py:class:`VCollection`
 
@@ -265,7 +265,7 @@ BarChart
 DonutChart
 ----------
 
-.. py:class:: DonutChart(values, colors=None, cx=960, cy=540, outer_r=240, inner_r=120, **styling)
+.. py:class:: DonutChart(values, labels=None, colors=None, cx=960, cy=540, r=240, inner_radius=120, **styling)
 
    Bases: :py:class:`VCollection`
 
@@ -287,9 +287,9 @@ RadarChart
 ComplexPlane
 ------------
 
-.. py:class:: ComplexPlane(x_range=(-3, 3), y_range=(-3, 3), show_grid=True, **styling)
+.. py:class:: ComplexPlane(x_range=(-5, 5), y_range=(-5, 5), show_grid=True, **styling)
 
-   Bases: :py:class:`VCollection`
+   Bases: :py:class:`Axes`
 
    Complex number plane with real/imaginary axes.
 
@@ -317,7 +317,7 @@ PolarAxes
 NumberPlane
 -----------
 
-.. py:class:: NumberPlane(x_range=(-10, 10), y_range=(-6, 6), **styling)
+.. py:class:: NumberPlane(x_range=None, y_range=None, cx=960, cy=540, width=1920, height=1080, **styling)
 
    Bases: :py:class:`VCollection`
 

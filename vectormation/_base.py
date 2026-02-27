@@ -374,9 +374,7 @@ class VObject(ABC):  # Vector Object
                 if dur > 0:
                     cur_val = cur.at_time(start)
                     s = start
-                    cur.set(s, end,
-                        lambda t, _s=s, _d=dur, _cv=cur_val, _sv=saved_val:
-                            _cv + (_sv - _cv) * easing((t - _s) / _d), stay=True)
+                    cur.set(s, end, _lerp(s, dur, cur_val, saved_val, easing), stay=True)
         # Restore colors
         for attr_name in ('fill', 'stroke'):
             cur_c = getattr(self.styling, attr_name)
@@ -1750,16 +1748,11 @@ class VObject(ABC):  # Vector Object
         for xa, ya in self._shift_reals():
             ox_val = xa.at_time(start)
             oy_val = ya.at_time(start)
-            xa.set(s, end, lambda t, _s=s, _d=d, _o=ox_val, _off=off_x, _e=_easing:
-                   _o + _off * (1 - _e((t - _s) / _d)),
-                   stay=True)
-            ya.set(s, end, lambda t, _s=s, _d=d, _o=oy_val, _off=off_y, _e=_easing:
-                   _o + _off * (1 - _e((t - _s) / _d)),
-                   stay=True)
+            xa.set(s, end, _lerp(s, d, ox_val + off_x, ox_val, _easing), stay=True)
+            ya.set(s, end, _lerp(s, d, oy_val + off_y, oy_val, _easing), stay=True)
         # Fade in opacity
         end_op = self.styling.opacity.at_time(end)
-        self.styling.opacity.set(s, end,
-            lambda t, _s=s, _d=d, _eo=end_op, _e=_easing: _eo * _e((t - _s) / _d), stay=True)
+        self.styling.opacity.set(s, end, _ramp(s, d, end_op, _easing), stay=True)
         return self
 
     def flip(self, axis='horizontal', start: float = 0, end: float = 0.5, easing=easings.smooth):
@@ -2534,10 +2527,10 @@ class VObject(ABC):  # Vector Object
             dur = duration
             if dur > 0:
                 s = t0
-                ring.rx.set(s, s + dur, lambda t, _s=s, _d=dur: max_radius * ((t - _s) / _d), stay=True)
-                ring.ry.set(s, s + dur, lambda t, _s=s, _d=dur: max_radius * ((t - _s) / _d), stay=True)
+                ring.rx.set(s, s + dur, _ramp(s, dur, max_radius, easings.linear), stay=True)
+                ring.ry.set(s, s + dur, _ramp(s, dur, max_radius, easings.linear), stay=True)
                 ring.styling.stroke_opacity.set(s, s + dur,
-                    lambda t, _s=s, _d=dur: 1 - (t - _s) / _d, stay=True)
+                    _ramp_down(s, dur, 1, easings.linear), stay=True)
             ring.show.set_onward(t0 + dur, False)
             rings.append(ring)
         return VCollection(*rings)

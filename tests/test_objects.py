@@ -13318,3 +13318,123 @@ class TestAlwaysNextToBuff:
         import inspect
         sig = inspect.signature(Circle.always_next_to)
         assert sig.parameters['buff'].default == 14  # SMALL_BUFF
+
+
+class TestFlashColor:
+    def test_returns_self(self):
+        c = Circle(fill='#ff0000')
+        result = c.flash_color('#00ff00', start=0, duration=0.5)
+        assert result is c
+
+    def test_color_changes_at_midpoint(self):
+        c = Circle(fill='#ff0000')
+        c.flash_color('#00ff00', start=0, duration=1.0)
+        # At midpoint (t=0.5) should be at the flash color
+        mid_color = c.styling.fill.time_func(0.5)
+        assert isinstance(mid_color, tuple)
+
+
+class TestRotateIn:
+    def test_returns_self(self):
+        c = Circle()
+        result = c.rotate_in(start=0, end=1)
+        assert result is c
+
+    def test_visible_after(self):
+        c = Circle(creation=5)
+        c.rotate_in(start=0, end=1)
+        assert c.show.at_time(0.5)
+
+
+class TestPulseColor:
+    def test_returns_self(self):
+        c = Circle(fill='#ff0000')
+        result = c.pulse_color('#00ff00', start=0, end=1, pulses=2)
+        assert result is c
+
+    def test_no_crash_zero_pulses(self):
+        c = Circle(fill='#ff0000')
+        result = c.pulse_color('#00ff00', pulses=0)
+        assert result is c
+
+
+class TestWaveAnim:
+    def test_returns_self(self):
+        g = VGroup(Circle(), Circle())
+        result = g.wave_anim(start=0, end=1, amplitude=20)
+        assert result is g
+
+    def test_empty_collection(self):
+        g = VGroup()
+        result = g.wave_anim(start=0, end=1)
+        assert result is g
+
+
+class TestAlignSubmobjects:
+    def test_left_align(self):
+        c1 = Circle(cx=100, cy=100)
+        c2 = Circle(cx=300, cy=200)
+        g = VGroup(c1, c2)
+        g.align_submobjects(edge='left', start=0)
+        # After alignment, both should have similar left edges
+        b1 = c1.bbox(0)
+        b2 = c2.bbox(0)
+        assert abs(b1[0] - b2[0]) < 1
+
+    def test_returns_self(self):
+        g = VGroup(Circle(), Circle())
+        assert g.align_submobjects() is g
+
+
+class TestStaggerFadein:
+    def test_returns_self(self):
+        g = VGroup(Circle(), Dot())
+        result = g.stagger_fadein(start=0, end=2)
+        assert result is g
+
+
+class TestHighlightChild:
+    def test_returns_self(self):
+        g = VGroup(Circle(), Dot(), Circle())
+        result = g.highlight_child(1, start=0, end=1)
+        assert result is g
+
+    def test_dims_others(self):
+        c1 = Circle()
+        c2 = Dot()
+        g = VGroup(c1, c2)
+        g.highlight_child(0, start=0, end=1, dim_opacity=0.2)
+        # c2 should be dimmed at t=0.5
+        op = c2.styling.fill_opacity.at_time(0.5)
+        assert op < 1.0
+
+
+class TestSortObjects:
+    def test_sorts_by_x(self):
+        c1 = Circle(cx=300)
+        c2 = Circle(cx=100)
+        c3 = Circle(cx=200)
+        g = VGroup(c1, c2, c3)
+        g.sort_objects()
+        assert g.objects[0] is c2
+        assert g.objects[1] is c3
+        assert g.objects[2] is c1
+
+    def test_reverse(self):
+        c1 = Circle(cx=100)
+        c2 = Circle(cx=300)
+        g = VGroup(c1, c2)
+        g.sort_objects(reverse=True)
+        assert g.objects[0] is c2
+
+
+class TestRotateChildren:
+    def test_returns_self(self):
+        g = VGroup(Circle(cx=100, cy=100), Circle(cx=200, cy=100))
+        result = g.rotate_children(degrees=90, start=0, end=1)
+        assert result is g
+
+    def test_empty_collection(self):
+        g = VGroup()
+        result = g.rotate_children()
+        assert result is g

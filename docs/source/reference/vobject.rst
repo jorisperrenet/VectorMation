@@ -155,6 +155,10 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Reveal stroke via animated dashoffset.
 
+   .. py:method:: rotate_in(start=0, end=1, degrees=90, change_existence=True, easing=smooth)
+
+      Fade in while rotating from an offset angle to 0.
+
    .. py:method:: grow_from_center(start=0, end=1, change_existence=True, easing=smooth)
 
       Scale from 0 to 1.
@@ -287,9 +291,13 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Briefly flash the object's border.
 
-   .. py:method:: flash_color(start=0, duration=0.4, color='#FFFF00')
+   .. py:method:: flash_color(color='#FFFF00', start=0, duration=0.4, attr='fill')
 
       Briefly flash a fill color (uses ``duration``).
+
+   .. py:method:: pulse_color(color='#FFFF00', start=0, end=1, pulses=3, attr='fill')
+
+      Periodic color pulsing between current color and *color*.
 
    .. py:method:: pulse_outline(start=0, end=1, color='#FFFF00', max_width=8, cycles=2, easing=smooth)
 

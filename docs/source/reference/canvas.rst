@@ -1,7 +1,7 @@
 VectorMathAnim
 ==============
 
-.. py:class:: VectorMathAnim(save_dir, width=1920, height=1080, verbose=False)
+.. py:class:: VectorMathAnim(save_dir, width=1920, height=1080, scale=1, verbose=False)
 
    The top-level canvas that manages all objects and controls rendering.
    Creates a 1920x1080 SVG viewBox by default.
@@ -61,7 +61,7 @@ VectorMathAnim
 
    .. rubric:: Export
 
-   .. py:method:: export_png(time=0, filename='frame.png', width=None, height=None)
+   .. py:method:: export_png(time=0, filename='frame.png', scale=None)
 
       Export a single PNG frame. Requires ``cairosvg``.
 

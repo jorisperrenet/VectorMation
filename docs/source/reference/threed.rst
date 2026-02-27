@@ -9,7 +9,7 @@ scenes as SVG. Objects are projected orthographically and depth-sorted.
 ThreeDAxes
 ----------
 
-.. py:class:: ThreeDAxes(x_range=(-3, 3), y_range=(-3, 3), z_range=(-3, 3), cx=960, cy=540, scale=100, creation=0, z=0)
+.. py:class:: ThreeDAxes(x_range=(-3, 3), y_range=(-3, 3), z_range=(-3, 3), cx=960, cy=540, scale=160, phi=75°, theta=-30°, **styling)
 
    Three-dimensional coordinate axes with camera control.
 
@@ -19,14 +19,16 @@ ThreeDAxes
    :param float cx: Screen centre x.
    :param float cy: Screen centre y.
    :param float scale: Pixels per unit.
+   :param float phi: Camera elevation in radians.
+   :param float theta: Camera azimuth in radians.
 
-   .. py:method:: set_camera_orientation(start=0, end=None, phi=None, theta=None)
+   .. py:method:: set_camera_orientation(start, end, phi=None, theta=None, easing=smooth)
 
-      Animate camera elevation (phi) and azimuth (theta) in degrees.
+      Animate camera elevation (phi) and azimuth (theta) in radians.
 
-   .. py:method:: begin_ambient_camera_rotation(start=0, end=None, rate=20)
+   .. py:method:: begin_ambient_camera_rotation(start=0, end=None, rate=0.1)
 
-      Continuously rotate the camera.
+      Continuously rotate the camera at *rate* radians per second.
 
    .. py:method:: set_light_direction(x, y, z)
 
@@ -44,7 +46,7 @@ ThreeDAxes
 
       :returns: ``(svg_x, svg_y)``
 
-   .. py:method:: plot_surface(func, u_range=(-3, 3), v_range=(-3, 3), resolution=20, **kwargs)
+   .. py:method:: plot_surface(func, u_range=None, v_range=None, resolution=(20, 20), **kwargs)
 
       Plot a surface ``z = func(x, y)`` or parametric surface.
 
@@ -69,7 +71,7 @@ ThreeDAxes
 Surface
 -------
 
-.. py:class:: Surface(func, u_range=(-3, 3), v_range=(-3, 3), resolution=20, **styling)
+.. py:class:: Surface(func, u_range=(-3, 3), v_range=(-3, 3), resolution=(20, 20), **styling)
 
    Filled quad surface with Lambertian shading.
 
@@ -81,15 +83,15 @@ Surface
 3D Primitives
 -------------
 
-.. py:class:: Line3D(start, end, **kwargs)
+.. py:class:: Line3D(start, end, stroke='#fff', stroke_width=2)
 
    Line segment in 3D space.
 
-.. py:class:: Arrow3D(start, end, **kwargs)
+.. py:class:: Arrow3D(start, end, stroke='#fff', stroke_width=2, tip_length=12, tip_radius=4)
 
    Arrow in 3D space with a conical tip.
 
-.. py:class:: Dot3D(x, y, z, r=5, **kwargs)
+.. py:class:: Dot3D(point=(0, 0, 0), radius=5, fill='#fff')
 
    Dot (filled circle) in 3D space.
 
@@ -97,7 +99,7 @@ Surface
 
    Parametric curve ``func(t) -> (x, y, z)``.
 
-.. py:class:: Text3D(text, x, y, z, font_size=24, **kwargs)
+.. py:class:: Text3D(text, point=(0, 0, 0), font_size=20, fill='#fff')
 
    Text label in 3D space.
 
@@ -106,26 +108,26 @@ Surface
 3D Factory Functions
 --------------------
 
-.. py:function:: Sphere3D(cx=0, cy=0, cz=0, radius=1, resolution=20, **kwargs)
+.. py:function:: Sphere3D(radius=1.5, center=(0, 0, 0), resolution=(16, 32), **kwargs)
 
    Create a sphere surface.
 
-.. py:function:: Cube(cx=0, cy=0, cz=0, size=1, **kwargs)
+.. py:function:: Cube(side_length=2, center=(0, 0, 0), **kwargs)
 
-   Create a cube surface.
+   Create a cube (list of 6 Surface objects).
 
-.. py:function:: Cylinder3D(cx=0, cy=0, cz=0, radius=1, height=2, resolution=20, **kwargs)
+.. py:function:: Cylinder3D(radius=1, height=2, center=(0, 0, 0), resolution=(16, 16), **kwargs)
 
    Create a cylinder surface.
 
-.. py:function:: Cone3D(cx=0, cy=0, cz=0, radius=1, height=2, resolution=20, **kwargs)
+.. py:function:: Cone3D(radius=1, height=2, center=(0, 0, 0), resolution=(16, 16), **kwargs)
 
    Create a cone surface.
 
-.. py:function:: Torus3D(cx=0, cy=0, cz=0, R=2, r=0.5, resolution=20, **kwargs)
+.. py:function:: Torus3D(major_radius=2, minor_radius=0.5, center=(0, 0, 0), resolution=(24, 12), **kwargs)
 
    Create a torus surface.
 
-.. py:function:: Prism3D(cx=0, cy=0, cz=0, n=6, radius=1, height=2, **kwargs)
+.. py:function:: Prism3D(n_sides=6, radius=1, height=2, center=(0, 0, 0), **kwargs)
 
-   Create a prism with n-sided polygon cross-section.
+   Create a prism with n-sided polygon cross-section (list of Surface objects).
