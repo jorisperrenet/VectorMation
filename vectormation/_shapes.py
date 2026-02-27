@@ -117,6 +117,33 @@ class Polygon(VObject):
         return abs(sum(pts[i][0] * pts[(i+1) % n][1] - pts[(i+1) % n][0] * pts[i][1]
                        for i in range(n))) / 2
 
+    def get_area(self, time=0):
+        """Return the polygon's area (alias for area())."""
+        return self.area(time)
+
+    def is_convex(self, time=0):
+        """Return True if this polygon is convex."""
+        pts = self.get_vertices(time)
+        n = len(pts)
+        if n < 3:
+            return True
+        sign = None
+        for i in range(n):
+            x1, y1 = pts[i]
+            x2, y2 = pts[(i + 1) % n]
+            x3, y3 = pts[(i + 2) % n]
+            cross = (x2 - x1) * (y3 - y2) - (y2 - y1) * (x3 - x2)
+            if cross != 0:
+                s = cross > 0
+                if sign is None:
+                    sign = s
+                elif s != sign:
+                    return False
+        return True
+
+    def __repr__(self):
+        return f'Polygon(n={len(self.vertices)})'
+
     def is_regular(self, tol=1e-3, time=0):
         """Return True if all edges have the same length (within tolerance).
 
@@ -756,6 +783,32 @@ class Circle(Ellipse):
             return [points[0]]  # tangent: single point
         return points
 
+    def intersect_circle(self, other, time=0):
+        """Return intersection points with another Circle as list of (x, y) tuples.
+
+        Returns 0 points if circles are too far apart or one contains the
+        other, 1 point if they are tangent, 2 points otherwise.
+        """
+        cx1, cy1 = self.c.at_time(time)
+        cx2, cy2 = other.c.at_time(time)
+        r1 = self.rx.at_time(time)
+        r2 = other.rx.at_time(time)
+        d = math.hypot(cx2 - cx1, cy2 - cy1)
+        if d > r1 + r2 or d < abs(r1 - r2) or d == 0:
+            return []
+        a = (r1 * r1 - r2 * r2 + d * d) / (2 * d)
+        h_sq = r1 * r1 - a * a
+        if h_sq < 0:
+            return []
+        h = math.sqrt(h_sq)
+        mx = cx1 + a * (cx2 - cx1) / d
+        my = cy1 + a * (cy2 - cy1) / d
+        if h < 1e-9:
+            return [(mx, my)]
+        dx = h * (cy2 - cy1) / d
+        dy = h * (cx2 - cx1) / d
+        return [(mx + dx, my - dy), (mx - dx, my + dy)]
+
     def contains_point(self, px, py, time=0):
         """Point-in-circle test."""
         cx, cy = self.c.at_time(time)
@@ -965,6 +1018,11 @@ class Rectangle(VObject):
 
     def get_size(self, time=0):
         return (self.width.at_time(time), self.height.at_time(time))
+
+    def __repr__(self):
+        w = self.width.at_time(0)
+        h = self.height.at_time(0)
+        return f'Rectangle({w:.0f}x{h:.0f})'
 
     @classmethod
     def square(cls, side, **kwargs):
@@ -2302,6 +2360,10 @@ class RegularPolygon(Polygon):
         """Return the inradius (apothem) of the regular polygon.
         Computed from the circumradius: inradius = r * cos(pi / n)."""
         return self._radius * math.cos(math.pi / self._n)
+
+    def get_circumradius(self, time=0):
+        """Return the circumscribed circle radius."""
+        return self._radius
 
     def __repr__(self):
         return f'RegularPolygon(n={self._n}, r={self._radius:.0f})'

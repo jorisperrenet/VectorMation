@@ -4010,3 +4010,90 @@ class TestRectangleInset:
         cy_inner = inner.y.at_time(0) + inner.height.at_time(0) / 2
         assert cx_inner == pytest.approx(cx_orig, abs=1e-6)
         assert cy_inner == pytest.approx(cy_orig, abs=1e-6)
+
+
+class TestCircleIntersect:
+    def test_intersect_two_points(self):
+        c1 = Circle(100, cx=400, cy=400)
+        c2 = Circle(100, cx=500, cy=400)
+        pts = c1.intersect_circle(c2)
+        assert len(pts) == 2
+
+    def test_intersect_no_overlap(self):
+        c1 = Circle(50, cx=100, cy=100)
+        c2 = Circle(50, cx=400, cy=400)
+        pts = c1.intersect_circle(c2)
+        assert len(pts) == 0
+
+    def test_intersect_tangent(self):
+        c1 = Circle(50, cx=100, cy=100)
+        c2 = Circle(50, cx=200, cy=100)
+        pts = c1.intersect_circle(c2)
+        assert len(pts) == 1
+        assert pts[0][0] == pytest.approx(150, abs=1)
+
+    def test_intersect_identical_circles(self):
+        """Identical circles (d=0) should return no intersection points."""
+        c1 = Circle(50, cx=100, cy=100)
+        c2 = Circle(50, cx=100, cy=100)
+        pts = c1.intersect_circle(c2)
+        assert len(pts) == 0
+
+    def test_intersect_contained_circle(self):
+        """One circle fully inside the other should return no points."""
+        c1 = Circle(200, cx=300, cy=300)
+        c2 = Circle(50, cx=300, cy=300)
+        pts = c1.intersect_circle(c2)
+        assert len(pts) == 0
+
+    def test_intersect_points_on_both_circles(self):
+        """Returned points should lie on both circles (within tolerance)."""
+        import math
+        c1 = Circle(100, cx=400, cy=400)
+        c2 = Circle(80, cx=500, cy=400)
+        pts = c1.intersect_circle(c2)
+        assert len(pts) == 2
+        for px, py in pts:
+            d1 = math.hypot(px - 400, py - 400)
+            d2 = math.hypot(px - 500, py - 400)
+            assert d1 == pytest.approx(100, abs=0.1)
+            assert d2 == pytest.approx(80, abs=0.1)
+
+
+class TestCycle38Shapes:
+    def test_polygon_get_area(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        assert p.get_area() == p.area()
+
+    def test_polygon_repr(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        assert 'Polygon' in repr(p)
+        assert '4' in repr(p)
+
+    def test_polygon_is_convex_square(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        assert p.is_convex()
+
+    def test_polygon_is_convex_concave(self):
+        p = Polygon((0, 0), (100, 0), (50, 10), (0, 100))
+        assert not p.is_convex()
+
+    def test_rectangle_get_perimeter(self):
+        r = Rectangle(200, 100)
+        assert r.get_perimeter() == pytest.approx(600)
+
+    def test_rectangle_repr(self):
+        r = Rectangle(200, 100)
+        assert 'Rectangle' in repr(r)
+
+    def test_wedge_repr(self):
+        w = Wedge(r=100, start_angle=0, end_angle=90)
+        assert 'Wedge' in repr(w)
+
+    def test_annulus_repr(self):
+        a = Annulus(50, 100)
+        assert 'Annulus' in repr(a)
+
+    def test_regular_polygon_circumradius(self):
+        rp = RegularPolygon(6, 100)
+        assert rp.get_circumradius() == 100

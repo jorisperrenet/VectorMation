@@ -7292,3 +7292,50 @@ class TestAxesGetZeros:
         zeros = ax.get_zeros(lambda x: x ** 3 - x, -2, 2)
         xs = [z[0] for z in zeros]
         assert xs == sorted(xs)
+
+
+class TestBounceOut:
+    def test_bounce_out_no_crash(self):
+        c = Circle(50)
+        c.bounce_out(0, 1)
+        # Should have scale transform set; verify no crash
+        svg = c.to_svg(0.5)
+        assert 'scale' in svg
+
+    def test_bounce_out_starts_at_full_scale(self):
+        c = Circle(50)
+        c.bounce_out(0, 1)
+        # At t=0 the scale should still be 1 (no shrinking yet)
+        assert c.styling.scale_x.at_time(0) == pytest.approx(1.0, abs=0.01)
+
+    def test_bounce_out_ends_at_zero_scale(self):
+        c = Circle(50)
+        c.bounce_out(0, 1)
+        # At t=1 the scale should be 0
+        assert c.styling.scale_x.at_time(1) == pytest.approx(0.0, abs=0.01)
+
+    def test_bounce_out_hides_after_end(self):
+        c = Circle(50)
+        c.bounce_out(0, 1)
+        # After end, object should be hidden
+        assert c.show.at_time(1.1) == False
+
+    def test_bounce_out_no_hide_when_change_existence_false(self):
+        c = Circle(50)
+        c.bounce_out(0, 1, change_existence=False)
+        # Object should remain visible after end
+        assert c.show.at_time(1.1) == True
+
+
+class TestAttachTo:
+    def test_attach_to_adds_updater(self):
+        dot = Circle(10, cx=100, cy=100)
+        label = Text("A")
+        label.attach_to(dot, direction=(1, 0), buff=20, start=0, end=1)
+        assert len(label._updaters) > 0
+
+    def test_attach_to_default_direction(self):
+        dot = Circle(10, cx=100, cy=100)
+        label = Text("A")
+        label.attach_to(dot, start=0, end=1)
+        assert len(label._updaters) == 1

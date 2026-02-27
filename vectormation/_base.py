@@ -5,7 +5,7 @@ from copy import deepcopy
 from typing import Any
 from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
-    SMALL_BUFF, DEFAULT_OBJECT_TO_EDGE_BUFF,
+    SMALL_BUFF, MED_SMALL_BUFF, DEFAULT_OBJECT_TO_EDGE_BUFF,
     UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR, ORIGIN,
 )
 
@@ -1178,6 +1178,52 @@ class VObject(ABC):  # Vector Object
         self.shift(dx=dx, dy=dy, start_time=start_time)
         return self
 
+    def attach_to(self, other, direction=None, buff=None, start=0, end=None):
+        """Continuously position self next to other from *start* to *end*.
+
+        Uses an updater to track *other*'s position each frame so that
+        ``self`` stays anchored even when the target moves.
+
+        Parameters
+        ----------
+        other:
+            The reference object to attach to.
+        direction:
+            ``(dx, dy)`` direction tuple, e.g. ``RIGHT``.  Defaults to
+            ``RIGHT`` if not given.
+        buff:
+            Pixel buffer between the two objects.  Defaults to
+            ``MED_SMALL_BUFF``.
+        start:
+            Time at which the attachment begins.
+        end:
+            Time at which the attachment ends (``None`` = forever).
+        """
+        direction = direction or RIGHT
+        buff = buff if buff is not None else MED_SMALL_BUFF
+        dir_name = _DIR_NAMES.get(direction, 'right')
+        # Snapshot the initial center of self so we can compute deltas
+        init_cx, init_cy = self.center(start)
+        _init_cx, _init_cy = init_cx, init_cy
+        _dir = dir_name
+        _buff = buff
+        def _update(obj, t):
+            mx, my, mw, mh = obj.bbox(t)
+            mcx, mcy = mx + mw / 2, my + mh / 2
+            ox, oy, ow, oh = other.bbox(t)
+            ocx, ocy = ox + ow / 2, oy + oh / 2
+            targets = {
+                'right': (ox + ow + _buff + mw / 2, ocy),
+                'left':  (ox - _buff - mw / 2, ocy),
+                'down':  (ocx, oy + oh + _buff + mh / 2),
+                'up':    (ocx, oy - _buff - mh / 2),
+            }
+            tx, ty = targets[_dir]
+            obj.styling.dx.set_onward(t, tx - _init_cx)
+            obj.styling.dy.set_onward(t, ty - _init_cy)
+        self.add_updater(_update, start=start, end=end)
+        return self
+
     def _scale_anim(self, start, end, scale_func, easing, stay=False):
         """Core helper for scale-based animations around the center."""
         self.styling._scale_origin = self.center(start)
@@ -1229,6 +1275,18 @@ class VObject(ABC):  # Vector Object
         if change_existence:
             self._show_from(start)
         self._scale_anim(start, end, lambda p: p, easing, stay=True)
+        return self
+
+    def bounce_out(self, start: float = 0, end: float = 1, change_existence=True,
+                   easing=easings.ease_in_bounce):
+        """Reverse of bounce_in: scale down with bounce while disappearing.
+
+        Scales from 1 to 0 using ease_in_bounce by default, giving a
+        "bouncing away" feel before vanishing.
+        """
+        self._scale_anim(start, end, lambda p: 1 - p, easing, stay=True)
+        if change_existence:
+            self._hide_from(end)
         return self
 
     def _zoom_anim(self, start, end, from_scale, to_scale, fade_in, change_existence, easing):
