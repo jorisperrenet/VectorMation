@@ -108,7 +108,7 @@ class ThreeDAxes(VCollection):
                  cx=960, cy=540, scale=160,
                  phi=math.radians(75), theta=math.radians(-30),
                  show_ticks=True, show_labels=True, show_grid=False,
-                 x_label='x', y_label='y', z_label='z',
+                 x_label: str | None = 'x', y_label: str | None = 'y', z_label: str | None = 'z',
                  creation=0, z=0, **styling_kwargs):
         self._cx, self._cy = cx, cy
         self._x_range = x_range

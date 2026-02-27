@@ -269,6 +269,38 @@ class Polygon(VObject):
                 return False
         return True
 
+    def get_edges(self, time=0):
+        """Return a list of Line objects for each edge of the polygon.
+
+        For a closed polygon the last edge connects the final vertex back to
+        the first.  For an open polyline the last-to-first closing edge is
+        omitted.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to evaluate vertex positions.
+
+        Returns
+        -------
+        list[Line]
+            Each Line corresponds to one edge of the polygon.
+        """
+        pts = self.get_vertices(time)
+        n = len(pts)
+        if n < 2:
+            return []
+        edges = []
+        for i in range(n - 1):
+            x1, y1 = pts[i]
+            x2, y2 = pts[i + 1]
+            edges.append(Line(x1=x1, y1=y1, x2=x2, y2=y2))
+        if self.closed and n > 2:
+            x1, y1 = pts[-1]
+            x2, y2 = pts[0]
+            edges.append(Line(x1=x1, y1=y1, x2=x2, y2=y2))
+        return edges
+
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 
@@ -441,6 +473,34 @@ class Circle(Ellipse):
                     x2=px + tx * half, y2=py + ty * half,
                     creation=creation, **line_kwargs)
 
+    def tangent_at_point(self, px, py, length=200, time=0, creation=0, **line_kwargs):
+        """Return a Line tangent to the circle at the point closest to (px, py).
+
+        Finds the nearest point on the circle surface to the given external
+        (or internal) point, then constructs the tangent at that point.
+        The tangent is perpendicular to the radius at the contact point.
+
+        Parameters
+        ----------
+        px, py:
+            Reference point. The tangent is drawn at whichever point on the
+            circle lies closest to this location.
+        length:
+            Total length of the returned tangent line segment.
+        time:
+            Animation time at which to read the circle's position and radius.
+        creation:
+            Creation time for the returned Line object.
+        **line_kwargs:
+            Additional styling keyword arguments forwarded to Line.
+        """
+        cx, cy = self.c.at_time(time)
+        # Angle from circle center to the given point
+        angle_rad = math.atan2(-(py - cy), px - cx)  # negate dy for SVG coords
+        angle_deg = math.degrees(angle_rad)
+        return self.tangent_line(angle_deg, length=length, time=time,
+                                 creation=creation, **line_kwargs)
+
     def get_radius(self, time=0):
         return self.rx.at_time(time)
 
@@ -595,17 +655,8 @@ class Rectangle(VObject):
         """Return the four corners as a list of (x, y) tuples.
 
         Order: top-left, top-right, bottom-right, bottom-left, matching SVG
-        convention where y increases downward.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read position and dimensions.
-
-        Returns
-        -------
-        List of four (x, y) float tuples:
-        ``[(x, y), (x+w, y), (x+w, y+h), (x, y+h)]``
+        convention where y increases downward.  Equivalent to
+        ``get_vertices(time)``.
 
         Example
         -------
@@ -613,11 +664,7 @@ class Rectangle(VObject):
         >>> r.get_corners()
         [(10.0, 20.0), (110.0, 20.0), (110.0, 70.0), (10.0, 70.0)]
         """
-        x = float(self.x.at_time(time))
-        y = float(self.y.at_time(time))
-        w = float(self.width.at_time(time))
-        h = float(self.height.at_time(time))
-        return [(x, y), (x + w, y), (x + w, y + h), (x, y + h)]
+        return self.get_vertices(time)
 
     def get_area(self, time=0):
         """Return the area (width * height)."""
@@ -735,13 +782,11 @@ class Line(VObject):
         return ((x1 + x2) / 2, (y1 + y2) / 2)
 
     def get_unit_vector(self, time=0):
-        """Return the normalized direction vector (dx, dy) from p1 to p2."""
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
-        length = _distance(x1, y1, x2, y2)
-        if length == 0:
-            return (0.0, 0.0)
-        return ((x2 - x1) / length, (y2 - y1) / length)
+        """Return the normalized direction vector (dx, dy) from p1 to p2.
+
+        Alias for :meth:`get_direction`.
+        """
+        return self.get_direction(time)
 
     def get_direction(self, time=0):
         """Return the normalized direction vector (dx, dy) from p1 to p2.
@@ -1313,7 +1358,7 @@ class DecimalNumber(Text):
     value: initial numeric value, or an attributes.Real / ValueTracker to track.
     fmt: format string for display.
     """
-    def __init__(self, value=0, fmt='{:.2f}', x=960, y=540, font_size=48,
+    def __init__(self, value: 'float | ValueTracker | attributes.Real' = 0, fmt='{:.2f}', x=960, y=540, font_size=48,
                  text_anchor=None, creation=0, z=0, **styling_kwargs):
         if isinstance(value, ValueTracker):
             tracker = value.value

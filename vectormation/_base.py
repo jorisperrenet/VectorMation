@@ -1104,6 +1104,19 @@ class VObject(ABC):  # Vector Object
             self._hide_from(end)
         return self
 
+    def bounce_in(self, start: float = 0, end: float = 1, change_existence=True,
+                  easing=easings.ease_out_bounce):
+        """Appear by scaling from 0 to 1 with bounce easing.
+
+        Gives a "dropped from above" feel — the object lands and settles with
+        small bounces.  Uses ease_out_bounce by default, unlike pop_in (which
+        uses a custom overshoot curve) or elastic_in (which uses elastic easing).
+        """
+        if change_existence:
+            self._show_from(start)
+        self._scale_anim(start, end, lambda p: p, easing, stay=True)
+        return self
+
     def _zoom_anim(self, start, end, from_scale, to_scale, fade_in, change_existence, easing):
         """Shared helper for zoom_in / zoom_out."""
         dur = end - start
@@ -1405,33 +1418,32 @@ class VObject(ABC):  # Vector Object
         self.styling.scale_y.set(s, e, scale, stay=True)
         return self
 
-    def spiral_in(self, start: float = 0, end: float = 1, n_turns=1, change_existence=True, easing=easings.smooth):
-        """Spiral the object inward from a distance to its current position."""
+    def _spiral_anim(self, start, end, n_turns, spiral_in, change_existence, easing):
+        """Shared helper for spiral_in / spiral_out."""
         dur = end - start
         if dur <= 0:
             return self
-        if change_existence:
+        if change_existence and spiral_in:
             self._show_from(start)
-        self._scale_anim(start, end, lambda p: p, easing, stay=True)
+        self._scale_anim(start, end, (lambda p: p) if spiral_in else (lambda p: 1 - p), easing, stay=True)
         cx, cy = self.styling._scale_origin
         s = start
-        self.styling.rotation.set(s, end,
-            lambda t, _s=s, _d=dur, _n=n_turns, _cx=cx, _cy=cy: (360 * _n * (1 - easing((t - _s) / _d)), _cx, _cy), stay=True)
+        if spiral_in:
+            rot_fn = lambda t, _s=s, _d=dur, _n=n_turns, _cx=cx, _cy=cy: (360 * _n * (1 - easing((t - _s) / _d)), _cx, _cy)
+        else:
+            rot_fn = lambda t, _s=s, _d=dur, _n=n_turns, _cx=cx, _cy=cy: (360 * _n * easing((t - _s) / _d), _cx, _cy)
+        self.styling.rotation.set(s, end, rot_fn, stay=True)
+        if change_existence and not spiral_in:
+            self._hide_from(end)
         return self
+
+    def spiral_in(self, start: float = 0, end: float = 1, n_turns=1, change_existence=True, easing=easings.smooth):
+        """Spiral the object inward from a distance to its current position."""
+        return self._spiral_anim(start, end, n_turns, True, change_existence, easing)
 
     def spiral_out(self, start: float = 0, end: float = 1, n_turns=1, change_existence=True, easing=easings.smooth):
         """Spiral the object outward while shrinking to nothing."""
-        dur = end - start
-        if dur <= 0:
-            return self
-        self._scale_anim(start, end, lambda p: 1 - p, easing, stay=True)
-        cx, cy = self.styling._scale_origin
-        s = start
-        self.styling.rotation.set(s, end,
-            lambda t, _s=s, _d=dur, _n=n_turns, _cx=cx, _cy=cy: (360 * _n * easing((t - _s) / _d), _cx, _cy), stay=True)
-        if change_existence:
-            self._hide_from(end)
-        return self
+        return self._spiral_anim(start, end, n_turns, False, change_existence, easing)
 
     def draw_border_then_fill(self, start: float = 0, end: float = 1,
                               border_fraction=0.5, change_existence=True, easing=easings.smooth):
@@ -2592,6 +2604,11 @@ class VCollection:
 
     def reverse_children(self):
         """Reverse the order of children in-place."""
+        self.objects.reverse()
+        return self
+
+    def reverse(self):
+        """Reverse the order of children in-place. Alias for reverse_children."""
         self.objects.reverse()
         return self
 

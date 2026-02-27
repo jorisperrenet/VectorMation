@@ -167,6 +167,20 @@ for _name, _n in [('quad', 2), ('cubic', 3), ('quart', 4), ('quint', 5)]:
     globals()[f'ease_out_{_name}'] = _eout
     globals()[f'ease_in_out_{_name}'] = _eio
 
+# Explicit module-level names so static type checkers recognise them
+ease_in_quad = globals()['ease_in_quad']
+ease_out_quad = globals()['ease_out_quad']
+ease_in_out_quad = globals()['ease_in_out_quad']
+ease_in_cubic = globals()['ease_in_cubic']
+ease_out_cubic = globals()['ease_out_cubic']
+ease_in_out_cubic = globals()['ease_in_out_cubic']
+ease_in_quart = globals()['ease_in_quart']
+ease_out_quart = globals()['ease_out_quart']
+ease_in_out_quart = globals()['ease_in_out_quart']
+ease_in_quint = globals()['ease_in_quint']
+ease_out_quint = globals()['ease_out_quint']
+ease_in_out_quint = globals()['ease_in_out_quint']
+
 # -- Expo easings --
 
 @unit_interval

@@ -2546,3 +2546,154 @@ class TestLineGetDirection:
         dx, dy = l.get_direction(time=1)
         assert dx == pytest.approx(0.0)
         assert dy == pytest.approx(1.0)
+
+
+class TestCircleTangentAtPoint:
+    def test_tangent_at_rightmost_point(self):
+        """Point to the right of the circle — tangent should be vertical."""
+        c = Circle(r=100, cx=500, cy=500)
+        # Point far to the right — closest circle point is (600, 500)
+        tl = c.tangent_at_point(900, 500)
+        x1, _ = tl.p1.at_time(0)
+        x2, _ = tl.p2.at_time(0)
+        # Tangent at rightmost point is vertical: x1 == x2 == 600
+        assert x1 == pytest.approx(600, abs=2)
+        assert x2 == pytest.approx(600, abs=2)
+
+    def test_tangent_at_top_point(self):
+        """Point above the circle — tangent should be horizontal."""
+        c = Circle(r=100, cx=500, cy=500)
+        # In SVG coords y increases downward; UP means lower y value.
+        # Closest circle point when reference is above center is (500, 400).
+        tl = c.tangent_at_point(500, 200)
+        _, y1 = tl.p1.at_time(0)
+        _, y2 = tl.p2.at_time(0)
+        assert y1 == pytest.approx(400, abs=2)
+        assert y2 == pytest.approx(400, abs=2)
+
+    def test_returns_line(self):
+        """Result should be a Line instance."""
+        c = Circle(r=50, cx=200, cy=200)
+        tl = c.tangent_at_point(300, 200)
+        assert isinstance(tl, Line)
+
+    def test_tangent_length(self):
+        """The line length should equal the requested length."""
+        import math
+        c = Circle(r=50, cx=200, cy=200)
+        tl = c.tangent_at_point(300, 200, length=150)
+        x1, y1 = tl.p1.at_time(0)
+        x2, y2 = tl.p2.at_time(0)
+        length = math.hypot(x2 - x1, y2 - y1)
+        assert length == pytest.approx(150, abs=1)
+
+    def test_tangent_perpendicular_to_radius(self):
+        """Tangent vector is perpendicular to the radius at the contact point."""
+        cx, cy, r = 400, 300, 80
+        c = Circle(r=r, cx=cx, cy=cy)
+        ref_x, ref_y = 500, 300  # to the right
+        tl = c.tangent_at_point(ref_x, ref_y)
+        x1, y1 = tl.p1.at_time(0)
+        x2, y2 = tl.p2.at_time(0)
+        # Contact point on circle
+        contact_x, contact_y = cx + r, cy
+        # Radius vector
+        rx, ry = contact_x - cx, contact_y - cy
+        # Tangent direction
+        tx, ty = x2 - x1, y2 - y1
+        dot = rx * tx + ry * ty
+        assert abs(dot) == pytest.approx(0.0, abs=1e-6)
+
+
+class TestPolygonGetEdges:
+    def test_triangle_has_three_edges(self):
+        """A closed triangle has exactly 3 edges."""
+        tri = Polygon((0, 0), (100, 0), (50, 100))
+        edges = tri.get_edges()
+        assert len(edges) == 3
+
+    def test_square_has_four_edges(self):
+        """A closed square has exactly 4 edges."""
+        sq = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        edges = sq.get_edges()
+        assert len(edges) == 4
+
+    def test_open_polyline_omits_closing_edge(self):
+        """An open polyline with 3 points has 2 edges (no closing edge)."""
+        poly = Polygon((0, 0), (100, 0), (200, 0), closed=False)
+        edges = poly.get_edges()
+        assert len(edges) == 2
+
+    def test_edges_are_line_objects(self):
+        """Each returned edge is a Line instance."""
+        tri = Polygon((0, 0), (100, 0), (50, 100))
+        for edge in tri.get_edges():
+            assert isinstance(edge, Line)
+
+    def test_edge_endpoints_match_vertices(self):
+        """Edge endpoints match consecutive polygon vertices."""
+        pts = [(0, 0), (100, 0), (100, 100)]
+        tri = Polygon(*pts)
+        edges = tri.get_edges()
+        # First edge: (0,0) -> (100,0)
+        x1, y1 = edges[0].p1.at_time(0)
+        x2, y2 = edges[0].p2.at_time(0)
+        assert x1 == pytest.approx(0)
+        assert y1 == pytest.approx(0)
+        assert x2 == pytest.approx(100)
+        assert y2 == pytest.approx(0)
+        # Last (closing) edge: (100,100) -> (0,0)
+        x1, y1 = edges[2].p1.at_time(0)
+        x2, y2 = edges[2].p2.at_time(0)
+        assert x1 == pytest.approx(100)
+        assert y1 == pytest.approx(100)
+        assert x2 == pytest.approx(0)
+        assert y2 == pytest.approx(0)
+
+    def test_empty_polygon_returns_empty(self):
+        """A polygon with fewer than 2 vertices returns an empty list."""
+        single = Polygon((50, 50))
+        assert single.get_edges() == []
+
+
+class TestAxesGetIntersectionPoint:
+    def test_simple_crossing(self):
+        """Two simple functions that cross at x=0."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.get_intersection_point(lambda x: x, lambda x: -x, (-2, 2))
+        assert result is not None
+        x, y = result
+        assert x == pytest.approx(0.0, abs=0.05)
+        assert y == pytest.approx(0.0, abs=0.05)
+
+    def test_quadratic_crossing(self):
+        """x^2 and x+2 cross near x≈-1 and x≈2; find the one near x=1.5."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 15))
+        result = ax.get_intersection_point(lambda x: x**2, lambda x: x + 2, (1, 3))
+        assert result is not None
+        x, _ = result
+        # Actual crossing at x=2: 4==4
+        assert x == pytest.approx(2.0, abs=0.05)
+
+    def test_no_crossing_returns_none(self):
+        """Returns None when the functions don't cross in the given range."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.get_intersection_point(lambda x: x + 10, lambda x: x, (0, 5))
+        assert result is None
+
+    def test_tolerance(self):
+        """Result is within tolerance of the true intersection."""
+        import math
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.get_intersection_point(math.sin, math.cos, (0, 1), tol=0.001)
+        assert result is not None
+        x, _ = result
+        # sin(x)==cos(x) at x=pi/4
+        assert x == pytest.approx(math.pi / 4, abs=0.01)
+
+    def test_returns_tuple(self):
+        """Result is a (x, y) tuple."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.get_intersection_point(lambda x: x, lambda x: 0, (-2, 2))  # noqa: E731
+        assert result is not None
+        assert len(result) == 2

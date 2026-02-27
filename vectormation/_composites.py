@@ -342,6 +342,10 @@ class Axes(VCollection):
     x_range/y_range: (min, max) in math coordinates (animated via Real attributes).
     x/y/plot_width/plot_height: SVG pixel area for the axes.
     """
+    x_min: attributes.Real
+    x_max: attributes.Real
+    y_min: 'attributes.Real | None'
+    y_max: 'attributes.Real | None'
     def __init__(self, x_range=(-5, 5), y_range=None,
                  x=260, y=100, plot_width=1400, plot_height=880,
                  x_label=None, y_label=None,
@@ -1315,17 +1319,17 @@ class Axes(VCollection):
         return dot
 
     def add_point_label(self, x, y, text=None, dot_radius=6, font_size=20, buff=10,
-                        creation=0, **kwargs):
+                        creation=0, **kwargs) -> 'tuple[Dot, Text]':
         """Add a dot at math coordinates (x, y) with an optional text label.
 
         text: label string.  If None, defaults to '(x, y)' format.
         buff: pixel offset above the dot for the label.
-        Returns (dot, label) if a label is shown, else just the dot.
+        Returns (dot, label).
         """
         if text is None:
             text = f'({x:g}, {y:g})'
         dot_color = kwargs.pop('dot_color', '#FF6B6B')
-        return self.add_dot_label(x, y, label=str(text),
+        return self.add_dot_label(x, y, label=str(text),  # type: ignore[return-value]
                                   dot_color=dot_color, dot_radius=dot_radius,
                                   label_offset=(0, -dot_radius - buff),
                                   font_size=font_size, creation=creation,
@@ -3409,6 +3413,49 @@ class Axes(VCollection):
         self._add_plot_obj(line)
         return line
 
+    def get_intersection_point(self, func1, func2, x_range, tol=0.01):
+        """Find the x-value where two functions intersect using bisection.
+
+        Searches for a root of ``func1(x) - func2(x)`` on *x_range* = (a, b).
+        Requires that the difference changes sign across the interval (i.e. the
+        functions cross at least once inside it).
+
+        Parameters
+        ----------
+        func1, func2:
+            Callables that each accept a single float x and return a float y.
+        x_range:
+            A ``(a, b)`` tuple defining the search interval.
+        tol:
+            Convergence tolerance on the x-axis.  Iteration stops when the
+            interval width is smaller than *tol*.
+
+        Returns
+        -------
+        (x, y) tuple
+            The approximate intersection point in math coordinates, or ``None``
+            if no sign change was found (functions may not cross in the range).
+        """
+        a, b = float(x_range[0]), float(x_range[1])
+        fa = func1(a) - func2(a)
+        fb = func1(b) - func2(b)
+        if fa * fb > 0:
+            return None  # No guaranteed crossing
+        for _ in range(100):  # max iterations
+            mid = (a + b) / 2
+            fm = func1(mid) - func2(mid)
+            if abs(b - a) < tol or abs(fm) < 1e-12:
+                break
+            if fa * fm <= 0:
+                b = mid
+                fb = fm
+            else:
+                a = mid
+                fa = fm
+        x = (a + b) / 2
+        y = (func1(x) + func2(x)) / 2
+        return (x, y)
+
     def add_secant_fade(self, func, x, dx_start=2, dx_end=0.01,
                          start: float = 0, end: float = 1, length=300,
                          creation=0, z=0, easing=easings.smooth, **styling_kwargs):
@@ -3846,11 +3893,11 @@ class Arrow(VCollection):
         self._update_tip_dynamic(start_time)
         return self
 
-    def get_start(self, time=0):
+    def get_start(self, time: float = 0):
         """Return the start point (x1, y1) of the arrow shaft."""
         return self.shaft.p1.at_time(time)
 
-    def get_end(self, time=0):
+    def get_end(self, time: float = 0):
         """Return the end point (x2, y2) of the arrow shaft."""
         return self.shaft.p2.at_time(time)
 
@@ -4872,15 +4919,15 @@ class BarChart(VCollection):
             bar.grow_from_edge('bottom', bar_start, bar_end, easing=easing)
         return self
 
-    def get_max_bar(self):
-        """Return the bar Rectangle with the maximum value."""
+    def get_max_bar(self) -> 'Rectangle | None':
+        """Return the bar Rectangle with the maximum value, or None if no bars."""
         if not self._bars:
             return None
         max_idx = max(range(len(self.values)), key=lambda i: self.values[i])
         return self._bars[max_idx]
 
-    def get_min_bar(self):
-        """Return the bar Rectangle with the minimum value."""
+    def get_min_bar(self) -> 'Rectangle | None':
+        """Return the bar Rectangle with the minimum value, or None if no bars."""
         if not self._bars:
             return None
         min_idx = min(range(len(self.values)), key=lambda i: self.values[i])
@@ -5001,7 +5048,7 @@ class Table(VCollection):
             self.entries[r][c].flash(start, end, color=color, easing=easing)
         return self
 
-    def set_cell_value(self, row, col, new_value, start=0):
+    def set_cell_value(self, row, col, new_value, start: float = 0):
         """Change the text of a cell at the given time."""
         self.entries[row][col].text.set_onward(start, str(new_value))
         return self
@@ -5554,7 +5601,7 @@ class Variable(VCollection):
     value: initial numeric value, or a Real/ValueTracker.
     fmt: format string for the value.
     """
-    def __init__(self, label='x', value=0, fmt='{:.2f}', x=960, y=540,
+    def __init__(self, label='x', value: float = 0, fmt='{:.2f}', x=960, y=540,
                  font_size=48, creation=0, z=0, **styling_kwargs):
         from vectormation._shapes import Text, DecimalNumber
         style_kw = {'fill': '#fff', 'stroke_width': 0} | styling_kwargs

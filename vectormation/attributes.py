@@ -372,7 +372,7 @@ class Color:
 
     Example: ``Color(0, '#ff0000').at_time(0)`` → ``'rgb(255,0,0)'``
     """
-    def __init__(self, creation=0, start_color='#000', use=None):
+    def __init__(self, creation=0, start_color: 'str | tuple' = '#000', use=None):
         assert isinstance(creation, int | float)
         if use is not None:
             assert isinstance(use, str)

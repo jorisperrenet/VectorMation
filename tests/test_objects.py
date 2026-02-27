@@ -4397,6 +4397,82 @@ class TestFromSvgTransform:
         assert cx == pytest.approx(100, abs=1)
         assert cy == pytest.approx(200, abs=1)
 
+
+class TestBounceIn:
+    def test_bounce_in_shows_object(self):
+        """bounce_in makes the object visible from start."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.bounce_in(start=0, end=1)
+        assert c.show.at_time(0) is True
+
+    def test_bounce_in_scale_starts_near_zero(self):
+        """Scale is close to 0 at start."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.bounce_in(start=0, end=1)
+        sx = c.styling.scale_x.at_time(0)
+        assert sx == pytest.approx(0.0, abs=0.1)
+
+    def test_bounce_in_scale_ends_at_one(self):
+        """Scale reaches 1 at end."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.bounce_in(start=0, end=1)
+        sx = c.styling.scale_x.at_time(1)
+        assert sx == pytest.approx(1.0, abs=0.05)
+
+    def test_bounce_in_zero_duration_noop(self):
+        """Zero-duration bounce_in should not raise and returns self."""
+        c = Circle(r=50)
+        result = c.bounce_in(start=0, end=0)
+        assert result is c
+
+    def test_bounce_in_no_change_existence(self):
+        """With change_existence=False the show attribute is not modified."""
+        c = Circle(r=50)
+        c.bounce_in(start=2, end=3, change_existence=False)
+        # show should be True from the default creation=0 (no _show_from called)
+        assert c.show.at_time(2) is True
+
+    def test_bounce_in_renders_svg(self):
+        """bounce_in produces renderable SVG at midpoint."""
+        c = Circle(r=50, cx=500, cy=500)
+        c.bounce_in(start=0, end=1)
+        svg = c.to_svg(0.5)
+        assert 'ellipse' in svg or 'circle' in svg
+
+
+class TestVCollectionReverse:
+    def test_reverse_flips_order(self):
+        """reverse() reverses the children list."""
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=100, cy=0)
+        c3 = Circle(r=10, cx=200, cy=0)
+        col = VCollection(c1, c2, c3)
+        col.reverse()
+        assert col.objects[0] is c3
+        assert col.objects[1] is c2
+        assert col.objects[2] is c1
+
+    def test_reverse_returns_self(self):
+        """reverse() returns the collection for chaining."""
+        col = VCollection(Circle(r=10), Circle(r=20))
+        result = col.reverse()
+        assert result is col
+
+    def test_reverse_empty_collection(self):
+        """reverse() on an empty collection is a no-op."""
+        col = VCollection()
+        col.reverse()
+        assert col.objects == []
+
+    def test_reverse_twice_is_identity(self):
+        """Reversing twice returns to original order."""
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        col = VCollection(c1, c2)
+        col.reverse().reverse()
+        assert col.objects[0] is c1
+        assert col.objects[1] is c2
+
     def test_rect_preserves_position(self):
         from bs4 import BeautifulSoup
         svg = '<rect width="80" height="40" x="50" y="60"/>'
