@@ -604,59 +604,47 @@ class VCollection(_BBoxMethodsMixin):
             obj.shift(dx=dx, dy=dy, start=start)
         return self
 
-    def arrange_in_grid(self, rows=None, cols=None, buff=SMALL_BUFF, start: float = 0):
-        """Lay out children in a grid. If rows/cols omitted, picks a square-ish grid."""
-        n = len(self.objects)
-        if not n:
-            return self
+    @staticmethod
+    def _grid_dims(n, rows, cols):
+        """Resolve rows/cols for a grid with *n* items."""
         if rows is None and cols is None:
             cols = math.ceil(math.sqrt(n))
-            rows = math.ceil(n / cols)
-        elif rows is None:
+        if rows is None:
             rows = math.ceil(n / cols)
         elif cols is None:
             cols = math.ceil(n / rows)
-        # Measure max cell size
+        return rows, cols
+
+    def _grid_targets(self, rows, cols, buff, start):
+        """Return (cols, cell_w, cell_h, max_w, max_h, boxes) for grid layout."""
+        _, cols = self._grid_dims(len(self.objects), rows, cols)
         boxes = [obj.bbox(start) for obj in self.objects]
         max_w = max(b[2] for b in boxes)
         max_h = max(b[3] for b in boxes)
-        cell_w, cell_h = max_w + buff, max_h + buff
-        # Position each object centered in its cell
+        return cols, max_w + buff, max_h + buff, max_w, max_h, boxes
+
+    def arrange_in_grid(self, rows=None, cols=None, buff=SMALL_BUFF, start: float = 0):
+        """Lay out children in a grid. If rows/cols omitted, picks a square-ish grid."""
+        if not self.objects:
+            return self
+        cols, cell_w, cell_h, max_w, max_h, boxes = self._grid_targets(rows, cols, buff, start)
         for idx, (obj, box) in enumerate(zip(self.objects, boxes)):
             r, c = divmod(idx, cols)
-            target_cx = c * cell_w + max_w / 2
-            target_cy = r * cell_h + max_h / 2
-            cur_cx = box[0] + box[2] / 2
-            cur_cy = box[1] + box[3] / 2
-            obj.shift(dx=target_cx - cur_cx, dy=target_cy - cur_cy, start=start)
+            obj.shift(dx=c * cell_w + max_w / 2 - (box[0] + box[2] / 2),
+                       dy=r * cell_h + max_h / 2 - (box[1] + box[3] / 2), start=start)
         return self
 
     def animated_arrange_in_grid(self, rows=None, cols=None, buff=SMALL_BUFF, start: float = 0, end: float = 1, easing=None):
         """Animated version of :meth:`arrange_in_grid` -- smoothly moves children to grid positions."""
-        n = len(self.objects)
-        if not n:
+        if not self.objects:
             return self
-        if rows is None and cols is None:
-            cols = math.ceil(math.sqrt(n))
-            rows = math.ceil(n / cols)
-        elif rows is None:
-            rows = math.ceil(n / cols)
-        elif cols is None:
-            cols = math.ceil(n / rows)
-        # Measure max cell size
-        boxes = [obj.bbox(start) for obj in self.objects]
-        max_w = max(b[2] for b in boxes)
-        max_h = max(b[3] for b in boxes)
-        cell_w, cell_h = max_w + buff, max_h + buff
-        # Animate each object to its cell center
-        for idx, (obj, _box) in enumerate(zip(self.objects, boxes)):
+        cols, cell_w, cell_h, max_w, max_h, _boxes = self._grid_targets(rows, cols, buff, start)
+        for idx, obj in enumerate(self.objects):
             r, c = divmod(idx, cols)
-            target_cx = c * cell_w + max_w / 2
-            target_cy = r * cell_h + max_h / 2
             kw = {'start': start, 'end': end}
             if easing is not None:
                 kw['easing'] = easing
-            obj.center_to_pos(target_cx, target_cy, **kw)
+            obj.center_to_pos(c * cell_w + max_w / 2, r * cell_h + max_h / 2, **kw)
         return self
 
     def stagger(self, method_name, delay, **kwargs):
