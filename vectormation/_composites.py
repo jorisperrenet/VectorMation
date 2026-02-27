@@ -1064,7 +1064,7 @@ class Axes(VCollection):
         self._add_plot_obj(curve)
         return curve
 
-    def plot_polar(self, func, theta_range=(0, 2 * math.pi), num_points=200,
+    def plot_polar(self, func, theta_range=(0, math.tau), num_points=200,
                     creation=0, z=0, **styling_kwargs):
         """Plot a polar curve r=func(theta) on these axes.
         theta_range: (min, max) in radians.
@@ -3787,7 +3787,7 @@ class Axes(VCollection):
         margin = 3 * h
         xs = [xmin - margin + i * (xmax - xmin + 2 * margin) / (samples - 1) for i in range(samples)]
         def _kde(xv):
-            return sum(math.exp(-0.5 * ((xv - d) / h) ** 2) for d in data) / (n * h * math.sqrt(2 * math.pi))
+            return sum(math.exp(-0.5 * ((xv - d) / h) ** 2) for d in data) / (n * h * math.sqrt(math.tau))
         ys = [_kde(xv) for xv in xs]
         curve_data = list(zip(xs, ys))
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
@@ -4854,7 +4854,7 @@ class Axes(VCollection):
         """
         if std <= 0:
             raise ValueError("std must be positive")
-        inv_coeff = 1 / (std * math.sqrt(2 * math.pi))
+        inv_coeff = 1 / (std * math.sqrt(math.tau))
         def func(x):
             return inv_coeff * math.exp(-0.5 * ((x - mean) / std) ** 2)
         kwargs.setdefault('stroke', color)
@@ -9024,7 +9024,7 @@ class BohrAtom(VCollection):
                            fill_opacity=0, stroke='#58C4DD', stroke_width=1, stroke_opacity=0.4)
             objects.append(orbit)
             for e in range(n_electrons):
-                angle = 2 * math.pi * e / n_electrons
+                angle = math.tau * e / n_electrons
                 ex = cx + r * math.cos(angle)
                 ey = cy - r * math.sin(angle)
                 dot = Dot(r=5, cx=ex, cy=ey, creation=creation, z=z + 1,
@@ -9064,7 +9064,7 @@ class Automaton(VCollection):
 
         # Arrange states in a circle
         for i, name in enumerate(states):
-            angle = 2 * math.pi * i / n - math.pi / 2
+            angle = math.tau * i / n - math.pi / 2
             sx = cx + radius * math.cos(angle)
             sy = cy + radius * math.sin(angle)
             self._state_positions[name] = (sx, sy)
@@ -9166,7 +9166,7 @@ class NetworkGraph(VCollection):
         # Layout
         if layout == 'circular':
             for i, nid in enumerate(node_ids):
-                angle = 2 * math.pi * i / max(n, 1) - math.pi / 2
+                angle = math.tau * i / max(n, 1) - math.pi / 2
                 nx = cx + radius * math.cos(angle)
                 ny = cy + radius * math.sin(angle)
                 self._node_positions[nid] = (nx, ny)
@@ -9376,7 +9376,7 @@ class PolarAxes(VCollection):
         # Angular sector lines
         n_sectors = max(n_sectors, 1)
         for i in range(n_sectors):
-            angle = 2 * math.pi * i / n_sectors
+            angle = math.tau * i / n_sectors
             ex = cx + max_radius * math.cos(angle)
             ey = cy - max_radius * math.sin(angle)
             line = Line(x1=cx, y1=cy, x2=ex, y2=ey,
@@ -9776,7 +9776,7 @@ class RadarChart(VCollection):
                           stroke='#444', stroke_width=1, creation=creation, z=z)
             objects.append(ring)
         # Draw axis lines
-        angles = [i * 2 * math.pi / n - math.pi / 2 for i in range(n)]
+        angles = [i * math.tau / n - math.pi / 2 for i in range(n)]
         for angle in angles:
             lx = cx + radius * math.cos(angle)
             ly = cy + radius * math.sin(angle)
@@ -10276,7 +10276,7 @@ class GaugeChart(VCollection):
         sa_rad = math.radians(start_angle)
         ea_rad = math.radians(end_angle)
         if ea_rad > sa_rad:
-            ea_rad -= 2 * math.pi
+            ea_rad -= math.tau
         total_sweep = ea_rad - sa_rad
         for i in range(n_segments):
             frac = i / n_segments
@@ -10433,7 +10433,7 @@ class VennDiagram(VCollection):
             positions = [(x - sep / 2, y), (x + sep / 2, y)]
         else:
             sep = radius * 0.65
-            ang120 = 2 * math.pi / 3
+            ang120 = math.tau / 3
             positions = [(x + sep * math.cos(math.pi / 2 + i * ang120),
                           y - sep * math.sin(math.pi / 2 + i * ang120))
                          for i in range(3)]
@@ -10745,7 +10745,7 @@ class MindMap(VCollection):
             return
         n = len(children)
         for i, (child_label, grandchildren) in enumerate(children):
-            angle = 2 * math.pi * i / n - math.pi / 2
+            angle = math.tau * i / n - math.pi / 2
             bx = cx + radius * math.cos(angle)
             by = cy + radius * math.sin(angle)
             color = colors[(i + 1) % len(colors)]
@@ -12307,7 +12307,7 @@ class Pendulum(VCollection):
         self._init_angle = math.radians(angle)
         self._period = period
         self._damping = damping
-        omega = 2 * math.pi / period
+        omega = math.tau / period
 
         # Pivot dot
         pivot = Dot(r=5, cx=pivot_x, cy=pivot_y, fill='#888',
@@ -12372,7 +12372,7 @@ class StandingWave(VCollection):
         dx_norm = (x2 - x1) / wave_length if wave_length else 1
         dy_norm = (y2 - y1) / wave_length if wave_length else 0
         perp_x, perp_y = -dy_norm, dx_norm
-        omega = 2 * math.pi * frequency
+        omega = math.tau * frequency
         k = harmonics * math.pi / wave_length if wave_length else 0
 
         # Fixed endpoint dots

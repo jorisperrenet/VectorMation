@@ -1293,7 +1293,7 @@ class Ellipse(VObject):
         """
         cx, cy = self.c.at_time(time)
         rx, ry = self.rx.at_time(time), self.ry.at_time(time)
-        angle = 2 * math.pi * t
+        angle = math.tau * t
         return (cx + rx * math.cos(angle), cy + ry * math.sin(angle))
 
     def contains_point(self, px, py, time=0):
@@ -1410,7 +1410,7 @@ class Circle(Ellipse):
 
     def get_perimeter(self, time=0):
         """Return the exact perimeter (2 * pi * r)."""
-        return 2 * math.pi * self.rx.at_time(time)
+        return math.tau * self.rx.at_time(time)
 
     def get_circumference(self, time=0):
         """Alias for get_perimeter. Returns the exact circumference (2 * pi * r)."""
@@ -5070,8 +5070,8 @@ class RegularPolygon(Polygon):
         self._radius = radius
         angle_rad = angle * math.pi / 180
         vertices = [
-            (cx + radius * math.cos(2 * math.pi * k / n + angle_rad),
-             cy - radius * math.sin(2 * math.pi * k / n + angle_rad))
+            (cx + radius * math.cos(math.tau * k / n + angle_rad),
+             cy - radius * math.sin(math.tau * k / n + angle_rad))
             for k in range(n)
         ]
         super().__init__(*vertices, creation=creation, z=z, **styling_kwargs)

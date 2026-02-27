@@ -85,6 +85,13 @@ def _set_attr(attr, start, end, value, easing):
         attr.move_to(start, end, value, easing=easing)
 
 
+def _parse_path(d):
+    """Lazy-import svgpathtools and parse an SVG path string, returning (parsed, total_length)."""
+    import svgpathtools
+    parsed = svgpathtools.parse_path(d)
+    return parsed, parsed.length()
+
+
 def _path_prefix(path, t):
     """Return the first t-fraction (0-1) of a morphing.Path by arc length."""
     length_to_keep = t * path.length()
@@ -672,9 +679,7 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        import svgpathtools
-        parsed = svgpathtools.parse_path(path_d)
-        total_length = parsed.length()
+        parsed, total_length = _parse_path(path_d)
         xmin, ymin, w, h = self.bbox(start)
         cx0, cy0 = xmin + w / 2, ymin + h / 2
         point0 = parsed.point(0)
@@ -922,7 +927,7 @@ class VObject(ABC):  # Vector Object
         _s, _spd, _a = start, speed, amplitude
         def _dy(t, _s=_s, _spd=_spd, _a=_a):
             p = (t - _s) * _spd
-            return _a * math.sin(p * 2 * math.pi)
+            return _a * math.sin(p * math.tau)
         return self._apply_shift_effect(start, end, dy_func=_dy)
 
     def _slide_offsets(self, direction, start):
@@ -1064,9 +1069,7 @@ class VObject(ABC):  # Vector Object
         """Animate drawing the stroke of this object using stroke-dashoffset.
         Uses svgpathtools to compute total path length, then animates
         stroke-dashoffset from length to 0."""
-        import svgpathtools
-        p = svgpathtools.parse_path(self.path(start))
-        total_length = p.length()
+        p, total_length = _parse_path(self.path(start))
 
         if change_existence:
             self._show_from(start)
@@ -1089,9 +1092,7 @@ class VObject(ABC):  # Vector Object
         """A bright flash that travels along this object's path.
         Returns a new Path object that must be added to the canvas.
         flash_width: fraction of path visible at any time (0-1)."""
-        import svgpathtools
-        p = svgpathtools.parse_path(self.path(start))
-        total = p.length()
+        p, total = _parse_path(self.path(start))
         if total <= 0:
             from vectormation._shapes import Path
             return Path('', creation=start)
@@ -1599,7 +1600,7 @@ class VObject(ABC):  # Vector Object
         _s, _d, _amp, _cnt = start, max(dur, 1e-9), amplitude, count
         def _make_pulse_scale(base):
             return lambda t, _s=_s, _d=_d, _amp=_amp, _cnt=_cnt, _b=base, _e=easing: \
-                _b * (1 + _amp * math.sin(2 * math.pi * _cnt * _e((t - _s) / _d)))
+                _b * (1 + _amp * math.sin(math.tau * _cnt * _e((t - _s) / _d)))
         self.styling.scale_x.set(start, end, _make_pulse_scale(sx0))
         self.styling.scale_y.set(start, end, _make_pulse_scale(sy0))
         return self
@@ -1615,7 +1616,7 @@ class VObject(ABC):  # Vector Object
         def _ripple(t, _s=s, _d=dur, _n=num_ripples, _m=max_factor, _e=easing, _sx0=sx0):
             p = _e((t - _s) / _d)
             decay = 1 - p  # amplitude decreases over time
-            wave = math.sin(p * _n * 2 * math.pi)
+            wave = math.sin(p * _n * math.tau)
             factor = 1 + (_m - 1) * decay * wave
             return _sx0 * factor
         self.styling.scale_x.set(s, e, _ripple, stay=True)
@@ -1800,7 +1801,7 @@ class VObject(ABC):  # Vector Object
         s = start
         def dx(t):
             progress = (t - s) / dur
-            return amplitude * math.sin(2 * math.pi * n_wiggles * progress) * easing(progress)
+            return amplitude * math.sin(math.tau * n_wiggles * progress) * easing(progress)
         return self._apply_shift_effect(start, end, dx_func=dx)
 
     def swing(self, start: float = 0, end: float = 1, amplitude=15,
@@ -1816,7 +1817,7 @@ class VObject(ABC):  # Vector Object
         s = start
         self.styling.rotation.set(s, end,
             lambda t, _s=s, _d=dur, _a=amplitude, _cx=cx, _cy=cy, _ease=easing: (
-                _a * math.sin(2 * math.pi * _ease((t - _s) / _d)) * (1 - _ease((t - _s) / _d)),
+                _a * math.sin(math.tau * _ease((t - _s) / _d)) * (1 - _ease((t - _s) / _d)),
                 _cx, _cy))
         return self
 
@@ -1831,7 +1832,7 @@ class VObject(ABC):  # Vector Object
         sign = -1 if direction == 'up' else 1
         def dy(t):
             progress = (t - s) / dur
-            return sign * amplitude * math.sin(2 * math.pi * n_waves * progress) * easing(progress)
+            return sign * amplitude * math.sin(math.tau * n_waves * progress) * easing(progress)
         return self._apply_shift_effect(start, end, dy_func=dy)
 
     def _scale_anchor_anim(self, origin, start, end, grow, change_existence, easing):
@@ -2010,7 +2011,7 @@ class VObject(ABC):  # Vector Object
         def _opacity(t, _s=_s, _d=_d, _min=_min, _max=_max, _freq=_freq):
             progress = (t - _s) / _d
             # sine wave: 0..1..0..-1..0 per cycle; we map to 0..1 range
-            wave = 0.5 * (1 - math.cos(2 * math.pi * _freq * progress))
+            wave = 0.5 * (1 - math.cos(math.tau * _freq * progress))
             return _min + (_max - _min) * wave
 
         self.styling.opacity.set(start, end, _opacity, stay=True)
@@ -2032,7 +2033,7 @@ class VObject(ABC):  # Vector Object
         def _shimmer(t, _s=_s, _d=_d, _p=_p):
             progress = easing((t - _s) / _d)
             # Raised cosine wave: oscillates between 0.0 and 1.0
-            wave = 0.5 * (1 + math.cos(2 * math.pi * _p * progress))
+            wave = 0.5 * (1 + math.cos(math.tau * _p * progress))
             # Map to opacity range 0.3..1.0 for a visible shimmer effect
             return 0.3 + 0.7 * wave
 
@@ -2051,7 +2052,7 @@ class VObject(ABC):  # Vector Object
         _s, _d, _a, _freq = start, max(dur, 1e-9), amplitude, frequency
         def _dx(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
             progress = (t - _s) / _d
-            return _a * math.sin(_freq * 2 * math.pi * progress) * _easing(progress)
+            return _a * math.sin(_freq * math.tau * progress) * _easing(progress)
         def _dy(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
             progress = (t - _s) / _d
             return _a * math.cos(_freq * 2.7 * math.pi * progress) * _easing(progress)
@@ -2066,7 +2067,7 @@ class VObject(ABC):  # Vector Object
         _s, _d = start, max(dur, 1e-9)
         def _scale(t, _s=_s, _d=_d, _a=amplitude, _w=waves, _easing=easing):
             p = (t - _s) / _d
-            return 1 + _a * math.sin(p * _w * 2 * math.pi) * (1 - _easing(p))
+            return 1 + _a * math.sin(p * _w * math.tau) * (1 - _easing(p))
         self.styling.scale_x.set(start, end, _scale)
         self.styling.scale_y.set(start, end, _scale)
         return self
@@ -2140,7 +2141,7 @@ class VObject(ABC):  # Vector Object
         _s, _d, _h, _b = start, max(dur, 1e-9), height, bounces
         def _dy(t, _s=_s, _d=_d, _h=_h, _b=_b, _easing=easing):
             progress = (t - _s) / _d
-            phase = progress * _b * 2 * math.pi
+            phase = progress * _b * math.tau
             decay = 1 - progress
             return -abs(math.sin(phase)) * _h * decay * _easing(min(1, progress * 3))
         return self._apply_shift_effect(start, end, dy_func=_dy)
@@ -2155,7 +2156,7 @@ class VObject(ABC):  # Vector Object
         _s, _d, _a, _damp, _freq = start, max(dur, 1e-9), amplitude, damping, frequency
         def _osc(t, _s=_s, _d=_d, _a=_a, _damp=_damp, _freq=_freq):
             progress = (t - _s) / _d
-            return _a * math.exp(-_damp * progress) * math.sin(2 * math.pi * _freq * progress)
+            return _a * math.exp(-_damp * progress) * math.sin(math.tau * _freq * progress)
         dx = _osc if axis in ('x', 'both') else None
         dy = _osc if axis in ('y', 'both') else None
         return self._apply_shift_effect(start, end, dx, dy)
@@ -2458,12 +2459,12 @@ class VObject(ABC):  # Vector Object
         def _wx(t, _s=_s, _d=_d, _a=_a, _f=_f, _sx0=_sx0, _easing=easing):
             p = _easing((t - _s) / _d)
             envelope = math.sin(math.pi * p)  # 0→1→0
-            wave = math.sin(2 * math.pi * _f * p)
+            wave = math.sin(math.tau * _f * p)
             return _sx0 * (1 + _a * envelope * wave)
         def _wy(t, _s=_s, _d=_d, _a=_a, _f=_f, _sy0=_sy0, _easing=easing):
             p = _easing((t - _s) / _d)
             envelope = math.sin(math.pi * p)
-            wave = math.cos(2 * math.pi * _f * p)  # phase-shifted from x
+            wave = math.cos(math.tau * _f * p)  # phase-shifted from x
             return _sy0 * (1 + _a * envelope * wave)
         self.styling.scale_x.set(start, end, _wx, stay=False)
         self.styling.scale_y.set(start, end, _wy, stay=False)
@@ -2581,7 +2582,7 @@ class VObject(ABC):  # Vector Object
 
         def _make_breathe(base):
             return lambda t, _s=_s, _d=_d, _amp=_amp, _spd=_spd, _b=base, _e=easing: \
-                _b * (1 + _amp * math.sin(2 * math.pi * _spd * _e((t - _s) / _d) * _d))
+                _b * (1 + _amp * math.sin(math.tau * _spd * _e((t - _s) / _d) * _d))
         self.styling.scale_x.set(start, end, _make_breathe(sx0))
         self.styling.scale_y.set(start, end, _make_breathe(sy0))
         return self
@@ -2622,7 +2623,7 @@ class VObject(ABC):  # Vector Object
         def _rot(t, _s=_s, _d=_d, _a=_a, _n=_n, _cx=_cx, _cy=_cy, _e=easing):
             p = _e((t - _s) / _d)
             decay = math.exp(-3 * p)
-            angle = _a * math.sin(2 * math.pi * _n * p) * decay
+            angle = _a * math.sin(math.tau * _n * p) * decay
             return (angle, _cx, _cy)
 
         self.styling.rotation.set(start, end, _rot)
@@ -3196,9 +3197,7 @@ class VObject(ABC):  # Vector Object
         path_d = self.path(time)
         if not path_d:
             return self.center(time)
-        import svgpathtools
-        parsed = svgpathtools.parse_path(path_d)
-        total_length = parsed.length()
+        parsed, total_length = _parse_path(path_d)
         if total_length <= 0:
             pt = parsed.point(0)
             return (pt.real, pt.imag)
@@ -3319,7 +3318,7 @@ class VObject(ABC):  # Vector Object
         shake_freq = 12
         def _dx(t, _s=_s, _d=_d, _a=shake_amplitude, _freq=shake_freq, _e=easing):
             p = (t - _s) / _d
-            return _a * math.sin(_freq * 2 * math.pi * p) * _e(p)
+            return _a * math.sin(_freq * math.tau * p) * _e(p)
         self._apply_shift_effect(start, end, dx_func=_dx)
         return self
 
@@ -3376,7 +3375,7 @@ class VObject(ABC):  # Vector Object
         def _opacity(t, _s=_s, _d=_d, _freq=_freq, _mo=_mo, _e=easing):
             p = (t - _s) / _d
             # Layered sine waves for pseudo-random flicker
-            flicker = (math.sin(_freq * 2 * math.pi * p) *
+            flicker = (math.sin(_freq * math.tau * p) *
                        math.sin(_freq * 3.7 * math.pi * p) *
                        math.sin(_freq * 5.3 * math.pi * p))
             # flicker is in [-1, 1]; map to [min_opacity, 1]
@@ -3547,7 +3546,7 @@ class VObject(ABC):  # Vector Object
 
         # Map overshoot to damping: higher overshoot -> lower damping -> more ring
         _damp = 3.0 / max(_os, 0.01)
-        _freq = 2 * math.pi * (_osc + 0.25)
+        _freq = math.tau * (_osc + 0.25)
 
         def _spring_curve(p, _ts=_ts, _damp=_damp, _freq=_freq):
             """Map progress p in [0,1] to a scale multiplier that overshoots
@@ -3820,7 +3819,7 @@ class VObject(ABC):  # Vector Object
         def _wave(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
             progress = (t - _s) / _d
             envelope = _easing(progress) * (1 - _easing(progress)) * 4
-            return _a * math.sin(2 * math.pi * _freq * progress) * envelope
+            return _a * math.sin(math.tau * _freq * progress) * envelope
 
         if direction == 'y':
             return self._apply_shift_effect(start, end, dy_func=_wave)
@@ -4196,7 +4195,7 @@ class VObject(ABC):  # Vector Object
         sy0 = self.styling.scale_y.at_time(start)
         _s, _d, _f = start, max(dur, 1e-9), factor
         _damp = 6.0
-        _freq = 2 * math.pi * 2.5
+        _freq = math.tau * 2.5
 
         def _elastic_envelope(p):
             """Damped cosine: 1 at p=0, oscillates toward 0 at p=1."""
@@ -4411,12 +4410,12 @@ class VObject(ABC):  # Vector Object
         def _dx(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
             p = (t - _s) / _d
             envelope = 1 - _easing(p)
-            return _a * math.sin(2 * math.pi * _freq * p) * envelope
+            return _a * math.sin(math.tau * _freq * p) * envelope
 
         def _dy(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
             p = (t - _s) / _d
             envelope = 1 - _easing(p)
-            return _a * 0.7 * math.sin(2 * math.pi * _freq * 1.3 * p) * envelope
+            return _a * 0.7 * math.sin(math.tau * _freq * 1.3 * p) * envelope
 
         self._apply_shift_effect(start, end, _dx, _dy)
 
@@ -4425,7 +4424,7 @@ class VObject(ABC):  # Vector Object
         cx, cy = bx + bw / 2, by + bh / 2
         self.styling.rotation.set(start, end,
             lambda t, _s=_s, _d=_d, _a=_a, _freq=_freq, _cx=cx, _cy=cy, _easing=easing: (
-                _a * math.sin(2 * math.pi * _freq * 0.7 * ((t - _s) / _d)) * (1 - _easing((t - _s) / _d)),
+                _a * math.sin(math.tau * _freq * 0.7 * ((t - _s) / _d)) * (1 - _easing((t - _s) / _d)),
                 _cx, _cy))
         return self
 
@@ -5497,7 +5496,7 @@ class VCollection:
         if n == 0:
             return self
         for i, obj in enumerate(self.objects):
-            angle = start_angle + 2 * math.pi * i / n
+            angle = start_angle + math.tau * i / n
             tx = cx + radius * math.cos(angle)
             ty = cy + radius * math.sin(angle)
             bx, by, bw, bh = obj.bbox(start)
@@ -5532,7 +5531,7 @@ class VCollection:
             center = (gx + gw / 2, gy + gh / 2)
         cx, cy = center
         for i, obj in enumerate(self.objects):
-            angle = start_angle + 2 * math.pi * i / n
+            angle = start_angle + math.tau * i / n
             tx = cx + radius * math.cos(angle)
             ty = cy + radius * math.sin(angle)
             bx, by, bw, bh = obj.bbox(start)
@@ -5678,12 +5677,12 @@ class VCollection:
         if dur <= 0:
             return self
         for i, obj in enumerate(self.objects):
-            phase = 2 * math.pi * i / max(n, 1)
+            phase = math.tau * i / max(n, 1)
             s, d, a, p = start, dur, amplitude, phase
             w = waves
             def _dy(t, _s=s, _d=d, _a=a, _p=p, _w=w):
                 progress = (t - _s) / _d
-                return -_a * math.sin(2 * math.pi * _w * progress + _p) * (1 - progress)
+                return -_a * math.sin(math.tau * _w * progress + _p) * (1 - progress)
             for _, ya in obj._shift_reals():
                 ya.add(start, end, _dy)
             for c in obj._shift_coors():
@@ -6104,7 +6103,7 @@ class VCollection:
             dist = math.hypot(dx, dy)
             if dist < 1e-6:
                 # At center: use evenly-spaced angles
-                angle = 2 * math.pi * i / max(n, 1)
+                angle = math.tau * i / max(n, 1)
                 dx, dy = math.cos(angle), math.sin(angle)
                 dist = 1
             tx = ocx + dx / dist * radius
@@ -6161,7 +6160,7 @@ class VCollection:
             def _wave(t, _s=_s, _d=_d, _a=_a, _ph=_ph, _easing=easing):
                 p = _easing((t - _s) / _d)
                 envelope = math.sin(math.pi * p)  # 0→1→0
-                return _a * math.sin(2 * math.pi * (p - _ph)) * envelope
+                return _a * math.sin(math.tau * (p - _ph)) * envelope
             if axis == 'y':
                 for xa, ya in obj._shift_reals():
                     ya.add(start, end, _wave)
@@ -6403,9 +6402,7 @@ class VCollection:
         n = len(self.objects)
         if n == 0:
             return self
-        import svgpathtools
-        parsed = svgpathtools.parse_path(path_d)
-        total_length = parsed.length()
+        parsed, total_length = _parse_path(path_d)
         if total_length <= 0:
             return self
         for i, obj in enumerate(self.objects):
@@ -6718,12 +6715,12 @@ class VCollection:
             def _dx(t, _s=_s, _d=_d, _cx=_cx, _r=_r, _rev=_rev,
                     _a0=_a0, _ocx=_ocx, _e=easing):
                 p = _e((t - _s) / _d)
-                angle = _a0 + 2 * math.pi * _rev * p
+                angle = _a0 + math.tau * _rev * p
                 return _cx + _r * math.cos(angle) - _ocx
             def _dy(t, _s=_s, _d=_d, _cy=_cy, _r=_r, _rev=_rev,
                     _a0=_a0, _ocy=_ocy, _e=easing):
                 p = _e((t - _s) / _d)
-                angle = _a0 + 2 * math.pi * _rev * p
+                angle = _a0 + math.tau * _rev * p
                 return _cy + _r * math.sin(angle) - _ocy
             for xa, ya in obj._shift_reals():
                 xa.add(start, end, _dx)
@@ -6853,7 +6850,7 @@ class VCollection:
             if cy is None:
                 cy = gy + gh / 2
         for i, obj in enumerate(self.objects):
-            angle = 2 * math.pi * i / n
+            angle = math.tau * i / n
             tx = cx + radius * math.cos(angle)
             ty = cy + radius * math.sin(angle)
             bx, by, bw, bh = obj.bbox(start)
