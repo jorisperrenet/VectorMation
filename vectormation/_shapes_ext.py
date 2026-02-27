@@ -33,14 +33,18 @@ class Line(VObject):
     def bbox(self, time):
         return self._bbox_from_points([self.p1.at_time(time), self.p2.at_time(time)], time) or super().bbox(time)
 
+    def _ep(self, time):
+        """Return (x1, y1, x2, y2) endpoints at *time*."""
+        p1, p2 = self.p1.at_time(time), self.p2.at_time(time)
+        return p1[0], p1[1], p2[0], p2[1]
+
     def path(self, time):
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         return f'M{x1},{y1}L{x2},{y2}'
 
     def to_svg(self, time):
-        p1, p2 = self.p1.at_time(time), self.p2.at_time(time)
-        return f"<line x1='{p1[0]}' y1='{p1[1]}' x2='{p2[0]}' y2='{p2[1]}'{self.styling.svg_style(time)} />"
+        x1, y1, x2, y2 = self._ep(time)
+        return f"<line x1='{x1}' y1='{y1}' x2='{x2}' y2='{y2}'{self.styling.svg_style(time)} />"
 
     def get_start(self, time=0):
         """Return the start point (x, y)."""
@@ -54,8 +58,7 @@ class Line(VObject):
 
     def get_length(self, time=0):
         """Return the Euclidean length of the line."""
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         return _distance(x1, y1, x2, y2)
 
     def length(self, time=0):
@@ -64,27 +67,22 @@ class Line(VObject):
 
     def get_angle(self, time=0):
         """Return the angle (in degrees) from p1 to p2."""
-        # SVG convention (y-down): atan2(dy, dx) where dy increases downward
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         return math.degrees(math.atan2(y2 - y1, x2 - x1))
 
     def get_midpoint(self, time=0):
         """Return the midpoint (x, y) of the line."""
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         return ((x1 + x2) / 2, (y1 + y2) / 2)
 
     def split_at(self, t: float = 0.5, time: float = 0):
         """Split the line at parameter *t* and return two new Line objects."""
         t = max(0.0, min(1.0, t))
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         mx = x1 + t * (x2 - x1)
         my = y1 + t * (y2 - y1)
-        first = Line(float(x1), float(y1), float(mx), float(my))
-        second = Line(float(mx), float(my), float(x2), float(y2))
-        return first, second
+        return Line(float(x1), float(y1), float(mx), float(my)), \
+               Line(float(mx), float(my), float(x2), float(y2))
 
     def get_unit_vector(self, time=0):
         """Return the normalized direction vector (dx, dy) from p1 to p2."""
@@ -92,14 +90,12 @@ class Line(VObject):
 
     def get_direction(self, time=0):
         """Return the normalized unit vector ``(dx, dy)`` from p1 to p2."""
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         return _normalize(x2 - x1, y2 - y1)
 
     def get_vector(self, time=0):
         """Return the unnormalized direction vector ``(dx, dy)`` from p1 to p2."""
-        x1, y1 = self.get_start(time)
-        x2, y2 = self.get_end(time)
+        x1, y1, x2, y2 = self._ep(time)
         return (x2 - x1, y2 - y1)
 
     def get_normal(self, time=0):
@@ -136,8 +132,7 @@ class Line(VObject):
     def get_slope(self, time=0):
         """Return the slope (dy/dx) of the line, or float('inf') for vertical lines.
         Uses SVG coordinates (y increases downward)."""
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         dx = x2 - x1
         if abs(dx) < 1e-10:
             return float('inf')
@@ -145,9 +140,7 @@ class Line(VObject):
 
     def angle(self, time=0):
         """Return the angle of this line in degrees (0 = right, CCW positive)."""
-        # Math convention (CCW, y-up): negate dy to flip from SVG y-down to math y-up
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         return math.degrees(math.atan2(-(y2 - y1), x2 - x1))
 
     def _is_aligned(self, axis, time, tol):
@@ -178,8 +171,7 @@ class Line(VObject):
 
     def set_length(self, length, start=0, end=None, easing=easings.smooth):
         """Set absolute length while keeping the midpoint fixed."""
-        x1, y1 = self.p1.at_time(start)
-        x2, y2 = self.p2.at_time(start)
+        x1, y1, x2, y2 = self._ep(start)
         cur = _distance(x1, y1, x2, y2)
         if cur < 1e-9:
             return self
@@ -192,8 +184,7 @@ class Line(VObject):
 
     def extend_to(self, length, anchor='start', start=0, end=None, easing=easings.smooth):
         """Extend or shrink the line to *length*, keeping one endpoint fixed."""
-        x1, y1 = self.p1.at_time(start)
-        x2, y2 = self.p2.at_time(start)
+        x1, y1, x2, y2 = self._ep(start)
         cur = _distance(x1, y1, x2, y2)
         if cur < 1e-9:
             return self
@@ -210,8 +201,7 @@ class Line(VObject):
 
     def get_perpendicular_point(self, px, py, time=0):
         """Find the point on the line closest to ``(px, py)``."""
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         dx, dy = x2 - x1, y2 - y1
         seg_len_sq = dx * dx + dy * dy
         if seg_len_sq < 1e-18:
@@ -224,8 +214,7 @@ class Line(VObject):
 
     def set_angle(self, angle_deg, about='midpoint', start=0, end=None, easing=easings.smooth):
         """Rotate the line to the given angle (degrees) about its midpoint or start."""
-        x1, y1 = self.p1.at_time(start)
-        x2, y2 = self.p2.at_time(start)
+        x1, y1, x2, y2 = self._ep(start)
         target = math.radians(angle_deg)
         length = _distance(x1, y1, x2, y2)
         if about == 'start':
@@ -333,33 +322,24 @@ class Line(VObject):
 
     def lerp(self, t, time=0):
         """Return point (x, y) at parameter t (0=start, 1=end) along the line."""
-        x1, y1 = self.get_start(time)
-        x2, y2 = self.get_end(time)
+        x1, y1, x2, y2 = self._ep(time)
         return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
 
     def subdivide_into(self, n=2, time=0, **kwargs):
         """Divide this line into *n* equal segments."""
         if n < 1:
             n = 1
-        x1, y1 = self.get_start(time)
-        x2, y2 = self.get_end(time)
-        dx = (x2 - x1) / n
-        dy = (y2 - y1) / n
-        segments = []
-        for i in range(n):
-            sx = x1 + i * dx
-            sy = y1 + i * dy
-            ex = x1 + (i + 1) * dx
-            ey = y1 + (i + 1) * dy
-            segments.append(Line(x1=sx, y1=sy, x2=ex, y2=ey, **kwargs))
-        return segments
+        x1, y1, x2, y2 = self._ep(time)
+        dx, dy = (x2 - x1) / n, (y2 - y1) / n
+        return [Line(x1=x1 + i * dx, y1=y1 + i * dy,
+                     x2=x1 + (i + 1) * dx, y2=y1 + (i + 1) * dy, **kwargs)
+                for i in range(n)]
 
     def divide(self, n=2, time=0):
         """Return *n* + 1 points that divide the line into *n* equal segments."""
         if n < 1:
             n = 1
-        x1, y1 = self.get_start(time)
-        x2, y2 = self.get_end(time)
+        x1, y1, x2, y2 = self._ep(time)
         return [(x1 + i * (x2 - x1) / n, y1 + i * (y2 - y1) / n)
                 for i in range(n + 1)]
 
@@ -378,8 +358,7 @@ class Line(VObject):
         tl = tip_length if tip_length is not None else DEFAULT_ARROW_TIP_LENGTH
         tw = tip_width if tip_width is not None else DEFAULT_ARROW_TIP_WIDTH
         hw = tw / 2
-        x1, y1 = self.p1.at_time(creation)
-        x2, y2 = self.p2.at_time(creation)
+        x1, y1, x2, y2 = self._ep(creation)
         stroke_color = self.styling.stroke.time_func(creation)
         objects = [self]
 
@@ -403,13 +382,12 @@ class Line(VObject):
         return VCollection(*objects, creation=creation, z=self.z)
 
     def __repr__(self):
-        p1, p2 = self.p1.at_time(0), self.p2.at_time(0)
-        return f'Line(({p1[0]:.0f},{p1[1]:.0f})->({p2[0]:.0f},{p2[1]:.0f}))'
+        x1, y1, x2, y2 = self._ep(0)
+        return f'Line(({x1:.0f},{y1:.0f})->({x2:.0f},{y2:.0f}))'
 
     def perpendicular(self, at_proportion=0.5, length=None, time=0, **kwargs):
         """Return a new Line perpendicular to this line at the given proportion."""
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         dx, dy = x2 - x1, y2 - y1
         line_len = math.hypot(dx, dy)
         if length is None:
@@ -425,8 +403,7 @@ class Line(VObject):
 
     def perpendicular_at(self, t=0.5, length=None, time=0, **kwargs):
         """Return a Line perpendicular to this line at parameter t (0=start, 1=end)."""
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         dx, dy = -(y2 - y1), x2 - x1  # perpendicular direction
         mag = math.hypot(dx, dy)
         if length is None:
@@ -439,8 +416,7 @@ class Line(VObject):
 
     def extend(self, factor=1.5, start=0, end=None, easing=easings.smooth):
         """Scale the line length by *factor* while keeping the midpoint fixed."""
-        x1, y1 = self.p1.at_time(start)
-        x2, y2 = self.p2.at_time(start)
+        x1, y1, x2, y2 = self._ep(start)
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
         dx, dy = (x2 - x1) / 2 * factor, (y2 - y1) / 2 * factor
         _set_attr(self.p1, start, end, (mx - dx, my - dy), easing)
@@ -454,8 +430,7 @@ class Line(VObject):
     def parallel(self, offset=50, time=0, **kwargs):
         """Return a new Line parallel to this one, offset perpendicular by offset pixels.
         Extra kwargs are forwarded to the new Line constructor."""
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         dx, dy = x2 - x1, y2 - y1
         line_len = math.hypot(dx, dy)
         if line_len == 0:
@@ -466,8 +441,7 @@ class Line(VObject):
 
     def parallel_through(self, point, time=0, **kwargs):
         """Return a new Line parallel to this one, passing through the given point."""
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         dx, dy = x2 - x1, y2 - y1
         px, py = point
         # Center the parallel line on the given point
@@ -476,22 +450,18 @@ class Line(VObject):
 
     def rotate_around_midpoint(self, angle_deg, time=0):
         """Rotate line endpoints around the midpoint by angle_deg degrees."""
-        mx, my = self.get_midpoint(time)
-        angle = math.radians(angle_deg)
-        for p in [self.p1, self.p2]:
-            px, py = p.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
+        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+        c, s = math.cos(math.radians(angle_deg)), math.sin(math.radians(angle_deg))
+        for p, px, py in [(self.p1, x1, y1), (self.p2, x2, y2)]:
             dx, dy = px - mx, py - my
-            new_dx = dx * math.cos(angle) - dy * math.sin(angle)
-            new_dy = dx * math.sin(angle) + dy * math.cos(angle)
-            p.set_onward(time, (mx + new_dx, my + new_dy))
+            p.set_onward(time, (mx + dx * c - dy * s, my + dx * s + dy * c))
         return self
 
     def _intersect_params(self, other, time=0):
         """Return (t, u) line-line intersection parameters, or None if parallel."""
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
-        x3, y3 = other.p1.at_time(time)
-        x4, y4 = other.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
+        x3, y3, x4, y4 = other._ep(time)
         denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
         if abs(denom) < 1e-10:
             return None
@@ -505,8 +475,7 @@ class Line(VObject):
         if params is None:
             return None
         t = params[0]
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
 
     def intersect_segment(self, other, time=0):
@@ -517,14 +486,12 @@ class Line(VObject):
         t, u = params
         if t < -1e-10 or t > 1 + 1e-10 or u < -1e-10 or u > 1 + 1e-10:
             return None
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
 
     def project_point(self, px, py, time=0):
         """Return the closest point on this line (extended) to point (px, py)."""
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         dx, dy = x2 - x1, y2 - y1
         len_sq = dx * dx + dy * dy
         if len_sq < 1e-20:
@@ -535,14 +502,12 @@ class Line(VObject):
     def closest_point_on_segment(self, px, py, time=0):
         """Return the closest point on this line **segment** to point (px, py)."""
         t = max(0.0, min(1.0, self.parameter_at(px, py, time)))
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
 
     def parameter_at(self, px, py, time=0):
         """Return the parameter t for the projection of (px, py) onto the line."""
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
+        x1, y1, x2, y2 = self._ep(time)
         dx, dy = x2 - x1, y2 - y1
         len_sq = dx * dx + dy * dy
         if len_sq < 1e-20:
@@ -1830,8 +1795,8 @@ class DashedLine(Line):
                          **({'stroke_dasharray': dash} | styling_kwargs))
 
     def __repr__(self):
-        p1, p2 = self.p1.at_time(0), self.p2.at_time(0)
-        return f'DashedLine(({p1[0]:.0f},{p1[1]:.0f})->({p2[0]:.0f},{p2[1]:.0f}))'
+        x1, y1, x2, y2 = self._ep(0)
+        return f'DashedLine(({x1:.0f},{y1:.0f})->({x2:.0f},{y2:.0f}))'
 
     def set_dash_pattern(self, dash, gap=None, start=0):
         """Set the dash pattern. If gap is None, gap = dash."""
