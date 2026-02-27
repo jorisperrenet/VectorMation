@@ -79,11 +79,73 @@ VCollection
 
       Rotate all children to an absolute angle.
 
+   .. rubric:: Layout (additional)
+
+   .. py:method:: arrange_in_grid(rows=None, cols=None, buff=12, start=0)
+
+      Lay out children in a grid of *rows* x *cols*.
+
+   .. py:method:: animated_arrange(direction='right', buff=12, start=0, end=1)
+
+      Animated version of :py:meth:`arrange`: children slide to arranged positions.
+
+   .. py:method:: animated_arrange_in_grid(rows=None, cols=None, buff=12, start=0, end=1)
+
+      Animated version of :py:meth:`arrange_in_grid`.
+
+   .. py:method:: distribute_radial(cx=960, cy=540, radius=300, start=0)
+
+      Place children in a circle.
+
    .. rubric:: Animation
 
    .. py:method:: write(start, end, processing=10, max_stroke_width=2, change_existence=True)
 
       Staggered write animation across all children.
+
+   .. py:method:: cascade(method_name, delay=0.2, **kwargs)
+
+      Call *method_name* on each child with staggered timing.
+
+   .. py:method:: sequential(method_name, **kwargs)
+
+      Call *method_name* on children one after another, with no overlap.
+
+   .. py:method:: swap_children(i, j, start=0, end=1, easing=smooth)
+
+      Animate swapping positions of children *i* and *j* using arc paths.
+
+   .. py:method:: shuffle_animate(start=0, end=1)
+
+      Animated random shuffle of children.
+
+   .. rubric:: Filtering & Iteration
+
+   .. py:method:: filter(func)
+
+      Return a new VCollection with only children where ``func(child)`` is true.
+
+   .. py:method:: partition(func)
+
+      Split into two VCollections based on a predicate.
+
+   .. py:method:: for_each(func)
+
+      Apply *func* to each child. Returns self.
+
+   .. py:method:: sort_children(key, reverse=False)
+
+      Sort children by a key function.
+
+   .. rubric:: Color
+
+   .. py:method:: set_color_by_gradient(colors, start=0)
+
+      Assign a gradient of colours across children.
+
+   .. py:method:: set_opacity_by_gradient(start_opacity, end_opacity, start=0)
+
+      Assign a gradient of opacities across children.
 
 ----
 

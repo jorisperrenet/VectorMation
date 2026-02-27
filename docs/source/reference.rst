@@ -45,27 +45,61 @@ Class Hierarchy
    +-- TexObject                LaTeX rendered as SVG paths
    +-- Arrow                    Line with arrowhead
    |   +-- DoubleArrow          Both ends
+   |   +-- LabeledArrow         Arrow with text label
    +-- CurvedArrow              Bezier curve with arrowhead
    +-- Brace                    Curly brace annotation
    +-- Cross                    X mark
+   +-- Angle                    Angle arc annotation
    +-- RightAngle               Right angle indicator
    +-- NumberLine               Number line with ticks
    +-- Graph                    Full plot with axes
    |   +-- Axes                 Standalone axes
-   +-- PieChart / BarChart      Charts
-   +-- NeuralNetwork            Neural network diagram
-   +-- Pendulum                 Animated pendulum
-   +-- StandingWave             Standing wave animation
-   +-- Table / Matrix           Data display
+   +-- NumberPlane              Coordinate grid
+   +-- ComplexPlane             Complex number plane
+   +-- PolarAxes                Polar coordinate axes
+   +-- PieChart                 Pie chart
+   +-- DonutChart               Donut chart
+   +-- BarChart                 Bar chart
+   +-- RadarChart               Radar/spider chart
+   +-- Table                    Data table
+   +-- Matrix                   Matrix display
    +-- NetworkGraph             Network/graph diagram
    +-- FlowChart                Flow chart
    +-- Tree                     Tree diagram
+   +-- NeuralNetwork            Neural network diagram
+   +-- Pendulum                 Animated pendulum
+   +-- StandingWave             Standing wave animation
+   +-- ArrayViz                 Array visualisation
+   +-- LinkedListViz            Linked list visualisation
+   +-- StackViz                 Stack (LIFO) visualisation
+   +-- Automaton                Finite state machine
+   +-- BohrAtom                 Bohr atom model
+   +-- ChessBoard               Chess board
+   +-- PeriodicTable            Periodic table
+   +-- ArrowVectorField         Vector field (arrows)
+   +-- StreamLines              Stream lines
+   +-- Code                     Syntax-highlighted code
+   +-- Title                    Styled title bar
+   +-- Variable                 Live variable display
+   +-- Underline                Text underline
+   +-- Label                    Positioned text label
+   +-- Callout                  Speech bubble callout
+   +-- Tooltip                  Hovering tooltip
+   +-- DimensionLine            Measurement annotation
+   +-- Stamp                    Repeated copies of a template
+   +-- TimelineBar              Timeline with markers
+   +-- Legend                   Chart legend
+   +-- ZoomedInset              Zoomed inset viewport
 
    SplitTexObject               Multi-line LaTeX container
+   DynamicObject                Object rebuilt each frame
 
    ThreeDAxes                   3D coordinate axes
    +-- Surface                  3D surface plot
    +-- Line3D / Arrow3D / Dot3D 3D primitives
+   +-- ParametricCurve3D        3D parametric curve
+   +-- Text3D                   3D text
+   +-- Sphere3D / Cube / Cylinder3D / Cone3D / Torus3D / Prism3D
 
 .. toctree::
    :maxdepth: 2

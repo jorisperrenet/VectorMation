@@ -1614,13 +1614,15 @@ class VObject(ABC):  # Vector Object
         """Animate scaling from 1 to 0 (shrink out to nothing), scaling around the object's center."""
         return self._scale_in_out(start, end, False, change_existence, easing)
 
-    def elastic_in(self, start: float = 0, end: float = 1, change_existence=True):
+    def elastic_in(self, start: float = 0, end: float = 1, change_existence=True,
+                   easing=easings.ease_out_elastic):
         """Scale in with elastic bounce (overshoot then settle)."""
-        return self._scale_in_out(start, end, True, change_existence, easings.ease_out_elastic)
+        return self._scale_in_out(start, end, True, change_existence, easing)
 
-    def elastic_out(self, start: float = 0, end: float = 1, change_existence=True):
+    def elastic_out(self, start: float = 0, end: float = 1, change_existence=True,
+                    easing=easings.ease_in_elastic):
         """Scale out with elastic bounce."""
-        return self._scale_in_out(start, end, False, change_existence, easings.ease_in_elastic)
+        return self._scale_in_out(start, end, False, change_existence, easing)
 
     def bounce_in(self, start: float = 0, end: float = 1, change_existence=True,
                   easing=easings.ease_out_bounce):
@@ -3307,6 +3309,7 @@ class VObject(ABC):  # Vector Object
         Both objects should already be added to the canvas."""
         source.fadeout(start=start, end=end, change_existence=True)
         target.fadein(start=start, end=end, change_existence=True)
+        return source
 
     @staticmethod
     def swap(a, b, start: float = 0, end: float = 1, easing=easings.smooth):
@@ -6749,10 +6752,7 @@ class VCollection:
         b.path_arc(acx, acy, start=start, end=end, angle=-math.pi / 3, easing=easing)
         return self
 
-    def swap_animated(self, i, j, start=0, end=1, easing=easings.smooth):
-        """Animate swapping the positions of children at indices i and j.
-        Alias for :meth:`swap_children`."""
-        return self.swap_children(i, j, start=start, end=end, easing=easing)
+    swap_animated = swap_children  # backward compat alias
 
     def highlight_nth(self, n, start=0, end=1, color='#FFFF00', easing=easings.smooth):
         """Highlight the nth child by temporarily changing its fill color while

@@ -199,6 +199,10 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Scale-with-fade pulse.
 
+   .. py:method:: pulsate(start=0, end=1, scale_factor=1.3, pulses=3, easing=smooth)
+
+      Repeated scale pulses.
+
    .. py:method:: blink(start=0, duration=0.3, easing=smooth)
 
       Opacity blink.
@@ -222,6 +226,68 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
    .. py:method:: spiral_in(start=0, end=1, n_turns=1, change_existence=True, easing=smooth)
 
       Spiral in with rotation.
+
+   .. py:method:: spiral_out(start=0, end=1, n_turns=1, change_existence=True, easing=smooth)
+
+      Spiral out with rotation.
+
+   .. py:method:: bounce(start=0, end=1, height=100, bounces=3, easing=smooth)
+
+      Bouncing ball effect.
+
+   .. py:method:: orbit(start=0, end=1, cx=None, cy=None, radius=100, easing=linear)
+
+      Orbit around a centre point.
+
+   .. py:method:: ripple(start=0, end=1, rings=3, easing=smooth)
+
+      Expanding rings from the object.
+
+   .. py:method:: spring(start=0, end=1, amplitude=30, damping=5, frequency=4, axis='y')
+
+      Damped spring oscillation.
+
+   .. py:method:: shake(start=0, end=1, intensity=10, speed=20)
+
+      Random jitter.
+
+   .. py:method:: rubber_band(start=0, end=1, easing=smooth)
+
+      Rubber-band stretch and snap.
+
+   .. py:method:: float_anim(start=0, end=1, amplitude=10, speed=1.0)
+
+      Gentle floating up/down animation.
+
+   .. py:method:: trail(start=0, end=1, n_copies=5, delay=0.1, fade=True)
+
+      Ghostly trail of fading copies following the object.
+
+   .. py:method:: cross_out(start=0, end=1, color='#FC6255', stroke_width=4)
+
+      Draw an X through the object.
+
+   .. py:method:: dim(start=0, end=None, opacity=0.3, easing=smooth)
+
+      Dim the object to a lower opacity.
+
+   .. py:method:: undim(start=0, end=None, easing=smooth)
+
+      Restore full opacity after :py:meth:`dim`.
+
+   .. rubric:: State
+
+   .. py:method:: save_state(time=0)
+
+      Snapshot current position, scale, and styling.
+
+   .. py:method:: restore(start=0, end=None, easing=smooth)
+
+      Animate back to the saved state.
+
+   .. py:method:: trace_path(start=0, end=1, stroke='#fff')
+
+      Returns a :py:class:`Path` tracing this object's centre over time.
 
    .. rubric:: Transform
 
