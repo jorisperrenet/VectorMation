@@ -2294,25 +2294,11 @@ class VObject(ABC):  # Vector Object
     def flash_color(self, color='#FFFF00', start: float = 0, duration=0.4,
                      attr='fill'):
         """Flash to a color and back. Quick attention-grabbing effect."""
-        end = start + duration
-        dur = duration
-        if dur <= 0:
-            return self
-        src = getattr(self.styling, attr)
-        if not isinstance(src, attributes.Color):
-            return self
-        # Get the raw RGB tuple (not the formatted string)
-        original_rgb = src.time_func(start)
-        flash_c = attributes.Color(start, color)
-        mid = start + dur / 2
-        restore_c = attributes.Color(start, original_rgb)
-        src.interpolate(flash_c, start, mid, easing=easings.linear)
-        src.interpolate(restore_c, mid, end, easing=easings.linear)
-        return self
+        return self.pulse_color(color, start=start, end=start + duration, pulses=1, attr=attr)
 
     def pulse_color(self, color='#FFFF00', start: float = 0, end: float = 1,
                      pulses=3, attr='fill'):
-        """Periodic color pulsing: alternate between current color and color N times."""
+        """Periodic color pulsing: alternate between current color and *color* N times."""
         dur = end - start
         if dur <= 0 or pulses <= 0:
             return self
@@ -2325,32 +2311,12 @@ class VObject(ABC):  # Vector Object
             seg_s = start + i * pulse_dur
             seg_mid = seg_s + pulse_dur / 2
             seg_e = seg_s + pulse_dur
-            flash_c = attributes.Color(seg_s, color)
-            restore_c = attributes.Color(seg_s, original_rgb)
-            src.interpolate(flash_c, seg_s, seg_mid, easing=easings.linear)
-            src.interpolate(restore_c, seg_mid, seg_e, easing=easings.linear)
+            src.interpolate(attributes.Color(seg_s, color), seg_s, seg_mid, easing=easings.linear)
+            src.interpolate(attributes.Color(seg_s, original_rgb), seg_mid, seg_e, easing=easings.linear)
         return self
 
     def color_shift(self, hue_shift=30, start=0, end=1, easing=easings.smooth):
-        """Animate shifting the fill color's hue over [start, end].
-
-        Uses HSL color space to rotate the hue by *hue_shift* degrees.
-
-        Parameters
-        ----------
-        hue_shift:
-            Number of degrees to shift the hue (0-360 scale).
-        start:
-            Start time of the animation.
-        end:
-            End time of the animation.
-        easing:
-            Easing function for the transition.
-
-        Returns
-        -------
-        self
-        """
+        """Animate shifting the fill color's hue by *hue_shift* degrees over [start, end]."""
         from vectormation.attributes import _rgb_to_hsl, _hsl_to_rgb
         src = self.styling.fill
         if not isinstance(src, attributes.Color):
@@ -2446,23 +2412,7 @@ class VObject(ABC):  # Vector Object
 
     def squash_and_stretch(self, start: float = 0, end: float = 1,
                            factor: float = 1.3, easing=easings.smooth):
-        """Classic animation squash-and-stretch: scales x by *factor* while
-        y scales by 1/factor (preserving area), then returns to normal.
-
-        The first half squashes/stretches to the peak deformation, the second
-        half returns to the original shape.  The effect creates a bouncy,
-        organic feel often used when objects land or are hit.
-
-        Parameters
-        ----------
-        start, end:
-            Animation time window.
-        factor:
-            Peak horizontal scale factor (>1 = wide/squashed).  The vertical
-            axis scales by 1/factor to preserve visual area.
-        easing:
-            Controls the acceleration of the deformation curve.
-        """
+        """Area-preserving squash/stretch: x scales by *factor*, y by 1/factor, then back."""
         dur = end - start
         if dur <= 0:
             return self
