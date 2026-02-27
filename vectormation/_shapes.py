@@ -4,7 +4,7 @@ import math
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
-from vectormation._constants import SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS, _distance
+from vectormation._constants import SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS, TEXT_Y_OFFSET, _distance
 from vectormation._base import VObject, _set_attr
 
 def _cross2d(o, a, b):
@@ -814,6 +814,37 @@ class Polygon(VObject):
             nx, ny = func(float(x), float(y))
             v.set_onward(time, (nx, ny))
         return self
+
+    def label_vertices(self, labels=None, offset=20, font_size=24, time=0,
+                       creation=0, z=None, **styling_kwargs):
+        """Create labeled dots at each vertex.
+
+        Returns a VCollection of (Dot, Text) pairs positioned at each vertex,
+        offset outward from the polygon center. Labels default to A, B, C, ..."""
+        from vectormation._base import VCollection
+        pts = self.get_vertices(time)
+        n = len(pts)
+        if not n:
+            return VCollection()
+        if labels is None:
+            labels = [chr(65 + i) for i in range(n)]  # A, B, C, ...
+        if z is None:
+            z = self.z.at_time(time) + 0.1
+        cx, cy = self.get_center(time)
+        style_kw = {'fill': '#fff', 'stroke_width': 0} | styling_kwargs
+        from vectormation._shapes_ext import Text as _Text
+        objects = []
+        for i, (vx, vy) in enumerate(pts):
+            dx, dy = vx - cx, vy - cy
+            dist = math.hypot(dx, dy) or 1
+            lx = vx + dx / dist * offset
+            ly = vy + dy / dist * offset
+            lbl = labels[i] if i < len(labels) else ''
+            objects.append(_Text(text=str(lbl), x=lx,
+                                 y=ly + font_size * TEXT_Y_OFFSET,
+                                 font_size=font_size, text_anchor='middle',
+                                 creation=creation, z=z, **style_kw))
+        return VCollection(*objects, creation=creation, z=z)
 
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'

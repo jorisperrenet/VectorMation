@@ -14290,3 +14290,29 @@ class TestTableSwapRows:
         # After animation, row 0 entry (originally row 1) should end at row 0's y
         new_y0 = t.entries[0][0].y.at_time(2)
         assert abs(new_y0 - y0) < 1
+
+
+class TestPolygonLabelVertices:
+    def test_label_default_abc(self):
+        p = Polygon((100, 100), (200, 100), (150, 50))
+        labels = p.label_vertices()
+        assert isinstance(labels, VCollection)
+        assert len(labels.objects) == 3
+
+    def test_label_custom_names(self):
+        p = Polygon((100, 100), (200, 100), (150, 50))
+        labels = p.label_vertices(labels=['P', 'Q', 'R'])
+        assert len(labels.objects) == 3
+
+    def test_label_svg_contains_text(self):
+        p = Polygon((100, 100), (200, 100), (150, 50))
+        labels = p.label_vertices()
+        # Each label should produce SVG with text
+        for obj in labels.objects:
+            svg = obj.to_svg(0)
+            assert '<text' in svg
+
+    def test_label_empty_polygon(self):
+        p = Polygon()
+        labels = p.label_vertices()
+        assert len(labels.objects) == 0
