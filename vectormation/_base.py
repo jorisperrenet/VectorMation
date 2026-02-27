@@ -1074,58 +1074,12 @@ class VObject(ABC):  # Vector Object
 
     def fade_slide_in(self, direction=None, distance=200, start: float = 0, end: float = 1,
                       change_existence=True, easing=easings.smooth):
-        """Slide in from a direction while fading from 0 to 1.
-
-        Combines a positional shift with an opacity fade-in.  The object
-        starts *distance* pixels away in the opposite of *direction* and
-        at opacity 0, then moves to its current position at full opacity.
-
-        Parameters
-        ----------
-        direction:
-            Direction tuple to slide in from (e.g. ``DOWN``, ``LEFT``).
-            Defaults to ``DOWN``.
-        distance:
-            How far away (in pixels) the object starts.
-        start, end:
-            Time interval for the animation.
-        change_existence:
-            If True the object becomes visible at *start*.
-        easing:
-            Easing function (default ``easings.smooth``).
-
-        Returns
-        -------
-        self
-        """
+        """Slide in from *direction* while fading in. Default direction: DOWN."""
         return self._fade_slide_anim(direction, distance, start, end, True, change_existence, easing)
 
     def fade_slide_out(self, direction=None, distance=200, start: float = 0, end: float = 1,
                        change_existence=True, easing=easings.smooth):
-        """Slide away in a direction while fading from 1 to 0.
-
-        The reverse of :meth:`fade_slide_in`.  The object moves *distance*
-        pixels in *direction* while its opacity goes from its current value
-        to 0.
-
-        Parameters
-        ----------
-        direction:
-            Direction tuple to slide toward (e.g. ``DOWN``, ``LEFT``).
-            Defaults to ``DOWN``.
-        distance:
-            How far (in pixels) the object travels.
-        start, end:
-            Time interval for the animation.
-        change_existence:
-            If True the object is hidden at *end*.
-        easing:
-            Easing function (default ``easings.smooth``).
-
-        Returns
-        -------
-        self
-        """
+        """Slide away in *direction* while fading out. Reverse of fade_slide_in."""
         return self._fade_slide_anim(direction, distance, start, end, False, change_existence, easing)
 
     def write(self, start: float = 0, end: float = 1, max_stroke_width=2, change_existence=True, easing=easings.smooth, stroke_easing=easings.there_and_back):
@@ -3048,29 +3002,7 @@ class VObject(ABC):  # Vector Object
 
     def typewriter_reveal(self, start: float = 0, end: float = 1,
                           direction='right', easing=easings.smooth):
-        """Progressively reveal the object with a clip-path sweep.
-
-        Uses ``clip-path: inset()`` to gradually uncover the object from one
-        edge, creating a typewriter-like or curtain reveal effect.  Unlike
-        :meth:`wipe` (which animates a closing inset and can reverse), this
-        method always reveals from fully hidden to fully visible, and the
-        object is hidden before *start* and shown from *start* onward.
-
-        Parameters
-        ----------
-        start, end:
-            Time interval for the reveal animation.
-        direction:
-            Which edge the reveal sweeps from: ``'right'`` (left-to-right
-            reveal), ``'left'`` (right-to-left), ``'down'`` (top-to-bottom),
-            ``'up'`` (bottom-to-top).
-        easing:
-            Easing function for the sweep progress.
-
-        Returns
-        -------
-        self
-        """
+        """Clip-path sweep reveal. direction: 'right', 'left', 'down', 'up'."""
         return self._typewriter_clip(start, end, direction, easing, reveal=True)
 
     def cross_out(self, start: float = 0, end: float = 0.5, color='#FC6255',
@@ -4119,27 +4051,7 @@ class VObject(ABC):  # Vector Object
 
     def typewriter_delete(self, start: float = 0, end: float = 1,
                           direction='right', easing=easings.smooth):
-        """Progressively hide the object with a clip-path sweep.
-
-        The reverse of :meth:`typewriter_reveal`: the object starts fully
-        visible and is progressively clipped away, creating a deletion or
-        closing-curtain effect.  The object is hidden after *end*.
-
-        Parameters
-        ----------
-        start, end:
-            Time interval for the delete animation.
-        direction:
-            Which edge the deletion sweeps toward: ``'right'`` (clips from
-            left-to-right), ``'left'`` (right-to-left), ``'down'``
-            (top-to-bottom), ``'up'`` (bottom-to-top).
-        easing:
-            Easing function for the sweep progress.
-
-        Returns
-        -------
-        self
-        """
+        """Clip-path sweep hide (reverse of typewriter_reveal)."""
         return self._typewriter_clip(start, end, direction, easing, reveal=False)
 
     def domino(self, start: float = 0, end: float = 1, direction='right',

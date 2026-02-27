@@ -6298,12 +6298,24 @@ class CubicBezier(VObject):
         return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"
 
 
-class Paragraph(VObject):
-    """Multi-line text with alignment and line spacing.
+class _TextBlockMixin:
+    """Shared position/path methods for Paragraph, BulletedList, NumberedList."""
 
-    alignment: 'left', 'center', or 'right'.
-    line_spacing: multiplier for vertical spacing between lines.
-    """
+    def _extra_attrs(self):
+        return [self.x, self.y]
+
+    def _shift_reals(self):
+        return [(self.x, self.y)]
+
+    def snap_points(self, time):
+        return [(self.x.at_time(time), self.y.at_time(time))]
+
+    def path(self, time):
+        return ''
+
+
+class Paragraph(_TextBlockMixin, VObject):
+    """Multi-line text with alignment and line spacing."""
     def __init__(self, *lines, x=960, y=540, font_size=36, alignment='left',
                  line_spacing=1.4, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
@@ -6318,18 +6330,6 @@ class Paragraph(VObject):
 
     def __repr__(self):
         return f'Paragraph({len(self.lines)} lines)'
-
-    def _extra_attrs(self):
-        return [self.x, self.y]
-
-    def _shift_reals(self):
-        return [(self.x, self.y)]
-
-    def snap_points(self, time):
-        return [(self.x.at_time(time), self.y.at_time(time))]
-
-    def path(self, time):
-        return ''
 
     def bbox(self, time=0):
         x, y = self.x.at_time(time), self.y.at_time(time)
@@ -6353,12 +6353,8 @@ class Paragraph(VObject):
         return '\n'.join(parts)
 
 
-class BulletedList(VObject):
-    """List of items with bullet points.
-
-    bullet: character to use as bullet marker.
-    indent: pixel indentation for each item.
-    """
+class BulletedList(_TextBlockMixin, VObject):
+    """List of items with bullet points."""
     def __init__(self, *items, x=200, y=200, font_size=36, bullet='\u2022',
                  indent=40, line_spacing=1.6, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
@@ -6374,18 +6370,6 @@ class BulletedList(VObject):
 
     def __repr__(self):
         return f'BulletedList({len(self.items)} items)'
-
-    def _extra_attrs(self):
-        return [self.x, self.y]
-
-    def _shift_reals(self):
-        return [(self.x, self.y)]
-
-    def snap_points(self, time):
-        return [(self.x.at_time(time), self.y.at_time(time))]
-
-    def path(self, time):
-        return ''
 
     def bbox(self, time=0):
         x, y = self.x.at_time(time), self.y.at_time(time)
@@ -6406,12 +6390,8 @@ class BulletedList(VObject):
         return '\n'.join(parts)
 
 
-class NumberedList(VObject):
-    """List of items with numeric labels (1. 2. 3. ...).
-
-    indent: pixel indentation for item text after the number.
-    start_number: first number in the sequence.
-    """
+class NumberedList(_TextBlockMixin, VObject):
+    """List of items with numeric labels (1. 2. 3. ...)."""
     def __init__(self, *items, x=200, y=200, font_size=36, indent=50,
                  line_spacing=1.6, start_number=1, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
@@ -6427,18 +6407,6 @@ class NumberedList(VObject):
 
     def __repr__(self):
         return f'NumberedList({len(self.items)} items)'
-
-    def _extra_attrs(self):
-        return [self.x, self.y]
-
-    def _shift_reals(self):
-        return [(self.x, self.y)]
-
-    def snap_points(self, time):
-        return [(self.x.at_time(time), self.y.at_time(time))]
-
-    def path(self, time):
-        return ''
 
     def bbox(self, time=0):
         x, y = self.x.at_time(time), self.y.at_time(time)
