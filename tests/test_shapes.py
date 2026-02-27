@@ -2274,7 +2274,6 @@ class TestLineFromDirection:
 
     def test_horizontal_right(self):
         from vectormation.objects import Line
-        import math
         line = Line.from_direction((100, 200), (1, 0), 100)
         x1, y1 = line.p1.at_time(0)
         x2, y2 = line.p2.at_time(0)
@@ -2286,7 +2285,6 @@ class TestLineFromDirection:
     def test_downward(self):
         from vectormation.objects import Line
         line = Line.from_direction((0, 0), (0, 1), 50)
-        x1, y1 = line.p1.at_time(0)
         x2, y2 = line.p2.at_time(0)
         assert x2 == pytest.approx(0)
         assert y2 == pytest.approx(50)
@@ -2371,12 +2369,11 @@ class TestCircleInscribedPolygon:
 
     def test_angle_rotates_first_vertex(self):
         from vectormation.objects import Circle
-        import math
         c = Circle(r=100, cx=0, cy=0)
         poly0 = c.inscribed_polygon(4, angle=0)
         poly90 = c.inscribed_polygon(4, angle=90)
-        x0, y0 = poly0.vertices[0].at_time(0)
-        x90, y90 = poly90.vertices[0].at_time(0)
+        x0, _ = poly0.vertices[0].at_time(0)
+        _, y90 = poly90.vertices[0].at_time(0)
         # With angle=0 first vertex is at rightmost (0 deg), with angle=90 at top
         assert x0 == pytest.approx(100, abs=0.5)
         assert y90 == pytest.approx(-100, abs=0.5)  # SVG y-up: y decreases upward
@@ -2387,3 +2384,165 @@ class TestCircleInscribedPolygon:
         poly = c.inscribed_polygon(4, fill='#f00')
         svg = poly.to_svg(0)
         assert '255' in svg or 'f00' in svg.lower()
+
+
+class TestWedgeToArc:
+    def test_returns_arc_instance(self):
+        w = Wedge(cx=500, cy=400, r=100, start_angle=30, end_angle=120)
+        arc = w.to_arc()
+        assert isinstance(arc, Arc)
+
+    def test_preserves_center(self):
+        w = Wedge(cx=500, cy=400, r=100, start_angle=0, end_angle=90)
+        arc = w.to_arc()
+        assert arc.cx.at_time(0) == pytest.approx(500)
+        assert arc.cy.at_time(0) == pytest.approx(400)
+
+    def test_preserves_radius(self):
+        w = Wedge(cx=960, cy=540, r=80, start_angle=0, end_angle=180)
+        arc = w.to_arc()
+        assert arc.r.at_time(0) == pytest.approx(80)
+
+    def test_preserves_angles(self):
+        w = Wedge(cx=0, cy=0, r=50, start_angle=45, end_angle=135)
+        arc = w.to_arc()
+        assert arc.start_angle.at_time(0) == pytest.approx(45)
+        assert arc.end_angle.at_time(0) == pytest.approx(135)
+
+    def test_kwargs_forwarded(self):
+        w = Wedge(cx=100, cy=100, r=50, start_angle=0, end_angle=90)
+        arc = w.to_arc(stroke='#ff0000', stroke_width=3)
+        svg = arc.to_svg(0)
+        assert '255' in svg or 'ff0000' in svg.lower() or 'ff,' in svg.lower()
+
+    def test_is_not_wedge(self):
+        w = Wedge(cx=0, cy=0, r=50, start_angle=0, end_angle=90)
+        arc = w.to_arc()
+        assert not isinstance(arc, Wedge)
+
+    def test_time_parameter_used(self):
+        w = Wedge(cx=0, cy=0, r=50, start_angle=0, end_angle=90)
+        # Animate the radius
+        w.r.move_to(0, 1, 200)
+        arc = w.to_arc(time=1)
+        assert arc.r.at_time(0) == pytest.approx(200)
+
+
+class TestRectangleGetCorners:
+    def test_returns_four_corners(self):
+        r = Rectangle(width=100, height=50, x=10, y=20)
+        corners = r.get_corners()
+        assert len(corners) == 4
+
+    def test_corner_values(self):
+        r = Rectangle(width=100, height=50, x=10, y=20)
+        corners = r.get_corners()
+        assert corners[0] == pytest.approx((10.0, 20.0))
+        assert corners[1] == pytest.approx((110.0, 20.0))
+        assert corners[2] == pytest.approx((110.0, 70.0))
+        assert corners[3] == pytest.approx((10.0, 70.0))
+
+    def test_square_corners(self):
+        r = Rectangle.square(100, x=0, y=0)
+        corners = r.get_corners()
+        assert corners[0] == pytest.approx((0.0, 0.0))
+        assert corners[2] == pytest.approx((100.0, 100.0))
+
+    def test_all_floats(self):
+        r = Rectangle(width=60, height=40, x=5, y=5)
+        for pt in r.get_corners():
+            assert isinstance(pt[0], float)
+            assert isinstance(pt[1], float)
+
+    def test_time_parameter(self):
+        r = Rectangle(width=100, height=50, x=0, y=0)
+        r.width.move_to(0, 1, 200)
+        corners = r.get_corners(time=1)
+        assert corners[1][0] == pytest.approx(200.0)
+        assert corners[2][0] == pytest.approx(200.0)
+
+
+class TestEllipseGetPointAtParameter:
+    def test_t0_is_rightmost(self):
+        e = Ellipse(rx=100, ry=50, cx=500, cy=400)
+        x, y = e.get_point_at_parameter(0)
+        assert x == pytest.approx(600.0)
+        assert y == pytest.approx(400.0)
+
+    def test_t025_is_bottom(self):
+        e = Ellipse(rx=100, ry=50, cx=500, cy=400)
+        x, y = e.get_point_at_parameter(0.25)
+        assert x == pytest.approx(500.0)
+        assert y == pytest.approx(450.0)
+
+    def test_t05_is_leftmost(self):
+        e = Ellipse(rx=100, ry=50, cx=500, cy=400)
+        x, y = e.get_point_at_parameter(0.5)
+        assert x == pytest.approx(400.0)
+        assert y == pytest.approx(400.0)
+
+    def test_t075_is_top(self):
+        e = Ellipse(rx=100, ry=50, cx=500, cy=400)
+        x, y = e.get_point_at_parameter(0.75)
+        assert x == pytest.approx(500.0)
+        assert y == pytest.approx(350.0)
+
+    def test_point_lies_on_ellipse(self):
+        rx, ry, cx, cy = 80, 40, 200, 300
+        e = Ellipse(rx=rx, ry=ry, cx=cx, cy=cy)
+        for t in [0, 0.1, 0.33, 0.5, 0.7, 0.99]:
+            x, y = e.get_point_at_parameter(t)
+            # Ellipse equation: ((x-cx)/rx)^2 + ((y-cy)/ry)^2 == 1
+            val = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2
+            assert val == pytest.approx(1.0, abs=1e-9)
+
+    def test_time_parameter(self):
+        e = Ellipse(rx=50, ry=50, cx=500, cy=400)
+        e.rx.move_to(0, 1, 100)
+        x, _ = e.get_point_at_parameter(0, time=1)
+        assert x == pytest.approx(600.0)
+
+    def test_circle_case(self):
+        c = Circle(r=50, cx=0, cy=0)
+        x, y = c.get_point_at_parameter(0)
+        assert x == pytest.approx(50.0)
+        assert y == pytest.approx(0.0, abs=1e-9)
+
+
+class TestLineGetDirection:
+    def test_horizontal_right(self):
+        l = Line(x1=0, y1=0, x2=10, y2=0)
+        dx, dy = l.get_direction()
+        assert dx == pytest.approx(1.0)
+        assert dy == pytest.approx(0.0)
+
+    def test_vertical_down(self):
+        l = Line(x1=0, y1=0, x2=0, y2=10)
+        dx, dy = l.get_direction()
+        assert dx == pytest.approx(0.0)
+        assert dy == pytest.approx(1.0)
+
+    def test_diagonal(self):
+        l = Line(x1=0, y1=0, x2=3, y2=4)
+        dx, dy = l.get_direction()
+        assert dx == pytest.approx(0.6)
+        assert dy == pytest.approx(0.8)
+
+    def test_unit_length(self):
+        import math
+        l = Line(x1=100, y1=200, x2=300, y2=500)
+        dx, dy = l.get_direction()
+        assert math.hypot(dx, dy) == pytest.approx(1.0)
+
+    def test_zero_length_line(self):
+        l = Line(x1=5, y1=5, x2=5, y2=5)
+        dx, dy = l.get_direction()
+        assert dx == pytest.approx(0.0)
+        assert dy == pytest.approx(0.0)
+
+    def test_time_parameter(self):
+        l = Line(x1=0, y1=0, x2=1, y2=0)
+        l.p2.move_to(0, 1, (0, 10))
+        dx, dy = l.get_direction(time=1)
+        assert dx == pytest.approx(0.0)
+        assert dy == pytest.approx(1.0)

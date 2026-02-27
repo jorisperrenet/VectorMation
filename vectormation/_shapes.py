@@ -8,7 +8,7 @@ import vectormation.style as style
 from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
     SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS, CHAR_WIDTH_FACTOR,
-    _rotate_point, _sample_function, _distance,
+    _rotate_point, _sample_function, _distance, _normalize,
 )
 from vectormation._base import VObject
 
@@ -324,6 +324,39 @@ class Ellipse(VObject):
         rad = math.radians(degrees)
         return (cx + rx * math.cos(rad), cy - ry * math.sin(rad))
 
+    def get_point_at_parameter(self, t, time=0):
+        """Return (x, y) on the ellipse at parameter t in [0, 1].
+
+        t=0 corresponds to the rightmost point (angle 0), t=0.25 to the bottom
+        (SVG convention, y increases downward), t=0.5 to the leftmost point, and
+        t=0.75 to the top.  Uses the standard parametric form::
+
+            x = cx + rx * cos(2 * pi * t)
+            y = cy + ry * sin(2 * pi * t)
+
+        Parameters
+        ----------
+        t:
+            Parameter in [0, 1].  Values outside this range are allowed and
+            wrap naturally via trigonometry.
+        time:
+            Animation time at which to read cx, cy, rx, ry.
+
+        Returns
+        -------
+        (x, y) tuple of floats.
+
+        Example
+        -------
+        >>> e = Ellipse(rx=100, ry=50, cx=500, cy=400)
+        >>> e.get_point_at_parameter(0)    # rightmost: (600.0, 400.0)
+        >>> e.get_point_at_parameter(0.25) # bottom:    (500.0, 450.0)
+        """
+        cx, cy = self.c.at_time(time)
+        rx, ry = self.rx.at_time(time), self.ry.at_time(time)
+        angle = 2 * math.pi * t
+        return (cx + rx * math.cos(angle), cy + ry * math.sin(angle))
+
     def get_rx(self, time=0):
         return self.rx.at_time(time)
 
@@ -558,6 +591,34 @@ class Rectangle(VObject):
         """Return the four corners: top-left, top-right, bottom-right, bottom-left."""
         return self.snap_points(time)
 
+    def get_corners(self, time=0):
+        """Return the four corners as a list of (x, y) tuples.
+
+        Order: top-left, top-right, bottom-right, bottom-left, matching SVG
+        convention where y increases downward.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read position and dimensions.
+
+        Returns
+        -------
+        List of four (x, y) float tuples:
+        ``[(x, y), (x+w, y), (x+w, y+h), (x, y+h)]``
+
+        Example
+        -------
+        >>> r = Rectangle(width=100, height=50, x=10, y=20)
+        >>> r.get_corners()
+        [(10.0, 20.0), (110.0, 20.0), (110.0, 70.0), (10.0, 70.0)]
+        """
+        x = float(self.x.at_time(time))
+        y = float(self.y.at_time(time))
+        w = float(self.width.at_time(time))
+        h = float(self.height.at_time(time))
+        return [(x, y), (x + w, y), (x + w, y + h), (x, y + h)]
+
     def get_area(self, time=0):
         """Return the area (width * height)."""
         return self.width.at_time(time) * self.height.at_time(time)
@@ -681,6 +742,30 @@ class Line(VObject):
         if length == 0:
             return (0.0, 0.0)
         return ((x2 - x1) / length, (y2 - y1) / length)
+
+    def get_direction(self, time=0):
+        """Return the normalized direction vector (dx, dy) from p1 to p2.
+
+        Uses :func:`_normalize` from ``_constants``.  Returns ``(0.0, 0.0)``
+        when p1 == p2 (zero-length line).
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read p1 and p2.
+
+        Returns
+        -------
+        (dx, dy) unit vector tuple of floats.
+
+        Example
+        -------
+        >>> l = Line(x1=0, y1=0, x2=3, y2=4)
+        >>> l.get_direction()   # (0.6, 0.8)
+        """
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        return _normalize(x2 - x1, y2 - y1)
 
     def get_slope(self, time=0):
         """Return the slope (dy/dx) of the line, or float('inf') for vertical lines.
@@ -1791,6 +1876,38 @@ class Wedge(Arc):
         r = self.r.at_time(time)
         sweep = abs(self.end_angle.at_time(time) - self.start_angle.at_time(time))
         return 0.5 * r * r * math.radians(sweep)
+
+    def to_arc(self, time=0, **kwargs):
+        """Return an :class:`Arc` with the same geometry as this wedge at *time*.
+
+        The result is a static snapshot — it is not dynamically linked to the
+        original wedge.  Styling from the wedge is not copied; pass ``**kwargs``
+        to set stroke, fill, etc. on the resulting arc.
+
+        Parameters
+        ----------
+        time:
+            Time at which to read the wedge's center, radius, and angles.
+        **kwargs:
+            Forwarded to :class:`Arc`.
+
+        Returns
+        -------
+        Arc
+
+        Example
+        -------
+        >>> wedge = Wedge(cx=500, cy=400, r=100, start_angle=30, end_angle=120)
+        >>> arc = wedge.to_arc(stroke='#44aaff', stroke_width=3)
+        """
+        return Arc(
+            cx=self.cx.at_time(time),
+            cy=self.cy.at_time(time),
+            r=self.r.at_time(time),
+            start_angle=self.start_angle.at_time(time),
+            end_angle=self.end_angle.at_time(time),
+            **kwargs,
+        )
 
     def __repr__(self):
         return f'Wedge(r={self.r.at_time(0):.0f}, {self.start_angle.at_time(0):.0f}\u00b0-{self.end_angle.at_time(0):.0f}\u00b0)'

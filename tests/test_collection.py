@@ -289,3 +289,44 @@ class TestTotalWidthHeight:
         c = Circle(r=50, cx=100, cy=100)
         col = VCollection(c)
         assert isinstance(col.total_height(0), (int, float))
+
+
+class TestVCollectionGetChild:
+    def test_get_first_child(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=20, cx=100, cy=100)
+        col = VCollection(c1, c2)
+        assert col.get_child(0) is c1
+
+    def test_get_last_child_by_positive_index(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=20, cx=100, cy=100)
+        col = VCollection(c1, c2)
+        assert col.get_child(1) is c2
+
+    def test_get_child_negative_index(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=20, cx=100, cy=100)
+        col = VCollection(c1, c2)
+        assert col.get_child(-1) is c2
+        assert col.get_child(-2) is c1
+
+    def test_out_of_range_positive(self):
+        col = VCollection(Circle(r=10))
+        with pytest.raises(IndexError):
+            col.get_child(1)
+
+    def test_out_of_range_negative(self):
+        col = VCollection(Circle(r=10))
+        with pytest.raises(IndexError):
+            col.get_child(-2)
+
+    def test_empty_collection_raises(self):
+        col = VCollection()
+        with pytest.raises(IndexError):
+            col.get_child(0)
+
+    def test_error_message_contains_index(self):
+        col = VCollection(Circle(r=10))
+        with pytest.raises(IndexError, match='5'):
+            col.get_child(5)

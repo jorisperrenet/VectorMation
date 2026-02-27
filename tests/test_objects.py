@@ -6372,6 +6372,53 @@ class TestArcToWedge:
         arc.r.set_onward(0, 999)
         assert w.r.at_time(0) == pytest.approx(100)
 
+
+# ── VObject.fade_color ───────────────────────────────────────────────────────
+
+class TestFadeColor:
+    def test_fill_reaches_target_at_end(self):
+        c = Circle(r=50, fill='#0000ff')
+        c.fade_color('#ff0000', start=0, end=1)
+        rgb = c.styling.fill.time_func(1)
+        # Red channel should be 255, blue should be 0
+        assert rgb[0] == pytest.approx(255, abs=2)
+        assert rgb[2] == pytest.approx(0, abs=2)
+
+    def test_fill_starts_from_original_at_start(self):
+        c = Circle(r=50, fill='#0000ff')
+        c.fade_color('#ff0000', start=0, end=1)
+        rgb = c.styling.fill.time_func(0)
+        assert rgb[2] == pytest.approx(255, abs=2)  # still blue
+
+    def test_stroke_attr(self):
+        c = Circle(r=50, stroke='#ffffff')
+        c.fade_color('#000000', start=0, end=1, attr='stroke')
+        rgb = c.styling.stroke.time_func(1)
+        assert rgb[0] == pytest.approx(0, abs=2)
+        assert rgb[1] == pytest.approx(0, abs=2)
+        assert rgb[2] == pytest.approx(0, abs=2)
+
+    def test_midpoint_is_interpolated(self):
+        c = Circle(r=50, fill='#000000')
+        c.fade_color('#ffffff', start=0, end=1)
+        rgb = c.styling.fill.time_func(0.5)
+        # Midpoint should be roughly grey (all channels ~128)
+        assert rgb[0] == pytest.approx(128, abs=5)
+
+    def test_returns_self(self):
+        c = Circle(r=50)
+        result = c.fade_color('#ff0000', start=0, end=1)
+        assert result is c
+
+    def test_respects_easing(self):
+        import vectormation.easings as easings
+        c = Circle(r=50, fill='#000000')
+        c.fade_color('#ffffff', start=0, end=1, easing=easings.linear)
+        rgb_mid = c.styling.fill.time_func(0.5)
+        rgb_end = c.styling.fill.time_func(1.0)
+        # With linear easing mid should be exactly half of end
+        assert rgb_mid[0] == pytest.approx(rgb_end[0] / 2, abs=2)
+
     def test_time_parameter(self):
         arc = Arc(cx=500, cy=400, r=50, start_angle=0, end_angle=90)
         arc.r.set_onward(1, 200)

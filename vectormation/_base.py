@@ -919,6 +919,45 @@ class VObject(ABC):  # Vector Object
             setattr(self.styling, attr_name, interp)
         return self
 
+    def fade_color(self, color, start: float = 0, end: float = 1,
+                   attr: str = 'fill', easing=easings.smooth):
+        """Smoothly transition the fill (or stroke) color to *color* over [start, end].
+
+        This is the simplest single-step color animation.  Unlike
+        :meth:`set_color` (instant snap at *start*) and
+        :meth:`color_gradient_anim` (multi-stop gradient), this method
+        interpolates from the current color at *start* to the target *color*
+        at *end* using the Color attribute's ``move_to`` method.
+
+        Parameters
+        ----------
+        color:
+            Target color.  Accepts hex strings (``'#ff0000'``), named colors,
+            or RGB tuples.
+        start, end:
+            Animation time window in seconds.
+        attr:
+            Which styling attribute to animate: ``'fill'`` (default) or
+            ``'stroke'``.
+        easing:
+            Easing function.  Defaults to :func:`easings.smooth`.
+
+        Returns
+        -------
+        self
+
+        Example
+        -------
+        >>> circle = Circle(r=60)
+        >>> circle.fade_color('#ff0000', start=1, end=2)   # fade fill to red
+        >>> circle.fade_color('#00ff00', start=1, end=2, attr='stroke')
+        """
+        style_attr = getattr(self.styling, attr)
+        target = attributes.Color(0, color)
+        interp = style_attr.interpolate(target, start, end, easing=easing)
+        setattr(self.styling, attr, interp)
+        return self
+
     def color_wave(self, start: float = 0, end: float = 1, colors=('#FF6B6B', '#58C4DD', '#83C167'),
                     attr='fill', cycles=1):
         """Cycle through colors in a smooth wave pattern.
@@ -2280,6 +2319,41 @@ class VCollection:
         """Remove an object from this collection."""
         self.objects.remove(obj)
         return self
+
+    def get_child(self, index):
+        """Return the child object at *index*.
+
+        Supports both positive and negative indices (Python convention).
+        Raises :exc:`IndexError` with a descriptive message when the index is
+        out of range.
+
+        Parameters
+        ----------
+        index:
+            Integer position.  Negative indices count from the end
+            (e.g. ``-1`` is the last child).
+
+        Returns
+        -------
+        The child VObject or VCollection at *index*.
+
+        Raises
+        ------
+        IndexError
+            When *index* is out of the valid range.
+
+        Example
+        -------
+        >>> col = VCollection(Circle(), Rectangle(100, 50))
+        >>> col.get_child(0)   # first child
+        >>> col.get_child(-1)  # last child
+        """
+        n = len(self.objects)
+        if index < -n or index >= n:
+            raise IndexError(
+                f"child index {index} out of range for collection with {n} object(s)"
+            )
+        return self.objects[index]
 
     def _delegate(self, method, *args, **kwargs):
         """Call method on each child object, return self."""
