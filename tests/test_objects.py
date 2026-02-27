@@ -36,11 +36,10 @@ from vectormation.objects import (
     PeriodicTable, BohrAtom,
     Countdown, Filmstrip, MorphObject, Title, NumberPlane,
     NeuralNetwork, Pendulum, StandingWave,
-    ArrayViz, LinkedListViz, StackViz, QueueViz, Callout, LED,
+    ArrayViz, LinkedListViz, StackViz, QueueViz, LED,
     CANVAS_WIDTH, CANVAS_HEIGHT,
 )
 from vectormation.attributes import Coor, Real
-from vectormation.objects import MED_SMALL_BUFF
 import vectormation.easings as easings
 from bs4 import BeautifulSoup
 
