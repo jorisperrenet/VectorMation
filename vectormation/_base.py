@@ -3485,24 +3485,20 @@ class VObject(ABC):  # Vector Object
             connector = _Arrow(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1],
                                creation=start, **kwargs)
             if follow:
-                _self, _other = self, other
-                _se, _ee = start_edge, end_edge
                 connector.shaft.p1.set_onward(start,
-                    lambda t, _s=_self, _e=_se: _s.get_edge(_e, time=t))
+                    lambda t, _s=self, _e=start_edge: _s.get_edge(_e, time=t))
                 connector.shaft.p2.set_onward(start,
-                    lambda t, _o=_other, _e=_ee: _o.get_edge(_e, time=t))
+                    lambda t, _o=other, _e=end_edge: _o.get_edge(_e, time=t))
                 connector._update_tip_dynamic(start)
         else:
             from vectormation._shapes import Line as _Line
             connector = _Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1],
                               creation=start, **kwargs)
             if follow:
-                _self, _other = self, other
-                _se, _ee = start_edge, end_edge
                 connector.p1.set_onward(start,
-                    lambda t, _s=_self, _e=_se: _s.get_edge(_e, time=t))
+                    lambda t, _s=self, _e=start_edge: _s.get_edge(_e, time=t))
                 connector.p2.set_onward(start,
-                    lambda t, _o=_other, _e=_ee: _o.get_edge(_e, time=t))
+                    lambda t, _o=other, _e=end_edge: _o.get_edge(_e, time=t))
         return connector
 
     def match_style(self, other, time=0):
@@ -3522,12 +3518,9 @@ class VObject(ABC):  # Vector Object
         -------
         self
         """
-        # Copy fill color
-        fill_val = other.styling.fill.time_func(time)
-        self.styling.fill = attributes.Color(time, fill_val)
-        # Copy stroke color
-        stroke_val = other.styling.stroke.time_func(time)
-        self.styling.stroke = attributes.Color(time, stroke_val)
+        # Copy fill and stroke colors using set_onward to preserve earlier animations
+        self.styling.fill.set_onward(time, other.styling.fill.time_func(time))
+        self.styling.stroke.set_onward(time, other.styling.stroke.time_func(time))
         # Copy numeric styling attributes
         self.styling.fill_opacity.set_onward(time, other.styling.fill_opacity.at_time(time))
         self.styling.stroke_opacity.set_onward(time, other.styling.stroke_opacity.at_time(time))

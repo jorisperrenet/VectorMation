@@ -5224,7 +5224,7 @@ class Axes(VCollection):
         return lbl
 
     def annotate_area(self, func_or_curve, x_range, label=None, color='#58C4DD',
-                       opacity=0.3, start=0, end=None, **kwargs):
+                       opacity=0.3, start=0, **kwargs):
         """Create a shaded area under a curve with an optional centered label.
 
         Combines :meth:`get_area` with label placement.  The area is created
@@ -5246,8 +5246,6 @@ class Axes(VCollection):
             Fill opacity for the area.
         start:
             Creation time for the area and label.
-        end:
-            End time (passed to ``get_area`` if needed).
         **kwargs:
             Extra keyword arguments forwarded to ``get_area``.
 
@@ -6522,9 +6520,13 @@ class NumberLine(VCollection):
         size = 12
         _nl = self
         _vf = value_func
+        _cache = [None, None]  # [last_t, last_result]
 
         def _ptr_pos(t):
-            return _nl.number_to_point(_vf(t))
+            if _cache[0] != t:
+                _cache[0] = t
+                _cache[1] = _nl.number_to_point(_vf(t))
+            return _cache[1]
 
         # Initial position
         px, py = _ptr_pos(start)

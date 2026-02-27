@@ -9,7 +9,7 @@ from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
     SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS, CHAR_WIDTH_FACTOR,
     DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
-    _rotate_point, _sample_function, _distance, _normalize, _angle_between,
+    _rotate_point, _sample_function, _distance, _normalize,
 )
 from vectormation._base import VObject
 
@@ -3565,31 +3565,22 @@ class Line(VObject):
         stroke_color = self.styling.stroke.time_func(start_time)
         objects = [self]
 
+        # Build tip at each requested endpoint: (tip_point, direction toward tip)
+        tips = []
         if end:
-            dx, dy = x2 - x1, y2 - y1
-            length = math.hypot(dx, dy) or 1
-            ux, uy = dx / length, dy / length
-            px, py = -uy, ux
-            bx, by = x2 - ux * tl, y2 - uy * tl
-            tip = Polygon(
-                (x2, y2), (bx + px * hw, by + py * hw), (bx - px * hw, by - py * hw),
-                creation=start_time, z=self.z,
-                fill=stroke_color, fill_opacity=1, stroke_width=0,
-            )
-            objects.append(tip)
-
+            tips.append(((x2, y2), (x2 - x1, y2 - y1)))
         if start:
-            dx, dy = x1 - x2, y1 - y2
+            tips.append(((x1, y1), (x1 - x2, y1 - y2)))
+        for (tx, ty), (dx, dy) in tips:
             length = math.hypot(dx, dy) or 1
             ux, uy = dx / length, dy / length
             px, py = -uy, ux
-            bx, by = x1 - ux * tl, y1 - uy * tl
-            tip = Polygon(
-                (x1, y1), (bx + px * hw, by + py * hw), (bx - px * hw, by - py * hw),
+            bx, by = tx - ux * tl, ty - uy * tl
+            objects.append(Polygon(
+                (tx, ty), (bx + px * hw, by + py * hw), (bx - px * hw, by - py * hw),
                 creation=start_time, z=self.z,
                 fill=stroke_color, fill_opacity=1, stroke_width=0,
-            )
-            objects.append(tip)
+            ))
 
         return VCollection(*objects, creation=start_time, z=self.z)
 
