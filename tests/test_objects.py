@@ -10083,3 +10083,128 @@ class TestShowIf:
         c.show_if(lambda t: False, start=0, end=2)
         c._run_updaters(0.5)
         assert c.styling.fill_opacity.at_time(0.5) == pytest.approx(0)
+
+
+class TestFadeToColor:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#0000ff', stroke='#0000ff')
+        result = c.fade_to_color('#ff0000', start=0, end=1)
+        assert result is c
+
+    def test_fill_changes_to_target(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#0000ff', stroke='#0000ff')
+        c.fade_to_color('#ff0000', start=0, end=1, easing=easings.linear)
+        fill_at_end = c.styling.fill.at_time(1)
+        # At end, fill should be red (may be returned as rgb format)
+        assert 'ff0000' in fill_at_end or 'rgb(255,0,0)' in fill_at_end or fill_at_end == 'rgb(255, 0, 0)'
+
+    def test_stroke_changes_to_target(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#0000ff', stroke='#0000ff')
+        c.fade_to_color('#ff0000', start=0, end=1, easing=easings.linear)
+        stroke_at_end = c.styling.stroke.at_time(1)
+        assert 'ff0000' in stroke_at_end or 'rgb(255,0,0)' in stroke_at_end or stroke_at_end == 'rgb(255, 0, 0)'
+
+    def test_colors_unchanged_before_start(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#0000ff', stroke='#0000ff')
+        c.fade_to_color('#ff0000', start=1, end=2, easing=easings.linear)
+        fill_before = c.styling.fill.at_time(0)
+        # Before start, fill should still be blue (may be in rgb format)
+        assert '0000ff' in fill_before or 'rgb(0,0,255)' in fill_before or fill_before == 'rgb(0, 0, 255)'
+
+
+class TestSpinAndFade:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.spin_and_fade(start=0, end=1)
+        assert result is c
+
+    def test_opacity_zero_at_end(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.spin_and_fade(start=0, end=1, easing=easings.linear)
+        opacity = c.styling.opacity.at_time(1)
+        assert opacity == pytest.approx(0, abs=0.05)
+
+    def test_rotation_applied(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.spin_and_fade(start=0, end=1, spins=1, direction=1, easing=easings.linear)
+        rot = c.styling.rotation.at_time(1)
+        assert rot[0] == pytest.approx(360, abs=5)
+
+    def test_counterclockwise_direction(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.spin_and_fade(start=0, end=1, spins=1, direction=-1, easing=easings.linear)
+        rot = c.styling.rotation.at_time(1)
+        assert rot[0] == pytest.approx(-360, abs=5)
+
+    def test_half_spin_at_midpoint(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.spin_and_fade(start=0, end=2, spins=1, direction=1, easing=easings.linear)
+        rot = c.styling.rotation.at_time(1)
+        assert rot[0] == pytest.approx(180, abs=10)
+
+
+class TestGrowToSize:
+    def test_returns_self(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        result = r.grow_to_size(target_width=200, start=0, end=1)
+        assert result is r
+
+    def test_grow_width_only_maintains_ratio(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        r.grow_to_size(target_width=200, start=0, end=1, easing=easings.linear)
+        # scale_x and scale_y should be the same (uniform scale)
+        sx = r.styling.scale_x.at_time(1)
+        sy = r.styling.scale_y.at_time(1)
+        assert sx == pytest.approx(sy, abs=0.05)
+        assert sx == pytest.approx(2.0, abs=0.1)
+
+    def test_grow_height_only_maintains_ratio(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        r.grow_to_size(target_height=100, start=0, end=1, easing=easings.linear)
+        sx = r.styling.scale_x.at_time(1)
+        sy = r.styling.scale_y.at_time(1)
+        assert sx == pytest.approx(sy, abs=0.05)
+        assert sx == pytest.approx(2.0, abs=0.1)
+
+    def test_grow_both_dimensions(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        r.grow_to_size(target_width=200, target_height=200, start=0, end=1, easing=easings.linear)
+        sx = r.styling.scale_x.at_time(1)
+        sy = r.styling.scale_y.at_time(1)
+        assert sx == pytest.approx(2.0, abs=0.1)
+        assert sy == pytest.approx(4.0, abs=0.1)
+
+    def test_no_target_no_change(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        r.grow_to_size(start=0, end=1)
+        sx = r.styling.scale_x.at_time(1)
+        sy = r.styling.scale_y.at_time(1)
+        assert sx == pytest.approx(1.0, abs=0.05)
+        assert sy == pytest.approx(1.0, abs=0.05)
+
+
+class TestTiltTowards:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.tilt_towards(200, 200, start=0, end=1)
+        assert result is c
+
+    def test_tilts_clockwise_toward_below(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.tilt_towards(200, 200, max_angle=15, start=0, end=1, easing=easings.linear)
+        rot = c.styling.rotation.at_time(1)
+        # Target is below-right, angle_rad > 0, so tilt is positive
+        assert rot[0] == pytest.approx(15, abs=1)
+
+    def test_tilts_counterclockwise_toward_above(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.tilt_towards(200, 0, max_angle=15, start=0, end=1, easing=easings.linear)
+        rot = c.styling.rotation.at_time(1)
+        # Target is above-right, angle_rad < 0, so tilt is negative
+        assert rot[0] == pytest.approx(-15, abs=1)
+
+    def test_custom_max_angle(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.tilt_towards(200, 200, max_angle=30, start=0, end=1, easing=easings.linear)
+        rot = c.styling.rotation.at_time(1)
+        assert rot[0] == pytest.approx(30, abs=1)

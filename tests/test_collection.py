@@ -2487,3 +2487,66 @@ class TestHighlightNth:
         # At the midpoint, the fill should be transitioning
         # We just verify no errors and return self
         assert True
+
+
+class TestCascadeFadein:
+    def test_returns_self(self):
+        c1 = Circle(r=20, cx=100, cy=100)
+        c2 = Circle(r=20, cx=200, cy=100)
+        col = VCollection(c1, c2)
+        result = col.cascade_fadein(start=0, end=2)
+        assert result is col
+
+    def test_left_to_right_ordering(self):
+        # c_left has smaller x, so it should start fading in first
+        c_left = Circle(r=20, cx=50, cy=100)
+        c_right = Circle(r=20, cx=200, cy=100)
+        col = VCollection(c_right, c_left)
+        col.cascade_fadein(start=0, end=4, direction='left_to_right', easing=easings.linear)
+        # c_left (x=50) should be visible before c_right (x=200)
+        assert c_left.show.at_time(0) is True
+        # c_right starts later
+        assert not c_right.show.at_time(-0.1)
+
+    def test_top_to_bottom_ordering(self):
+        c_top = Circle(r=20, cx=100, cy=50)
+        c_bottom = Circle(r=20, cx=100, cy=200)
+        col = VCollection(c_bottom, c_top)
+        col.cascade_fadein(start=0, end=4, direction='top_to_bottom', easing=easings.linear)
+        # c_top (y=50) should start fading in first
+        assert c_top.show.at_time(0) is True
+
+    def test_center_out_ordering(self):
+        # Three circles along x-axis; group bbox center will be at x=200
+        # c1 at x=200 (center), c2 at x=100 (dist=100), c3 at x=400 (dist=200)
+        c1 = Circle(r=10, cx=200, cy=100)
+        c2 = Circle(r=10, cx=100, cy=100)
+        c3 = Circle(r=10, cx=400, cy=100)
+        col = VCollection(c3, c1, c2)
+        col.cascade_fadein(start=0, end=4, direction='center_out', easing=easings.linear)
+        # c1 is closest to center (dist ~55), starts first
+        # All children should be visible at the end
+        assert c1.show.at_time(0) is True
+        assert c3.show.at_time(4) is True
+
+    def test_empty_collection_no_error(self):
+        col = VCollection()
+        result = col.cascade_fadein(start=0, end=1)
+        assert result is col
+
+    def test_single_child(self):
+        c = Circle(r=20, cx=100, cy=100)
+        col = VCollection(c)
+        col.cascade_fadein(start=0, end=1, easing=easings.linear)
+        assert c.show.at_time(0) is True
+
+    def test_all_children_visible_after_end(self):
+        c1 = Circle(r=20, cx=50, cy=100)
+        c2 = Circle(r=20, cx=150, cy=100)
+        c3 = Circle(r=20, cx=250, cy=100)
+        col = VCollection(c1, c2, c3)
+        col.cascade_fadein(start=0, end=2, direction='left_to_right', easing=easings.linear)
+        # After the full animation, all children should be visible
+        assert c1.show.at_time(2) is True
+        assert c2.show.at_time(2) is True
+        assert c3.show.at_time(2) is True

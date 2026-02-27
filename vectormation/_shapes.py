@@ -1333,6 +1333,46 @@ class Ellipse(VObject):
             nx, ny = nx / mag * length / 2, ny / mag * length / 2
         return Line(x1=px - nx, y1=py - ny, x2=px + nx, y2=py + ny, **kwargs)
 
+    def get_tangent_line(self, angle_deg, length=100, time=0, **kwargs):
+        """Return a :class:`Line` tangent to the ellipse at the given angle.
+
+        The tangent direction at angle *theta* for an ellipse with semi-axes
+        ``rx``, ``ry`` is ``(-rx*sin(theta), ry*cos(theta))``.  The tangent
+        line is centred at the point on the ellipse at *angle_deg*.
+
+        Parameters
+        ----------
+        angle_deg:
+            Angle in degrees (CCW from right, same convention as
+            :meth:`point_at_angle`).
+        length:
+            Total length of the tangent line (default 100 px).
+        time:
+            Animation time at which to evaluate ellipse parameters.
+        **kwargs:
+            Extra keyword arguments forwarded to the :class:`Line`
+            constructor (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        Line
+            A tangent line centred on the ellipse at the specified angle.
+        """
+        cx, cy = self.c.at_time(time)
+        rx = self.rx.at_time(time)
+        ry = self.ry.at_time(time)
+        angle = math.radians(angle_deg)
+        # Point on ellipse
+        px = cx + rx * math.cos(angle)
+        py = cy - ry * math.sin(angle)  # SVG y-down
+        # Tangent direction: derivative of parametric form
+        tx = -rx * math.sin(angle)
+        ty = -ry * math.cos(angle)  # SVG y-down
+        mag = math.hypot(tx, ty)
+        if mag > 0:
+            tx, ty = tx / mag * length / 2, ty / mag * length / 2
+        return Line(x1=px - tx, y1=py - ty, x2=px + tx, y2=py + ty, **kwargs)
+
     def __repr__(self):
         cx, cy = self.c.at_time(0)
         return f'Ellipse(rx={self.rx.at_time(0):.0f}, ry={self.ry.at_time(0):.0f}, cx={cx:.0f}, cy={cy:.0f})'
@@ -2673,6 +2713,50 @@ class Rectangle(VObject):
                                        x=rx + c * cell_w,
                                        y=ry + r * cell_h, **kwargs))
         return VCollection(*parts)
+
+    def chamfer(self, size=10, time=0, **kwargs):
+        """Return a :class:`Path` where each corner is cut at 45 degrees.
+
+        Creates an octagonal shape by cutting each corner of the rectangle
+        by *size* pixels.
+
+        Parameters
+        ----------
+        size:
+            The distance along each edge from the corner where the cut
+            starts (default 10 px).
+        time:
+            Animation time at which to read the rectangle geometry.
+        **kwargs:
+            Extra keyword arguments forwarded to the :class:`Path`
+            constructor (e.g. ``stroke``, ``fill``).
+
+        Returns
+        -------
+        Path
+            A closed Path with 8 vertices (an octagon).
+        """
+        x = float(self.x.at_time(time))
+        y = float(self.y.at_time(time))
+        w = float(self.width.at_time(time))
+        h = float(self.height.at_time(time))
+        s = min(size, w / 2, h / 2)
+        # 8 points clockwise from top-left chamfer:
+        # top edge
+        d = (f'M{x + s},{y} L{x + w - s},{y} '
+             # top-right corner
+             f'L{x + w},{y + s} '
+             # right edge
+             f'L{x + w},{y + h - s} '
+             # bottom-right corner
+             f'L{x + w - s},{y + h} '
+             # bottom edge
+             f'L{x + s},{y + h} '
+             # bottom-left corner
+             f'L{x},{y + h - s} '
+             # left edge
+             f'L{x},{y + s} Z')
+        return Path(d, **kwargs)
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f})'
@@ -4135,6 +4219,53 @@ class Text(VObject):
         truncated = full[:n - elen] + ellipsis
         self.text.set_onward(time, truncated)
         return self
+
+    def split_into_words(self, time=0, **kwargs):
+        """Split text into a VCollection of individual word Text objects.
+
+        Each word becomes a separate Text object positioned approximately
+        where it would appear in the original text.  Uses
+        :meth:`_estimate_width` for more accurate per-character width
+        estimation than the fixed ``CHAR_WIDTH_FACTOR`` used by
+        :meth:`split_words`.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read text content, position and
+            font size.
+        **kwargs:
+            Extra keyword arguments forwarded to each :class:`Text`
+            constructor (e.g. ``fill``, ``stroke_width``).
+
+        Returns
+        -------
+        VCollection
+            A collection of Text objects, one per whitespace-delimited word.
+        """
+        from vectormation._base import VCollection
+        full = str(self.text.at_time(time))
+        words = full.split()
+        if not words:
+            return VCollection()
+        x = self.x.at_time(time)
+        y = self.y.at_time(time)
+        fs = self.font_size.at_time(time)
+        total_w = self._estimate_width(full, fs)
+        xl = self._text_left(x, total_w)
+        style_kw = dict(font_size=fs, creation=time, stroke_width=0,
+                        fill=self.styling.fill.time_func(time))
+        style_kw.update(kwargs)
+        parts = []
+        cursor = 0
+        for word in words:
+            idx = full.index(word, cursor)
+            prefix_w = self._estimate_width(full[:idx], fs)
+            wx = xl + prefix_w
+            t = Text(text=word, x=wx, y=y, **style_kw)
+            parts.append(t)
+            cursor = idx + len(word)
+        return VCollection(*parts)
 
     def to_svg(self, time):
         anchor = f" text-anchor='{self._text_anchor}'" if self._text_anchor else ''

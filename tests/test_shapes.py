@@ -8135,3 +8135,302 @@ class TestNumberLineAnimateAddTick:
         """Custom easing function should be accepted."""
         nl = NumberLine(x_range=(0, 10, 1))
         nl.animate_add_tick(7.0, start=0, end=2, easing=easings.linear)
+
+
+class TestTextSplitIntoWords:
+    def test_returns_vcollection(self):
+        """split_into_words should return a VCollection."""
+        t = Text(text='Hello World', x=100, y=200)
+        result = t.split_into_words()
+        assert isinstance(result, VCollection)
+
+    def test_correct_word_count(self):
+        """The number of Text objects should match the number of words."""
+        t = Text(text='Hello World Foo', x=100, y=200)
+        parts = t.split_into_words()
+        assert len(parts.objects) == 3
+
+    def test_word_contents(self):
+        """Each Text object should contain the correct word."""
+        t = Text(text='Hello World Foo', x=100, y=200)
+        parts = t.split_into_words()
+        assert parts.objects[0].text.at_time(0) == 'Hello'
+        assert parts.objects[1].text.at_time(0) == 'World'
+        assert parts.objects[2].text.at_time(0) == 'Foo'
+
+    def test_preserves_y_position(self):
+        """All words should share the same y coordinate."""
+        t = Text(text='Hello World', x=100, y=300, font_size=48)
+        parts = t.split_into_words()
+        for p in parts.objects:
+            assert p.y.at_time(0) == pytest.approx(300, abs=1e-6)
+
+    def test_preserves_font_size(self):
+        """All words should have the same font_size as the original."""
+        t = Text(text='Hello World', x=100, y=200, font_size=36)
+        parts = t.split_into_words()
+        for p in parts.objects:
+            assert p.font_size.at_time(0) == pytest.approx(36, abs=1e-6)
+
+    def test_empty_text(self):
+        """Empty text should return an empty VCollection."""
+        t = Text(text='', x=100, y=200)
+        parts = t.split_into_words()
+        assert len(parts.objects) == 0
+
+    def test_single_word(self):
+        """A single word should return a VCollection with one Text."""
+        t = Text(text='Hello', x=100, y=200)
+        parts = t.split_into_words()
+        assert len(parts.objects) == 1
+        assert parts.objects[0].text.at_time(0) == 'Hello'
+
+    def test_words_ordered_left_to_right(self):
+        """Words should have increasing x positions."""
+        t = Text(text='Hello World Foo', x=100, y=200, font_size=48)
+        parts = t.split_into_words()
+        xs = [p.x.at_time(0) for p in parts.objects]
+        assert xs[0] < xs[1] < xs[2]
+
+    def test_kwargs_forwarded(self):
+        """Extra kwargs should be forwarded to child Text objects."""
+        t = Text(text='Hello World', x=100, y=200, fill='#ff0000')
+        parts = t.split_into_words(fill='#00ff00')
+        # The fill should be overridden by the kwarg
+        for p in parts.objects:
+            svg = p.to_svg(0)
+            assert '#00ff00' in svg or '#0f0' in svg or 'fill' in svg
+
+
+class TestEllipseGetTangentLine:
+    def test_returns_line(self):
+        """get_tangent_line should return a Line object."""
+        e = Ellipse(rx=100, ry=60, cx=500, cy=400)
+        result = e.get_tangent_line(45)
+        assert isinstance(result, Line)
+
+    def test_tangent_at_zero_degrees(self):
+        """At 0 degrees the tangent should be vertical (for a circle)."""
+        c = Circle(r=100, cx=500, cy=400)
+        tangent = c.get_tangent_line(0, length=200)
+        start = tangent.get_start()
+        end = tangent.get_end()
+        # At 0 degrees, point is (600, 400), tangent is vertical
+        assert start[0] == pytest.approx(600, abs=1)
+        assert end[0] == pytest.approx(600, abs=1)
+
+    def test_tangent_length(self):
+        """The tangent line should have the requested length."""
+        e = Ellipse(rx=80, ry=40, cx=960, cy=540)
+        tangent = e.get_tangent_line(30, length=150)
+        assert tangent.get_length() == pytest.approx(150, abs=1)
+
+    def test_tangent_centered_on_ellipse_point(self):
+        """The midpoint of the tangent line should be on the ellipse."""
+        e = Ellipse(rx=100, ry=60, cx=500, cy=400)
+        tangent = e.get_tangent_line(0, length=200)
+        mid = tangent.get_midpoint()
+        # At 0 degrees the point is (600, 400)
+        assert mid[0] == pytest.approx(600, abs=1)
+        assert mid[1] == pytest.approx(400, abs=1)
+
+    def test_default_length_is_100(self):
+        """Default tangent length should be 100."""
+        e = Ellipse(rx=100, ry=60, cx=500, cy=400)
+        tangent = e.get_tangent_line(90)
+        assert tangent.get_length() == pytest.approx(100, abs=1)
+
+    def test_tangent_perpendicular_to_normal(self):
+        """The tangent and normal at the same angle should be perpendicular."""
+        e = Ellipse(rx=100, ry=60, cx=500, cy=400)
+        tangent = e.get_tangent_line(45, length=200)
+        normal = e.normal_at_angle(45, length=200)
+        td = tangent.get_direction()
+        nd = normal.get_direction()
+        dot = td[0] * nd[0] + td[1] * nd[1]
+        assert dot == pytest.approx(0, abs=1e-6)
+
+
+class TestRectangleChamfer:
+    def test_returns_path(self):
+        """chamfer should return a Path object."""
+        r = Rectangle(width=200, height=100, x=50, y=50)
+        result = r.chamfer(size=20)
+        assert isinstance(result, Path)
+
+    def test_path_is_closed(self):
+        """The chamfered path should be closed (ends with Z)."""
+        r = Rectangle(width=200, height=100, x=50, y=50)
+        p = r.chamfer(size=20)
+        d = p.d.at_time(0)
+        assert d.strip().endswith('Z')
+
+    def test_octagonal_shape(self):
+        """A chamfered rectangle should have 8 line segments (octagon)."""
+        r = Rectangle(width=200, height=100, x=0, y=0)
+        p = r.chamfer(size=20)
+        d = p.d.at_time(0)
+        # Count 'L' commands (7 L segments + the initial M point = 8 vertices)
+        assert d.count('L') == 7
+
+    def test_chamfer_vertices(self):
+        """The chamfer cut points should be at the correct positions."""
+        r = Rectangle(width=200, height=100, x=0, y=0)
+        p = r.chamfer(size=20)
+        d = p.d.at_time(0)
+        # First point should be at (20, 0) - top-left chamfer
+        assert d.startswith('M20')
+
+    def test_zero_chamfer(self):
+        """Zero chamfer should produce a path that matches the rectangle."""
+        r = Rectangle(width=200, height=100, x=0, y=0)
+        p = r.chamfer(size=0)
+        d = p.d.at_time(0)
+        # With size=0, the octagon degenerates to a rectangle
+        assert 'M0' in d or 'M0.0' in d
+
+    def test_max_chamfer(self):
+        """Chamfer larger than half the smallest dimension should be clamped."""
+        r = Rectangle(width=200, height=100, x=0, y=0)
+        p = r.chamfer(size=60)
+        d = p.d.at_time(0)
+        # Should be clamped to min(60, 100, 50) = 50
+        assert 'M50' in d or 'M50.0' in d
+
+    def test_kwargs_forwarded(self):
+        """Extra kwargs should be forwarded to the Path constructor."""
+        r = Rectangle(width=200, height=100, x=0, y=0)
+        p = r.chamfer(size=10, stroke='#ff0000')
+        svg = p.to_svg(0)
+        assert 'stroke=' in svg
+        assert '255' in svg or '#ff0000' in svg
+
+
+class TestAxesAddVerticalAsymptote:
+    def test_returns_line(self):
+        """add_vertical_asymptote should return a Line object."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_vertical_asymptote(2)
+        assert isinstance(result, Line)
+
+    def test_adds_to_objects(self):
+        """The asymptote should be added to ax.objects."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        n_before = len(ax.objects)
+        ax.add_vertical_asymptote(2)
+        assert len(ax.objects) == n_before + 1
+
+    def test_line_is_dashed(self):
+        """The asymptote line should have a dashed stroke."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        line = ax.add_vertical_asymptote(2)
+        svg = line.to_svg(0)
+        assert 'stroke-dasharray' in svg
+
+    def test_line_is_vertical(self):
+        """The asymptote should be a vertical line (same x for both endpoints)."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        line = ax.add_vertical_asymptote(0)
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        assert p1[0] == pytest.approx(p2[0], abs=1)
+
+    def test_at_correct_x(self):
+        """The line should be at the SVG x corresponding to the math x value."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        line = ax.add_vertical_asymptote(0)
+        expected_x = ax._math_to_svg_x(0)
+        p1 = line.p1.at_time(0)
+        assert p1[0] == pytest.approx(expected_x, abs=1)
+
+    def test_custom_styling(self):
+        """Custom styling kwargs should override defaults."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        line = ax.add_vertical_asymptote(1, stroke='#ff0000')
+        svg = line.to_svg(0)
+        assert 'stroke=' in svg
+        assert '255' in svg or '#ff0000' in svg
+
+
+class TestAxesAddHorizontalAsymptote:
+    def test_returns_line(self):
+        """add_horizontal_asymptote should return a Line object."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_horizontal_asymptote(2)
+        assert isinstance(result, Line)
+
+    def test_adds_to_objects(self):
+        """The asymptote should be added to ax.objects."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        n_before = len(ax.objects)
+        ax.add_horizontal_asymptote(2)
+        assert len(ax.objects) == n_before + 1
+
+    def test_line_is_dashed(self):
+        """The asymptote line should have a dashed stroke."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        line = ax.add_horizontal_asymptote(2)
+        svg = line.to_svg(0)
+        assert 'stroke-dasharray' in svg
+
+    def test_line_is_horizontal(self):
+        """The asymptote should be a horizontal line (same y for both endpoints)."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        line = ax.add_horizontal_asymptote(0)
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        assert p1[1] == pytest.approx(p2[1], abs=1)
+
+    def test_at_correct_y(self):
+        """The line should be at the SVG y corresponding to the math y value."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        line = ax.add_horizontal_asymptote(0)
+        expected_y = ax._math_to_svg_y(0)
+        p1 = line.p1.at_time(0)
+        assert p1[1] == pytest.approx(expected_y, abs=1)
+
+    def test_custom_styling(self):
+        """Custom styling kwargs should override defaults."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        line = ax.add_horizontal_asymptote(1, stroke='#ff0000')
+        svg = line.to_svg(0)
+        assert 'stroke=' in svg
+        assert '255' in svg or '#ff0000' in svg
+
+
+class TestPolygonCentroidFormula:
+    def test_triangle_centroid(self):
+        """The centroid of a right triangle at origin should be at (1/3 of sides)."""
+        p = Polygon((0, 0), (300, 0), (0, 300))
+        cx, cy = p.centroid()
+        assert cx == pytest.approx(100, abs=1)
+        assert cy == pytest.approx(100, abs=1)
+
+    def test_square_centroid(self):
+        """The centroid of a square should be at its center."""
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        cx, cy = p.centroid()
+        assert cx == pytest.approx(50, abs=1)
+        assert cy == pytest.approx(50, abs=1)
+
+    def test_matches_get_center_for_regular(self):
+        """For a regular polygon the centroid should match the vertex average."""
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        cx1, cy1 = p.centroid()
+        cx2, cy2 = p.get_center()
+        assert cx1 == pytest.approx(cx2, abs=1)
+        assert cy1 == pytest.approx(cy2, abs=1)
+
+    def test_empty_polygon(self):
+        """An empty polygon should return (0, 0)."""
+        p = Polygon()
+        cx, cy = p.centroid()
+        assert cx == 0
+        assert cy == 0
+
+    def test_degenerate_two_points(self):
+        """Two-point polygon should return the midpoint."""
+        p = Polygon((0, 0), (100, 0))
+        cx, cy = p.centroid()
+        assert cx == pytest.approx(50, abs=1)
+        assert cy == pytest.approx(0, abs=1)

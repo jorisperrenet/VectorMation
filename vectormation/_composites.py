@@ -2690,6 +2690,52 @@ class Axes(VCollection):
         self._add_plot_obj(line)
         return line
 
+    def add_vertical_asymptote(self, x_val, creation=0, **kwargs):
+        """Add a vertical dashed line at *x_val* spanning the full y-range.
+
+        This is a convenience wrapper around :meth:`add_asymptote` with
+        ``direction='vertical'``.  Default styling is dashed gray.
+
+        Parameters
+        ----------
+        x_val:
+            The math x-coordinate at which to draw the asymptote.
+        creation:
+            Time at which the line is created.
+        **kwargs:
+            Override default styling (stroke, stroke_width,
+            stroke_dasharray, etc.).
+
+        Returns
+        -------
+        Line
+            The created Line object (already added to the axes).
+        """
+        return self.add_asymptote(x_val, direction='vertical', creation=creation, **kwargs)
+
+    def add_horizontal_asymptote(self, y_val, creation=0, **kwargs):
+        """Add a horizontal dashed line at *y_val* spanning the full x-range.
+
+        This is a convenience wrapper around :meth:`add_asymptote` with
+        ``direction='horizontal'``.  Default styling is dashed gray.
+
+        Parameters
+        ----------
+        y_val:
+            The math y-coordinate at which to draw the asymptote.
+        creation:
+            Time at which the line is created.
+        **kwargs:
+            Override default styling (stroke, stroke_width,
+            stroke_dasharray, etc.).
+
+        Returns
+        -------
+        Line
+            The created Line object (already added to the axes).
+        """
+        return self.add_asymptote(y_val, direction='horizontal', creation=creation, **kwargs)
+
     def _add_guide_line(self, value, direction, start, end, creation, z, styling_kwargs):
         """Shared helper for add_horizontal_line / add_vertical_line."""
         style_kw = {'stroke': '#FFFF00', 'stroke_width': 1.5,

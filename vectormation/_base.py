@@ -4172,6 +4172,59 @@ class VObject(ABC):  # Vector Object
         """Create a rectangle surrounding another object. Returns a Rectangle."""
         return _make_brect(other.bbox, start_time, rx, ry, buff, follow)
 
+    def fade_to_color(self, target_color, start=0, end=1, easing=easings.smooth):
+        """Smoothly transition both fill and stroke to target_color over [start, end].
+        Returns self."""
+        self.set_fill(color=target_color, start=start, end=end, easing=easing)
+        self.set_stroke(color=target_color, start=start, end=end, easing=easing)
+        return self
+
+    def spin_and_fade(self, start=0, end=1, spins=1.5, direction=1, easing=easings.smooth):
+        """Combined animation: rotate and fade out simultaneously over [start, end].
+        spins: number of full rotations. direction: 1 = clockwise, -1 = counterclockwise.
+        Returns self."""
+        degrees = spins * 360 * direction
+        self.rotate_by(start, end, degrees, easing=easing)
+        self.set_opacity(0, start=start, end=end, easing=easing)
+        return self
+
+    def grow_to_size(self, target_width=None, target_height=None, start=0, end=1, easing=easings.smooth):
+        """Animate the object to reach a specific width and/or height over [start, end].
+        If only one dimension is given, maintain aspect ratio. Returns self."""
+        cur_w = self.get_width(start)
+        cur_h = self.get_height(start)
+        if cur_w <= 0 or cur_h <= 0:
+            return self
+        if target_width is not None and target_height is not None:
+            sx = target_width / cur_w
+            sy = target_height / cur_h
+            self.stretch(sx, sy, start=start, end=end, easing=easing)
+        elif target_width is not None:
+            factor = target_width / cur_w
+            self.scale(factor, start=start, end=end, easing=easing)
+        elif target_height is not None:
+            factor = target_height / cur_h
+            self.scale(factor, start=start, end=end, easing=easing)
+        return self
+
+    def tilt_towards(self, target_x, target_y, max_angle=15, start=0, end=1, easing=easings.smooth):
+        """Rotate the object to tilt toward a target point by max_angle degrees.
+        Computes the angle from the object's center to (target_x, target_y) and
+        rotates in that direction. Returns self."""
+        cx, cy = self.center(start)
+        dx = target_x - cx
+        dy = target_y - cy
+        angle_rad = math.atan2(dy, dx)
+        # Tilt towards the target: rotate by max_angle in the direction of the target
+        # Positive angle_rad means target is below-right; we rotate clockwise (positive degrees)
+        # Use the sign of the angle to determine direction
+        angle_deg = math.degrees(angle_rad)
+        # Normalize: tilt by max_angle in the direction of the target
+        # The rotation amount is max_angle, direction determined by the angle to target
+        tilt = max_angle if angle_deg >= 0 else -max_angle
+        self.rotate_by(start, end, tilt, easing=easing)
+        return self
+
 
 class VCollection:
     """Container for a group of VObjects, delegating operations to children."""
@@ -6325,6 +6378,48 @@ class VCollection:
             px = start_x + frac * (end_x - start_x)
             py = start_y + frac * (end_y - start_y)
             obj.center_to_pos(posx=px, posy=py)
+        return self
+
+    def cascade_fadein(self, start=0, end=1, direction='left_to_right', easing=easings.smooth):
+        """Fade in children with a cascade effect based on spatial ordering.
+
+        direction determines sort order:
+          'left_to_right' - sorts by x-position (ascending)
+          'top_to_bottom' - sorts by y-position (ascending)
+          'center_out' - sorts by distance from collection center (ascending)
+
+        Each child gets a staggered fadein. Returns self.
+        """
+        n = len(self.objects)
+        if n == 0:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        # Sort children by spatial criteria
+        if direction == 'left_to_right':
+            sorted_objs = sorted(self.objects, key=lambda o: o.center(start)[0])
+        elif direction == 'top_to_bottom':
+            sorted_objs = sorted(self.objects, key=lambda o: o.center(start)[1])
+        elif direction == 'center_out':
+            group_cx, group_cy = self.center(start)
+            def _dist(o):
+                ox, oy = o.center(start)
+                return math.hypot(ox - group_cx, oy - group_cy)
+            sorted_objs = sorted(self.objects, key=_dist)
+        else:
+            sorted_objs = list(self.objects)
+        if n == 1:
+            sorted_objs[0].fadein(start=start, end=end, easing=easing)
+            return self
+        # Compute staggered timing with overlap
+        overlap = 0.5
+        child_dur = dur / (1 + (1 - overlap) * (n - 1))
+        step = child_dur * (1 - overlap)
+        for i, obj in enumerate(sorted_objs):
+            s = start + i * step
+            e = s + child_dur
+            obj.fadein(start=s, end=e, easing=easing)
         return self
 
 
