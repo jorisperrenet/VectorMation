@@ -35,6 +35,8 @@ from vectormation.objects import (
     ArrowVectorField, ComplexPlane, ChessBoard, Automaton,
     PeriodicTable, BohrAtom,
     Countdown, Filmstrip, MorphObject, Title, NumberPlane,
+    NeuralNetwork, Pendulum, StandingWave,
+    ArrayViz, LinkedListViz, StackViz,
 )
 from vectormation.attributes import Coor, Real
 from vectormation.objects import MED_SMALL_BUFF
@@ -6776,28 +6778,28 @@ class TestEmphasizeScale:
     def test_scale_at_start_is_original(self):
         """At time=0 (start) scale should equal the base scale (1.0)."""
         c = Circle(r=50, cx=100, cy=100)
-        c.emphasize_scale(0, 1, factor=1.5)
+        c.emphasize_scale(0, 1, scale_factor=1.5)
         assert c.styling.scale_x.at_time(0) == pytest.approx(1.0, abs=1e-3)
         assert c.styling.scale_y.at_time(0) == pytest.approx(1.0, abs=1e-3)
 
     def test_scale_at_end_is_original(self):
         """After the animation the scale returns to the original value."""
         c = Circle(r=50, cx=100, cy=100)
-        c.emphasize_scale(0, 1, factor=1.5)
+        c.emphasize_scale(0, 1, scale_factor=1.5)
         assert c.styling.scale_x.at_time(1) == pytest.approx(1.0, abs=1e-3)
         assert c.styling.scale_y.at_time(1) == pytest.approx(1.0, abs=1e-3)
 
     def test_peak_scale_greater_than_one(self):
         """At midpoint the scale should be larger than the original (there_and_back peaks at 0.5)."""
         c = Circle(r=50, cx=100, cy=100)
-        c.emphasize_scale(0, 1, factor=1.4)
+        c.emphasize_scale(0, 1, scale_factor=1.4)
         mid_scale = c.styling.scale_x.at_time(0.5)
         assert mid_scale > 1.0
 
     def test_uniform_scale_x_equals_y(self):
         """Both axes must scale identically (uniform scale)."""
         c = Circle(r=50, cx=100, cy=100)
-        c.emphasize_scale(0, 1, factor=1.3)
+        c.emphasize_scale(0, 1, scale_factor=1.3)
         for t in (0.0, 0.25, 0.5, 0.75, 1.0):
             assert c.styling.scale_x.at_time(t) == pytest.approx(
                 c.styling.scale_y.at_time(t), abs=1e-9
@@ -6805,7 +6807,7 @@ class TestEmphasizeScale:
 
     def test_zero_duration_noop(self):
         c = Circle(r=50, cx=100, cy=100)
-        result = c.emphasize_scale(0.5, 0.5, factor=2.0)
+        result = c.emphasize_scale(0.5, 0.5, scale_factor=2.0)
         assert result is c
         assert c.styling.scale_x.at_time(0.5) == pytest.approx(1.0, abs=1e-3)
 
@@ -6814,7 +6816,7 @@ class TestEmphasizeScale:
         c = Circle(r=50, cx=100, cy=100)
         c.styling.scale_x.set_onward(0, 2.0)
         c.styling.scale_y.set_onward(0, 2.0)
-        c.emphasize_scale(0, 1, factor=1.5)
+        c.emphasize_scale(0, 1, scale_factor=1.5)
         # At midpoint scale_x should be bigger than 2.0
         assert c.styling.scale_x.at_time(0.5) > 2.0
 
@@ -12001,3 +12003,279 @@ class TestAnimatedAlignTo:
         b.align_to(a, LEFT, start=0, end=1, easing=easings.linear)
         bx, _, _, _ = b.bbox(1)
         assert bx == pytest.approx(200)
+
+
+# ── NeuralNetwork ────────────────────────────────────────────────────────────
+
+class TestNeuralNetwork:
+    def test_creates_with_layers(self):
+        nn = NeuralNetwork([3, 4, 2])
+        assert len(nn.objects) > 0
+
+    def test_svg_renders(self):
+        c = VectorMathAnim(save_dir='/tmp/t')
+        nn = NeuralNetwork([2, 3, 1])
+        c.add_objects(nn)
+        svg = c.generate_frame_svg(0)
+        assert '<circle' in svg
+
+    def test_label_input(self):
+        nn = NeuralNetwork([2, 3, 1])
+        result = nn.label_input(['a', 'b'])
+        assert result is nn
+
+    def test_label_output(self):
+        nn = NeuralNetwork([2, 3, 1])
+        result = nn.label_output(['y'])
+        assert result is nn
+
+    def test_propagate(self):
+        nn = NeuralNetwork([2, 3, 1])
+        result = nn.propagate(start=0, duration=1)
+        assert result is nn
+
+
+# ── Pendulum ─────────────────────────────────────────────────────────────────
+
+class TestPendulum:
+    def test_creates(self):
+        p = Pendulum()
+        assert len(p.objects) > 0
+
+    def test_has_bob_and_rod(self):
+        p = Pendulum()
+        assert hasattr(p, 'bob')
+        assert hasattr(p, 'rod')
+
+    def test_svg_renders(self):
+        c = VectorMathAnim(save_dir='/tmp/t')
+        p = Pendulum()
+        c.add_objects(p)
+        svg = c.generate_frame_svg(0)
+        assert '<' in svg
+
+    def test_custom_params(self):
+        p = Pendulum(pivot_x=500, pivot_y=200, length=300, amplitude=60)
+        assert len(p.objects) > 0
+
+
+# ── StandingWave ─────────────────────────────────────────────────────────────
+
+class TestStandingWave:
+    def test_creates(self):
+        sw = StandingWave(harmonics=3)
+        assert len(sw.objects) > 0
+
+    def test_svg_renders(self):
+        c = VectorMathAnim(save_dir='/tmp/t')
+        sw = StandingWave()
+        c.add_objects(sw)
+        svg = c.generate_frame_svg(0)
+        assert '<' in svg
+
+
+# ── ArrayViz ─────────────────────────────────────────────────────────────────
+
+class TestArrayViz:
+    def test_creates_with_values(self):
+        arr = ArrayViz([3, 1, 4])
+        assert len(arr.values) == 3
+
+    def test_svg_has_rects(self):
+        c = VectorMathAnim(save_dir='/tmp/t')
+        arr = ArrayViz([1, 2, 3])
+        c.add_objects(arr)
+        svg = c.generate_frame_svg(0)
+        assert '<rect' in svg
+
+    def test_highlight(self):
+        arr = ArrayViz([1, 2, 3])
+        result = arr.highlight(1, start=0, end=1)
+        assert result is arr
+
+    def test_swap(self):
+        arr = ArrayViz([10, 20, 30])
+        arr.swap(0, 2, start=0, end=1)
+        assert arr.values == [30, 20, 10]
+
+    def test_set_value(self):
+        arr = ArrayViz([10, 20, 30])
+        arr.set_value(1, 99, start=0)
+        assert arr.values[1] == 99
+
+    def test_pointer(self):
+        arr = ArrayViz([10, 20, 30])
+        result = arr.pointer(0, label='i', start=0)
+        assert result is not None
+
+    def test_swap_invalid_index(self):
+        arr = ArrayViz([1, 2, 3])
+        arr.swap(0, 0)  # same index - noop
+        arr.swap(-1, 5)  # out of range - noop
+        assert arr.values == [1, 2, 3]
+
+
+# ── LinkedListViz ────────────────────────────────────────────────────────────
+
+class TestLinkedListViz:
+    def test_creates_with_values(self):
+        ll = LinkedListViz([10, 20, 30])
+        assert len(ll.values) == 3
+
+    def test_svg_has_circles(self):
+        c = VectorMathAnim(save_dir='/tmp/t')
+        ll = LinkedListViz([1, 2])
+        c.add_objects(ll)
+        svg = c.generate_frame_svg(0)
+        assert '<circle' in svg
+
+    def test_highlight(self):
+        ll = LinkedListViz([10, 20, 30])
+        result = ll.highlight(0, start=0, end=0.5)
+        assert result is ll
+
+    def test_traverse(self):
+        ll = LinkedListViz([10, 20, 30])
+        result = ll.traverse(start=0, delay=0.3)
+        assert result is ll
+
+
+# ── StackViz ─────────────────────────────────────────────────────────────────
+
+class TestStackViz:
+    def test_creates_with_values(self):
+        s = StackViz([1, 2, 3])
+        assert len(s.values) == 3
+
+    def test_push(self):
+        s = StackViz([1, 2])
+        s.push(3, start=0, end=0.5)
+        assert len(s.values) == 3
+        assert s.values[-1] == 3
+
+    def test_pop(self):
+        s = StackViz([1, 2, 3])
+        s.pop(start=0, end=0.5)
+        assert len(s.values) == 2
+
+    def test_pop_empty(self):
+        s = StackViz([])
+        result = s.pop(start=0, end=0.5)
+        assert result is s
+
+    def test_svg_renders(self):
+        c = VectorMathAnim(save_dir='/tmp/t')
+        s = StackViz([10, 20])
+        c.add_objects(s)
+        svg = c.generate_frame_svg(0)
+        assert '<rect' in svg
+
+
+# ── Pop-in / Pop-out ─────────────────────────────────────────────────────────
+
+class TestPopIn:
+    def test_pop_in_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.pop_in(start=0, duration=0.5)
+        assert result is c
+
+    def test_pop_out_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.pop_out(start=0, duration=0.5)
+        assert result is c
+
+
+# ── Elastic / Bounce ─────────────────────────────────────────────────────────
+
+class TestElasticBounce:
+    def test_elastic_in_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.elastic_in(start=0, end=1)
+        assert result is c
+
+    def test_elastic_out_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.elastic_out(start=0, end=1)
+        assert result is c
+
+    def test_elastic_in_accepts_easing(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.elastic_in(start=0, end=1, easing=easings.smooth)
+
+    def test_elastic_out_accepts_easing(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.elastic_out(start=0, end=1, easing=easings.smooth)
+
+    def test_bounce_in_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.bounce_in(start=0, end=1)
+        assert result is c
+
+    def test_bounce_out_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.bounce_out(start=0, end=1)
+        assert result is c
+
+
+# ── Slide-in / Slide-out ─────────────────────────────────────────────────────
+
+class TestSlideInOut:
+    def test_slide_in_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.slide_in(direction='left', start=0, end=1)
+        assert result is c
+
+    def test_slide_out_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.slide_out(direction='right', start=0, end=1)
+        assert result is c
+
+
+# ── Zoom-in / Zoom-out ──────────────────────────────────────────────────────
+
+class TestZoomInOut:
+    def test_zoom_in_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.zoom_in(start=0, end=1)
+        assert result is c
+
+    def test_zoom_out_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.zoom_out(start=0, end=1)
+        assert result is c
+
+
+# ── Float anim ───────────────────────────────────────────────────────────────
+
+class TestFloatAnim:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.float_anim(start=0, end=2)
+        assert result is c
+
+    def test_zero_duration_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.float_anim(start=1, end=1)
+        assert result is c
+
+
+# ── Fade transform ───────────────────────────────────────────────────────────
+
+class TestFadeTransform:
+    def test_returns_source(self):
+        a = Circle(r=50, cx=100, cy=100)
+        b = Rectangle(100, 50, x=200, y=200)
+        result = Circle.fade_transform(a, b, start=0, end=1)
+        assert result is a
+
+    def test_source_hidden_at_end(self):
+        a = Circle(r=50, cx=100, cy=100)
+        b = Rectangle(100, 50, x=200, y=200)
+        Circle.fade_transform(a, b, start=0, end=1)
+        assert a.show.at_time(1.5) == False
+
+    def test_target_visible_at_end(self):
+        a = Circle(r=50, cx=100, cy=100)
+        b = Rectangle(100, 50, x=200, y=200)
+        Circle.fade_transform(a, b, start=0, end=1)
+        assert b.show.at_time(1.5) == True

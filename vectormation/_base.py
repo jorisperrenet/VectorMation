@@ -1953,13 +1953,13 @@ class VObject(ABC):  # Vector Object
         return self
 
     def emphasize_scale(self, start: float = 0, end: float = 1,
-                        factor: float = 1.2, easing=easings.there_and_back):
+                        scale_factor: float = 1.2, easing=easings.there_and_back):
         """Briefly scale up uniformly then return to normal for emphasis.
 
         Unlike :meth:`pulsate` (which repeats multiple times) and
         :meth:`squash_and_stretch` (which deforms x/y independently),
         this applies a single symmetric scale pulse: both axes grow by
-        *factor* at the midpoint and return to their original size by *end*.
+        *scale_factor* at the midpoint and return to their original size by *end*.
 
         Parameters
         ----------
@@ -1967,7 +1967,7 @@ class VObject(ABC):  # Vector Object
             Animation start time.
         end:
             Animation end time.
-        factor:
+        scale_factor:
             Peak scale multiplier (e.g. 1.2 → 20% larger at the midpoint).
         easing:
             Easing function (default: there_and_back for a smooth out-and-back).
@@ -1979,8 +1979,9 @@ class VObject(ABC):  # Vector Object
         s = start
         for attr in (self.styling.scale_x, self.styling.scale_y):
             base = attr.at_time(start)
+            _sf = scale_factor
             attr.set(s, end,
-                lambda t, _s=s, _d=dur, _b=base: _b * (1 + (factor - 1) * easing((t - _s) / _d)))
+                lambda t, _s=s, _d=dur, _b=base, _sf=_sf: _b * (1 + (_sf - 1) * easing((t - _s) / _d)))
         return self
 
     def glow(self, start: float = 0, end: float = 1, color='#FFD700', radius=10):

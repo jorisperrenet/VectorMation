@@ -65,15 +65,108 @@ Graph
 
    .. py:method:: get_area(curve, x_range=None, bounded_graph=None, **styling)
 
-      Shaded area under (or between) curves. Returns a :py:class:`Polygon`.
+      Shaded area under (or between) curves. Returns a :py:class:`Path`.
 
    .. py:method:: get_vertical_line(x, y_val=None, **styling)
 
       Vertical line at *x*. Returns a :py:class:`Line`.
 
+   .. py:method:: get_vertical_lines(func, x_range, dx=1, **styling)
+
+      Multiple vertical lines from x-axis to curve. Returns a :py:class:`VCollection`.
+
+   .. py:method:: get_horizontal_line(y, x_val=None, **styling)
+
+      Horizontal line at *y*. Returns a :py:class:`Line`.
+
+   .. py:method:: get_tangent_line(func, x, length=200, **styling)
+
+      Tangent line to a function at *x*. Returns a :py:class:`Line`.
+
+   .. py:method:: get_secant_line(func, x1, x2, length=200, **styling)
+
+      Secant line through two points on a function. Returns a :py:class:`Line`.
+
    .. py:method:: get_riemann_rectangles(func, x_range, dx=0.1, **styling)
 
-      Riemann sum rectangles under a curve. Returns a :py:class:`VCollection`.
+      Riemann sum rectangles under a curve. Returns a :py:class:`DynamicObject`.
+
+   .. py:method:: get_area_between(func1, func2, x_range=None, **styling)
+
+      Shaded area between two curves. Returns a :py:class:`Path`.
+
+   .. rubric:: Annotations
+
+   .. py:method:: add_coordinates(**styling)
+
+      Add coordinate tick labels to axes.
+
+   .. py:method:: add_grid(**styling)
+
+      Add background grid lines.
+
+   .. py:method:: add_title(text, **styling)
+
+      Add a title above the axes.
+
+   .. py:method:: add_legend(entries, **styling)
+
+      Add a legend with colour swatches. *entries*: list of ``(color, label)`` pairs.
+
+   .. py:method:: add_dot_label(x, func, label, **styling)
+
+      Add a labelled dot at ``(x, func(x))``.
+
+   .. py:method:: add_arrow_annotation(x, func, text, **styling)
+
+      Add a labelled arrow pointing at a curve.
+
+   .. py:method:: add_asymptote(x=None, y=None, **styling)
+
+      Add a dashed asymptote line.
+
+   .. py:method:: highlight_x_range(x1, x2, **styling)
+
+      Shade a vertical strip between *x1* and *x2*.
+
+   .. py:method:: highlight_y_range(y1, y2, **styling)
+
+      Shade a horizontal strip between *y1* and *y2*.
+
+   .. rubric:: Plot Types
+
+   .. py:method:: plot_scatter(x_values, y_values, **styling)
+
+      Scatter plot with dots.
+
+   .. py:method:: plot_step(func, **styling)
+
+      Step function plot.
+
+   .. py:method:: plot_polar(func, **styling)
+
+      Polar function plot.
+
+   .. py:method:: plot_implicit(func, **styling)
+
+      Implicit curve ``f(x, y) = 0`` via marching squares.
+
+   .. py:method:: plot_histogram(values, bins=10, **styling)
+
+      Histogram from raw data.
+
+   .. py:method:: plot_vector_field(func, **styling)
+
+      Vector field overlay on axes.
+
+   .. rubric:: Animated Ranges
+
+   .. py:method:: animate_range(start, end, x_range=None, y_range=None, easing=smooth)
+
+      Animate the axis range to new bounds. Curves resample automatically.
+
+      :param tuple x_range: ``(new_xmin, new_xmax)`` or ``None``.
+      :param tuple y_range: ``(new_ymin, new_ymax)`` or ``None``.
 
 ----
 
@@ -150,3 +243,82 @@ BarChart
    :param list values: Numeric values for each bar.
    :param list colors: Optional list of fill colours.
    :param float bar_spacing: Space between bars (as a fraction).
+
+   .. py:method:: animate_values(new_values, start=0, end=1, easing=smooth)
+
+      Smoothly transition bars to new values.
+
+   .. py:method:: add_bar(value, label=None, color=None, start=0, end=0.5)
+
+      Animate adding a new bar.
+
+   .. py:method:: remove_bar(index=-1, start=0, end=0.5)
+
+      Animate removing a bar.
+
+   .. py:method:: animate_sort(key=None, reverse=False, start=0, end=1)
+
+      Animate bars sliding into sorted order.
+
+----
+
+DonutChart
+----------
+
+.. py:class:: DonutChart(values, colors=None, cx=960, cy=540, outer_r=240, inner_r=120, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Donut chart (pie chart with a hole).
+
+----
+
+RadarChart
+----------
+
+.. py:class:: RadarChart(values, labels=None, max_val=None, cx=960, cy=540, radius=250, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Radar/spider chart with concentric rings and data polygon.
+
+----
+
+ComplexPlane
+------------
+
+.. py:class:: ComplexPlane(x_range=(-3, 3), y_range=(-3, 3), show_grid=True, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Complex number plane with real/imaginary axes.
+
+   .. py:method:: number_to_point(z)
+
+      Convert a complex number to SVG coordinates.
+
+----
+
+PolarAxes
+---------
+
+.. py:class:: PolarAxes(r_range=(0, 5), cx=960, cy=540, radius=400, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Polar coordinate axes with radial and angular grid lines.
+
+   .. py:method:: polar_to_point(r, theta)
+
+      Convert polar coordinates to SVG coordinates.
+
+----
+
+NumberPlane
+-----------
+
+.. py:class:: NumberPlane(x_range=(-10, 10), y_range=(-6, 6), **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Full coordinate grid (background grid with axes).

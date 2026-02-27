@@ -13073,6 +13073,7 @@ class StackViz(VCollection):
         self._font_size = font_size
         self._stack_cells = []
         self._stack_labels = []
+        self._z = z
         self.values = list(values)
         objects = []
         for i, val in enumerate(values):
@@ -13119,10 +13120,9 @@ class StackViz(VCollection):
         self._stack_labels.append(lbl)
         self.values.append(value)
         self.objects.extend([cell, lbl])
-        # Move TOP arrow
-        new_ty = cy + self._cell_height / 2
-        self._top_arrow.p2.move_to(start, end, (self._base_x - 8, new_ty))
-        self._top_arrow.p1.move_to(start, end, (self._base_x - 50, new_ty))
+        # Move TOP arrow up
+        self._top_arrow.shift(dy=-self._cell_height, start=start, end=end)
+        self._top_label.shift(dy=-self._cell_height, start=start, end=end)
         return self
 
     def pop(self, start=0, end=0.5):
@@ -13135,12 +13135,9 @@ class StackViz(VCollection):
         cell.fadeout(start, end)
         lbl.fadeout(start, end)
         # Move TOP arrow down
-        n = len(self._stack_cells)
-        if n > 0:
-            cy = self._base_y - (n - 1) * self._cell_height
-            new_ty = cy + self._cell_height / 2
-            self._top_arrow.p2.move_to(start, end, (self._base_x - 8, new_ty))
-            self._top_arrow.p1.move_to(start, end, (self._base_x - 50, new_ty))
+        if self._stack_cells:
+            self._top_arrow.shift(dy=self._cell_height, start=start, end=end)
+            self._top_label.shift(dy=self._cell_height, start=start, end=end)
         return self
 
 
