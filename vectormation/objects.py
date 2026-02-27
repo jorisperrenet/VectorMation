@@ -48,7 +48,7 @@ from vectormation._shapes import (
 Sector = Wedge
 Triangle = EquilateralTriangle
 
-from vectormation._arrows import Arrow, DoubleArrow, CurvedArrow, Brace
+from vectormation._arrows import Arrow, DoubleArrow, CurvedArrow, Brace, Vector
 
 from vectormation._axes import Axes, Graph, NumberPlane, ComplexPlane
 from vectormation._axes_helpers import pi_format, pi_ticks

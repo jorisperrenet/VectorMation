@@ -4,7 +4,7 @@ import pytest
 from vectormation.objects import (
     Circle, Rectangle, Polygon, Line, Lines, RegularPolygon, Arc, Ellipse,
     Path, Trace, Text, Dot, AnnotationDot, Wedge, Sector, Star, RoundedRectangle, DashedLine,
-    NumberLine, EquilateralTriangle, Triangle, Arrow, CurvedArrow, VObject, VCollection,
+    NumberLine, EquilateralTriangle, Triangle, Arrow, Vector, CurvedArrow, VObject, VCollection,
     from_svg, CountAnimation, Annulus, FunctionGraph,
     AnnularSector, PieChart, DonutChart, Axes, Brace, Table, BarChart,
 )
@@ -9889,6 +9889,27 @@ class TestArrowBetween:
         svg = arrow.to_svg(0)
         # Color should be in the SVG
         assert '255' in svg or 'ff0000' in svg or 'rgb' in svg
+
+
+class TestVector:
+    def test_vector_is_arrow(self):
+        v = Vector(100, 50)
+        assert isinstance(v, Arrow)
+
+    def test_vector_get_vector(self):
+        v = Vector(100, 0, origin_x=0, origin_y=0)
+        vx, vy = v.get_vector(0)
+        assert vx == pytest.approx(100, abs=1)
+        assert vy == pytest.approx(0, abs=1)
+
+    def test_vector_repr(self):
+        v = Vector(50, -30)
+        assert 'Vector' in repr(v)
+
+    def test_vector_coordinate_label(self):
+        v = Vector(100, 0, origin_x=0, origin_y=0)
+        m = v.coordinate_label()
+        assert m is not None
 
 
 class TestTableFromDict:

@@ -371,3 +371,31 @@ class Brace(VCollection):
 
         return cls(target, direction=direction, label=label,
                    creation=creation, **kwargs)
+
+
+class Vector(Arrow):
+    """Arrow originating from a point (default: origin), for use in coordinate systems."""
+    def __init__(self, x=100, y=0, origin_x=960, origin_y=540, creation: float = 0, z: float = 0, **kwargs):
+        super().__init__(x1=origin_x, y1=origin_y, x2=origin_x + x, y2=origin_y + y,
+                         creation=creation, z=z, **kwargs)
+        self._vx, self._vy = x, y
+
+    def __repr__(self):
+        return f'Vector({self._vx:.0f}, {self._vy:.0f})'
+
+    def get_vector(self, time=0):
+        """Return the vector components (dx, dy) from start to end."""
+        s = self.get_start(time)
+        e = self.get_end(time)
+        return (e[0] - s[0], e[1] - s[1])
+
+    def coordinate_label(self, integer_labels=True, creation=0, **kwargs):
+        """Create a column-matrix label showing the vector's endpoint coordinates."""
+        from vectormation._composites import Matrix
+        vx, vy = self.get_vector(creation)
+        if integer_labels:
+            vx, vy = round(vx), round(vy)
+        m = Matrix([[vx], [vy]], creation=creation, **kwargs)
+        ex, ey = self.get_end(creation)
+        m.center_to_pos(posx=ex + 40, posy=ey, start=creation)
+        return m
