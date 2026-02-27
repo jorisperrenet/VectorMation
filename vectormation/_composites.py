@@ -7583,23 +7583,7 @@ class Table(VCollection):
         return self.entries[row][col]
 
     def get_cell(self, row, col):
-        """Return the VObject at the given row and column.
-
-        This is an alias for :meth:`get_entry` that returns the
-        :class:`Text` object stored at ``(row, col)``.
-
-        Parameters
-        ----------
-        row:
-            Row index (0-based).
-        col:
-            Column index (0-based).
-
-        Returns
-        -------
-        VObject
-            The cell's Text object.
-        """
+        """Alias for :meth:`get_entry`."""
         return self.get_entry(row, col)
 
     def get_cell_rect(self, row, col, padding=2, **kwargs):

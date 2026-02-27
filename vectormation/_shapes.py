@@ -2373,18 +2373,7 @@ class Rectangle(VObject):
         return self.snap_points(time)
 
     def get_corners(self, time=0):
-        """Return the four corners as a list of (x, y) tuples.
-
-        Order: top-left, top-right, bottom-right, bottom-left, matching SVG
-        convention where y increases downward.  Equivalent to
-        ``get_vertices(time)``.
-
-        Example
-        -------
-        >>> r = Rectangle(width=100, height=50, x=10, y=20)
-        >>> r.get_corners()
-        [(10.0, 20.0), (110.0, 20.0), (110.0, 70.0), (10.0, 70.0)]
-        """
+        """Return ``[tl, tr, br, bl]`` as (x, y) tuples. Alias for get_vertices."""
         return self.get_vertices(time)
 
     def get_area(self, time=0):
@@ -2396,18 +2385,7 @@ class Rectangle(VObject):
         return 2 * (self.width.at_time(time) + self.height.at_time(time))
 
     def get_diagonal_length(self, time=0):
-        """Return the length of the diagonal: sqrt(width^2 + height^2).
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read the rectangle dimensions.
-
-        Example
-        -------
-        >>> r = Rectangle(width=3, height=4)
-        >>> r.get_diagonal_length()   # 5.0
-        """
+        """Return the diagonal length: ``sqrt(width^2 + height^2)``."""
         w = self.width.at_time(time)
         h = self.height.at_time(time)
         return math.hypot(w, h)
@@ -3047,91 +3025,24 @@ class Line(VObject):
         return self.get_direction(time)
 
     def get_direction(self, time=0):
-        """Return the normalized direction vector (dx, dy) from p1 to p2.
-
-        Uses :func:`_normalize` from ``_constants``.  Returns ``(0.0, 0.0)``
-        when p1 == p2 (zero-length line).
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read p1 and p2.
-
-        Returns
-        -------
-        (dx, dy) unit vector tuple of floats.
-
-        Example
-        -------
-        >>> l = Line(x1=0, y1=0, x2=3, y2=4)
-        >>> l.get_direction()   # (0.6, 0.8)
-        """
+        """Return the normalized unit vector ``(dx, dy)`` from p1 to p2."""
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         return _normalize(x2 - x1, y2 - y1)
 
     def get_vector(self, time=0):
-        """Return the direction vector (dx, dy) from start to end.
-
-        Unlike :meth:`get_direction` which returns a normalized unit vector,
-        this returns the raw (unnormalized) vector from p1 to p2.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read p1 and p2.
-
-        Returns
-        -------
-        (dx, dy) tuple of floats.
-        """
+        """Return the unnormalized direction vector ``(dx, dy)`` from p1 to p2."""
         x1, y1 = self.get_start(time)
         x2, y2 = self.get_end(time)
         return (x2 - x1, y2 - y1)
 
     def get_normal(self, time=0):
-        """Return the normal vector perpendicular to the line direction.
-
-        Rotates the direction vector 90 degrees counter-clockwise:
-        if direction is (dx, dy), the normal is (-dy, dx).
-
-        Returns ``(0.0, 0.0)`` when the line has zero length (p1 == p2).
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read p1 and p2.
-
-        Returns
-        -------
-        (nx, ny) unit normal vector tuple of floats.
-
-        Example
-        -------
-        >>> l = Line(x1=0, y1=0, x2=1, y2=0)
-        >>> l.get_normal()   # (0.0, -1.0) — perpendicular, pointing up in math coords
-        """
+        """Return the unit normal ``(-dy, dx)`` perpendicular to the line."""
         dx, dy = self.get_direction(time)
         return (-dy, dx)
 
     def angle_to(self, other, time=0):
-        """Return the angle in degrees between this line and another.
-
-        Computes the angle between the two direction vectors using the
-        dot-product formula.  The result is always in [0, 180].
-
-        Parameters
-        ----------
-        other:
-            Another :class:`Line` instance.
-        time:
-            Animation time at which to read both lines.
-
-        Returns
-        -------
-        float
-            Angle in degrees.
-        """
+        """Return the angle in degrees [0, 180] between this line and *other*."""
         d1 = self.get_direction(time)
         d2 = other.get_direction(time)
         dot = d1[0] * d2[0] + d1[1] * d2[1]
@@ -3139,68 +3050,18 @@ class Line(VObject):
         return math.degrees(math.acos(dot))
 
     def angle_with(self, other, time=0):
-        """Return the angle in degrees between this line and another.
-
-        Alias for :meth:`angle_to`.  Uses the dot product formula.
-        The result is always in [0, 180].
-
-        Parameters
-        ----------
-        other:
-            Another :class:`Line` instance.
-        time:
-            Animation time at which to read both lines.
-
-        Returns
-        -------
-        float
-            Angle in degrees.
-        """
+        """Alias for :meth:`angle_to`."""
         return self.angle_to(other, time)
 
     def is_parallel(self, other, time=0, tol=1e-6):
-        """Return True if this line is parallel to *other*.
-
-        Two lines are parallel when the cross product of their direction
-        vectors is (approximately) zero.
-
-        Parameters
-        ----------
-        other:
-            Another :class:`Line` instance.
-        time:
-            Animation time at which to read both lines.
-        tol:
-            Absolute tolerance for the cross product magnitude.
-
-        Returns
-        -------
-        bool
-        """
+        """Return True if cross product of directions is within *tol* of zero."""
         d1 = self.get_direction(time)
         d2 = other.get_direction(time)
         cross = d1[0] * d2[1] - d1[1] * d2[0]
         return abs(cross) < tol
 
     def is_perpendicular(self, other, time=0, tol=1e-6):
-        """Return True if this line is perpendicular to *other*.
-
-        Two lines are perpendicular when the dot product of their direction
-        vectors is (approximately) zero.
-
-        Parameters
-        ----------
-        other:
-            Another :class:`Line` instance.
-        time:
-            Animation time at which to read both lines.
-        tol:
-            Absolute tolerance for the dot product magnitude.
-
-        Returns
-        -------
-        bool
-        """
+        """Return True if dot product of directions is within *tol* of zero."""
         d1 = self.get_direction(time)
         d2 = other.get_direction(time)
         dot_val = d1[0] * d2[0] + d1[1] * d2[1]
