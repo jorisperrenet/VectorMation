@@ -2611,6 +2611,47 @@ class VObject(ABC):  # Vector Object
         """Return the current opacity value at the given time (matches what set_opacity writes)."""
         return self.styling.opacity.at_time(time)
 
+    def animate_opacity(self, start_opacity: float, end_opacity: float,
+                        start: float = 0, end: float = 1,
+                        easing=easings.smooth):
+        """Animate opacity from *start_opacity* to *end_opacity* over [start, end].
+
+        More flexible than :meth:`fadein` (which always goes 0 → current) or
+        :meth:`fadeout` (which always goes current → 0).  Use this method when
+        you need arbitrary opacity transitions, e.g. from 0.3 to 0.8.
+
+        Parameters
+        ----------
+        start_opacity:
+            Opacity value at the beginning of the animation (0–1).
+        end_opacity:
+            Opacity value at the end of the animation (0–1).
+        start, end:
+            Time interval over which the transition occurs.
+        easing:
+            Easing function (default ``easings.smooth``).
+
+        Returns
+        -------
+        self
+
+        Example
+        -------
+        >>> c = Circle()
+        >>> c.animate_opacity(0.2, 1.0, start=0, end=1)
+        """
+        dur = end - start
+        if dur <= 0:
+            self.styling.opacity.set_onward(start, end_opacity)
+            self.styling.fill_opacity.set_onward(start, end_opacity)
+            return self
+        s, d = start, dur
+        sv, ev = start_opacity, end_opacity
+        fn = lambda t, _s=s, _d=d, _sv=sv, _ev=ev, _e=easing: _sv + (_ev - _sv) * _e((t - _s) / _d)
+        self.styling.opacity.set(start, end, fn, stay=True)
+        self.styling.fill_opacity.set(start, end, fn, stay=True)
+        return self
+
     def set_position(self, x, y, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Move the object's center to (x, y). Shorthand for move_to.
 
@@ -2996,6 +3037,39 @@ class VCollection:
         for obj in self.objects:
             (yes if predicate(obj) else no).append(obj)
         return VCollection(*yes), VCollection(*no)
+
+    def chunk(self, size: int):
+        """Split children into sub-collections of at most *size* elements each.
+
+        Returns a list of :class:`VCollection` objects.  The last chunk may
+        contain fewer than *size* elements when the number of children is not
+        exactly divisible by *size*.
+
+        Parameters
+        ----------
+        size:
+            Maximum number of children per chunk.  Must be >= 1.
+
+        Returns
+        -------
+        list of VCollection
+
+        Raises
+        ------
+        ValueError
+            If *size* is less than 1.
+
+        Examples
+        --------
+        >>> col = VCollection(*[Circle() for _ in range(10)])
+        >>> chunks = col.chunk(3)
+        >>> [len(c.objects) for c in chunks]
+        [3, 3, 3, 1]
+        """
+        if size < 1:
+            raise ValueError(f"chunk size must be >= 1, got {size!r}")
+        objs = self.objects
+        return [VCollection(*objs[i:i + size]) for i in range(0, len(objs), size)]
 
     def enumerate_children(self):
         """Return a list of (index, child) tuples for all children.

@@ -820,6 +820,43 @@ class Circle(Ellipse):
         return Arc(cx=cx, cy=cy, r=r,
                    start_angle=start_angle, end_angle=end_angle, **kwargs)
 
+    def diameter_line(self, angle_deg: float = 0, time: float = 0, **kwargs):
+        """Return a Line representing the diameter at the given angle.
+
+        The line passes through the circle's centre and extends one radius in
+        each direction, so its total length equals the diameter (2 * r).
+
+        Parameters
+        ----------
+        angle_deg:
+            Angle of the diameter in degrees, measured counter-clockwise from
+            the right (standard math convention, matching
+            :meth:`point_at_angle`).  0° gives a horizontal diameter;
+            90° gives a vertical one.
+        time:
+            Animation time at which to read the circle's position and radius.
+        **kwargs:
+            Extra styling keyword arguments forwarded to :class:`Line`
+            (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        Line
+            A line segment whose endpoints lie on opposite sides of the circle.
+
+        Example
+        -------
+        >>> c = Circle(r=100, cx=200, cy=200)
+        >>> d = c.diameter_line(0)    # horizontal diameter
+        >>> d = c.diameter_line(90)   # vertical diameter
+        """
+        cx, cy = self.c.at_time(time)
+        r = self.rx.at_time(time)
+        rad = math.radians(angle_deg)
+        dx = r * math.cos(rad)
+        dy = -r * math.sin(rad)   # negate: SVG y-axis points down
+        return Line(x1=cx - dx, y1=cy - dy, x2=cx + dx, y2=cy + dy, **kwargs)
+
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)
         return f"<circle cx='{cx}' cy='{cy}' r='{self.rx.at_time(time)}'{self.styling.svg_style(time)} />"
@@ -1039,6 +1076,55 @@ class Rectangle(VObject):
             for i in range(count):
                 parts.append(Rectangle(piece_w, rh, x=rx + i * piece_w, y=ry, **kwargs))
         return VCollection(*parts)
+
+    def inset(self, amount: float, time: float = 0, **kwargs):
+        """Return a new Rectangle inset by *amount* pixels on every side.
+
+        The returned rectangle is centred on the same position as the original
+        but is smaller by ``2 * amount`` in both width and height.  This is
+        useful for creating inner borders or nested frames.
+
+        Parameters
+        ----------
+        amount:
+            Number of pixels to inset on each side.  Positive values shrink
+            the rectangle; negative values expand it.
+        time:
+            Animation time at which to read the current rectangle geometry.
+        **kwargs:
+            Extra styling keyword arguments forwarded to the new Rectangle
+            (e.g. ``stroke``, ``fill``).  Any attribute not specified here
+            will **not** be automatically copied from the parent rectangle —
+            use :meth:`round_corners` if you need a full style copy.
+
+        Returns
+        -------
+        Rectangle
+            A new Rectangle with reduced dimensions.
+
+        Raises
+        ------
+        ValueError
+            If *amount* is so large that the inset width or height would
+            become non-positive.
+
+        Example
+        -------
+        >>> outer = Rectangle(200, 100, x=100, y=50)
+        >>> inner = outer.inset(10)   # 180x80 at (110, 60)
+        """
+        rx = float(self.x.at_time(time))
+        ry = float(self.y.at_time(time))
+        rw = float(self.width.at_time(time))
+        rh = float(self.height.at_time(time))
+        new_w = rw - 2 * amount
+        new_h = rh - 2 * amount
+        if new_w <= 0 or new_h <= 0:
+            raise ValueError(
+                f"inset amount {amount} is too large for a {rw}x{rh} rectangle "
+                f"(result would be {new_w}x{new_h})"
+            )
+        return Rectangle(new_w, new_h, x=rx + amount, y=ry + amount, **kwargs)
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f})'

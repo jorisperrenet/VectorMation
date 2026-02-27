@@ -7157,3 +7157,138 @@ class TestVObjectPulseScale:
         c = Circle(r=50, cx=100, cy=100)
         result = c.pulse_scale(1, 1)
         assert result is c
+
+
+class TestAnimateOpacity:
+    def test_returns_self(self):
+        c = Circle(r=50)
+        result = c.animate_opacity(0.0, 1.0, start=0, end=1)
+        assert result is c
+
+    def test_opacity_at_start(self):
+        """Opacity at t=start should equal start_opacity."""
+        import vectormation.easings as easings
+        c = Circle(r=50)
+        c.animate_opacity(0.2, 0.8, start=0, end=1, easing=easings.linear)
+        assert c.styling.opacity.at_time(0) == pytest.approx(0.2, abs=1e-6)
+
+    def test_opacity_at_end(self):
+        """Opacity at t=end should equal end_opacity."""
+        import vectormation.easings as easings
+        c = Circle(r=50)
+        c.animate_opacity(0.2, 0.8, start=0, end=1, easing=easings.linear)
+        assert c.styling.opacity.at_time(1) == pytest.approx(0.8, abs=1e-6)
+
+    def test_opacity_midpoint_linear(self):
+        """At t=0.5 with linear easing, opacity should be the midpoint."""
+        import vectormation.easings as easings
+        c = Circle(r=50)
+        c.animate_opacity(0.0, 1.0, start=0, end=1, easing=easings.linear)
+        assert c.styling.opacity.at_time(0.5) == pytest.approx(0.5, abs=1e-2)
+
+    def test_fill_opacity_also_updated(self):
+        """fill_opacity should be animated to match the target value."""
+        import vectormation.easings as easings
+        c = Circle(r=50)
+        c.animate_opacity(0.0, 0.6, start=0, end=1, easing=easings.linear)
+        assert c.styling.fill_opacity.at_time(1) == pytest.approx(0.6, abs=1e-6)
+
+    def test_zero_duration_snaps_to_end_value(self):
+        """Zero-duration call should snap opacity to end_opacity."""
+        c = Circle(r=50)
+        c.animate_opacity(0.1, 0.9, start=2, end=2)
+        assert c.styling.opacity.at_time(2) == pytest.approx(0.9, abs=1e-6)
+
+    def test_arbitrary_range(self):
+        """Works with non-zero start time."""
+        import vectormation.easings as easings
+        c = Circle(r=50)
+        c.animate_opacity(0.3, 0.7, start=2, end=4, easing=easings.linear)
+        assert c.styling.opacity.at_time(2) == pytest.approx(0.3, abs=1e-2)
+        assert c.styling.opacity.at_time(4) == pytest.approx(0.7, abs=1e-6)
+
+    def test_fade_down(self):
+        """Can animate from high to low opacity."""
+        import vectormation.easings as easings
+        c = Circle(r=50)
+        c.animate_opacity(1.0, 0.0, start=0, end=1, easing=easings.linear)
+        assert c.styling.opacity.at_time(0) == pytest.approx(1.0, abs=1e-2)
+        assert c.styling.opacity.at_time(1) == pytest.approx(0.0, abs=1e-6)
+
+
+class TestAxesGetZeros:
+    def _ax(self):
+        return Axes(x_range=(-5, 5), y_range=(-5, 5))
+
+    def test_linear_has_one_zero(self):
+        """f(x) = x has exactly one zero at x=0."""
+        ax = self._ax()
+        zeros = ax.get_zeros(lambda x: x, -5, 5)
+        assert len(zeros) == 1
+        assert zeros[0][0] == pytest.approx(0.0, abs=1e-8)
+        assert zeros[0][1] == 0.0
+
+    def test_quadratic_two_zeros(self):
+        """f(x) = x^2 - 1 has zeros at x = -1 and x = 1."""
+        ax = self._ax()
+        zeros = ax.get_zeros(lambda x: x ** 2 - 1, -3, 3)
+        assert len(zeros) == 2
+        xs = sorted(z[0] for z in zeros)
+        assert xs[0] == pytest.approx(-1.0, abs=1e-6)
+        assert xs[1] == pytest.approx(1.0, abs=1e-6)
+
+    def test_sin_zeros_in_range(self):
+        """sin has zeros at 0, pi, 2pi within [0, 2pi]."""
+        ax = Axes(x_range=(0, 7), y_range=(-2, 2))
+        zeros = ax.get_zeros(math.sin, 0.0, 2 * math.pi)
+        xs = sorted(z[0] for z in zeros)
+        # Expect zeros near 0, pi, 2pi
+        assert any(abs(x - 0.0) < 1e-4 or abs(x - math.pi) < 1e-4
+                   or abs(x - 2 * math.pi) < 1e-4 for x in xs)
+        assert len(xs) >= 2  # at least pi and 2*pi
+
+    def test_no_zeros(self):
+        """f(x) = x^2 + 1 has no real zeros."""
+        ax = self._ax()
+        zeros = ax.get_zeros(lambda x: x ** 2 + 1, -5, 5)
+        assert zeros == []
+
+    def test_returns_list_of_tuples(self):
+        ax = self._ax()
+        zeros = ax.get_zeros(lambda x: x, -1, 1)
+        assert isinstance(zeros, list)
+        for z in zeros:
+            assert isinstance(z, tuple)
+            assert len(z) == 2
+
+    def test_y_values_are_zero(self):
+        """All returned y values must be exactly 0.0."""
+        ax = self._ax()
+        zeros = ax.get_zeros(lambda x: x ** 3 - x, -2, 2)
+        for _, y in zeros:
+            assert y == 0.0
+
+    def test_cubic_three_zeros(self):
+        """f(x) = x^3 - x = x(x-1)(x+1) has zeros at -1, 0, 1."""
+        ax = self._ax()
+        zeros = ax.get_zeros(lambda x: x ** 3 - x, -2, 2)
+        xs = sorted(z[0] for z in zeros)
+        assert len(xs) == 3
+        assert xs[0] == pytest.approx(-1.0, abs=1e-6)
+        assert xs[1] == pytest.approx(0.0, abs=1e-6)
+        assert xs[2] == pytest.approx(1.0, abs=1e-6)
+
+    def test_accepts_curve_with_func_attr(self):
+        """get_zeros should work with a Path object returned by plot()."""
+        ax = Axes(x_range=(-3, 3), y_range=(-5, 5))
+        curve = ax.plot(lambda x: x)
+        zeros = ax.get_zeros(curve, -3, 3)
+        assert len(zeros) == 1
+        assert zeros[0][0] == pytest.approx(0.0, abs=0.1)
+
+    def test_sorted_ascending(self):
+        """Returned zeros should be sorted in ascending x order."""
+        ax = self._ax()
+        zeros = ax.get_zeros(lambda x: x ** 3 - x, -2, 2)
+        xs = [z[0] for z in zeros]
+        assert xs == sorted(xs)

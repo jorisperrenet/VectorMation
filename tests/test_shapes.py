@@ -3866,3 +3866,147 @@ class TestPolygonRotateVertices:
         p = Polygon((0, 0), (100, 0), (50, 100), (25, 75))
         rotated = p.rotate_vertices(45)
         assert len(rotated.get_vertices()) == 4
+
+
+class TestCircleDiameterLine:
+    def test_returns_line(self):
+        c = Circle(r=100, cx=200, cy=200)
+        d = c.diameter_line()
+        assert isinstance(d, Line)
+
+    def test_horizontal_diameter_angle_zero(self):
+        """Angle 0 -> horizontal line through centre."""
+        c = Circle(r=100, cx=200, cy=200)
+        d = c.diameter_line(0)
+        p1 = d.p1.at_time(0)
+        p2 = d.p2.at_time(0)
+        # p1 and p2 should have the same y (horizontal)
+        assert p1[1] == pytest.approx(200.0, abs=1e-6)
+        assert p2[1] == pytest.approx(200.0, abs=1e-6)
+        # p1 at left, p2 at right
+        assert p1[0] == pytest.approx(100.0, abs=1e-6)
+        assert p2[0] == pytest.approx(300.0, abs=1e-6)
+
+    def test_vertical_diameter_angle_90(self):
+        """Angle 90 -> vertical line through centre (SVG y-down)."""
+        c = Circle(r=100, cx=200, cy=200)
+        d = c.diameter_line(90)
+        p1 = d.p1.at_time(0)
+        p2 = d.p2.at_time(0)
+        # p1 and p2 should have the same x (vertical)
+        assert p1[0] == pytest.approx(200.0, abs=1e-6)
+        assert p2[0] == pytest.approx(200.0, abs=1e-6)
+        # p1 above centre (lower y in SVG), p2 below
+        assert p1[1] == pytest.approx(300.0, abs=1e-6)
+        assert p2[1] == pytest.approx(100.0, abs=1e-6)
+
+    def test_diameter_length(self):
+        """Diameter line should have length 2r."""
+        import math
+        r = 75.0
+        c = Circle(r=r, cx=500, cy=400)
+        for angle in [0, 30, 45, 60, 90, 120, 180]:
+            d = c.diameter_line(angle)
+            p1 = d.p1.at_time(0)
+            p2 = d.p2.at_time(0)
+            length = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
+            assert length == pytest.approx(2 * r, abs=1e-6)
+
+    def test_endpoints_on_circle(self):
+        """Both endpoints of the diameter should lie on the circle."""
+        import math
+        c = Circle(r=100, cx=300, cy=300)
+        d = c.diameter_line(45)
+        cx, cy = c.c.at_time(0)
+        r = c.rx.at_time(0)
+        for pt in [d.p1.at_time(0), d.p2.at_time(0)]:
+            dist = math.hypot(pt[0] - cx, pt[1] - cy)
+            assert dist == pytest.approx(r, abs=1e-6)
+
+    def test_passes_through_center(self):
+        """The midpoint of the diameter line should be the circle centre."""
+        c = Circle(r=80, cx=600, cy=400)
+        d = c.diameter_line(30)
+        p1 = d.p1.at_time(0)
+        p2 = d.p2.at_time(0)
+        mid_x = (p1[0] + p2[0]) / 2
+        mid_y = (p1[1] + p2[1]) / 2
+        cx, cy = c.c.at_time(0)
+        assert mid_x == pytest.approx(cx, abs=1e-6)
+        assert mid_y == pytest.approx(cy, abs=1e-6)
+
+    def test_kwargs_forwarded(self):
+        """Style kwargs should be forwarded to the returned Line."""
+        c = Circle(r=50, cx=100, cy=100)
+        d = c.diameter_line(0, stroke='#f00', stroke_width=3)
+        assert d.styling.stroke_width.at_time(0) == pytest.approx(3)
+
+
+class TestRectangleInset:
+    def test_returns_rectangle(self):
+        r = Rectangle(200, 100, x=0, y=0)
+        inner = r.inset(10)
+        assert isinstance(inner, Rectangle)
+
+    def test_dimensions_reduced(self):
+        """Inset by 10 should reduce each dimension by 20."""
+        r = Rectangle(200, 100, x=0, y=0)
+        inner = r.inset(10)
+        assert inner.width.at_time(0) == pytest.approx(180.0, abs=1e-6)
+        assert inner.height.at_time(0) == pytest.approx(80.0, abs=1e-6)
+
+    def test_position_offset(self):
+        """Inset rectangle's top-left corner moves inward by amount."""
+        r = Rectangle(200, 100, x=50, y=30)
+        inner = r.inset(10)
+        assert inner.x.at_time(0) == pytest.approx(60.0, abs=1e-6)
+        assert inner.y.at_time(0) == pytest.approx(40.0, abs=1e-6)
+
+    def test_zero_amount(self):
+        """Inset of 0 returns a rectangle of the same size and position."""
+        r = Rectangle(200, 100, x=10, y=20)
+        inner = r.inset(0)
+        assert inner.width.at_time(0) == pytest.approx(200.0, abs=1e-6)
+        assert inner.height.at_time(0) == pytest.approx(100.0, abs=1e-6)
+        assert inner.x.at_time(0) == pytest.approx(10.0, abs=1e-6)
+        assert inner.y.at_time(0) == pytest.approx(20.0, abs=1e-6)
+
+    def test_too_large_raises(self):
+        """Inset larger than half width/height should raise ValueError."""
+        r = Rectangle(100, 50, x=0, y=0)
+        with pytest.raises(ValueError):
+            r.inset(60)  # 100 - 120 = -20 width
+
+    def test_kwargs_forwarded(self):
+        """Style kwargs should be forwarded to the new Rectangle."""
+        r = Rectangle(200, 100, x=0, y=0)
+        inner = r.inset(10, stroke='#f00', stroke_width=5)
+        assert inner.styling.stroke_width.at_time(0) == pytest.approx(5)
+
+    def test_does_not_modify_original(self):
+        """inset() should not change the original rectangle."""
+        r = Rectangle(200, 100, x=50, y=30)
+        r.inset(20)
+        assert r.width.at_time(0) == pytest.approx(200.0, abs=1e-6)
+        assert r.height.at_time(0) == pytest.approx(100.0, abs=1e-6)
+
+    def test_negative_amount_expands(self):
+        """Negative inset expands the rectangle."""
+        r = Rectangle(200, 100, x=50, y=30)
+        outer = r.inset(-10)
+        assert outer.width.at_time(0) == pytest.approx(220.0, abs=1e-6)
+        assert outer.height.at_time(0) == pytest.approx(120.0, abs=1e-6)
+        assert outer.x.at_time(0) == pytest.approx(40.0, abs=1e-6)
+        assert outer.y.at_time(0) == pytest.approx(20.0, abs=1e-6)
+
+    def test_inset_centered_correctly(self):
+        """The inset rectangle should be centred on the original."""
+        r = Rectangle(200, 100, x=0, y=0)
+        inner = r.inset(20)
+        # Centre of original: (100, 50); centre of inner: (20+80, 20+30) = (100, 50)
+        cx_orig = r.x.at_time(0) + r.width.at_time(0) / 2
+        cy_orig = r.y.at_time(0) + r.height.at_time(0) / 2
+        cx_inner = inner.x.at_time(0) + inner.width.at_time(0) / 2
+        cy_inner = inner.y.at_time(0) + inner.height.at_time(0) / 2
+        assert cx_inner == pytest.approx(cx_orig, abs=1e-6)
+        assert cy_inner == pytest.approx(cy_orig, abs=1e-6)

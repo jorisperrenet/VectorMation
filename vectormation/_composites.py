@@ -1412,6 +1412,92 @@ class Axes(VCollection):
             raise ValueError('No finite function values found in the given range.')
         return (best_x, best_y)
 
+    def get_zeros(self, func, x_start, x_end, samples=200):
+        """Find all x values where *func* crosses zero over [x_start, x_end].
+
+        Uses sign-change detection on *samples* equally-spaced points followed
+        by bisection refinement to locate each zero to high precision.
+        Non-finite function values (NaN, inf) are treated as sign-less and do
+        not generate a crossing.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x)`` or a curve Path with a ``._func`` attribute
+            (as returned by :meth:`plot`).
+        x_start, x_end:
+            Domain bounds in mathematical (axis) coordinates.
+        samples:
+            Number of equally-spaced sample points for sign-change scanning
+            (default 200).  Increase for functions with many zeros.
+
+        Returns
+        -------
+        list of (float, float)
+            A list of ``(x, 0.0)`` tuples, one for each zero found.  The list
+            is sorted in ascending order of x.
+
+        Examples
+        --------
+        >>> import math
+        >>> ax = Axes(x_range=(-4, 4), y_range=(-2, 2))
+        >>> ax.get_zeros(math.sin, -4, 4)   # approx [(-3.14, 0), (0, 0), (3.14, 0)]
+        >>> ax.get_zeros(lambda x: x**2 - 1, -3, 3)  # [(-1.0, 0), (1.0, 0)]
+        """
+        fn = self._resolve_func(func, 'func')
+        n = max(int(samples), 2)
+        step = (x_end - x_start) / n
+        xs = [x_start + i * step for i in range(n + 1)]
+        # Evaluate, replacing non-finite values with None
+        ys = []
+        for x in xs:
+            try:
+                y = fn(x)
+                ys.append(y if math.isfinite(y) else None)
+            except Exception:
+                ys.append(None)
+        zeros = []
+        for i in range(n):
+            ya, yb = ys[i], ys[i + 1]
+            xa, xb = xs[i], xs[i + 1]
+            if ya is None or yb is None:
+                continue
+            if ya == 0.0:
+                # Exact zero at left endpoint (avoid double-counting with previous interval)
+                if i == 0 or (ys[i - 1] is not None and ys[i - 1] * ya <= 0):
+                    zeros.append((xa, 0.0))
+                continue
+            if ya * yb >= 0:
+                continue  # no sign change
+            # Bisection refinement
+            lo, hi = xa, xb
+            flo = ya
+            for _ in range(52):  # ~52 bisection steps gives float precision
+                mid = (lo + hi) * 0.5
+                if mid == lo or mid == hi:
+                    break
+                try:
+                    fmid = fn(mid)
+                except Exception:
+                    break
+                if not math.isfinite(fmid):
+                    break
+                if fmid == 0.0:
+                    lo = hi = mid
+                    break
+                if flo * fmid < 0:
+                    hi = mid
+                else:
+                    lo = mid
+                    flo = fmid
+            zeros.append(((lo + hi) * 0.5, 0.0))
+        # Handle exact zero at final sample point
+        if ys[-1] == 0.0 and n > 0:
+            if ys[-2] is not None and ys[-2] * ys[-1] <= 0:
+                zeros.append((xs[-1], 0.0))
+        zeros.sort(key=lambda p: p[0])
+        return zeros
+
     def get_derivative(self, func, x_val, h=0.001):
         """Return the numerical derivative of *func* at *x_val*.
 

@@ -853,3 +853,73 @@ class TestVCollectionSkip:
         tail = col.skip(2)
         assert len(head) + len(tail) == len(col)
         assert list(head.objects) + list(tail.objects) == list(col.objects)
+
+
+class TestVCollectionChunk:
+    def test_chunk_even_division(self):
+        """10 objects chunked by 5 -> 2 chunks of 5."""
+        objs = [Circle(r=i + 1) for i in range(10)]
+        col = VCollection(*objs)
+        chunks = col.chunk(5)
+        assert len(chunks) == 2
+        assert all(len(c.objects) == 5 for c in chunks)
+
+    def test_chunk_uneven_division(self):
+        """10 objects chunked by 3 -> [3, 3, 3, 1]."""
+        objs = [Circle(r=i + 1) for i in range(10)]
+        col = VCollection(*objs)
+        chunks = col.chunk(3)
+        assert len(chunks) == 4
+        assert [len(c.objects) for c in chunks] == [3, 3, 3, 1]
+
+    def test_chunk_size_one(self):
+        """Chunk size of 1 -> one VCollection per child."""
+        objs = [Circle(r=i + 1) for i in range(5)]
+        col = VCollection(*objs)
+        chunks = col.chunk(1)
+        assert len(chunks) == 5
+        assert all(len(c.objects) == 1 for c in chunks)
+
+    def test_chunk_size_larger_than_collection(self):
+        """Chunk size > len -> single chunk with all children."""
+        objs = [Circle(r=i + 1) for i in range(4)]
+        col = VCollection(*objs)
+        chunks = col.chunk(100)
+        assert len(chunks) == 1
+        assert len(chunks[0].objects) == 4
+
+    def test_chunk_preserves_children(self):
+        """All children should appear exactly once across all chunks."""
+        objs = [Circle(r=i + 1) for i in range(7)]
+        col = VCollection(*objs)
+        chunks = col.chunk(3)
+        all_children = []
+        for c in chunks:
+            all_children.extend(c.objects)
+        assert all_children == objs
+
+    def test_chunk_returns_vcollections(self):
+        col = VCollection(Circle(), Circle(), Circle())
+        chunks = col.chunk(2)
+        assert all(isinstance(c, VCollection) for c in chunks)
+
+    def test_chunk_empty_collection(self):
+        """Chunking an empty collection returns an empty list."""
+        col = VCollection()
+        chunks = col.chunk(3)
+        assert chunks == []
+
+    def test_chunk_invalid_size_raises(self):
+        col = VCollection(Circle(), Circle())
+        with pytest.raises(ValueError):
+            col.chunk(0)
+        with pytest.raises(ValueError):
+            col.chunk(-1)
+
+    def test_chunk_exact_division(self):
+        """6 objects with size=2 -> 3 chunks of exactly 2."""
+        objs = [Circle(r=i + 1) for i in range(6)]
+        col = VCollection(*objs)
+        chunks = col.chunk(2)
+        assert len(chunks) == 3
+        assert all(len(c.objects) == 2 for c in chunks)
