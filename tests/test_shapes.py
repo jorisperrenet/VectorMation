@@ -5112,3 +5112,56 @@ class TestRectangleGrowHeight:
         r = Rectangle(width=100, height=50, x=10, y=20)
         r.grow_height(-20, start=0, end=1)
         assert r.height.at_time(1) == pytest.approx(30)
+
+
+class TestArcContainsPoint:
+    def test_point_on_arc(self):
+        """A point at the start of the arc should be detected."""
+        arc = Arc(cx=500, cy=400, r=100, start_angle=0, end_angle=90)
+        # Point at angle 0 (rightmost): (600, 400)
+        assert arc.contains_point(600, 400, time=0) is True
+
+    def test_point_on_arc_midangle(self):
+        """A point at 45 degrees on a 0-90 arc should be detected."""
+        import math
+        arc = Arc(cx=500, cy=400, r=100, start_angle=0, end_angle=90)
+        # Point at 45 degrees: note Arc uses cy - r*sin (SVG y is flipped)
+        px = 500 + 100 * math.cos(math.radians(45))
+        py = 400 - 100 * math.sin(math.radians(45))
+        assert arc.contains_point(px, py, time=0) is True
+
+    def test_point_outside_arc_wrong_radius(self):
+        """A point far from the arc radius should not be detected."""
+        arc = Arc(cx=500, cy=400, r=100, start_angle=0, end_angle=90)
+        # Point at the centre — far from radius
+        assert arc.contains_point(500, 400, time=0) is False
+
+    def test_point_outside_arc_wrong_angle(self):
+        """A point on the circle but outside the arc sweep should not be detected."""
+        import math
+        arc = Arc(cx=500, cy=400, r=100, start_angle=0, end_angle=90)
+        # Point at 180 degrees: (-100, 0) relative to centre
+        px = 500 + 100 * math.cos(math.radians(180))
+        py = 400 - 100 * math.sin(math.radians(180))
+        assert arc.contains_point(px, py, time=0) is False
+
+
+class TestAxesGetAverage:
+    def test_constant_function(self):
+        """Average of a constant function should be that constant."""
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        avg = ax.get_average(lambda _x: 5, 0, 10)
+        assert avg == pytest.approx(5, abs=0.01)
+
+    def test_linear_function(self):
+        """Average of f(x)=x over [0, 10] should be 5."""
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        avg = ax.get_average(lambda x: x, 0, 10)
+        assert avg == pytest.approx(5, abs=0.01)
+
+    def test_defaults_to_axis_range(self):
+        """When x_start/x_end are None, should use axis x_min/x_max."""
+        ax = Axes(x_range=(0, 4), y_range=(0, 10))
+        avg = ax.get_average(lambda x: x * x)
+        # Average of x^2 on [0,4] = (1/4) * integral(x^2, 0, 4) = (1/4)*(64/3) ≈ 5.333
+        assert avg == pytest.approx(64 / 12, abs=0.1)

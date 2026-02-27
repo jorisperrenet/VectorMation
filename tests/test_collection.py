@@ -1197,3 +1197,26 @@ class TestMaxByMinBy:
         c = Circle(r=42)
         col = VCollection(c)
         assert col.sum_by(lambda c: c.rx.at_time(0)) == pytest.approx(42)
+
+
+class TestVCollectionClear:
+    def test_clear_removes_all_children(self):
+        """clear() should remove all children from the collection."""
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        c3 = Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        assert len(col.objects) == 3
+        col.clear()
+        assert len(col.objects) == 0
+
+    def test_clear_returns_self(self):
+        """clear() should return self for chaining."""
+        col = VCollection(Circle(r=10), Circle(r=20))
+        assert col.clear() is col
+
+    def test_clear_on_empty_collection(self):
+        """clear() on an already empty collection should not raise."""
+        col = VCollection()
+        col.clear()
+        assert len(col.objects) == 0

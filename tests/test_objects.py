@@ -1382,7 +1382,7 @@ class TestUntested:
     def test_equilateral_triangle(self):
         t = EquilateralTriangle(side_length=100)
         assert t.path(0) != ''
-        _bx, _by, bw, bh = t.bbox(0)
+        _, _, bw, bh = t.bbox(0)
         assert bw > 0 and bh > 0
 
     def test_star(self):
@@ -1428,7 +1428,7 @@ class TestUntested:
         a = Annulus(inner_radius=40, outer_radius=80)
         path = a.path(0)
         assert path != ''
-        _bx, _by, bw, bh = a.bbox(0)
+        _, _, bw, bh = a.bbox(0)
         assert bw > 0 and bh > 0
 
     def test_arc_between_points(self):
@@ -1887,7 +1887,7 @@ class TestDynamicObject:
 
     def test_dynamic_bbox(self):
         d = DynamicObject(lambda t: Rectangle(100 + t * 10, 50, x=0, y=0))
-        _bx, _by, bw, _bh = d.bbox(0)
+        _, _, bw, _ = d.bbox(0)
         assert bw == pytest.approx(100)
 
 
@@ -2049,7 +2049,7 @@ class TestSetStyle:
 
 class TestAlwaysRedraw:
     def test_creates_dynamic_object(self):
-        d = always_redraw(lambda _t: Circle(r=50))
+        d = always_redraw(lambda _: Circle(r=50))
         assert isinstance(d, DynamicObject)
 
     def test_regenerates_per_frame(self):
@@ -4855,13 +4855,13 @@ class TestCollectionSearch:
     def test_find(self):
         from vectormation.objects import VCollection, Circle, Rectangle
         col = VCollection(Circle(), Rectangle(50, 50), Circle())
-        found = col.find(lambda obj, t: isinstance(obj, Rectangle))
+        found = col.find(lambda obj, _: isinstance(obj, Rectangle))
         assert isinstance(found, Rectangle)
 
     def test_find_none(self):
         from vectormation.objects import VCollection, Circle
         col = VCollection(Circle(), Circle())
-        found = col.find(lambda obj, t: isinstance(obj, int))
+        found = col.find(lambda obj, _: isinstance(obj, int))
         assert found is None
 
     def test_find_by_type(self):
@@ -4874,7 +4874,7 @@ class TestCollectionSearch:
     def test_find_index(self):
         from vectormation.objects import VCollection, Circle, Rectangle
         col = VCollection(Circle(), Rectangle(50, 50), Circle())
-        idx = col.find_index(lambda obj, t: isinstance(obj, Rectangle))
+        idx = col.find_index(lambda obj, _: isinstance(obj, Rectangle))
         assert idx == 1
 
     def test_group_by(self):
@@ -5810,7 +5810,7 @@ class TestGetGraphIntersection:
     def test_parabola_line_intersection(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 10))
         # y=x^2 and y=4 intersect at x=-2 and x=2
-        pts = ax.get_graph_intersection(lambda x: x**2, lambda x: 4)
+        pts = ax.get_graph_intersection(lambda _x: _x**2, lambda _x: 4)
         assert len(pts) == 2
         xs = sorted(p[0] for p in pts)
         assert xs[0] == pytest.approx(-2, abs=0.02)
@@ -5819,13 +5819,13 @@ class TestGetGraphIntersection:
     def test_no_intersection(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
         # y=1 and y=-1 never intersect
-        pts = ax.get_graph_intersection(lambda x: 1, lambda x: -1)
+        pts = ax.get_graph_intersection(lambda _x: 1, lambda _x: -1)
         assert len(pts) == 0
 
     def test_custom_x_range(self):
         ax = Axes(x_range=(-10, 10), y_range=(-10, 10))
         # y=x^2 and y=4 intersect at x=-2 and x=2, but limit to positive x
-        pts = ax.get_graph_intersection(lambda x: x**2, lambda x: 4, x_range=(0, 10))
+        pts = ax.get_graph_intersection(lambda _x: _x**2, lambda _x: 4, x_range=(0, 10))
         assert len(pts) == 1
         assert pts[0][0] == pytest.approx(2, abs=0.02)
 
@@ -5860,7 +5860,6 @@ class TestMatchPosition:
 
 class TestAngleBetween:
     def test_right(self):
-        import math
         from vectormation._constants import _angle_between
         assert _angle_between(0, 0, 1, 0) == pytest.approx(0)
 
@@ -6287,7 +6286,7 @@ class TestFlashHighlight:
 
     def test_rect_larger_than_object(self):
         c = Circle(r=50, cx=200, cy=200)
-        bx, by, bw, bh = c.bbox(0)
+        _, _, bw, bh = c.bbox(0)
         rect = c.flash_highlight(start=0, end=1)
         rx, ry, rw, rh = rect.bbox(0)
         assert rw >= bw

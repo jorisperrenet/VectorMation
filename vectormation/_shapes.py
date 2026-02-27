@@ -3013,6 +3013,41 @@ class Arc(VObject):
             **kwargs,
         )
 
+    def contains_point(self, px, py, time=0, tol=2):
+        """Return True if (px, py) lies on the arc within tolerance.
+
+        The point must be within *tol* pixels of the arc radius **and** its
+        angle (relative to the arc centre) must fall within the arc's angular
+        sweep.
+
+        Parameters
+        ----------
+        px, py:
+            Point coordinates to test.
+        time:
+            Animation time at which to evaluate the arc geometry.
+        tol:
+            Distance tolerance in pixels (default 2).
+        """
+        cx = self.cx.at_time(time)
+        cy = self.cy.at_time(time)
+        r = self.r.at_time(time)
+        # Check distance to centre equals radius (within tolerance)
+        dist = math.hypot(px - cx, py - cy)
+        if abs(dist - r) > tol:
+            return False
+        # Check angle is within arc sweep
+        # Arc uses standard math angles (CCW from right) but SVG y-axis is
+        # flipped, so point_at_angle uses cy - r*sin.  To recover the math
+        # angle from an SVG point we negate the y-component.
+        angle = math.degrees(math.atan2(-(py - cy), px - cx)) % 360
+        start = self.start_angle.at_time(time) % 360
+        end = self.end_angle.at_time(time) % 360
+        if start <= end:
+            return start <= angle <= end
+        else:
+            return angle >= start or angle <= end
+
     @classmethod
     def from_three_points(cls, p1, p2, p3, **kwargs):
         """Create an Arc through three points (x, y tuples).

@@ -1623,7 +1623,7 @@ class VObject(ABC):  # Vector Object
         self.styling.scale_y.set(start, end, _make_pulse_scale(sy0))
         return self
 
-    def ripple_scale(self, start=0, end=1, num_ripples=3, max_factor=1.3, easing=easings.smooth):
+    def ripple_scale(self, start: float = 0, end: float = 1, num_ripples=3, max_factor=1.3, easing=easings.smooth):
         """Produce multiple decaying scale pulses."""
         self._ensure_scale_origin(start)
         sx0 = self.styling.scale_x.at_time(start)
@@ -1673,7 +1673,7 @@ class VObject(ABC):  # Vector Object
         self.styling.scale_y.set(start, end, _make_flash(sy0))
         return self
 
-    def hover_scale(self, factor=1.2, start: float = 0, end: float = 1, easing=easings.smooth):
+    def hover_scale(self, factor=1.2, start: float = 0, end: float = 1):
         """Scale to *factor* at *start* and hold until *end*, then return to 1.0.
 
         Unlike :meth:`flash_scale` (which peaks at the midpoint and returns),
@@ -1689,8 +1689,6 @@ class VObject(ABC):  # Vector Object
             Time at which the object scales to *factor*.
         end:
             Time at which the object returns to its original scale.
-        easing:
-            Easing applied to the scale-up and scale-down transitions.
         """
         self._ensure_scale_origin(start)
         sx0 = self.styling.scale_x.at_time(start)
@@ -3048,6 +3046,11 @@ class VCollection:
     def remove(self, obj):
         """Remove an object from this collection."""
         self.objects.remove(obj)
+        return self
+
+    def clear(self):
+        """Remove all children."""
+        self.objects.clear()
         return self
 
     def send_to_back(self, child):

@@ -1385,6 +1385,35 @@ class Axes(VCollection):
         """
         return self.get_area_value(func, x_start, x_end, samples=samples)
 
+    def get_average(self, func, x_start=None, x_end=None, samples=200):
+        """Return the average value of *func* over [x_start, x_end].
+
+        Computes ``(1 / (x1 - x0)) * integral(func, x0, x1)`` using the
+        trapezoidal rule.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x)`` or a curve Path with a ``._func`` attribute.
+        x_start, x_end:
+            Integration bounds in mathematical (axis) coordinates.  Default
+            to the current axis x-range at time 0.
+        samples:
+            Number of trapezoid intervals (default 200).
+
+        Returns
+        -------
+        float
+            The average value of the function over the interval.
+        """
+        x0 = x_start if x_start is not None else float(self.x_min.at_time(0))
+        x1 = x_end if x_end is not None else float(self.x_max.at_time(0))
+        if x0 == x1:
+            fn = self._resolve_func(func, 'func')
+            return fn(x0)
+        integral = self.get_area_value(func, x0, x1, samples)
+        return integral / (x1 - x0)
+
     def get_graph_length(self, func, x_start=None, x_end=None, samples=200):
         """Return approximate arc length of *func*'s graph in SVG coordinates.
 
