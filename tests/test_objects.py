@@ -9968,3 +9968,118 @@ class TestPinTo:
         fcx, fcy = fx + fw / 2, fy + fh / 2
         assert fcx == pytest.approx(220, abs=1)
         assert fcy == pytest.approx(190, abs=1)
+
+
+class TestParallax:
+    def test_parallax_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.parallax(dx=200, dy=100, start=0, end=1)
+        assert result is c
+
+    def test_parallax_moves_by_depth_factor(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.parallax(dx=200, dy=100, start=0, end=1, depth_factor=0.5, easing=easings.linear)
+        cx_end, cy_end = c.center(1)
+        # Should move by 200*0.5=100 in x and 100*0.5=50 in y
+        assert cx_end == pytest.approx(200, abs=1)
+        assert cy_end == pytest.approx(150, abs=1)
+
+    def test_parallax_zero_depth_factor(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.parallax(dx=200, dy=100, start=0, end=1, depth_factor=0)
+        cx_end, cy_end = c.center(1)
+        # With depth_factor=0, object should not move
+        assert cx_end == pytest.approx(100, abs=1)
+        assert cy_end == pytest.approx(100, abs=1)
+
+    def test_parallax_full_depth_factor(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.parallax(dx=200, dy=100, start=0, end=1, depth_factor=1.0, easing=easings.linear)
+        cx_end, cy_end = c.center(1)
+        # With depth_factor=1.0, should move full amount
+        assert cx_end == pytest.approx(300, abs=1)
+        assert cy_end == pytest.approx(200, abs=1)
+
+    def test_parallax_midpoint(self):
+        c = Circle(r=50, cx=0, cy=0)
+        c.parallax(dx=100, dy=0, start=0, end=1, depth_factor=0.5, easing=easings.linear)
+        cx_mid, cy_mid = c.center(0.5)
+        # At midpoint with linear easing: 100*0.5*0.5 = 25
+        assert cx_mid == pytest.approx(25, abs=1)
+
+
+class TestSetDashPattern:
+    def test_set_dash_pattern_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.set_dash_pattern('dashes', start=0)
+        assert result is c
+
+    def test_set_dash_pattern_dashes(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_dash_pattern('dashes', start=0)
+        assert c.styling.stroke_dasharray.at_time(0) == '10 5'
+
+    def test_set_dash_pattern_dots(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_dash_pattern('dots', start=0)
+        assert c.styling.stroke_dasharray.at_time(0) == '2 4'
+
+    def test_set_dash_pattern_dash_dot(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_dash_pattern('dash_dot', start=0)
+        assert c.styling.stroke_dasharray.at_time(0) == '10 5 2 5'
+
+    def test_set_dash_pattern_solid(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_dash_pattern('solid', start=0)
+        assert c.styling.stroke_dasharray.at_time(0) == ''
+
+    def test_set_dash_pattern_custom_string(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_dash_pattern('20 10 5 10', start=0)
+        assert c.styling.stroke_dasharray.at_time(0) == '20 10 5 10'
+
+    def test_set_dash_pattern_at_later_time(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_dash_pattern('dashes', start=2)
+        # Before the set time, should be default (empty)
+        assert c.styling.stroke_dasharray.at_time(1) == ''
+        # At and after the set time, should be dashes
+        assert c.styling.stroke_dasharray.at_time(2) == '10 5'
+        assert c.styling.stroke_dasharray.at_time(3) == '10 5'
+
+
+class TestShowIf:
+    def test_show_if_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.show_if(lambda t: t < 1, start=0)
+        assert result is c
+
+    def test_show_if_visible_when_true(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.show_if(lambda t: t < 1, start=0, end=2)
+        c._run_updaters(0.5)
+        assert c.styling.opacity.at_time(0.5) == pytest.approx(1)
+
+    def test_show_if_hidden_when_false(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.show_if(lambda t: t < 1, start=0, end=2)
+        c._run_updaters(1.5)
+        assert c.styling.opacity.at_time(1.5) == pytest.approx(0)
+
+    def test_show_if_toggles(self):
+        c = Circle(r=50, cx=100, cy=100)
+        # Visible only on even seconds
+        c.show_if(lambda t: int(t) % 2 == 0, start=0, end=4)
+        c._run_updaters(0.5)
+        assert c.styling.opacity.at_time(0.5) == pytest.approx(1)
+        c._run_updaters(1.5)
+        assert c.styling.opacity.at_time(1.5) == pytest.approx(0)
+        c._run_updaters(2.5)
+        assert c.styling.opacity.at_time(2.5) == pytest.approx(1)
+
+    def test_show_if_fill_opacity_also_set(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.show_if(lambda t: False, start=0, end=2)
+        c._run_updaters(0.5)
+        assert c.styling.fill_opacity.at_time(0.5) == pytest.approx(0)

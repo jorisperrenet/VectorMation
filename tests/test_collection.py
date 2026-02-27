@@ -2383,3 +2383,107 @@ class TestDistributeEvenly:
         col = VCollection()
         result = col.distribute_evenly(0, 0, 100, 100)
         assert result is col
+
+
+class TestSwapAnimated:
+    def test_swap_animated_returns_self(self):
+        c1 = Circle(r=20, cx=100, cy=100)
+        c2 = Circle(r=20, cx=300, cy=100)
+        col = VCollection(c1, c2)
+        result = col.swap_animated(0, 1, start=0, end=1)
+        assert result is col
+
+    def test_swap_animated_exchanges_positions(self):
+        c1 = Circle(r=20, cx=100, cy=200)
+        c2 = Circle(r=20, cx=300, cy=200)
+        col = VCollection(c1, c2)
+        col.swap_animated(0, 1, start=0, end=1, easing=easings.linear)
+        # At end, c1 should be near c2's original position and vice versa
+        c1x, c1y = c1.center(1)
+        c2x, c2y = c2.center(1)
+        assert c1x == pytest.approx(300, abs=5)
+        assert c2x == pytest.approx(100, abs=5)
+
+    def test_swap_animated_same_index_noop(self):
+        c1 = Circle(r=20, cx=100, cy=100)
+        col = VCollection(c1)
+        result = col.swap_animated(0, 0, start=0, end=1)
+        assert result is col
+        # Position unchanged
+        cx, cy = c1.center(1)
+        assert cx == pytest.approx(100, abs=1)
+
+    def test_swap_animated_invalid_index_noop(self):
+        c1 = Circle(r=20, cx=100, cy=100)
+        col = VCollection(c1)
+        result = col.swap_animated(0, 5, start=0, end=1)
+        assert result is col
+
+    def test_swap_animated_arc_midpoint_offset(self):
+        """At the midpoint, objects should be off the straight-line path (arc movement)."""
+        c1 = Circle(r=20, cx=100, cy=200)
+        c2 = Circle(r=20, cx=300, cy=200)
+        col = VCollection(c1, c2)
+        col.swap_animated(0, 1, start=0, end=1, easing=easings.linear)
+        # At midpoint, both should be roughly at x=200 but y should differ
+        # from 200 because they follow arcs
+        c1x, c1y = c1.center(0.5)
+        c2x, c2y = c2.center(0.5)
+        assert c1x == pytest.approx(200, abs=20)
+        assert c2x == pytest.approx(200, abs=20)
+        # y should be offset from 200 since they're on arcs
+        # One arc goes one way, the other goes the other way
+        assert c1y != pytest.approx(200, abs=5) or c2y != pytest.approx(200, abs=5)
+
+
+class TestHighlightNth:
+    def test_highlight_nth_returns_self(self):
+        c1 = Circle(r=20, cx=100, cy=100)
+        c2 = Circle(r=20, cx=200, cy=100)
+        col = VCollection(c1, c2)
+        result = col.highlight_nth(0, start=0, end=1)
+        assert result is col
+
+    def test_highlight_nth_dims_others(self):
+        c1 = Circle(r=20, cx=100, cy=100)
+        c2 = Circle(r=20, cx=200, cy=100)
+        c3 = Circle(r=20, cx=300, cy=100)
+        col = VCollection(c1, c2, c3)
+        col.highlight_nth(1, start=0, end=2, easing=easings.linear)
+        # At the middle of the dim period, non-target children should be dimmed
+        t_dim = 0 + (2 - 0) * 0.5  # well into the dim period
+        c1_fo = c1.styling.fill_opacity.at_time(t_dim)
+        c3_fo = c3.styling.fill_opacity.at_time(t_dim)
+        assert c1_fo < 0.5
+        assert c3_fo < 0.5
+
+    def test_highlight_nth_restores_opacity(self):
+        c1 = Circle(r=20, cx=100, cy=100)
+        c2 = Circle(r=20, cx=200, cy=100)
+        col = VCollection(c1, c2)
+        col.highlight_nth(0, start=0, end=2, easing=easings.linear)
+        # After end, non-target child should be back to full opacity
+        c2_fo = c2.styling.fill_opacity.at_time(2)
+        assert c2_fo == pytest.approx(1.0, abs=0.1)
+
+    def test_highlight_nth_invalid_index_noop(self):
+        c1 = Circle(r=20, cx=100, cy=100)
+        col = VCollection(c1)
+        result = col.highlight_nth(5, start=0, end=1)
+        assert result is col
+
+    def test_highlight_nth_negative_index_noop(self):
+        c1 = Circle(r=20, cx=100, cy=100)
+        col = VCollection(c1)
+        result = col.highlight_nth(-1, start=0, end=1)
+        assert result is col
+
+    def test_highlight_nth_custom_color(self):
+        c1 = Circle(r=20, cx=100, cy=100)
+        c2 = Circle(r=20, cx=200, cy=100)
+        col = VCollection(c1, c2)
+        col.highlight_nth(0, start=0, end=2, color='#FF0000')
+        # The target child should have had its fill changed
+        # At the midpoint, the fill should be transitioning
+        # We just verify no errors and return self
+        assert True

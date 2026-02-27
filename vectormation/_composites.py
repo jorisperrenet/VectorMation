@@ -4936,6 +4936,50 @@ class Axes(VCollection):
         self._add_plot_obj(band)
         return band
 
+    def add_mean_line(self, func_or_data, x_range=None, creation=0, **kwargs):
+        """Add a horizontal dashed line at the mean value of a function or data.
+
+        If *func_or_data* is callable, it is sampled uniformly over *x_range*
+        (defaulting to the current axis x-range) and the mean of the sampled
+        values is used.  If it is a list (or other sequence), the arithmetic
+        mean is computed directly.
+
+        Parameters
+        ----------
+        func_or_data:
+            A callable ``f(x) -> y`` or a list/sequence of numeric values.
+        x_range:
+            ``(x_start, x_end)`` over which to sample a callable.  Ignored
+            when *func_or_data* is a list.  Defaults to the axis x-range at
+            time 0.
+        creation:
+            Creation time for the line.
+        **kwargs:
+            Override default styling (stroke, stroke_width, stroke_dasharray).
+
+        Returns
+        -------
+        Line
+            The horizontal mean line (already added to the axes).
+        """
+        if callable(func_or_data):
+            if x_range is None:
+                x_range = (self.x_min.at_time(0), self.x_max.at_time(0))
+            n = 200
+            x0, x1 = x_range
+            step = (x1 - x0) / n
+            values = [func_or_data(x0 + i * step) for i in range(n + 1)]
+            mean_val = sum(values) / len(values)
+        else:
+            data = list(func_or_data)
+            mean_val = sum(data) / len(data)
+
+        style_kw = {'stroke': '#FFFF00', 'stroke_width': 1.5,
+                     'stroke_dasharray': '6 3'} | kwargs
+        line = self._make_span_line(mean_val, 'horizontal', creation, 0, style_kw)
+        self._add_plot_obj(line)
+        return line
+
     def __repr__(self):
         xn, xx = self.x_min.at_time(0), self.x_max.at_time(0)
         if self.y_min is not None:
@@ -6086,6 +6130,51 @@ class NumberLine(VCollection):
         self.objects.append(group)
         return group
 
+    def animate_add_tick(self, value, start=0, end=1, label=None, easing=None):
+        """Dynamically add a tick mark at *value* with a pop-in animation.
+
+        Creates a small vertical Line at the position on the number line and
+        optionally a Text label below it.  Both fade and scale in during
+        ``[start, end]``.
+
+        Parameters
+        ----------
+        value:
+            Numeric value on the number line where the tick should appear.
+        start:
+            Time at which the animation begins.
+        end:
+            Time at which the animation ends.
+        label:
+            Optional label text below the tick.  If ``None``, no label is added.
+        easing:
+            Easing function for the animation.  Defaults to
+            ``easings.smooth``.
+
+        Returns
+        -------
+        self
+        """
+        if easing is None:
+            easing = easings.smooth
+        px, py = self.number_to_point(value)
+        tick_size = 2 * SMALL_BUFF
+        tick = Line(x1=px, y1=py - tick_size / 2, x2=px, y2=py + tick_size / 2,
+                    creation=start, stroke='#fff', stroke_width=3)
+        tick.fadein(start=start, end=end, easing=easing)
+        self.objects.append(tick)
+
+        if label is not None:
+            font_size = _TICK_FONT_SIZE
+            lbl = Text(text=str(label), x=px - len(str(label)) * font_size * 0.15,
+                        y=py + tick_size / 2 + font_size + 2,
+                        font_size=font_size, creation=start,
+                        fill='#aaa', stroke_width=0)
+            lbl.fadein(start=start, end=end, easing=easing)
+            self.objects.append(lbl)
+
+        return self
+
     def __repr__(self):
         return f'NumberLine([{self.x_start}, {self.x_end}], step={self.x_step})'
 
@@ -6725,6 +6814,34 @@ class Table(VCollection):
                 dy = ys[new_pos] - ys[old_row]
                 for entry in self.entries[old_row]:
                     entry.shift(dx=0, dy=dy, start_time=start, end_time=end, easing=easing)
+        return self
+
+    def animate_cells(self, cells, method_name='flash', start=0, delay=0.15, **kwargs):
+        """Apply an animation method to specific cells with a stagger delay.
+
+        Parameters
+        ----------
+        cells:
+            List of (row, col) tuples identifying the cells to animate.
+        method_name:
+            Name of the animation method to call on each cell's Text object
+            (e.g. ``'flash'``, ``'indicate'``, ``'wiggle'``).
+        start:
+            Start time for the first cell's animation.
+        delay:
+            Time offset between successive cells.
+        **kwargs:
+            Extra keyword arguments forwarded to each animation method call.
+
+        Returns
+        -------
+        self
+        """
+        for i, (r, c) in enumerate(cells):
+            entry = self.entries[r][c]
+            method = getattr(entry, method_name)
+            t = start + i * delay
+            method(start=t, **kwargs)
         return self
 
     def __repr__(self):

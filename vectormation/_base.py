@@ -4129,6 +4129,42 @@ class VObject(ABC):  # Vector Object
         self.text.set(start, end, _blink, stay=False)
         return self
 
+    def parallax(self, dx, dy, start=0, end=1, depth_factor=0.5, easing=easings.smooth):
+        """Move the object by (dx*depth_factor, dy*depth_factor) instead of the
+        full (dx, dy).  This creates a parallax/depth illusion where background
+        objects move slower.  Uses shift animation internally.  Returns self."""
+        return self.shift(dx=dx * depth_factor, dy=dy * depth_factor,
+                          start_time=start, end_time=end, easing=easing)
+
+    _DASH_PRESETS = {
+        'solid': '',
+        'dashes': '10 5',
+        'dots': '2 4',
+        'dash_dot': '10 5 2 5',
+    }
+
+    def set_dash_pattern(self, pattern='dashes', start=0, stay=True):
+        """Set the stroke-dasharray at a given time.
+
+        Pattern presets: 'solid' -> '', 'dashes' -> '10 5', 'dots' -> '2 4',
+        'dash_dot' -> '10 5 2 5'.  Also accepts a custom string.
+        Uses set_onward on the stroke_dasharray styling attribute.  Returns self.
+        """
+        pattern_str = self._DASH_PRESETS.get(pattern, pattern)
+        self.styling.stroke_dasharray.set_onward(start, pattern_str)
+        return self
+
+    def show_if(self, condition_func, start=0, end=None):
+        """Show the object only when condition_func(time) returns True.
+        Uses an updater that sets opacity to 0 or 1 based on the condition.
+        Returns self."""
+        def _updater(obj, time):
+            val = 1 if condition_func(time) else 0
+            obj.styling.opacity.set_onward(time, val)
+            obj.styling.fill_opacity.set_onward(time, val)
+        self.add_updater(_updater, start, end)
+        return self
+
     @staticmethod
     def surround(other, buff=SMALL_BUFF, rx=6, ry=6, start_time: float = 0, follow=True):
         """Create a rectangle surrounding another object. Returns a Rectangle."""
@@ -5301,6 +5337,42 @@ class VCollection:
         # Move a to b's position and vice versa using path_arc for visual interest
         a.path_arc(bcx, bcy, start=start, end=end, angle=math.pi / 3, easing=easing)
         b.path_arc(acx, acy, start=start, end=end, angle=math.pi / 3, easing=easing)
+        return self
+
+    def swap_animated(self, i, j, start=0, end=1, easing=easings.smooth):
+        """Animate swapping the positions of children at indices i and j.
+        Each child moves along an arc to the other's position to avoid
+        overlapping in the middle.  Returns self."""
+        n = len(self.objects)
+        if i < 0 or j < 0 or i >= n or j >= n or i == j:
+            return self
+        a, b = self.objects[i], self.objects[j]
+        ax, ay, aw, ah = a.bbox(start)
+        bx, by, bw, bh = b.bbox(start)
+        acx, acy = ax + aw / 2, ay + ah / 2
+        bcx, bcy = bx + bw / 2, by + bh / 2
+        a.path_arc(bcx, bcy, start=start, end=end, angle=math.pi / 3, easing=easing)
+        b.path_arc(acx, acy, start=start, end=end, angle=-math.pi / 3, easing=easing)
+        return self
+
+    def highlight_nth(self, n, start=0, end=1, color='#FFFF00', easing=easings.smooth):
+        """Highlight the nth child by temporarily changing its fill color while
+        dimming others.  At end, restore all original colors.  Returns self."""
+        if n < 0 or n >= len(self.objects):
+            return self
+        mid = start + (end - start) * 0.5
+        # Dim non-target children
+        for i, obj in enumerate(self.objects):
+            if i != n:
+                obj.dim(start=start, end=start + (end - start) * 0.3,
+                        opacity=0.3, easing=easing)
+                obj.undim(start=start + (end - start) * 0.7, end=end, easing=easing)
+        # Change nth child fill to highlight color, then restore
+        target = self.objects[n]
+        # Save original fill as raw tuple for reliable round-tripping
+        orig_fill_raw = target.styling.fill.time_func(start)
+        target.set_fill(color=color, start=start, end=mid, easing=easing)
+        target.set_fill(color=orig_fill_raw, start=mid, end=end, easing=easing)
         return self
 
     def shuffle_positions(self, start: float = 0, end: float = 1,

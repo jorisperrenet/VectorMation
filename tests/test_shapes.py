@@ -7877,3 +7877,261 @@ class TestTextCharCount:
         # At time 6, all chars should be shown
         count_end = t.char_count(time=6)
         assert count_end == 6
+
+
+# ---------------------------------------------------------------------------
+# Tests for Polygon.smooth_corners
+# ---------------------------------------------------------------------------
+class TestPolygonSmoothCorners:
+    def test_returns_path(self):
+        """smooth_corners should return a Path object."""
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        result = p.smooth_corners(radius=10)
+        assert isinstance(result, Path)
+
+    def test_path_d_contains_Q_commands(self):
+        """The smoothed path should contain quadratic Bezier Q commands."""
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        result = p.smooth_corners(radius=10)
+        d = result.d.at_time(0)
+        assert 'Q' in d
+
+    def test_closed_polygon_ends_with_Z(self):
+        """A closed polygon's smoothed path should end with Z."""
+        p = Polygon((0, 0), (100, 0), (100, 100))
+        result = p.smooth_corners(radius=10)
+        d = result.d.at_time(0)
+        assert d.strip().endswith('Z')
+
+    def test_open_polyline_no_Z(self):
+        """An open polyline's smoothed path should not end with Z."""
+        p = Polygon((0, 0), (100, 0), (100, 100), closed=False)
+        result = p.smooth_corners(radius=10)
+        d = result.d.at_time(0)
+        assert not d.strip().endswith('Z')
+
+    def test_kwargs_forwarded(self):
+        """Extra kwargs should be forwarded to the Path constructor."""
+        p = Polygon((0, 0), (100, 0), (100, 100))
+        result = p.smooth_corners(radius=10, stroke='#f00')
+        svg = result.to_svg(0)
+        assert '255' in svg or 'f00' in svg.lower()
+
+    def test_radius_zero_gives_straight_segments(self):
+        """With radius=0, corners should not be smoothed (Q has same control/end)."""
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        result = p.smooth_corners(radius=0)
+        d = result.d.at_time(0)
+        # Q commands still appear but the curve degenerates to a point
+        assert 'Q' in d
+
+    def test_fewer_than_3_vertices(self):
+        """With fewer than 3 vertices, smooth_corners should still return a Path."""
+        p = Polygon((0, 0), (100, 100), closed=False)
+        result = p.smooth_corners(radius=10)
+        assert isinstance(result, Path)
+
+
+# ---------------------------------------------------------------------------
+# Tests for Circle.inscribed_polygon (additional tests beyond existing ones)
+# ---------------------------------------------------------------------------
+class TestCircleInscribedPolygonExtra:
+    def test_start_angle_alias(self):
+        """start_angle parameter should work the same as angle."""
+        c = Circle(r=100, cx=0, cy=0)
+        poly = c.inscribed_polygon(4, start_angle=90)
+        _, y0 = poly.vertices[0].at_time(0)
+        assert y0 == pytest.approx(-100, abs=0.5)
+
+    def test_equal_edge_lengths(self):
+        """All edges of the inscribed polygon should have equal length."""
+        c = Circle(r=100, cx=500, cy=500)
+        poly = c.inscribed_polygon(5)
+        lengths = poly.edge_lengths()
+        for length in lengths:
+            assert length == pytest.approx(lengths[0], abs=0.5)
+
+
+# ---------------------------------------------------------------------------
+# Tests for Line.angle_with
+# ---------------------------------------------------------------------------
+class TestLineAngleWith:
+    def test_perpendicular_lines(self):
+        """Two perpendicular lines should have an angle of 90 degrees."""
+        l1 = Line(x1=0, y1=0, x2=100, y2=0)
+        l2 = Line(x1=0, y1=0, x2=0, y2=100)
+        assert l1.angle_with(l2) == pytest.approx(90.0, abs=0.1)
+
+    def test_parallel_lines(self):
+        """Two parallel lines should have an angle of 0 degrees."""
+        l1 = Line(x1=0, y1=0, x2=100, y2=0)
+        l2 = Line(x1=10, y1=10, x2=200, y2=10)
+        assert l1.angle_with(l2) == pytest.approx(0.0, abs=0.1)
+
+    def test_opposite_direction(self):
+        """Antiparallel lines should have an angle of 180 degrees."""
+        l1 = Line(x1=0, y1=0, x2=100, y2=0)
+        l2 = Line(x1=100, y1=0, x2=0, y2=0)
+        assert l1.angle_with(l2) == pytest.approx(180.0, abs=0.1)
+
+    def test_45_degree_angle(self):
+        """A horizontal and 45-degree line should give 45 degrees."""
+        l1 = Line(x1=0, y1=0, x2=100, y2=0)
+        l2 = Line(x1=0, y1=0, x2=100, y2=100)
+        assert l1.angle_with(l2) == pytest.approx(45.0, abs=0.1)
+
+    def test_matches_angle_to(self):
+        """angle_with should return the same value as angle_to."""
+        l1 = Line(x1=0, y1=0, x2=50, y2=30)
+        l2 = Line(x1=10, y1=20, x2=80, y2=90)
+        assert l1.angle_with(l2) == pytest.approx(l1.angle_to(l2))
+
+    def test_result_in_0_180(self):
+        """Result should always be in [0, 180]."""
+        l1 = Line(x1=0, y1=0, x2=100, y2=0)
+        l2 = Line(x1=0, y1=0, x2=-50, y2=87)
+        result = l1.angle_with(l2)
+        assert 0 <= result <= 180
+
+
+# ---------------------------------------------------------------------------
+# Tests for Table.animate_cells
+# ---------------------------------------------------------------------------
+class TestTableAnimateCells:
+    def test_returns_self(self):
+        """animate_cells should return self for chaining."""
+        t = Table([[1, 2], [3, 4]])
+        result = t.animate_cells([(0, 0), (1, 1)])
+        assert result is t
+
+    def test_calls_method_on_entries(self):
+        """animate_cells should call the specified method on each cell."""
+        t = Table([[10, 20], [30, 40]])
+        # 'flash' is a valid animation method on Text (VObject)
+        t.animate_cells([(0, 0), (0, 1), (1, 0)], method_name='flash')
+        # No exception means the methods were found and called
+
+    def test_stagger_delay(self):
+        """Each cell should receive an incremented start time."""
+        t = Table([['a', 'b'], ['c', 'd']])
+        # Use 'indicate' with default delay=0.15
+        t.animate_cells([(0, 0), (1, 1)], method_name='indicate', start=1.0, delay=0.5)
+        # Just verify it doesn't raise
+
+    def test_kwargs_forwarded(self):
+        """Extra kwargs should be forwarded to the animation method."""
+        t = Table([[1, 2], [3, 4]])
+        t.animate_cells([(0, 0)], method_name='flash', end=2.0, color='#f00')
+
+    def test_empty_cells_list(self):
+        """An empty cells list should do nothing and return self."""
+        t = Table([[1, 2], [3, 4]])
+        result = t.animate_cells([])
+        assert result is t
+
+
+# ---------------------------------------------------------------------------
+# Tests for Axes.add_mean_line
+# ---------------------------------------------------------------------------
+class TestAxesAddMeanLine:
+    def test_returns_line(self):
+        """add_mean_line should return a Line object."""
+        ax = Axes(x_range=(-5, 5), y_range=(-10, 10))
+        line = ax.add_mean_line(lambda x: x ** 2)
+        assert isinstance(line, Line)
+
+    def test_mean_of_constant_function(self):
+        """For a constant function f(x)=5, the mean line should be at y=5."""
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        line = ax.add_mean_line(lambda x: 5.0)
+        # The line's endpoints should map to y=5 in math coords
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        # Both y coordinates should be the same (horizontal line)
+        assert p1[1] == pytest.approx(p2[1], abs=1)
+        # The svg y should correspond to math y=5
+        expected_svg_y = ax._math_to_svg_y(5.0, 0)
+        assert p1[1] == pytest.approx(expected_svg_y, abs=1)
+
+    def test_mean_of_data_list(self):
+        """For a data list, the mean line should be at the average value."""
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        data = [2, 4, 6, 8]
+        line = ax.add_mean_line(data)
+        # Mean is 5.0
+        expected_svg_y = ax._math_to_svg_y(5.0, 0)
+        p1 = line.p1.at_time(0)
+        assert p1[1] == pytest.approx(expected_svg_y, abs=1)
+
+    def test_line_is_dashed(self):
+        """The returned line should have a stroke_dasharray style."""
+        ax = Axes(x_range=(0, 5), y_range=(0, 5))
+        line = ax.add_mean_line([1, 2, 3])
+        svg = line.to_svg(0)
+        assert 'stroke-dasharray' in svg
+
+    def test_custom_x_range(self):
+        """Custom x_range should limit where the function is sampled."""
+        ax = Axes(x_range=(-10, 10), y_range=(-50, 50))
+        # f(x) = x, sampled over [0, 10] has mean 5; over [-10, 0] has mean -5
+        line1 = ax.add_mean_line(lambda x: x, x_range=(0, 10))
+        line2 = ax.add_mean_line(lambda x: x, x_range=(-10, 0))
+        p1 = line1.p1.at_time(0)
+        p2 = line2.p1.at_time(0)
+        # The y positions should be different (mean 5 vs mean -5)
+        assert abs(p1[1] - p2[1]) > 50
+
+    def test_line_added_to_axes(self):
+        """The line should be added to the axes objects list."""
+        ax = Axes(x_range=(0, 5), y_range=(0, 5))
+        n_before = len(ax.objects)
+        ax.add_mean_line([3, 3, 3])
+        assert len(ax.objects) == n_before + 1
+
+
+# ---------------------------------------------------------------------------
+# Tests for NumberLine.animate_add_tick
+# ---------------------------------------------------------------------------
+class TestNumberLineAnimateAddTick:
+    def test_returns_self(self):
+        """animate_add_tick should return self."""
+        nl = NumberLine(x_range=(-5, 5, 1))
+        result = nl.animate_add_tick(2.5, start=0, end=1)
+        assert result is nl
+
+    def test_adds_tick_line(self):
+        """A new Line object should be appended to the number line."""
+        nl = NumberLine(x_range=(0, 10, 1))
+        n_before = len(nl.objects)
+        nl.animate_add_tick(5.5, start=0, end=1)
+        assert len(nl.objects) > n_before
+
+    def test_tick_at_correct_position(self):
+        """The tick line should be at the correct x position."""
+        nl = NumberLine(x_range=(0, 10, 1))
+        nl.animate_add_tick(5.0, start=0, end=1)
+        # The last-added object should be a Line at x = number_to_point(5.0)
+        tick = nl.objects[-1]
+        expected_x, _ = nl.number_to_point(5.0)
+        p1 = tick.p1.at_time(0)
+        assert p1[0] == pytest.approx(expected_x, abs=1)
+
+    def test_with_label(self):
+        """When label is given, an extra Text object should be added."""
+        nl = NumberLine(x_range=(0, 10, 1))
+        n_before = len(nl.objects)
+        nl.animate_add_tick(3.0, start=0, end=1, label='3.0')
+        # Should add both a tick Line and a Text label
+        assert len(nl.objects) == n_before + 2
+
+    def test_without_label(self):
+        """When label is None, only the tick Line should be added."""
+        nl = NumberLine(x_range=(0, 10, 1))
+        n_before = len(nl.objects)
+        nl.animate_add_tick(3.0, start=0, end=1)
+        assert len(nl.objects) == n_before + 1
+
+    def test_custom_easing(self):
+        """Custom easing function should be accepted."""
+        nl = NumberLine(x_range=(0, 10, 1))
+        nl.animate_add_tick(7.0, start=0, end=2, easing=easings.linear)

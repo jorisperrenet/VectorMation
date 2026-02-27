@@ -1016,6 +1016,82 @@ class Polygon(VObject):
             pts = new_pts
         return Polygon(*pts, closed=self.closed, **kwargs)
 
+    def smooth_corners(self, radius=10, time=0, **kwargs):
+        """Return a Path with Bezier-smoothed corners.
+
+        For each corner vertex, replace the sharp angle with a quadratic
+        Bezier curve that starts ``radius`` pixels before the vertex along
+        the incoming edge and ends ``radius`` pixels after along the
+        outgoing edge.
+
+        Parameters
+        ----------
+        radius:
+            How far (in pixels) from each corner the smoothing begins/ends.
+        time:
+            Animation time at which to read vertex positions.
+        **kwargs:
+            Extra styling keyword arguments forwarded to :class:`Path`.
+
+        Returns
+        -------
+        Path
+            A new Path with rounded corners.
+        """
+        pts = self.get_vertices(time)
+        n = len(pts)
+        if n < 3:
+            # Not enough vertices to smooth — return a straight-line path.
+            d = ' '.join(f'{"M" if i == 0 else "L"} {x},{y}' for i, (x, y) in enumerate(pts))
+            if self.closed and n > 1:
+                d += ' Z'
+            return Path(d, **kwargs)
+
+        parts = []
+        for i in range(n):
+            prev = pts[(i - 1) % n]
+            curr = pts[i]
+            nxt = pts[(i + 1) % n]
+
+            # Vector from curr to prev / next
+            dx_in = prev[0] - curr[0]
+            dy_in = prev[1] - curr[1]
+            len_in = math.hypot(dx_in, dy_in)
+            dx_out = nxt[0] - curr[0]
+            dy_out = nxt[1] - curr[1]
+            len_out = math.hypot(dx_out, dy_out)
+
+            # Clamp radius so it doesn't exceed half the edge length
+            r = min(radius, len_in / 2 if len_in > 0 else radius,
+                    len_out / 2 if len_out > 0 else radius)
+
+            if len_in == 0 or len_out == 0:
+                # Degenerate edge — just use the vertex
+                if i == 0:
+                    parts.append(f'M {curr[0]},{curr[1]}')
+                else:
+                    parts.append(f'L {curr[0]},{curr[1]}')
+                continue
+
+            # Start point: r pixels before the vertex along incoming edge
+            sx = curr[0] + (dx_in / len_in) * r
+            sy = curr[1] + (dy_in / len_in) * r
+            # End point: r pixels after the vertex along outgoing edge
+            ex = curr[0] + (dx_out / len_out) * r
+            ey = curr[1] + (dy_out / len_out) * r
+
+            if i == 0:
+                parts.append(f'M {sx},{sy}')
+            else:
+                parts.append(f'L {sx},{sy}')
+            # Quadratic Bezier through the original vertex as control point
+            parts.append(f'Q {curr[0]},{curr[1]} {ex},{ey}')
+
+        if self.closed:
+            parts.append('Z')
+        d = ' '.join(parts)
+        return Path(d, **kwargs)
+
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 
@@ -1984,6 +2060,38 @@ class Circle(Ellipse):
                      'stroke_width': DEFAULT_STROKE_WIDTH} | kwargs
         return Path(d, **style_kw)
 
+    def inscribed_polygon(self, n, start_angle=0, angle=None, time=0, **kwargs):
+        """Return a regular *n*-sided polygon inscribed in this circle.
+
+        Vertices are placed at equal angular intervals starting from
+        *start_angle* (degrees, counter-clockwise from the positive
+        x-axis in math convention; y is inverted for SVG).
+
+        Parameters
+        ----------
+        n:
+            Number of sides (must be >= 3).
+        start_angle:
+            Starting angle in degrees (CCW from right).
+        angle:
+            Alias for *start_angle*.  If both are given, *angle* takes
+            precedence.
+        time:
+            Animation time at which to read the circle's center and radius.
+        **kwargs:
+            Extra styling keyword arguments forwarded to :class:`RegularPolygon`.
+
+        Returns
+        -------
+        RegularPolygon
+            A new RegularPolygon inscribed in the circle.
+        """
+        if angle is not None:
+            start_angle = angle
+        cx, cy = self.c.at_time(time)
+        r = self.rx.at_time(time)
+        return RegularPolygon(n, radius=r, cx=cx, cy=cy, angle=start_angle, **kwargs)
+
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)
         return f"<circle cx='{cx}' cy='{cy}' r='{self.rx.at_time(time)}'{self.styling.svg_style(time)} />"
@@ -2768,6 +2876,26 @@ class Line(VObject):
         dot = d1[0] * d2[0] + d1[1] * d2[1]
         dot = max(-1.0, min(1.0, dot))  # clamp for numerical safety
         return math.degrees(math.acos(dot))
+
+    def angle_with(self, other, time=0):
+        """Return the angle in degrees between this line and another.
+
+        Alias for :meth:`angle_to`.  Uses the dot product formula.
+        The result is always in [0, 180].
+
+        Parameters
+        ----------
+        other:
+            Another :class:`Line` instance.
+        time:
+            Animation time at which to read both lines.
+
+        Returns
+        -------
+        float
+            Angle in degrees.
+        """
+        return self.angle_to(other, time)
 
     def is_parallel(self, other, time=0, tol=1e-6):
         """Return True if this line is parallel to *other*.
