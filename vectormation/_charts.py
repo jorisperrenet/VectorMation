@@ -14,12 +14,22 @@ from vectormation._shapes import (
     Text, Path, Arc, Wedge,
 )
 
+
+def _default_colors(colors):
+    """Return *colors* or a copy of DEFAULT_CHART_COLORS if None."""
+    return list(DEFAULT_CHART_COLORS) if colors is None else colors
+
+
+def _angular_pos(cx, cy, angle_deg, radius):
+    """Return (x, y) at *angle_deg* (math convention, CCW from East) on a circle."""
+    rad = math.radians(angle_deg)
+    return cx + radius * math.cos(rad), cy - radius * math.sin(rad)
+
 class PieChart(VCollection):
     """Pie chart visualization using Wedge sectors."""
     def __init__(self, values, labels=None, colors=None, cx=960, cy=540, r=240,
                  start_angle=90, creation: float = 0, z: float = 0):
-        if colors is None:
-            colors = list(DEFAULT_CHART_COLORS)
+        colors = _default_colors(colors)
         total = sum(values)
         if total == 0:
             total = 1
@@ -32,9 +42,7 @@ class PieChart(VCollection):
                            creation=creation, z=z, fill=color, fill_opacity=0.85, stroke='#222', stroke_width=2)
             objects.append(sector)
             if labels and i < len(labels):
-                mid_angle = math.radians(angle + sweep / 2)
-                lx = cx + (r * 0.65) * math.cos(mid_angle)
-                ly = cy - (r * 0.65) * math.sin(mid_angle)
+                lx, ly = _angular_pos(cx, cy, angle + sweep / 2, r * 0.65)
                 lbl = Text(text=str(labels[i]), x=lx, y=ly, font_size=17,
                            text_anchor='middle', creation=creation, z=z, fill='#fff', stroke_width=0)
                 objects.append(lbl)
@@ -121,12 +129,10 @@ class PieChart(VCollection):
         angle = 90  # PieChart starts at 90 degrees
         for sector, val in zip(self._sectors, self.values):
             sweep = 360 * val / total
-            mid_angle = math.radians(angle + sweep / 2)
             r = sector.r.at_time(creation) * 0.65
             cx = sector.cx.at_time(creation)
             cy = sector.cy.at_time(creation)
-            lx = cx + r * math.cos(mid_angle)
-            ly = cy - r * math.sin(mid_angle)
+            lx, ly = _angular_pos(cx, cy, angle + sweep / 2, r)
             label = Text(text=fmt.format(val / total * 100), font_size=font_size,
                          x=lx, y=ly, creation=creation, fill=color,
                          text_anchor='middle', stroke_width=0)
@@ -139,8 +145,7 @@ class DonutChart(VCollection):
     def __init__(self, values, labels=None, colors=None, cx=960, cy=540,
                  r=240, inner_radius=120, start_angle=90,
                  center_text=None, font_size=17, creation: float = 0, z: float = 0):
-        if colors is None:
-            colors = list(DEFAULT_CHART_COLORS)
+        colors = _default_colors(colors)
         total = sum(values)
         if total == 0:
             total = 1
@@ -167,10 +172,7 @@ class DonutChart(VCollection):
             sectors.append(sector)
             objects.append(sector)
             if labels and i < len(labels):
-                mid_r = (r + inner_radius) / 2
-                mid_angle = math.radians(angle + sweep / 2)
-                lx = cx + mid_r * math.cos(mid_angle)
-                ly = cy - mid_r * math.sin(mid_angle)
+                lx, ly = _angular_pos(cx, cy, angle + sweep / 2, (r + inner_radius) / 2)
                 lbl = Text(text=str(labels[i]), x=lx, y=ly,
                            font_size=font_size, text_anchor='middle',
                            creation=creation, z=z + 0.1, fill='#fff', stroke_width=0)
@@ -261,8 +263,7 @@ class BarChart(VCollection):
     def __init__(self, values, labels=None, colors=None, x=120, y=60,
                  width=1440, height=840, bar_spacing=0.2,
                  creation: float = 0, z: float = 0):
-        if colors is None:
-            colors = list(DEFAULT_CHART_COLORS)
+        colors = _default_colors(colors)
         n = len(values)
         if n == 0:
             super().__init__(creation=creation, z=z)
@@ -868,8 +869,7 @@ class GanttChart(VCollection):
         if n == 0:
             super().__init__(creation=creation, z=z)
             return
-        if colors is None:
-            colors = list(DEFAULT_CHART_COLORS)
+        colors = _default_colors(colors)
         # Compute time range
         all_starts = [t[1] for t in tasks]
         all_ends = [t[2] for t in tasks]
@@ -935,8 +935,7 @@ class SankeyDiagram(VCollection):
         if not flows:
             super().__init__(creation=creation, z=z)
             return
-        if colors is None:
-            colors = list(DEFAULT_CHART_COLORS)
+        colors = _default_colors(colors)
         sources = list(dict.fromkeys(src for src, _, _ in flows))
         targets = list(dict.fromkeys(tgt for _, tgt, _ in flows))
         src_totals = {s: sum(v for ss, _, v in flows if ss == s) for s in sources}
@@ -1002,8 +1001,7 @@ class FunnelChart(VCollection):
         if not stages:
             super().__init__(creation=creation, z=z)
             return
-        if colors is None:
-            colors = list(DEFAULT_CHART_COLORS)
+        colors = _default_colors(colors)
         n = len(stages)
         max_val = max(v for _, v in stages) or 1
         row_h = (height - (n - 1) * gap) / n
@@ -1036,8 +1034,7 @@ class TreeMap(VCollection):
         if not data:
             super().__init__(creation=creation, z=z)
             return
-        if colors is None:
-            colors = list(DEFAULT_CHART_COLORS)
+        colors = _default_colors(colors)
         total = sum(v for _, v in data) or 1
         # Sort descending by value for squarified layout
         sorted_data = sorted(enumerate(data), key=lambda iv: iv[1][1], reverse=True)
