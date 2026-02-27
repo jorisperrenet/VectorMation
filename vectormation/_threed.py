@@ -6,7 +6,7 @@ from xml.sax.saxutils import escape as _xml_escape
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 from vectormation._base import VObject, VCollection, _lerp
-from vectormation._composites import _nice_ticks
+from vectormation._axes import _nice_ticks
 
 # ---------------------------------------------------------------------------
 # Projection helpers

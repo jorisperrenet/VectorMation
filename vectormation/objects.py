@@ -8,7 +8,7 @@ The actual implementations live in:
   _arrows.py         — Arrow, DoubleArrow, CurvedArrow, Brace
   _axes.py           — Axes, Graph, NumberPlane, ComplexPlane
   _composites.py     — remaining composites (NumberLine, Table, etc.)
-  _charts.py         — (future: chart classes)
+  _charts.py         — chart/visualization classes (PieChart, BarChart, etc.)
   _diagrams.py       — diagram classes (Tree, FlowChart, NetworkGraph, etc.)
   _ui.py             — UI component classes (TextBox, Badge, etc.)
   _data_structures.py — data structure visualizations (Array, Stack, etc.)
@@ -53,17 +53,25 @@ from vectormation._axes import Axes, Graph, NumberPlane, ComplexPlane
 
 from vectormation._composites import (
     MorphObject, LabeledDot, TexObject, SplitTexObject,
-    NumberLine,
+    NumberLine, Table, Matrix,
+    DynamicObject,
+    always_redraw, parse_args,
+)
+
+from vectormation._svg_utils import (
     ClipPath, BlurFilter, DropShadowFilter,
     Angle, RightAngle, Cross,
-    PieChart, DonutChart, BarChart, Table, Matrix,
-    DynamicObject, ZoomedInset,
+    ZoomedInset,
     Union, Difference, Intersection, Exclusion,
     brace_between_points,
-    ArrowVectorField,
-    StreamLines, PolarAxes,
-    always_redraw, parse_args,
+    ArrowVectorField, StreamLines,
     from_svg, from_svg_file, _parse_inline_style,
+)
+
+from vectormation._charts import (
+    PieChart, DonutChart, BarChart,
+    PolarAxes, Legend,
+    RadarChart, ProgressBar,
     SampleSpace,
     WaterfallChart, GanttChart, SankeyDiagram,
     FunnelChart, TreeMap, GaugeChart, SparkLine,
@@ -71,7 +79,6 @@ from vectormation._composites import (
     WaffleChart,
     CircularProgressBar, Scoreboard,
     MatrixHeatmap, BoxPlot,
-    RadarChart, ProgressBar, Legend,
 )
 
 from vectormation._diagrams import (
