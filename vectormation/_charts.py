@@ -14,10 +14,6 @@ from vectormation._shapes import (
     Text, Path, Arc, Wedge,
 )
 
-def _get_axes():
-    from vectormation._axes import Axes
-    return Axes
-
 class PieChart(VCollection):
     """Pie chart visualization using Wedge sectors."""
     def __init__(self, values, labels=None, colors=None, cx=960, cy=540, r=240,

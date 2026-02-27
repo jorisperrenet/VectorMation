@@ -1392,7 +1392,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         orig_sw = self.styling.stroke_width.at_time(start)
         _, glow_rgb = attributes.Color(0, color).parse(color)
         self.styling.stroke.set(s, end,
-            lambda t, _rgb=glow_rgb: _rgb, stay=False)
+            lambda _, _rgb=glow_rgb: _rgb, stay=False)
         self.styling.stroke_width.set(s, end,
             _lerp(s, d, orig_sw, orig_sw + radius, easings.there_and_back), stay=False)
         self.styling.stroke_opacity.set(s, end,
