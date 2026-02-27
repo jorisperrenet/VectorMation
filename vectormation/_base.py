@@ -1360,13 +1360,25 @@ class VObject(ABC):  # Vector Object
             return amplitude * math.sin(2 * math.pi * n_wiggles * progress) * easing(progress)
         return self._apply_shift_effect(start, end, dx_func=dx)
 
-    def swing(self, start: float = 0, end: float = 1, amplitude=15, n_swings=3,
-              cx=None, cy=None, easing=easings.there_and_back):
-        """Pendulum-like oscillation around a pivot point.
+    def swing(self, start: float = 0, end: float = 1, amplitude=15,
+              cx=None, cy=None, easing=easings.smooth):
+        """Pendulum-like rotation oscillation with natural decay.
 
-        amplitude: max swing angle in degrees.
-        n_swings: number of oscillation cycles.
-        cx, cy: pivot point (default: top-center of bounding box).
+        Rotates the object back and forth like a pendulum that gradually comes
+        to rest.  The rotation angle follows ``amplitude * sin(2*pi*t) * (1-t)``
+        where ``t`` is the normalised time in [0, 1], producing a single-cycle
+        swing that decays to zero by the end of the interval.
+
+        Parameters
+        ----------
+        amplitude:
+            Maximum swing angle in degrees (default 15).
+        cx, cy:
+            Pivot point for the rotation.  Defaults to the top-centre of the
+            object's bounding box at ``start``.
+        easing:
+            Easing applied to the normalised time before computing the
+            envelope (default :func:`easings.smooth`).
         """
         dur = end - start
         if dur <= 0:
@@ -1377,7 +1389,9 @@ class VObject(ABC):  # Vector Object
             cy = by if cy is None else cy
         s = start
         self.styling.rotation.set(s, end,
-            lambda t, _s=s, _d=dur, _a=amplitude, _n=n_swings, _cx=cx, _cy=cy: (_a * math.sin(2 * math.pi * _n * (t - _s) / _d) * easing((t - _s) / _d), _cx, _cy))
+            lambda t, _s=s, _d=dur, _a=amplitude, _cx=cx, _cy=cy, _ease=easing: (
+                _a * math.sin(2 * math.pi * _ease((t - _s) / _d)) * (1 - _ease((t - _s) / _d)),
+                _cx, _cy))
         return self
 
     def wave(self, start: float = 0, end: float = 1, amplitude=20, n_waves=2, direction: str | tuple = 'up', easing=easings.there_and_back):
@@ -3328,13 +3342,47 @@ class VCollection:
             func(obj, i)
         return self
 
-    def zip_with(self, other, func, time=0):
-        """Apply a function pairwise to children of this and another collection.
-        func(obj_a, obj_b, time) is called for each pair.
-        Stops at the shorter collection's length."""
+    def zip_with(self, other, method_name_or_func, time=0, **kwargs):
+        """Apply a method or function pairwise to children of this and another collection.
+
+        Two calling styles are supported:
+
+        * **Method-name string** — ``method_name_or_func`` is a ``str``; the
+          named method is called on each child of *self* with the corresponding
+          child of *other* as its first positional argument, followed by any
+          extra ``**kwargs``::
+
+              col_a.zip_with(col_b, 'become')
+              col_a.zip_with(col_b, 'set_color', start=1, end=2)
+
+        * **Callable** — ``method_name_or_func`` is a callable; it is invoked
+          as ``func(obj_a, obj_b, time)`` for each pair (legacy behaviour)::
+
+              col_a.zip_with(col_b, lambda a, b, t: a.move_to(*b.center(t), t))
+
+        Iteration stops at the shorter collection's length.
+
+        Parameters
+        ----------
+        other:
+            Another :class:`VCollection` or any iterable of objects.
+        method_name_or_func:
+            Either a ``str`` naming a method on each child object, or a
+            callable with signature ``(obj_a, obj_b, time)``.
+        time:
+            Passed through to the callable form; ignored in the method-name
+            form unless it is also part of ``**kwargs``.
+        **kwargs:
+            Extra keyword arguments forwarded to the method when using the
+            string form.  Ignored in the callable form.
+        """
         other_objs = other.objects if hasattr(other, 'objects') else list(other)
-        for a, b in zip(self.objects, other_objs):
-            func(a, b, time)
+        if isinstance(method_name_or_func, str):
+            for a, b in zip(self.objects, other_objs):
+                getattr(a, method_name_or_func)(b, **kwargs)
+        else:
+            for a, b in zip(self.objects, other_objs):
+                method_name_or_func(a, b, time)
         return self
 
     def align_to(self, target, edge='left', start_time: float = 0):

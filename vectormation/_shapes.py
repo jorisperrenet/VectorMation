@@ -715,6 +715,45 @@ class Rectangle(VObject):
         style_kw.update(kwargs)
         return RoundedRectangle(w, h, x=x, y=y, corner_radius=radius, **style_kw)
 
+    def split(self, direction='horizontal', count=2, time=0, **kwargs):
+        """Split this rectangle into *count* equal sub-rectangles.
+
+        Parameters
+        ----------
+        direction:
+            ``'horizontal'`` splits into *count* rows stacked top-to-bottom.
+            ``'vertical'`` splits into *count* columns arranged left-to-right.
+        count:
+            Number of equal pieces (must be >= 1).
+        time:
+            Animation time at which to read the current rectangle geometry.
+        **kwargs:
+            Extra styling keyword arguments forwarded to each sub-Rectangle.
+
+        Returns
+        -------
+        VCollection
+            A collection of *count* Rectangle objects that together tile the
+            original rectangle exactly.
+        """
+        from vectormation._base import VCollection
+        if count < 1:
+            raise ValueError("split: count must be >= 1")
+        rx = float(self.x.at_time(time))
+        ry = float(self.y.at_time(time))
+        rw = float(self.width.at_time(time))
+        rh = float(self.height.at_time(time))
+        parts = []
+        if direction == 'horizontal':
+            piece_h = rh / count
+            for i in range(count):
+                parts.append(Rectangle(rw, piece_h, x=rx, y=ry + i * piece_h, **kwargs))
+        else:
+            piece_w = rw / count
+            for i in range(count):
+                parts.append(Rectangle(piece_w, rh, x=rx + i * piece_w, y=ry, **kwargs))
+        return VCollection(*parts)
+
     def __repr__(self):
         return f'{self.__class__.__name__}({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f})'
 
@@ -856,6 +895,74 @@ class Line(VObject):
         factor = length / cur
         _anim(self.p2, start, end, (x1 + (x2 - x1) * factor, y1 + (y2 - y1) * factor), easing)
         return self
+
+    def extend_to(self, length, anchor='start', start_time=0, end_time=None, easing=easings.smooth):
+        """Extend or shrink the line to *length*, keeping one endpoint fixed.
+
+        Unlike :meth:`set_length` (which always keeps p1 fixed), this method
+        lets you choose which endpoint acts as the anchor:
+
+        * ``anchor='start'`` — p1 is fixed; p2 moves to achieve the new length.
+        * ``anchor='end'``   — p2 is fixed; p1 moves to achieve the new length.
+
+        The direction of the line is preserved in both cases.
+
+        Parameters
+        ----------
+        length:
+            Target length in SVG pixels.
+        anchor:
+            Which endpoint to keep fixed: ``'start'`` (p1) or ``'end'`` (p2).
+        start_time:
+            Time at which the change begins.
+        end_time:
+            Time at which the change ends.  ``None`` means instant.
+        easing:
+            Easing function for the animation.
+        """
+        x1, y1 = self.p1.at_time(start_time)
+        x2, y2 = self.p2.at_time(start_time)
+        cur = _distance(x1, y1, x2, y2)
+        if cur < 1e-9:
+            return self
+        factor = length / cur
+        if anchor == 'start':
+            # Keep p1 fixed, move p2
+            new_p2 = (x1 + (x2 - x1) * factor, y1 + (y2 - y1) * factor)
+            _anim(self.p2, start_time, end_time, new_p2, easing)
+        else:
+            # Keep p2 fixed, move p1
+            new_p1 = (x2 - (x2 - x1) * factor, y2 - (y2 - y1) * factor)
+            _anim(self.p1, start_time, end_time, new_p1, easing)
+        return self
+
+    def get_perpendicular_point(self, px, py, time=0):
+        """Find the point on the line closest to ``(px, py)``.
+
+        Uses orthogonal projection of the external point onto the infinite line
+        through p1 and p2, then clamps to the segment.
+
+        Parameters
+        ----------
+        px, py:
+            Coordinates of the external point.
+        time:
+            Animation time at which to evaluate the line endpoints.
+
+        Returns
+        -------
+        (x, y): the closest point on the line segment.
+        """
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        dx, dy = x2 - x1, y2 - y1
+        seg_len_sq = dx * dx + dy * dy
+        if seg_len_sq < 1e-18:
+            return (float(x1), float(y1))
+        # Parameter t in [0, 1] for the projection onto the segment
+        t = ((px - x1) * dx + (py - y1) * dy) / seg_len_sq
+        t = max(0.0, min(1.0, t))
+        return (float(x1 + t * dx), float(y1 + t * dy))
 
     @classmethod
     def between(cls, p1, p2, **kwargs):

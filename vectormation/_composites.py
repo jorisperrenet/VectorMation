@@ -1765,33 +1765,81 @@ class Axes(VCollection):
         self._add_plot_obj(region)
         return region
 
-    def add_area_label(self, func, x_range=None, text=None, font_size=20,
+    def add_area_label(self, func, x_start=None, x_end=None, x_range=None,
+                        text=None, font_size=20,
                         creation=0, z=3, samples=100, **styling_kwargs):
-        """Add a text label positioned at the centroid of the area under func.
-        If text is None, computes and displays the numerical area value.
-        Returns the Text label object."""
+        """Add a label showing the numerical area under the curve between x_start and x_end.
+
+        The label is positioned at the centroid of the region, and if *text* is
+        ``None`` the numerical area value (computed by the trapezoidal rule) is
+        displayed automatically.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x)`` or a curve object with a ``._func`` attribute.
+        x_start, x_end:
+            Integration bounds.  You may alternatively pass *x_range* as a
+            two-element sequence; ``x_start``/``x_end`` take precedence when
+            both forms are provided.  Defaults to the current axis x-range.
+        x_range:
+            Legacy two-element ``[xlo, xhi]`` form; kept for backwards
+            compatibility.  Superseded by *x_start*/*x_end*.
+        text:
+            Override the displayed string.  When ``None`` the area is computed
+            and formatted as ``"A = <value>"``.
+        font_size:
+            Font size for the label (default 20).
+        creation:
+            Time at which the label appears.
+        samples:
+            Number of equally-spaced trapezoids used for integration and
+            centroid estimation (default 100).
+
+        Returns
+        -------
+        Text
+            The label object, already added to the axes.
+        """
         style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
         fn = self._resolve_func(func, 'func')
-        xlo = x_range[0] if x_range else self.x_min.at_time(creation)
-        xhi = x_range[1] if x_range else self.x_max.at_time(creation)
-        # Compute area and centroid
-        step = (xhi - xlo) / max(samples, 1)
-        total_area = 0
-        cx_sum = 0
-        cy_sum = 0
-        for i in range(samples):
-            x = xlo + (i + 0.5) * step
-            y = fn(x)
-            total_area += y * step
-            cx_sum += x * abs(y) * step
-            cy_sum += (y / 2) * abs(y) * step
-        abs_area = sum(abs(fn(xlo + (i + 0.5) * step)) * step for i in range(samples))
-        if abs_area < 1e-9:
+        # Resolve bounds: explicit params > x_range > axis range
+        if x_start is not None:
+            xlo = x_start
+        elif x_range:
+            xlo = x_range[0]
+        else:
+            xlo = self.x_min.at_time(creation)
+        if x_end is not None:
+            xhi = x_end
+        elif x_range:
+            xhi = x_range[1]
+        else:
+            xhi = self.x_max.at_time(creation)
+        # Trapezoidal integration and centroid estimation
+        n = max(samples, 2)
+        step = (xhi - xlo) / n
+        xs = [xlo + i * step for i in range(n + 1)]
+        ys = [fn(x) for x in xs]
+        # Trapezoidal area: sum of 0.5*(y[i]+y[i+1])*step
+        total_area = sum(0.5 * (ys[i] + ys[i + 1]) * step for i in range(n))
+        # Centroid: weighted by |y| using midpoints for stability
+        cx_sum = 0.0
+        cy_sum = 0.0
+        abs_area_sum = 0.0
+        for i in range(n):
+            xm = 0.5 * (xs[i] + xs[i + 1])
+            ym = 0.5 * (ys[i] + ys[i + 1])
+            w = abs(ym) * step
+            cx_sum += xm * w
+            cy_sum += 0.5 * ym * w
+            abs_area_sum += w
+        if abs_area_sum < 1e-9:
             cx_math = (xlo + xhi) / 2
             cy_math = 0
         else:
-            cx_math = cx_sum / abs_area
-            cy_math = cy_sum / abs_area
+            cx_math = cx_sum / abs_area_sum
+            cy_math = cy_sum / abs_area_sum
         label_text = text if text is not None else f'A = {total_area:.2f}'
         sx, sy = self.coords_to_point(cx_math, cy_math, creation)
         lbl = Text(text=label_text, x=sx, y=sy, font_size=font_size,

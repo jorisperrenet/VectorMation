@@ -330,3 +330,68 @@ class TestVCollectionGetChild:
         col = VCollection(Circle(r=10))
         with pytest.raises(IndexError, match='5'):
             col.get_child(5)
+
+
+class TestZipWith:
+    def test_method_name_become(self):
+        """zip_with with method_name='become' copies styling onto each child."""
+        from vectormation.objects import Rectangle
+        src = VCollection(Circle(r=10, cx=0, cy=0), Circle(r=20, cx=0, cy=0))
+        targets = VCollection(
+            Rectangle(40, 40, x=100, y=100, fill='#ff0000'),
+            Rectangle(80, 80, x=200, y=200, fill='#00ff00'),
+        )
+        src.zip_with(targets, 'become')
+        # After become, each source circle should have adopted the target's fill colour
+        for a, b in zip(src.objects, targets.objects):
+            a_fill = a.styling.fill.time_func(0)
+            b_fill = b.styling.fill.time_func(0)
+            assert a_fill == b_fill
+
+    def test_callable_form(self):
+        """Legacy callable form: func(a, b, time) still works."""
+        called_with = []
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        col_a = VCollection(c1)
+        col_b = VCollection(c2)
+        col_a.zip_with(col_b, lambda a, b, t: called_with.append((a, b, t)))
+        assert len(called_with) == 1
+        assert called_with[0][0] is c1
+        assert called_with[0][1] is c2
+
+    def test_returns_self(self):
+        col_a = VCollection(Circle(r=10))
+        col_b = VCollection(Circle(r=20))
+        result = col_a.zip_with(col_b, lambda a, b, t: None)
+        assert result is col_a
+
+    def test_stops_at_shorter(self):
+        """Iteration stops at the shorter collection."""
+        results = []
+        col_a = VCollection(Circle(r=10), Circle(r=20), Circle(r=30))
+        col_b = VCollection(Circle(r=5))
+        col_a.zip_with(col_b, lambda a, b, t: results.append(1))
+        assert len(results) == 1
+
+    def test_method_with_kwargs(self):
+        """Extra kwargs are forwarded to the method (string form)."""
+        # set_fill(color, start) — first arg is color, second is start
+        c1 = Circle(r=50, cx=200, cy=200)
+        c2 = Circle(r=50, cx=300, cy=300)
+        col_a = VCollection(c1)
+        col_b = VCollection(c2)
+        # Use become which accepts (other, time=0) so we can pass time via kwargs
+        col_a.zip_with(col_b, 'become', time=0)
+        # After become the fills should match (both defaults are the same)
+        # Mainly verifying the call did not raise
+        assert c1.styling.fill.time_func(0) == c2.styling.fill.time_func(0)
+
+    def test_plain_list_as_other(self):
+        """other can be a plain list, not just a VCollection."""
+        results = []
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        col = VCollection(c1)
+        col.zip_with([c2], lambda a, b, t: results.append((a is c1, b is c2)))
+        assert results == [(True, True)]

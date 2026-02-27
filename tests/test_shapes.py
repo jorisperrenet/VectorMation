@@ -2697,3 +2697,232 @@ class TestAxesGetIntersectionPoint:
         result = ax.get_intersection_point(lambda x: x, lambda x: 0, (-2, 2))  # noqa: E731
         assert result is not None
         assert len(result) == 2
+
+
+# ---------------------------------------------------------------------------
+# Tests for new features
+# ---------------------------------------------------------------------------
+
+class TestSwing:
+    def test_swing_returns_self(self):
+        c = Circle(r=50, cx=100, cy=300)
+        result = c.swing(start=0, end=1, amplitude=20)
+        assert result is c
+
+    def test_swing_zero_rotation_at_start(self):
+        """At t=0 (start of swing) normalised time is 0, so rotation is 0."""
+        c = Circle(r=50, cx=100, cy=300)
+        c.swing(start=0, end=2, amplitude=30)
+        rot = c.styling.rotation.at_time(0)
+        assert rot[0] == pytest.approx(0, abs=0.5)
+
+    def test_swing_zero_rotation_at_end(self):
+        """Decay factor (1-t) ensures rotation returns to ~0 at t=1."""
+        c = Circle(r=50, cx=100, cy=300)
+        c.swing(start=0, end=2, amplitude=30)
+        rot = c.styling.rotation.at_time(2)
+        assert rot[0] == pytest.approx(0, abs=0.5)
+
+    def test_swing_nonzero_in_middle(self):
+        """Rotation should be nonzero somewhere in the middle of the swing."""
+        c = Circle(r=50, cx=100, cy=300)
+        c.swing(start=0, end=2, amplitude=30)
+        rot_mid = c.styling.rotation.at_time(0.5)
+        assert abs(rot_mid[0]) > 1.0
+
+    def test_swing_custom_pivot(self):
+        """Custom cx/cy should be stored in the rotation tuple."""
+        c = Circle(r=50, cx=100, cy=300)
+        c.swing(start=0, end=1, amplitude=10, cx=200, cy=400)
+        rot = c.styling.rotation.at_time(0.3)
+        assert rot[1] == pytest.approx(200)
+        assert rot[2] == pytest.approx(400)
+
+
+class TestLineExtendTo:
+    def test_extend_to_anchor_start_increases_length(self):
+        """Extending with anchor='start' should move p2 outward."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        line.extend_to(200, anchor='start')
+        p2 = line.p2.at_time(0)
+        assert p2[0] == pytest.approx(200)
+        assert p2[1] == pytest.approx(0)
+
+    def test_extend_to_anchor_end_moves_p1(self):
+        """Extending with anchor='end' should move p1 outward."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        line.extend_to(200, anchor='end')
+        p1 = line.p1.at_time(0)
+        assert p1[0] == pytest.approx(-100)
+        assert p1[1] == pytest.approx(0)
+
+    def test_extend_to_shrink(self):
+        """Passing a smaller length should shrink the line."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        line.extend_to(50, anchor='start')
+        p2 = line.p2.at_time(0)
+        assert p2[0] == pytest.approx(50)
+
+    def test_extend_to_preserves_direction(self):
+        """Direction of the line should not change after extend_to."""
+        import math
+        line = Line(x1=0, y1=0, x2=60, y2=80)  # 3-4-5 triangle, length 100
+        line.extend_to(200, anchor='start')
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        dx, dy = p2[0] - p1[0], p2[1] - p1[1]
+        length = math.hypot(dx, dy)
+        assert length == pytest.approx(200, rel=1e-4)
+        # Direction should still be (0.6, 0.8)
+        assert dx / length == pytest.approx(0.6, abs=1e-4)
+        assert dy / length == pytest.approx(0.8, abs=1e-4)
+
+    def test_extend_to_returns_self(self):
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        assert line.extend_to(150) is line
+
+    def test_extend_to_animated(self):
+        """With end_time, the endpoint should animate smoothly."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        line.extend_to(200, anchor='start', start_time=0, end_time=1,
+                       easing=easings.linear)
+        # At t=0 still at original length (approximately)
+        p2_start = line.p2.at_time(0)
+        p2_end = line.p2.at_time(1)
+        assert p2_start[0] == pytest.approx(100, abs=1)
+        assert p2_end[0] == pytest.approx(200, abs=1)
+
+
+class TestLineGetPerpendicularPoint:
+    def test_foot_on_horizontal_line(self):
+        line = Line(x1=0, y1=100, x2=200, y2=100)
+        foot = line.get_perpendicular_point(80, 50)
+        assert foot[0] == pytest.approx(80)
+        assert foot[1] == pytest.approx(100)
+
+    def test_foot_on_vertical_line(self):
+        line = Line(x1=100, y1=0, x2=100, y2=200)
+        foot = line.get_perpendicular_point(50, 130)
+        assert foot[0] == pytest.approx(100)
+        assert foot[1] == pytest.approx(130)
+
+    def test_foot_clamps_to_start(self):
+        """External point beyond start of segment clamps to p1."""
+        line = Line(x1=50, y1=0, x2=150, y2=0)
+        foot = line.get_perpendicular_point(10, 0)
+        assert foot[0] == pytest.approx(50)
+
+    def test_foot_clamps_to_end(self):
+        """External point beyond end of segment clamps to p2."""
+        line = Line(x1=50, y1=0, x2=150, y2=0)
+        foot = line.get_perpendicular_point(200, 0)
+        assert foot[0] == pytest.approx(150)
+
+    def test_foot_is_on_segment(self):
+        """The foot should lie on the segment (within the bounding box)."""
+        line = Line(x1=0, y1=0, x2=100, y2=100)
+        foot = line.get_perpendicular_point(80, 20)
+        assert 0 <= foot[0] <= 100
+        assert 0 <= foot[1] <= 100
+
+    def test_degenerate_line(self):
+        """Zero-length line returns the single point."""
+        line = Line(x1=50, y1=50, x2=50, y2=50)
+        foot = line.get_perpendicular_point(100, 200)
+        assert foot == pytest.approx((50.0, 50.0))
+
+
+class TestRectangleSplit:
+    def test_horizontal_count_2(self):
+        r = Rectangle(200, 100, x=0, y=0)
+        parts = r.split(direction='horizontal', count=2)
+        assert len(parts.objects) == 2
+        # Each part should be half the height
+        for p in parts.objects:
+            assert p.height.at_time(0) == pytest.approx(50)
+            assert p.width.at_time(0) == pytest.approx(200)
+
+    def test_vertical_count_3(self):
+        r = Rectangle(300, 60, x=0, y=0)
+        parts = r.split(direction='vertical', count=3)
+        assert len(parts.objects) == 3
+        for p in parts.objects:
+            assert p.width.at_time(0) == pytest.approx(100)
+            assert p.height.at_time(0) == pytest.approx(60)
+
+    def test_horizontal_positions(self):
+        """Sub-rectangles should be stacked top-to-bottom."""
+        r = Rectangle(100, 90, x=10, y=20)
+        parts = r.split(direction='horizontal', count=3)
+        ys = [p.y.at_time(0) for p in parts.objects]
+        assert ys[0] == pytest.approx(20)
+        assert ys[1] == pytest.approx(50)
+        assert ys[2] == pytest.approx(80)
+
+    def test_vertical_positions(self):
+        """Sub-rectangles should be arranged left-to-right."""
+        r = Rectangle(120, 60, x=0, y=0)
+        parts = r.split(direction='vertical', count=4)
+        xs = [p.x.at_time(0) for p in parts.objects]
+        for i, x in enumerate(xs):
+            assert x == pytest.approx(i * 30)
+
+    def test_returns_vcollection(self):
+        r = Rectangle(100, 100)
+        result = r.split()
+        assert isinstance(result, VCollection)
+
+    def test_count_1(self):
+        """Splitting into 1 piece should return a single rectangle of the same size."""
+        r = Rectangle(200, 80, x=5, y=10)
+        parts = r.split(count=1)
+        assert len(parts.objects) == 1
+        assert parts.objects[0].width.at_time(0) == pytest.approx(200)
+        assert parts.objects[0].height.at_time(0) == pytest.approx(80)
+
+    def test_invalid_count(self):
+        r = Rectangle(100, 100)
+        with pytest.raises(ValueError):
+            r.split(count=0)
+
+    def test_tiling_horizontal(self):
+        """All parts together should cover the full rectangle height."""
+        r = Rectangle(100, 100, x=0, y=0)
+        parts = r.split(direction='horizontal', count=5)
+        total_h = sum(p.height.at_time(0) for p in parts.objects)
+        assert total_h == pytest.approx(100)
+
+
+class TestAxesAddAreaLabel:
+    def test_returns_text(self):
+        ax = Axes(x_range=(0, 4), y_range=(0, 4))
+        lbl = ax.add_area_label(lambda x: x, x_start=0, x_end=2)
+        assert isinstance(lbl, Text)
+
+    def test_area_value_in_text(self):
+        """For f(x)=1 over [0,3], area = 3.00."""
+        ax = Axes(x_range=(0, 4), y_range=(0, 4))
+        lbl = ax.add_area_label(lambda x: 1, x_start=0, x_end=3)
+        assert 'A = 3.00' in lbl.text.at_time(0)
+
+    def test_custom_text(self):
+        ax = Axes(x_range=(0, 4), y_range=(0, 4))
+        lbl = ax.add_area_label(lambda x: x, x_start=0, x_end=2, text='custom')
+        assert lbl.text.at_time(0) == 'custom'
+
+    def test_x_range_backwards_compat(self):
+        """x_range=[a,b] should still work."""
+        ax = Axes(x_range=(0, 4), y_range=(0, 4))
+        lbl = ax.add_area_label(lambda x: 1, x_range=[0, 2])
+        assert 'A = 2.00' in lbl.text.at_time(0)
+
+    def test_trapezoidal_quadratic(self):
+        """For f(x)=x^2 over [0,3], exact area = 9.  Trapezoidal with many
+        samples should be within 1% of exact."""
+        ax = Axes(x_range=(0, 4), y_range=(0, 10))
+        lbl = ax.add_area_label(lambda x: x ** 2, x_start=0, x_end=3,
+                                samples=1000)
+        # Extract numeric value from "A = X.XX"
+        val_str = lbl.text.at_time(0).split('=')[1].strip()
+        val = float(val_str)
+        assert val == pytest.approx(9.0, rel=0.01)
