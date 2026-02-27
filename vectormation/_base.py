@@ -64,6 +64,14 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         """Return (Real_x, Real_y) pairs to shift by dx, dy separately."""
         return []
 
+    def _apply_shift_func(self, func, start, end, stay=True):
+        """Apply a (dx, dy) shift function to all coordinate and real shift attributes."""
+        for c in self._shift_coors():
+            c.add(start, end, func, stay=stay)
+        for xa, ya in self._shift_reals():
+            xa.add(start, end, lambda t, _f=func: _f(t)[0], stay=stay)
+            ya.add(start, end, lambda t, _f=func: _f(t)[1], stay=stay)
+
     def add_updater(self, func, start=0, end=None):
         """Add an updater function called before each frame's to_svg.
         func(obj, time) should modify obj in-place. Active on [start, end]."""
@@ -443,11 +451,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             progress = max(0, min(1, easing((t - s) / dur)))
             pt = parsed.point(parsed.ilength(progress * total_length))  # type: ignore[operator]
             return (pt.real + off_x - cx0, pt.imag + off_y - cy0)
-        for c in self._shift_coors():
-            c.add(s, end, pos, stay=True)
-        for xa, ya in self._shift_reals():
-            xa.add(s, end, lambda t, _f=pos: _f(t)[0], stay=True)
-            ya.add(s, end, lambda t, _f=pos: _f(t)[1], stay=True)
+        self._apply_shift_func(pos, s, end)
         return self
 
     def animate_along_object(self, target, start=0, end=1, easing=None):
@@ -491,11 +495,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             a = _a0 + _ang * progress
             r = math.hypot(_sx - _cx, _sy - _cy)
             return (_cx + r * math.cos(a) - _sx, _cy + r * math.sin(a) - _sy)
-        for c in self._shift_coors():
-            c.add(start, end, _pos, stay=True)
-        for xa, ya in self._shift_reals():
-            xa.add(start, end, lambda t, _f=_pos: _f(t)[0], stay=True)
-            ya.add(start, end, lambda t, _f=_pos: _f(t)[1], stay=True)
+        self._apply_shift_func(_pos, start, end)
         return self
 
     def brect(self, time: float = 0, rx=0, ry=0, buff=SMALL_BUFF, follow=True):
@@ -1759,11 +1759,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             target_x = _cx + _r * math.cos(angle)
             target_y = _cy + _r * math.sin(angle)
             return (target_x - _ocx, target_y - _ocy)
-        for xa, ya in self._shift_reals():
-            xa.add(start, end, lambda t, _f=_pos: _f(t)[0], stay=True)
-            ya.add(start, end, lambda t, _f=_pos: _f(t)[1], stay=True)
-        for c in self._shift_coors():
-            c.add(start, end, _pos, stay=True)
+        self._apply_shift_func(_pos, start, end)
         return self
 
     def bounce(self, start: float = 0, end: float = 1, height=50, bounces=3, easing=easings.smooth):
@@ -1917,11 +1913,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             t1 = t0 + flash_dur
             dx = intensity * (1 if i % 2 == 0 else -1) * (0.5 + (i % 3) * 0.3)
             dy = intensity * (0.3 if i % 3 == 0 else -0.5) * (0.4 + (i % 2) * 0.4)
-            for xa, ya in self._shift_reals():
-                xa.add(t0, t1, lambda t, _dx=dx: _dx, stay=False)
-                ya.add(t0, t1, lambda t, _dy=dy: _dy, stay=False)
-            for c in self._shift_coors():
-                c.add(t0, t1, lambda t, _dx=dx, _dy=dy: (_dx, _dy), stay=False)
+            self._apply_shift_func(lambda t, _dx=dx, _dy=dy: (_dx, _dy), t0, t1, stay=False)
         return self
 
     def flash_color(self, color='#FFFF00', start: float = 0, duration=0.4,

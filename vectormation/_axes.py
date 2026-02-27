@@ -14,21 +14,17 @@ from vectormation._axes_helpers import (
     _MARCH_SEGS, _AREA_STYLE, _HIGHLIGHT_STYLE,
     _get_arrow, _get_dynamic_object, _get_tex_object,
     _nice_ticks, _log_ticks, _format_tick, _build_axes_decoration,
-    _AXIS_STROKE_WIDTH, _TICK_FONT_SIZE, _TICK_GAP, _LABEL_GAP,
+    _AXIS_STROKE_WIDTH, _TICK_FONT_SIZE, _LABEL_GAP,
 )
 
 from vectormation._shapes import (
-    Polygon, Circle, Ellipse, Dot, Rectangle, RoundedRectangle, Line, Lines,
-    Text, Path, Arc,
+    Polygon, Circle, Dot, Rectangle, RoundedRectangle, Line,
+    Text, Path,
 )
 from vectormation._axes_ext import _AxesExtMixin
 
 class Axes(_AxesExtMixin, VCollection):
-    """Coordinate axes with ticks and labels.
-
-    x_range/y_range: (min, max) in math coordinates (animated via Real attributes).
-    x/y/plot_width/plot_height: SVG pixel area for the axes.
-    """
+    """Coordinate axes with ticks and labels."""
     x_min: attributes.Real
     x_max: attributes.Real
     y_min: 'attributes.Real | None'
@@ -1140,19 +1136,7 @@ class Axes(_AxesExtMixin, VCollection):
         return zeros
 
     def get_x_intercept(self, func, x_start=None, x_end=None):
-        """Return the first x where func(x) is approximately 0.
-
-        Delegates to :meth:`get_zeros` to find all zero crossings, then
-        returns the x coordinate of the first one.  Returns ``None`` if
-        no zero is found.
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x)`` or a curve Path with a ``._func`` attribute.
-        x_start, x_end:
-            Domain bounds (default to the axis x range).
-        """
+        """Return the first x where func(x) is approximately 0, or None."""
         if x_start is None:
             x_start = float(self.x_min.at_time(0))
         if x_end is None:
@@ -1163,17 +1147,7 @@ class Axes(_AxesExtMixin, VCollection):
         return None
 
     def get_y_intercept(self, func):
-        """Return func(0) — the y-intercept.
-
-        Evaluates the function at x = 0 and returns the result.  Returns
-        ``None`` if the function raises an exception at x = 0 (e.g. for
-        functions undefined at the origin).
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x)`` or a curve Path with a ``._func`` attribute.
-        """
+        """Return func(0) (the y-intercept), or None on error."""
         fn = self._resolve_func(func, 'func')
         try:
             return fn(0)
@@ -1332,11 +1306,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_labeled_points(self, points, dot_color='#FF6B6B', dot_radius=6,
                             font_size=14, creation=0, z=1):
-        """Add multiple labeled dots to the axes.
-
-        points: list of (x, y, label) tuples in math coordinates.
-        Returns VCollection of all dots and labels.
-        """
+        """Add multiple labeled dots to the axes. Returns a VCollection."""
         objs = []
         for item in points:
             x, y = item[0], item[1]
@@ -1355,10 +1325,7 @@ class Axes(_AxesExtMixin, VCollection):
         return group
 
     def add_marked_region(self, x1, x2, color='#FFFF00', opacity=0.2, creation=0, z=0):
-        """Highlight a vertical region on the axes between x1 and x2.
-
-        Returns the Rectangle highlight.
-        """
+        """Highlight a vertical region on the axes between x1 and x2. Returns a Rectangle."""
         sx1 = self._math_to_svg_x(x1)
         sx2 = self._math_to_svg_x(x2)
         rect = Rectangle(
@@ -1405,33 +1372,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_function_region(self, func, x_range=None, label=None,
                             color='#58C4DD', opacity=0.2, creation=0):
-        """Plot a function and shade the area under it in one call.
-
-        This is a convenience method that combines :meth:`plot` and
-        :meth:`get_area`.
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x)`` to plot.
-        x_range:
-            Optional ``(x_min, x_max)`` domain restriction for the curve
-            and the shaded area.
-        label:
-            Optional label string passed to :meth:`plot`.
-        color:
-            Stroke colour for the curve and fill colour for the area
-            (default ``'#58C4DD'``).
-        opacity:
-            Fill opacity for the shaded area (default ``0.2``).
-        creation:
-            Creation time for all created objects.
-
-        Returns
-        -------
-        Path
-            The filled area Path returned by :meth:`get_area`.
-        """
+        """Plot a function and shade the area under it in one call. Returns the area Path."""
         self.add_function(func, label=label, x_range=x_range,
                           creation=creation, stroke=color)
         area = self.get_area(func, x_range=x_range, creation=creation,
@@ -1440,8 +1381,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_arrow_annotation(self, x, y, text, direction='up', length=80, buff=10,
                               font_size=20, creation=0, z=5, **styling_kwargs):
-        """Add a labeled arrow pointing to a math coordinate.
-        Returns a VCollection with arrow and label."""
+        """Add a labeled arrow pointing to a math coordinate. Returns a VCollection."""
         style_kw = {'stroke': '#FFFF00', 'fill': '#FFFF00'} | styling_kwargs
         sx, sy = self.coords_to_point(x, y, creation)
         offsets = {
@@ -1509,38 +1449,7 @@ class Axes(_AxesExtMixin, VCollection):
     def add_callout(self, x, y, text, offset_x=60, offset_y=-60,
                     font_size=18, box_padding=8, corner_radius=4,
                     creation=0, z=5, **styling_kwargs):
-        """Add a floating text callout box with a line pointing to a data point.
-
-        Unlike :meth:`add_arrow_annotation` (which uses a full arrow with a tip),
-        ``add_callout`` draws a plain leader line from the box to the data point,
-        making it suitable for dense charts where arrowheads would clutter the view.
-
-        Parameters
-        ----------
-        x, y:
-            Data coordinates of the point to annotate.
-        text:
-            Label text shown inside the callout box.
-        offset_x, offset_y:
-            Pixel offset of the callout box centre from the data point.
-            Positive x is right, positive y is down (SVG convention).
-        font_size:
-            Font size for the label text.
-        box_padding:
-            Padding inside the callout box around the text.
-        corner_radius:
-            Corner radius of the callout box rectangle.
-        creation:
-            Appearance time.
-        z:
-            Draw order.
-        **styling_kwargs:
-            Overrides for the default box and text colors.
-
-        Returns
-        -------
-        VCollection with (leader_line, box, label).
-        """
+        """Add a floating text callout box with a leader line to a data point. Returns a VCollection."""
         text_color = styling_kwargs.pop('text_color', '#fff')
         box_fill = styling_kwargs.pop('box_fill', '#333')
         box_stroke = styling_kwargs.pop('box_stroke', '#aaa')
@@ -1577,7 +1486,6 @@ class Axes(_AxesExtMixin, VCollection):
         # Make all elements track the data point dynamically
         _ox, _oy = offset_x, offset_y
         _ew, _eh = est_w, est_h
-        _pad = box_padding
 
         def _pt(t, _x=x, _y=y):
             return self.coords_to_point(_x, _y, t)
@@ -1600,8 +1508,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_cursor(self, func, x_start, x_end, start: float = 0, end: float = 1,
                     r=6, creation=0, z=5, easing=easings.smooth, **styling_kwargs):
-        """Add an animated dot that travels along func from x_start to x_end.
-        Returns the Dot object."""
+        """Add an animated dot that travels along func from x_start to x_end. Returns a Dot."""
         style_kw = {'fill': '#FFFF00', 'stroke_width': 0} | styling_kwargs
         dot = Dot(cx=0, cy=0, r=r, creation=creation, z=z, **style_kw)
         dur = end - start
@@ -1623,9 +1530,7 @@ class Axes(_AxesExtMixin, VCollection):
     def add_trace(self, func, x_start, x_end, start: float = 0, end: float = 1,
                    r=5, trail_width=2, creation=0, z=5, easing=easings.smooth,
                    **styling_kwargs):
-        """Animated dot that traces along func, leaving a trail behind it.
-        Returns a VCollection with (dot, trail_path).
-        The trail grows progressively as the dot moves."""
+        """Animated dot that traces along func, leaving a growing trail. Returns a VCollection."""
         style_kw = {'fill': '#FFFF00', 'stroke': '#FFFF00', 'stroke_width': 0} | styling_kwargs
         dot = self.add_cursor(func, x_start, x_end, start=start, end=end,
                                r=r, creation=creation, z=z + 1, easing=easing,
@@ -1657,33 +1562,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_animation_trace(self, func, x_start, x_end, start=0, end=1,
                              dot=True, trail=True, color='#FFFF00', **kwargs):
-        """Combined convenience: moving dot on a function curve with trailing path.
-
-        Internally uses :meth:`add_cursor` for the dot and :meth:`add_trace`
-        for the trail, coordinating their timing.
-
-        Parameters
-        ----------
-        func:
-            The function ``f(x) -> y`` to trace.
-        x_start, x_end:
-            Math x-range for the animation.
-        start, end:
-            Animation time range.
-        dot:
-            If *True* (default), show a moving dot on the curve.
-        trail:
-            If *True* (default), draw a trailing path behind the dot.
-        color:
-            Color for both the dot and trail (default ``'#FFFF00'``).
-        **kwargs:
-            Extra keyword arguments forwarded to ``add_cursor``/``add_trace``
-            (e.g. ``r``, ``trail_width``, ``easing``).
-
-        Returns
-        -------
-        self
-        """
+        """Add a moving dot on a function curve with an optional trailing path."""
         # Filter kwargs for each target method to avoid passing
         # unsupported parameters (e.g. trail_width to add_cursor).
         _cursor_keys = {'r', 'creation', 'z', 'easing'}
@@ -1705,8 +1584,7 @@ class Axes(_AxesExtMixin, VCollection):
         return self
 
     def get_line_from_to(self, x1, y1, x2, y2, creation=0, z=0, **styling_kwargs):
-        """Draw a solid line between two math coordinate points.
-        Returns a Line object."""
+        """Draw a line between two math coordinate points. Returns a Line."""
         style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
         line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
         _x1, _y1, _x2, _y2 = x1, y1, x2, y2
@@ -1716,8 +1594,7 @@ class Axes(_AxesExtMixin, VCollection):
         return line
 
     def highlight_x_range(self, x_lo, x_hi, creation=0, z=-1, **styling_kwargs):
-        """Shade a vertical strip between x_lo and x_hi math coordinates.
-        Returns a Rectangle object."""
+        """Shade a vertical strip between x_lo and x_hi. Returns a Rectangle."""
         style_kw = _HIGHLIGHT_STYLE | styling_kwargs
         rect = Rectangle(width=0, height=0, x=0, y=0,
                           creation=creation, z=z, **style_kw)
@@ -1732,8 +1609,7 @@ class Axes(_AxesExtMixin, VCollection):
         return rect
 
     def highlight_y_range(self, y_lo, y_hi, creation=0, z=-1, **styling_kwargs):
-        """Shade a horizontal strip between y_lo and y_hi math coordinates.
-        Returns a Rectangle object."""
+        """Shade a horizontal strip between y_lo and y_hi. Returns a Rectangle."""
         style_kw = _HIGHLIGHT_STYLE | styling_kwargs
         rect = Rectangle(width=0, height=0, x=0, y=0,
                           creation=creation, z=z, **style_kw)
@@ -1748,63 +1624,13 @@ class Axes(_AxesExtMixin, VCollection):
         return rect
 
     def add_horizontal_band(self, y1, y2, color='#FFFF00', opacity=0.2, creation=0):
-        """Add a shaded horizontal band between y-values *y1* and *y2*.
-
-        The band spans the full x-range of the axes and respects animated
-        axis ranges via :meth:`coords_to_point`.  Delegates to
-        :meth:`highlight_y_range` with the given styling.
-
-        Parameters
-        ----------
-        y1, y2:
-            Vertical math-coordinate bounds of the band.
-        color:
-            Fill color.  Default ``'#FFFF00'`` (yellow).
-        opacity:
-            Fill opacity.  Default ``0.15``.
-        creation:
-            Appearance time (seconds).
-
-        Returns
-        -------
-        Rectangle
-            The band rectangle (already added to the axes objects).
-        """
+        """Add a shaded horizontal band between y-values y1 and y2. Returns a Rectangle."""
         return self.highlight_y_range(y1, y2, creation=creation, z=-1,
                                       fill=color, fill_opacity=opacity, stroke_width=0)
 
     def shade_region(self, x_start, x_end, y_start=None, y_end=None,
                      creation=0, z=-1, **styling_kwargs):
-        """Shade an axis-aligned rectangular region in math coordinates.
-
-        More flexible than :meth:`highlight_x_range` / :meth:`highlight_y_range`:
-
-        * If only *x_start* / *x_end* are given the region spans the full plot
-          height (same as ``highlight_x_range``).
-        * If only *y_start* / *y_end* are given (pass ``x_start=None``) the
-          region spans the full plot width (same as ``highlight_y_range``).
-        * When all four bounds are supplied, a rectangle is drawn that is
-          constrained in both axes simultaneously.
-
-        Parameters
-        ----------
-        x_start, x_end:
-            Horizontal bounds in math coordinates.  Pass ``None`` for either
-            to span the full plot width.
-        y_start, y_end:
-            Vertical bounds in math coordinates.  Default ``None`` spans the
-            full plot height.
-        creation:
-            Appearance time (seconds).
-        z:
-            Draw order.
-        **styling_kwargs:
-            Overrides for the default highlight fill style.
-
-        Returns
-        -------
-        Rectangle
-        """
+        """Shade an axis-aligned rectangular region in math coordinates. Returns a Rectangle."""
         style_kw = _HIGHLIGHT_STYLE | styling_kwargs
         rect = Rectangle(width=0, height=0, x=0, y=0, creation=creation, z=z, **style_kw)
         _xs, _xe = x_start, x_end
@@ -1838,9 +1664,7 @@ class Axes(_AxesExtMixin, VCollection):
         return rect
 
     def animate_range(self, start, end, x_range=None, y_range=None, easing=easings.smooth):
-        """Animate the axis range to new bounds.
-        x_range: (new_xmin, new_xmax) or None to keep current.
-        y_range: (new_ymin, new_ymax) or None to keep current."""
+        """Animate the axis ranges to new bounds."""
         dur = end - start
         if dur <= 0:
             return self
@@ -1859,9 +1683,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_shaded_inequality(self, func, direction='below', x_range=None,
                                samples=100, creation=0, z=-1, **styling_kwargs):
-        """Shade the region above or below a curve (inequality visualization).
-        direction: 'below' (y < f(x)) or 'above' (y > f(x)).
-        Returns a dynamic Path object."""
+        """Shade the region above or below a curve. Returns a dynamic Path."""
         style_kw = {'fill': '#FFFF00', 'fill_opacity': 0.1, 'stroke_width': 0} | styling_kwargs
         fn = self._resolve_func(func, 'func')
         region = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
@@ -1904,39 +1726,7 @@ class Axes(_AxesExtMixin, VCollection):
     def add_area_label(self, func, x_start=None, x_end=None, x_range=None,
                         text=None, font_size=20,
                         creation=0, z=3, samples=100, **styling_kwargs):
-        """Add a label showing the numerical area under the curve between x_start and x_end.
-
-        The label is positioned at the centroid of the region, and if *text* is
-        ``None`` the numerical area value (computed by the trapezoidal rule) is
-        displayed automatically.
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x)`` or a curve object with a ``._func`` attribute.
-        x_start, x_end:
-            Integration bounds.  You may alternatively pass *x_range* as a
-            two-element sequence; ``x_start``/``x_end`` take precedence when
-            both forms are provided.  Defaults to the current axis x-range.
-        x_range:
-            Legacy two-element ``[xlo, xhi]`` form; kept for backwards
-            compatibility.  Superseded by *x_start*/*x_end*.
-        text:
-            Override the displayed string.  When ``None`` the area is computed
-            and formatted as ``"A = <value>"``.
-        font_size:
-            Font size for the label (default 20).
-        creation:
-            Time at which the label appears.
-        samples:
-            Number of equally-spaced trapezoids used for integration and
-            centroid estimation (default 100).
-
-        Returns
-        -------
-        Text
-            The label object, already added to the axes.
-        """
+        """Add a label showing the numerical area under the curve, positioned at the centroid."""
         style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
         fn = self._resolve_func(func, 'func')
         # Resolve bounds: explicit params > x_range > axis range
@@ -1991,8 +1781,7 @@ class Axes(_AxesExtMixin, VCollection):
     def add_moving_tangent(self, func, x_start, x_end, start: float = 0, end: float = 1,
                             length=200, creation=0, z=2, easing=easings.smooth,
                             **styling_kwargs):
-        """Draw a tangent line that slides along func from x_start to x_end.
-        Returns a Line object with dynamic endpoints."""
+        """Draw a tangent line that slides along func from x_start to x_end. Returns a Line."""
         style_kw = {'stroke': '#FFFF00', 'stroke_width': 2} | styling_kwargs
         fn = self._resolve_func(func, 'func')
         line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
@@ -2026,10 +1815,7 @@ class Axes(_AxesExtMixin, VCollection):
 
 
 class Graph(Axes):
-    """Axes with an initial function curve plotted.
-
-    Inherits all Axes methods (add_function, get_area, get_riemann_rectangles, etc.).
-    """
+    """Axes with an initial function curve plotted."""
     def __init__(self, func, x_range=(-5, 5), y_range=None, num_points=200,
                  x=260, y=100, plot_width=1400, plot_height=880,
                  x_label='x', y_label='y', label=None, label_direction='up',
@@ -2059,15 +1845,7 @@ class Graph(Axes):
 
 
 class NumberPlane(VCollection):
-    """Cartesian coordinate plane with background grid lines.
-
-    x_range/y_range: (min, max, step) in logical units (default: 1 unit = 135px).
-    cx, cy: pixel position of the origin (default: screen center).
-    width, height: pixel extent of the plane (default: full 1920x1080).
-    faded_line_ratio: number of minor subdivisions per step (default: 4).
-
-    Uses a single Path per grid layer for efficiency (~3 objects instead of ~100).
-    """
+    """Cartesian coordinate plane with background grid lines."""
     def __init__(self, x_range=None, y_range=None,
                  cx=960, cy=540, width=1920, height=1080,
                  faded_line_ratio=4,
@@ -2164,12 +1942,7 @@ class NumberPlane(VCollection):
         return (self._cx + x * self._unit, self._cy - y * self._unit)
 
     def apply_function(self, func, start=0, end=1, easing=easings.smooth, resolution=20):
-        """Animate a non-linear transformation of the grid.
-
-        *func* takes (x, y) in logical coords and returns (x', y').
-        Each grid intersection is smoothly moved from its original to its transformed position.
-        *resolution* controls the number of sample points per grid line segment.
-        """
+        """Animate a non-linear transformation of the grid."""
         # Rebuild grid as individual short line segments so they warp smoothly
         unit = self._unit
         cx, cy = self._cx, self._cy
@@ -2225,10 +1998,7 @@ class NumberPlane(VCollection):
 
 
 class ComplexPlane(Axes):
-    """Complex number plane with Re/Im axes.
-
-    Extends Axes with complex-number-specific methods.
-    """
+    """Complex number plane with Re/Im axes."""
     def __init__(self, x_range=(-5, 5), y_range=(-5, 5),
                  x_label='Re', y_label='Im', show_grid=True,
                  creation=0, z=0, **kwargs):
@@ -2251,17 +2021,7 @@ class ComplexPlane(Axes):
 
     def apply_complex_function(self, func, start=0, end=1, easing=easings.smooth,
                                resolution=20, step=1.0):
-        """Animate a complex function transformation of the plane.
-
-        Subdivides the existing grid into many small line segments and animates
-        each segment from its original position to the position given by
-        applying *func*.
-
-        func: callable taking a complex number and returning a complex number.
-        resolution: number of sub-segments per grid line between successive
-            integer values.
-        step: spacing between grid lines in math coordinates (default 1).
-        """
+        """Animate a complex function transformation of the plane."""
         xmin = self.x_min.at_time(0)
         xmax = self.x_max.at_time(0)
         ymin = self.y_min.at_time(0)
