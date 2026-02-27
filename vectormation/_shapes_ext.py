@@ -1833,12 +1833,11 @@ class DashedLine(Line):
         p1, p2 = self.p1.at_time(0), self.p2.at_time(0)
         return f'DashedLine(({p1[0]:.0f},{p1[1]:.0f})->({p2[0]:.0f},{p2[1]:.0f}))'
 
-    def set_dash_pattern(self, dash, gap=None, start=0, end=None, easing=easings.smooth):
+    def set_dash_pattern(self, dash, gap=None, start=0):
         """Set the dash pattern. If gap is None, gap = dash."""
         if gap is None:
             gap = dash
-        pattern = f'{dash},{gap}'
-        self.styling.stroke_dasharray.set_onward(start, pattern)
+        self.styling.stroke_dasharray.set_onward(start, f'{dash},{gap}')
         return self
 
 class BackgroundRectangle(Rectangle):

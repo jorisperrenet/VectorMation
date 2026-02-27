@@ -861,7 +861,7 @@ class WaterfallChart(VCollection):
 
 class GanttChart(VCollection):
     """Gantt chart for project timelines."""
-    def __init__(self, tasks, x=100, y=80, width=1200, height=None,
+    def __init__(self, tasks, x=100, y=80, width=1200,
                  bar_height=30, bar_spacing=10, colors=None,
                  font_size=16, creation: float = 0, z: float = 0):
         n = len(tasks)
@@ -1043,7 +1043,7 @@ class TreeMap(VCollection):
         sorted_data = sorted(enumerate(data), key=lambda iv: iv[1][1], reverse=True)
         rects = self._squarify(sorted_data, x, y, width, height, total)
         objects = []
-        for orig_idx, (label, _val), (rx, ry, rw, rh) in rects:
+        for orig_idx, (label, _), (rx, ry, rw, rh) in rects:
             color = colors[orig_idx % len(colors)]
             rect = Rectangle(width=max(rw - padding, 1), height=max(rh - padding, 1),
                               x=rx + padding / 2, y=ry + padding / 2,
