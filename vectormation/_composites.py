@@ -716,6 +716,38 @@ class Axes(VCollection):
         """Convert math coordinates to SVG pixel coordinates."""
         return (self._math_to_svg_x(x, time), self._math_to_svg_y(y, time))
 
+    def get_plot_center(self, time=0):
+        """Return the SVG coordinates of the centre of the visible plot rectangle.
+
+        This is the geometric centre of the pixel area defined by
+        ``(plot_x, plot_y, plot_width, plot_height)`` — *not* the axes origin
+        (i.e. the point where x=0 and y=0 in math space).
+
+        The result is independent of the current axis ranges; it only depends
+        on the SVG layout of the axes widget.
+
+        Parameters
+        ----------
+        time:
+            Animation time (unused for the layout geometry, included for API
+            consistency with other axes helpers).
+
+        Returns
+        -------
+        (float, float)
+            ``(cx, cy)`` SVG pixel coordinates of the plot-area centre.
+
+        Examples
+        --------
+        >>> ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        >>> cx, cy = ax.get_plot_center()
+        >>> # cx == ax.plot_x + ax.plot_width / 2
+        >>> # cy == ax.plot_y + ax.plot_height / 2
+        """
+        cx = self.plot_x + self.plot_width / 2
+        cy = self.plot_y + self.plot_height / 2
+        return (cx, cy)
+
     def annotate_point(self, x, y, label='', direction='up', buff=15,
                        creation=0, z=0, **styling_kwargs):
         """Add a dot and label at a math coordinate.

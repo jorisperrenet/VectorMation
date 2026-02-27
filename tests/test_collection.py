@@ -445,3 +445,76 @@ class TestApplyFunction:
         VCollection(c1a, c2a).apply(lambda obj, i: log_a.append(i))
         VCollection(c1b, c2b).apply_function(lambda obj, i: log_b.append(i))
         assert log_a == log_b
+
+
+class TestVCollectionFlatten:
+    def test_flat_collection_unchanged(self):
+        c1, c2 = Circle(r=10), Circle(r=20)
+        col = VCollection(c1, c2)
+        col.flatten()
+        assert len(col.objects) == 2
+
+    def test_returns_self(self):
+        col = VCollection(Circle(r=10))
+        assert col.flatten() is col
+
+    def test_one_level_nesting(self):
+        c1, c2, c3 = Circle(r=10), Circle(r=20), Circle(r=30)
+        inner = VCollection(c2, c3)
+        outer = VCollection(c1, inner)
+        outer.flatten()
+        assert len(outer.objects) == 3
+
+    def test_inner_children_are_preserved(self):
+        c1, c2, c3 = Circle(r=10), Circle(r=20), Circle(r=30)
+        inner = VCollection(c2, c3)
+        outer = VCollection(c1, inner)
+        outer.flatten()
+        assert c1 in outer.objects
+        assert c2 in outer.objects
+        assert c3 in outer.objects
+
+    def test_inner_collection_removed(self):
+        inner = VCollection(Circle(r=10))
+        outer = VCollection(inner)
+        outer.flatten()
+        # The inner VCollection wrapper should no longer be in objects
+        assert not any(isinstance(o, VCollection) for o in outer.objects)
+
+    def test_deeply_nested(self):
+        leaf = Circle(r=10)
+        level3 = VCollection(leaf)
+        level2 = VCollection(level3)
+        level1 = VCollection(level2)
+        level1.flatten()
+        assert len(level1.objects) == 1
+        assert level1.objects[0] is leaf
+
+    def test_empty_collection(self):
+        col = VCollection()
+        col.flatten()
+        assert len(col.objects) == 0
+
+    def test_empty_inner_collection(self):
+        c = Circle(r=10)
+        inner = VCollection()
+        outer = VCollection(c, inner)
+        outer.flatten()
+        assert len(outer.objects) == 1
+        assert outer.objects[0] is c
+
+    def test_multiple_nested_collections(self):
+        c1, c2, c3, c4 = Circle(r=10), Circle(r=20), Circle(r=30), Circle(r=40)
+        inner1 = VCollection(c1, c2)
+        inner2 = VCollection(c3, c4)
+        outer = VCollection(inner1, inner2)
+        outer.flatten()
+        assert len(outer.objects) == 4
+        assert set(outer.objects) == {c1, c2, c3, c4}
+
+    def test_no_nested_collections_remain(self):
+        c1 = Circle(r=10)
+        inner = VCollection(VCollection(c1))
+        outer = VCollection(inner)
+        outer.flatten()
+        assert not any(isinstance(o, VCollection) for o in outer.objects)

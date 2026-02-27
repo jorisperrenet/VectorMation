@@ -903,6 +903,76 @@ class VObject(ABC):  # Vector Object
         self.styling.scale_y.move_to(start, end, factor, easing=easing)
         return self
 
+    def scale_to_size(self, width=None, height=None, start: float = 0,
+                      end: float | None = None, easing=easings.smooth):
+        """Scale the object to fit a target pixel width and/or height.
+
+        If only *width* is given, scale proportionally so the bounding box
+        reaches that width.  If only *height* is given, scale proportionally
+        to that height.  If *both* are given, scale each axis independently
+        (aspect ratio may not be preserved).
+
+        The animation runs from *start* to *end*.  When *end* is ``None`` the
+        change is applied instantly at *start*.
+
+        Parameters
+        ----------
+        width:
+            Target bounding-box width in SVG pixels, or ``None`` to skip.
+        height:
+            Target bounding-box height in SVG pixels, or ``None`` to skip.
+        start:
+            Time at which the change begins (and from which the current size
+            is measured).
+        end:
+            Time at which the change ends.  ``None`` = instant.
+        easing:
+            Easing function for the animation.
+
+        Returns
+        -------
+        self
+
+        Examples
+        --------
+        >>> rect = Rectangle(200, 100)
+        >>> rect.scale_to_size(width=400)          # double width, proportional
+        >>> rect.scale_to_size(width=300, height=300, start=0, end=1)
+        """
+        _, _, cur_w, cur_h = self.bbox(start)
+        self._ensure_scale_origin(start)
+        if width is not None and height is not None:
+            # Scale each axis independently — may distort aspect ratio
+            x_factor = width / cur_w if cur_w != 0 else 1
+            y_factor = height / cur_h if cur_h != 0 else 1
+            target_sx = self.styling.scale_x.at_time(start) * x_factor
+            target_sy = self.styling.scale_y.at_time(start) * y_factor
+            if end is None:
+                self.styling.scale_x.set_onward(start, target_sx)
+                self.styling.scale_y.set_onward(start, target_sy)
+            else:
+                self.styling.scale_x.move_to(start, end, target_sx, easing=easing)
+                self.styling.scale_y.move_to(start, end, target_sy, easing=easing)
+        elif width is not None:
+            factor = width / cur_w if cur_w != 0 else 1
+            target_s = self.styling.scale_x.at_time(start) * factor
+            if end is None:
+                self.styling.scale_x.set_onward(start, target_s)
+                self.styling.scale_y.set_onward(start, target_s)
+            else:
+                self.styling.scale_x.move_to(start, end, target_s, easing=easing)
+                self.styling.scale_y.move_to(start, end, target_s, easing=easing)
+        elif height is not None:
+            factor = height / cur_h if cur_h != 0 else 1
+            target_s = self.styling.scale_y.at_time(start) * factor
+            if end is None:
+                self.styling.scale_x.set_onward(start, target_s)
+                self.styling.scale_y.set_onward(start, target_s)
+            else:
+                self.styling.scale_x.move_to(start, end, target_s, easing=easing)
+                self.styling.scale_y.move_to(start, end, target_s, easing=easing)
+        return self
+
     def rotate_to(self, start: float, end: float, degrees, cx=None, cy=None, easing=easings.smooth):
         """Animate rotating this object to the given angle in degrees."""
         return self._apply_rotation(start, end, degrees, cx, cy, easing)
@@ -2631,6 +2701,38 @@ class VCollection:
     def select(self, start=0, end=None):
         """Return a new VCollection with children at indices [start:end]."""
         return VCollection(*self.objects[start:end])
+
+    def flatten(self):
+        """Flatten nested VCollections into a single-level collection in-place.
+
+        Any child that is itself a :class:`VCollection` (or subclass) has its
+        children extracted and inserted into this collection at the child's
+        position.  The process repeats until no nested collections remain.
+
+        Returns
+        -------
+        self
+
+        Examples
+        --------
+        >>> inner = VCollection(Circle(), Rectangle(50, 50))
+        >>> outer = VCollection(inner, Dot())
+        >>> outer.flatten()
+        >>> len(outer.objects)  # 3: Circle, Rectangle, Dot
+        3
+        """
+        changed = True
+        while changed:
+            changed = False
+            new_objects = []
+            for obj in self.objects:
+                if isinstance(obj, VCollection):
+                    new_objects.extend(obj.objects)
+                    changed = True
+                else:
+                    new_objects.append(obj)
+            self.objects = new_objects
+        return self
 
     def sort_objects(self, key=None, reverse=False, time=0):
         """Sort children in-place. Default key: x position at given time."""

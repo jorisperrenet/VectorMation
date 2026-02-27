@@ -6670,3 +6670,53 @@ class TestSquashAndStretch:
         c.squash_and_stretch(start=0, end=1, factor=1.3)
         svg = c.to_svg(0.5)
         assert 'circle' in svg.lower() or 'ellipse' in svg.lower()
+
+
+class TestScaleToSize:
+    def test_returns_self(self):
+        r = Rectangle(200, 100)
+        assert r.scale_to_size(width=400) is r
+
+    def test_scale_to_width_proportional(self):
+        r = Rectangle(200, 100)
+        r.scale_to_size(width=400)
+        assert r.get_width() == pytest.approx(400, rel=0.01)
+
+    def test_scale_to_width_preserves_aspect_ratio(self):
+        r = Rectangle(200, 100)
+        r.scale_to_size(width=400)
+        # height should double as well (proportional)
+        assert r.get_height() == pytest.approx(200, rel=0.01)
+
+    def test_scale_to_height_proportional(self):
+        r = Rectangle(200, 100)
+        r.scale_to_size(height=200)
+        assert r.get_height() == pytest.approx(200, rel=0.01)
+
+    def test_scale_to_height_preserves_aspect_ratio(self):
+        r = Rectangle(200, 100)
+        r.scale_to_size(height=200)
+        # width should double as well
+        assert r.get_width() == pytest.approx(400, rel=0.01)
+
+    def test_scale_to_both_independent(self):
+        r = Rectangle(200, 100)
+        r.scale_to_size(width=100, height=100)
+        assert r.get_width() == pytest.approx(100, rel=0.05)
+        assert r.get_height() == pytest.approx(100, rel=0.05)
+
+    def test_animated_reaches_target_width(self):
+        r = Rectangle(200, 100)
+        r.scale_to_size(width=600, start=0, end=1, easing=easings.linear)
+        assert r.get_width(1) == pytest.approx(600, rel=0.01)
+
+    def test_animated_reaches_target_height(self):
+        r = Rectangle(200, 100)
+        r.scale_to_size(height=300, start=0, end=1, easing=easings.linear)
+        assert r.get_height(1) == pytest.approx(300, rel=0.01)
+
+    def test_no_args_noop(self):
+        r = Rectangle(200, 100)
+        r.scale_to_size()
+        assert r.get_width() == pytest.approx(200, rel=0.01)
+        assert r.get_height() == pytest.approx(100, rel=0.01)

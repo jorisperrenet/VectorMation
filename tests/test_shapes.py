@@ -3059,3 +3059,114 @@ class TestAxesAddAreaLabel:
         val_str = lbl.text.at_time(0).split('=')[1].strip()
         val = float(val_str)
         assert val == pytest.approx(9.0, rel=0.01)
+
+
+class TestLineSplitAt:
+    def test_midpoint_split_returns_two_lines(self):
+        line = Line(0, 0, 200, 0)
+        a, b = line.split_at(0.5)
+        assert isinstance(a, Line)
+        assert isinstance(b, Line)
+
+    def test_midpoint_split_start_of_first(self):
+        line = Line(0, 0, 200, 0)
+        a, _ = line.split_at(0.5)
+        assert a.get_start() == pytest.approx((0.0, 0.0))
+
+    def test_midpoint_split_end_of_first(self):
+        line = Line(0, 0, 200, 0)
+        a, _ = line.split_at(0.5)
+        assert a.get_end() == pytest.approx((100.0, 0.0))
+
+    def test_midpoint_split_start_of_second(self):
+        line = Line(0, 0, 200, 0)
+        _, b = line.split_at(0.5)
+        assert b.get_start() == pytest.approx((100.0, 0.0))
+
+    def test_midpoint_split_end_of_second(self):
+        line = Line(0, 0, 200, 0)
+        _, b = line.split_at(0.5)
+        assert b.get_end() == pytest.approx((200.0, 0.0))
+
+    def test_quarter_split(self):
+        line = Line(0, 0, 200, 0)
+        a, b = line.split_at(0.25)
+        assert a.get_end() == pytest.approx((50.0, 0.0))
+        assert b.get_start() == pytest.approx((50.0, 0.0))
+        assert b.get_end() == pytest.approx((200.0, 0.0))
+
+    def test_diagonal_split(self):
+        line = Line(0, 0, 100, 100)
+        a, b = line.split_at(0.5)
+        assert a.get_end() == pytest.approx((50.0, 50.0))
+        assert b.get_start() == pytest.approx((50.0, 50.0))
+
+    def test_t_zero_clamps(self):
+        line = Line(10, 20, 200, 300)
+        a, b = line.split_at(0.0)
+        # First segment is degenerate (zero length)
+        assert a.get_start() == pytest.approx(a.get_end())
+        assert b.get_start() == pytest.approx((10.0, 20.0))
+
+    def test_t_one_clamps(self):
+        line = Line(10, 20, 200, 300)
+        a, b = line.split_at(1.0)
+        # Second segment is degenerate (zero length)
+        assert b.get_start() == pytest.approx(b.get_end())
+        assert a.get_end() == pytest.approx((200.0, 300.0))
+
+    def test_default_t_is_half(self):
+        line = Line(0, 0, 100, 0)
+        a, b = line.split_at()
+        assert a.get_end() == pytest.approx((50.0, 0.0))
+
+    def test_lengths_sum_to_original(self):
+        line = Line(0, 0, 300, 400)  # length = 500
+        a, b = line.split_at(0.6)
+        assert a.get_length() + b.get_length() == pytest.approx(line.get_length())
+
+    def test_independent_objects(self):
+        line = Line(0, 0, 100, 0)
+        a, b = line.split_at()
+        # Moving the original should not affect returned lines
+        line.shift(dx=999, start_time=0)
+        assert a.get_start() == pytest.approx((0.0, 0.0))
+
+
+class TestAxesGetPlotCenter:
+    def test_default_axes_center_x(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        cx, _ = ax.get_plot_center()
+        assert cx == pytest.approx(ax.plot_x + ax.plot_width / 2)
+
+    def test_default_axes_center_y(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        _, cy = ax.get_plot_center()
+        assert cy == pytest.approx(ax.plot_y + ax.plot_height / 2)
+
+    def test_custom_layout(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10), x=100, y=200,
+                  plot_width=800, plot_height=600)
+        cx, cy = ax.get_plot_center()
+        assert cx == pytest.approx(100 + 800 / 2)
+        assert cy == pytest.approx(200 + 600 / 2)
+
+    def test_returns_tuple(self):
+        ax = Axes(x_range=(-1, 1), y_range=(-1, 1))
+        result = ax.get_plot_center()
+        assert len(result) == 2
+
+    def test_independent_of_time_argument(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        assert ax.get_plot_center(0) == ax.get_plot_center(5)
+
+    def test_different_from_axes_origin(self):
+        """The plot centre is not the same as the math (0,0) origin."""
+        ax = Axes(x_range=(-10, 10), y_range=(-10, 10))
+        cx, cy = ax.get_plot_center()
+        ox, oy = ax.coords_to_point(0, 0)
+        # They happen to coincide only when the range is symmetric AND the
+        # plot is centred — but the method should still return the geometric
+        # centre of the plot area, not the origin.
+        assert cx == pytest.approx(ax.plot_x + ax.plot_width / 2)
+        assert cy == pytest.approx(ax.plot_y + ax.plot_height / 2)

@@ -908,6 +908,50 @@ class Line(VObject):
         x2, y2 = self.p2.at_time(time)
         return ((x1 + x2) / 2, (y1 + y2) / 2)
 
+    def split_at(self, t: float = 0.5, time: float = 0):
+        """Split the line at parameter *t* and return two new Line objects.
+
+        The parameter *t* is in ``[0, 1]`` where 0 = start and 1 = end.
+        Values outside this range are clamped automatically.
+
+        The split point is::
+
+            P = p1 + t * (p2 - p1)
+
+        Both returned lines inherit no styling — pass ``**kwargs`` to
+        :class:`Line` after the call if styling is required.
+
+        Parameters
+        ----------
+        t:
+            Split parameter in [0, 1].  Default 0.5 = midpoint split.
+        time:
+            Animation time at which to read the endpoint coordinates.
+
+        Returns
+        -------
+        (Line, Line)
+            ``(first_segment, second_segment)`` where the first segment runs
+            from p1 to the split point and the second from the split point
+            to p2.
+
+        Examples
+        --------
+        >>> line = Line(0, 0, 200, 0)
+        >>> a, b = line.split_at(0.5)
+        >>> a.get_end()    # (100.0, 0.0)
+        >>> b.get_start()  # (100.0, 0.0)
+        >>> a, b = line.split_at(0.25)
+        """
+        t = max(0.0, min(1.0, t))
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        mx = x1 + t * (x2 - x1)
+        my = y1 + t * (y2 - y1)
+        first = Line(float(x1), float(y1), float(mx), float(my))
+        second = Line(float(mx), float(my), float(x2), float(y2))
+        return first, second
+
     def get_unit_vector(self, time=0):
         """Return the normalized direction vector (dx, dy) from p1 to p2.
 
