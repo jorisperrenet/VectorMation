@@ -2030,6 +2030,99 @@ class Axes(VCollection):
         self._add_plot_obj(rect)
         return rect
 
+    def add_labeled_point(self, x, y, label=None, dot_radius=5, direction='above',
+                          creation=0, **kwargs):
+        """Add a Dot at math coordinates (x, y) with an optional Text label.
+
+        Parameters
+        ----------
+        x, y:
+            Math coordinates of the point.
+        label:
+            Optional label string.  If *None*, only the dot is created.
+        dot_radius:
+            Radius of the dot in SVG pixels (default 5).
+        direction:
+            Where to place the label relative to the dot.  One of
+            ``'above'``, ``'below'``, ``'left'``, ``'right'`` (default ``'above'``).
+        creation:
+            Creation time for the created objects.
+        **kwargs:
+            Extra keyword arguments forwarded to the Dot constructor
+            (e.g. ``fill``, ``z``).
+
+        Returns
+        -------
+        VCollection
+            A VCollection containing the dot and (if provided) the label.
+        """
+        z = kwargs.pop('z', 0)
+        font_size = kwargs.pop('font_size', 20)
+        label_color = kwargs.pop('label_color', '#fff')
+        sx, sy = self.coords_to_point(x, y, time=creation)
+        dot = Dot(cx=sx, cy=sy, r=dot_radius, creation=creation, z=z, **kwargs)
+        dot.c.set_onward(creation,
+            lambda t, _x=x, _y=y: self.coords_to_point(_x, _y, t))
+        self._add_plot_obj(dot)
+        objs = [dot]
+        if label is not None:
+            _offsets = {
+                'above': (0, -dot_radius - 8),
+                'below': (0, dot_radius + font_size),
+                'left':  (-dot_radius - 8, 0),
+                'right': (dot_radius + 8, 0),
+            }
+            ox, oy = _offsets.get(direction, (0, -dot_radius - 8))
+            anchor = 'middle' if direction in ('above', 'below') else (
+                'end' if direction == 'left' else 'start')
+            lx, ly = sx + ox, sy + oy
+            lbl = Text(text=str(label), x=lx, y=ly, font_size=font_size,
+                       fill=label_color, stroke_width=0, text_anchor=anchor,
+                       creation=creation, z=z)
+            _ox, _oy = ox, oy
+            lbl.x.set_onward(creation,
+                lambda t, _x=x, _y=y, _ox=_ox: self.coords_to_point(_x, _y, t)[0] + _ox)
+            lbl.y.set_onward(creation,
+                lambda t, _x=x, _y=y, _oy=_oy: self.coords_to_point(_x, _y, t)[1] + _oy)
+            self._add_plot_obj(lbl)
+            objs.append(lbl)
+        return VCollection(*objs, creation=creation, z=z)
+
+    def add_function_region(self, func, x_range=None, label=None,
+                            color='#58C4DD', opacity=0.2, creation=0):
+        """Plot a function and shade the area under it in one call.
+
+        This is a convenience method that combines :meth:`plot` and
+        :meth:`get_area`.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x)`` to plot.
+        x_range:
+            Optional ``(x_min, x_max)`` domain restriction for the curve
+            and the shaded area.
+        label:
+            Optional label string passed to :meth:`plot`.
+        color:
+            Stroke colour for the curve and fill colour for the area
+            (default ``'#58C4DD'``).
+        opacity:
+            Fill opacity for the shaded area (default ``0.2``).
+        creation:
+            Creation time for all created objects.
+
+        Returns
+        -------
+        Path
+            The filled area Path returned by :meth:`get_area`.
+        """
+        curve = self.add_function(func, label=label, x_range=x_range,
+                                  creation=creation, stroke=color)
+        area = self.get_area(func, x_range=x_range, creation=creation,
+                             fill=color, fill_opacity=opacity, stroke_width=0)
+        return area
+
     def add_arrow_annotation(self, x, y, text, direction='up', length=80, buff=10,
                               font_size=20, creation=0, z=5, **styling_kwargs):
         """Add a labeled arrow pointing to a math coordinate.

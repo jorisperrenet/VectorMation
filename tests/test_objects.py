@@ -10420,3 +10420,132 @@ class TestElasticScale:
         # Early scale should reflect the larger factor
         sx_early = c.styling.scale_x.at_time(0.01)
         assert sx_early > 1.5  # significantly above 1 for factor=3
+
+
+class TestSnapToGrid:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=110, cy=90)
+        result = c.snap_to_grid(grid_size=50, start=0, end=1)
+        assert result is c
+
+    def test_snaps_to_nearest_grid_point(self):
+        """Object at (110, 90) should snap to (100, 100) with grid_size=50."""
+        c = Circle(r=50, cx=110, cy=90)
+        # Center is at (110, 90)
+        c.snap_to_grid(grid_size=50, start=0, end=1, easing=easings.linear)
+        # After animation, center should be at (100, 100)
+        cx, cy = c.center(1)
+        assert cx == pytest.approx(100, abs=1)
+        assert cy == pytest.approx(100, abs=1)
+
+    def test_already_on_grid(self):
+        """Object already on grid should not move."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.snap_to_grid(grid_size=50, start=0, end=1)
+        cx, cy = c.center(1)
+        assert cx == pytest.approx(100, abs=1)
+        assert cy == pytest.approx(100, abs=1)
+
+    def test_custom_grid_size(self):
+        """Test with a different grid size."""
+        c = Circle(r=50, cx=130, cy=170)
+        c.snap_to_grid(grid_size=100, start=0, end=1, easing=easings.linear)
+        cx, cy = c.center(1)
+        assert cx == pytest.approx(100, abs=1)
+        assert cy == pytest.approx(200, abs=1)
+
+    def test_midpoint_animated(self):
+        """At midpoint with linear easing, should be halfway to target."""
+        c = Circle(r=50, cx=100, cy=100)
+        # Center at (100, 100), nearest grid point at grid_size=200 is (0, 0) or (200, 200)
+        # Actually round(100/200)*200 = round(0.5)*200 = 0*200 = 0... no, round(0.5)=0 in Python (banker's rounding)
+        # Use offset that gives clear snap target
+        c2 = Circle(r=50, cx=80, cy=80)
+        c2.snap_to_grid(grid_size=100, start=0, end=1, easing=easings.linear)
+        # Center at (80, 80), nearest grid point = (100, 100)
+        cx_mid, cy_mid = c2.center(0.5)
+        assert cx_mid == pytest.approx(90, abs=2)
+        assert cy_mid == pytest.approx(90, abs=2)
+
+
+class TestAddBackground:
+    def test_returns_rectangle(self):
+        c = Circle(r=50, cx=100, cy=100)
+        bg = c.add_background()
+        assert isinstance(bg, Rectangle)
+
+    def test_default_color_and_opacity(self):
+        c = Circle(r=50, cx=100, cy=100)
+        bg = c.add_background()
+        fill = bg.styling.fill.at_time(0)
+        fill_op = bg.styling.fill_opacity.at_time(0)
+        # Color may render as rgb(0,0,0) or #000000
+        assert fill in ('#000000', 'rgb(0,0,0)')
+        assert fill_op == pytest.approx(0.5)
+
+    def test_custom_color_and_opacity(self):
+        c = Circle(r=50, cx=100, cy=100)
+        bg = c.add_background(color='#ff0000', opacity=0.8)
+        fill = bg.styling.fill.at_time(0)
+        fill_op = bg.styling.fill_opacity.at_time(0)
+        # Color may render as rgb(255,0,0) or #ff0000
+        assert fill in ('#ff0000', 'rgb(255,0,0)')
+        assert fill_op == pytest.approx(0.8)
+
+    def test_padding(self):
+        c = Circle(r=50, cx=100, cy=100)
+        bg = c.add_background(padding=30)
+        # Circle bbox: (50, 50, 100, 100) approximately
+        bgx, bgy, bgw, bgh = bg.bbox(0)
+        cx_bbox = c.bbox(0)
+        # Background should be wider by 2*padding in each dimension
+        assert bgw == pytest.approx(cx_bbox[2] + 60, abs=2)
+        assert bgh == pytest.approx(cx_bbox[3] + 60, abs=2)
+
+    def test_z_index(self):
+        c = Circle(r=50, cx=100, cy=100)
+        bg = c.add_background(z=-2)
+        assert bg.z.at_time(0) == -2
+
+    def test_no_stroke(self):
+        c = Circle(r=50, cx=100, cy=100)
+        bg = c.add_background()
+        sw = bg.styling.stroke_width.at_time(0)
+        assert sw == pytest.approx(0)
+
+
+class TestCycleColors:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#ff0000')
+        result = c.cycle_colors(['#ff0000', '#00ff00', '#0000ff'], start=0, end=1)
+        assert result is c
+
+    def test_starts_with_first_color(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#ffffff')
+        c.cycle_colors(['#ff0000', '#00ff00', '#0000ff'], start=0, end=1)
+        fill = c.styling.fill.at_time(0)
+        assert fill == 'rgb(255,0,0)'
+
+    def test_ends_with_last_color(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#ffffff')
+        c.cycle_colors(['#ff0000', '#00ff00', '#0000ff'], start=0, end=1, easing=easings.linear)
+        fill = c.styling.fill.at_time(1)
+        assert fill == 'rgb(0,0,255)'
+
+    def test_single_color_noop(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#ff0000')
+        result = c.cycle_colors(['#ff0000'], start=0, end=1)
+        assert result is c
+
+    def test_zero_duration_noop(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#ff0000')
+        result = c.cycle_colors(['#ff0000', '#00ff00'], start=1, end=1)
+        assert result is c
+
+    def test_two_colors(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#ffffff')
+        c.cycle_colors(['#ff0000', '#0000ff'], start=0, end=1, easing=easings.linear)
+        # At start should be first color
+        assert c.styling.fill.at_time(0) == 'rgb(255,0,0)'
+        # At end should be last color
+        assert c.styling.fill.at_time(1) == 'rgb(0,0,255)'

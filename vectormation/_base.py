@@ -4395,6 +4395,122 @@ class VObject(ABC):  # Vector Object
         self.styling.scale_y.set(start, end, _make_elastic(sy0), stay=True)
         return self
 
+    def snap_to_grid(self, grid_size=50, start=0, end=1, easing=easings.smooth):
+        """Animate the object's center to the nearest grid point.
+
+        Computes the nearest grid-aligned position from the current center,
+        then uses shift to move there.
+
+        Parameters
+        ----------
+        grid_size : float
+            Spacing of the grid (in pixels).
+        start : float
+            Animation start time.
+        end : float
+            Animation end time.
+        easing : callable
+            Easing function for the movement.
+
+        Returns
+        -------
+        self
+        """
+        cx, cy = self.center(start)
+        target_x = round(cx / grid_size) * grid_size
+        target_y = round(cy / grid_size) * grid_size
+        dx = target_x - cx
+        dy = target_y - cy
+        if dx != 0 or dy != 0:
+            self.shift(dx=dx, dy=dy, start_time=start, end_time=end, easing=easing)
+        return self
+
+    def add_background(self, color='#000000', opacity=0.5, padding=20, creation=0, z=-1):
+        """Create a semi-transparent Rectangle behind the object as a readability backdrop.
+
+        Computes dimensions from the object's bounding box plus padding.
+        Returns the Rectangle (the caller should add it to the canvas).
+
+        Parameters
+        ----------
+        color : str
+            Fill color for the background rectangle.
+        opacity : float
+            Fill opacity for the background rectangle.
+        padding : float
+            Extra space around the object's bounding box.
+        creation : float
+            Creation time for the rectangle.
+        z : float
+            Z-index for the rectangle (default -1, behind most objects).
+
+        Returns
+        -------
+        Rectangle
+            The background rectangle.
+        """
+        from vectormation._shapes import Rectangle  # lazy to avoid circular import
+        x, y, w, h = self.bbox(creation)
+        rect = Rectangle(
+            width=w + 2 * padding,
+            height=h + 2 * padding,
+            x=x - padding,
+            y=y - padding,
+            creation=creation,
+            z=z,
+            fill=color,
+            fill_opacity=opacity,
+            stroke_width=0,
+        )
+        return rect
+
+    def cycle_colors(self, colors, start=0, end=1, easing=easings.linear):
+        """Cycle the fill color through a list of colors over [start, end].
+
+        Each color gets an equal time slice. Uses set_fill for each transition.
+
+        Parameters
+        ----------
+        colors : list[str]
+            List of color strings to cycle through.
+        start : float
+            Animation start time.
+        end : float
+            Animation end time.
+        easing : callable
+            Easing function for each color transition.
+
+        Returns
+        -------
+        self
+        """
+        dur = end - start
+        if dur <= 0 or len(colors) < 2:
+            return self
+        n = len(colors)
+        # Parse all colors to RGB tuples
+        parsed = []
+        for c in colors:
+            _, rgb = attributes.Color(0, '#000').parse(c)
+            parsed.append(rgb)
+        # Set initial color at start
+        self.set_fill(color=colors[0], start=start)
+        # Use Color.set to define each interpolation segment
+        src = self.styling.fill
+        for i in range(n - 1):
+            seg_s = start + dur * i / (n - 1)
+            seg_e = start + dur * (i + 1) / (n - 1)
+            c_from = parsed[i]
+            c_to = parsed[i + 1]
+            _d = max(seg_e - seg_s, 1e-9)
+            def _make_interp(_cf, _ct, _ss, _dd, _easing):
+                def _interp(t):
+                    p = _easing((t - _ss) / _dd)
+                    return tuple(_cf[j] + (_ct[j] - _cf[j]) * p for j in range(len(_cf)))
+                return _interp
+            src.set(seg_s, seg_e, _make_interp(c_from, c_to, seg_s, _d, easing), stay=(i == n - 2))
+        return self
+
 
 class VCollection:
     """Container for a group of VObjects, delegating operations to children."""
@@ -6620,6 +6736,98 @@ class VCollection:
             if i < len(b):
                 result.append(b[i])
         return VCollection(*result)
+
+    def label_children(self, labels, direction=UP, buff=20, font_size=None, creation=0):
+        """Create Text labels positioned relative to each child.
+
+        Parameters
+        ----------
+        labels : list[str]
+            List of label strings, one per child.
+        direction : tuple
+            Direction to place labels relative to children (e.g. UP, DOWN).
+        buff : float
+            Buffer space between child and label.
+        font_size : float or None
+            Font size for labels. If None, uses the default (48).
+        creation : float
+            Creation time for the label objects.
+
+        Returns
+        -------
+        VCollection
+            A new VCollection containing the Text labels.
+        """
+        from vectormation._shapes import Text  # lazy to avoid circular import
+        label_objects = []
+        for i, obj in enumerate(self.objects):
+            if i >= len(labels):
+                break
+            text_kwargs = {'creation': creation}
+            if font_size is not None:
+                text_kwargs['font_size'] = font_size
+            label = Text(labels[i], **text_kwargs)
+            label.next_to(obj, direction=direction, buff=buff, start_time=creation)
+            label_objects.append(label)
+        return VCollection(*label_objects)
+
+    def batch_animate(self, method_name, start=0, end=1, param_name=None, values=None, **kwargs):
+        """Call a method on each child with a different parameter value.
+
+        The *start* and *end* timing parameters are passed to the target
+        method using whichever naming convention it expects.  If *kwargs*
+        already contains explicit timing keys (``start``, ``end``,
+        ``start_time``, ``end_time``), those take precedence.  Otherwise
+        this method inspects the target to choose the right names.
+
+        Parameters
+        ----------
+        method_name : str
+            Name of the method to call on each child.
+        start : float
+            Start time for the animation.
+        end : float
+            End time for the animation.
+        param_name : str or None
+            If given, this keyword argument varies per child.
+        values : list or None
+            List of values, one per child. If param_name is given, each value
+            is passed as that kwarg. Otherwise, each value is passed as the
+            first positional argument after start/end.
+        **kwargs
+            Additional keyword arguments passed to every child's method call.
+
+        Returns
+        -------
+        self
+        """
+        import inspect
+        if values is None:
+            values = [None] * len(self.objects)
+        for i, obj in enumerate(self.objects):
+            if i >= len(values):
+                break
+            method = getattr(obj, method_name)
+            kw = dict(kwargs)
+            # Add timing parameters if not already provided by caller
+            has_timing = any(k in kw for k in ('start', 'end', 'start_time', 'end_time'))
+            if not has_timing:
+                sig = inspect.signature(method)
+                params = sig.parameters
+                if 'start_time' in params:
+                    kw['start_time'] = start
+                    if 'end_time' in params:
+                        kw['end_time'] = end
+                elif 'start' in params:
+                    kw['start'] = start
+                    if 'end' in params:
+                        kw['end'] = end
+            if param_name is not None:
+                kw[param_name] = values[i]
+                method(**kw)
+            else:
+                method(values[i], **kw)
+        return self
 
 
 VGroup = VCollection

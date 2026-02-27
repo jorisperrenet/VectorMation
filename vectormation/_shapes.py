@@ -71,6 +71,33 @@ class Polygon(VObject):
         """Return a list of (x, y) tuples for each vertex."""
         return [(float(x), float(y)) for x, y in (v.at_time(time) for v in self.vertices)]
 
+    def to_path_string(self, time=0):
+        """Return an SVG path d-string representation of the polygon.
+
+        For a closed polygon with vertices [(x1,y1), (x2,y2), ...],
+        returns "M x1,y1 L x2,y2 L ... Z".  For open polylines the
+        trailing Z is omitted.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read vertex positions.
+
+        Returns
+        -------
+        str
+            SVG path d-string.
+        """
+        verts = self.get_vertices(time)
+        if not verts:
+            return ''
+        parts = [f'M {verts[0][0]},{verts[0][1]}']
+        for x, y in verts[1:]:
+            parts.append(f'L {x},{y}')
+        if self.closed:
+            parts.append('Z')
+        return ' '.join(parts)
+
     def get_center(self, time=0):
         """Return the centroid (average of vertices)."""
         pts = self.get_vertices(time)
@@ -2531,6 +2558,48 @@ class Rectangle(VObject):
                 parts.append(Rectangle(piece_w, rh, x=rx + i * piece_w, y=ry, **kwargs))
         return VCollection(*parts)
 
+    def split_horizontal(self, n=2, time=0, **kwargs):
+        """Split this rectangle into *n* equal horizontal strips (rows).
+
+        Equivalent to ``self.split('horizontal', n, time, **kwargs)``.
+
+        Parameters
+        ----------
+        n:
+            Number of horizontal strips (must be >= 1).
+        time:
+            Animation time at which to read the current geometry.
+        **kwargs:
+            Extra styling keyword arguments forwarded to each sub-Rectangle.
+
+        Returns
+        -------
+        VCollection
+            A collection of *n* Rectangle objects stacked top-to-bottom.
+        """
+        return self.split('horizontal', n, time, **kwargs)
+
+    def split_vertical(self, n=2, time=0, **kwargs):
+        """Split this rectangle into *n* equal vertical strips (columns).
+
+        Equivalent to ``self.split('vertical', n, time, **kwargs)``.
+
+        Parameters
+        ----------
+        n:
+            Number of vertical strips (must be >= 1).
+        time:
+            Animation time at which to read the current geometry.
+        **kwargs:
+            Extra styling keyword arguments forwarded to each sub-Rectangle.
+
+        Returns
+        -------
+        VCollection
+            A collection of *n* Rectangle objects arranged left-to-right.
+        """
+        return self.split('vertical', n, time, **kwargs)
+
     def inset(self, amount: float, time: float = 0, **kwargs):
         """Return a new Rectangle inset by *amount* pixels on every side.
 
@@ -4035,6 +4104,23 @@ class Text(VObject):
         if isinstance(text, str):
             self.text.set_onward(time, text[::-1])
         return self
+
+    def reverse(self, time=0):
+        """Return the text content reversed.
+
+        This is a pure query method -- the object is **not** modified.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read the text.
+
+        Returns
+        -------
+        str
+            The reversed text string.
+        """
+        return self.text.at_time(time)[::-1]
 
     def underline_anim(self, start: float = 0, end: float = 1, color=None,
                         stroke_width=2, offset_y=5):

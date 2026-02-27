@@ -2643,3 +2643,120 @@ class TestInterleaveCollections:
         assert len(result) == 2
         assert result[0] is c1
         assert result[1] is c2
+
+
+class TestLabelChildren:
+    def test_returns_vcollection(self):
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=300, cy=100)
+        col = VCollection(c1, c2)
+        labels = col.label_children(['A', 'B'])
+        assert isinstance(labels, VCollection)
+
+    def test_correct_number_of_labels(self):
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=300, cy=100)
+        c3 = Circle(r=50, cx=500, cy=100)
+        col = VCollection(c1, c2, c3)
+        labels = col.label_children(['A', 'B', 'C'])
+        assert len(labels.objects) == 3
+
+    def test_fewer_labels_than_children(self):
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=300, cy=100)
+        c3 = Circle(r=50, cx=500, cy=100)
+        col = VCollection(c1, c2, c3)
+        labels = col.label_children(['A', 'B'])
+        assert len(labels.objects) == 2
+
+    def test_label_text_content(self):
+        from vectormation.objects import Text
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=300, cy=100)
+        col = VCollection(c1, c2)
+        labels = col.label_children(['Hello', 'World'])
+        assert isinstance(labels.objects[0], Text)
+        assert isinstance(labels.objects[1], Text)
+        assert labels.objects[0].text.at_time(0) == 'Hello'
+        assert labels.objects[1].text.at_time(0) == 'World'
+
+    def test_custom_font_size(self):
+        c1 = Circle(r=50, cx=100, cy=100)
+        col = VCollection(c1)
+        labels = col.label_children(['A'], font_size=24)
+        assert labels.objects[0].font_size.at_time(0) == pytest.approx(24)
+
+    def test_label_positioned_relative_to_child(self):
+        from vectormation.objects import UP
+        c1 = Circle(r=50, cx=200, cy=200)
+        col = VCollection(c1)
+        labels = col.label_children(['Label'], direction=UP, buff=20)
+        # Label should be above the circle (lower y value)
+        label_cy = labels.objects[0].center(0)[1]
+        child_cy = c1.center(0)[1]
+        assert label_cy < child_cy
+
+    def test_direction_down(self):
+        c1 = Circle(r=50, cx=200, cy=200)
+        col = VCollection(c1)
+        labels = col.label_children(['Label'], direction=DOWN)
+        # Label should be below the circle (higher y value)
+        label_cy = labels.objects[0].center(0)[1]
+        child_cy = c1.center(0)[1]
+        assert label_cy > child_cy
+
+    def test_empty_collection(self):
+        col = VCollection()
+        labels = col.label_children(['A', 'B'])
+        assert len(labels.objects) == 0
+
+
+class TestBatchAnimate:
+    def test_returns_self(self):
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=300, cy=100)
+        col = VCollection(c1, c2)
+        result = col.batch_animate('shift', start=0, end=1, param_name='dx', values=[10, 20])
+        assert result is col
+
+    def test_param_name_varies_per_child(self):
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=300, cy=100)
+        col = VCollection(c1, c2)
+        col.batch_animate('shift', start=0, end=1, param_name='dx', values=[50, 100])
+        # After animation, c1 should have shifted by 50 in x, c2 by 100
+        c1_cx = c1.center(1)[0]
+        c2_cx = c2.center(1)[0]
+        assert c1_cx == pytest.approx(150, abs=2)
+        assert c2_cx == pytest.approx(400, abs=2)
+
+    def test_positional_values(self):
+        c1 = Circle(r=50, cx=100, cy=100, fill='#ffffff')
+        c2 = Circle(r=50, cx=300, cy=100, fill='#ffffff')
+        col = VCollection(c1, c2)
+        col.batch_animate('set_fill', start=0, end=1, values=['#ff0000', '#0000ff'],
+                          param_name='color')
+        # Each child should have a different fill color at time 1
+        assert c1.styling.fill.at_time(1) in ('#ff0000', 'rgb(255,0,0)')
+        assert c2.styling.fill.at_time(1) in ('#0000ff', 'rgb(0,0,255)')
+
+    def test_fewer_values_than_children(self):
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=300, cy=100)
+        c3 = Circle(r=50, cx=500, cy=100)
+        col = VCollection(c1, c2, c3)
+        # Only two values for three children — third child should not be affected
+        col.batch_animate('shift', start=0, end=1, param_name='dx', values=[10, 20])
+        c3_cx = c3.center(1)[0]
+        assert c3_cx == pytest.approx(500, abs=2)
+
+    def test_extra_kwargs_passed(self):
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=300, cy=100)
+        col = VCollection(c1, c2)
+        col.batch_animate('shift', start=0, end=1, param_name='dx', values=[50, 100], dy=10)
+        # Both should shift by 10 in y
+        c1_cy = c1.center(1)[1]
+        c2_cy = c2.center(1)[1]
+        assert c1_cy == pytest.approx(110, abs=2)
+        assert c2_cy == pytest.approx(110, abs=2)

@@ -8744,3 +8744,338 @@ class TestArcGetChord:
         arc = Arc(cx=500, cy=300, r=100, start_angle=0, end_angle=360)
         chord = arc.get_chord()
         assert chord.get_length() == pytest.approx(0, abs=1)
+
+
+# ── Polygon.to_path_string ──────────────────────────────────────────
+
+
+class TestPolygonToPathString:
+    def test_closed_triangle(self):
+        """Closed triangle should produce M ... L ... L ... Z."""
+        p = Polygon((10, 20), (30, 40), (50, 60))
+        d = p.to_path_string()
+        assert d.startswith('M 10.0,20.0')
+        assert 'L 30.0,40.0' in d
+        assert 'L 50.0,60.0' in d
+        assert d.endswith('Z')
+
+    def test_open_polyline_no_z(self):
+        """Open polyline should not end with Z."""
+        p = Polygon((0, 0), (100, 0), (100, 100), closed=False)
+        d = p.to_path_string()
+        assert d.startswith('M 0.0,0.0')
+        assert not d.endswith('Z')
+
+    def test_single_vertex(self):
+        """Single vertex produces just M command."""
+        p = Polygon((5, 10))
+        d = p.to_path_string()
+        assert d == 'M 5.0,10.0 Z'
+
+    def test_empty_polygon(self):
+        """Polygon with no vertices returns empty string."""
+        p = Polygon()
+        d = p.to_path_string()
+        assert d == ''
+
+    def test_square_path(self):
+        """Square should have 4 L commands plus Z."""
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        d = p.to_path_string()
+        parts = d.split()
+        # M x,y L x,y L x,y L x,y Z => 9 tokens
+        assert parts[0] == 'M'
+        assert parts[-1] == 'Z'
+        assert d.count('L') == 3
+
+    def test_matches_path_method(self):
+        """to_path_string should produce equivalent content to path()."""
+        p = Polygon((10, 20), (30, 40), (50, 10))
+        d = p.to_path_string()
+        # Both should start with M, have L segments, and end with Z
+        assert d.startswith('M')
+        assert d.endswith('Z')
+
+
+# ── Arc.get_midpoint ────────────────────────────────────────────────
+
+
+class TestArcGetMidpoint:
+    def test_quarter_arc_midpoint(self):
+        """Midpoint of 0-90 arc should be at 45 degrees."""
+        arc = Arc(cx=0, cy=0, r=100, start_angle=0, end_angle=90)
+        mx, my = arc.get_midpoint()
+        # At 45 degrees: x = 100*cos(45) = ~70.71, y = -100*sin(45) = ~-70.71
+        expected_x = 100 * math.cos(math.radians(45))
+        expected_y = -100 * math.sin(math.radians(45))
+        assert mx == pytest.approx(expected_x, abs=1e-6)
+        assert my == pytest.approx(expected_y, abs=1e-6)
+
+    def test_semicircle_midpoint(self):
+        """Midpoint of 0-180 arc should be at 90 degrees (top)."""
+        arc = Arc(cx=500, cy=300, r=100, start_angle=0, end_angle=180)
+        mx, my = arc.get_midpoint()
+        # At 90 degrees: x = 500 + 100*cos(90) = 500, y = 300 - 100*sin(90) = 200
+        assert mx == pytest.approx(500, abs=1e-6)
+        assert my == pytest.approx(200, abs=1e-6)
+
+    def test_midpoint_with_offset_center(self):
+        """Midpoint should account for non-origin center."""
+        arc = Arc(cx=200, cy=300, r=50, start_angle=0, end_angle=90)
+        mx, my = arc.get_midpoint()
+        expected_x = 200 + 50 * math.cos(math.radians(45))
+        expected_y = 300 - 50 * math.sin(math.radians(45))
+        assert mx == pytest.approx(expected_x, abs=1e-6)
+        assert my == pytest.approx(expected_y, abs=1e-6)
+
+    def test_full_circle_midpoint(self):
+        """Midpoint of 0-360 arc should be at 180 degrees."""
+        arc = Arc(cx=0, cy=0, r=100, start_angle=0, end_angle=360)
+        mx, my = arc.get_midpoint()
+        expected_x = 100 * math.cos(math.radians(180))
+        expected_y = -100 * math.sin(math.radians(180))
+        assert mx == pytest.approx(expected_x, abs=1e-6)
+        assert my == pytest.approx(expected_y, abs=1e-6)
+
+    def test_midpoint_lies_on_arc(self):
+        """The midpoint should be at distance r from center."""
+        arc = Arc(cx=100, cy=200, r=80, start_angle=30, end_angle=120)
+        mx, my = arc.get_midpoint()
+        dist = math.hypot(mx - 100, my - 200)
+        assert dist == pytest.approx(80, abs=1e-6)
+
+
+# ── Axes.add_labeled_point ──────────────────────────────────────────
+
+
+class TestAxesAddLabeledPoint:
+    def test_returns_vcollection(self):
+        """Should return a VCollection."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_labeled_point(1, 2, label='A')
+        assert isinstance(result, VCollection)
+
+    def test_dot_only_when_no_label(self):
+        """With no label, collection should have 1 object (dot)."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_labeled_point(1, 2)
+        assert len(result.objects) == 1
+
+    def test_dot_and_label(self):
+        """With label, collection should have 2 objects."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_labeled_point(1, 2, label='P')
+        assert len(result.objects) == 2
+
+    def test_dot_position(self):
+        """Dot should be at the correct SVG coordinates."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_labeled_point(0, 0, label='O')
+        dot = result.objects[0]
+        sx, sy = ax.coords_to_point(0, 0)
+        cx, cy = dot.c.at_time(0)
+        assert cx == pytest.approx(sx, abs=1)
+        assert cy == pytest.approx(sy, abs=1)
+
+    def test_custom_dot_radius(self):
+        """Custom dot_radius should be applied."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_labeled_point(1, 1, dot_radius=10)
+        dot = result.objects[0]
+        assert dot.r.at_time(0) == pytest.approx(10)
+
+    def test_direction_above(self):
+        """Label should be above the dot (lower y in SVG)."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_labeled_point(0, 0, label='P', direction='above')
+        dot = result.objects[0]
+        lbl = result.objects[1]
+        dot_y = dot.c.at_time(0)[1]
+        lbl_y = lbl.y.at_time(0)
+        assert lbl_y < dot_y  # above means smaller y in SVG
+
+    def test_direction_below(self):
+        """Label should be below the dot (higher y in SVG)."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_labeled_point(0, 0, label='P', direction='below')
+        dot = result.objects[0]
+        lbl = result.objects[1]
+        dot_y = dot.c.at_time(0)[1]
+        lbl_y = lbl.y.at_time(0)
+        assert lbl_y > dot_y  # below means larger y in SVG
+
+
+# ── Axes.add_function_region ────────────────────────────────────────
+
+
+class TestAxesAddFunctionRegion:
+    def test_returns_path(self):
+        """Should return a Path object."""
+        ax = Axes(x_range=(-5, 5), y_range=(-2, 2))
+        area = ax.add_function_region(math.sin)
+        from vectormation.objects import Path
+        assert isinstance(area, Path)
+
+    def test_area_has_fill(self):
+        """The returned area should have a fill."""
+        ax = Axes(x_range=(-5, 5), y_range=(-2, 2))
+        area = ax.add_function_region(math.sin, color='#FF0000', opacity=0.5)
+        fo = area.styling.fill_opacity.at_time(0)
+        assert fo == pytest.approx(0.5)
+
+    def test_with_x_range(self):
+        """Should accept an x_range parameter."""
+        ax = Axes(x_range=(-5, 5), y_range=(-2, 2))
+        area = ax.add_function_region(math.sin, x_range=(0, math.pi))
+        # The area's d attribute should be non-empty at time 0
+        d = area.d.at_time(0)
+        assert len(d) > 0
+
+    def test_custom_color(self):
+        """Custom color should appear in SVG output."""
+        ax = Axes(x_range=(-5, 5), y_range=(-2, 2))
+        area = ax.add_function_region(lambda x: x**2, color='#00FF00')
+        svg = area.to_svg(0)
+        # Check that the fill uses the specified color (green channel)
+        assert '0,255,0' in svg or '00ff00' in svg or '00FF00' in svg
+
+    def test_adds_curve_to_axes(self):
+        """Both the curve and area should be added to axes objects."""
+        ax = Axes(x_range=(-5, 5), y_range=(-2, 2))
+        initial_count = len(ax.objects)
+        ax.add_function_region(lambda x: x)
+        # Should add at least 2 objects (curve + area)
+        assert len(ax.objects) >= initial_count + 2
+
+
+# ── Text.reverse ────────────────────────────────────────────────────
+
+
+class TestTextReverse:
+    def test_basic_reverse(self):
+        """Simple string reversal."""
+        t = Text('Hello')
+        assert t.reverse() == 'olleH'
+
+    def test_does_not_modify_object(self):
+        """reverse() should not change the Text object."""
+        t = Text('Hello')
+        t.reverse()
+        assert t.get_text() == 'Hello'
+
+    def test_empty_string(self):
+        """Empty text reverses to empty string."""
+        t = Text('')
+        assert t.reverse() == ''
+
+    def test_single_char(self):
+        """Single character reverses to itself."""
+        t = Text('X')
+        assert t.reverse() == 'X'
+
+    def test_palindrome(self):
+        """Palindrome should equal itself reversed."""
+        t = Text('racecar')
+        assert t.reverse() == 'racecar'
+
+    def test_with_spaces(self):
+        """Spaces should be preserved in reverse."""
+        t = Text('ab cd')
+        assert t.reverse() == 'dc ba'
+
+
+# ── Rectangle.split_horizontal / split_vertical ────────────────────
+
+
+class TestRectangleSplitHorizontal:
+    def test_returns_vcollection(self):
+        """Should return a VCollection."""
+        r = Rectangle(200, 100, x=10, y=20)
+        result = r.split_horizontal(3)
+        assert isinstance(result, VCollection)
+
+    def test_correct_count(self):
+        """Should return n rectangles."""
+        r = Rectangle(200, 100, x=10, y=20)
+        result = r.split_horizontal(4)
+        assert len(result.objects) == 4
+
+    def test_strip_dimensions(self):
+        """Each strip should have full width and 1/n height."""
+        r = Rectangle(200, 120, x=10, y=20)
+        result = r.split_horizontal(3)
+        for part in result.objects:
+            assert part.width.at_time(0) == pytest.approx(200)
+            assert part.height.at_time(0) == pytest.approx(40)
+
+    def test_strip_positions(self):
+        """Strips should be stacked top to bottom."""
+        r = Rectangle(200, 120, x=10, y=20)
+        result = r.split_horizontal(3)
+        assert result.objects[0].y.at_time(0) == pytest.approx(20)
+        assert result.objects[1].y.at_time(0) == pytest.approx(60)
+        assert result.objects[2].y.at_time(0) == pytest.approx(100)
+
+    def test_default_n_is_two(self):
+        """Default split should produce 2 strips."""
+        r = Rectangle(200, 100, x=10, y=20)
+        result = r.split_horizontal()
+        assert len(result.objects) == 2
+
+    def test_matches_split_method(self):
+        """Should produce same result as split('horizontal', n)."""
+        r = Rectangle(200, 100, x=10, y=20)
+        a = r.split_horizontal(3)
+        b = r.split('horizontal', 3)
+        for pa, pb in zip(a.objects, b.objects):
+            assert pa.x.at_time(0) == pytest.approx(pb.x.at_time(0))
+            assert pa.y.at_time(0) == pytest.approx(pb.y.at_time(0))
+            assert pa.width.at_time(0) == pytest.approx(pb.width.at_time(0))
+            assert pa.height.at_time(0) == pytest.approx(pb.height.at_time(0))
+
+
+class TestRectangleSplitVertical:
+    def test_returns_vcollection(self):
+        """Should return a VCollection."""
+        r = Rectangle(200, 100, x=10, y=20)
+        result = r.split_vertical(3)
+        assert isinstance(result, VCollection)
+
+    def test_correct_count(self):
+        """Should return n rectangles."""
+        r = Rectangle(200, 100, x=10, y=20)
+        result = r.split_vertical(5)
+        assert len(result.objects) == 5
+
+    def test_strip_dimensions(self):
+        """Each strip should have 1/n width and full height."""
+        r = Rectangle(300, 100, x=10, y=20)
+        result = r.split_vertical(3)
+        for part in result.objects:
+            assert part.width.at_time(0) == pytest.approx(100)
+            assert part.height.at_time(0) == pytest.approx(100)
+
+    def test_strip_positions(self):
+        """Strips should be arranged left to right."""
+        r = Rectangle(300, 100, x=10, y=20)
+        result = r.split_vertical(3)
+        assert result.objects[0].x.at_time(0) == pytest.approx(10)
+        assert result.objects[1].x.at_time(0) == pytest.approx(110)
+        assert result.objects[2].x.at_time(0) == pytest.approx(210)
+
+    def test_default_n_is_two(self):
+        """Default split should produce 2 strips."""
+        r = Rectangle(200, 100, x=10, y=20)
+        result = r.split_vertical()
+        assert len(result.objects) == 2
+
+    def test_matches_split_method(self):
+        """Should produce same result as split('vertical', n)."""
+        r = Rectangle(200, 100, x=10, y=20)
+        a = r.split_vertical(4)
+        b = r.split('vertical', 4)
+        for pa, pb in zip(a.objects, b.objects):
+            assert pa.x.at_time(0) == pytest.approx(pb.x.at_time(0))
+            assert pa.y.at_time(0) == pytest.approx(pb.y.at_time(0))
+            assert pa.width.at_time(0) == pytest.approx(pb.width.at_time(0))
+            assert pa.height.at_time(0) == pytest.approx(pb.height.at_time(0))
