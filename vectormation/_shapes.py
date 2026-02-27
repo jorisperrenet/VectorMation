@@ -271,11 +271,11 @@ class Polygon(VObject):
             # Edge from prev to current
             dx1 = float(pts[i][0] - pts[prev_idx][0])
             dy1 = float(pts[i][1] - pts[prev_idx][1])
-            len1 = math.sqrt(dx1 * dx1 + dy1 * dy1)
+            len1 = math.hypot(dx1, dy1)
             # Edge from current to next
             dx2 = float(pts[next_idx][0] - pts[i][0])
             dy2 = float(pts[next_idx][1] - pts[i][1])
-            len2 = math.sqrt(dx2 * dx2 + dy2 * dy2)
+            len2 = math.hypot(dx2, dy2)
             # Outward normals (rotate edge direction 90 degrees CCW: (-dy, dx))
             # In SVG coords (y-down), "outward" for a CW polygon is (-dy, dx)
             if len1 > 0:
@@ -289,7 +289,7 @@ class Polygon(VObject):
             # Average normal
             avg_nx = n1x + n2x
             avg_ny = n1y + n2y
-            avg_len = math.sqrt(avg_nx * avg_nx + avg_ny * avg_ny)
+            avg_len = math.hypot(avg_nx, avg_ny)
             if avg_len > 0:
                 avg_nx /= avg_len
                 avg_ny /= avg_len
@@ -565,6 +565,7 @@ class Polygon(VObject):
         if n < 3:
             return []
         angles = []
+        crosses = []
         for i in range(n):
             ax, ay = pts[(i - 1) % n]
             bx, by = pts[i]
@@ -573,22 +574,12 @@ class Polygon(VObject):
             v2x, v2y = cx - bx, cy - by
             dot = v1x * v2x + v1y * v2y
             cross = v1x * v2y - v1y * v2x
-            angle = math.atan2(abs(cross), dot)
-            angles.append(math.degrees(angle))
-        # Check winding: if the polygon is CW in SVG coords (positive signed area
-        # in screen space), the cross products are reliable.  Sum check: for a
-        # simple convex polygon, sum of interior angles = (n-2)*180.
-        # If the sum is too far off, some angles need to be 360-angle.
+            angles.append(math.degrees(math.atan2(abs(cross), dot)))
+            crosses.append(cross)
+        # Use winding direction to identify reflex angles (> 180 degrees).
         sa = self.signed_area(time)
         for i in range(n):
-            ax, ay = pts[(i - 1) % n]
-            bx, by = pts[i]
-            cx, cy = pts[(i + 1) % n]
-            v1x, v1y = ax - bx, ay - by
-            v2x, v2y = cx - bx, cy - by
-            cross = v1x * v2y - v1y * v2x
-            # If cross sign matches the winding direction, this is a reflex angle
-            if (sa > 0 and cross > 0) or (sa < 0 and cross < 0):
+            if (sa > 0 and crosses[i] > 0) or (sa < 0 and crosses[i] < 0):
                 angles[i] = 360 - angles[i]
         return angles
 
@@ -1082,7 +1073,7 @@ class Circle(Ellipse):
         c2 = cx * cx + cy * cy
         ux = (a2 * (by - cy) + b2 * (cy - ay) + c2 * (ay - by)) / d
         uy = (a2 * (cx - bx) + b2 * (ax - cx) + c2 * (bx - ax)) / d
-        r = math.sqrt((ax - ux) ** 2 + (ay - uy) ** 2)
+        r = math.hypot(ax - ux, ay - uy)
         return cls(r=r, cx=ux, cy=uy, **kwargs)
 
     def intersect_line(self, line, time=0):
@@ -1338,7 +1329,7 @@ class Rectangle(VObject):
         """
         w = self.width.at_time(time)
         h = self.height.at_time(time)
-        return math.sqrt(w * w + h * h)
+        return math.hypot(w, h)
 
     def get_size(self, time=0):
         return (self.width.at_time(time), self.height.at_time(time))
@@ -2032,7 +2023,7 @@ class Line(VObject):
         """
         ox, oy = origin
         dx, dy = direction
-        mag = math.sqrt(dx * dx + dy * dy)
+        mag = math.hypot(dx, dy)
         if mag < 1e-10:
             return cls(ox, oy, ox, oy, **kwargs)
         nx, ny = dx / mag, dy / mag
@@ -2153,7 +2144,7 @@ class Line(VObject):
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         dx, dy = x2 - x1, y2 - y1
-        line_len = math.sqrt(dx * dx + dy * dy)
+        line_len = math.hypot(dx, dy)
         if length is None:
             length = line_len
         px = x1 + dx * at_proportion
@@ -2246,7 +2237,7 @@ class Line(VObject):
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         dx, dy = x2 - x1, y2 - y1
-        line_len = math.sqrt(dx * dx + dy * dy)
+        line_len = math.hypot(dx, dy)
         if line_len == 0:
             return Line(x1, y1, x2, y2, **kwargs)
         nx, ny = -dy / line_len, dx / line_len

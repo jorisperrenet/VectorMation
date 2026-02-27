@@ -3236,12 +3236,11 @@ class VObject(ABC):  # Vector Object
         easing:
             Easing function applied to the scale and opacity envelopes.
         """
-        end = start + duration
-        dur = end - start
-        if dur <= 0:
+        if duration <= 0:
             return self
+        end = start + duration
         self._ensure_scale_origin(start)
-        _s, _d = start, max(dur, 1e-9)
+        _s, _d = start, max(duration, 1e-9)
         # Scale spike
         scale_fn = lambda t, _s=_s, _d=_d, _sf=scale_factor, _e=easing: (
             1 + (_sf - 1) * _e((t - _s) / _d))
@@ -3279,12 +3278,9 @@ class VObject(ABC):  # Vector Object
         easing:
             Easing function for both movement and rotation.
         """
-        dur = end - start
-        if dur <= 0:
+        if end <= start:
             return self
-        # Move to target
         self.center_to_pos(tx, ty, start_time=start, end_time=end, easing=easing)
-        # Rotate simultaneously
         self.spin(start=start, end=end, degrees=degrees, easing=easing)
         return self
 
@@ -3309,10 +3305,9 @@ class VObject(ABC):  # Vector Object
         easing:
             Decay envelope -- controls how the flicker dies out.
         """
-        dur = end - start
-        if dur <= 0:
+        if end <= start:
             return self
-        _s, _d, _freq, _mo = start, max(dur, 1e-9), frequency, min_opacity
+        _s, _d, _freq, _mo = start, max(end - start, 1e-9), frequency, min_opacity
         def _opacity(t, _s=_s, _d=_d, _freq=_freq, _mo=_mo, _e=easing):
             p = (t - _s) / _d
             # Layered sine waves for pseudo-random flicker
@@ -3351,13 +3346,12 @@ class VObject(ABC):  # Vector Object
         easing:
             Easing function for the overall progress curve.
         """
-        dur = end - start
-        if dur <= 0:
+        if end <= start:
             return self
         bx, by, bw, bh = self.bbox(start)
         ox, oy = bx + bw / 2, by + bh / 2
         total_dx, total_dy = tx - ox, ty - oy
-        _s, _d = start, max(dur, 1e-9)
+        _s, _d = start, max(end - start, 1e-9)
         _pb, _os = pullback, overshoot
         _tdx, _tdy = total_dx, total_dy
         def _progress(t, _s=_s, _d=_d, _pb=_pb, _os=_os, _e=easing):
@@ -4987,16 +4981,12 @@ class VCollection:
         -------
         self
         """
-        n = len(self.objects)
-        if n == 0:
-            return self
-        dur = end - start
-        if dur <= 0:
+        if not self.objects or end <= start:
             return self
         for obj in self.objects:
             bx, by, bw, bh = obj.bbox(start)
-            cx, cy = bx + bw / 2, by + bh / 2
-            dx, dy = x - cx, y - cy
+            ox, oy = bx + bw / 2, by + bh / 2
+            dx, dy = x - ox, y - oy
             if dx == 0 and dy == 0:
                 continue
             obj.shift(dx=dx, dy=dy, start_time=start, end_time=end, easing=easing)
@@ -5032,11 +5022,7 @@ class VCollection:
         -------
         self
         """
-        n = len(self.objects)
-        if n == 0:
-            return self
-        dur = end - start
-        if dur <= 0:
+        if not self.objects or end <= start:
             return self
         if cx is None or cy is None:
             bx, by, bw, bh = self.bbox(start)

@@ -46,7 +46,7 @@ def _lerp(a, b, t):
 
 def _distance(x1, y1, x2, y2):
     """Euclidean distance between two points."""
-    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+    return math.hypot(x2 - x1, y2 - y1)
 
 
 def _rotate_point(px, py, ox, oy, angle_rad):

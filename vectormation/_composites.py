@@ -1843,17 +1843,16 @@ class Axes(VCollection):
     def add_dot_label(self, x, y, label=None, dot_color='#FF6B6B', dot_radius=6,
                        label_offset=(10, -10), font_size=20, creation=0, z=0):
         """Add a labeled dot at math coordinates (x, y). Returns (dot, text) or dot."""
-        from vectormation._shapes import Dot as _Dot, Text as _Text
         sx, sy = self.coords_to_point(x, y, time=creation)
-        dot = _Dot(cx=sx, cy=sy, r=dot_radius, fill=dot_color,
-                   creation=creation, z=z)
+        dot = Dot(cx=sx, cy=sy, r=dot_radius, fill=dot_color,
+                  creation=creation, z=z)
         dot.c.set_onward(creation,
             lambda t, _x=x, _y=y: self.coords_to_point(_x, _y, t))
         self._add_plot_obj(dot)
         if label is not None:
             lx, ly = sx + label_offset[0], sy + label_offset[1]
-            lbl = _Text(text=str(label), x=lx, y=ly, font_size=font_size,
-                        fill=dot_color, stroke_width=0, creation=creation, z=z)
+            lbl = Text(text=str(label), x=lx, y=ly, font_size=font_size,
+                       fill=dot_color, stroke_width=0, creation=creation, z=z)
             _ox, _oy = label_offset
             lbl.x.set_onward(creation,
                 lambda t, _x=x, _y=y, _ox=_ox: self.coords_to_point(_x, _y, t)[0] + _ox)
@@ -2617,7 +2616,6 @@ class Axes(VCollection):
                             dot_radius=5, font_size=18, **styling_kwargs):
         """Find and label local min/max of func within x_range.
         Returns a VCollection of (dot, label) pairs."""
-        from vectormation._shapes import Dot as _Dot, Text as _Text
         xlo = x_range[0] if x_range else self.x_min.at_time(creation)
         xhi = x_range[1] if x_range else self.x_max.at_time(creation)
         step = (xhi - xlo) / samples
@@ -2635,20 +2633,19 @@ class Axes(VCollection):
         for mx, my, kind in extrema:
             color = styling_kwargs.get('fill', colors[kind])
             sx, sy = self.coords_to_point(mx, my, creation)
-            dot = _Dot(cx=sx, cy=sy, r=dot_radius, fill=color,
-                       creation=creation, z=z + 1)
+            dot = Dot(cx=sx, cy=sy, r=dot_radius, fill=color,
+                      creation=creation, z=z + 1)
             dot.c.set_onward(creation,
                 lambda t, _mx=mx, _my=my: self.coords_to_point(_mx, _my, t))
             lbl_text = f'{kind}({mx:.1f}, {my:.1f})'
             offset_y = -15 if kind == 'max' else 20
-            lbl = _Text(text=lbl_text, x=sx, y=sy + offset_y,
-                        font_size=font_size, fill=color, stroke_width=0,
-                        text_anchor='middle', creation=creation, z=z + 2)
-            _mx, _my, _oy = mx, my, offset_y
+            lbl = Text(text=lbl_text, x=sx, y=sy + offset_y,
+                       font_size=font_size, fill=color, stroke_width=0,
+                       text_anchor='middle', creation=creation, z=z + 2)
             lbl.x.set_onward(creation,
-                lambda t, _mx=_mx, _my=_my: self.coords_to_point(_mx, _my, t)[0])
+                lambda t, _mx=mx, _my=my: self.coords_to_point(_mx, _my, t)[0])
             lbl.y.set_onward(creation,
-                lambda t, _mx=_mx, _my=_my, _oy=_oy: self.coords_to_point(_mx, _my, t)[1] + _oy)
+                lambda t, _mx=mx, _my=my, _oy=offset_y: self.coords_to_point(_mx, _my, t)[1] + _oy)
             self._add_plot_obj(dot)
             self._add_plot_obj(lbl)
             objs.extend([dot, lbl])
@@ -2692,7 +2689,6 @@ class Axes(VCollection):
         VCollection
             A collection of (dot, label) pairs for each inflection point found.
         """
-        from vectormation._shapes import Dot as _Dot, Text as _Text
         xlo = x_range[0] if x_range else self.x_min.at_time(creation)
         xhi = x_range[1] if x_range else self.x_max.at_time(creation)
         step = (xhi - xlo) / samples
@@ -2727,19 +2723,18 @@ class Axes(VCollection):
         objs = []
         for ix, iy in inflections:
             sx, sy = self.coords_to_point(ix, iy, creation)
-            dot = _Dot(cx=sx, cy=sy, r=dot_radius, fill=fill_color,
-                       creation=creation, z=z + 1)
+            dot = Dot(cx=sx, cy=sy, r=dot_radius, fill=fill_color,
+                      creation=creation, z=z + 1)
             dot.c.set_onward(creation,
                 lambda t, _ix=ix, _iy=iy: self.coords_to_point(_ix, _iy, t))
             lbl_text = f'({ix:.2f}, {iy:.2f})'
-            lbl = _Text(text=lbl_text, x=sx, y=sy - 15,
-                        font_size=font_size, fill=fill_color, stroke_width=0,
-                        text_anchor='middle', creation=creation, z=z + 2)
-            _ix, _iy = ix, iy
+            lbl = Text(text=lbl_text, x=sx, y=sy - 15,
+                       font_size=font_size, fill=fill_color, stroke_width=0,
+                       text_anchor='middle', creation=creation, z=z + 2)
             lbl.x.set_onward(creation,
-                lambda t, _ix=_ix, _iy=_iy: self.coords_to_point(_ix, _iy, t)[0])
+                lambda t, _ix=ix, _iy=iy: self.coords_to_point(_ix, _iy, t)[0])
             lbl.y.set_onward(creation,
-                lambda t, _ix=_ix, _iy=_iy: self.coords_to_point(_ix, _iy, t)[1] - 15)
+                lambda t, _ix=ix, _iy=iy: self.coords_to_point(_ix, _iy, t)[1] - 15)
             self._add_plot_obj(dot)
             self._add_plot_obj(lbl)
             objs.extend([dot, lbl])
@@ -5413,13 +5408,11 @@ class NumberLine(VCollection):
         pointer tracks the value automatically.  Returns the pointer
         ``VCollection`` (already added to this NumberLine's objects).
         """
-        from vectormation._shapes import Polygon as _Polygon, Text as _Text
-
         # Triangle pointing down at the value
         px, py = self.number_to_point(
             value.at_time(creation) if hasattr(value, 'at_time') else value
         )
-        ptr = _Polygon(
+        ptr = Polygon(
             (px - size / 2, py - size - 2),
             (px + size / 2, py - size - 2),
             (px, py - 2),
@@ -5444,7 +5437,7 @@ class NumberLine(VCollection):
 
         objects = [ptr]
         if label is not None:
-            lbl = _Text(text=str(label), x=px, y=py - size - 18,
+            lbl = Text(text=str(label), x=px, y=py - size - 18,
                         font_size=20, fill=color, stroke_width=0,
                         text_anchor='middle', creation=creation, z=z + 0.1)
             lbl.x.set_onward(creation, lambda t: _ptr_pos(t)[0])
@@ -5486,7 +5479,6 @@ class NumberLine(VCollection):
 
     def add_segment(self, start_val, end_val, color='#58C4DD', height=8, creation=0, z=1):
         """Highlight a range on the number line with a filled rectangle."""
-        from vectormation._shapes import Rectangle
         x1, y = self.number_to_point(start_val)
         x2, _ = self.number_to_point(end_val)
         w = abs(x2 - x1)
@@ -5533,7 +5525,6 @@ class NumberLine(VCollection):
             The highlight rectangle (already appended to this NumberLine's
             objects list).
         """
-        from vectormation._shapes import Rectangle as _Rect
         # Clamp to valid axis range
         sv = max(self.x_start, min(self.x_end, start_val))
         ev = max(self.x_start, min(self.x_end, end_val))
@@ -5542,10 +5533,10 @@ class NumberLine(VCollection):
         x1, y = self.number_to_point(sv)
         x2, _ = self.number_to_point(ev)
         w = abs(x2 - x1)
-        rect = _Rect(w, height, x=min(x1, x2), y=y - height / 2,
-                     creation=creation, z=z,
-                     fill=color, fill_opacity=opacity, stroke_width=0,
-                     **kwargs)
+        rect = Rectangle(w, height, x=min(x1, x2), y=y - height / 2,
+                          creation=creation, z=z,
+                          fill=color, fill_opacity=opacity, stroke_width=0,
+                          **kwargs)
         self.objects.append(rect)
         return rect
 
@@ -5558,15 +5549,14 @@ class NumberLine(VCollection):
         side: 'below' (default) or 'above'.
         Returns self.
         """
-        from vectormation._shapes import Text as _Text
         px, py = self.number_to_point(value)
         kw = {'fill': '#fff', 'stroke_width': 0, 'text_anchor': 'middle'} | kwargs
         if side == 'above':
             ty = py - buff - font_size
         else:
             ty = py + buff + font_size
-        lbl = _Text(text=str(text), x=px, y=ty,
-                    font_size=font_size, creation=creation, **kw)
+        lbl = Text(text=str(text), x=px, y=ty,
+                   font_size=font_size, creation=creation, **kw)
         self.objects.append(lbl)
         return self
 
@@ -5668,7 +5658,6 @@ class PieChart(VCollection):
 
     def add_percentage_labels(self, fmt='{:.0f}%', font_size=16, color='#fff', creation=0):
         """Add percentage labels at the center of each sector."""
-        from vectormation._shapes import Text as _Text
         total = sum(self.values) or 1
         angle = 90  # PieChart starts at 90 degrees
         for sector, val in zip(self._sectors, self.values):
@@ -5679,9 +5668,9 @@ class PieChart(VCollection):
             cy = sector.cy.at_time(creation)
             lx = cx + r * math.cos(mid_angle)
             ly = cy - r * math.sin(mid_angle)
-            label = _Text(text=fmt.format(val / total * 100), font_size=font_size,
-                          x=lx, y=ly, creation=creation, fill=color,
-                          text_anchor='middle', stroke_width=0)
+            label = Text(text=fmt.format(val / total * 100), font_size=font_size,
+                         x=lx, y=ly, creation=creation, fill=color,
+                         text_anchor='middle', stroke_width=0)
             self.objects.append(label)
             angle += sweep
         return self
@@ -5939,15 +5928,14 @@ class BarChart(VCollection):
 
     def add_value_labels(self, fmt='{:.0f}', offset=10, font_size=20, creation=0):
         """Add text labels showing each bar's value above (or below) the bar."""
-        from vectormation._shapes import Text as _Text
         for bar, val in zip(self._bars, self.values):
             bx, by, bw, bh = bar.bbox(creation)
             lx = bx + bw / 2
             ly = by - offset if val >= 0 else by + bh + offset + font_size
             label_text = fmt.format(val)
-            label = _Text(text=label_text, font_size=font_size, x=lx, y=ly,
-                          creation=creation, fill='#fff', text_anchor='middle',
-                          stroke_width=0)
+            label = Text(text=label_text, font_size=font_size, x=lx, y=ly,
+                         creation=creation, fill='#fff', text_anchor='middle',
+                         stroke_width=0)
             self.objects.append(label)
         return self
 
