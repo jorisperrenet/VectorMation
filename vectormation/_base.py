@@ -140,8 +140,8 @@ def _make_brect(bbox_func, time, rx, ry, buff, follow, **bbox_kw):
 def _to_edge_impl(obj, edge, buff, start, end, easing):
     """Shared to_edge logic for VObject and VCollection."""
     edge = _norm_edge(edge)
-    x, y, w, h = obj.bbox(start)
-    cx, cy = x + w / 2, y + h / 2
+    _, _, w, h = obj.bbox(start)
+    cx, cy = obj.center(start)
     targets = {'bottom': (cx, CANVAS_HEIGHT - buff - h / 2), 'top': (cx, buff + h / 2),
                'left': (buff + w / 2, cy), 'right': (CANVAS_WIDTH - buff - w / 2, cy)}
     tx, ty = targets.get(edge, (cx, cy))
@@ -505,8 +505,7 @@ class VObject(ABC):  # Vector Object
     def always_rotate(self, start: float = 0, end: float | None = None, degrees_per_second=90, cx=None, cy=None):
         """Continuously rotate the object around its center (or given cx, cy)."""
         if cx is None or cy is None:
-            bx, by, bw, bh = self.bbox(start)
-            cx, cy = bx + bw / 2, by + bh / 2
+            cx, cy = self.center(start)
         s, _cx, _cy, _dps = start, cx, cy, degrees_per_second
         self.styling.rotation.set_onward(s,
             lambda t, _s=s, _cx=_cx, _cy=_cy, _dps=_dps: (_dps * (t - _s) % 360, _cx, _cy))
@@ -559,8 +558,7 @@ class VObject(ABC):  # Vector Object
     def _apply_rotation(self, start: float, end: float, target_deg, cx, cy, easing):
         """Set rotation from current angle to target_deg around (cx, cy)."""
         if cx is None or cy is None:
-            bx, by, bw, bh = self.bbox(start)
-            cx, cy = bx + bw / 2, by + bh / 2
+            cx, cy = self.center(start)
         if end <= start:
             self.styling.rotation.set_onward(start, (target_deg, cx, cy))
             return self
@@ -680,8 +678,7 @@ class VObject(ABC):  # Vector Object
         if dur <= 0:
             return self
         parsed, total_length = _parse_path(path_d)
-        xmin, ymin, w, h = self.bbox(start)
-        cx0, cy0 = xmin + w / 2, ymin + h / 2
+        cx0, cy0 = self.center(start)
         point0 = parsed.point(0)
         off_x, off_y = cx0 - point0.real, cy0 - point0.imag
         s = start
@@ -711,8 +708,7 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        bx, by, bw, bh = self.bbox(start)
-        sx, sy = bx + bw / 2, by + bh / 2
+        sx, sy = self.center(start)
         if abs(angle) < 1e-9:
             return self.move_to(tx, ty, start, end, easing)
         # Compute arc center: perpendicular bisector of (sx,sy)→(tx,ty)
@@ -1319,7 +1315,7 @@ class VObject(ABC):  # Vector Object
         def _update(obj, t):
             _, _, mw, mh = obj.bbox(t)
             ox, oy, ow, oh = other.bbox(t)
-            ocx, ocy = ox + ow / 2, oy + oh / 2
+            ocx, ocy = other.center(t)
             targets = {
                 'right': (ox + ow + _buff + mw / 2, ocy),
                 'left':  (ox - _buff - mw / 2, ocy),
@@ -2166,8 +2162,7 @@ class VObject(ABC):  # Vector Object
         """Emit expanding, fading rings from the object's center.
         Returns a VCollection of Circle objects (must be added to canvas)."""
         from vectormation._shapes import Circle as _Circle
-        bx, by, bw, bh = self.bbox(start)
-        cx, cy = bx + bw / 2, by + bh / 2
+        cx, cy = self.center(start)
         rings = []
         for i in range(count):
             t0 = start + i * (duration / max(count, 1))
@@ -2360,8 +2355,7 @@ class VObject(ABC):  # Vector Object
                 t = _s + _dur * i / _n
                 if t > time:
                     break
-                bx, by, bw, bh = _obj.bbox(t)
-                cx, cy = bx + bw / 2, by + bh / 2
+                cx, cy = _obj.center(t)
                 parts.append(f'{"M" if i == 0 else "L"}{cx:.1f} {cy:.1f}')
             return ' '.join(parts) if parts else ''
         path = Path('', x=0, y=0, creation=start, stroke=stroke,
@@ -2385,8 +2379,7 @@ class VObject(ABC):  # Vector Object
         axis: 'vertical' (flip left-right), 'horizontal' (flip top-bottom).
         Applies an instant SVG transform (no animation).
         """
-        bx, by, bw, bh = self.bbox(start)
-        self.styling._scale_origin = (bx + bw / 2, by + bh / 2)
+        self.styling._scale_origin = self.center(start)
         attr = self.styling.scale_x if axis == 'vertical' else self.styling.scale_y
         attr.set_onward(start, -attr.at_time(start))
         return self
@@ -2399,8 +2392,7 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        bx, by, bw, bh = self.bbox(start)
-        self.styling._scale_origin = (bx + bw / 2, by + bh / 2)
+        self.styling._scale_origin = self.center(start)
         sx0, sy0 = self._get_scale(start)
         _s, _d, _f = start, max(dur, 1e-9), factor
         def _squeeze(t, _s=_s, _d=_d, _f=_f, _easing=easing):
@@ -2421,8 +2413,7 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        bx, by, bw, bh = self.bbox(start)
-        cx, cy = bx + bw / 2, by + bh / 2
+        cx, cy = self.center(start)
         self.styling._scale_origin = (cx, cy)
         sx0, sy0 = self._get_scale(start)
         _s, _d, _f, _sx0, _sy0 = start, max(dur, 1e-9), factor, sx0, sy0
@@ -2447,8 +2438,7 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        bx, by, bw, bh = self.bbox(start)
-        cx, cy = bx + bw / 2, by + bh / 2
+        cx, cy = self.center(start)
         self.styling._scale_origin = (cx, cy)
         sx0, sy0 = self._get_scale(start)
         _s, _d = start, max(dur, 1e-9)
@@ -2479,8 +2469,7 @@ class VObject(ABC):  # Vector Object
         _r0 = self.styling.rotation.at_time(start)  # (degrees, cx, cy)
         _deg0 = _r0[0] if isinstance(_r0, tuple) else _r0
         # Use rotation center from bbox
-        bx, by, bw, bh = self.bbox(start)
-        _rcx, _rcy = bx + bw / 2, by + bh / 2
+        _rcx, _rcy = self.center(start)
         # Rotation
         self.styling.rotation.set(start, end,
             lambda t, _s=_s, _d=_d, _turns=_turns, _deg0=_deg0, _rcx=_rcx, _rcy=_rcy, _easing=easing:
@@ -2646,8 +2635,8 @@ class VObject(ABC):  # Vector Object
                    stroke_width=4, buff=5):
         """Draw an X across this object. Returns the Cross VCollection (add to canvas)."""
         from vectormation._composites import Cross
-        bx, by, bw, bh = self.bbox(start)
-        cx, cy = bx + bw / 2, by + bh / 2
+        _, _, bw, bh = self.bbox(start)
+        cx, cy = self.center(start)
         size = max(bw, bh) + buff * 2
         cross = Cross(size=size, cx=cx, cy=cy, creation=start,
                        stroke=color, stroke_width=stroke_width)
@@ -3399,8 +3388,7 @@ class VObject(ABC):  # Vector Object
         """
         if end <= start:
             return self
-        bx, by, bw, bh = self.bbox(start)
-        ox, oy = bx + bw / 2, by + bh / 2
+        ox, oy = self.center(start)
         total_dx, total_dy = tx - ox, ty - oy
         _s, _d = start, max(end - start, 1e-9)
         _pb, _os = pullback, overshoot
@@ -4399,8 +4387,7 @@ class VObject(ABC):  # Vector Object
         self._apply_shift_effect(start, end, _dx, _dy)
 
         # Rotation component: slight wobbling rotation
-        bx, by, bw, bh = self.bbox(start)
-        cx, cy = bx + bw / 2, by + bh / 2
+        cx, cy = self.center(start)
         self.styling.rotation.set(start, end,
             lambda t, _s=_s, _d=_d, _a=_a, _freq=_freq, _cx=cx, _cy=cy, _easing=easing: (
                 _a * math.sin(math.tau * _freq * 0.7 * ((t - _s) / _d)) * (1 - _easing((t - _s) / _d)),
@@ -5257,8 +5244,7 @@ class VCollection:
 
     def _resolve_center(self, start, cx, cy):
         if cx is None or cy is None:
-            bx, by, bw, bh = self.bbox(start)
-            return bx + bw / 2, by + bh / 2
+            return self.center(start)
         return cx, cy
 
     def scale(self, factor, start: float = 0, end: float | None = None, easing=easings.smooth):
@@ -5341,7 +5327,7 @@ class VCollection:
         targets = []
         for obj in self.objects:
             x, y, w, h = obj.bbox(start)
-            cx, cy = x + w / 2, y + h / 2
+            cx, cy = obj.center(start)
             size = w if horizontal else h
             offset = cursor - (x if horizontal else y)
             if horizontal:
@@ -5505,8 +5491,7 @@ class VCollection:
         if n == 0:
             return self
         if center is None:
-            gx, gy, gw, gh = self.bbox(start)
-            center = (gx + gw / 2, gy + gh / 2)
+            center = self.center(start)
         cx, cy = center
         for i, obj in enumerate(self.objects):
             angle = start_angle + math.tau * i / n
@@ -5708,8 +5693,7 @@ class VCollection:
             t = i / max(n - 1, 1)
             tx = x1 + (x2 - x1) * t
             ty = y1 + (y2 - y1) * t
-            bx, by, bw, bh = obj.bbox(start)
-            cx, cy = bx + bw / 2, by + bh / 2
+            cx, cy = obj.center(start)
             obj.shift(dx=tx - cx, dy=ty - cy, start=start)
         return self
 
@@ -5917,10 +5901,7 @@ class VCollection:
         if n <= 1:
             return self
         rng = random.Random(seed)
-        centers = []
-        for obj in self.objects:
-            bx, by, bw, bh = obj.bbox(start)
-            centers.append((bx + bw / 2, by + bh / 2))
+        centers = [obj.center(start) for obj in self.objects]
         indices = list(range(n))
         rng.shuffle(indices)
         for i, obj in enumerate(self.objects):
@@ -5953,11 +5934,9 @@ class VCollection:
         n = len(self.objects)
         if n == 0:
             return self
-        gx, gy, gw, gh = self.bbox(start)
-        gcx, gcy = gx + gw / 2, gy + gh / 2
+        gcx, gcy = self.center(start)
         for obj in self.objects:
-            bx, by, bw, bh = obj.bbox(start)
-            cx, cy = bx + bw / 2, by + bh / 2
+            cx, cy = obj.center(start)
             if axis == 'x':
                 new_cx = 2 * gcx - cx
                 obj.move_to(new_cx, cy, start=start, end=end, easing=easing)
@@ -6074,8 +6053,7 @@ class VCollection:
         cx = cx if cx is not None else gx + gw / 2
         cy = cy if cy is not None else gy + gh / 2
         for i, obj in enumerate(self.objects):
-            bx, by, bw, bh = obj.bbox(start)
-            ocx, ocy = bx + bw / 2, by + bh / 2
+            ocx, ocy = obj.center(start)
             dx, dy = ocx - cx, ocy - cy
             dist = math.hypot(dx, dy)
             if dist < 1e-6:
@@ -6108,12 +6086,10 @@ class VCollection:
         n = len(self.objects)
         if n == 0:
             return self
-        gx, gy, gw, gh = self.bbox(start)
-        gcx, gcy = gx + gw / 2, gy + gh / 2
+        gcx, gcy = self.center(start)
         rad = math.radians(degrees)
         for obj in self.objects:
-            bx, by, bw, bh = obj.bbox(start)
-            cx, cy = bx + bw / 2, by + bh / 2
+            cx, cy = obj.center(start)
             # Rotate (cx, cy) around (gcx, gcy)
             dx, dy = cx - gcx, cy - gcy
             new_cx = gcx + dx * math.cos(rad) - dy * math.sin(rad)
@@ -6160,10 +6136,7 @@ class VCollection:
         if n <= 1:
             return self
         # Get current centers
-        centers = []
-        for obj in self.objects:
-            bx, by, bw, bh = obj.bbox(start)
-            centers.append((bx + bw / 2, by + bh / 2))
+        centers = [obj.center(start) for obj in self.objects]
         # Determine sort key for values
         if key == 'x':
             val_key = lambda i: centers[i][0]
@@ -6389,8 +6362,7 @@ class VCollection:
             target_len = t * total_length
             pt = parsed.point(parsed.ilength(target_len))
             tx, ty = pt.real, pt.imag
-            bx, by, bw, bh = obj.bbox(start)
-            cx, cy = bx + bw / 2, by + bh / 2
+            cx, cy = obj.center(start)
             obj.shift(dx=tx - cx, dy=ty - cy, start=start)
         return self
 
@@ -6421,8 +6393,7 @@ class VCollection:
         if not self.objects or end <= start:
             return self
         for obj in self.objects:
-            bx, by, bw, bh = obj.bbox(start)
-            ox, oy = bx + bw / 2, by + bh / 2
+            ox, oy = obj.center(start)
             dx, dy = x - ox, y - oy
             if dx == 0 and dy == 0:
                 continue
@@ -6671,8 +6642,7 @@ class VCollection:
         # Compute initial angle and radius for each child
         child_data = []
         for obj in self.objects:
-            bx, by, bw, bh = obj.bbox(start)
-            ocx, ocy = bx + bw / 2, by + bh / 2
+            ocx, ocy = obj.center(start)
             dx, dy = ocx - cx, ocy - cy
             dist = math.hypot(dx, dy)
             angle0 = math.atan2(dy, dx)
