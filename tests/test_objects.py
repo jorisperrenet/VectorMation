@@ -36,7 +36,7 @@ from vectormation.objects import (
     PeriodicTable, BohrAtom,
     Countdown, Filmstrip, MorphObject, Title, NumberPlane,
     NeuralNetwork, Pendulum, StandingWave,
-    ArrayViz, LinkedListViz, StackViz,
+    ArrayViz, LinkedListViz, StackViz, QueueViz,
 )
 from vectormation.attributes import Coor, Real
 from vectormation.objects import MED_SMALL_BUFF
@@ -12279,3 +12279,292 @@ class TestFadeTransform:
         b = Rectangle(100, 50, x=200, y=200)
         Circle.fade_transform(a, b, start=0, end=1)
         assert b.show.at_time(1.5) == True
+
+
+class TestQueueViz:
+    def test_basic_creation(self):
+        q = QueueViz([1, 2, 3])
+        assert len(q.objects) > 0
+        assert q.values == [1, 2, 3]
+
+    def test_custom_position(self):
+        q = QueueViz([10, 20], x=100, y=200)
+        assert q._base_x == 100
+        assert q._base_y == 200
+
+    def test_enqueue(self):
+        q = QueueViz([1, 2])
+        result = q.enqueue(3, start=0, end=0.5)
+        assert result is q
+        assert q.values == [1, 2, 3]
+        assert len(q._queue_cells) == 3
+
+    def test_dequeue(self):
+        q = QueueViz([1, 2, 3])
+        result = q.dequeue(start=0, end=0.5)
+        assert result is q
+        assert q.values == [2, 3]
+        assert len(q._queue_cells) == 2
+
+    def test_dequeue_empty(self):
+        q = QueueViz([])
+        result = q.dequeue(start=0, end=0.5)
+        assert result is q
+
+    def test_highlight(self):
+        q = QueueViz([10, 20, 30])
+        result = q.highlight(1, color='#FF0000', start=0, end=1)
+        assert result is q
+
+    def test_enqueue_dequeue_sequence(self):
+        q = QueueViz([1])
+        q.enqueue(2, start=0, end=0.5)
+        q.enqueue(3, start=0.5, end=1)
+        q.dequeue(start=1, end=1.5)
+        assert q.values == [2, 3]
+
+
+class TestBinaryTreeHighlight:
+    def test_highlight_node(self):
+        from vectormation.objects import BinaryTree
+        tree = BinaryTree((1, (2, 3, 4), (5, 6, 7)))
+        result = tree.highlight_node(0, color='#FF0000', start=0, end=1)
+        assert result is tree
+
+    def test_highlight_out_of_range(self):
+        from vectormation.objects import BinaryTree
+        tree = BinaryTree((1, 2, 3))
+        result = tree.highlight_node(99, start=0, end=1)
+        assert result is tree
+
+
+class TestSaveStateRestore:
+    def test_save_and_restore(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#FF0000')
+        c.save_state(0)
+        c.set_fill(color='#0000FF', start=0.5)
+        result = c.restore(start=1, end=2)
+        assert result is c
+
+    def test_restore_returns_self(self):
+        c = Circle(r=50)
+        c.save_state(0)
+        assert c.restore(start=1, end=2) is c
+
+
+class TestPathArc:
+    def test_path_arc_moves_object(self):
+        c = Circle(r=20, cx=100, cy=100)
+        c.path_arc(200, 200, start=0, end=1, angle=math.pi / 2)
+        cx, cy = c.get_center(0.5)
+        # mid-arc should be different from start and end
+        assert not (abs(cx - 100) < 1 and abs(cy - 100) < 1)
+
+
+class TestOrbit:
+    def test_orbit_returns_self(self):
+        d = Dot(cx=200, cy=200)
+        result = d.orbit(960, 540, start=0, end=2)
+        assert result is d
+
+    def test_orbit_changes_position(self):
+        d = Dot(cx=960, cy=300)
+        d.orbit(960, 540, start=0, end=2)
+        cx, cy = d.get_center(1)
+        # should have moved from initial position
+        assert abs(cy - 300) > 10 or abs(cx - 960) > 10
+
+
+class TestPulsate:
+    def test_pulsate_returns_self(self):
+        c = Circle(r=40)
+        result = c.pulsate(start=0, end=2, pulses=3)
+        assert result is c
+
+
+class TestFlip:
+    def test_flip_returns_self(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        result = r.flip(start=0, end=0.5)
+        assert result is r
+
+    def test_flip_vertical(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        result = r.flip(axis='vertical', start=0, end=0.5)
+        assert result is r
+
+
+class TestDimUndim:
+    def test_dim(self):
+        c = Circle(r=50, fill='#FF0000', fill_opacity=1)
+        result = c.dim(start=0, end=1, opacity=0.3)
+        assert result is c
+
+    def test_undim(self):
+        c = Circle(r=50, fill='#FF0000', fill_opacity=1)
+        c.dim(start=0, end=1, opacity=0.3)
+        result = c.undim(start=1, end=2)
+        assert result is c
+
+
+class TestCrossOut:
+    def test_cross_out_returns_cross(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        cross = r.cross_out(start=0, end=1)
+        assert cross is not None
+        assert hasattr(cross, 'objects')
+
+
+class TestStampMethod:
+    def test_stamp_creates_copy(self):
+        c = Circle(r=30, cx=200, cy=200)
+        s = c.stamp(time=0)
+        assert s is not c
+        assert hasattr(s, 'styling')
+
+
+class TestApplyMatrix:
+    def test_apply_matrix(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        result = r.apply_matrix([[1, 0], [0, 1]], start=0)
+        assert result is r
+
+
+class TestReflect:
+    def test_reflect_vertical(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        result = r.reflect(axis='vertical', start=0)
+        assert result is r
+
+    def test_reflect_horizontal(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        result = r.reflect(axis='horizontal', start=0)
+        assert result is r
+
+
+class TestTracePath:
+    def test_trace_returns_path(self):
+        d = Dot(cx=100, cy=100)
+        d.shift(dx=200, start=0, end=2)
+        path = d.trace_path(start=0, end=2)
+        assert path is not None
+
+
+class TestCollectionFilter:
+    def test_filter(self):
+        a = Circle(r=10, cx=100, cy=100)
+        b = Circle(r=20, cx=200, cy=200)
+        c = Circle(r=30, cx=300, cy=300)
+        col = VCollection(a, b, c)
+        result = col.filter(lambda obj: obj.r.at_time(0) > 15)
+        assert len(result.objects) == 2
+
+    def test_partition(self):
+        a = Circle(r=10)
+        b = Circle(r=20)
+        c = Circle(r=30)
+        col = VCollection(a, b, c)
+        yes, no = col.partition(lambda obj: obj.r.at_time(0) > 15)
+        assert len(yes.objects) == 2
+        assert len(no.objects) == 1
+
+
+class TestCollectionColorGradient:
+    def test_set_color_by_gradient(self):
+        circles = VCollection(*[Circle(r=10) for _ in range(5)])
+        result = circles.set_color_by_gradient('#FF0000', '#0000FF')
+        assert result is circles
+
+    def test_set_opacity_by_gradient(self):
+        circles = VCollection(*[Circle(r=10) for _ in range(5)])
+        result = circles.set_opacity_by_gradient(0.1, 1.0)
+        assert result is circles
+
+
+class TestCollectionSwapChildren:
+    def test_swap_children(self):
+        a = Circle(r=10, cx=100, cy=100)
+        b = Circle(r=10, cx=200, cy=200)
+        col = VCollection(a, b)
+        result = col.swap_children(0, 1, start=0, end=1)
+        assert result is col
+
+
+class TestCollectionCascade:
+    def test_cascade(self):
+        circles = VCollection(*[Circle(r=10) for _ in range(3)])
+        result = circles.cascade('fadein', start=0, end=1, overlap=0.3)
+        assert result is circles
+
+
+class TestSpring:
+    def test_spring_returns_self(self):
+        c = Circle(r=20)
+        result = c.spring(start=0, end=2, amplitude=50)
+        assert result is c
+
+
+class TestRubberBand:
+    def test_rubber_band_returns_self(self):
+        c = Circle(r=20)
+        result = c.rubber_band(start=0, end=1)
+        assert result is c
+
+
+class TestJiggle:
+    def test_jiggle_returns_self(self):
+        c = Circle(r=20)
+        result = c.jiggle(start=0, end=1)
+        assert result is c
+
+
+class TestSquish:
+    def test_squish_returns_self(self):
+        r = Rectangle(100, 50)
+        result = r.squish(start=0, end=1)
+        assert result is r
+
+
+class TestColorCycle:
+    def test_color_cycle_returns_self(self):
+        c = Circle(r=30, fill='#FF0000')
+        result = c.color_cycle(['#FF0000', '#00FF00', '#0000FF'], start=0, end=3)
+        assert result is c
+
+
+class TestGlitch:
+    def test_glitch_returns_self(self):
+        r = Rectangle(100, 50)
+        result = r.glitch(start=0, end=1)
+        assert result is r
+
+
+class TestWipe:
+    def test_wipe_returns_self(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        result = r.wipe(start=0, end=1)
+        assert result is r
+
+    def test_wipe_direction(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        result = r.wipe(direction='left', start=0, end=1)
+        assert result is r
+
+
+class TestCreateUncreate:
+    def test_create_returns_path(self):
+        p = Lines([(100, 100), (200, 200), (300, 100)], stroke='#fff')
+        result = p.create(start=0, end=1)
+        assert result is not None
+
+    def test_uncreate_returns_path(self):
+        p = Lines([(100, 100), (200, 200), (300, 100)], stroke='#fff')
+        result = p.uncreate(start=0, end=1)
+        assert result is not None
+
+
+class TestAnimateDash:
+    def test_animate_dash_returns_self(self):
+        c = Circle(r=60, stroke='#fff')
+        result = c.animate_dash(start=0, end=2)
+        assert result is c

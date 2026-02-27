@@ -12354,6 +12354,26 @@ class BinaryTree(VCollection):
         _draw(tree, x, y, h_spacing)
         super().__init__(*objects, creation=creation, z=z)
 
+    def highlight_node(self, index, color='#E9C46A', start=0, end=0.5):
+        """Temporarily highlight a node by index (depth-first order).
+
+        Parameters
+        ----------
+        index : int
+            Node index in depth-first (pre-order) order.
+        color : str
+            Highlight fill colour.
+        start, end : float
+            Time range for the highlight.
+        """
+        if 0 <= index < len(self._node_objects):
+            node = self._node_objects[index]
+            orig = node.styling.fill.time_func(0)
+            orig_hex = '#{:02x}{:02x}{:02x}'.format(*orig) if orig else '#1e1e2e'
+            node.set_fill(color=color, start=start)
+            node.set_fill(color=orig_hex, start=end)
+        return self
+
 
 class Resistor(VCollection):
     """Electrical resistor symbol (zigzag line)."""
@@ -13138,6 +13158,111 @@ class StackViz(VCollection):
         if self._stack_cells:
             self._top_arrow.shift(dy=self._cell_height, start=start, end=end)
             self._top_label.shift(dy=self._cell_height, start=start, end=end)
+        return self
+
+
+class QueueViz(VCollection):
+    """Visualise a queue (FIFO) as a horizontal row of cells.
+
+    Parameters
+    ----------
+    values : list
+        Initial values (front on the left, back on the right).
+    cell_width, cell_height : float
+        Dimensions of each cell.
+    x, y : float
+        Position of the top-left corner of the front cell.
+    """
+
+    def __init__(self, values, cell_width=80, cell_height=60,
+                 x=None, y=None, fill='#264653',
+                 font_size=28, creation: float = 0, z: float = 0):
+        from vectormation._shapes import Rectangle, Text
+        n = len(values)
+        if x is None:
+            x = 960 - n * cell_width / 2
+        if y is None:
+            y = 540 - cell_height / 2
+        self._cell_width = cell_width
+        self._cell_height = cell_height
+        self._base_x = x
+        self._base_y = y
+        self._fill = fill
+        self._font_size = font_size
+        self._z = z
+        self._queue_cells = []
+        self._queue_labels = []
+        self.values = list(values)
+        objects = []
+        for i, val in enumerate(values):
+            cx = x + i * cell_width
+            cell = Rectangle(cell_width, cell_height, x=cx, y=y,
+                              fill=fill, fill_opacity=0.9, stroke='#fff',
+                              stroke_width=2, creation=creation, z=z)
+            lbl = _label_text(str(val), cx + cell_width / 2, y + cell_height / 2,
+                              font_size, creation=creation, z=z + 0.1)
+            self._queue_cells.append(cell)
+            self._queue_labels.append(lbl)
+            objects.extend([cell, lbl])
+        # FRONT / BACK labels
+        front_x = x - 8
+        back_x = x + n * cell_width + 8
+        mid_y = y + cell_height * 0.65
+        self._front_label = Text(text='FRONT', x=front_x, y=mid_y,
+                                  font_size=int(font_size * 0.7), fill='#50FA7B',
+                                  stroke_width=0, text_anchor='end',
+                                  creation=creation, z=z)
+        self._back_label = Text(text='BACK', x=back_x, y=mid_y,
+                                 font_size=int(font_size * 0.7), fill='#FC6255',
+                                 stroke_width=0, text_anchor='start',
+                                 creation=creation, z=z)
+        objects.extend([self._front_label, self._back_label])
+        super().__init__(*objects, creation=creation, z=z)
+
+    def enqueue(self, value, start=0, end=0.5):
+        """Animate adding a value to the back of the queue."""
+        from vectormation._shapes import Rectangle, Text
+        n = len(self._queue_cells)
+        cx = self._base_x + n * self._cell_width
+        cell = Rectangle(self._cell_width, self._cell_height,
+                         x=cx, y=self._base_y,
+                         fill=self._fill, fill_opacity=0.9, stroke='#fff',
+                         stroke_width=2, creation=start, z=self._z)
+        lbl = _label_text(str(value), cx + self._cell_width / 2,
+                          self._base_y + self._cell_height / 2,
+                          self._font_size, creation=start, z=self._z + 0.1)
+        cell.fadein(start, end)
+        lbl.fadein(start, end)
+        self._queue_cells.append(cell)
+        self._queue_labels.append(lbl)
+        self.values.append(value)
+        self.objects.extend([cell, lbl])
+        self._back_label.shift(dx=self._cell_width, start=start, end=end)
+        return self
+
+    def dequeue(self, start=0, end=0.5):
+        """Animate removing the front value from the queue."""
+        if not self._queue_cells:
+            return self
+        cell = self._queue_cells.pop(0)
+        lbl = self._queue_labels.pop(0)
+        self.values.pop(0)
+        cell.fadeout(start, end)
+        lbl.fadeout(start, end)
+        # Slide remaining cells left
+        for c, l in zip(self._queue_cells, self._queue_labels):
+            c.shift(dx=-self._cell_width, start=start, end=end)
+            l.shift(dx=-self._cell_width, start=start, end=end)
+        self._back_label.shift(dx=-self._cell_width, start=start, end=end)
+        return self
+
+    def highlight(self, index, color='#E9C46A', start=0, end=0.5):
+        """Temporarily highlight a cell at *index*."""
+        if 0 <= index < len(self._queue_cells):
+            orig = self._queue_cells[index].styling.fill.time_func(0)
+            orig_hex = '#{:02x}{:02x}{:02x}'.format(*orig) if orig else self._fill
+            self._queue_cells[index].set_fill(color=color, start=start)
+            self._queue_cells[index].set_fill(color=orig_hex, start=end)
         return self
 
 

@@ -69,7 +69,7 @@ from vectormation._composites import (
     Array, Stack, Queue, LinkedList, BinaryTree,
     Resistor, Capacitor, Inductor, Diode, LED, UnitInterval, Molecule2D,
     NeuralNetwork, Pendulum, StandingWave,
-    ArrayViz, LinkedListViz, StackViz,
+    ArrayViz, LinkedListViz, StackViz, QueueViz,
     from_svg, from_svg_file, always_redraw, parse_args,
     _parse_inline_style,
 )
