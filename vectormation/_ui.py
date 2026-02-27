@@ -16,7 +16,7 @@ from vectormation._shapes import (
 
 
 def _get_arrow():
-    from vectormation._composites import Arrow
+    from vectormation._arrows import Arrow
     return Arrow
 
 

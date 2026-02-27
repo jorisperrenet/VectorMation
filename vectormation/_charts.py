@@ -5,10 +5,8 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
 from vectormation._constants import (
-    CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
     UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE,
     DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
-    _sample_function,
 )
 from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _ramp, _lerp_point
 from vectormation._shapes import (
@@ -857,7 +855,6 @@ class PolarAxes(VCollection):
         return curve
 
 
-from vectormation._diagrams import Tree as Tree  # noqa: E402,F811
 
 
 
@@ -996,7 +993,6 @@ class ProgressBar(VCollection):
         return fill_w / self._bar_width if self._bar_width else 0
 
 
-from vectormation._diagrams import FlowChart as FlowChart  # noqa: E402,F811
 
 
 class WaterfallChart(VCollection):
@@ -1506,8 +1502,6 @@ class SparkLine(VObject):
         return svg
 
 
-from vectormation._diagrams import VennDiagram as VennDiagram  # noqa: E402,F811
-from vectormation._diagrams import OrgChart as OrgChart  # noqa: E402,F811
 
 
 class KPICard(VCollection):
@@ -1698,7 +1692,6 @@ class WaffleChart(VCollection):
         super().__init__(*(objects + legend_objs), creation=creation, z=z)
 
 
-from vectormation._diagrams import MindMap as MindMap  # noqa: E402,F811
 
 
 class CircularProgressBar(VCollection):

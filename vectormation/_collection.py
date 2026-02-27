@@ -6,14 +6,12 @@ from copy import deepcopy
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 from vectormation._constants import (
-    CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
-    UNIT, SMALL_BUFF, MED_SMALL_BUFF, DEFAULT_FONT_SIZE,
+    ORIGIN, SMALL_BUFF,
     DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_OBJECT_TO_OBJECT_BUFF,
-    CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
-    UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR,
+    UP, DOWN, RIGHT, DR,
 )
 from vectormation._base import (
-    VObject, _norm_dir, _norm_edge, _lerp, _ramp, _lerp_point,
+    VObject, _norm_dir, _norm_edge, _ramp, _lerp_point,
     _DIR_NAMES, _EDGE_NAMES,
     _make_brect, _set_attr, _to_edge_impl, _to_corner_impl, _get_edge_impl, _parse_path,
 )
@@ -2327,7 +2325,7 @@ class VCollection:
                 x2 -= ux * buff
                 y2 -= uy * buff
             if arrow:
-                from vectormation._composites import Arrow as _Arrow
+                from vectormation._arrows import Arrow as _Arrow
                 connector = _Arrow(x1=x1, y1=y1, x2=x2, y2=y2,
                                    creation=start, **kwargs)
             else:

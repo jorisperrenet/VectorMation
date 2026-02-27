@@ -4,15 +4,14 @@ import math
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 from vectormation._constants import (
-    CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
-    UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE,
-    DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
+    UNIT, DEFAULT_FONT_SIZE,
+    DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
     _sample_function, _normalize,
 )
 from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _ramp, _lerp_point
 from vectormation._shapes import (
-    Polygon, Circle, Ellipse, Dot, Rectangle, RoundedRectangle, Line, Lines,
-    Text, Path, Arc,
+    Polygon, Circle, Dot, Rectangle, RoundedRectangle, Line,
+    Text, Path,
 )
 from vectormation._axes_helpers import (
     _nice_ticks, _format_tick, _AREA_STYLE, _HIGHLIGHT_STYLE, _MARCH_SEGS,

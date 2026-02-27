@@ -6,15 +6,13 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
 from vectormation._base_helpers import (
-    _lerp, _ramp, _ramp_down, _lerp_point, _clip_reveal, _clip_hide,
-    _norm_dir, _norm_edge, _coords_of, _set_attr, _parse_path, _path_prefix,
+    _lerp, _ramp, _ramp_down, _lerp_point, _clip_reveal,
+    _norm_dir, _norm_edge, _coords_of, _set_attr, _parse_path,
     _make_brect, _EDGE_POINTS,
 )
 from vectormation._constants import (
-    CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
     UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR,
-    UNIT, SMALL_BUFF, MED_SMALL_BUFF, DEFAULT_FONT_SIZE,
-    DEFAULT_OBJECT_TO_EDGE_BUFF,
+    SMALL_BUFF, MED_SMALL_BUFF,
 )
 
 
@@ -102,7 +100,7 @@ class _VObjectEffectsMixin:
         p1 = self.get_edge(start_edge, time=start)
         p2 = other.get_edge(end_edge, time=start)
         if arrow:
-            from vectormation._composites import Arrow as _Arrow
+            from vectormation._arrows import Arrow as _Arrow
             connector = _Arrow(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1],
                                creation=start, **kwargs)
             if follow:
