@@ -437,10 +437,6 @@ class Line(VObject):
             dx, dy = dx / mag * length / 2, dy / mag * length / 2
         return Line(x1=px - dx, y1=py - dy, x2=px + dx, y2=py + dy, **kwargs)
 
-    def bisector(self, time=0, length=200, **kwargs):
-        """Return the perpendicular bisector (at midpoint). Alias for ``perpendicular_at(t=0.5)``."""
-        return self.perpendicular_at(t=0.5, length=length, time=time, **kwargs)
-
     def extend(self, factor=1.5, start=0, end=None, easing=easings.smooth):
         """Scale the line length by *factor* while keeping the midpoint fixed."""
         x1, y1 = self.p1.at_time(start)

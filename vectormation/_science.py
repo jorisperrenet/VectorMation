@@ -4,15 +4,29 @@ from vectormation._constants import _normalize, _label_text
 from vectormation._base import VCollection
 from vectormation._shapes import Circle, Dot, Line, Lines, Text, Path, Polygon
 
+
+def _component_geom(x1, y1, x2, y2):
+    """Return (length, ux, uy, px, py, mx, my) for a two-terminal component."""
+    dx, dy = x2 - x1, y2 - y1
+    length = math.hypot(dx, dy) or 1
+    ux, uy = _normalize(dx, dy)
+    return length, ux, uy, -uy, ux, (x1 + x2) / 2, (y1 + y2) / 2
+
+
+def _add_label(objects, label, lx, ly, creation, z):
+    """Append a small grey label Text to *objects* if *label* is truthy."""
+    if label:
+        objects.append(Text(text=label, x=lx, y=ly, font_size=18,
+                            fill='#aaa', stroke_width=0, text_anchor='middle',
+                            creation=creation, z=z + 0.1))
+
+
 class Resistor(VCollection):
     """Electrical resistor symbol (zigzag line)."""
     def __init__(self, x1=400, y1=540, x2=600, y2=540, label='R',
                  creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
-        dx, dy = x2 - x1, y2 - y1
-        length = math.hypot(dx, dy) or 1
-        ux, uy = _normalize(dx, dy)
-        px, py = -uy, ux
+        length, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
         lead, zag_end = 0.25, 0.75
         n_zags, zag_amp = 6, 12
         pts = [(x1, y1), (x1 + ux * length * lead, y1 + uy * length * lead)]
@@ -22,14 +36,8 @@ class Resistor(VCollection):
             pts.append((x1 + ux * length * t + px * zag_amp * sign,
                         y1 + uy * length * t + py * zag_amp * sign))
         pts.extend([(x1 + ux * length * zag_end, y1 + uy * length * zag_end), (x2, y2)])
-        zigzag = Lines(*pts, creation=creation, z=z, fill_opacity=0, **style_kw)
-        objects = [zigzag]
-        if label:
-            mx = (x1 + x2) / 2 + px * (zag_amp + 16)
-            my = (y1 + y2) / 2 + py * (zag_amp + 16)
-            objects.append(Text(text=label, x=mx, y=my, font_size=18,
-                                fill='#aaa', stroke_width=0, text_anchor='middle',
-                                creation=creation, z=z + 0.1))
+        objects = [Lines(*pts, creation=creation, z=z, fill_opacity=0, **style_kw)]
+        _add_label(objects, label, mx + px * (zag_amp + 16), my + py * (zag_amp + 16), creation, z)
         super().__init__(*objects, creation=creation, z=z)
 
     def __repr__(self):
@@ -40,10 +48,7 @@ class Capacitor(VCollection):
     def __init__(self, x1=400, y1=540, x2=600, y2=540, label='C',
                  creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
-        dx, dy = x2 - x1, y2 - y1
-        ux, uy = _normalize(dx, dy)
-        px, py = -uy, ux
-        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+        _, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
         gap, plate_h = 8, 24
         objects = [
             Line(x1=x1, y1=y1, x2=mx - ux * gap, y2=my - uy * gap,
@@ -57,12 +62,7 @@ class Capacitor(VCollection):
             Line(x1=mx + ux * gap, y1=my + uy * gap, x2=x2, y2=y2,
                  creation=creation, z=z, **style_kw),
         ]
-        if label:
-            lx = mx + px * (plate_h + 16)
-            ly = my + py * (plate_h + 16)
-            objects.append(Text(text=label, x=lx, y=ly, font_size=18,
-                                fill='#aaa', stroke_width=0, text_anchor='middle',
-                                creation=creation, z=z + 0.1))
+        _add_label(objects, label, mx + px * (plate_h + 16), my + py * (plate_h + 16), creation, z)
         super().__init__(*objects, creation=creation, z=z)
 
     def __repr__(self):
@@ -73,15 +73,11 @@ class Inductor(VCollection):
     def __init__(self, x1=400, y1=540, x2=600, y2=540, label='L',
                  n_loops=4, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
-        dx, dy = x2 - x1, y2 - y1
-        length = math.hypot(dx, dy) or 1
-        ux, uy = _normalize(dx, dy)
-        px, py = -uy, ux
+        length, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
         lead = 0.2
         coil_start = lead
         coil_end = 1 - lead
         coil_len = coil_end - coil_start
-        # Build semicircular arcs for coil
         arc_r = length * coil_len / (2 * n_loops)
         d_parts = [f'M{x1},{y1} L{x1 + ux * length * lead},{y1 + uy * length * lead}']
         for i in range(n_loops):
@@ -93,12 +89,7 @@ class Inductor(VCollection):
         d_str = ' '.join(d_parts)
         coil = Path(d_str, x=0, y=0, creation=creation, z=z, fill_opacity=0, **style_kw)
         objects = [coil]
-        if label:
-            mx = (x1 + x2) / 2 + px * (arc_r + 16)
-            my = (y1 + y2) / 2 + py * (arc_r + 16)
-            objects.append(Text(text=label, x=mx, y=my, font_size=18,
-                                fill='#aaa', stroke_width=0, text_anchor='middle',
-                                creation=creation, z=z + 0.1))
+        _add_label(objects, label, mx + px * (arc_r + 16), my + py * (arc_r + 16), creation, z)
         super().__init__(*objects, creation=creation, z=z)
 
     def __repr__(self):
@@ -109,11 +100,7 @@ class Diode(VCollection):
     def __init__(self, x1=400, y1=540, x2=600, y2=540, label='D',
                  creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
-        dx, dy = x2 - x1, y2 - y1
-        length = math.hypot(dx, dy) or 1
-        ux, uy = _normalize(dx, dy)
-        px, py = -uy, ux
-        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+        length, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
         tri_h, tri_w = length * 0.2, 20
         # Triangle vertices: tip pointing in direction of current flow
         tip_x = mx + ux * tri_h
@@ -134,12 +121,7 @@ class Diode(VCollection):
         lead2 = Line(x1=tip_x, y1=tip_y, x2=x2, y2=y2,
                      creation=creation, z=z, **style_kw)
         objects = [lead1, triangle, bar, lead2]
-        if label:
-            lx = mx + px * (tri_w + 16)
-            ly = my + py * (tri_w + 16)
-            objects.append(Text(text=label, x=lx, y=ly, font_size=18,
-                                fill='#aaa', stroke_width=0, text_anchor='middle',
-                                creation=creation, z=z + 0.1))
+        _add_label(objects, label, mx + px * (tri_w + 16), my + py * (tri_w + 16), creation, z)
         super().__init__(*objects, creation=creation, z=z)
 
     def __repr__(self):
@@ -149,14 +131,9 @@ class LED(VCollection):
     """Light-emitting diode symbol (diode with light rays)."""
     def __init__(self, x1=400, y1=540, x2=600, y2=540, label='LED',
                  color='#FF0000', creation: float = 0, z: float = 0, **styling_kwargs):
-        # Base diode
         diode = Diode(x1=x1, y1=y1, x2=x2, y2=y2, label='',
                       creation=creation, z=z, **styling_kwargs)
-        dx, dy = x2 - x1, y2 - y1
-        ux, uy = _normalize(dx, dy)
-        px, py = -uy, ux
-        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
-        # Two small arrows (rays) coming off the diode
+        _, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
         ray_len = 20
         ray_offset = 15
         style_kw = {'stroke': color, 'stroke_width': 1.5}
@@ -173,12 +150,8 @@ class LED(VCollection):
                      x2=ray2_end[0], y2=ray2_end[1],
                      creation=creation, z=z, **style_kw)
         objects = list(diode.objects) + [ray1, ray2]
-        if label:
-            lx = mx + px * (ray_offset + ray_len + 16)
-            ly = my + py * (ray_offset + ray_len + 16)
-            objects.append(Text(text=label, x=lx, y=ly, font_size=18,
-                                fill='#aaa', stroke_width=0, text_anchor='middle',
-                                creation=creation, z=z + 0.1))
+        _add_label(objects, label, mx + px * (ray_offset + ray_len + 16),
+                   my + py * (ray_offset + ray_len + 16), creation, z)
         super().__init__(*objects, creation=creation, z=z)
 
     def __repr__(self):
