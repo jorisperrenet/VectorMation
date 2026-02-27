@@ -1,5 +1,4 @@
 """Composite classes: MorphObject, TexObject, NumberLine, Table, Matrix, etc."""
-import re
 import tempfile
 from collections import defaultdict
 

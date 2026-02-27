@@ -4,13 +4,8 @@ import math
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
-from vectormation.pathbbox import path_bbox
-from vectormation._constants import (
-    SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS, CHAR_WIDTH_FACTOR,
-    DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
-    _rotate_point, _sample_function, _distance, _normalize,
-)
-from vectormation._base import VObject, _ramp, _ramp_down, _set_attr
+from vectormation._constants import SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS, _distance
+from vectormation._base import VObject, _set_attr
 
 
 def _cached_bbox(target):
