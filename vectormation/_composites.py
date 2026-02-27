@@ -1669,38 +1669,8 @@ class Axes(VCollection):
             prev = (sx, sy)
         return total
 
-    def get_function_max(self, func, x_start, x_end, samples=200):
-        """Find the x value where *func* achieves its maximum over [x_start, x_end].
-
-        Samples the function at *samples* equally-spaced x values and returns
-        the (x, y) pair with the largest y value.  Non-finite values (NaN, inf)
-        are skipped so that functions with singularities are handled safely.
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x)`` or a curve Path with a ``._func`` attribute
-            (as returned by :meth:`plot`).
-        x_start, x_end:
-            Domain bounds in mathematical (axis) coordinates.
-        samples:
-            Number of equally-spaced sample points (default 200).
-
-        Returns
-        -------
-        (float, float)
-            ``(x, y)`` tuple where *y* is the maximum function value found.
-
-        Raises
-        ------
-        ValueError
-            If no finite function values are found in the given range.
-
-        Example
-        -------
-        >>> ax = Axes(x_range=(-3, 3), y_range=(-2, 2))
-        >>> ax.get_function_max(lambda x: -(x**2), -3, 3)   # (0.0, 0.0)
-        """
+    def _find_extremum(self, func, x_start, x_end, samples, is_max):
+        """Shared helper for get_function_max / get_function_min."""
         fn = self._resolve_func(func, 'func')
         n = max(int(samples), 2)
         step = (x_end - x_start) / n
@@ -1713,94 +1683,22 @@ class Axes(VCollection):
                 continue
             if not math.isfinite(y):
                 continue
-            if best_y is None or y > best_y:
+            if best_y is None or (y > best_y if is_max else y < best_y):
                 best_x, best_y = x, y
         if best_x is None:
             raise ValueError('No finite function values found in the given range.')
         return (best_x, best_y)
+
+    def get_function_max(self, func, x_start, x_end, samples=200):
+        """Return ``(x, y)`` where *func* achieves its maximum over [x_start, x_end]."""
+        return self._find_extremum(func, x_start, x_end, samples, is_max=True)
 
     def get_function_min(self, func, x_start, x_end, samples=200):
-        """Find the x value where *func* achieves its minimum over [x_start, x_end].
-
-        Samples the function at *samples* equally-spaced x values and returns
-        the (x, y) pair with the smallest y value.  Non-finite values (NaN, inf)
-        are skipped so that functions with singularities are handled safely.
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x)`` or a curve Path with a ``._func`` attribute
-            (as returned by :meth:`plot`).
-        x_start, x_end:
-            Domain bounds in mathematical (axis) coordinates.
-        samples:
-            Number of equally-spaced sample points (default 200).
-
-        Returns
-        -------
-        (float, float)
-            ``(x, y)`` tuple where *y* is the minimum function value found.
-
-        Raises
-        ------
-        ValueError
-            If no finite function values are found in the given range.
-
-        Example
-        -------
-        >>> ax = Axes(x_range=(-3, 3), y_range=(-2, 2))
-        >>> ax.get_function_min(lambda x: x**2, -3, 3)   # (0.0, 0.0)
-        """
-        fn = self._resolve_func(func, 'func')
-        n = max(int(samples), 2)
-        step = (x_end - x_start) / n
-        best_x, best_y = None, None
-        for i in range(n + 1):
-            x = x_start + i * step
-            try:
-                y = fn(x)
-            except Exception:
-                continue
-            if not math.isfinite(y):
-                continue
-            if best_y is None or y < best_y:
-                best_x, best_y = x, y
-        if best_x is None:
-            raise ValueError('No finite function values found in the given range.')
-        return (best_x, best_y)
+        """Return ``(x, y)`` where *func* achieves its minimum over [x_start, x_end]."""
+        return self._find_extremum(func, x_start, x_end, samples, is_max=False)
 
     def get_zeros(self, func, x_start, x_end, samples=200):
-        """Find all x values where *func* crosses zero over [x_start, x_end].
-
-        Uses sign-change detection on *samples* equally-spaced points followed
-        by bisection refinement to locate each zero to high precision.
-        Non-finite function values (NaN, inf) are treated as sign-less and do
-        not generate a crossing.
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x)`` or a curve Path with a ``._func`` attribute
-            (as returned by :meth:`plot`).
-        x_start, x_end:
-            Domain bounds in mathematical (axis) coordinates.
-        samples:
-            Number of equally-spaced sample points for sign-change scanning
-            (default 200).  Increase for functions with many zeros.
-
-        Returns
-        -------
-        list of (float, float)
-            A list of ``(x, 0.0)`` tuples, one for each zero found.  The list
-            is sorted in ascending order of x.
-
-        Examples
-        --------
-        >>> import math
-        >>> ax = Axes(x_range=(-4, 4), y_range=(-2, 2))
-        >>> ax.get_zeros(math.sin, -4, 4)   # approx [(-3.14, 0), (0, 0), (3.14, 0)]
-        >>> ax.get_zeros(lambda x: x**2 - 1, -3, 3)  # [(-1.0, 0), (1.0, 0)]
-        """
+        """Return list of ``(x, 0.0)`` tuples where *func* crosses zero, using bisection."""
         fn = self._resolve_func(func, 'func')
         n = max(int(samples), 2)
         step = (x_end - x_start) / n
@@ -2957,49 +2855,11 @@ class Axes(VCollection):
         return line
 
     def add_vertical_asymptote(self, x_val, creation=0, **kwargs):
-        """Add a vertical dashed line at *x_val* spanning the full y-range.
-
-        This is a convenience wrapper around :meth:`add_asymptote` with
-        ``direction='vertical'``.  Default styling is dashed gray.
-
-        Parameters
-        ----------
-        x_val:
-            The math x-coordinate at which to draw the asymptote.
-        creation:
-            Time at which the line is created.
-        **kwargs:
-            Override default styling (stroke, stroke_width,
-            stroke_dasharray, etc.).
-
-        Returns
-        -------
-        Line
-            The created Line object (already added to the axes).
-        """
+        """Add a vertical dashed asymptote at *x_val*."""
         return self.add_asymptote(x_val, direction='vertical', creation=creation, **kwargs)
 
     def add_horizontal_asymptote(self, y_val, creation=0, **kwargs):
-        """Add a horizontal dashed line at *y_val* spanning the full x-range.
-
-        This is a convenience wrapper around :meth:`add_asymptote` with
-        ``direction='horizontal'``.  Default styling is dashed gray.
-
-        Parameters
-        ----------
-        y_val:
-            The math y-coordinate at which to draw the asymptote.
-        creation:
-            Time at which the line is created.
-        **kwargs:
-            Override default styling (stroke, stroke_width,
-            stroke_dasharray, etc.).
-
-        Returns
-        -------
-        Line
-            The created Line object (already added to the axes).
-        """
+        """Add a horizontal dashed asymptote at *y_val*."""
         return self.add_asymptote(y_val, direction='horizontal', creation=creation, **kwargs)
 
     def _add_guide_line(self, value, direction, start, end, creation, z, styling_kwargs):
@@ -3013,53 +2873,11 @@ class Axes(VCollection):
         return line
 
     def add_horizontal_line(self, y, start=None, end=None, creation=0, z=1, **styling_kwargs):
-        """Draw a horizontal dashed line across the full plot width at *y*.
-
-        Parameters
-        ----------
-        y:
-            The math y-coordinate at which to draw the line.
-        start, end:
-            Optional time range to animate the line's opacity from 0 to 1.
-            If both are ``None`` the line appears instantly at *creation*.
-        creation:
-            Time at which the line is created.
-        z:
-            Z-order for depth sorting (default 1).
-        **styling_kwargs:
-            Override default styling (stroke, stroke_width,
-            stroke_dasharray, etc.).
-
-        Returns
-        -------
-        Line
-            The created Line object (already added to the axes).
-        """
+        """Draw a horizontal dashed guide line at *y*."""
         return self._add_guide_line(y, 'horizontal', start, end, creation, z, styling_kwargs)
 
     def add_vertical_line(self, x, start=None, end=None, creation=0, z=1, **styling_kwargs):
-        """Draw a vertical dashed line across the full plot height at *x*.
-
-        Parameters
-        ----------
-        x:
-            The math x-coordinate at which to draw the line.
-        start, end:
-            Optional time range to animate the line's opacity from 0 to 1.
-            If both are ``None`` the line appears instantly at *creation*.
-        creation:
-            Time at which the line is created.
-        z:
-            Z-order for depth sorting (default 1).
-        **styling_kwargs:
-            Override default styling (stroke, stroke_width,
-            stroke_dasharray, etc.).
-
-        Returns
-        -------
-        Line
-            The created Line object (already added to the axes).
-        """
+        """Draw a vertical dashed guide line at *x*."""
         return self._add_guide_line(x, 'vertical', start, end, creation, z, styling_kwargs)
 
     def add_min_max_labels(self, func, x_range=None, samples=200, creation=0, z=3,
