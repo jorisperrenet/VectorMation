@@ -10600,7 +10600,7 @@ class TestDelayAnimation:
         # The shift should start at 0.5, so at t=0 position unchanged
         cx_0 = c.center(0)[0]
         assert cx_0 == pytest.approx(100, abs=1)
-        # At t=1.5 (end_time 0+0.5=0.5, end_time stays 1), shift should be active
+        # Both start_time and end_time shifted by 0.5: [0.5, 1.5]
         cx_1 = c.center(1.5)[0]
         assert cx_1 == pytest.approx(150, abs=1)
 

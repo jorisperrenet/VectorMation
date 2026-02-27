@@ -6929,7 +6929,7 @@ class Table(VCollection):
         VObject
             The cell's Text object.
         """
-        return self.entries[row][col]
+        return self.get_entry(row, col)
 
     def get_cell_rect(self, row, col, padding=2, **kwargs):
         """Return a Rectangle covering the cell at (row, col).

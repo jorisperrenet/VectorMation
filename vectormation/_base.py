@@ -4534,22 +4534,17 @@ class VObject(ABC):  # Vector Object
                 # Snapshot every styling attribute at the freeze time
                 for name, _, cls, _, _ in style._ATTR_SCHEMA:
                     attr = getattr(obj.styling, name)
-                    if cls is attributes.Color:
-                        # Store raw RGB tuple from the time function
-                        _captured[name] = ('color', attr.time_func(start))
-                    else:
-                        _captured[name] = ('val', attr.at_time(start))
-                _captured['_z'] = ('val', obj.z.at_time(start))
+                    _captured[name] = attr.at_time(start)
+                _captured['_z'] = obj.z.at_time(start)
             # Restore all attributes to their frozen values
             for name, _, cls, _, _ in style._ATTR_SCHEMA:
-                kind, val = _captured[name]
+                val = _captured[name]
                 attr = getattr(obj.styling, name)
-                if kind == 'color':
-                    attr.time_func = lambda _t, _v=val: _v
+                if cls is attributes.Color:
+                    attr.set_onward(t, lambda _t, _v=val: _v)
                 else:
                     attr.set_onward(t, val)
-            _, z_val = _captured['_z']
-            obj.z.set_onward(t, z_val)
+            obj.z.set_onward(t, _captured['_z'])
 
         self.add_updater(_capture, start, end)
         return self
@@ -4557,9 +4552,10 @@ class VObject(ABC):  # Vector Object
     def delay_animation(self, method_name, delay, *args, **kwargs):
         """Schedule an animation to start after a delay.
 
-        Calls ``getattr(self, method_name)(*args, start=<adjusted>, **rest)``
-        where the ``start`` (or ``start_time``) keyword is increased by
-        *delay*.  Convenience for offsetting animation timing.
+        Calls ``getattr(self, method_name)(*args, start=<adjusted>, end=<adjusted>, **rest)``
+        where the ``start`` (or ``start_time``) and ``end`` (or ``end_time``)
+        keywords are both increased by *delay*.  Convenience for offsetting
+        animation timing.
 
         Returns self.
         """
@@ -4571,6 +4567,10 @@ class VObject(ABC):  # Vector Object
             kwargs['start_time'] = kwargs.get('start_time', 0) + delay
         elif 'start' in params:
             kwargs['start'] = kwargs.get('start', 0) + delay
+        if 'end_time' in params and 'end_time' in kwargs:
+            kwargs['end_time'] = kwargs['end_time'] + delay
+        elif 'end' in params and 'end' in kwargs:
+            kwargs['end'] = kwargs['end'] + delay
         method(*args, **kwargs)
         return self
 
@@ -4594,8 +4594,7 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        _s, _d = start, max(dur, 1e-9)
-        _a, _freq = intensity, frequency
+        _s, _d, _a, _freq = start, max(dur, 1e-9), intensity, frequency
 
         # Shift component: two different sine frequencies for organic feel
         def _dx(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):

@@ -1852,9 +1852,8 @@ class Circle(Ellipse):
     def get_arc(self, start_angle=0, end_angle=180, time=0, **kwargs):
         """Create an Arc from this circle's center and radius.
 
-        Convenience factory that copies the circle's centre and radius at
-        the given *time* and returns a new :class:`Arc` spanning from
-        *start_angle* to *end_angle*.
+        Convenience wrapper around :meth:`arc_between` with default angles
+        of 0 and 180 degrees.
 
         Parameters
         ----------
@@ -1871,10 +1870,7 @@ class Circle(Ellipse):
         -------
         Arc
         """
-        cx, cy = self.c.at_time(time)
-        r = self.rx.at_time(time)
-        return Arc(cx=cx, cy=cy, r=r,
-                   start_angle=start_angle, end_angle=end_angle, **kwargs)
+        return self.arc_between(start_angle, end_angle, time=time, **kwargs)
 
     def diameter_line(self, angle_deg: float = 0, time: float = 0, **kwargs):
         """Return a Line representing the diameter at the given angle.
