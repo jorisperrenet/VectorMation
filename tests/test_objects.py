@@ -14013,3 +14013,39 @@ class TestConvexHull:
         c = Circle(r=10, cx=200, cy=200)
         hull = ConvexHull((0, 0), (100, 0), c)
         assert 'ConvexHull' in repr(hull)
+
+
+class TestSpotlight:
+    def test_basic_creation(self):
+        from vectormation.objects import Spotlight
+        s = Spotlight(target=(500, 300), radius=100)
+        svg = s.to_svg(0)
+        assert 'fill-rule' in svg
+        assert 'evenodd' in svg
+        assert s._cx.at_time(0) == 500
+        assert s._cy.at_time(0) == 300
+
+    def test_from_object(self):
+        from vectormation.objects import Spotlight, Circle
+        c = Circle(r=50, cx=400, cy=300)
+        s = Spotlight(target=c, radius=150)
+        assert s._cx.at_time(0) == 400
+        assert s._cy.at_time(0) == 300
+
+    def test_set_target(self):
+        from vectormation.objects import Spotlight
+        s = Spotlight(target=(100, 100), radius=80)
+        s.set_target((500, 500), start=0, end=1)
+        assert s._cx.at_time(1) == 500
+        assert s._cy.at_time(1) == 500
+
+    def test_set_radius(self):
+        from vectormation.objects import Spotlight
+        s = Spotlight(radius=100)
+        s.set_radius(200, start=0, end=1)
+        assert s._r.at_time(1) == 200
+
+    def test_repr(self):
+        from vectormation.objects import Spotlight
+        s = Spotlight(radius=120)
+        assert 'Spotlight' in repr(s)

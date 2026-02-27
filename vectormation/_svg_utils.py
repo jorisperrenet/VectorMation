@@ -837,3 +837,83 @@ class ConvexHull(Polygon):
 
     def __repr__(self):
         return f'ConvexHull({len(self.vertices)} vertices)'
+
+
+class Spotlight(VObject):
+    """Dark overlay with a circular cutout — draws attention to a point or object.
+
+    Parameters
+    ----------
+    target : tuple or VObject
+        Centre of the spotlight. A (x, y) tuple or a VObject (uses its center).
+    radius : float
+        Radius of the bright area.
+    color : str
+        Overlay colour (usually dark).
+    opacity : float
+        Overlay opacity (0 = invisible, 1 = fully opaque).
+    """
+
+    def __init__(self, target=(960, 540), radius=120, color='#000000', opacity=0.7,
+                 creation: float = 0, z: float = 10, **kw):
+        super().__init__(creation=creation, z=z, **kw)
+        if isinstance(target, VObject):
+            tx, ty = target.center(creation)
+        elif isinstance(target, (tuple, list)):
+            tx, ty = target
+        else:
+            tx, ty = 960, 540
+        self._cx = attributes.Real(creation, tx)
+        self._cy = attributes.Real(creation, ty)
+        self._r = attributes.Real(creation, radius)
+        self._color = color
+        self._opacity = opacity
+
+    def _shift_reals(self):
+        return [(self._cx, self._cy)]
+
+    def _shift_coors(self):
+        return []
+
+    def set_target(self, target, start=0, end=None, easing=easings.smooth):
+        """Move the spotlight to a new target (point or VObject)."""
+        if isinstance(target, VObject):
+            tx, ty = target.center(start)
+        else:
+            tx, ty = target
+        if end is None:
+            self._cx.set_onward(start, tx)
+            self._cy.set_onward(start, ty)
+        else:
+            self._cx.move_to(start, end, tx, easing=easing)
+            self._cy.move_to(start, end, ty, easing=easing)
+        return self
+
+    def set_radius(self, value, start=0, end=None, easing=easings.smooth):
+        """Animate the spotlight radius."""
+        if end is None:
+            self._r.set_onward(start, value)
+        else:
+            self._r.move_to(start, end, value, easing=easing)
+        return self
+
+    def path(self, time):
+        cx, cy = self._cx.at_time(time), self._cy.at_time(time)
+        r = self._r.at_time(time)
+        # Outer rect (full canvas) + inner circle cutout (even-odd fill)
+        w, h = CANVAS_WIDTH, CANVAS_HEIGHT
+        return (f'M0,0 H{w} V{h} H0 Z '
+                f'M{cx + r},{cy} '
+                f'A{r},{r} 0 1,0 {cx - r},{cy} '
+                f'A{r},{r} 0 1,0 {cx + r},{cy} Z')
+
+    def to_svg(self, time):
+        return (f"<path d='{self.path(time)}' "
+                f"fill='{self._color}' fill-opacity='{self._opacity}' "
+                f"fill-rule='evenodd' stroke='none' />")
+
+    def bbox(self, time):
+        return (0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+
+    def __repr__(self):
+        return f'Spotlight(r={self._r.at_time(0):.0f})'
