@@ -117,7 +117,7 @@ class VObject(ABC):  # Vector Object
     """Base class for all vector objects with time-varying attributes."""
 
     @abstractmethod
-    def __init__(self, creation: float = 0, z=0):
+    def __init__(self, creation: float = 0, z: float = 0):
         self.show = attributes.Real(creation, True)
         self.z = attributes.Real(creation, z)
         self.styling: style.Styling
@@ -5291,7 +5291,7 @@ class VObject(ABC):  # Vector Object
 class VCollection:
     """Container for a group of VObjects, delegating operations to children."""
 
-    def __init__(self, *objects, creation: float = 0, z=0):
+    def __init__(self, *objects, creation: float = 0, z: float = 0):
         self.objects = list(objects)
         self.show = attributes.Real(creation, True)
         self.z = attributes.Real(creation, z)

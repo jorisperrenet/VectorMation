@@ -47,7 +47,7 @@ def _label_text(text, x, y, font_size, creation=0, z=0, **overrides):
 class MorphObject(VCollection):
     """Morphs one object/collection into another over a time range.
     Must be added to the canvas. The source becomes hidden at start, target appears at end."""
-    def __init__(self, morph_from, morph_to, start: float = 0, end: float = 1, z=0,
+    def __init__(self, morph_from, morph_to, start: float = 0, end: float = 1, z: float = 0,
                  easing=easings.smooth, change_existence=True, rotation_degrees: float = 0):
         # Both morph_from and morph_to are converted to collections
         if isinstance(morph_from, VObject):
@@ -142,7 +142,7 @@ class MorphObject(VCollection):
 
 class LabeledDot(VCollection):
     """Dot with a centered text label."""
-    def __init__(self, label='', r=24, cx=960, cy=540, creation=0, z=0, font_size=None, **styling_kwargs):
+    def __init__(self, label='', r=24, cx=960, cy=540, creation: float = 0, z: float = 0, font_size=None, **styling_kwargs):
         dot_kw = {k: v for k, v in styling_kwargs.items() if k != 'fill'}
         dot_fill = styling_kwargs.get('fill', '#83C167')
         dot = Dot(r=r, cx=cx, cy=cy, creation=creation, z=z, fill=dot_fill, **dot_kw)
@@ -160,7 +160,7 @@ class TexObject(VCollection):
     font_size: target height in pixels (default 30, matching Text).
     scale_x/scale_y in styles act as multipliers on the font_size-derived scale.
     """
-    def __init__(self, to_render, x=0, y=0, font_size=48, creation=0, z=0, **styles):
+    def __init__(self, to_render, x=0, y=0, font_size=48, creation: float = 0, z: float = 0, **styles):
         from vectormation.tex_file_writing import get_characters
         import vectormation._canvas as _cm
         tex_dir = f'{_cm.save_directory}/tex' if hasattr(_cm, 'save_directory') else tempfile.mkdtemp()
@@ -193,7 +193,7 @@ class TexObject(VCollection):
 class SplitTexObject:
     """Renders multiple lines of LaTeX, each as a separate TexObject.
     Supports indexing, iteration, and conversion to a single VCollection."""
-    def __init__(self, *lines, x=0, y=0, line_spacing=60, creation=0, **styles):
+    def __init__(self, *lines, x=0, y=0, line_spacing=60, creation: float = 0, **styles):
         self.lines = [TexObject(line, x=x, y=y + i * line_spacing, creation=creation, **styles)
                       for i, line in enumerate(lines)]
 
@@ -5566,7 +5566,7 @@ class NumberPlane(VCollection):
                  cx=960, cy=540, width=1920, height=1080,
                  faded_line_ratio=4,
                  background_line_style=None, faded_line_style=None,
-                 axis_style=None, creation=0, z=0):
+                 axis_style=None, creation: float = 0, z: float = 0):
         unit = UNIT
         if x_range is None:
             half_x = width / (2 * unit)
@@ -5735,7 +5735,7 @@ def _arrowhead(from_x, from_y, to_x, to_y, tip_length, tip_width, fill, creation
 class Arrow(VCollection):
     """Arrow as a line (shaft) with a triangular arrowhead (and optional second head)."""
     def __init__(self, x1=0, y1=0, x2=100, y2=100, tip_length=DEFAULT_ARROW_TIP_LENGTH, tip_width=DEFAULT_ARROW_TIP_WIDTH,
-                 double_ended=False, creation=0, z=0, **styling_kwargs):
+                 double_ended=False, creation: float = 0, z: float = 0, **styling_kwargs):
         shaft_style = {'stroke': '#fff', 'stroke_width': 5} | styling_kwargs
         tip_fill = shaft_style.get('stroke', '#fff')
         self.shaft = Line(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z, **shaft_style)
@@ -5889,7 +5889,7 @@ class Arrow(VCollection):
 class DoubleArrow(Arrow):
     """Double-ended arrow (shorthand for Arrow with double_ended=True)."""
     def __init__(self, x1=0, y1=0, x2=100, y2=100, tip_length=DEFAULT_ARROW_TIP_LENGTH, tip_width=DEFAULT_ARROW_TIP_WIDTH,
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(x1=x1, y1=y1, x2=x2, y2=y2, tip_length=tip_length,
                          tip_width=tip_width, double_ended=True,
                          creation=creation, z=z, **styling_kwargs)
@@ -5898,7 +5898,7 @@ class DoubleArrow(Arrow):
 class CurvedArrow(VCollection):
     """Arrow with a curved (quadratic bezier) shaft and a triangular tip."""
     def __init__(self, x1=0, y1=0, x2=100, y2=100, angle=0.4,
-                 tip_length=DEFAULT_ARROW_TIP_LENGTH, tip_width=DEFAULT_ARROW_TIP_WIDTH, creation=0, z=0, **styling_kwargs):
+                 tip_length=DEFAULT_ARROW_TIP_LENGTH, tip_width=DEFAULT_ARROW_TIP_WIDTH, creation: float = 0, z: float = 0, **styling_kwargs):
         shaft_style = {'stroke': '#fff', 'stroke_width': 5, 'fill_opacity': 0} | styling_kwargs
         tip_fill = shaft_style.get('stroke', '#fff')
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
@@ -6023,7 +6023,7 @@ class Brace(VCollection):
     depth: peak height of the brace tip in pixels.
     """
     def __init__(self, target, direction='down', label=None, buff=SMALL_BUFF,
-                 depth=18, creation=0, z=0, **styling_kwargs):
+                 depth=18, creation: float = 0, z: float = 0, **styling_kwargs):
         bx, by, bw, bh = target.bbox(creation)
 
         if direction in ('down', 'up'):
@@ -6203,7 +6203,7 @@ class Angle(VCollection):
     label_radius: distance from vertex to label center (default: radius * 1.75).
     """
     def __init__(self, vertex, p1, p2, radius=36, label=None, label_radius=None,
-                 label_font_size=36, creation=0, z=0, **styling_kwargs):
+                 label_font_size=36, creation: float = 0, z: float = 0, **styling_kwargs):
         self.vertex = vertex if isinstance(vertex, attributes.Coor) else attributes.Coor(creation, vertex)
         self.p1 = p1 if isinstance(p1, attributes.Coor) else attributes.Coor(creation, p1)
         self.p2 = p2 if isinstance(p2, attributes.Coor) else attributes.Coor(creation, p2)
@@ -6337,7 +6337,7 @@ class Angle(VCollection):
 
 class RightAngle(VCollection):
     """Right angle indicator (small square) at a vertex between two perpendicular lines."""
-    def __init__(self, vertex, p1, p2, size=18, creation=0, z=0, **styling_kwargs):
+    def __init__(self, vertex, p1, p2, size=18, creation: float = 0, z: float = 0, **styling_kwargs):
         vx, vy = vertex
         d1x, d1y = p1[0] - vx, p1[1] - vy
         d2x, d2y = p2[0] - vx, p2[1] - vy
@@ -6357,7 +6357,7 @@ class RightAngle(VCollection):
 
 class Cross(VCollection):
     """X mark shape, useful for indicating errors or crossing out."""
-    def __init__(self, size=36, cx=960, cy=540, creation=0, z=0, **styling_kwargs):
+    def __init__(self, size=36, cx=960, cy=540, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#FC6255', 'stroke_width': 4} | styling_kwargs
         half = size / 2
         l1 = Line(x1=cx - half, y1=cy - half, x2=cx + half, y2=cy + half,
@@ -7026,7 +7026,7 @@ class PieChart(VCollection):
     colors: list of sector colors (cycles if shorter than values).
     """
     def __init__(self, values, labels=None, colors=None, cx=960, cy=540, r=240,
-                 start_angle=90, creation=0, z=0):
+                 start_angle=90, creation: float = 0, z: float = 0):
         if colors is None:
             colors = list(DEFAULT_CHART_COLORS)
         total = sum(values)
@@ -7196,7 +7196,7 @@ class DonutChart(VCollection):
     """
     def __init__(self, values, labels=None, colors=None, cx=960, cy=540,
                  r=240, inner_radius=120, start_angle=90,
-                 center_text=None, font_size=17, creation=0, z=0):
+                 center_text=None, font_size=17, creation: float = 0, z: float = 0):
         if colors is None:
             colors = list(DEFAULT_CHART_COLORS)
         total = sum(values)
@@ -7328,7 +7328,7 @@ class BarChart(VCollection):
     """
     def __init__(self, values, labels=None, colors=None, x=120, y=60,
                  width=1440, height=840, bar_spacing=0.2,
-                 creation=0, z=0):
+                 creation: float = 0, z: float = 0):
         if colors is None:
             colors = list(DEFAULT_CHART_COLORS)
         n = len(values)
@@ -7806,7 +7806,7 @@ class Table(VCollection):
     """
     def __init__(self, data, row_labels=None, col_labels=None,
                  x=120, y=60, cell_width=160, cell_height=60,
-                 font_size=24, creation=0, z=0, **styling_kwargs):
+                 font_size=24, creation: float = 0, z: float = 0, **styling_kwargs):
         rows = len(data)
         cols = len(data[0]) if data else 0
         x_off = cell_width if row_labels else 0
@@ -8354,7 +8354,7 @@ class Table(VCollection):
 class DynamicObject(VObject):
     """VObject whose SVG is regenerated each frame by calling func(time).
     func should return a VObject. Useful for reactive/always-redraw patterns."""
-    def __init__(self, func, creation=0, z=0):
+    def __init__(self, func, creation: float = 0, z: float = 0):
         super().__init__(creation=creation, z=z)
         self._func = func
         self._cache = [None, None]  # [time, result]
@@ -8387,7 +8387,7 @@ class Matrix(VCollection):
     x, y: position of the matrix center.
     """
     def __init__(self, data, x=960, y=540, font_size=36, h_spacing=80, v_spacing=50,
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         if not data or not data[0]:
             raise ValueError('Matrix requires a non-empty 2D list of data')
         rows = len(data)
@@ -8584,7 +8584,7 @@ class ZoomedInset(VObject):
     source: (x, y, w, h) — the region to zoom into (canvas coordinates).
     display: (x, y, w, h) — where to draw the magnified view.
     """
-    def __init__(self, canvas, source, display, creation=0, z=999,
+    def __init__(self, canvas, source, display, creation: float = 0, z=999,
                  frame_color='#FFFF00', display_color='#FFFF00', frame_width=2):
         super().__init__(creation=creation, z=z)
         self.canvas = canvas
@@ -8669,7 +8669,7 @@ class _BooleanOp(VObject):
     """
     _fill_rule = None  # override in subclass
 
-    def __init__(self, shape_a, shape_b, creation=0, z=0, **styling_kwargs):
+    def __init__(self, shape_a, shape_b, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self._a, self._b = shape_a, shape_b
         self.styling = style.Styling(styling_kwargs, creation=creation,
@@ -8843,7 +8843,7 @@ class Intersection(_BooleanOp):
 class Title(VCollection):
     """Centered title text at the top of the canvas.
     Accepts the same keyword args as Text (font_size, fill, etc.)."""
-    def __init__(self, text, creation=0, z=0, **kwargs):
+    def __init__(self, text, creation: float = 0, z: float = 0, **kwargs):
         defaults = {'font_size': 60, 'text_anchor': 'middle', 'fill': '#fff',
                     'stroke_width': 0}
         defaults.update(kwargs)
@@ -8863,7 +8863,7 @@ class Variable(VCollection):
     fmt: format string for the value.
     """
     def __init__(self, label='x', value: float = 0, fmt='{:.2f}', x=960, y=540,
-                 font_size=48, creation=0, z=0, **styling_kwargs):
+                 font_size=48, creation: float = 0, z: float = 0, **styling_kwargs):
         from vectormation._shapes import Text, DecimalNumber
         style_kw = {'fill': '#fff', 'stroke_width': 0} | styling_kwargs
         label_text = f'{label} = '
@@ -8888,7 +8888,7 @@ class Variable(VCollection):
 
 class Underline(VCollection):
     """Underline beneath a target object."""
-    def __init__(self, target, buff=4, follow=True, creation=0, z=0, **styling_kwargs):
+    def __init__(self, target, buff=4, follow=True, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#fff', 'stroke_width': 3} | styling_kwargs
         bx, by, bw, bh = target.bbox(creation)
         line = Line(x1=bx, y1=by + bh + buff, x2=bx + bw, y2=by + bh + buff,
@@ -9124,7 +9124,7 @@ class Code(VCollection):
     }
 
     def __init__(self, text, language='python', x=120, y=120, font_size=24,
-                 line_height=1.5, tab_width=4, creation=0, z=0, **styling_kwargs):
+                 line_height=1.5, tab_width=4, creation: float = 0, z: float = 0, **styling_kwargs):
         lines = text.strip('\n').split('\n')
         objects = []
         keywords = self._KEYWORD_COLORS.get(language, set())
@@ -9255,7 +9255,7 @@ class ChessBoard(VCollection):
     def __init__(self, fen='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR',
                  cx=960, cy=540, size=600, show_coordinates=True,
                  light_color='#f0d9b5', dark_color='#b58863',
-                 creation=0, z=0):
+                 creation: float = 0, z: float = 0):
         cell = size / 8
         x0 = cx - size / 2
         y0 = cy - size / 2
@@ -9372,7 +9372,7 @@ class PeriodicTable(VCollection):
 
     cell_size: pixel size of each element cell.
     """
-    def __init__(self, cx=960, cy=540, cell_size=48, creation=0, z=0):
+    def __init__(self, cx=960, cy=540, cell_size=48, creation: float = 0, z: float = 0):
         objects = []
         total_w = 18 * cell_size
         total_h = 4 * cell_size
@@ -9418,7 +9418,7 @@ class BohrAtom(VCollection):
     electrons: list of electrons per shell, e.g. [2, 8, 1] for sodium.
     """
     def __init__(self, protons=1, neutrons=0, electrons=None, cx=960, cy=540,
-                 nucleus_r=30, shell_spacing=40, creation=0, z=0):
+                 nucleus_r=30, shell_spacing=40, creation: float = 0, z: float = 0):
         from vectormation._shapes import Circle, Dot, Text
         objects = []
 
@@ -9477,7 +9477,7 @@ class Automaton(VCollection):
     """
     def __init__(self, states, transitions, accept_states=None, initial_state=None,
                  cx=960, cy=540, radius=300, state_r=35, font_size=20,
-                 creation=0, z=0):
+                 creation: float = 0, z: float = 0):
         from vectormation._shapes import Circle, Text
         objects = []
         accept_states = accept_states or set()
@@ -9573,7 +9573,7 @@ class NetworkGraph(VCollection):
     """
     def __init__(self, nodes, edges=None, cx=960, cy=540, radius=300,
                  node_r=30, font_size=20, layout='circular', directed=False,
-                 creation=0, z=0):
+                 creation: float = 0, z: float = 0):
         from vectormation._shapes import Circle, Text, Line as SLine
         objects = []
         edges = edges or []
@@ -9710,7 +9710,7 @@ class NetworkGraph(VCollection):
 class Label(VCollection):
     """Text label with a surrounding box/frame for annotations."""
     def __init__(self, text, x=960, y=540, font_size=36, padding=10,
-                 corner_radius=4, creation=0, z=0, **styling_kwargs):
+                 corner_radius=4, creation: float = 0, z: float = 0, **styling_kwargs):
         from vectormation._shapes import Text, RoundedRectangle
         style_kw = {'fill': '#fff', 'stroke_width': 0} | styling_kwargs
         txt = Text(text=text, x=x, y=y, font_size=font_size,
@@ -9726,7 +9726,7 @@ class Label(VCollection):
 class LabeledArrow(VCollection):
     """Arrow with a text label placed at its midpoint."""
     def __init__(self, x1=860, y1=540, x2=1060, y2=540, label='',
-                 font_size=24, label_buff=10, creation=0, z=0, **styling_kwargs):
+                 font_size=24, label_buff=10, creation: float = 0, z: float = 0, **styling_kwargs):
         from vectormation._shapes import Text
         style_kw = {'stroke': '#fff', 'stroke_width': 3} | styling_kwargs
         arrow = Arrow(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z, **style_kw)
@@ -9860,7 +9860,7 @@ class Callout(VCollection):
     direction: 'up', 'down', 'left', 'right' — where the callout box sits relative to target.
     """
     def __init__(self, text, target, direction='up', distance=80, font_size=24,
-                 padding=8, corner_radius=4, creation=0, z=0, **styling_kwargs):
+                 padding=8, corner_radius=4, creation: float = 0, z: float = 0, **styling_kwargs):
         from vectormation._shapes import Text as SText, RoundedRectangle, Line as SLine
 
         # Resolve target position
@@ -9897,7 +9897,7 @@ class DimensionLine(VCollection):
     offset: perpendicular offset from the line between p1 and p2.
     """
     def __init__(self, p1, p2, label=None, offset=30, font_size=20,
-                 tick_size=10, creation=0, z=0, **styling_kwargs):
+                 tick_size=10, creation: float = 0, z: float = 0, **styling_kwargs):
         from vectormation._shapes import Text as SText, Line as SLine
         x1, y1 = p1
         x2, y2 = p2
@@ -9942,7 +9942,7 @@ class Tooltip(VCollection):
     target: (x, y) tuple or VObject.
     """
     def __init__(self, text, target, start=0, duration=1.5, font_size=18,
-                 padding=6, creation=0, z=10, **styling_kwargs):
+                 padding=6, creation: float = 0, z=10, **styling_kwargs):
         from vectormation._shapes import Text as SText, RoundedRectangle
         if hasattr(target, 'bbox'):
             bx, by, bw, _bh = target.bbox(creation)
@@ -9976,7 +9976,7 @@ class Tree(VCollection):
     """
     def __init__(self, data, cx=960, cy=100, h_spacing=120, v_spacing=100,
                  node_r=20, font_size=18, layout='down',
-                 creation=0, z=0):
+                 creation: float = 0, z: float = 0):
         from vectormation._shapes import Circle, Text as SText, Line as SLine
         objects = []
 
@@ -10105,7 +10105,7 @@ class Stamp(VCollection):
     template: the VObject to copy.
     points: list of (x, y) positions to place copies at.
     """
-    def __init__(self, template, points, creation=0, z=0):
+    def __init__(self, template, points, creation: float = 0, z: float = 0):
         from copy import deepcopy
         objects = []
         for px, py in points:
@@ -10125,7 +10125,7 @@ class TimelineBar(VCollection):
     """
     def __init__(self, markers, total_duration=10, x=200, y=900,
                  width=1520, height=6, marker_color='#FFFF00',
-                 font_size=14, creation=0, z=0):
+                 font_size=14, creation: float = 0, z: float = 0):
         from vectormation._shapes import Rectangle, Line, Text, Circle
         objects = []
         # Track bar
@@ -10158,7 +10158,7 @@ class Legend(VCollection):
     items: list of (color, label) tuples.
     """
     def __init__(self, items, x=100, y=100, swatch_size=16, spacing=8,
-                 font_size=16, direction='down', creation=0, z=0):
+                 font_size=16, direction='down', creation: float = 0, z: float = 0):
         from vectormation._shapes import Rectangle, Text
         objects = []
         horizontal = direction == 'right'
@@ -10189,7 +10189,7 @@ class RadarChart(VCollection):
     """
     def __init__(self, values, labels=None, max_val=None, colors=None,
                  cx=960, cy=540, radius=250, font_size=16,
-                 fill_opacity=0.3, creation=0, z=0):
+                 fill_opacity=0.3, creation: float = 0, z: float = 0):
         n = len(values)
         if n < 3:
             super().__init__(creation=creation, z=z)
@@ -10258,7 +10258,7 @@ class ProgressBar(VCollection):
     """
     def __init__(self, width=400, height=30, x=760, y=520,
                  bg_color='#333', fill_color='#58C4DD',
-                 corner_radius=6, creation=0, z=0):
+                 corner_radius=6, creation: float = 0, z: float = 0):
 
         self._bar_width = width
         bg = RoundedRectangle(width, height, x=x, y=y, corner_radius=corner_radius,
@@ -10296,7 +10296,7 @@ class FlowChart(VCollection):
     def __init__(self, steps, direction='right', x=200, y=400,
                  box_width=200, box_height=60, spacing=80,
                  box_color='#58C4DD', text_color='#fff', arrow_color='#999',
-                 font_size=20, corner_radius=8, creation=0, z=0):
+                 font_size=20, corner_radius=8, creation: float = 0, z: float = 0):
 
         objects = []
         self._boxes = []
@@ -10346,7 +10346,7 @@ class WaterfallChart(VCollection):
                  width=800, height=400, bar_width=0.7,
                  pos_color='#83C167', neg_color='#FF6B6B', total_color='#58C4DD',
                  connector_color='#666', font_size=16,
-                 show_total=True, creation=0, z=0):
+                 show_total=True, creation: float = 0, z: float = 0):
         n = len(values)
         if n == 0:
             super().__init__(creation=creation, z=z)
@@ -10433,7 +10433,7 @@ class GanttChart(VCollection):
     """
     def __init__(self, tasks, x=100, y=80, width=1200, height=None,
                  bar_height=30, bar_spacing=10, colors=None,
-                 font_size=16, creation=0, z=0):
+                 font_size=16, creation: float = 0, z: float = 0):
         n = len(tasks)
         if n == 0:
             super().__init__(creation=creation, z=z)
@@ -10502,7 +10502,7 @@ class SankeyDiagram(VCollection):
     """
     def __init__(self, flows, x=100, y=100, width=1200, height=600,
                  node_width=30, node_spacing=20, colors=None,
-                 font_size=16, creation=0, z=0):
+                 font_size=16, creation: float = 0, z: float = 0):
         if not flows:
             super().__init__(creation=creation, z=z)
             return
@@ -10570,7 +10570,7 @@ class FunnelChart(VCollection):
     stages: list of (label, value) tuples, ordered top-to-bottom.
     """
     def __init__(self, stages, x=100, y=100, width=600, height=500,
-                 colors=None, font_size=18, gap=4, creation=0, z=0):
+                 colors=None, font_size=18, gap=4, creation: float = 0, z: float = 0):
         if not stages:
             super().__init__(creation=creation, z=z)
             return
@@ -10605,7 +10605,7 @@ class TreeMap(VCollection):
     data: list of (label, value) tuples.
     """
     def __init__(self, data, x=100, y=100, width=800, height=600,
-                 colors=None, font_size=14, padding=2, creation=0, z=0):
+                 colors=None, font_size=14, padding=2, creation: float = 0, z: float = 0):
         if not data:
             super().__init__(creation=creation, z=z)
             return
@@ -10699,7 +10699,7 @@ class GaugeChart(VCollection):
     def __init__(self, value, min_val=0, max_val=100, x=960, y=540,
                  radius=200, start_angle=225, end_angle=-45,
                  colors=None, label=None, font_size=36,
-                 tick_count=5, creation=0, z=0):
+                 tick_count=5, creation: float = 0, z: float = 0):
         if colors is None:
             colors = [('#83C167', 0.0), ('#FFFF00', 0.5), ('#FF6B6B', 1.0)]
         objects = []
@@ -10790,7 +10790,7 @@ class SparkLine(VObject):
     """
     def __init__(self, data, x=100, y=100, width=120, height=30,
                  stroke='#58C4DD', stroke_width=1.5,
-                 show_endpoint=False, creation=0, z=0, **styling_kwargs):
+                 show_endpoint=False, creation: float = 0, z: float = 0, **styling_kwargs):
         kw = {'stroke': stroke, 'stroke_width': stroke_width,
               'fill_opacity': 0} | styling_kwargs
         super().__init__(creation=creation, z=z)
@@ -10849,7 +10849,7 @@ class VennDiagram(VCollection):
     sizes: optional list of radii (default equal).
     """
     def __init__(self, labels, sizes=None, x=960, y=540, radius=150,
-                 colors=None, font_size=24, creation=0, z=0):
+                 colors=None, font_size=24, creation: float = 0, z: float = 0):
         n = len(labels)
         if n < 2 or n > 3:
             super().__init__(creation=creation, z=z)
@@ -10902,7 +10902,7 @@ class OrgChart(VCollection):
     """
     def __init__(self, root, x=960, y=80, h_spacing=180, v_spacing=100,
                  box_width=120, box_height=40, font_size=16,
-                 colors=None, creation=0, z=0):
+                 colors=None, creation: float = 0, z: float = 0):
         if colors is None:
             colors = list(DEFAULT_CHART_COLORS)
         # Layout: BFS to compute positions
@@ -10974,7 +10974,7 @@ class KPICard(VCollection):
     def __init__(self, title, value, subtitle=None, trend_data=None,
                  x=100, y=100, width=280, height=160,
                  bg_color='#1a1a2e', title_color='#aaa', value_color='#fff',
-                 font_size=48, creation=0, z=0):
+                 font_size=48, creation: float = 0, z: float = 0):
         objects = []
         # Background card
 
@@ -11022,7 +11022,7 @@ class BulletChart(VCollection):
     def __init__(self, actual, target, ranges=None, label=None,
                  x=100, y=100, width=500, height=40,
                  bar_color='#333', target_color='#fff',
-                 font_size=16, max_val=None, creation=0, z=0):
+                 font_size=16, max_val=None, creation: float = 0, z: float = 0):
         if ranges is None:
             ranges = [(0.5, '#2a2a3a'), (0.75, '#3a3a4a'), (1.0, '#4a4a5a')]
         if max_val is None:
@@ -11070,7 +11070,7 @@ class CalendarHeatmap(VCollection):
     """
     def __init__(self, data, rows=7, cols=52, x=100, y=100,
                  cell_size=14, gap=2, colormap=None,
-                 creation=0, z=0):
+                 creation: float = 0, z: float = 0):
         if colormap is None:
             colormap = ['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353']
         # Normalize data to dict
@@ -11109,7 +11109,7 @@ class WaffleChart(VCollection):
     categories: list of (label, value, color) tuples.
     """
     def __init__(self, categories, x=100, y=100, grid_size=10,
-                 cell_size=20, gap=3, font_size=14, creation=0, z=0):
+                 cell_size=20, gap=3, font_size=14, creation: float = 0, z: float = 0):
         total = sum(v for _, v, _ in categories) or 1
         n_cells = grid_size * grid_size
         objects = []
@@ -11160,7 +11160,7 @@ class MindMap(VCollection):
     root: (label, [children]) where children have the same structure.
     """
     def __init__(self, root, cx=960, cy=540, radius=250, font_size=18,
-                 colors=None, creation=0, z=0):
+                 colors=None, creation: float = 0, z: float = 0):
         if colors is None:
             colors = list(DEFAULT_CHART_COLORS)
         objects = []
@@ -11226,7 +11226,7 @@ class CircularProgressBar(VCollection):
     """
     def __init__(self, value, x=960, y=540, radius=80, stroke_width=12,
                  track_color='#2a2a3a', bar_color='#58C4DD',
-                 font_size=36, show_text=True, creation=0, z=0):
+                 font_size=36, show_text=True, creation: float = 0, z: float = 0):
         objects = []
         # Background track (full circle arc)
         track = Arc(cx=x, cy=y, r=radius, start_angle=90, end_angle=90 - 359.99,
@@ -11258,7 +11258,7 @@ class Scoreboard(VCollection):
     """
     def __init__(self, entries, x=100, y=100, col_width=200, row_height=60,
                  bg_color='#1a1a2e', label_color='#aaa', value_color='#fff',
-                 font_size=28, cols=None, creation=0, z=0):
+                 font_size=28, cols=None, creation: float = 0, z: float = 0):
         if not entries:
             super().__init__(creation=creation, z=z)
             return
@@ -11311,7 +11311,7 @@ class MatrixHeatmap(VCollection):
     def __init__(self, data, row_labels=None, col_labels=None,
                  x=100, y=100, cell_size=50, gap=2,
                  colormap=None, font_size=14, show_values=True,
-                 creation=0, z=0):
+                 creation: float = 0, z: float = 0):
         if not data or not data[0]:
             super().__init__(creation=creation, z=z)
             return
@@ -11376,7 +11376,7 @@ class BoxPlot(VCollection):
     def __init__(self, data_groups, positions=None, x=100, y=100,
                  plot_width=400, plot_height=300, box_width=30,
                  box_color='#58C4DD', whisker_color='#aaa', median_color='#FF6B6B',
-                 font_size=12, creation=0, z=0):
+                 font_size=12, creation: float = 0, z: float = 0):
         if not data_groups:
             super().__init__(creation=creation, z=z)
             return
@@ -11445,7 +11445,7 @@ class TextBox(VCollection):
     def __init__(self, text, x=100, y=100, font_size=20, padding=12,
                  width=None, height=None, corner_radius=6,
                  box_fill='#333', box_opacity=0.9, text_color='#fff',
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         char_w = font_size * CHAR_WIDTH_FACTOR
         if width is None:
             width = len(text) * char_w + padding * 2
@@ -11473,7 +11473,7 @@ class Bracket(VCollection):
     def __init__(self, x=100, y=100, width=100, height=20,
                  direction='down', stroke='#fff', stroke_width=2,
                  text='', font_size=16, text_color='#aaa',
-                 creation=0, z=0):
+                 creation: float = 0, z: float = 0):
         tip = height
         if direction in ('down', 'up'):
             sign = 1 if direction == 'down' else -1
@@ -11507,7 +11507,7 @@ class IconGrid(VCollection):
     shape: 'circle' or 'square'.
     """
     def __init__(self, data, x=100, y=100, cols=10, size=15, gap=3,
-                 shape='circle', creation=0, z=0):
+                 shape='circle', creation: float = 0, z: float = 0):
         objects = []
         # Flatten data into a list of colors
         colors = []
@@ -11540,7 +11540,7 @@ class SpeechBubble(VCollection):
                  width=None, height=None, corner_radius=10,
                  box_fill='#1e1e2e', box_opacity=0.95, text_color='#fff',
                  tail_direction='down', tail_width=20, tail_height=18,
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         SText = Text  # local alias to avoid shadowing parameter
         char_w = font_size * CHAR_WIDTH_FACTOR
         if width is None:
@@ -11581,7 +11581,7 @@ class Badge(VCollection):
     """
     def __init__(self, text='Label', x=100, y=100, font_size=16, padding_x=14,
                  padding_y=6, bg_color='#58C4DD', text_color='#000',
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         SText = Text  # local alias to avoid shadowing parameter
         char_w = font_size * CHAR_WIDTH_FACTOR
         width = len(text) * char_w + padding_x * 2
@@ -11609,7 +11609,7 @@ class Divider(VCollection):
     """
     def __init__(self, x=100, y=300, length=400, direction='horizontal',
                  label=None, font_size=16, gap=12,
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         from vectormation._shapes import Text as SText, Line as SLine
         style_kw = {'stroke': '#555', 'stroke_width': 1} | styling_kwargs
         objects = []
@@ -11657,7 +11657,7 @@ class Checklist(VCollection):
     """
     def __init__(self, *items, x=100, y=100, font_size=24, spacing=1.6,
                  box_size=None, check_color='#83C167', uncheck_color='#555',
-                 text_color='#fff', creation=0, z=0):
+                 text_color='#fff', creation: float = 0, z: float = 0):
         SText = Text  # local alias to avoid shadowing parameter
         if box_size is None:
             box_size = font_size * 0.75
@@ -11723,7 +11723,7 @@ class Stepper(VCollection):
     def __init__(self, steps, x=100, y=300, spacing=150, radius=20,
                  active=0, direction='horizontal', font_size=16,
                  active_color='#58C4DD', inactive_color='#555',
-                 text_color='#fff', creation=0, z=0):
+                 text_color='#fff', creation: float = 0, z: float = 0):
         if isinstance(steps, int):
             steps = [str(i + 1) for i in range(steps)]
         objects = []
@@ -11785,7 +11785,7 @@ class TagCloud(VCollection):
     data: list of (text, weight) tuples. Higher weight = larger font.
     """
     def __init__(self, data, x=100, y=100, width=500, min_font=14, max_font=48,
-                 colors=None, creation=0, z=0):
+                 colors=None, creation: float = 0, z: float = 0):
         if colors is None:
             colors = list(DEFAULT_CHART_COLORS)
         if not data:
@@ -11830,7 +11830,7 @@ class StatusIndicator(VCollection):
     }
 
     def __init__(self, label, status='online', x=100, y=100, font_size=18,
-                 dot_radius=6, gap=10, creation=0, z=0):
+                 dot_radius=6, gap=10, creation: float = 0, z: float = 0):
         color = self._STATUS_COLORS.get(status, status)
         dot = Dot(cx=x + dot_radius, cy=y, r=dot_radius,
                   fill=color, stroke_width=0, creation=creation, z=z)
@@ -11850,7 +11850,7 @@ class Meter(VCollection):
     def __init__(self, value=0.5, x=100, y=100, width=30, height=150,
                  direction='vertical', fill_color='#58C4DD',
                  bg_color='#333', border_color='#888',
-                 creation=0, z=0):
+                 creation: float = 0, z: float = 0):
 
         bg = RoundedRectangle(width=width, height=height, x=x, y=y,
                               corner_radius=3, fill=bg_color, fill_opacity=0.8,
@@ -11883,7 +11883,7 @@ class Breadcrumb(VCollection):
     """
     def __init__(self, *items, x=100, y=100, font_size=18, separator='\u203a',
                  gap=8, active_index=None, active_color='#58C4DD',
-                 inactive_color='#888', creation=0, z=0):
+                 inactive_color='#888', creation: float = 0, z: float = 0):
         objects = []
         cx = x
         if active_index is None:
@@ -11910,7 +11910,7 @@ class Countdown(VCollection):
     Displays a large number that counts down (or up) over the given time range.
     """
     def __init__(self, start_value=10, end_value=0, x=960, y=540, font_size=120,
-                 start=0, end=3, creation=0, z=0, **styling_kwargs):
+                 start=0, end=3, creation: float = 0, z: float = 0, **styling_kwargs):
         txt = _label_text(start_value, x, y, font_size, creation=creation, z=z, **styling_kwargs)
         _sv, _ev, _s, _e = start_value, end_value, start, end
         dur = _e - _s
@@ -11927,7 +11927,7 @@ class Filmstrip(VCollection):
     labels: list of strings for each frame.
     """
     def __init__(self, labels, x=100, y=400, frame_width=200, frame_height=130,
-                 spacing=20, font_size=16, creation=0, z=0, **styling_kwargs):
+                 spacing=20, font_size=16, creation: float = 0, z: float = 0, **styling_kwargs):
 
         objects = []
         self._frames = []
@@ -11958,7 +11958,7 @@ class SampleSpace(VCollection):
 
     Useful for visualizing conditional probability, Bayes' theorem, etc.
     """
-    def __init__(self, width=500, height=400, x=710, y=340, creation=0, z=0, **styling_kwargs):
+    def __init__(self, width=500, height=400, x=710, y=340, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'fill': '#222', 'fill_opacity': 0.5,
                     'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
         self._rect = Rectangle(width=width, height=height, x=x, y=y,
@@ -12021,7 +12021,7 @@ class RoundedCornerPolygon(VObject):
     *vertices*: sequence of (x, y) tuples.
     *radius*: fillet radius applied to each vertex.
     """
-    def __init__(self, *vertices, radius=20, creation=0, z=0, **styling_kwargs):
+    def __init__(self, *vertices, radius=20, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self._vertices = list(vertices)
         self._radius = radius
@@ -12086,7 +12086,7 @@ class Array(VCollection):
     def __init__(self, values, x=360, y=440, cell_width=80, cell_height=60,
                  font_size=24, index_font_size=16,
                  fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
-                 show_indices=True, creation=0, z=0):
+                 show_indices=True, creation: float = 0, z: float = 0):
         self._cell_width = cell_width
         self._cell_height = cell_height
         self._x, self._y = x, y
@@ -12149,7 +12149,7 @@ class Stack(VCollection):
     """
     def __init__(self, values=None, x=860, y=600, cell_width=100, cell_height=50,
                  font_size=22, fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
-                 creation=0, z=0):
+                 creation: float = 0, z: float = 0):
         self._cell_width = cell_width
         self._cell_height = cell_height
         self._x, self._y_base = x, y
@@ -12207,7 +12207,7 @@ class Queue(VCollection):
     """
     def __init__(self, values=None, x=360, y=440, cell_width=80, cell_height=60,
                  font_size=22, fill='#1e1e2e', text_color='#fff', border_color='#83C167',
-                 creation=0, z=0):
+                 creation: float = 0, z: float = 0):
         self._cell_width = cell_width
         self._cell_height = cell_height
         self._x, self._y = x, y
@@ -12270,7 +12270,7 @@ class LinkedList(VCollection):
     def __init__(self, values, x=200, y=440, node_width=80, node_height=50,
                  gap=40, font_size=22,
                  fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
-                 arrow_color='#fff', creation=0, z=0):
+                 arrow_color='#fff', creation: float = 0, z: float = 0):
         self._nodes = []
         objects = []
         step = node_width + gap
@@ -12314,7 +12314,7 @@ class BinaryTree(VCollection):
     def __init__(self, tree, x=960, y=120, h_spacing=200, v_spacing=100,
                  node_radius=25, font_size=20,
                  fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
-                 edge_color='#888', creation=0, z=0):
+                 edge_color='#888', creation: float = 0, z: float = 0):
         objects = []
         self._node_objects = []
 
@@ -12358,7 +12358,7 @@ class BinaryTree(VCollection):
 class Resistor(VCollection):
     """Electrical resistor symbol (zigzag line)."""
     def __init__(self, x1=400, y1=540, x2=600, y2=540, label='R',
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
         dx, dy = x2 - x1, y2 - y1
         length = math.hypot(dx, dy) or 1
@@ -12387,7 +12387,7 @@ class Resistor(VCollection):
 class Capacitor(VCollection):
     """Electrical capacitor symbol (two parallel plates)."""
     def __init__(self, x1=400, y1=540, x2=600, y2=540, label='C',
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
         dx, dy = x2 - x1, y2 - y1
         length = math.hypot(dx, dy) or 1
@@ -12419,7 +12419,7 @@ class Capacitor(VCollection):
 class Inductor(VCollection):
     """Electrical inductor symbol (coil/solenoid)."""
     def __init__(self, x1=400, y1=540, x2=600, y2=540, label='L',
-                 n_loops=4, creation=0, z=0, **styling_kwargs):
+                 n_loops=4, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
         dx, dy = x2 - x1, y2 - y1
         length = math.hypot(dx, dy) or 1
@@ -12454,7 +12454,7 @@ class Inductor(VCollection):
 class Diode(VCollection):
     """Electrical diode symbol (triangle with bar)."""
     def __init__(self, x1=400, y1=540, x2=600, y2=540, label='D',
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
         dx, dy = x2 - x1, y2 - y1
         length = math.hypot(dx, dy) or 1
@@ -12493,7 +12493,7 @@ class Diode(VCollection):
 class LED(VCollection):
     """Light-emitting diode symbol (diode with light rays)."""
     def __init__(self, x1=400, y1=540, x2=600, y2=540, label='LED',
-                 color='#FF0000', creation=0, z=0, **styling_kwargs):
+                 color='#FF0000', creation: float = 0, z: float = 0, **styling_kwargs):
         # Base diode
         diode = Diode(x1=x1, y1=y1, x2=x2, y2=y2, label='',
                       creation=creation, z=z, **styling_kwargs)
@@ -12533,7 +12533,7 @@ class UnitInterval(NumberLine):
     Convenience subclass with sensible defaults for [0, 1] range."""
     def __init__(self, x=360, y=540, length=600, tick_step=0.1,
                  show_labels=True, label_step=0.2, font_size=18,
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(x_range=(0, 1, tick_step), length=length,
                          x=x, y=y, include_numbers=show_labels,
                          font_size=font_size,
@@ -12553,7 +12553,7 @@ class Molecule2D(VCollection):
     }
 
     def __init__(self, atoms, bonds=None, scale=80, cx=960, cy=540,
-                 atom_radius=20, font_size=16, creation=0, z=0):
+                 atom_radius=20, font_size=16, creation: float = 0, z: float = 0):
         objects = []
         self._atom_objects = []
         if bonds:
@@ -12607,7 +12607,7 @@ class NeuralNetwork(VCollection):
 
     def __init__(self, layer_sizes, cx=960, cy=540, width=800, height=500,
                  neuron_radius=16, neuron_fill='#58C4DD', edge_color='#888',
-                 edge_width=1, creation=0, z=0, **kwargs):
+                 edge_width=1, creation: float = 0, z: float = 0, **kwargs):
         objects = []
         self._layers = []
         n_layers = len(layer_sizes)
@@ -12719,7 +12719,7 @@ class Pendulum(VCollection):
 
     def __init__(self, pivot_x=960, pivot_y=200, length=300, angle=30,
                  bob_radius=20, period=2.0, damping=0.0,
-                 start=0, end=5, creation=0, z=0, **kwargs):
+                 start=0, end=5, creation: float = 0, z: float = 0, **kwargs):
         self._pivot_x = pivot_x
         self._pivot_y = pivot_y
         self._length = length
@@ -12786,7 +12786,7 @@ class StandingWave(VCollection):
 
     def __init__(self, x1=300, y1=540, x2=1620, y2=540,
                  amplitude=100, harmonics=3, frequency=1.0, num_points=200,
-                 start=0, end=5, creation=0, z=0, **kwargs):
+                 start=0, end=5, creation: float = 0, z: float = 0, **kwargs):
         wave_length = math.hypot(x2 - x1, y2 - y1)
         dx_norm = (x2 - x1) / wave_length if wave_length else 1
         dy_norm = (y2 - y1) / wave_length if wave_length else 0

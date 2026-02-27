@@ -23,7 +23,7 @@ def _anim(attr, start, end, value, easing):
 
 
 class Polygon(VObject):
-    def __init__(self, *vertices, closed=True, z=0, creation=0, **styling_kwargs):
+    def __init__(self, *vertices, closed=True, z: float = 0, creation: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.closed = closed
         self.vertices = [attributes.Coor(creation, v) for v in vertices]
@@ -1242,7 +1242,7 @@ class Polygon(VObject):
 
 
 class Ellipse(VObject):
-    def __init__(self, rx: float = 120, ry: float = 60, cx: float = 960, cy: float = 540, z=0, creation=0, **styling_kwargs):
+    def __init__(self, rx: float = 120, ry: float = 60, cx: float = 960, cy: float = 540, z: float = 0, creation: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.c = attributes.Coor(creation, (cx, cy))
         self.rx = attributes.Real(creation, rx)
@@ -1504,7 +1504,7 @@ class Ellipse(VObject):
 
 class Circle(Ellipse):
     """Circle: Ellipse with rx == ry."""
-    def __init__(self, r: float = 120, cx: float = 960, cy: float = 540, z=0, creation=0, **styling_kwargs):
+    def __init__(self, r: float = 120, cx: float = 960, cy: float = 540, z: float = 0, creation: float = 0, **styling_kwargs):
         super().__init__(rx=r, ry=r, cx=cx, cy=cy, z=z, creation=creation, **styling_kwargs)
 
     def __repr__(self):
@@ -2398,7 +2398,7 @@ class Circle(Ellipse):
 
 class Dot(Circle):
     """Small filled circle, no stroke."""
-    def __init__(self, r: float = DEFAULT_DOT_RADIUS, cx: float = 960, cy: float = 540, z=0, creation=0, **styling_kwargs):
+    def __init__(self, r: float = DEFAULT_DOT_RADIUS, cx: float = 960, cy: float = 540, z: float = 0, creation: float = 0, **styling_kwargs):
         super().__init__(r=r, cx=cx, cy=cy, z=z, creation=creation,
                          **({'fill': '#fff', 'fill_opacity': 1, 'stroke_width': 0} | styling_kwargs))
 
@@ -2408,7 +2408,7 @@ class Dot(Circle):
 
 
 class Rectangle(VObject):
-    def __init__(self, width, height, x=960, y=540, rx=0, ry=0, creation=0, z=0, **styling_kwargs):
+    def __init__(self, width, height, x=960, y=540, rx=0, ry=0, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.x = attributes.Real(creation, x)
         self.y = attributes.Real(creation, y)
@@ -3097,7 +3097,7 @@ class Rectangle(VObject):
 
 
 class Line(VObject):
-    def __init__(self, x1: float = 0, y1: float = 0, x2: float = 100, y2: float = 100, creation=0, z=0, **styling_kwargs):
+    def __init__(self, x1: float = 0, y1: float = 0, x2: float = 100, y2: float = 100, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.p1 = attributes.Coor(creation, (x1, y1))
         self.p2 = attributes.Coor(creation, (x2, y2))
@@ -4327,7 +4327,7 @@ class Text(VObject):
     _NARROW = set('iIlj1|!.,;:\'"()[]{}')
     _WIDE = set('mMwWOQD@')
 
-    def __init__(self, text='', x: float = 960, y: float = 540, font_size: float = 48, text_anchor=None, font_family=None, creation: float = 0, z=0, **styling_kwargs):
+    def __init__(self, text='', x: float = 960, y: float = 540, font_size: float = 48, text_anchor=None, font_family=None, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.text = attributes.String(creation, text)
         self.x = attributes.Real(creation, x)
@@ -5074,7 +5074,7 @@ class CountAnimation(Text):
     """Text that animates a number counting from start_val to end_val."""
     def __init__(self, start_val=0, end_val=100, start: float = 0, end: float = 1,
                  fmt='{:.0f}', easing=easings.smooth,
-                 x: float = 960, y: float = 540, font_size: float = 60, text_anchor=None, creation: float = 0, z=0, **styling_kwargs):
+                 x: float = 960, y: float = 540, font_size: float = 60, text_anchor=None, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(text=fmt.format(start_val), x=x, y=y,
                          font_size=font_size, text_anchor=text_anchor,
                          creation=creation, z=z, **styling_kwargs)
@@ -5111,7 +5111,7 @@ class ValueTracker:
 
     Use to drive reactive animations (e.g. link a label's position to a value).
     """
-    def __init__(self, value=0, creation=0):
+    def __init__(self, value=0, creation: float = 0):
         self.value = attributes.Real(creation, value)
         self.show = attributes.Real(creation, True)
 
@@ -5141,7 +5141,7 @@ class DecimalNumber(Text):
     fmt: format string for display.
     """
     def __init__(self, value: 'float | ValueTracker | attributes.Real' = 0, fmt='{:.2f}', x=960, y=540, font_size=48,
-                 text_anchor=None, creation=0, z=0, **styling_kwargs):
+                 text_anchor=None, creation: float = 0, z: float = 0, **styling_kwargs):
         if isinstance(value, ValueTracker):
             tracker = value.value
         elif isinstance(value, attributes.Real):
@@ -5169,7 +5169,7 @@ class DecimalNumber(Text):
 
 class Lines(Polygon):
     """Open polyline — a Polygon with closed=False."""
-    def __init__(self, *vertices, creation=0, z=0, **styling_kwargs):
+    def __init__(self, *vertices, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(*vertices, closed=False, creation=creation, z=z, **styling_kwargs)
 
     def __repr__(self):
@@ -5178,7 +5178,7 @@ class Lines(Polygon):
 
 class Trace(VObject):
     """Follows a point every dt and renders as a polyline."""
-    def __init__(self, point, start=0, end=None, dt=1/60, z=0, **styling_kwargs):
+    def __init__(self, point, start=0, end=None, dt=1/60, z: float = 0, **styling_kwargs):
         super().__init__(creation=start, z=z)
         self.start = start
         self.end = end
@@ -5247,7 +5247,7 @@ class Trace(VObject):
 
 class Path(VObject):
     """SVG path element with a 'd' attribute."""
-    def __init__(self, path, x=0, y=0, creation: float = 0, z=0, **styling_kwargs):
+    def __init__(self, path, x=0, y=0, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.d = attributes.String(creation, path)
         self.styling = style.Styling(styling_kwargs, creation=creation, stroke='#fff')
@@ -5493,7 +5493,7 @@ class Path(VObject):
 
 class Image(VObject):
     """SVG <image> element."""
-    def __init__(self, href, x=0, y=0, width=1, height=1, creation=0, z=0, **styling_kwargs):
+    def __init__(self, href, x=0, y=0, width=1, height=1, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.href = href
         self.x = attributes.Real(creation, x)
@@ -5529,7 +5529,7 @@ class Image(VObject):
 
 class RegularPolygon(Polygon):
     """Regular n-sided polygon inscribed in a circle of given radius."""
-    def __init__(self, n, radius=120, cx=960, cy=540, angle=0, creation=0, z=0, **styling_kwargs):
+    def __init__(self, n, radius=120, cx=960, cy=540, angle=0, creation: float = 0, z: float = 0, **styling_kwargs):
         n = max(n, 1)
         self._n = n
         self._radius = radius
@@ -5566,7 +5566,7 @@ class RegularPolygon(Polygon):
 class Star(Polygon):
     """Star polygon with n outer points. outer_radius and inner_radius control the shape."""
     def __init__(self, n=5, outer_radius=120, inner_radius=None, cx=960, cy=540,
-                 angle=90, creation=0, z=0, **styling_kwargs):
+                 angle=90, creation: float = 0, z: float = 0, **styling_kwargs):
         n = max(n, 1)
         if inner_radius is None:
             inner_radius = outer_radius * 0.4
@@ -5596,7 +5596,7 @@ class Star(Polygon):
 class EquilateralTriangle(RegularPolygon):
     """Equilateral triangle: RegularPolygon with n=3.
     side_length is converted to the circumscribed radius."""
-    def __init__(self, side_length, angle=0, cx=960, cy=540, creation=0, z=0, **styling_kwargs):
+    def __init__(self, side_length, angle=0, cx=960, cy=540, creation: float = 0, z: float = 0, **styling_kwargs):
         self._side_length = side_length
         radius = side_length / math.sqrt(3)
         super().__init__(3, radius=radius, cx=cx, cy=cy, angle=angle + 90,
@@ -5608,7 +5608,7 @@ class EquilateralTriangle(RegularPolygon):
 
 class RoundedRectangle(Rectangle):
     """Rectangle with rounded corners (default corner_radius=10)."""
-    def __init__(self, width, height, x=960, y=540, corner_radius=12, creation=0, z=0, **styling_kwargs):
+    def __init__(self, width, height, x=960, y=540, corner_radius=12, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(width, height, x=x, y=y, rx=corner_radius, ry=corner_radius,
                          creation=creation, z=z, **styling_kwargs)
 
@@ -5629,7 +5629,7 @@ class SurroundingRectangle(RoundedRectangle):
     """Rectangle that surrounds a target object with padding.
     If follow=True (default), tracks the target as it moves."""
     def __init__(self, target, buff=SMALL_BUFF, corner_radius=6, follow=True,
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         bx, by, bw, bh = target.bbox(creation)
         style_kw = {'fill_opacity': 0, 'stroke': '#FFFF00'} | styling_kwargs
         super().__init__(bw + 2*buff, bh + 2*buff, x=bx - buff, y=by - buff,
@@ -5651,7 +5651,7 @@ class SurroundingCircle(Circle):
     """Circle that surrounds a target object with padding.
     If follow=True (default), tracks the target as it moves."""
     def __init__(self, target, buff=SMALL_BUFF, follow=True,
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         bx, by, bw, bh = target.bbox(creation)
         r = math.hypot(bw, bh) / 2 + buff
         cx, cy = bx + bw / 2, by + bh / 2
@@ -5673,7 +5673,7 @@ class SurroundingCircle(Circle):
 
 class BackgroundRectangle(Rectangle):
     """Semi-transparent rectangle behind a target object (useful for text backgrounds)."""
-    def __init__(self, target, buff=SMALL_BUFF, creation=0, z=-1, **styling_kwargs):
+    def __init__(self, target, buff=SMALL_BUFF, creation: float = 0, z=-1, **styling_kwargs):
         bx, by, bw, bh = target.bbox(creation)
         style_kw = {'fill': '#000', 'fill_opacity': 0.75, 'stroke_width': 0} | styling_kwargs
         super().__init__(bw + 2*buff, bh + 2*buff, x=bx - buff, y=by - buff,
@@ -5683,7 +5683,7 @@ class BackgroundRectangle(Rectangle):
 class Arc(VObject):
     """SVG arc segment defined by centre, radius, and start/end angles (degrees)."""
     def __init__(self, cx: float = 960, cy: float = 540, r: float = 120, start_angle: float = 0, end_angle: float = 90,
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.cx = attributes.Real(creation, cx)
         self.cy = attributes.Real(creation, cy)
@@ -5999,7 +5999,7 @@ class Arc(VObject):
 class Wedge(Arc):
     """Arc that closes through the centre (pie/wedge shape)."""
     def __init__(self, cx: float = 960, cy: float = 540, r: float = 120, start_angle: float = 0, end_angle: float = 90,
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(cx=cx, cy=cy, r=r, start_angle=start_angle, end_angle=end_angle,
                          creation=creation, z=z, **({'fill_opacity': 0.7, 'stroke': '#fff', 'stroke_width': 5} | styling_kwargs))
 
@@ -6051,7 +6051,7 @@ class Wedge(Arc):
 class Annulus(VObject):
     """Ring/donut shape defined by inner and outer radius."""
     def __init__(self, inner_radius=60, outer_radius=120, cx=960, cy=540,
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.c = attributes.Coor(creation, (cx, cy))
         self.inner_r = attributes.Real(creation, inner_radius)
@@ -6119,7 +6119,7 @@ class Annulus(VObject):
 
 class DashedLine(Line):
     """Line with a dashed stroke pattern."""
-    def __init__(self, x1: float = 0, y1: float = 0, x2: float = 100, y2: float = 100, dash='10,5', creation=0, z=0, **styling_kwargs):
+    def __init__(self, x1: float = 0, y1: float = 0, x2: float = 100, y2: float = 100, dash='10,5', creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z,
                          **({'stroke_dasharray': dash} | styling_kwargs))
 
@@ -6139,7 +6139,7 @@ class DashedLine(Line):
 class ScreenRectangle(Rectangle):
     """A rectangle with the canvas aspect ratio (16:9).
     height is derived from width automatically."""
-    def __init__(self, width=480, creation=0, z=0, **kwargs):
+    def __init__(self, width=480, creation: float = 0, z: float = 0, **kwargs):
         height = width * 9 / 16
         super().__init__(width=width, height=height, creation=creation, z=z, **kwargs)
 
@@ -6149,7 +6149,7 @@ class ArcBetweenPoints(Arc):
 
     angle: how much the arc bulges (degrees). Positive = left of start→end.
     """
-    def __init__(self, start, end, angle=60, creation=0, z=0, **styling_kwargs):
+    def __init__(self, start, end, angle=60, creation: float = 0, z: float = 0, **styling_kwargs):
         x1, y1 = start
         x2, y2 = end
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
@@ -6180,7 +6180,7 @@ class Elbow(Lines):
     width/height: pixel size of each arm.
     """
     def __init__(self, cx=960, cy=540, width=40, height=40,
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#fff', 'stroke_width': DEFAULT_STROKE_WIDTH, 'fill_opacity': 0} | styling_kwargs
         super().__init__(
             (cx + width, cy), (cx, cy), (cx, cy + height),
@@ -6193,7 +6193,7 @@ class AnnularSector(Arc):
     Like a Wedge but with an inner radius cut out.
     """
     def __init__(self, inner_radius=60, outer_radius=120, cx=960, cy=540,
-                 start_angle=0, end_angle=90, creation=0, z=0, **styling_kwargs):
+                 start_angle=0, end_angle=90, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(cx=cx, cy=cy, r=outer_radius, start_angle=start_angle,
                          end_angle=end_angle, creation=creation, z=z,
                          **({'fill_opacity': 0.7, 'stroke': '#fff', 'stroke_width': DEFAULT_STROKE_WIDTH} | styling_kwargs))
@@ -6305,7 +6305,7 @@ class Paragraph(VObject):
     line_spacing: multiplier for vertical spacing between lines.
     """
     def __init__(self, *lines, x=960, y=540, font_size=36, alignment='left',
-                 line_spacing=1.4, creation=0, z=0, **styling_kwargs):
+                 line_spacing=1.4, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.lines = list(lines)
         self.x = attributes.Real(creation, x)
@@ -6360,7 +6360,7 @@ class BulletedList(VObject):
     indent: pixel indentation for each item.
     """
     def __init__(self, *items, x=200, y=200, font_size=36, bullet='\u2022',
-                 indent=40, line_spacing=1.6, creation=0, z=0, **styling_kwargs):
+                 indent=40, line_spacing=1.6, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.items = list(items)
         self.x = attributes.Real(creation, x)
@@ -6413,7 +6413,7 @@ class NumberedList(VObject):
     start_number: first number in the sequence.
     """
     def __init__(self, *items, x=200, y=200, font_size=36, indent=50,
-                 line_spacing=1.6, start_number=1, creation=0, z=0, **styling_kwargs):
+                 line_spacing=1.6, start_number=1, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.items = list(items)
         self.x = attributes.Real(creation, x)
