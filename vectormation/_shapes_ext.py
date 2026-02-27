@@ -216,10 +216,35 @@ class Line(VObject):
         seg_len_sq = dx * dx + dy * dy
         if seg_len_sq < 1e-18:
             return (float(x1), float(y1))
-        # Parameter t in [0, 1] for the projection onto the segment
         t = ((px - x1) * dx + (py - y1) * dy) / seg_len_sq
         t = max(0.0, min(1.0, t))
         return (float(x1 + t * dx), float(y1 + t * dy))
+
+    get_projection = get_perpendicular_point
+
+    def set_angle(self, angle_deg, about='midpoint', start=0, end=None, easing=easings.smooth):
+        """Rotate the line to the given angle (degrees) about its midpoint or start."""
+        x1, y1 = self.p1.at_time(start)
+        x2, y2 = self.p2.at_time(start)
+        cur_angle = math.atan2(y2 - y1, x2 - x1)
+        target = math.radians(angle_deg)
+        delta = target - cur_angle
+        length = _distance(x1, y1, x2, y2)
+        if about == 'start':
+            new_p2 = (x1 + length * math.cos(target), y1 + length * math.sin(target))
+            _set_attr(self.p2, start, end, new_p2, easing)
+        else:
+            mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+            half = length / 2
+            _set_attr(self.p1, start, end, (mx - half * math.cos(target), my - half * math.sin(target)), easing)
+            _set_attr(self.p2, start, end, (mx + half * math.cos(target), my + half * math.sin(target)), easing)
+        return self
+
+    def put_start_and_end_on(self, p1, p2, start=0, end=None, easing=easings.smooth):
+        """Position the line between two points."""
+        _set_attr(self.p1, start, end, p1, easing)
+        _set_attr(self.p2, start, end, p2, easing)
+        return self
 
     @classmethod
     def between(cls, p1, p2, **kwargs):

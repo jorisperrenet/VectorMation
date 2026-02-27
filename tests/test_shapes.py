@@ -3,8 +3,8 @@ import math
 import pytest
 from vectormation.objects import (
     Circle, Rectangle, Polygon, Line, Lines, RegularPolygon, Arc, Ellipse,
-    Path, Trace, Text, Dot, Wedge, Sector, Star, RoundedRectangle, DashedLine,
-    NumberLine, EquilateralTriangle, Arrow, CurvedArrow, VObject, VCollection,
+    Path, Trace, Text, Dot, AnnotationDot, Wedge, Sector, Star, RoundedRectangle, DashedLine,
+    NumberLine, EquilateralTriangle, Triangle, Arrow, CurvedArrow, VObject, VCollection,
     from_svg, CountAnimation, Annulus, FunctionGraph,
     AnnularSector, PieChart, DonutChart, Axes, Brace, Table, BarChart,
 )
@@ -285,6 +285,39 @@ class TestCircleBackwardCompat:
         d = Dot(r=6, cx=50, cy=50)
         assert isinstance(d, Circle)
         assert isinstance(d, Ellipse)
+
+    def test_annotation_dot(self):
+        d = AnnotationDot(cx=100, cy=200)
+        assert isinstance(d, Dot)
+        assert d.styling.stroke_width.at_time(0) == 5
+        svg = d.to_svg(0)
+        assert 'circle' in svg
+
+    def test_triangle_alias(self):
+        t = Triangle(100)
+        assert isinstance(t, EquilateralTriangle)
+        assert isinstance(t, RegularPolygon)
+
+    def test_line_set_angle(self):
+        line = Line(0, 0, 100, 0)
+        line.set_angle(90)
+        # After setting to 90 degrees, line should be vertical
+        x1, y1 = line.p1.at_time(0)
+        x2, y2 = line.p2.at_time(0)
+        assert abs(x2 - x1) < 1
+        assert abs(y2 - y1) == pytest.approx(100, abs=1)
+
+    def test_line_put_start_and_end_on(self):
+        line = Line(0, 0, 100, 100)
+        line.put_start_and_end_on((200, 200), (300, 300))
+        assert line.p1.at_time(0) == (200, 200)
+        assert line.p2.at_time(0) == (300, 300)
+
+    def test_line_get_projection(self):
+        line = Line(0, 0, 100, 0)
+        proj = line.get_projection(50, 50)
+        assert proj[0] == pytest.approx(50)
+        assert proj[1] == pytest.approx(0)
 
 
 class TestLinesBackwardCompat:
