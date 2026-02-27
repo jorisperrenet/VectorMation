@@ -151,6 +151,16 @@ class Polygon(VObject):
             pairs.append((pts[-1], pts[0]))
         return [math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in pairs]
 
+    def get_longest_edge(self, time=0):
+        """Return the length of the longest edge."""
+        lengths = self.edge_lengths(time)
+        return max(lengths) if lengths else 0
+
+    def get_shortest_edge(self, time=0):
+        """Return the length of the shortest edge."""
+        lengths = self.edge_lengths(time)
+        return min(lengths) if lengths else 0
+
     def signed_area(self, time=0):
         """Return the signed area using the shoelace formula.
 
@@ -679,6 +689,47 @@ class Ellipse(VObject):
         _anim(self.ry, start, end, value, easing)
         return self
 
+    def tangent_at_angle(self, angle_deg, length=200, time=0, **kwargs):
+        """Return a tangent :class:`Line` at the given angle on the ellipse.
+
+        The angle is measured counter-clockwise from the positive x-axis
+        (with SVG y-down convention applied).  The returned line is centred
+        on the ellipse point and extends ``length/2`` in each direction
+        along the tangent.
+
+        Parameters
+        ----------
+        angle_deg:
+            Angle in degrees (CCW from right, same convention as
+            :meth:`point_at_angle`).
+        length:
+            Total length of the tangent line (default 200 px).
+        time:
+            Animation time at which to evaluate ellipse parameters.
+        **kwargs:
+            Extra keyword arguments forwarded to the :class:`Line`
+            constructor (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        Line
+            A tangent line centred on the ellipse at the specified angle.
+        """
+        cx, cy = self.c.at_time(time)
+        rx = self.rx.at_time(time)
+        ry = self.ry.at_time(time)
+        angle = math.radians(angle_deg)
+        # Point on ellipse
+        px = cx + rx * math.cos(angle)
+        py = cy - ry * math.sin(angle)  # SVG y-down
+        # Tangent direction: derivative of parametric form
+        tx = -rx * math.sin(angle)
+        ty = -ry * math.cos(angle)  # SVG y-down
+        mag = math.hypot(tx, ty)
+        if mag > 0:
+            tx, ty = tx / mag * length / 2, ty / mag * length / 2
+        return Line(x1=px - tx, y1=py - ty, x2=px + tx, y2=py + ty, **kwargs)
+
     def __repr__(self):
         cx, cy = self.c.at_time(0)
         return f'Ellipse(rx={self.rx.at_time(0):.0f}, ry={self.ry.at_time(0):.0f}, cx={cx:.0f}, cy={cy:.0f})'
@@ -904,6 +955,12 @@ class Circle(Ellipse):
 
     def get_radius(self, time=0):
         return self.rx.at_time(time)
+
+    def sector_area(self, start_angle, end_angle, time=0):
+        """Return the area of a circular sector between two angles (degrees)."""
+        r = self.get_radius(time)
+        sweep = abs(end_angle - start_angle)
+        return 0.5 * r * r * math.radians(sweep)
 
     def set_radius(self, value, start=0, end=None, easing=easings.smooth):
         """Animate the radius to value."""
@@ -1764,6 +1821,11 @@ class Line(VObject):
         return cls(p1[0], p1[1], p2[0], p2[1], **kwargs)
 
     @classmethod
+    def from_points(cls, p1, p2, **kwargs):
+        """Create a Line from two (x, y) tuples. Alias for :meth:`between`."""
+        return cls.between(p1, p2, **kwargs)
+
+    @classmethod
     def vertical(cls, x, y1, y2, **kwargs):
         """Create a vertical line at x from y1 to y2."""
         return cls(x, y1, x, y2, **kwargs)
@@ -2071,6 +2133,14 @@ class Text(VObject):
 
     def get_font_size(self, time=0):
         return self.font_size.at_time(time)
+
+    def starts_with(self, prefix, time=0):
+        """Return True if the text starts with *prefix* at the given time."""
+        return self.text.at_time(time).startswith(prefix)
+
+    def ends_with(self, suffix, time=0):
+        """Return True if the text ends with *suffix* at the given time."""
+        return self.text.at_time(time).endswith(suffix)
 
     def __repr__(self):
         t = self.text.at_time(0)

@@ -5229,3 +5229,86 @@ class TestPolygonWindingNumber:
         """A polygon with fewer than 3 vertices should return 0."""
         line = Polygon((0, 0), (100, 100))
         assert line.winding_number(50, 50) == 0
+
+
+# ── Circle.sector_area ──────────────────────────────────────────────
+class TestCircleSectorArea:
+    def test_full_circle(self):
+        import math
+        c = Circle(r=100, cx=0, cy=0)
+        area = c.sector_area(0, 360)
+        assert area == pytest.approx(math.pi * 100 * 100)
+
+    def test_quarter_circle(self):
+        import math
+        c = Circle(r=100, cx=0, cy=0)
+        area = c.sector_area(0, 90)
+        assert area == pytest.approx(math.pi * 100 * 100 / 4)
+
+    def test_reverse_angles(self):
+        """sector_area uses abs(sweep), so order shouldn't matter."""
+        c = Circle(r=50, cx=0, cy=0)
+        assert c.sector_area(90, 0) == pytest.approx(c.sector_area(0, 90))
+
+
+# ── Text.starts_with / ends_with ────────────────────────────────────
+class TestTextStartsEndsWith:
+    def test_starts_with_true(self):
+        t = Text('hello world')
+        assert t.starts_with('hello') is True
+
+    def test_starts_with_false(self):
+        t = Text('hello world')
+        assert t.starts_with('world') is False
+
+    def test_ends_with_true(self):
+        t = Text('hello world')
+        assert t.ends_with('world') is True
+
+    def test_ends_with_false(self):
+        t = Text('hello world')
+        assert t.ends_with('hello') is False
+
+
+# ── Line.from_points ────────────────────────────────────────────────
+class TestLineFromPoints:
+    def test_basic(self):
+        line = Line.from_points((10, 20), (30, 40))
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        assert p1 == pytest.approx((10, 20))
+        assert p2 == pytest.approx((30, 40))
+
+    def test_matches_between(self):
+        a = Line.from_points((100, 200), (300, 400))
+        b = Line.between((100, 200), (300, 400))
+        assert a.p1.at_time(0) == pytest.approx(b.p1.at_time(0))
+        assert a.p2.at_time(0) == pytest.approx(b.p2.at_time(0))
+
+
+# ── Polygon.get_longest_edge / get_shortest_edge ────────────────────
+class TestPolygonLongestShortestEdge:
+    def test_longest_edge_square(self):
+        sq = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        assert sq.get_longest_edge() == pytest.approx(100)
+
+    def test_shortest_edge_square(self):
+        sq = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        assert sq.get_shortest_edge() == pytest.approx(100)
+
+    def test_longest_edge_triangle(self):
+        import math
+        tri = Polygon((0, 0), (300, 0), (0, 100))
+        longest = tri.get_longest_edge()
+        expected = math.hypot(300, 100)  # hypotenuse
+        assert longest == pytest.approx(expected)
+
+    def test_shortest_edge_triangle(self):
+        tri = Polygon((0, 0), (300, 0), (0, 100))
+        shortest = tri.get_shortest_edge()
+        assert shortest == pytest.approx(100)
+
+    def test_degenerate_single_vertex(self):
+        p = Polygon((0, 0), closed=False)
+        assert p.get_longest_edge() == 0
+        assert p.get_shortest_edge() == 0

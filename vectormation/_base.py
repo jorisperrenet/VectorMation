@@ -394,6 +394,38 @@ class VObject(ABC):  # Vector Object
         self.show.set_onward(start, 1 if visible else 0)
         return self
 
+    def visibility_toggle(self, *times):
+        """Toggle visibility at each given time.
+
+        The times are sorted, then at the first time the object becomes
+        visible, at the second it hides, at the third it shows again, and
+        so on.  The object is hidden before the first time.
+
+        Parameters
+        ----------
+        *times:
+            One or more time values at which to toggle visibility.
+
+        Returns
+        -------
+        self
+            For method chaining.
+
+        Example
+        -------
+        >>> c = Circle(r=50)
+        >>> c.visibility_toggle(1, 3, 5)
+        # visible during [1,3), hidden during [3,5), visible from 5 onward
+        """
+        sorted_times = sorted(times)
+        self.show.set_onward(0, False)
+        for i, t in enumerate(sorted_times):
+            if i % 2 == 0:
+                self.show.set_onward(t, True)
+            else:
+                self.show.set_onward(t, False)
+        return self
+
     def set_creation(self, time):
         """Set the creation time."""
         self._show_from(time)

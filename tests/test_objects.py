@@ -6288,7 +6288,7 @@ class TestFlashHighlight:
         c = Circle(r=50, cx=200, cy=200)
         _, _, bw, bh = c.bbox(0)
         rect = c.flash_highlight(start=0, end=1)
-        rx, ry, rw, rh = rect.bbox(0)
+        _, _, rw, rh = rect.bbox(0)
         assert rw >= bw
         assert rh >= bh
 
@@ -6988,7 +6988,6 @@ class TestVObjectClone:
 class TestAxesFunctionMaxMin:
     def test_get_function_max_parabola(self):
         """-(x^2) has its maximum at x=0."""
-        import math
         ax = Axes(x_range=(-3, 3), y_range=(-10, 1))
         x, y = ax.get_function_max(lambda x: -(x ** 2), -3, 3)
         assert x == pytest.approx(0.0, abs=0.1)
@@ -7047,7 +7046,7 @@ class TestAxesFunctionMaxMin:
         """sin(x) has max ~1 at x=pi/2 in [0, pi]."""
         import math
         ax = Axes(x_range=(0, 4), y_range=(-1, 1))
-        x, y = ax.get_function_max(math.sin, 0, math.pi)
+        _, y = ax.get_function_max(math.sin, 0, math.pi)
         assert y == pytest.approx(1.0, abs=0.01)
 
     def test_get_function_min_sine(self):
@@ -7366,7 +7365,7 @@ class TestGrowFromCorner:
         r.grow_from_corner(start=0, end=1, corner=UR, easing=easings.linear)
         # Scale origin should be top-right corner of bbox
         ox, oy = r.styling._scale_origin
-        bx, by, bw, bh = r.bbox(0)
+        bx, by, bw, _ = r.bbox(0)
         assert ox == pytest.approx(bx + bw)  # right edge
         assert oy == pytest.approx(by)        # top edge
 
@@ -7375,7 +7374,7 @@ class TestGrowFromCorner:
         r.grow_from_corner(start=0, end=1, easing=easings.linear)
         # Default is DL = (-1, 1) = bottom-left
         ox, oy = r.styling._scale_origin
-        bx, by, bw, bh = r.bbox(0)
+        bx, by, _, bh = r.bbox(0)
         assert ox == pytest.approx(bx)        # left edge
         assert oy == pytest.approx(by + bh)   # bottom edge
 
@@ -7641,7 +7640,7 @@ class TestShrinkToCorner:
         r = Rectangle(100, 80, x=300, y=300)
         r.shrink_to_corner(start=0, end=1, corner=UR, easing=easings.linear)
         ox, oy = r.styling._scale_origin
-        bx, by, bw, bh = r.bbox(0)
+        bx, by, bw, _ = r.bbox(0)
         assert ox == pytest.approx(bx + bw)  # right edge
         assert oy == pytest.approx(by)        # top edge
 
@@ -7649,7 +7648,7 @@ class TestShrinkToCorner:
         r = Rectangle(100, 80, x=300, y=300)
         r.shrink_to_corner(start=0, end=1, easing=easings.linear)
         ox, oy = r.styling._scale_origin
-        bx, by, bw, bh = r.bbox(0)
+        bx, by, _, bh = r.bbox(0)
         assert ox == pytest.approx(bx)        # left edge
         assert oy == pytest.approx(by + bh)   # bottom edge
 
@@ -7804,7 +7803,6 @@ class TestFollow:
         cx_mid, _ = follower.center(0.5)
         # At t=2 the updater should NOT run (past end)
         follower._run_updaters(2.0)
-        cx_late, _ = follower.center(2.0)
         # The position at t=2 should be the same as whatever was set last
         # (updater stops at end=1, so position after end stays fixed)
         assert cx_mid != 100  # It moved during the follow window
@@ -7980,13 +7978,13 @@ class TestAxesAddAnnotation:
     def test_add_annotation_label_text(self):
         """The label should contain the provided text."""
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        dot, label = ax.add_annotation(1, 1, 'test_label')
+        _, label = ax.add_annotation(1, 1, 'test_label')
         assert label.text.at_time(0) == 'test_label'
 
     def test_add_annotation_at_correct_position(self):
         """The dot should be placed at the correct SVG coordinates."""
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        dot, label = ax.add_annotation(0, 0, 'origin')
+        dot, _ = ax.add_annotation(0, 0, 'origin')
         expected = ax.coords_to_point(0, 0)
         pos = dot.c.at_time(0)
         assert pos[0] == pytest.approx(expected[0], abs=1)
@@ -8042,3 +8040,112 @@ class TestAxesCoordsToScreen:
         expected = ax.coords_to_point(1, 1, time=0)
         assert result[0] == pytest.approx(expected[0])
         assert result[1] == pytest.approx(expected[1])
+
+
+class TestVisibilityToggle:
+    def test_basic_toggle(self):
+        """Object should alternate between visible and hidden at each time."""
+        c = Circle(r=50)
+        c.visibility_toggle(1, 3, 5)
+        assert not c.show.at_time(0.5)  # hidden before first time
+        assert c.show.at_time(2)        # visible during [1, 3)
+        assert not c.show.at_time(4)    # hidden during [3, 5)
+        assert c.show.at_time(6)        # visible from 5 onward
+
+    def test_single_time(self):
+        """With a single time, the object is hidden before and visible after."""
+        c = Circle(r=50)
+        c.visibility_toggle(2)
+        assert not c.show.at_time(1)  # hidden before
+        assert c.show.at_time(3)      # visible after
+
+    def test_two_times(self):
+        """With two times, object is visible between them and hidden outside."""
+        r = Rectangle(100, 100)
+        r.visibility_toggle(1, 4)
+        assert not r.show.at_time(0.5)  # hidden before
+        assert r.show.at_time(2)        # visible during [1, 4)
+        assert not r.show.at_time(5)    # hidden after
+
+    def test_returns_self(self):
+        """visibility_toggle should return self for chaining."""
+        c = Circle(r=50)
+        result = c.visibility_toggle(1, 2, 3)
+        assert result is c
+
+    def test_unsorted_times(self):
+        """Times should be sorted internally regardless of input order."""
+        c = Circle(r=50)
+        c.visibility_toggle(5, 1, 3)
+        assert not c.show.at_time(0.5)  # hidden before first (1)
+        assert c.show.at_time(2)        # visible during [1, 3)
+        assert not c.show.at_time(4)    # hidden during [3, 5)
+        assert c.show.at_time(6)        # visible from 5 onward
+
+
+class TestEllipseTangentAtAngle:
+    def test_tangent_at_zero_degrees(self):
+        """Tangent at 0 degrees on a circle should be vertical."""
+        c = Circle(r=100, cx=500, cy=500)
+        line = c.tangent_at_angle(0)
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        # At 0 degrees the point is (600, 500) and the tangent is vertical
+        assert p1[0] == pytest.approx(p2[0], abs=1e-6)  # same x: vertical line
+        mid_x = (p1[0] + p2[0]) / 2
+        mid_y = (p1[1] + p2[1]) / 2
+        assert mid_x == pytest.approx(600, abs=1e-6)
+        assert mid_y == pytest.approx(500, abs=1e-6)
+
+    def test_tangent_at_90_degrees(self):
+        """Tangent at 90 degrees on a circle should be horizontal."""
+        c = Circle(r=100, cx=500, cy=500)
+        line = c.tangent_at_angle(90)
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        # At 90 degrees the point is (500, 400) and the tangent is horizontal
+        assert p1[1] == pytest.approx(p2[1], abs=1e-6)  # same y: horizontal line
+        mid_x = (p1[0] + p2[0]) / 2
+        mid_y = (p1[1] + p2[1]) / 2
+        assert mid_x == pytest.approx(500, abs=1e-6)
+        assert mid_y == pytest.approx(400, abs=1e-6)
+
+    def test_tangent_returns_line(self):
+        """tangent_at_angle should return a Line object."""
+        e = Ellipse(rx=150, ry=80, cx=960, cy=540)
+        line = e.tangent_at_angle(45)
+        assert isinstance(line, Line)
+
+    def test_tangent_line_length(self):
+        """The tangent line should have the specified length."""
+        c = Circle(r=100, cx=500, cy=500)
+        length = 300
+        line = c.tangent_at_angle(0, length=length)
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        actual_len = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
+        assert actual_len == pytest.approx(length, abs=1e-6)
+
+    def test_tangent_perpendicular_to_radius_circle(self):
+        """For a circle, the tangent at any angle should be perpendicular to the radius."""
+        c = Circle(r=100, cx=500, cy=500)
+        for deg in [0, 30, 45, 60, 90, 135, 180, 270]:
+            line = c.tangent_at_angle(deg)
+            p1 = line.p1.at_time(0)
+            p2 = line.p2.at_time(0)
+            # Tangent direction
+            tdx, tdy = p2[0] - p1[0], p2[1] - p1[1]
+            # Radius direction from center to point on circle
+            pt = c.point_at_angle(deg)
+            rdx, rdy = pt[0] - 500, pt[1] - 500
+            # Dot product should be zero (perpendicular)
+            dot = tdx * rdx + tdy * rdy
+            assert dot == pytest.approx(0, abs=1e-4), f"Failed at {deg} degrees"
+
+    def test_tangent_kwargs_forwarded(self):
+        """Extra kwargs should be forwarded to the Line constructor."""
+        e = Ellipse(rx=100, ry=50)
+        line = e.tangent_at_angle(0, stroke='#f00', stroke_width=3)
+        svg = line.to_svg(0)
+        assert 'stroke-width=\'3\'' in svg
+        assert 'rgb(255,0,0)' in svg or '#f00' in svg
