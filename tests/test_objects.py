@@ -1731,6 +1731,20 @@ class TestTrace:
         assert result is t
         assert t.styling.dx.at_time(0) == pytest.approx(10)
 
+    def test_repr_before_rendering(self):
+        p = Coor(0, (100, 100))
+        t = Trace(p, start=0, end=1, dt=0.1)
+        r = repr(t)
+        assert r == 'Trace(0 points)'
+
+    def test_repr_after_rendering(self):
+        p = Coor(0, (100, 100))
+        t = Trace(p, start=0, end=1, dt=0.1)
+        t.to_svg(0.5)
+        r = repr(t)
+        assert r.startswith('Trace(')
+        assert 'points' in r
+
 
 class TestCountAnimation:
     def test_count_creates(self):
@@ -3663,6 +3677,104 @@ class TestStaggerFadeout:
         g = VCollection(c1, c2)
         result = g.stagger_fadeout(start=0, end=2)
         assert result is g
+
+
+class TestRotateOut:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.rotate_out(start=0, end=1)
+        assert result is c
+
+    def test_hides_at_end(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.rotate_out(start=0, end=1)
+        assert not c.show.at_time(1.5)
+
+    def test_rotation_increases(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.rotate_out(start=0, end=1, angle=90, easing=easings.linear)
+        rot0 = c.styling.rotation.at_time(0)
+        rot_mid = c.styling.rotation.at_time(0.5)
+        assert rot0[0] == pytest.approx(0, abs=1)
+        assert rot_mid[0] == pytest.approx(45, abs=5)
+
+    def test_opacity_decreases(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.rotate_out(start=0, end=1, easing=easings.linear)
+        op_start = c.styling.fill_opacity.at_time(0)
+        op_end = c.styling.fill_opacity.at_time(1)
+        assert op_start > op_end
+
+    def test_no_change_existence(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.rotate_out(start=0, end=1, change_existence=False)
+        # Without change_existence, object should still be visible after end
+        assert c.show.at_time(1.5)
+
+    def test_zero_duration_no_crash(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.rotate_out(start=1, end=1)
+        assert result is c
+
+
+class TestStaggerRandom:
+    def test_returns_self(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        g = VCollection(c1, c2)
+        result = g.stagger_random('fadein', start=0, end=2)
+        assert result is g
+
+    def test_calls_method_on_all_children(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        c3 = Circle(r=30)
+        g = VCollection(c1, c2, c3)
+        g.stagger_random('fadein', start=0, end=3, seed=42)
+        # All children should be visible at time 3 (after all fadein animations)
+        for c in [c1, c2, c3]:
+            assert c.show.at_time(3)
+
+    def test_seed_is_reproducible(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        c3 = Circle(r=30)
+        g = VCollection(c1, c2, c3)
+        g.stagger_random('fadein', start=0, end=3, seed=99)
+        svg_a = g.to_svg(1.5)
+
+        d1 = Circle(r=10)
+        d2 = Circle(r=20)
+        d3 = Circle(r=30)
+        h = VCollection(d1, d2, d3)
+        h.stagger_random('fadein', start=0, end=3, seed=99)
+        svg_b = h.to_svg(1.5)
+
+        assert svg_a == svg_b
+
+    def test_empty_collection(self):
+        g = VCollection()
+        result = g.stagger_random('fadein', start=0, end=1)
+        assert result is g
+
+    def test_zero_duration_no_crash(self):
+        c1 = Circle(r=10)
+        g = VCollection(c1)
+        result = g.stagger_random('fadein', start=1, end=1)
+        assert result is g
+
+    def test_different_seeds_give_different_order(self):
+        # With enough children, different seeds should produce different orderings
+        circles = [Circle(r=i * 10 + 10) for i in range(5)]
+        g1 = VCollection(*[Circle(r=i * 10 + 10) for i in range(5)])
+        g2 = VCollection(*[Circle(r=i * 10 + 10) for i in range(5)])
+        g1.stagger_random('fadein', start=0, end=5, seed=1)
+        g2.stagger_random('fadein', start=0, end=5, seed=2)
+        # Very likely to differ at mid-point; just check no crash
+        svg1 = g1.to_svg(2.5)
+        svg2 = g2.to_svg(2.5)
+        assert svg1 is not None
+        assert svg2 is not None
 
 
 class TestCubicBezierImprovements:

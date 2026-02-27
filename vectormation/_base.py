@@ -665,6 +665,25 @@ class VObject(ABC):  # Vector Object
             lambda t, _s=s, _d=dur, _to=target_op: _to * easing((t - _s) / _d), stay=True)
         return self
 
+    def rotate_out(self, start: float = 0, end: float = 1, angle=90,
+                   change_existence=True, easing=easings.smooth):
+        """Rotate away while fading out. Reverse of rotate_in."""
+        dur = end - start
+        if dur <= 0:
+            return self
+        self._ensure_scale_origin(start)
+        cx, cy = self.styling._scale_origin
+        s = start
+        self.styling.rotation.set(s, end,
+            lambda t, _s=s, _d=dur, _deg=angle, _cx=cx, _cy=cy: (_deg * easing((t - _s) / _d), _cx, _cy),
+            stay=True)
+        start_op = self.styling.fill_opacity.at_time(start)
+        self.styling.fill_opacity.set(s, end,
+            lambda t, _s=s, _d=dur, _so=start_op: _so * (1 - easing((t - _s) / _d)), stay=True)
+        if change_existence:
+            self._hide_from(end)
+        return self
+
     def pop_in(self, start: float = 0, duration=0.3, overshoot=1.2, change_existence=True, easing=easings.smooth):
         """Quick pop-in: scale from 0 to 1 with optional overshoot."""
         if change_existence:
@@ -2595,6 +2614,23 @@ class VCollection:
                 if key in kw:
                     kw[key] = kw[key] + i * delay
             getattr(obj, method_name)(**kw)
+        return self
+
+    def stagger_random(self, method_name, start=0, end=1, seed=None, **kwargs):
+        """Call method_name on each child in random order with equal stagger delay."""
+        import random
+        n = len(self.objects)
+        if n == 0:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        delay = dur / n
+        shuffled = random.Random(seed).sample(self.objects, n)
+        for i, obj in enumerate(shuffled):
+            obj_start = start + i * delay
+            obj_end = obj_start + delay
+            getattr(obj, method_name)(obj_start, obj_end, **kwargs)
         return self
 
     def wave_anim(self, start: float = 0, end: float = 1, amplitude=20, waves=1):

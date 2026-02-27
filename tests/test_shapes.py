@@ -5,7 +5,7 @@ from vectormation.objects import (
     Path, Trace, Text, Dot, Wedge, Sector, Star, RoundedRectangle, DashedLine,
     NumberLine, EquilateralTriangle, Arrow, CurvedArrow, VObject, VCollection,
     from_svg, CountAnimation, Annulus, DoubleArrow, FunctionGraph,
-    AnnularSector, PieChart, Axes,
+    AnnularSector, PieChart, DonutChart, Axes,
 )
 from vectormation.attributes import Coor
 import vectormation.easings as easings
@@ -302,6 +302,16 @@ class TestLinesBackwardCompat:
         assert bw == pytest.approx(100)
         assert bh == pytest.approx(50)
 
+    def test_repr(self):
+        l = Lines((0, 0), (100, 0), (100, 100))
+        r = repr(l)
+        assert r == 'Lines(3 vertices)'
+
+    def test_repr_two_vertices(self):
+        l = Lines((10, 20), (30, 40))
+        r = repr(l)
+        assert r == 'Lines(2 vertices)'
+
 
 class TestRegularPolygonWithoutFixedVertex:
     """RegularPolygon now inherits directly from Polygon (FixedVertexPolygon removed)."""
@@ -502,6 +512,16 @@ class TestDashedLine:
         dl = DashedLine(0, 0, 100, 100)
         svg = dl.to_svg(0)
         assert 'stroke-dasharray' in svg
+
+    def test_repr(self):
+        dl = DashedLine(10, 20, 110, 220)
+        r = repr(dl)
+        assert r == 'DashedLine((10,20)->(110,220))'
+
+    def test_repr_default(self):
+        dl = DashedLine()
+        r = repr(dl)
+        assert r == 'DashedLine((0,0)->(100,100))'
 
 
 class TestNumberLine:
@@ -2016,3 +2036,125 @@ class TestGettersSetters:
         ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
         result = ax.set_y_range(-1, 1)
         assert result is ax
+
+    # Axes.get_horizontal_lines
+    def test_axes_get_horizontal_lines_returns_vcollection(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        result = ax.get_horizontal_lines([0, 1, 2])
+        assert isinstance(result, VCollection)
+
+    def test_axes_get_horizontal_lines_count(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        result = ax.get_horizontal_lines([-1, 0, 1])
+        assert len(result.objects) == 3
+
+    def test_axes_get_horizontal_lines_y_position(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-4, 4))
+        result = ax.get_horizontal_lines([2.0])
+        line = result.objects[0]
+        sy1 = line.p1.at_time(0)[1]
+        sy2 = line.p2.at_time(0)[1]
+        # Both endpoints share the same y (horizontal line)
+        assert sy1 == pytest.approx(sy2)
+
+    def test_axes_get_horizontal_lines_x_start_end(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        result = ax.get_horizontal_lines([0], x_start=-2, x_end=2)
+        line = result.objects[0]
+        sx1 = line.p1.at_time(0)[0]
+        sx2 = line.p2.at_time(0)[0]
+        # x_start < x_end in SVG space
+        assert sx1 < sx2
+
+    def test_axes_get_horizontal_lines_default_spans_plot(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        result = ax.get_horizontal_lines([1])
+        line = result.objects[0]
+        sx1 = line.p1.at_time(0)[0]
+        sx2 = line.p2.at_time(0)[0]
+        # Default spans from plot_x to plot_x + plot_width
+        assert sx1 == pytest.approx(ax.plot_x)
+        assert sx2 == pytest.approx(ax.plot_x + ax.plot_width)
+
+    def test_axes_get_horizontal_lines_returns_self_chainable(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        result = ax.get_horizontal_lines([0, 1])
+        assert isinstance(result, VCollection)
+        assert len(result.objects) == 2
+
+
+class TestDonutChart:
+    def test_donutchart_get_sector_returns_path(self):
+        dc = DonutChart([1, 2, 3])
+        s = dc.get_sector(0)
+        assert s is dc._sectors[0]
+
+    def test_donutchart_get_sector_index_error(self):
+        dc = DonutChart([1, 2, 3])
+        with pytest.raises(IndexError):
+            dc.get_sector(5)
+
+    def test_donutchart_get_sector_negative_index_error(self):
+        dc = DonutChart([1, 2, 3])
+        with pytest.raises(IndexError):
+            dc.get_sector(-1)
+
+    def test_donutchart_get_sector_last(self):
+        dc = DonutChart([10, 20, 30])
+        s = dc.get_sector(2)
+        assert s is dc._sectors[2]
+
+    def test_donutchart_highlight_sector_returns_self(self):
+        dc = DonutChart([1, 2, 3])
+        result = dc.highlight_sector(0, start=0, end=1)
+        assert result is dc
+
+    def test_donutchart_highlight_sector_out_of_range_no_error(self):
+        dc = DonutChart([1, 2, 3])
+        # Out-of-range index returns self without raising
+        result = dc.highlight_sector(10, start=0, end=1)
+        assert result is dc
+
+    def test_donutchart_highlight_sector_shifts_sector(self):
+        dc = DonutChart([1, 2, 3])
+        sector = dc._sectors[0]
+        # Before highlight, dx at t=0.5 should be 0
+        dx_before = sector.styling.dx.at_time(0.5)
+        dc.highlight_sector(0, start=0, end=1, pull_distance=50)
+        dx_after = sector.styling.dx.at_time(0.25)
+        # After highlight, dx at midpoint should be non-zero (sector was shifted)
+        assert dx_after != dx_before
+
+    def test_donutchart_animate_values_returns_self(self):
+        dc = DonutChart([1, 2, 3])
+        result = dc.animate_values([2, 2, 2], start=0, end=1)
+        assert result is dc
+
+    def test_donutchart_animate_values_updates_stored_values(self):
+        dc = DonutChart([1, 2, 3])
+        dc.animate_values([4, 4, 4], start=0, end=1)
+        assert dc.values == [4, 4, 4]
+
+    def test_donutchart_animate_values_wrong_length_ignored(self):
+        dc = DonutChart([1, 2, 3])
+        result = dc.animate_values([1, 2], start=0, end=1)
+        assert result is dc
+        assert dc.values == [1, 2, 3]  # unchanged
+
+    def test_donutchart_animate_values_path_changes(self):
+        dc = DonutChart([1, 2, 3])
+        d_before = dc._sectors[0].d.at_time(0)
+        dc.animate_values([3, 2, 1], start=0, end=2)
+        d_after = dc._sectors[0].d.at_time(2)
+        # Path data should differ at end of animation
+        assert d_before != d_after
+
+    def test_donutchart_animate_values_zero_duration_ignored(self):
+        dc = DonutChart([1, 2, 3])
+        result = dc.animate_values([2, 2, 2], start=1, end=1)
+        assert result is dc
+        assert dc.values == [1, 2, 3]  # unchanged since dur=0
+
+    def test_donutchart_repr(self):
+        dc = DonutChart([1, 2, 3])
+        assert repr(dc) == 'DonutChart(3 sectors)'

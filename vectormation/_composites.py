@@ -3058,6 +3058,35 @@ class Axes(VCollection):
             lines.append(line)
         return VCollection(*lines, creation=creation, z=z)
 
+    def get_horizontal_lines(self, y_values, x_start=None, x_end=None, creation=0, z=1, **kwargs):
+        """Draw horizontal lines at specified y_values across the plot area.
+
+        y_values: list of y math-coordinates at which to draw horizontal lines.
+        x_start: left x math-coordinate for the lines (defaults to x_min).
+        x_end: right x math-coordinate for the lines (defaults to x_max).
+        Returns a VCollection of Line objects."""
+        style_kw = {'stroke': '#aaa', 'stroke_width': 1,
+                    'stroke_dasharray': '4 3'} | kwargs
+        lines = []
+        for yv in y_values:
+            line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+            _yv = yv
+            _x_start = x_start
+            _x_end = x_end
+            def _p1(t, _yv=_yv, _x_start=_x_start):
+                sy = self._math_to_svg_y(_yv, t)
+                sx = self._math_to_svg_x(_x_start, t) if _x_start is not None else self.plot_x
+                return (sx, sy)
+            def _p2(t, _yv=_yv, _x_end=_x_end):
+                sy = self._math_to_svg_y(_yv, t)
+                sx = self._math_to_svg_x(_x_end, t) if _x_end is not None else self.plot_x + self.plot_width
+                return (sx, sy)
+            line.p1.set_onward(creation, _p1)
+            line.p2.set_onward(creation, _p2)
+            self._add_plot_obj(line)
+            lines.append(line)
+        return VCollection(*lines, creation=creation, z=z)
+
     def add_interval(self, x_lo, x_hi, y=None, creation=0, z=2, bracket_height=10,
                       **styling_kwargs):
         """Draw an interval bracket [x_lo, x_hi] on the x-axis (or at y).
@@ -4430,6 +4459,9 @@ class DonutChart(VCollection):
                 objects.append(lbl)
             angle += sweep
         self._sectors = sectors
+        self._cx, self._cy = cx, cy
+        self._r, self._inner_radius = r, inner_radius
+        self._start_angle = start_angle
         if center_text is not None:
             ct = Text(text=str(center_text), x=cx, y=cy + font_size * TEXT_Y_OFFSET,
                       font_size=int(font_size * 1.5), text_anchor='middle',
@@ -4437,6 +4469,78 @@ class DonutChart(VCollection):
             objects.append(ct)
         super().__init__(*objects, creation=creation, z=z)
         self.values = values
+
+    def __repr__(self):
+        return f'DonutChart({len(self.values)} sectors)'
+
+    def get_sector(self, index):
+        """Return the Path object for the sector at index."""
+        if index < 0 or index >= len(self._sectors):
+            raise IndexError(f"sector index {index} out of range (0..{len(self._sectors) - 1})")
+        return self._sectors[index]
+
+    def highlight_sector(self, index, start=0, end=1, pull_distance=30, easing=easings.there_and_back):
+        """Pull out a donut sector to highlight it by shifting it outward."""
+        if index < 0 or index >= len(self._sectors):
+            return self
+        sector = self._sectors[index]
+        # Determine mid-angle for this sector from cumulative values
+        total = sum(self.values) or 1
+        cum = sum(self.values[:index])
+        start_a = self._start_angle + 360 * cum / total
+        sweep = 360 * self.values[index] / total
+        mid_rad = math.radians(start_a + sweep / 2)
+        dx = pull_distance * math.cos(mid_rad)
+        dy = -pull_distance * math.sin(mid_rad)
+        dur = end - start
+        if dur <= 0:
+            return self
+        sector.shift(dx=dx, dy=dy, start_time=start, end_time=start + dur / 2, easing=easing)
+        return self
+
+    def animate_values(self, new_values, start=0, end=1, easing=easings.smooth):
+        """Animate donut chart to new values by morphing sector path shapes."""
+        if len(new_values) != len(self.values):
+            return self
+        old_values = list(self.values)
+        old_total = sum(old_values) or 1
+        new_total = sum(new_values) or 1
+        dur = end - start
+        if dur <= 0:
+            return self
+        self.values = list(new_values)
+        cx, cy = self._cx, self._cy
+        r, ir = self._r, self._inner_radius
+        sa0 = self._start_angle
+        for i, sector in enumerate(self._sectors):
+            old_cum = sum(old_values[:i])
+            new_cum = sum(new_values[:i])
+            old_a1 = sa0 + 360 * old_cum / old_total
+            old_a2 = sa0 + 360 * (old_cum + old_values[i]) / old_total
+            new_a1 = sa0 + 360 * new_cum / new_total
+            new_a2 = sa0 + 360 * (new_cum + new_values[i]) / new_total
+            _s, _d = start, max(dur, 1e-9)
+            _oa1, _oa2 = old_a1, old_a2
+            _na1, _na2 = new_a1, new_a2
+
+            def _make_d(t, _s=_s, _d=_d, _oa1=_oa1, _oa2=_oa2,
+                        _na1=_na1, _na2=_na2):
+                prog = easing(max(0.0, min(1.0, (t - _s) / _d)))
+                a1 = math.radians(_oa1 + (_na1 - _oa1) * prog)
+                a2 = math.radians(_oa2 + (_na2 - _oa2) * prog)
+                sweep_deg = math.degrees(a2 - a1)
+                ox1, oy1 = cx + r * math.cos(a1), cy - r * math.sin(a1)
+                ox2, oy2 = cx + r * math.cos(a2), cy - r * math.sin(a2)
+                ix1, iy1 = cx + ir * math.cos(a2), cy - ir * math.sin(a2)
+                ix2, iy2 = cx + ir * math.cos(a1), cy - ir * math.sin(a1)
+                large = 1 if sweep_deg > 180 else 0
+                return (f'M{ox1:.1f},{oy1:.1f} '
+                        f'A{r},{r} 0 {large} 0 {ox2:.1f},{oy2:.1f} '
+                        f'L{ix1:.1f},{iy1:.1f} '
+                        f'A{ir},{ir} 0 {large} 1 {ix2:.1f},{iy2:.1f} Z')
+
+            sector.d.set(start, end, _make_d, stay=True)
+        return self
 
 
 class BarChart(VCollection):

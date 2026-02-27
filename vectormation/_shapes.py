@@ -1185,6 +1185,9 @@ class Lines(Polygon):
     def __init__(self, *vertices, creation=0, z=0, **styling_kwargs):
         super().__init__(*vertices, closed=False, creation=creation, z=z, **styling_kwargs)
 
+    def __repr__(self):
+        return f'Lines({len(self.vertices)} vertices)'
+
 
 class Trace(VObject):
     """Follows a point every dt and renders as a polyline."""
@@ -1251,6 +1254,9 @@ class Trace(VObject):
 
     def to_polygon(self, time):
         return Polygon(*self.vertices(time), creation=time, z=self.z.at_time(time), **self.styling.kwargs())
+
+    def __repr__(self):
+        return f'Trace({len(self._vert_cache)} points)'
 
 class Path(VObject):
     """SVG path element with a 'd' attribute."""
@@ -1696,6 +1702,10 @@ class DashedLine(Line):
     def __init__(self, x1: float = 0, y1: float = 0, x2: float = 100, y2: float = 100, dash='10,5', creation=0, z=0, **styling_kwargs):
         super().__init__(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z,
                          **({'stroke_dasharray': dash} | styling_kwargs))
+
+    def __repr__(self):
+        p1, p2 = self.p1.at_time(0), self.p2.at_time(0)
+        return f'DashedLine(({p1[0]:.0f},{p1[1]:.0f})->({p2[0]:.0f},{p2[1]:.0f}))'
 
     def set_dash_pattern(self, dash, gap=None, start=0, end=None, easing=easings.smooth):
         """Set the dash pattern. If gap is None, gap = dash."""
