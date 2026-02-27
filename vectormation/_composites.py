@@ -309,29 +309,29 @@ def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_widt
     objects.append(Line(x1=x_zero, y1=plot_y, x2=x_zero, y2=plot_y + plot_height,
                         creation=time, stroke='#fff', stroke_width=_AXIS_STROKE_WIDTH))
 
-    # X-axis ticks and labels
-    for tx in x_ticks:
-        sx = _to_svg_x(tx)
-        objects.append(Line(x1=sx, y1=y_zero - tick_len, x2=sx, y2=y_zero + tick_len,
-                            creation=time, stroke='#fff', stroke_width=_AXIS_STROKE_WIDTH))
-        skip = (x_scale != 'log' and abs(tx) < 1e-9)
-        if not skip:
-            label = _format_tick(tx, tick_format)
-            objects.append(Text(text=label, x=sx, y=y_zero + tick_len + _TICK_GAP + _TICK_FONT_SIZE * 0.35,
-                                font_size=_TICK_FONT_SIZE, text_anchor='middle',
-                                creation=time, fill='#aaa', stroke_width=0))
-
-    # Y-axis ticks and labels
-    for ty in y_ticks:
-        sy = _to_svg_y(ty)
-        objects.append(Line(x1=x_zero - tick_len, y1=sy, x2=x_zero + tick_len, y2=sy,
-                            creation=time, stroke='#fff', stroke_width=_AXIS_STROKE_WIDTH))
-        skip = (y_scale != 'log' and abs(ty) < 1e-9)
-        if not skip:
-            label = _format_tick(ty, tick_format)
-            objects.append(Text(text=label, x=x_zero - tick_len - _TICK_GAP, y=sy + _TICK_FONT_SIZE * 0.35,
-                                font_size=_TICK_FONT_SIZE, text_anchor='end',
-                                creation=time, fill='#aaa', stroke_width=0))
+    # Ticks and labels for both axes
+    def _add_ticks(ticks, scale, to_svg_fn, is_x_axis):
+        for val in ticks:
+            sv = to_svg_fn(val)
+            if is_x_axis:
+                objects.append(Line(x1=sv, y1=y_zero - tick_len, x2=sv, y2=y_zero + tick_len,
+                                    creation=time, stroke='#fff', stroke_width=_AXIS_STROKE_WIDTH))
+            else:
+                objects.append(Line(x1=x_zero - tick_len, y1=sv, x2=x_zero + tick_len, y2=sv,
+                                    creation=time, stroke='#fff', stroke_width=_AXIS_STROKE_WIDTH))
+            if scale != 'log' and abs(val) < 1e-9:
+                continue
+            label = _format_tick(val, tick_format)
+            if is_x_axis:
+                objects.append(Text(text=label, x=sv, y=y_zero + tick_len + _TICK_GAP + _TICK_FONT_SIZE * 0.35,
+                                    font_size=_TICK_FONT_SIZE, text_anchor='middle',
+                                    creation=time, fill='#aaa', stroke_width=0))
+            else:
+                objects.append(Text(text=label, x=x_zero - tick_len - _TICK_GAP, y=sv + _TICK_FONT_SIZE * 0.35,
+                                    font_size=_TICK_FONT_SIZE, text_anchor='end',
+                                    creation=time, fill='#aaa', stroke_width=0))
+    _add_ticks(x_ticks, x_scale, _to_svg_x, is_x_axis=True)
+    _add_ticks(y_ticks, y_scale, _to_svg_y, is_x_axis=False)
 
     return VCollection(*objects, creation=time)
 
@@ -459,11 +459,8 @@ class Axes(VCollection):
     def _baseline_y(self, time=0):
         """SVG y-coordinate of y=0 (or bottom edge if 0 is out of range)."""
         ymin, ymax = self.y_min.at_time(time), self.y_max.at_time(time)
-        if ymin <= 0 <= ymax:
-            span = ymax - ymin
-            if span == 0:
-                return self.plot_y + self.plot_height
-            return self.plot_y + (1 - (0 - ymin) / span) * self.plot_height
+        if ymin <= 0 <= ymax and ymax != ymin:
+            return self.plot_y + (1 - (0 - ymin) / (ymax - ymin)) * self.plot_height
         return self.plot_y + self.plot_height
 
     def _make_curve(self, func, creation, z, num_points=None, x_range=None,
@@ -4915,7 +4912,6 @@ class NumberLine(VCollection):
         pointer tracks the value automatically.  Returns the pointer
         ``VCollection`` (already added to this NumberLine's objects).
         """
-        import vectormation.attributes as _attrs
         from vectormation._shapes import Polygon as _Polygon, Text as _Text
 
         # Triangle pointing down at the value

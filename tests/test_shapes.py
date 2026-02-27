@@ -598,7 +598,6 @@ class TestCircleGetTangentLines:
 
     def test_time_parameter(self):
         """get_tangent_lines respects the time= parameter."""
-        import vectormation.attributes as attrs
         c = Circle(r=50, cx=0, cy=0)
         # Animate radius to 80 at t=1
         c.rx.set_onward(1, 80)

@@ -6,7 +6,7 @@ from typing import Any
 from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
     SMALL_BUFF, MED_SMALL_BUFF, DEFAULT_OBJECT_TO_EDGE_BUFF,
-    UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR, ORIGIN,
+    UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR,
 )
 
 import vectormation.easings as easings
@@ -74,6 +74,23 @@ def _to_edge_impl(obj, edge, buff, start_time, end_time, easing):
 
 
 _CORNER_MAP = {UL: 'top_left', UR: 'top_right', DL: 'bottom_left', DR: 'bottom_right'}
+
+_EDGE_POINTS = {
+    'center': lambda x, y, w, h: (x + w / 2, y + h / 2),
+    'top': lambda x, y, w, h: (x + w / 2, y),
+    'bottom': lambda x, y, w, h: (x + w / 2, y + h),
+    'left': lambda x, y, w, h: (x, y + h / 2),
+    'right': lambda x, y, w, h: (x + w, y + h / 2),
+    'top_left': lambda x, y, w, h: (x, y),
+    'top_right': lambda x, y, w, h: (x + w, y),
+    'bottom_left': lambda x, y, w, h: (x, y + h),
+    'bottom_right': lambda x, y, w, h: (x + w, y + h),
+}
+
+def _get_edge_impl(bbox_func, edge, time):
+    """Shared get_edge for VObject and VCollection."""
+    x, y, w, h = bbox_func(time)
+    return _EDGE_POINTS[edge](x, y, w, h)
 
 def _to_corner_impl(obj, corner, buff, start_time, end_time, easing):
     """Shared to_corner logic for VObject and VCollection."""
@@ -179,15 +196,7 @@ class VObject(ABC):  # Vector Object
         """Return coordinate of a named edge point.
         edge: 'top', 'bottom', 'left', 'right',
               'top_left', 'top_right', 'bottom_left', 'bottom_right', 'center'."""
-        x, y, w, h = self.bbox(time)
-        points = {
-            'center': (x + w / 2, y + h / 2),
-            'top': (x + w / 2, y), 'bottom': (x + w / 2, y + h),
-            'left': (x, y + h / 2), 'right': (x + w, y + h / 2),
-            'top_left': (x, y), 'top_right': (x + w, y),
-            'bottom_left': (x, y + h), 'bottom_right': (x + w, y + h),
-        }
-        return points[edge]
+        return _get_edge_impl(self.bbox, edge, time)
 
     def get_bounds(self, time=0):
         """Return a dict with bounding box properties: x, y, width, height, left, right, top, bottom, center."""
@@ -986,35 +995,23 @@ class VObject(ABC):  # Vector Object
         _, _, cur_w, cur_h = self.bbox(start)
         self._ensure_scale_origin(start)
         if width is not None and height is not None:
-            # Scale each axis independently — may distort aspect ratio
             x_factor = width / cur_w if cur_w != 0 else 1
             y_factor = height / cur_h if cur_h != 0 else 1
             target_sx = self.styling.scale_x.at_time(start) * x_factor
             target_sy = self.styling.scale_y.at_time(start) * y_factor
-            if end is None:
-                self.styling.scale_x.set_onward(start, target_sx)
-                self.styling.scale_y.set_onward(start, target_sy)
-            else:
-                self.styling.scale_x.move_to(start, end, target_sx, easing=easing)
-                self.styling.scale_y.move_to(start, end, target_sy, easing=easing)
         elif width is not None:
             factor = width / cur_w if cur_w != 0 else 1
-            target_s = self.styling.scale_x.at_time(start) * factor
-            if end is None:
-                self.styling.scale_x.set_onward(start, target_s)
-                self.styling.scale_y.set_onward(start, target_s)
-            else:
-                self.styling.scale_x.move_to(start, end, target_s, easing=easing)
-                self.styling.scale_y.move_to(start, end, target_s, easing=easing)
+            target_sx = target_sy = self.styling.scale_x.at_time(start) * factor
         elif height is not None:
             factor = height / cur_h if cur_h != 0 else 1
-            target_s = self.styling.scale_y.at_time(start) * factor
+            target_sx = target_sy = self.styling.scale_y.at_time(start) * factor
+        else:
+            return self
+        for attr, target in [(self.styling.scale_x, target_sx), (self.styling.scale_y, target_sy)]:
             if end is None:
-                self.styling.scale_x.set_onward(start, target_s)
-                self.styling.scale_y.set_onward(start, target_s)
+                attr.set_onward(start, target)
             else:
-                self.styling.scale_x.move_to(start, end, target_s, easing=easing)
-                self.styling.scale_y.move_to(start, end, target_s, easing=easing)
+                attr.move_to(start, end, target, easing=easing)
         return self
 
     def rotate_to(self, start: float, end: float, degrees, cx=None, cy=None, easing=easings.smooth):
@@ -1547,12 +1544,10 @@ class VObject(ABC):  # Vector Object
             return self
         self._ensure_scale_origin(start)
         s = start
-        sx0 = self.styling.scale_x.at_time(start)
-        sy0 = self.styling.scale_y.at_time(start)
-        scale_x = lambda t, _s=s, _d=dur, _b=sx0: _b * (1 + (factor - 1) * easing((t - _s) / _d))
-        scale_y = lambda t, _s=s, _d=dur, _b=sy0: _b * (1 + (factor - 1) * easing((t - _s) / _d))
-        self.styling.scale_x.set(s, end, scale_x)
-        self.styling.scale_y.set(s, end, scale_y)
+        for attr in (self.styling.scale_x, self.styling.scale_y):
+            base = attr.at_time(start)
+            attr.set(s, end,
+                lambda t, _s=s, _d=dur, _b=base: _b * (1 + (factor - 1) * easing((t - _s) / _d)))
         return self
 
     def glow(self, start: float = 0, end: float = 1, color='#FFD700', radius=10):
@@ -1927,6 +1922,14 @@ class VObject(ABC):  # Vector Object
             stay=True)
         return self
 
+    # inset(top right bottom left) templates for wipe direction
+    _WIPE_TEMPLATES = {
+        'right': 'inset(0 {p:.1f}% 0 0)', 'left': 'inset(0 0 0 {p:.1f}%)',
+        'down': 'inset(0 0 {p:.1f}% 0)', 'up': 'inset({p:.1f}% 0 0 0)',
+    }
+    # When reversed, right<->left and down<->up
+    _WIPE_REVERSE = {'right': 'left', 'left': 'right', 'down': 'up', 'up': 'down'}
+
     def wipe(self, direction='right', start: float = 0, end: float = 1,
              easing=easings.smooth, reverse=False):
         """Reveal (or hide if reverse=True) with a clip-path wipe effect.
@@ -1936,17 +1939,9 @@ class VObject(ABC):  # Vector Object
         if dur <= 0:
             return self
         s = start
-        # inset(top right bottom left) — percentages from each edge
-        if direction in ('right', 'left'):
-            if (direction == 'right') != reverse:
-                func = lambda t, _s=s, _d=dur: f'inset(0 {100 * (1 - easing((t - _s) / _d)):.1f}% 0 0)'
-            else:
-                func = lambda t, _s=s, _d=dur: f'inset(0 0 0 {100 * (1 - easing((t - _s) / _d)):.1f}%)'
-        else:
-            if (direction == 'down') != reverse:
-                func = lambda t, _s=s, _d=dur: f'inset(0 0 {100 * (1 - easing((t - _s) / _d)):.1f}% 0)'
-            else:
-                func = lambda t, _s=s, _d=dur: f'inset({100 * (1 - easing((t - _s) / _d)):.1f}% 0 0 0)'
+        key = self._WIPE_REVERSE[direction] if reverse else direction
+        tmpl = self._WIPE_TEMPLATES[key]
+        func = lambda t, _s=s, _d=dur, _t=tmpl: _t.format(p=100 * (1 - easing((t - _s) / _d)))
         self.styling.clip_path.set(s, end, func, stay=True)
         if reverse:
             self._hide_from(end)
@@ -2110,15 +2105,9 @@ class VObject(ABC):  # Vector Object
         Applies an instant SVG transform (no animation).
         """
         bx, by, bw, bh = self.bbox(start_time)
-        cx, cy = bx + bw / 2, by + bh / 2
-        if axis == 'vertical':
-            self.styling.scale_x.set_onward(start_time,
-                -self.styling.scale_x.at_time(start_time))
-            self.styling._scale_origin = (cx, cy)
-        else:
-            self.styling.scale_y.set_onward(start_time,
-                -self.styling.scale_y.at_time(start_time))
-            self.styling._scale_origin = (cx, cy)
+        self.styling._scale_origin = (bx + bw / 2, by + bh / 2)
+        attr = self.styling.scale_x if axis == 'vertical' else self.styling.scale_y
+        attr.set_onward(start_time, -attr.at_time(start_time))
         return self
 
     def squish(self, start: float = 0, end: float = 1, axis='x', factor=0.5,
@@ -2130,33 +2119,20 @@ class VObject(ABC):  # Vector Object
         if dur <= 0:
             return self
         bx, by, bw, bh = self.bbox(start)
-        cx, cy = bx + bw / 2, by + bh / 2
-        self.styling._scale_origin = (cx, cy)
+        self.styling._scale_origin = (bx + bw / 2, by + bh / 2)
         sx0 = self.styling.scale_x.at_time(start)
         sy0 = self.styling.scale_y.at_time(start)
-        _s, _d, _f, _sx0, _sy0 = start, max(dur, 1e-9), factor, sx0, sy0
-        if axis == 'x':
-            def _sx(t, _s=_s, _d=_d, _f=_f, _sx0=_sx0, _easing=easing):
-                p = _easing((t - _s) / _d)
-                squeeze = 1 + (_f - 1) * math.sin(math.pi * p)
-                return _sx0 * squeeze
-            def _sy(t, _s=_s, _d=_d, _f=_f, _sy0=_sy0, _easing=easing):
-                p = _easing((t - _s) / _d)
-                squeeze = 1 + (_f - 1) * math.sin(math.pi * p)
-                return _sy0 / squeeze if squeeze > 1e-9 else _sy0
-            self.styling.scale_x.set(start, end, _sx, stay=False)
-            self.styling.scale_y.set(start, end, _sy, stay=False)
-        else:
-            def _sy2(t, _s=_s, _d=_d, _f=_f, _sy0=_sy0, _easing=easing):
-                p = _easing((t - _s) / _d)
-                squeeze = 1 + (_f - 1) * math.sin(math.pi * p)
-                return _sy0 * squeeze
-            def _sx2(t, _s=_s, _d=_d, _f=_f, _sx0=_sx0, _easing=easing):
-                p = _easing((t - _s) / _d)
-                squeeze = 1 + (_f - 1) * math.sin(math.pi * p)
-                return _sx0 / squeeze if squeeze > 1e-9 else _sx0
-            self.styling.scale_y.set(start, end, _sy2, stay=False)
-            self.styling.scale_x.set(start, end, _sx2, stay=False)
+        _s, _d, _f = start, max(dur, 1e-9), factor
+        def _squeeze(t, _s=_s, _d=_d, _f=_f, _easing=easing):
+            return 1 + (_f - 1) * math.sin(math.pi * _easing((t - _s) / _d))
+        def _make_squish(base):
+            return lambda t, _b=base: _b * _squeeze(t)
+        def _make_compensate(base):
+            return lambda t, _b=base: _b / _squeeze(t) if _squeeze(t) > 1e-9 else _b
+        primary = (self.styling.scale_x, sx0) if axis == 'x' else (self.styling.scale_y, sy0)
+        compen = (self.styling.scale_y, sy0) if axis == 'x' else (self.styling.scale_x, sx0)
+        primary[0].set(start, end, _make_squish(primary[1]), stay=False)
+        compen[0].set(start, end, _make_compensate(compen[1]), stay=False)
         return self
 
     def squash_and_stretch(self, start: float = 0, end: float = 1,
@@ -2374,20 +2350,17 @@ class VObject(ABC):  # Vector Object
 
     def dim(self, start: float = 0, end: float | None = None, opacity=0.3, easing=easings.smooth):
         """Reduce fill and stroke opacity (to de-emphasize). Use undim() to restore."""
-        cur_f = self.styling.fill_opacity.at_time(start)
-        cur_s = self.styling.stroke_opacity.at_time(start)
-        if end is None:
-            self.styling.fill_opacity.set_onward(start, opacity)
-            self.styling.stroke_opacity.set_onward(start, opacity)
-        else:
-            dur = end - start
-            if dur <= 0:
-                return self
-            s = start
-            self.styling.fill_opacity.set(s, end,
-                lambda t, _s=s, _d=dur, _cf=cur_f, _o=opacity: _cf + (_o - _cf) * easing((t - _s) / _d), stay=True)
-            self.styling.stroke_opacity.set(s, end,
-                lambda t, _s=s, _d=dur, _cs=cur_s, _o=opacity: _cs + (_o - _cs) * easing((t - _s) / _d), stay=True)
+        for attr in (self.styling.fill_opacity, self.styling.stroke_opacity):
+            if end is None:
+                attr.set_onward(start, opacity)
+            else:
+                dur = end - start
+                if dur <= 0:
+                    return self
+                cur = attr.at_time(start)
+                s = start
+                attr.set(s, end,
+                    lambda t, _s=s, _d=dur, _c=cur, _o=opacity: _c + (_o - _c) * easing((t - _s) / _d), stay=True)
         return self
 
     def undim(self, start: float = 0, end: float | None = None, easing=easings.smooth):
@@ -2657,12 +2630,11 @@ class VObject(ABC):  # Vector Object
 
     def set_opacity(self, value, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Set fill_opacity and stroke opacity together. Animated if end is given."""
-        if end is None:
-            self.styling.fill_opacity.set_onward(start, value)
-            self.styling.opacity.set_onward(start, value)
-        else:
-            self.styling.fill_opacity.move_to(start, end, value, easing=easing)
-            self.styling.opacity.move_to(start, end, value, easing=easing)
+        for attr in (self.styling.fill_opacity, self.styling.opacity):
+            if end is None:
+                attr.set_onward(start, value)
+            else:
+                attr.move_to(start, end, value, easing=easing)
         return self
 
     def get_opacity(self, time: float = 0):
@@ -2720,14 +2692,12 @@ class VObject(ABC):  # Vector Object
     def stretch(self, x_factor: float = 1, y_factor: float = 1, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Non-uniform scale. Instant if end is None, animated otherwise."""
         self._ensure_scale_origin(start)
-        target_x = self.styling.scale_x.at_time(start) * x_factor
-        target_y = self.styling.scale_y.at_time(start) * y_factor
-        if end is None:
-            self.styling.scale_x.set_onward(start, target_x)
-            self.styling.scale_y.set_onward(start, target_y)
-        else:
-            self.styling.scale_x.move_to(start, end, target_x, easing=easing)
-            self.styling.scale_y.move_to(start, end, target_y, easing=easing)
+        for attr, factor in [(self.styling.scale_x, x_factor), (self.styling.scale_y, y_factor)]:
+            target = attr.at_time(start) * factor
+            if end is None:
+                attr.set_onward(start, target)
+            else:
+                attr.move_to(start, end, target, easing=easing)
         return self
 
     def match_width(self, other, time: float = 0):
@@ -3002,15 +2972,7 @@ class VCollection:
 
     def get_edge(self, edge, time=0):
         """Return coordinate of a named edge point (same API as VObject.get_edge)."""
-        x, y, w, h = self.bbox(time)
-        points = {
-            'center': (x + w / 2, y + h / 2),
-            'top': (x + w / 2, y), 'bottom': (x + w / 2, y + h),
-            'left': (x, y + h / 2), 'right': (x + w, y + h / 2),
-            'top_left': (x, y), 'top_right': (x + w, y),
-            'bottom_left': (x, y + h), 'bottom_right': (x + w, y + h),
-        }
-        return points[edge]
+        return _get_edge_impl(self.bbox, edge, time)
 
     def get_left(self, time=0):
         return self.get_edge('left', time)
@@ -3382,14 +3344,12 @@ class VCollection:
         """Non-uniform scale of all children around the group center."""
         if self._scale_origin is None:
             self._scale_origin = self._resolve_center(start, None, None)
-        target_x = self._scale_x.at_time(start) * x_factor
-        target_y = self._scale_y.at_time(start) * y_factor
-        if end is None:
-            self._scale_x.set_onward(start, target_x)
-            self._scale_y.set_onward(start, target_y)
-        else:
-            self._scale_x.move_to(start, end, target_x, easing=easing)
-            self._scale_y.move_to(start, end, target_y, easing=easing)
+        for attr, factor in [(self._scale_x, x_factor), (self._scale_y, y_factor)]:
+            target = attr.at_time(start) * factor
+            if end is None:
+                attr.set_onward(start, target)
+            else:
+                attr.move_to(start, end, target, easing=easing)
         return self
 
     def rotate_to(self, start: float, end: float, degrees, cx=None, cy=None, easing=easings.smooth):

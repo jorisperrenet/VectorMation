@@ -34,8 +34,7 @@ from vectormation.objects import (
     DEFAULT_CHART_COLORS, Variable, Underline,
     ArrowVectorField, ComplexPlane, ChessBoard, Automaton,
     PeriodicTable, BohrAtom,
-    Countdown, Filmstrip, MorphObject, Title, NumberPlane, Matrix,
-    Ellipse, from_svg,
+    Countdown, Filmstrip, MorphObject, Title, NumberPlane,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
