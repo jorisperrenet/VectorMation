@@ -2968,12 +2968,12 @@ class Line(VObject):
         """
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
-        if length is None:
-            length = math.hypot(x2 - x1, y2 - y1)
-        px = x1 + t * (x2 - x1)
-        py = y1 + t * (y2 - y1)
         dx, dy = -(y2 - y1), x2 - x1  # perpendicular direction
         mag = math.hypot(dx, dy)
+        if length is None:
+            length = mag
+        px = x1 + t * (x2 - x1)
+        py = y1 + t * (y2 - y1)
         if mag > 0:
             dx, dy = dx / mag * length / 2, dy / mag * length / 2
         return Line(x1=px - dx, y1=py - dy, x2=px + dx, y2=py + dy, **kwargs)

@@ -623,8 +623,22 @@ class Axes(VCollection):
             The curve Path (already appended to this Axes' objects).
         """
         if hasattr(self, '_deferred_axes'):
-            # We need y_range set; use fy to auto-detect
-            self._build_deferred_axes(fy, num_points)
+            # Sample fy over t_range (not x_range) to auto-detect y bounds
+            t_min, t_max = t_range
+            y_vals = [fy(t_min + (t_max - t_min) * i / num_points)
+                      for i in range(num_points + 1)]
+            y_vals = [v for v in y_vals if math.isfinite(v)]
+            if y_vals:
+                margin = (max(y_vals) - min(y_vals)) * 0.1 or 1.0
+                y_lo = min(y_vals) - margin
+                y_hi = max(y_vals) + margin
+            else:
+                y_lo, y_hi = -1, 1
+            x_label, y_label, ax_creation, ax_z = self._deferred_axes
+            self.y_min = attributes.Real(ax_creation, y_lo)
+            self.y_max = attributes.Real(ax_creation, y_hi)
+            self._axis_labels = self._build_label_objects(x_label, y_label, ax_creation, ax_z)
+            del self._deferred_axes
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 5, 'fill_opacity': 0} | styling_kwargs
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
         _axes = self
@@ -641,13 +655,10 @@ class Axes(VCollection):
                 if not (math.isfinite(xv) and math.isfinite(yv)):
                     continue
                 sx, sy = _axes.coords_to_point(xv, yv, time)
-                pts.append((sx, sy))
+                pts.append(f'{sx},{sy}')
             if not pts:
                 return ''
-            d = f'M{pts[0][0]},{pts[0][1]}'
-            for sx, sy in pts[1:]:
-                d += f'L{sx},{sy}'
-            return d
+            return 'M' + 'L'.join(pts)
 
         curve.d.set_onward(creation, _compute_d)
         curve._func = None  # no single-variable function

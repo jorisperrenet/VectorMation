@@ -3906,8 +3906,7 @@ class VObject(ABC):  # Vector Object
         else:
             return self._apply_shift_effect(start, end, dx_func=_wave)
 
-    def countdown(self, start: float = 0, end: float = 1, from_val=3,
-                  easing=easings.linear):
+    def countdown(self, start: float = 0, end: float = 1, from_val=3):
         """For Text objects: display a countdown (from_val, from_val-1, ..., 1).
 
         Changes the text content at evenly spaced intervals.
@@ -5237,15 +5236,15 @@ class VCollection:
         pop_dur = max(dur - (n - 1) * delay, dur / n) if n > 1 else dur
         for i, obj in enumerate(self.objects):
             s = start + i * delay
-            e = min(s + pop_dur, start + dur + (n - 1) * delay)
+            e = min(s + pop_dur, end)
             if e <= s:
                 continue
             obj._ensure_scale_origin(s)
             _sx0 = obj.styling.scale_x.at_time(s)
             _sy0 = obj.styling.scale_y.at_time(s)
-            _s, _d, _sf = s, max(e - s, 1e-9), scale_factor
-            def _make_pop(base, _s=_s, _d=_d, _sf=_sf, _easing=easing):
-                return lambda t, _b=base, _s=_s, _d=_d, _sf=_sf, _easing=_easing: \
+            _d = max(e - s, 1e-9)
+            def _make_pop(base, _s=s, _d=_d, _sf=scale_factor, _easing=easing):
+                return lambda t, _b=base: \
                     _b * (1 + (_sf - 1) * math.sin(math.pi * _easing((t - _s) / _d)))
             obj.styling.scale_x.set(s, e, _make_pop(_sx0))
             obj.styling.scale_y.set(s, e, _make_pop(_sy0))
