@@ -1103,6 +1103,16 @@ class Axes(_AxesExtMixin, VCollection):
                     rect.height.set_onward(creation, lambda t, _yv=_yv: abs(
                         self._math_to_svg_y(_yv, t) - self._math_to_svg_y(0, t)))
                 rects.append(rect)
+        if group_labels:
+            from vectormation._shapes import Text
+            for gi, label in enumerate(group_labels):
+                x_center = (gi + 1) * group_spacing
+                sx = self._math_to_svg_x(x_center, creation)
+                sy = self._math_to_svg_y(0, creation) + 20
+                t = Text(str(label), x=sx, y=sy, font_size=14,
+                         text_anchor='middle', stroke_width=0,
+                         creation=creation, z=z)
+                rects.append(t)
         group = VCollection(*rects, creation=creation, z=z)
         self._add_plot_obj(group)
         return group
