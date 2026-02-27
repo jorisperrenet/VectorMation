@@ -467,6 +467,10 @@ class Axes(_AxesExtMixin, VCollection):
         self.animate_y_range(start, end, y_range, **kwargs)
         return self
 
+    def get_origin(self, time=0):
+        """Return the SVG pixel coordinates of the axes origin (0, 0)."""
+        return (self._math_to_svg_x(0, time), self._math_to_svg_y(0, time))
+
     def coords_to_point(self, x, y, time=0):
         """Convert math coordinates to SVG pixel coordinates."""
         return (self._math_to_svg_x(x, time), self._math_to_svg_y(y, time))

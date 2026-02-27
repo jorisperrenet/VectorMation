@@ -82,14 +82,12 @@ class Line(VObject):
         return Line(float(x1), float(y1), float(mx), float(my)), \
                Line(float(mx), float(my), float(x2), float(y2))
 
-    def get_unit_vector(self, time=0):
-        """Return the normalized direction vector (dx, dy) from p1 to p2."""
-        return self.get_direction(time)
-
     def get_direction(self, time=0):
         """Return the normalized unit vector ``(dx, dy)`` from p1 to p2."""
         x1, y1, x2, y2 = self._ep(time)
         return _normalize(x2 - x1, y2 - y1)
+
+    get_unit_vector = get_direction
 
     def get_vector(self, time=0):
         """Return the unnormalized direction vector ``(dx, dy)`` from p1 to p2."""
@@ -513,9 +511,7 @@ class Line(VObject):
         p2 = other.project_point(*self.get_end(time), time=time)
         return Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **kwargs)
 
-    def get_normal_line(self, t=0.5, length=100, time=0, **kwargs):
-        """Alias for :meth:`perpendicular_at` with default length=100."""
-        return self.perpendicular_at(t=t, length=length, time=time, **kwargs)
+    get_normal_line = perpendicular_at
 
     def intersection(self, other, time=0):
         """Return the intersection of this line with *other*."""

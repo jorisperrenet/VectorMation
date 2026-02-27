@@ -136,6 +136,16 @@ class Stack(VCollection):
     def __repr__(self):
         return f'Stack({len(self._items)} items)'
 
+    def peek(self):
+        """Return the top value without popping, or None if empty."""
+        if not self._items:
+            return None
+        return self._items[-1][1].text.at_time(0)
+
+    def is_empty(self):
+        """Return True if the stack has no items."""
+        return len(self._items) == 0
+
     def push(self, value, start=0, end=0.5):
         """Animate pushing a value onto the stack."""
         n = len(self._items)
@@ -192,6 +202,16 @@ class Queue(VCollection):
 
     def __repr__(self):
         return f'Queue({len(self._items)} items)'
+
+    def peek(self):
+        """Return the front value without dequeuing, or None if empty."""
+        if not self._items:
+            return None
+        return self._items[0][1].text.at_time(0)
+
+    def is_empty(self):
+        """Return True if the queue has no items."""
+        return len(self._items) == 0
 
     def enqueue(self, value, start=0, end=0.5):
         """Animate adding a value to the back of the queue."""
@@ -363,6 +383,13 @@ class BinaryTree(VCollection):
         """Temporarily highlight a node by index (depth-first order)."""
         if 0 <= index < len(self._node_objects):
             _flash_fill(self._node_objects[index], color, start, end, '#1e1e2e')
+        return self
+
+    def traverse(self, start=0, delay=0.3, color='#E9C46A'):
+        """Animate highlighting each node sequentially (depth-first order)."""
+        for i in range(len(self._node_objects)):
+            t = start + i * delay
+            _flash_fill(self._node_objects[i], color, t, t + delay, '#1e1e2e')
         return self
 
 class ArrayViz(VCollection):

@@ -14626,6 +14626,72 @@ class TestArrayIndexValidation:
         assert result is a
 
 
+class TestStackPeekIsEmpty:
+    def test_peek_nonempty(self):
+        s = Stack([10, 20])
+        val = s.peek()
+        assert val is not None
+
+    def test_peek_empty(self):
+        s = Stack()
+        assert s.peek() is None
+
+    def test_is_empty_true(self):
+        s = Stack()
+        assert s.is_empty()
+
+    def test_is_empty_false(self):
+        s = Stack([1])
+        assert not s.is_empty()
+
+
+class TestQueuePeekIsEmpty:
+    def test_peek_nonempty(self):
+        q = Queue([10, 20])
+        val = q.peek()
+        assert val is not None
+
+    def test_peek_empty(self):
+        q = Queue()
+        assert q.peek() is None
+
+    def test_is_empty_true(self):
+        q = Queue()
+        assert q.is_empty()
+
+    def test_is_empty_false(self):
+        q = Queue([1])
+        assert not q.is_empty()
+
+
+class TestBinaryTreeTraverse:
+    def test_traverse_returns_self(self):
+        t = BinaryTree((1, (2,), (3,)))
+        result = t.traverse()
+        assert result is t
+
+    def test_traverse_custom_delay(self):
+        t = BinaryTree((1, (2,), (3,)))
+        result = t.traverse(start=0, delay=0.5)
+        assert result is t
+
+
+class TestAxesGetOrigin:
+    def test_get_origin_default_axes(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        ox, oy = ax.get_origin()
+        # Origin should be within the plot area
+        assert 0 < ox < 1920
+        assert 0 < oy < 1080
+
+    def test_get_origin_matches_coords_to_point(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        o1 = ax.get_origin()
+        o2 = ax.coords_to_point(0, 0)
+        assert o1[0] == pytest.approx(o2[0])
+        assert o1[1] == pytest.approx(o2[1])
+
+
 class TestBarChartGetBarsRenamed:
     def test_get_bars_default(self):
         bc = BarChart([10, 20, 30])

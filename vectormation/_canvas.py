@@ -395,11 +395,10 @@ class VectorMathAnim:
             import cairosvg  # type: ignore[import-not-found]
         except ImportError:
             raise ImportError('cairosvg is required for PNG export. Install it with: pip install cairosvg')
-        scale = scale or self.scale
+        scale, ow, oh = self._export_dims(scale)
         svg = self.generate_frame_svg(time)
         cairosvg.svg2png(bytestring=svg.encode(), write_to=filename,
-                         output_width=int(self.width * scale),
-                         output_height=int(self.height * scale))
+                         output_width=ow, output_height=oh)
         logger.info('Exported PNG to %s', filename)
 
     def _resolve_end(self, end):
@@ -408,6 +407,11 @@ class VectorMathAnim:
             candidates.extend(a.last_change for a in (self.vb_x, self.vb_y, self.vb_w, self.vb_h))
             return max(candidates)
         return end
+
+    def _export_dims(self, scale=None):
+        """Return (scale, output_width, output_height) for export methods."""
+        scale = scale or self.scale
+        return scale, int(self.width * scale), int(self.height * scale)
 
     def _frame_times(self, start, end, fps):
         """Generate frame timestamps from start to end at given fps."""
@@ -429,8 +433,7 @@ class VectorMathAnim:
             raise RuntimeError('ffmpeg is required for video export. Install it from https://ffmpeg.org/')
 
         end = self._resolve_end(end)
-        scale = scale or self.scale
-        output_w, output_h = int(self.width * scale), int(self.height * scale)
+        scale, output_w, output_h = self._export_dims(scale)
         tmpdir = tempfile.mkdtemp(prefix='vectormation_')
         try:
             n_frames = 0
@@ -462,8 +465,7 @@ class VectorMathAnim:
         import io
 
         end = self._resolve_end(end)
-        scale = scale or self.scale
-        output_w, output_h = int(self.width * scale), int(self.height * scale)
+        scale, output_w, output_h = self._export_dims(scale)
         frames = []
         for t in self._frame_times(start, end, fps):
             svg = self.generate_frame_svg(t)
