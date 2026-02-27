@@ -15,6 +15,23 @@ from vectormation._constants import (
     SMALL_BUFF, MED_SMALL_BUFF,
 )
 
+def _apply_pos_offset(obj, time, dx, dy):
+    """Shift all position attributes of *obj* by (*dx*, *dy*) at *time*."""
+    for xa, ya in obj._shift_reals():
+        xa.set_onward(time, xa.at_time(time) + dx)
+        ya.set_onward(time, ya.at_time(time) + dy)
+    for c in obj._shift_coors():
+        val = c.at_time(time)
+        c.set_onward(time, (val[0] + dx, val[1] + dy))
+
+
+def _ensure_text(obj, method):
+    """Raise TypeError if *obj* is not a Text instance."""
+    from vectormation._shapes import Text as _Text
+    if not isinstance(obj, _Text):
+        raise TypeError(f"{method}() can only be called on Text objects")
+
+
 class _VObjectEffectsMixin:
     """Advanced animation and effect methods, mixed into VObject."""
     def scale_to_fit(self, width=None, height=None, start=0, end=None, easing=easings.smooth):
@@ -344,12 +361,7 @@ class _VObjectEffectsMixin:
         for i in range(count):
             t_appear = start + dur * (i + 1) / (count + 1)
             ghost = deepcopy(self)
-            # Freeze at position at t_appear
-            for xa, ya in ghost._shift_reals():
-                xa.set_onward(t_appear, xa.at_time(t_appear))
-                ya.set_onward(t_appear, ya.at_time(t_appear))
-            for c in ghost._shift_coors():
-                c.set_onward(t_appear, c.at_time(t_appear))
+            _apply_pos_offset(ghost, t_appear, 0, 0)
             # Hidden before appearance
             ghost.show.set_onward(0, False)
             ghost.show.set_onward(t_appear, True)
@@ -429,9 +441,7 @@ class _VObjectEffectsMixin:
 
     def countdown(self, start: float = 0, end: float = 1, from_val=3):
         """For Text objects: display a countdown from *from_val* to 1."""
-        from vectormation._shapes import Text as _Text
-        if not isinstance(self, _Text):
-            raise TypeError("countdown() can only be called on Text objects")
+        _ensure_text(self, 'countdown')
         dur = end - start
         if dur <= 0 or from_val < 1:
             return self
@@ -482,12 +492,7 @@ class _VObjectEffectsMixin:
             dx = target_x - scx
             dy = target_y - scy
             if abs(dx) > 0.01 or abs(dy) > 0.01:
-                for xa, ya in obj._shift_reals():
-                    xa.set_onward(time, xa.at_time(time) + dx)
-                    ya.set_onward(time, ya.at_time(time) + dy)
-                for c in obj._shift_coors():
-                    val = c.at_time(time)
-                    c.set_onward(time, (val[0] + dx, val[1] + dy))
+                _apply_pos_offset(obj, time, dx, dy)
         self.add_updater(_bind, start, end)
         return self
 
@@ -505,12 +510,7 @@ class _VObjectEffectsMixin:
             dx = target_x - (sx + sw / 2)
             dy = target_y - (sy + sh / 2)
             if abs(dx) > 0.01 or abs(dy) > 0.01:
-                for xa, ya in obj._shift_reals():
-                    xa.set_onward(time, xa.at_time(time) + dx)
-                    ya.set_onward(time, ya.at_time(time) + dy)
-                for c in obj._shift_coors():
-                    val = c.at_time(time)
-                    c.set_onward(time, (val[0] + dx, val[1] + dy))
+                _apply_pos_offset(obj, time, dx, dy)
 
         self.add_updater(_pin, start, end)
         return self
@@ -530,9 +530,7 @@ class _VObjectEffectsMixin:
 
     def typewriter_cursor(self, start, end, blink_rate=0.5, cursor_char='|'):
         """For Text objects: append a blinking cursor character."""
-        from vectormation._shapes import Text as _Text
-        if not isinstance(self, _Text):
-            raise TypeError("typewriter_cursor() can only be called on Text objects")
+        _ensure_text(self, 'typewriter_cursor')
         _base_text_func = self.text.time_func
         def _blink(t, _s=start, _rate=blink_rate, _char=cursor_char, _base=_base_text_func):
             base = _base(t)
@@ -841,9 +839,7 @@ class _VObjectEffectsMixin:
 
     def typewriter_effect(self, text, start=0, end=1, easing=easings.linear):
         """For Text objects only: gradually reveal text character by character."""
-        from vectormation._shapes import Text as _Text
-        if not isinstance(self, _Text):
-            raise TypeError("typewriter_effect() can only be called on Text objects")
+        _ensure_text(self, 'typewriter_effect')
         n = len(text)
         if n == 0:
             return self
