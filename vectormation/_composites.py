@@ -2294,7 +2294,8 @@ class Axes(VCollection):
         """Add a shaded horizontal band between y-values *y1* and *y2*.
 
         The band spans the full x-range of the axes and respects animated
-        axis ranges via :meth:`coords_to_point`.
+        axis ranges via :meth:`coords_to_point`.  Delegates to
+        :meth:`highlight_y_range` with the given styling.
 
         Parameters
         ----------
@@ -2312,18 +2313,8 @@ class Axes(VCollection):
         Rectangle
             The band rectangle (already added to the axes objects).
         """
-        rect = Rectangle(width=0, height=0, x=0, y=0,
-                          creation=creation, z=-1,
-                          fill=color, fill_opacity=opacity, stroke_width=0)
-        _lo, _hi = y1, y2
-        rect.x.set_onward(creation, lambda t: self.plot_x)
-        rect.width.set_onward(creation, lambda t: self.plot_width)
-        rect.y.set_onward(creation, lambda t, _l=_lo, _h=_hi: min(
-            self._math_to_svg_y(_l, t), self._math_to_svg_y(_h, t)))
-        rect.height.set_onward(creation, lambda t, _l=_lo, _h=_hi: abs(
-            self._math_to_svg_y(_h, t) - self._math_to_svg_y(_l, t)))
-        self._add_plot_obj(rect)
-        return rect
+        return self.highlight_y_range(y1, y2, creation=creation, z=-1,
+                                      fill=color, fill_opacity=opacity, stroke_width=0)
 
     def shade_region(self, x_start, x_end, y_start=None, y_end=None,
                      creation=0, z=-1, **styling_kwargs):

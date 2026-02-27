@@ -3970,17 +3970,13 @@ class VObject(ABC):  # Vector Object
         """Keep this object at a fixed offset relative to another object's center.
         Uses an updater to track other's center and reposition self each frame.
         Returns self."""
-        _ox, _oy = offset_x, offset_y
-        _other = other
-        def _bind(obj, time, _other=_other, _ox=_ox, _oy=_oy):
+        def _bind(obj, time, _other=other, _ox=offset_x, _oy=offset_y):
             bx, by, bw, bh = _other.bbox(time)
             target_x = bx + bw / 2 + _ox
             target_y = by + bh / 2 + _oy
             sx, sy, sw, sh = obj.bbox(time)
-            cur_x = sx + sw / 2
-            cur_y = sy + sh / 2
-            dx = target_x - cur_x
-            dy = target_y - cur_y
+            dx = target_x - (sx + sw / 2)
+            dy = target_y - (sy + sh / 2)
             if abs(dx) > 0.01 or abs(dy) > 0.01:
                 for xa, ya in obj._shift_reals():
                     xa.set_onward(time, xa.at_time(time) + dx)
@@ -3994,20 +3990,13 @@ class VObject(ABC):  # Vector Object
     def duplicate(self, count=2, direction=RIGHT, buff=MED_SMALL_BUFF):
         """Create count copies of the object arranged in the given direction.
         Returns a VCollection containing the copies (not including self)."""
-        copies = []
-        for _ in range(count):
-            copies.append(deepcopy(self))
-        col = VCollection(*copies)
+        col = VCollection(*[deepcopy(self) for _ in range(count)])
         col.arrange(direction=direction, buff=buff)
         return col
 
-    def arc_to(self, x, y, start, end, angle=None, easing=None):
+    def arc_to(self, x, y, start, end, angle=math.pi / 4, easing=easings.smooth):
         """Animated curved movement to (x, y) following a circular arc.
         angle controls the arc curvature (default PI/4). Uses parametric interpolation."""
-        if angle is None:
-            angle = math.pi / 4
-        if easing is None:
-            easing = easings.smooth
         return self.path_arc(x, y, start=start, end=end, angle=angle, easing=easing)
 
     def typewriter_cursor(self, start, end, blink_rate=0.5, cursor_char='|'):
@@ -4017,17 +4006,13 @@ class VObject(ABC):  # Vector Object
         from vectormation._shapes import Text as _Text
         if not isinstance(self, _Text):
             raise TypeError("typewriter_cursor() can only be called on Text objects")
-        _rate = blink_rate
-        _char = cursor_char
-        _s, _e = start, end
         _base_text_func = self.text.time_func
-        def _blink(t, _s=_s, _e=_e, _rate=_rate, _char=_char, _base=_base_text_func):
+        def _blink(t, _s=start, _rate=blink_rate, _char=cursor_char, _base=_base_text_func):
             base = _base(t)
-            cycle = (t - _s) / _rate
-            if int(cycle) % 2 == 0:
+            if int((t - _s) / _rate) % 2 == 0:
                 return base + _char
             return base
-        self.text.set(_s, _e, _blink, stay=False)
+        self.text.set(start, end, _blink, stay=False)
         return self
 
     @staticmethod
@@ -5014,20 +4999,9 @@ class VCollection:
             getattr(obj, method_name)(start=start + i * dt, end=start + (i + 1) * dt, **kwargs)
         return self
 
-    def apply_sequential(self, method_name, start=0, end=1, *args, **kwargs):
-        """Call the named method on each child sequentially, dividing [start, end] evenly.
-        For example, coll.apply_sequential('fadein', 0, 3) with 3 children would
-        fadein child 0 from 0-1, child 1 from 1-2, child 2 from 2-3.
-        Returns self."""
-        n = len(self.objects)
-        if n == 0:
-            return self
-        dt = (end - start) / n
-        for i, obj in enumerate(self.objects):
-            child_start = start + i * dt
-            child_end = start + (i + 1) * dt
-            getattr(obj, method_name)(child_start, child_end, *args, **kwargs)
-        return self
+    def apply_sequential(self, method_name, start=0, end=1, **kwargs):
+        """Alias for :meth:`apply_sequentially`."""
+        return self.apply_sequentially(method_name, start=start, end=end, **kwargs)
 
     def spread(self, x1, y1, x2, y2, start_time: float = 0):
         """Distribute children evenly along a line from (x1, y1) to (x2, y2)."""

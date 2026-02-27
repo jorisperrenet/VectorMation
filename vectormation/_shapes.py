@@ -380,19 +380,14 @@ class Polygon(VObject):
             iy = y1 + t * (y2 - y1)
             new_pts.append((ix, iy))
 
-        # Validate: check that the inset polygon has the same sign of area
-        inset_area = 0.0
-        for i in range(len(new_pts)):
-            j = (i + 1) % len(new_pts)
-            inset_area += new_pts[i][0] * new_pts[j][1] - new_pts[j][0] * new_pts[i][1]
-        inset_area *= 0.5
-        if sa != 0 and (sa * inset_area) < 0:
+        result = Polygon(*new_pts, closed=self.closed, **kwargs)
+        # Validate: check that the inset polygon has the same winding direction
+        if sa != 0 and (sa * result.signed_area()) < 0:
             raise ValueError(
                 f"Inset distance {distance} causes polygon to collapse "
                 f"(area sign flipped)"
             )
-
-        return Polygon(*new_pts, closed=self.closed, **kwargs)
+        return result
 
     def rotate_vertices(self, angle_deg, cx=None, cy=None, time=0):
         """Return a new Polygon with all vertices rotated by angle_deg degrees.
@@ -1934,7 +1929,7 @@ class Circle(Ellipse):
         sweep_in = 1 - sweep_out
         if angle_span >= 360:
             # Full annulus: two half-arcs to avoid degenerate zero-length arc
-            mid_rad = (sa_rad + ea_rad) / 2 + math.pi
+            mid_rad = sa_rad + math.pi
             omx = cx + ro * math.cos(mid_rad)
             omy = cy - ro * math.sin(mid_rad)
             imx = cx + ri * math.cos(mid_rad)
