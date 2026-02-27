@@ -1,6 +1,6 @@
 **/__pycache__/
 /svgs/
-docs/svgs/
+**/svgs/
 .coverage
 *.egg-info/
 dist/
