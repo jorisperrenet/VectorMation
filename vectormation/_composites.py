@@ -4308,6 +4308,8 @@ class PieChart(VCollection):
         return f'PieChart({len(self.values)} sectors)'
 
     def get_sector(self, index):
+        if index < 0 or index >= len(self._sectors):
+            raise IndexError(f"sector index {index} out of range (0..{len(self._sectors) - 1})")
         return self._sectors[index]
 
     def highlight_sector(self, index, start=0, end=1, pull_distance=30, easing=easings.there_and_back):

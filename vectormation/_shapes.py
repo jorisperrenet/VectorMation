@@ -411,9 +411,6 @@ class Circle(Ellipse):
     def get_radius(self, time=0):
         return self.rx.at_time(time)
 
-    def get_perimeter(self, time=0):
-        return 2 * math.pi * self.rx.at_time(time)
-
     def set_radius(self, value, start=0, end=None, easing=easings.smooth):
         """Animate the radius to value."""
         self.set_rx(value, start, end, easing)
