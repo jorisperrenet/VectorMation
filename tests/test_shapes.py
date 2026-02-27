@@ -3605,3 +3605,85 @@ class TestLineFromAngle:
         x2d, y2d = ld.p2.at_time(0)
         assert x2a == pytest.approx(x2d, abs=1e-6)
         assert y2a == pytest.approx(y2d, abs=1e-6)
+
+
+class TestEllipseEccentricity:
+    def test_circle_eccentricity_is_zero(self):
+        """A circle (rx == ry) has eccentricity 0."""
+        e = Ellipse(rx=80, ry=80, cx=500, cy=400)
+        assert e.eccentricity() == pytest.approx(0.0)
+
+    def test_elongated_ellipse(self):
+        """A 3:1 ellipse has eccentricity sqrt(1 - (1/3)^2) = sqrt(8/9)."""
+        import math
+        e = Ellipse(rx=90, ry=30, cx=500, cy=400)
+        expected = math.sqrt(1 - (30 / 90) ** 2)
+        assert e.eccentricity() == pytest.approx(expected)
+
+    def test_swapped_axes(self):
+        """Eccentricity is symmetric: rx < ry gives the same result as rx > ry."""
+        import math
+        e1 = Ellipse(rx=100, ry=60, cx=500, cy=400)
+        e2 = Ellipse(rx=60, ry=100, cx=500, cy=400)
+        assert e1.eccentricity() == pytest.approx(e2.eccentricity())
+
+    def test_zero_radius_returns_zero(self):
+        """Degenerate ellipse with rx=0 returns 0 without division error."""
+        e = Ellipse(rx=0, ry=0, cx=500, cy=400)
+        assert e.eccentricity() == pytest.approx(0.0)
+
+    def test_range_zero_to_one(self):
+        """Eccentricity must be in [0, 1)."""
+        for rx, ry in [(100, 50), (200, 10), (50, 50), (1, 100)]:
+            e = Ellipse(rx=rx, ry=ry)
+            ecc = e.eccentricity()
+            assert 0.0 <= ecc < 1.0
+
+
+class TestNumberLineGetRange:
+    def test_basic_range(self):
+        nl = NumberLine(x_range=(-5, 5, 1), length=500, x=100, y=500)
+        assert nl.get_range() == (-5, 5)
+
+    def test_custom_range(self):
+        nl = NumberLine(x_range=(0, 100, 10), length=600, x=200, y=300)
+        assert nl.get_range() == (0, 100)
+
+    def test_returns_tuple(self):
+        nl = NumberLine(x_range=(1, 7, 2), length=400, x=100, y=500)
+        result = nl.get_range()
+        assert isinstance(result, tuple)
+        assert len(result) == 2
+
+    def test_min_max_order(self):
+        """min_val < max_val always."""
+        nl = NumberLine(x_range=(-10, 10, 5))
+        lo, hi = nl.get_range()
+        assert lo < hi
+
+
+class TestAxesGetPlotArea:
+    def test_default_values(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.get_plot_area()
+        assert result == (ax.plot_x, ax.plot_y, ax.plot_width, ax.plot_height)
+
+    def test_returns_four_tuple(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        result = ax.get_plot_area()
+        assert len(result) == 4
+
+    def test_custom_layout(self):
+        ax = Axes(x_range=(0, 1), y_range=(0, 1), x=50, y=80,
+                  plot_width=700, plot_height=500)
+        px, py, pw, ph = ax.get_plot_area()
+        assert px == 50
+        assert py == 80
+        assert pw == 700
+        assert ph == 500
+
+    def test_positive_dimensions(self):
+        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        _, _, pw, ph = ax.get_plot_area()
+        assert pw > 0
+        assert ph > 0

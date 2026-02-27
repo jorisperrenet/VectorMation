@@ -396,6 +396,18 @@ class Ellipse(VObject):
         """Alias for get_perimeter. Returns approximate perimeter using Ramanujan's formula."""
         return self.get_perimeter(time)
 
+    def eccentricity(self, time=0):
+        """Return the eccentricity of the ellipse.
+
+        Eccentricity e = sqrt(1 - (b/a)^2) where a = max(rx, ry) and b = min(rx, ry).
+        Returns 0 for a circle (rx == ry) and approaches 1 as the ellipse becomes more elongated.
+        """
+        a = max(self.rx.at_time(time), self.ry.at_time(time))
+        b = min(self.rx.at_time(time), self.ry.at_time(time))
+        if a == 0:
+            return 0.0
+        return math.sqrt(1 - (b / a) ** 2)
+
     def point_at_angle(self, degrees, time=0):
         """Return (x, y) on the ellipse at the given angle (degrees, CCW from right)."""
         cx, cy = self.c.at_time(time)

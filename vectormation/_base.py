@@ -358,6 +358,18 @@ class VObject(ABC):  # Vector Object
             self.show.set_onward(end, True)
         return self
 
+    def set_visible(self, visible, start=0):
+        """Show or hide the object at a given time.
+
+        If visible=True, show the object from *start* onward.
+        If visible=False, hide the object from *start* onward.
+        Returns self for chaining.
+
+        Usage: obj.set_visible(False, start=2)
+        """
+        self.show.set_onward(start, 1 if visible else 0)
+        return self
+
     def __repr__(self):
         return f'{self.__class__.__name__}(z={self.z.at_time(0)})'
 
@@ -2694,6 +2706,10 @@ class VCollection:
         return self.objects[idx]
 
     def __len__(self):
+        return len(self.objects)
+
+    def count(self):
+        """Return the number of child objects in this collection."""
         return len(self.objects)
 
     def __contains__(self, obj):

@@ -666,3 +666,55 @@ class TestVCollectionNthFirstLast:
         col = VCollection(c)
         assert col.first() is c
         assert col.last() is c
+
+
+class TestVCollectionCount:
+    def test_empty_collection(self):
+        col = VCollection()
+        assert col.count() == 0
+
+    def test_single_object(self):
+        c = Circle(r=50)
+        col = VCollection(c)
+        assert col.count() == 1
+
+    def test_multiple_objects(self):
+        objects = [Circle(r=10) for _ in range(5)]
+        col = VCollection(*objects)
+        assert col.count() == 5
+
+    def test_count_matches_len(self):
+        objects = [Circle(r=10) for _ in range(3)]
+        col = VCollection(*objects)
+        assert col.count() == len(col)
+
+
+class TestVObjectSetVisible:
+    def test_hide_from_start(self):
+        c = Circle(r=50)
+        c.set_visible(False, start=0)
+        assert not c.show.at_time(0)
+
+    def test_show_from_start(self):
+        c = Circle(r=50)
+        c.set_visible(False, start=0)
+        c.set_visible(True, start=2)
+        assert not c.show.at_time(1)
+        assert c.show.at_time(2)
+
+    def test_returns_self(self):
+        c = Circle(r=50)
+        result = c.set_visible(False, start=0)
+        assert result is c
+
+    def test_default_start_zero(self):
+        c = Circle(r=50)
+        c.set_visible(False)
+        assert not c.show.at_time(0)
+
+    def test_visible_true(self):
+        c = Circle(r=50)
+        # Hide first, then show again
+        c.set_visible(False, start=0)
+        c.set_visible(True, start=1)
+        assert c.show.at_time(1)

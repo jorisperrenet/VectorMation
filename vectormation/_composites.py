@@ -427,6 +427,13 @@ class Axes(VCollection):
         return (self.x_min.at_time(time), self.x_max.at_time(time),
                 self.y_min.at_time(time), self.y_max.at_time(time))
 
+    def get_plot_area(self):
+        """Return (plot_x, plot_y, plot_width, plot_height) for the SVG plot region.
+
+        These are the pixel coordinates of the axes bounding box, set at construction time.
+        """
+        return (self.plot_x, self.plot_y, self.plot_width, self.plot_height)
+
     def _math_to_svg_x(self, val, time=0):
         xmin, xmax = self.x_min.at_time(time), self.x_max.at_time(time)
         if self._x_scale == 'log':
@@ -4673,6 +4680,10 @@ class NumberLine(VCollection):
             return self.x_start
         t = (x - self.origin_x) / self.length
         return self.x_start + t * span
+
+    def get_range(self):
+        """Return (min_val, max_val) tuple for the number line's value range."""
+        return (self.x_start, self.x_end)
 
     def add_pointer(self, value, label=None, color='#FF6B6B', size=12,
                      creation=0, z=1):
