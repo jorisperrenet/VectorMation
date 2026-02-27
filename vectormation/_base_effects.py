@@ -1593,6 +1593,42 @@ class _VObjectEffectsMixin:
         return self.center_to_pos(posx=tx, posy=ty, start=start,
                                   end=end, easing=easing or easings.smooth)
 
+    def homotopy(self, func, start: float = 0, end: float = 1):
+        """Apply a continuous point-wise transformation over time.
+
+        *func(x, y, t)* → *(x', y')* is called for each coordinate attribute,
+        where *t* progresses linearly from 0 to 1 over [start, end].
+        Works on Polygon vertices, Line endpoints, and (x, y) Real pairs.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        coors = self._shift_coors()
+        reals = self._shift_reals()
+        for c in coors:
+            orig = c.at_time(start)
+            ox, oy = float(orig[0]), float(orig[1])
+            def _h(t, _s=start, _d=dur, _ox=ox, _oy=oy, _f=func):
+                alpha = min(1.0, (t - _s) / _d)
+                return _f(_ox, _oy, alpha)
+            c.set(start, end, _h, stay=True)
+            fx, fy = func(ox, oy, 1.0)
+            c.set_onward(end, (fx, fy))
+        for rx, ry in reals:
+            ox = float(rx.at_time(start))
+            oy = float(ry.at_time(start))
+            def _hx(t, _s=start, _d=dur, _ox=ox, _oy=oy, _f=func):
+                alpha = min(1.0, (t - _s) / _d)
+                return _f(_ox, _oy, alpha)[0]
+            def _hy(t, _s=start, _d=dur, _ox=ox, _oy=oy, _f=func):
+                alpha = min(1.0, (t - _s) / _d)
+                return _f(_ox, _oy, alpha)[1]
+            rx.set(start, end, _hx, stay=True)
+            ry.set(start, end, _hy, stay=True)
+            fx, fy = func(ox, oy, 1.0)
+            rx.set_onward(end, fx)
+            ry.set_onward(end, fy)
+        return self
 
 
 # VCollection moved to _collection.py; re-export for backward compatibility.

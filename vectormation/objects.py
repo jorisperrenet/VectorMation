@@ -91,7 +91,7 @@ from vectormation._diagrams import (
 
 from vectormation._ui import (
     Title, Variable, Underline, Code,
-    Label, LabeledArrow,
+    Label, LabeledLine, LabeledArrow,
     Callout, DimensionLine, Tooltip,
     TextBox, Bracket, IconGrid,
     SpeechBubble, Badge, Divider,

@@ -28,7 +28,7 @@ from vectormation.objects import (
     DashedLine, RegularPolygon, FunctionGraph, Annulus, ArcBetweenPoints,
     Elbow, SurroundingCircle, BulletedList,
     DoubleArrow, CurvedArrow, NumberLine,
-    Code, NetworkGraph, Tree, Label, LabeledArrow,
+    Code, NetworkGraph, Tree, Label, LabeledLine, LabeledArrow,
     Callout, DimensionLine, Tooltip, ProgressBar, Legend, FlowChart,
     StreamLines, PolarAxes, Stamp, TimelineBar, RadarChart,
     DEFAULT_CHART_COLORS, Variable, Underline,
@@ -13862,3 +13862,52 @@ class TestWordByWord:
         t.word_by_word(start=1, end=3, change_existence=True)
         assert t.show.at_time(0.5) == False
         assert t.show.at_time(1.5) == True
+
+# ── LabeledLine ─────────────────────────────────────────────────────────────
+
+class TestLabeledLine:
+    def test_basic(self):
+        ll = LabeledLine(x1=100, y1=200, x2=300, y2=200, label='distance')
+        svg = ll.to_svg(0)
+        assert 'distance' in svg
+        assert '<line' in svg
+
+    def test_label_position(self):
+        ll = LabeledLine(x1=100, y1=200, x2=300, y2=200, label='test')
+        assert ll.label_obj is not None
+        assert ll.line is not None
+
+    def test_styling(self):
+        ll = LabeledLine(x1=0, y1=0, x2=100, y2=0, label='x', stroke='#f00')
+        svg = ll.to_svg(0)
+        assert 'x' in svg
+
+# ── Homotopy ────────────────────────────────────────────────────────────────
+
+class TestHomotopy:
+    def test_polygon_homotopy(self):
+        p = Polygon((100, 100), (200, 100), (200, 200))
+        p.homotopy(lambda x, y, t: (x + 50 * t, y + 50 * t), start=0, end=2)
+        pts = p.snap_points(2)
+        assert abs(pts[0][0] - 150) < 1
+        assert abs(pts[0][1] - 150) < 1
+
+    def test_line_homotopy(self):
+        l = Line(0, 0, 100, 0)
+        l.homotopy(lambda x, y, t: (x, y + 100 * t), start=0, end=1)
+        p1 = l.p1.at_time(1)
+        p2 = l.p2.at_time(1)
+        assert abs(p1[1] - 100) < 1
+        assert abs(p2[1] - 100) < 1
+
+    def test_text_homotopy(self):
+        t = Text(text='Hello', x=500, y=300)
+        t.homotopy(lambda x, y, t: (x + 100 * t, y - 50 * t), start=0, end=1)
+        assert abs(t.x.at_time(1) - 600) < 1
+        assert abs(t.y.at_time(1) - 250) < 1
+
+    def test_midpoint(self):
+        p = Polygon((0, 0), (100, 0), (100, 100))
+        p.homotopy(lambda x, y, t: (x + 200 * t, y), start=0, end=2)
+        pts = p.snap_points(1)
+        assert abs(pts[0][0] - 100) < 1  # halfway at t=1

@@ -265,23 +265,34 @@ class Label(VCollection):
         super().__init__(bg, txt, creation=creation, z=z)
 
 
+def _labeled_line_init(self, line_obj, x1, y1, x2, y2, label, font_size, label_buff, creation, z):
+    """Shared init for LabeledLine and LabeledArrow."""
+    mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+    dx, dy = x2 - x1, y2 - y1
+    ux, uy = _normalize(dx, dy)
+    nx, ny = -uy * label_buff, ux * label_buff
+    lbl = _label_text(label, mx + nx, my + ny, font_size, creation=creation, z=z + 1)
+    VCollection.__init__(self, line_obj, lbl, creation=creation, z=z)
+    self.line = line_obj
+    self.label_obj = lbl
+
+class LabeledLine(VCollection):
+    """Line with a text label placed at its midpoint."""
+    def __init__(self, x1=860, y1=540, x2=1060, y2=540, label='',
+                 font_size=24, label_buff=10, creation: float = 0, z: float = 0, **styling_kwargs):
+        style_kw = {'stroke': '#fff', 'stroke_width': 3} | styling_kwargs
+        line = Line(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z, **style_kw)
+        _labeled_line_init(self, line, x1, y1, x2, y2, label, font_size, label_buff, creation, z)
+
 class LabeledArrow(VCollection):
     """Arrow with a text label placed at its midpoint."""
     def __init__(self, x1=860, y1=540, x2=1060, y2=540, label='',
                  font_size=24, label_buff=10, creation: float = 0, z: float = 0, **styling_kwargs):
-        from vectormation._shapes import Text
         Arrow = _get_arrow()
         style_kw = {'stroke': '#fff', 'stroke_width': 3} | styling_kwargs
         arrow = Arrow(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z, **style_kw)
-        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
-        dx, dy = x2 - x1, y2 - y1
-        ux, uy = _normalize(dx, dy)
-        # Perpendicular offset for the label
-        nx, ny = -uy * label_buff, ux * label_buff
-        lbl = _label_text(label, mx + nx, my + ny, font_size, creation=creation, z=z + 1)
-        super().__init__(arrow, lbl, creation=creation, z=z)
-        self.arrow = arrow
-        self.label_obj = lbl
+        _labeled_line_init(self, arrow, x1, y1, x2, y2, label, font_size, label_buff, creation, z)
+        self.arrow = arrow  # backward compat alias
 
 
 # ---------------------------------------------------------------------------
