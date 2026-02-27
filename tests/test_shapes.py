@@ -3170,3 +3170,101 @@ class TestAxesGetPlotCenter:
         # centre of the plot area, not the origin.
         assert cx == pytest.approx(ax.plot_x + ax.plot_width / 2)
         assert cy == pytest.approx(ax.plot_y + ax.plot_height / 2)
+
+
+class TestRectangleGetDiagonalLength:
+    def test_3_4_5_triangle(self):
+        """Classic 3-4-5 right triangle."""
+        r = Rectangle(width=3, height=4)
+        assert r.get_diagonal_length() == pytest.approx(5.0)
+
+    def test_square_diagonal(self):
+        """Diagonal of a unit square is sqrt(2)."""
+        import math
+        r = Rectangle(width=1, height=1)
+        assert r.get_diagonal_length() == pytest.approx(math.sqrt(2))
+
+    def test_zero_height(self):
+        """Zero height — diagonal equals width."""
+        r = Rectangle(width=7, height=0)
+        assert r.get_diagonal_length() == pytest.approx(7.0)
+
+    def test_returns_float(self):
+        r = Rectangle(width=100, height=200)
+        d = r.get_diagonal_length()
+        assert isinstance(d, float)
+
+
+class TestLineGetNormal:
+    def test_horizontal_line_normal_is_vertical(self):
+        """A right-pointing line should have an upward normal (in SVG y-down this is (0,-1))."""
+        import math
+        l = Line(x1=0, y1=0, x2=10, y2=0)
+        nx, ny = l.get_normal()
+        # direction is (1,0), normal is (-0,1) = (0,1) but _normalize(-0,1)=(0,1)
+        # direction=(1,0) -> normal=(-0,1)=(0,1)  wait: (-dy,dx) = (-0, 1) = (0,1)
+        assert nx == pytest.approx(0.0, abs=1e-9)
+        assert ny == pytest.approx(1.0, abs=1e-9)
+
+    def test_vertical_line_normal_is_horizontal(self):
+        """A downward-pointing line (SVG y increases down) should have normal pointing left."""
+        l = Line(x1=0, y1=0, x2=0, y2=10)
+        nx, ny = l.get_normal()
+        # direction is (0,1), normal is (-1, 0)
+        assert nx == pytest.approx(-1.0, abs=1e-9)
+        assert ny == pytest.approx(0.0, abs=1e-9)
+
+    def test_normal_is_unit_vector(self):
+        """Normal should be a unit vector."""
+        import math
+        l = Line(x1=0, y1=0, x2=3, y2=4)
+        nx, ny = l.get_normal()
+        magnitude = math.sqrt(nx * nx + ny * ny)
+        assert magnitude == pytest.approx(1.0)
+
+    def test_normal_orthogonal_to_direction(self):
+        """Normal dot direction should be zero (perpendicular)."""
+        l = Line(x1=100, y1=200, x2=400, y2=350)
+        dx, dy = l.get_direction()
+        nx, ny = l.get_normal()
+        dot = dx * nx + dy * ny
+        assert dot == pytest.approx(0.0, abs=1e-9)
+
+    def test_zero_length_line_returns_zero(self):
+        """Zero-length line should return (0.0, 0.0)."""
+        l = Line(x1=5, y1=5, x2=5, y2=5)
+        nx, ny = l.get_normal()
+        assert nx == pytest.approx(0.0)
+        assert ny == pytest.approx(0.0)
+
+
+class TestAxesAddTangentAt:
+    def test_add_tangent_at_returns_line(self):
+        """add_tangent_at should return a Line object."""
+        from vectormation.objects import Line
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        line = ax.add_tangent_at(lambda x: x ** 2, x_val=1)
+        assert isinstance(line, Line)
+
+    def test_add_tangent_at_at_minimum_is_horizontal(self):
+        """Tangent at x=0 for x^2 is horizontal (slope=0), so y1==y2."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        line = ax.add_tangent_at(lambda x: x ** 2, x_val=0, length=200)
+        y1, y2 = line.p1.at_time(0)[1], line.p2.at_time(0)[1]
+        assert y1 == pytest.approx(y2, abs=1.0)
+
+    def test_add_tangent_at_length(self):
+        """The tangent line should be approximately the requested length."""
+        import math
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        line = ax.add_tangent_at(lambda x: x, x_val=0, length=200)
+        x1, y1 = line.p1.at_time(0)
+        x2, y2 = line.p2.at_time(0)
+        length = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+        assert length == pytest.approx(200, abs=1.0)
+
+    def test_add_tangent_at_accepts_styling_kwargs(self):
+        """add_tangent_at should forward styling kwargs."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        line = ax.add_tangent_at(lambda x: x, x_val=0, stroke_width=5)
+        assert line.styling.stroke_width.at_time(0) == pytest.approx(5)

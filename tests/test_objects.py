@@ -6895,3 +6895,47 @@ class TestAxesScreenToCoords:
         result = ax.screen_to_coords(960, 540)
         assert isinstance(result, tuple)
         assert len(result) == 2
+
+
+class TestMorphStyle:
+    def test_morph_style_animates_fill(self):
+        """After morph_style ends, fill should match target's fill."""
+        r1 = Rectangle(100, 50, fill='#ff0000')
+        r2 = Rectangle(100, 50, fill='#0000ff')
+        r1.morph_style(r2, start=0, end=1)
+        # At t=1 the fill should be r2's fill
+        r1_fill = r1.styling.fill.time_func(1)
+        r2_fill = r2.styling.fill.time_func(0)
+        assert r1_fill == pytest.approx(r2_fill, abs=5)
+
+    def test_morph_style_animates_stroke_width(self):
+        """After morph_style, stroke_width should match target."""
+        c1 = Circle(r=50, stroke_width=2)
+        c2 = Circle(r=50, stroke_width=10)
+        c1.morph_style(c2, start=0, end=1)
+        sw = c1.styling.stroke_width.at_time(1)
+        assert sw == pytest.approx(10.0, abs=0.1)
+
+    def test_morph_style_at_start_is_original(self):
+        """At t=start the style should be unchanged (no jump)."""
+        c1 = Circle(r=50, fill_opacity=0.2)
+        c2 = Circle(r=50, fill_opacity=0.9)
+        c1.morph_style(c2, start=1, end=2)
+        # At t=1 the value should still be the original (0.2)
+        op = c1.styling.fill_opacity.at_time(1)
+        assert op == pytest.approx(0.2, abs=0.05)
+
+    def test_morph_style_returns_self(self):
+        """morph_style should return self for chaining."""
+        r1 = Rectangle(100, 50)
+        r2 = Rectangle(100, 50, fill='#00ff00')
+        result = r1.morph_style(r2, start=0, end=1)
+        assert result is r1
+
+    def test_morph_style_midpoint(self):
+        """At the midpoint of the animation, values should be between start and target."""
+        c1 = Circle(r=50, stroke_width=0)
+        c2 = Circle(r=50, stroke_width=10)
+        c1.morph_style(c2, start=0, end=2)
+        sw_mid = c1.styling.stroke_width.at_time(1)
+        assert 0.0 < sw_mid < 10.0

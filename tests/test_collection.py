@@ -518,3 +518,67 @@ class TestVCollectionFlatten:
         outer = VCollection(inner)
         outer.flatten()
         assert not any(isinstance(o, VCollection) for o in outer.objects)
+
+
+class TestInterleave:
+    def test_equal_length_collections(self):
+        """Interleaving two equal-length collections alternates children."""
+        c1, c2 = Circle(r=10), Circle(r=20)
+        c3, c4 = Circle(r=30), Circle(r=40)
+        a = VCollection(c1, c2)
+        b = VCollection(c3, c4)
+        result = a.interleave(b)
+        assert list(result.objects) == [c1, c3, c2, c4]
+
+    def test_unequal_length_shorter_first(self):
+        """Extra elements from the longer collection appear at the end."""
+        c1 = Circle(r=10)
+        c2, c3, c4 = Circle(r=20), Circle(r=30), Circle(r=40)
+        a = VCollection(c1)
+        b = VCollection(c2, c3, c4)
+        result = a.interleave(b)
+        assert list(result.objects) == [c1, c2, c3, c4]
+
+    def test_unequal_length_longer_first(self):
+        """Extra elements from the self collection appear at the end."""
+        c1, c2, c3 = Circle(r=10), Circle(r=20), Circle(r=30)
+        c4 = Circle(r=40)
+        a = VCollection(c1, c2, c3)
+        b = VCollection(c4)
+        result = a.interleave(b)
+        assert list(result.objects) == [c1, c4, c2, c3]
+
+    def test_empty_self(self):
+        """Interleaving an empty collection returns a copy of other."""
+        c1, c2 = Circle(r=10), Circle(r=20)
+        a = VCollection()
+        b = VCollection(c1, c2)
+        result = a.interleave(b)
+        assert list(result.objects) == [c1, c2]
+
+    def test_empty_other(self):
+        """Interleaving with an empty collection returns a copy of self."""
+        c1, c2 = Circle(r=10), Circle(r=20)
+        a = VCollection(c1, c2)
+        b = VCollection()
+        result = a.interleave(b)
+        assert list(result.objects) == [c1, c2]
+
+    def test_returns_new_collection(self):
+        """interleave returns a new VCollection, not self or other."""
+        c1, c2 = Circle(r=10), Circle(r=20)
+        a = VCollection(c1)
+        b = VCollection(c2)
+        result = a.interleave(b)
+        assert result is not a
+        assert result is not b
+        assert isinstance(result, VCollection)
+
+    def test_originals_unchanged(self):
+        """Original collections are not modified."""
+        c1, c2 = Circle(r=10), Circle(r=20)
+        a = VCollection(c1)
+        b = VCollection(c2)
+        a.interleave(b)
+        assert len(a.objects) == 1
+        assert len(b.objects) == 1

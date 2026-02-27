@@ -762,6 +762,23 @@ class Rectangle(VObject):
         """Return the perimeter (2 * (width + height))."""
         return 2 * (self.width.at_time(time) + self.height.at_time(time))
 
+    def get_diagonal_length(self, time=0):
+        """Return the length of the diagonal: sqrt(width^2 + height^2).
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read the rectangle dimensions.
+
+        Example
+        -------
+        >>> r = Rectangle(width=3, height=4)
+        >>> r.get_diagonal_length()   # 5.0
+        """
+        w = self.width.at_time(time)
+        h = self.height.at_time(time)
+        return math.sqrt(w * w + h * h)
+
     def get_size(self, time=0):
         return (self.width.at_time(time), self.height.at_time(time))
 
@@ -982,6 +999,31 @@ class Line(VObject):
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         return _normalize(x2 - x1, y2 - y1)
+
+    def get_normal(self, time=0):
+        """Return the normal vector perpendicular to the line direction.
+
+        Rotates the direction vector 90 degrees counter-clockwise:
+        if direction is (dx, dy), the normal is (-dy, dx).
+
+        Returns ``(0.0, 0.0)`` when the line has zero length (p1 == p2).
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read p1 and p2.
+
+        Returns
+        -------
+        (nx, ny) unit normal vector tuple of floats.
+
+        Example
+        -------
+        >>> l = Line(x1=0, y1=0, x2=1, y2=0)
+        >>> l.get_normal()   # (0.0, -1.0) — perpendicular, pointing up in math coords
+        """
+        dx, dy = self.get_direction(time)
+        return (-dy, dx)
 
     def get_slope(self, time=0):
         """Return the slope (dy/dx) of the line, or float('inf') for vertical lines.

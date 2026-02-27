@@ -3511,6 +3511,39 @@ class Axes(VCollection):
         self._add_plot_obj(line)
         return line
 
+    def add_tangent_at(self, func, x_val, length=200, creation=0, **kwargs):
+        """Draw a tangent line to *func* at x=*x_val* and add it to the axes.
+
+        Computes the derivative numerically using the central difference method,
+        constructs a :class:`Line` tangent to ``func`` at ``x_val``, adds it to
+        the axes as a plot object, and returns it.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x) -> y`` describing the curve.
+        x_val:
+            The x-coordinate (in math/axes units) at which to draw the tangent.
+        length:
+            Total pixel length of the tangent line segment (default 200).
+        creation:
+            Time at which the line is created (default 0).
+        **kwargs:
+            Additional styling keyword arguments forwarded to the Line.  The
+            defaults are ``stroke='#FFFF00'`` and ``stroke_width=2``.
+
+        Returns
+        -------
+        Line
+            The tangent line object, already added to the axes.
+
+        Example
+        -------
+        >>> ax = Axes()
+        >>> tangent = ax.add_tangent_at(lambda x: x**2, x_val=1, length=300)
+        """
+        return self.get_tangent_line(func, x_val, length=length, creation=creation, **kwargs)
+
     def get_secant_line(self, func, x1, x2, length=300, creation=0, z=0, **styling_kwargs):
         """Draw a secant line through func at x1 and x2. Returns a Line."""
         style_kw = {'stroke': '#83C167', 'stroke_width': 2} | styling_kwargs

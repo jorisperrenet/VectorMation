@@ -2363,6 +2363,41 @@ class VObject(ABC):  # Vector Object
                 attr.move_to(start, end, target, easing=easing)
         return self
 
+    def morph_style(self, target_style, start: float, end: float, easing=easings.smooth):
+        """Smoothly transition styling attributes to match another object's style.
+
+        Animates fill color, stroke color, stroke_width, fill_opacity, and
+        stroke_opacity from their current values at *start* to the values of
+        *target_style* at *start*, over the interval [start, end].
+
+        Parameters
+        ----------
+        target_style:
+            Another VObject whose styling values are used as the animation targets.
+        start, end:
+            Animation time window in seconds.
+        easing:
+            Easing function (default: smooth).
+
+        Example
+        -------
+        >>> r1 = Rectangle(100, 50, fill='#f00', stroke='#fff', stroke_width=4)
+        >>> r2 = Rectangle(100, 50, fill='#00f', stroke='#ff0', stroke_width=8)
+        >>> r1.morph_style(r2, start=1, end=2)
+        """
+        morph_attrs = ['fill', 'stroke', 'stroke_width', 'fill_opacity', 'stroke_opacity']
+        for attr_name in morph_attrs:
+            src = getattr(self.styling, attr_name)
+            tgt = getattr(target_style.styling, attr_name)
+            if isinstance(src, attributes.Color):
+                target_color = attributes.Color(start, tgt.time_func(start))
+                new_attr = src.interpolate(target_color, start, end, easing=easing)
+                setattr(self.styling, attr_name, new_attr)
+            else:
+                target_val = tgt.at_time(start)
+                src.move_to(start, end, target_val, easing=easing)
+        return self
+
     def become(self, other, time: float = 0):
         """Copy another object's styling at *time*, applied from *time* onward."""
         for attr_name in style._STYLES:
@@ -2734,6 +2769,43 @@ class VCollection:
     def select(self, start=0, end=None):
         """Return a new VCollection with children at indices [start:end]."""
         return VCollection(*self.objects[start:end])
+
+    def interleave(self, other):
+        """Merge two collections by alternating their children.
+
+        Returns a new VCollection with elements interleaved as
+        [a1, b1, a2, b2, ...].  If one collection is longer than the other,
+        the remaining elements are appended at the end.
+
+        Parameters
+        ----------
+        other:
+            Another VCollection (or subclass) whose children to interleave with
+            this collection's children.
+
+        Returns
+        -------
+        VCollection
+            A new collection containing the interleaved children.  The original
+            collections are not modified.
+
+        Example
+        -------
+        >>> a = VCollection(Circle(), Circle())
+        >>> b = VCollection(Rectangle(10,10), Rectangle(10,10), Rectangle(10,10))
+        >>> c = a.interleave(b)
+        >>> len(c)   # 5 — circle, rect, circle, rect, rect
+        """
+        result = []
+        a_list = list(self.objects)
+        b_list = list(other.objects)
+        max_len = max(len(a_list), len(b_list))
+        for i in range(max_len):
+            if i < len(a_list):
+                result.append(a_list[i])
+            if i < len(b_list):
+                result.append(b_list[i])
+        return VCollection(*result)
 
     def flatten(self):
         """Flatten nested VCollections into a single-level collection in-place.
