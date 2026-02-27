@@ -1310,13 +1310,9 @@ class Circle(Ellipse):
         # Point is outside — two tangent points.
         half_angle = math.acos(max(-1.0, min(1.0, r / d)))
         base_angle = math.atan2(py - cy, px - cx)
-        points = []
-        for sign in (1, -1):
-            touch_angle = base_angle + sign * half_angle
-            tx = cx + r * math.cos(touch_angle)
-            ty = cy + r * math.sin(touch_angle)
-            points.append((tx, ty))
-        return points
+        return [(cx + r * math.cos(base_angle + s * half_angle),
+                 cy + r * math.sin(base_angle + s * half_angle))
+                for s in (1, -1)]
 
     def chord(self, angle1, angle2, time=0, **kwargs):
         """Return a Line connecting two points on the circle at the given angles.
@@ -2976,8 +2972,12 @@ class Line(VObject):
             p.set_onward(time, (mx + new_dx, my + new_dy))
         return self
 
-    def intersect_line(self, other, time=0):
-        """Return intersection point (x, y) of this line with another, or None if parallel."""
+    def _intersect_params(self, other, time=0):
+        """Return (t, u) line-line intersection parameters, or None if parallel.
+
+        t is the parameter along self, u along other.  The intersection
+        point is ``p1 + t * (p2 - p1)`` on self.
+        """
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         x3, y3 = other.p1.at_time(time)
@@ -2986,9 +2986,18 @@ class Line(VObject):
         if abs(denom) < 1e-10:
             return None
         t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom
-        ix = x1 + t * (x2 - x1)
-        iy = y1 + t * (y2 - y1)
-        return (ix, iy)
+        u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom
+        return (t, u)
+
+    def intersect_line(self, other, time=0):
+        """Return intersection point (x, y) of this line with another, or None if parallel."""
+        params = self._intersect_params(other, time)
+        if params is None:
+            return None
+        t = params[0]
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
 
     def intersect_segment(self, other, time=0):
         """Return the intersection point only if it lies within both segments.
@@ -3010,20 +3019,15 @@ class Line(VObject):
             ``(x, y)`` of the intersection if it lies within both segments,
             otherwise ``None``.
         """
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
-        x3, y3 = other.p1.at_time(time)
-        x4, y4 = other.p2.at_time(time)
-        denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
-        if abs(denom) < 1e-10:
+        params = self._intersect_params(other, time)
+        if params is None:
             return None
-        t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom
-        u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom
+        t, u = params
         if t < -1e-10 or t > 1 + 1e-10 or u < -1e-10 or u > 1 + 1e-10:
             return None
-        ix = x1 + t * (x2 - x1)
-        iy = y1 + t * (y2 - y1)
-        return (ix, iy)
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
 
     def project_point(self, px, py, time=0):
         """Return the closest point on this line (extended) to point (px, py)."""
@@ -3055,15 +3059,10 @@ class Line(VObject):
         tuple[float, float]
             ``(x, y)`` of the closest point on the segment.
         """
+        t = max(0.0, min(1.0, self.parameter_at(px, py, time)))
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
-        dx, dy = x2 - x1, y2 - y1
-        len_sq = dx * dx + dy * dy
-        if len_sq < 1e-20:
-            return (x1, y1)
-        t = ((px - x1) * dx + (py - y1) * dy) / len_sq
-        t = max(0.0, min(1.0, t))
-        return (x1 + t * dx, y1 + t * dy)
+        return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
 
     def parameter_at(self, px, py, time=0):
         """Return the parameter t for the projection of (px, py) onto the line.

@@ -3812,8 +3812,8 @@ class VObject(ABC):  # Vector Object
             # Fade out over fade_duration
             t_gone = t_appear + fade_duration
             ghost.show.set_onward(t_gone, False)
-            s, fd = t_appear, max(fade_duration, 1e-9)
-            fade_fn = lambda t, _s=s, _fd=fd, _o=opacity: _o * max(0, 1 - (t - _s) / _fd)
+            fd = max(fade_duration, 1e-9)
+            fade_fn = lambda t, _s=t_appear, _fd=fd, _o=opacity: _o * max(0, 1 - (t - _s) / _fd)
             ghost.styling.fill_opacity.set(t_appear, t_gone, fade_fn)
             ghost.styling.stroke_opacity.set(t_appear, t_gone, fade_fn)
             ghosts.append(ghost)
@@ -3845,8 +3845,7 @@ class VObject(ABC):  # Vector Object
             self.styling._scale_origin = (bx + bw / 2, by)
         else:  # up
             self.styling._scale_origin = (bx + bw / 2, by + bh)
-        s, d = start, max(dur, 1e-9)
-        scale_fn = lambda t, _s=s, _d=d, _e=easing: _e((t - _s) / _d)
+        scale_fn = lambda t, _s=start, _d=dur, _e=easing: _e((t - _s) / _d)
         if horizontal:
             self.styling.scale_x.set(start, end, scale_fn, stay=True)
         else:
