@@ -1037,15 +1037,13 @@ class DynamicObject(VObject):
         self._cache[1] = result
         return result
 
-    def to_svg(self, time):
-        return self._eval(time).to_svg(time)
+    def to_svg(self, time): return self._eval(time).to_svg(time)
 
     def path(self, time):
         obj = self._eval(time)
         return obj.path(time) if hasattr(obj, 'path') else ''
 
-    def bbox(self, time):
-        return self._eval(time).bbox(time)
+    def bbox(self, time): return self._eval(time).bbox(time)
 
     def __repr__(self):
         return f'DynamicObject()'

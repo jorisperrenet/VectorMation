@@ -7,8 +7,18 @@ from vectormation._constants import (
 from vectormation._base import VCollection
 from vectormation._shapes import Circle, Rectangle, Line, Text
 
+def _make_cell(x, y, w, h, val, font_size, fill, border_color, text_color,
+               creation=0, z=0):
+    """Create a rectangle cell + centered label text pair."""
+    cell = Rectangle(width=w, height=h, x=x, y=y,
+                     fill=fill, stroke=border_color, stroke_width=2,
+                     creation=creation, z=z)
+    lbl = _label_text(str(val), x + w / 2, y + h / 2,
+                      font_size, creation=creation, z=z + 0.1, fill=text_color)
+    return cell, lbl
+
 def _flash_fill(obj, color, start, end, default='#264653'):
-    """Temporarily change an object's fill colour, reverting at *end*."""
+    """Temporarily change an object's fill color, reverting at *end*."""
     orig = obj.styling.fill.time_func(0)
     orig_hex = '#{:02x}{:02x}{:02x}'.format(*orig) if orig else default
     obj.set_fill(color=color, start=start)
@@ -28,11 +38,8 @@ class Array(VCollection):
         objects = []
         for i, val in enumerate(values):
             cx = x + i * cell_width
-            cell = Rectangle(width=cell_width, height=cell_height, x=cx, y=y,
-                             fill=fill, stroke=border_color, stroke_width=2,
-                             creation=creation, z=z)
-            lbl = _label_text(str(val), cx + cell_width / 2, y + cell_height / 2,
-                              font_size, creation=creation, z=z + 0.1, fill=text_color)
+            cell, lbl = _make_cell(cx, y, cell_width, cell_height, val, font_size,
+                                   fill, border_color, text_color, creation, z)
             self._cells.append(cell)
             self._labels.append(lbl)
             objects.extend([cell, lbl])
@@ -135,11 +142,8 @@ class Stack(VCollection):
         if values:
             for i, val in enumerate(values):
                 cy = y - i * cell_height
-                cell = Rectangle(width=cell_width, height=cell_height, x=x, y=cy,
-                                 fill=fill, stroke=border_color, stroke_width=2,
-                                 creation=creation, z=z)
-                lbl = _label_text(str(val), x + cell_width / 2, cy + cell_height / 2,
-                                  font_size, creation=creation, z=z + 0.1, fill=text_color)
+                cell, lbl = _make_cell(x, cy, cell_width, cell_height, val, font_size,
+                                       fill, border_color, text_color, creation, z)
                 self._items.append((cell, lbl))
                 objects.extend([cell, lbl])
         super().__init__(*objects, creation=creation, z=z)
@@ -162,13 +166,9 @@ class Stack(VCollection):
         n = len(self._items)
         slot_y = self._y_base - n * self._cell_height
         start_y = slot_y - self._cell_height * 2
-        cell = Rectangle(width=self._cell_width, height=self._cell_height,
-                         x=self._x, y=start_y,
-                         fill=self._fill, stroke=self._border_color, stroke_width=2,
-                         creation=start, z=0)
-        lbl = _label_text(str(value), self._x + self._cell_width / 2,
-                          start_y + self._cell_height / 2,
-                          self._font_size, creation=start, z=0.1, fill=self._text_color)
+        cell, lbl = _make_cell(self._x, start_y, self._cell_width, self._cell_height,
+                               value, self._font_size, self._fill, self._border_color,
+                               self._text_color, start, 0)
         dy = slot_y - start_y
         cell.shift(dy=dy, start=start, end=end, easing=easings.ease_out_back)
         lbl.shift(dy=dy, start=start, end=end, easing=easings.ease_out_back)
@@ -202,11 +202,8 @@ class Queue(VCollection):
         if values:
             for i, val in enumerate(values):
                 cx = x + i * cell_width
-                cell = Rectangle(width=cell_width, height=cell_height, x=cx, y=y,
-                                 fill=fill, stroke=border_color, stroke_width=2,
-                                 creation=creation, z=z)
-                lbl = _label_text(str(val), cx + cell_width / 2, y + cell_height / 2,
-                                  font_size, creation=creation, z=z + 0.1, fill=text_color)
+                cell, lbl = _make_cell(cx, y, cell_width, cell_height, val, font_size,
+                                       fill, border_color, text_color, creation, z)
                 self._items.append((cell, lbl))
                 objects.extend([cell, lbl])
         super().__init__(*objects, creation=creation, z=z)
@@ -229,13 +226,9 @@ class Queue(VCollection):
         n = len(self._items)
         target_cx = self._x + n * self._cell_width
         start_cx = target_cx + self._cell_width
-        cell = Rectangle(width=self._cell_width, height=self._cell_height,
-                         x=start_cx, y=self._y,
-                         fill=self._fill, stroke=self._border_color, stroke_width=2,
-                         creation=start, z=0)
-        lbl = _label_text(str(value), start_cx + self._cell_width / 2,
-                          self._y + self._cell_height / 2,
-                          self._font_size, creation=start, z=0.1, fill=self._text_color)
+        cell, lbl = _make_cell(start_cx, self._y, self._cell_width, self._cell_height,
+                               value, self._font_size, self._fill, self._border_color,
+                               self._text_color, start, 0)
         cell.shift(dx=-self._cell_width, start=start, end=end,
                    easing=easings.ease_out_back)
         lbl.shift(dx=-self._cell_width, start=start, end=end,
@@ -273,11 +266,8 @@ class LinkedList(VCollection):
         step = node_width + gap
         for i, val in enumerate(values):
             nx = x + i * step
-            node = Rectangle(width=node_width, height=node_height, x=nx, y=y,
-                             fill=fill, stroke=border_color, stroke_width=2,
-                             creation=creation, z=z)
-            lbl = _label_text(str(val), nx + node_width / 2, y + node_height / 2,
-                              font_size, creation=creation, z=z + 0.1, fill=text_color)
+            node, lbl = _make_cell(nx, y, node_width, node_height, val, font_size,
+                                   fill, border_color, text_color, creation, z)
             self._nodes.append((node, lbl))
             objects.extend([node, lbl])
             if i < len(values) - 1:
@@ -312,14 +302,9 @@ class LinkedList(VCollection):
         nx = self._x + n * step
         ay = self._y + self._node_height / 2
         # Create the new node and label
-        node = Rectangle(width=self._node_width, height=self._node_height,
-                         x=nx, y=self._y, fill=self._fill,
-                         stroke=self._border_color, stroke_width=2,
-                         creation=start, z=0)
-        lbl = _label_text(str(value), nx + self._node_width / 2,
-                          self._y + self._node_height / 2,
-                          self._font_size, creation=start, z=0.1,
-                          fill=self._text_color)
+        node, lbl = _make_cell(nx, self._y, self._node_width, self._node_height,
+                               value, self._font_size, self._fill, self._border_color,
+                               self._text_color, start, 0)
         # Arrow from previous node to new node
         if n > 0:
             ax1 = self._x + (n - 1) * step + self._node_width
@@ -447,7 +432,7 @@ class ArrayViz(VCollection):
         return f'ArrayViz({self.values})'
 
     def highlight(self, index, start=0, end=1, color='#FFFF00'):
-        """Temporarily highlight a cell by changing its fill colour."""
+        """Temporarily highlight a cell by changing its fill color."""
         if 0 <= index < len(self._cells):
             _flash_fill(self._cells[index], color, start, end)
         return self

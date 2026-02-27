@@ -849,7 +849,7 @@ class Spotlight(VObject):
     radius : float
         Radius of the bright area.
     color : str
-        Overlay colour (usually dark).
+        Overlay color (usually dark).
     opacity : float
         Overlay opacity (0 = invisible, 1 = fully opaque).
     """
@@ -920,16 +920,16 @@ class Spotlight(VObject):
 
 
 class AnimatedBoundary(VObject):
-    """Animated colour-cycling dashed border around another VObject.
+    """Animated color-cycling dashed border around another VObject.
 
     Parameters
     ----------
     target : VObject
         The object to surround with an animated border.
     colors : list[str]
-        Colours to cycle through.
+        Colors to cycle through.
     cycle_rate : float
-        Full colour cycles per second.
+        Full color cycles per second.
     buff : float
         Extra padding around the target's bounding box.
     stroke_width : float
@@ -954,7 +954,7 @@ class AnimatedBoundary(VObject):
         return []
 
     def _get_color_at(self, time):
-        """Return interpolated colour at *time* from the cycle."""
+        """Return interpolated color at *time* from the cycle."""
         from vectormation.colors import interpolate_color
         colors = self._colors
         n = len(colors)
