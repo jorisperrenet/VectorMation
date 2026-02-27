@@ -63,21 +63,23 @@ class PieChart(VCollection):
             raise IndexError(f"sector index {index} out of range (0..{len(self._sectors) - 1})")
         return self._sectors[index]
 
+    @staticmethod
+    def _sector_offset(sector, distance, time=0):
+        """Compute (dx, dy) to push a Wedge sector outward by *distance*."""
+        sa = sector.start_angle.at_time(time) if hasattr(sector.start_angle, 'at_time') else 0
+        ea = sector.end_angle.at_time(time) if hasattr(sector.end_angle, 'at_time') else 0
+        mid_rad = math.radians((sa + ea) / 2)
+        return distance * math.cos(mid_rad), -distance * math.sin(mid_rad)
+
     def highlight_sector(self, index, start=0, end=1, pull_distance=30, easing=easings.there_and_back):
         """Pull out a sector from the pie to highlight it."""
         if index < 0 or index >= len(self._sectors):
             return self
-        sector = self._sectors[index]
-        # Calculate angle bisector direction
-        sa = sector.start_angle.at_time(start) if hasattr(sector.start_angle, 'at_time') else 0
-        ea = sector.end_angle.at_time(start) if hasattr(sector.end_angle, 'at_time') else 0
-        mid_rad = math.radians((sa + ea) / 2)
-        dx = pull_distance * math.cos(mid_rad)
-        dy = -pull_distance * math.sin(mid_rad)
         dur = end - start
         if dur <= 0:
             return self
-        sector.shift(dx=dx, dy=dy, start=start, end=start + dur / 2, easing=easing)
+        dx, dy = self._sector_offset(self._sectors[index], pull_distance, start)
+        self._sectors[index].shift(dx=dx, dy=dy, start=start, end=start + dur / 2, easing=easing)
         return self
 
     def explode(self, indices, distance=20, start=0, end=None, easing=None):
@@ -85,14 +87,8 @@ class PieChart(VCollection):
         for idx in indices:
             if idx < 0 or idx >= len(self._sectors):
                 continue
-            sector = self._sectors[idx]
-            # Read angles from the actual Wedge attributes
-            sa = sector.start_angle.at_time(start) if hasattr(sector.start_angle, 'at_time') else 0
-            ea = sector.end_angle.at_time(start) if hasattr(sector.end_angle, 'at_time') else 0
-            mid_rad = math.radians((sa + ea) / 2)
-            dx = distance * math.cos(mid_rad)
-            dy = -distance * math.sin(mid_rad)
-            sector.shift(dx=dx, dy=dy, start=start, end=end, easing=easing or easings.smooth)
+            dx, dy = self._sector_offset(self._sectors[idx], distance, start)
+            self._sectors[idx].shift(dx=dx, dy=dy, start=start, end=end, easing=easing or easings.smooth)
         return self
 
     def animate_values(self, new_values, start=0, end=1, easing=easings.smooth):
@@ -209,19 +205,15 @@ class DonutChart(VCollection):
         """Pull out a donut sector to highlight it by shifting it outward."""
         if index < 0 or index >= len(self._sectors):
             return self
-        sector = self._sectors[index]
-        # Determine mid-angle for this sector from cumulative values
-        total = sum(self.values) or 1
-        cum = sum(self.values[:index])
-        start_a = self._start_angle + 360 * cum / total
-        sweep = 360 * self.values[index] / total
-        mid_rad = math.radians(start_a + sweep / 2)
-        dx = pull_distance * math.cos(mid_rad)
-        dy = -pull_distance * math.sin(mid_rad)
         dur = end - start
         if dur <= 0:
             return self
-        sector.shift(dx=dx, dy=dy, start=start, end=start + dur / 2, easing=easing)
+        total = sum(self.values) or 1
+        cum = sum(self.values[:index])
+        mid_rad = math.radians(self._start_angle + 360 * cum / total + 180 * self.values[index] / total)
+        dx = pull_distance * math.cos(mid_rad)
+        dy = -pull_distance * math.sin(mid_rad)
+        self._sectors[index].shift(dx=dx, dy=dy, start=start, end=start + dur / 2, easing=easing)
         return self
 
     def animate_values(self, new_values, start=0, end=1, easing=easings.smooth):
