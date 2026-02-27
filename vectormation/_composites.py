@@ -592,7 +592,7 @@ class Axes(VCollection):
 
     plot = add_function
 
-    def add_filled_curve(self, func, x_range=None, baseline=0, color='#58C4DD',
+    def add_filled_curve(self, func, x_range=None, color='#58C4DD',
                          opacity=0.3, start=0, end=None, reveal=True, **kwargs):
         """Plot a curve AND its filled area underneath in one call.
 
@@ -607,9 +607,6 @@ class Axes(VCollection):
             A callable ``f(x)`` to plot.
         x_range:
             Optional ``(x_min, x_max)`` domain for the curve and area.
-        baseline:
-            The y-value at which the area starts (in math coords).
-            Default 0 (the x-axis).
         color:
             Stroke colour for the curve and fill colour for the area.
         opacity:
@@ -639,7 +636,7 @@ class Axes(VCollection):
                              fill=color, fill_opacity=opacity, stroke_width=0)
         if reveal and end is not None and end > start:
             curve.draw_along(start, end)
-            area.set_opacity(0, start=0)
+            area.set_opacity(0, start=start)
             area.set_opacity(1, start=start, end=end)
         result = VCollection(curve, area, creation=start)
         return result

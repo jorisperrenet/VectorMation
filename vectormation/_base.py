@@ -1553,8 +1553,8 @@ class VObject(ABC):  # Vector Object
         """Apply an arbitrary ``(x, y) -> (x', y')`` function to the object's position.
 
         Gets the current center, applies *func*, and moves to the new
-        position.  For :class:`Polygon` subclasses, each vertex is also
-        individually transformed.
+        position.  :class:`Polygon` overrides this to transform each
+        vertex individually.
 
         Parameters
         ----------
@@ -1563,16 +1563,9 @@ class VObject(ABC):  # Vector Object
         time:
             The time at which to evaluate the current position.
         """
-        from vectormation._shapes import Polygon as _Polygon
-        if isinstance(self, _Polygon):
-            for v in self.vertices:
-                vx, vy = v.at_time(time)
-                nx, ny = func(vx, vy)
-                v.set_onward(time, (nx, ny))
-        else:
-            cx, cy = self.center(time)
-            nx, ny = func(cx, cy)
-            self.move_to(nx, ny, start_time=time)
+        cx, cy = self.center(time)
+        nx, ny = func(cx, cy)
+        self.move_to(nx, ny, start_time=time)
         return self
 
     def follow(self, other, start=0, end=None):
@@ -6071,6 +6064,8 @@ class VCollection:
         If *center* is ``None``, the canvas center ``(960, 540)`` is used.
         Each child is placed at angle ``start_angle + i * 2*pi/n``.
 
+        Delegates to :meth:`distribute_radial`.
+
         Parameters
         ----------
         radius:
@@ -6086,18 +6081,13 @@ class VCollection:
         easing:
             Easing function for animated mode.
         """
-        n = len(self.objects)
-        if n == 0:
-            return self
         if center is None:
             center = (960, 540)
         cx, cy = center
-        for i, obj in enumerate(self.objects):
-            angle = start_angle + i * 2 * math.pi / n
-            tx = cx + radius * math.cos(angle)
-            ty = cy + radius * math.sin(angle)
-            obj.center_to_pos(tx, ty, start_time=start, end_time=end, easing=easing)
-        return self
+        return self.distribute_radial(cx=cx, cy=cy, radius=radius,
+                                      start_angle=start_angle,
+                                      start_time=start, end_time=end,
+                                      easing=easing or easings.smooth)
 
     def distribute_radial(self, cx=960, cy=540, radius=200, start_angle=0,
                            start_time: float = 0, end_time: float | None = None,
