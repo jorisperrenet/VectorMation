@@ -1703,3 +1703,80 @@ class TestLineGetSlope:
     def test_steep_slope(self):
         line = Line(0, 0, 10, 50)
         assert line.get_slope() == pytest.approx(5.0)
+
+
+# ---------------------------------------------------------------------------
+# Rectangle.from_center
+# ---------------------------------------------------------------------------
+
+class TestRectangleFromCenter:
+    def test_basic(self):
+        r = Rectangle.from_center(500, 300, 200, 100)
+        assert r.x.at_time(0) == pytest.approx(400)
+        assert r.y.at_time(0) == pytest.approx(250)
+        assert r.width.at_time(0) == pytest.approx(200)
+        assert r.height.at_time(0) == pytest.approx(100)
+
+    def test_center_is_correct(self):
+        r = Rectangle.from_center(960, 540, 300, 200)
+        cx, cy = r.center(0)
+        assert cx == pytest.approx(960)
+        assert cy == pytest.approx(540)
+
+    def test_with_kwargs(self):
+        r = Rectangle.from_center(100, 100, 50, 50, rx=5, ry=5, fill='#ff0000')
+        assert r.rx.at_time(0) == pytest.approx(5)
+        svg = r.to_svg(0)
+        assert '<rect' in svg
+
+    def test_origin(self):
+        r = Rectangle.from_center(0, 0, 100, 80)
+        assert r.x.at_time(0) == pytest.approx(-50)
+        assert r.y.at_time(0) == pytest.approx(-40)
+
+
+# ---------------------------------------------------------------------------
+# Circle.from_three_points
+# ---------------------------------------------------------------------------
+
+class TestCircleFromThreePoints:
+    def test_unit_circle(self):
+        # Three points on the unit circle centered at origin
+        c = Circle.from_three_points((1, 0), (0, 1), (-1, 0))
+        cx, cy = c.c.at_time(0)
+        r = c.rx.at_time(0)
+        assert cx == pytest.approx(0, abs=1e-6)
+        assert cy == pytest.approx(0, abs=1e-6)
+        assert r == pytest.approx(1, abs=1e-6)
+
+    def test_offset_circle(self):
+        import math
+        # Circle centered at (5, 5) with radius 3
+        p1 = (5 + 3, 5)
+        p2 = (5, 5 + 3)
+        p3 = (5 - 3, 5)
+        c = Circle.from_three_points(p1, p2, p3)
+        cx, cy = c.c.at_time(0)
+        r = c.rx.at_time(0)
+        assert cx == pytest.approx(5, abs=1e-6)
+        assert cy == pytest.approx(5, abs=1e-6)
+        assert r == pytest.approx(3, abs=1e-6)
+
+    def test_collinear_raises(self):
+        with pytest.raises(ValueError, match="collinear"):
+            Circle.from_three_points((0, 0), (1, 1), (2, 2))
+
+    def test_with_kwargs(self):
+        c = Circle.from_three_points((1, 0), (0, 1), (-1, 0), fill='#ff0000')
+        svg = c.to_svg(0)
+        assert '<circle' in svg
+
+    def test_all_three_points_on_circle(self):
+        import math
+        c = Circle.from_three_points((100, 200), (300, 400), (500, 200))
+        cx, cy = c.c.at_time(0)
+        r = c.rx.at_time(0)
+        # Verify all three original points lie on the circle
+        for px, py in [(100, 200), (300, 400), (500, 200)]:
+            dist = math.sqrt((px - cx) ** 2 + (py - cy) ** 2)
+            assert dist == pytest.approx(r, abs=1e-6)

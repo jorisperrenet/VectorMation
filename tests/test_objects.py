@@ -5630,3 +5630,154 @@ class TestMatchPosition:
         cx, cy = c.center(0)
         assert cx == pytest.approx(500, abs=0.1)
         assert cy == pytest.approx(300, abs=0.1)
+
+
+# ---------------------------------------------------------------------------
+# Math helpers in _constants.py
+# ---------------------------------------------------------------------------
+
+class TestAngleBetween:
+    def test_right(self):
+        import math
+        from vectormation._constants import _angle_between
+        assert _angle_between(0, 0, 1, 0) == pytest.approx(0)
+
+    def test_up(self):
+        import math
+        from vectormation._constants import _angle_between
+        # atan2(-1, 0) = -pi/2
+        assert _angle_between(0, 0, 0, -1) == pytest.approx(-math.pi / 2)
+
+    def test_diagonal(self):
+        import math
+        from vectormation._constants import _angle_between
+        assert _angle_between(0, 0, 1, 1) == pytest.approx(math.pi / 4)
+
+    def test_left(self):
+        import math
+        from vectormation._constants import _angle_between
+        angle = _angle_between(0, 0, -1, 0)
+        assert abs(angle) == pytest.approx(math.pi)
+
+
+class TestNormalize:
+    def test_unit_x(self):
+        from vectormation._constants import _normalize
+        nx, ny = _normalize(5, 0)
+        assert nx == pytest.approx(1.0)
+        assert ny == pytest.approx(0.0)
+
+    def test_unit_y(self):
+        from vectormation._constants import _normalize
+        nx, ny = _normalize(0, -3)
+        assert nx == pytest.approx(0.0)
+        assert ny == pytest.approx(-1.0)
+
+    def test_diagonal(self):
+        import math
+        from vectormation._constants import _normalize
+        nx, ny = _normalize(3, 4)
+        assert math.hypot(nx, ny) == pytest.approx(1.0)
+        assert nx == pytest.approx(0.6)
+        assert ny == pytest.approx(0.8)
+
+    def test_zero_vector(self):
+        from vectormation._constants import _normalize
+        assert _normalize(0, 0) == (0.0, 0.0)
+
+
+class TestMidpoint:
+    def test_basic(self):
+        from vectormation._constants import _midpoint
+        mx, my = _midpoint(0, 0, 10, 10)
+        assert mx == pytest.approx(5.0)
+        assert my == pytest.approx(5.0)
+
+    def test_negative(self):
+        from vectormation._constants import _midpoint
+        mx, my = _midpoint(-4, -6, 4, 6)
+        assert mx == pytest.approx(0.0)
+        assert my == pytest.approx(0.0)
+
+
+class TestLerpPoint:
+    def test_t0(self):
+        from vectormation._constants import _lerp_point
+        x, y = _lerp_point(0, 0, 10, 20, 0)
+        assert x == pytest.approx(0)
+        assert y == pytest.approx(0)
+
+    def test_t1(self):
+        from vectormation._constants import _lerp_point
+        x, y = _lerp_point(0, 0, 10, 20, 1)
+        assert x == pytest.approx(10)
+        assert y == pytest.approx(20)
+
+    def test_t_half(self):
+        from vectormation._constants import _lerp_point
+        x, y = _lerp_point(0, 0, 10, 20, 0.5)
+        assert x == pytest.approx(5)
+        assert y == pytest.approx(10)
+
+
+# ---------------------------------------------------------------------------
+# VObject convenience methods
+# ---------------------------------------------------------------------------
+
+class TestGetOpacity:
+    def test_default(self):
+        c = Circle(r=50)
+        opacity = c.get_opacity(0)
+        assert opacity == pytest.approx(0.7)  # default fill_opacity
+
+    def test_after_set(self):
+        c = Circle(r=50)
+        c.set_opacity(0.3, start=0)
+        assert c.get_opacity(0) == pytest.approx(0.3)
+
+    def test_custom_initial(self):
+        c = Circle(r=50, fill_opacity=1.0)
+        assert c.get_opacity(0) == pytest.approx(1.0)
+
+
+class TestGetColors:
+    def test_get_fill_color(self):
+        c = Circle(r=50, fill='#ff0000')
+        color = c.get_fill_color(0)
+        assert color == '#ff0000'
+
+    def test_get_stroke_color(self):
+        c = Circle(r=50, stroke='#00ff00')
+        color = c.get_stroke_color(0)
+        assert color == '#00ff00'
+
+    def test_default_stroke(self):
+        c = Circle(r=50)
+        color = c.get_stroke_color(0)
+        # default stroke is '#fff' -> hex is '#ffffff'
+        assert color == '#ffffff'
+
+
+class TestSetPosition:
+    def test_basic(self):
+        c = Circle(r=50, cx=100, cy=200)
+        c.set_position(500, 300)
+        cx, cy = c.center(0)
+        assert cx == pytest.approx(500, abs=0.1)
+        assert cy == pytest.approx(300, abs=0.1)
+
+    def test_returns_self(self):
+        c = Circle(r=50)
+        result = c.set_position(100, 100)
+        assert result is c
+
+    def test_animated(self):
+        c = Circle(r=50, cx=100, cy=200)
+        c.set_position(500, 300, start=0, end=1)
+        # At time 0, should be near original
+        cx0, cy0 = c.center(0)
+        assert cx0 == pytest.approx(100, abs=1)
+        # At time 1, should be at target
+        cx1, cy1 = c.center(1)
+        assert cx1 == pytest.approx(500, abs=1)
+        assert cy1 == pytest.approx(300, abs=1)

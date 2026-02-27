@@ -55,6 +55,25 @@ def _rotate_point(px, py, ox, oy, angle_rad):
     return (ox + cos_a * (px - ox) - sin_a * (py - oy),
             oy + sin_a * (px - ox) + cos_a * (py - oy))
 
+def _angle_between(x1, y1, x2, y2):
+    """Return the angle in radians from (x1,y1) to (x2,y2), measured from the positive x-axis."""
+    return math.atan2(y2 - y1, x2 - x1)
+
+def _normalize(x, y):
+    """Return the unit vector (ux, uy) for vector (x, y). Returns (0, 0) for zero-length vectors."""
+    mag = math.hypot(x, y)
+    if mag == 0:
+        return (0.0, 0.0)
+    return (x / mag, y / mag)
+
+def _midpoint(x1, y1, x2, y2):
+    """Return the midpoint between (x1,y1) and (x2,y2)."""
+    return ((x1 + x2) / 2, (y1 + y2) / 2)
+
+def _lerp_point(x1, y1, x2, y2, t):
+    """Linearly interpolate between (x1,y1) and (x2,y2) at parameter t."""
+    return (x1 + (x2 - x1) * t, y1 + (y2 - y1) * t)
+
 def _sample_function(func, x_min, x_max, y_range, num_points, px, py, pw, ph,
                      extra_xs=None):
     """Sample func over [x_min, x_max] and map to SVG coordinates in (px, py, pw, ph).

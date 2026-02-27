@@ -351,6 +351,26 @@ class Circle(Ellipse):
         self.set_ry(value, start, end, easing)
         return self
 
+    @classmethod
+    def from_three_points(cls, p1, p2, p3, **kwargs):
+        """Create a Circle (circumscribed circle) passing through three points.
+
+        Each point is an (x, y) tuple. Raises ValueError if points are collinear.
+        """
+        ax, ay = p1
+        bx, by = p2
+        cx, cy = p3
+        d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
+        if abs(d) < 1e-10:
+            raise ValueError("The three points are collinear; no unique circle exists.")
+        a2 = ax * ax + ay * ay
+        b2 = bx * bx + by * by
+        c2 = cx * cx + cy * cy
+        ux = (a2 * (by - cy) + b2 * (cy - ay) + c2 * (ay - by)) / d
+        uy = (a2 * (cx - bx) + b2 * (ax - cx) + c2 * (bx - ax)) / d
+        r = math.sqrt((ax - ux) ** 2 + (ay - uy) ** 2)
+        return cls(r=r, cx=ux, cy=uy, **kwargs)
+
     def intersect_line(self, line, time=0):
         """Return list of intersection points [(x,y), ...] with a Line (0, 1, or 2 points)."""
         cx, cy = self.c.at_time(time)
@@ -457,6 +477,11 @@ class Rectangle(VObject):
     def square(cls, side, **kwargs):
         """Create a square with equal width and height."""
         return cls(side, side, **kwargs)
+
+    @classmethod
+    def from_center(cls, cx, cy, width, height, **kwargs):
+        """Create a Rectangle centered at (cx, cy) with the given width and height."""
+        return cls(width, height, x=cx - width / 2, y=cy - height / 2, **kwargs)
 
     def set_size(self, width, height, start=0, end=None, easing=easings.smooth):
         """Set both dimensions."""

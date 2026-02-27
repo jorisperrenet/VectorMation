@@ -585,3 +585,175 @@ class TestAddGridPlane:
         initial_count = len(ax.objects)
         ax.add_grid_plane()
         assert len(ax.objects) == initial_count + 1
+
+
+# ---------------------------------------------------------------------------
+# 3D primitive movement and convenience methods
+# ---------------------------------------------------------------------------
+
+class TestLine3DMovement:
+    def test_shift(self):
+        line = Line3D((0, 0, 0), (1, 0, 0))
+        line.shift(dx=1, dy=2, dz=3)
+        assert line._start == (1, 2, 3)
+        assert line._end == (2, 2, 3)
+
+    def test_shift_chaining(self):
+        line = Line3D((0, 0, 0), (1, 0, 0))
+        result = line.shift(dx=1)
+        assert result is line
+
+    def test_move_to(self):
+        line = Line3D((0, 0, 0), (2, 0, 0))
+        line.move_to(5, 5, 5)
+        # Midpoint was (1, 0, 0), now should be (5, 5, 5)
+        assert line._start == (4, 5, 5)
+        assert line._end == (6, 5, 5)
+
+    def test_set_color(self):
+        line = Line3D((0, 0, 0), (1, 0, 0), stroke='#fff')
+        line.set_color('#ff0000')
+        ax = ThreeDAxes()
+        patches = line.to_patches(ax, 0)
+        assert '#ff0000' in patches[0][1]
+
+    def test_get_midpoint(self):
+        line = Line3D((0, 0, 0), (4, 6, 8))
+        mid = line.get_midpoint()
+        assert mid == (2, 3, 4)
+
+    def test_get_length(self):
+        line = Line3D((0, 0, 0), (3, 4, 0))
+        assert line.get_length() == pytest.approx(5.0)
+
+    def test_copy(self):
+        line = Line3D((0, 0, 0), (1, 1, 1), stroke='#ff0')
+        line2 = line.copy()
+        line2.shift(dx=10)
+        assert line._start == (0, 0, 0)  # original unchanged
+        assert line2._start == (10, 0, 0)
+
+
+class TestDot3DMovement:
+    def test_shift(self):
+        dot = Dot3D((1, 2, 3))
+        dot.shift(dx=1, dy=-1, dz=2)
+        assert dot._point == (2, 1, 5)
+
+    def test_move_to(self):
+        dot = Dot3D((0, 0, 0))
+        dot.move_to(5, 6, 7)
+        assert dot._point == (5, 6, 7)
+
+    def test_set_color(self):
+        dot = Dot3D((0, 0, 0), fill='#fff')
+        dot.set_color('#00ff00')
+        ax = ThreeDAxes()
+        patches = dot.to_patches(ax, 0)
+        assert '#00ff00' in patches[0][1]
+
+    def test_set_radius(self):
+        dot = Dot3D((0, 0, 0), radius=5)
+        dot.set_radius(10)
+        assert dot._radius == 10
+
+    def test_get_position(self):
+        dot = Dot3D((3, 4, 5))
+        assert dot.get_position() == (3, 4, 5)
+
+    def test_copy(self):
+        dot = Dot3D((1, 2, 3))
+        dot2 = dot.copy()
+        dot2.move_to(0, 0, 0)
+        assert dot._point == (1, 2, 3)
+        assert dot2._point == (0, 0, 0)
+
+
+class TestArrow3DMovement:
+    def test_shift(self):
+        arrow = Arrow3D((0, 0, 0), (1, 0, 0))
+        arrow.shift(dx=2, dy=3, dz=4)
+        assert arrow._start == (2, 3, 4)
+        assert arrow._end == (3, 3, 4)
+
+    def test_move_to(self):
+        arrow = Arrow3D((0, 0, 0), (2, 0, 0))
+        arrow.move_to(10, 10, 10)
+        assert arrow._start == (9, 10, 10)
+        assert arrow._end == (11, 10, 10)
+
+    def test_set_color(self):
+        arrow = Arrow3D((0, 0, 0), (1, 0, 0))
+        arrow.set_color('#0000ff')
+        ax = ThreeDAxes()
+        patches = arrow.to_patches(ax, 0)
+        assert '#0000ff' in patches[0][1]
+        assert '#0000ff' in patches[1][1]  # tip also uses stroke color
+
+    def test_get_length(self):
+        arrow = Arrow3D((0, 0, 0), (0, 0, 5))
+        assert arrow.get_length() == pytest.approx(5.0)
+
+    def test_copy(self):
+        arrow = Arrow3D((0, 0, 0), (1, 1, 1))
+        arrow2 = arrow.copy()
+        arrow2.shift(dx=5)
+        assert arrow._start == (0, 0, 0)
+        assert arrow2._start == (5, 0, 0)
+
+
+class TestText3DMovement:
+    def test_shift(self):
+        t = Text3D('hello', (1, 2, 3))
+        t.shift(dx=1, dy=1, dz=1)
+        assert t._point == (2, 3, 4)
+
+    def test_move_to(self):
+        t = Text3D('hello', (0, 0, 0))
+        t.move_to(5, 5, 5)
+        assert t._point == (5, 5, 5)
+
+    def test_set_color(self):
+        t = Text3D('hello', (0, 0, 0), fill='#fff')
+        t.set_color('#ff0000')
+        ax = ThreeDAxes()
+        patches = t.to_patches(ax, 0)
+        assert '#ff0000' in patches[0][1]
+
+    def test_set_text(self):
+        t = Text3D('hello', (0, 0, 0))
+        t.set_text('world')
+        ax = ThreeDAxes()
+        patches = t.to_patches(ax, 0)
+        assert 'world' in patches[0][1]
+
+    def test_get_position(self):
+        t = Text3D('hello', (3, 4, 5))
+        assert t.get_position() == (3, 4, 5)
+
+    def test_copy(self):
+        t = Text3D('hello', (1, 2, 3))
+        t2 = t.copy()
+        t2.set_text('bye')
+        assert t._text == 'hello'
+        assert t2._text == 'bye'
+
+
+class TestParametricCurve3DConvenience:
+    def test_set_color(self):
+        def helix(t):
+            return (math.cos(t), math.sin(t), t)
+        curve = ParametricCurve3D(helix, t_range=(0, 1), num_points=10)
+        curve.set_color('#ff0000')
+        ax = ThreeDAxes()
+        patches = curve.to_patches(ax, 0)
+        assert '#ff0000' in patches[0][1]
+
+    def test_copy(self):
+        def helix(t):
+            return (math.cos(t), math.sin(t), t)
+        curve = ParametricCurve3D(helix, t_range=(0, 1))
+        curve2 = curve.copy()
+        curve2.set_color('#00ff00')
+        assert curve._stroke == '#fff'
+        assert curve2._stroke == '#00ff00'

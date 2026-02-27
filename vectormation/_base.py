@@ -2114,6 +2114,17 @@ class VObject(ABC):  # Vector Object
             self.styling.opacity.move_to(start, end, value, easing=easing)
         return self
 
+    def get_opacity(self, time: float = 0):
+        """Return the current fill opacity value at the given time."""
+        return self.styling.fill_opacity.at_time(time)
+
+    def set_position(self, x, y, start: float = 0, end: float | None = None, easing=easings.smooth):
+        """Move the object's center to (x, y). Shorthand for move_to.
+
+        Animated over [start, end] if end is given, instant otherwise.
+        """
+        return self.move_to(x, y, start_time=start, end_time=end, easing=easing)
+
     def stretch(self, x_factor: float = 1, y_factor: float = 1, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Non-uniform scale. Instant if end is None, animated otherwise."""
         self._ensure_scale_origin(start)
@@ -2183,7 +2194,10 @@ class VCollection:
 
     @property
     def last_change(self):
-        return max(max(obj.last_change for obj in self.objects), self.z.last_change, self.show.last_change)
+        candidates = [obj.last_change for obj in self.objects]
+        candidates.append(self.z.last_change)
+        candidates.append(self.show.last_change)
+        return max(candidates)
 
     def __repr__(self):
         return f'{self.__class__.__name__}({len(self.objects)} objects)'

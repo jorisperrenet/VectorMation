@@ -796,14 +796,49 @@ class Line3D:
     def __init__(self, start, end, stroke='#fff', stroke_width=2, creation=0, z=0):
         self.show = attributes.Real(creation, True)
         self.z = attributes.Real(creation, z)
-        self._start = start
-        self._end = end
+        self._start = tuple(start)
+        self._end = tuple(end)
         self._stroke = stroke
         self._stroke_width = stroke_width
 
     @property
     def last_change(self):
         return max(self.show.last_change, self.z.last_change)
+
+    def shift(self, dx=0, dy=0, dz=0):
+        """Shift both endpoints by (dx, dy, dz). Returns self for chaining."""
+        self._start = (self._start[0] + dx, self._start[1] + dy, self._start[2] + dz)
+        self._end = (self._end[0] + dx, self._end[1] + dy, self._end[2] + dz)
+        return self
+
+    def move_to(self, x, y, z):
+        """Move the midpoint of the line to (x, y, z). Returns self for chaining."""
+        mx = (self._start[0] + self._end[0]) / 2
+        my = (self._start[1] + self._end[1]) / 2
+        mz = (self._start[2] + self._end[2]) / 2
+        return self.shift(x - mx, y - my, z - mz)
+
+    def set_color(self, color):
+        """Set the stroke color. Returns self for chaining."""
+        self._stroke = color
+        return self
+
+    def get_midpoint(self):
+        """Return the 3D midpoint of the line segment."""
+        return ((self._start[0] + self._end[0]) / 2,
+                (self._start[1] + self._end[1]) / 2,
+                (self._start[2] + self._end[2]) / 2)
+
+    def get_length(self):
+        """Return the 3D Euclidean length of the line segment."""
+        return math.hypot(self._end[0] - self._start[0],
+                          self._end[1] - self._start[1],
+                          self._end[2] - self._start[2])
+
+    def copy(self):
+        """Return a deep copy of this object."""
+        from copy import deepcopy
+        return deepcopy(self)
 
     def to_patches(self, axes, time):
         sx0, sy0, d0 = axes.project_point(*self._start, time)
@@ -820,13 +855,42 @@ class Dot3D:
     def __init__(self, point=(0, 0, 0), radius=5, fill='#fff', creation=0, z=0):
         self.show = attributes.Real(creation, True)
         self.z = attributes.Real(creation, z)
-        self._point = point
+        self._point = tuple(point)
         self._radius = radius
         self._fill = fill
 
     @property
     def last_change(self):
         return max(self.show.last_change, self.z.last_change)
+
+    def shift(self, dx=0, dy=0, dz=0):
+        """Shift the point by (dx, dy, dz). Returns self for chaining."""
+        self._point = (self._point[0] + dx, self._point[1] + dy, self._point[2] + dz)
+        return self
+
+    def move_to(self, x, y, z):
+        """Move the dot to (x, y, z). Returns self for chaining."""
+        self._point = (x, y, z)
+        return self
+
+    def set_color(self, color):
+        """Set the fill color. Returns self for chaining."""
+        self._fill = color
+        return self
+
+    def set_radius(self, radius):
+        """Set the dot radius. Returns self for chaining."""
+        self._radius = radius
+        return self
+
+    def get_position(self):
+        """Return the 3D position as a tuple."""
+        return self._point
+
+    def copy(self):
+        """Return a deep copy of this object."""
+        from copy import deepcopy
+        return deepcopy(self)
 
     def to_patches(self, axes, time):
         sx, sy, depth = axes.project_point(*self._point, time)
@@ -842,8 +906,8 @@ class Arrow3D:
                  tip_length=12, tip_radius=4, creation=0, z=0):
         self.show = attributes.Real(creation, True)
         self.z = attributes.Real(creation, z)
-        self._start = start
-        self._end = end
+        self._start = tuple(start)
+        self._end = tuple(end)
         self._stroke = stroke
         self._stroke_width = stroke_width
         self._tip_length = tip_length
@@ -852,6 +916,35 @@ class Arrow3D:
     @property
     def last_change(self):
         return max(self.show.last_change, self.z.last_change)
+
+    def shift(self, dx=0, dy=0, dz=0):
+        """Shift both endpoints by (dx, dy, dz). Returns self for chaining."""
+        self._start = (self._start[0] + dx, self._start[1] + dy, self._start[2] + dz)
+        self._end = (self._end[0] + dx, self._end[1] + dy, self._end[2] + dz)
+        return self
+
+    def move_to(self, x, y, z):
+        """Move the midpoint of the arrow to (x, y, z). Returns self for chaining."""
+        mx = (self._start[0] + self._end[0]) / 2
+        my = (self._start[1] + self._end[1]) / 2
+        mz = (self._start[2] + self._end[2]) / 2
+        return self.shift(x - mx, y - my, z - mz)
+
+    def set_color(self, color):
+        """Set the stroke/tip color. Returns self for chaining."""
+        self._stroke = color
+        return self
+
+    def get_length(self):
+        """Return the 3D Euclidean length of the arrow shaft."""
+        return math.hypot(self._end[0] - self._start[0],
+                          self._end[1] - self._start[1],
+                          self._end[2] - self._start[2])
+
+    def copy(self):
+        """Return a deep copy of this object."""
+        from copy import deepcopy
+        return deepcopy(self)
 
     def to_patches(self, axes, time):
         patches = []
@@ -897,6 +990,16 @@ class ParametricCurve3D:
     @property
     def last_change(self):
         return max(self.show.last_change, self.z.last_change)
+
+    def set_color(self, color):
+        """Set the stroke color. Returns self for chaining."""
+        self._stroke = color
+        return self
+
+    def copy(self):
+        """Return a deep copy of this object."""
+        from copy import deepcopy
+        return deepcopy(self)
 
     def to_patches(self, axes, time):
         t0, t1 = self._t_range
@@ -949,13 +1052,42 @@ class Text3D:
         self.show = attributes.Real(creation, True)
         self.z = attributes.Real(creation, z)
         self._text = text
-        self._point = point
+        self._point = tuple(point)
         self._font_size = font_size
         self._fill = fill
 
     @property
     def last_change(self):
         return max(self.show.last_change, self.z.last_change)
+
+    def shift(self, dx=0, dy=0, dz=0):
+        """Shift the text position by (dx, dy, dz). Returns self for chaining."""
+        self._point = (self._point[0] + dx, self._point[1] + dy, self._point[2] + dz)
+        return self
+
+    def move_to(self, x, y, z):
+        """Move the text to (x, y, z). Returns self for chaining."""
+        self._point = (x, y, z)
+        return self
+
+    def set_color(self, color):
+        """Set the fill color. Returns self for chaining."""
+        self._fill = color
+        return self
+
+    def set_text(self, text):
+        """Set the displayed text. Returns self for chaining."""
+        self._text = text
+        return self
+
+    def get_position(self):
+        """Return the 3D position as a tuple."""
+        return self._point
+
+    def copy(self):
+        """Return a deep copy of this object."""
+        from copy import deepcopy
+        return deepcopy(self)
 
     def to_patches(self, axes, time):
         sx, sy, depth = axes.project_point(*self._point, time)
