@@ -8195,3 +8195,266 @@ class TestAxesGetGraphValue:
         f = lambda x: x ** 2
         assert ax.get_graph_value(f, 5) == pytest.approx(25)
         assert ax.get_graph_value(f, 0) == pytest.approx(0)
+
+
+class TestAxesPlotDerivative:
+    def test_plot_derivative_returns_path(self):
+        """plot_derivative should return a Path object."""
+        ax = Axes(x_range=(-5, 5), y_range=(-10, 10))
+        curve = ax.plot_derivative(lambda x: x ** 2)
+        assert isinstance(curve, Path)
+
+    def test_plot_derivative_has_func(self):
+        """The returned curve should have a _func attribute."""
+        ax = Axes(x_range=(-5, 5), y_range=(-10, 10))
+        curve = ax.plot_derivative(lambda x: x ** 2)
+        assert hasattr(curve, '_func')
+
+    def test_plot_derivative_func_value(self):
+        """Derivative of x^2 should be approximately 2x."""
+        ax = Axes(x_range=(-5, 5), y_range=(-10, 10))
+        curve = ax.plot_derivative(lambda x: x ** 2)
+        # The _func on the curve should approximate 2x
+        deriv = curve._func
+        assert deriv(3) == pytest.approx(6, abs=0.01)
+        assert deriv(-2) == pytest.approx(-4, abs=0.01)
+        assert deriv(0) == pytest.approx(0, abs=0.01)
+
+    def test_plot_derivative_added_to_axes(self):
+        """The curve should be added to the axes' objects."""
+        ax = Axes(x_range=(-5, 5), y_range=(-10, 10))
+        initial_count = len(ax.objects)
+        ax.plot_derivative(lambda x: x ** 3)
+        assert len(ax.objects) == initial_count + 1
+
+    def test_plot_derivative_renders_svg(self):
+        """The derivative curve should produce valid SVG."""
+        ax = Axes(x_range=(-5, 5), y_range=(-10, 10))
+        ax.plot_derivative(lambda x: x ** 2)
+        svg = ax.to_svg(0)
+        assert '<path' in svg
+
+    def test_plot_derivative_from_curve(self):
+        """plot_derivative should accept a curve returned by plot()."""
+        ax = Axes(x_range=(-5, 5), y_range=(-10, 10))
+        curve = ax.plot(lambda x: x ** 3)
+        deriv = ax.plot_derivative(curve)
+        # Derivative of x^3 = 3x^2
+        assert deriv._func(2) == pytest.approx(12, abs=0.1)
+
+    def test_plot_derivative_sin(self):
+        """Derivative of sin(x) should approximate cos(x)."""
+        ax = Axes(x_range=(-5, 5), y_range=(-2, 2))
+        curve = ax.plot_derivative(math.sin)
+        deriv = curve._func
+        assert deriv(0) == pytest.approx(1, abs=0.01)  # cos(0) = 1
+        assert deriv(math.pi) == pytest.approx(-1, abs=0.01)  # cos(pi) = -1
+
+
+class TestAxesGetTrapezoidalRule:
+    def test_returns_dynamic_object(self):
+        """get_trapezoidal_rule should return a DynamicObject."""
+        ax = Axes(x_range=(0, 5), y_range=(0, 25))
+        dyn = ax.get_trapezoidal_rule(lambda x: x ** 2, x_range=(0, 4), dx=1)
+        assert isinstance(dyn, DynamicObject)
+
+    def test_added_to_axes(self):
+        """The trapezoids should be added to the axes' objects."""
+        ax = Axes(x_range=(0, 5), y_range=(0, 25))
+        initial_count = len(ax.objects)
+        ax.get_trapezoidal_rule(lambda x: x ** 2, x_range=(0, 4), dx=1)
+        assert len(ax.objects) == initial_count + 1
+
+    def test_renders_polygons(self):
+        """The trapezoidal rule should produce polygons in the SVG."""
+        ax = Axes(x_range=(0, 5), y_range=(0, 25))
+        ax.get_trapezoidal_rule(lambda x: x ** 2, x_range=(0, 4), dx=1)
+        svg = ax.to_svg(0)
+        assert '<polygon' in svg
+
+    def test_correct_number_of_trapezoids(self):
+        """Should produce ceil((x_hi - x_lo) / dx) trapezoids."""
+        ax = Axes(x_range=(0, 5), y_range=(0, 25))
+        dyn = ax.get_trapezoidal_rule(lambda x: x ** 2, x_range=(0, 4), dx=1)
+        # Build the trapezoids at time 0
+        coll = dyn._func(0)
+        assert len(coll.objects) == 4  # 4 intervals of width 1 from 0 to 4
+
+    def test_small_dx_more_trapezoids(self):
+        """Smaller dx should produce more trapezoids."""
+        ax = Axes(x_range=(0, 5), y_range=(0, 25))
+        dyn = ax.get_trapezoidal_rule(lambda x: x, x_range=(0, 2), dx=0.5)
+        coll = dyn._func(0)
+        assert len(coll.objects) == 4  # 2 / 0.5 = 4
+
+    def test_trapezoids_are_polygons(self):
+        """Each element in the result should be a Polygon."""
+        ax = Axes(x_range=(0, 5), y_range=(0, 25))
+        dyn = ax.get_trapezoidal_rule(lambda x: x + 1, x_range=(0, 3), dx=1)
+        coll = dyn._func(0)
+        for obj in coll.objects:
+            assert isinstance(obj, Polygon)
+
+
+class TestBreathe:
+    def test_breathe_returns_self(self):
+        """breathe should return self for chaining."""
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.breathe(start=0, end=2)
+        assert result is c
+
+    def test_breathe_scale_oscillates(self):
+        """breathe should produce oscillating scale values around baseline."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.breathe(start=0, end=4, amplitude=0.1, speed=1.0, easing=easings.linear)
+        # At start, scale should be at baseline (sin(0) = 0)
+        sx_start = c.styling.scale_x.at_time(0)
+        assert sx_start == pytest.approx(1.0, abs=0.01)
+        # At some point during animation, scale should differ from 1
+        # sin(2*pi*1*1) = sin(2*pi) = 0, so at t=1 it should be back
+        # At t=0.25, sin(2*pi*0.25) = sin(pi/2) = 1, so scale = 1.1
+        sx_quarter = c.styling.scale_x.at_time(0.25)
+        assert abs(sx_quarter - 1.0) > 0.05  # definitely not 1.0
+
+    def test_breathe_zero_duration_noop(self):
+        """breathe with zero duration should be a no-op."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.breathe(start=1, end=1)
+        # scale should still be 1.0
+        assert c.styling.scale_x.at_time(1) == pytest.approx(1.0)
+
+    def test_breathe_sets_scale_origin(self):
+        """breathe should set scale origin to object center."""
+        c = Circle(r=50, cx=200, cy=300)
+        c.breathe(start=0, end=1)
+        assert c.styling._scale_origin is not None
+        assert c.styling._scale_origin[0] == pytest.approx(200, abs=1)
+        assert c.styling._scale_origin[1] == pytest.approx(300, abs=1)
+
+    def test_breathe_y_scale_matches_x(self):
+        """breathe should animate both x and y scale symmetrically."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.breathe(start=0, end=2, amplitude=0.1, speed=1.0, easing=easings.linear)
+        for t in [0.1, 0.5, 1.0, 1.5]:
+            sx = c.styling.scale_x.at_time(t)
+            sy = c.styling.scale_y.at_time(t)
+            assert sx == pytest.approx(sy, abs=0.001)
+
+
+class TestPendulum:
+    def test_pendulum_returns_self(self):
+        """pendulum should return self for chaining."""
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.pendulum(start=0, end=2)
+        assert result is c
+
+    def test_pendulum_starts_at_zero_rotation(self):
+        """At the start time, the rotation angle should be approximately zero."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.pendulum(start=0, end=2, amplitude=30, easing=easings.linear)
+        rot = c.styling.rotation.at_time(0)
+        assert rot[0] == pytest.approx(0, abs=0.5)
+
+    def test_pendulum_oscillates(self):
+        """The rotation should oscillate and not remain constant."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.pendulum(start=0, end=4, amplitude=30, oscillations=4, easing=easings.linear)
+        # Sample at quarter-cycle where sin peaks (4 osc in 4s => period=1s => peak at 0.25s)
+        rot_peak = c.styling.rotation.at_time(0.25)
+        assert abs(rot_peak[0]) > 5  # should be a substantial angle, not zero
+
+    def test_pendulum_decays(self):
+        """The amplitude should decay over time due to exponential damping."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.pendulum(start=0, end=4, amplitude=30, oscillations=8, easing=easings.linear)
+        # Peak near the start should be larger than peak near the end
+        # At t~0.125 (first quarter cycle of 8 osc in 4s), amplitude should be large
+        rot_early = abs(c.styling.rotation.at_time(0.0625)[0])
+        # At t~3.5 (near end), amplitude should be much smaller
+        rot_late = abs(c.styling.rotation.at_time(3.5)[0])
+        assert rot_early > rot_late
+
+    def test_pendulum_zero_duration_noop(self):
+        """pendulum with zero duration should be a no-op."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.pendulum(start=1, end=1)
+        rot = c.styling.rotation.at_time(1)
+        assert rot == (0, 0, 0)
+
+    def test_pendulum_custom_pivot(self):
+        """pendulum with custom pivot should use those coordinates."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.pendulum(start=0, end=2, cx=100, cy=0)
+        rot = c.styling.rotation.at_time(0.5)
+        # Pivot should be (100, 0)
+        assert rot[1] == pytest.approx(100)
+        assert rot[2] == pytest.approx(0)
+
+    def test_pendulum_default_pivot_top_center(self):
+        """Without custom pivot, pendulum should use top-center of bbox."""
+        r = Rectangle(100, 60, x=200, y=300)
+        r.pendulum(start=0, end=2)
+        rot = r.styling.rotation.at_time(0.5)
+        # Top-center of rect at (200, 300, 100, 60) is (250, 300)
+        assert rot[1] == pytest.approx(250, abs=1)
+        assert rot[2] == pytest.approx(300, abs=1)
+
+
+class TestTypewriterReveal:
+    def test_typewriter_reveal_returns_self(self):
+        """typewriter_reveal should return self for chaining."""
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.typewriter_reveal(start=0, end=1)
+        assert result is c
+
+    def test_typewriter_reveal_shows_from_start(self):
+        """The object should be visible from start time onward."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.typewriter_reveal(start=1, end=2)
+        assert c.show.at_time(0) is not True or c.show.at_time(0) == 0
+        assert c.show.at_time(1)
+
+    def test_typewriter_reveal_clip_at_start(self):
+        """At start time, the clip-path should fully hide the object (100% inset)."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.typewriter_reveal(start=0, end=1, direction='right', easing=easings.linear)
+        clip = c.styling.clip_path.at_time(0)
+        # At t=0 with linear easing, progress=0, so inset should be 100%
+        assert '100' in clip
+
+    def test_typewriter_reveal_clip_at_end(self):
+        """At end time, the clip-path should be fully removed (0% inset)."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.typewriter_reveal(start=0, end=1, direction='right', easing=easings.linear)
+        clip = c.styling.clip_path.at_time(1)
+        assert '0.0%' in clip
+
+    def test_typewriter_reveal_direction_left(self):
+        """Left direction should use the left inset position."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.typewriter_reveal(start=0, end=1, direction='left', easing=easings.linear)
+        clip = c.styling.clip_path.at_time(0.5)
+        # At 50%, left inset should be at 50%
+        assert 'inset(0 0 0' in clip
+
+    def test_typewriter_reveal_direction_down(self):
+        """Down direction should use the bottom inset position."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.typewriter_reveal(start=0, end=1, direction='down', easing=easings.linear)
+        clip = c.styling.clip_path.at_time(0.5)
+        assert 'inset(0 0' in clip
+
+    def test_typewriter_reveal_direction_up(self):
+        """Up direction should use the top inset position."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.typewriter_reveal(start=0, end=1, direction='up', easing=easings.linear)
+        clip = c.styling.clip_path.at_time(0.5)
+        assert 'inset(' in clip
+
+    def test_typewriter_reveal_zero_duration_noop(self):
+        """typewriter_reveal with zero duration should be a no-op."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.typewriter_reveal(start=1, end=1)
+        # clip_path should not have been set to a function
+        clip = c.styling.clip_path.at_time(1)
+        assert clip == '' or clip == 0 or clip == '0'

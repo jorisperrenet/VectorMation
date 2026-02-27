@@ -1481,6 +1481,52 @@ class Rectangle(VObject):
         corners = self.get_corners(time)
         return Polygon(*corners, **kwargs)
 
+    def subdivide(self, rows=2, cols=2, time=0, **kwargs):
+        """Subdivide this rectangle into a grid of *rows* x *cols* sub-rectangles.
+
+        Unlike :meth:`split` which only divides along one axis, this method
+        creates a full 2-D grid tiling the original rectangle.
+
+        Parameters
+        ----------
+        rows:
+            Number of rows (vertical divisions).  Must be >= 1.
+        cols:
+            Number of columns (horizontal divisions).  Must be >= 1.
+        time:
+            Animation time at which to read the current rectangle geometry.
+        **kwargs:
+            Extra styling keyword arguments forwarded to each sub-Rectangle
+            (e.g. ``fill``, ``stroke``).
+
+        Returns
+        -------
+        VCollection
+            A collection of ``rows * cols`` Rectangle objects arranged in
+            row-major order (row 0 col 0, row 0 col 1, ..., row 1 col 0, ...).
+
+        Raises
+        ------
+        ValueError
+            If *rows* or *cols* is less than 1.
+        """
+        from vectormation._base import VCollection
+        if rows < 1 or cols < 1:
+            raise ValueError(f"subdivide: rows and cols must be >= 1, got rows={rows}, cols={cols}")
+        rx = float(self.x.at_time(time))
+        ry = float(self.y.at_time(time))
+        rw = float(self.width.at_time(time))
+        rh = float(self.height.at_time(time))
+        cell_w = rw / cols
+        cell_h = rh / rows
+        parts = []
+        for r in range(rows):
+            for c in range(cols):
+                parts.append(Rectangle(cell_w, cell_h,
+                                       x=rx + c * cell_w,
+                                       y=ry + r * cell_h, **kwargs))
+        return VCollection(*parts)
+
     def __repr__(self):
         return f'{self.__class__.__name__}({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f})'
 
@@ -2090,6 +2136,64 @@ class Line(VObject):
             return 0.0
         return float(((px - x1) * dx + (py - y1) * dy) / len_sq)
 
+    def project_onto(self, other, time=0, **kwargs):
+        """Project this line segment onto another line and return the projection.
+
+        The projection is the "shadow" of this line segment cast onto the
+        infinite line defined by *other*.  Each endpoint of ``self`` is
+        orthogonally projected onto *other*, and the resulting segment is
+        returned as a new :class:`Line`.
+
+        Parameters
+        ----------
+        other:
+            The :class:`Line` onto which to project.
+        time:
+            Animation time at which to evaluate both lines.
+        **kwargs:
+            Extra styling keyword arguments forwarded to the new Line.
+
+        Returns
+        -------
+        Line
+            A new Line whose endpoints are the projections of self's
+            endpoints onto *other*.
+        """
+        p1 = other.project_point(*self.get_start(time), time=time)
+        p2 = other.project_point(*self.get_end(time), time=time)
+        return Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **kwargs)
+
+    def reflect_over(self, other, time=0, **kwargs):
+        """Reflect this line's endpoints over another line and return the result.
+
+        Each endpoint is reflected across the infinite line defined by
+        *other* using the standard reflection formula::
+
+            reflected = 2 * projection - original
+
+        Parameters
+        ----------
+        other:
+            The :class:`Line` to reflect over.
+        time:
+            Animation time at which to evaluate both lines.
+        **kwargs:
+            Extra styling keyword arguments forwarded to the new Line.
+
+        Returns
+        -------
+        Line
+            A new Line whose endpoints are the reflections of self's
+            endpoints over *other*.
+        """
+        s1 = self.get_start(time)
+        s2 = self.get_end(time)
+        proj1 = other.project_point(s1[0], s1[1], time=time)
+        proj2 = other.project_point(s2[0], s2[1], time=time)
+        r1 = (2 * proj1[0] - s1[0], 2 * proj1[1] - s1[1])
+        r2 = (2 * proj2[0] - s2[0], 2 * proj2[1] - s2[1])
+        return Line(x1=r1[0], y1=r1[1], x2=r2[0], y2=r2[1], **kwargs)
+
 
 class Text(VObject):
     """Plain SVG text element."""
@@ -2450,6 +2554,52 @@ class Text(VObject):
             if 0 <= index < len(words):
                 return words[index]
         return ''
+
+    def split_lines(self, time=0, line_spacing=1.4):
+        """Split multi-line text (containing newlines) into separate Text objects.
+
+        Each line of text becomes a separate :class:`Text` positioned
+        vertically below the previous one.  Lines are spaced by
+        ``font_size * line_spacing`` pixels.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read the current text content,
+            position, and font size.
+        line_spacing:
+            Vertical spacing as a multiple of the font size (default 1.4).
+            A value of 1.0 means lines are packed tightly; 1.4 adds 40%
+            extra space for readability.
+
+        Returns
+        -------
+        VCollection
+            A collection of Text objects, one per line.  If the text has
+            no newlines, the collection contains a single Text object
+            with the full text.
+
+        Example
+        -------
+        >>> t = Text(text='Hello\\nWorld\\nFoo', x=100, y=200)
+        >>> parts = t.split_lines()
+        >>> len(parts.objects)  # 3
+        """
+        from vectormation._base import VCollection
+        full = str(self.text.at_time(time))
+        lines = full.split('\n')
+        x = self.x.at_time(time)
+        y = self.y.at_time(time)
+        fs = self.font_size.at_time(time)
+        step = fs * line_spacing
+        fill_val = self.styling.fill.time_func(time)
+        parts = []
+        for i, line_text in enumerate(lines):
+            t = Text(text=line_text, x=x, y=y + i * step, font_size=fs,
+                     text_anchor=self._text_anchor, creation=time,
+                     stroke_width=0, fill=fill_val)
+            parts.append(t)
+        return VCollection(*parts)
 
     def fit_to_box(self, max_width, max_height=None, time=0):
         """Adjust font_size so the text fits within the given box dimensions.

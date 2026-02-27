@@ -4245,6 +4245,130 @@ class Axes(VCollection):
         self._add_plot_obj(dyn)
         return dyn
 
+    def plot_derivative(self, func, h=0.001, num_points=200,
+                        creation=0, z=0, **styling_kwargs):
+        """Plot the numerical derivative of a function.
+
+        Creates a new curve representing ``f'(x)`` computed via the
+        central difference formula::
+
+            f'(x) = (f(x + h) - f(x - h)) / (2 * h)
+
+        The returned Path is a live curve that resamples each frame
+        (like :meth:`plot`), so it responds to animated axis ranges.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x)`` or a curve Path with a ``._func`` attribute
+            (as returned by :meth:`plot`).
+        h:
+            Step size for the central difference (default 0.001).
+        num_points:
+            Number of sample points for the curve (default 200).
+        creation:
+            Creation time for the returned Path.
+        z:
+            Z-index for layering.
+        **styling_kwargs:
+            Styling overrides.  Defaults to a green dashed line.
+
+        Returns
+        -------
+        Path
+            A Path object (with ``._func`` set to the derivative function)
+            added to the axes.
+        """
+        fn = self._resolve_func(func, 'func')
+        _h = h
+
+        def _deriv(x, _f=fn, _hh=_h):
+            try:
+                return (_f(x + _hh) - _f(x - _hh)) / (2 * _hh)
+            except (ValueError, ZeroDivisionError):
+                return float('nan')
+
+        style_kw = {'stroke': '#A6E22E', 'stroke_width': 3,
+                    'fill_opacity': 0, 'stroke_dasharray': '8,4'} | styling_kwargs
+        if hasattr(self, '_deferred_axes'):
+            self._build_deferred_axes(fn, num_points)
+        curve = self._make_curve(_deriv, creation, z, num_points=num_points,
+                                 **style_kw)
+        self._add_plot_obj(curve)
+        return curve
+
+    def get_trapezoidal_rule(self, func, x_range, dx=0.5, creation=0, z=0,
+                             **styling_kwargs):
+        """Visualize the trapezoidal rule approximation of the area under *func*.
+
+        Unlike :meth:`get_riemann_rectangles` which draws axis-aligned
+        rectangles evaluated at the left endpoint, this method draws
+        trapezoids whose top edges connect the function values at the left
+        and right endpoints of each sub-interval, giving a more accurate
+        visual approximation of the integral.
+
+        The result is a :class:`DynamicObject` that rebuilds each frame,
+        so it responds correctly to animated axis ranges.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x)`` to approximate.
+        x_range:
+            ``(x_min, x_max)`` bounds for the approximation domain in
+            math coordinates.
+        dx:
+            Width of each sub-interval in math coordinates (default 0.5).
+        creation:
+            Creation time.
+        z:
+            Z-index for layering.
+        **styling_kwargs:
+            Styling overrides (default: semi-transparent blue fill with
+            white stroke).
+
+        Returns
+        -------
+        DynamicObject
+            A dynamic collection of Polygon trapezoids, added to the axes.
+        """
+        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.4,
+                    'stroke': '#fff', 'stroke_width': 1} | styling_kwargs
+        fn = self._resolve_func(func, 'func')
+        _dx = dx
+
+        def _build(time):
+            x_lo, x_hi = x_range
+            by = self._baseline_y(time)
+            traps = []
+            xv = x_lo
+            while xv < x_hi - 1e-9:
+                x_next = min(xv + _dx, x_hi)
+                # Four corners of the trapezoid: bottom-left, top-left, top-right, bottom-right
+                sx1 = self._math_to_svg_x(xv, time)
+                sx2 = self._math_to_svg_x(x_next, time)
+                try:
+                    sy1 = self._math_to_svg_y(fn(xv), time)
+                    sy2 = self._math_to_svg_y(fn(x_next), time)
+                except (ValueError, ZeroDivisionError):
+                    xv = x_next
+                    continue
+                # Clamp to plot area
+                py_top = self.plot_y
+                py_bot = self.plot_y + self.plot_height
+                sy1 = max(py_top, min(py_bot, sy1))
+                sy2 = max(py_top, min(py_bot, sy2))
+                trap = Polygon(
+                    (sx1, by), (sx1, sy1), (sx2, sy2), (sx2, by),
+                    creation=time, z=z, **style_kw)
+                traps.append(trap)
+                xv = x_next
+            return VCollection(*traps, creation=time, z=z)
+
+        dyn = DynamicObject(_build, creation=creation, z=z)
+        self._add_plot_obj(dyn)
+        return dyn
+
     def get_x_axis_label(self):
         """Return the x-axis label object, or None if no label was set."""
         for lbl in self._axis_labels:

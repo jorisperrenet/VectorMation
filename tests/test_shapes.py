@@ -5355,3 +5355,228 @@ class TestLineRotateAroundMidpoint:
         line = Line(0, 0, 100, 0)
         result = line.rotate_around_midpoint(45)
         assert result is line
+
+
+class TestLineProjectOnto:
+    def test_horizontal_onto_horizontal(self):
+        """Projecting a horizontal line onto another horizontal line."""
+        line = Line(x1=100, y1=50, x2=200, y2=50)
+        axis = Line(x1=0, y1=100, x2=300, y2=100)
+        proj = line.project_onto(axis)
+        # Projection onto a horizontal line keeps x coords, y becomes axis y
+        p1 = proj.get_start()
+        p2 = proj.get_end()
+        assert p1[0] == pytest.approx(100, abs=1e-6)
+        assert p1[1] == pytest.approx(100, abs=1e-6)
+        assert p2[0] == pytest.approx(200, abs=1e-6)
+        assert p2[1] == pytest.approx(100, abs=1e-6)
+
+    def test_vertical_onto_horizontal(self):
+        """Projecting a vertical line onto a horizontal one gives a point."""
+        line = Line(x1=150, y1=0, x2=150, y2=200)
+        axis = Line(x1=0, y1=0, x2=300, y2=0)
+        proj = line.project_onto(axis)
+        p1 = proj.get_start()
+        p2 = proj.get_end()
+        # Both endpoints project to (150, 0)
+        assert p1[0] == pytest.approx(150, abs=1e-6)
+        assert p1[1] == pytest.approx(0, abs=1e-6)
+        assert p2[0] == pytest.approx(150, abs=1e-6)
+        assert p2[1] == pytest.approx(0, abs=1e-6)
+
+    def test_diagonal_onto_x_axis(self):
+        """Projecting a diagonal line onto the x-axis drops the y components."""
+        line = Line(x1=0, y1=0, x2=100, y2=100)
+        axis = Line(x1=0, y1=0, x2=200, y2=0)
+        proj = line.project_onto(axis)
+        p1 = proj.get_start()
+        p2 = proj.get_end()
+        assert p1[0] == pytest.approx(0, abs=1e-6)
+        assert p1[1] == pytest.approx(0, abs=1e-6)
+        assert p2[0] == pytest.approx(100, abs=1e-6)
+        assert p2[1] == pytest.approx(0, abs=1e-6)
+
+    def test_returns_line_instance(self):
+        """project_onto should return a Line."""
+        line = Line(0, 0, 100, 100)
+        axis = Line(0, 0, 100, 0)
+        result = line.project_onto(axis)
+        assert isinstance(result, Line)
+
+
+class TestLineReflectOver:
+    def test_reflect_over_x_axis(self):
+        """Reflecting over the x-axis negates the y coordinates."""
+        line = Line(x1=50, y1=30, x2=150, y2=70)
+        axis = Line(x1=0, y1=0, x2=200, y2=0)
+        ref = line.reflect_over(axis)
+        p1 = ref.get_start()
+        p2 = ref.get_end()
+        assert p1[0] == pytest.approx(50, abs=1e-6)
+        assert p1[1] == pytest.approx(-30, abs=1e-6)
+        assert p2[0] == pytest.approx(150, abs=1e-6)
+        assert p2[1] == pytest.approx(-70, abs=1e-6)
+
+    def test_reflect_over_y_axis(self):
+        """Reflecting over the y-axis negates the x coordinates."""
+        line = Line(x1=50, y1=30, x2=150, y2=70)
+        axis = Line(x1=0, y1=0, x2=0, y2=200)
+        ref = line.reflect_over(axis)
+        p1 = ref.get_start()
+        p2 = ref.get_end()
+        assert p1[0] == pytest.approx(-50, abs=1e-6)
+        assert p1[1] == pytest.approx(30, abs=1e-6)
+        assert p2[0] == pytest.approx(-150, abs=1e-6)
+        assert p2[1] == pytest.approx(70, abs=1e-6)
+
+    def test_reflect_over_self_is_identity(self):
+        """Reflecting a line on the x-axis over the x-axis gives the same line."""
+        line = Line(x1=10, y1=0, x2=90, y2=0)
+        axis = Line(x1=0, y1=0, x2=100, y2=0)
+        ref = line.reflect_over(axis)
+        p1 = ref.get_start()
+        p2 = ref.get_end()
+        assert p1[0] == pytest.approx(10, abs=1e-6)
+        assert p1[1] == pytest.approx(0, abs=1e-6)
+        assert p2[0] == pytest.approx(90, abs=1e-6)
+        assert p2[1] == pytest.approx(0, abs=1e-6)
+
+    def test_reflect_preserves_length(self):
+        """Reflection should preserve the length of the line."""
+        line = Line(x1=10, y1=20, x2=80, y2=60)
+        axis = Line(x1=0, y1=50, x2=200, y2=50)
+        original_len = line.get_length()
+        ref = line.reflect_over(axis)
+        assert ref.get_length() == pytest.approx(original_len, abs=1e-6)
+
+    def test_returns_line_instance(self):
+        """reflect_over should return a Line."""
+        line = Line(0, 0, 100, 100)
+        axis = Line(0, 50, 100, 50)
+        result = line.reflect_over(axis)
+        assert isinstance(result, Line)
+
+    def test_reflect_over_diagonal(self):
+        """Reflecting (100, 0) -> (100, 0) over y=x line should give (0, 100) -> (0, 100)."""
+        # Point (a, 0) reflected over y=x becomes (0, a)
+        line = Line(x1=100, y1=0, x2=200, y2=0)
+        axis = Line(x1=0, y1=0, x2=100, y2=100)  # y = x
+        ref = line.reflect_over(axis)
+        p1 = ref.get_start()
+        p2 = ref.get_end()
+        assert p1[0] == pytest.approx(0, abs=1e-6)
+        assert p1[1] == pytest.approx(100, abs=1e-6)
+        assert p2[0] == pytest.approx(0, abs=1e-6)
+        assert p2[1] == pytest.approx(200, abs=1e-6)
+
+
+class TestRectangleSubdivide:
+    def test_subdivide_2x2(self):
+        """Subdivide into 2x2 grid should produce 4 rectangles."""
+        rect = Rectangle(200, 100, x=50, y=50)
+        grid = rect.subdivide(rows=2, cols=2)
+        assert len(grid.objects) == 4
+
+    def test_subdivide_cell_sizes(self):
+        """Each cell should be exactly rect_width/cols by rect_height/rows."""
+        rect = Rectangle(300, 200, x=0, y=0)
+        grid = rect.subdivide(rows=2, cols=3)
+        for cell in grid.objects:
+            assert cell.width.at_time(0) == pytest.approx(100, abs=1e-6)
+            assert cell.height.at_time(0) == pytest.approx(100, abs=1e-6)
+
+    def test_subdivide_positions_row_major(self):
+        """Cells should be positioned in row-major order."""
+        rect = Rectangle(200, 100, x=10, y=20)
+        grid = rect.subdivide(rows=2, cols=2)
+        # Row 0, Col 0
+        assert grid.objects[0].x.at_time(0) == pytest.approx(10, abs=1e-6)
+        assert grid.objects[0].y.at_time(0) == pytest.approx(20, abs=1e-6)
+        # Row 0, Col 1
+        assert grid.objects[1].x.at_time(0) == pytest.approx(110, abs=1e-6)
+        assert grid.objects[1].y.at_time(0) == pytest.approx(20, abs=1e-6)
+        # Row 1, Col 0
+        assert grid.objects[2].x.at_time(0) == pytest.approx(10, abs=1e-6)
+        assert grid.objects[2].y.at_time(0) == pytest.approx(70, abs=1e-6)
+        # Row 1, Col 1
+        assert grid.objects[3].x.at_time(0) == pytest.approx(110, abs=1e-6)
+        assert grid.objects[3].y.at_time(0) == pytest.approx(70, abs=1e-6)
+
+    def test_subdivide_1x1_same_as_original(self):
+        """Subdividing into 1x1 should produce a single cell matching the original."""
+        rect = Rectangle(200, 100, x=50, y=50)
+        grid = rect.subdivide(rows=1, cols=1)
+        assert len(grid.objects) == 1
+        cell = grid.objects[0]
+        assert cell.x.at_time(0) == pytest.approx(50, abs=1e-6)
+        assert cell.y.at_time(0) == pytest.approx(50, abs=1e-6)
+        assert cell.width.at_time(0) == pytest.approx(200, abs=1e-6)
+        assert cell.height.at_time(0) == pytest.approx(100, abs=1e-6)
+
+    def test_subdivide_invalid_raises(self):
+        """Subdividing with rows or cols < 1 should raise ValueError."""
+        rect = Rectangle(100, 100)
+        with pytest.raises(ValueError):
+            rect.subdivide(rows=0, cols=2)
+        with pytest.raises(ValueError):
+            rect.subdivide(rows=2, cols=0)
+
+    def test_subdivide_tiles_completely(self):
+        """All cells should tile the original rectangle without gaps or overlap."""
+        rect = Rectangle(300, 200, x=10, y=20)
+        grid = rect.subdivide(rows=3, cols=4)
+        assert len(grid.objects) == 12
+        # Total area should match
+        total_area = sum(
+            c.width.at_time(0) * c.height.at_time(0) for c in grid.objects)
+        assert total_area == pytest.approx(300 * 200, abs=1e-6)
+
+
+class TestTextSplitLines:
+    def test_single_line(self):
+        """Text without newlines should produce a single Text object."""
+        t = Text(text='Hello World', x=100, y=200)
+        parts = t.split_lines()
+        assert len(parts.objects) == 1
+        assert parts.objects[0].text.at_time(0) == 'Hello World'
+
+    def test_multiple_lines(self):
+        """Text with newlines should produce one Text per line."""
+        t = Text(text='Line 1\nLine 2\nLine 3', x=100, y=200, font_size=30)
+        parts = t.split_lines()
+        assert len(parts.objects) == 3
+        assert parts.objects[0].text.at_time(0) == 'Line 1'
+        assert parts.objects[1].text.at_time(0) == 'Line 2'
+        assert parts.objects[2].text.at_time(0) == 'Line 3'
+
+    def test_vertical_positioning(self):
+        """Each line should be offset by font_size * line_spacing."""
+        t = Text(text='A\nB\nC', x=100, y=200, font_size=40)
+        parts = t.split_lines(line_spacing=1.5)
+        y0 = parts.objects[0].y.at_time(0)
+        y1 = parts.objects[1].y.at_time(0)
+        y2 = parts.objects[2].y.at_time(0)
+        assert y0 == pytest.approx(200, abs=1e-6)
+        assert y1 == pytest.approx(200 + 40 * 1.5, abs=1e-6)
+        assert y2 == pytest.approx(200 + 80 * 1.5, abs=1e-6)
+
+    def test_preserves_x_position(self):
+        """All lines should share the same x position."""
+        t = Text(text='Hello\nWorld', x=300, y=100)
+        parts = t.split_lines()
+        assert parts.objects[0].x.at_time(0) == pytest.approx(300, abs=1e-6)
+        assert parts.objects[1].x.at_time(0) == pytest.approx(300, abs=1e-6)
+
+    def test_preserves_font_size(self):
+        """All lines should have the same font size as the original."""
+        t = Text(text='A\nB', x=0, y=0, font_size=24)
+        parts = t.split_lines()
+        for p in parts.objects:
+            assert p.font_size.at_time(0) == pytest.approx(24, abs=1e-6)
+
+    def test_empty_lines(self):
+        """Empty lines (consecutive newlines) should produce empty Text objects."""
+        t = Text(text='A\n\nC', x=0, y=0)
+        parts = t.split_lines()
+        assert len(parts.objects) == 3
+        assert parts.objects[1].text.at_time(0) == ''

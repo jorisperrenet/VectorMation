@@ -2607,6 +2607,131 @@ class VObject(ABC):  # Vector Object
         return self.pulsate(start=start, end=end, scale_factor=scale_factor,
                             pulses=beats, easing=easing)
 
+    def breathe(self, start: float = 0, end: float = 1, amplitude=0.08,
+                speed=1.0, easing=easings.smooth):
+        """Gentle, continuous breathing animation — steady scale oscillation.
+
+        The object smoothly scales up and down in a calm, rhythmic pattern
+        without decay, simulating natural breathing.  Unlike :meth:`pulsate`
+        (which uses abs(sin) and is intended as a one-shot attention grab)
+        and :meth:`undulate` (which decays over time), ``breathe`` produces
+        a steady oscillation that looks natural for the entire duration.
+
+        Parameters
+        ----------
+        start, end:
+            Time interval for the animation.
+        amplitude:
+            Fractional scale deviation from baseline (e.g. 0.08 means the
+            object scales between 0.92x and 1.08x).
+        speed:
+            Breathing cycles per second (default 1.0).
+        easing:
+            Easing applied to normalised time before computing the oscillation.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        self._ensure_scale_origin(start)
+        sx0 = self.styling.scale_x.at_time(start)
+        sy0 = self.styling.scale_y.at_time(start)
+        _s, _d, _amp, _spd = start, max(dur, 1e-9), amplitude, speed
+
+        def _make_breathe(base):
+            return lambda t, _s=_s, _d=_d, _amp=_amp, _spd=_spd, _b=base, _e=easing: \
+                _b * (1 + _amp * math.sin(2 * math.pi * _spd * _e((t - _s) / _d) * _d))
+        self.styling.scale_x.set(start, end, _make_breathe(sx0))
+        self.styling.scale_y.set(start, end, _make_breathe(sy0))
+        return self
+
+    def pendulum(self, start: float = 0, end: float = 1, amplitude=20,
+                 oscillations=4, cx=None, cy=None, easing=easings.smooth):
+        """Multi-cycle pendulum oscillation with exponential amplitude decay.
+
+        Rotates the object back and forth like a pendulum that gradually loses
+        energy.  Unlike :meth:`swing` (a single decaying cycle) this method
+        performs multiple oscillations with exponential damping, giving a more
+        realistic physical feel.
+
+        Parameters
+        ----------
+        start, end:
+            Time interval for the animation.
+        amplitude:
+            Initial swing angle in degrees (default 20).
+        oscillations:
+            Number of full back-and-forth cycles (default 4).
+        cx, cy:
+            Pivot point for the rotation.  Defaults to the top-centre of the
+            object's bounding box (like hanging from a hook).
+        easing:
+            Easing applied to normalised time before computing the envelope.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        if cx is None or cy is None:
+            bx, by, bw, _ = self.bbox(start)
+            cx = bx + bw / 2 if cx is None else cx
+            cy = by if cy is None else cy
+        _s, _d, _a, _n = start, max(dur, 1e-9), amplitude, oscillations
+        _cx, _cy = cx, cy
+
+        def _rot(t, _s=_s, _d=_d, _a=_a, _n=_n, _cx=_cx, _cy=_cy, _e=easing):
+            p = _e((t - _s) / _d)
+            decay = math.exp(-3 * p)
+            angle = _a * math.sin(2 * math.pi * _n * p) * decay
+            return (angle, _cx, _cy)
+
+        self.styling.rotation.set(start, end, _rot)
+        return self
+
+    def typewriter_reveal(self, start: float = 0, end: float = 1,
+                          direction='right', easing=easings.smooth):
+        """Progressively reveal the object with a clip-path sweep.
+
+        Uses ``clip-path: inset()`` to gradually uncover the object from one
+        edge, creating a typewriter-like or curtain reveal effect.  Unlike
+        :meth:`wipe` (which animates a closing inset and can reverse), this
+        method always reveals from fully hidden to fully visible, and the
+        object is hidden before *start* and shown from *start* onward.
+
+        Parameters
+        ----------
+        start, end:
+            Time interval for the reveal animation.
+        direction:
+            Which edge the reveal sweeps from: ``'right'`` (left-to-right
+            reveal), ``'left'`` (right-to-left), ``'down'`` (top-to-bottom),
+            ``'up'`` (bottom-to-top).
+        easing:
+            Easing function for the sweep progress.
+
+        Returns
+        -------
+        self
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        self._show_from(start)
+        _s, _d = start, max(dur, 1e-9)
+        # The inset template clips away from the sweep edge
+        templates = {
+            'right': lambda pct: f'inset(0 {pct:.1f}% 0 0)',
+            'left':  lambda pct: f'inset(0 0 0 {pct:.1f}%)',
+            'down':  lambda pct: f'inset(0 0 {pct:.1f}% 0)',
+            'up':    lambda pct: f'inset({pct:.1f}% 0 0 0)',
+        }
+        tmpl = templates.get(direction, templates['right'])
+
+        def _clip(t, _s=_s, _d=_d, _tmpl=tmpl, _e=easing):
+            progress = _e((t - _s) / _d)
+            return _tmpl(100 * (1 - progress))
+
+        self.styling.clip_path.set(start, end, _clip, stay=True)
+        return self
+
     def cross_out(self, start: float = 0, end: float = 0.5, color='#FC6255',
                    stroke_width=4, buff=5):
         """Draw an X across this object. Returns the Cross VCollection (add to canvas)."""
@@ -4583,6 +4708,94 @@ class VCollection:
                       easing=easing)
         return self
 
+
+    def snake_layout(self, cols=None, buff=SMALL_BUFF, start_time: float = 0):
+        """Arrange children in a snake/zigzag grid pattern.
+
+        Like :meth:`arrange_in_grid`, but alternates row direction: the first
+        row goes left-to-right, the second row goes right-to-left, and so on.
+        This creates a continuous reading path that avoids large jumps between
+        row endings and beginnings, useful for flowcharts, timelines, or any
+        sequential layout where visual continuity matters.
+
+        Parameters
+        ----------
+        cols:
+            Number of columns per row.  Defaults to ``ceil(sqrt(n))``.
+        buff:
+            Pixel spacing between cells (default ``SMALL_BUFF``).
+        start_time:
+            Time at which to read current positions and apply shifts.
+
+        Returns
+        -------
+        self
+        """
+        n = len(self.objects)
+        if not n:
+            return self
+        if cols is None:
+            cols = math.ceil(math.sqrt(n))
+        rows = math.ceil(n / cols)
+        boxes = [obj.bbox(start_time) for obj in self.objects]
+        max_w = max(b[2] for b in boxes)
+        max_h = max(b[3] for b in boxes)
+        cell_w, cell_h = max_w + buff, max_h + buff
+        for idx, (obj, box) in enumerate(zip(self.objects, boxes)):
+            r, c = divmod(idx, cols)
+            # Reverse column order on odd rows (snake pattern)
+            if r % 2 == 1:
+                c = cols - 1 - c
+            target_cx = c * cell_w + max_w / 2
+            target_cy = r * cell_h + max_h / 2
+            cur_cx = box[0] + box[2] / 2
+            cur_cy = box[1] + box[3] / 2
+            obj.shift(dx=target_cx - cur_cx, dy=target_cy - cur_cy,
+                      start_time=start_time)
+        return self
+
+    def arrange_along_path(self, path_d, start_time: float = 0,
+                           easing=None):
+        """Position children evenly along an arbitrary SVG path.
+
+        Each child's center is moved to a point on the path.  The children
+        are spaced equally by arc length so they distribute uniformly along
+        curves, straight segments, or any combination.
+
+        Parameters
+        ----------
+        path_d:
+            An SVG path ``d`` attribute string (e.g.
+            ``'M100,500 C300,100 600,100 800,500'``).
+        start_time:
+            Time at which to read current positions and apply shifts.
+        easing:
+            Optional easing function to remap the parameter distribution.
+            When ``None`` children are spaced uniformly by arc length.
+
+        Returns
+        -------
+        self
+        """
+        n = len(self.objects)
+        if n == 0:
+            return self
+        import svgpathtools
+        parsed = svgpathtools.parse_path(path_d)
+        total_length = parsed.length()
+        if total_length <= 0:
+            return self
+        for i, obj in enumerate(self.objects):
+            t = i / max(n - 1, 1)
+            if easing is not None:
+                t = easing(t)
+            target_len = t * total_length
+            pt = parsed.point(parsed.ilength(target_len))
+            tx, ty = pt.real, pt.imag
+            bx, by, bw, bh = obj.bbox(start_time)
+            cx, cy = bx + bw / 2, by + bh / 2
+            obj.shift(dx=tx - cx, dy=ty - cy, start_time=start_time)
+        return self
 
     def all_match(self, predicate):
         """Return True if all children match the predicate."""

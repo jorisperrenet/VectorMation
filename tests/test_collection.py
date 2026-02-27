@@ -1289,3 +1289,125 @@ class TestRemoveAt:
         """any_match on empty collection should return False."""
         col = VCollection()
         assert col.any_match(lambda obj: True) is False
+
+
+class TestSnakeLayout:
+    def test_snake_layout_returns_self(self):
+        """snake_layout should return self for chaining."""
+        circles = [Circle(r=10, cx=0, cy=0) for _ in range(6)]
+        col = VCollection(*circles)
+        result = col.snake_layout(cols=3)
+        assert result is col
+
+    def test_snake_layout_empty(self):
+        """snake_layout on empty collection should be a no-op."""
+        col = VCollection()
+        result = col.snake_layout(cols=3)
+        assert result is col
+        assert len(col.objects) == 0
+
+    def test_snake_layout_reverses_odd_rows(self):
+        """Objects in odd rows should be arranged right-to-left."""
+        circles = [Circle(r=10, cx=0, cy=0) for _ in range(6)]
+        col = VCollection(*circles)
+        col.snake_layout(cols=3, buff=5)
+        # Row 0: indices 0, 1, 2 (left to right)
+        # Row 1: indices 3, 4, 5 (right to left)
+        x0 = circles[0].center(0)[0]
+        x1 = circles[1].center(0)[0]
+        x2 = circles[2].center(0)[0]
+        x3 = circles[3].center(0)[0]
+        x4 = circles[4].center(0)[0]
+        x5 = circles[5].center(0)[0]
+        # Row 0: x increases
+        assert x0 < x1 < x2
+        # Row 1: x decreases (snake pattern)
+        assert x3 > x4 > x5
+
+    def test_snake_layout_rows_below(self):
+        """Row 1 should be below row 0."""
+        circles = [Circle(r=10, cx=0, cy=0) for _ in range(6)]
+        col = VCollection(*circles)
+        col.snake_layout(cols=3, buff=5)
+        y0 = circles[0].center(0)[1]
+        y3 = circles[3].center(0)[1]
+        assert y3 > y0  # row 1 below row 0
+
+    def test_snake_layout_default_cols(self):
+        """Without explicit cols, should auto-compute from sqrt(n)."""
+        circles = [Circle(r=10, cx=0, cy=0) for _ in range(9)]
+        col = VCollection(*circles)
+        col.snake_layout()
+        # 9 items: cols=ceil(sqrt(9))=3, rows=3
+        # All items should have been positioned (no errors)
+        x_vals = [c.center(0)[0] for c in circles]
+        # Row 0 (0,1,2) left-to-right
+        assert x_vals[0] < x_vals[1] < x_vals[2]
+        # Row 1 (3,4,5) right-to-left
+        assert x_vals[3] > x_vals[4] > x_vals[5]
+
+    def test_snake_layout_first_and_last_connected(self):
+        """In a snake layout, the end of row N should be near the start of row N+1."""
+        circles = [Circle(r=10, cx=0, cy=0) for _ in range(6)]
+        col = VCollection(*circles)
+        col.snake_layout(cols=3, buff=5)
+        # Last of row 0 (index 2) should be rightmost
+        # First of row 1 (index 3) should also be rightmost (snake reversal)
+        x2 = circles[2].center(0)[0]
+        x3 = circles[3].center(0)[0]
+        assert x2 == pytest.approx(x3, abs=1)
+
+
+class TestArrangeAlongPath:
+    def test_arrange_along_path_returns_self(self):
+        """arrange_along_path should return self for chaining."""
+        circles = [Circle(r=10, cx=0, cy=0) for _ in range(3)]
+        col = VCollection(*circles)
+        result = col.arrange_along_path('M0,0 L300,0')
+        assert result is col
+
+    def test_arrange_along_path_empty(self):
+        """arrange_along_path on empty collection should be a no-op."""
+        col = VCollection()
+        result = col.arrange_along_path('M0,0 L300,0')
+        assert result is col
+
+    def test_arrange_along_straight_line(self):
+        """Children should be evenly spaced along a straight line."""
+        circles = [Circle(r=5, cx=0, cy=0) for _ in range(3)]
+        col = VCollection(*circles)
+        col.arrange_along_path('M0,500 L300,500')
+        # First child at start of path (0, 500)
+        cx0, cy0 = circles[0].center(0)
+        assert cx0 == pytest.approx(0, abs=2)
+        assert cy0 == pytest.approx(500, abs=2)
+        # Last child at end of path (300, 500)
+        cx2, cy2 = circles[2].center(0)
+        assert cx2 == pytest.approx(300, abs=2)
+        assert cy2 == pytest.approx(500, abs=2)
+        # Middle child at midpoint (150, 500)
+        cx1, _ = circles[1].center(0)
+        assert cx1 == pytest.approx(150, abs=2)
+
+    def test_arrange_along_path_single_object(self):
+        """A single object should be placed at the start of the path."""
+        c = Circle(r=5, cx=0, cy=0)
+        col = VCollection(c)
+        col.arrange_along_path('M100,200 L400,200')
+        cx, cy = c.center(0)
+        assert cx == pytest.approx(100, abs=2)
+        assert cy == pytest.approx(200, abs=2)
+
+    def test_arrange_along_vertical_path(self):
+        """Children should be arranged vertically along a vertical line."""
+        circles = [Circle(r=5, cx=0, cy=0) for _ in range(3)]
+        col = VCollection(*circles)
+        col.arrange_along_path('M500,0 L500,400')
+        # All x should be ~500
+        for c in circles:
+            assert c.center(0)[0] == pytest.approx(500, abs=2)
+        # y should increase
+        y0 = circles[0].center(0)[1]
+        y1 = circles[1].center(0)[1]
+        y2 = circles[2].center(0)[1]
+        assert y0 < y1 < y2
