@@ -1136,7 +1136,7 @@ class TestEach:
     def test_each_returns_self(self):
         """each() should return self for chaining."""
         col = VCollection(Circle(r=10), Circle(r=20))
-        result = col.each(lambda _obj: None)
+        result = col.each(lambda _: None)
         assert result is col
 
     def test_each_modifies_children(self):
@@ -1190,7 +1190,7 @@ class TestMaxByMinBy:
     def test_sum_by_empty(self):
         """sum_by on an empty collection should return 0."""
         col = VCollection()
-        assert col.sum_by(lambda _c: 1) == 0
+        assert col.sum_by(lambda _: 1) == 0
 
     def test_sum_by_single_child(self):
         """sum_by with one child returns that child's value."""
@@ -1220,3 +1220,39 @@ class TestVCollectionClear:
         col = VCollection()
         col.clear()
         assert len(col.objects) == 0
+
+
+class TestRemoveAt:
+    """Tests for VCollection.remove_at()."""
+
+    def test_remove_at_removes_correct_child(self):
+        """remove_at(1) should remove the second child."""
+        c1, c2, c3 = Circle(r=10), Circle(r=20), Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        removed = col.remove_at(1)
+        assert removed is c2
+        assert len(col.objects) == 2
+        assert col.objects[0] is c1
+        assert col.objects[1] is c3
+
+    def test_remove_at_first(self):
+        """remove_at(0) should remove the first child."""
+        c1, c2 = Circle(r=10), Circle(r=20)
+        col = VCollection(c1, c2)
+        removed = col.remove_at(0)
+        assert removed is c1
+        assert len(col.objects) == 1
+
+    def test_remove_at_negative_index(self):
+        """remove_at(-1) should remove the last child."""
+        c1, c2, c3 = Circle(r=10), Circle(r=20), Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        removed = col.remove_at(-1)
+        assert removed is c3
+        assert len(col.objects) == 2
+
+    def test_remove_at_out_of_range(self):
+        """remove_at with out-of-range index should raise IndexError."""
+        col = VCollection(Circle(r=10))
+        with pytest.raises(IndexError):
+            col.remove_at(5)

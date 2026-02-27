@@ -2825,7 +2825,7 @@ class TestAxesGetIntersectionPoint:
     def test_returns_tuple(self):
         """Result is a (x, y) tuple."""
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        result = ax.get_intersection_point(lambda x: x, lambda _x: 0, (-2, 2))  # noqa: E731
+        result = ax.get_intersection_point(lambda x: x, lambda _: 0, (-2, 2))  # noqa: E731
         assert result is not None
         assert len(result) == 2
 
@@ -3033,7 +3033,7 @@ class TestAxesAddAreaLabel:
     def test_area_value_in_text(self):
         """For f(x)=1 over [0,3], area = 3.00."""
         ax = Axes(x_range=(0, 4), y_range=(0, 4))
-        lbl = ax.add_area_label(lambda _x: 1, x_start=0, x_end=3)
+        lbl = ax.add_area_label(lambda _: 1, x_start=0, x_end=3)
         assert 'A = 3.00' in lbl.text.at_time(0)
 
     def test_custom_text(self):
@@ -3044,7 +3044,7 @@ class TestAxesAddAreaLabel:
     def test_x_range_backwards_compat(self):
         """x_range=[a,b] should still work."""
         ax = Axes(x_range=(0, 4), y_range=(0, 4))
-        lbl = ax.add_area_label(lambda _x: 1, x_range=[0, 2])
+        lbl = ax.add_area_label(lambda _: 1, x_range=[0, 2])
         assert 'A = 2.00' in lbl.text.at_time(0)
 
     def test_trapezoidal_quadratic(self):
@@ -4198,7 +4198,7 @@ class TestAxesGetGraphLength:
         p1 = ax.coords_to_point(-5, 0)
         p2 = ax.coords_to_point(5, 0)
         expected = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
-        length = ax.get_graph_length(lambda _x: 0)
+        length = ax.get_graph_length(lambda _: 0)
         assert abs(length - expected) < 1
 
     def test_linear_function_length(self):
@@ -5150,7 +5150,7 @@ class TestAxesGetAverage:
     def test_constant_function(self):
         """Average of a constant function should be that constant."""
         ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        avg = ax.get_average(lambda _x: 5, 0, 10)
+        avg = ax.get_average(lambda _: 5, 0, 10)
         assert avg == pytest.approx(5, abs=0.01)
 
     def test_linear_function(self):
@@ -5165,3 +5165,67 @@ class TestAxesGetAverage:
         avg = ax.get_average(lambda x: x * x)
         # Average of x^2 on [0,4] = (1/4) * integral(x^2, 0, 4) = (1/4)*(64/3) ≈ 5.333
         assert avg == pytest.approx(64 / 12, abs=0.1)
+
+
+class TestLineScaleLength:
+    """Tests for Line.scale_length()."""
+
+    def test_scale_length_doubles(self):
+        """factor=2 should double the line length while keeping the midpoint."""
+        line = Line(100, 200, 300, 200)
+        mid_before = ((100 + 300) / 2, (200 + 200) / 2)
+        line.scale_length(factor=2.0, time=0)
+        x1, y1 = line.p1.at_time(0)
+        x2, y2 = line.p2.at_time(0)
+        mid_after = ((x1 + x2) / 2, (y1 + y2) / 2)
+        # Midpoint should be preserved
+        assert mid_after[0] == pytest.approx(mid_before[0])
+        assert mid_after[1] == pytest.approx(mid_before[1])
+        # Length should be doubled (was 200, now 400)
+        import math
+        new_len = math.hypot(x2 - x1, y2 - y1)
+        assert new_len == pytest.approx(400)
+
+    def test_scale_length_half(self):
+        """factor=0.5 should halve the line length."""
+        line = Line(0, 0, 200, 0)
+        line.scale_length(factor=0.5, time=0)
+        x1, y1 = line.p1.at_time(0)
+        x2, y2 = line.p2.at_time(0)
+        import math
+        new_len = math.hypot(x2 - x1, y2 - y1)
+        assert new_len == pytest.approx(100)
+        # Midpoint preserved at (100, 0)
+        assert (x1 + x2) / 2 == pytest.approx(100)
+
+    def test_scale_length_returns_self(self):
+        """scale_length should return self for chaining."""
+        line = Line(0, 0, 100, 0)
+        assert line.scale_length(1.5) is line
+
+
+class TestPolygonWindingNumber:
+    """Tests for Polygon.winding_number()."""
+
+    def test_inside_square(self):
+        """A point inside a square should have winding number != 0."""
+        sq = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        wn = sq.winding_number(50, 50)
+        assert wn != 0
+
+    def test_outside_square(self):
+        """A point outside a square should have winding number 0."""
+        sq = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        wn = sq.winding_number(200, 200)
+        assert wn == 0
+
+    def test_triangle_inside(self):
+        """A point inside a triangle should have winding number != 0."""
+        tri = Polygon((0, 0), (200, 0), (100, 200))
+        wn = tri.winding_number(100, 50)
+        assert wn != 0
+
+    def test_degenerate_polygon(self):
+        """A polygon with fewer than 3 vertices should return 0."""
+        line = Polygon((0, 0), (100, 100))
+        assert line.winding_number(50, 50) == 0

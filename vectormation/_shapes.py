@@ -146,27 +146,10 @@ class Polygon(VObject):
         n = len(pts)
         if n < 2:
             return []
-        lengths = []
-        for i in range(n - 1):
-            lengths.append(math.hypot(pts[i+1][0] - pts[i][0], pts[i+1][1] - pts[i][1]))
+        pairs = list(zip(pts, pts[1:]))
         if self.closed and n > 2:
-            lengths.append(math.hypot(pts[0][0] - pts[-1][0], pts[0][1] - pts[-1][1]))
-        return lengths
-
-    def area(self, time=0):
-        """Return the area using the shoelace formula (0 for open polylines)."""
-        if not self.closed:
-            return 0.0
-        pts = self.get_vertices(time)
-        n = len(pts)
-        if n < 3:
-            return 0.0
-        return abs(sum(pts[i][0] * pts[(i+1) % n][1] - pts[(i+1) % n][0] * pts[i][1]
-                       for i in range(n))) / 2
-
-    def get_area(self, time=0):
-        """Return the polygon's area (alias for area())."""
-        return self.area(time)
+            pairs.append((pts[-1], pts[0]))
+        return [math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in pairs]
 
     def signed_area(self, time=0):
         """Return the signed area using the shoelace formula.
@@ -179,12 +162,51 @@ class Polygon(VObject):
         n = len(pts)
         if n < 3:
             return 0
-        total = 0
+        return sum(pts[i][0] * pts[(i+1) % n][1] - pts[(i+1) % n][0] * pts[i][1]
+                   for i in range(n)) / 2
+
+    def area(self, time=0):
+        """Return the area using the shoelace formula (0 for open polylines)."""
+        if not self.closed:
+            return 0.0
+        return abs(self.signed_area(time))
+
+    def get_area(self, time=0):
+        """Return the polygon's area (alias for area())."""
+        return self.area(time)
+
+    def winding_number(self, px, py, time=0):
+        """Return the winding number of point (px, py) relative to this polygon.
+
+        The winding number counts how many times the polygon winds around the
+        point.  A return value of 0 means the point is outside.
+
+        Parameters
+        ----------
+        px:
+            X coordinate of the query point.
+        py:
+            Y coordinate of the query point.
+        time:
+            Animation time at which to read vertex positions.
+        """
+        pts = self.get_vertices(time)
+        n = len(pts)
+        if n < 3:
+            return 0
+        wn = 0
         for i in range(n):
-            x0, y0 = pts[i]
-            x1, y1 = pts[(i + 1) % n]
-            total += x0 * y1 - x1 * y0
-        return total / 2
+            x1, y1 = pts[i]
+            x2, y2 = pts[(i + 1) % n]
+            if y1 <= py:
+                if y2 > py:
+                    if ((x2 - x1) * (py - y1) - (px - x1) * (y2 - y1)) > 0:
+                        wn += 1
+            else:
+                if y2 <= py:
+                    if ((x2 - x1) * (py - y1) - (px - x1) * (y2 - y1)) < 0:
+                        wn -= 1
+        return wn
 
     def is_regular(self, tol=1e-3, time=0):
         """Return True if all edges have the same length (within tolerance).
@@ -483,27 +505,28 @@ class Polygon(VObject):
         self._bbox_version += 1
         return self
 
-    def mirror_x(self, cx=None, time=0):
-        """Mirror vertices across vertical line x=cx."""
+    def _mirror(self, axis, center=None, time=0):
+        """Mirror vertices across an axis line.
+
+        *axis* is 0 for x (vertical mirror line) or 1 for y (horizontal).
+        """
         pts = self.get_vertices(time)
-        if cx is None:
-            cx = sum(p[0] for p in pts) / len(pts) if pts else 0
+        if center is None:
+            center = sum(p[axis] for p in pts) / len(pts) if pts else 0
         for v in self.vertices:
-            vx, vy = v.at_time(time)
-            v.set_onward(time, (2 * cx - vx, vy))
+            pt = list(v.at_time(time))
+            pt[axis] = 2 * center - pt[axis]
+            v.set_onward(time, tuple(pt))
         self._bbox_version += 1
         return self
 
+    def mirror_x(self, cx=None, time=0):
+        """Mirror vertices across vertical line x=cx."""
+        return self._mirror(0, cx, time)
+
     def mirror_y(self, cy=None, time=0):
         """Mirror vertices across horizontal line y=cy."""
-        pts = self.get_vertices(time)
-        if cy is None:
-            cy = sum(p[1] for p in pts) / len(pts) if pts else 0
-        for v in self.vertices:
-            vx, vy = v.at_time(time)
-            v.set_onward(time, (vx, 2 * cy - vy))
-        self._bbox_version += 1
-        return self
+        return self._mirror(1, cy, time)
 
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
@@ -568,14 +591,12 @@ class Ellipse(VObject):
     def get_foci(self, time=0):
         """Return the two foci as ((x1,y1), (x2,y2))."""
         cx, cy = self.c.at_time(time)
-        rx = self.rx.at_time(time)
-        ry = self.ry.at_time(time)
+        rx, ry = self.rx.at_time(time), self.ry.at_time(time)
+        a, b = max(rx, ry), min(rx, ry)
+        c = math.sqrt(a * a - b * b)
         if rx >= ry:
-            c = math.sqrt(rx*rx - ry*ry)
             return ((cx - c, cy), (cx + c, cy))
-        else:
-            c = math.sqrt(ry*ry - rx*rx)
-            return ((cx, cy - c), (cx, cy + c))
+        return ((cx, cy - c), (cx, cy + c))
 
     def point_at_angle(self, degrees, time=0):
         """Return (x, y) on the ellipse at the given angle (degrees, CCW from right)."""
@@ -1632,17 +1653,17 @@ class Line(VObject):
         x2, y2 = self.p2.at_time(time)
         return math.degrees(math.atan2(-(y2 - y1), x2 - x1))
 
+    def _is_aligned(self, axis, time, tol):
+        """Return True if start and end differ by less than *tol* on *axis* (0=x, 1=y)."""
+        return abs(self.get_end(time)[axis] - self.get_start(time)[axis]) < tol
+
     def is_horizontal(self, time=0, tol=1e-3):
         """Return True if this line is approximately horizontal."""
-        _, y1 = self.get_start(time)
-        _, y2 = self.get_end(time)
-        return abs(y2 - y1) < tol
+        return self._is_aligned(1, time, tol)
 
     def is_vertical(self, time=0, tol=1e-3):
         """Return True if this line is approximately vertical."""
-        x1, _ = self.get_start(time)
-        x2, _ = self.get_end(time)
-        return abs(x2 - x1) < tol
+        return self._is_aligned(0, time, tol)
 
     def set_start(self, point, start=0, end=None, easing=easings.smooth):
         _anim(self.p1, start, end, point, easing)
@@ -1907,6 +1928,26 @@ class Line(VObject):
         extra = factor - 1
         return Line(x1 - dx * extra, y1 - dy * extra,
                     x2 + dx * extra, y2 + dy * extra, **kwargs)
+
+    def scale_length(self, factor=2.0, time=0):
+        """Scale line length by *factor* in place, keeping the midpoint fixed.
+
+        ``factor=2`` doubles the length while the midpoint stays the same.
+
+        Parameters
+        ----------
+        factor:
+            Multiplicative factor for the line length.
+        time:
+            Time at which to read/set the endpoints.
+        """
+        x1, y1 = self.get_start(time)
+        x2, y2 = self.get_end(time)
+        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+        dx, dy = (x2 - x1) / 2 * factor, (y2 - y1) / 2 * factor
+        self.p1.set_onward(time, (mx - dx, my - dy))
+        self.p2.set_onward(time, (mx + dx, my + dy))
+        return self
 
     def parallel(self, offset=50, time=0, **kwargs):
         """Return a new Line parallel to this one, offset perpendicular by offset pixels.

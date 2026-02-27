@@ -5810,7 +5810,7 @@ class TestGetGraphIntersection:
     def test_parabola_line_intersection(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 10))
         # y=x^2 and y=4 intersect at x=-2 and x=2
-        pts = ax.get_graph_intersection(lambda _x: _x**2, lambda _x: 4)
+        pts = ax.get_graph_intersection(lambda x: x**2, lambda _: 4)
         assert len(pts) == 2
         xs = sorted(p[0] for p in pts)
         assert xs[0] == pytest.approx(-2, abs=0.02)
@@ -5819,13 +5819,13 @@ class TestGetGraphIntersection:
     def test_no_intersection(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
         # y=1 and y=-1 never intersect
-        pts = ax.get_graph_intersection(lambda _x: 1, lambda _x: -1)
+        pts = ax.get_graph_intersection(lambda _: 1, lambda _: -1)
         assert len(pts) == 0
 
     def test_custom_x_range(self):
         ax = Axes(x_range=(-10, 10), y_range=(-10, 10))
         # y=x^2 and y=4 intersect at x=-2 and x=2, but limit to positive x
-        pts = ax.get_graph_intersection(lambda _x: _x**2, lambda _x: 4, x_range=(0, 10))
+        pts = ax.get_graph_intersection(lambda x: x**2, lambda _: 4, x_range=(0, 10))
         assert len(pts) == 1
         assert pts[0][0] == pytest.approx(2, abs=0.02)
 
@@ -7991,3 +7991,54 @@ class TestAxesAddAnnotation:
         pos = dot.c.at_time(0)
         assert pos[0] == pytest.approx(expected[0], abs=1)
         assert pos[1] == pytest.approx(expected[1], abs=1)
+
+
+class TestVObjectDelay:
+    """Tests for VObject.delay()."""
+
+    def test_delay_hides_before_duration(self):
+        """Object should be hidden at time 0 when delayed by 2 seconds."""
+        c = Circle(r=50)
+        c.delay(2)
+        assert c.show.at_time(0) is False
+        assert c.show.at_time(1) is False
+
+    def test_delay_shows_after_duration(self):
+        """Object should be visible at time >= start + duration."""
+        c = Circle(r=50)
+        c.delay(2)
+        assert c.show.at_time(2) is True
+        assert c.show.at_time(5) is True
+
+    def test_delay_with_start(self):
+        """Object should be hidden from start for duration, then shown."""
+        c = Circle(r=50)
+        c.delay(3, start=1)
+        # Hidden before start + duration
+        assert c.show.at_time(0) is False
+        assert c.show.at_time(3) is False
+        # Visible at start + duration = 4
+        assert c.show.at_time(4) is True
+
+    def test_delay_returns_self(self):
+        """delay() should return self for chaining."""
+        c = Circle(r=50)
+        assert c.delay(1) is c
+
+
+class TestAxesCoordsToScreen:
+    """Tests for Axes.coords_to_screen()."""
+
+    def test_coords_to_screen_matches_coords_to_point(self):
+        """coords_to_screen should return the same result as coords_to_point."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        for x, y in [(0, 0), (3, -2), (-1, 4)]:
+            assert ax.coords_to_screen(x, y) == ax.coords_to_point(x, y)
+
+    def test_coords_to_screen_with_time(self):
+        """coords_to_screen should forward the time parameter."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.coords_to_screen(1, 1, time=0)
+        expected = ax.coords_to_point(1, 1, time=0)
+        assert result[0] == pytest.approx(expected[0])
+        assert result[1] == pytest.approx(expected[1])

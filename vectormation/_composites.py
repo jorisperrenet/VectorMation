@@ -749,6 +749,10 @@ class Axes(VCollection):
         """Convert math coordinates to SVG pixel coordinates."""
         return (self._math_to_svg_x(x, time), self._math_to_svg_y(y, time))
 
+    def coords_to_screen(self, x, y, time=0):
+        """Convert math coordinates to SVG pixel coordinates (alias for :meth:`coords_to_point`)."""
+        return self.coords_to_point(x, y, time)
+
     def screen_to_coords(self, sx, sy, time=0):
         """Convert SVG pixel coordinates to math (axis) coordinates.
 
@@ -860,26 +864,7 @@ class Axes(VCollection):
         return self.coords_to_point(x, func(x), time)
 
     def get_point_on_graph(self, func, x, time=0):
-        """Return SVG (x, y) coordinates of point (x, func(x)) on the graph.
-
-        Like :meth:`input_to_graph_point` but catches exceptions raised by
-        *func* (e.g. division by zero, domain errors) and returns ``None``
-        instead.
-
-        Parameters
-        ----------
-        func:
-            A callable mapping a math x-value to a y-value.
-        x:
-            The math x-coordinate to evaluate.
-        time:
-            Animation time for axis range lookup (default 0).
-
-        Returns
-        -------
-        tuple[float, float] or None
-            SVG pixel coordinates, or ``None`` if *func(x)* raises.
-        """
+        """Like :meth:`input_to_graph_point` but returns ``None`` on error."""
         try:
             y = func(x)
         except Exception:
@@ -2559,11 +2544,18 @@ class Axes(VCollection):
         self._add_plot_obj(line)
         return line
 
+    def _add_guide_line(self, value, direction, start, end, creation, z, styling_kwargs):
+        """Shared helper for add_horizontal_line / add_vertical_line."""
+        style_kw = {'stroke': '#FFFF00', 'stroke_width': 1.5,
+                    'stroke_dasharray': '6 3'} | styling_kwargs
+        line = self._make_span_line(value, direction, creation, z, style_kw)
+        self._add_plot_obj(line)
+        if start is not None and end is not None:
+            line.fadein(start=start, end=end)
+        return line
+
     def add_horizontal_line(self, y, start=None, end=None, creation=0, z=1, **styling_kwargs):
         """Draw a horizontal dashed line across the full plot width at *y*.
-
-        This is a convenience wrapper around ``_make_span_line`` for the
-        common case of adding a reference/guide line at a specific y value.
 
         Parameters
         ----------
@@ -2585,19 +2577,10 @@ class Axes(VCollection):
         Line
             The created Line object (already added to the axes).
         """
-        style_kw = {'stroke': '#FFFF00', 'stroke_width': 1.5,
-                    'stroke_dasharray': '6 3'} | styling_kwargs
-        line = self._make_span_line(y, 'horizontal', creation, z, style_kw)
-        self._add_plot_obj(line)
-        if start is not None and end is not None:
-            line.fadein(start=start, end=end)
-        return line
+        return self._add_guide_line(y, 'horizontal', start, end, creation, z, styling_kwargs)
 
     def add_vertical_line(self, x, start=None, end=None, creation=0, z=1, **styling_kwargs):
         """Draw a vertical dashed line across the full plot height at *x*.
-
-        This is a convenience wrapper around ``_make_span_line`` for the
-        common case of adding a reference/guide line at a specific x value.
 
         Parameters
         ----------
@@ -2619,13 +2602,7 @@ class Axes(VCollection):
         Line
             The created Line object (already added to the axes).
         """
-        style_kw = {'stroke': '#FFFF00', 'stroke_width': 1.5,
-                    'stroke_dasharray': '6 3'} | styling_kwargs
-        line = self._make_span_line(x, 'vertical', creation, z, style_kw)
-        self._add_plot_obj(line)
-        if start is not None and end is not None:
-            line.fadein(start=start, end=end)
-        return line
+        return self._add_guide_line(x, 'vertical', start, end, creation, z, styling_kwargs)
 
     def add_min_max_labels(self, func, x_range=None, samples=200, creation=0, z=3,
                             dot_radius=5, font_size=18, **styling_kwargs):

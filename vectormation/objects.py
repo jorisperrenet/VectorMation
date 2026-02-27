@@ -19,7 +19,7 @@ from vectormation._constants import (
     UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR, ORIGIN,
 )
 
-from vectormation._base import VObject, VCollection, VGroup, _make_brect
+from vectormation._base import VObject, VCollection, VGroup
 
 from vectormation._canvas import VectorMathAnim
 

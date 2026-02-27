@@ -329,6 +329,21 @@ class VObject(ABC):  # Vector Object
                     cur_c.interpolate(restore_c, start, end, easing=easings.linear)
         return self
 
+    def delay(self, duration, start=0):
+        """Hide the object for *duration* seconds starting from *start*, then show it.
+
+        Useful for staggering appearances without complex timing math.
+
+        Parameters
+        ----------
+        duration:
+            How long (in seconds) the object stays hidden.
+        start:
+            Time at which the hiding begins (default 0).
+        """
+        self._show_from(start + duration)
+        return self
+
     def _show_from(self, time):
         """Hide before time, show from time onward."""
         self.show.set_onward(0, False)
@@ -1320,20 +1335,7 @@ class VObject(ABC):  # Vector Object
         return self
 
     def follow(self, other, start=0, end=None):
-        """Follow another object's center position from *start* to *end*.
-
-        Uses an updater so that ``self``'s center continuously tracks
-        ``other``'s center each frame.
-
-        Parameters
-        ----------
-        other:
-            The target object whose center to follow.
-        start:
-            Time at which the following begins.
-        end:
-            Time at which the following ends (``None`` = forever).
-        """
+        """Continuously track *other*'s center via an updater."""
         _init_cx, _init_cy = self.center(start)
         _init_dx = self.styling.dx.at_time(start)
         _init_dy = self.styling.dy.at_time(start)
@@ -1862,6 +1864,14 @@ class VObject(ABC):  # Vector Object
         self.styling.scale_y.set(s, e, scale, stay=True)
         return self
 
+    def _corner_point(self, corner, time):
+        """Return the SVG pixel coordinate for a bbox corner direction."""
+        from vectormation._constants import DL
+        corner = corner or DL
+        x, y, w, h = self.bbox(time)
+        return (x if corner[0] <= 0 else x + w,
+                y if corner[1] <= 0 else y + h)
+
     def grow_from_corner(self, start=0, end=1, corner=None, change_existence=True, easing=easings.smooth):
         """Grow from zero size anchored at a corner.
 
@@ -1877,15 +1887,9 @@ class VObject(ABC):  # Vector Object
         easing:
             Easing function for the scale interpolation.
         """
-        from vectormation._constants import DL
-        corner = corner or DL
+        self.styling._scale_origin = self._corner_point(corner, start)
         if change_existence:
             self._show_from(start)
-        x, y, w, h = self.bbox(start)
-        # Map corner direction to point
-        cx = x if corner[0] <= 0 else x + w
-        cy = y if corner[1] <= 0 else y + h
-        self.styling._scale_origin = (cx, cy)
         s, e = start, end
         dur = e - s
         if dur <= 0:
@@ -1913,12 +1917,7 @@ class VObject(ABC):  # Vector Object
         easing:
             Easing function for the scale interpolation.
         """
-        from vectormation._constants import DL
-        corner = corner or DL
-        x, y, w, h = self.bbox(start)
-        cx = x if corner[0] <= 0 else x + w
-        cy = y if corner[1] <= 0 else y + h
-        self.styling._scale_origin = (cx, cy)
+        self.styling._scale_origin = self._corner_point(corner, start)
         s, e = start, end
         dur = e - s
         if dur <= 0:
@@ -3047,6 +3046,10 @@ class VCollection:
         """Remove an object from this collection."""
         self.objects.remove(obj)
         return self
+
+    def remove_at(self, index):
+        """Remove and return the child at the given index."""
+        return self.objects.pop(index)
 
     def clear(self):
         """Remove all children."""
@@ -4185,20 +4188,10 @@ class VCollection:
         return self
 
     def each(self, func):
-        """Apply a function to each child and return self.
+        """Call ``func(child)`` for every child and return self.
 
-        Unlike :meth:`for_each` (which calls a *named method* on each child)
-        and :meth:`apply` (which passes ``(child, index)``), this method calls
-        ``func(child)`` for every child — useful for simple lambdas.
-
-        Parameters
-        ----------
-        func:
-            A callable that receives a single child object.
-
-        Returns
-        -------
-        self, for chaining.
+        Unlike :meth:`for_each` (named method) and :meth:`apply` (passes
+        ``(child, index)``), this accepts a plain callable.
         """
         for obj in self.objects:
             func(obj)
