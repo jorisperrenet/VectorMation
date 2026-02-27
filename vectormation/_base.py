@@ -1919,8 +1919,8 @@ class VObject(ABC):  # Vector Object
         blur:
             Standard deviation for the Gaussian blur (``stdDeviation``).
         start:
-            Time from which the shadow is visible.  The object is hidden
-            before *start* and the shadow only appears at *start*.
+            Time from which the shadow is visible.  Before *start* the
+            object renders normally without a shadow.
         """
         fid = f'ds{id(self)}'
         filter_def = (
@@ -3354,16 +3354,8 @@ class VObject(ABC):  # Vector Object
         easing:
             Easing function for the animation.
         """
-        # Override the scale origin to the pivot point so the SVG transform
-        # translate(px,py) scale(...) translate(-px,-py) keeps the pivot fixed.
         self.styling._scale_origin = (px, py)
-        for attr in (self.styling.scale_x, self.styling.scale_y):
-            target = attr.at_time(start) * factor
-            if end is None:
-                attr.set_onward(start, target)
-            else:
-                attr.move_to(start, end, target, easing=easing)
-        return self
+        return self.stretch(factor, factor, start, end, easing)
 
     def set_fill(self, color=None, opacity=None, start: float = 0, end: float | None = None, easing=easings.smooth, color_space='rgb'):
         """Set fill color and/or opacity. Animated if end is given."""
@@ -5630,13 +5622,7 @@ class VCollection:
         scale factor, so the pivot stays fixed while children move.
         """
         self._scale_origin = (px, py)
-        for attr in (self._scale_x, self._scale_y):
-            target = attr.at_time(start) * factor
-            if end is None:
-                attr.set_onward(start, target)
-            else:
-                attr.move_to(start, end, target, easing=easing)
-        return self
+        return self.stretch(factor, factor, start, end, easing)
 
     def stretch(self, x_factor: float = 1, y_factor: float = 1, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Non-uniform scale of all children around the group center."""

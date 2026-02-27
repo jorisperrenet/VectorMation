@@ -3309,7 +3309,7 @@ class Line(VObject):
     def extend_to(self, length, anchor='start', start_time=0, end_time=None, easing=easings.smooth):
         """Extend or shrink the line to *length*, keeping one endpoint fixed.
 
-        Unlike :meth:`set_length` (which always keeps p1 fixed), this method
+        Unlike :meth:`set_length` (which keeps the midpoint fixed), this method
         lets you choose which endpoint acts as the anchor:
 
         * ``anchor='start'`` — p1 is fixed; p2 moves to achieve the new length.
@@ -3745,13 +3745,7 @@ class Line(VObject):
         time:
             Time at which to read/set the endpoints.
         """
-        x1, y1 = self.get_start(time)
-        x2, y2 = self.get_end(time)
-        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
-        dx, dy = (x2 - x1) / 2 * factor, (y2 - y1) / 2 * factor
-        self.p1.set_onward(time, (mx - dx, my - dy))
-        self.p2.set_onward(time, (mx + dx, my + dy))
-        return self
+        return self.extend(factor=factor, start=time)
 
     def parallel(self, offset=50, time=0, **kwargs):
         """Return a new Line parallel to this one, offset perpendicular by offset pixels.

@@ -6989,8 +6989,9 @@ class BarChart(VCollection):
         -------
         self
         """
-        if index < 0 or index >= len(self._bars):
-            raise IndexError(f"bar index {index} out of range for chart with {len(self._bars)} bars")
+        n = len(self._bars)
+        if index < -n or index >= n:
+            raise IndexError(f"bar index {index} out of range for chart with {n} bars")
         bar = self._bars[index]
         if end is None:
             bar.styling.fill = attributes.Color(start, color)
