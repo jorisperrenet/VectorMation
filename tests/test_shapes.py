@@ -10235,3 +10235,281 @@ class TestBarChartAnimateSort:
         chart = BarChart([30, 10, 20])
         result = chart.animate_sort(start=0, end=0)
         assert result is chart
+
+
+# ===== New feature tests =====
+
+
+class TestPolygonToPath:
+    def test_returns_path_object(self):
+        """to_path should return a Path instance."""
+        poly = Polygon((0, 0), (100, 0), (100, 100))
+        p = poly.to_path()
+        assert isinstance(p, Path)
+
+    def test_path_d_matches_polygon(self):
+        """The Path's d string should match the polygon's path()."""
+        poly = Polygon((10, 20), (30, 40), (50, 60))
+        p = poly.to_path()
+        d = p.d.at_time(0)
+        assert 'M' in d
+        assert 'L' in d
+        assert 'Z' in d
+
+    def test_preserves_fill(self):
+        """Styling (fill) should be copied from the polygon."""
+        poly = Polygon((0, 0), (100, 0), (100, 100), fill='#ff0000')
+        p = poly.to_path()
+        assert p.styling.fill.at_time(0) == 'rgb(255,0,0)'
+
+    def test_preserves_stroke(self):
+        """Styling (stroke) should be copied from the polygon."""
+        poly = Polygon((0, 0), (100, 0), (100, 100), stroke='#00ff00', stroke_width=8)
+        p = poly.to_path()
+        assert p.styling.stroke.at_time(0) == 'rgb(0,255,0)'
+        assert p.styling.stroke_width.at_time(0) == pytest.approx(8)
+
+    def test_open_polyline(self):
+        """An open polygon (closed=False) should produce a path without Z."""
+        poly = Polygon((0, 0), (100, 0), (100, 100), closed=False)
+        p = poly.to_path()
+        d = p.d.at_time(0)
+        assert 'Z' not in d
+
+    def test_time_parameter(self):
+        """to_path at a different time should use animated vertex positions."""
+        poly = Polygon((0, 0), (100, 0), (100, 100))
+        poly.shift(dx=50, dy=0, start_time=0)
+        p = poly.to_path(time=0)
+        d = p.d.at_time(0)
+        # After shift, first vertex should be at (50, 0)
+        assert '50' in d
+
+
+class TestPathTrim:
+    def test_trim_full_path(self):
+        """Trimming from 0 to 1 should return a path with the same length."""
+        p = Path('M0,0 L100,0 L100,100')
+        trimmed = p.trim(0.0, 1.0)
+        assert isinstance(trimmed, Path)
+        orig_len = p.get_length()
+        trimmed_len = trimmed.get_length()
+        assert trimmed_len == pytest.approx(orig_len, abs=1)
+
+    def test_trim_first_half(self):
+        """Trimming first half should give roughly half the length."""
+        p = Path('M0,0 L100,0 L100,100')
+        trimmed = p.trim(0.0, 0.5)
+        total = p.get_length()
+        assert trimmed.get_length() == pytest.approx(total * 0.5, abs=1)
+
+    def test_trim_second_half(self):
+        """Trimming second half should give roughly half the length."""
+        p = Path('M0,0 L200,0')
+        trimmed = p.trim(0.5, 1.0)
+        assert trimmed.get_length() == pytest.approx(100, abs=1)
+
+    def test_trim_empty_range(self):
+        """Trimming with t_start >= t_end should return empty path."""
+        p = Path('M0,0 L100,0')
+        trimmed = p.trim(0.5, 0.5)
+        assert trimmed.d.at_time(0) == ''
+
+    def test_trim_empty_path(self):
+        """Trimming empty path should return empty path."""
+        p = Path('')
+        trimmed = p.trim(0.0, 1.0)
+        assert trimmed.d.at_time(0) == ''
+
+    def test_trim_preserves_styling(self):
+        """Trimmed path should copy the stroke from original."""
+        p = Path('M0,0 L100,0', stroke='#ff0000', stroke_width=6)
+        trimmed = p.trim(0.0, 0.5)
+        assert trimmed.styling.stroke.at_time(0) == 'rgb(255,0,0)'
+        assert trimmed.styling.stroke_width.at_time(0) == pytest.approx(6)
+
+    def test_trim_clamps_values(self):
+        """Values outside [0,1] should be clamped."""
+        p = Path('M0,0 L100,0')
+        trimmed = p.trim(-0.5, 1.5)
+        assert trimmed.get_length() == pytest.approx(100, abs=1)
+
+
+class TestTableAddRow:
+    def test_add_row_increases_row_count(self):
+        """add_row should increment self.rows."""
+        t = Table([[1, 2], [3, 4]])
+        assert t.rows == 2
+        t.add_row([5, 6], animate=False)
+        assert t.rows == 3
+
+    def test_add_row_creates_entries(self):
+        """New row entries should be accessible."""
+        t = Table([[1, 2], [3, 4]])
+        t.add_row([5, 6], animate=False)
+        assert len(t.entries) == 3
+        assert t.entries[2][0].text.at_time(0) == '5'
+        assert t.entries[2][1].text.at_time(0) == '6'
+
+    def test_add_row_returns_self(self):
+        """add_row should return self for chaining."""
+        t = Table([[1, 2]])
+        result = t.add_row([3, 4], animate=False)
+        assert result is t
+
+    def test_add_row_with_animation(self):
+        """add_row with animate=True should not raise."""
+        t = Table([[1, 2]])
+        t.add_row([3, 4], start=1, animate=True)
+        assert t.rows == 2
+
+    def test_add_row_fewer_values(self):
+        """Fewer values than columns should fill missing with empty string."""
+        t = Table([['a', 'b', 'c']])
+        t.add_row(['x'], animate=False)
+        assert t.entries[1][0].text.at_time(0) == 'x'
+        assert t.entries[1][1].text.at_time(0) == ''
+        assert t.entries[1][2].text.at_time(0) == ''
+
+
+class TestTableAddColumn:
+    def test_add_column_increases_col_count(self):
+        """add_column should increment self.cols."""
+        t = Table([[1, 2], [3, 4]])
+        assert t.cols == 2
+        t.add_column([5, 6], animate=False)
+        assert t.cols == 3
+
+    def test_add_column_creates_entries(self):
+        """New column entries should be accessible in each row."""
+        t = Table([[1, 2], [3, 4]])
+        t.add_column([5, 6], animate=False)
+        assert len(t.entries[0]) == 3
+        assert len(t.entries[1]) == 3
+        assert t.entries[0][2].text.at_time(0) == '5'
+        assert t.entries[1][2].text.at_time(0) == '6'
+
+    def test_add_column_returns_self(self):
+        """add_column should return self for chaining."""
+        t = Table([[1, 2]])
+        result = t.add_column([3], animate=False)
+        assert result is t
+
+    def test_add_column_with_animation(self):
+        """add_column with animate=True should not raise."""
+        t = Table([[1, 2]])
+        t.add_column([3], start=1, animate=True)
+        assert t.cols == 3
+
+    def test_add_column_fewer_values(self):
+        """Fewer values than rows should fill missing with empty string."""
+        t = Table([['a'], ['b'], ['c']])
+        t.add_column(['x'], animate=False)
+        assert t.entries[0][1].text.at_time(0) == 'x'
+        assert t.entries[1][1].text.at_time(0) == ''
+        assert t.entries[2][1].text.at_time(0) == ''
+
+
+class TestPieChartExplode:
+    def test_explode_returns_self(self):
+        """explode should return self for chaining."""
+        chart = PieChart([30, 50, 20])
+        result = chart.explode([0])
+        assert result is chart
+
+    def test_explode_shifts_sector(self):
+        """Exploded sector should be shifted from its original center."""
+        chart = PieChart([30, 50, 20], cx=960, cy=540, r=200)
+        cx_before = chart._sectors[0].cx.at_time(0)
+        cy_before = chart._sectors[0].cy.at_time(0)
+        chart.explode([0], distance=30)
+        cx_after = chart._sectors[0].cx.at_time(0)
+        cy_after = chart._sectors[0].cy.at_time(0)
+        shift = math.hypot(cx_after - cx_before, cy_after - cy_before)
+        assert shift == pytest.approx(30, abs=1)
+
+    def test_explode_does_not_affect_other_sectors(self):
+        """Sectors not in indices should remain unchanged."""
+        chart = PieChart([30, 50, 20], cx=960, cy=540)
+        cx1_before = chart._sectors[1].cx.at_time(0)
+        cy1_before = chart._sectors[1].cy.at_time(0)
+        chart.explode([0], distance=30)
+        cx1_after = chart._sectors[1].cx.at_time(0)
+        cy1_after = chart._sectors[1].cy.at_time(0)
+        assert cx1_after == pytest.approx(cx1_before)
+        assert cy1_after == pytest.approx(cy1_before)
+
+    def test_explode_multiple_sectors(self):
+        """Multiple sectors can be exploded at once."""
+        chart = PieChart([25, 25, 25, 25], cx=960, cy=540)
+        chart.explode([0, 2], distance=20)
+        # Both sector 0 and 2 should have shifted
+        s0_shift = math.hypot(
+            chart._sectors[0].cx.at_time(0) - 960,
+            chart._sectors[0].cy.at_time(0) - 540)
+        s2_shift = math.hypot(
+            chart._sectors[2].cx.at_time(0) - 960,
+            chart._sectors[2].cy.at_time(0) - 540)
+        assert s0_shift == pytest.approx(20, abs=1)
+        assert s2_shift == pytest.approx(20, abs=1)
+
+    def test_explode_out_of_range_ignored(self):
+        """Out-of-range indices should be silently ignored."""
+        chart = PieChart([30, 50, 20])
+        chart.explode([10, -1], distance=30)  # should not raise
+
+    def test_explode_animated(self):
+        """Animated explode should shift between start and end times."""
+        chart = PieChart([50, 50], cx=960, cy=540)
+        cx_before = chart._sectors[0].cx.at_time(0)
+        chart.explode([0], distance=30, start=0, end=1)
+        # At time=0 the shift should not yet be fully applied
+        # At time=1 it should be
+        cx_at_end = chart._sectors[0].cx.at_time(1)
+        shift = abs(cx_at_end - cx_before)
+        assert shift > 0
+
+
+class TestLineIntersection:
+    def test_intersecting_segments(self):
+        """Two crossing line segments should return intersection point."""
+        l1 = Line(0, 0, 100, 100)
+        l2 = Line(100, 0, 0, 100)
+        pt = l1.intersection(l2)
+        assert pt is not None
+        assert pt[0] == pytest.approx(50, abs=1)
+        assert pt[1] == pytest.approx(50, abs=1)
+
+    def test_parallel_lines(self):
+        """Parallel lines should return None."""
+        l1 = Line(0, 0, 100, 0)
+        l2 = Line(0, 10, 100, 10)
+        assert l1.intersection(l2) is None
+
+    def test_non_intersecting_segments(self):
+        """Non-overlapping segments should return None (segment check)."""
+        l1 = Line(0, 0, 10, 0)
+        l2 = Line(20, 10, 20, 20)
+        assert l1.intersection(l2) is None
+
+    def test_line_circle_intersection(self):
+        """Line intersecting a circle should return a list of points."""
+        l = Line(-200, 540, 200, 540)
+        c = Circle(r=100, cx=0, cy=540)
+        pts = l.intersection(c)
+        assert isinstance(pts, list)
+        assert len(pts) == 2
+
+    def test_line_circle_no_intersection(self):
+        """Line far from circle should return empty list."""
+        l = Line(0, 0, 100, 0)
+        c = Circle(r=10, cx=50, cy=100)
+        pts = l.intersection(c)
+        assert isinstance(pts, list)
+        assert len(pts) == 0
+
+    def test_unsupported_type_raises(self):
+        """Intersection with unsupported type should raise TypeError."""
+        l = Line(0, 0, 100, 0)
+        with pytest.raises(TypeError):
+            l.intersection("not a shape")

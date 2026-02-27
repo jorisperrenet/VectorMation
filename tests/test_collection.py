@@ -1,7 +1,7 @@
 """Tests for VCollection: delegation, stagger, and to_svg."""
 import math
 import pytest
-from vectormation.objects import VCollection, Circle, DOWN
+from vectormation.objects import VCollection, Circle, Rectangle, Line, Arrow, DOWN
 import vectormation.easings as easings
 
 
@@ -3191,3 +3191,176 @@ class TestStaggerAlongPath:
         assert not c2.show.at_time(-0.1)
         # After c2's fadein, c2 should be visible
         assert c2.show.at_time(1.5)
+
+
+class TestConnectChildren:
+    def test_connect_children_returns_list(self):
+        c1 = Circle(r=20, cx=0, cy=100)
+        c2 = Circle(r=20, cx=100, cy=100)
+        c3 = Circle(r=20, cx=200, cy=100)
+        col = VCollection(c1, c2, c3)
+        connectors = col.connect_children()
+        assert isinstance(connectors, list)
+        assert len(connectors) == 2
+
+    def test_connect_children_adds_to_collection(self):
+        c1 = Circle(r=20, cx=0, cy=100)
+        c2 = Circle(r=20, cx=100, cy=100)
+        col = VCollection(c1, c2)
+        initial_count = len(col)
+        connectors = col.connect_children()
+        assert len(col) == initial_count + len(connectors)
+
+    def test_connect_children_creates_lines(self):
+        c1 = Circle(r=20, cx=0, cy=100)
+        c2 = Circle(r=20, cx=200, cy=100)
+        col = VCollection(c1, c2)
+        connectors = col.connect_children()
+        assert len(connectors) == 1
+        assert isinstance(connectors[0], Line)
+
+    def test_connect_children_with_arrows(self):
+        c1 = Circle(r=20, cx=0, cy=100)
+        c2 = Circle(r=20, cx=200, cy=100)
+        col = VCollection(c1, c2)
+        connectors = col.connect_children(arrow=True)
+        assert len(connectors) == 1
+        assert isinstance(connectors[0], Arrow)
+
+    def test_connect_children_single_child(self):
+        c1 = Circle(r=20, cx=0, cy=100)
+        col = VCollection(c1)
+        connectors = col.connect_children()
+        assert connectors == []
+
+    def test_connect_children_empty(self):
+        col = VCollection()
+        connectors = col.connect_children()
+        assert connectors == []
+
+    def test_connect_children_positions(self):
+        """Connectors should start at right edge of child i and end at left edge of child i+1."""
+        c1 = Rectangle(40, 40, x=0, y=80)   # right edge at x=40
+        c2 = Rectangle(40, 40, x=100, y=80)  # left edge at x=100
+        col = VCollection(c1, c2)
+        connectors = col.connect_children()
+        line = connectors[0]
+        # Line should go from right edge of c1 to left edge of c2
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        assert p1[0] == pytest.approx(40, abs=1)
+        assert p2[0] == pytest.approx(100, abs=1)
+
+    def test_connect_children_with_buff(self):
+        """Buff should shrink connector at both ends."""
+        c1 = Rectangle(40, 40, x=0, y=80)
+        c2 = Rectangle(40, 40, x=100, y=80)
+        col = VCollection(c1, c2)
+        connectors = col.connect_children(buff=5)
+        line = connectors[0]
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        # With buff=5, should be inset from the original endpoints
+        assert p1[0] == pytest.approx(45, abs=1)
+        assert p2[0] == pytest.approx(95, abs=1)
+
+    def test_connect_children_kwargs_forwarded(self):
+        """Extra kwargs should be passed to the connector constructor."""
+        c1 = Circle(r=20, cx=0, cy=100)
+        c2 = Circle(r=20, cx=200, cy=100)
+        col = VCollection(c1, c2)
+        connectors = col.connect_children(stroke='#ff0000', stroke_width=3)
+        line = connectors[0]
+        svg = line.to_svg(0)
+        assert 'rgb(255,0,0)' in svg or '#ff0000' in svg
+        assert "stroke-width='3'" in svg
+
+
+class TestAlignChildren:
+    def test_align_children_x_center(self):
+        """Align along x-axis with center anchor: all centers should share the same x."""
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=50, cy=50)
+        c3 = Circle(r=10, cx=100, cy=100)
+        col = VCollection(c1, c2, c3)
+        result = col.align_children(axis='x', anchor='center')
+        assert result is col
+        cx1 = c1.center(0)[0]
+        cx2 = c2.center(0)[0]
+        cx3 = c3.center(0)[0]
+        assert cx1 == pytest.approx(cx2, abs=1)
+        assert cx2 == pytest.approx(cx3, abs=1)
+
+    def test_align_children_y_center(self):
+        """Align along y-axis with center anchor: all centers should share the same y."""
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=50, cy=50)
+        c3 = Circle(r=10, cx=100, cy=100)
+        col = VCollection(c1, c2, c3)
+        col.align_children(axis='y', anchor='center')
+        cy1 = c1.center(0)[1]
+        cy2 = c2.center(0)[1]
+        cy3 = c3.center(0)[1]
+        assert cy1 == pytest.approx(cy2, abs=1)
+        assert cy2 == pytest.approx(cy3, abs=1)
+
+    def test_align_children_x_min(self):
+        """Align along x-axis with min anchor: all left edges should line up."""
+        r1 = Rectangle(40, 20, x=0, y=0)
+        r2 = Rectangle(60, 20, x=50, y=30)
+        col = VCollection(r1, r2)
+        col.align_children(axis='x', anchor='min')
+        # Left edges (bbox x) should be the same
+        x1 = r1.bbox(0)[0]
+        x2 = r2.bbox(0)[0]
+        assert x1 == pytest.approx(x2, abs=1)
+
+    def test_align_children_x_max(self):
+        """Align along x-axis with max anchor: all right edges should line up."""
+        r1 = Rectangle(40, 20, x=0, y=0)
+        r2 = Rectangle(60, 20, x=50, y=30)
+        col = VCollection(r1, r2)
+        col.align_children(axis='x', anchor='max')
+        # Right edges should be the same
+        b1 = r1.bbox(0)
+        b2 = r2.bbox(0)
+        right1 = b1[0] + b1[2]
+        right2 = b2[0] + b2[2]
+        assert right1 == pytest.approx(right2, abs=1)
+
+    def test_align_children_y_min(self):
+        """Align along y-axis with min anchor: all top edges should line up."""
+        r1 = Rectangle(40, 20, x=0, y=0)
+        r2 = Rectangle(40, 30, x=50, y=40)
+        col = VCollection(r1, r2)
+        col.align_children(axis='y', anchor='min')
+        y1 = r1.bbox(0)[1]
+        y2 = r2.bbox(0)[1]
+        assert y1 == pytest.approx(y2, abs=1)
+
+    def test_align_children_returns_self(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=50, cy=50)
+        col = VCollection(c1, c2)
+        result = col.align_children()
+        assert result is col
+
+    def test_align_children_single_child(self):
+        """Single child should be a no-op."""
+        c1 = Circle(r=10, cx=42, cy=42)
+        col = VCollection(c1)
+        col.align_children(axis='x')
+        cx = c1.center(0)[0]
+        assert cx == pytest.approx(42, abs=1)
+
+    def test_align_children_reference_is_mean(self):
+        """The reference value should be the mean of all children's anchor values."""
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=100, cy=0)
+        col = VCollection(c1, c2)
+        col.align_children(axis='x', anchor='center')
+        # Mean of 0 and 100 is 50
+        cx1 = c1.center(0)[0]
+        cx2 = c2.center(0)[0]
+        assert cx1 == pytest.approx(50, abs=1)
+        assert cx2 == pytest.approx(50, abs=1)

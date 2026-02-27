@@ -213,6 +213,37 @@ class Polygon(VObject):
             pairs.append((pts[-1], pts[0]))
         return [math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in pairs]
 
+    def to_path(self, time=0):
+        """Convert the polygon to a :class:`Path` object.
+
+        Returns a new Path whose ``d`` attribute is the SVG path string
+        of this polygon at *time*.  Styling (stroke, fill, opacity, etc.)
+        is copied from the polygon's current values at *time*.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read vertex positions and styling.
+
+        Returns
+        -------
+        Path
+        """
+        d = self.path(time)
+        # Snapshot styling values at the given time.
+        # Color attributes return rgb(...) strings from at_time(), but the
+        # constructor expects hex or tuples.  Use the raw time_func to get
+        # the (r, g, b) tuple for color attrs.
+        style_kwargs = {}
+        for name in ('fill_opacity', 'stroke_width',
+                      'stroke_opacity', 'opacity', 'stroke_dasharray',
+                      'stroke_linecap', 'stroke_linejoin'):
+            style_kwargs[name] = getattr(self.styling, name).at_time(time)
+        for name in ('fill', 'stroke'):
+            attr = getattr(self.styling, name)
+            style_kwargs[name] = attr.time_func(time)
+        return Path(d, **style_kwargs)
+
     def get_longest_edge(self, time=0):
         """Return the length of the longest edge."""
         lengths = self.edge_lengths(time)
@@ -4075,6 +4106,43 @@ class Line(VObject):
         """
         return self.perpendicular_at(t=t, length=length, time=time, **kwargs)
 
+    def intersection(self, other, time=0):
+        """Return the intersection of this line with *other*.
+
+        Dispatches based on the type of *other*:
+
+        - If *other* is a :class:`Line`, delegates to
+          :meth:`intersect_segment` and returns a single ``(x, y)``
+          tuple or ``None``.
+        - If *other* is a :class:`Circle` (or :class:`Ellipse`),
+          delegates to ``other.intersect_line(self, time)`` and returns
+          a list of ``(x, y)`` tuples (may be empty).
+
+        Parameters
+        ----------
+        other:
+            A Line or Circle instance.
+        time:
+            Animation time at which to evaluate geometry.
+
+        Returns
+        -------
+        tuple | list | None
+            Single point for Line-Line (or None), list of points for
+            Line-Circle.
+
+        Raises
+        ------
+        TypeError
+            If *other* is not a Line or Circle.
+        """
+        if isinstance(other, Line):
+            return self.intersect_segment(other, time)
+        # Circle (and its subclass Ellipse with intersect_line)
+        if hasattr(other, 'intersect_line'):
+            return other.intersect_line(self, time)
+        raise TypeError(f"intersection not supported between Line and {type(other).__name__}")
+
     def reflect_over(self, other, time=0, **kwargs):
         """Reflect this line's endpoints over another line and return the result.
 
@@ -5047,6 +5115,54 @@ class Path(VObject):
             return (pt.real, pt.imag)
         pt = parsed.point(parsed.ilength(total * max(0, min(1, proportion))))
         return (pt.real, pt.imag)
+
+    def trim(self, t_start=0.0, t_end=1.0, time=0):
+        """Return a new Path representing the sub-path between proportions
+        *t_start* and *t_end* along the arc length.
+
+        Both parameters are clamped to ``[0, 1]`` and represent fractions of
+        the total arc length.  The styling of the returned Path is copied
+        from this Path at *time*.
+
+        Parameters
+        ----------
+        t_start:
+            Start proportion along the arc length (0 = path start).
+        t_end:
+            End proportion along the arc length (1 = path end).
+        time:
+            Animation time at which to read the path data.
+
+        Returns
+        -------
+        Path
+            A new Path covering the requested sub-range.
+        """
+        d = self.d.at_time(time)
+        if not d:
+            return Path('')
+        from svgpathtools import parse_path
+        parsed = parse_path(d)
+        total = parsed.length()
+        if total == 0:
+            return Path(d)
+        t_start = max(0.0, min(1.0, t_start))
+        t_end = max(0.0, min(1.0, t_end))
+        if t_start >= t_end:
+            return Path('')
+        T0 = parsed.ilength(total * t_start)
+        T1 = parsed.ilength(total * t_end)
+        sub = parsed.cropped(T0, T1)
+        # Copy styling.  Color attrs need raw tuples, not rendered strings.
+        style_kwargs = {}
+        for name in ('fill_opacity', 'stroke_width',
+                      'stroke_opacity', 'opacity', 'stroke_dasharray',
+                      'stroke_linecap', 'stroke_linejoin'):
+            style_kwargs[name] = getattr(self.styling, name).at_time(time)
+        for name in ('fill', 'stroke'):
+            attr = getattr(self.styling, name)
+            style_kwargs[name] = attr.time_func(time)
+        return Path(sub.d(), **style_kwargs)
 
     def path(self, time):
         return self.d.at_time(time)

@@ -11308,3 +11308,119 @@ class TestSetGradientFill:
         svg = c.to_svg(0)
         assert '<circle' in svg
         assert 'url(#' in svg
+
+
+class TestScaleToFit:
+    def test_scale_to_fit_width_only(self):
+        """Scaling to a target width preserves aspect ratio."""
+        r = Rectangle(200, 100, x=0, y=0)
+        result = r.scale_to_fit(width=100, start=0)
+        assert result is r
+        w = r.get_width(0)
+        h = r.get_height(0)
+        assert w == pytest.approx(100, abs=1)
+        assert h == pytest.approx(50, abs=1)
+
+    def test_scale_to_fit_height_only(self):
+        """Scaling to a target height preserves aspect ratio."""
+        r = Rectangle(200, 100, x=0, y=0)
+        r.scale_to_fit(height=200, start=0)
+        w = r.get_width(0)
+        h = r.get_height(0)
+        assert h == pytest.approx(200, abs=1)
+        assert w == pytest.approx(400, abs=1)
+
+    def test_scale_to_fit_both_width_constrains(self):
+        """When both given and width is more constraining, width wins."""
+        r = Rectangle(200, 100, x=0, y=0)
+        r.scale_to_fit(width=100, height=200, start=0)
+        w = r.get_width(0)
+        h = r.get_height(0)
+        # factor = min(100/200, 200/100) = min(0.5, 2) = 0.5
+        assert w == pytest.approx(100, abs=1)
+        assert h == pytest.approx(50, abs=1)
+
+    def test_scale_to_fit_both_height_constrains(self):
+        """When both given and height is more constraining, height wins."""
+        r = Rectangle(200, 100, x=0, y=0)
+        r.scale_to_fit(width=400, height=25, start=0)
+        # factor = min(400/200, 25/100) = min(2, 0.25) = 0.25
+        w = r.get_width(0)
+        h = r.get_height(0)
+        assert h == pytest.approx(25, abs=1)
+        assert w == pytest.approx(50, abs=1)
+
+    def test_scale_to_fit_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.scale_to_fit(width=50)
+        assert result is c
+
+    def test_scale_to_fit_no_args(self):
+        """Calling with no width/height does nothing."""
+        c = Circle(r=50, cx=100, cy=100)
+        w_before = c.get_width(0)
+        c.scale_to_fit()
+        assert c.get_width(0) == pytest.approx(w_before, abs=0.1)
+
+    def test_scale_to_fit_animated(self):
+        """Animated scale_to_fit with end parameter."""
+        r = Rectangle(200, 100, x=0, y=0)
+        r.scale_to_fit(width=100, start=0, end=1, easing=easings.linear)
+        # At start, still original size; at end, scaled down
+        w_end = r.get_width(1)
+        assert w_end == pytest.approx(100, abs=2)
+
+
+class TestSetBackstroke:
+    def test_set_backstroke_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.set_backstroke('#ffffff', width=10)
+        assert result is c
+
+    def test_set_backstroke_adds_paint_order(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_backstroke('#ffffff', width=10, start=0)
+        svg = c.to_svg(0)
+        assert 'paint-order' in svg
+        assert 'stroke fill' in svg
+
+    def test_set_backstroke_sets_stroke(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_backstroke('#ff0000', width=12, start=0)
+        sw = c.styling.stroke_width.at_time(0)
+        assert sw == pytest.approx(12)
+
+    def test_set_backstroke_not_active_before_start(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_backstroke('#ffffff', width=10, start=5)
+        svg = c.to_svg(0)
+        assert 'paint-order' not in svg
+
+    def test_set_backstroke_wraps_svg(self):
+        """The backstroke wraps the inner SVG in a <g> element."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_backstroke('#000', width=8, start=0)
+        svg = c.to_svg(0)
+        assert svg.startswith("<g style='paint-order: stroke fill'>")
+        assert '<circle' in svg
+        assert svg.endswith('</g>')
+
+
+class TestAnimateAlongObject:
+    def test_animate_along_object_returns_self(self):
+        dot = Circle(r=5, cx=0, cy=0)
+        target = Circle(r=100, cx=200, cy=200)
+        result = dot.animate_along_object(target, start=0, end=1)
+        assert result is dot
+
+    def test_animate_along_object_moves(self):
+        """The object should move from its initial position."""
+        dot = Circle(r=5, cx=200, cy=200)
+        target = Rectangle(200, 100, x=100, y=100)
+        dot.animate_along_object(target, start=0, end=1, easing=easings.linear)
+        # At some point during the animation the dot should have moved
+        cx_start = dot.center(0)
+        cx_mid = dot.center(0.5)
+        # The center should differ at the midpoint
+        dist = math.sqrt((cx_mid[0] - cx_start[0])**2 + (cx_mid[1] - cx_start[1])**2)
+        assert dist > 1  # should have moved noticeably

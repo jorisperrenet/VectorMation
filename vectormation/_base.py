@@ -669,6 +669,30 @@ class VObject(ABC):  # Vector Object
             ya.add(s, end, lambda t, _f=pos: _f(t)[1], stay=True)
         return self
 
+    def animate_along_object(self, target, start=0, end=1, easing=None):
+        """Move along the boundary/path of another VObject.
+
+        Extracts the SVG path string from *target* via ``target.path(start)``
+        and delegates to :meth:`along_path`.
+
+        Parameters
+        ----------
+        target:
+            The VObject whose boundary to follow.
+        start:
+            Start time of the animation.
+        end:
+            End time of the animation.
+        easing:
+            Easing function (defaults to ``easings.smooth``).
+
+        Returns self.
+        """
+        if easing is None:
+            easing = easings.smooth
+        path_d = target.path(start)
+        return self.along_path(start, end, path_d, easing=easing)
+
     def path_arc(self, tx, ty, start: float = 0, end: float = 1,
                  angle=math.pi / 2, easing=easings.smooth):
         """Move the object's center to (tx, ty) along a circular arc.
@@ -3415,6 +3439,36 @@ class VObject(ABC):  # Vector Object
         self.styling.stroke_dasharray.set_onward(start, pattern_str)
         return self
 
+    def set_backstroke(self, color='#000000', width=8, start=0):
+        """Add a background stroke for readability using ``paint-order: stroke fill``.
+
+        This renders the stroke *behind* the fill, which is useful for adding
+        an outline/halo to text or shapes so they remain readable on busy
+        backgrounds.
+
+        Parameters
+        ----------
+        color:
+            Stroke colour (CSS colour string).
+        width:
+            Stroke width in SVG units.
+        start:
+            Time from which the backstroke is visible.
+
+        Returns self.
+        """
+        self.set_stroke(color=color, width=width, start=start)
+        _orig_to_svg = self.to_svg
+
+        def _backstroke_to_svg(time, _orig=_orig_to_svg, _start=start):
+            inner = _orig(time)
+            if time >= _start:
+                return f"<g style='paint-order: stroke fill'>{inner}</g>"
+            return inner
+
+        self.to_svg = _backstroke_to_svg  # type: ignore[assignment]
+        return self
+
     def set_opacity(self, value, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Set fill_opacity and stroke opacity together. Animated if end is given."""
         for attr in (self.styling.fill_opacity, self.styling.opacity):
@@ -3502,6 +3556,43 @@ class VObject(ABC):  # Vector Object
         if mh > 0:
             self.scale(oh / mh, start=time)
         return self
+
+    def scale_to_fit(self, width=None, height=None, start=0, end=None, easing=None):
+        """Scale the object to fit within a bounding box, preserving aspect ratio.
+
+        If both *width* and *height* are given, the scale factor is chosen so the
+        object fits inside both constraints (``min(target_w / current_w,
+        target_h / current_h)``).  If only one dimension is given the factor is
+        computed from that dimension alone.
+
+        Parameters
+        ----------
+        width:
+            Target width in SVG units (or ``None`` to ignore).
+        height:
+            Target height in SVG units (or ``None`` to ignore).
+        start:
+            Time at which the change begins.
+        end:
+            Time at which the change ends (``None`` = instant).
+        easing:
+            Easing function (defaults to ``easings.smooth``).
+
+        Returns self.
+        """
+        cur_w = self.get_width(start)
+        cur_h = self.get_height(start)
+        if cur_w <= 0 and cur_h <= 0:
+            return self
+        factors = []
+        if width is not None and cur_w > 0:
+            factors.append(width / cur_w)
+        if height is not None and cur_h > 0:
+            factors.append(height / cur_h)
+        if not factors:
+            return self
+        factor = min(factors)
+        return self.scale(factor, start=start, end=end, easing=easing)
 
     def match_position(self, other, time: float = 0):
         """Move this object so its center matches *other*'s center at *time*."""
@@ -7403,6 +7494,115 @@ class VCollection:
                 method(**kw)
             else:
                 method(values[i], **kw)
+        return self
+
+    def connect_children(self, arrow=False, buff=0, start=0, **kwargs):
+        """Draw connecting lines or arrows between consecutive children.
+
+        For each pair of consecutive children ``(children[i], children[i+1])``,
+        a :class:`Line` (or :class:`Arrow` if *arrow* is ``True``) is created
+        from the right edge of child *i* to the left edge of child *i+1*.
+
+        The *buff* parameter shrinks each connector by that many pixels at
+        each end (useful to avoid overlapping the children).
+
+        All connectors are added to this collection. Returns the list of
+        connector objects.
+
+        Parameters
+        ----------
+        arrow:
+            If ``True``, use Arrow connectors instead of Lines.
+        buff:
+            Inset from each child edge in SVG units.
+        start:
+            Creation time for the connectors.
+        **kwargs:
+            Extra keyword arguments passed to the Line/Arrow constructor.
+
+        Returns
+        -------
+        list
+            The connector objects (also added to this collection).
+        """
+        connectors = []
+        for i in range(len(self.objects) - 1):
+            child_a = self.objects[i]
+            child_b = self.objects[i + 1]
+            x1, y1 = child_a.get_edge('right', time=start)
+            x2, y2 = child_b.get_edge('left', time=start)
+            # Apply buff: move start point right and end point left
+            dx = x2 - x1
+            dy = y2 - y1
+            length = math.sqrt(dx * dx + dy * dy)
+            if length > 0 and buff > 0:
+                ux, uy = dx / length, dy / length
+                x1 += ux * buff
+                y1 += uy * buff
+                x2 -= ux * buff
+                y2 -= uy * buff
+            if arrow:
+                from vectormation._composites import Arrow as _Arrow
+                connector = _Arrow(x1=x1, y1=y1, x2=x2, y2=y2,
+                                   creation=start, **kwargs)
+            else:
+                from vectormation._shapes import Line as _Line
+                connector = _Line(x1=x1, y1=y1, x2=x2, y2=y2,
+                                  creation=start, **kwargs)
+            connectors.append(connector)
+            self.objects.append(connector)
+        return connectors
+
+    def align_children(self, axis='x', anchor='center'):
+        """Align children along a shared axis.
+
+        For ``axis='x'``: aligns children's x-positions so they share the
+        same x-coordinate, based on *anchor* (``'min'`` = left edges,
+        ``'center'`` = centers, ``'max'`` = right edges).
+
+        For ``axis='y'``: same logic applied to y-positions (``'min'`` = top
+        edges, ``'center'`` = centers, ``'max'`` = bottom edges).
+
+        The reference value is the mean of all children's anchor values.
+        Each child is shifted to match that reference.
+
+        Parameters
+        ----------
+        axis:
+            ``'x'`` or ``'y'``.
+        anchor:
+            ``'min'``, ``'center'``, or ``'max'``.
+
+        Returns self.
+        """
+        if len(self.objects) < 2:
+            return self
+        # Compute anchor value for each child
+        values = []
+        for obj in self.objects:
+            x, y, w, h = obj.bbox(0)
+            if axis == 'x':
+                if anchor == 'min':
+                    values.append(x)
+                elif anchor == 'max':
+                    values.append(x + w)
+                else:  # center
+                    values.append(x + w / 2)
+            else:  # axis == 'y'
+                if anchor == 'min':
+                    values.append(y)
+                elif anchor == 'max':
+                    values.append(y + h)
+                else:  # center
+                    values.append(y + h / 2)
+        ref = sum(values) / len(values)
+        # Shift each child to match the reference
+        for obj, val in zip(self.objects, values):
+            delta = ref - val
+            if axis == 'x':
+                obj.shift(dx=delta, start_time=0)
+            else:
+                obj.shift(dy=delta, start_time=0)
         return self
 
 

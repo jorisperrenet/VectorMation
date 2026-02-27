@@ -6728,6 +6728,44 @@ class PieChart(VCollection):
         sector.shift(dx=dx, dy=dy, start_time=start, end_time=start + dur / 2, easing=easing)
         return self
 
+    def explode(self, indices, distance=20, start=0, end=None, easing=None):
+        """Permanently shift specified sectors outward from the pie center.
+
+        For each index in *indices*, the sector's bisect angle is computed
+        and the sector is shifted along that direction by *distance* pixels.
+
+        Parameters
+        ----------
+        indices:
+            Sequence of sector indices to explode.
+        distance:
+            How many pixels to shift each sector outward.
+        start:
+            Time at which the shift begins.
+        end:
+            Time at which the shift ends.  ``None`` means instant.
+        easing:
+            Easing function for the animation.
+
+        Returns
+        -------
+        self
+        """
+        total = sum(self.values) or 1
+        for idx in indices:
+            if idx < 0 or idx >= len(self._sectors):
+                continue
+            sector = self._sectors[idx]
+            # Compute the cumulative start angle for this sector
+            cum = sum(self.values[:idx])
+            start_a = 360 * cum / total + 90  # PieChart starts at 90 degrees
+            sweep = 360 * self.values[idx] / total
+            mid_rad = math.radians(start_a + sweep / 2)
+            dx = distance * math.cos(mid_rad)
+            dy = -distance * math.sin(mid_rad)
+            sector.shift(dx=dx, dy=dy, start_time=start, end_time=end, easing=easing or easings.smooth)
+        return self
+
     def animate_values(self, new_values, start=0, end=1, easing=easings.smooth):
         """Animate pie chart to new values by morphing sector angles."""
         if len(new_values) != len(self.values):
@@ -7285,6 +7323,9 @@ class Table(VCollection):
         self._cell_height = cell_height
         self._x_off = x_off
         self._y_off = y_off
+        self._font_size = font_size
+        self._line_kw = line_kw
+        self._z = z
 
     def get_entry(self, row, col):
         """Return the Text object at (row, col) for animation."""
@@ -7561,6 +7602,156 @@ class Table(VCollection):
                 row.append(col[r] if r < len(col) else '')
             grid.append(row)
         return cls(grid, col_labels=headers, **kwargs)
+
+    def add_row(self, values, start=0, animate=True):
+        """Append a new row to the bottom of the table.
+
+        Creates Text objects for each cell value, adds a horizontal
+        separator line, and extends the existing vertical lines downward.
+        If *animate* is True the new elements fade in at *start*.
+
+        Parameters
+        ----------
+        values:
+            Sequence of cell values (one per column).  Extra values are
+            silently ignored; missing columns get an empty string.
+        start:
+            Time at which the new row appears.
+        animate:
+            If True, new elements fade in over 0.5 seconds starting at
+            *start*.
+
+        Returns
+        -------
+        self
+        """
+        x = self._table_x
+        y_off = self._y_off
+        cw = self._cell_width
+        ch = self._cell_height
+        x_off = self._x_off
+        fs = self._font_size
+        z = self._z
+
+        new_row_idx = self.rows
+        row_y = self._table_y + y_off + new_row_idx * ch
+
+        # Horizontal line at the bottom of the new row
+        total_w = self.cols * cw + x_off
+        new_line_y = row_y + ch
+        h_line = Line(x1=x, y1=new_line_y, x2=x + total_w, y2=new_line_y,
+                      creation=start, z=z, **self._line_kw)
+
+        # Extend existing vertical lines downward by one cell height
+        # Vertical lines were created with y2 = y + total_h, so we need to
+        # extend them.  Instead, we just lengthen them.
+        for obj in self.objects:
+            if isinstance(obj, Line):
+                p1 = obj.p1.at_time(start)
+                p2 = obj.p2.at_time(start)
+                # Vertical line: same x for p1 and p2, goes from top to bottom
+                if abs(p1[0] - p2[0]) < 0.1 and p2[1] > p1[1]:
+                    old_y2 = p2[1]
+                    expected_bottom = self._table_y + y_off + self.rows * ch
+                    if abs(old_y2 - expected_bottom) < 1:
+                        obj.p2.add_onward(start, (p2[0], old_y2 + ch))
+
+        # Create text entries for the new row
+        new_entries = []
+        new_objects = [h_line]
+        for c in range(self.cols):
+            val = values[c] if c < len(values) else ''
+            cx = x + x_off + c * cw + cw / 2
+            cy = row_y + ch / 2 + fs * TEXT_Y_OFFSET
+            t = Text(text=str(val), x=cx, y=cy,
+                     font_size=fs, text_anchor='middle',
+                     creation=start, z=z, fill='#fff', stroke_width=0)
+            new_entries.append(t)
+            new_objects.append(t)
+
+        if animate:
+            for obj in new_objects:
+                obj.fadein(start=start, end=start + 0.5)
+
+        self.entries.append(new_entries)
+        self.rows += 1
+        for obj in new_objects:
+            self.objects.append(obj)
+        return self
+
+    def add_column(self, values, start=0, animate=True):
+        """Append a new column to the right of the table.
+
+        Creates Text objects for each cell value, adds a vertical
+        separator line, and extends the existing horizontal lines to the
+        right.  If *animate* is True the new elements fade in at *start*.
+
+        Parameters
+        ----------
+        values:
+            Sequence of cell values (one per row).  Extra values are
+            silently ignored; missing rows get an empty string.
+        start:
+            Time at which the new column appears.
+        animate:
+            If True, new elements fade in over 0.5 seconds starting at
+            *start*.
+
+        Returns
+        -------
+        self
+        """
+        x = self._table_x
+        y_off = self._y_off
+        cw = self._cell_width
+        ch = self._cell_height
+        x_off = self._x_off
+        fs = self._font_size
+        z = self._z
+
+        new_col_idx = self.cols
+        col_x = x + x_off + new_col_idx * cw
+
+        # Vertical line at the right edge of the new column
+        total_h = self.rows * ch + y_off
+        v_line = Line(x1=col_x + cw, y1=self._table_y + y_off,
+                      x2=col_x + cw, y2=self._table_y + total_h,
+                      creation=start, z=z, **self._line_kw)
+
+        # Extend existing horizontal lines to the right by one cell width
+        for obj in self.objects:
+            if isinstance(obj, Line):
+                p1 = obj.p1.at_time(start)
+                p2 = obj.p2.at_time(start)
+                # Horizontal line: same y for p1 and p2
+                if abs(p1[1] - p2[1]) < 0.1 and p2[0] > p1[0]:
+                    old_x2 = p2[0]
+                    expected_right = x + self.cols * cw + x_off
+                    if abs(old_x2 - expected_right) < 1:
+                        obj.p2.add_onward(start, (old_x2 + cw, p2[1]))
+
+        # Create text entries for the new column
+        new_objects = [v_line]
+        for r in range(self.rows):
+            val = values[r] if r < len(values) else ''
+            cx = col_x + cw / 2
+            cy = self._table_y + y_off + r * ch + ch / 2 + fs * TEXT_Y_OFFSET
+            t = Text(text=str(val), x=cx, y=cy,
+                     font_size=fs, text_anchor='middle',
+                     creation=start, z=z, fill='#fff', stroke_width=0)
+            # Extend the row's entry list
+            if r < len(self.entries):
+                self.entries[r].append(t)
+            new_objects.append(t)
+
+        if animate:
+            for obj in new_objects:
+                obj.fadein(start=start, end=start + 0.5)
+
+        self.cols += 1
+        for obj in new_objects:
+            self.objects.append(obj)
+        return self
 
     def __repr__(self):
         return f'Table({self.rows}x{self.cols})'
