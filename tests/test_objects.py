@@ -14316,3 +14316,29 @@ class TestPolygonLabelVertices:
         p = Polygon()
         labels = p.label_vertices()
         assert len(labels.objects) == 0
+
+
+class TestSpiral:
+    def test_basic(self):
+        from vectormation.objects import Spiral
+        s = Spiral()
+        svg = s.to_svg(0)
+        assert '<polyline' in svg or '<polygon' in svg
+        assert 'Spiral' in repr(s)
+
+    def test_custom_params(self):
+        from vectormation.objects import Spiral
+        s = Spiral(a=10, b=20, turns=3, num_points=100)
+        assert s._turns == 3
+
+    def test_log_spiral(self):
+        from vectormation.objects import Spiral
+        s = Spiral(a=5, b=0.1, turns=2, log_spiral=True)
+        svg = s.to_svg(0)
+        assert 'polyline' in svg or 'polygon' in svg
+
+    def test_vertex_count(self):
+        from vectormation.objects import Spiral
+        s = Spiral(num_points=200)
+        pts = s.get_vertices(0)
+        assert len(pts) == 200

@@ -2317,3 +2317,39 @@ class SierpinskiTriangle(VCollection):
 
     def __repr__(self):
         return f'SierpinskiTriangle({len(self.objects)} triangles)'
+
+
+class Spiral(Lines):
+    """Archimedean or logarithmic spiral.
+
+    Parameters
+    ----------
+    cx, cy : float
+        Center position.
+    a : float
+        Initial radius (distance from center at angle=0).
+    b : float
+        Growth rate per radian.
+    turns : float
+        Number of full turns.
+    num_points : int
+        Number of sample points.
+    log_spiral : bool
+        If True, use r = a * exp(b*theta) instead of r = a + b*theta.
+    """
+
+    def __init__(self, cx=960, cy=540, a=0, b=15, turns=5, num_points=500,
+                 log_spiral=False, creation: float = 0, z: float = 0, **styling_kwargs):
+        style_kw = {'stroke': '#58C4DD', 'fill_opacity': 0, 'stroke_width': 2} | styling_kwargs
+        max_theta = turns * math.tau
+        pts = []
+        for i in range(num_points):
+            theta = max_theta * i / (num_points - 1) if num_points > 1 else 0
+            r = a * math.exp(b * theta) if log_spiral else a + b * theta
+            pts.append((cx + r * math.cos(theta), cy + r * math.sin(theta)))
+        super().__init__(*pts, creation=creation, z=z, **style_kw)
+        self._cx, self._cy = cx, cy
+        self._turns = turns
+
+    def __repr__(self):
+        return f'Spiral(turns={self._turns})'
