@@ -7,6 +7,10 @@ import vectormation.style as style
 from vectormation._constants import SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS, _distance
 from vectormation._base import VObject, _set_attr
 
+def _cross2d(o, a, b):
+    """Cross product of vectors OA and OB (positive = CCW)."""
+    return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+
 def _cached_bbox(target):
     """Return a function that caches target.bbox(t) per time value."""
     _cache = [None, None]
@@ -526,10 +530,6 @@ class Polygon(VObject):
         if len(pts) < 3:
             raise ValueError("convex_hull requires at least 3 points")
 
-        def _cross(o, a, b):
-            """Cross product of vectors OA and OB (positive = CCW, negative = CW, zero = collinear)."""
-            return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
-
         # Find the leftmost (then bottommost in SVG coords) point as start
         start = min(pts, key=lambda p: (p[0], p[1]))
         hull = []
@@ -541,7 +541,7 @@ class Polygon(VObject):
             for p in pts:
                 if p == current:
                     continue
-                cross = _cross(current, candidate, p)
+                cross = _cross2d(current, candidate, p)
                 if cross < 0:
                     # p is more CCW — choose p as new candidate
                     candidate = p
@@ -949,13 +949,10 @@ class Polygon(VObject):
         if sa > 0:
             indices.reverse()
 
-        def _cross(o, a, b):
-            return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
-
         def _point_in_triangle(p, a, b, c):
-            d1 = _cross(p, a, b)
-            d2 = _cross(p, b, c)
-            d3 = _cross(p, c, a)
+            d1 = _cross2d(p, a, b)
+            d2 = _cross2d(p, b, c)
+            d3 = _cross2d(p, c, a)
             has_neg = (d1 < 0) or (d2 < 0) or (d3 < 0)
             has_pos = (d1 > 0) or (d2 > 0) or (d3 > 0)
             return not (has_neg and has_pos)
@@ -967,7 +964,7 @@ class Polygon(VObject):
             next_i = idx_list[(i + 1) % n_idx]
             a, b, c = pts[prev_i], pts[curr_i], pts[next_i]
             # Must be convex (positive cross product for CCW winding)
-            if _cross(a, b, c) <= 0:
+            if _cross2d(a, b, c) <= 0:
                 return False
             # No other vertex inside this triangle
             for j in range(n_idx):
