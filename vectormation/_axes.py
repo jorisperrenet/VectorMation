@@ -467,6 +467,36 @@ class Axes(_AxesExtMixin, VCollection):
         self.animate_y_range(start, end, y_range, **kwargs)
         return self
 
+    def zoom_to_fit(self, func, x_range=None, padding=0.1, start=0, end=1, **kwargs):
+        """Animate axes ranges to fit a function's output with optional padding.
+
+        *func*: a callable f(x) -> y.
+        *x_range*: (lo, hi) for evaluation; defaults to current x range.
+        *padding*: fractional padding around data (0.1 = 10% on each side).
+        """
+        xmin = x_range[0] if x_range else self.x_min.at_time(start)
+        xmax = x_range[1] if x_range else self.x_max.at_time(start)
+        n = 200
+        step = (xmax - xmin) / n
+        ys = []
+        for i in range(n + 1):
+            try:
+                y = func(xmin + i * step)
+                if isinstance(y, (int, float)) and math.isfinite(y):
+                    ys.append(y)
+            except Exception:
+                continue
+        if not ys:
+            return self
+        ylo, yhi = min(ys), max(ys)
+        span = yhi - ylo or 1
+        ylo -= span * padding
+        yhi += span * padding
+        if x_range:
+            self.animate_x_range(start, end, x_range, **kwargs)
+        self.animate_y_range(start, end, (ylo, yhi), **kwargs)
+        return self
+
     def get_origin(self, time=0):
         """Return the SVG pixel coordinates of the axes origin (0, 0)."""
         return (self._math_to_svg_x(0, time), self._math_to_svg_y(0, time))
@@ -786,6 +816,8 @@ class Axes(_AxesExtMixin, VCollection):
 
     def plot_histogram(self, data, bins=10, creation=0, z=0, **styling_kwargs):
         """Plot a histogram from raw data values. Returns a VCollection of Rectangles."""
+        if not data:
+            return VCollection()
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.5,
                     'stroke': '#58C4DD', 'stroke_width': 1} | styling_kwargs
         if isinstance(bins, int):

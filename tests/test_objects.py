@@ -14692,6 +14692,42 @@ class TestAxesGetOrigin:
         assert o1[1] == pytest.approx(o2[1])
 
 
+class TestAxesZoomToFit:
+    def test_zoom_to_fit_adjusts_y_range(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        ax.zoom_to_fit(lambda x: x ** 2, x_range=(0, 4))
+        # y range should end up near 0..16 + padding
+        yhi = ax.y_max.at_time(1)
+        assert yhi > 15
+
+    def test_zoom_to_fit_empty_function(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        # Function that always raises → should return self unchanged
+        result = ax.zoom_to_fit(lambda x: 1 / 0)
+        assert result is ax
+
+    def test_zoom_to_fit_with_padding(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-10, 10))
+        ax.zoom_to_fit(lambda x: 5, padding=0.5)
+        # Constant function y=5, span=1 (fallback), padding=0.5
+        ylo = ax.y_min.at_time(1)
+        yhi = ax.y_max.at_time(1)
+        assert ylo < 5
+        assert yhi > 5
+
+
+class TestPlotHistogramEmptyData:
+    def test_empty_data_returns_empty_collection(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 5))
+        result = ax.plot_histogram([])
+        assert len(result.objects) == 0
+
+    def test_empty_data_no_error(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 5))
+        result = ax.plot_histogram([], bins=5)
+        assert result is not None
+
+
 class TestBarChartGetBarsRenamed:
     def test_get_bars_default(self):
         bc = BarChart([10, 20, 30])
