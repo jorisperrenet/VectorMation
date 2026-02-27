@@ -13,7 +13,6 @@ from vectormation._arrows import Arrow, Brace
 from vectormation._svg_utils import from_svg
 from vectormation._axes_helpers import _TICK_FONT_SIZE
 
-
 class MorphObject(VCollection):
     """Morphs one object/collection into another over a time range.
     Must be added to the canvas. The source becomes hidden at start, target appears at end."""
@@ -123,7 +122,6 @@ class LabeledDot(VCollection):
         self.dot = dot
         self.label = text
 
-
 class TexObject(VCollection):
     """Renders LaTeX content as SVG paths via dvisvgm.
 
@@ -159,7 +157,6 @@ class TexObject(VCollection):
             obj.styling.dx.add_onward(creation, lambda t, _xm=xmin: self.x.at_time(t) - _xm)
             obj.styling.dy.add_onward(creation, lambda t, _ym=ymin: self.y.at_time(t) - _ym)
 
-
 class SplitTexObject:
     """Renders multiple lines of LaTeX, each as a separate TexObject.
     Supports indexing, iteration, and conversion to a single VCollection."""
@@ -170,8 +167,6 @@ class SplitTexObject:
     def __iter__(self): return iter(self.lines)
     def __getitem__(self, idx): return self.lines[idx]
     def __len__(self): return len(self.lines)
-
-
 
 class NumberLine(VCollection):
     """A number line with ticks and labels, with optional endpoint arrows.
@@ -796,8 +791,6 @@ class NumberLine(VCollection):
     def __repr__(self):
         return f'NumberLine([{self.x_start}, {self.x_end}], step={self.x_step})'
 
-
-
 class Table(VCollection):
     """Table for displaying tabular data with optional row/column labels.
 
@@ -1333,7 +1326,6 @@ class Table(VCollection):
     def __repr__(self):
         return f'Table({self.rows}x{self.cols})'
 
-
 class DynamicObject(VObject):
     """VObject whose SVG is regenerated each frame by calling func(time).
     func should return a VObject. Useful for reactive/always-redraw patterns."""
@@ -1361,7 +1353,6 @@ class DynamicObject(VObject):
 
     def bbox(self, time):
         return self._eval(time).bbox(time)
-
 
 class Matrix(VCollection):
     """Display a mathematical matrix with square bracket delimiters.
@@ -1447,8 +1438,6 @@ class Matrix(VCollection):
             if col < len(row):
                 row[col].flash_color(color, start=start, duration=end - start)
         return self
-
-
 
 class TexCountAnimation(DynamicObject):
     """Animated number display using pre-rendered LaTeX digit glyphs.
@@ -1555,14 +1544,10 @@ class TexCountAnimation(DynamicObject):
         self._last_val = target
         return self
 
-
 def always_redraw(func, creation=0, z=0):
     """Convenience wrapper: create a DynamicObject from a callable.
     func(time) should return a VObject."""
     return DynamicObject(func, creation=creation, z=z)
-
-
-
 
 def parse_args():
     """Parse common CLI arguments for VectorMation scripts."""
@@ -1578,7 +1563,6 @@ def parse_args():
     parser.add_argument('--end', type=float, default=None, help='End time in seconds')
     parser.add_argument('--hot-reload', action='store_true', help='Enable hot reload in browser')
     return parser.parse_args()
-
 
 class ParametricFunction(Lines):
     """A curve defined by a parametric function f(t) -> (x, y).

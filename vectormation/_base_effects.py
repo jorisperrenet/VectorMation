@@ -15,7 +15,6 @@ from vectormation._constants import (
     SMALL_BUFF, MED_SMALL_BUFF,
 )
 
-
 class _VObjectEffectsMixin:
     """Advanced animation and effect methods, mixed into VObject."""
     def scale_to_fit(self, width=None, height=None, start=0, end=None, easing=easings.smooth):
@@ -68,7 +67,6 @@ class _VObjectEffectsMixin:
         t = max(0.0, min(1.0, t))
         pt = parsed.point(parsed.ilength(t * total_length))
         return (pt.real, pt.imag)
-
 
     def connect(self, other, start_edge='right', end_edge='left', arrow=False,
                 follow=False, start=0, **kwargs):
@@ -1629,6 +1627,5 @@ class _VObjectEffectsMixin:
             rx.set_onward(end, fx)
             ry.set_onward(end, fy)
         return self
-
 
 # VCollection moved to _collection.py; re-export for backward compatibility.

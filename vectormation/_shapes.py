@@ -7,7 +7,6 @@ import vectormation.style as style
 from vectormation._constants import SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS, _distance
 from vectormation._base import VObject, _set_attr
 
-
 def _cached_bbox(target):
     """Return a function that caches target.bbox(t) per time value."""
     _cache = [None, None]
@@ -17,7 +16,6 @@ def _cached_bbox(target):
             _cache[1] = target.bbox(t)
         return _cache[1]
     return _bbox
-
 
 class Polygon(VObject):
     def __init__(self, *vertices, closed=True, z: float = 0, creation: float = 0, **styling_kwargs):
@@ -63,7 +61,6 @@ class Polygon(VObject):
         tag = 'polygon' if self.closed else 'polyline'
         pts = ' '.join(f'{x},{y}' for x, y in (v.at_time(time) for v in self.vertices))
         return f"<{tag} points='{pts}'{self.styling.svg_style(time)} />"
-
 
     def get_vertices(self, time=0):
         """Return a list of (x, y) tuples for each vertex."""
@@ -1194,7 +1191,6 @@ class Polygon(VObject):
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 
-
 class Ellipse(VObject):
     def __init__(self, rx: float = 120, ry: float = 60, cx: float = 960, cy: float = 540, z: float = 0, creation: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
@@ -1381,7 +1377,6 @@ class Ellipse(VObject):
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)
         return f"<ellipse cx='{cx}' cy='{cy}' rx='{self.rx.at_time(time)}' ry='{self.ry.at_time(time)}'{self.styling.svg_style(time)} />"
-
 
 class Circle(Ellipse):
     """Circle: Ellipse with rx == ry."""
@@ -2275,7 +2270,6 @@ class Circle(Ellipse):
         cx, cy = self.c.at_time(time)
         return f"<circle cx='{cx}' cy='{cy}' r='{self.rx.at_time(time)}'{self.styling.svg_style(time)} />"
 
-
 class Dot(Circle):
     """Small filled circle, no stroke."""
     def __init__(self, r: float = DEFAULT_DOT_RADIUS, cx: float = 960, cy: float = 540, z: float = 0, creation: float = 0, **styling_kwargs):
@@ -2285,7 +2279,6 @@ class Dot(Circle):
     def __repr__(self):
         cx, cy = self.c.at_time(0)
         return f'Dot(cx={cx:.0f}, cy={cy:.0f})'
-
 
 class Rectangle(VObject):
     def __init__(self, width, height, x=960, y=540, rx=0, ry=0, creation: float = 0, z: float = 0, **styling_kwargs):
@@ -2837,7 +2830,6 @@ class Rectangle(VObject):
     def __repr__(self):
         return f'{self.__class__.__name__}({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f})'
 
-
 class Lines(Polygon):
     """Open polyline — a Polygon with closed=False."""
     def __init__(self, *vertices, creation: float = 0, z: float = 0, **styling_kwargs):
@@ -2845,7 +2837,6 @@ class Lines(Polygon):
 
     def __repr__(self):
         return f'Lines({len(self.vertices)} vertices)'
-
 
 class RegularPolygon(Polygon):
     """Regular n-sided polygon inscribed in a circle of given radius."""
@@ -2882,7 +2873,6 @@ class RegularPolygon(Polygon):
     def __repr__(self):
         return f'RegularPolygon(n={self._n}, r={self._radius:.0f})'
 
-
 class Star(Polygon):
     """Star polygon with n outer points. outer_radius and inner_radius control the shape."""
     def __init__(self, n=5, outer_radius=120, inner_radius=None, cx=960, cy=540,
@@ -2912,7 +2902,6 @@ class Star(Polygon):
     def __repr__(self):
         return f'Star(n={self._n}, outer={self._outer_radius:.0f}, inner={self._inner_radius:.0f})'
 
-
 class EquilateralTriangle(RegularPolygon):
     """Equilateral triangle: RegularPolygon with n=3.
     side_length is converted to the circumscribed radius."""
@@ -2924,7 +2913,6 @@ class EquilateralTriangle(RegularPolygon):
 
     def __repr__(self):
         return f'EquilateralTriangle(side={self._side_length:.0f})'
-
 
 class RoundedRectangle(Rectangle):
     """Rectangle with rounded corners (default corner_radius=10)."""
@@ -2944,7 +2932,6 @@ class RoundedRectangle(Rectangle):
         _set_attr(self.ry, start, end, value, easing)
         return self
 
-
 class SurroundingRectangle(RoundedRectangle):
     """Rectangle that surrounds a target object with padding.
     If follow=True (default), tracks the target as it moves."""
@@ -2960,7 +2947,6 @@ class SurroundingRectangle(RoundedRectangle):
             self.y.set_onward(creation, lambda t: _bbox(t)[1] - buff)
             self.width.set_onward(creation, lambda t: _bbox(t)[2] + 2*buff)
             self.height.set_onward(creation, lambda t: _bbox(t)[3] + 2*buff)
-
 
 class SurroundingCircle(Circle):
     """Circle that surrounds a target object with padding.
@@ -2978,7 +2964,6 @@ class SurroundingCircle(Circle):
             _r_func = lambda t: math.hypot(_bbox(t)[2], _bbox(t)[3]) / 2 + buff
             self.rx.set_onward(creation, _r_func)
             self.ry.set_onward(creation, _r_func)
-
 
 # Re-export extended shapes so `from vectormation._shapes import X` still works
 from vectormation._shapes_ext import (  # noqa: E402

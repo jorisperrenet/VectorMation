@@ -25,7 +25,6 @@ style._ATTR_NAMES.append('mix_blend_mode')
 style._RENDERED_DEFAULTS['mix_blend_mode'] = ''
 style.Styling.mix_blend_mode: attributes.String
 
-
 from vectormation._base_helpers import (
     _lerp, _ramp, _ramp_down, _lerp_point, _clip_reveal, _clip_hide,
     _norm_dir, _norm_edge, _coords_of, _set_attr, _parse_path, _path_prefix,
@@ -34,7 +33,6 @@ from vectormation._base_helpers import (
     _BBoxMethodsMixin,
 )
 from vectormation._base_effects import _VObjectEffectsMixin
-
 
 class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
     """Base class for all vector objects with time-varying attributes."""
@@ -2906,7 +2904,6 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if my_dim > 0:
             self.scale(other_dim / my_dim, start=time)
         return self
-
 
 from vectormation._collection import VCollection  # noqa: E402
 VGroup = VCollection

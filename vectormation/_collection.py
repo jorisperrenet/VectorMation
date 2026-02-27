@@ -1509,7 +1509,6 @@ class VCollection(_BBoxMethodsMixin):
                       easing=easing)
         return self
 
-
     def snake_layout(self, cols=None, buff=SMALL_BUFF, start: float = 0):
         """Arrange children in a snake/zigzag grid pattern.
 
@@ -2107,7 +2106,6 @@ class VCollection(_BBoxMethodsMixin):
             obj.fadein(start=s, end=e, easing=easing)
         return self
 
-
     def label_children(self, labels, direction=UP, buff=20, font_size=None, creation=0):
         """Create Text labels positioned relative to each child.
 
@@ -2356,7 +2354,6 @@ class VCollection(_BBoxMethodsMixin):
             kwargs_i = {key: values[i] for key, values in per_child_kwargs.items()}
             getattr(child, method_name)(**kwargs_i)
         return self
-
 
 VGroup = VCollection
 
