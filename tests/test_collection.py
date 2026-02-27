@@ -2550,3 +2550,96 @@ class TestCascadeFadein:
         assert c1.show.at_time(2) is True
         assert c2.show.at_time(2) is True
         assert c3.show.at_time(2) is True
+
+
+class TestInterleaveCollections:
+    def test_basic_interleave(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=20, cx=100, cy=100)
+        c3 = Circle(r=30, cx=200, cy=200)
+        c4 = Circle(r=40, cx=300, cy=300)
+        col_a = VCollection(c1, c2)
+        col_b = VCollection(c3, c4)
+        result = col_a.interleave(col_b)
+        assert isinstance(result, VCollection)
+        assert len(result) == 4
+        assert result[0] is c1
+        assert result[1] is c3
+        assert result[2] is c2
+        assert result[3] is c4
+
+    def test_does_not_modify_originals(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        c3 = Circle(r=30)
+        c4 = Circle(r=40)
+        col_a = VCollection(c1, c2)
+        col_b = VCollection(c3, c4)
+        col_a.interleave(col_b)
+        assert len(col_a) == 2
+        assert len(col_b) == 2
+        assert col_a[0] is c1
+        assert col_a[1] is c2
+
+    def test_unequal_lengths_first_longer(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        c3 = Circle(r=30)
+        col_a = VCollection(c1, c2, c3)
+        c4 = Circle(r=40)
+        col_b = VCollection(c4)
+        result = col_a.interleave(col_b)
+        assert len(result) == 4
+        assert result[0] is c1
+        assert result[1] is c4
+        assert result[2] is c2
+        assert result[3] is c3
+
+    def test_unequal_lengths_second_longer(self):
+        c1 = Circle(r=10)
+        col_a = VCollection(c1)
+        c2 = Circle(r=20)
+        c3 = Circle(r=30)
+        c4 = Circle(r=40)
+        col_b = VCollection(c2, c3, c4)
+        result = col_a.interleave(col_b)
+        assert len(result) == 4
+        assert result[0] is c1
+        assert result[1] is c2
+        assert result[2] is c3
+        assert result[3] is c4
+
+    def test_empty_collections(self):
+        col_a = VCollection()
+        col_b = VCollection()
+        result = col_a.interleave(col_b)
+        assert len(result) == 0
+
+    def test_one_empty(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        col_a = VCollection(c1, c2)
+        col_b = VCollection()
+        result = col_a.interleave(col_b)
+        assert len(result) == 2
+        assert result[0] is c1
+        assert result[1] is c2
+
+    def test_returns_new_vcollection(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        col_a = VCollection(c1)
+        col_b = VCollection(c2)
+        result = col_a.interleave(col_b)
+        assert result is not col_a
+        assert result is not col_b
+
+    def test_single_elements(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        col_a = VCollection(c1)
+        col_b = VCollection(c2)
+        result = col_a.interleave(col_b)
+        assert len(result) == 2
+        assert result[0] is c1
+        assert result[1] is c2

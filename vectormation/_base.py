@@ -14,6 +14,16 @@ import vectormation.attributes as attributes
 import vectormation.style as style
 import vectormation.morphing as morphing
 
+# Register mix-blend-mode as a styling attribute so it flows through svg_style().
+_BLEND_ENTRY = ('mix_blend_mode', 'mix-blend-mode', attributes.String, '', '')
+style._ATTR_SCHEMA.append(_BLEND_ENTRY)
+style._STYLE_PAIRS.append(('mix_blend_mode', 'mix-blend-mode'))
+style._STYLES.append('mix_blend_mode')
+style._GLOBAL_DEFAULTS['mix_blend_mode'] = ''
+style._ATTR_NAMES.append('mix_blend_mode')
+style._RENDERED_DEFAULTS['mix_blend_mode'] = ''
+style.Styling.mix_blend_mode: attributes.String
+
 
 def _path_prefix(path, t):
     """Return the first t-fraction (0-1) of a morphing.Path by arc length."""
@@ -4219,6 +4229,173 @@ class VObject(ABC):  # Vector Object
         self.rotate_by(start, end, tilt, easing=easing)
         return self
 
+    # -- Blend mode --
+
+    _VALID_BLEND_MODES = frozenset({
+        'normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten',
+        'color-dodge', 'color-burn',
+    })
+
+    def set_blend_mode(self, mode, start=0):
+        """Set the SVG mix-blend-mode on this object.
+
+        Supported modes: 'normal', 'multiply', 'screen', 'overlay',
+        'darken', 'lighten', 'color-dodge', 'color-burn'.
+
+        Parameters
+        ----------
+        mode:
+            One of the supported blend mode strings.
+        start:
+            Time from which the blend mode is active.
+
+        Returns
+        -------
+        self
+        """
+        if mode not in self._VALID_BLEND_MODES:
+            raise ValueError(
+                f"Unsupported blend mode '{mode}'. "
+                f"Must be one of: {', '.join(sorted(self._VALID_BLEND_MODES))}"
+            )
+        self.styling.mix_blend_mode.set_onward(start, mode)
+        return self
+
+    # -- Reveal clip --
+
+    _REVEAL_CLIP_TEMPLATES = {
+        'left':   lambda pct: f'inset(0 {pct:.1f}% 0 0)',   # reveals left to right
+        'right':  lambda pct: f'inset(0 0 0 {pct:.1f}%)',    # reveals right to left
+        'top':    lambda pct: f'inset(0 0 {pct:.1f}% 0)',    # reveals top to bottom
+        'bottom': lambda pct: f'inset({pct:.1f}% 0 0 0)',    # reveals bottom to top
+    }
+
+    def reveal_clip(self, start=0, end=1, direction='left', easing=easings.smooth):
+        """Progressive reveal using SVG clip-path.
+
+        Creates a clip-path inset rect that expands from one side, gradually
+        revealing the object.
+
+        Parameters
+        ----------
+        start, end:
+            Time interval for the reveal animation.
+        direction:
+            Which direction the reveal progresses: ``'left'`` (reveals left
+            to right), ``'right'`` (reveals right to left), ``'top'``
+            (reveals top to bottom), ``'bottom'`` (reveals bottom to top).
+        easing:
+            Easing function for the reveal progress.
+
+        Returns
+        -------
+        self
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        self._show_from(start)
+        _s, _d = start, max(dur, 1e-9)
+        tmpl = self._REVEAL_CLIP_TEMPLATES.get(
+            direction, self._REVEAL_CLIP_TEMPLATES['left'])
+        def _clip(t, _s=_s, _d=_d, _tmpl=tmpl, _e=easing):
+            return _tmpl(100 * (1 - _e((t - _s) / _d)))
+        self.styling.clip_path.set(start, end, _clip, stay=True)
+        return self
+
+    # -- Repeat animation --
+
+    def repeat_animation(self, method_name, count=2, start=0, end=1, **kwargs):
+        """Repeat an animation method *count* times within [start, end].
+
+        Divides the time evenly into *count* sub-intervals and calls
+        ``getattr(self, method_name)`` for each with the appropriate
+        ``start`` and ``end`` keyword arguments.
+
+        Parameters
+        ----------
+        method_name:
+            Name of an animation method on this object (e.g. ``'pulsate'``,
+            ``'shake'``, ``'fadein'``).
+        count:
+            Number of repetitions.
+        start, end:
+            Overall time interval.
+        **kwargs:
+            Extra keyword arguments forwarded to each invocation (excluding
+            ``start`` and ``end``).
+
+        Returns
+        -------
+        self
+        """
+        if count <= 0:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        slice_dur = dur / count
+        method = getattr(self, method_name)
+        for i in range(count):
+            s = start + i * slice_dur
+            e = s + slice_dur
+            method(start=s, end=e, **kwargs)
+        return self
+
+    # -- Elastic scale --
+
+    def elastic_scale(self, start=0, end=1, factor=1.5, easing=easings.smooth):
+        """Scale up elastically then bounce back to original size.
+
+        The object overshoots to *factor* at the start and then oscillates
+        back to its original scale using a damped cosine envelope.
+
+        Parameters
+        ----------
+        start, end:
+            Time interval for the animation.
+        factor:
+            Peak scale multiplier at the overshoot.
+        easing:
+            Easing function for overall progress.
+
+        Returns
+        -------
+        self
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        self._ensure_scale_origin(start)
+        sx0 = self.styling.scale_x.at_time(start)
+        sy0 = self.styling.scale_y.at_time(start)
+        _s, _d, _f = start, max(dur, 1e-9), factor
+        _sx0, _sy0 = sx0, sy0
+        _damp = 6.0
+        _freq = 2 * math.pi * 2.5
+
+        def _elastic_envelope(p):
+            """Damped cosine: 1 at p=0, oscillates toward 0 at p=1."""
+            if p <= 0:
+                return 1.0
+            if p >= 1:
+                return 0.0
+            return math.cos(_freq * p) * math.exp(-_damp * p)
+
+        def _esx(t, _s=_s, _d=_d, _f=_f, _sx0=_sx0, _easing=easing):
+            p = _easing((t - _s) / _d)
+            envelope = _elastic_envelope(p)
+            return _sx0 * (1 + (_f - 1) * envelope)
+
+        def _esy(t, _s=_s, _d=_d, _f=_f, _sy0=_sy0, _easing=easing):
+            p = _easing((t - _s) / _d)
+            envelope = _elastic_envelope(p)
+            return _sy0 * (1 + (_f - 1) * envelope)
+
+        self.styling.scale_x.set(start, end, _esx, stay=True)
+        self.styling.scale_y.set(start, end, _esy, stay=True)
+        return self
+
 
 class VCollection:
     """Container for a group of VObjects, delegating operations to children."""
@@ -6415,6 +6592,35 @@ class VCollection:
             e = s + child_dur
             obj.fadein(start=s, end=e, easing=easing)
         return self
+
+
+    def interleave(self, other_collection):
+        """Interleave children from this collection with children from another.
+
+        Returns a new VCollection with alternating children:
+        ``[self[0], other[0], self[1], other[1], ...]``.
+        If one collection is longer, the remaining children are appended.
+        Neither original collection is modified.
+
+        Parameters
+        ----------
+        other_collection:
+            Another VCollection (or VGroup) whose children to interleave with.
+
+        Returns
+        -------
+        VCollection
+            A new collection with the interleaved children.
+        """
+        result = []
+        a, b = self.objects, other_collection.objects
+        max_len = max(len(a), len(b))
+        for i in range(max_len):
+            if i < len(a):
+                result.append(a[i])
+            if i < len(b):
+                result.append(b[i])
+        return VCollection(*result)
 
 
 VGroup = VCollection

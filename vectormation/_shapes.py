@@ -298,6 +298,26 @@ class Polygon(VObject):
             new_pts.append((new_x, new_y))
         return Polygon(*new_pts, closed=self.closed)
 
+    def buffer(self, distance, time=0):
+        """Return a new Polygon offset outward by *distance* pixels.
+
+        Alias for :meth:`offset`.  Positive *distance* expands the polygon
+        outward, negative shrinks it inward.
+
+        Parameters
+        ----------
+        distance:
+            Offset distance in pixels.  Positive = outward, negative = inward.
+        time:
+            Animation time at which to read vertex positions.
+
+        Returns
+        -------
+        Polygon
+            A new Polygon with vertices moved along averaged edge normals.
+        """
+        return self.offset(distance, time=time)
+
     def inset(self, distance, time=0, **kwargs):
         """Return a new Polygon inset by *distance* pixels.
 
@@ -2119,6 +2139,33 @@ class Circle(Ellipse):
         r = self.rx.at_time(time)
         return RegularPolygon(n, radius=r, cx=cx, cy=cy, angle=start_angle, **kwargs)
 
+    def get_annulus(self, inner_ratio=0.5, time=0, **kwargs):
+        """Create an Annulus (ring) using this circle's center and radius.
+
+        The outer radius of the annulus equals this circle's radius; the inner
+        radius is ``inner_ratio * radius``.
+
+        Parameters
+        ----------
+        inner_ratio:
+            Fraction of the outer radius used as the inner radius.
+            Must be in (0, 1).  Default 0.5.
+        time:
+            Animation time at which to read the circle's center and radius.
+        **kwargs:
+            Extra keyword arguments forwarded to the :class:`Annulus`
+            constructor (e.g. ``fill``, ``stroke``).
+
+        Returns
+        -------
+        Annulus
+            A new Annulus centered on this circle.
+        """
+        cx, cy = self.c.at_time(time)
+        r = self.rx.at_time(time)
+        return Annulus(inner_radius=r * inner_ratio, outer_radius=r,
+                       cx=cx, cy=cy, **kwargs)
+
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)
         return f"<circle cx='{cx}' cy='{cy}' r='{self.rx.at_time(time)}'{self.styling.svg_style(time)} />"
@@ -3632,6 +3679,32 @@ class Line(VObject):
         p2 = other.project_point(*self.get_end(time), time=time)
         return Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **kwargs)
 
+    def get_normal_line(self, t=0.5, length=100, time=0, **kwargs):
+        """Return a Line perpendicular to this line at parameter t (0=p1, 1=p2).
+
+        The normal line is centered at the point on this line corresponding to
+        parameter *t*.  This is a convenience wrapper around
+        :meth:`perpendicular_at`.
+
+        Parameters
+        ----------
+        t:
+            Position along the line as a fraction (0 = start, 1 = end,
+            default 0.5 = midpoint).
+        length:
+            Total length of the perpendicular line (default 100).
+        time:
+            Animation time at which to evaluate the line endpoints.
+        **kwargs:
+            Extra keyword arguments forwarded to the new Line constructor.
+
+        Returns
+        -------
+        Line
+            A new Line perpendicular to this line at the given parameter.
+        """
+        return self.perpendicular_at(t=t, length=length, time=time, **kwargs)
+
     def reflect_over(self, other, time=0, **kwargs):
         """Reflect this line's endpoints over another line and return the result.
 
@@ -5006,6 +5079,29 @@ class Arc(VObject):
             # Go clockwise: a1 to a3 the other way
             cw_13 = 360 - ccw_13
             return cls(r=r, start_angle=a1, end_angle=a1 - cw_13, cx=ux, cy=uy, **kwargs)
+
+    def get_chord(self, time=0, **kwargs):
+        """Return a Line connecting the start and end points of the arc.
+
+        The chord is the straight line segment from the arc's start point
+        to its end point — useful for geometry visualizations.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to evaluate the arc geometry.
+        **kwargs:
+            Extra keyword arguments forwarded to the :class:`Line`
+            constructor (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        Line
+            A Line from the arc's start point to its end point.
+        """
+        x1, y1 = self.get_start_point(time)
+        x2, y2 = self.get_end_point(time)
+        return Line(x1=x1, y1=y1, x2=x2, y2=y2, **kwargs)
 
     def __repr__(self):
         return f'Arc(r={self.r.at_time(0):.0f}, {self.start_angle.at_time(0):.0f}°-{self.end_angle.at_time(0):.0f}°)'

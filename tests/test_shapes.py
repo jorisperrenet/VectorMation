@@ -8434,3 +8434,313 @@ class TestPolygonCentroidFormula:
         cx, cy = p.centroid()
         assert cx == pytest.approx(50, abs=1)
         assert cy == pytest.approx(0, abs=1)
+
+
+class TestLineGetNormalLine:
+    def test_returns_line_at_midpoint(self):
+        """get_normal_line at t=0.5 should return a line centered at midpoint."""
+        l = Line(x1=0, y1=0, x2=200, y2=0)
+        normal = l.get_normal_line(t=0.5, length=100)
+        assert isinstance(normal, Line)
+        mid = normal.get_midpoint()
+        assert mid[0] == pytest.approx(100, abs=1)
+        assert mid[1] == pytest.approx(0, abs=1)
+
+    def test_perpendicular_direction(self):
+        """Normal line should be perpendicular to the original."""
+        l = Line(x1=0, y1=0, x2=200, y2=0)
+        normal = l.get_normal_line(t=0.5, length=100)
+        # For a horizontal line, the normal should be vertical
+        p1 = normal.get_start()
+        p2 = normal.get_end()
+        assert p1[0] == pytest.approx(p2[0], abs=1)  # same x
+        assert abs(p2[1] - p1[1]) == pytest.approx(100, abs=1)  # length 100
+
+    def test_at_start(self):
+        """Normal at t=0 should be at p1."""
+        l = Line(x1=50, y1=50, x2=250, y2=50)
+        normal = l.get_normal_line(t=0, length=80)
+        mid = normal.get_midpoint()
+        assert mid[0] == pytest.approx(50, abs=1)
+        assert mid[1] == pytest.approx(50, abs=1)
+
+    def test_at_end(self):
+        """Normal at t=1 should be at p2."""
+        l = Line(x1=50, y1=50, x2=250, y2=50)
+        normal = l.get_normal_line(t=1, length=80)
+        mid = normal.get_midpoint()
+        assert mid[0] == pytest.approx(250, abs=1)
+        assert mid[1] == pytest.approx(50, abs=1)
+
+    def test_custom_length(self):
+        """Normal line should have the specified length."""
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        normal = l.get_normal_line(t=0.5, length=60)
+        assert normal.get_length() == pytest.approx(60, abs=1)
+
+    def test_delegates_to_perpendicular_at(self):
+        """Result should match perpendicular_at with same arguments."""
+        l = Line(x1=10, y1=20, x2=200, y2=150)
+        n1 = l.get_normal_line(t=0.3, length=80)
+        n2 = l.perpendicular_at(t=0.3, length=80)
+        assert n1.get_start() == pytest.approx(n2.get_start(), abs=1e-6)
+        assert n1.get_end() == pytest.approx(n2.get_end(), abs=1e-6)
+
+    def test_kwargs_forwarded(self):
+        """Extra kwargs should be forwarded to the Line constructor."""
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        normal = l.get_normal_line(t=0.5, length=50, stroke='#ff0000')
+        svg = normal.to_svg(0)
+        assert '255,0,0' in svg or 'ff0000' in svg
+
+
+class TestCircleGetAnnulus:
+    def test_returns_annulus(self):
+        """get_annulus should return an Annulus instance."""
+        c = Circle(r=100, cx=500, cy=300)
+        ann = c.get_annulus()
+        assert isinstance(ann, Annulus)
+
+    def test_outer_radius_matches_circle(self):
+        """Outer radius should equal the circle's radius."""
+        c = Circle(r=120, cx=400, cy=400)
+        ann = c.get_annulus()
+        assert ann.get_outer_radius() == pytest.approx(120, abs=1)
+
+    def test_inner_radius_default(self):
+        """Default inner_ratio=0.5 should give inner radius = r/2."""
+        c = Circle(r=100, cx=500, cy=300)
+        ann = c.get_annulus()
+        assert ann.get_inner_radius() == pytest.approx(50, abs=1)
+
+    def test_custom_inner_ratio(self):
+        """Custom inner_ratio should scale the inner radius."""
+        c = Circle(r=200, cx=500, cy=300)
+        ann = c.get_annulus(inner_ratio=0.75)
+        assert ann.get_inner_radius() == pytest.approx(150, abs=1)
+        assert ann.get_outer_radius() == pytest.approx(200, abs=1)
+
+    def test_center_matches_circle(self):
+        """Annulus center should match the circle center."""
+        c = Circle(r=80, cx=100, cy=200)
+        ann = c.get_annulus()
+        cx, cy = ann.c.at_time(0)
+        assert cx == pytest.approx(100)
+        assert cy == pytest.approx(200)
+
+    def test_kwargs_forwarded(self):
+        """Extra kwargs should be forwarded to Annulus constructor."""
+        c = Circle(r=100, cx=500, cy=300)
+        ann = c.get_annulus(fill='#ff0000')
+        svg = ann.to_svg(0)
+        assert '255,0,0' in svg or 'ff0000' in svg
+
+    def test_svg_output(self):
+        """Annulus should produce valid SVG output."""
+        c = Circle(r=100, cx=500, cy=300)
+        ann = c.get_annulus()
+        svg = ann.to_svg(0)
+        assert '<path' in svg
+        assert 'fill-rule' in svg
+
+
+class TestTableAnimateCellValues:
+    def test_numeric_interpolation(self):
+        """Numeric cells should interpolate between old and new values."""
+        t = Table([[10, 20], [30, 40]])
+        t.animate_cell_values([[50, 60], [70, 80]], start=0, end=1)
+        # At midpoint, values should be interpolated
+        mid_val = t.entries[0][0].text.at_time(0.5)
+        # Should be between 10 and 50 (around 30 with smooth easing)
+        val = float(mid_val)
+        assert 10 < val < 50
+
+    def test_numeric_reaches_target(self):
+        """Numeric cells should reach the target value at end."""
+        t = Table([[10, 20], [30, 40]])
+        t.animate_cell_values([[100, 200], [300, 400]], start=0, end=1)
+        assert t.entries[0][0].text.at_time(1) == '100'
+        assert t.entries[0][1].text.at_time(1) == '200'
+        assert t.entries[1][0].text.at_time(1) == '300'
+        assert t.entries[1][1].text.at_time(1) == '400'
+
+    def test_text_swap_at_midpoint(self):
+        """Non-numeric text should swap at the midpoint."""
+        t = Table([['A', 'B'], ['C', 'D']])
+        t.animate_cell_values([['X', 'Y'], ['Z', 'W']], start=0, end=2)
+        # Before midpoint, old value
+        assert t.entries[0][0].text.at_time(0.5) == 'A'
+        # After midpoint, new value
+        assert t.entries[0][0].text.at_time(1.5) == 'X'
+
+    def test_returns_self(self):
+        """animate_cell_values should return self for chaining."""
+        t = Table([[1, 2]])
+        result = t.animate_cell_values([[3, 4]], start=0, end=1)
+        assert result is t
+
+    def test_zero_duration(self):
+        """With start==end, values should change instantly."""
+        t = Table([[10, 20]])
+        t.animate_cell_values([[99, 88]], start=0, end=0)
+        assert t.entries[0][0].text.at_time(0) == '99'
+        assert t.entries[0][1].text.at_time(0) == '88'
+
+
+class TestAxesAddFunctionLabel:
+    def test_returns_text(self):
+        """add_function_label should return a Text object."""
+        axes = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        lbl = axes.add_function_label(lambda x: x**2, 'y = x^2', x_pos=2)
+        assert isinstance(lbl, Text)
+
+    def test_label_text_content(self):
+        """The label should contain the specified text."""
+        axes = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        lbl = axes.add_function_label(lambda x: x, 'f(x)', x_pos=3)
+        assert lbl.text.at_time(0) == 'f(x)'
+
+    def test_label_position_above(self):
+        """Label with direction='above' should be above the curve point."""
+        axes = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        func = lambda x: 0
+        lbl = axes.add_function_label(func, 'zero', x_pos=0, direction='above')
+        curve_y = axes._math_to_svg_y(0, 0)
+        label_y = lbl.y.at_time(0)
+        # 'above' means smaller y in SVG coords
+        assert label_y < curve_y
+
+    def test_label_position_below(self):
+        """Label with direction='below' should be below the curve point."""
+        axes = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        func = lambda x: 0
+        lbl = axes.add_function_label(func, 'zero', x_pos=0, direction='below')
+        curve_y = axes._math_to_svg_y(0, 0)
+        label_y = lbl.y.at_time(0)
+        # 'below' means larger y in SVG coords
+        assert label_y > curve_y
+
+    def test_uses_curve_func(self):
+        """Should accept a curve Path with ._func attribute."""
+        axes = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        curve = axes.add_function(lambda x: x**2)
+        lbl = axes.add_function_label(curve, 'parabola', x_pos=2)
+        assert isinstance(lbl, Text)
+        assert lbl.text.at_time(0) == 'parabola'
+
+    def test_default_x_pos_at_xmax(self):
+        """When x_pos=None, label should be positioned near x_max."""
+        axes = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        lbl = axes.add_function_label(lambda x: x, 'line')
+        # Label x should be near the right edge of the plot
+        label_x = lbl.x.at_time(0)
+        xmax_svg = axes._math_to_svg_x(5, 0)
+        assert abs(label_x - xmax_svg) < 50
+
+    def test_added_to_axes(self):
+        """The label should be added to the axes' objects."""
+        axes = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        lbl = axes.add_function_label(lambda x: x, 'test', x_pos=0)
+        assert lbl in axes.objects
+
+
+class TestPolygonBuffer:
+    def test_returns_polygon(self):
+        """buffer should return a Polygon."""
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        result = p.buffer(10)
+        assert isinstance(result, Polygon)
+
+    def test_offset_changes_area(self):
+        """buffer with non-zero distance should change the polygon area."""
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        buffered = p.buffer(10)
+        assert buffered.area() != pytest.approx(p.area(), abs=1)
+
+    def test_opposite_distance_reverses(self):
+        """Opposite distances should move vertices in opposite directions."""
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        b1 = p.buffer(10)
+        b2 = p.buffer(-10)
+        # One should be larger, one smaller than original
+        areas = sorted([b1.area(), p.area(), b2.area()])
+        assert areas[0] < areas[1] < areas[2]
+
+    def test_matches_offset(self):
+        """buffer should produce the same result as offset."""
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        b = p.buffer(15)
+        o = p.offset(15)
+        bv = b.get_vertices()
+        ov = o.get_vertices()
+        for bpt, opt in zip(bv, ov):
+            assert bpt[0] == pytest.approx(opt[0], abs=1e-6)
+            assert bpt[1] == pytest.approx(opt[1], abs=1e-6)
+
+    def test_preserves_closed_state(self):
+        """buffer should preserve whether the polygon is closed."""
+        p_open = Polygon((0, 0), (100, 0), (100, 100), closed=False)
+        result = p_open.buffer(5)
+        assert not result.closed
+
+    def test_zero_distance(self):
+        """buffer(0) should return a polygon with the same vertices."""
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        result = p.buffer(0)
+        orig = p.get_vertices()
+        new = result.get_vertices()
+        for o, n in zip(orig, new):
+            assert o[0] == pytest.approx(n[0], abs=1e-6)
+            assert o[1] == pytest.approx(n[1], abs=1e-6)
+
+
+class TestArcGetChord:
+    def test_returns_line(self):
+        """get_chord should return a Line instance."""
+        arc = Arc(cx=500, cy=300, r=100, start_angle=0, end_angle=90)
+        chord = arc.get_chord()
+        assert isinstance(chord, Line)
+
+    def test_chord_start_matches_arc_start(self):
+        """Chord start should match arc start point."""
+        arc = Arc(cx=500, cy=300, r=100, start_angle=0, end_angle=90)
+        chord = arc.get_chord()
+        arc_start = arc.get_start_point()
+        chord_start = chord.get_start()
+        assert chord_start[0] == pytest.approx(arc_start[0], abs=1e-6)
+        assert chord_start[1] == pytest.approx(arc_start[1], abs=1e-6)
+
+    def test_chord_end_matches_arc_end(self):
+        """Chord end should match arc end point."""
+        arc = Arc(cx=500, cy=300, r=100, start_angle=0, end_angle=90)
+        chord = arc.get_chord()
+        arc_end = arc.get_end_point()
+        chord_end = chord.get_end()
+        assert chord_end[0] == pytest.approx(arc_end[0], abs=1e-6)
+        assert chord_end[1] == pytest.approx(arc_end[1], abs=1e-6)
+
+    def test_chord_length_matches(self):
+        """Chord length should match get_chord_length."""
+        arc = Arc(cx=500, cy=300, r=100, start_angle=0, end_angle=90)
+        chord = arc.get_chord()
+        expected = arc.get_chord_length()
+        assert chord.get_length() == pytest.approx(expected, abs=1e-6)
+
+    def test_semicircle_chord_is_diameter(self):
+        """Chord of a semicircle should equal the diameter."""
+        arc = Arc(cx=500, cy=300, r=100, start_angle=0, end_angle=180)
+        chord = arc.get_chord()
+        assert chord.get_length() == pytest.approx(200, abs=1)
+
+    def test_kwargs_forwarded(self):
+        """Extra kwargs should be forwarded to Line constructor."""
+        arc = Arc(cx=500, cy=300, r=100, start_angle=0, end_angle=90)
+        chord = arc.get_chord(stroke='#ff0000')
+        svg = chord.to_svg(0)
+        assert '255,0,0' in svg or 'ff0000' in svg
+
+    def test_full_circle_chord_zero(self):
+        """Chord of a full circle should have near-zero length."""
+        arc = Arc(cx=500, cy=300, r=100, start_angle=0, end_angle=360)
+        chord = arc.get_chord()
+        assert chord.get_length() == pytest.approx(0, abs=1)

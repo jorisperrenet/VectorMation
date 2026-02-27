@@ -10208,3 +10208,215 @@ class TestTiltTowards:
         c.tilt_towards(200, 200, max_angle=30, start=0, end=1, easing=easings.linear)
         rot = c.styling.rotation.at_time(1)
         assert rot[0] == pytest.approx(30, abs=1)
+
+
+class TestSetBlendMode:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.set_blend_mode('multiply')
+        assert result is c
+
+    def test_sets_blend_mode_multiply(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_blend_mode('multiply', start=0)
+        assert c.styling.mix_blend_mode.at_time(0) == 'multiply'
+
+    def test_sets_blend_mode_screen(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_blend_mode('screen', start=0)
+        assert c.styling.mix_blend_mode.at_time(0) == 'screen'
+
+    def test_sets_blend_mode_overlay(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_blend_mode('overlay')
+        assert c.styling.mix_blend_mode.at_time(0) == 'overlay'
+
+    def test_blend_mode_appears_in_svg(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_blend_mode('darken', start=0)
+        svg = c.to_svg(0)
+        assert "mix-blend-mode='darken'" in svg
+
+    def test_invalid_blend_mode_raises(self):
+        c = Circle(r=50, cx=100, cy=100)
+        with pytest.raises(ValueError, match='Unsupported blend mode'):
+            c.set_blend_mode('invalid-mode')
+
+    def test_blend_mode_at_later_time(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_blend_mode('lighten', start=2)
+        # Before start, should be empty (default)
+        assert c.styling.mix_blend_mode.at_time(1) == ''
+        # At and after start, should be the mode
+        assert c.styling.mix_blend_mode.at_time(2) == 'lighten'
+
+    def test_all_valid_modes(self):
+        modes = ['normal', 'multiply', 'screen', 'overlay',
+                 'darken', 'lighten', 'color-dodge', 'color-burn']
+        for mode in modes:
+            c = Circle(r=50, cx=100, cy=100)
+            c.set_blend_mode(mode)
+            assert c.styling.mix_blend_mode.at_time(0) == mode
+
+
+class TestRevealClip:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.reveal_clip(start=0, end=1)
+        assert result is c
+
+    def test_shows_from_start(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.reveal_clip(start=0.5, end=1.5)
+        assert not c.show.at_time(0.4)
+        assert c.show.at_time(0.5)
+
+    def test_clip_path_set_at_start(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.reveal_clip(start=0, end=1, direction='left', easing=easings.linear)
+        clip = c.styling.clip_path.at_time(0)
+        # At start, fully clipped (100%)
+        assert 'inset' in clip
+        assert '100' in clip
+
+    def test_clip_path_cleared_at_end(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.reveal_clip(start=0, end=1, direction='left', easing=easings.linear)
+        clip = c.styling.clip_path.at_time(1)
+        # At end, fully revealed (0%)
+        assert 'inset(0 0.0% 0 0)' == clip
+
+    def test_left_direction(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.reveal_clip(start=0, end=1, direction='left', easing=easings.linear)
+        clip = c.styling.clip_path.at_time(0.5)
+        # At 50%, right inset should be 50%
+        assert 'inset(0 50.0% 0 0)' == clip
+
+    def test_right_direction(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.reveal_clip(start=0, end=1, direction='right', easing=easings.linear)
+        clip = c.styling.clip_path.at_time(0.5)
+        # At 50%, left inset should be 50%
+        assert 'inset(0 0 0 50.0%)' == clip
+
+    def test_top_direction(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.reveal_clip(start=0, end=1, direction='top', easing=easings.linear)
+        clip = c.styling.clip_path.at_time(0.5)
+        # At 50%, bottom inset should be 50%
+        assert 'inset(0 0 50.0% 0)' == clip
+
+    def test_bottom_direction(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.reveal_clip(start=0, end=1, direction='bottom', easing=easings.linear)
+        clip = c.styling.clip_path.at_time(0.5)
+        # At 50%, top inset should be 50%
+        assert 'inset(50.0% 0 0 0)' == clip
+
+    def test_zero_duration_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.reveal_clip(start=1, end=1)
+        assert result is c
+
+    def test_clip_appears_in_svg(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.reveal_clip(start=0, end=1, direction='left', easing=easings.linear)
+        svg = c.to_svg(0.5)
+        assert 'clip-path' in svg
+
+
+class TestRepeatAnimation:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.repeat_animation('pulsate', count=2, start=0, end=2)
+        assert result is c
+
+    def test_divides_time_evenly(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.repeat_animation('shake', count=3, start=0, end=3, amplitude=10)
+        # The shake method should have been called 3 times,
+        # just verify the object's last_change covers the full range
+        assert c.last_change >= 2.5
+
+    def test_two_repetitions_of_pulsate(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.repeat_animation('pulsate', count=2, start=0, end=2)
+        # At the midpoints of each repetition, scale should differ from 1
+        sx_mid1 = c.styling.scale_x.at_time(0.5)
+        sx_mid2 = c.styling.scale_x.at_time(1.5)
+        # Both midpoints should have non-default scale (pulsate changes scale)
+        assert sx_mid1 != pytest.approx(1.0, abs=0.01)
+        assert sx_mid2 != pytest.approx(1.0, abs=0.01)
+
+    def test_count_zero_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.repeat_animation('pulsate', count=0, start=0, end=1)
+        assert result is c
+
+    def test_zero_duration_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.repeat_animation('pulsate', count=2, start=1, end=1)
+        assert result is c
+
+    def test_single_repetition(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.repeat_animation('pulsate', count=1, start=0, end=1)
+        sx_mid = c.styling.scale_x.at_time(0.5)
+        assert sx_mid != pytest.approx(1.0, abs=0.01)
+
+    def test_kwargs_forwarded(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.repeat_animation('shake', count=2, start=0, end=2, amplitude=20)
+        # Verify the animation was applied (object has changes past t=0)
+        assert c.last_change >= 1.5
+
+
+class TestElasticScale:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.elastic_scale(start=0, end=2)
+        assert result is c
+
+    def test_starts_near_factor(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.elastic_scale(start=0, end=2, factor=1.5, easing=easings.linear)
+        # Very early on, the scale should be near the overshoot (factor=1.5)
+        sx_early = c.styling.scale_x.at_time(0.01)
+        # The damped cosine envelope starts at 1.0, so scale starts near factor
+        assert sx_early > 1.3
+
+    def test_settles_back_at_end(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.elastic_scale(start=0, end=2, factor=1.5, easing=easings.linear)
+        sx_end = c.styling.scale_x.at_time(2)
+        sy_end = c.styling.scale_y.at_time(2)
+        # At the end, should settle back near 1.0
+        assert sx_end == pytest.approx(1.0, abs=0.05)
+        assert sy_end == pytest.approx(1.0, abs=0.05)
+
+    def test_overshoots_during_animation(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.elastic_scale(start=0, end=2, factor=2.0, easing=easings.linear)
+        # Sample multiple points - the max scale should exceed 1.0
+        scales = [c.styling.scale_x.at_time(t) for t in [0.05, 0.1, 0.2, 0.3, 0.5]]
+        assert max(scales) > 1.0
+
+    def test_zero_duration_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.elastic_scale(start=1, end=1, factor=2.0)
+        assert result is c
+
+    def test_scale_y_matches_x(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.elastic_scale(start=0, end=2, factor=1.5, easing=easings.linear)
+        sx = c.styling.scale_x.at_time(0.3)
+        sy = c.styling.scale_y.at_time(0.3)
+        assert sx == pytest.approx(sy, abs=0.01)
+
+    def test_custom_factor(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.elastic_scale(start=0, end=2, factor=3.0, easing=easings.linear)
+        # Early scale should reflect the larger factor
+        sx_early = c.styling.scale_x.at_time(0.01)
+        assert sx_early > 1.5  # significantly above 1 for factor=3

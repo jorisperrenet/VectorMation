@@ -5028,6 +5028,79 @@ class Axes(VCollection):
         self._add_plot_obj(line)
         return line
 
+    def add_function_label(self, func_or_curve, label_text, x_pos=None,
+                           direction='above', font_size=24, creation=0, z=1, **kwargs):
+        """Add a text label near a function curve at a specific x-position.
+
+        If *func_or_curve* is a callable, it is used directly as ``y = f(x)``.
+        If it is a curve Path object with a ``_func`` attribute (as returned
+        by :meth:`add_function`), its stored function is used.
+
+        Parameters
+        ----------
+        func_or_curve:
+            A callable ``f(x) -> y`` or a Path object with ``._func``.
+        label_text:
+            The string to display.
+        x_pos:
+            Math x-coordinate at which to place the label.  If ``None``,
+            the label is placed at the rightmost visible x value (``x_max``).
+        direction:
+            ``'above'`` (default) or ``'below'`` — controls whether the
+            label appears above or below the curve.
+        font_size:
+            Font size of the label text.
+        creation:
+            Creation time for the returned Text object.
+        z:
+            Z-layer ordering.
+        **kwargs:
+            Extra keyword arguments forwarded to the :class:`Text`
+            constructor (e.g. ``fill``, ``stroke``).
+
+        Returns
+        -------
+        Text
+            The label Text object (already added to the axes).
+        """
+        func = getattr(func_or_curve, '_func', None) or func_or_curve
+        buff = 12
+        sign = -1 if direction == 'above' else 1
+
+        style_kw = {'fill': '#fff', 'stroke_width': 0, 'text_anchor': 'middle'} | kwargs
+        lbl = Text(text=str(label_text), x=0, y=0, font_size=font_size,
+                   creation=creation, z=z, **style_kw)
+
+        if x_pos is not None:
+            sx = self._math_to_svg_x(x_pos, creation)
+            try:
+                sy = self._math_to_svg_y(func(x_pos), creation)
+            except Exception:
+                sy = self.plot_y + self.plot_height / 2
+            lbl.x.set_onward(creation, sx)
+            lbl.y.set_onward(creation, sy + sign * (font_size / 2 + buff))
+        else:
+            # Dynamic: track x_max
+            _func = func
+            _buff = buff
+            _fs = font_size
+            _sign = sign
+            def _lbl_x(t, _f=_func):
+                xv = self.x_max.at_time(t)
+                return self._math_to_svg_x(xv, t)
+            def _lbl_y(t, _f=_func, _s=_sign, _b=_buff, _fz=_fs):
+                xv = self.x_max.at_time(t)
+                try:
+                    yv = _f(xv)
+                except Exception:
+                    yv = 0
+                return self._math_to_svg_y(yv, t) + _s * (_fz / 2 + _b)
+            lbl.x.set_onward(creation, _lbl_x)
+            lbl.y.set_onward(creation, _lbl_y)
+
+        self._add_plot_obj(lbl)
+        return lbl
+
     def __repr__(self):
         xn, xx = self.x_min.at_time(0), self.x_max.at_time(0)
         if self.y_min is not None:
@@ -6862,6 +6935,75 @@ class Table(VCollection):
                 dy = ys[new_pos] - ys[old_row]
                 for entry in self.entries[old_row]:
                     entry.shift(dx=0, dy=dy, start_time=start, end_time=end, easing=easing)
+        return self
+
+    def animate_cell_values(self, data, start=0, end=1, easing=None):
+        """Animate table cells changing to new values.
+
+        For each cell, the text transitions from its current value to the
+        corresponding value in *data*.  Numeric values are interpolated
+        smoothly (like CountAnimation); non-numeric text is swapped at the
+        midpoint of the animation.
+
+        Parameters
+        ----------
+        data:
+            A 2D list matching the table dimensions.  ``data[row][col]``
+            gives the target value for the cell at ``(row, col)``.
+        start:
+            Animation start time.
+        end:
+            Animation end time.
+        easing:
+            Easing function for the transition.  Defaults to
+            ``easings.smooth`` if ``None``.
+
+        Returns
+        -------
+        self
+        """
+        if easing is None:
+            easing = easings.smooth
+        dur = end - start
+        for r, row in enumerate(data):
+            for c, new_val in enumerate(row):
+                if r >= self.rows or c >= self.cols:
+                    continue
+                entry = self.entries[r][c]
+                old_text = entry.text.at_time(start)
+                new_text = str(new_val)
+                # Try numeric interpolation
+                try:
+                    old_num = float(old_text)
+                    new_num = float(new_text)
+                    # Detect if we should use integer formatting
+                    is_int = ('.' not in old_text and '.' not in new_text
+                              and old_num == int(old_num) and new_num == int(new_num))
+                    if dur <= 0:
+                        entry.text.set_onward(start, new_text)
+                    else:
+                        if is_int:
+                            entry.text.set(start, end,
+                                lambda t, _s=start, _d=dur, _ov=old_num, _nv=new_num, _e=easing:
+                                    str(int(round(_ov + (_nv - _ov) * _e((t - _s) / _d)))),
+                                stay=True)
+                        else:
+                            # Preserve decimal places from the new value
+                            dot_pos = new_text.find('.')
+                            decimals = len(new_text) - dot_pos - 1 if dot_pos >= 0 else 1
+                            fmt = f'{{:.{decimals}f}}'
+                            entry.text.set(start, end,
+                                lambda t, _s=start, _d=dur, _ov=old_num, _nv=new_num,
+                                       _e=easing, _fmt=fmt:
+                                    _fmt.format(_ov + (_nv - _ov) * _e((t - _s) / _d)),
+                                stay=True)
+                except (ValueError, TypeError):
+                    # Non-numeric: swap at midpoint
+                    if dur <= 0:
+                        entry.text.set_onward(start, new_text)
+                    else:
+                        mid = start + dur / 2
+                        entry.text.set_onward(mid, new_text)
         return self
 
     def animate_cells(self, cells, method_name='flash', start=0, delay=0.15, **kwargs):
