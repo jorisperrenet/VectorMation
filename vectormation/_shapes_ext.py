@@ -1271,6 +1271,31 @@ class Text(VObject):
             self._hide_from(end)
         return self
 
+    def word_by_word(self, start=0, end=1, change_existence=True):
+        """Reveal text one word at a time."""
+        if change_existence:
+            self._show_from(start)
+        full_text = self.text.at_time(start)
+        words = full_text.split(' ')
+        nw = len(words)
+        if nw == 0:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        # Build cumulative word boundaries
+        boundaries = []
+        for i in range(nw):
+            boundaries.append(' '.join(words[:i + 1]))
+        s = start
+        def _worded(t, _s=s, _d=dur, _n=nw, _b=boundaries):
+            progress = min(1, (t - _s) / _d)
+            idx = min(int(progress * _n), _n - 1)
+            return _b[idx]
+        self.text.set(s, end, _worded, stay=True)
+        self.text.set_onward(end, full_text)
+        return self
+
     def scramble(self, start=0, end=1, charset=None, change_existence=True):
         """Decode/reveal text from random characters. Characters settle left-to-right."""
         if change_existence:

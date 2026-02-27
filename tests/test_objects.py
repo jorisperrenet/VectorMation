@@ -39,6 +39,7 @@ from vectormation.objects import (
     ArrayViz, LinkedListViz, StackViz, QueueViz, LED,
     CANVAS_WIDTH, CANVAS_HEIGHT,
     pi_format, pi_ticks,
+    ParametricFunction,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -12007,7 +12008,7 @@ class TestPendulumObject:
         assert '<' in svg
 
     def test_custom_params(self):
-        p = Pendulum(pivot_x=500, pivot_y=200, length=300, amplitude=60)
+        p = Pendulum(pivot_x=500, pivot_y=200, length=300, angle=60)
         assert len(p.objects) > 0
 
 
@@ -13802,3 +13803,61 @@ class TestPiTickFormat:
         ax = Axes(x_range=(0, 10), y_range=(0, 100), y_ticks=[0, 50, 100])
         svg = ax.to_svg(0)
         assert '50' in svg
+
+
+# ── ParametricFunction ──────────────────────────────────────────────────────
+
+class TestParametricFunction:
+    def test_creates_circle(self):
+        import math
+        pf = ParametricFunction(lambda t: (960 + 100 * math.cos(t), 540 + 100 * math.sin(t)),
+                                t_range=(0, 2 * math.pi))
+        svg = pf.to_svg(0)
+        assert 'polyline' in svg
+
+    def test_custom_num_points(self):
+        pf = ParametricFunction(lambda t: (t * 100, t * 100), t_range=(0, 5), num_points=50)
+        assert pf._func is not None
+
+    def test_get_point(self):
+        pf = ParametricFunction(lambda t: (t * 100, t * 200), t_range=(0, 1))
+        x, y = pf.get_point(0.5)
+        assert abs(x - 50) < 1e-6
+        assert abs(y - 100) < 1e-6
+
+    def test_styling_kwargs(self):
+        pf = ParametricFunction(lambda t: (t, t), stroke='#FF0000', stroke_width=6)
+        svg = pf.to_svg(0)
+        assert 'rgb(255,0,0)' in svg or '#FF0000' in svg
+
+
+# ── DrawBorderThenFill (border_ratio) ────────────────────────────────────────
+
+class TestDrawBorderThenFillRatio:
+    def test_border_fraction(self):
+        r = Rectangle(100, 100, 500, 400)
+        r.draw_border_then_fill(start=0, end=1, border_fraction=0.7)
+        assert r.styling.fill_opacity.at_time(0) == 0
+        # Fill should still be 0 at mid-border phase
+        assert r.styling.fill_opacity.at_time(0.3) == pytest.approx(0, abs=0.01)
+
+
+# ── Text.word_by_word ───────────────────────────────────────────────────────
+
+class TestWordByWord:
+    def test_basic(self):
+        t = Text(text='Hello World Test', x=500, y=500)
+        t.word_by_word(start=0, end=3)
+        assert t.text.at_time(0) == 'Hello'
+        assert t.text.at_time(3) == 'Hello World Test'
+
+    def test_single_word(self):
+        t = Text(text='Hello', x=500, y=500)
+        t.word_by_word(start=0, end=1)
+        assert t.text.at_time(1) == 'Hello'
+
+    def test_change_existence(self):
+        t = Text(text='A B C', x=500, y=500)
+        t.word_by_word(start=1, end=3, change_existence=True)
+        assert t.show.at_time(0.5) == False
+        assert t.show.at_time(1.5) == True

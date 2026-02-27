@@ -54,7 +54,7 @@ from vectormation._axes_helpers import pi_format, pi_ticks
 
 from vectormation._composites import (
     MorphObject, LabeledDot, TexObject, SplitTexObject,
-    TexCountAnimation,
+    TexCountAnimation, ParametricFunction,
     NumberLine, Table, Matrix,
     DynamicObject,
     always_redraw, parse_args,

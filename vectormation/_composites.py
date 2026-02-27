@@ -1581,3 +1581,29 @@ def parse_args():
     return parser.parse_args()
 
 
+class ParametricFunction(Lines):
+    """A curve defined by a parametric function f(t) -> (x, y).
+
+    Parameters
+    ----------
+    func : callable
+        Function taking a float t and returning (x, y) in SVG coordinates.
+    t_range : tuple
+        (t_min, t_max) parameter range.
+    num_points : int
+        Number of sample points.
+    """
+    def __init__(self, func, t_range=(0, 1), num_points=200,
+                 creation=0, z=0, **styling_kwargs):
+        t_min, t_max = t_range
+        style_kw = {'stroke': '#58C4DD', 'stroke_width': 4, 'fill_opacity': 0} | styling_kwargs
+        pts = [func(t_min + (t_max - t_min) * i / max(num_points - 1, 1))
+               for i in range(num_points)]
+        super().__init__(*pts, creation=creation, z=z, **style_kw)
+        self._func = func
+        self._t_min, self._t_max = t_min, t_max
+
+    def get_point(self, t):
+        """Return (x, y) at parameter value t."""
+        return self._func(t)
+

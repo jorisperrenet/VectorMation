@@ -179,7 +179,7 @@ class UnitInterval:
     """A NumberLine from 0 to 1 -- commonly used for probabilities and parameters.
     Convenience wrapper with sensible defaults for [0, 1] range."""
     def __new__(cls, x=360, y=540, length=600, tick_step=0.1,
-                show_labels=True, label_step=0.2, font_size=18,
+                show_labels=True, font_size=18,
                 creation: float = 0, z: float = 0, **styling_kwargs):
         from vectormation._composites import NumberLine
         return NumberLine(x_range=(0, 1, tick_step), length=length,
@@ -255,7 +255,7 @@ class NeuralNetwork(VCollection):
 
     def __init__(self, layer_sizes, cx=960, cy=540, width=800, height=500,
                  neuron_radius=16, neuron_fill='#58C4DD', edge_color='#888',
-                 edge_width=1, creation: float = 0, z: float = 0, **kwargs):
+                 edge_width=1, creation: float = 0, z: float = 0):
         objects = []
         self._layers = []
         n_layers = len(layer_sizes)
@@ -266,11 +266,13 @@ class NeuralNetwork(VCollection):
         # Compute neuron positions
         x_left = cx - width / 2
         x_spacing = width / (n_layers - 1) if n_layers > 1 else 0
+        max_neurons = max(layer_sizes)
+        y_spacing = height / max(max_neurons - 1, 1) if max_neurons > 1 else 0
         layer_positions = []
         for li, n_neurons in enumerate(layer_sizes):
             lx = x_left + li * x_spacing
-            y_top = cy - (n_neurons - 1) * (neuron_radius * 3) / 2
-            positions = [(lx, y_top + ni * neuron_radius * 3)
+            y_top = cy - (n_neurons - 1) * y_spacing / 2
+            positions = [(lx, y_top + ni * y_spacing)
                          for ni in range(n_neurons)]
             layer_positions.append(positions)
 
@@ -367,7 +369,7 @@ class Pendulum(VCollection):
 
     def __init__(self, pivot_x=960, pivot_y=200, length=300, angle=30,
                  bob_radius=20, period=2.0, damping=0.0,
-                 start=0, end=5, creation: float = 0, z: float = 0, **kwargs):
+                 start=0, end=5, creation: float = 0, z: float = 0):
         self._pivot_x = pivot_x
         self._pivot_y = pivot_y
         self._length = length
