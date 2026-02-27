@@ -1061,3 +1061,126 @@ def Prism3D(n_sides=6, radius=1, height=2, center=(0, 0, 0),
                                  creation=creation, z=z))
 
     return faces
+
+
+# ---------------------------------------------------------------------------
+# Platonic solids
+# ---------------------------------------------------------------------------
+
+def _polyhedron_faces(vertices, face_indices, *,
+                      fill_color='#58C4DD', stroke_color='#FFFFFF',
+                      stroke_width=1, fill_opacity=0.8,
+                      cx=0, cy=0, cz=0, scale=1.0,
+                      creation=0, z=0):
+    """Build a list of Surface patches from vertex coords and face index lists."""
+    verts = [(cx + x * scale, cy + y * scale, cz + zz * scale) for x, y, zz in vertices]
+    faces = []
+    for idxs in face_indices:
+        pts = [verts[i] for i in idxs]
+
+        def _make_face(_pts=pts):
+            n = len(_pts)
+            def f(u, v):
+                # Fan triangulation from pts[0]; u selects triangle, v interpolates edge
+                tri = min(int(u * (n - 2)), n - 3)
+                a, b, c = _pts[0], _pts[tri + 1], _pts[tri + 2]
+                local_u = u * (n - 2) - tri
+                edge = (b[0] + local_u * (c[0] - b[0]),
+                        b[1] + local_u * (c[1] - b[1]),
+                        b[2] + local_u * (c[2] - b[2]))
+                return (a[0] + v * (edge[0] - a[0]),
+                        a[1] + v * (edge[1] - a[1]),
+                        a[2] + v * (edge[2] - a[2]))
+            return f
+
+        faces.append(Surface(_make_face(), u_range=(0, 1), v_range=(0, 1),
+                             resolution=(1, 1),
+                             fill_color=fill_color, stroke_color=stroke_color,
+                             stroke_width=stroke_width, fill_opacity=fill_opacity,
+                             creation=creation, z=z))
+    return faces
+
+
+def Tetrahedron(cx=0, cy=0, cz=0, size=1.0, *,
+                fill_color='#58C4DD', stroke_color='#FFFFFF',
+                stroke_width=1, fill_opacity=0.8, creation=0, z=0):
+    """Regular tetrahedron (4 triangular faces)."""
+    vertices = [
+        ( 1,  1,  1), ( 1, -1, -1),
+        (-1,  1, -1), (-1, -1,  1),
+    ]
+    face_indices = [(0, 1, 2), (0, 1, 3), (0, 2, 3), (1, 2, 3)]
+    return _polyhedron_faces(vertices, face_indices,
+                             fill_color=fill_color, stroke_color=stroke_color,
+                             stroke_width=stroke_width, fill_opacity=fill_opacity,
+                             cx=cx, cy=cy, cz=cz, scale=size,
+                             creation=creation, z=z)
+
+
+def Octahedron(cx=0, cy=0, cz=0, size=1.0, *,
+               fill_color='#58C4DD', stroke_color='#FFFFFF',
+               stroke_width=1, fill_opacity=0.8, creation=0, z=0):
+    """Regular octahedron (8 triangular faces)."""
+    vertices = [
+        ( 1,  0,  0), (-1,  0,  0),
+        ( 0,  1,  0), ( 0, -1,  0),
+        ( 0,  0,  1), ( 0,  0, -1),
+    ]
+    face_indices = [
+        (0, 2, 4), (2, 1, 4), (1, 3, 4), (3, 0, 4),
+        (0, 2, 5), (2, 1, 5), (1, 3, 5), (3, 0, 5),
+    ]
+    return _polyhedron_faces(vertices, face_indices,
+                             fill_color=fill_color, stroke_color=stroke_color,
+                             stroke_width=stroke_width, fill_opacity=fill_opacity,
+                             cx=cx, cy=cy, cz=cz, scale=size,
+                             creation=creation, z=z)
+
+
+def Icosahedron(cx=0, cy=0, cz=0, size=1.0, *,
+                fill_color='#58C4DD', stroke_color='#FFFFFF',
+                stroke_width=1, fill_opacity=0.8, creation=0, z=0):
+    """Regular icosahedron (20 triangular faces)."""
+    phi = (1 + 5 ** 0.5) / 2  # golden ratio
+    vertices = [
+        (-1,  phi, 0), ( 1,  phi, 0), (-1, -phi, 0), ( 1, -phi, 0),
+        (0, -1,  phi), (0,  1,  phi), (0, -1, -phi), (0,  1, -phi),
+        ( phi, 0, -1), ( phi, 0,  1), (-phi, 0, -1), (-phi, 0,  1),
+    ]
+    face_indices = [
+        (0, 11, 5), (0, 5, 1), (0, 1, 7), (0, 7, 10), (0, 10, 11),
+        (1, 5, 9), (5, 11, 4), (11, 10, 2), (10, 7, 6), (7, 1, 8),
+        (3, 9, 4), (3, 4, 2), (3, 2, 6), (3, 6, 8), (3, 8, 9),
+        (4, 9, 5), (2, 4, 11), (6, 2, 10), (8, 6, 7), (9, 8, 1),
+    ]
+    return _polyhedron_faces(vertices, face_indices,
+                             fill_color=fill_color, stroke_color=stroke_color,
+                             stroke_width=stroke_width, fill_opacity=fill_opacity,
+                             cx=cx, cy=cy, cz=cz, scale=size,
+                             creation=creation, z=z)
+
+
+def Dodecahedron(cx=0, cy=0, cz=0, size=1.0, *,
+                 fill_color='#58C4DD', stroke_color='#FFFFFF',
+                 stroke_width=1, fill_opacity=0.8, creation=0, z=0):
+    """Regular dodecahedron (12 pentagonal faces)."""
+    phi = (1 + 5 ** 0.5) / 2
+    ip = 1 / phi
+    vertices = [
+        ( 1,  1,  1), ( 1,  1, -1), ( 1, -1,  1), ( 1, -1, -1),
+        (-1,  1,  1), (-1,  1, -1), (-1, -1,  1), (-1, -1, -1),
+        (0,  ip,  phi), (0,  ip, -phi), (0, -ip,  phi), (0, -ip, -phi),
+        ( ip,  phi, 0), ( ip, -phi, 0), (-ip,  phi, 0), (-ip, -phi, 0),
+        ( phi, 0,  ip), ( phi, 0, -ip), (-phi, 0,  ip), (-phi, 0, -ip),
+    ]
+    face_indices = [
+        (0, 8, 10, 2, 16), (0, 16, 17, 1, 12), (0, 12, 14, 4, 8),
+        (1, 17, 3, 11, 9), (1, 9, 5, 14, 12), (2, 10, 6, 15, 13),
+        (2, 13, 3, 17, 16), (3, 13, 15, 7, 11), (4, 14, 5, 19, 18),
+        (4, 18, 6, 10, 8), (5, 9, 11, 7, 19), (6, 18, 19, 7, 15),
+    ]
+    return _polyhedron_faces(vertices, face_indices,
+                             fill_color=fill_color, stroke_color=stroke_color,
+                             stroke_width=stroke_width, fill_opacity=fill_opacity,
+                             cx=cx, cy=cy, cz=cz, scale=size,
+                             creation=creation, z=z)

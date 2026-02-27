@@ -123,4 +123,5 @@ from vectormation._threed import (
     ThreeDAxes, Surface, Sphere3D, Cube,
     Line3D, Arrow3D, Dot3D, ParametricCurve3D, Text3D,
     Cylinder3D, Cone3D, Torus3D, Prism3D,
+    Tetrahedron, Octahedron, Icosahedron, Dodecahedron,
 )

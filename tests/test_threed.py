@@ -8,6 +8,7 @@ from vectormation._threed import (
     _project_point, _face_normal, _parse_color_to_rgb, _shade_color, _nice_ticks,
     ThreeDAxes, Surface, Line3D, Dot3D, Arrow3D, ParametricCurve3D, Text3D,
     Sphere3D, Cube, Cylinder3D, Cone3D, Torus3D, Prism3D,
+    Tetrahedron, Octahedron, Icosahedron, Dodecahedron,
 )
 from vectormation._base import VCollection
 
@@ -757,3 +758,52 @@ class TestParametricCurve3DConvenience:
         curve2.set_color('#00ff00')
         assert curve._stroke == '#fff'
         assert curve2._stroke == '#00ff00'
+
+
+# ---------------------------------------------------------------------------
+# Platonic solids
+# ---------------------------------------------------------------------------
+
+class TestTetrahedron:
+    def test_face_count(self):
+        faces = Tetrahedron()
+        assert len(faces) == 4
+
+    def test_all_surfaces(self):
+        faces = Tetrahedron(fill_color='#ff0000')
+        for f in faces:
+            assert isinstance(f, Surface)
+
+    def test_custom_position(self):
+        faces = Tetrahedron(cx=1, cy=2, cz=3)
+        assert len(faces) == 4
+
+
+class TestOctahedron:
+    def test_face_count(self):
+        faces = Octahedron()
+        assert len(faces) == 8
+
+    def test_all_surfaces(self):
+        for f in Octahedron():
+            assert isinstance(f, Surface)
+
+
+class TestIcosahedron:
+    def test_face_count(self):
+        faces = Icosahedron()
+        assert len(faces) == 20
+
+    def test_all_surfaces(self):
+        for f in Icosahedron(size=2.0):
+            assert isinstance(f, Surface)
+
+
+class TestDodecahedron:
+    def test_face_count(self):
+        faces = Dodecahedron()
+        assert len(faces) == 12
+
+    def test_all_surfaces(self):
+        for f in Dodecahedron(fill_opacity=0.5):
+            assert isinstance(f, Surface)
