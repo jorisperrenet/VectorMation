@@ -3830,7 +3830,7 @@ class TestCubicBezierImprovements:
 
     def test_bbox_not_zero(self):
         cb = CubicBezier()
-        bx, by, bw, bh = cb.bbox(0)
+        _, _, bw, bh = cb.bbox(0)
         assert bw > 0 and bh > 0
 
 
@@ -4069,7 +4069,7 @@ class TestHSLColorUtilities:
     def test_adjust_hue(self):
         from vectormation.colors import adjust_hue, _hex_to_hsl
         c = adjust_hue('#FF0000', 120)
-        h, s, l = _hex_to_hsl(c)
+        h, _, _ = _hex_to_hsl(c)
         assert h == pytest.approx(120, abs=2)
 
     def test_saturate(self):
@@ -4301,7 +4301,7 @@ class TestNumberLineAddPointer:
         nl = NumberLine(x_range=(-5, 5, 1))
         ptr = nl.add_pointer(0)
         # The pointer triangle should be near the number_to_point(0) x position
-        px, py = nl.number_to_point(0)
+        _, _ = nl.number_to_point(0)
         svg = ptr.to_svg(0)
         assert svg  # renders without error
 
@@ -6937,3 +6937,125 @@ class TestMorphStyle:
         c1.morph_style(c2, start=0, end=2)
         sw_mid = c1.styling.stroke_width.at_time(1)
         assert 0.0 < sw_mid < 10.0
+
+
+class TestVObjectClone:
+    def test_clone_returns_same_type(self):
+        c = Circle(r=50, cx=100, cy=200)
+        c2 = c.clone()
+        assert isinstance(c2, Circle)
+
+    def test_clone_no_offset_same_position(self):
+        c = Circle(r=50, cx=100, cy=200)
+        c2 = c.clone()
+        cx2, cy2 = c2.c.at_time(0)
+        assert cx2 == pytest.approx(100)
+        assert cy2 == pytest.approx(200)
+
+    def test_clone_offset_x(self):
+        c = Circle(r=50, cx=100, cy=200)
+        c2 = c.clone(offset_x=50)
+        cx2, cy2 = c2.c.at_time(0)
+        assert cx2 == pytest.approx(150)
+        assert cy2 == pytest.approx(200)
+
+    def test_clone_offset_y(self):
+        c = Circle(r=50, cx=100, cy=200)
+        c2 = c.clone(offset_y=-30)
+        cx2, cy2 = c2.c.at_time(0)
+        assert cx2 == pytest.approx(100)
+        assert cy2 == pytest.approx(170)
+
+    def test_clone_both_offsets(self):
+        c = Circle(r=50, cx=100, cy=200)
+        c2 = c.clone(offset_x=20, offset_y=40)
+        cx2, cy2 = c2.c.at_time(0)
+        assert cx2 == pytest.approx(120)
+        assert cy2 == pytest.approx(240)
+
+    def test_clone_is_independent(self):
+        """Modifying the clone should not affect the original."""
+        c = Circle(r=50, cx=100, cy=200)
+        c2 = c.clone(offset_x=0)
+        c2.shift(dx=500)
+        cx_orig, _ = c.c.at_time(0)
+        assert cx_orig == pytest.approx(100)
+
+    def test_clone_rectangle(self):
+        r = Rectangle(width=100, height=50, x=10, y=20)
+        r2 = r.clone(offset_x=200, offset_y=100)
+        assert r2.x.at_time(0) == pytest.approx(210)
+        assert r2.y.at_time(0) == pytest.approx(120)
+
+
+class TestAxesFunctionMaxMin:
+    def test_get_function_max_parabola(self):
+        """-(x^2) has its maximum at x=0."""
+        import math
+        ax = Axes(x_range=(-3, 3), y_range=(-10, 1))
+        x, y = ax.get_function_max(lambda x: -(x ** 2), -3, 3)
+        assert x == pytest.approx(0.0, abs=0.1)
+        assert y == pytest.approx(0.0, abs=0.01)
+
+    def test_get_function_min_parabola(self):
+        """x^2 has its minimum at x=0."""
+        ax = Axes(x_range=(-3, 3), y_range=(-1, 10))
+        x, y = ax.get_function_min(lambda x: x ** 2, -3, 3)
+        assert x == pytest.approx(0.0, abs=0.1)
+        assert y == pytest.approx(0.0, abs=0.01)
+
+    def test_get_function_max_linear(self):
+        """f(x) = x has max at right end of domain."""
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        x, y = ax.get_function_max(lambda x: x, 0, 10)
+        assert x == pytest.approx(10.0, abs=0.1)
+        assert y == pytest.approx(10.0, abs=0.1)
+
+    def test_get_function_min_linear(self):
+        """f(x) = x has min at left end of domain."""
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        x, y = ax.get_function_min(lambda x: x, 0, 10)
+        assert x == pytest.approx(0.0, abs=0.1)
+        assert y == pytest.approx(0.0, abs=0.1)
+
+    def test_get_function_max_returns_tuple(self):
+        ax = Axes(x_range=(-1, 1), y_range=(-1, 1))
+        result = ax.get_function_max(lambda x: x, -1, 1)
+        assert isinstance(result, tuple)
+        assert len(result) == 2
+
+    def test_get_function_min_returns_tuple(self):
+        ax = Axes(x_range=(-1, 1), y_range=(-1, 1))
+        result = ax.get_function_min(lambda x: x, -1, 1)
+        assert isinstance(result, tuple)
+        assert len(result) == 2
+
+    def test_get_function_max_accepts_curve(self):
+        """get_function_max should work with a curve path returned by plot()."""
+        ax = Axes(x_range=(-2, 2), y_range=(-5, 5))
+        curve = ax.plot(lambda x: -(x ** 2))
+        x, y = ax.get_function_max(curve, -2, 2)
+        assert x == pytest.approx(0.0, abs=0.1)
+        assert y == pytest.approx(0.0, abs=0.01)
+
+    def test_get_function_min_accepts_curve(self):
+        """get_function_min should work with a curve path returned by plot()."""
+        ax = Axes(x_range=(-2, 2), y_range=(-5, 5))
+        curve = ax.plot(lambda x: x ** 2)
+        x, y = ax.get_function_min(curve, -2, 2)
+        assert x == pytest.approx(0.0, abs=0.1)
+        assert y == pytest.approx(0.0, abs=0.01)
+
+    def test_get_function_max_sine(self):
+        """sin(x) has max ~1 at x=pi/2 in [0, pi]."""
+        import math
+        ax = Axes(x_range=(0, 4), y_range=(-1, 1))
+        x, y = ax.get_function_max(math.sin, 0, math.pi)
+        assert y == pytest.approx(1.0, abs=0.01)
+
+    def test_get_function_min_sine(self):
+        """sin(x) has min ~-1 at x=3*pi/2 in [pi, 2*pi]."""
+        import math
+        ax = Axes(x_range=(0, 7), y_range=(-1, 1))
+        x, y = ax.get_function_min(math.sin, math.pi, 2 * math.pi)
+        assert y == pytest.approx(-1.0, abs=0.01)

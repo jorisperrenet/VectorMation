@@ -1312,6 +1312,106 @@ class Axes(VCollection):
         ys = [fn(x) for x in xs]
         return sum(0.5 * (ys[i] + ys[i + 1]) * step for i in range(n))
 
+    def get_function_max(self, func, x_start, x_end, samples=200):
+        """Find the x value where *func* achieves its maximum over [x_start, x_end].
+
+        Samples the function at *samples* equally-spaced x values and returns
+        the (x, y) pair with the largest y value.  Non-finite values (NaN, inf)
+        are skipped so that functions with singularities are handled safely.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x)`` or a curve Path with a ``._func`` attribute
+            (as returned by :meth:`plot`).
+        x_start, x_end:
+            Domain bounds in mathematical (axis) coordinates.
+        samples:
+            Number of equally-spaced sample points (default 200).
+
+        Returns
+        -------
+        (float, float)
+            ``(x, y)`` tuple where *y* is the maximum function value found.
+
+        Raises
+        ------
+        ValueError
+            If no finite function values are found in the given range.
+
+        Example
+        -------
+        >>> ax = Axes(x_range=(-3, 3), y_range=(-2, 2))
+        >>> ax.get_function_max(lambda x: -(x**2), -3, 3)   # (0.0, 0.0)
+        """
+        fn = self._resolve_func(func, 'func')
+        n = max(int(samples), 2)
+        step = (x_end - x_start) / n
+        best_x, best_y = None, None
+        for i in range(n + 1):
+            x = x_start + i * step
+            try:
+                y = fn(x)
+            except Exception:
+                continue
+            if not math.isfinite(y):
+                continue
+            if best_y is None or y > best_y:
+                best_x, best_y = x, y
+        if best_x is None:
+            raise ValueError('No finite function values found in the given range.')
+        return (best_x, best_y)
+
+    def get_function_min(self, func, x_start, x_end, samples=200):
+        """Find the x value where *func* achieves its minimum over [x_start, x_end].
+
+        Samples the function at *samples* equally-spaced x values and returns
+        the (x, y) pair with the smallest y value.  Non-finite values (NaN, inf)
+        are skipped so that functions with singularities are handled safely.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x)`` or a curve Path with a ``._func`` attribute
+            (as returned by :meth:`plot`).
+        x_start, x_end:
+            Domain bounds in mathematical (axis) coordinates.
+        samples:
+            Number of equally-spaced sample points (default 200).
+
+        Returns
+        -------
+        (float, float)
+            ``(x, y)`` tuple where *y* is the minimum function value found.
+
+        Raises
+        ------
+        ValueError
+            If no finite function values are found in the given range.
+
+        Example
+        -------
+        >>> ax = Axes(x_range=(-3, 3), y_range=(-2, 2))
+        >>> ax.get_function_min(lambda x: x**2, -3, 3)   # (0.0, 0.0)
+        """
+        fn = self._resolve_func(func, 'func')
+        n = max(int(samples), 2)
+        step = (x_end - x_start) / n
+        best_x, best_y = None, None
+        for i in range(n + 1):
+            x = x_start + i * step
+            try:
+                y = fn(x)
+            except Exception:
+                continue
+            if not math.isfinite(y):
+                continue
+            if best_y is None or y < best_y:
+                best_x, best_y = x, y
+        if best_x is None:
+            raise ValueError('No finite function values found in the given range.')
+        return (best_x, best_y)
+
     def add_legend(self, entries, position='upper right', font_size=18,
                     bg_color='#1a1a2e', bg_opacity=0.8, creation=0, z=10):
         """Add a legend box.

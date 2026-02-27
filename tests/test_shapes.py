@@ -3554,7 +3554,6 @@ class TestAxesGetAreaValue:
 
 class TestLineFromAngle:
     def test_zero_degrees_points_right(self):
-        import math
         line = Line.from_angle((0, 0), 0, 100)
         x2, y2 = line.p2.at_time(0)
         assert x2 == pytest.approx(100, abs=1e-9)
@@ -3562,7 +3561,6 @@ class TestLineFromAngle:
 
     def test_ninety_degrees_points_up_svgy(self):
         """90° CCW from x-axis points upward (negative y in SVG)."""
-        import math
         line = Line.from_angle((0, 0), 90, 100)
         x2, y2 = line.p2.at_time(0)
         assert x2 == pytest.approx(0, abs=1e-9)
@@ -3598,7 +3596,6 @@ class TestLineFromAngle:
 
     def test_equivalent_to_from_direction_at_zero(self):
         """from_angle(0°) should produce the same line as from_direction((1,0))."""
-        import math
         la = Line.from_angle((0, 0), 0, 200)
         ld = Line.from_direction((0, 0), (1, 0), 200)
         x2a, y2a = la.p2.at_time(0)
@@ -3622,7 +3619,6 @@ class TestEllipseEccentricity:
 
     def test_swapped_axes(self):
         """Eccentricity is symmetric: rx < ry gives the same result as rx > ry."""
-        import math
         e1 = Ellipse(rx=100, ry=60, cx=500, cy=400)
         e2 = Ellipse(rx=60, ry=100, cx=500, cy=400)
         assert e1.eccentricity() == pytest.approx(e2.eccentricity())
@@ -3687,3 +3683,85 @@ class TestAxesGetPlotArea:
         _, _, pw, ph = ax.get_plot_area()
         assert pw > 0
         assert ph > 0
+
+
+class TestCircleChord:
+    def test_chord_returns_line(self):
+        c = Circle(r=100, cx=200, cy=200)
+        ch = c.chord(0, 90)
+        assert isinstance(ch, Line)
+
+    def test_chord_endpoints_on_circle(self):
+        import math
+        c = Circle(r=100, cx=200, cy=200)
+        ch = c.chord(0, 180)
+        x1, y1 = ch.p1.at_time(0)
+        x2, y2 = ch.p2.at_time(0)
+        # 0 degrees -> (300, 200), 180 degrees -> (100, 200)
+        assert x1 == pytest.approx(300, abs=1e-6)
+        assert y1 == pytest.approx(200, abs=1e-6)
+        assert x2 == pytest.approx(100, abs=1e-6)
+        assert y2 == pytest.approx(200, abs=1e-6)
+
+    def test_chord_90_degrees(self):
+        import math
+        c = Circle(r=100, cx=0, cy=0)
+        ch = c.chord(0, 90)
+        x1, y1 = ch.p1.at_time(0)
+        x2, y2 = ch.p2.at_time(0)
+        # angle 0 -> (100, 0), angle 90 -> (0, -100) in SVG coords
+        assert x1 == pytest.approx(100, abs=1e-6)
+        assert y1 == pytest.approx(0, abs=1e-6)
+        assert x2 == pytest.approx(0, abs=1e-6)
+        assert y2 == pytest.approx(-100, abs=1e-6)
+
+    def test_chord_passes_kwargs(self):
+        c = Circle(r=50, cx=100, cy=100)
+        ch = c.chord(45, 225, stroke='#ff0000')
+        svg = ch.to_svg(0)
+        # Color may be rendered as rgb(255,0,0) internally
+        assert 'stroke=' in svg
+        assert 'ff0000' in svg.lower() or 'rgb(255,0,0)' in svg
+
+    def test_chord_same_angle_is_zero_length(self):
+        c = Circle(r=80, cx=100, cy=100)
+        ch = c.chord(45, 45)
+        x1, y1 = ch.p1.at_time(0)
+        x2, y2 = ch.p2.at_time(0)
+        assert x1 == pytest.approx(x2, abs=1e-6)
+        assert y1 == pytest.approx(y2, abs=1e-6)
+
+
+class TestRectangleFromCorners:
+    def test_basic(self):
+        r = Rectangle.from_corners(50, 100, 250, 300)
+        assert r.x.at_time(0) == pytest.approx(50)
+        assert r.y.at_time(0) == pytest.approx(100)
+        assert r.width.at_time(0) == pytest.approx(200)
+        assert r.height.at_time(0) == pytest.approx(200)
+
+    def test_reversed_corners(self):
+        # Bottom-right first, top-left second — should normalise
+        r = Rectangle.from_corners(250, 300, 50, 100)
+        assert r.x.at_time(0) == pytest.approx(50)
+        assert r.y.at_time(0) == pytest.approx(100)
+        assert r.width.at_time(0) == pytest.approx(200)
+        assert r.height.at_time(0) == pytest.approx(200)
+
+    def test_mixed_order(self):
+        r = Rectangle.from_corners(10, 90, 60, 30)
+        assert r.x.at_time(0) == pytest.approx(10)
+        assert r.y.at_time(0) == pytest.approx(30)
+        assert r.width.at_time(0) == pytest.approx(50)
+        assert r.height.at_time(0) == pytest.approx(60)
+
+    def test_kwargs_forwarded(self):
+        r = Rectangle.from_corners(0, 0, 100, 50, stroke='#abc123')
+        svg = r.to_svg(0)
+        # Color may be rendered as rgb(171,193,35) internally (#abc123 -> r=0xab=171, g=0xc1=193, b=0x23=35)
+        assert 'stroke=' in svg
+        assert 'abc123' in svg.lower() or 'rgb(171,193,35)' in svg or '171,193,35' in svg
+
+    def test_returns_rectangle_instance(self):
+        r = Rectangle.from_corners(0, 0, 100, 100)
+        assert isinstance(r, Rectangle)

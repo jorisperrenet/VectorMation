@@ -2299,16 +2299,63 @@ class VObject(ABC):  # Vector Object
         """Restore full opacity (undo dim)."""
         return self.dim(start=start, end=end, opacity=1.0, easing=easing)
 
-    def clone(self, count=1, dx=0, dy=0, start_time=0):
-        """Create copies of this object with position offsets.
-        Returns a VCollection of the clones (does NOT include the original)."""
+    def clone(self, offset_x=0, offset_y=0, *, count=None, dx=0, dy=0, start_time=0):
+        """Create a deep copy of this object, optionally shifted by an offset.
 
-        clones = []
-        for i in range(1, count + 1):
-            c = deepcopy(self)
-            c.shift(dx=dx * i, dy=dy * i, start_time=start_time)
-            clones.append(c)
-        return VCollection(*clones)
+        **Single-copy form** (default)::
+
+            clone(offset_x=0, offset_y=0)
+
+        Returns one independent deep copy of the object shifted by
+        *(offset_x, offset_y)* pixels.  This is the primary use-case — a
+        convenient ``copy()`` that also moves the duplicate into position.
+
+        **Multi-copy form** (legacy, for backwards compatibility)::
+
+            clone(count=N, dx=step_x, dy=step_y, start_time=t)
+
+        When *count* is given the method returns a :class:`VCollection` of
+        *count* clones where the i-th clone is shifted by *(dx*i, dy*i)*
+        from the original position.  The original is **not** included.
+
+        Parameters
+        ----------
+        offset_x:
+            Horizontal pixel offset for the single returned clone.
+        offset_y:
+            Vertical pixel offset for the single returned clone.
+        count:
+            When provided, switches to multi-copy mode and returns a
+            VCollection of *count* clones.
+        dx, dy:
+            Per-clone step offset used only in multi-copy mode.
+        start_time:
+            Animation time at which the positional shift is applied in
+            multi-copy mode.
+
+        Returns
+        -------
+        VObject or VCollection
+            A single deep copy when *count* is ``None`` (default), or a
+            :class:`VCollection` of *count* clones when *count* is given.
+
+        Examples
+        --------
+        >>> c = Circle(r=50, cx=100, cy=200)
+        >>> c2 = c.clone(offset_x=120)          # one copy 120 px to the right
+        >>> copies = c.clone(count=3, dx=100)   # three copies stepped by 100 px
+        """
+        if count is not None:
+            clones = []
+            for i in range(1, count + 1):
+                c = deepcopy(self)
+                c.shift(dx=dx * i, dy=dy * i, start_time=start_time)
+                clones.append(c)
+            return VCollection(*clones)
+        c = deepcopy(self)
+        if offset_x != 0 or offset_y != 0:
+            c.shift(dx=offset_x, dy=offset_y)
+        return c
 
     def get_angle_to(self, other, time=0):
         """Return the angle (in degrees) from this object's center to another's."""
@@ -2912,6 +2959,25 @@ class VCollection:
         for obj in self.objects:
             (yes if predicate(obj) else no).append(obj)
         return VCollection(*yes), VCollection(*no)
+
+    def enumerate_children(self):
+        """Return a list of (index, child) tuples for all children.
+
+        Convenience wrapper around the built-in ``enumerate`` so callers do
+        not need to access ``self.objects`` directly.
+
+        Returns
+        -------
+        list of (int, VObject)
+            Index-object pairs in insertion order.
+
+        Example
+        -------
+        >>> col = VCollection(Circle(), Rectangle(100, 50))
+        >>> for i, obj in col.enumerate_children():
+        ...     print(i, obj)
+        """
+        return list(enumerate(self.objects))
 
     def select(self, start=0, end=None):
         """Return a new VCollection with children at indices [start:end]."""

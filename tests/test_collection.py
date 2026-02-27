@@ -718,3 +718,52 @@ class TestVObjectSetVisible:
         c.set_visible(False, start=0)
         c.set_visible(True, start=1)
         assert c.show.at_time(1)
+
+
+class TestEnumerateChildren:
+    def test_returns_list(self):
+        c1 = Circle(r=50)
+        c2 = Circle(r=30)
+        col = VCollection(c1, c2)
+        result = col.enumerate_children()
+        assert isinstance(result, list)
+
+    def test_indices_correct(self):
+        c1 = Circle(r=50)
+        c2 = Circle(r=30)
+        c3 = Circle(r=10)
+        col = VCollection(c1, c2, c3)
+        result = col.enumerate_children()
+        assert len(result) == 3
+        assert result[0][0] == 0
+        assert result[1][0] == 1
+        assert result[2][0] == 2
+
+    def test_objects_correct(self):
+        c1 = Circle(r=50)
+        c2 = Circle(r=30)
+        col = VCollection(c1, c2)
+        result = col.enumerate_children()
+        assert result[0][1] is c1
+        assert result[1][1] is c2
+
+    def test_empty_collection(self):
+        col = VCollection()
+        result = col.enumerate_children()
+        assert result == []
+
+    def test_single_child(self):
+        c = Circle(r=50)
+        col = VCollection(c)
+        result = col.enumerate_children()
+        assert len(result) == 1
+        assert result[0] == (0, c)
+
+    def test_iterable_in_for_loop(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        col = VCollection(c1, c2)
+        seen = [(i, obj) for i, obj in col.enumerate_children()]
+        assert len(seen) == 2
+        assert seen[0][0] == 0
+        assert seen[1][0] == 1

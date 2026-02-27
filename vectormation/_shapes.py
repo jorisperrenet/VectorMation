@@ -632,6 +632,38 @@ class Circle(Ellipse):
                                **kwargs))
         return lines
 
+    def chord(self, angle1, angle2, time=0, **kwargs):
+        """Return a Line connecting two points on the circle at the given angles.
+
+        Both angles are measured in degrees, counter-clockwise from the
+        rightmost point (the standard mathematical convention, which maps to
+        SVG coordinates where y increases downward).
+
+        Parameters
+        ----------
+        angle1, angle2:
+            Angles in degrees for the two endpoints of the chord.
+        time:
+            Animation time at which to read the circle's center and radius.
+        **kwargs:
+            Extra styling keyword arguments forwarded to :class:`Line`
+            (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        Line
+            A Line segment connecting ``point_at_angle(angle1)`` to
+            ``point_at_angle(angle2)``.
+
+        Example
+        -------
+        >>> c = Circle(r=100, cx=200, cy=200)
+        >>> ch = c.chord(0, 90)   # connects (300,200) to (200,100)
+        """
+        x1, y1 = self.point_at_angle(angle1, time)
+        x2, y2 = self.point_at_angle(angle2, time)
+        return Line(x1=x1, y1=y1, x2=x2, y2=y2, **kwargs)
+
     def get_radius(self, time=0):
         return self.rx.at_time(time)
 
@@ -865,6 +897,40 @@ class Rectangle(VObject):
     def from_center(cls, cx, cy, width, height, **kwargs):
         """Create a Rectangle centered at (cx, cy) with the given width and height."""
         return cls(width, height, x=cx - width / 2, y=cy - height / 2, **kwargs)
+
+    @classmethod
+    def from_corners(cls, x1, y1, x2, y2, **kwargs):
+        """Create a Rectangle from two opposite corner points.
+
+        The two points do not need to be in any particular order — the
+        method normalises them so that ``(x, y)`` is always the top-left
+        corner and ``width``/``height`` are always positive.
+
+        Parameters
+        ----------
+        x1, y1:
+            First corner coordinates (e.g. top-left in SVG space).
+        x2, y2:
+            Opposite corner coordinates (e.g. bottom-right in SVG space).
+        **kwargs:
+            Extra keyword arguments forwarded to the Rectangle constructor
+            (e.g. ``stroke``, ``fill``, ``rx`` for rounded corners).
+
+        Returns
+        -------
+        Rectangle
+            A new Rectangle whose top-left corner is at
+            ``(min(x1,x2), min(y1,y2))`` with positive width and height.
+
+        Example
+        -------
+        >>> r = Rectangle.from_corners(50, 100, 250, 300)
+        >>> r.x.at_time(0), r.y.at_time(0)   # (50.0, 100.0)
+        >>> r.width.at_time(0), r.height.at_time(0)  # (200.0, 200.0)
+        """
+        lx, rx_ = min(x1, x2), max(x1, x2)
+        ty, by = min(y1, y2), max(y1, y2)
+        return cls(rx_ - lx, by - ty, x=lx, y=ty, **kwargs)
 
     def set_size(self, width, height, start=0, end=None, easing=easings.smooth):
         """Set both dimensions."""
