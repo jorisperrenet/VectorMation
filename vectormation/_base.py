@@ -2361,6 +2361,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         bcx, bcy = b.center(start)
         a.move_to(bcx, bcy, start=start, end=end, easing=easing)
         b.move_to(acx, acy, start=start, end=end, easing=easing)
+        return a
 
     def set_style(self, start: float = 0, **kwargs):
         """Set multiple styling attributes at once.

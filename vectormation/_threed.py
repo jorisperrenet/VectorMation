@@ -23,13 +23,11 @@ def _project_point(x, y, z, phi, theta, scale, cx, cy):
     svg_y = cy - screen_y * scale
     return svg_x, svg_y, depth
 
-
 def _face_normal(p0, p1, p2):
     """Cross product of (p1 - p0) x (p2 - p0)."""
     ax, ay, az = p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]
     bx, by, bz = p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2]
     return (ay * bz - az * by, az * bx - ax * bz, ax * by - ay * bx)
-
 
 def _parse_color_to_rgb(color_str):
     """Parse '#rrggbb' or '#rgb' to (r, g, b) ints."""
@@ -37,7 +35,6 @@ def _parse_color_to_rgb(color_str):
     if len(c) == 3:
         c = c[0] * 2 + c[1] * 2 + c[2] * 2
     return int(c[0:2], 16), int(c[2:4], 16), int(c[4:6], 16)
-
 
 def _shade_color(base_rgb, normal, light_dir):
     """Lambertian shading returning 'rgb(r,g,b)'."""
@@ -53,7 +50,6 @@ def _shade_color(base_rgb, normal, light_dir):
     b = min(255, int(base_rgb[2] * intensity))
     return f'rgb({r},{g},{b})'
 
-
 def _polyline_patch(points_3d, axes, time, stroke, stroke_width):
     """Project 3D points and return a (depth, svg_polyline) patch."""
     pts = []
@@ -67,7 +63,6 @@ def _polyline_patch(points_3d, axes, time, stroke, stroke_width):
            f'stroke="{stroke}" stroke-width="{stroke_width}"/>')
     return (depth, svg)
 
-
 def _frange(start, stop, step):
     """Generate float range values."""
     vals = []
@@ -76,7 +71,6 @@ def _frange(start, stop, step):
         vals.append(v)
         v += step
     return vals
-
 
 # ---------------------------------------------------------------------------
 # ThreeDAxes
@@ -464,7 +458,6 @@ class ThreeDAxes(VCollection):
         ymin, ymax = min(ys), max(ys)
         return (xmin, ymin, xmax - xmin, ymax - ymin)
 
-
 # ---------------------------------------------------------------------------
 # Surface
 # ---------------------------------------------------------------------------
@@ -598,7 +591,6 @@ class Surface(VObject):
     def _shift_reals(self):
         return []
 
-
 # ---------------------------------------------------------------------------
 # Wireframe helpers (backward compat, rendered as 3D patches)
 # ---------------------------------------------------------------------------
@@ -646,7 +638,6 @@ class _WireframeSurface:
 
         return patches
 
-
 class _ParametricWireframe:
     """Internal: parametric wireframe rendered via to_patches."""
 
@@ -690,7 +681,6 @@ class _ParametricWireframe:
 
         return patches
 
-
 # ---------------------------------------------------------------------------
 # 3D Primitives
 # ---------------------------------------------------------------------------
@@ -709,7 +699,6 @@ class _Primitive3D:
     def copy(self):
         """Return a deep copy of this object."""
         return deepcopy(self)
-
 
 class _SegmentPrimitive3D(_Primitive3D):
     """Base for 3D primitives defined by _start/_end endpoints."""
@@ -742,7 +731,6 @@ class _SegmentPrimitive3D(_Primitive3D):
         self._stroke = color
         return self
 
-
 class _PointPrimitive3D(_Primitive3D):
     """Base for 3D primitives located at a single point."""
 
@@ -765,7 +753,6 @@ class _PointPrimitive3D(_Primitive3D):
         self._fill = color
         return self
 
-
 class Line3D(_SegmentPrimitive3D):
     """A line segment in 3D space."""
 
@@ -786,7 +773,6 @@ class Line3D(_SegmentPrimitive3D):
         svg = (f'<line x1="{sx0:.1f}" y1="{sy0:.1f}" x2="{sx1:.1f}" y2="{sy1:.1f}" '
                f'stroke="{self._stroke}" stroke-width="{self._stroke_width}"/>')
         return [(depth, svg)]
-
 
 class Dot3D(_PointPrimitive3D):
     """A dot in 3D space."""
@@ -810,7 +796,6 @@ class Dot3D(_PointPrimitive3D):
         svg = (f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{self._radius}" '
                f'fill="{self._fill}" stroke="none"/>')
         return [(depth, svg)]
-
 
 class Arrow3D(_SegmentPrimitive3D):
     """An arrow in 3D space with a cone tip."""
@@ -855,7 +840,6 @@ class Arrow3D(_SegmentPrimitive3D):
 
         return patches
 
-
 class ParametricCurve3D(_Primitive3D):
     """A parametric curve in 3D space."""
 
@@ -882,7 +866,6 @@ class ParametricCurve3D(_Primitive3D):
         pts3d = [self._func(t0 + i * dt) for i in range(self._num_points + 1)]
         return [_polyline_patch(pts3d, axes, time, self._stroke, self._stroke_width)]
 
-
 # ---------------------------------------------------------------------------
 # Factory functions
 # ---------------------------------------------------------------------------
@@ -907,7 +890,6 @@ def Sphere3D(radius=1.5, center=(0, 0, 0), resolution=(16, 32),
                    stroke_width=stroke_width,
                    fill_opacity=fill_opacity,
                    creation=creation, z=z)
-
 
 class Text3D(_PointPrimitive3D):
     """A text label placed at a 3D position."""
@@ -934,7 +916,6 @@ class Text3D(_PointPrimitive3D):
                f'fill="{self._fill}" text-anchor="middle" dominant-baseline="middle" '
                f'font-family="sans-serif">{_xml_escape(self._text)}</text>')
         return [(depth, svg)]
-
 
 def Cube(side_length=2, center=(0, 0, 0), fill_color='#58C4DD',
          stroke_color='#333', stroke_width=0.5, fill_opacity=0.8,
@@ -968,7 +949,6 @@ def Cube(side_length=2, center=(0, 0, 0), fill_color='#58C4DD',
                              creation=creation, z=z))
     return faces
 
-
 def Cylinder3D(radius=1, height=2, center=(0, 0, 0), resolution=(16, 16),
                fill_color='#58C4DD', checkerboard_colors=None,
                stroke_color='#333', stroke_width=0.3, fill_opacity=0.9,
@@ -986,7 +966,6 @@ def Cylinder3D(radius=1, height=2, center=(0, 0, 0), resolution=(16, 16),
                    fill_color=fill_color, checkerboard_colors=checkerboard_colors,
                    stroke_color=stroke_color, stroke_width=stroke_width,
                    fill_opacity=fill_opacity, creation=creation, z=z)
-
 
 def Cone3D(radius=1, height=2, center=(0, 0, 0), resolution=(16, 16),
            fill_color='#58C4DD', checkerboard_colors=None,
@@ -1007,7 +986,6 @@ def Cone3D(radius=1, height=2, center=(0, 0, 0), resolution=(16, 16),
                    stroke_color=stroke_color, stroke_width=stroke_width,
                    fill_opacity=fill_opacity, creation=creation, z=z)
 
-
 def Torus3D(major_radius=2, minor_radius=0.5, center=(0, 0, 0),
             resolution=(24, 12),
             fill_color='#58C4DD', checkerboard_colors=None,
@@ -1026,7 +1004,6 @@ def Torus3D(major_radius=2, minor_radius=0.5, center=(0, 0, 0),
                    fill_color=fill_color, checkerboard_colors=checkerboard_colors,
                    stroke_color=stroke_color, stroke_width=stroke_width,
                    fill_opacity=fill_opacity, creation=creation, z=z)
-
 
 def Prism3D(n_sides=6, radius=1, height=2, center=(0, 0, 0),
             fill_color='#58C4DD', stroke_color='#333', stroke_width=0.5,

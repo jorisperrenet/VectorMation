@@ -5,7 +5,7 @@ from vectormation.objects import (
     Circle, Rectangle, Polygon, Line, Lines, RegularPolygon, Arc, Ellipse,
     Path, Trace, Text, Dot, AnnotationDot, Wedge, Sector, Star, RoundedRectangle, DashedLine,
     NumberLine, EquilateralTriangle, Triangle, Arrow, Vector, CurvedArrow, VObject, VCollection,
-    from_svg, CountAnimation, Annulus, FunctionGraph,
+    from_svg, CountAnimation, Annulus, FunctionGraph, Square, Integer,
     AnnularSector, PieChart, DonutChart, Axes, Brace, Table, BarChart,
 )
 from vectormation.attributes import Coor
@@ -11538,3 +11538,53 @@ class TestNumberLineAnimateRange:
         # Old x=50, new x=25, midpoint=37.5
         mid_x = tick1.p1.at_time(0.5)[0]
         assert mid_x == pytest.approx(37.5, abs=1)
+
+class TestSquare:
+    def test_square_is_rectangle(self):
+        s = Square(side=100)
+        assert isinstance(s, Rectangle)
+
+    def test_square_equal_sides(self):
+        s = Square(side=100)
+        assert s.width.at_time(0) == pytest.approx(100)
+        assert s.height.at_time(0) == pytest.approx(100)
+
+    def test_square_centered(self):
+        s = Square(side=100, x=500, y=300)
+        assert s.x.at_time(0) == pytest.approx(450)
+        assert s.y.at_time(0) == pytest.approx(250)
+
+    def test_square_repr(self):
+        s = Square(side=200)
+        assert 'Square' in repr(s)
+        assert '200' in repr(s)
+
+    def test_square_svg(self):
+        s = Square(side=50, x=100, y=100)
+        svg = s.to_svg(0)
+        assert '<rect' in svg
+
+
+class TestInteger:
+    def test_integer_is_decimal_number(self):
+        from vectormation.objects import DecimalNumber
+        i = Integer(42)
+        assert isinstance(i, DecimalNumber)
+
+    def test_integer_no_decimals(self):
+        i = Integer(42)
+        svg = i.to_svg(0)
+        assert '42' in svg
+        assert '42.' not in svg.replace('42.0', '')  # no decimal point in text
+
+    def test_integer_repr(self):
+        i = Integer(7)
+        assert 'Integer' in repr(i)
+        assert '7' in repr(i)
+
+    def test_integer_animate_value(self):
+        i = Integer(0)
+        i.animate_value(10, start=0, end=1)
+        # At time 0.5, should be ~5
+        svg = i.to_svg(0.5)
+        assert '5' in svg

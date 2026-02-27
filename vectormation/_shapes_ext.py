@@ -1200,6 +1200,16 @@ class DecimalNumber(Text):
     def __repr__(self):
         return f'DecimalNumber({self._tracker.at_time(0)})'
 
+class Integer(DecimalNumber):
+    """DecimalNumber that displays as an integer (no decimal places)."""
+    def __init__(self, value=0, x=960, y=540, font_size=48,
+                 text_anchor=None, creation: float = 0, z: float = 0, **styling_kwargs):
+        super().__init__(value, fmt='{:.0f}', x=x, y=y, font_size=font_size,
+                         text_anchor=text_anchor, creation=creation, z=z, **styling_kwargs)
+
+    def __repr__(self):
+        return f'Integer({self._tracker.at_time(0):.0f})'
+
 class Trace(VObject):
     """Follows a point every dt and renders as a polyline."""
     def __init__(self, point, start=0, end=None, dt=1/60, z: float = 0, **styling_kwargs):

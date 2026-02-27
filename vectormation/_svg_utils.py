@@ -14,11 +14,9 @@ from vectormation._shapes import (
     Polygon, Circle, Rectangle, Line, Lines, Text, Path, Arc, Ellipse,
 )
 
-
 def _get_brace():
     from vectormation._arrows import Brace
     return Brace
-
 
 # ---------------------------------------------------------------------------
 # SVG filter / clip definitions
@@ -40,7 +38,6 @@ class ClipPath:
     def clip_ref(self):
         return f'url(#{self.id})'
 
-
 class BlurFilter:
     """SVG Gaussian blur filter definition. Register with canvas.add_def().
     Apply to objects via styling: obj.styling.filter = 'url(#filter_id)'."""
@@ -58,7 +55,6 @@ class BlurFilter:
 
     def filter_ref(self):
         return f'url(#{self.id})'
-
 
 class DropShadowFilter:
     """SVG drop shadow filter definition. Register with canvas.add_def()."""
@@ -80,7 +76,6 @@ class DropShadowFilter:
 
     def filter_ref(self):
         return f'url(#{self.id})'
-
 
 # ---------------------------------------------------------------------------
 # Geometric annotations
@@ -224,7 +219,6 @@ class Angle(VCollection):
                 c.add_onward(s, lambda t, _s=s, _d=d: (dx * easing((t-_s)/_d), dy * easing((t-_s)/_d)), last_change=e)
         return self
 
-
 class RightAngle(VCollection):
     """Right angle indicator (small square) at a vertex between two perpendicular lines."""
     def __init__(self, vertex, p1, p2, size=18, creation: float = 0, z: float = 0, **styling_kwargs):
@@ -247,7 +241,6 @@ class RightAngle(VCollection):
     def __repr__(self):
         return 'RightAngle()'
 
-
 class Cross(VCollection):
     """X mark shape, useful for indicating errors or crossing out."""
     def __init__(self, size=36, cx=960, cy=540, creation: float = 0, z: float = 0, **styling_kwargs):
@@ -262,7 +255,6 @@ class Cross(VCollection):
     def __repr__(self):
         return 'Cross()'
 
-
 # ---------------------------------------------------------------------------
 # SVG parsing
 # ---------------------------------------------------------------------------
@@ -272,12 +264,10 @@ def _parse_svg_points(points_str):
     coords = [float(t) for t in re.split(r'[\s,]+', points_str.strip()) if t]
     return [(coords[i], coords[i+1]) for i in range(0, len(coords) - 1, 2)]
 
-
 def _parse_inline_style(style_str):
     """Parse CSS inline style string into a dict of presentation attributes."""
     return {k.strip(): v.strip() for part in style_str.split(';')
             if ':' in part for k, v in [part.split(':', 1)]}
-
 
 def from_svg(element, **styles):
     """Convert a bs4 SVG element to a VObject.
@@ -347,7 +337,6 @@ def from_svg(element, **styles):
     else:
         raise NotImplementedError(f'Type "{tag}" has no from_svg implemented')
 
-
 _SVG_SHAPE_TAGS = frozenset({'path', 'rect', 'circle', 'ellipse', 'line', 'polygon', 'polyline', 'text', 'g'})
 
 def from_svg_file(filepath, creation=0, z=0, **styles):
@@ -374,7 +363,6 @@ def from_svg_file(filepath, creation=0, z=0, **styles):
         except (KeyError, NotImplementedError, ValueError):
             continue
     return VCollection(*objects, creation=creation, z=z)
-
 
 # ---------------------------------------------------------------------------
 # ZoomedInset
@@ -458,7 +446,6 @@ class ZoomedInset(VObject):
             self.src_x.move_to(start, end, x, easing=easing)
             self.src_y.move_to(start, end, y, easing=easing)
         return self
-
 
 # ---------------------------------------------------------------------------
 # Boolean shape operations
@@ -566,7 +553,6 @@ class _BooleanOp(VObject):
         tx, ty = self._off_x.at_time(time), self._off_y.at_time(time)
         return (x + tx, y + ty, max(ax+aw, bx+bw) - x, max(ay+ah, by+bh) - y)
 
-
 class Union(_BooleanOp):
     """Boolean union — combined area of both shapes."""
     def to_svg(self, time):
@@ -578,7 +564,6 @@ class Union(_BooleanOp):
         sa = f"<path d='{pa}'{self._stroke_attrs(time)} clip-path='url(#nb{u})'/>"
         sb = f"<path d='{pb}'{self._stroke_attrs(time)} clip-path='url(#na{u})'/>"
         return self._wrap_group(defs + fill + sa + sb, time)
-
 
 class Difference(_BooleanOp):
     """Boolean difference: shape_a minus shape_b."""
@@ -598,11 +583,9 @@ class Difference(_BooleanOp):
         tx, ty = self._off_x.at_time(time), self._off_y.at_time(time)
         return (ax + tx, ay + ty, aw, ah)
 
-
 class Exclusion(_BooleanOp):
     """Boolean exclusion (XOR) — non-overlapping areas."""
     _fill_rule = 'evenodd'
-
 
 class Intersection(_BooleanOp):
     """Boolean intersection — only where both shapes overlap."""
@@ -627,7 +610,6 @@ class Intersection(_BooleanOp):
         y2 = min(ay + ah, by + bh)
         tx, ty = self._off_x.at_time(time), self._off_y.at_time(time)
         return (x + tx, y + ty, max(0, x2 - x), max(0, y2 - y))
-
 
 # ---------------------------------------------------------------------------
 # Standalone helper functions
@@ -667,7 +649,6 @@ def brace_between_points(p1, p2, direction=None, label=None, buff=0, depth=18,
     return Brace(dummy, direction=direction, label=label, buff=buff,
                  depth=depth, creation=creation, z=z, **styling_kwargs)
 
-
 # ---------------------------------------------------------------------------
 # Vector field visualizations
 # ---------------------------------------------------------------------------
@@ -706,7 +687,6 @@ class ArrowVectorField(VCollection):
     def __repr__(self):
         return 'ArrowVectorField()'
 
-
 class StreamLines(VCollection):
     """Animated flow lines for a vector field."""
     def __init__(self, func, x_range=(60, 1860, 200), y_range=(60, 1020, 200),
@@ -740,7 +720,6 @@ class StreamLines(VCollection):
 
     def __repr__(self):
         return 'StreamLines()'
-
 
 class Cutout(VObject):
     """Full-screen overlay with a rectangular cutout (spotlight effect)."""

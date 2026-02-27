@@ -7,14 +7,12 @@ from vectormation._constants import (
 from vectormation._base import VCollection
 from vectormation._shapes import Circle, Rectangle, Line, Text
 
-
 def _flash_fill(obj, color, start, end, default='#264653'):
     """Temporarily change an object's fill colour, reverting at *end*."""
     orig = obj.styling.fill.time_func(0)
     orig_hex = '#{:02x}{:02x}{:02x}'.format(*orig) if orig else default
     obj.set_fill(color=color, start=start)
     obj.set_fill(color=orig_hex, start=end)
-
 
 class Array(VCollection):
     """Visual array data structure with cells, indices, and animation methods."""
@@ -80,7 +78,6 @@ class Array(VCollection):
             return arrow
         return None
 
-
 class Stack(VCollection):
     """Visual stack data structure (LIFO) with push/pop animations."""
     def __init__(self, values=None, x=860, y=600, cell_width=100, cell_height=50,
@@ -137,7 +134,6 @@ class Stack(VCollection):
         cell.fadeout(start=start, end=end, change_existence=True)
         lbl.fadeout(start=start, end=end, change_existence=True)
         return self
-
 
 class Queue(VCollection):
     """Visual queue data structure (FIFO) with enqueue/dequeue animations."""
@@ -200,7 +196,6 @@ class Queue(VCollection):
             l.shift(dx=-self._cell_width, start=start, end=end, easing=easings.smooth)
         return self
 
-
 class LinkedList(VCollection):
     """Visual linked list with nodes and arrow pointers."""
     def __init__(self, values, x=200, y=440, node_width=80, node_height=50,
@@ -243,7 +238,6 @@ class LinkedList(VCollection):
         if 0 <= index < len(self._nodes):
             self._nodes[index][0].flash(start, end, color=color, easing=easing)
         return self
-
 
 class BinaryTree(VCollection):
     """Visual binary tree with automatic layout."""
@@ -298,7 +292,6 @@ class BinaryTree(VCollection):
         if 0 <= index < len(self._node_objects):
             _flash_fill(self._node_objects[index], color, start, end, '#1e1e2e')
         return self
-
 
 class ArrayViz(VCollection):
     """Visualise an array as a row of labeled cells."""
@@ -394,7 +387,6 @@ class ArrayViz(VCollection):
             self.objects.append(lbl)
         return arr
 
-
 class LinkedListViz(VCollection):
     """Visualise a singly linked list as nodes connected by arrows."""
 
@@ -462,7 +454,6 @@ class LinkedListViz(VCollection):
             t = start + i * delay
             self.highlight(i, t, t + delay, color)
         return self
-
 
 class StackViz(VCollection):
     """Visualise a stack (LIFO) as vertically stacked cells."""
@@ -552,7 +543,6 @@ class StackViz(VCollection):
             self._top_arrow.shift(dy=self._cell_height, start=start, end=end)
             self._top_label.shift(dy=self._cell_height, start=start, end=end)
         return self
-
 
 class QueueViz(VCollection):
     """Visualise a queue (FIFO) as a horizontal row of cells."""

@@ -34,9 +34,9 @@ from vectormation._base import VObject, VCollection, VGroup
 from vectormation._canvas import VectorMathAnim
 
 from vectormation._shapes import (
-    Polygon, Ellipse, Circle, Dot, AnnotationDot, Rectangle, RoundedRectangle,
+    Polygon, Ellipse, Circle, Dot, AnnotationDot, Rectangle, RoundedRectangle, Square,
     Line, DashedLine, Lines, FunctionGraph,
-    Text, CountAnimation, ValueTracker, DecimalNumber,
+    Text, CountAnimation, ValueTracker, DecimalNumber, Integer,
     Path, Image, Trace,
     RegularPolygon, Star, EquilateralTriangle,
     Arc, Wedge, Annulus,

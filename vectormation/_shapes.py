@@ -1852,6 +1852,15 @@ class RoundedRectangle(Rectangle):
         _set_attr(self.ry, start, end, value, easing)
         return self
 
+class Square(Rectangle):
+    """Square — a Rectangle with equal side length."""
+    def __init__(self, side=200, x=960, y=540, creation: float = 0, z: float = 0, **styling_kwargs):
+        super().__init__(side, side, x=x - side / 2, y=y - side / 2,
+                         creation=creation, z=z, **styling_kwargs)
+
+    def __repr__(self):
+        return f'Square({self.width.at_time(0):.0f})'
+
 class SurroundingRectangle(RoundedRectangle):
     """Rectangle that surrounds a target object with padding.
     If follow=True (default), tracks the target as it moves."""
@@ -1893,7 +1902,7 @@ class SurroundingCircle(Circle):
 
 # Re-export extended shapes so `from vectormation._shapes import X` still works
 from vectormation._shapes_ext import (  # noqa: E402
-    Line, DashedLine, Text, CountAnimation, ValueTracker, DecimalNumber,
+    Line, DashedLine, Text, CountAnimation, ValueTracker, DecimalNumber, Integer,
     Trace, Path, Image,
     Arc, Wedge, Annulus, ArcBetweenPoints, AnnularSector,
     CubicBezier, ScreenRectangle, BackgroundRectangle, Elbow,

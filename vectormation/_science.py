@@ -4,7 +4,6 @@ from vectormation._constants import _normalize, _label_text
 from vectormation._base import VCollection
 from vectormation._shapes import Circle, Dot, Line, Lines, Text, Path, Polygon
 
-
 class Resistor(VCollection):
     """Electrical resistor symbol (zigzag line)."""
     def __init__(self, x1=400, y1=540, x2=600, y2=540, label='R',
@@ -35,7 +34,6 @@ class Resistor(VCollection):
 
     def __repr__(self):
         return 'Resistor()'
-
 
 class Capacitor(VCollection):
     """Electrical capacitor symbol (two parallel plates)."""
@@ -69,7 +67,6 @@ class Capacitor(VCollection):
 
     def __repr__(self):
         return 'Capacitor()'
-
 
 class Inductor(VCollection):
     """Electrical inductor symbol (coil/solenoid)."""
@@ -106,7 +103,6 @@ class Inductor(VCollection):
 
     def __repr__(self):
         return 'Inductor()'
-
 
 class Diode(VCollection):
     """Electrical diode symbol (triangle with bar)."""
@@ -149,7 +145,6 @@ class Diode(VCollection):
     def __repr__(self):
         return 'Diode()'
 
-
 class LED(VCollection):
     """Light-emitting diode symbol (diode with light rays)."""
     def __init__(self, x1=400, y1=540, x2=600, y2=540, label='LED',
@@ -189,7 +184,6 @@ class LED(VCollection):
     def __repr__(self):
         return 'LED()'
 
-
 class UnitInterval:
     """A NumberLine from 0 to 1 -- commonly used for probabilities and parameters.
     Convenience wrapper with sensible defaults for [0, 1] range."""
@@ -201,7 +195,6 @@ class UnitInterval:
                          x=x, y=y, include_numbers=show_labels,
                          font_size=font_size,
                          creation=creation, z=z, **styling_kwargs)
-
 
 class Molecule2D(VCollection):
     """Simple 2D molecule visualization from atom positions and bonds.
@@ -248,7 +241,6 @@ class Molecule2D(VCollection):
 
     def __repr__(self):
         return f'Molecule2D({len(self._atom_objects)} atoms)'
-
 
 class NeuralNetwork(VCollection):
     """Neural network diagram with layers of neurons connected by edges.
@@ -365,7 +357,6 @@ class NeuralNetwork(VCollection):
                              color=color)
         return self
 
-
 class Pendulum(VCollection):
     """Animated pendulum with a pivot, rod, and bob.
 
@@ -438,7 +429,6 @@ class Pendulum(VCollection):
 
     def __repr__(self):
         return f'Pendulum(length={self._length})'
-
 
 class StandingWave(VCollection):
     """Animated standing wave between two fixed points.

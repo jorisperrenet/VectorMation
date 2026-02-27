@@ -5,12 +5,11 @@ from vectormation._constants import (
     ORIGIN, DEFAULT_CHART_COLORS,
     CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET, _normalize, _label_text, _get_arrow,
 )
-from vectormation._base import VObject, VCollection
+from vectormation._base import VCollection
 from vectormation._shapes import (
     Circle, Dot, Rectangle, RoundedRectangle, Line,
     Text, Path, Arc,
 )
-
 
 # ---------------------------------------------------------------------------
 # ChessBoard
@@ -102,7 +101,6 @@ class ChessBoard(VCollection):
         del self._pieces[from_sq]
         return self
 
-
 # ---------------------------------------------------------------------------
 # PeriodicTable + helper
 # ---------------------------------------------------------------------------
@@ -134,7 +132,6 @@ _CATEGORY_COLORS = {
     'transition': '#C55F73', 'post_transition': '#83C167',
 }
 
-
 def _element_category(z):
     if z in (1, 6, 7, 8, 15, 16, 34): return 'nonmetal'
     if z in (2, 10, 18, 36): return 'noble_gas'
@@ -144,7 +141,6 @@ def _element_category(z):
     if z in (9, 17, 35): return 'halogen'
     if 21 <= z <= 30: return 'transition'
     return 'post_transition'
-
 
 class PeriodicTable(VCollection):
     """Periodic table of elements (first 36 elements)."""
@@ -187,7 +183,6 @@ class PeriodicTable(VCollection):
             bg.indicate(start, end, easing=easing)
             sym.flash(start, end, color=color, easing=easing)
         return self
-
 
 # ---------------------------------------------------------------------------
 # BohrAtom
@@ -245,7 +240,6 @@ class BohrAtom(VCollection):
         for dot in self._electron_dots:
             dot.always_rotate(start=start, end=end, degrees_per_second=speed)
         return self
-
 
 # ---------------------------------------------------------------------------
 # Automaton
@@ -341,7 +335,6 @@ class Automaton(VCollection):
         if state_name in self._state_circles:
             self._state_circles[state_name].flash(start, end, color=color, easing=easing)
         return self
-
 
 # ---------------------------------------------------------------------------
 # NetworkGraph
@@ -480,7 +473,6 @@ class NetworkGraph(VCollection):
         """Get the (x, y) position of a node."""
         return self._node_positions.get(node_id, ORIGIN)
 
-
 # ---------------------------------------------------------------------------
 # Tree
 # ---------------------------------------------------------------------------
@@ -607,7 +599,6 @@ class Tree(VCollection):
             self._node_objects[label].flash(start, end, color=color, easing=easing)
         return self
 
-
 # ---------------------------------------------------------------------------
 # Stamp
 # ---------------------------------------------------------------------------
@@ -626,7 +617,6 @@ class Stamp(VCollection):
 
     def __repr__(self):
         return f'Stamp({len(self.objects)} copies)'
-
 
 # ---------------------------------------------------------------------------
 # TimelineBar
@@ -663,7 +653,6 @@ class TimelineBar(VCollection):
 
     def __repr__(self):
         return 'TimelineBar()'
-
 
 # ---------------------------------------------------------------------------
 # FlowChart
@@ -714,7 +703,6 @@ class FlowChart(VCollection):
 
     def __repr__(self):
         return f'FlowChart({len(self._boxes)} steps)'
-
 
 # ---------------------------------------------------------------------------
 # VennDiagram
@@ -768,7 +756,6 @@ class VennDiagram(VCollection):
 
     def __repr__(self):
         return 'VennDiagram()'
-
 
 # ---------------------------------------------------------------------------
 # OrgChart
@@ -843,7 +830,6 @@ class OrgChart(VCollection):
         for child in children:
             self._draw_tree(child, positions, objects, colors, depth + 1,
                             box_width, box_height, font_size, creation, z)
-
 
 # ---------------------------------------------------------------------------
 # MindMap

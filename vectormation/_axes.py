@@ -95,6 +95,13 @@ class Axes(_AxesExtMixin, VCollection):
             objects.append(lbl)
         return objects
 
+    def __repr__(self):
+        xn, xx = self.x_min.at_time(0), self.x_max.at_time(0)
+        if self.y_min is not None:
+            yn, yx = self.y_min.at_time(0), self.y_max.at_time(0)
+            return f'Axes(x=[{xn:.1f}, {xx:.1f}], y=[{yn:.1f}, {yx:.1f}])'
+        return f'Axes(x=[{xn:.1f}, {xx:.1f}])'
+
     def _build_axes_at(self, time):
         """Build axis decoration VObjects for the given time, including axis labels."""
         if self.y_min is None:
@@ -1935,6 +1942,9 @@ class NumberPlane(VCollection):
 
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return f'NumberPlane(x={self._x_range}, y={self._y_range})'
+
     def coords_to_point(self, x, y):
         """Convert logical coordinates to SVG pixel coordinates."""
         return (self._cx + x * self._unit, self._cy - y * self._unit)
@@ -2000,6 +2010,10 @@ class ComplexPlane(Axes):
         super().__init__(x_range=x_range, y_range=y_range,
                          x_label=x_label, y_label=y_label,
                          show_grid=show_grid, creation=creation, z=z, **kwargs)
+
+    def __repr__(self):
+        xn, xx = self.x_min.at_time(0), self.x_max.at_time(0)
+        return f'ComplexPlane(Re=[{xn:.1f}, {xx:.1f}])'
 
     def number_to_point(self, z_val, time=0):
         """Convert a complex number to SVG coordinates."""

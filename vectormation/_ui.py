@@ -15,7 +15,6 @@ from vectormation._shapes import (
 )
 _Text = Text  # module-level alias; avoids shadowing in methods that accept 'text' param
 
-
 # ---------------------------------------------------------------------------
 # Title / Variable / Underline
 # ---------------------------------------------------------------------------
@@ -35,7 +34,6 @@ class Title(VCollection):
 
     def __repr__(self):
         return 'Title()'
-
 
 class Variable(VCollection):
     """Display a variable label with an animated numeric value."""
@@ -65,7 +63,6 @@ class Variable(VCollection):
     def __repr__(self):
         return 'Variable()'
 
-
 class Underline(VCollection):
     """Underline beneath a target object."""
     def __init__(self, target, buff=4, follow=True, creation: float = 0, z: float = 0, **styling_kwargs):
@@ -87,7 +84,6 @@ class Underline(VCollection):
 
     def __repr__(self):
         return 'Underline()'
-
 
 # ---------------------------------------------------------------------------
 # Code
@@ -134,7 +130,6 @@ class Code(VCollection):
         keywords = self._KEYWORD_COLORS.get(language, set())
         bg_width = max(len(line) for line in lines) * font_size * CHAR_WIDTH_FACTOR + 40 if lines else 200
         bg_height = len(lines) * font_size * line_height + 20
-
 
         bg_style = {'fill': '#1e1e2e', 'fill_opacity': 0.95, 'stroke': '#444', 'stroke_width': 1} | styling_kwargs
         bg = RoundedRectangle(bg_width, bg_height, x=x - 10, y=y - font_size - 5,
@@ -233,7 +228,6 @@ class Code(VCollection):
                 obj.fadein(start=t0, end=t1)
         return self
 
-
 # ---------------------------------------------------------------------------
 # Label / LabeledArrow
 # ---------------------------------------------------------------------------
@@ -255,7 +249,6 @@ class Label(VCollection):
 
     def __repr__(self):
         return 'Label()'
-
 
 def _labeled_line_init(self, line_obj, x1, y1, x2, y2, label, font_size, label_buff, creation, z):
     """Shared init for LabeledLine and LabeledArrow."""
@@ -291,7 +284,6 @@ class LabeledArrow(VCollection):
 
     def __repr__(self):
         return 'LabeledArrow()'
-
 
 # ---------------------------------------------------------------------------
 # Callout / DimensionLine / Tooltip
@@ -330,7 +322,6 @@ class Callout(VCollection):
 
     def __repr__(self):
         return 'Callout()'
-
 
 class DimensionLine(VCollection):
     """Technical dimension line between two points with measurement label."""
@@ -376,7 +367,6 @@ class DimensionLine(VCollection):
     def __repr__(self):
         return 'DimensionLine()'
 
-
 class Tooltip(VCollection):
     """Small animated tooltip that appears and disappears near a target."""
     def __init__(self, text, target, start=0, duration=1.5, font_size=18,
@@ -406,7 +396,6 @@ class Tooltip(VCollection):
 
     def __repr__(self):
         return 'Tooltip()'
-
 
 # ---------------------------------------------------------------------------
 # TextBox / Bracket / IconGrid / SpeechBubble / Badge / Divider
@@ -438,7 +427,6 @@ class TextBox(VCollection):
 
     def __repr__(self):
         return 'TextBox()'
-
 
 class Bracket(VCollection):
     """Square bracket decoration pointing at a range."""
@@ -474,7 +462,6 @@ class Bracket(VCollection):
     def __repr__(self):
         return 'Bracket()'
 
-
 class IconGrid(VCollection):
     """Grid of colored shapes (circles, squares) for infographic-style visualizations."""
     def __init__(self, data, x=100, y=100, cols=10, size=15, gap=3,
@@ -500,7 +487,6 @@ class IconGrid(VCollection):
 
     def __repr__(self):
         return 'IconGrid()'
-
 
 class SpeechBubble(VCollection):
     """Rounded rectangle with a triangular tail, useful for dialogue/annotations."""
@@ -543,7 +529,6 @@ class SpeechBubble(VCollection):
     def __repr__(self):
         return 'SpeechBubble()'
 
-
 class Badge(VCollection):
     """Pill-shaped label (fully rounded corners), like GitHub badges/tags."""
     def __init__(self, text='Label', x=100, y=100, font_size=16, padding_x=14,
@@ -568,7 +553,6 @@ class Badge(VCollection):
 
     def __repr__(self):
         return 'Badge()'
-
 
 class Divider(VCollection):
     """Horizontal or vertical line with an optional centered text label."""
@@ -614,7 +598,6 @@ class Divider(VCollection):
 
     def __repr__(self):
         return 'Divider()'
-
 
 # ---------------------------------------------------------------------------
 # Checklist / Stepper / TagCloud / StatusIndicator / Meter / Breadcrumb
@@ -683,7 +666,6 @@ class Checklist(VCollection):
     def __repr__(self):
         return 'Checklist()'
 
-
 class Stepper(VCollection):
     """Step indicator: numbered circles connected by a line, with active step highlight."""
     def __init__(self, steps, x=100, y=300, spacing=150, radius=20,
@@ -747,7 +729,6 @@ class Stepper(VCollection):
     def __repr__(self):
         return 'Stepper()'
 
-
 class TagCloud(VCollection):
     """Word/tag cloud with varying font sizes based on weights."""
     def __init__(self, data, x=100, y=100, width=500, min_font=14, max_font=48,
@@ -785,7 +766,6 @@ class TagCloud(VCollection):
     def __repr__(self):
         return 'TagCloud()'
 
-
 class StatusIndicator(VCollection):
     """Colored dot with a text label, like a server/service status indicator."""
     _STATUS_COLORS = {
@@ -809,7 +789,6 @@ class StatusIndicator(VCollection):
 
     def __repr__(self):
         return 'StatusIndicator()'
-
 
 class Meter(VCollection):
     """Vertical or horizontal bar meter (like a battery level or VU meter)."""
@@ -842,7 +821,6 @@ class Meter(VCollection):
     def __repr__(self):
         return 'Meter()'
 
-
 class Breadcrumb(VCollection):
     """Navigation breadcrumb trail (e.g., Home > Products > Details)."""
     def __init__(self, *items, x=100, y=100, font_size=18, separator='\u203a',
@@ -870,7 +848,6 @@ class Breadcrumb(VCollection):
     def __repr__(self):
         return 'Breadcrumb()'
 
-
 # ---------------------------------------------------------------------------
 # Countdown / Filmstrip
 # ---------------------------------------------------------------------------
@@ -890,7 +867,6 @@ class Countdown(VCollection):
 
     def __repr__(self):
         return 'Countdown()'
-
 
 class Filmstrip(VCollection):
     """Horizontal row of labeled thumbnail boxes (like a storyboard/filmstrip)."""
@@ -922,7 +898,6 @@ class Filmstrip(VCollection):
 
     def __repr__(self):
         return 'Filmstrip()'
-
 
 # ---------------------------------------------------------------------------
 # RoundedCornerPolygon

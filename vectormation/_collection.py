@@ -5,7 +5,7 @@ from copy import deepcopy
 
 import vectormation.easings as easings
 import vectormation.attributes as attributes
-from vectormation._constants import ORIGIN, SMALL_BUFF, UP, DOWN, RIGHT
+from vectormation._constants import ORIGIN, SMALL_BUFF, UP, RIGHT
 from vectormation._base import (
     VObject, _norm_dir, _norm_edge, _ramp, _lerp_point,
     _DIR_NAMES, _EDGE_NAMES,
@@ -478,9 +478,13 @@ class VCollection(_BBoxMethodsMixin):
         cx, cy = self._resolve_center(start, cx, cy)
         return self._delegate('rotate_by', start, end, degrees, cx=cx, cy=cy, easing=easing)
 
+    @staticmethod
+    def _hshift(obj, horizontal, offset, start):
+        """Shift *obj* by *offset* along the horizontal or vertical axis."""
+        obj.shift(**{'dx' if horizontal else 'dy': offset, 'start': start})
+
     def arrange(self, direction: str | tuple = 'right', buff=SMALL_BUFF, start: float = 0):
-        """Lay out children in a row or column with spacing.
-        direction: 'right', 'left', 'down', 'up' or a direction constant."""
+        """Lay out children in a row or column with spacing."""
         direction = _norm_dir(direction)
         if not self.objects:
             return self
@@ -490,11 +494,7 @@ class VCollection(_BBoxMethodsMixin):
         for obj in self.objects:
             x, y, w, h = obj.bbox(start)
             size = w if horizontal else h
-            offset = cursor - (x if horizontal else y)
-            if horizontal:
-                obj.shift(dx=sign * offset, start=start)
-            else:
-                obj.shift(dy=sign * offset, start=start)
+            self._hshift(obj, horizontal, sign * (cursor - (x if horizontal else y)), start)
             cursor += size + buff
         return self
 
@@ -505,30 +505,21 @@ class VCollection(_BBoxMethodsMixin):
             return self
         horizontal = dir_name in ('right', 'left')
         sign = 1 if dir_name in ('right', 'down') else -1
-        # Compute target centers for each child
-        cursor = 0
-        targets = []
+        cursor, targets = 0, []
         for obj in self.objects:
             x, y, w, h = obj.bbox(start)
             cx, cy = obj.center(start)
             size = w if horizontal else h
-            offset = cursor - (x if horizontal else y)
-            if horizontal:
-                targets.append((cx + sign * offset, cy))
-            else:
-                targets.append((cx, cy + sign * offset))
+            offset = sign * (cursor - (x if horizontal else y))
+            targets.append((cx + offset, cy) if horizontal else (cx, cy + offset))
             cursor += size + buff
-        # Animate each child to its target
         _easing = easing or easings.smooth
         for obj, (tx, ty) in zip(self.objects, targets):
-            obj.center_to_pos(posx=tx, posy=ty, start=start,
-                              end=end, easing=_easing)
+            obj.center_to_pos(posx=tx, posy=ty, start=start, end=end, easing=_easing)
         return self
 
     def distribute(self, direction: str | tuple = 'right', buff=0, start: float = 0):
-        """Distribute children evenly within the group's bounding box.
-        Unlike arrange(), this spaces children evenly to fill the available space.
-        direction: 'right', 'left', 'down', 'up' or a direction constant."""
+        """Distribute children evenly within the group's bounding box."""
         direction = _norm_dir(direction)
         if len(self.objects) < 2:
             return self
@@ -537,17 +528,11 @@ class VCollection(_BBoxMethodsMixin):
         total_size = sum(b[2] if horizontal else b[3] for b in boxes)
         group_box = self.bbox(start)
         available = (group_box[2] if horizontal else group_box[3]) - total_size
-        spacing = available / (len(self.objects) - 1) if len(self.objects) > 1 else 0
-        spacing = max(spacing, buff)
+        spacing = max(available / (len(self.objects) - 1) if len(self.objects) > 1 else 0, buff)
         cursor = 0
         for obj, box in zip(self.objects, boxes):
-            x, y, w, h = box
-            size = w if horizontal else h
-            offset = cursor - (x if horizontal else y)
-            if horizontal:
-                obj.shift(dx=offset, start=start)
-            else:
-                obj.shift(dy=offset, start=start)
+            size = box[2] if horizontal else box[3]
+            self._hshift(obj, horizontal, cursor - (box[0] if horizontal else box[1]), start)
             cursor += size + spacing
         return self
 
@@ -555,27 +540,21 @@ class VCollection(_BBoxMethodsMixin):
                      start_pos=None, start: float = 0):
         """Distribute children with equal gaps to fill exactly *total_span* pixels."""
         direction = _norm_dir(direction)
-        if len(self.objects) == 0:
+        if not self.objects:
             return self
         horizontal = direction in ('right', 'left')
         boxes = [obj.bbox(start) for obj in self.objects]
         sizes = [b[2] if horizontal else b[3] for b in boxes]
-        total_child_size = sum(sizes)
         group_box = self.bbox(start)
         if total_span is None:
             total_span = group_box[2] if horizontal else group_box[3]
         if start_pos is None:
             start_pos = group_box[0] if horizontal else group_box[1]
         n = len(self.objects)
-        gap = (total_span - total_child_size) / (n - 1) if n > 1 else 0
+        gap = (total_span - sum(sizes)) / (n - 1) if n > 1 else 0
         cursor = start_pos
         for obj, box, size in zip(self.objects, boxes, sizes):
-            edge = box[0] if horizontal else box[1]
-            offset = cursor - edge
-            if horizontal:
-                obj.shift(dx=offset, start=start)
-            else:
-                obj.shift(dy=offset, start=start)
+            self._hshift(obj, horizontal, cursor - (box[0] if horizontal else box[1]), start)
             cursor += size + gap
         return self
 
