@@ -2965,3 +2965,66 @@ class TestZipWithStartEnd:
         col_b = VCollection(Circle(r=10, cx=100, cy=100))
         result = col_a.zip_with(col_b, lambda a, b, t: None, start=0, end=1)
         assert result is col_a
+
+
+class TestApplyWithDelay:
+    def test_basic_delay(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=100)
+        c3 = Circle(r=10, cx=300, cy=100)
+        col = VCollection(c1, c2, c3)
+        called = []
+        col.apply_with_delay(lambda obj, i, t: called.append((i, t)), delay=0.2, start=1.0)
+        assert called == [(0, 1.0), (1, 1.2), (2, 1.4)]
+
+    def test_returns_self(self):
+        col = VCollection(Circle(r=10, cx=0, cy=0))
+        result = col.apply_with_delay(lambda obj, i, t: None)
+        assert result is col
+
+    def test_default_delay(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=100)
+        col = VCollection(c1, c2)
+        called = []
+        col.apply_with_delay(lambda obj, i, t: called.append(t))
+        # Default delay=0.1, default start=0
+        assert called[0] == pytest.approx(0.0)
+        assert called[1] == pytest.approx(0.1)
+
+    def test_empty_collection(self):
+        col = VCollection()
+        called = []
+        result = col.apply_with_delay(lambda obj, i, t: called.append(t))
+        assert called == []
+        assert result is col
+
+    def test_func_receives_child(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=200)
+        col = VCollection(c1, c2)
+        children = []
+        col.apply_with_delay(lambda obj, i, t: children.append(obj))
+        assert children[0] is c1
+        assert children[1] is c2
+
+    def test_apply_with_delay_fadein(self):
+        """Test applying a real animation method with delay."""
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=100)
+        c3 = Circle(r=10, cx=300, cy=100)
+        col = VCollection(c1, c2, c3)
+        col.apply_with_delay(
+            lambda obj, i, t: obj.fadein(start=t, end=t + 0.3),
+            delay=0.2, start=0.0
+        )
+        # c1 fadein starts at 0, c2 at 0.2, c3 at 0.4
+        # All should still be valid objects
+        assert len(col.objects) == 3
+
+    def test_single_child(self):
+        c = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c)
+        called = []
+        col.apply_with_delay(lambda obj, i, t: called.append((i, t)), delay=0.5, start=2.0)
+        assert called == [(0, 2.0)]

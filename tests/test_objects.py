@@ -10779,3 +10779,185 @@ class TestTeleport:
         # After teleport
         p_after = d.c.at_time(1)
         assert abs(p_after[0] - 400) < 5
+
+
+class TestPointFromProportion:
+    def test_circle_start(self):
+        c = Circle(r=50, cx=100, cy=100)
+        pt = c.point_from_proportion(0)
+        # Should be a valid point on the circle outline
+        assert isinstance(pt, tuple)
+        assert len(pt) == 2
+
+    def test_circle_end(self):
+        c = Circle(r=50, cx=100, cy=100)
+        pt_start = c.point_from_proportion(0)
+        pt_end = c.point_from_proportion(1)
+        # Start and end of a closed circle path should be very close
+        assert abs(pt_start[0] - pt_end[0]) < 1
+        assert abs(pt_start[1] - pt_end[1]) < 1
+
+    def test_circle_midpoint(self):
+        c = Circle(r=50, cx=100, cy=100)
+        pt = c.point_from_proportion(0.5)
+        # Midpoint should be at distance r from center
+        dist = math.hypot(pt[0] - 100, pt[1] - 100)
+        assert abs(dist - 50) < 2
+
+    def test_line_proportion(self):
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        pt = line.point_from_proportion(0.5)
+        assert abs(pt[0] - 50) < 1
+        assert abs(pt[1] - 0) < 1
+
+    def test_line_start_end(self):
+        line = Line(x1=10, y1=20, x2=110, y2=20)
+        pt0 = line.point_from_proportion(0)
+        pt1 = line.point_from_proportion(1)
+        assert abs(pt0[0] - 10) < 1
+        assert abs(pt0[1] - 20) < 1
+        assert abs(pt1[0] - 110) < 1
+        assert abs(pt1[1] - 20) < 1
+
+    def test_clamp_out_of_range(self):
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        pt_neg = line.point_from_proportion(-0.5)
+        pt_over = line.point_from_proportion(1.5)
+        # Should clamp to 0 and 1
+        assert abs(pt_neg[0] - 0) < 1
+        assert abs(pt_over[0] - 100) < 1
+
+    def test_returns_center_on_empty_path(self):
+        """An object with an empty path should return its center."""
+        r = Rectangle(100, 50, x=400, y=300)
+        # Temporarily override path to return empty
+        original_path = r.path
+        r.path = lambda time: ''
+        pt = r.point_from_proportion(0.5)
+        cx, cy = r.center(0)
+        assert abs(pt[0] - cx) < 1
+        assert abs(pt[1] - cy) < 1
+        r.path = original_path
+
+    def test_returns_tuple(self):
+        c = Circle(r=30, cx=200, cy=200)
+        result = c.point_from_proportion(0.25)
+        assert isinstance(result, tuple)
+        assert len(result) == 2
+
+
+class TestConnect:
+    def test_connect_returns_line(self):
+        r1 = Rectangle(100, 50, x=100, y=100)
+        r2 = Rectangle(100, 50, x=400, y=100)
+        conn = r1.connect(r2)
+        assert isinstance(conn, Line)
+
+    def test_connect_arrow(self):
+        r1 = Rectangle(100, 50, x=100, y=100)
+        r2 = Rectangle(100, 50, x=400, y=100)
+        conn = r1.connect(r2, arrow=True)
+        assert isinstance(conn, Arrow)
+
+    def test_connect_endpoints(self):
+        r1 = Rectangle(100, 50, x=100, y=100)
+        r2 = Rectangle(100, 50, x=400, y=100)
+        conn = r1.connect(r2, start_edge='right', end_edge='left')
+        # Start should be at the right edge of r1
+        p1 = conn.p1.at_time(0)
+        r1_right = r1.get_edge('right', 0)
+        assert abs(p1[0] - r1_right[0]) < 1
+        assert abs(p1[1] - r1_right[1]) < 1
+        # End should be at the left edge of r2
+        p2 = conn.p2.at_time(0)
+        r2_left = r2.get_edge('left', 0)
+        assert abs(p2[0] - r2_left[0]) < 1
+        assert abs(p2[1] - r2_left[1]) < 1
+
+    def test_connect_different_edges(self):
+        r1 = Rectangle(100, 50, x=100, y=100)
+        r2 = Rectangle(100, 50, x=100, y=300)
+        conn = r1.connect(r2, start_edge='bottom', end_edge='top')
+        p1 = conn.p1.at_time(0)
+        p2 = conn.p2.at_time(0)
+        r1_bot = r1.get_edge('bottom', 0)
+        r2_top = r2.get_edge('top', 0)
+        assert abs(p1[0] - r1_bot[0]) < 1
+        assert abs(p1[1] - r1_bot[1]) < 1
+        assert abs(p2[0] - r2_top[0]) < 1
+        assert abs(p2[1] - r2_top[1]) < 1
+
+    def test_connect_follow_line(self):
+        r1 = Rectangle(100, 50, x=100, y=100)
+        r2 = Rectangle(100, 50, x=400, y=100)
+        conn = r1.connect(r2, follow=True)
+        # Move r1, the connector should follow
+        r1.shift(dx=50, start_time=0)
+        p1 = conn.p1.at_time(0)
+        r1_right_after = r1.get_edge('right', 0)
+        assert abs(p1[0] - r1_right_after[0]) < 1
+
+    def test_connect_follow_arrow(self):
+        r1 = Rectangle(100, 50, x=100, y=100)
+        r2 = Rectangle(100, 50, x=400, y=100)
+        conn = r1.connect(r2, arrow=True, follow=True)
+        assert isinstance(conn, Arrow)
+
+    def test_connect_custom_styling(self):
+        r1 = Rectangle(100, 50, x=100, y=100)
+        r2 = Rectangle(100, 50, x=400, y=100)
+        conn = r1.connect(r2, stroke='#ff0000', stroke_width=3)
+        svg = conn.to_svg(0)
+        assert 'rgb(255,0,0)' in svg or 'ff0000' in svg.lower()
+
+
+class TestMatchStyle:
+    def test_match_style_copies_fill(self):
+        r1 = Rectangle(100, 50, fill='#ff0000')
+        r2 = Rectangle(100, 50, fill='#0000ff')
+        r1.match_style(r2)
+        assert r1.get_fill_color(0).lower() == '#0000ff'
+
+    def test_match_style_copies_stroke(self):
+        r1 = Rectangle(100, 50, stroke='#ffffff')
+        r2 = Rectangle(100, 50, stroke='#00ff00')
+        r1.match_style(r2)
+        assert r1.get_stroke_color(0).lower() == '#00ff00'
+
+    def test_match_style_copies_opacity(self):
+        r1 = Rectangle(100, 50, fill_opacity=1.0)
+        r2 = Rectangle(100, 50, fill_opacity=0.5)
+        r1.match_style(r2)
+        assert r1.get_fill_opacity(0) == pytest.approx(0.5)
+
+    def test_match_style_copies_stroke_width(self):
+        r1 = Rectangle(100, 50, stroke_width=2)
+        r2 = Rectangle(100, 50, stroke_width=6)
+        r1.match_style(r2)
+        assert r1.get_stroke_width(0) == pytest.approx(6)
+
+    def test_match_style_copies_stroke_opacity(self):
+        r1 = Rectangle(100, 50, stroke_opacity=1.0)
+        r2 = Rectangle(100, 50, stroke_opacity=0.3)
+        r1.match_style(r2)
+        assert r1.get_stroke_opacity(0) == pytest.approx(0.3)
+
+    def test_match_style_returns_self(self):
+        r1 = Rectangle(100, 50)
+        r2 = Rectangle(100, 50, fill='#ff0000')
+        result = r1.match_style(r2)
+        assert result is r1
+
+    def test_match_style_at_time(self):
+        r1 = Rectangle(100, 50, fill='#ff0000')
+        r2 = Rectangle(100, 50, fill='#0000ff')
+        r2.set_fill(color='#00ff00', start=1)
+        r1.match_style(r2, time=1)
+        assert r1.get_fill_color(1).lower() == '#00ff00'
+
+    def test_match_style_between_different_shapes(self):
+        c = Circle(r=50, fill='#ff0000', stroke_width=2)
+        r = Rectangle(100, 50, fill='#0000ff', stroke_width=8)
+        c.match_style(r)
+        assert c.get_fill_color(0).lower() == '#0000ff'
+        assert c.get_stroke_width(0) == pytest.approx(8)

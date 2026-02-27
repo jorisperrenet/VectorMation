@@ -5223,6 +5223,57 @@ class Axes(VCollection):
         self._add_plot_obj(lbl)
         return lbl
 
+    def annotate_area(self, func_or_curve, x_range, label=None, color='#58C4DD',
+                       opacity=0.3, start=0, end=None, **kwargs):
+        """Create a shaded area under a curve with an optional centered label.
+
+        Combines :meth:`get_area` with label placement.  The area is created
+        using the existing ``get_area`` method and an optional ``Text`` label
+        is placed at the center of the x_range on the curve midpoint.
+
+        Parameters
+        ----------
+        func_or_curve:
+            A callable ``f(x)`` or a Path with ``._func`` (as returned by
+            :meth:`plot`).
+        x_range:
+            ``(x_start, x_end)`` in math coordinates.
+        label:
+            Optional text string for a label centered on the shaded area.
+        color:
+            Fill color for the area.
+        opacity:
+            Fill opacity for the area.
+        start:
+            Creation time for the area and label.
+        end:
+            End time (passed to ``get_area`` if needed).
+        **kwargs:
+            Extra keyword arguments forwarded to ``get_area``.
+
+        Returns
+        -------
+        VCollection
+            A VCollection containing the area Path and (if provided) the label.
+        """
+        area = self.get_area(func_or_curve, x_range=x_range, creation=start,
+                             fill=color, fill_opacity=opacity, **kwargs)
+        objects = [area]
+
+        if label is not None:
+            func = self._resolve_func(func_or_curve, 'func_or_curve')
+            x_mid = (x_range[0] + x_range[1]) / 2
+            y_mid = func(x_mid)
+            sx = self._math_to_svg_x(x_mid, start)
+            sy = self._math_to_svg_y(y_mid / 2, start)
+            lbl = Text(text=str(label), x=sx, y=sy,
+                       font_size=24, text_anchor='middle',
+                       creation=start, fill='#fff', stroke_width=0)
+            self._add_plot_obj(lbl)
+            objects.append(lbl)
+
+        return VCollection(*objects, creation=start)
+
     def __repr__(self):
         xn, xx = self.x_min.at_time(0), self.x_max.at_time(0)
         if self.y_min is not None:
@@ -6443,6 +6494,68 @@ class NumberLine(VCollection):
                         font_size=font_size, creation=start,
                         fill='#aaa', stroke_width=0)
             lbl.fadein(start=start, end=end, easing=easing)
+            self.objects.append(lbl)
+
+        return self
+
+    def add_animated_pointer(self, value_func, start=0, end=None, color='#FFFF00',
+                             label=True):
+        """Add a pointer (triangle) that tracks a dynamic value function over time.
+
+        Parameters
+        ----------
+        value_func:
+            A callable ``f(time)`` returning the numeric value on the line.
+        start:
+            Time at which the pointer appears.
+        end:
+            Time at which the pointer disappears (``None`` = forever).
+        color:
+            Fill color for the pointer triangle.
+        label:
+            If True, add a Text showing the current value below the pointer.
+
+        Returns
+        -------
+        self
+        """
+        size = 12
+        _nl = self
+        _vf = value_func
+
+        def _ptr_pos(t):
+            return _nl.number_to_point(_vf(t))
+
+        # Initial position
+        px, py = _ptr_pos(start)
+        ptr = Polygon(
+            (px - size / 2, py - size - 2),
+            (px + size / 2, py - size - 2),
+            (px, py - 2),
+            creation=start, z=1,
+            fill=color, stroke_width=0,
+        )
+        ptr.vertices[0].set_onward(start,
+            lambda t: (_ptr_pos(t)[0] - size / 2, _ptr_pos(t)[1] - size - 2))
+        ptr.vertices[1].set_onward(start,
+            lambda t: (_ptr_pos(t)[0] + size / 2, _ptr_pos(t)[1] - size - 2))
+        ptr.vertices[2].set_onward(start,
+            lambda t: (_ptr_pos(t)[0], _ptr_pos(t)[1] - 2))
+
+        if end is not None:
+            ptr._hide_from(end)
+
+        self.objects.append(ptr)
+
+        if label:
+            lbl = Text(text=str(round(_vf(start), 2)), x=px, y=py - size - 18,
+                        font_size=20, fill=color, stroke_width=0,
+                        text_anchor='middle', creation=start, z=1.1)
+            lbl.x.set_onward(start, lambda t: _ptr_pos(t)[0])
+            lbl.y.set_onward(start, lambda t: _ptr_pos(t)[1] - size - 18)
+            lbl.text.set_onward(start, lambda t: str(round(_vf(t), 2)))
+            if end is not None:
+                lbl._hide_from(end)
             self.objects.append(lbl)
 
         return self

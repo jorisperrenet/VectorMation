@@ -3419,6 +3419,121 @@ class VObject(ABC):  # Vector Object
         ox, oy = other.center(time) if hasattr(other, 'center') else other
         return self.move_to(ox, oy, start_time=time)
 
+    def point_from_proportion(self, t, time=0):
+        """Return the (x, y) point at proportion *t* (0-1) along this object's SVG path outline.
+
+        Uses ``svgpathtools`` (lazy import) to parse the path string returned
+        by ``self.path(time)``, compute the total arc length, and sample at
+        ``t * total_length``.
+
+        Parameters
+        ----------
+        t:
+            Proportion along the path (0 = start, 1 = end).
+        time:
+            Time at which to evaluate the path.
+
+        Returns
+        -------
+        tuple[float, float]
+            The (x, y) point on the path at the given proportion.
+        """
+        path_d = self.path(time)
+        if not path_d:
+            return self.center(time)
+        import svgpathtools
+        parsed = svgpathtools.parse_path(path_d)
+        total_length = parsed.length()
+        if total_length <= 0:
+            pt = parsed.point(0)
+            return (pt.real, pt.imag)
+        t = max(0.0, min(1.0, t))
+        pt = parsed.point(parsed.ilength(t * total_length))
+        return (pt.real, pt.imag)
+
+    def connect(self, other, start_edge='right', end_edge='left', arrow=False,
+                follow=False, start=0, **kwargs):
+        """Create a Line (or Arrow) connecting *self* to *other* at specified edges.
+
+        Parameters
+        ----------
+        other:
+            The target VObject to connect to.
+        start_edge:
+            Edge name on *self* for the start of the connector
+            (e.g. 'right', 'left', 'top', 'bottom', 'center').
+        end_edge:
+            Edge name on *other* for the end of the connector.
+        arrow:
+            If True, return an Arrow instead of a Line.
+        follow:
+            If True, add an updater so the connector tracks both objects.
+        start:
+            Creation time for the connector.
+        **kwargs:
+            Extra styling keyword arguments passed to the Line/Arrow constructor.
+
+        Returns
+        -------
+        Line or Arrow
+            The connector object (must still be added to a canvas).
+        """
+        p1 = self.get_edge(start_edge, time=start)
+        p2 = other.get_edge(end_edge, time=start)
+        if arrow:
+            from vectormation._composites import Arrow as _Arrow
+            connector = _Arrow(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1],
+                               creation=start, **kwargs)
+            if follow:
+                _self, _other = self, other
+                _se, _ee = start_edge, end_edge
+                connector.shaft.p1.set_onward(start,
+                    lambda t, _s=_self, _e=_se: _s.get_edge(_e, time=t))
+                connector.shaft.p2.set_onward(start,
+                    lambda t, _o=_other, _e=_ee: _o.get_edge(_e, time=t))
+                connector._update_tip_dynamic(start)
+        else:
+            from vectormation._shapes import Line as _Line
+            connector = _Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1],
+                              creation=start, **kwargs)
+            if follow:
+                _self, _other = self, other
+                _se, _ee = start_edge, end_edge
+                connector.p1.set_onward(start,
+                    lambda t, _s=_self, _e=_se: _s.get_edge(_e, time=t))
+                connector.p2.set_onward(start,
+                    lambda t, _o=_other, _e=_ee: _o.get_edge(_e, time=t))
+        return connector
+
+    def match_style(self, other, time=0):
+        """Copy fill, stroke, opacity, and stroke_width from *other* at *time*.
+
+        Reads the styling attributes of *other* at the given time and sets
+        them on *self* from that time onward.
+
+        Parameters
+        ----------
+        other:
+            The VObject whose style to copy.
+        time:
+            The time at which to read *other*'s style and apply to *self*.
+
+        Returns
+        -------
+        self
+        """
+        # Copy fill color
+        fill_val = other.styling.fill.time_func(time)
+        self.styling.fill = attributes.Color(time, fill_val)
+        # Copy stroke color
+        stroke_val = other.styling.stroke.time_func(time)
+        self.styling.stroke = attributes.Color(time, stroke_val)
+        # Copy numeric styling attributes
+        self.styling.fill_opacity.set_onward(time, other.styling.fill_opacity.at_time(time))
+        self.styling.stroke_opacity.set_onward(time, other.styling.stroke_opacity.at_time(time))
+        self.styling.stroke_width.set_onward(time, other.styling.stroke_width.at_time(time))
+        return self
+
     def telegraph(self, start: float = 0, duration: float = 0.4,
                   scale_factor: float = 1.4, shake_amplitude: float = 8,
                   easing=easings.there_and_back):
@@ -6218,6 +6333,29 @@ class VCollection:
         """
         for i, obj in enumerate(self.objects):
             func(obj, i)
+        return self
+
+    def apply_with_delay(self, func, delay=0.1, start=0):
+        """Apply *func* to each child with an incremental time delay.
+
+        Calls ``func(child, index, start_time)`` for each child, where
+        ``start_time = start + index * delay``.
+
+        Parameters
+        ----------
+        func:
+            A callable receiving ``(child, index, start_time)``.
+        delay:
+            Time delay between successive children.
+        start:
+            Base start time for the first child.
+
+        Returns
+        -------
+        self
+        """
+        for i, obj in enumerate(self.objects):
+            func(obj, i, start + i * delay)
         return self
 
     def zip_with(self, other, method_name_or_func, start=0, end=1, time=None, **kwargs):

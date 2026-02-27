@@ -8,7 +8,8 @@ import vectormation.style as style
 from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
     SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS, CHAR_WIDTH_FACTOR,
-    _rotate_point, _sample_function, _distance, _normalize,
+    DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
+    _rotate_point, _sample_function, _distance, _normalize, _angle_between,
 )
 from vectormation._base import VObject
 
@@ -1486,6 +1487,34 @@ class Circle(Ellipse):
         """Create a Circle from center and a point on the circumference."""
         r = math.hypot(point[0] - center[0], point[1] - center[1])
         return cls(r=r, cx=center[0], cy=center[1], **kwargs)
+
+    @classmethod
+    def from_bounding_box(cls, vobject, padding=0, time=0, **kwargs):
+        """Create a Circle that circumscribes another object's bounding box.
+
+        The circle is centered at the bbox center with radius equal to half
+        the diagonal of the bounding box plus *padding*.
+
+        Parameters
+        ----------
+        vobject:
+            A VObject whose bounding box will be circumscribed.
+        padding:
+            Extra radius in pixels beyond the bbox half-diagonal.
+        time:
+            Time at which to read the bounding box.
+        **kwargs:
+            Extra keyword arguments forwarded to the Circle constructor.
+
+        Returns
+        -------
+        Circle
+        """
+        bx, by, bw, bh = vobject.bbox(time)
+        cx = bx + bw / 2
+        cy = by + bh / 2
+        r = math.hypot(bw / 2, bh / 2) + padding
+        return cls(r=r, cx=cx, cy=cy, **kwargs)
 
     def tangent_line(self, angle_degrees, length=100, time=0, creation=0, **line_kwargs):
         """Return a Line tangent to the circle at the given angle.
@@ -3504,6 +3533,66 @@ class Line(VObject):
         """
         return self.distance_to_point(px, py, time) <= tol
 
+    def add_tip(self, end=True, start=False, tip_length=None, tip_width=None, start_time=0):
+        """Create arrowhead tip polygon(s) at line endpoints.
+
+        Parameters
+        ----------
+        end:
+            If True, add a tip at the end (p2) of the line.
+        start:
+            If True, add a tip at the start (p1) of the line.
+        tip_length:
+            Length of the tip along the line direction.  Defaults to
+            ``DEFAULT_ARROW_TIP_LENGTH``.
+        tip_width:
+            Width of the tip perpendicular to the line.  Defaults to
+            ``DEFAULT_ARROW_TIP_WIDTH``.
+        start_time:
+            Creation time for the tip polygons.
+
+        Returns
+        -------
+        VCollection
+            A VCollection containing the line and tip polygon(s).
+        """
+        from vectormation._base import VCollection
+        tl = tip_length if tip_length is not None else DEFAULT_ARROW_TIP_LENGTH
+        tw = tip_width if tip_width is not None else DEFAULT_ARROW_TIP_WIDTH
+        hw = tw / 2
+        x1, y1 = self.p1.at_time(start_time)
+        x2, y2 = self.p2.at_time(start_time)
+        stroke_color = self.styling.stroke.time_func(start_time)
+        objects = [self]
+
+        if end:
+            dx, dy = x2 - x1, y2 - y1
+            length = math.hypot(dx, dy) or 1
+            ux, uy = dx / length, dy / length
+            px, py = -uy, ux
+            bx, by = x2 - ux * tl, y2 - uy * tl
+            tip = Polygon(
+                (x2, y2), (bx + px * hw, by + py * hw), (bx - px * hw, by - py * hw),
+                creation=start_time, z=self.z,
+                fill=stroke_color, fill_opacity=1, stroke_width=0,
+            )
+            objects.append(tip)
+
+        if start:
+            dx, dy = x1 - x2, y1 - y2
+            length = math.hypot(dx, dy) or 1
+            ux, uy = dx / length, dy / length
+            px, py = -uy, ux
+            bx, by = x1 - ux * tl, y1 - uy * tl
+            tip = Polygon(
+                (x1, y1), (bx + px * hw, by + py * hw), (bx - px * hw, by - py * hw),
+                creation=start_time, z=self.z,
+                fill=stroke_color, fill_opacity=1, stroke_width=0,
+            )
+            objects.append(tip)
+
+        return VCollection(*objects, creation=start_time, z=self.z)
+
     def __repr__(self):
         p1, p2 = self.p1.at_time(0), self.p2.at_time(0)
         return f'Line(({p1[0]:.0f},{p1[1]:.0f})->({p2[0]:.0f},{p2[1]:.0f}))'
@@ -4477,6 +4566,35 @@ class Text(VObject):
             parts.append(t)
             cursor = idx + len(word)
         return VCollection(*parts)
+
+    def add_background_rectangle(self, color='#000000', opacity=0.5, padding=10, time=0):
+        """Create a Rectangle behind the text, sized from bbox + padding.
+
+        Parameters
+        ----------
+        color:
+            Fill color for the background rectangle.
+        opacity:
+            Fill opacity for the background rectangle.
+        padding:
+            Extra padding in pixels around the text bbox.
+        time:
+            Time at which to read the text bbox.
+
+        Returns
+        -------
+        VCollection
+            A VCollection containing the background rectangle and this text.
+        """
+        from vectormation._base import VCollection
+        bx, by, bw, bh = self.bbox(time)
+        rect = Rectangle(
+            bw + 2 * padding, bh + 2 * padding,
+            x=bx - padding, y=by - padding,
+            creation=time, z=self.z.at_time(time) - 1,
+            fill=color, fill_opacity=opacity, stroke_width=0,
+        )
+        return VCollection(rect, self, creation=time)
 
     def to_svg(self, time):
         anchor = f" text-anchor='{self._text_anchor}'" if self._text_anchor else ''

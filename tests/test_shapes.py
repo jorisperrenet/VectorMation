@@ -9355,3 +9355,364 @@ class TestRectangleDiagonalLength:
     def test_zero_dimensions(self):
         r = Rectangle(width=0, height=0)
         assert r.diagonal_length() == pytest.approx(0.0)
+
+
+# ── Line.add_tip tests ──────────────────────────────────────────────────
+
+
+class TestLineAddTip:
+    def test_returns_vcollection(self):
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        result = line.add_tip()
+        assert isinstance(result, VCollection)
+
+    def test_end_tip_only(self):
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        result = line.add_tip(end=True, start=False)
+        # Should have 2 objects: the line + 1 tip polygon
+        assert len(result.objects) == 2
+        assert result.objects[0] is line
+        # The tip is a Polygon (triangle)
+        tip = result.objects[1]
+        assert isinstance(tip, Polygon)
+        assert len(tip.vertices) == 3
+
+    def test_start_tip_only(self):
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        result = line.add_tip(end=False, start=True)
+        assert len(result.objects) == 2
+        assert result.objects[0] is line
+        tip = result.objects[1]
+        assert isinstance(tip, Polygon)
+
+    def test_both_tips(self):
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        result = line.add_tip(end=True, start=True)
+        # Should have 3 objects: line + 2 tips
+        assert len(result.objects) == 3
+
+    def test_no_tips(self):
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        result = line.add_tip(end=False, start=False)
+        # Should have just the line
+        assert len(result.objects) == 1
+        assert result.objects[0] is line
+
+    def test_end_tip_position_horizontal(self):
+        """End tip should be at x=100 for a horizontal line from 0 to 100."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        result = line.add_tip()
+        tip = result.objects[1]
+        # Tip point (first vertex) should be at end of line
+        v0 = tip.vertices[0].at_time(0)
+        assert v0[0] == pytest.approx(100)
+        assert v0[1] == pytest.approx(0)
+
+    def test_start_tip_position_horizontal(self):
+        """Start tip should be at x=0 for a horizontal line from 0 to 100."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        result = line.add_tip(end=False, start=True)
+        tip = result.objects[1]
+        v0 = tip.vertices[0].at_time(0)
+        assert v0[0] == pytest.approx(0)
+        assert v0[1] == pytest.approx(0)
+
+    def test_custom_tip_dimensions(self):
+        line = Line(x1=0, y1=0, x2=200, y2=0)
+        result = line.add_tip(tip_length=30, tip_width=20)
+        tip = result.objects[1]
+        # Tip point at (200, 0), base vertices at x = 200 - 30 = 170
+        v0 = tip.vertices[0].at_time(0)
+        v1 = tip.vertices[1].at_time(0)
+        v2 = tip.vertices[2].at_time(0)
+        assert v0[0] == pytest.approx(200)
+        assert v1[0] == pytest.approx(170)
+        assert v2[0] == pytest.approx(170)
+        # Half-width = 10, perp direction is (0, 1) for rightward line
+        # so base vertices at y = +10 and y = -10
+        assert abs(v1[1]) == pytest.approx(10)
+        assert abs(v2[1]) == pytest.approx(10)
+        assert v1[1] == pytest.approx(-v2[1])
+
+    def test_diagonal_line_tip(self):
+        """Tip should point along the line direction for a diagonal line."""
+        line = Line(x1=0, y1=0, x2=100, y2=100)
+        result = line.add_tip()
+        tip = result.objects[1]
+        v0 = tip.vertices[0].at_time(0)
+        assert v0[0] == pytest.approx(100)
+        assert v0[1] == pytest.approx(100)
+
+    def test_svg_renders(self):
+        """Ensure the result can produce SVG without errors."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        result = line.add_tip(end=True, start=True)
+        svg = result.to_svg(0)
+        assert '<line' in svg
+        assert '<polygon' in svg
+
+    def test_tip_fill_matches_stroke(self):
+        """Tip fill color should match line stroke color."""
+        line = Line(x1=0, y1=0, x2=100, y2=0, stroke='#FF0000')
+        result = line.add_tip()
+        tip = result.objects[1]
+        fill = tip.styling.fill.at_time(0)
+        stroke = line.styling.stroke.at_time(0)
+        assert fill == stroke
+
+
+# ── Text.add_background_rectangle tests ──────────────────────────────────
+
+
+class TestTextAddBackgroundRectangle:
+    def test_returns_vcollection(self):
+        t = Text(text='Hello', x=100, y=100)
+        result = t.add_background_rectangle()
+        assert isinstance(result, VCollection)
+
+    def test_contains_rect_and_text(self):
+        t = Text(text='Hello', x=100, y=100)
+        result = t.add_background_rectangle()
+        assert len(result.objects) == 2
+        assert isinstance(result.objects[0], Rectangle)
+        assert result.objects[1] is t
+
+    def test_rect_has_lower_z_index(self):
+        t = Text(text='Hello', x=100, y=100, z=5)
+        result = t.add_background_rectangle()
+        rect = result.objects[0]
+        assert rect.z.at_time(0) < t.z.at_time(0)
+
+    def test_default_color_and_opacity(self):
+        t = Text(text='Hello', x=100, y=100)
+        result = t.add_background_rectangle()
+        rect = result.objects[0]
+        assert rect.styling.fill.at_time(0) == 'rgb(0,0,0)'
+        assert rect.styling.fill_opacity.at_time(0) == pytest.approx(0.5)
+
+    def test_custom_color_and_opacity(self):
+        t = Text(text='Hello', x=100, y=100)
+        result = t.add_background_rectangle(color='#FF0000', opacity=0.8)
+        rect = result.objects[0]
+        assert rect.styling.fill.at_time(0) == 'rgb(255,0,0)'
+        assert rect.styling.fill_opacity.at_time(0) == pytest.approx(0.8)
+
+    def test_padding(self):
+        t = Text(text='Hello', x=100, y=100, font_size=48)
+        pad = 20
+        bx, by, bw, bh = t.bbox(0)
+        result = t.add_background_rectangle(padding=pad)
+        rect = result.objects[0]
+        assert rect.x.at_time(0) == pytest.approx(bx - pad)
+        assert rect.y.at_time(0) == pytest.approx(by - pad)
+        assert rect.width.at_time(0) == pytest.approx(bw + 2 * pad)
+        assert rect.height.at_time(0) == pytest.approx(bh + 2 * pad)
+
+    def test_svg_renders(self):
+        t = Text(text='Hello', x=100, y=100)
+        result = t.add_background_rectangle()
+        svg = result.to_svg(0)
+        assert '<rect' in svg
+        assert '<text' in svg
+
+    def test_rect_no_stroke(self):
+        t = Text(text='Hello', x=100, y=100)
+        result = t.add_background_rectangle()
+        rect = result.objects[0]
+        assert rect.styling.stroke_width.at_time(0) == 0
+
+
+# ── Circle.from_bounding_box tests ──────────────────────────────────────
+
+
+class TestCircleFromBoundingBox:
+    def test_returns_circle(self):
+        r = Rectangle(width=100, height=100, x=0, y=0)
+        c = Circle.from_bounding_box(r)
+        assert isinstance(c, Circle)
+
+    def test_center_at_bbox_center(self):
+        r = Rectangle(width=100, height=100, x=0, y=0)
+        c = Circle.from_bounding_box(r)
+        cx, cy = c.c.at_time(0)
+        assert cx == pytest.approx(50)
+        assert cy == pytest.approx(50)
+
+    def test_radius_is_half_diagonal(self):
+        r = Rectangle(width=60, height=80, x=0, y=0)
+        c = Circle.from_bounding_box(r)
+        expected_r = math.hypot(30, 40)  # 50
+        assert c.rx.at_time(0) == pytest.approx(expected_r)
+
+    def test_radius_with_padding(self):
+        r = Rectangle(width=60, height=80, x=0, y=0)
+        c = Circle.from_bounding_box(r, padding=10)
+        expected_r = math.hypot(30, 40) + 10  # 60
+        assert c.rx.at_time(0) == pytest.approx(expected_r)
+
+    def test_circumscribes_square(self):
+        r = Rectangle(width=100, height=100, x=50, y=50)
+        c = Circle.from_bounding_box(r)
+        cx, cy = c.c.at_time(0)
+        assert cx == pytest.approx(100)
+        assert cy == pytest.approx(100)
+        assert c.rx.at_time(0) == pytest.approx(math.hypot(50, 50))
+
+    def test_from_circle_object(self):
+        """Circumscribing circle around another circle's bbox."""
+        inner = Circle(r=50, cx=100, cy=100)
+        outer = Circle.from_bounding_box(inner)
+        # bbox of circle is (50, 50, 100, 100)
+        cx, cy = outer.c.at_time(0)
+        assert cx == pytest.approx(100)
+        assert cy == pytest.approx(100)
+        # half-diagonal of 100x100 square
+        assert outer.rx.at_time(0) == pytest.approx(math.hypot(50, 50))
+
+    def test_from_line(self):
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        c = Circle.from_bounding_box(line)
+        cx, cy = c.c.at_time(0)
+        assert cx == pytest.approx(50)
+
+    def test_svg_renders(self):
+        r = Rectangle(width=100, height=100, x=0, y=0)
+        c = Circle.from_bounding_box(r)
+        svg = c.to_svg(0)
+        assert '<circle' in svg
+
+    def test_kwargs_forwarded(self):
+        r = Rectangle(width=100, height=100, x=0, y=0)
+        c = Circle.from_bounding_box(r, stroke='#FF0000')
+        assert c.styling.stroke.at_time(0) == 'rgb(255,0,0)'
+
+
+# ── Axes.annotate_area tests ────────────────────────────────────────────
+
+
+class TestAxesAnnotateArea:
+    def test_returns_vcollection(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.annotate_area(lambda x: x**2, x_range=(0, 2))
+        assert isinstance(result, VCollection)
+
+    def test_area_only_no_label(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.annotate_area(lambda x: x, x_range=(0, 3))
+        # Should have 1 object: the area Path
+        assert len(result.objects) == 1
+
+    def test_area_with_label(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.annotate_area(lambda x: x**2, x_range=(0, 2), label='Area')
+        # Should have 2 objects: area + label
+        assert len(result.objects) == 2
+        label_obj = result.objects[1]
+        assert isinstance(label_obj, Text)
+        assert label_obj.text.at_time(0) == 'Area'
+
+    def test_custom_color_opacity(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.annotate_area(lambda x: x, x_range=(0, 2),
+                                   color='#FF0000', opacity=0.7)
+        area = result.objects[0]
+        assert area.styling.fill.at_time(0) == 'rgb(255,0,0)'
+        assert area.styling.fill_opacity.at_time(0) == pytest.approx(0.7)
+
+    def test_area_added_to_axes(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        n_before = len(ax.objects)
+        ax.annotate_area(lambda x: x**2, x_range=(0, 2))
+        # get_area adds the Path to ax.objects
+        assert len(ax.objects) > n_before
+
+    def test_with_plot_curve(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        curve = ax.plot(lambda x: x**2)
+        result = ax.annotate_area(curve, x_range=(0, 2))
+        assert isinstance(result, VCollection)
+
+    def test_svg_renders(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        ax.annotate_area(lambda x: x, x_range=(0, 2), label='Test')
+        svg = ax.to_svg(0)
+        assert 'Test' in svg
+
+
+# ── NumberLine.add_animated_pointer tests ────────────────────────────────
+
+
+class TestNumberLineAddAnimatedPointer:
+    def test_returns_self(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        result = nl.add_animated_pointer(lambda t: 0)
+        assert result is nl
+
+    def test_adds_objects(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        n_before = len(nl.objects)
+        nl.add_animated_pointer(lambda t: 0)
+        # Should add at least 1 object (triangle) + 1 label
+        assert len(nl.objects) >= n_before + 2
+
+    def test_label_disabled(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        n_before = len(nl.objects)
+        nl.add_animated_pointer(lambda t: 0, label=False)
+        # Should add just 1 object (triangle), no label
+        assert len(nl.objects) == n_before + 1
+
+    def test_pointer_tracks_value(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        nl.add_animated_pointer(lambda t: t * 10)
+        # The last polygon added should be the pointer triangle
+        ptr = None
+        for obj in reversed(nl.objects):
+            if isinstance(obj, Polygon):
+                ptr = obj
+                break
+        assert ptr is not None
+        # At time=0, value=0 => pointer at start
+        v0 = ptr.vertices[2].at_time(0)
+        px0, _ = nl.number_to_point(0)
+        assert v0[0] == pytest.approx(px0, abs=1)
+
+        # At time=0.5, value=5 => pointer at midpoint
+        v05 = ptr.vertices[2].at_time(0.5)
+        px5, _ = nl.number_to_point(5)
+        assert v05[0] == pytest.approx(px5, abs=1)
+
+    def test_label_text_updates(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        nl.add_animated_pointer(lambda t: t * 10)
+        # Find the label Text object
+        lbl = None
+        for obj in reversed(nl.objects):
+            if isinstance(obj, Text):
+                lbl = obj
+                break
+        assert lbl is not None
+        # At time=0, value=0
+        assert float(lbl.text.at_time(0)) == pytest.approx(0.0)
+        # At time=0.5, value=5.0
+        assert float(lbl.text.at_time(0.5)) == pytest.approx(5.0)
+
+    def test_svg_renders(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        nl.add_animated_pointer(lambda t: t)
+        svg = nl.to_svg(0)
+        assert '<polygon' in svg
+
+    def test_pointer_with_end_time(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        nl.add_animated_pointer(lambda t: 0, start=0, end=2)
+        # The pointer polygon should be hidden after end time
+        ptr = None
+        for obj in reversed(nl.objects):
+            if isinstance(obj, Polygon):
+                ptr = obj
+                break
+        assert ptr is not None
+        # Should be visible at t=1 and hidden at t=3
+        assert ptr.show.at_time(1) == True
+        assert ptr.show.at_time(3) == False
