@@ -76,7 +76,7 @@ VCollection
       :width: 500
       :align: center
 
-   .. py:method:: arrange(direction='right', buff=12, start=0)
+   .. py:method:: arrange(direction='right', buff=14, start=0)
 
       Lay out children in a row or column.
 
@@ -101,7 +101,7 @@ VCollection
 
       Bounding box (optionally for a sub-range of children).
 
-   .. py:method:: brect(time, start_idx=0, end_idx=None, rx=0, ry=0, buff=12, follow=True)
+   .. py:method:: brect(time, start_idx=0, end_idx=None, rx=0, ry=0, buff=14, follow=True)
 
       Bounding rectangle. Returns a :py:class:`Rectangle`.
 
@@ -125,15 +125,15 @@ VCollection
 
    .. rubric:: Layout (additional)
 
-   .. py:method:: arrange_in_grid(rows=None, cols=None, buff=12, start=0)
+   .. py:method:: arrange_in_grid(rows=None, cols=None, buff=14, start=0)
 
       Lay out children in a grid of *rows* x *cols*.
 
-   .. py:method:: animated_arrange(direction='right', buff=12, start=0, end=1)
+   .. py:method:: animated_arrange(direction='right', buff=14, start=0, end=1)
 
       Animated version of :py:meth:`arrange`: children slide to arranged positions.
 
-   .. py:method:: animated_arrange_in_grid(rows=None, cols=None, buff=12, start=0, end=1)
+   .. py:method:: animated_arrange_in_grid(rows=None, cols=None, buff=14, start=0, end=1)
 
       Animated version of :py:meth:`arrange_in_grid`.
 
@@ -343,7 +343,7 @@ Brace
    :width: 400
    :align: center
 
-.. py:class:: Brace(target, direction='down', label=None, buff=12, depth=18, **styling)
+.. py:class:: Brace(target, direction='down', label=None, buff=14, depth=18, **styling)
 
    Bases: :py:class:`VCollection`
 

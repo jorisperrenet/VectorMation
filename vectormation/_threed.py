@@ -4,7 +4,7 @@ from xml.sax.saxutils import escape as _xml_escape
 
 import vectormation.easings as easings
 import vectormation.attributes as attributes
-from vectormation._base import VObject, VCollection
+from vectormation._base import VObject, VCollection, _lerp
 
 # ---------------------------------------------------------------------------
 # Projection helpers
@@ -177,13 +177,9 @@ class ThreeDAxes(VCollection):
         """Animate camera angles over [start, end]."""
         dur = max(end - start, 1e-9)
         if phi is not None:
-            phi0 = self.phi.at_time(start)
-            self.phi.set(start, end,
-                lambda t, _s=start, _d=dur, _p0=phi0, _p=phi: _p0 + (_p - _p0) * easing((t - _s) / _d))
+            self.phi.set(start, end, _lerp(start, dur, self.phi.at_time(start), phi, easing))
         if theta is not None:
-            theta0 = self.theta.at_time(start)
-            self.theta.set(start, end,
-                lambda t, _s=start, _d=dur, _t0=theta0, _th=theta: _t0 + (_th - _t0) * easing((t - _s) / _d))
+            self.theta.set(start, end, _lerp(start, dur, self.theta.at_time(start), theta, easing))
         return self
 
     def _build_axis_label(self, label_text, pos_3d, creation):
@@ -227,9 +223,7 @@ class ThreeDAxes(VCollection):
         """Animate the 3D camera zoom (scale) over [start, end]."""
         dur = max(end - start, 1e-9)
         s0 = self._scale_3d.at_time(start)
-        target = s0 * factor
-        self._scale_3d.set(start, end,
-            lambda t, _s=start, _d=dur, _s0=s0, _tgt=target: _s0 + (_tgt - _s0) * easing((t - _s) / _d))
+        self._scale_3d.set(start, end, _lerp(start, dur, s0, s0 * factor, easing))
         return self
 
     def begin_ambient_camera_rotation(self, start=0, end=None, rate=0.1):

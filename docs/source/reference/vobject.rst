@@ -75,7 +75,7 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Move the object's centre along an SVG path string over ``[start, end]``.
 
-   .. py:method:: next_to(other, direction='right', buff=12, start=0)
+   .. py:method:: next_to(other, direction='right', buff=14, start=0)
 
       Position adjacent to *other*. ``direction`` can be ``'right'``, ``'left'``,
       ``'up'``, or ``'down'``.
@@ -215,7 +215,7 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Wave distortion.
 
-   .. py:method:: circumscribe(start=0, end=1, buff=12, color='#FFFF00', stroke_width=4, easing=smooth)
+   .. py:method:: circumscribe(start=0, end=1, buff=14, color='#FFFF00', stroke_width=4, easing=smooth)
 
       Draw then remove a tracing rectangle. Returns a :py:class:`Path`.
 
@@ -231,15 +231,15 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Spiral out with rotation.
 
-   .. py:method:: bounce(start=0, end=1, height=100, bounces=3, easing=smooth)
+   .. py:method:: bounce(start=0, end=1, height=50, bounces=3, easing=smooth)
 
       Bouncing ball effect.
 
-   .. py:method:: orbit(start=0, end=1, cx=None, cy=None, radius=100, easing=linear)
+   .. py:method:: orbit(cx, cy, radius=None, start=0, end=1, degrees=360, easing=linear)
 
       Orbit around a centre point.
 
-   .. py:method:: ripple(start=0, end=1, rings=3, easing=smooth)
+   .. py:method:: ripple(start=0, count=3, duration=0.5, max_radius=100, color='#58C4DD', stroke_width=2)
 
       Expanding rings from the object.
 
@@ -247,7 +247,7 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Damped spring oscillation.
 
-   .. py:method:: shake(start=0, end=1, intensity=10, speed=20)
+   .. py:method:: shake(start=0, end=0.5, amplitude=5, frequency=20, easing=there_and_back)
 
       Random jitter.
 
@@ -259,13 +259,53 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Gentle floating up/down animation.
 
-   .. py:method:: trail(start=0, end=1, n_copies=5, delay=0.1, fade=True)
+   .. py:method:: trail(start=0, end=1, num_copies=5, fade=True)
 
       Ghostly trail of fading copies following the object.
 
-   .. py:method:: cross_out(start=0, end=1, color='#FC6255', stroke_width=4)
+   .. py:method:: cross_out(start=0, end=0.5, color='#FC6255', stroke_width=4)
 
       Draw an X through the object.
+
+   .. py:method:: shimmer(start=0, end=1, passes=2, easing=smooth)
+
+      Shimmer the fill — briefly tints toward white and back.
+
+   .. py:method:: swing(start=0, end=1, amplitude=15, damping=3, easing=smooth)
+
+      Single damped pendulum swing.
+
+   .. py:method:: undulate(start=0, end=1, amplitude=0.15, waves=2, easing=smooth)
+
+      Decaying scale wave.
+
+   .. py:method:: glitch(start=0, end=1, intensity=10, flashes=5)
+
+      Random offset glitch flickers.
+
+   .. py:method:: highlight_border(start=0, duration=0.5, color='#FFFF00', width=4)
+
+      Briefly flash the object's border.
+
+   .. py:method:: flash_color(start=0, duration=0.4, color='#FFFF00')
+
+      Briefly flash a fill color (uses ``duration``).
+
+   .. py:method:: pulse_outline(start=0, end=1, color='#FFFF00', stroke_width=4, easing=smooth)
+
+      Pulsating outline glow.
+
+   .. py:method:: emphasize(start=0, duration=0.8, color='#FFFF00', scale_factor=1.15, easing=there_and_back)
+
+      Combined flash + scale emphasis (uses ``duration``).
+
+   .. py:method:: breathe(start=0, end=1, amplitude=0.08, speed=1.0, easing=smooth)
+
+      Gentle continuous breathing — steady scale oscillation.
+
+   .. py:method:: heartbeat(start=0, end=1, speed=1.5, scale=1.1, easing=smooth)
+
+      Heartbeat-style double-pulse.
 
    .. py:method:: dim(start=0, end=None, opacity=0.3, easing=smooth)
 
@@ -274,6 +314,42 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
    .. py:method:: undim(start=0, end=None, easing=smooth)
 
       Restore full opacity after :py:meth:`dim`.
+
+   .. py:method:: set_width(width, start=0, stretch=False)
+
+      Set the object width at *start*.
+
+   .. py:method:: set_height(height, start=0, stretch=False)
+
+      Set the object height at *start*.
+
+   .. py:method:: broadcast(start=0, duration=0.5, color=None, max_radius=200)
+
+      Expanding ring broadcast from the object centre.
+
+   .. py:method:: clone(n=1, direction='right', buff=SMALL_BUFF, start=0)
+
+      Create *n* fading clones positioned next to self.
+
+   .. py:method:: add_label(text, direction='up', buff=20, font_size=None, start=0)
+
+      Attach a text label next to the object.
+
+   .. py:method:: place_between(a, b, alpha=0.5, start=0)
+
+      Position self on the line between objects *a* and *b*.
+
+   .. py:method:: show_if(predicate, start=0, end=None)
+
+      Show the object only when *predicate(t)* is true.
+
+   .. py:method:: always_next_to(other, direction='right', buff=14, start=0, end=None)
+
+      Updater that continuously positions self next to *other*.
+
+   .. py:method:: attach_to(other, direction=None, buff=None, start=0, end=None)
+
+      Updater that attaches self to *other*.
 
    .. rubric:: State
 
@@ -305,12 +381,12 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Swap positions of two objects.
 
-   .. py:method:: surround(other, buff=12, rx=6, ry=6, start=0, follow=True)
+   .. py:method:: surround(other, buff=14, rx=6, ry=6, start=0, follow=True)
       :staticmethod:
 
       Create a surrounding rectangle around *other*.
 
-   .. py:method:: brect(time=0, rx=0, ry=0, buff=12, follow=True)
+   .. py:method:: brect(time=0, rx=0, ry=0, buff=14, follow=True)
 
       Bounding rectangle. Returns a :py:class:`Rectangle`.
 

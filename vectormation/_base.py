@@ -1517,7 +1517,7 @@ class VObject(ABC):  # Vector Object
         self.add_updater(_update, start=start, end=end)
         return self
 
-    def always_next_to(self, other, direction=RIGHT, buff=MED_SMALL_BUFF, start=0, end=None):
+    def always_next_to(self, other, direction=RIGHT, buff=SMALL_BUFF, start=0, end=None):
         """Continuously position self next to *other* as it moves.
 
         Uses an updater that calls ``next_to`` each frame so that
@@ -1802,9 +1802,11 @@ class VObject(ABC):  # Vector Object
     def flash(self, start: float = 0, end: float = 1, color='#FFFF00', easing=easings.there_and_back):
         """Briefly flash a fill color and return to original."""
         original = self.styling.fill.time_func(start)
-        assert isinstance(original, tuple)
+        if not isinstance(original, tuple):
+            return self
         _, target_color = attributes.Color(0, color).parse(color)
-        assert isinstance(target_color, tuple)
+        if not isinstance(target_color, tuple):
+            return self
         s, e = start, end
         dur = e - s
         if dur <= 0:

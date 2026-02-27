@@ -11484,15 +11484,15 @@ class TestAlwaysNextTo:
         a._run_updaters(0.8)
 
     def test_default_buff(self):
-        """Default buff should be MED_SMALL_BUFF (34)."""
+        """Default buff should be SMALL_BUFF (14), matching next_to."""
         a = Circle(r=20, cx=100, cy=100)
         b = Circle(r=20, cx=300, cy=300)
         a.always_next_to(b)
         a._run_updaters(0)
         ax = a.center(0)[0]
         bx, by, bw, bh = b.bbox(0)
-        # a should be to the right of b with MED_SMALL_BUFF gap
-        expected_ax = bx + bw + MED_SMALL_BUFF + 20  # 20 = a's radius
+        # a should be to the right of b with SMALL_BUFF gap
+        expected_ax = bx + bw + SMALL_BUFF + 20  # 20 = a's radius
         assert ax == pytest.approx(expected_ax, abs=2)
 
 
@@ -13226,3 +13226,95 @@ class TestRegressionLineEdgeCases:
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
         result = ax.add_regression_line([1, 2, 3], [1, 2, 3])
         assert result is not None
+
+
+class TestShimmerAnim:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.shimmer(start=0, end=1) is c
+
+    def test_renders_mid(self):
+        c = Circle(fill='#ff0000')
+        c.shimmer(start=0, end=1, passes=2)
+        svg = c.to_svg(0.5)
+        assert isinstance(svg, str)
+
+
+class TestSwingAnim:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.swing(start=0, end=1) is c
+
+    def test_renders_mid(self):
+        c = Circle()
+        c.swing(start=0, end=1, amplitude=30)
+        svg = c.to_svg(0.5)
+        assert isinstance(svg, str)
+
+
+class TestUndulateAnim:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.undulate(start=0, end=1) is c
+
+    def test_renders_mid(self):
+        c = Circle(cx=960, cy=540)
+        c.undulate(start=0, end=1, amplitude=0.2)
+        svg = c.to_svg(0.5)
+        assert isinstance(svg, str)
+
+
+class TestRippleEffect:
+    def test_returns_vcollection(self):
+        from vectormation._base import VCollection
+        c = Circle()
+        result = c.ripple(start=0)
+        assert isinstance(result, VCollection)
+
+    def test_with_count(self):
+        c = Circle(cx=960, cy=540)
+        c.ripple(start=0, count=2, duration=1)
+        assert isinstance(c, Circle)
+
+
+class TestHighlightBorderAnim:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.highlight_border(start=0) is c
+
+
+class TestFlashHighlightAnim:
+    def test_returns_rectangle(self):
+        from vectormation._shapes import Rectangle
+        c = Circle()
+        result = c.flash_highlight(start=0)
+        assert isinstance(result, Rectangle)
+
+
+class TestPulseOutlineAnim:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.pulse_outline(start=0) is c
+
+
+class TestGlitchAnim:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.glitch(start=0, end=1) is c
+
+
+class TestFlashNoFill:
+    """flash() should return self gracefully when object has no fill."""
+    def test_flash_no_fill_returns_self(self):
+        from vectormation._shapes import Line
+        line = Line(x1=0, y1=0, x2=100, y2=100)
+        result = line.flash(start=0, end=1)
+        assert result is line
+
+
+class TestAlwaysNextToBuff:
+    """always_next_to should default to SMALL_BUFF matching next_to."""
+    def test_default_buff_matches_next_to(self):
+        import inspect
+        sig = inspect.signature(Circle.always_next_to)
+        assert sig.parameters['buff'].default == 14  # SMALL_BUFF

@@ -139,9 +139,9 @@ Graph
 
       Scatter plot with dots.
 
-   .. py:method:: plot_step(func, **styling)
+   .. py:method:: plot_step(x_values, y_values, **styling)
 
-      Step function plot.
+      Step function plot from paired x/y value lists.
 
    .. py:method:: plot_polar(func, **styling)
 

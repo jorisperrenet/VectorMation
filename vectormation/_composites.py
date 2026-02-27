@@ -953,7 +953,7 @@ class Axes(VCollection):
         cy = self.plot_y + self.plot_height / 2
         return (cx, cy)
 
-    def annotate_point(self, x, y, label='', direction='up', buff=15,
+    def annotate_point(self, x, y, label='', direction='up', buff=SMALL_BUFF,
                        creation=0, z=0, **styling_kwargs):
         """Add a dot and label at a math coordinate.
 

@@ -68,6 +68,11 @@ class TestColorGradient:
         # Midpoint should be gray
         assert result[1] in ('#7f7f7f', '#808080', '#7f7f7f')
 
+    def test_single_color(self):
+        result = color_gradient('#ff0000', '#0000ff', 1)
+        assert len(result) == 1
+        assert result[0] == '#ff0000'
+
     def test_named_colors(self):
         result = color_gradient('RED', 'BLUE', 5)
         assert len(result) == 5

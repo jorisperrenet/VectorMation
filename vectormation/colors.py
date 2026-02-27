@@ -179,6 +179,8 @@ def color_gradient(color1, color2, n=5):
         color2 = colors[color2]
     r1, g1, b1 = _hex_to_rgb(color1)
     r2, g2, b2 = _hex_to_rgb(color2)
+    if n <= 1:
+        return [_rgb_to_hex(r1, g1, b1)]
     return [_rgb_to_hex(r1 + (r2 - r1) * i / (n - 1),
                         g1 + (g2 - g1) * i / (n - 1),
                         b1 + (b2 - b1) * i / (n - 1))
