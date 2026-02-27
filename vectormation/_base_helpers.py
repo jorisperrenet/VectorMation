@@ -8,7 +8,7 @@ import vectormation.morphing as morphing
 from vectormation._constants import (
     CANVAS_WIDTH, CANVAS_HEIGHT,
     UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR,
-    SMALL_BUFF, MED_SMALL_BUFF,
+    SMALL_BUFF, MED_SMALL_BUFF, DEFAULT_OBJECT_TO_EDGE_BUFF,
 )
 
 def _lerp(start, dur, a, b, easing):
@@ -162,5 +162,84 @@ def _to_corner_impl(obj, corner, buff, start, end, easing):
     ty = buff + h / 2 if 'top' in corner else CANVAS_HEIGHT - buff - h / 2
     return obj.center_to_pos(posx=tx, posy=ty, start=start,
                              end=end, easing=easing)
+
+
+class _BBoxMethodsMixin:
+    """Mixin providing bbox-derived measurement and positioning methods.
+
+    Requires subclasses to define ``bbox(time)`` and ``center_to_pos()``.
+    Eliminates duplication between VObject and VCollection.
+    """
+
+    def center(self, time: float = 0):
+        """Return (cx, cy) of the bounding box at the given time."""
+        x, y, w, h = self.bbox(time)
+        return (x + w / 2, y + h / 2)
+
+    get_center = center
+
+    def get_width(self, time=0):
+        """Return the bounding box width."""
+        return self.bbox(time)[2]
+
+    def get_height(self, time=0):
+        """Return the bounding box height."""
+        return self.bbox(time)[3]
+
+    def get_x(self, time=0):
+        """Return x-coordinate of the bounding box center."""
+        return self.center(time)[0]
+
+    def get_y(self, time=0):
+        """Return y-coordinate of the bounding box center."""
+        return self.center(time)[1]
+
+    def get_diagonal(self, time=0):
+        """Return the diagonal length of the bounding box."""
+        _, _, w, h = self.bbox(time)
+        return math.hypot(w, h)
+
+    def get_aspect_ratio(self, time=0):
+        """Return width/height ratio of the bounding box."""
+        _, _, w, h = self.bbox(time)
+        return w / h if h != 0 else float('inf')
+
+    def distance_to(self, other, time=0):
+        """Return the distance between centers."""
+        x1, y1 = self.center(time)
+        x2, y2 = other.center(time)
+        return math.hypot(x2 - x1, y2 - y1)
+
+    def is_overlapping(self, other, time=0):
+        """Return True if bounding boxes overlap."""
+        x1, y1, w1, h1 = self.bbox(time)
+        x2, y2, w2, h2 = other.bbox(time)
+        return not (x1 + w1 < x2 or x2 + w2 < x1 or y1 + h1 < y2 or y2 + h2 < y1)
+
+    def get_edge(self, edge, time=0):
+        """Return coordinate of a named edge point."""
+        return _get_edge_impl(self.bbox, edge, time)
+
+    def get_left(self, time=0):
+        return self.get_edge('left', time)
+
+    def get_right(self, time=0):
+        return self.get_edge('right', time)
+
+    def get_top(self, time=0):
+        return self.get_edge('top', time)
+
+    def get_bottom(self, time=0):
+        return self.get_edge('bottom', time)
+
+    def to_edge(self, edge=DOWN, buff=DEFAULT_OBJECT_TO_EDGE_BUFF,
+                start: float = 0, end=None, easing=easings.smooth):
+        """Move to a canvas edge."""
+        return _to_edge_impl(self, edge, buff, start, end, easing)
+
+    def to_corner(self, corner=DR, buff=DEFAULT_OBJECT_TO_EDGE_BUFF,
+                  start: float = 0, end=None, easing=easings.smooth):
+        """Move to a canvas corner."""
+        return _to_corner_impl(self, corner, buff, start, end, easing)
 
 

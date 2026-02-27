@@ -6,7 +6,7 @@ from typing import Any
 from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
     CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
-    SMALL_BUFF, MED_SMALL_BUFF, DEFAULT_OBJECT_TO_EDGE_BUFF,
+    SMALL_BUFF, MED_SMALL_BUFF,
     UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR,
 )
 
@@ -31,11 +31,12 @@ from vectormation._base_helpers import (
     _norm_dir, _norm_edge, _coords_of, _set_attr, _parse_path, _path_prefix,
     _DIR_NAMES, _EDGE_NAMES, _CORNER_MAP, _EDGE_POINTS,
     _make_brect, _to_edge_impl, _get_edge_impl, _to_corner_impl,
+    _BBoxMethodsMixin,
 )
 from vectormation._base_effects import _VObjectEffectsMixin
 
 
-class VObject(_VObjectEffectsMixin, ABC):  # Vector Object
+class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
     """Base class for all vector objects with time-varying attributes."""
 
     @abstractmethod
@@ -99,91 +100,21 @@ class VObject(_VObjectEffectsMixin, ABC):  # Vector Object
     def last_change(self):
         return max(a.last_change for a in [*self._extra_attrs(), self.styling, self.z, self.show])
 
-    def center(self, time: float = 0):
-        """Return (cx, cy) of the bounding box at the given time."""
-        x, y, w, h = self.bbox(time)
-        return (x + w / 2, y + h / 2)
-
-    def get_width(self, time=0):
-        """Return the bounding box width at the given time."""
-        return self.bbox(time)[2]
-
-    def get_height(self, time=0):
-        """Return the bounding box height at the given time."""
-        return self.bbox(time)[3]
-
     def is_on_screen(self, time=0):
-        """Return True if the object's bounding box overlaps the visible canvas.
-
-        The canvas is the rectangle (0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).  An object with
-        zero-size bounding box is considered off-screen.
-        """
+        """Return True if the object's bounding box overlaps the visible canvas."""
         x, y, w, h = self.bbox(time)
         if w <= 0 or h <= 0:
             return False
-        # Check rectangle intersection with canvas
         return x + w > 0 and x < CANVAS_WIDTH and y + h > 0 and y < CANVAS_HEIGHT
 
-    def get_center(self, time=0):
-        """Return (x, y) of the bounding box center."""
-        return self.center(time)
-
-    def distance_to(self, other, time=0):
-        """Return the distance between this object's center and another's."""
-        x1, y1 = self.center(time)
-        x2, y2 = other.center(time)
-        return math.hypot(x2 - x1, y2 - y1)
-
-    def get_diagonal(self, time=0):
-        """Return the diagonal length of the bounding box."""
-        _, _, w, h = self.bbox(time)
-        return math.hypot(w, h)
-
-    def get_aspect_ratio(self, time=0):
-        """Return width/height ratio of the bounding box."""
-        _, _, w, h = self.bbox(time)
-        return w / h if h != 0 else float('inf')
-
-    def is_overlapping(self, other, time=0):
-        """Return True if this object's bbox overlaps with other's bbox."""
-        x1, y1, w1, h1 = self.bbox(time)
-        x2, y2, w2, h2 = other.bbox(time)
-        return not (x1 + w1 < x2 or x2 + w2 < x1 or y1 + h1 < y2 or y2 + h2 < y1)
-
-    def get_edge(self, edge, time=0):
-        """Return coordinate of a named edge point.
-        edge: 'top', 'bottom', 'left', 'right',
-              'top_left', 'top_right', 'bottom_left', 'bottom_right', 'center'."""
-        return _get_edge_impl(self.bbox, edge, time)
-
     def get_bounds(self, time=0):
-        """Return a dict with bounding box properties: x, y, width, height, left, right, top, bottom, center."""
+        """Return a dict with bounding box properties."""
         bx, by, bw, bh = self.bbox(time)
         return {
             'x': bx, 'y': by, 'width': bw, 'height': bh,
             'left': bx, 'right': bx + bw, 'top': by, 'bottom': by + bh,
             'center': self.center(time),
         }
-
-    def get_left(self, time=0):
-        return self.get_edge('left', time)
-
-    def get_right(self, time=0):
-        return self.get_edge('right', time)
-
-    def get_top(self, time=0):
-        return self.get_edge('top', time)
-
-    def get_bottom(self, time=0):
-        return self.get_edge('bottom', time)
-
-    def get_x(self, time=0):
-        """Return x-coordinate of the bounding box center."""
-        return self.center(time)[0]
-
-    def get_y(self, time=0):
-        """Return y-coordinate of the bounding box center."""
-        return self.center(time)[1]
 
     def set_x(self, x, start: float = 0):
         """Set the x-coordinate of the center (by shifting)."""
@@ -216,16 +147,6 @@ class VObject(_VObjectEffectsMixin, ABC):  # Vector Object
                    stretch=False, easing=None):
         """Scale so the bounding box has the given height. If stretch=True, only scale Y."""
         return self._set_dim(self.get_height, self.styling.scale_y, height, start, end, stretch, easing)
-
-    def to_edge(self, edge: str | tuple = DOWN, buff=DEFAULT_OBJECT_TO_EDGE_BUFF,
-                start: float = 0, end: float | None = None, easing=easings.smooth):
-        """Move object to a canvas edge. edge: UP/DOWN/LEFT/RIGHT or string."""
-        return _to_edge_impl(self, edge, buff, start, end, easing)
-
-    def to_corner(self, corner: str | tuple = DR, buff=DEFAULT_OBJECT_TO_EDGE_BUFF,
-                  start: float = 0, end: float | None = None, easing=easings.smooth):
-        """Move object to a canvas corner. corner: UL/UR/DL/DR or string."""
-        return _to_corner_impl(self, corner, buff, start, end, easing)
 
     def set_z(self, value, start: float = 0):
         """Set the z-order (draw order) of this object."""

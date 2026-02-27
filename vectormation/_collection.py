@@ -5,17 +5,14 @@ from copy import deepcopy
 
 import vectormation.easings as easings
 import vectormation.attributes as attributes
-from vectormation._constants import (
-    ORIGIN, SMALL_BUFF,
-    DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_OBJECT_TO_OBJECT_BUFF,
-    UP, DOWN, RIGHT, DR,
-)
+from vectormation._constants import ORIGIN, SMALL_BUFF, UP, DOWN, RIGHT, DR
 from vectormation._base import (
     VObject, _norm_dir, _norm_edge, _ramp, _lerp_point,
     _DIR_NAMES, _EDGE_NAMES,
-    _make_brect, _set_attr, _to_edge_impl, _to_corner_impl, _get_edge_impl, _parse_path,
+    _make_brect, _set_attr, _parse_path,
+    _BBoxMethodsMixin,
 )
-class VCollection:
+class VCollection(_BBoxMethodsMixin):
     """Container for a group of VObjects, delegating operations to children."""
 
     def __init__(self, *objects, creation: float = 0, z: float = 0):
@@ -183,24 +180,6 @@ class VCollection:
         """Move the collection's center to (posx, posy)."""
         return self.move_to(posx, posy, start, end, easing)
 
-    def center(self, time: float = 0):
-        x, y, w, h = self.bbox(time)
-        return (x + w / 2, y + h / 2)
-
-    get_center = center
-
-    def get_x(self, time=0):
-        return self.center(time)[0]
-
-    def get_y(self, time=0):
-        return self.center(time)[1]
-
-    def get_width(self, time=0):
-        return self.bbox(time)[2]
-
-    def get_height(self, time=0):
-        return self.bbox(time)[3]
-
     def _scale_to_dim(self, cur, target, start, end, easing):
         """Scale to match a target dimension (width or height)."""
         if cur == 0:
@@ -218,70 +197,12 @@ class VCollection:
         return self._scale_to_dim(self.get_height(start), height, start, end, easing)
 
     def total_width(self, time=0):
-        """Return the sum of all children's individual bounding-box widths at *time*.
-
-        Useful after :meth:`arrange` to know the combined span before padding.
-        Unlike :meth:`get_width` (which returns the overall bbox width including gaps),
-        this sums each child's width independently.
-        """
+        """Return sum of children's widths (not overall bbox width)."""
         return sum(obj.bbox(time)[2] for obj in self.objects)
 
     def total_height(self, time=0):
-        """Return the sum of all children's individual bounding-box heights at *time*.
-
-        Useful after a vertical :meth:`arrange` to know the combined span before padding.
-        Unlike :meth:`get_height` (which returns the overall bbox height including gaps),
-        this sums each child's height independently.
-        """
+        """Return sum of children's heights (not overall bbox height)."""
         return sum(obj.bbox(time)[3] for obj in self.objects)
-
-    def get_diagonal(self, time=0):
-        """Return the diagonal length of the bounding box."""
-        _, _, w, h = self.bbox(time)
-        return math.hypot(w, h)
-
-    def get_aspect_ratio(self, time=0):
-        """Return width/height ratio of the bounding box."""
-        _, _, w, h = self.bbox(time)
-        return w / h if h != 0 else float('inf')
-
-    def distance_to(self, other, time=0):
-        """Return the distance between this collection's center and another object's center."""
-        x1, y1 = self.center(time)
-        x2, y2 = other.center(time)
-        return math.hypot(x2 - x1, y2 - y1)
-
-    def is_overlapping(self, other, time=0):
-        """Return True if this collection's bbox overlaps with other's bbox."""
-        x1, y1, w1, h1 = self.bbox(time)
-        x2, y2, w2, h2 = other.bbox(time)
-        return not (x1 + w1 < x2 or x2 + w2 < x1 or y1 + h1 < y2 or y2 + h2 < y1)
-
-    def get_edge(self, edge, time=0):
-        """Return coordinate of a named edge point (same API as VObject.get_edge)."""
-        return _get_edge_impl(self.bbox, edge, time)
-
-    def get_left(self, time=0):
-        return self.get_edge('left', time)
-
-    def get_right(self, time=0):
-        return self.get_edge('right', time)
-
-    def get_top(self, time=0):
-        return self.get_edge('top', time)
-
-    def get_bottom(self, time=0):
-        return self.get_edge('bottom', time)
-
-    def to_edge(self, edge: str | tuple = DOWN, buff=DEFAULT_OBJECT_TO_EDGE_BUFF,
-                start: float = 0, end: float | None = None, easing=easings.smooth):
-        """Move group to a canvas edge."""
-        return _to_edge_impl(self, edge, buff, start, end, easing)
-
-    def to_corner(self, corner: str | tuple = DR, buff=DEFAULT_OBJECT_TO_EDGE_BUFF,
-                  start: float = 0, end: float | None = None, easing=easings.smooth):
-        """Move group to a canvas corner."""
-        return _to_corner_impl(self, corner, buff, start, end, easing)
 
     def filter(self, predicate):
         """Return a new VCollection with only children matching predicate(obj) -> bool."""
