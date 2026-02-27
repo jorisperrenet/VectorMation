@@ -13942,3 +13942,33 @@ class TestCutout:
         c = Cutout(hole_x=100, hole_y=100, hole_w=200, hole_h=200, rx=10, ry=10)
         svg = c.to_svg(0)
         assert 'a10,10' in svg  # arc commands for rounded corners
+
+
+class TestConvexHull:
+    def test_from_points(self):
+        from vectormation.objects import ConvexHull
+        hull = ConvexHull((0, 0), (100, 0), (50, 50), (100, 100), (0, 100))
+        assert 'ConvexHull' in repr(hull)
+        svg = hull.to_svg(0)
+        assert '<polygon' in svg
+
+    def test_from_objects(self):
+        from vectormation.objects import ConvexHull, Dot
+        d1 = Dot(cx=100, cy=100)
+        d2 = Dot(cx=200, cy=100)
+        d3 = Dot(cx=150, cy=200)
+        hull = ConvexHull(d1, d2, d3)
+        assert hull.vertices is not None
+        assert len(hull.vertices) >= 3
+
+    def test_collinear_points(self):
+        from vectormation.objects import ConvexHull
+        hull = ConvexHull((0, 0), (50, 0), (100, 0), (50, 50))
+        svg = hull.to_svg(0)
+        assert '<polygon' in svg
+
+    def test_mixed_items(self):
+        from vectormation.objects import ConvexHull, Circle
+        c = Circle(r=10, cx=200, cy=200)
+        hull = ConvexHull((0, 0), (100, 0), c)
+        assert 'ConvexHull' in repr(hull)

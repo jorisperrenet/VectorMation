@@ -791,3 +791,49 @@ class Cutout(VObject):
 
     def __repr__(self):
         return f'Cutout(hole=({self.hole_x.at_time(0)}, {self.hole_y.at_time(0)}))'
+
+
+def _convex_hull(points):
+    """Andrew's monotone chain algorithm. Returns hull vertices in CCW order."""
+    pts = sorted(set(points))
+    if len(pts) <= 1:
+        return pts
+    # Build lower hull
+    lower = []
+    for p in pts:
+        while len(lower) >= 2 and _cross(lower[-2], lower[-1], p) <= 0:
+            lower.pop()
+        lower.append(p)
+    # Build upper hull
+    upper = []
+    for p in reversed(pts):
+        while len(upper) >= 2 and _cross(upper[-2], upper[-1], p) <= 0:
+            upper.pop()
+        upper.append(p)
+    return lower[:-1] + upper[:-1]
+
+
+def _cross(o, a, b):
+    return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+
+
+class ConvexHull(Polygon):
+    """Convex hull polygon around a set of points or objects.
+
+    *items* can be (x, y) tuples or VObject instances (their centers are used).
+    """
+    def __init__(self, *items, creation=0, z=0, **styling_kwargs):
+        points = []
+        for item in items:
+            if isinstance(item, (tuple, list)) and len(item) == 2:
+                points.append(tuple(item))
+            elif isinstance(item, VObject):
+                points.append(item.center(creation))
+            else:
+                raise TypeError(f"ConvexHull items must be (x,y) tuples or VObjects, got {type(item)}")
+        hull = _convex_hull(points)
+        style_kw = {'fill_opacity': 0.15, 'stroke': '#58C4DD', 'stroke_width': 2} | styling_kwargs
+        super().__init__(*hull, creation=creation, z=z, **style_kw)
+
+    def __repr__(self):
+        return f'ConvexHull({len(self.vertices)} vertices)'
