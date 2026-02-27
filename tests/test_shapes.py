@@ -6,7 +6,7 @@ from vectormation.objects import (
     Path, Trace, Text, Dot, AnnotationDot, Wedge, Sector, Star, RoundedRectangle, DashedLine,
     NumberLine, EquilateralTriangle, Triangle, Arrow, Vector, CurvedArrow, VObject, VCollection,
     from_svg, CountAnimation, Annulus, FunctionGraph, Square, Integer,
-    AnnularSector, PieChart, DonutChart, Axes, Brace, Table, BarChart,
+    AnnularSector, ArcPolygon, PieChart, DonutChart, Axes, Brace, Table, BarChart,
 )
 from vectormation.attributes import Coor
 import vectormation.easings as easings
@@ -11613,3 +11613,47 @@ class TestComplexValueTracker:
         from vectormation.objects import ComplexValueTracker
         cvt = ComplexValueTracker(1+2j)
         assert 'ComplexValueTracker' in repr(cvt)
+
+
+class TestArcPolygon:
+    def test_basic_creation(self):
+        ap = ArcPolygon((100, 100), (200, 100), (150, 50))
+        assert 'ArcPolygon' in repr(ap)
+        assert '3 vertices' in repr(ap)
+
+    def test_svg_contains_arc(self):
+        ap = ArcPolygon((100, 100), (200, 100), (150, 50), arc_angles=45)
+        svg = ap.to_svg(0)
+        assert '<path' in svg
+        assert 'A' in svg  # arc command present
+
+    def test_straight_edges_with_zero_angle(self):
+        ap = ArcPolygon((100, 100), (200, 100), (150, 50), arc_angles=0)
+        path = ap.path(0)
+        assert 'A' not in path  # no arc commands
+        assert 'L' in path  # only line commands
+
+    def test_per_edge_angles(self):
+        ap = ArcPolygon((100, 100), (200, 100), (150, 50), arc_angles=[30, 0, -30])
+        path = ap.path(0)
+        assert 'Z' in path  # closed
+
+    def test_minimum_vertices_error(self):
+        with pytest.raises(ValueError):
+            ArcPolygon((100, 100), (200, 100))
+
+
+class TestSmoothererstep:
+    def test_zero(self):
+        assert easings.smoothererstep(0) == 0
+
+    def test_one(self):
+        assert easings.smoothererstep(1) == 1
+
+    def test_half(self):
+        assert easings.smoothererstep(0.5) == pytest.approx(0.5, abs=0.01)
+
+    def test_monotonic(self):
+        values = [easings.smoothererstep(i / 10) for i in range(11)]
+        for i in range(len(values) - 1):
+            assert values[i] <= values[i + 1]

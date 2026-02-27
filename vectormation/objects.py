@@ -40,7 +40,7 @@ from vectormation._shapes import (
     Path, Image, Trace,
     RegularPolygon, Star, EquilateralTriangle,
     Arc, Wedge, Annulus,
-    ArcBetweenPoints, Elbow, AnnularSector,
+    ArcBetweenPoints, Elbow, AnnularSector, ArcPolygon,
     CubicBezier, Paragraph, BulletedList, NumberedList,
     SurroundingRectangle, SurroundingCircle, BackgroundRectangle, ScreenRectangle,
 )

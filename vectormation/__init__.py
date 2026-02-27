@@ -7,7 +7,7 @@ from vectormation.objects import (
     RegularPolygon, Star, Arrow, DoubleArrow, CurvedArrow, Brace, Arc, Wedge, Sector,
     ClipPath, NumberLine, Annulus, Cross, BarChart, PieChart, Table, Matrix, DynamicObject,
     BlurFilter, DropShadowFilter, Angle, RightAngle,
-    ValueTracker, DecimalNumber, Integer, always_redraw, Square,
+    ValueTracker, DecimalNumber, Integer, always_redraw, Square, ArcPolygon,
     UNIT, SMALL_BUFF, MED_SMALL_BUFF, MED_LARGE_BUFF, LARGE_BUFF,
     DEFAULT_STROKE_WIDTH, DEFAULT_FONT_SIZE, DEFAULT_DOT_RADIUS, DEFAULT_SMALL_DOT_RADIUS,
     DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,

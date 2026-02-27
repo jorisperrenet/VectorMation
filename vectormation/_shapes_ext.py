@@ -1949,6 +1949,52 @@ class AnnularSector(Arc):
     def to_svg(self, time):
         return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"
 
+class ArcPolygon(VObject):
+    """Polygon whose edges are arcs instead of straight lines.
+
+    *vertices*: list of (x, y) tuples.
+    *arc_angles*: angle of each arc (scalar for all, or list per edge).
+      Positive → bulge left of travel direction, negative → right.
+      0 = straight line segment.
+    """
+    def __init__(self, *vertices, arc_angles=30, creation=0, z=0, **styling_kwargs):
+        super().__init__(creation=creation, z=z)
+        if len(vertices) < 3:
+            raise ValueError("ArcPolygon requires at least 3 vertices")
+        self._verts = list(vertices)
+        self._angles = ([arc_angles] * len(vertices)
+                        if isinstance(arc_angles, (int, float))
+                        else list(arc_angles))
+        defaults = dict(stroke='#fff', stroke_width=DEFAULT_STROKE_WIDTH, fill_opacity=0.3)
+        self.styling = style.Styling(styling_kwargs, creation=creation, **defaults)
+
+    def __repr__(self):
+        return f'ArcPolygon({len(self._verts)} vertices)'
+
+    def path(self, time):
+        verts = self._verts
+        n = len(verts)
+        parts = [f'M{verts[0][0]:.1f},{verts[0][1]:.1f}']
+        for i in range(n):
+            x1, y1 = verts[i]
+            x2, y2 = verts[(i + 1) % n]
+            angle = self._angles[i % len(self._angles)]
+            if abs(angle) < 0.1:
+                parts.append(f'L{x2:.1f},{y2:.1f}')
+            else:
+                dist = math.hypot(x2 - x1, y2 - y1) or 1
+                half = math.radians(abs(angle) / 2)
+                r = dist / (2 * math.sin(half)) if half > 1e-9 else dist * 1000
+                large = 1 if abs(angle) > 180 else 0
+                sweep = 0 if angle > 0 else 1
+                parts.append(f'A{r:.1f},{r:.1f} 0 {large},{sweep} {x2:.1f},{y2:.1f}')
+        parts.append('Z')
+        return ''.join(parts)
+
+    def to_svg(self, time):
+        return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"
+
+
 class CubicBezier(VObject):
     """Cubic Bezier curve from four control points."""
     def __init__(self, p0=(860, 540), p1=(910, 440), p2=(1010, 440), p3=(1060, 540),

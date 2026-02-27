@@ -309,6 +309,12 @@ def smootherstep(t: float) -> float:
     return t * t * t * (t * (t * 6 - 15) + 10)
 
 
+@unit_interval
+def smoothererstep(t: float) -> float:
+    """Even smoother variant: -20t^7 + 70t^6 - 84t^5 + 35t^4."""
+    return t * t * t * t * (t * (t * (-20 * t + 70) - 84) + 35)
+
+
 def _bezier_y(y0, y1, y2, t):
     """Evaluate a quadratic Bézier y-value at parameter t."""
     s = 1 - t

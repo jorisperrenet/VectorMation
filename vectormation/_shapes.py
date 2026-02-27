@@ -1905,6 +1905,6 @@ from vectormation._shapes_ext import (  # noqa: E402
     Line, DashedLine, Text, CountAnimation, ValueTracker, ComplexValueTracker, DecimalNumber, Integer,
     Trace, Path, Image,
     Arc, Wedge, Annulus, ArcBetweenPoints, AnnularSector,
-    CubicBezier, ScreenRectangle, BackgroundRectangle, Elbow,
+    CubicBezier, ArcPolygon, ScreenRectangle, BackgroundRectangle, Elbow,
     _TextBlockMixin, Paragraph, BulletedList, NumberedList, FunctionGraph,
 )
