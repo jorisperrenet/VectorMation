@@ -793,25 +793,7 @@ class VObject(ABC):  # Vector Object
         return self
 
     def fade_shift(self, dx=0, dy=0, start: float = 0, end: float = 1, easing=easings.smooth):
-        """Simultaneously fade out while shifting by (dx, dy) over [start, end].
-
-        Animates opacity from its current value to 0 while shifting the object
-        by (dx, dy).  The object is hidden at *end*.  Useful as an exit animation
-        that moves an element off-screen while it disappears.
-
-        Parameters
-        ----------
-        dx, dy:
-            Total pixel displacement to apply over the animation.
-        start, end:
-            Time interval for the animation.
-        easing:
-            Easing function (default ``easings.smooth``).
-
-        Returns
-        -------
-        self
-        """
+        """Fade out while shifting by (dx, dy) over [start, end]."""
         start_val = self.styling.opacity.at_time(start)
         dur = end - start
         if dur <= 0:
@@ -845,26 +827,7 @@ class VObject(ABC):  # Vector Object
 
     def dissolve_out(self, start: float = 0, end: float = 1,
                      granularity=8, change_existence=True, seed=42):
-        """Scatter/noise opacity fade-out.
-
-        Instead of a smooth linear fade, the opacity flickers with a
-        pseudo-random noise pattern, creating a "dissolving into particles"
-        effect.  The overall trend goes from the current opacity to zero,
-        but individual frames jitter above and below the trend line.
-
-        Parameters
-        ----------
-        start, end:
-            Animation time window.
-        granularity:
-            Controls the noise frequency -- higher values produce more
-            rapid flickering (default 8).
-        change_existence:
-            If True, hide the object after *end*.
-        seed:
-            Integer seed for the deterministic noise, ensuring the same
-            object always dissolves identically.
-        """
+        """Noisy/flickering opacity fade-out (dissolve effect)."""
         dur = end - start
         if dur <= 0:
             if change_existence:
@@ -1433,26 +1396,7 @@ class VObject(ABC):  # Vector Object
         return self
 
     def attach_to(self, other, direction=None, buff=None, start=0, end=None):
-        """Continuously position self next to other from *start* to *end*.
-
-        Uses an updater to track *other*'s position each frame so that
-        ``self`` stays anchored even when the target moves.
-
-        Parameters
-        ----------
-        other:
-            The reference object to attach to.
-        direction:
-            ``(dx, dy)`` direction tuple, e.g. ``RIGHT``.  Defaults to
-            ``RIGHT`` if not given.
-        buff:
-            Pixel buffer between the two objects.  Defaults to
-            ``MED_SMALL_BUFF``.
-        start:
-            Time at which the attachment begins.
-        end:
-            Time at which the attachment ends (``None`` = forever).
-        """
+        """Continuously position self next to *other* via an updater."""
         direction = direction or RIGHT
         buff = buff if buff is not None else MED_SMALL_BUFF
         dir_name = _DIR_NAMES.get(direction, 'right')
@@ -1479,24 +1423,7 @@ class VObject(ABC):  # Vector Object
         return self
 
     def always_next_to(self, other, direction=RIGHT, buff=SMALL_BUFF, start=0, end=None):
-        """Continuously position self next to *other* as it moves.
-
-        Uses an updater that calls ``next_to`` each frame so that
-        ``self`` stays anchored even when the target moves.
-
-        Parameters
-        ----------
-        other:
-            The reference object to stay next to.
-        direction:
-            Direction tuple, e.g. ``RIGHT``, ``LEFT``, ``UP``, ``DOWN``.
-        buff:
-            Pixel buffer between the two objects.
-        start:
-            Time at which the tracking begins.
-        end:
-            Time at which the tracking ends (``None`` = forever).
-        """
+        """Updater-based ``next_to`` that tracks *other* each frame."""
         _dir = direction
         _buff = buff
         def _update(obj, t):
@@ -1505,23 +1432,7 @@ class VObject(ABC):  # Vector Object
         return self
 
     def set_color_if(self, predicate, color, start=0, end=None):
-        """Conditional color change based on a runtime predicate.
-
-        Adds an updater that checks ``predicate(t)`` each frame.  When
-        True the fill is set to *color*; when False the original fill
-        color (captured at *start*) is restored.
-
-        Parameters
-        ----------
-        predicate:
-            A callable ``(t) -> bool`` evaluated each frame.
-        color:
-            The fill color to apply when the predicate is True.
-        start:
-            Time at which the updater begins.
-        end:
-            Time at which the updater ends (``None`` = forever).
-        """
+        """Set fill to *color* when ``predicate(t)`` is True, revert otherwise."""
         _orig_rgb = self.styling.fill.time_func(start)
         _new_color = attributes.Color(0, color)
         _new_rgb = _new_color.time_func(0)
@@ -1534,19 +1445,7 @@ class VObject(ABC):  # Vector Object
         return self
 
     def apply_pointwise(self, func, time=0):
-        """Apply an arbitrary ``(x, y) -> (x', y')`` function to the object's position.
-
-        Gets the current center, applies *func*, and moves to the new
-        position.  :class:`Polygon` overrides this to transform each
-        vertex individually.
-
-        Parameters
-        ----------
-        func:
-            A callable that takes ``(x, y)`` and returns ``(x', y')``.
-        time:
-            The time at which to evaluate the current position.
-        """
+        """Apply ``func(x, y) -> (x', y')`` to the object's centre position."""
         cx, cy = self.center(time)
         nx, ny = func(cx, cy)
         self.move_to(nx, ny, start=time)
@@ -1608,21 +1507,12 @@ class VObject(ABC):  # Vector Object
 
     def bounce_in(self, start: float = 0, end: float = 1, change_existence=True,
                   easing=easings.ease_out_bounce):
-        """Appear by scaling from 0 to 1 with bounce easing.
-
-        Gives a "dropped from above" feel — the object lands and settles with
-        small bounces.  Uses ease_out_bounce by default, unlike pop_in (which
-        uses a custom overshoot curve) or elastic_in (which uses elastic easing).
-        """
+        """Scale in from 0 with bounce easing."""
         return self._scale_in_out(start, end, True, change_existence, easing)
 
     def bounce_out(self, start: float = 0, end: float = 1, change_existence=True,
                    easing=easings.ease_in_bounce):
-        """Reverse of bounce_in: scale down with bounce while disappearing.
-
-        Scales from 1 to 0 using ease_in_bounce by default, giving a
-        "bouncing away" feel before vanishing.
-        """
+        """Scale out to 0 with bounce easing."""
         return self._scale_in_out(start, end, False, change_existence, easing)
 
     def _zoom_anim(self, start, end, from_scale, to_scale, fade_in, change_existence, easing):
@@ -1802,28 +1692,7 @@ class VObject(ABC):  # Vector Object
         return self
 
     def pulse_scale(self, start: float = 0, end: float = 1, count=2, amplitude=0.15, easing=easings.smooth):
-        """Repeatedly scale up and down by amplitude factor over [start, end].
-
-        Unlike :meth:`pulsate` (which uses abs(sin) and may use opacity) and
-        :meth:`emphasize_scale` (a single out-and-back pulse), this method
-        produces *count* full up-down cycles using a signed sinusoid, so the
-        scale oscillates symmetrically above and below the baseline.
-
-        Parameters
-        ----------
-        start:
-            Animation start time.
-        end:
-            Animation end time.
-        count:
-            Number of complete scale oscillation cycles (default 2).
-        amplitude:
-            Fractional scale deviation from baseline, e.g. 0.15 means the
-            object scales between 0.85× and 1.15× its original size.
-        easing:
-            Easing applied to the normalised time before computing the
-            sinusoid (default: smooth).
-        """
+        """Oscillate scale by *amplitude* for *count* cycles over [start, end]."""
         dur = end - start
         if dur <= 0:
             return self
@@ -2281,24 +2150,7 @@ class VObject(ABC):  # Vector Object
     def blink_opacity(self, start: float = 0, end: float = 1, frequency: float = 2,
                        min_opacity: float = 0.0, max_opacity: float = 1.0,
                        easing=easings.smooth):
-        """Oscillate opacity between *min_opacity* and *max_opacity*.
-
-        The opacity cycles sinusoidally at the given *frequency* (cycles per
-        second) over the interval ``[start, end]``.  The easing function is
-        applied to the normalised sine wave so that the transition between
-        min and max can be smoothed or shaped.
-
-        Parameters
-        ----------
-        start, end:
-            Time interval during which the oscillation is active.
-        frequency:
-            Number of full oscillation cycles per second.
-        min_opacity, max_opacity:
-            The opacity range to oscillate between.
-        easing:
-            Easing applied to each half-cycle.
-        """
+        """Oscillate opacity between *min_opacity* and *max_opacity* at *frequency* Hz."""
         dur = end - start
         if dur <= 0 or frequency <= 0:
             return self
