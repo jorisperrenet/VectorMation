@@ -187,19 +187,7 @@ class Polygon(VObject):
         return total
 
     def get_perimeter(self, time=0):
-        """Return the perimeter (sum of all edge lengths).
-
-        For a closed polygon this includes the closing edge from the last
-        vertex back to the first.  For an open polyline only the segments
-        between consecutive vertices are summed.
-
-        Uses :func:`_distance` from :mod:`_constants`.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read vertex positions.
-        """
+        """Alias for :meth:`perimeter`."""
         return self.perimeter(time)
 
     def edge_lengths(self, time=0):
@@ -1389,31 +1377,7 @@ class Ellipse(VObject):
         return self
 
     def tangent_at_angle(self, angle_deg, length=200, time=0, **kwargs):
-        """Return a tangent :class:`Line` at the given angle on the ellipse.
-
-        The angle is measured counter-clockwise from the positive x-axis
-        (with SVG y-down convention applied).  The returned line is centred
-        on the ellipse point and extends ``length/2`` in each direction
-        along the tangent.
-
-        Parameters
-        ----------
-        angle_deg:
-            Angle in degrees (CCW from right, same convention as
-            :meth:`point_at_angle`).
-        length:
-            Total length of the tangent line (default 200 px).
-        time:
-            Animation time at which to evaluate ellipse parameters.
-        **kwargs:
-            Extra keyword arguments forwarded to the :class:`Line`
-            constructor (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        Line
-            A tangent line centred on the ellipse at the specified angle.
-        """
+        """Return a tangent Line at the given angle, centred on the ellipse point."""
         px, py, tx, ty = self._tangent_at(angle_deg, time)
         dx, dy = tx * length / 2, ty * length / 2
         return Line(x1=px - dx, y1=py - dy, x2=px + dx, y2=py + dy, **kwargs)
@@ -1434,64 +1398,15 @@ class Ellipse(VObject):
         return px, py, tx, ty
 
     def normal_at_angle(self, angle_deg, length=200, time=0, **kwargs):
-        """Return a normal (perpendicular) :class:`Line` at the given angle on the ellipse.
-
-        The normal is perpendicular to the tangent at the specified point.
-        For an ellipse, the normal does *not* generally pass through the centre
-        (only for a circle).  The returned line is centred on the ellipse point
-        and extends ``length/2`` in each direction along the outward normal.
-
-        Parameters
-        ----------
-        angle_deg:
-            Angle in degrees (CCW from right, same convention as
-            :meth:`point_at_angle`).
-        length:
-            Total length of the normal line (default 200 px).
-        time:
-            Animation time at which to evaluate ellipse parameters.
-        **kwargs:
-            Extra keyword arguments forwarded to the :class:`Line`
-            constructor (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        Line
-            A normal line centred on the ellipse at the specified angle.
-        """
+        """Return a normal (perpendicular) Line at the given angle on the ellipse."""
         px, py, tx, ty = self._tangent_at(angle_deg, time)
         # Normal is perpendicular to tangent: rotate 90 degrees
         nx, ny = -ty * length / 2, tx * length / 2
         return Line(x1=px - nx, y1=py - ny, x2=px + nx, y2=py + ny, **kwargs)
 
     def get_tangent_line(self, angle_deg, length=100, time=0, **kwargs):
-        """Return a :class:`Line` tangent to the ellipse at the given angle.
-
-        The tangent direction at angle *theta* for an ellipse with semi-axes
-        ``rx``, ``ry`` is ``(-rx*sin(theta), ry*cos(theta))``.  The tangent
-        line is centred at the point on the ellipse at *angle_deg*.
-
-        Parameters
-        ----------
-        angle_deg:
-            Angle in degrees (CCW from right, same convention as
-            :meth:`point_at_angle`).
-        length:
-            Total length of the tangent line (default 100 px).
-        time:
-            Animation time at which to evaluate ellipse parameters.
-        **kwargs:
-            Extra keyword arguments forwarded to the :class:`Line`
-            constructor (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        Line
-            A tangent line centred on the ellipse at the specified angle.
-        """
-        px, py, tx, ty = self._tangent_at(angle_deg, time)
-        dx, dy = tx * length / 2, ty * length / 2
-        return Line(x1=px - dx, y1=py - dy, x2=px + dx, y2=py + dy, **kwargs)
+        """Alias for :meth:`tangent_at_angle` with default length=100."""
+        return self.tangent_at_angle(angle_deg, length=length, time=time, **kwargs)
 
     def __repr__(self):
         cx, cy = self.c.at_time(0)
@@ -2887,27 +2802,7 @@ class Rectangle(VObject):
         return Rectangle(new_w, new_h, x=rx + amount, y=ry + amount, **kwargs)
 
     def expand(self, amount=20, start=0, end=1, easing=easings.smooth):
-        """Animate expanding the rectangle by *amount* pixels on each side.
-
-        The rectangle grows by ``2 * amount`` in both width and height,
-        while the position shifts inward by *amount* so the expansion is
-        centered (the center of the rectangle stays in place).
-
-        Parameters
-        ----------
-        amount:
-            Number of pixels to expand on each side.
-        start:
-            Start time of the animation.
-        end:
-            End time of the animation.
-        easing:
-            Easing function for the transition.
-
-        Returns
-        -------
-        self
-        """
+        """Animate expanding by *amount* pixels on each side (center stays in place)."""
         w0 = self.width.at_time(start)
         h0 = self.height.at_time(start)
         x0 = self.x.at_time(start)
@@ -2919,46 +2814,12 @@ class Rectangle(VObject):
         return self
 
     def to_polygon(self, time=0, **kwargs):
-        """Convert this rectangle to a Polygon with 4 vertices.
-
-        Returns a static snapshot at *time* -- the resulting Polygon is not
-        dynamically linked to this rectangle.  Styling from the rectangle is
-        not copied; pass ``**kwargs`` to set fill, stroke, etc.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read the rectangle geometry.
-        **kwargs:
-            Forwarded to :class:`Polygon`.
-
-        Returns
-        -------
-        Polygon
-        """
+        """Convert to a Polygon snapshot with 4 vertices at *time*."""
         corners = self.get_corners(time)
         return Polygon(*corners, **kwargs)
 
     def to_lines(self, time=0, **kwargs):
-        """Decompose this rectangle into its 4 edges as :class:`Line` objects.
-
-        Returns a list of 4 Lines in order: top, right, bottom, left
-        (clockwise from the top-left corner).  This is useful for animating
-        individual edges independently.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read the rectangle geometry.
-        **kwargs:
-            Extra keyword arguments forwarded to each :class:`Line`
-            constructor (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        list[Line]
-            ``[top, right, bottom, left]`` -- 4 Line objects.
-        """
+        """Return ``[top, right, bottom, left]`` as 4 Line objects."""
         tl, tr, br, bl = self.get_corners(time)
         return [
             Line(x1=tl[0], y1=tl[1], x2=tr[0], y2=tr[1], **kwargs),  # top
@@ -2968,35 +2829,7 @@ class Rectangle(VObject):
         ]
 
     def diagonal_lines(self, time=0, **kwargs):
-        """Return the two diagonal Line objects of this rectangle.
-
-        The first diagonal connects the top-left corner to the bottom-right
-        corner.  The second connects the top-right corner to the bottom-left
-        corner.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read the rectangle geometry.
-        **kwargs:
-            Extra keyword arguments forwarded to each :class:`Line`
-            constructor (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        (Line, Line)
-            A tuple of two Line objects: ``(top_left_to_bottom_right,
-            top_right_to_bottom_left)``.
-
-        Example
-        -------
-        >>> r = Rectangle(width=200, height=100, x=0, y=0)
-        >>> d1, d2 = r.diagonal_lines()
-        >>> d1.get_start()  # (0.0, 0.0)  top-left
-        >>> d1.get_end()    # (200.0, 100.0)  bottom-right
-        >>> d2.get_start()  # (200.0, 0.0)  top-right
-        >>> d2.get_end()    # (0.0, 100.0)  bottom-left
-        """
+        """Return ``(tl-to-br, tr-to-bl)`` as two Line objects."""
         tl, tr, br, bl = self.get_corners(time)
         d1 = Line(x1=tl[0], y1=tl[1], x2=br[0], y2=br[1], **kwargs)
         d2 = Line(x1=tr[0], y1=tr[1], x2=bl[0], y2=bl[1], **kwargs)
