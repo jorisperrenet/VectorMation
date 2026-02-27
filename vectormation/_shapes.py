@@ -12,6 +12,15 @@ from vectormation._constants import (
 )
 from vectormation._base import VObject
 
+
+def _anim(attr, start, end, value, easing):
+    """Set attr to value instantly at start, or animate to it by end."""
+    if end is None:
+        attr.set_onward(start, value)
+    else:
+        attr.move_to(start, end, value, easing=easing)
+
+
 class Polygon(VObject):
     def __init__(self, *vertices, closed=True, z=0, creation=0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
@@ -322,26 +331,17 @@ class Ellipse(VObject):
         return self.ry.at_time(time)
 
     def set_center(self, cx, cy, start=0, end=None, easing=easings.smooth):
-        if end is None:
-            self.c.set_onward(start, (cx, cy))
-        else:
-            self.c.move_to(start, end, (cx, cy), easing=easing)
+        _anim(self.c, start, end, (cx, cy), easing)
         return self
 
     def set_rx(self, value, start=0, end=None, easing=easings.smooth):
         """Animate the x-radius to value."""
-        if end is None:
-            self.rx.set_onward(start, value)
-        else:
-            self.rx.move_to(start, end, value, easing=easing)
+        _anim(self.rx, start, end, value, easing)
         return self
 
     def set_ry(self, value, start=0, end=None, easing=easings.smooth):
         """Animate the y-radius to value."""
-        if end is None:
-            self.ry.set_onward(start, value)
-        else:
-            self.ry.move_to(start, end, value, easing=easing)
+        _anim(self.ry, start, end, value, easing)
         return self
 
     def __repr__(self):
@@ -413,8 +413,8 @@ class Circle(Ellipse):
 
     def set_radius(self, value, start=0, end=None, easing=easings.smooth):
         """Animate the radius to value."""
-        self.set_rx(value, start, end, easing)
-        self.set_ry(value, start, end, easing)
+        _anim(self.rx, start, end, value, easing)
+        _anim(self.ry, start, end, value, easing)
         return self
 
     @classmethod
@@ -554,12 +554,8 @@ class Rectangle(VObject):
 
     def set_size(self, width, height, start=0, end=None, easing=easings.smooth):
         """Set both dimensions."""
-        if end is None:
-            self.width.set_onward(start, width)
-            self.height.set_onward(start, height)
-        else:
-            self.width.move_to(start, end, width, easing=easing)
-            self.height.move_to(start, end, height, easing=easing)
+        _anim(self.width, start, end, width, easing)
+        _anim(self.height, start, end, height, easing)
         return self
 
     def contains_point(self, px, py, time=0):
@@ -664,17 +660,11 @@ class Line(VObject):
         return math.degrees(math.atan2(-(y2 - y1), x2 - x1))
 
     def set_start(self, point, start=0, end=None, easing=easings.smooth):
-        if end is None:
-            self.p1.set_onward(start, point)
-        else:
-            self.p1.move_to(start, end, point, easing=easing)
+        _anim(self.p1, start, end, point, easing)
         return self
 
     def set_end(self, point, start=0, end=None, easing=easings.smooth):
-        if end is None:
-            self.p2.set_onward(start, point)
-        else:
-            self.p2.move_to(start, end, point, easing=easing)
+        _anim(self.p2, start, end, point, easing)
         return self
 
     def set_points(self, p1, p2, start=0):
@@ -691,11 +681,7 @@ class Line(VObject):
         if cur < 1e-9:
             return self
         factor = length / cur
-        new_p2 = (x1 + (x2 - x1) * factor, y1 + (y2 - y1) * factor)
-        if end is None:
-            self.p2.set_onward(start, new_p2)
-        else:
-            self.p2.move_to(start, end, new_p2, easing=easing)
+        _anim(self.p2, start, end, (x1 + (x2 - x1) * factor, y1 + (y2 - y1) * factor), easing)
         return self
 
     @classmethod
@@ -987,10 +973,7 @@ class Text(VObject):
 
     def set_font_size(self, size, start=0, end=None, easing=easings.smooth):
         """Animate font size to new value."""
-        if end is None:
-            self.font_size.set_onward(start, size)
-        else:
-            self.font_size.move_to(start, end, size, easing=easing)
+        _anim(self.font_size, start, end, size, easing)
         return self
 
     def set_text(self, start: float, end: float, new_text, easing=easings.smooth):
@@ -1463,12 +1446,8 @@ class RoundedRectangle(Rectangle):
 
     def set_corner_radius(self, value, start=0, end=None, easing=easings.smooth):
         """Animate corner radius to value."""
-        if end is None:
-            self.rx.set_onward(start, value)
-            self.ry.set_onward(start, value)
-        else:
-            self.rx.move_to(start, end, value, easing=easing)
-            self.ry.move_to(start, end, value, easing=easing)
+        _anim(self.rx, start, end, value, easing)
+        _anim(self.ry, start, end, value, easing)
         return self
 
 
@@ -1575,15 +1554,11 @@ class Arc(VObject):
 
     def get_start_point(self, time=0):
         """Return the (x, y) position at the start of the arc."""
-        cx, cy, r = self.cx.at_time(time), self.cy.at_time(time), self.r.at_time(time)
-        sa = math.radians(self.start_angle.at_time(time))
-        return (cx + r * math.cos(sa), cy - r * math.sin(sa))
+        return self.point_at_angle(self.start_angle.at_time(time), time)
 
     def get_end_point(self, time=0):
         """Return the (x, y) position at the end of the arc."""
-        cx, cy, r = self.cx.at_time(time), self.cy.at_time(time), self.r.at_time(time)
-        ea = math.radians(self.end_angle.at_time(time))
-        return (cx + r * math.cos(ea), cy - r * math.sin(ea))
+        return self.point_at_angle(self.end_angle.at_time(time), time)
 
     def get_arc_length(self, time=0):
         """Return the arc length (r * angle_in_radians)."""
@@ -1604,24 +1579,15 @@ class Arc(VObject):
 
     def set_radius(self, value, start=0, end=None, easing=easings.smooth):
         """Animate or set the arc radius."""
-        if end is None:
-            self.r.set_onward(start, value)
-        else:
-            self.r.move_to(start, end, value, easing=easing)
+        _anim(self.r, start, end, value, easing)
         return self
 
     def set_angles(self, start_angle=None, end_angle=None, start=0, end=None, easing=easings.smooth):
         """Animate or set the arc start/end angles (degrees)."""
         if start_angle is not None:
-            if end is None:
-                self.start_angle.set_onward(start, start_angle)
-            else:
-                self.start_angle.move_to(start, end, start_angle, easing=easing)
+            _anim(self.start_angle, start, end, start_angle, easing)
         if end_angle is not None:
-            if end is None:
-                self.end_angle.set_onward(start, end_angle)
-            else:
-                self.end_angle.move_to(start, end, end_angle, easing=easing)
+            _anim(self.end_angle, start, end, end_angle, easing)
         return self
 
     def get_midpoint(self, time=0):
@@ -1700,18 +1666,12 @@ class Annulus(VObject):
 
     def set_inner_radius(self, value, start=0, end=None, easing=easings.smooth):
         """Animate or set the inner radius."""
-        if end is None:
-            self.inner_r.set_onward(start, value)
-        else:
-            self.inner_r.move_to(start, end, value, easing=easing)
+        _anim(self.inner_r, start, end, value, easing)
         return self
 
     def set_outer_radius(self, value, start=0, end=None, easing=easings.smooth):
         """Animate or set the outer radius."""
-        if end is None:
-            self.outer_r.set_onward(start, value)
-        else:
-            self.outer_r.move_to(start, end, value, easing=easing)
+        _anim(self.outer_r, start, end, value, easing)
         return self
 
     def get_area(self, time=0):
@@ -1830,10 +1790,7 @@ class AnnularSector(Arc):
                 f'L{ix1},{iy1}A{ri},{ri} 0 {large},{sweep_in} {ix2},{iy2}Z')
 
     def set_inner_radius(self, value, start=0, end=None, easing=easings.smooth):
-        if end is None:
-            self.inner_r.set_onward(start, value)
-        else:
-            self.inner_r.move_to(start, end, value, easing=easing)
+        _anim(self.inner_r, start, end, value, easing)
         return self
 
     def get_area(self, time=0):
@@ -1882,30 +1839,25 @@ class CubicBezier(VObject):
         y_min, y_max = min(ys), max(ys)
         return self._bbox_from_points([(x_min, y_min), (x_max, y_max)], time) or (x_min, y_min, x_max - x_min, y_max - y_min)
 
+    def _cps(self, time):
+        """Return all four control point coordinates at time."""
+        return (*self.p0.at_time(time), *self.p1.at_time(time),
+                *self.p2.at_time(time), *self.p3.at_time(time))
+
     def path(self, time):
-        x0, y0 = self.p0.at_time(time)
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
-        x3, y3 = self.p3.at_time(time)
+        x0, y0, x1, y1, x2, y2, x3, y3 = self._cps(time)
         return f'M{x0},{y0}C{x1},{y1} {x2},{y2} {x3},{y3}'
 
     def point_at(self, t, time=0):
         """Evaluate point on curve at parameter t (0 to 1)."""
-        x0, y0 = self.p0.at_time(time)
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
-        x3, y3 = self.p3.at_time(time)
+        x0, y0, x1, y1, x2, y2, x3, y3 = self._cps(time)
         u = 1 - t
-        x = u**3*x0 + 3*u**2*t*x1 + 3*u*t**2*x2 + t**3*x3
-        y = u**3*y0 + 3*u**2*t*y1 + 3*u*t**2*y2 + t**3*y3
-        return (x, y)
+        return (u**3*x0 + 3*u**2*t*x1 + 3*u*t**2*x2 + t**3*x3,
+                u**3*y0 + 3*u**2*t*y1 + 3*u*t**2*y2 + t**3*y3)
 
     def tangent_at(self, t, time=0):
         """Return the unit tangent direction (dx, dy) at parameter t."""
-        x0, y0 = self.p0.at_time(time)
-        x1, y1 = self.p1.at_time(time)
-        x2, y2 = self.p2.at_time(time)
-        x3, y3 = self.p3.at_time(time)
+        x0, y0, x1, y1, x2, y2, x3, y3 = self._cps(time)
         u = 1 - t
         dx = 3*u*u*(x1-x0) + 6*u*t*(x2-x1) + 3*t*t*(x3-x2)
         dy = 3*u*u*(y1-y0) + 6*u*t*(y2-y1) + 3*t*t*(y3-y2)

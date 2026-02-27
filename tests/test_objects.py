@@ -5783,7 +5783,7 @@ class TestSetPosition:
         c = Circle(r=50, cx=100, cy=200)
         c.set_position(500, 300, start=0, end=1)
         # At time 0, should be near original
-        cx0, cy0 = c.center(0)
+        cx0, _ = c.center(0)
         assert cx0 == pytest.approx(100, abs=1)
         # At time 1, should be at target
         cx1, cy1 = c.center(1)

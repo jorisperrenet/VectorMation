@@ -14,6 +14,24 @@ import vectormation.attributes as attributes
 import vectormation.style as style
 import vectormation.morphing as morphing
 
+
+def _path_prefix(path, t):
+    """Return the first t-fraction (0-1) of a morphing.Path by arc length."""
+    length_to_keep = t * path.length()
+    segs, idx = [], 0
+    while length_to_keep > 0 and idx < len(path):
+        s = path[idx]
+        l = s.length()
+        if l <= length_to_keep:
+            segs.append(s)
+            length_to_keep -= l
+        else:
+            segs.append(s.split(length_to_keep / l)[0])
+            length_to_keep = 0
+        idx += 1
+    return morphing.Path(*segs)
+
+
 # Map direction tuples to string names
 _DIR_NAMES = {RIGHT: 'right', LEFT: 'left', DOWN: 'down', UP: 'up',
               UR: 'right', UL: 'left', DR: 'down', DL: 'down'}
@@ -777,31 +795,12 @@ class VObject(ABC):  # Vector Object
             self._show_from(end)
 
         p = morphing.Path(self.path(start))
-
-        def _sample_by_length(path, t):
-            """Sample a path at time 0<=t<=1 based on arc length."""
-            tot_length = path.length()
-            length_to_draw = t * tot_length
-            segs = []
-            idx = 0
-            while length_to_draw > 0 and idx < len(path):
-                s = path[idx]
-                l = s.length()
-                if l <= length_to_draw:
-                    segs.append(s)
-                    length_to_draw -= l
-                else:
-                    segs.append(s.split(length_to_draw / l)[0])
-                    length_to_draw = 0
-                idx += 1
-            return morphing.Path(*segs)
-
         _dur = end - start
         def f(t): return easing((t-start)/_dur) if _dur > 0 else 1
 
         from vectormation._shapes import Path
         res = Path('')
-        res.d.set(start, end, lambda t: _sample_by_length(p, f(t)).d())
+        res.d.set(start, end, lambda t: _path_prefix(p, f(t)).d())
         # Inherit styling from the original object
         res.styling = deepcopy(self.styling)
         res.styling.fill_opacity.set_onward(0, 0)
@@ -816,31 +815,12 @@ class VObject(ABC):  # Vector Object
             self.show.set_onward(end, False)
 
         p = morphing.Path(self.path(start))
-
-        def _sample_by_length_reverse(path, t):
-            """Sample from end. t=0 → full path, t=1 → nothing."""
-            tot_length = path.length()
-            length_to_keep = (1 - t) * tot_length
-            segs = []
-            idx = 0
-            while length_to_keep > 0 and idx < len(path):
-                s = path[idx]
-                l = s.length()
-                if l <= length_to_keep:
-                    segs.append(s)
-                    length_to_keep -= l
-                else:
-                    segs.append(s.split(length_to_keep / l)[0])
-                    length_to_keep = 0
-                idx += 1
-            return morphing.Path(*segs)
-
         _dur = end - start
         def f(t): return easing((t - start) / _dur) if _dur > 0 else 1
 
         from vectormation._shapes import Path
         res = Path('')
-        res.d.set(start, end, lambda t: _sample_by_length_reverse(p, f(t)).d())
+        res.d.set(start, end, lambda t: _path_prefix(p, 1 - f(t)).d())
         res.styling = deepcopy(self.styling)
         res.styling.fill_opacity.set_onward(0, 0)
         if change_existence:

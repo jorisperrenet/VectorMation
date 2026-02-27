@@ -162,7 +162,7 @@ class TestText:
     def test_bbox_uses_char_classes(self):
         from vectormation.objects import Text
         t = Text(text='iii', x=0, y=20, font_size=20)
-        bx, by, bw, bh = t.bbox(0)
+        _, _, bw, _ = t.bbox(0)
         # Narrow chars should be narrower than wide chars
         t2 = Text(text='MMM', x=0, y=20, font_size=20)
         _, _, w2, _ = t2.bbox(0)
@@ -1103,7 +1103,7 @@ class TestArcBbox:
     def test_arc_bbox_semicircle(self):
         """Semicircle arc from 0° to 180°."""
         a = Arc(cx=0, cy=0, r=100, start_angle=0, end_angle=180)
-        x, y, w, h = a.bbox(0)
+        x, y, w, _ = a.bbox(0)
         # Should include top (0,-100), right (100,0) and left (-100,0)
         assert x <= -100 and x + w >= 100
         assert y <= -100
@@ -1704,7 +1704,6 @@ class TestRegularPolygonMethods:
         assert sq.get_inradius() == pytest.approx(expected, rel=1e-6)
 
     def test_get_inradius_triangle(self):
-        import math
         tri = RegularPolygon(3, radius=100)
         # inradius = r * cos(pi/3) = 100 * 0.5 = 50
         assert tri.get_inradius() == pytest.approx(50, rel=1e-6)
@@ -1796,7 +1795,6 @@ class TestCircleFromThreePoints:
         assert r == pytest.approx(1, abs=1e-6)
 
     def test_offset_circle(self):
-        import math
         # Circle centered at (5, 5) with radius 3
         p1 = (5 + 3, 5)
         p2 = (5, 5 + 3)
@@ -1878,8 +1876,8 @@ class TestGettersSetters:
     def test_ellipse_set_center_animated(self):
         e = Ellipse(rx=60, ry=30, cx=100, cy=200)
         e.set_center(500, 300, start=0, end=1)
-        cx0, cy0 = e.c.at_time(0)
-        cx1, cy1 = e.c.at_time(1)
+        cx0, _ = e.c.at_time(0)
+        cx1, _ = e.c.at_time(1)
         assert cx0 == pytest.approx(100)
         assert cx1 == pytest.approx(500)
 
@@ -1972,16 +1970,16 @@ class TestGettersSetters:
     def test_line_set_start_animated(self):
         l = Line(x1=0, y1=0, x2=100, y2=100)
         l.set_start((50, 50), start=0, end=1)
-        x0, y0 = l.p1.at_time(0)
-        x1, y1 = l.p1.at_time(1)
+        x0, _ = l.p1.at_time(0)
+        x1, _ = l.p1.at_time(1)
         assert x0 == pytest.approx(0)
         assert x1 == pytest.approx(50)
 
     def test_line_set_end_animated(self):
         l = Line(x1=0, y1=0, x2=100, y2=100)
         l.set_end((300, 400), start=0, end=1)
-        x0, y0 = l.p2.at_time(0)
-        x1, y1 = l.p2.at_time(1)
+        x0, _ = l.p2.at_time(0)
+        x1, _ = l.p2.at_time(1)
         assert x0 == pytest.approx(100)
         assert x1 == pytest.approx(300)
 
