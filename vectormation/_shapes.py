@@ -11,15 +11,7 @@ from vectormation._constants import (
     DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
     _rotate_point, _sample_function, _distance, _normalize,
 )
-from vectormation._base import VObject, _ramp, _ramp_down
-
-
-def _anim(attr, start, end, value, easing):
-    """Set attr to value instantly at start, or animate to it by end."""
-    if end is None:
-        attr.set_onward(start, value)
-    else:
-        attr.move_to(start, end, value, easing=easing)
+from vectormation._base import VObject, _ramp, _ramp_down, _set_attr
 
 
 class Polygon(VObject):
@@ -100,7 +92,7 @@ class Polygon(VObject):
         n = len(self.vertices)
         if index < -n or index >= n:
             raise IndexError(f"vertex index {index} out of range for polygon with {n} vertices")
-        _anim(self.vertices[index], start, end, (x, y), easing)
+        _set_attr(self.vertices[index], start, end, (x, y), easing)
         return self
 
     def to_path_string(self, time=0):
@@ -1332,17 +1324,17 @@ class Ellipse(VObject):
         return self.ry.at_time(time)
 
     def set_center(self, cx, cy, start=0, end=None, easing=easings.smooth):
-        _anim(self.c, start, end, (cx, cy), easing)
+        _set_attr(self.c, start, end, (cx, cy), easing)
         return self
 
     def set_rx(self, value, start=0, end=None, easing=easings.smooth):
         """Animate the x-radius to value."""
-        _anim(self.rx, start, end, value, easing)
+        _set_attr(self.rx, start, end, value, easing)
         return self
 
     def set_ry(self, value, start=0, end=None, easing=easings.smooth):
         """Animate the y-radius to value."""
-        _anim(self.ry, start, end, value, easing)
+        _set_attr(self.ry, start, end, value, easing)
         return self
 
     def tangent_at_angle(self, angle_deg, length=200, time=0, **kwargs):
@@ -1685,8 +1677,8 @@ class Circle(Ellipse):
 
     def set_radius(self, value, start=0, end=None, easing=easings.smooth):
         """Animate the radius to value."""
-        _anim(self.rx, start, end, value, easing)
-        _anim(self.ry, start, end, value, easing)
+        _set_attr(self.rx, start, end, value, easing)
+        _set_attr(self.ry, start, end, value, easing)
         return self
 
     @classmethod
@@ -2582,8 +2574,8 @@ class Rectangle(VObject):
 
     def set_size(self, width, height, start=0, end=None, easing=easings.smooth):
         """Set both dimensions."""
-        _anim(self.width, start, end, width, easing)
-        _anim(self.height, start, end, height, easing)
+        _set_attr(self.width, start, end, width, easing)
+        _set_attr(self.height, start, end, height, easing)
         return self
 
     def grow_width(self, amount, start=0, end=1, easing=easings.smooth):
@@ -3035,11 +3027,11 @@ class Line(VObject):
         return self._is_aligned(0, time, tol)
 
     def set_start(self, point, start=0, end=None, easing=easings.smooth):
-        _anim(self.p1, start, end, point, easing)
+        _set_attr(self.p1, start, end, point, easing)
         return self
 
     def set_end(self, point, start=0, end=None, easing=easings.smooth):
-        _anim(self.p2, start, end, point, easing)
+        _set_attr(self.p2, start, end, point, easing)
         return self
 
     def set_points(self, p1, p2, start=0):
@@ -3074,8 +3066,8 @@ class Line(VObject):
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
         dx, dy = _normalize(x2 - x1, y2 - y1)
         half = length / 2
-        _anim(self.p1, start, end, (mx - dx * half, my - dy * half), easing)
-        _anim(self.p2, start, end, (mx + dx * half, my + dy * half), easing)
+        _set_attr(self.p1, start, end, (mx - dx * half, my - dy * half), easing)
+        _set_attr(self.p2, start, end, (mx + dx * half, my + dy * half), easing)
         return self
 
     def extend_to(self, length, anchor='start', start=0, end=None, easing=easings.smooth):
@@ -3111,11 +3103,11 @@ class Line(VObject):
         if anchor == 'start':
             # Keep p1 fixed, move p2
             new_p2 = (x1 + (x2 - x1) * factor, y1 + (y2 - y1) * factor)
-            _anim(self.p2, start, end, new_p2, easing)
+            _set_attr(self.p2, start, end, new_p2, easing)
         else:
             # Keep p2 fixed, move p1
             new_p1 = (x2 - (x2 - x1) * factor, y2 - (y2 - y1) * factor)
-            _anim(self.p1, start, end, new_p1, easing)
+            _set_attr(self.p1, start, end, new_p1, easing)
         return self
 
     def get_perpendicular_point(self, px, py, time=0):
@@ -3563,8 +3555,8 @@ class Line(VObject):
         x2, y2 = self.p2.at_time(start)
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
         dx, dy = (x2 - x1) / 2 * factor, (y2 - y1) / 2 * factor
-        _anim(self.p1, start, end, (mx - dx, my - dy), easing)
-        _anim(self.p2, start, end, (mx + dx, my + dy), easing)
+        _set_attr(self.p1, start, end, (mx - dx, my - dy), easing)
+        _set_attr(self.p2, start, end, (mx + dx, my + dy), easing)
         return self
 
     def scale_length(self, factor=2.0, time=0):
@@ -4133,7 +4125,7 @@ class Text(VObject):
 
     def set_font_size(self, size, start=0, end=None, easing=easings.smooth):
         """Animate font size to new value."""
-        _anim(self.font_size, start, end, size, easing)
+        _set_attr(self.font_size, start, end, size, easing)
         return self
 
     def bold(self, weight='bold'):
@@ -4244,7 +4236,7 @@ class Text(VObject):
         """Return the text content reversed (does not modify the object)."""
         return self.text.at_time(time)[::-1]
 
-    def underline_anim(self, start: float = 0, end: float = 1, color=None,
+    def underline_set_attr(self, start: float = 0, end: float = 1, color=None,
                         stroke_width=2, offset_y=5):
         """Create an animated underline under this text. Returns a Line object."""
         bx, by, bw, bh = self.bbox(start)
@@ -5163,8 +5155,8 @@ class RoundedRectangle(Rectangle):
 
     def set_corner_radius(self, value, start=0, end=None, easing=easings.smooth):
         """Animate corner radius to value."""
-        _anim(self.rx, start, end, value, easing)
-        _anim(self.ry, start, end, value, easing)
+        _set_attr(self.rx, start, end, value, easing)
+        _set_attr(self.ry, start, end, value, easing)
         return self
 
 
@@ -5302,15 +5294,15 @@ class Arc(VObject):
 
     def set_radius(self, value, start=0, end=None, easing=easings.smooth):
         """Animate or set the arc radius."""
-        _anim(self.r, start, end, value, easing)
+        _set_attr(self.r, start, end, value, easing)
         return self
 
     def set_angles(self, start_angle=None, end_angle=None, start=0, end=None, easing=easings.smooth):
         """Animate or set the arc start/end angles (degrees)."""
         if start_angle is not None:
-            _anim(self.start_angle, start, end, start_angle, easing)
+            _set_attr(self.start_angle, start, end, start_angle, easing)
         if end_angle is not None:
-            _anim(self.end_angle, start, end, end_angle, easing)
+            _set_attr(self.end_angle, start, end, end_angle, easing)
         return self
 
     def animate_sweep(self, target_angle, start=0, end=None, easing=None):
@@ -5339,7 +5331,7 @@ class Arc(VObject):
         """
         if easing is None:
             easing = easings.smooth
-        _anim(self.end_angle, start, end, target_angle, easing)
+        _set_attr(self.end_angle, start, end, target_angle, easing)
         return self
 
     def get_midpoint(self, time=0):
@@ -5623,12 +5615,12 @@ class Annulus(VObject):
 
     def set_inner_radius(self, value, start=0, end=None, easing=easings.smooth):
         """Animate or set the inner radius."""
-        _anim(self.inner_r, start, end, value, easing)
+        _set_attr(self.inner_r, start, end, value, easing)
         return self
 
     def set_outer_radius(self, value, start=0, end=None, easing=easings.smooth):
         """Animate or set the outer radius."""
-        _anim(self.outer_r, start, end, value, easing)
+        _set_attr(self.outer_r, start, end, value, easing)
         return self
 
     def get_area(self, time=0):
@@ -5751,7 +5743,7 @@ class AnnularSector(Arc):
                 f'L{ix1},{iy1}A{ri},{ri} 0 {large},{sweep_in} {ix2},{iy2}Z')
 
     def set_inner_radius(self, value, start=0, end=None, easing=easings.smooth):
-        _anim(self.inner_r, start, end, value, easing)
+        _set_attr(self.inner_r, start, end, value, easing)
         return self
 
     def get_area(self, time=0):
