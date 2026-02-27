@@ -839,6 +839,50 @@ class VObject(ABC):  # Vector Object
         direction: 'left', 'right', 'up', 'down'."""
         return self._slide_anim(direction, start, end, False, change_existence, easing)
 
+    def fade_slide_in(self, direction=None, distance=200, start: float = 0, end: float = 1,
+                      change_existence=True, easing=easings.smooth):
+        """Slide in from a direction while fading from 0 to 1.
+
+        Combines a positional shift with an opacity fade-in.  The object
+        starts *distance* pixels away in the opposite of *direction* and
+        at opacity 0, then moves to its current position at full opacity.
+
+        Parameters
+        ----------
+        direction:
+            Direction tuple to slide in from (e.g. ``DOWN``, ``LEFT``).
+            Defaults to ``DOWN``.
+        distance:
+            How far away (in pixels) the object starts.
+        start, end:
+            Time interval for the animation.
+        change_existence:
+            If True the object becomes visible at *start*.
+        easing:
+            Easing function (default ``easings.smooth``).
+
+        Returns
+        -------
+        self
+        """
+        direction = direction or DOWN
+        dur = end - start
+        if dur <= 0:
+            return self
+        if change_existence:
+            self._show_from(start)
+        dx = -direction[0] * distance
+        dy = -direction[1] * distance
+        s, e = start, end
+        dx_func = (lambda t, _s=s, _d=dur, _dx=dx, _e=easing: _dx * (1 - _e((t - _s) / _d))) if dx else None
+        dy_func = (lambda t, _s=s, _d=dur, _dy=dy, _e=easing: _dy * (1 - _e((t - _s) / _d))) if dy else None
+        self._apply_shift_effect(start, end, dx_func, dy_func, stay=True)
+        # Fade in opacity from 0 to current value
+        end_val = self.styling.opacity.at_time(end)
+        self.styling.opacity.set(s, e,
+            lambda t, _s=s, _d=dur, _ev=end_val, _e=easing: _ev * _e((t - _s) / _d))
+        return self
+
     def write(self, start: float = 0, end: float = 1, max_stroke_width=2, change_existence=True, easing=easings.smooth, stroke_easing=easings.there_and_back):
         """Animate fill_opacity from 0 to current with a stroke pulse effect."""
         if change_existence:
@@ -2094,6 +2138,45 @@ class VObject(ABC):  # Vector Object
             src.interpolate(restore_c, seg_mid, seg_e, easing=easings.linear)
         return self
 
+    def color_shift(self, hue_shift=30, start=0, end=1, easing=easings.smooth):
+        """Animate shifting the fill color's hue over [start, end].
+
+        Uses HSL color space to rotate the hue by *hue_shift* degrees.
+
+        Parameters
+        ----------
+        hue_shift:
+            Number of degrees to shift the hue (0-360 scale).
+        start:
+            Start time of the animation.
+        end:
+            End time of the animation.
+        easing:
+            Easing function for the transition.
+
+        Returns
+        -------
+        self
+        """
+        from vectormation.attributes import _rgb_to_hsl, _hsl_to_rgb
+        src = self.styling.fill
+        if not isinstance(src, attributes.Color):
+            return self
+        rgb = src.time_func(start)
+        if not isinstance(rgb, tuple) or len(rgb) < 3:
+            return self
+        h, s, l = _rgb_to_hsl(rgb[0], rgb[1], rgb[2])
+
+        def _color(t, _h=h, _s=s, _l=l, _shift=hue_shift, _e=easing,
+                   _start=start, _end=end):
+            dur = _end - _start
+            progress = _e(max(0.0, min(1.0, (t - _start) / dur))) if dur > 0 else 1.0
+            new_h = (_h + _shift / 360.0 * progress) % 1.0
+            return _hsl_to_rgb(new_h, _s, _l)
+
+        src.set(start, end, _color, stay=True)
+        return self
+
     def trace_path(self, start: float = 0, end: float = 1, stroke='#58C4DD',
                     stroke_width=2, stroke_opacity=0.6, samples=60):
         """Return a Path that traces this object's center over [start, end].
@@ -3288,6 +3371,30 @@ class VCollection:
         self.objects.reverse()
         return self
 
+    def set_z_order(self, order):
+        """Reorder children by index list.
+
+        ``order[i]`` is the index of the child to place at position *i*.
+        The length of *order* must equal the number of children and must
+        contain each index exactly once (i.e. a permutation).
+
+        Parameters
+        ----------
+        order:
+            List of integer indices specifying the new order.
+
+        Returns
+        -------
+        self
+
+        Example
+        -------
+        >>> col = VCollection(a, b, c)
+        >>> col.set_z_order([2, 0, 1])  # new order: c, a, b
+        """
+        self.objects = [self.objects[i] for i in order]
+        return self
+
     def index_of(self, obj):
         """Find object index by identity. Returns -1 if not found."""
         try:
@@ -3700,6 +3807,46 @@ class VCollection:
         Convenience wrapper around cascade + fadeout."""
         kwargs = {'shift_dir': shift_dir, 'shift_amount': shift_amount, 'easing': easing}
         return self.cascade('fadeout', start=start, end=end, overlap=overlap, **kwargs)
+
+    def fade_in_one_by_one(self, start: float = 0, end: float = 1,
+                            overlap=0.0, easing=easings.smooth):
+        """Fade in each child sequentially with optional overlap.
+
+        Each child gets an equal-duration window in which it fades in.
+        When *overlap* is 0 the windows are strictly sequential (no two
+        children animate at the same time).  Positive overlap values let
+        consecutive windows overlap so the next child starts fading in
+        before the previous one finishes.
+
+        Parameters
+        ----------
+        start, end:
+            Overall time interval.
+        overlap:
+            Fraction of each child's window that overlaps with the next
+            (0 = sequential, positive = overlapping).
+        easing:
+            Easing function for each child's fade.
+
+        Returns
+        -------
+        self
+        """
+        n = len(self.objects)
+        if n == 0:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        if n == 1:
+            slot = dur
+        else:
+            slot = (dur + overlap * (n - 1)) / n
+        for i, obj in enumerate(self.objects):
+            obj_start = start + i * (slot - overlap)
+            obj_end = obj_start + slot
+            obj.fadein(start=obj_start, end=min(obj_end, end), easing=easing)
+        return self
 
     def reveal(self, start: float = 0, end: float = 1, direction='left',
                 easing=easings.smooth, shift_amount=30):

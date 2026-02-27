@@ -923,3 +923,86 @@ class TestVCollectionChunk:
         chunks = col.chunk(2)
         assert len(chunks) == 3
         assert all(len(c.objects) == 2 for c in chunks)
+
+
+class TestFadeInOneByOne:
+    def test_fade_in_one_by_one_returns_self(self):
+        c1 = Circle(r=50)
+        c2 = Circle(r=50)
+        col = VCollection(c1, c2)
+        result = col.fade_in_one_by_one(start=0, end=2)
+        assert result is col
+
+    def test_fade_in_one_by_one_sequential(self):
+        """With overlap=0, children should fade in sequentially (no overlap)."""
+        c1 = Circle(r=50)
+        c2 = Circle(r=50)
+        c3 = Circle(r=50)
+        col = VCollection(c1, c2, c3)
+        col.fade_in_one_by_one(start=0, end=3, overlap=0.0, easing=easings.linear)
+        # c1: 0-1, c2: 1-2, c3: 2-3
+        # At t=0.5 c1 is mid-fade, c2 should not have started yet
+        assert c1.styling.opacity.at_time(0.5) == pytest.approx(0.5, abs=0.1)
+        # c2 starts at t=1, so at t=0.5 it should be at opacity 0 (not started)
+        assert c2.show.at_time(0.5) is False
+
+    def test_fade_in_one_by_one_all_visible_at_end(self):
+        """After the animation, all children should be fully visible."""
+        circles = [Circle(r=50) for _ in range(4)]
+        col = VCollection(*circles)
+        col.fade_in_one_by_one(start=0, end=4, easing=easings.linear)
+        for c in circles:
+            assert c.styling.opacity.at_time(4) == pytest.approx(1.0, abs=0.05)
+
+    def test_fade_in_one_by_one_empty_collection(self):
+        """Empty collection should return self without error."""
+        col = VCollection()
+        result = col.fade_in_one_by_one(start=0, end=1)
+        assert result is col
+
+    def test_fade_in_one_by_one_single_child(self):
+        """Single child should use the full time range."""
+        c = Circle(r=50)
+        col = VCollection(c)
+        col.fade_in_one_by_one(start=0, end=2, easing=easings.linear)
+        assert c.styling.opacity.at_time(1) == pytest.approx(0.5, abs=0.1)
+        assert c.styling.opacity.at_time(2) == pytest.approx(1.0, abs=0.05)
+
+
+class TestSetZOrder:
+    def test_set_z_order_reorders(self):
+        """set_z_order should reorder children by index list."""
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=20, cx=100, cy=100)
+        c3 = Circle(r=30, cx=200, cy=200)
+        col = VCollection(c1, c2, c3)
+        col.set_z_order([2, 0, 1])
+        assert col.objects[0] is c3
+        assert col.objects[1] is c1
+        assert col.objects[2] is c2
+
+    def test_set_z_order_identity(self):
+        """Identity permutation should leave order unchanged."""
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        col = VCollection(c1, c2)
+        col.set_z_order([0, 1])
+        assert col.objects[0] is c1
+        assert col.objects[1] is c2
+
+    def test_set_z_order_returns_self(self):
+        """set_z_order should return self for chaining."""
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        col = VCollection(c1, c2)
+        result = col.set_z_order([1, 0])
+        assert result is col
+
+    def test_set_z_order_reverse(self):
+        """Reversing the order should match reversed list."""
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        c3 = Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        col.set_z_order([2, 1, 0])
+        assert col.objects == [c3, c2, c1]

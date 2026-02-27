@@ -4332,3 +4332,167 @@ class TestRectangleToPolygon:
         poly = r.to_polygon(fill='#ff0000')
         svg = poly.to_svg(0)
         assert 'polygon' in svg
+
+
+class TestPolygonCentroid:
+    def test_centroid_equilateral_triangle(self):
+        """Centroid of a symmetric triangle at origin should be at its center."""
+        # Equilateral triangle centered near (0, 0)
+        p = Polygon((0, -100), (86.6, 50), (-86.6, 50))
+        cx, cy = p.centroid(0)
+        # For this symmetric triangle, centroid should be at roughly (0, 0)
+        assert cx == pytest.approx(0, abs=0.5)
+        assert cy == pytest.approx(0, abs=0.5)
+
+    def test_centroid_rectangle(self):
+        """Centroid of a rectangle should match its geometric center."""
+        p = Polygon((0, 0), (200, 0), (200, 100), (0, 100))
+        cx, cy = p.centroid(0)
+        assert cx == pytest.approx(100, abs=0.01)
+        assert cy == pytest.approx(50, abs=0.01)
+
+    def test_centroid_differs_from_get_center(self):
+        """For an asymmetric polygon, centroid differs from simple vertex average."""
+        # L-shaped polygon: vertices average and area-weighted centroid differ
+        p = Polygon((0, 0), (200, 0), (200, 50), (50, 50), (50, 200), (0, 200))
+        cx_area, cy_area = p.centroid(0)
+        cx_avg, cy_avg = p.get_center(0)
+        # They should not be equal (area-weighted centroid shifts toward the larger mass)
+        assert (cx_area, cy_area) != pytest.approx((cx_avg, cy_avg), abs=1)
+
+    def test_centroid_degenerate_single_vertex(self):
+        """Centroid of a single vertex returns that vertex."""
+        p = Polygon((42, 99))
+        cx, cy = p.centroid(0)
+        assert cx == pytest.approx(42)
+        assert cy == pytest.approx(99)
+
+    def test_centroid_two_vertices(self):
+        """Centroid of two vertices returns their midpoint."""
+        p = Polygon((0, 0), (100, 200), closed=False)
+        cx, cy = p.centroid(0)
+        assert cx == pytest.approx(50)
+        assert cy == pytest.approx(100)
+
+
+class TestLineBisector:
+    def test_bisector_horizontal_line(self):
+        """Bisector of a horizontal line should be vertical through the midpoint."""
+        line = Line(x1=0, y1=100, x2=200, y2=100)
+        bis = line.bisector(time=0, length=100)
+        # Midpoint is (100, 100)
+        p1 = bis.p1.at_time(0)
+        p2 = bis.p2.at_time(0)
+        mid_x = (p1[0] + p2[0]) / 2
+        mid_y = (p1[1] + p2[1]) / 2
+        assert mid_x == pytest.approx(100, abs=0.01)
+        assert mid_y == pytest.approx(100, abs=0.01)
+        # The bisector should be vertical: same x for both endpoints
+        assert p1[0] == pytest.approx(p2[0], abs=0.01)
+
+    def test_bisector_vertical_line(self):
+        """Bisector of a vertical line should be horizontal through the midpoint."""
+        line = Line(x1=50, y1=0, x2=50, y2=200)
+        bis = line.bisector(time=0, length=100)
+        p1 = bis.p1.at_time(0)
+        p2 = bis.p2.at_time(0)
+        # Midpoint is (50, 100)
+        mid_x = (p1[0] + p2[0]) / 2
+        mid_y = (p1[1] + p2[1]) / 2
+        assert mid_x == pytest.approx(50, abs=0.01)
+        assert mid_y == pytest.approx(100, abs=0.01)
+        # The bisector should be horizontal: same y for both endpoints
+        assert p1[1] == pytest.approx(p2[1], abs=0.01)
+
+    def test_bisector_returns_line(self):
+        """bisector() should return a Line instance."""
+        line = Line(x1=0, y1=0, x2=100, y2=100)
+        bis = line.bisector()
+        assert isinstance(bis, Line)
+
+    def test_bisector_custom_length(self):
+        """Bisector with custom length should have the specified length."""
+        import math
+        line = Line(x1=0, y1=0, x2=200, y2=0)
+        bis = line.bisector(length=300)
+        p1 = bis.p1.at_time(0)
+        p2 = bis.p2.at_time(0)
+        dist = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
+        assert dist == pytest.approx(300, abs=0.1)
+
+
+class TestCircleFromDiameter:
+    def test_from_diameter_center(self):
+        """Circle.from_diameter should center at the midpoint."""
+        c = Circle.from_diameter((100, 200), (300, 200))
+        cx, cy = c.c.at_time(0)
+        assert cx == pytest.approx(200)
+        assert cy == pytest.approx(200)
+
+    def test_from_diameter_radius(self):
+        """Circle.from_diameter should have radius = half the distance."""
+        c = Circle.from_diameter((100, 200), (300, 200))
+        r = c.rx.at_time(0)
+        assert r == pytest.approx(100)
+
+    def test_from_diameter_diagonal(self):
+        """Circle.from_diameter with diagonal endpoints."""
+        c = Circle.from_diameter((0, 0), (300, 400))
+        cx, cy = c.c.at_time(0)
+        assert cx == pytest.approx(150)
+        assert cy == pytest.approx(200)
+        r = c.rx.at_time(0)
+        assert r == pytest.approx(250)
+
+    def test_from_diameter_kwargs(self):
+        """Circle.from_diameter should forward kwargs to constructor."""
+        c = Circle.from_diameter((0, 0), (200, 0), stroke='#ff0000')
+        svg = c.to_svg(0)
+        assert 'ff0000' in svg.lower() or 'rgb(255,0,0)' in svg
+
+    def test_from_diameter_same_point(self):
+        """Circle.from_diameter with identical points should give radius 0."""
+        c = Circle.from_diameter((100, 100), (100, 100))
+        r = c.rx.at_time(0)
+        assert r == pytest.approx(0)
+
+
+class TestRectangleExpand:
+    def test_expand_at_end(self):
+        """Rectangle.expand should increase width and height by 2*amount at end."""
+        r = Rectangle(width=100, height=60, x=50, y=50)
+        r.expand(amount=20, start=0, end=1)
+        assert r.width.at_time(1) == pytest.approx(140)
+        assert r.height.at_time(1) == pytest.approx(100)
+
+    def test_expand_position_shift(self):
+        """Rectangle.expand should shift x,y so the expansion is centered."""
+        r = Rectangle(width=100, height=60, x=50, y=50)
+        r.expand(amount=20, start=0, end=1)
+        assert r.x.at_time(1) == pytest.approx(30)
+        assert r.y.at_time(1) == pytest.approx(30)
+
+    def test_expand_at_start_unchanged(self):
+        """At start time, dimensions should be unchanged."""
+        r = Rectangle(width=100, height=60, x=50, y=50)
+        r.expand(amount=20, start=0, end=1)
+        assert r.width.at_time(0) == pytest.approx(100)
+        assert r.height.at_time(0) == pytest.approx(60)
+
+    def test_expand_returns_self(self):
+        """expand should return self for chaining."""
+        r = Rectangle(width=100, height=60, x=50, y=50)
+        result = r.expand(amount=10, start=0, end=1)
+        assert result is r
+
+    def test_expand_center_stays(self):
+        """The center of the rectangle should stay in place during expansion."""
+        r = Rectangle(width=200, height=100, x=100, y=50)
+        # Center at t=0: (100+100, 50+50) = (200, 100)
+        cx_before = r.x.at_time(0) + r.width.at_time(0) / 2
+        cy_before = r.y.at_time(0) + r.height.at_time(0) / 2
+        r.expand(amount=30, start=0, end=1)
+        cx_after = r.x.at_time(1) + r.width.at_time(1) / 2
+        cy_after = r.y.at_time(1) + r.height.at_time(1) / 2
+        assert cx_after == pytest.approx(cx_before)
+        assert cy_after == pytest.approx(cy_before)

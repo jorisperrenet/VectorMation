@@ -79,6 +79,40 @@ class Polygon(VObject):
         n = len(pts)
         return (sum(p[0] for p in pts) / n, sum(p[1] for p in pts) / n)
 
+    def centroid(self, time=0):
+        """Return the geometric centroid (cx, cy) using the polygon centroid formula.
+
+        For polygons with 3+ vertices this uses the area-weighted centroid
+        formula which accounts for vertex distribution, unlike ``get_center``
+        which simply averages the vertices.  For degenerate cases (0-2 vertices
+        or near-zero area) the plain average is returned.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read vertex positions.
+        """
+        pts = self.get_vertices(time)
+        n = len(pts)
+        if n == 0:
+            return (0, 0)
+        if n <= 2:
+            return (sum(p[0] for p in pts) / n, sum(p[1] for p in pts) / n)
+        cx = cy = signed_area = 0
+        for i in range(n):
+            x0, y0 = pts[i]
+            x1, y1 = pts[(i + 1) % n]
+            cross = x0 * y1 - x1 * y0
+            signed_area += cross
+            cx += (x0 + x1) * cross
+            cy += (y0 + y1) * cross
+        signed_area *= 0.5
+        if abs(signed_area) < 1e-10:
+            return (sum(p[0] for p in pts) / n, sum(p[1] for p in pts) / n)
+        cx /= (6 * signed_area)
+        cy /= (6 * signed_area)
+        return (cx, cy)
+
     def perimeter(self, time=0):
         """Return the perimeter (sum of edge lengths)."""
         pts = self.get_vertices(time)
@@ -585,6 +619,27 @@ class Circle(Ellipse):
         """Return (x, y) on the circle at the given angle (degrees, CCW from right).
         Alias for point_at_angle."""
         return self.point_at_angle(angle_degrees, time)
+
+    @classmethod
+    def from_diameter(cls, p1, p2, **kwargs):
+        """Create a Circle from two diameter endpoints.
+
+        Parameters
+        ----------
+        p1, p2:
+            Two (x, y) points defining the diameter.
+        **kwargs:
+            Extra keyword arguments forwarded to the Circle constructor.
+
+        Returns
+        -------
+        Circle
+            A new Circle centered at the midpoint with radius = half the distance.
+        """
+        cx = (p1[0] + p2[0]) / 2
+        cy = (p1[1] + p2[1]) / 2
+        r = math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / 2
+        return cls(r=r, cx=cx, cy=cy, **kwargs)
 
     def tangent_line(self, angle_degrees, length=100, time=0, creation=0, **line_kwargs):
         """Return a Line tangent to the circle at the given angle.
@@ -1177,6 +1232,38 @@ class Rectangle(VObject):
             )
         return Rectangle(new_w, new_h, x=rx + amount, y=ry + amount, **kwargs)
 
+    def expand(self, amount=20, start=0, end=1, easing=easings.smooth):
+        """Animate expanding the rectangle by *amount* pixels on each side.
+
+        The rectangle grows by ``2 * amount`` in both width and height,
+        while the position shifts inward by *amount* so the expansion is
+        centered (the center of the rectangle stays in place).
+
+        Parameters
+        ----------
+        amount:
+            Number of pixels to expand on each side.
+        start:
+            Start time of the animation.
+        end:
+            End time of the animation.
+        easing:
+            Easing function for the transition.
+
+        Returns
+        -------
+        self
+        """
+        w0 = self.width.at_time(start)
+        h0 = self.height.at_time(start)
+        x0 = self.x.at_time(start)
+        y0 = self.y.at_time(start)
+        self.width.move_to(start, end, w0 + 2 * amount, easing=easing)
+        self.height.move_to(start, end, h0 + 2 * amount, easing=easing)
+        self.x.move_to(start, end, x0 - amount, easing=easing)
+        self.y.move_to(start, end, y0 - amount, easing=easing)
+        return self
+
     def to_polygon(self, time=0, **kwargs):
         """Convert this rectangle to a Polygon with 4 vertices.
 
@@ -1610,6 +1697,24 @@ class Line(VObject):
         if mag > 0:
             dx, dy = dx / mag * length / 2, dy / mag * length / 2
         return Line(x1=px - dx, y1=py - dy, x2=px + dx, y2=py + dy, **kwargs)
+
+    def bisector(self, time=0, length=200, **kwargs):
+        """Return the perpendicular bisector of this line.
+
+        The bisector passes through the midpoint and is perpendicular to
+        the line.  This is a convenience wrapper around
+        ``perpendicular_at(t=0.5, ...)``.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to evaluate the line endpoints.
+        length:
+            Total length of the bisector line (default 200).
+        **kwargs:
+            Extra keyword arguments forwarded to the new Line constructor.
+        """
+        return self.perpendicular_at(t=0.5, length=length, time=time, **kwargs)
 
     def extend(self, factor=1.5, time=0, **kwargs):
         """Return a new Line extended in both directions by factor.

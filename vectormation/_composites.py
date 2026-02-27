@@ -592,6 +592,35 @@ class Axes(VCollection):
 
     plot = add_function
 
+    def plot_piecewise(self, pieces, creation=0, **kwargs):
+        """Plot a piecewise function defined by ``[(func, x_min, x_max), ...]``.
+
+        Each *(func, x_min, x_max)* tuple is plotted only over its domain
+        using :meth:`add_function` (alias ``plot``).
+
+        Parameters
+        ----------
+        pieces:
+            List of ``(callable, x_min, x_max)`` tuples.
+        creation:
+            Creation time forwarded to each curve.
+        **kwargs:
+            Extra keyword arguments forwarded to ``add_function`` for every
+            piece (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        VGroup
+            A VGroup containing all of the individual curve segments.
+        """
+        from vectormation._base import VGroup
+        curves = []
+        for func, x_min, x_max in pieces:
+            curve = self.add_function(func, x_range=(x_min, x_max),
+                                      creation=creation, **kwargs)
+            curves.append(curve)
+        return VGroup(*curves)
+
     def animate_draw_function(self, func, start=0, end=1, x_range=None,
                                num_points=200, easing=easings.smooth,
                                creation=0, z=0, **styling_kwargs):
@@ -2395,6 +2424,40 @@ class Axes(VCollection):
                     'stroke_dasharray': '8 4'} | styling_kwargs
         line = self._make_span_line(value, direction, creation, z, style_kw)
         self._add_plot_obj(line)
+        return line
+
+    def add_horizontal_line(self, y, start=None, end=None, creation=0, z=1, **styling_kwargs):
+        """Draw a horizontal dashed line across the full plot width at *y*.
+
+        This is a convenience wrapper around ``_make_span_line`` for the
+        common case of adding a reference/guide line at a specific y value.
+
+        Parameters
+        ----------
+        y:
+            The math y-coordinate at which to draw the line.
+        start, end:
+            Optional time range to animate the line's opacity from 0 to 1.
+            If both are ``None`` the line appears instantly at *creation*.
+        creation:
+            Time at which the line is created.
+        z:
+            Z-order for depth sorting (default 1).
+        **styling_kwargs:
+            Override default styling (stroke, stroke_width,
+            stroke_dasharray, etc.).
+
+        Returns
+        -------
+        Line
+            The created Line object (already added to the axes).
+        """
+        style_kw = {'stroke': '#FFFF00', 'stroke_width': 1.5,
+                    'stroke_dasharray': '6 3'} | styling_kwargs
+        line = self._make_span_line(y, 'horizontal', creation, z, style_kw)
+        self._add_plot_obj(line)
+        if start is not None and end is not None:
+            line.fadein(start=start, end=end)
         return line
 
     def add_min_max_labels(self, func, x_range=None, samples=200, creation=0, z=3,

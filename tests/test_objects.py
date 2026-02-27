@@ -7479,3 +7479,133 @@ class TestBarChartSortBars:
         result = bc.sort_bars(start=0, end=1)
         assert result is bc
         assert bc.values == [42]
+
+
+class TestFadeSlideIn:
+    def test_fade_slide_in_returns_self(self):
+        c = Circle(r=50, cx=500, cy=500)
+        result = c.fade_slide_in(direction=DOWN, distance=200, start=0, end=1)
+        assert result is c
+
+    def test_fade_slide_in_opacity_starts_at_zero(self):
+        """At the start of the animation, opacity should be 0."""
+        c = Circle(r=50, cx=500, cy=500)
+        c.fade_slide_in(direction=DOWN, distance=200, start=0, end=1,
+                        easing=easings.linear)
+        op = c.styling.opacity.at_time(0)
+        assert op == pytest.approx(0, abs=0.01)
+
+    def test_fade_slide_in_opacity_at_end(self):
+        """At the end of the animation, opacity should be 1."""
+        c = Circle(r=50, cx=500, cy=500)
+        c.fade_slide_in(direction=DOWN, distance=200, start=0, end=1,
+                        easing=easings.linear)
+        op = c.styling.opacity.at_time(1)
+        assert op == pytest.approx(1, abs=0.01)
+
+    def test_fade_slide_in_shows_object(self):
+        """Object should become visible at start time."""
+        c = Circle(r=50, cx=500, cy=500, creation=5)
+        c.fade_slide_in(direction=UP, distance=100, start=2, end=3)
+        assert c.show.at_time(2) is True
+        assert c.show.at_time(1.9) is False
+
+
+class TestAxesAddHorizontalLine:
+    def test_add_horizontal_line_returns_line(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        line = ax.add_horizontal_line(y=2)
+        assert isinstance(line, Line)
+
+    def test_add_horizontal_line_at_y_value(self):
+        """The line should span the full plot width at the correct y."""
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        line = ax.add_horizontal_line(y=3)
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        # Both endpoints should have the same y (horizontal)
+        assert p1[1] == pytest.approx(p2[1], abs=0.1)
+        # p1.x should be at the left edge of the plot
+        assert p1[0] == pytest.approx(ax.plot_x, abs=0.1)
+        # p2.x should be at the right edge of the plot
+        assert p2[0] == pytest.approx(ax.plot_x + ax.plot_width, abs=0.1)
+
+    def test_add_horizontal_line_with_fade(self):
+        """When start/end are given, the line should fade in."""
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        line = ax.add_horizontal_line(y=1, start=0, end=1)
+        # At time 0, opacity should be 0 (fadein start)
+        op = line.styling.opacity.at_time(0)
+        assert op == pytest.approx(0, abs=0.05)
+
+
+class TestColorShift:
+    def test_color_shift_returns_self(self):
+        """color_shift should return self for chaining."""
+        c = Circle(r=50, fill='#ff0000')
+        result = c.color_shift(hue_shift=60, start=0, end=1)
+        assert result is c
+
+    def test_color_shift_changes_color(self):
+        """At end time, the fill color should have shifted hue."""
+        c = Circle(r=50, fill='#ff0000')
+        original = c.styling.fill.at_time(0)
+        c.color_shift(hue_shift=120, start=0, end=1)
+        shifted = c.styling.fill.at_time(1)
+        assert shifted != original
+
+    def test_color_shift_zero_shift(self):
+        """A hue shift of 0 should leave the color unchanged."""
+        c = Circle(r=50, fill='#ff0000')
+        original_rgb = c.styling.fill.time_func(0)
+        c.color_shift(hue_shift=0, start=0, end=1)
+        shifted_rgb = c.styling.fill.time_func(1)
+        assert shifted_rgb[0] == pytest.approx(original_rgb[0], abs=2)
+        assert shifted_rgb[1] == pytest.approx(original_rgb[1], abs=2)
+        assert shifted_rgb[2] == pytest.approx(original_rgb[2], abs=2)
+
+    def test_color_shift_preserves_lightness(self):
+        """Hue shift should not change lightness significantly."""
+        from vectormation.attributes import _rgb_to_hsl
+        c = Circle(r=50, fill='#4488cc')
+        orig_rgb = c.styling.fill.time_func(0)
+        _, _, orig_l = _rgb_to_hsl(*orig_rgb[:3])
+        c.color_shift(hue_shift=90, start=0, end=1)
+        shifted_rgb = c.styling.fill.time_func(1)
+        _, _, shifted_l = _rgb_to_hsl(*shifted_rgb[:3])
+        assert shifted_l == pytest.approx(orig_l, abs=0.02)
+
+
+class TestPlotPiecewise:
+    def test_plot_piecewise_returns_group(self):
+        """plot_piecewise should return a VGroup."""
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        pieces = [
+            (lambda x: x, -5, 0),
+            (lambda x: x**2, 0, 5),
+        ]
+        group = ax.plot_piecewise(pieces)
+        assert isinstance(group, VGroup)
+
+    def test_plot_piecewise_correct_count(self):
+        """plot_piecewise should have one curve per piece."""
+        ax = Axes(x_range=[-5, 5], y_range=[-10, 10])
+        pieces = [
+            (lambda x: -x, -5, -1),
+            (lambda x: 1, -1, 1),
+            (lambda x: x, 1, 5),
+        ]
+        group = ax.plot_piecewise(pieces)
+        assert len(group.objects) == 3
+
+    def test_plot_piecewise_curves_added_to_axes(self):
+        """Each piece should also be added to the axes objects."""
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        initial_count = len(ax.objects)
+        pieces = [
+            (lambda x: x, -5, 0),
+            (lambda x: -x, 0, 5),
+        ]
+        ax.plot_piecewise(pieces)
+        # Each piece adds a curve to the axes
+        assert len(ax.objects) == initial_count + 2
