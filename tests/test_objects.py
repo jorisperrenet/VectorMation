@@ -12796,3 +12796,55 @@ class TestBarChartAnimateValues:
         result = chart.animate_values([50, 25, 25], start=0, end=1)
         assert result is chart
         assert chart.values == [50, 25, 25]
+
+
+class TestPieChartHighlightSector:
+    def test_highlight_sector_returns_self(self):
+        chart = PieChart([30, 40, 30])
+        result = chart.highlight_sector(0, start=0, end=1)
+        assert result is chart
+
+    def test_highlight_sector_out_of_range(self):
+        chart = PieChart([30, 40, 30])
+        result = chart.highlight_sector(10, start=0, end=1)
+        assert result is chart
+
+    def test_highlight_sector_zero_duration(self):
+        chart = PieChart([30, 40, 30])
+        result = chart.highlight_sector(1, start=1, end=1)
+        assert result is chart
+
+
+class TestBarChartSetBarColor:
+    def test_set_bar_color_instant(self):
+        chart = BarChart([3, 5, 2])
+        result = chart.set_bar_color(0, '#FF0000', start=0)
+        assert result is chart
+
+    def test_set_bar_color_animated(self):
+        chart = BarChart([3, 5, 2])
+        result = chart.set_bar_color(1, '#00FF00', start=0, end=1)
+        assert result is chart
+
+    def test_set_bar_color_out_of_range(self):
+        chart = BarChart([3, 5, 2])
+        result = chart.set_bar_color(10, '#FF0000')
+        assert result is chart
+
+
+class TestMatrixHighlightRowColumn:
+    def test_highlight_row(self):
+        m = Matrix([[1, 2], [3, 4]])
+        result = m.highlight_row(0, start=0, end=1)
+        assert result is m
+
+    def test_highlight_column(self):
+        m = Matrix([[1, 2], [3, 4]])
+        result = m.highlight_column(1, start=0, end=1)
+        assert result is m
+
+    def test_highlight_row_out_of_range(self):
+        m = Matrix([[1, 2], [3, 4]])
+        # highlight_row should not crash for valid rows
+        result = m.highlight_row(1, start=0, end=1)
+        assert result is m
