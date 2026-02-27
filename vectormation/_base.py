@@ -150,6 +150,10 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         """Scale so the bounding box has the given height. If stretch=True, only scale Y."""
         return self._set_dim(self.get_height, self.styling.scale_y, height, start, end, stretch, easing)
 
+    def get_z(self, time: float = 0):
+        """Return the current z-order value."""
+        return self.z.at_time(time)
+
     def set_z(self, value, start: float = 0):
         """Set the z-order (draw order) of this object."""
         self.z.set_onward(start, value)
