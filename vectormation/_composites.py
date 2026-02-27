@@ -2830,22 +2830,11 @@ class Axes(VCollection):
         colors = {'max': '#FF6B6B', 'min': '#58C4DD'}
         for mx, my, kind in extrema:
             color = styling_kwargs.get('fill', colors[kind])
-            sx, sy = self.coords_to_point(mx, my, creation)
-            dot = Dot(cx=sx, cy=sy, r=dot_radius, fill=color,
-                      creation=creation, z=z + 1)
-            dot.c.set_onward(creation,
-                lambda t, _mx=mx, _my=my: self.coords_to_point(_mx, _my, t))
-            lbl_text = f'{kind}({mx:.1f}, {my:.1f})'
             offset_y = -15 if kind == 'max' else 20
-            lbl = Text(text=lbl_text, x=sx, y=sy + offset_y,
-                       font_size=font_size, fill=color, stroke_width=0,
-                       text_anchor='middle', creation=creation, z=z + 2)
-            lbl.x.set_onward(creation,
-                lambda t, _mx=mx, _my=my: self.coords_to_point(_mx, _my, t)[0])
-            lbl.y.set_onward(creation,
-                lambda t, _mx=mx, _my=my, _oy=offset_y: self.coords_to_point(_mx, _my, t)[1] + _oy)
-            self._add_plot_obj(dot)
-            self._add_plot_obj(lbl)
+            lbl_text = f'{kind}({mx:.1f}, {my:.1f})'
+            dot, lbl = self._make_plot_dot_label(
+                mx, my, lbl_text, offset_y, creation, z,
+                dot_radius, font_size, color)
             objs.extend([dot, lbl])
         return VCollection(*objs, creation=creation, z=z)
 
