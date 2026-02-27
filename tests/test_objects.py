@@ -687,7 +687,7 @@ class TestAxesNewMethods:
 
     def test_add_dot_label_dynamic(self):
         ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        dot, lbl = ax.add_dot_label(5, 5, label='test')
+        dot, _lbl = ax.add_dot_label(5, 5, label='test')
         p0 = dot.c.at_time(0)
         assert isinstance(p0, tuple)
 
@@ -7858,3 +7858,26 @@ class TestAddVerticalLine:
         # The line should exist and have opacity animation
         opacity_at_start = line.styling.opacity.at_time(0)
         assert opacity_at_start == pytest.approx(0, abs=0.1)
+
+
+class TestGetPointOnGraph:
+    def test_basic_linear(self):
+        """get_point_on_graph should return the same result as coords_to_point for simple functions."""
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.get_point_on_graph(lambda x: 2 * x, 1)
+        expected = ax.coords_to_point(1, 2)
+        assert result[0] == pytest.approx(expected[0])
+        assert result[1] == pytest.approx(expected[1])
+
+    def test_exception_returns_none(self):
+        """get_point_on_graph should return None when the function raises."""
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.get_point_on_graph(lambda x: 1 / x, 0)
+        assert result is None
+
+    def test_domain_error_returns_none(self):
+        """get_point_on_graph should return None for domain errors like sqrt of negative."""
+        import math
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.get_point_on_graph(lambda x: math.sqrt(x), -1)
+        assert result is None

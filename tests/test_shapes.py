@@ -82,7 +82,6 @@ class TestPolygon:
 class TestPolygonGetPerimeter:
     def test_equilateral_triangle(self):
         """Equilateral triangle with side 100 should have perimeter ~300."""
-        import math
         # 3-4-5 right triangle for easy exact check
         p = Polygon((0, 0), (3, 0), (3, 4))
         assert p.get_perimeter() == pytest.approx(12.0, abs=1e-9)
@@ -4750,3 +4749,144 @@ class TestTextCharAt:
     def test_char_at_empty_string(self):
         t = Text('')
         assert t.char_at(0) == ''
+
+
+class TestRectangleAspectRatio:
+    def test_aspect_ratio_basic(self):
+        r = Rectangle(width=200, height=100)
+        assert r.aspect_ratio() == pytest.approx(2.0)
+
+    def test_aspect_ratio_square(self):
+        r = Rectangle(width=100, height=100)
+        assert r.aspect_ratio() == pytest.approx(1.0)
+
+    def test_aspect_ratio_tall(self):
+        r = Rectangle(width=50, height=200)
+        assert r.aspect_ratio() == pytest.approx(0.25)
+
+    def test_aspect_ratio_zero_height(self):
+        r = Rectangle(width=100, height=0)
+        assert r.aspect_ratio() == float('inf')
+
+
+class TestSetCreation:
+    def test_set_creation_hides_before(self):
+        c = Circle(r=50)
+        c.set_creation(2)
+        assert c.show.at_time(0) == False
+        assert c.show.at_time(1) == False
+        assert c.show.at_time(2) == True
+        assert c.show.at_time(3) == True
+
+    def test_set_creation_returns_self(self):
+        c = Circle(r=50)
+        result = c.set_creation(1)
+        assert result is c
+
+    def test_set_creation_on_rectangle(self):
+        r = Rectangle(width=100, height=50)
+        r.set_creation(5)
+        assert r.show.at_time(4) == False
+        assert r.show.at_time(5) == True
+
+
+class TestPolygonEdgeLengths:
+    def test_edge_lengths_triangle(self):
+        p = Polygon((0, 0), (3, 0), (0, 4))
+        lengths = p.edge_lengths()
+        assert len(lengths) == 3
+        assert lengths[0] == pytest.approx(3.0)
+        assert lengths[1] == pytest.approx(5.0)
+        assert lengths[2] == pytest.approx(4.0)
+
+    def test_edge_lengths_square(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        lengths = p.edge_lengths()
+        assert len(lengths) == 4
+        for l in lengths:
+            assert l == pytest.approx(100.0)
+
+    def test_edge_lengths_open_polyline(self):
+        p = Polygon((0, 0), (3, 0), (3, 4), closed=False)
+        lengths = p.edge_lengths()
+        assert len(lengths) == 2
+        assert lengths[0] == pytest.approx(3.0)
+        assert lengths[1] == pytest.approx(4.0)
+
+    def test_edge_lengths_single_vertex(self):
+        p = Polygon((0, 0))
+        assert p.edge_lengths() == []
+
+
+class TestTextWordAt:
+    def test_word_at_basic(self):
+        t = Text('hello world foo')
+        assert t.word_at(0) == 'hello'
+        assert t.word_at(1) == 'world'
+        assert t.word_at(2) == 'foo'
+
+    def test_word_at_out_of_range(self):
+        t = Text('hello world')
+        assert t.word_at(5) == ''
+
+    def test_word_at_negative_index(self):
+        t = Text('hello world')
+        assert t.word_at(-1) == ''
+
+    def test_word_at_empty_string(self):
+        t = Text('')
+        assert t.word_at(0) == ''
+
+    def test_word_at_single_word(self):
+        t = Text('onlyone')
+        assert t.word_at(0) == 'onlyone'
+        assert t.word_at(1) == ''
+
+
+class TestFlashScale:
+    def test_peak_at_midpoint(self):
+        """flash_scale should reach peak factor at the midpoint."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.flash_scale(factor=2.0, start=0, end=2)
+        # At midpoint (t=1), scale should be at factor
+        sx_mid = c.styling.scale_x.at_time(1)
+        assert sx_mid == pytest.approx(2.0, abs=0.01)
+
+    def test_returns_to_original(self):
+        """flash_scale should return to original scale at end."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.flash_scale(factor=1.5, start=0, end=2)
+        # At start scale should be 1.0
+        sx_start = c.styling.scale_x.at_time(0)
+        assert sx_start == pytest.approx(1.0, abs=0.01)
+        # At end scale should be back to 1.0
+        sx_end = c.styling.scale_x.at_time(2)
+        assert sx_end == pytest.approx(1.0, abs=0.01)
+
+    def test_returns_self(self):
+        """flash_scale should return self for chaining."""
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.flash_scale(factor=1.5, start=0, end=1)
+        assert result is c
+
+
+class TestArcGetChordLength:
+    def test_semicircle_chord(self):
+        """A semicircle's chord should equal the diameter."""
+        arc = Arc(cx=0, cy=0, r=100, start_angle=0, end_angle=180)
+        chord = arc.get_chord_length(time=0)
+        assert chord == pytest.approx(200.0, abs=0.1)
+
+    def test_quarter_circle_chord(self):
+        """A quarter circle's chord should equal r * sqrt(2)."""
+        import math
+        arc = Arc(cx=0, cy=0, r=100, start_angle=0, end_angle=90)
+        chord = arc.get_chord_length(time=0)
+        expected = 100 * math.sqrt(2)
+        assert chord == pytest.approx(expected, abs=0.1)
+
+    def test_zero_sweep_chord(self):
+        """An arc with zero sweep should have zero chord length."""
+        arc = Arc(cx=0, cy=0, r=100, start_angle=45, end_angle=45)
+        chord = arc.get_chord_length(time=0)
+        assert chord == pytest.approx(0.0, abs=0.01)

@@ -140,6 +140,19 @@ class Polygon(VObject):
         """
         return self.perimeter(time)
 
+    def edge_lengths(self, time=0):
+        """Return list of edge lengths."""
+        pts = self.get_vertices(time)
+        n = len(pts)
+        if n < 2:
+            return []
+        lengths = []
+        for i in range(n - 1):
+            lengths.append(math.hypot(pts[i+1][0] - pts[i][0], pts[i+1][1] - pts[i][1]))
+        if self.closed and n > 2:
+            lengths.append(math.hypot(pts[0][0] - pts[-1][0], pts[0][1] - pts[-1][1]))
+        return lengths
+
     def area(self, time=0):
         """Return the area using the shoelace formula (0 for open polylines)."""
         if not self.closed:
@@ -1102,6 +1115,12 @@ class Rectangle(VObject):
         w = self.width.at_time(time)
         h = self.height.at_time(time)
         return abs(w - h) < tol
+
+    def aspect_ratio(self, time=0):
+        """Return width / height ratio."""
+        w = self.width.at_time(time)
+        h = self.height.at_time(time)
+        return w / h if h != 0 else float('inf')
 
     @classmethod
     def square(cls, side, **kwargs):
@@ -2213,6 +2232,15 @@ class Text(VObject):
         """
         return len(self.text.at_time(time).split())
 
+    def word_at(self, index, time=0):
+        """Return the word at the given index."""
+        text = self.text.at_time(time)
+        if isinstance(text, str):
+            words = text.split()
+            if 0 <= index < len(words):
+                return words[index]
+        return ''
+
     def fit_to_box(self, max_width, max_height=None, time=0):
         """Adjust font_size so the text fits within the given box dimensions.
 
@@ -2814,6 +2842,12 @@ class Arc(VObject):
         r = self.r.at_time(time)
         sweep = abs(self.end_angle.at_time(time) - self.start_angle.at_time(time))
         return r * math.radians(sweep)
+
+    def get_chord_length(self, time=0):
+        """Return the length of the chord from start point to end point."""
+        p1 = self.get_start_point(time)
+        p2 = self.get_end_point(time)
+        return math.hypot(p2[0] - p1[0], p2[1] - p1[1])
 
     def get_sweep(self, time=0):
         """Return the total sweep angle in degrees."""

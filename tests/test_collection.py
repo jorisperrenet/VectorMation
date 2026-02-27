@@ -1121,3 +1121,29 @@ class TestRotateOrder:
         col = VCollection()
         result = col.rotate_order(1)
         assert result is col
+
+
+class TestEach:
+    def test_each_applies_function(self):
+        """each() should call the function on every child."""
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=20, cx=100, cy=100)
+        col = VCollection(c1, c2)
+        visited = []
+        col.each(lambda obj: visited.append(obj))
+        assert visited == [c1, c2]
+
+    def test_each_returns_self(self):
+        """each() should return self for chaining."""
+        col = VCollection(Circle(r=10), Circle(r=20))
+        result = col.each(lambda _obj: None)
+        assert result is col
+
+    def test_each_modifies_children(self):
+        """each() should be able to modify children via the function."""
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=20, cx=100, cy=100)
+        col = VCollection(c1, c2)
+        col.each(lambda obj: obj.shift(dx=10, dy=0, start_time=0))
+        assert c1.c.at_time(0)[0] == pytest.approx(10)
+        assert c2.c.at_time(0)[0] == pytest.approx(110)

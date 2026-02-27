@@ -859,6 +859,33 @@ class Axes(VCollection):
         """Convert a math x-value and function to SVG pixel coordinates: (x, f(x))."""
         return self.coords_to_point(x, func(x), time)
 
+    def get_point_on_graph(self, func, x, time=0):
+        """Return SVG (x, y) coordinates of point (x, func(x)) on the graph.
+
+        Like :meth:`input_to_graph_point` but catches exceptions raised by
+        *func* (e.g. division by zero, domain errors) and returns ``None``
+        instead.
+
+        Parameters
+        ----------
+        func:
+            A callable mapping a math x-value to a y-value.
+        x:
+            The math x-coordinate to evaluate.
+        time:
+            Animation time for axis range lookup (default 0).
+
+        Returns
+        -------
+        tuple[float, float] or None
+            SVG pixel coordinates, or ``None`` if *func(x)* raises.
+        """
+        try:
+            y = func(x)
+        except Exception:
+            return None
+        return self.coords_to_point(x, y, time=time)
+
     def graph_position(self, func, x_attr):
         """Return a callable(time) -> (svg_x, svg_y) that tracks a point on func.
         x_attr: a Real attribute or any object with .at_time(t), or a plain callable(t).

@@ -379,6 +379,11 @@ class VObject(ABC):  # Vector Object
         self.show.set_onward(start, 1 if visible else 0)
         return self
 
+    def set_creation(self, time):
+        """Set the creation time."""
+        self._show_from(time)
+        return self
+
     def __repr__(self):
         return f'{self.__class__.__name__}(z={self.z.at_time(0)})'
 
@@ -1621,6 +1626,38 @@ class VObject(ABC):  # Vector Object
                 _b * (1 + _amp * math.sin(2 * math.pi * _cnt * _e((t - _s) / _d)))
         self.styling.scale_x.set(start, end, _make_pulse_scale(sx0))
         self.styling.scale_y.set(start, end, _make_pulse_scale(sy0))
+        return self
+
+    def flash_scale(self, factor=1.5, start: float = 0, end: float = 1, easing=easings.smooth):
+        """Quickly scale up to *factor* at the midpoint then back to original size.
+
+        Produces a single "flash" or "pop" effect: the object grows to
+        *factor* at the midpoint of [start, end] and smoothly returns to its
+        original scale by *end*.
+
+        Parameters
+        ----------
+        factor:
+            Peak scale factor reached at the midpoint (default 1.5).
+        start:
+            Animation start time.
+        end:
+            Animation end time.
+        easing:
+            Easing applied to the normalised time (default: smooth).
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        self._ensure_scale_origin(start)
+        sx0 = self.styling.scale_x.at_time(start)
+        sy0 = self.styling.scale_y.at_time(start)
+        _s, _d, _f = start, max(dur, 1e-9), factor
+        def _make_flash(base):
+            return lambda t, _s=_s, _d=_d, _f=_f, _b=base, _e=easing: \
+                _b * (1 + (_f - 1) * math.sin(math.pi * _e((t - _s) / _d)))
+        self.styling.scale_x.set(start, end, _make_flash(sx0))
+        self.styling.scale_y.set(start, end, _make_flash(sy0))
         return self
 
     def spin(self, start: float = 0, end: float = 1, degrees=360, cx=None, cy=None, easing=easings.linear):
@@ -4085,6 +4122,26 @@ class VCollection:
         Example: group.for_each('set_color', color='red', start=1)"""
         for obj in self.objects:
             getattr(obj, method_name)(**kwargs)
+        return self
+
+    def each(self, func):
+        """Apply a function to each child and return self.
+
+        Unlike :meth:`for_each` (which calls a *named method* on each child)
+        and :meth:`apply` (which passes ``(child, index)``), this method calls
+        ``func(child)`` for every child — useful for simple lambdas.
+
+        Parameters
+        ----------
+        func:
+            A callable that receives a single child object.
+
+        Returns
+        -------
+        self, for chaining.
+        """
+        for obj in self.objects:
+            func(obj)
         return self
 
     def flip_all(self, start: float = 0, end: float | None = None, axis='x',
