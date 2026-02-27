@@ -2702,20 +2702,17 @@ class Axes(VCollection):
         dur = end - start
         if dur <= 0:
             return self
+        _d = max(dur, 1e-9)
         if x_range is not None:
             self.x_min.set(start, end,
-                lambda t, _s=start, _d=max(dur, 1e-9), _old=self.x_min.at_time(start), _new=x_range[0]:
-                    _old + (_new - _old) * easing((t - _s) / _d), stay=True)
+                _lerp(start, _d, self.x_min.at_time(start), x_range[0], easing), stay=True)
             self.x_max.set(start, end,
-                lambda t, _s=start, _d=max(dur, 1e-9), _old=self.x_max.at_time(start), _new=x_range[1]:
-                    _old + (_new - _old) * easing((t - _s) / _d), stay=True)
+                _lerp(start, _d, self.x_max.at_time(start), x_range[1], easing), stay=True)
         if y_range is not None and self.y_min is not None:
             self.y_min.set(start, end,
-                lambda t, _s=start, _d=max(dur, 1e-9), _old=self.y_min.at_time(start), _new=y_range[0]:
-                    _old + (_new - _old) * easing((t - _s) / _d), stay=True)
+                _lerp(start, _d, self.y_min.at_time(start), y_range[0], easing), stay=True)
             self.y_max.set(start, end,
-                lambda t, _s=start, _d=max(dur, 1e-9), _old=self.y_max.at_time(start), _new=y_range[1]:
-                    _old + (_new - _old) * easing((t - _s) / _d), stay=True)
+                _lerp(start, _d, self.y_max.at_time(start), y_range[1], easing), stay=True)
         return self
 
     def add_shaded_inequality(self, func, direction='below', x_range=None,
@@ -12739,10 +12736,10 @@ class Pendulum(VCollection):
         px, py = pivot_x, pivot_y
         L = length
 
+        _end = end
+
         def bob_pos(t):
-            dt = t - start
-            if dt < 0:
-                dt = 0
+            dt = max(0, min(t, _end) - start)
             a = init_a * math.exp(-damp * dt) * math.cos(omega * dt)
             bx = px + L * math.sin(a)
             by = py + L * math.cos(a)
@@ -12800,10 +12797,10 @@ class StandingWave(VCollection):
         _px, _py = perp_x, perp_y
         _dx, _dy = dx_norm, dy_norm
         _wl, _np = wave_length, num_points
-        _start = start
+        _start, _end = start, end
 
         def wave_d(t):
-            dt = t - _start
+            dt = max(0, min(t, _end) - _start)
             parts = [f'M {_x1:.1f} {_y1:.1f}']
             for i in range(1, _np):
                 s = i / _np

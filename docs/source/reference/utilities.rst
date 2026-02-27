@@ -309,7 +309,8 @@ Helper Functions
 .. py:function:: parse_args()
 
    Common CLI argument parser. Returns an object with:
-   ``verbose``, ``port``, ``fps``, ``no_display``.
+   ``verbose``, ``port``, ``fps``, ``no_display``, ``output``,
+   ``duration``, ``start``, ``end``, ``hot_reload``.
 
 .. py:function:: path_bbox(d)
 
@@ -328,3 +329,19 @@ Helper Functions
 .. py:function:: from_svg_file(filename)
 
    Load an entire SVG file into a :py:class:`VCollection`.
+
+.. py:function:: interpolate_value(a, b, alpha)
+
+   Linearly interpolate between two scalar values.
+
+   :param float a: Start value.
+   :param float b: End value.
+   :param float alpha: Interpolation factor (0 = *a*, 1 = *b*).
+
+.. py:function:: smooth_index(lst, real_index)
+
+   Smoothly index into a list with a float index in [0, 1].
+   Returns the linearly interpolated value between adjacent items.
+
+   :param list lst: List of numeric values or coordinate tuples.
+   :param float real_index: Index in [0, 1].

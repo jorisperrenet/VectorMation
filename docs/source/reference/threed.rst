@@ -52,6 +52,18 @@ ThreeDAxes
 
       Register a 3D primitive for depth-sorted rendering.
 
+   .. py:method:: get_graph_3d(func, x_range=None, plane='xz', num_points=100, **kwargs)
+
+      Plot a 2D function as a 3D curve in the specified plane.
+
+   .. py:method:: plot_surface_wireframe(func, x_steps=20, y_steps=20, **kwargs)
+
+      Render a surface as a wireframe mesh.
+
+   .. py:method:: plot_parametric_surface(func, u_range=(0, tau), v_range=(0, pi), resolution=20, **kwargs)
+
+      Plot a parametric surface ``(x, y, z) = func(u, v)``.
+
 ----
 
 Surface
