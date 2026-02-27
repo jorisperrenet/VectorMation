@@ -14342,3 +14342,23 @@ class TestSpiral:
         s = Spiral(num_points=200)
         pts = s.get_vertices(0)
         assert len(pts) == 200
+
+
+class TestMatrixAugmented:
+    def test_basic_augmented(self):
+        m = Matrix.augmented([[1, 2], [3, 4]], [[5], [6]])
+        assert m.rows == 2
+        assert m.cols == 3
+        assert m.entries[0][0].text.at_time(0) == '1'
+        assert m.entries[0][2].text.at_time(0) == '5'
+
+    def test_augmented_has_divider(self):
+        m = Matrix.augmented([[1, 0], [0, 1]], [[2], [3]])
+        assert m._augment_col == 2
+        # Should have more objects than a plain 2x3 matrix (extra divider line)
+        plain = Matrix([[1, 0, 2], [0, 1, 3]])
+        assert len(m.objects) > len(plain.objects)
+
+    def test_augmented_repr(self):
+        m = Matrix.augmented([[1]], [[2]])
+        assert 'Matrix' in repr(m)

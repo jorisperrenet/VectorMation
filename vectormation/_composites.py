@@ -1138,6 +1138,35 @@ class Matrix(VCollection):
                     row[ci].styling.fill.set_onward(start, c)
         return self
 
+    @classmethod
+    def augmented(cls, left_data, right_data, **kwargs):
+        """Create an augmented matrix [left | right] with a vertical divider."""
+        rows_l, rows_r = len(left_data), len(right_data)
+        rows = max(rows_l, rows_r)
+        cols_l = len(left_data[0]) if left_data else 0
+        cols_r = len(right_data[0]) if right_data else 0
+        # Merge into one data grid
+        merged = []
+        for r in range(rows):
+            row = list(left_data[r]) if r < rows_l else [''] * cols_l
+            row += list(right_data[r]) if r < rows_r else [''] * cols_r
+            merged.append(row)
+        m = cls(merged, **kwargs)
+        m._augment_col = cols_l
+        # Add vertical divider line
+        entry00 = m.entries[0][0]
+        x0 = entry00.x.at_time(0)
+        h_sp = kwargs.get('h_spacing', 80)
+        div_x = x0 + (cols_l - 0.5) * h_sp
+        v_sp = kwargs.get('v_spacing', 50)
+        y_top = entry00.y.at_time(0) - v_sp * 0.6
+        y_bot = m.entries[-1][0].y.at_time(0) + v_sp * 0.6
+        div_line = Line(x1=div_x, y1=y_top, x2=div_x, y2=y_bot,
+                        stroke='#888', stroke_width=2, creation=kwargs.get('creation', 0),
+                        z=kwargs.get('z', 0) + 0.05)
+        m.objects.append(div_line)
+        return m
+
 class DecimalMatrix(Matrix):
     """Matrix that formats entries as decimals with a fixed number of places."""
     def __init__(self, data, decimals=1, **kwargs):
