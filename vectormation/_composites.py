@@ -1738,6 +1738,44 @@ class Axes(VCollection):
         """
         return self.get_derivative(func, x_val, h=h)
 
+    def get_secant_slope(self, func, x, dx):
+        """Return the secant slope ``(f(x + dx) - f(x)) / dx``.
+
+        Unlike :meth:`get_derivative` which uses the symmetric central-difference
+        formula, this computes the one-sided difference quotient — the slope of
+        the secant line connecting ``(x, f(x))`` and ``(x + dx, f(x + dx))``.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x)`` or a curve Path with a ``._func`` attribute
+            (as returned by :meth:`plot`).
+        x:
+            The starting x value (in mathematical axis coordinates).
+        dx:
+            The horizontal step.  Must not be zero.
+
+        Returns
+        -------
+        float
+            The secant slope.
+
+        Raises
+        ------
+        ValueError
+            If *dx* is zero.
+
+        Examples
+        --------
+        >>> ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        >>> ax.get_secant_slope(lambda x: x**2, 1, 1)   # (4 - 1) / 1 = 3.0
+        >>> ax.get_secant_slope(lambda x: x**2, 2, 0.5)  # (6.25 - 4) / 0.5 = 4.5
+        """
+        if dx == 0:
+            raise ValueError("dx must not be zero")
+        fn = self._resolve_func(func, 'func')
+        return (fn(x + dx) - fn(x)) / dx
+
     def add_legend(self, entries, position='upper right', font_size=18,
                     bg_color='#1a1a2e', bg_opacity=0.8, creation=0, z=10):
         """Add a legend box.
@@ -5503,6 +5541,45 @@ class NumberLine(VCollection):
     def get_range(self):
         """Return (min_val, max_val) tuple for the number line's value range."""
         return (self.x_start, self.x_end)
+
+    def get_range_length(self):
+        """Return the numeric length of the number line's range.
+
+        This is the absolute difference ``x_end - x_start`` in the number
+        line's value space (not the SVG pixel length).
+
+        Returns
+        -------
+        float
+        """
+        return self.x_end - self.x_start
+
+    def snap_to_tick(self, value):
+        """Return the nearest tick mark value to *value*.
+
+        Tick marks are placed at ``x_start + k * x_step`` for integer k.
+        The returned value is the closest such tick mark, clamped to the
+        number line's range ``[x_start, x_end]``.
+
+        Parameters
+        ----------
+        value:
+            A numeric value to snap.
+
+        Returns
+        -------
+        float
+            The nearest tick value within the range.
+        """
+        if value <= self.x_start:
+            return self.x_start
+        if value >= self.x_end:
+            return self.x_end
+        # Number of steps from x_start
+        k = round((value - self.x_start) / self.x_step)
+        snapped = self.x_start + k * self.x_step
+        # Clamp to range (rounding could overshoot)
+        return max(self.x_start, min(self.x_end, snapped))
 
     def add_pointer(self, value, label=None, color='#FF6B6B', size=12,
                      creation=0, z=1):

@@ -6308,3 +6308,208 @@ class TestTextTruncate:
         t = Text('Hello, World!')
         t.truncate(3, ellipsis='...')
         assert t.get_text() == '...'
+
+
+# ---------------------------------------------------------------------------
+# Polygon.get_edge_midpoints
+# ---------------------------------------------------------------------------
+
+class TestPolygonGetEdgeMidpoints:
+    def test_triangle_midpoints(self):
+        """Triangle should return 3 midpoints (one per edge)."""
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        mids = p.get_edge_midpoints()
+        assert len(mids) == 3
+        # Edge (0,0)-(100,0) midpoint
+        assert mids[0][0] == pytest.approx(50)
+        assert mids[0][1] == pytest.approx(0)
+        # Edge (100,0)-(50,100) midpoint
+        assert mids[1][0] == pytest.approx(75)
+        assert mids[1][1] == pytest.approx(50)
+        # Closing edge (50,100)-(0,0) midpoint
+        assert mids[2][0] == pytest.approx(25)
+        assert mids[2][1] == pytest.approx(50)
+
+    def test_square_midpoints(self):
+        """Square should have 4 midpoints."""
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        mids = p.get_edge_midpoints()
+        assert len(mids) == 4
+
+    def test_open_polyline_no_closing_edge(self):
+        """Open polyline (Lines) should not include closing edge midpoint."""
+        ln = Lines((0, 0), (100, 0), (100, 100))
+        mids = ln.get_edge_midpoints()
+        assert len(mids) == 2
+        assert mids[0] == pytest.approx((50, 0))
+        assert mids[1] == pytest.approx((100, 50))
+
+    def test_single_vertex_returns_empty(self):
+        """A single vertex polygon should return empty list."""
+        p = Polygon((5, 5))
+        mids = p.get_edge_midpoints()
+        assert mids == []
+
+    def test_two_vertices_one_midpoint(self):
+        """Two-vertex polygon (a line) should return 1 midpoint."""
+        p = Polygon((0, 0), (10, 0), closed=False)
+        mids = p.get_edge_midpoints()
+        assert len(mids) == 1
+        assert mids[0] == pytest.approx((5, 0))
+
+
+# ---------------------------------------------------------------------------
+# Circle.circumscribed_polygon
+# ---------------------------------------------------------------------------
+
+class TestCircleCircumscribedPolygon:
+    def test_square_circumscribes_circle(self):
+        """Circumscribed square should have inradius equal to circle radius."""
+        c = Circle(r=100, cx=500, cy=400)
+        poly = c.circumscribed_polygon(4)
+        # The inradius of the resulting polygon should equal the circle's radius
+        inradius = poly.get_inradius()
+        assert inradius == pytest.approx(100, abs=1e-6)
+
+    def test_hexagon_circumscribes_circle(self):
+        """Circumscribed hexagon inradius should match circle radius."""
+        c = Circle(r=50, cx=200, cy=300)
+        poly = c.circumscribed_polygon(6)
+        inradius = poly.get_inradius()
+        assert inradius == pytest.approx(50, abs=1e-6)
+
+    def test_triangle_circumscribes_circle(self):
+        """Circumscribed triangle inradius should match circle radius."""
+        c = Circle(r=80, cx=960, cy=540)
+        poly = c.circumscribed_polygon(3)
+        inradius = poly.get_inradius()
+        assert inradius == pytest.approx(80, abs=1e-6)
+
+    def test_returns_regular_polygon(self):
+        """Result should be a RegularPolygon."""
+        from vectormation.objects import RegularPolygon
+        c = Circle(r=50)
+        poly = c.circumscribed_polygon(5)
+        assert isinstance(poly, RegularPolygon)
+
+    def test_vertices_outside_circle(self):
+        """All vertices of circumscribed polygon should lie outside the circle."""
+        c = Circle(r=100, cx=960, cy=540)
+        poly = c.circumscribed_polygon(6)
+        verts = poly.get_vertices()
+        for vx, vy in verts:
+            dist = ((vx - 960)**2 + (vy - 540)**2) ** 0.5
+            assert dist >= 100 - 1e-6
+
+    def test_n_less_than_3_raises(self):
+        """n < 3 should raise ValueError."""
+        c = Circle(r=50)
+        with pytest.raises(ValueError):
+            c.circumscribed_polygon(2)
+
+    def test_angle_rotation(self):
+        """Non-zero angle should rotate the polygon."""
+        c = Circle(r=100, cx=0, cy=0)
+        poly0 = c.circumscribed_polygon(4, angle=0)
+        poly45 = c.circumscribed_polygon(4, angle=45)
+        v0 = poly0.get_vertices()
+        v45 = poly45.get_vertices()
+        # First vertex should differ
+        assert v0[0][0] != pytest.approx(v45[0][0], abs=1)
+
+
+# ---------------------------------------------------------------------------
+# Line.contains_point
+# ---------------------------------------------------------------------------
+
+class TestLineContainsPoint:
+    def test_point_on_line(self):
+        """Midpoint of the line should be contained."""
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        assert l.contains_point(50, 0) is True
+
+    def test_endpoint_on_line(self):
+        """Endpoints should be contained."""
+        l = Line(x1=10, y1=20, x2=50, y2=60)
+        assert l.contains_point(10, 20) is True
+        assert l.contains_point(50, 60) is True
+
+    def test_point_far_away(self):
+        """Point far from the line should not be contained."""
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        assert l.contains_point(50, 50) is False
+
+    def test_point_near_line_within_tolerance(self):
+        """Point within tolerance should be contained."""
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        assert l.contains_point(50, 1.5, tol=2) is True
+
+    def test_point_near_line_outside_tolerance(self):
+        """Point outside tolerance should not be contained."""
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        assert l.contains_point(50, 3, tol=2) is False
+
+    def test_custom_tolerance(self):
+        """Custom tolerance should work."""
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        assert l.contains_point(50, 5, tol=10) is True
+        assert l.contains_point(50, 5, tol=4) is False
+
+    def test_diagonal_line(self):
+        """Point on a diagonal line should be contained."""
+        l = Line(x1=0, y1=0, x2=100, y2=100)
+        # Midpoint of diagonal
+        assert l.contains_point(50, 50) is True
+
+    def test_point_beyond_segment(self):
+        """Point on the infinite line but beyond segment should not be contained."""
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        # (200, 0) is on the infinite line extension but past end
+        assert l.contains_point(200, 0, tol=2) is False
+
+
+# ---------------------------------------------------------------------------
+# Rectangle.from_bounding_box
+# ---------------------------------------------------------------------------
+
+class TestRectangleFromBoundingBox:
+    def test_from_circle_bbox(self):
+        """Rectangle from circle bbox should enclose the circle."""
+        c = Circle(r=50, cx=100, cy=200)
+        r = Rectangle.from_bounding_box(c)
+        assert r.x.at_time(0) == pytest.approx(50)
+        assert r.y.at_time(0) == pytest.approx(150)
+        assert r.width.at_time(0) == pytest.approx(100)
+        assert r.height.at_time(0) == pytest.approx(100)
+
+    def test_from_rectangle_bbox(self):
+        """Rectangle from another rectangle's bbox should match."""
+        src = Rectangle(width=120, height=80, x=10, y=20)
+        r = Rectangle.from_bounding_box(src)
+        assert r.width.at_time(0) == pytest.approx(120)
+        assert r.height.at_time(0) == pytest.approx(80)
+
+    def test_padding(self):
+        """Padding should expand the result on all sides."""
+        c = Circle(r=50, cx=100, cy=200)
+        r = Rectangle.from_bounding_box(c, padding=10)
+        assert r.x.at_time(0) == pytest.approx(40)
+        assert r.y.at_time(0) == pytest.approx(140)
+        assert r.width.at_time(0) == pytest.approx(120)
+        assert r.height.at_time(0) == pytest.approx(120)
+
+    def test_styling_kwargs_forwarded(self):
+        """Extra kwargs should reach the Rectangle constructor."""
+        c = Circle(r=50, cx=100, cy=200)
+        r = Rectangle.from_bounding_box(c, fill='#FF0000')
+        svg = r.to_svg(0)
+        assert 'rgb(255,0,0)' in svg
+
+    def test_from_polygon_bbox(self):
+        """Rectangle from triangle bbox should work."""
+        tri = Polygon((0, 0), (100, 0), (50, 80))
+        r = Rectangle.from_bounding_box(tri)
+        assert r.x.at_time(0) == pytest.approx(0)
+        assert r.y.at_time(0) == pytest.approx(0)
+        assert r.width.at_time(0) == pytest.approx(100)
+        assert r.height.at_time(0) == pytest.approx(80)

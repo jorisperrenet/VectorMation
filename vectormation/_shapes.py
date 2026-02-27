@@ -523,6 +523,38 @@ class Polygon(VObject):
             edges.append(Line(x1=x1, y1=y1, x2=x2, y2=y2))
         return edges
 
+    def get_edge_midpoints(self, time=0):
+        """Return a list of midpoint (x, y) tuples for each edge.
+
+        For a closed polygon this includes the midpoint of the closing edge
+        from the last vertex back to the first.  For an open polyline only
+        the interior segments are included.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to evaluate vertex positions.
+
+        Returns
+        -------
+        list[tuple[float, float]]
+            One midpoint per edge.
+        """
+        pts = self.get_vertices(time)
+        n = len(pts)
+        if n < 2:
+            return []
+        midpoints = []
+        for i in range(n - 1):
+            mx = (pts[i][0] + pts[i + 1][0]) / 2
+            my = (pts[i][1] + pts[i + 1][1]) / 2
+            midpoints.append((mx, my))
+        if self.closed and n > 2:
+            mx = (pts[-1][0] + pts[0][0]) / 2
+            my = (pts[-1][1] + pts[0][1]) / 2
+            midpoints.append((mx, my))
+        return midpoints
+
     def translate(self, dx, dy):
         """Translate all vertices by (*dx*, *dy*).
 
@@ -1292,6 +1324,39 @@ class Circle(Ellipse):
         r = self.rx.at_time(time)
         return RegularPolygon(n, radius=r, cx=cx, cy=cy, angle=angle, **kwargs)
 
+    def circumscribed_polygon(self, n, angle=0, time=0, **kwargs):
+        """Return a regular *n*-gon circumscribed around this circle.
+
+        The polygon's edges are tangent to the circle.  Each vertex lies at
+        distance ``r / cos(pi / n)`` from the centre — the circumradius of a
+        regular n-gon whose inradius equals this circle's radius.
+
+        Parameters
+        ----------
+        n:
+            Number of sides / vertices (>= 3).
+        angle:
+            Rotation of the first vertex in degrees, measured counter-clockwise
+            from the right (standard math convention).  Default 0 places the
+            first vertex at the rightmost point.
+        time:
+            The time at which to read the circle's position and radius.
+        **kwargs:
+            Forwarded to :class:`RegularPolygon`.
+
+        Returns
+        -------
+        RegularPolygon
+        """
+        if n < 3:
+            raise ValueError(f"circumscribed_polygon requires n >= 3, got {n}")
+        cx, cy = self.c.at_time(time)
+        r = self.rx.at_time(time)
+        # The inradius of a regular n-gon with circumradius R is R*cos(pi/n).
+        # We want the inradius to equal r, so R = r / cos(pi/n).
+        circum_r = r / math.cos(math.pi / n)
+        return RegularPolygon(n, radius=circum_r, cx=cx, cy=cy, angle=angle, **kwargs)
+
     def arc_between(self, start_angle, end_angle, time=0, **kwargs):
         """Return an Arc with the same centre and radius as this circle.
 
@@ -1675,6 +1740,37 @@ class Rectangle(VObject):
         lx, rx_ = min(x1, x2), max(x1, x2)
         ty, by = min(y1, y2), max(y1, y2)
         return cls(rx_ - lx, by - ty, x=lx, y=ty, **kwargs)
+
+    @classmethod
+    def from_bounding_box(cls, vobject, padding=0, time=0, **kwargs):
+        """Create a Rectangle that encloses another object's bounding box.
+
+        Parameters
+        ----------
+        vobject:
+            Any object with a ``bbox(time)`` method that returns
+            ``(x, y, width, height)``.
+        padding:
+            Extra space in pixels added to each side of the bounding box
+            (default ``0``).
+        time:
+            Animation time at which to read the target's bounding box.
+        **kwargs:
+            Extra keyword arguments forwarded to the Rectangle constructor
+            (e.g. ``stroke``, ``fill``).
+
+        Returns
+        -------
+        Rectangle
+        """
+        bx, by, bw, bh = vobject.bbox(time)
+        return cls(
+            bw + 2 * padding,
+            bh + 2 * padding,
+            x=bx - padding,
+            y=by - padding,
+            **kwargs,
+        )
 
     def set_size(self, width, height, start=0, end=None, easing=easings.smooth):
         """Set both dimensions."""
@@ -2498,6 +2594,29 @@ class Line(VObject):
         """
         cp = self.get_perpendicular_point(px, py, time)
         return math.hypot(px - cp[0], py - cp[1])
+
+    def contains_point(self, px, py, time=0, tol=2):
+        """Return True if ``(px, py)`` lies on this line segment within *tol* pixels.
+
+        The test measures the shortest Euclidean distance from the point to
+        the segment (clamped to the endpoints).  If that distance is at most
+        *tol* the point is considered to be on the segment.
+
+        Parameters
+        ----------
+        px, py:
+            Coordinates of the point to test.
+        time:
+            Animation time at which to evaluate the line endpoints.
+        tol:
+            Maximum distance in pixels for the point to be considered on the
+            segment (default ``2``).
+
+        Returns
+        -------
+        bool
+        """
+        return self.distance_to_point(px, py, time) <= tol
 
     def __repr__(self):
         p1, p2 = self.p1.at_time(0), self.p2.at_time(0)

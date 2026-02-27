@@ -751,6 +751,54 @@ class VObject(ABC):  # Vector Object
             self._hide_from(end)
         return self
 
+    def dissolve_out(self, start: float = 0, end: float = 1,
+                     granularity=8, change_existence=True, seed=42):
+        """Scatter/noise opacity fade-out.
+
+        Instead of a smooth linear fade, the opacity flickers with a
+        pseudo-random noise pattern, creating a "dissolving into particles"
+        effect.  The overall trend goes from the current opacity to zero,
+        but individual frames jitter above and below the trend line.
+
+        Parameters
+        ----------
+        start, end:
+            Animation time window.
+        granularity:
+            Controls the noise frequency -- higher values produce more
+            rapid flickering (default 8).
+        change_existence:
+            If True, hide the object after *end*.
+        seed:
+            Integer seed for the deterministic noise, ensuring the same
+            object always dissolves identically.
+        """
+        dur = end - start
+        if dur <= 0:
+            if change_existence:
+                self._hide_from(start)
+            return self
+        start_val = self.styling.opacity.at_time(start)
+        _s, _d, _sv, _g, _seed = start, max(dur, 1e-9), start_val, granularity, seed
+
+        def _dissolve(t, _s=_s, _d=_d, _sv=_sv, _g=_g, _seed=_seed):
+            p = (t - _s) / _d  # overall progress 0->1
+            # Base trend: smooth fade to zero
+            base = _sv * (1.0 - p)
+            # Deterministic noise using a hash-based approach (no imports needed)
+            # Use a sin-based pseudo-noise with multiple frequencies
+            n = _seed + p * _g
+            noise = (math.sin(n * 127.1 + 311.7) * 43758.5453) % 1.0
+            noise = noise * 2 - 1  # range [-1, 1]
+            # Noise amplitude decreases as we approach end (so we cleanly reach 0)
+            jitter = noise * _sv * 0.4 * (1.0 - p * p)
+            return max(0.0, min(_sv, base + jitter))
+
+        self.styling.opacity.set(start, end, _dissolve)
+        if change_existence:
+            self._hide_from(end)
+        return self
+
     def _rotate_fade_anim(self, start, end, degrees, fade_in, change_existence, easing):
         """Shared helper for rotate_in / rotate_out."""
         dur = end - start
@@ -1214,37 +1262,61 @@ class VObject(ABC):  # Vector Object
         setattr(self.styling, attr, interp)
         return self
 
-    def color_wave(self, start: float = 0, end: float = 1, colors=('#FF6B6B', '#58C4DD', '#83C167'),
-                    attr='fill', cycles=1):
-        """Cycle through colors in a smooth wave pattern.
-        colors: tuple of hex color strings to cycle through.
-        attr: 'fill' or 'stroke'. cycles: number of full loops."""
-        if len(colors) < 2:
-            return self
-        n_colors = len(colors)
+    def color_wave(self, start: float = 0, end: float = 1,
+                    wave_color='#58C4DD', attr='fill', width=0.3, cycles=1):
+        """Animated color sweep across the object.
+
+        A wave-front of *wave_color* sweeps across the object's current base
+        color.  The sweep position advances linearly over [start, end].  At
+        any instant the rendered color is an interpolation: the base color
+        transitions to *wave_color* and back, with the peak of the wave at
+        the current sweep position.
+
+        Parameters
+        ----------
+        start, end:
+            Animation time window.
+        wave_color:
+            The highlight color that sweeps across.
+        attr:
+            ``'fill'`` or ``'stroke'``.
+        width:
+            Width of the wave front as a fraction of the total duration
+            (0 < width <= 1).  Smaller values give a sharper sweep.
+        cycles:
+            Number of complete sweep passes (default 1).
+        """
         dur = end - start
         if dur <= 0:
             return self
-        # Parse hex colors to RGB tuples
-        parsed = []
-        for c in colors:
-            parsed.append((int(c[1:3], 16), int(c[3:5], 16), int(c[5:7], 16)))
-        _s, _d, _n, _p, _cyc = start, max(dur, 1e-9), n_colors, parsed, cycles
-        def _interp_rgb(t, _s=_s, _d=_d, _n=_n, _p=_p, _cyc=_cyc):
-            p = ((t - _s) / _d) * _cyc
-            p = p % 1.0  # wrap to [0, 1)
-            idx = p * _n
-            i = int(idx) % _n
-            j = (i + 1) % _n
-            frac = idx - int(idx)
-            c1, c2 = _p[i], _p[j]
-            return (c1[0] + (c2[0] - c1[0]) * frac,
-                    c1[1] + (c2[1] - c1[1]) * frac,
-                    c1[2] + (c2[2] - c1[2]) * frac)
         style_attr = getattr(self.styling, attr)
-        # Store the function directly, preserving 'rgb' type
+        if not isinstance(style_attr, attributes.Color):
+            return self
+        base_rgb = style_attr.time_func(start)
+        wave_rgb = (int(wave_color[1:3], 16), int(wave_color[3:5], 16),
+                    int(wave_color[5:7], 16))
+        _s, _d, _w, _cyc = start, max(dur, 1e-9), max(width, 0.01), cycles
+        _br, _wr = base_rgb, wave_rgb
+
+        def _sweep_rgb(t, _s=_s, _d=_d, _w=_w, _cyc=_cyc,
+                       _br=_br, _wr=_wr):
+            # sweep position in [0, 1], repeating for multiple cycles
+            p = (((t - _s) / _d) * _cyc) % 1.0
+            # Gaussian-like envelope centred at the sweep position
+            # The "position" of each pixel is just the time dimension
+            # for a single-fill object, so we use `p` as the wave centre.
+            # Distance from the wave centre (wrapped):
+            dist = abs(p - 0.5)  # 0.5 is "object centre"
+            # Symmetric wave: remap so wave peaks when sweep pos crosses 0.5
+            dist2 = abs(p * 2 - 1)  # 0 at edges, 1 at centre
+            envelope = max(0.0, 1.0 - dist2 / _w) if _w > 0 else 0.0
+            envelope = envelope * envelope * (3 - 2 * envelope)  # smoothstep
+            return (_br[0] + (_wr[0] - _br[0]) * envelope,
+                    _br[1] + (_wr[1] - _br[1]) * envelope,
+                    _br[2] + (_wr[2] - _br[2]) * envelope)
+
         style_attr.use = 'rgb'
-        style_attr.set(start, end, _interp_rgb, stay=False)
+        style_attr.set(start, end, _sweep_rgb, stay=False)
         return self
 
     def color_gradient_anim(self, colors, start: float = 0, end: float = 1,
@@ -2601,10 +2673,56 @@ class VObject(ABC):  # Vector Object
 
     def heartbeat(self, start: float = 0, end: float = 1, beats=3,
                    scale_factor=1.3, easing=easings.smooth):
-        """Rhythmic pulsing like a heartbeat — repeated grow/shrink cycles.
-        beats: number of pulses. scale_factor: peak scale multiplier."""
-        return self.pulsate(start=start, end=end, scale_factor=scale_factor,
-                            pulses=beats, easing=easing)
+        """ECG-style double-pulse heartbeat: two quick scale bumps (lub-dub)
+        followed by a rest pause, repeated *beats* times.
+
+        Each beat occupies ``duration / beats`` seconds and consists of:
+          - A first sharp pulse (the "lub") reaching *scale_factor*,
+          - A slightly smaller second pulse (the "dub") at 75% amplitude,
+          - A rest period at baseline scale.
+
+        Parameters
+        ----------
+        start, end:
+            Animation time window.
+        beats:
+            Number of lub-dub cycles.
+        scale_factor:
+            Peak scale multiplier for the first (stronger) pulse.
+        easing:
+            Easing applied to each individual pulse envelope.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        self._ensure_scale_origin(start)
+        sx0 = self.styling.scale_x.at_time(start)
+        sy0 = self.styling.scale_y.at_time(start)
+        _s, _d, _sf, _beats = start, max(dur, 1e-9), scale_factor, beats
+
+        def _ecg_scale(t, _s=_s, _d=_d, _sf=_sf, _beats=_beats,
+                       _easing=easing):
+            beat_dur = _d / _beats
+            # Position within the current beat (0 to 1)
+            local = ((t - _s) % beat_dur) / beat_dur
+            # First pulse ("lub"): 0.0 - 0.25
+            if local < 0.25:
+                p = _easing(local / 0.25)
+                return 1 + (_sf - 1) * math.sin(math.pi * p)
+            # Second pulse ("dub"): 0.30 - 0.55, at 75% amplitude
+            elif 0.30 <= local < 0.55:
+                p = _easing((local - 0.30) / 0.25)
+                return 1 + (_sf - 1) * 0.75 * math.sin(math.pi * p)
+            # Rest phase
+            else:
+                return 1.0
+
+        def _make_ecg(base):
+            return lambda t, _base=base, _fn=_ecg_scale: _base * _fn(t)
+
+        self.styling.scale_x.set(start, end, _make_ecg(sx0))
+        self.styling.scale_y.set(start, end, _make_ecg(sy0))
+        return self
 
     def breathe(self, start: float = 0, end: float = 1, amplitude=0.08,
                 speed=1.0, easing=easings.smooth):
@@ -4882,7 +5000,7 @@ class VCollection:
         for i, obj in enumerate(self.objects):
             t0 = start + i * per_child
             t1 = min(t0 + per_child * 2, end)
-            obj.color_wave(start=t0, end=t1, colors=colors, attr=attr, cycles=1)
+            obj.color_gradient_anim(colors=colors, start=t0, end=t1, attr=attr)
         return self
 
     def stagger_scale(self, start: float = 0, end: float = 1, target_scale=1.5, easing=easings.smooth):
@@ -5565,6 +5683,104 @@ class VCollection:
             for c in obj._shift_coors():
                 c.add(start, end,
                       lambda t, _fdx=_dx, _fdy=_dy: (_fdx(t), _fdy(t)))
+        return self
+
+    def cascade_scale(self, start: float = 0, end: float = 1, factor=1.5,
+                      delay=0.15, easing=easings.smooth):
+        """Stagger scale animations across children with a fixed delay.
+
+        Each child scales from its current size to *factor* times its size
+        and back, with each successive child starting *delay* seconds after
+        the previous one.  The per-child animation duration is automatically
+        computed so that the last child finishes at *end*.
+
+        Parameters
+        ----------
+        start, end:
+            Overall time window for the staggered animation.
+        factor:
+            Peak scale multiplier for each child's pulse.
+        delay:
+            Seconds between the start of one child's animation and the next.
+        easing:
+            Easing used for the there-and-back scale motion.
+        """
+        n = len(self.objects)
+        if n == 0:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        # Per-child animation duration
+        total_delay = delay * (n - 1) if n > 1 else 0
+        child_dur = max(dur - total_delay, 0.01)
+        for i, obj in enumerate(self.objects):
+            s = start + i * delay
+            e = min(s + child_dur, end)
+            obj._ensure_scale_origin(s)
+            sx0 = obj.styling.scale_x.at_time(s)
+            sy0 = obj.styling.scale_y.at_time(s)
+            _s, _d, _f = s, max(e - s, 1e-9), factor
+            def _make_there_and_back(base, _s=_s, _d=_d, _f=_f, _easing=easing):
+                return lambda t, _s=_s, _d=_d, _f=_f, _b=base, _easing=_easing: \
+                    _b * (1 + (_f - 1) * math.sin(math.pi * _easing((t - _s) / _d)))
+            obj.styling.scale_x.set(s, e, _make_there_and_back(sx0))
+            obj.styling.scale_y.set(s, e, _make_there_and_back(sy0))
+        return self
+
+    def distribute_along_arc(self, cx=960, cy=540, radius=200,
+                              start_angle=0, end_angle=None,
+                              start_time: float = 0,
+                              end_time: float | None = None,
+                              easing=easings.smooth):
+        """Arrange children evenly along a circular arc.
+
+        Unlike :meth:`distribute_radial` (which places children around a
+        full circle), this method distributes children along an arc spanning
+        from *start_angle* to *end_angle* (in radians).
+
+        Parameters
+        ----------
+        cx, cy:
+            Center of the arc (default: canvas center).
+        radius:
+            Arc radius in pixels.
+        start_angle:
+            Starting angle in radians (0 = right, pi/2 = down).
+        end_angle:
+            Ending angle in radians.  Defaults to ``start_angle + pi``
+            (a semicircle).
+        start_time:
+            Time at which to read current positions and apply the layout.
+        end_time:
+            If given, animate the children into position over
+            [start_time, end_time].  If ``None``, positions are set
+            instantly.
+        easing:
+            Easing for the animated version.
+        """
+        n = len(self.objects)
+        if n == 0:
+            return self
+        if end_angle is None:
+            end_angle = start_angle + math.pi
+        # For a single object, place it at the midpoint of the arc
+        if n == 1:
+            angle = (start_angle + end_angle) / 2
+        for i, obj in enumerate(self.objects):
+            if n > 1:
+                t_frac = i / (n - 1)
+                angle = start_angle + (end_angle - start_angle) * t_frac
+            tx = cx + radius * math.cos(angle)
+            ty = cy + radius * math.sin(angle)
+            bx, by, bw, bh = obj.bbox(start_time)
+            obj_cx, obj_cy = bx + bw / 2, by + bh / 2
+            dx, dy = tx - obj_cx, ty - obj_cy
+            if end_time is None:
+                obj.shift(dx=dx, dy=dy, start_time=start_time)
+            else:
+                obj.shift(dx=dx, dy=dy, start_time=start_time,
+                          end_time=end_time, easing=easing)
         return self
 
 

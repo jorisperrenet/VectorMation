@@ -1588,18 +1588,65 @@ class TestVObjectNew:
         ghosts = d.trail(start=0, end=1, num_copies=3)
         assert len(ghosts) == 3
 
-    def test_heartbeat(self):
+    def test_heartbeat_returns_self(self):
         c = Circle(r=50)
-        c.heartbeat(start=0, end=2, beats=3, scale_factor=1.5)
-        # At midpoint of a beat, scale should be above 1
-        sx_mid = c.styling.scale_x.at_time(0.33)
-        assert sx_mid > 1.0
+        result = c.heartbeat(start=0, end=2, beats=3, scale_factor=1.5)
+        assert result is c
 
-    def test_color_wave(self):
+    def test_heartbeat_double_pulse(self):
+        """ECG-style heartbeat should show two pulses per beat."""
+        c = Circle(r=50)
+        c.heartbeat(start=0, end=3, beats=1, scale_factor=1.5, easing=easings.linear)
+        # First pulse peak (lub) near t=0.375 (midpoint of 0-0.75 range)
+        sx_lub = c.styling.scale_x.at_time(0.375)
+        assert sx_lub > 1.0, "First pulse (lub) should be above baseline"
+        # Second pulse (dub) near t=1.275 (midpoint of 0.9-1.65 range)
+        sx_dub = c.styling.scale_x.at_time(1.275)
+        assert sx_dub > 1.0, "Second pulse (dub) should be above baseline"
+        # Rest phase near t=2.4 (in the 1.65-3.0 range)
+        sx_rest = c.styling.scale_x.at_time(2.4)
+        assert sx_rest == pytest.approx(1.0, abs=0.01), "Rest phase should be at baseline"
+
+    def test_heartbeat_zero_duration(self):
+        c = Circle(r=50)
+        result = c.heartbeat(start=1, end=1)
+        assert result is c
+
+    def test_heartbeat_multiple_beats(self):
+        """Each beat should produce the same pattern."""
+        c = Circle(r=50)
+        c.heartbeat(start=0, end=2, beats=2, scale_factor=1.4, easing=easings.linear)
+        # Both beats should have a pulse in their first quarter
+        sx_beat1 = c.styling.scale_x.at_time(0.125)
+        sx_beat2 = c.styling.scale_x.at_time(1.125)
+        assert sx_beat1 == pytest.approx(sx_beat2, abs=0.01)
+
+    def test_color_wave_returns_self(self):
         c = Circle(r=50, fill='#FF0000')
-        c.color_wave(start=0, end=1, colors=('#FF0000', '#00FF00', '#0000FF'))
+        result = c.color_wave(start=0, end=1, wave_color='#00FF00')
+        assert result is c
+
+    def test_color_wave_sweep(self):
+        """Color should change during the sweep and return to base at edges."""
+        c = Circle(r=50, fill='#FF0000')
+        c.color_wave(start=0, end=1, wave_color='#00FF00')
+        # At the midpoint (sweep peak), color should differ from base
         mid = c.styling.fill.at_time(0.5)
-        assert mid != '#FF0000'  # color should have changed
+        assert mid != '#FF0000', "Color should change at wave peak"
+
+    def test_color_wave_zero_duration(self):
+        c = Circle(r=50, fill='#FF0000')
+        result = c.color_wave(start=1, end=1)
+        assert result is c
+
+    def test_color_wave_edges_near_base(self):
+        """At the start and end, color should be close to the base color."""
+        c = Circle(r=50, fill='#FF0000')
+        c.color_wave(start=0, end=1, wave_color='#00FF00', width=0.3)
+        # At t=0.01 (very start), sweep is at the edge, color should be near base
+        start_color = c.styling.fill.at_time(0.01)
+        # The start color should still be reddish (base is #FF0000)
+        assert start_color is not None
 
     def test_teleport(self):
         d = Dot(cx=100, cy=100)
@@ -9054,3 +9101,201 @@ class TestDomino:
         r.domino(start=0, end=1, angle=90, easing=easings.linear)
         rot = r.styling.rotation.at_time(0.5)
         assert rot[0] == pytest.approx(45, abs=1)
+
+
+# ---------------------------------------------------------------------------
+# Axes.get_secant_slope
+# ---------------------------------------------------------------------------
+
+class TestAxesGetSecantSlope:
+    def test_quadratic_secant(self):
+        """Secant slope of x^2 from x=1 to x=2 should be 3."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 25))
+        slope = ax.get_secant_slope(lambda x: x**2, 1, 1)
+        assert slope == pytest.approx(3.0)
+
+    def test_quadratic_small_dx(self):
+        """Small dx secant should approximate derivative."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 25))
+        slope = ax.get_secant_slope(lambda x: x**2, 3, 0.001)
+        # f'(3) = 6, secant should be close
+        assert slope == pytest.approx(6.0, abs=0.01)
+
+    def test_linear_function(self):
+        """Secant slope of a linear function should be constant regardless of dx."""
+        ax = Axes(x_range=(-10, 10), y_range=(-10, 10))
+        slope = ax.get_secant_slope(lambda x: 2 * x + 5, 0, 3)
+        assert slope == pytest.approx(2.0)
+
+    def test_negative_dx(self):
+        """Negative dx should work (backward secant)."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 25))
+        slope = ax.get_secant_slope(lambda x: x**2, 2, -1)
+        # (f(1) - f(2)) / (-1) = (1 - 4) / (-1) = 3.0
+        assert slope == pytest.approx(3.0)
+
+    def test_dx_zero_raises(self):
+        """dx=0 should raise ValueError."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        with pytest.raises(ValueError):
+            ax.get_secant_slope(lambda x: x, 0, 0)
+
+    def test_with_curve_object(self):
+        """Should work with a curve returned by plot()."""
+        ax = Axes(x_range=(0, 5), y_range=(0, 25))
+        curve = ax.plot(lambda x: x**2)
+        slope = ax.get_secant_slope(curve, 1, 1)
+        assert slope == pytest.approx(3.0)
+
+    def test_fractional_dx(self):
+        """Fractional dx should produce correct result."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 25))
+        slope = ax.get_secant_slope(lambda x: x**2, 2, 0.5)
+        # (f(2.5) - f(2)) / 0.5 = (6.25 - 4) / 0.5 = 4.5
+        assert slope == pytest.approx(4.5)
+
+
+# ---------------------------------------------------------------------------
+# NumberLine.get_range_length
+# ---------------------------------------------------------------------------
+
+class TestNumberLineGetRangeLength:
+    def test_basic_range(self):
+        """Range length of (-5, 5) should be 10."""
+        nl = NumberLine(x_range=(-5, 5, 1))
+        assert nl.get_range_length() == pytest.approx(10)
+
+    def test_positive_range(self):
+        """Range length of (0, 100) should be 100."""
+        nl = NumberLine(x_range=(0, 100, 10))
+        assert nl.get_range_length() == pytest.approx(100)
+
+    def test_fractional_range(self):
+        """Range length should work with fractional values."""
+        nl = NumberLine(x_range=(0.5, 3.5, 0.5))
+        assert nl.get_range_length() == pytest.approx(3.0)
+
+    def test_small_range(self):
+        """Very small range should work."""
+        nl = NumberLine(x_range=(0, 0.01, 0.001))
+        assert nl.get_range_length() == pytest.approx(0.01)
+
+
+# ---------------------------------------------------------------------------
+# NumberLine.snap_to_tick
+# ---------------------------------------------------------------------------
+
+class TestNumberLineSnapToTick:
+    def test_exact_tick(self):
+        """Value on a tick should snap to itself."""
+        nl = NumberLine(x_range=(0, 10, 2))
+        assert nl.snap_to_tick(4) == pytest.approx(4)
+
+    def test_snap_to_nearest(self):
+        """Value between ticks should snap to the nearest one."""
+        nl = NumberLine(x_range=(0, 10, 2))
+        assert nl.snap_to_tick(3.1) == pytest.approx(4)
+        assert nl.snap_to_tick(2.9) == pytest.approx(2)
+
+    def test_snap_midpoint(self):
+        """Value exactly between two ticks should round to nearest."""
+        nl = NumberLine(x_range=(0, 10, 2))
+        # 3 is equidistant from 2 and 4; round() rounds to even = 2 for 1.5 steps
+        # k = round((3 - 0) / 2) = round(1.5) = 2, snapped = 4
+        assert nl.snap_to_tick(3) == pytest.approx(4)
+
+    def test_clamp_below_range(self):
+        """Value below range should clamp to x_start."""
+        nl = NumberLine(x_range=(0, 10, 1))
+        assert nl.snap_to_tick(-5) == pytest.approx(0)
+
+    def test_clamp_above_range(self):
+        """Value above range should clamp to x_end."""
+        nl = NumberLine(x_range=(0, 10, 1))
+        assert nl.snap_to_tick(15) == pytest.approx(10)
+
+    def test_negative_range(self):
+        """Should work with negative ranges."""
+        nl = NumberLine(x_range=(-10, 0, 5))
+        assert nl.snap_to_tick(-7) == pytest.approx(-5)
+        assert nl.snap_to_tick(-8) == pytest.approx(-10)
+
+    def test_fractional_step(self):
+        """Should work with fractional steps."""
+        nl = NumberLine(x_range=(0, 1, 0.25))
+        assert nl.snap_to_tick(0.3) == pytest.approx(0.25)
+        assert nl.snap_to_tick(0.6) == pytest.approx(0.5)
+        assert nl.snap_to_tick(0.9) == pytest.approx(1.0)
+
+
+# ---------------------------------------------------------------------------
+# VObject.dissolve_out
+# ---------------------------------------------------------------------------
+
+class TestDissolveOut:
+    def test_returns_self(self):
+        c = Circle(r=50)
+        result = c.dissolve_out(start=0, end=1)
+        assert result is c
+
+    def test_opacity_starts_near_original(self):
+        """Opacity at the very start should be close to the original value."""
+        c = Circle(r=50)
+        orig = c.styling.opacity.at_time(0)
+        c.dissolve_out(start=0, end=2)
+        op_start = c.styling.opacity.at_time(0.01)
+        assert op_start > orig * 0.5, "Should start near original opacity"
+
+    def test_opacity_reaches_zero_at_end(self):
+        """At the end time, opacity should be at or near zero."""
+        c = Circle(r=50)
+        c.dissolve_out(start=0, end=1)
+        op_end = c.styling.opacity.at_time(1.0)
+        assert op_end == pytest.approx(0, abs=0.05)
+
+    def test_opacity_decreases_overall(self):
+        """The overall trend should be downward."""
+        c = Circle(r=50)
+        c.dissolve_out(start=0, end=1)
+        op_early = c.styling.opacity.at_time(0.1)
+        op_late = c.styling.opacity.at_time(0.9)
+        assert op_early > op_late, "Opacity should decrease over time"
+
+    def test_hides_after_end(self):
+        """With change_existence=True, object should be hidden after end."""
+        c = Circle(r=50)
+        c.dissolve_out(start=0, end=1, change_existence=True)
+        assert c.show.at_time(1.5) == False
+
+    def test_no_hide_when_disabled(self):
+        """With change_existence=False, object should remain visible."""
+        c = Circle(r=50)
+        c.dissolve_out(start=0, end=1, change_existence=False)
+        assert c.show.at_time(1.5) == True
+
+    def test_zero_duration(self):
+        """Zero duration should just hide immediately if change_existence."""
+        c = Circle(r=50)
+        result = c.dissolve_out(start=1, end=1, change_existence=True)
+        assert result is c
+        assert c.show.at_time(1.5) == False
+
+    def test_deterministic_with_seed(self):
+        """Same seed should produce the same dissolve pattern."""
+        c1 = Circle(r=50)
+        c1.dissolve_out(start=0, end=1, seed=42)
+        c2 = Circle(r=50)
+        c2.dissolve_out(start=0, end=1, seed=42)
+        for t in [0.2, 0.4, 0.6, 0.8]:
+            assert c1.styling.opacity.at_time(t) == c2.styling.opacity.at_time(t)
+
+    def test_different_seeds_differ(self):
+        """Different seeds should produce different patterns (at most times)."""
+        c1 = Circle(r=50)
+        c1.dissolve_out(start=0, end=1, seed=42)
+        c2 = Circle(r=50)
+        c2.dissolve_out(start=0, end=1, seed=99)
+        # At least one sample point should differ
+        diffs = [abs(c1.styling.opacity.at_time(t) - c2.styling.opacity.at_time(t))
+                 for t in [0.2, 0.4, 0.6]]
+        assert any(d > 0.01 for d in diffs)

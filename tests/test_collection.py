@@ -1,4 +1,5 @@
 """Tests for VCollection: delegation, stagger, and to_svg."""
+import math
 import pytest
 from vectormation.objects import VCollection, Circle, DOWN
 import vectormation.easings as easings
@@ -1821,3 +1822,171 @@ class TestOrbitAround:
         assert pos1[1] == pytest.approx(400, abs=5)
         assert pos2[0] == pytest.approx(150, abs=5)
         assert pos2[1] == pytest.approx(200, abs=5)
+
+
+# ---------------------------------------------------------------------------
+# VCollection.cascade_scale
+# ---------------------------------------------------------------------------
+
+class TestCascadeScale:
+    def test_returns_self(self):
+        c1 = Circle(r=20, cx=100, cy=100)
+        c2 = Circle(r=20, cx=200, cy=100)
+        col = VCollection(c1, c2)
+        result = col.cascade_scale(start=0, end=2, factor=1.5, delay=0.2)
+        assert result is col
+
+    def test_empty_collection(self):
+        col = VCollection()
+        result = col.cascade_scale(start=0, end=1)
+        assert result is col
+
+    def test_zero_duration(self):
+        c1 = Circle(r=20, cx=100, cy=100)
+        col = VCollection(c1)
+        result = col.cascade_scale(start=1, end=1)
+        assert result is col
+
+    def test_first_child_scales_up(self):
+        """The first child should be scaled above 1 at its midpoint."""
+        c1 = Circle(r=20, cx=100, cy=100)
+        c2 = Circle(r=20, cx=200, cy=100)
+        col = VCollection(c1, c2)
+        col.cascade_scale(start=0, end=2, factor=2.0, delay=0.3, easing=easings.linear)
+        # First child starts at t=0, its mid-animation should show scale > 1
+        sx_mid = c1.styling.scale_x.at_time(0.85)
+        assert sx_mid > 1.0, "First child should scale up at its peak"
+
+    def test_stagger_timing(self):
+        """Second child should start its animation later than the first."""
+        c1 = Circle(r=20, cx=100, cy=100)
+        c2 = Circle(r=20, cx=200, cy=100)
+        col = VCollection(c1, c2)
+        col.cascade_scale(start=0, end=2, factor=2.0, delay=0.5, easing=easings.linear)
+        # Before second child starts, its scale should be 1
+        sx_c2_before = c2.styling.scale_x.at_time(0.1)
+        assert sx_c2_before == pytest.approx(1.0, abs=0.01)
+
+    def test_scale_returns_to_baseline(self):
+        """After the animation, scale should return to baseline."""
+        c1 = Circle(r=20, cx=100, cy=100)
+        col = VCollection(c1)
+        col.cascade_scale(start=0, end=2, factor=1.5, delay=0.1, easing=easings.linear)
+        # At the end, sin(pi * 1) = 0, so scale should be 1
+        sx_end = c1.styling.scale_x.at_time(2.0)
+        assert sx_end == pytest.approx(1.0, abs=0.01)
+
+    def test_single_child(self):
+        """Single child should use full duration."""
+        c1 = Circle(r=20, cx=100, cy=100)
+        col = VCollection(c1)
+        col.cascade_scale(start=0, end=1, factor=1.5, delay=0.2, easing=easings.linear)
+        # With one child, delay is irrelevant - uses full duration
+        sx_mid = c1.styling.scale_x.at_time(0.5)
+        assert sx_mid > 1.0
+
+
+# ---------------------------------------------------------------------------
+# VCollection.distribute_along_arc
+# ---------------------------------------------------------------------------
+
+class TestDistributeAlongArc:
+    def test_returns_self(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c1, c2)
+        result = col.distribute_along_arc(cx=500, cy=500, radius=200)
+        assert result is col
+
+    def test_empty_collection(self):
+        col = VCollection()
+        result = col.distribute_along_arc()
+        assert result is col
+
+    def test_two_children_semicircle(self):
+        """Two children on a semicircle should be at the arc endpoints."""
+        c1 = Circle(r=10, cx=500, cy=500)
+        c2 = Circle(r=10, cx=500, cy=500)
+        col = VCollection(c1, c2)
+        col.distribute_along_arc(cx=500, cy=500, radius=200,
+                                  start_angle=0, end_angle=math.pi)
+        # c1 should be at angle 0 (right): (700, 500)
+        p1 = c1.c.at_time(0)
+        assert p1[0] == pytest.approx(700, abs=5)
+        assert p1[1] == pytest.approx(500, abs=5)
+        # c2 should be at angle pi (left): (300, 500)
+        p2 = c2.c.at_time(0)
+        assert p2[0] == pytest.approx(300, abs=5)
+        assert p2[1] == pytest.approx(500, abs=5)
+
+    def test_three_children_quarter_arc(self):
+        """Three children on a quarter arc (0 to pi/2)."""
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=0, cy=0)
+        c3 = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c1, c2, c3)
+        col.distribute_along_arc(cx=500, cy=500, radius=100,
+                                  start_angle=0, end_angle=math.pi/2)
+        # c1 at angle 0: (600, 500)
+        p1 = c1.c.at_time(0)
+        assert p1[0] == pytest.approx(600, abs=5)
+        assert p1[1] == pytest.approx(500, abs=5)
+        # c2 at angle pi/4: (500 + 100*cos(pi/4), 500 + 100*sin(pi/4))
+        p2 = c2.c.at_time(0)
+        assert p2[0] == pytest.approx(500 + 100 * math.cos(math.pi/4), abs=5)
+        assert p2[1] == pytest.approx(500 + 100 * math.sin(math.pi/4), abs=5)
+        # c3 at angle pi/2: (500, 600)
+        p3 = c3.c.at_time(0)
+        assert p3[0] == pytest.approx(500, abs=5)
+        assert p3[1] == pytest.approx(600, abs=5)
+
+    def test_single_child_at_midpoint(self):
+        """Single child should be placed at the midpoint of the arc."""
+        c1 = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c1)
+        col.distribute_along_arc(cx=500, cy=500, radius=100,
+                                  start_angle=0, end_angle=math.pi)
+        # Midpoint of arc from 0 to pi is pi/2: (500, 600)
+        p = c1.c.at_time(0)
+        assert p[0] == pytest.approx(500, abs=5)
+        assert p[1] == pytest.approx(600, abs=5)
+
+    def test_animated_version(self):
+        """With end_time, children should animate to their positions."""
+        c1 = Circle(r=10, cx=500, cy=500)
+        c2 = Circle(r=10, cx=500, cy=500)
+        col = VCollection(c1, c2)
+        col.distribute_along_arc(cx=500, cy=500, radius=200,
+                                  start_angle=0, end_angle=math.pi,
+                                  start_time=0, end_time=1, easing=easings.linear)
+        # At t=0, still at original position
+        p1_start = c1.c.at_time(0)
+        assert p1_start[0] == pytest.approx(500, abs=5)
+        # At t=1, should have reached target
+        p1_end = c1.c.at_time(1)
+        assert p1_end[0] == pytest.approx(700, abs=5)
+
+    def test_default_end_angle(self):
+        """Default end_angle should be start_angle + pi (semicircle)."""
+        c1 = Circle(r=10, cx=500, cy=500)
+        c2 = Circle(r=10, cx=500, cy=500)
+        col = VCollection(c1, c2)
+        col.distribute_along_arc(cx=500, cy=500, radius=100, start_angle=0)
+        # c2 should be at angle pi (left of center): (400, 500)
+        p2 = c2.c.at_time(0)
+        assert p2[0] == pytest.approx(400, abs=5)
+        assert p2[1] == pytest.approx(500, abs=5)
+
+    def test_full_circle(self):
+        """Full circle (0 to 2*pi) with 4 children should place them at 90-degree intervals."""
+        children = [Circle(r=10, cx=500, cy=500) for _ in range(4)]
+        col = VCollection(*children)
+        col.distribute_along_arc(cx=500, cy=500, radius=100,
+                                  start_angle=0, end_angle=2*math.pi)
+        # Child 0 at angle 0: (600, 500)
+        p0 = children[0].c.at_time(0)
+        assert p0[0] == pytest.approx(600, abs=5)
+        # Child 1 at angle 2pi/3: roughly (500 + 100*cos(2pi/3), 500 + 100*sin(2pi/3))
+        p1 = children[1].c.at_time(0)
+        expected_angle = 2 * math.pi / 3
+        assert p1[0] == pytest.approx(500 + 100 * math.cos(expected_angle), abs=5)
