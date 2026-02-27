@@ -5,7 +5,7 @@ from vectormation.objects import (
 )
 
 args = parse_args()
-canvas = VectorMathAnim(duration=6)
+canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/network_tree')
 
 # Network graph (left side)
 graph = NetworkGraph(

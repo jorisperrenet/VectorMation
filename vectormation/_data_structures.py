@@ -3,23 +3,10 @@ import math
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 from vectormation._constants import (
-    UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
-    ORIGIN,
+    ORIGIN, TEXT_Y_OFFSET, _label_text, _get_arrow,
 )
 from vectormation._base import VObject, VCollection, _lerp
-from vectormation._shapes import Circle, Dot, Rectangle, RoundedRectangle, Line, Text, Path
-
-
-def _get_arrow():
-    from vectormation._arrows import Arrow
-    return Arrow
-
-
-def _label_text(text, x, y, font_size, creation=0, z=0, **overrides):
-    """Create a centered white text label (common pattern in composites)."""
-    kw = {'fill': '#fff', 'stroke_width': 0} | overrides
-    return Text(text=str(text), x=x, y=y + font_size * TEXT_Y_OFFSET,
-                font_size=font_size, text_anchor='middle', creation=creation, z=z, **kw)
+from vectormation._shapes import Circle, Rectangle, RoundedRectangle, Line, Text, Path
 
 
 def _flash_fill(obj, color, start, end, default='#264653'):

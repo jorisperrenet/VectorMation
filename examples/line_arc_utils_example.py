@@ -1,7 +1,8 @@
 """Example: Line and Arc utility methods."""
+import tempfile
 from vectormation.objects import VectorMathAnim, Line, Arc, Text, Dot, parse_args
 
-anim = VectorMathAnim()
+anim = VectorMathAnim(tempfile.mkdtemp())
 
 # A diagonal line
 line = Line(x1=300, y1=200, x2=900, y2=600, stroke='#58C4DD', stroke_width=3)

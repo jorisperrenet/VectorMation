@@ -1,5 +1,4 @@
 """Composite classes: MorphObject, TexObject, NumberLine, Table, Matrix, etc."""
-import math
 import re
 import tempfile
 from collections import defaultdict
@@ -8,24 +7,12 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
 import vectormation.morphing as morphing
-from vectormation._constants import (
-    UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE,
-    CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
-)
-from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _ramp
-from vectormation._shapes import (
-    Polygon, Circle, Dot, Rectangle, Line, Lines, Text, Path,
-)
+from vectormation._constants import SMALL_BUFF, TEXT_Y_OFFSET, _label_text
+from vectormation._base import VObject, VCollection, _norm_dir, _ramp
+from vectormation._shapes import Polygon, Dot, Rectangle, Line, Lines, Text, Path
 from vectormation._arrows import Arrow, Brace
 from vectormation._svg_utils import from_svg
-from vectormation._axes import _AXIS_STROKE_WIDTH, _TICK_FONT_SIZE
-
-
-def _label_text(text, x, y, font_size, creation=0, z=0, **overrides):
-    """Create a centered white text label (common pattern in composites)."""
-    kw = {'fill': '#fff', 'stroke_width': 0} | overrides
-    return Text(text=str(text), x=x, y=y + font_size * TEXT_Y_OFFSET,
-                font_size=font_size, text_anchor='middle', creation=creation, z=z, **kw)
+from vectormation._axes_helpers import _TICK_FONT_SIZE
 
 
 class MorphObject(VCollection):
@@ -1575,9 +1562,6 @@ def always_redraw(func, creation=0, z=0):
     func(time) should return a VObject."""
     return DynamicObject(func, creation=creation, z=z)
 
-
-from vectormation._diagrams import Stamp as Stamp  # noqa: E402,F811
-from vectormation._diagrams import TimelineBar as TimelineBar  # noqa: E402,F811
 
 
 

@@ -44,7 +44,7 @@ data2 = [random.gauss(15, 2) for _ in range(30)]
 data3 = [random.gauss(8, 4) for _ in range(30)]
 data4 = [random.gauss(18, 2.5) for _ in range(30)]
 
-boxes = ax2.plot_bar([1, 2, 3, 4], [0]*4, width=0)  # placeholder
+boxes = ax2.plot_bar([1, 2, 3, 4], [0]*4, bar_width=0)  # placeholder
 boxes = ax2.add_boxplot([data1, data2, data3, data4],
                          x_positions=[1, 2, 3, 4], width=0.6,
                          creation=2, stroke='#FF6B6B')

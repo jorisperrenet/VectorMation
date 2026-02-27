@@ -22,7 +22,7 @@ lbl2 = Text(text='swing', x=760, y=240, font_size=28, fill='#aaa',
             stroke_width=0, text_anchor='middle')
 r1 = Rectangle(100, 100, x=710, y=330, fill='#83C167', fill_opacity=0.7)
 r1.fadein(0, 0.5)
-r1.swing(start=1, end=3, amplitude=20, n_swings=4)
+r1.swing(start=1, end=3, amplitude=20)
 lbl2.fadein(0, 0.5)
 
 lbl3 = Text(text='wiggle', x=1180, y=240, font_size=28, fill='#aaa',

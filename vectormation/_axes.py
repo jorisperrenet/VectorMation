@@ -1011,6 +1011,9 @@ class Axes(_AxesExtMixin, VCollection):
         """Plot a bar chart inside the axes coordinate system.
         x_values: list of x positions (numeric), y_values: corresponding heights.
         Returns a VCollection of Rectangle objects."""
+        # Pop 'width'/'height' from kwargs — they conflict with Rectangle positional args
+        styling_kwargs.pop('width', None)
+        styling_kwargs.pop('height', None)
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.7,
                     'stroke': '#58C4DD', 'stroke_width': 1} | styling_kwargs
         data = list(zip(x_values, y_values))
@@ -2659,6 +2662,3 @@ class ComplexPlane(Axes):
 
         self.objects.extend(new_objects)
         return self
-from vectormation._diagrams import NetworkGraph as NetworkGraph  # noqa: E402,F811
-
-

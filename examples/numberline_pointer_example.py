@@ -14,8 +14,8 @@ nl = NumberLine(x_range=(-5, 5, 1), length=1200, x=360, y=400)
 nl.fadein(0.5, 1)
 
 ptr = nl.add_pointer(-3, label='x', color='#FF6B6B', creation=0.5)
-nl.move_pointer(ptr, 3, start=2, end=4)
-nl.move_pointer(ptr, 0, start=4.5, end=6)
+nl.animate_pointer(ptr, 3, start=2, end=4)
+nl.animate_pointer(ptr, 0, start=4.5, end=6)
 
 # Color cycling circle
 circle = Circle(r=60, cx=960, cy=700, fill='#FF6B6B', stroke_width=0)

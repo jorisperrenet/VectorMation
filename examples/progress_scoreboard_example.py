@@ -52,7 +52,7 @@ ax2 = Axes(x_range=(0, 5), y_range=(0, 10),
 ax2.add_coordinates()
 ax2.fadein(0.5, 1.5)
 
-bars = ax2.plot_bar([1, 2, 3, 4], [6, 9, 4, 8], width=0.6)
+bars = ax2.plot_bar([1, 2, 3, 4], [6, 9, 4, 8], bar_width=0.6)
 bars.fadein(2, 2.5)
 
 dt = ax2.add_data_table(['Q1', 'Q2', 'Q3', 'Q4'], [['6', '9', '4', '8']])

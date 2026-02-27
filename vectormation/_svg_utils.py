@@ -6,18 +6,13 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
 from vectormation._constants import (
-    CANVAS_WIDTH, CANVAS_HEIGHT, UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE,
-    TEXT_Y_OFFSET, _normalize,
+    CANVAS_WIDTH, CANVAS_HEIGHT, SMALL_BUFF,
+    TEXT_Y_OFFSET, _normalize, _get_arrow,
 )
-from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _lerp_point
+from vectormation._base import VObject, VCollection, _norm_dir
 from vectormation._shapes import (
-    Polygon, Circle, Dot, Rectangle, Line, Lines, Text, Path, Arc, Ellipse,
+    Polygon, Circle, Rectangle, Line, Lines, Text, Path, Arc, Ellipse,
 )
-
-
-def _get_arrow():
-    from vectormation._arrows import Arrow
-    return Arrow
 
 
 def _get_brace():

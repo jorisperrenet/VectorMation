@@ -56,7 +56,7 @@ ax3 = Axes(x_range=(0, 5), y_range=(0, 100),
 ax3.add_coordinates()
 ax3.fadein(0.5, 1.5)
 
-bars = ax3.plot_bar([1, 2, 3, 4], [15, 85, 12, 90], width=0.6)
+bars = ax3.plot_bar([1, 2, 3, 4], [15, 85, 12, 90], bar_width=0.6)
 bars.fadein(1, 2)
 
 brk = ax3.add_axis_break(20, axis='y')

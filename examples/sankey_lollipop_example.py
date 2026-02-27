@@ -16,7 +16,7 @@ ax = Axes(x_range=(0, 6), y_range=(0, 12),
 ax.add_coordinates()
 ax.fadein(0.5, 1.5)
 
-bars = ax.plot_bar([1, 2, 3, 4, 5], [6, 9, 4, 11, 7], width=0.6, creation=1.5)
+bars = ax.plot_bar([1, 2, 3, 4, 5], [6, 9, 4, 11, 7], bar_width=0.6, creation=1.5)
 bars.fadein(1.5, 2)
 
 threshold = ax.add_threshold_line(8, label='Target', creation=1.5,

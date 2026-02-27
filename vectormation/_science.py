@@ -2,19 +2,9 @@
 import math
 import vectormation.easings as easings
 import vectormation.attributes as attributes
-from vectormation._constants import (
-    UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
-    _normalize,
-)
-from vectormation._base import VObject, VCollection, _lerp
-from vectormation._shapes import Circle, Dot, Rectangle, Line, Lines, Text, Path, Polygon
-
-
-def _label_text(text, x, y, font_size, creation=0, z=0, **overrides):
-    """Create a centered white text label (common pattern in composites)."""
-    kw = {'fill': '#fff', 'stroke_width': 0} | overrides
-    return Text(text=str(text), x=x, y=y + font_size * TEXT_Y_OFFSET,
-                font_size=font_size, text_anchor='middle', creation=creation, z=z, **kw)
+from vectormation._constants import _normalize, _label_text
+from vectormation._base import VCollection, _lerp
+from vectormation._shapes import Circle, Dot, Line, Lines, Text, Path, Polygon
 
 
 class Resistor(VCollection):

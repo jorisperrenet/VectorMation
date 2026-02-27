@@ -143,6 +143,20 @@ def _sample_function(func, x_min, x_max, y_range, num_points, px, py, pw, ph,
     return y_min, y_max, segments, clamped
 
 
+def _label_text(text, x, y, font_size, creation=0, z=0, **overrides):
+    """Create a centered white text label (common pattern in composites)."""
+    from vectormation._shapes import Text  # lazy to avoid circular import
+    kw = {'fill': '#fff', 'stroke_width': 0} | overrides
+    return Text(text=str(text), x=x, y=y + font_size * TEXT_Y_OFFSET,
+                font_size=font_size, text_anchor='middle', creation=creation, z=z, **kw)
+
+
+def _get_arrow():
+    """Lazy import of Arrow to avoid circular imports."""
+    from vectormation._arrows import Arrow
+    return Arrow
+
+
 def interpolate_value(a, b, alpha):
     """Linearly interpolate between two scalar values."""
     return a + (b - a) * alpha

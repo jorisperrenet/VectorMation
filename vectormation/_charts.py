@@ -5,21 +5,14 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
 from vectormation._constants import (
-    UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE,
-    DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
+    SMALL_BUFF, DEFAULT_CHART_COLORS,
+    CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET, _label_text,
 )
 from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _ramp, _lerp_point
 from vectormation._shapes import (
     Polygon, Circle, Ellipse, Dot, Rectangle, RoundedRectangle, Line, Lines,
     Text, Path, Arc, Wedge,
 )
-
-
-def _label_text(text, x, y, font_size, creation=0, z=0, **overrides):
-    """Create a centered white text label (common pattern in composites)."""
-    kw = {'fill': '#fff', 'stroke_width': 0} | overrides
-    return Text(text=str(text), x=x, y=y + font_size * TEXT_Y_OFFSET,
-                font_size=font_size, text_anchor='middle', creation=creation, z=z, **kw)
 
 
 def _get_axes():

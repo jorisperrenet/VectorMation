@@ -18,7 +18,7 @@ ax.fadein(0.5, 1.5)
 
 x_vals = [1, 2, 3, 4, 5, 6]
 y_vals = [3, 7, 5, 9, 4, 6]
-bars = ax.plot_bar(x_vals, y_vals, width=0.7, creation=1.5,
+bars = ax.plot_bar(x_vals, y_vals, bar_width=0.7, creation=1.5,
                    fill='#83C167', fill_opacity=0.6, stroke='#83C167')
 bars.fadein(1.5, 2.5)
 

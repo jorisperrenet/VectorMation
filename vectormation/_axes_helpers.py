@@ -2,9 +2,7 @@
 import math
 
 from vectormation._constants import (
-    CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
-    UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE,
-    CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
+    SMALL_BUFF, DEFAULT_FONT_SIZE, _get_arrow,
 )
 from vectormation._base import VCollection
 from vectormation._shapes import Line, Text
@@ -23,11 +21,6 @@ _MARCH_SEGS = {
 
 _AREA_STYLE = {'fill': '#58C4DD', 'fill_opacity': 0.3, 'stroke_width': 0}
 _HIGHLIGHT_STYLE = {'fill': '#FFFF00', 'fill_opacity': 0.15, 'stroke_width': 0}
-
-
-def _get_arrow():
-    from vectormation._arrows import Arrow
-    return Arrow
 
 def _get_dynamic_object():
     from vectormation._composites import DynamicObject

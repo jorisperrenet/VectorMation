@@ -34,7 +34,8 @@ rect1.wipe(direction='right', start=5, end=6, reverse=True)
 txt = Text(text='Animated Underline', x=300, y=550, font_size=48,
            fill='#FFFF00', stroke_width=0)
 txt.fadein(1, 2)
-underline = txt.underline_anim(start=2.5, end=3.5, color='#FFFF00', stroke_width=3)
+underline = Underline(txt, creation=2.5, stroke='#FFFF00', stroke_width=3)
+underline.write(2.5, 3.5)
 
 # Highlight border demo
 circle = Circle(r=80, cx=1200, cy=550, fill='#9B59B6', fill_opacity=0.7)

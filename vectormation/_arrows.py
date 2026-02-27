@@ -5,11 +5,10 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 from vectormation._constants import (
     DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
-    SMALL_BUFF, TEXT_Y_OFFSET,
-    _normalize,
+    SMALL_BUFF, _normalize,
 )
 from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _lerp_point
-from vectormation._shapes import Polygon, Line, Text, Path, Arc, Rectangle
+from vectormation._shapes import Polygon, Line, Path, Rectangle
 
 
 def _arrowhead(from_x, from_y, to_x, to_y, tip_length, tip_width, fill, creation, z):
