@@ -2129,13 +2129,15 @@ class Axes(VCollection):
 
     def add_dot_label(self, x, y, label=None, dot_color='#FF6B6B', dot_radius=6,
                        label_offset=(10, -10), font_size=20, creation=0, z=0):
-        """Add a labeled dot at math coordinates (x, y). Returns (dot, text) or dot."""
+        """Add a labeled dot at math coordinates (x, y). Returns (dot, label_text).
+        If no label is given, label_text is None."""
         sx, sy = self.coords_to_point(x, y, time=creation)
         dot = Dot(cx=sx, cy=sy, r=dot_radius, fill=dot_color,
                   creation=creation, z=z)
         dot.c.set_onward(creation,
             lambda t, _x=x, _y=y: self.coords_to_point(_x, _y, t))
         self._add_plot_obj(dot)
+        lbl = None
         if label is not None:
             lx, ly = sx + label_offset[0], sy + label_offset[1]
             lbl = Text(text=str(label), x=lx, y=ly, font_size=font_size,
@@ -2146,8 +2148,7 @@ class Axes(VCollection):
             lbl.y.set_onward(creation,
                 lambda t, _x=x, _y=y, _oy=_oy: self.coords_to_point(_x, _y, t)[1] + _oy)
             self._add_plot_obj(lbl)
-            return dot, lbl
-        return dot
+        return dot, lbl
 
     def add_point_label(self, x, y, text=None, dot_radius=6, font_size=20, buff=10,
                         creation=0, **kwargs) -> 'tuple[Dot, Text]':

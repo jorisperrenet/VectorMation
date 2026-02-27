@@ -36,7 +36,7 @@ from vectormation.objects import (
     PeriodicTable, BohrAtom,
     Countdown, Filmstrip, MorphObject, Title, NumberPlane,
     NeuralNetwork, Pendulum, StandingWave,
-    ArrayViz, LinkedListViz, StackViz, QueueViz, Callout,
+    ArrayViz, LinkedListViz, StackViz, QueueViz, Callout, LED,
     CANVAS_WIDTH, CANVAS_HEIGHT,
 )
 from vectormation.attributes import Coor, Real
@@ -13122,3 +13122,107 @@ class TestChessBoardMovePiece:
         cb = ChessBoard()
         result = cb.move_piece((0, 1), (0, 3), start=0, end=1)
         assert result is cb
+
+
+class TestLED:
+    def test_creates(self):
+        led = LED()
+        assert isinstance(led, VCollection)
+        assert len(led.objects) > 0
+
+    def test_renders_svg(self):
+        c = VectorMathAnim(save_dir='/tmp/t')
+        led = LED(x1=400, y1=540, x2=600, y2=540, color='#00FF00')
+        c.add_objects(led)
+        svg = c.generate_frame_svg(0)
+        assert '<' in svg
+
+
+class TestCalloutRender:
+    def test_callout_creates(self):
+        co = Callout('hello', target=(500, 500))
+        assert isinstance(co, VCollection)
+
+    def test_callout_renders(self):
+        c = VectorMathAnim(save_dir='/tmp/t')
+        co = Callout('note', target=(500, 500))
+        c.add_objects(co)
+        svg = c.generate_frame_svg(0)
+        assert 'note' in svg
+
+
+class TestDimensionLineRender:
+    def test_creates(self):
+        dl = DimensionLine(p1=(100, 500), p2=(500, 500), label='400px')
+        assert isinstance(dl, VCollection)
+
+
+class TestTooltipRender:
+    def test_creates(self):
+        tt = Tooltip('tip', target=(500, 500))
+        assert isinstance(tt, VCollection)
+
+
+class TestLabelRender:
+    def test_label_creates(self):
+        lbl = Label('label')
+        assert isinstance(lbl, VCollection)
+
+    def test_label_renders(self):
+        c = VectorMathAnim(save_dir='/tmp/t')
+        lbl = Label('test')
+        c.add_objects(lbl)
+        svg = c.generate_frame_svg(0)
+        assert 'test' in svg
+
+
+class TestLegendRender:
+    def test_creates(self):
+        lg = Legend([('#ff0000', 'Red'), ('#00ff00', 'Green')])
+        assert isinstance(lg, VCollection)
+
+
+class TestProgressBarAnimateTo:
+    def test_creates(self):
+        pb = ProgressBar()
+        assert isinstance(pb, VCollection)
+
+    def test_animate_to(self):
+        pb = ProgressBar()
+        result = pb.animate_to(0.5, start=0, end=1)
+        assert result is pb
+
+
+class TestFlowChartRender:
+    def test_creates(self):
+        fc = FlowChart(['Start', 'Process', 'End'])
+        assert isinstance(fc, VCollection)
+        assert len(fc.objects) > 0
+
+
+class TestAddDotLabelConsistentReturn:
+    def test_always_returns_tuple(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_dot_label(0, 0)
+        assert isinstance(result, tuple)
+        assert len(result) == 2
+        # Without label, second element should be None
+        assert result[1] is None
+
+    def test_with_label_returns_tuple(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        dot, lbl = ax.add_dot_label(0, 0, label='test')
+        assert dot is not None
+        assert lbl is not None
+
+
+class TestRegressionLineEdgeCases:
+    def test_insufficient_data(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_regression_line([1], [1])
+        assert result is None
+
+    def test_normal_data(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_regression_line([1, 2, 3], [1, 2, 3])
+        assert result is not None

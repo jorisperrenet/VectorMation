@@ -6,6 +6,7 @@ docs/svgs/
 dist/
 venv/
 manim_reference/
+references/
 
 # Docs
 docs/build/
