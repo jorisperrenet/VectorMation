@@ -13,6 +13,7 @@ from vectormation._shapes import (
     Polygon, Circle, Dot, Rectangle, RoundedRectangle, Line, Lines,
     Text,
 )
+_Text = Text  # module-level alias; avoids shadowing in methods that accept 'text' param
 
 
 # ---------------------------------------------------------------------------
@@ -512,7 +513,7 @@ class SpeechBubble(VCollection):
                  box_fill='#1e1e2e', box_opacity=0.95, text_color='#fff',
                  tail_direction='down', tail_width=20, tail_height=18,
                  creation: float = 0, z: float = 0, **styling_kwargs):
-        SText = Text  # local alias to avoid shadowing parameter
+        SText = _Text
         char_w = font_size * CHAR_WIDTH_FACTOR
         if width is None:
             width = max(len(text) * char_w + padding * 2, 60)
@@ -553,7 +554,7 @@ class Badge(VCollection):
     def __init__(self, text='Label', x=100, y=100, font_size=16, padding_x=14,
                  padding_y=6, bg_color='#58C4DD', text_color='#000',
                  creation: float = 0, z: float = 0, **styling_kwargs):
-        SText = Text  # local alias to avoid shadowing parameter
+        SText = _Text
         char_w = font_size * CHAR_WIDTH_FACTOR
         width = len(text) * char_w + padding_x * 2
         height = font_size + padding_y * 2
@@ -633,7 +634,7 @@ class Checklist(VCollection):
     def __init__(self, *items, x=100, y=100, font_size=24, spacing=1.6,
                  box_size=None, check_color='#83C167', uncheck_color='#555',
                  text_color='#fff', creation: float = 0, z: float = 0):
-        SText = Text  # local alias to avoid shadowing parameter
+        SText = _Text
         if box_size is None:
             box_size = font_size * 0.75
         objects = []

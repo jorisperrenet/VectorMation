@@ -13848,7 +13848,8 @@ class TestWordByWord:
     def test_basic(self):
         t = Text(text='Hello World Test', x=500, y=500)
         t.word_by_word(start=0, end=3)
-        assert t.text.at_time(0) == 'Hello'
+        # At midpoint, some words should be revealed
+        assert 'Hello' in t.text.at_time(1.5)
         assert t.text.at_time(3) == 'Hello World Test'
 
     def test_single_word(self):

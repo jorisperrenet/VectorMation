@@ -20,11 +20,6 @@ def _get_brace():
     return Brace
 
 
-def _get_tex_object():
-    from vectormation._composites import TexObject
-    return TexObject
-
-
 # ---------------------------------------------------------------------------
 # SVG filter / clip definitions
 # ---------------------------------------------------------------------------
@@ -145,7 +140,7 @@ class Angle(VCollection):
                     + label_font_size * TEXT_Y_OFFSET))
             else:
                 # Static TeX label (e.g. theta symbol)
-                TexObject = _get_tex_object()
+                from vectormation._composites import TexObject
                 label_text = label if '$' in label else f'${label}$'
                 mid_a = math.radians((a1 + a2) / 2)
                 init_lx = vx + lr * math.cos(mid_a)

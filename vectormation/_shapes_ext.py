@@ -1,14 +1,13 @@
 """Extended shape classes: Line, Text, Arc, Path, and derivatives."""
-import math, re
+import math
 from xml.sax.saxutils import escape as _xml_escape
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
 from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
-    CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN, UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE,
-    DEFAULT_STROKE_WIDTH, DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
-    DEFAULT_OBJECT_TO_EDGE_BUFF, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
+    SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
+    CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
     _rotate_point, _sample_function, _distance, _normalize,
 )
 from vectormation._base import VObject, _norm_dir, _norm_edge, _lerp, _ramp, _ramp_down, _lerp_point, _set_attr
@@ -42,7 +41,6 @@ class Line(VObject):
     def to_svg(self, time):
         p1, p2 = self.p1.at_time(time), self.p2.at_time(time)
         return f"<line x1='{p1[0]}' y1='{p1[1]}' x2='{p2[0]}' y2='{p2[1]}'{self.styling.svg_style(time)} />"
-
 
     def get_start(self, time=0):
         """Return the start point (x, y)."""
@@ -1067,7 +1065,6 @@ class Line(VObject):
         return Line(x1=mx - nx * half, y1=my - ny * half,
                     x2=mx + nx * half, y2=my + ny * half, **kwargs)
 
-
 class Text(VObject):
     """Plain SVG text element."""
     _NARROW = set('iIlj1|!.,;:\'"()[]{}')
@@ -1271,30 +1268,7 @@ class Text(VObject):
             self._hide_from(end)
         return self
 
-    def word_by_word(self, start=0, end=1, change_existence=True):
-        """Reveal text one word at a time."""
-        if change_existence:
-            self._show_from(start)
-        full_text = self.text.at_time(start)
-        words = full_text.split(' ')
-        nw = len(words)
-        if nw == 0:
-            return self
-        dur = end - start
-        if dur <= 0:
-            return self
-        # Build cumulative word boundaries
-        boundaries = []
-        for i in range(nw):
-            boundaries.append(' '.join(words[:i + 1]))
-        s = start
-        def _worded(t, _s=s, _d=dur, _n=nw, _b=boundaries):
-            progress = min(1, (t - _s) / _d)
-            idx = min(int(progress * _n), _n - 1)
-            return _b[idx]
-        self.text.set(s, end, _worded, stay=True)
-        self.text.set_onward(end, full_text)
-        return self
+    word_by_word = reveal_by_word  # alias
 
     def scramble(self, start=0, end=1, charset=None, change_existence=True):
         """Decode/reveal text from random characters. Characters settle left-to-right."""
@@ -1793,7 +1767,6 @@ class Text(VObject):
                 f" font-size='{self.font_size.at_time(time)}'{font_attrs}{self.styling.svg_style(time)}"
                 f">{txt}</text>")
 
-
 class CountAnimation(Text):
     """Text that animates a number counting from start_val to end_val."""
     def __init__(self, start_val=0, end_val=100, start: float = 0, end: float = 1,
@@ -1829,7 +1802,6 @@ class CountAnimation(Text):
         self._last_val = target
         return self
 
-
 class ValueTracker:
     """Convenience wrapper around a time-varying Real attribute.
 
@@ -1856,7 +1828,6 @@ class ValueTracker:
 
     def at_time(self, time):
         return self.value.at_time(time)
-
 
 class DecimalNumber(Text):
     """Text that dynamically displays a numeric value, updating each frame.
@@ -1889,7 +1860,6 @@ class DecimalNumber(Text):
     def animate_value(self, target, start, end, easing=easings.smooth):
         self._tracker.move_to(start, end, target, easing=easing)
         return self
-
 
 class Trace(VObject):
     """Follows a point every dt and renders as a polyline."""
@@ -2205,7 +2175,6 @@ class Path(VObject):
             parts.append('Z')
         return cls(' '.join(parts), **kwargs)
 
-
 class Image(VObject):
     """SVG <image> element."""
     def __init__(self, href, x=0, y=0, width=1, height=1, creation: float = 0, z: float = 0, **styling_kwargs):
@@ -2240,7 +2209,6 @@ class Image(VObject):
         return (f"<image href='{self.href}' x='{self.x.at_time(time)}' y='{self.y.at_time(time)}'"
                 f" width='{self.width.at_time(time)}' height='{self.height.at_time(time)}'"
                 f"{self.styling.svg_style(time)} />")
-
 
 class Arc(VObject):
     """SVG arc segment defined by centre, radius, and start/end angles (degrees)."""
@@ -2545,7 +2513,6 @@ class Arc(VObject):
     def to_svg(self, time):
         return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"
 
-
 class Wedge(Arc):
     """Arc that closes through the centre (pie/wedge shape)."""
     def __init__(self, cx: float = 960, cy: float = 540, r: float = 120, start_angle: float = 0, end_angle: float = 90,
@@ -2596,7 +2563,6 @@ class Wedge(Arc):
 
     def path(self, time):
         return super().path(time) + f'L{self.cx.at_time(time)},{self.cy.at_time(time)}Z'
-
 
 class Annulus(VObject):
     """Ring/donut shape defined by inner and outer radius."""
@@ -2666,7 +2632,6 @@ class Annulus(VObject):
     def to_svg(self, time):
         return f"<path d='{self.path(time)}' fill-rule='evenodd'{self.styling.svg_style(time)} />"
 
-
 class DashedLine(Line):
     """Line with a dashed stroke pattern."""
     def __init__(self, x1: float = 0, y1: float = 0, x2: float = 100, y2: float = 100, dash='10,5', creation: float = 0, z: float = 0, **styling_kwargs):
@@ -2685,7 +2650,6 @@ class DashedLine(Line):
         self.styling.stroke_dasharray.set_onward(start, pattern)
         return self
 
-
 class BackgroundRectangle(Rectangle):
     """Semi-transparent rectangle behind a target object (useful for text backgrounds)."""
     def __init__(self, target, buff=SMALL_BUFF, creation: float = 0, z=-1, **styling_kwargs):
@@ -2694,17 +2658,12 @@ class BackgroundRectangle(Rectangle):
         super().__init__(bw + 2*buff, bh + 2*buff, x=bx - buff, y=by - buff,
                          creation=creation, z=z, **style_kw)
 
-
-
-
-
 class ScreenRectangle(Rectangle):
     """A rectangle with the canvas aspect ratio (16:9).
     height is derived from width automatically."""
     def __init__(self, width=480, creation: float = 0, z: float = 0, **kwargs):
         height = width * 9 / 16
         super().__init__(width=width, height=height, creation=creation, z=z, **kwargs)
-
 
 class ArcBetweenPoints(Arc):
     """Arc connecting two points, bulging by a given angle.
@@ -2735,7 +2694,6 @@ class ArcBetweenPoints(Arc):
         super().__init__(cx=cx, cy=cy, r=r, start_angle=sa, end_angle=ea,
                          creation=creation, z=z, **styling_kwargs)
 
-
 class Elbow(Lines):
     """Right-angle connector (L-shape) between two directions.
 
@@ -2747,7 +2705,6 @@ class Elbow(Lines):
         super().__init__(
             (cx + width, cy), (cx, cy), (cx, cy + height),
             creation=creation, z=z, **style_kw)
-
 
 class AnnularSector(Arc):
     """Sector of an annulus (ring wedge).
@@ -2794,7 +2751,6 @@ class AnnularSector(Arc):
 
     def to_svg(self, time):
         return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"
-
 
 class CubicBezier(VObject):
     """Cubic Bezier curve from four control points."""
@@ -2859,9 +2815,17 @@ class CubicBezier(VObject):
     def to_svg(self, time):
         return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"
 
-
 class _TextBlockMixin:
-    """Shared position/path methods for Paragraph, BulletedList, NumberedList."""
+    """Shared position/path/init methods for Paragraph, BulletedList, NumberedList."""
+
+    def _init_block(self, items, x, y, font_size, line_spacing, creation, z, styling_kwargs):
+        super().__init__(creation=creation, z=z)
+        self.items = list(items)
+        self.x = attributes.Real(creation, x)
+        self.y = attributes.Real(creation, y)
+        self.font_size = font_size
+        self.line_spacing = line_spacing
+        self.styling = style.Styling(styling_kwargs, creation=creation, fill='#fff', stroke_width=0)
 
     def _extra_attrs(self):
         return [self.x, self.y]
@@ -2875,70 +2839,62 @@ class _TextBlockMixin:
     def path(self, time):
         return ''
 
+    def _list_bbox(self, time, indent=0):
+        x, y = self.x.at_time(time), self.y.at_time(time)
+        max_chars = max((len(item) for item in self.items), default=0)
+        w = indent + max_chars * self.font_size * CHAR_WIDTH_FACTOR
+        h = len(self.items) * self.font_size * self.line_spacing
+        return (x, y - self.font_size, w, h)
 
 class Paragraph(_TextBlockMixin, VObject):
     """Multi-line text with alignment and line spacing."""
     def __init__(self, *lines, x=960, y=540, font_size=36, alignment='left',
                  line_spacing=1.4, creation: float = 0, z: float = 0, **styling_kwargs):
-        super().__init__(creation=creation, z=z)
-        self.lines = list(lines)
-        self.x = attributes.Real(creation, x)
-        self.y = attributes.Real(creation, y)
-        self.font_size = font_size
+        self._init_block(lines, x, y, font_size, line_spacing, creation, z, styling_kwargs)
         self.alignment = alignment
-        self.line_spacing = line_spacing
-        defaults = dict(fill='#fff', stroke_width=0)
-        self.styling = style.Styling(styling_kwargs, creation=creation, **defaults)
 
     def __repr__(self):
-        return f'Paragraph({len(self.lines)} lines)'
+        return f'Paragraph({len(self.items)} lines)'
+
+    @property
+    def lines(self):
+        return self.items
+
+    @lines.setter
+    def lines(self, val):
+        self.items = val
 
     def bbox(self, time=0):
-        x, y = self.x.at_time(time), self.y.at_time(time)
-        max_chars = max((len(line) for line in self.lines), default=0)
-        w = max_chars * self.font_size * CHAR_WIDTH_FACTOR
-        h = len(self.lines) * self.font_size * self.line_spacing
+        x, y, w, h = self._list_bbox(time)
         if self.alignment == 'center':
-            return (x - w / 2, y - self.font_size, w, h)
-        elif self.alignment == 'right':
-            return (x - w, y - self.font_size, w, h)
-        return (x, y - self.font_size, w, h)
+            return (x - w / 2, y, w, h)
+        if self.alignment == 'right':
+            return (x - w, y, w, h)
+        return (x, y, w, h)
 
     def to_svg(self, time):
         x, y = self.x.at_time(time), self.y.at_time(time)
         anchor = {'left': 'start', 'center': 'middle', 'right': 'end'}[self.alignment]
         parts = []
-        for i, line in enumerate(self.lines):
+        for i, line in enumerate(self.items):
             ly = y + i * self.font_size * self.line_spacing
             parts.append(f"<text x='{x}' y='{ly}' text-anchor='{anchor}' "
                          f"font-size='{self.font_size}'{self.styling.svg_style(time)}>{_xml_escape(line)}</text>")
         return '\n'.join(parts)
 
-
 class BulletedList(_TextBlockMixin, VObject):
     """List of items with bullet points."""
     def __init__(self, *items, x=200, y=200, font_size=36, bullet='\u2022',
                  indent=40, line_spacing=1.6, creation: float = 0, z: float = 0, **styling_kwargs):
-        super().__init__(creation=creation, z=z)
-        self.items = list(items)
-        self.x = attributes.Real(creation, x)
-        self.y = attributes.Real(creation, y)
-        self.font_size = font_size
+        self._init_block(items, x, y, font_size, line_spacing, creation, z, styling_kwargs)
         self.bullet = bullet
         self.indent = indent
-        self.line_spacing = line_spacing
-        defaults = dict(fill='#fff', stroke_width=0)
-        self.styling = style.Styling(styling_kwargs, creation=creation, **defaults)
 
     def __repr__(self):
         return f'BulletedList({len(self.items)} items)'
 
     def bbox(self, time=0):
-        x, y = self.x.at_time(time), self.y.at_time(time)
-        max_chars = max((len(item) for item in self.items), default=0)
-        w = self.indent + max_chars * self.font_size * CHAR_WIDTH_FACTOR
-        h = len(self.items) * self.font_size * self.line_spacing
-        return (x, y - self.font_size, w, h)
+        return self._list_bbox(time, self.indent)
 
     def to_svg(self, time):
         x, y = self.x.at_time(time), self.y.at_time(time)
@@ -2951,31 +2907,19 @@ class BulletedList(_TextBlockMixin, VObject):
                          f"{self.styling.svg_style(time)}>{_xml_escape(item)}</text>")
         return '\n'.join(parts)
 
-
 class NumberedList(_TextBlockMixin, VObject):
     """List of items with numeric labels (1. 2. 3. ...)."""
     def __init__(self, *items, x=200, y=200, font_size=36, indent=50,
                  line_spacing=1.6, start_number=1, creation: float = 0, z: float = 0, **styling_kwargs):
-        super().__init__(creation=creation, z=z)
-        self.items = list(items)
-        self.x = attributes.Real(creation, x)
-        self.y = attributes.Real(creation, y)
-        self.font_size = font_size
+        self._init_block(items, x, y, font_size, line_spacing, creation, z, styling_kwargs)
         self.indent = indent
-        self.line_spacing = line_spacing
         self.start_number = start_number
-        defaults = dict(fill='#fff', stroke_width=0)
-        self.styling = style.Styling(styling_kwargs, creation=creation, **defaults)
 
     def __repr__(self):
         return f'NumberedList({len(self.items)} items)'
 
     def bbox(self, time=0):
-        x, y = self.x.at_time(time), self.y.at_time(time)
-        max_chars = max((len(item) for item in self.items), default=0)
-        w = self.indent + max_chars * self.font_size * CHAR_WIDTH_FACTOR
-        h = len(self.items) * self.font_size * self.line_spacing
-        return (x, y - self.font_size, w, h)
+        return self._list_bbox(time, self.indent)
 
     def to_svg(self, time):
         x, y = self.x.at_time(time), self.y.at_time(time)
@@ -2989,14 +2933,8 @@ class NumberedList(_TextBlockMixin, VObject):
                          f"{self.styling.svg_style(time)}>{_xml_escape(item)}</text>")
         return '\n'.join(parts)
 
-
 class FunctionGraph(Lines):
-    """Plot a mathematical function as a polyline (no axes, ticks, or labels).
-
-    x_range: (start, end) in math coordinates.
-    y_range: (min, max) or None for auto.
-    x, y, width, height: SVG pixel area for the plot.
-    """
+    """Plot a mathematical function as a polyline (no axes, ticks, or labels)."""
     def __init__(self, func, x_range=(-5, 5), y_range=None, num_points=200,
                  x=120, y=60, width=1440, height=840,
                  creation=0, z=0, **styling_kwargs):
