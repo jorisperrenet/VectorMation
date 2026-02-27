@@ -3387,3 +3387,221 @@ class TestAxesAxisLines:
         ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
         line = ax.get_x_axis_line(stroke='#FF0000', stroke_width=4)
         assert line.styling.stroke_width.at_time(0) == pytest.approx(4)
+
+
+# ---------------------------------------------------------------------------
+# New feature tests
+# ---------------------------------------------------------------------------
+
+class TestSetStrokeDash:
+    def test_string_pattern_sets_dasharray(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_stroke_dash('5 3')
+        assert c.styling.stroke_dasharray.at_time(0) == '5 3'
+
+    def test_list_pattern_converts_to_string(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_stroke_dash([8, 4, 2, 4])
+        assert c.styling.stroke_dasharray.at_time(0) == '8 4 2 4'
+
+    def test_tuple_pattern_converts_to_string(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_stroke_dash((10, 5))
+        assert c.styling.stroke_dasharray.at_time(0) == '10 5'
+
+    def test_none_clears_pattern(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_stroke_dash('5 3')
+        c.set_stroke_dash(None, start=1)
+        assert c.styling.stroke_dasharray.at_time(1) == ''
+
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.set_stroke_dash('5 3')
+        assert result is c
+
+    def test_respects_start_time(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_stroke_dash('5 3', start=2)
+        # Before start time pattern should not be set (default empty)
+        assert c.styling.stroke_dasharray.at_time(0) != '5 3'
+        assert c.styling.stroke_dasharray.at_time(2) == '5 3'
+
+    def test_works_on_polygon(self):
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        p.set_stroke_dash('4 2')
+        assert p.styling.stroke_dasharray.at_time(0) == '4 2'
+
+
+class TestPolygonIsRegular:
+    def test_equilateral_triangle_is_regular(self):
+        import math
+        s = 100.0
+        h = s * math.sqrt(3) / 2
+        tri = Polygon((0, 0), (s, 0), (s / 2, -h))
+        assert tri.is_regular() is True
+
+    def test_square_is_regular(self):
+        sq = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        assert sq.is_regular() is True
+
+    def test_rectangle_not_regular(self):
+        rect = Polygon((0, 0), (200, 0), (200, 50), (0, 50))
+        assert rect.is_regular() is False
+
+    def test_open_polygon_not_regular(self):
+        sq = Polygon((0, 0), (100, 0), (100, 100), (0, 100), closed=False)
+        assert sq.is_regular() is False
+
+    def test_degenerate_two_vertices_not_regular(self):
+        p = Polygon((0, 0), (100, 0))
+        assert p.is_regular() is False
+
+    def test_regular_pentagon(self):
+        import math
+        n = 5
+        pts = [(math.cos(2 * math.pi * i / n) * 100,
+                math.sin(2 * math.pi * i / n) * 100) for i in range(n)]
+        p = Polygon(*pts)
+        assert p.is_regular() is True
+
+    def test_tolerance_parameter(self):
+        # Slightly distorted square: one side is 101 instead of 100.
+        sq = Polygon((0, 0), (101, 0), (101, 100), (0, 100))
+        # With tight tolerance should be False
+        assert sq.is_regular(tol=1e-6) is False
+        # With loose tolerance (5%) should pass
+        assert sq.is_regular(tol=0.05) is True
+
+
+class TestVCollectionGroupBy:
+    def test_group_by_type(self):
+        c1 = Circle(r=50)
+        c2 = Circle(r=30)
+        r1 = Rectangle(width=100, height=50)
+        col = VCollection(c1, c2, r1)
+        groups = col.group_by(type)
+        assert Circle in groups
+        assert Rectangle in groups
+        assert len(groups[Circle].objects) == 2
+        assert len(groups[Rectangle].objects) == 1
+
+    def test_returns_vcollection_values(self):
+        c1 = Circle(r=50)
+        col = VCollection(c1)
+        groups = col.group_by(type)
+        assert isinstance(groups[Circle], VCollection)
+
+    def test_group_by_custom_func(self):
+        c1 = Circle(r=50)
+        c2 = Circle(r=100)
+        c3 = Circle(r=50)
+        col = VCollection(c1, c2, c3)
+        # Group by radius at time=0
+        groups = col.group_by(lambda o: o.rx.at_time(0))
+        assert len(groups[50.0].objects) == 2
+        assert len(groups[100.0].objects) == 1
+
+    def test_empty_collection(self):
+        col = VCollection()
+        groups = col.group_by(type)
+        assert groups == {}
+
+    def test_single_group(self):
+        circles = VCollection(Circle(r=10), Circle(r=20))
+        groups = circles.group_by(type)
+        assert len(groups) == 1
+        assert Circle in groups
+
+
+class TestAxesGetAreaValue:
+    def test_quadratic_integral(self):
+        ax = Axes(x_range=(0, 3), y_range=(0, 10))
+        # integral of x^2 from 0 to 3 = 9.0
+        result = ax.get_area_value(lambda x: x ** 2, 0, 3, samples=1000)
+        assert result == pytest.approx(9.0, rel=1e-3)
+
+    def test_constant_function(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 5))
+        # integral of 2 from 1 to 4 = 6.0
+        result = ax.get_area_value(lambda x: 2.0, 1, 4)
+        assert result == pytest.approx(6.0, rel=1e-6)
+
+    def test_linear_function(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        # integral of x from 0 to 4 = 8.0
+        result = ax.get_area_value(lambda x: x, 0, 4, samples=1000)
+        assert result == pytest.approx(8.0, rel=1e-3)
+
+    def test_returns_float(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 5))
+        result = ax.get_area_value(lambda x: x, 0, 2)
+        assert isinstance(result, float)
+
+    def test_accepts_plot_curve(self):
+        """get_area_value should accept a Path with ._func attribute."""
+        ax = Axes(x_range=(0, 4), y_range=(0, 5))
+        curve = ax.plot(lambda x: x)
+        result = ax.get_area_value(curve, 0, 4, samples=1000)
+        # integral of x from 0 to 4 = 8.0
+        assert result == pytest.approx(8.0, rel=1e-3)
+
+    def test_zero_range(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 5))
+        result = ax.get_area_value(lambda x: x ** 2, 2, 2)
+        assert result == pytest.approx(0.0, abs=1e-10)
+
+
+class TestLineFromAngle:
+    def test_zero_degrees_points_right(self):
+        import math
+        line = Line.from_angle((0, 0), 0, 100)
+        x2, y2 = line.p2.at_time(0)
+        assert x2 == pytest.approx(100, abs=1e-9)
+        assert y2 == pytest.approx(0, abs=1e-9)
+
+    def test_ninety_degrees_points_up_svgy(self):
+        """90° CCW from x-axis points upward (negative y in SVG)."""
+        import math
+        line = Line.from_angle((0, 0), 90, 100)
+        x2, y2 = line.p2.at_time(0)
+        assert x2 == pytest.approx(0, abs=1e-9)
+        assert y2 == pytest.approx(-100, abs=1e-9)
+
+    def test_180_degrees_points_left(self):
+        line = Line.from_angle((0, 0), 180, 100)
+        x2, y2 = line.p2.at_time(0)
+        assert x2 == pytest.approx(-100, abs=1e-9)
+        assert y2 == pytest.approx(0, abs=1e-9)
+
+    def test_origin_is_start_point(self):
+        line = Line.from_angle((200, 300), 45, 50)
+        x1, y1 = line.p1.at_time(0)
+        assert x1 == pytest.approx(200)
+        assert y1 == pytest.approx(300)
+
+    def test_length_is_correct(self):
+        import math
+        line = Line.from_angle((0, 0), 37, 150)
+        x2, y2 = line.p2.at_time(0)
+        length = math.sqrt(x2 ** 2 + y2 ** 2)
+        assert length == pytest.approx(150, abs=1e-6)
+
+    def test_returns_line_instance(self):
+        assert isinstance(Line.from_angle((0, 0), 0, 100), Line)
+
+    def test_kwargs_forwarded(self):
+        line = Line.from_angle((0, 0), 0, 100, stroke='#FF0000')
+        stroke_val = line.styling.stroke.at_time(0)
+        # Accept any common representation of red
+        assert any(s in stroke_val.lower() for s in ('ff0000', 'red', '255,0,0'))
+
+    def test_equivalent_to_from_direction_at_zero(self):
+        """from_angle(0°) should produce the same line as from_direction((1,0))."""
+        import math
+        la = Line.from_angle((0, 0), 0, 200)
+        ld = Line.from_direction((0, 0), (1, 0), 200)
+        x2a, y2a = la.p2.at_time(0)
+        x2d, y2d = ld.p2.at_time(0)
+        assert x2a == pytest.approx(x2d, abs=1e-6)
+        assert y2a == pytest.approx(y2d, abs=1e-6)

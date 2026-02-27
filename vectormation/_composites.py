@@ -1269,6 +1269,42 @@ class Axes(VCollection):
         self._add_plot_obj(area)
         return area
 
+    def get_area_value(self, func, x_start, x_end, samples=100):
+        """Return the numerical integral of *func* over [x_start, x_end].
+
+        Uses the trapezoidal rule with *samples* equally-spaced intervals.
+        This is a pure numerical computation — no visual element is created.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x)`` or a curve Path with a ``._func`` attribute
+            (as returned by :meth:`plot`).
+        x_start, x_end:
+            Integration bounds in mathematical (axis) coordinates.
+        samples:
+            Number of trapezoid intervals (default 100).  More samples give
+            a more accurate result.
+
+        Returns
+        -------
+        float
+            The approximate definite integral of *func* from *x_start* to
+            *x_end*.
+
+        Examples
+        --------
+        >>> ax = Axes(...)
+        >>> ax.get_area_value(lambda x: x**2, 0, 3)   # approx 9.0
+        >>> ax.get_area_value(math.sin, 0, math.pi)   # approx 2.0
+        """
+        fn = self._resolve_func(func, 'func')
+        n = max(int(samples), 2)
+        step = (x_end - x_start) / n
+        xs = [x_start + i * step for i in range(n + 1)]
+        ys = [fn(x) for x in xs]
+        return sum(0.5 * (ys[i] + ys[i + 1]) * step for i in range(n))
+
     def add_legend(self, entries, position='upper right', font_size=18,
                     bg_color='#1a1a2e', bg_opacity=0.8, creation=0, z=10):
         """Add a legend box.

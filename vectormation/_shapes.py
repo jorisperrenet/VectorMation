@@ -117,6 +117,37 @@ class Polygon(VObject):
         return abs(sum(pts[i][0] * pts[(i+1) % n][1] - pts[(i+1) % n][0] * pts[i][1]
                        for i in range(n))) / 2
 
+    def is_regular(self, tol=1e-3, time=0):
+        """Return True if all edges have the same length (within tolerance).
+
+        An open polyline is never considered regular.  A polygon with fewer
+        than 3 vertices always returns False.
+
+        Parameters
+        ----------
+        tol:
+            Maximum allowed relative deviation from the mean edge length.
+            Default is ``1e-3`` (0.1%).
+        time:
+            Animation time at which to evaluate vertex positions.
+
+        Returns
+        -------
+        bool
+        """
+        if not self.closed:
+            return False
+        pts = self.get_vertices(time)
+        n = len(pts)
+        if n < 3:
+            return False
+        lengths = [_distance(pts[i][0], pts[i][1], pts[(i + 1) % n][0], pts[(i + 1) % n][1])
+                   for i in range(n)]
+        mean = sum(lengths) / n
+        if mean < 1e-10:
+            return False
+        return all(abs(l - mean) <= tol * mean for l in lengths)
+
     def offset(self, distance, time=0):
         """Return a new Polygon with vertices moved along averaged edge normals.
 
@@ -1215,6 +1246,43 @@ class Line(VObject):
             return cls(ox, oy, ox, oy, **kwargs)
         nx, ny = dx / mag, dy / mag
         return cls(ox, oy, ox + nx * length, oy + ny * length, **kwargs)
+
+    @classmethod
+    def from_angle(cls, origin, angle_deg, length=100, **kwargs):
+        """Create a Line from *origin* at *angle_deg* degrees for *length* pixels.
+
+        The angle follows the standard mathematical convention measured
+        **counter-clockwise from the positive x-axis**.  Because SVG uses a
+        y-down coordinate system, an angle of 0° points right, 90° points
+        **up** (negative y direction in SVG), and 180° points left.
+
+        Parameters
+        ----------
+        origin:
+            Start point ``(x, y)``.
+        angle_deg:
+            Angle in degrees, measured counter-clockwise from the positive
+            x-axis.
+        length:
+            Length of the resulting line in pixels (default 100).
+        **kwargs:
+            Forwarded to the :class:`Line` constructor.
+
+        Returns
+        -------
+        Line
+
+        Examples
+        --------
+        >>> Line.from_angle((960, 540), 0, 200)    # horizontal right
+        >>> Line.from_angle((960, 540), 90, 100)   # upward (SVG y-down)
+        >>> Line.from_angle((960, 540), 45, 100)   # 45° upper-right
+        """
+        ox, oy = origin
+        rad = math.radians(angle_deg)
+        dx = math.cos(rad)
+        dy = -math.sin(rad)  # negate because SVG y-axis points downward
+        return cls(ox, oy, ox + dx * length, oy + dy * length, **kwargs)
 
     def __repr__(self):
         p1, p2 = self.p1.at_time(0), self.p2.at_time(0)

@@ -4881,7 +4881,7 @@ class TestCollectionSearch:
     def test_group_by(self):
         from vectormation.objects import VCollection, Circle, Rectangle
         col = VCollection(Circle(), Rectangle(10, 10), Circle())
-        groups = col.group_by(lambda obj, t: type(obj).__name__)
+        groups = col.group_by(lambda obj: type(obj).__name__)
         assert 'Circle' in groups
         assert len(groups['Circle']) == 2
 

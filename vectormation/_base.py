@@ -2476,6 +2476,31 @@ class VObject(ABC):  # Vector Object
                 self.styling.stroke_opacity.move_to(start, end, opacity, easing=easing)
         return self
 
+    def set_stroke_dash(self, pattern, start: float = 0):
+        """Set the stroke dash pattern.
+
+        Parameters
+        ----------
+        pattern:
+            A string like ``'5 3'`` or a list/tuple like ``[5, 3]`` specifying
+            alternating dash and gap lengths (same as SVG ``stroke-dasharray``).
+            Pass an empty string ``''`` or ``None`` to remove dashing.
+        start:
+            Animation time at which the pattern takes effect.
+
+        Returns
+        -------
+        self
+        """
+        if pattern is None:
+            pattern_str = ''
+        elif isinstance(pattern, (list, tuple)):
+            pattern_str = ' '.join(str(v) for v in pattern)
+        else:
+            pattern_str = str(pattern)
+        self.styling.stroke_dasharray.set_onward(start, pattern_str)
+        return self
+
     def set_opacity(self, value, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Set fill_opacity and stroke opacity together. Animated if end is given."""
         if end is None:
@@ -2836,13 +2861,34 @@ class VCollection:
                 return i
         return -1
 
-    def group_by(self, key, time=0):
-        """Group children by a key function. Returns dict of {key_value: [objects]}."""
-        groups = {}
+    def group_by(self, key_func):
+        """Group children by the result of *key_func*.
+
+        Parameters
+        ----------
+        key_func:
+            A callable that takes a single child object and returns a hashable
+            key.  For example ``type`` groups by class, ``lambda o: o.z``
+            groups by z-order.
+
+        Returns
+        -------
+        dict
+            A mapping from each distinct key value to a :class:`VCollection`
+            containing all children that produced that key.
+
+        Examples
+        --------
+        >>> circles = VCollection(Circle(), Circle(), Rectangle())
+        >>> groups = circles.group_by(type)
+        >>> groups[Circle]   # VCollection of two circles
+        >>> groups[Rectangle]  # VCollection of one rectangle
+        """
+        groups: dict = {}
         for obj in self.objects:
-            k = key(obj, time)
+            k = key_func(obj)
             groups.setdefault(k, []).append(obj)
-        return groups
+        return {k: VCollection(*objs) for k, objs in groups.items()}
 
     def partition(self, predicate):
         """Split into two VCollections: (matching, non_matching)."""
