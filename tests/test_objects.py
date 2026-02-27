@@ -14206,3 +14206,57 @@ class TestMatrixRowOperation:
         result = m.set_entry_value(0, 0, 99, start=0)
         assert result is m
         assert m.entries[0][0].text.at_time(0) == '99'
+
+
+class TestMatrixColorMethods:
+    def test_set_row_colors(self):
+        m = Matrix([[1, 2], [3, 4]])
+        result = m.set_row_colors('#FF0000', '#00FF00', start=0)
+        assert result is m
+
+    def test_set_column_colors(self):
+        m = Matrix([[1, 2], [3, 4]])
+        result = m.set_column_colors('#FF0000', '#00FF00', start=0)
+        assert result is m
+
+    def test_set_row_colors_cycles(self):
+        m = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        # Only one color cycles across all rows
+        m.set_row_colors('#FF0000', start=0)
+
+    def test_set_column_colors_cycles(self):
+        m = Matrix([[1, 2, 3], [4, 5, 6]])
+        m.set_column_colors('#FF0000', '#00FF00', start=0)
+
+
+class TestDecimalMatrix:
+    def test_basic(self):
+        from vectormation.objects import DecimalMatrix
+        m = DecimalMatrix([[1.123, 2.456], [3.789, 4.012]], decimals=2)
+        assert m.entries[0][0].text.at_time(0) == '1.12'
+        assert m.entries[0][1].text.at_time(0) == '2.46'
+
+    def test_decimals_1(self):
+        from vectormation.objects import DecimalMatrix
+        m = DecimalMatrix([[1, 2], [3, 4]], decimals=1)
+        assert m.entries[0][0].text.at_time(0) == '1.0'
+
+    def test_repr(self):
+        from vectormation.objects import DecimalMatrix
+        m = DecimalMatrix([[1, 2], [3, 4]])
+        assert 'Matrix' in repr(m)
+
+
+class TestIntegerMatrix:
+    def test_basic(self):
+        from vectormation.objects import IntegerMatrix
+        m = IntegerMatrix([[1.7, 2.3], [3.5, 4.9]])
+        assert m.entries[0][0].text.at_time(0) == '2'
+        assert m.entries[0][1].text.at_time(0) == '2'
+        assert m.entries[1][0].text.at_time(0) == '4'
+        assert m.entries[1][1].text.at_time(0) == '5'
+
+    def test_repr(self):
+        from vectormation.objects import IntegerMatrix
+        m = IntegerMatrix([[1, 2], [3, 4]])
+        assert 'Matrix' in repr(m)

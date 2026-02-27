@@ -1108,6 +1108,35 @@ class Matrix(VCollection):
                     stay=True)
         return self
 
+    def set_row_colors(self, *colors, start=0):
+        """Set colors for each row. Cycles if fewer colors than rows."""
+        for r in range(self.rows):
+            c = colors[r % len(colors)]
+            for entry in self.entries[r]:
+                entry.styling.fill.set_onward(start, c)
+        return self
+
+    def set_column_colors(self, *colors, start=0):
+        """Set colors for each column. Cycles if fewer colors than columns."""
+        for ci in range(self.cols):
+            c = colors[ci % len(colors)]
+            for row in self.entries:
+                if ci < len(row):
+                    row[ci].styling.fill.set_onward(start, c)
+        return self
+
+class DecimalMatrix(Matrix):
+    """Matrix that formats entries as decimals with a fixed number of places."""
+    def __init__(self, data, decimals=1, **kwargs):
+        formatted = [[f'{float(v):.{decimals}f}' for v in row] for row in data]
+        super().__init__(formatted, **kwargs)
+
+class IntegerMatrix(Matrix):
+    """Matrix that formats entries as integers."""
+    def __init__(self, data, **kwargs):
+        formatted = [[str(int(round(float(v)))) for v in row] for row in data]
+        super().__init__(formatted, **kwargs)
+
 class TexCountAnimation(DynamicObject):
     """Animated number display using pre-rendered LaTeX digit glyphs."""
 
