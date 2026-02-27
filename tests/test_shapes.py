@@ -3765,3 +3765,104 @@ class TestRectangleFromCorners:
     def test_returns_rectangle_instance(self):
         r = Rectangle.from_corners(0, 0, 100, 100)
         assert isinstance(r, Rectangle)
+
+
+class TestLineParameterAt:
+    def test_parameter_at_start(self):
+        """Projection of p1 itself should give t=0."""
+        line = Line(0, 0, 100, 0)
+        t = line.parameter_at(0, 0)
+        assert t == pytest.approx(0.0)
+
+    def test_parameter_at_end(self):
+        """Projection of p2 itself should give t=1."""
+        line = Line(0, 0, 100, 0)
+        t = line.parameter_at(100, 0)
+        assert t == pytest.approx(1.0)
+
+    def test_parameter_at_midpoint(self):
+        """Projection of the midpoint of a horizontal line gives t=0.5."""
+        line = Line(0, 0, 100, 0)
+        t = line.parameter_at(50, 999)  # y doesn't matter for horizontal line
+        assert t == pytest.approx(0.5)
+
+    def test_parameter_at_before_start(self):
+        """A point beyond p1 should give t < 0 (unclamped)."""
+        line = Line(0, 0, 100, 0)
+        t = line.parameter_at(-25, 0)
+        assert t == pytest.approx(-0.25)
+
+    def test_parameter_at_beyond_end(self):
+        """A point beyond p2 should give t > 1 (unclamped)."""
+        line = Line(0, 0, 100, 0)
+        t = line.parameter_at(150, 0)
+        assert t == pytest.approx(1.5)
+
+    def test_parameter_at_diagonal(self):
+        """Diagonal line: projection of the midpoint gives t=0.5."""
+        line = Line(0, 0, 100, 100)
+        t = line.parameter_at(50, 50)
+        assert t == pytest.approx(0.5)
+
+    def test_parameter_degenerate_line(self):
+        """Zero-length line should return 0.0 without error."""
+        line = Line(50, 50, 50, 50)
+        t = line.parameter_at(100, 200)
+        assert t == pytest.approx(0.0)
+
+
+class TestPolygonRotateVertices:
+    def test_returns_polygon(self):
+        p = Polygon((0, 0), (100, 0), (100, 100))
+        rotated = p.rotate_vertices(0)
+        assert isinstance(rotated, Polygon)
+
+    def test_zero_rotation_unchanged(self):
+        """Rotating by 0 degrees should leave vertices unchanged."""
+        p = Polygon((0, 0), (100, 0), (100, 100))
+        rotated = p.rotate_vertices(0)
+        original = p.get_vertices()
+        result = rotated.get_vertices()
+        for (ox, oy), (rx, ry) in zip(original, result):
+            assert rx == pytest.approx(ox, abs=1e-9)
+            assert ry == pytest.approx(oy, abs=1e-9)
+
+    def test_360_rotation_unchanged(self):
+        """Full 360-degree rotation should return to original."""
+        p = Polygon((0, 0), (100, 0), (100, 100))
+        rotated = p.rotate_vertices(360)
+        original = p.get_vertices()
+        result = rotated.get_vertices()
+        for (ox, oy), (rx, ry) in zip(original, result):
+            assert rx == pytest.approx(ox, abs=1e-6)
+            assert ry == pytest.approx(oy, abs=1e-6)
+
+    def test_rotation_around_explicit_center(self):
+        """Rotate a point (100, 0) by 90 degrees around origin (0, 0)."""
+        # In SVG coords (y-down) 90-deg CW: (x, y) -> (y, -x) relative to centre
+        # i.e. (100, 0) -> (0, 100) around (0,0)
+        import math
+        p = Polygon((100, 0), (100, 0))  # degenerate but sufficient
+        rotated = p.rotate_vertices(90, cx=0, cy=0)
+        verts = rotated.get_vertices()
+        assert verts[0][0] == pytest.approx(0.0, abs=1e-6)
+        assert verts[0][1] == pytest.approx(100.0, abs=1e-6)
+
+    def test_rotation_around_centroid_default(self):
+        """Rotating around centroid: centroid of result should equal original centroid."""
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        cx0, cy0 = p.get_center()
+        rotated = p.rotate_vertices(45)
+        cx1, cy1 = rotated.get_center()
+        assert cx1 == pytest.approx(cx0, abs=1e-6)
+        assert cy1 == pytest.approx(cy0, abs=1e-6)
+
+    def test_closed_flag_preserved(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), closed=False)
+        rotated = p.rotate_vertices(30)
+        assert not rotated.closed
+
+    def test_vertex_count_preserved(self):
+        p = Polygon((0, 0), (100, 0), (50, 100), (25, 75))
+        rotated = p.rotate_vertices(45)
+        assert len(rotated.get_vertices()) == 4

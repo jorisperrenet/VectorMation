@@ -1414,6 +1414,43 @@ class VObject(ABC):  # Vector Object
         self.styling.scale_y.set(start, end, _make_pulse(self.styling.scale_y.at_time(start)))
         return self
 
+    def pulse_scale(self, start: float = 0, end: float = 1, count=2, amplitude=0.15, easing=easings.smooth):
+        """Repeatedly scale up and down by amplitude factor over [start, end].
+
+        Unlike :meth:`pulsate` (which uses abs(sin) and may use opacity) and
+        :meth:`emphasize_scale` (a single out-and-back pulse), this method
+        produces *count* full up-down cycles using a signed sinusoid, so the
+        scale oscillates symmetrically above and below the baseline.
+
+        Parameters
+        ----------
+        start:
+            Animation start time.
+        end:
+            Animation end time.
+        count:
+            Number of complete scale oscillation cycles (default 2).
+        amplitude:
+            Fractional scale deviation from baseline, e.g. 0.15 means the
+            object scales between 0.85× and 1.15× its original size.
+        easing:
+            Easing applied to the normalised time before computing the
+            sinusoid (default: smooth).
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        self._ensure_scale_origin(start)
+        sx0 = self.styling.scale_x.at_time(start)
+        sy0 = self.styling.scale_y.at_time(start)
+        _s, _d, _amp, _cnt = start, max(dur, 1e-9), amplitude, count
+        def _make_pulse_scale(base):
+            return lambda t, _s=_s, _d=_d, _amp=_amp, _cnt=_cnt, _b=base, _e=easing: \
+                _b * (1 + _amp * math.sin(2 * math.pi * _cnt * _e((t - _s) / _d)))
+        self.styling.scale_x.set(start, end, _make_pulse_scale(sx0))
+        self.styling.scale_y.set(start, end, _make_pulse_scale(sy0))
+        return self
+
     def spin(self, start: float = 0, end: float = 1, degrees=360, cx=None, cy=None, easing=easings.linear):
         """Continuous rotation by degrees over [start, end]."""
         return self._apply_rotation(start, end,
@@ -2982,6 +3019,42 @@ class VCollection:
     def select(self, start=0, end=None):
         """Return a new VCollection with children at indices [start:end]."""
         return VCollection(*self.objects[start:end])
+
+    def take(self, n):
+        """Return a new VCollection with the first *n* children.
+
+        Equivalent to ``select(0, n)``.  If *n* is greater than or equal to
+        the number of children the full collection is returned.  If *n* is
+        zero an empty VCollection is returned.
+
+        Parameters
+        ----------
+        n:
+            Number of children to keep from the start of the collection.
+
+        Returns
+        -------
+        VCollection
+        """
+        return VCollection(*self.objects[:n])
+
+    def skip(self, n):
+        """Return a new VCollection skipping the first *n* children.
+
+        Equivalent to ``select(n)``.  If *n* is greater than or equal to the
+        number of children an empty VCollection is returned.  If *n* is zero
+        the full collection is returned unchanged.
+
+        Parameters
+        ----------
+        n:
+            Number of children to skip from the start of the collection.
+
+        Returns
+        -------
+        VCollection
+        """
+        return VCollection(*self.objects[n:])
 
     def interleave(self, other):
         """Merge two collections by alternating their children.

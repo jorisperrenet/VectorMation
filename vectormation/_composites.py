@@ -1412,6 +1412,42 @@ class Axes(VCollection):
             raise ValueError('No finite function values found in the given range.')
         return (best_x, best_y)
 
+    def get_derivative(self, func, x_val, h=0.001):
+        """Return the numerical derivative of *func* at *x_val*.
+
+        Uses the symmetric central-difference formula::
+
+            f'(x) ≈ (f(x + h) - f(x - h)) / (2h)
+
+        This is a pure numerical computation — no visual element is created.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x)`` or a curve Path with a ``._func`` attribute
+            (as returned by :meth:`plot`).
+        x_val:
+            The x value at which to evaluate the derivative (in mathematical
+            axis coordinates).
+        h:
+            Step size for the central-difference approximation (default
+            ``0.001``).  Smaller values give more accurate results for smooth
+            functions but may amplify floating-point noise.
+
+        Returns
+        -------
+        float
+            The approximate derivative f'(x_val).
+
+        Examples
+        --------
+        >>> ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        >>> ax.get_derivative(lambda x: x**2, 3.0)   # approx 6.0
+        >>> ax.get_derivative(math.sin, 0.0)          # approx 1.0
+        """
+        fn = self._resolve_func(func, 'func')
+        return (fn(x_val + h) - fn(x_val - h)) / (2 * h)
+
     def add_legend(self, entries, position='upper right', font_size=18,
                     bg_color='#1a1a2e', bg_opacity=0.8, creation=0, z=10):
         """Add a legend box.

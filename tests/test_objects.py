@@ -7059,3 +7059,101 @@ class TestAxesFunctionMaxMin:
         ax = Axes(x_range=(0, 7), y_range=(-1, 1))
         x, y = ax.get_function_min(math.sin, math.pi, 2 * math.pi)
         assert y == pytest.approx(-1.0, abs=0.01)
+
+
+class TestAxesGetDerivative:
+    def test_derivative_of_square_at_zero(self):
+        """d/dx x^2 at x=0 should be ~0."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 25))
+        d = ax.get_derivative(lambda x: x ** 2, 0.0)
+        assert d == pytest.approx(0.0, abs=1e-6)
+
+    def test_derivative_of_square_at_three(self):
+        """d/dx x^2 at x=3 should be ~6."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 25))
+        d = ax.get_derivative(lambda x: x ** 2, 3.0)
+        assert d == pytest.approx(6.0, abs=1e-6)
+
+    def test_derivative_of_linear(self):
+        """d/dx (2x + 1) should equal 2 everywhere."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 25))
+        d = ax.get_derivative(lambda x: 2 * x + 1, 7.5)
+        assert d == pytest.approx(2.0, abs=1e-9)
+
+    def test_derivative_of_sin_at_zero(self):
+        """d/dx sin(x) at x=0 should be ~1."""
+        import math
+        ax = Axes(x_range=(-5, 5), y_range=(-1, 1))
+        d = ax.get_derivative(math.sin, 0.0)
+        assert d == pytest.approx(1.0, abs=1e-6)
+
+    def test_derivative_of_sin_at_pi_half(self):
+        """d/dx sin(x) at x=pi/2 should be ~0."""
+        import math
+        ax = Axes(x_range=(-5, 5), y_range=(-1, 1))
+        d = ax.get_derivative(math.sin, math.pi / 2)
+        assert d == pytest.approx(0.0, abs=1e-4)
+
+    def test_derivative_returns_float(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        d = ax.get_derivative(lambda x: x, 0.0)
+        assert isinstance(d, float)
+
+    def test_derivative_from_curve(self):
+        """Should also work when passed a curve returned by plot()."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 25))
+        curve = ax.plot(lambda x: x ** 2)
+        d = ax.get_derivative(curve, 2.0)
+        assert d == pytest.approx(4.0, abs=1e-5)
+
+    def test_derivative_custom_h(self):
+        """Using a smaller h should still give accurate results."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 25))
+        d = ax.get_derivative(lambda x: x ** 3, 2.0, h=1e-5)
+        assert d == pytest.approx(12.0, abs=1e-4)
+
+
+class TestVObjectPulseScale:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.pulse_scale(0, 1)
+        assert result is c
+
+    def test_scale_at_start_unchanged(self):
+        """At t=start the scale should still be the baseline."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.pulse_scale(0, 2)
+        # At exactly t=0, sin(0)=0 so scale = baseline * (1 + amp * 0) = baseline
+        sx = c.styling.scale_x.at_time(0)
+        assert sx == pytest.approx(1.0, abs=1e-6)
+
+    def test_scale_oscillates(self):
+        """Scale should vary during the animation interval."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.pulse_scale(0, 1, count=2, amplitude=0.2)
+        values = [c.styling.scale_x.at_time(t) for t in [0.1, 0.3, 0.6, 0.9]]
+        # Not all values should be identical (there's oscillation)
+        assert not all(abs(v - values[0]) < 1e-9 for v in values)
+
+    def test_scale_within_amplitude_bounds(self):
+        """Scale should stay within [1 - amplitude, 1 + amplitude]."""
+        amplitude = 0.15
+        c = Circle(r=50, cx=100, cy=100)
+        c.pulse_scale(0, 1, count=3, amplitude=amplitude)
+        samples = [c.styling.scale_x.at_time(t / 100) for t in range(101)]
+        assert all(1.0 - amplitude - 1e-9 <= s <= 1.0 + amplitude + 1e-9 for s in samples)
+
+    def test_scale_x_and_y_equal(self):
+        """Both axes should be scaled uniformly."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.pulse_scale(0, 1, count=2, amplitude=0.1)
+        for t in [0.0, 0.25, 0.5, 0.75, 1.0]:
+            sx = c.styling.scale_x.at_time(t)
+            sy = c.styling.scale_y.at_time(t)
+            assert sx == pytest.approx(sy, abs=1e-12)
+
+    def test_zero_duration_no_error(self):
+        """Zero-duration call should not raise and should return self."""
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.pulse_scale(1, 1)
+        assert result is c

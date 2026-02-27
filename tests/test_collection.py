@@ -767,3 +767,89 @@ class TestEnumerateChildren:
         assert len(seen) == 2
         assert seen[0][0] == 0
         assert seen[1][0] == 1
+
+
+class TestVCollectionTake:
+    def test_take_returns_vcollection(self):
+        col = VCollection(Circle(), Circle(), Circle())
+        result = col.take(2)
+        assert isinstance(result, VCollection)
+
+    def test_take_correct_count(self):
+        c1, c2, c3 = Circle(r=10), Circle(r=20), Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        result = col.take(2)
+        assert len(result) == 2
+
+    def test_take_correct_objects(self):
+        c1, c2, c3 = Circle(r=10), Circle(r=20), Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        result = col.take(2)
+        assert result.objects[0] is c1
+        assert result.objects[1] is c2
+
+    def test_take_zero_returns_empty(self):
+        col = VCollection(Circle(), Circle())
+        result = col.take(0)
+        assert len(result) == 0
+
+    def test_take_more_than_length_returns_all(self):
+        c1, c2 = Circle(r=10), Circle(r=20)
+        col = VCollection(c1, c2)
+        result = col.take(100)
+        assert len(result) == 2
+
+    def test_take_does_not_modify_original(self):
+        col = VCollection(Circle(), Circle(), Circle())
+        col.take(1)
+        assert len(col) == 3
+
+
+class TestVCollectionSkip:
+    def test_skip_returns_vcollection(self):
+        col = VCollection(Circle(), Circle(), Circle())
+        result = col.skip(1)
+        assert isinstance(result, VCollection)
+
+    def test_skip_correct_count(self):
+        c1, c2, c3 = Circle(r=10), Circle(r=20), Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        result = col.skip(1)
+        assert len(result) == 2
+
+    def test_skip_correct_objects(self):
+        c1, c2, c3 = Circle(r=10), Circle(r=20), Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        result = col.skip(1)
+        assert result.objects[0] is c2
+        assert result.objects[1] is c3
+
+    def test_skip_zero_returns_all(self):
+        c1, c2 = Circle(r=10), Circle(r=20)
+        col = VCollection(c1, c2)
+        result = col.skip(0)
+        assert len(result) == 2
+
+    def test_skip_all_returns_empty(self):
+        col = VCollection(Circle(), Circle())
+        result = col.skip(2)
+        assert len(result) == 0
+
+    def test_skip_more_than_length_returns_empty(self):
+        col = VCollection(Circle(), Circle())
+        result = col.skip(100)
+        assert len(result) == 0
+
+    def test_skip_does_not_modify_original(self):
+        col = VCollection(Circle(), Circle(), Circle())
+        col.skip(2)
+        assert len(col) == 3
+
+    def test_take_and_skip_complement(self):
+        """take(n) and skip(n) together should cover all children."""
+        c1, c2, c3, c4 = Circle(r=1), Circle(r=2), Circle(r=3), Circle(r=4)
+        col = VCollection(c1, c2, c3, c4)
+        head = col.take(2)
+        tail = col.skip(2)
+        assert len(head) + len(tail) == len(col)
+        assert list(head.objects) + list(tail.objects) == list(col.objects)

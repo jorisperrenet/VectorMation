@@ -197,6 +197,47 @@ class Polygon(VObject):
             new_pts.append((new_x, new_y))
         return Polygon(*new_pts, closed=self.closed)
 
+    def rotate_vertices(self, angle_deg, cx=None, cy=None, time=0):
+        """Return a new Polygon with all vertices rotated by angle_deg degrees.
+
+        The rotation is applied around the point ``(cx, cy)``.  If *cx* and
+        *cy* are not given the centroid of the polygon (at *time*) is used as
+        the rotation centre.
+
+        The returned polygon is a plain (non-animated) copy — its vertices are
+        set to the rotated positions at creation time 0.
+
+        Parameters
+        ----------
+        angle_deg:
+            Rotation angle in degrees (positive = clockwise in SVG coordinates,
+            which use a y-down system).
+        cx, cy:
+            Centre of rotation in SVG pixel coordinates.  Defaults to the
+            polygon's centroid.
+        time:
+            Animation time at which to read the current vertex positions.
+
+        Returns
+        -------
+        Polygon
+            A new Polygon with rotated vertices and the same ``closed`` flag.
+        """
+        pts = self.get_vertices(time)
+        if cx is None or cy is None:
+            centroid = self.get_center(time)
+            if cx is None:
+                cx = centroid[0]
+            if cy is None:
+                cy = centroid[1]
+        rad = math.radians(angle_deg)
+        cos_a, sin_a = math.cos(rad), math.sin(rad)
+        new_pts = []
+        for x, y in pts:
+            rx, ry = x - cx, y - cy
+            new_pts.append((cx + rx * cos_a - ry * sin_a, cy + rx * sin_a + ry * cos_a))
+        return Polygon(*new_pts, closed=self.closed)
+
     @classmethod
     def from_points(cls, points, **kwargs):
         """Create a Polygon from a list of (x, y) tuples."""
@@ -1438,6 +1479,35 @@ class Line(VObject):
             return (x1, y1)
         t = ((px - x1) * dx + (py - y1) * dy) / len_sq
         return (x1 + t * dx, y1 + t * dy)
+
+    def parameter_at(self, px, py, time=0):
+        """Return the parameter t for the projection of (px, py) onto the line.
+
+        The parameter t is defined such that the projection point equals
+        ``p1 + t * (p2 - p1)``.  A value of 0 corresponds to p1, 1 to p2.
+        The result is unclamped, so t < 0 or t > 1 means the projection
+        falls outside the segment.
+
+        Parameters
+        ----------
+        px, py:
+            Coordinates of the external point.
+        time:
+            Animation time at which to evaluate the line endpoints.
+
+        Returns
+        -------
+        float
+            The unclamped parameter t for the closest point on the infinite
+            line through p1 and p2.
+        """
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        dx, dy = x2 - x1, y2 - y1
+        len_sq = dx * dx + dy * dy
+        if len_sq < 1e-20:
+            return 0.0
+        return float(((px - x1) * dx + (py - y1) * dy) / len_sq)
 
 
 class Text(VObject):
