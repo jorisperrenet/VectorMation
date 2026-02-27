@@ -140,6 +140,17 @@ class PieChart(VCollection):
             angle += sweep
         return self
 
+def _donut_sector_path(cx, cy, a1_rad, a2_rad, r, ir):
+    """Generate SVG path for a donut sector from angles in radians."""
+    ox1, oy1 = cx + r * math.cos(a1_rad), cy - r * math.sin(a1_rad)
+    ox2, oy2 = cx + r * math.cos(a2_rad), cy - r * math.sin(a2_rad)
+    ix1, iy1 = cx + ir * math.cos(a2_rad), cy - ir * math.sin(a2_rad)
+    ix2, iy2 = cx + ir * math.cos(a1_rad), cy - ir * math.sin(a1_rad)
+    large = 1 if math.degrees(a2_rad - a1_rad) > 180 else 0
+    return (f'M{ox1:.1f},{oy1:.1f} A{r},{r} 0 {large} 0 {ox2:.1f},{oy2:.1f} '
+            f'L{ix1:.1f},{iy1:.1f} A{ir},{ir} 0 {large} 1 {ix2:.1f},{iy2:.1f} Z')
+
+
 class DonutChart(VCollection):
     """Donut (ring) chart — PieChart with a hollow center."""
     def __init__(self, values, labels=None, colors=None, cx=960, cy=540,
@@ -155,18 +166,8 @@ class DonutChart(VCollection):
         for i, val in enumerate(values):
             sweep = 360 * val / total
             color = colors[i % len(colors)]
-            # Draw arc sector as a Path (outer arc CW, inner arc CCW)
-            a1 = math.radians(angle)
-            a2 = math.radians(angle + sweep)
-            ox1, oy1 = cx + r * math.cos(a1), cy - r * math.sin(a1)
-            ox2, oy2 = cx + r * math.cos(a2), cy - r * math.sin(a2)
-            ix1, iy1 = cx + inner_radius * math.cos(a2), cy - inner_radius * math.sin(a2)
-            ix2, iy2 = cx + inner_radius * math.cos(a1), cy - inner_radius * math.sin(a1)
-            large = 1 if sweep > 180 else 0
-            d = (f'M{ox1:.1f},{oy1:.1f} '
-                 f'A{r},{r} 0 {large} 0 {ox2:.1f},{oy2:.1f} '
-                 f'L{ix1:.1f},{iy1:.1f} '
-                 f'A{inner_radius},{inner_radius} 0 {large} 1 {ix2:.1f},{iy2:.1f} Z')
+            d = _donut_sector_path(cx, cy, math.radians(angle),
+                                    math.radians(angle + sweep), r, inner_radius)
             sector = Path(d, x=0, y=0, fill=color, fill_opacity=0.85,
                           stroke='#222', stroke_width=2, creation=creation, z=z)
             sectors.append(sector)
@@ -244,16 +245,7 @@ class DonutChart(VCollection):
                 prog = easing(max(0.0, min(1.0, (t - _s) / _d)))
                 a1 = math.radians(_oa1 + (_na1 - _oa1) * prog)
                 a2 = math.radians(_oa2 + (_na2 - _oa2) * prog)
-                sweep_deg = math.degrees(a2 - a1)
-                ox1, oy1 = cx + r * math.cos(a1), cy - r * math.sin(a1)
-                ox2, oy2 = cx + r * math.cos(a2), cy - r * math.sin(a2)
-                ix1, iy1 = cx + ir * math.cos(a2), cy - ir * math.sin(a2)
-                ix2, iy2 = cx + ir * math.cos(a1), cy - ir * math.sin(a1)
-                large = 1 if sweep_deg > 180 else 0
-                return (f'M{ox1:.1f},{oy1:.1f} '
-                        f'A{r},{r} 0 {large} 0 {ox2:.1f},{oy2:.1f} '
-                        f'L{ix1:.1f},{iy1:.1f} '
-                        f'A{ir},{ir} 0 {large} 1 {ix2:.1f},{iy2:.1f} Z')
+                return _donut_sector_path(cx, cy, a1, a2, r, ir)
 
             sector.d.set(start, end, _make_d, stay=True)
         return self
