@@ -4381,16 +4381,16 @@ class Text(VObject):
 
     def to_upper(self, time=0):
         """Change text to uppercase at given time."""
-        full = self.text.at_time(time)
-        if isinstance(full, str):
-            self.text.set_onward(time, full.upper())
-        return self
+        return self._case_transform('upper', time)
 
     def to_lower(self, time=0):
         """Change text to lowercase at given time."""
+        return self._case_transform('lower', time)
+
+    def _case_transform(self, method, time):
         full = self.text.at_time(time)
         if isinstance(full, str):
-            self.text.set_onward(time, full.lower())
+            self.text.set_onward(time, getattr(full, method)())
         return self
 
     def char_at(self, index, time=0):
@@ -4576,25 +4576,26 @@ class Text(VObject):
             t = Text(text=line_text, x=x, y=y + i * line_height,
                      font_size=fs, creation=time, stroke_width=0,
                      fill=fill_color)
-            if self._text_anchor:
-                t._text_anchor = self._text_anchor
-            if self._font_family:
-                t._font_family = self._font_family
-            if self._font_weight:
-                t._font_weight = self._font_weight
-            if self._font_style:
-                t._font_style = self._font_style
+            for attr in ('_text_anchor', '_font_family', '_font_weight', '_font_style'):
+                val = getattr(self, attr)
+                if val:
+                    setattr(t, attr, val)
             parts.append(t)
         return VCollection(*parts)
 
+    def _font_attrs(self):
+        parts = []
+        for attr, name in ((self._text_anchor, 'text-anchor'), (self._font_weight, 'font-weight'),
+                           (self._font_style, 'font-style'), (self._font_family, 'font-family')):
+            if attr:
+                parts.append(f" {name}='{attr}'")
+        return ''.join(parts)
+
     def to_svg(self, time):
-        anchor = f" text-anchor='{self._text_anchor}'" if self._text_anchor else ''
-        weight = f" font-weight='{self._font_weight}'" if self._font_weight else ''
-        fstyle = f" font-style='{self._font_style}'" if self._font_style else ''
-        ffamily = f" font-family='{self._font_family}'" if self._font_family else ''
+        font_attrs = self._font_attrs()
         txt = _xml_escape(str(self.text.at_time(time)))
         return (f"<text x='{self.x.at_time(time)}' y='{self.y.at_time(time)}'"
-                f" font-size='{self.font_size.at_time(time)}'{anchor}{weight}{fstyle}{ffamily}{self.styling.svg_style(time)}"
+                f" font-size='{self.font_size.at_time(time)}'{font_attrs}{self.styling.svg_style(time)}"
                 f">{txt}</text>")
 
 
