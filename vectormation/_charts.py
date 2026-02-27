@@ -361,9 +361,9 @@ class BarChart(VCollection):
         """Return the bar VObject at the given index."""
         return self._bars[index]
 
-    def get_bars(self, start=None, end=None):
+    def get_bars(self, start_idx=None, end_idx=None):
         """Return a VCollection of bars, optionally sliced by index range."""
-        bars = self._bars[start:end]
+        bars = self._bars[start_idx:end_idx]
         return VCollection(*bars)
 
     def highlight_bar(self, index, color='#FFFF00', start=0, end=None, opacity=None):
@@ -429,10 +429,6 @@ class BarChart(VCollection):
             return None
         idx = func(range(len(self.values)), key=lambda i: self.values[i])
         return self._bars[idx]
-
-    def sort_bars(self, key=None, reverse=False, start=0, end=1, easing=easings.smooth):
-        """Animate reordering bars by value (or custom key function)."""
-        return self.animate_sort(key=key, reverse=reverse, start=start, end=end, easing=easing)
 
     def add_bar(self, value, label=None, start=0, end=None):
         """Add a new bar to the right side of the chart."""
@@ -564,6 +560,8 @@ class BarChart(VCollection):
         self._labels = [self._labels[i] for i in new_order]
         self.values = [self.values[i] for i in new_order]
         return self
+
+    sort_bars = animate_sort
 
 class PolarAxes(VCollection):
     """Polar coordinate system with radial gridlines and angle markers."""
@@ -752,7 +750,7 @@ class ProgressBar(VCollection):
             self._fill.width.move_to(start, end, target_w, easing=easing)
         return self
 
-    def animate_to(self, value, start, end, easing=easings.smooth):
+    def animate_to(self, value, start=0, end=1, easing=easings.smooth):
         """Animate progress to a target value (0-1)."""
         return self.set_progress(value, start, end, easing)
 

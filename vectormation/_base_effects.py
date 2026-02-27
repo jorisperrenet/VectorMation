@@ -523,12 +523,12 @@ class _VObjectEffectsMixin:
         col.arrange(direction=direction, buff=buff)
         return col
 
-    def arc_to(self, x, y, start, end, angle=math.pi / 4, easing=easings.smooth):
+    def arc_to(self, x, y, start=0, end=1, angle=math.pi / 4, easing=easings.smooth):
         """Animated curved movement to (x, y) following a circular arc.
         angle controls the arc curvature (default PI/4). Uses parametric interpolation."""
         return self.path_arc(x, y, start=start, end=end, angle=angle, easing=easing)
 
-    def typewriter_cursor(self, start, end, blink_rate=0.5, cursor_char='|'):
+    def typewriter_cursor(self, start=0, end=1, blink_rate=0.5, cursor_char='|'):
         """For Text objects: append a blinking cursor character."""
         _ensure_text(self, 'typewriter_cursor')
         _base_text_func = self.text.time_func
