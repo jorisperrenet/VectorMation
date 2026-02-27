@@ -465,6 +465,33 @@ class Circle(Ellipse):
         r = self.rx.at_time(time)
         return _distance(cx, cy, px, py) <= r
 
+    def inscribed_polygon(self, n, angle=0, time=0, **kwargs):
+        """Return a regular *n*-gon whose vertices lie on this circle.
+
+        The polygon is constructed from the circle's current position and radius
+        at *time*, so the result is a static snapshot (not dynamically linked).
+
+        Parameters
+        ----------
+        n:
+            Number of sides / vertices (≥ 3).
+        angle:
+            Rotation of the first vertex in degrees, measured counter-clockwise
+            from the right (standard math convention).  Default 0 places the
+            first vertex at the rightmost point.
+        time:
+            The time at which to read the circle's position and radius.
+        **kwargs:
+            Forwarded to :class:`RegularPolygon`.
+
+        Returns
+        -------
+        RegularPolygon
+        """
+        cx, cy = self.c.at_time(time)
+        r = self.rx.at_time(time)
+        return RegularPolygon(n, radius=r, cx=cx, cy=cy, angle=angle, **kwargs)
+
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)
         return f"<circle cx='{cx}' cy='{cy}' r='{self.rx.at_time(time)}'{self.styling.svg_style(time)} />"
@@ -714,6 +741,38 @@ class Line(VObject):
     def horizontal(cls, y, x1, x2, **kwargs):
         """Create a horizontal line at y from x1 to x2."""
         return cls(x1, y, x2, y, **kwargs)
+
+    @classmethod
+    def from_direction(cls, origin, direction, length=100, **kwargs):
+        """Create a Line from *origin* along *direction* for *length* pixels.
+
+        Parameters
+        ----------
+        origin:
+            Start point ``(x, y)``.
+        direction:
+            Direction vector ``(dx, dy)``.  Does **not** need to be a unit
+            vector — it is normalised internally.  If the zero vector is given
+            the end-point equals the origin.
+        length:
+            Length of the resulting line in pixels.
+        **kwargs:
+            Forwarded to the :class:`Line` constructor.
+
+        Examples
+        --------
+        >>> import math
+        >>> Line.from_direction((960, 540), (1, 0), 200)   # horizontal right
+        >>> Line.from_direction((960, 540), (0, 1), 100)   # downward
+        >>> Line.from_direction((0, 0), (1, 1), 100)       # diagonal
+        """
+        ox, oy = origin
+        dx, dy = direction
+        mag = math.sqrt(dx * dx + dy * dy)
+        if mag < 1e-10:
+            return cls(ox, oy, ox, oy, **kwargs)
+        nx, ny = dx / mag, dy / mag
+        return cls(ox, oy, ox + nx * length, oy + ny * length, **kwargs)
 
     def __repr__(self):
         p1, p2 = self.p1.at_time(0), self.p2.at_time(0)

@@ -2264,3 +2264,126 @@ class TestRectangleRoundCorners:
         svg = rr.to_svg(0)
         assert '<rect' in svg
         assert "rx='10'" in svg
+
+
+class TestLineFromDirection:
+    def test_creates_line(self):
+        from vectormation.objects import Line
+        line = Line.from_direction((960, 540), (1, 0), 200)
+        assert isinstance(line, Line)
+
+    def test_horizontal_right(self):
+        from vectormation.objects import Line
+        import math
+        line = Line.from_direction((100, 200), (1, 0), 100)
+        x1, y1 = line.p1.at_time(0)
+        x2, y2 = line.p2.at_time(0)
+        assert x1 == pytest.approx(100)
+        assert y1 == pytest.approx(200)
+        assert x2 == pytest.approx(200)
+        assert y2 == pytest.approx(200)
+
+    def test_downward(self):
+        from vectormation.objects import Line
+        line = Line.from_direction((0, 0), (0, 1), 50)
+        x1, y1 = line.p1.at_time(0)
+        x2, y2 = line.p2.at_time(0)
+        assert x2 == pytest.approx(0)
+        assert y2 == pytest.approx(50)
+
+    def test_diagonal_normalises_direction(self):
+        from vectormation.objects import Line
+        import math
+        # Direction (2, 2) should be normalised to (1/sqrt2, 1/sqrt2)
+        line = Line.from_direction((0, 0), (2, 2), 100)
+        x2, y2 = line.p2.at_time(0)
+        expected = 100 / math.sqrt(2)
+        assert x2 == pytest.approx(expected, abs=0.01)
+        assert y2 == pytest.approx(expected, abs=0.01)
+
+    def test_length_correct(self):
+        from vectormation.objects import Line
+        import math
+        line = Line.from_direction((0, 0), (3, 4), 50)
+        x2, y2 = line.p2.at_time(0)
+        length = math.sqrt(x2 ** 2 + y2 ** 2)
+        assert length == pytest.approx(50, abs=0.01)
+
+    def test_zero_vector_gives_zero_length_line(self):
+        from vectormation.objects import Line
+        line = Line.from_direction((100, 200), (0, 0), 100)
+        x1, y1 = line.p1.at_time(0)
+        x2, y2 = line.p2.at_time(0)
+        assert x1 == pytest.approx(x2)
+        assert y1 == pytest.approx(y2)
+
+    def test_kwargs_forwarded(self):
+        from vectormation.objects import Line
+        line = Line.from_direction((0, 0), (1, 0), 100, stroke='#f00')
+        svg = line.to_svg(0)
+        assert '255' in svg or 'f00' in svg.lower()
+
+
+class TestCircleInscribedPolygon:
+    def test_returns_regular_polygon(self):
+        from vectormation.objects import Circle, RegularPolygon
+        c = Circle(r=100, cx=400, cy=300)
+        poly = c.inscribed_polygon(6)
+        assert isinstance(poly, RegularPolygon)
+
+    def test_vertex_count(self):
+        from vectormation.objects import Circle
+        c = Circle(r=100, cx=400, cy=300)
+        poly = c.inscribed_polygon(5)
+        assert len(poly.vertices) == 5
+
+    def test_triangle_vertices_on_circle(self):
+        from vectormation.objects import Circle
+        import math
+        r, cx, cy = 100, 400, 300
+        c = Circle(r=r, cx=cx, cy=cy)
+        poly = c.inscribed_polygon(3)
+        for v in poly.vertices:
+            x, y = v.at_time(0)
+            dist = math.sqrt((x - cx) ** 2 + (y - cy) ** 2)
+            assert dist == pytest.approx(r, abs=0.5)
+
+    def test_hexagon_vertices_on_circle(self):
+        from vectormation.objects import Circle
+        import math
+        r, cx, cy = 80, 200, 200
+        c = Circle(r=r, cx=cx, cy=cy)
+        poly = c.inscribed_polygon(6)
+        for v in poly.vertices:
+            x, y = v.at_time(0)
+            dist = math.sqrt((x - cx) ** 2 + (y - cy) ** 2)
+            assert dist == pytest.approx(r, abs=0.5)
+
+    def test_respects_time_parameter(self):
+        from vectormation.objects import Circle
+        import math
+        c = Circle(r=50, cx=100, cy=100)
+        poly = c.inscribed_polygon(4, time=0)
+        for v in poly.vertices:
+            x, y = v.at_time(0)
+            dist = math.sqrt((x - 100) ** 2 + (y - 100) ** 2)
+            assert dist == pytest.approx(50, abs=0.5)
+
+    def test_angle_rotates_first_vertex(self):
+        from vectormation.objects import Circle
+        import math
+        c = Circle(r=100, cx=0, cy=0)
+        poly0 = c.inscribed_polygon(4, angle=0)
+        poly90 = c.inscribed_polygon(4, angle=90)
+        x0, y0 = poly0.vertices[0].at_time(0)
+        x90, y90 = poly90.vertices[0].at_time(0)
+        # With angle=0 first vertex is at rightmost (0 deg), with angle=90 at top
+        assert x0 == pytest.approx(100, abs=0.5)
+        assert y90 == pytest.approx(-100, abs=0.5)  # SVG y-up: y decreases upward
+
+    def test_kwargs_forwarded(self):
+        from vectormation.objects import Circle
+        c = Circle(r=100, cx=400, cy=300)
+        poly = c.inscribed_polygon(4, fill='#f00')
+        svg = poly.to_svg(0)
+        assert '255' in svg or 'f00' in svg.lower()

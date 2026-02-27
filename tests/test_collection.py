@@ -1,6 +1,6 @@
 """Tests for VCollection: delegation, stagger, and to_svg."""
 import pytest
-from vectormation.objects import VCollection, Circle, Rectangle, DOWN, LEFT, UP
+from vectormation.objects import VCollection, Circle, DOWN
 import vectormation.easings as easings
 
 
@@ -236,3 +236,56 @@ class TestSortBy:
         assert len(col.objects) == 5
         xs = [obj.bbox(0)[0] for obj in col.objects]
         assert xs == sorted(xs, reverse=True)
+
+
+class TestTotalWidthHeight:
+    def test_total_width_single_child(self):
+        c = Circle(r=50, cx=100, cy=100)
+        col = VCollection(c)
+        assert col.total_width(0) == pytest.approx(c.get_width(0))
+
+    def test_total_width_two_children(self):
+        c1 = Circle(r=30, cx=0, cy=0)
+        c2 = Circle(r=40, cx=200, cy=0)
+        col = VCollection(c1, c2)
+        expected = c1.get_width(0) + c2.get_width(0)
+        assert col.total_width(0) == pytest.approx(expected)
+
+    def test_total_height_two_children(self):
+        c1 = Circle(r=30, cx=0, cy=0)
+        c2 = Circle(r=40, cx=0, cy=200)
+        col = VCollection(c1, c2)
+        expected = c1.get_height(0) + c2.get_height(0)
+        assert col.total_height(0) == pytest.approx(expected)
+
+    def test_total_width_after_arrange(self):
+        # After arrange, total_width should still be sum of individual widths
+        circles = [Circle(r=20, cx=i * 100, cy=0) for i in range(4)]
+        col = VCollection(*circles)
+        expected = sum(c.get_width(0) for c in circles)
+        assert col.total_width(0) == pytest.approx(expected)
+
+    def test_total_width_less_than_get_width_with_gaps(self):
+        # When children are spread apart, total_width < get_width
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=1000, cy=0)
+        col = VCollection(c1, c2)
+        assert col.total_width(0) < col.get_width(0)
+
+    def test_total_width_empty_collection(self):
+        col = VCollection()
+        assert col.total_width(0) == pytest.approx(0)
+
+    def test_total_height_empty_collection(self):
+        col = VCollection()
+        assert col.total_height(0) == pytest.approx(0)
+
+    def test_total_width_returns_float(self):
+        c = Circle(r=50, cx=100, cy=100)
+        col = VCollection(c)
+        assert isinstance(col.total_width(0), (int, float))
+
+    def test_total_height_returns_float(self):
+        c = Circle(r=50, cx=100, cy=100)
+        col = VCollection(c)
+        assert isinstance(col.total_height(0), (int, float))

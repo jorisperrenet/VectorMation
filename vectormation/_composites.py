@@ -1538,6 +1538,70 @@ class Axes(VCollection):
         self._add_plot_obj(rect)
         return rect
 
+    def shade_region(self, x_start, x_end, y_start=None, y_end=None,
+                     creation=0, z=-1, **styling_kwargs):
+        """Shade an axis-aligned rectangular region in math coordinates.
+
+        More flexible than :meth:`highlight_x_range` / :meth:`highlight_y_range`:
+
+        * If only *x_start* / *x_end* are given the region spans the full plot
+          height (same as ``highlight_x_range``).
+        * If only *y_start* / *y_end* are given (pass ``x_start=None``) the
+          region spans the full plot width (same as ``highlight_y_range``).
+        * When all four bounds are supplied, a rectangle is drawn that is
+          constrained in both axes simultaneously.
+
+        Parameters
+        ----------
+        x_start, x_end:
+            Horizontal bounds in math coordinates.  Pass ``None`` for either
+            to span the full plot width.
+        y_start, y_end:
+            Vertical bounds in math coordinates.  Default ``None`` spans the
+            full plot height.
+        creation:
+            Appearance time (seconds).
+        z:
+            Draw order.
+        **styling_kwargs:
+            Overrides for the default highlight fill style.
+
+        Returns
+        -------
+        Rectangle
+        """
+        style_kw = _HIGHLIGHT_STYLE | styling_kwargs
+        rect = Rectangle(width=0, height=0, x=0, y=0, creation=creation, z=z, **style_kw)
+        _xs, _xe = x_start, x_end
+        _ys, _ye = y_start, y_end
+
+        if _xs is None or _xe is None:
+            # Full-width: span the entire plot horizontally
+            rect.x.set_onward(creation, lambda t: self.plot_x)
+            rect.width.set_onward(creation, lambda t: self.plot_width)
+        else:
+            rect.x.set_onward(creation,
+                lambda t, _a=_xs, _b=_xe: min(
+                    self._math_to_svg_x(_a, t), self._math_to_svg_x(_b, t)))
+            rect.width.set_onward(creation,
+                lambda t, _a=_xs, _b=_xe: abs(
+                    self._math_to_svg_x(_b, t) - self._math_to_svg_x(_a, t)))
+
+        if _ys is None or _ye is None:
+            # Full-height: span the entire plot vertically
+            rect.y.set_onward(creation, lambda t: self.plot_y)
+            rect.height.set_onward(creation, lambda t: self.plot_height)
+        else:
+            rect.y.set_onward(creation,
+                lambda t, _a=_ys, _b=_ye: min(
+                    self._math_to_svg_y(_a, t), self._math_to_svg_y(_b, t)))
+            rect.height.set_onward(creation,
+                lambda t, _a=_ys, _b=_ye: abs(
+                    self._math_to_svg_y(_b, t) - self._math_to_svg_y(_a, t)))
+
+        self._add_plot_obj(rect)
+        return rect
+
     def animate_range(self, start, end, x_range=None, y_range=None, easing=easings.smooth):
         """Animate the axis range to new bounds.
         x_range: (new_xmin, new_xmax) or None to keep current.
@@ -1782,26 +1846,26 @@ class Axes(VCollection):
         self._add_plot_obj(line)
         return line
 
+    def _make_span_line(self, value, direction, creation, z, style_kw):
+        """Create a Line spanning the full plot along one axis at a given math value.
+        direction: 'vertical' (x=value) or 'horizontal' (y=value)."""
+        line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+        _v = value
+        if direction == 'vertical':
+            line.p1.set_onward(creation, lambda t, _v=_v: (self._math_to_svg_x(_v, t), self.plot_y))
+            line.p2.set_onward(creation, lambda t, _v=_v: (self._math_to_svg_x(_v, t), self.plot_y + self.plot_height))
+        else:
+            line.p1.set_onward(creation, lambda t, _v=_v: (self.plot_x, self._math_to_svg_y(_v, t)))
+            line.p2.set_onward(creation, lambda t, _v=_v: (self.plot_x + self.plot_width, self._math_to_svg_y(_v, t)))
+        return line
+
     def add_asymptote(self, value, direction='vertical', creation=0, z=0, **styling_kwargs):
         """Draw a dashed asymptote line spanning the full plot range.
         direction: 'vertical' (x=value) or 'horizontal' (y=value).
         Returns a Line object."""
         style_kw = {'stroke': '#aaa', 'stroke_width': 1.5,
                     'stroke_dasharray': '8 4'} | styling_kwargs
-        line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
-        _v = value
-        if direction == 'vertical':
-            def _p1(t, _v=_v):
-                return (self._math_to_svg_x(_v, t), self.plot_y)
-            def _p2(t, _v=_v):
-                return (self._math_to_svg_x(_v, t), self.plot_y + self.plot_height)
-        else:
-            def _p1(t, _v=_v):
-                return (self.plot_x, self._math_to_svg_y(_v, t))
-            def _p2(t, _v=_v):
-                return (self.plot_x + self.plot_width, self._math_to_svg_y(_v, t))
-        line.p1.set_onward(creation, _p1)
-        line.p2.set_onward(creation, _p2)
+        line = self._make_span_line(value, direction, creation, z, style_kw)
         self._add_plot_obj(line)
         return line
 
@@ -2419,18 +2483,8 @@ class Axes(VCollection):
         Returns a VCollection with line and optional label."""
         style_kw = {'stroke': '#FF6B6B', 'stroke_width': 1.5,
                     'stroke_dasharray': '6 3'} | styling_kwargs
-        line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
-        _v = y
-        if direction == 'horizontal':
-            line.p1.set_onward(creation,
-                lambda t, _v=_v: (self.plot_x, self._math_to_svg_y(_v, t)))
-            line.p2.set_onward(creation,
-                lambda t, _v=_v: (self.plot_x + self.plot_width, self._math_to_svg_y(_v, t)))
-        else:
-            line.p1.set_onward(creation,
-                lambda t, _v=_v: (self._math_to_svg_x(_v, t), self.plot_y))
-            line.p2.set_onward(creation,
-                lambda t, _v=_v: (self._math_to_svg_x(_v, t), self.plot_y + self.plot_height))
+        # 'horizontal' = y=value, 'vertical' = x=value — same convention as add_asymptote
+        line = self._make_span_line(y, direction, creation, z, style_kw)
         self._add_plot_obj(line)
         objs = [line]
         if label is not None:
@@ -2441,14 +2495,14 @@ class Axes(VCollection):
                            font_size=font_size, fill=lbl_color, stroke_width=0,
                            text_anchor='start', creation=creation, z=z + 0.1)
                 lbl.y.set_onward(creation,
-                    lambda t, _v=_v: self._math_to_svg_y(_v, t) + font_size * TEXT_Y_OFFSET)
+                    lambda t, _v=y: self._math_to_svg_y(_v, t) + font_size * TEXT_Y_OFFSET)
             else:
                 lbl = Text(text=str(label),
                            x=0, y=self.plot_y - 5,
                            font_size=font_size, fill=lbl_color, stroke_width=0,
                            text_anchor='middle', creation=creation, z=z + 0.1)
                 lbl.x.set_onward(creation,
-                    lambda t, _v=_v: self._math_to_svg_x(_v, t))
+                    lambda t, _v=y: self._math_to_svg_x(_v, t))
             self._add_plot_obj(lbl)
             objs.append(lbl)
         return VCollection(*objs, creation=creation, z=z)

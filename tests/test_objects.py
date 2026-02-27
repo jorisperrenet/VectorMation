@@ -358,6 +358,44 @@ class TestBlink:
         # At midpoint, opacity should be at 0
         assert c.styling.opacity.at_time(0.5) == pytest.approx(0, abs=0.05)
 
+    # ── new multi-blink tests ──────────────────────────────────────────────────
+
+    def test_multi_blink_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.blink(start=0, end=3, count=3)
+        assert result is c
+
+    def test_multi_blink_opacity_starts_high(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.blink(start=0, end=2, count=2, easing=easings.linear)
+        # At time 0 opacity is 1 (start of first cycle)
+        assert c.styling.opacity.at_time(0) == pytest.approx(1, abs=0.05)
+
+    def test_multi_blink_opacity_drops_to_zero(self):
+        c = Circle(r=50, cx=100, cy=100)
+        # 2 cycles over [0, 2]: each cycle 1 s, first half = fading to 0
+        c.blink(start=0, end=2, count=2, easing=easings.linear)
+        # Midpoint of first cycle (t=0.5) should be near 0
+        assert c.styling.opacity.at_time(0.5) == pytest.approx(0, abs=0.1)
+
+    def test_multi_blink_recovers_after_each_cycle(self):
+        c = Circle(r=50, cx=100, cy=100)
+        # 3 cycles over [0, 3]
+        c.blink(start=0, end=3, count=3, easing=easings.linear)
+        # End of cycle 1 (t=1): opacity should be back to 1
+        assert c.styling.opacity.at_time(1) == pytest.approx(1, abs=0.1)
+
+    def test_multi_blink_zero_duration_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.blink(start=1, end=1, count=3)  # zero-length interval
+        # Opacity should remain at default (1) since nothing was set
+        assert c.styling.opacity.at_time(1) == pytest.approx(1)
+
+    def test_multi_blink_zero_count_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.blink(start=0, end=2, count=0)
+        assert c.styling.opacity.at_time(1) == pytest.approx(1)
+
 
 class TestLabeledDot:
     def test_creates_collection(self):
@@ -6192,3 +6230,54 @@ class TestFlashHighlight:
         c = Circle(r=50, cx=100, cy=100)
         rect = c.flash_highlight(start=0, end=1, width=6)
         assert rect.styling.stroke_width.at_time(0) == pytest.approx(6)
+
+
+class TestAxesShadeRegion:
+    def test_shade_region_x_only_returns_rectangle(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        rect = ax.shade_region(x_start=1, x_end=3)
+        from vectormation.objects import Rectangle
+        assert isinstance(rect, Rectangle)
+
+    def test_shade_region_x_only_has_full_height(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        rect = ax.shade_region(x_start=1, x_end=3)
+        # With no y_range, height should span the full plot height
+        h = rect.height.at_time(0)
+        assert h == pytest.approx(ax.plot_height, abs=1)
+
+    def test_shade_region_y_only_has_full_width(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        rect = ax.shade_region(x_start=None, x_end=None, y_start=-2, y_end=2)
+        w = rect.width.at_time(0)
+        assert w == pytest.approx(ax.plot_width, abs=1)
+
+    def test_shade_region_both_axes_constrained(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        rect = ax.shade_region(x_start=2, x_end=8, y_start=3, y_end=7)
+        w = rect.width.at_time(0)
+        h = rect.height.at_time(0)
+        # Should be strictly smaller than plot dimensions
+        assert w < ax.plot_width
+        assert h < ax.plot_height
+        assert w > 0
+        assert h > 0
+
+    def test_shade_region_added_to_axes(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        rect = ax.shade_region(x_start=-1, x_end=1)
+        # The rectangle should appear in the axes SVG output
+        svg = ax.to_svg(0)
+        assert '<rect' in svg
+
+    def test_shade_region_default_fill_style(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        rect = ax.shade_region(x_start=0, x_end=2)
+        # Default fill should be yellow highlight
+        fill = rect.styling.fill.at_time(0)
+        assert '255' in fill or 'ff' in fill.lower()
+
+    def test_shade_region_custom_style(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        rect = ax.shade_region(x_start=0, x_end=2, fill='#f00', fill_opacity=0.5)
+        assert rect.styling.fill_opacity.at_time(0) == pytest.approx(0.5)

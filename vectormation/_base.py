@@ -646,43 +646,37 @@ class VObject(ABC):  # Vector Object
             self._hide_from(end)
         return self
 
-    def rotate_in(self, start: float = 0, end: float = 1, degrees=90,
-                    change_existence=True, easing=easings.smooth):
-        """Fade in while rotating from an offset angle to 0."""
+    def _rotate_fade_anim(self, start, end, degrees, fade_in, change_existence, easing):
+        """Shared helper for rotate_in / rotate_out."""
         dur = end - start
         if dur <= 0:
             return self
-        if change_existence:
+        if change_existence and fade_in:
             self._show_from(start)
         self._ensure_scale_origin(start)
         cx, cy = self.styling._scale_origin
-        s = start
-        self.styling.rotation.set(s, end,
-            lambda t, _s=s, _d=dur, _deg=degrees, _cx=cx, _cy=cy: (_deg * (1 - easing((t - _s) / _d)), _cx, _cy),
-            stay=True)
-        target_op = self.styling.fill_opacity.at_time(start)
-        self.styling.fill_opacity.set(s, end,
-            lambda t, _s=s, _d=dur, _to=target_op: _to * easing((t - _s) / _d), stay=True)
+        s, op_base = start, self.styling.fill_opacity.at_time(start)
+        if fade_in:
+            rot_fn = lambda t, _s=s, _d=dur, _deg=degrees, _cx=cx, _cy=cy: (_deg * (1 - easing((t - _s) / _d)), _cx, _cy)
+            op_fn = lambda t, _s=s, _d=dur, _b=op_base: _b * easing((t - _s) / _d)
+        else:
+            rot_fn = lambda t, _s=s, _d=dur, _deg=degrees, _cx=cx, _cy=cy: (_deg * easing((t - _s) / _d), _cx, _cy)
+            op_fn = lambda t, _s=s, _d=dur, _b=op_base: _b * (1 - easing((t - _s) / _d))
+        self.styling.rotation.set(s, end, rot_fn, stay=True)
+        self.styling.fill_opacity.set(s, end, op_fn, stay=True)
+        if change_existence and not fade_in:
+            self._hide_from(end)
         return self
+
+    def rotate_in(self, start: float = 0, end: float = 1, degrees=90,
+                    change_existence=True, easing=easings.smooth):
+        """Fade in while rotating from an offset angle to 0."""
+        return self._rotate_fade_anim(start, end, degrees, True, change_existence, easing)
 
     def rotate_out(self, start: float = 0, end: float = 1, angle=90,
                    change_existence=True, easing=easings.smooth):
         """Rotate away while fading out. Reverse of rotate_in."""
-        dur = end - start
-        if dur <= 0:
-            return self
-        self._ensure_scale_origin(start)
-        cx, cy = self.styling._scale_origin
-        s = start
-        self.styling.rotation.set(s, end,
-            lambda t, _s=s, _d=dur, _deg=angle, _cx=cx, _cy=cy: (_deg * easing((t - _s) / _d), _cx, _cy),
-            stay=True)
-        start_op = self.styling.fill_opacity.at_time(start)
-        self.styling.fill_opacity.set(s, end,
-            lambda t, _s=s, _d=dur, _so=start_op: _so * (1 - easing((t - _s) / _d)), stay=True)
-        if change_existence:
-            self._hide_from(end)
-        return self
+        return self._rotate_fade_anim(start, end, angle, False, change_existence, easing)
 
     def pop_in(self, start: float = 0, duration=0.3, overshoot=1.2, change_existence=True, easing=easings.smooth):
         """Quick pop-in: scale from 0 to 1 with optional overshoot."""
@@ -1371,15 +1365,43 @@ class VObject(ABC):  # Vector Object
             self.styling.fill_opacity.set_onward(mid, target_fo)
         return self
 
-    def blink(self, start: float = 0, duration=0.3, easing=easings.smooth):
-        """Quick opacity flash to 0 and back (like an eye blink)."""
+    def blink(self, start: float = 0, end: float | None = None, count: int = 1,
+              duration: float = 0.3, easing=easings.smooth):
+        """Flash opacity on/off.
+
+        When *end* is given, divides [start, end] into *count* square-wave cycles:
+        each cycle toggles the opacity from 1 to 0 and back using the easing.
+        When *end* is None (legacy single-blink mode), blinks once over *duration*
+        seconds with a smooth fade to 0 and back.
+        """
+        if end is not None:
+            # Multi-blink square-wave mode
+            dur = end - start
+            if dur <= 0 or count <= 0:
+                return self
+            cycle = dur / count
+            half = cycle / 2
+            for i in range(count):
+                t0 = start + i * cycle
+                t_mid = t0 + half
+                t1 = t0 + cycle
+                _t0, _t_mid, _h = t0, t_mid, half
+                self.styling.opacity.set(
+                    _t0, _t_mid,
+                    lambda t, _s=_t0, _hh=_h: 1 - easing((t - _s) / _hh))
+                self.styling.opacity.set(
+                    _t_mid, t1,
+                    lambda t, _m=_t_mid, _hh=_h: easing((t - _m) / _hh),
+                    stay=True)
+            return self
+        # Legacy single-blink mode: flash to 0 and back over *duration*
         if duration <= 0:
             return self
         mid = start + duration / 2
-        end = start + duration
+        blink_end = start + duration
         half = duration / 2
         self.styling.opacity.set(start, mid, lambda t, _s=start, _h=half: 1 - easing((t - _s) / _h))
-        self.styling.opacity.set(mid, end, lambda t, _m=mid, _h=half: easing((t - _m) / _h))
+        self.styling.opacity.set(mid, blink_end, lambda t, _m=mid, _h=half: easing((t - _m) / _h))
         return self
 
     def shake(self, start: float = 0, end: float = 0.5, amplitude=5, frequency=20, easing=easings.there_and_back):
@@ -2294,6 +2316,24 @@ class VCollection:
 
     def get_height(self, time=0):
         return self.bbox(time)[3]
+
+    def total_width(self, time=0):
+        """Return the sum of all children's individual bounding-box widths at *time*.
+
+        Useful after :meth:`arrange` to know the combined span before padding.
+        Unlike :meth:`get_width` (which returns the overall bbox width including gaps),
+        this sums each child's width independently.
+        """
+        return sum(obj.bbox(time)[2] for obj in self.objects)
+
+    def total_height(self, time=0):
+        """Return the sum of all children's individual bounding-box heights at *time*.
+
+        Useful after a vertical :meth:`arrange` to know the combined span before padding.
+        Unlike :meth:`get_height` (which returns the overall bbox height including gaps),
+        this sums each child's height independently.
+        """
+        return sum(obj.bbox(time)[3] for obj in self.objects)
 
     def get_diagonal(self, time=0):
         """Return the diagonal length of the bounding box."""

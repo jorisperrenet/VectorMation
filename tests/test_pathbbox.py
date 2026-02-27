@@ -1,6 +1,5 @@
 """Tests for vectormation.pathbbox: SVG path bounding box computation."""
 import pytest
-import math
 from vectormation.pathbbox import (
     path_bbox, _parse_path, _tokenize,
     _cubic_extrema, _quadratic_extrema,

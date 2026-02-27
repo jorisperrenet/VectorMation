@@ -1,5 +1,4 @@
 """Tests for vectormation.style.Styling."""
-import pytest
 from vectormation.style import Styling
 
 

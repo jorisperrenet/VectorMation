@@ -1,9 +1,8 @@
 """Tests for VectorMathAnim canvas."""
 import os
 import tempfile
-import pytest
 from vectormation.objects import VectorMathAnim, Circle, Rectangle, ClipPath
-from vectormation.colors import LinearGradient, RadialGradient
+from vectormation.colors import LinearGradient
 
 
 class TestCanvas:
