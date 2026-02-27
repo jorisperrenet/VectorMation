@@ -79,6 +79,13 @@ class VectorMathAnim:
         self.vb_y.add_onward(s, lambda t, _s=s, _d=dur: dy * easing((t-_s)/_d), last_change=end)
         return self
 
+    def _animate_viewbox(self, start, end, x, y, w, h, easing):
+        """Animate all four viewbox attributes to new values."""
+        self.vb_x.move_to(start, end, x, easing=easing)
+        self.vb_y.move_to(start, end, y, easing=easing)
+        self.vb_w.move_to(start, end, w, easing=easing)
+        self.vb_h.move_to(start, end, h, easing=easing)
+
     def camera_zoom(self, factor, start, end, cx=None, cy=None, easing=easings.smooth):
         """Zoom the camera by factor around (cx, cy) over [start, end].
         factor > 1 zooms in, factor < 1 zooms out."""
@@ -90,10 +97,7 @@ class VectorMathAnim:
         new_w, new_h = cur_w / factor, cur_h / factor
         new_x = max(0, min(cx - new_w / 2, self.width - new_w))
         new_y = max(0, min(cy - new_h / 2, self.height - new_h))
-        self.vb_x.move_to(start, end, new_x, easing=easing)
-        self.vb_y.move_to(start, end, new_y, easing=easing)
-        self.vb_w.move_to(start, end, new_w, easing=easing)
-        self.vb_h.move_to(start, end, new_h, easing=easing)
+        self._animate_viewbox(start, end, new_x, new_y, new_w, new_h, easing)
         return self
 
     def camera_follow(self, obj, start, end=None):
@@ -118,10 +122,7 @@ class VectorMathAnim:
 
     def camera_reset(self, start, end, easing=easings.smooth):
         """Reset camera to default (full canvas) viewbox over [start, end]."""
-        self.vb_x.move_to(start, end, 0, easing=easing)
-        self.vb_y.move_to(start, end, 0, easing=easing)
-        self.vb_w.move_to(start, end, self.width, easing=easing)
-        self.vb_h.move_to(start, end, self.height, easing=easing)
+        self._animate_viewbox(start, end, 0, 0, self.width, self.height, easing)
         return self
 
     def focus_on(self, *objects, start, end, padding=100, easing=easings.smooth):
@@ -143,10 +144,7 @@ class VectorMathAnim:
         else:
             target_w = target_h * aspect
             target_x = bx + bw / 2 - target_w / 2
-        self.vb_x.move_to(start, end, target_x, easing=easing)
-        self.vb_y.move_to(start, end, target_y, easing=easing)
-        self.vb_w.move_to(start, end, target_w, easing=easing)
-        self.vb_h.move_to(start, end, target_h, easing=easing)
+        self._animate_viewbox(start, end, target_x, target_y, target_w, target_h, easing)
         return self
 
     def set_background(self, creation=0, z=-1, grid=False, grid_spacing=60, grid_color='#333', **styling):

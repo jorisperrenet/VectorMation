@@ -31,25 +31,16 @@ body {
     background: #1e1e1e; color: #ccc; font-family: monospace;
     display: flex; flex-direction: column; height: 100vh; overflow: hidden;
 }
-#toolbar {
+#toolbar, #toolbar2 {
     display: flex; align-items: center; gap: 8px;
     padding: 4px 10px; background: #2d2d2d; border-bottom: 1px solid #444;
     flex-shrink: 0; font-size: 13px;
 }
-#toolbar button {
+#toolbar button, #toolbar2 button {
     background: #3c3c3c; color: #ccc; border: 1px solid #555;
     padding: 3px 10px; cursor: pointer; font-family: monospace; font-size: 13px;
 }
 #toolbar button:hover, #toolbar2 button:hover { background: #505050; }
-#toolbar2 {
-    display: flex; align-items: center; gap: 8px;
-    padding: 4px 10px; background: #2d2d2d; border-bottom: 1px solid #444;
-    flex-shrink: 0; font-size: 13px;
-}
-#toolbar2 button {
-    background: #3c3c3c; color: #ccc; border: 1px solid #555;
-    padding: 3px 10px; cursor: pointer; font-family: monospace; font-size: 13px;
-}
 #progress-wrap {
     flex: 1; height: 16px; background: #3c3c3c; border: 1px solid #555;
     position: relative; min-width: 80px; cursor: pointer;
@@ -286,11 +277,12 @@ body {
     document.getElementById('btn-restart').addEventListener('click', function() {
         send({type: 'control', action: 'restart'});
     });
-    btnPause.addEventListener('click', function() {
+    function togglePause() {
         paused = !paused;
         btnPause.textContent = paused ? 'Resume' : 'Pause';
         send({type: 'control', action: 'pause'});
-    });
+    }
+    btnPause.addEventListener('click', togglePause);
     document.getElementById('btn-save').addEventListener('click', saveSvg);
     document.getElementById('btn-fit').addEventListener('click', function() {
         send({type: 'control', action: 'fit'});
@@ -394,17 +386,8 @@ body {
         else if (key === 'R') send({type: 'control', action: 'restart'});
         else if (key === 'F') send({type: 'control', action: 'fit'});
         else if (key === 'S') saveSvg();
-        else if (key === 'P') {
-            paused = !paused;
-            btnPause.textContent = paused ? 'Resume' : 'Pause';
-            send({type: 'control', action: 'pause'});
-        }
-        else if (key === ' ') {
-            e.preventDefault();
-            paused = !paused;
-            btnPause.textContent = paused ? 'Resume' : 'Pause';
-            send({type: 'control', action: 'pause'});
-        }
+        else if (key === 'P') togglePause();
+        else if (key === ' ') { e.preventDefault(); togglePause(); }
         else if (e.key === ',' || e.key === '<') {
             send({type: 'control', action: 'step_backward'});
             showStatus('Step backward');
