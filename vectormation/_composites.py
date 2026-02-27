@@ -944,6 +944,19 @@ class Table(VCollection):
             self.objects.append(obj)
         return self
 
+    def swap_rows(self, i, j, start=0, end=1, easing=easings.smooth):
+        """Animate swapping two table rows."""
+        if i == j or not (0 <= i < self.rows) or not (0 <= j < self.rows):
+            return self
+        for c in range(self.cols):
+            a, b = self.entries[i][c], self.entries[j][c]
+            ay = a.y.at_time(start)
+            by = b.y.at_time(start)
+            a.shift(dy=by - ay, start=start, end=end, easing=easing)
+            b.shift(dy=ay - by, start=start, end=end, easing=easing)
+        self.entries[i], self.entries[j] = self.entries[j], self.entries[i]
+        return self
+
     def __repr__(self):
         return f'Table({self.rows}x{self.cols})'
 

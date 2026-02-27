@@ -14260,3 +14260,33 @@ class TestIntegerMatrix:
         from vectormation.objects import IntegerMatrix
         m = IntegerMatrix([[1, 2], [3, 4]])
         assert 'Matrix' in repr(m)
+
+
+class TestTableSwapRows:
+    def test_swap_basic(self):
+        t = Table([[1, 2], [3, 4]])
+        result = t.swap_rows(0, 1, start=0, end=1)
+        assert result is t
+        # entries should be swapped
+        assert t.entries[0][0].text.at_time(0) == '3'
+        assert t.entries[1][0].text.at_time(0) == '1'
+
+    def test_swap_noop_same(self):
+        t = Table([[1, 2], [3, 4]])
+        result = t.swap_rows(0, 0)
+        assert result is t
+
+    def test_swap_out_of_range(self):
+        t = Table([[1, 2], [3, 4]])
+        result = t.swap_rows(0, 5)
+        assert result is t
+
+    def test_swap_positions_move(self):
+        t = Table([[1, 2], [3, 4]])
+        y0 = t.entries[0][0].y.at_time(0)
+        y1 = t.entries[1][0].y.at_time(0)
+        assert y0 != y1
+        t.swap_rows(0, 1, start=0, end=1)
+        # After animation, row 0 entry (originally row 1) should end at row 0's y
+        new_y0 = t.entries[0][0].y.at_time(2)
+        assert abs(new_y0 - y0) < 1
