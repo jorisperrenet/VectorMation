@@ -1065,7 +1065,7 @@ class VObject(ABC):  # Vector Object
         """Animate drawing the stroke of this object using stroke-dashoffset.
         Uses svgpathtools to compute total path length, then animates
         stroke-dashoffset from length to 0."""
-        p, total_length = _parse_path(self.path(start))
+        _, total_length = _parse_path(self.path(start))
 
         if change_existence:
             self._show_from(start)
@@ -1088,7 +1088,7 @@ class VObject(ABC):  # Vector Object
         """A bright flash that travels along this object's path.
         Returns a new Path object that must be added to the canvas.
         flash_width: fraction of path visible at any time (0-1)."""
-        p, total = _parse_path(self.path(start))
+        _, total = _parse_path(self.path(start))
         if total <= 0:
             from vectormation._shapes import Path
             return Path('', creation=start)
@@ -5243,9 +5243,10 @@ class VCollection:
             return delegated
         raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
 
-    def _resolve_center(self, start, cx, cy):
+    def _resolve_center(self, start, cx=None, cy=None):
         if cx is None or cy is None:
-            return self.center(start)
+            _cx, _cy = self.center(start)
+            return (_cx if cx is None else cx, _cy if cy is None else cy)
         return cx, cy
 
     def scale(self, factor, start: float = 0, end: float | None = None, easing=easings.smooth):
@@ -5467,11 +5468,7 @@ class VCollection:
             ty = cy + radius * math.sin(angle)
             obj_cx, obj_cy = obj.center(start)
             dx, dy = tx - obj_cx, ty - obj_cy
-            if end is None:
-                obj.shift(dx=dx, dy=dy, start=start)
-            else:
-                obj.shift(dx=dx, dy=dy, start=start,
-                          end=end, easing=easing)
+            obj.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
 
     def radial_arrange(self, radius=200, start_angle=0, center=None,
@@ -5552,7 +5549,7 @@ class VCollection:
         max_h = max(b[3] for b in boxes)
         cell_w, cell_h = max_w + buff, max_h + buff
         # Animate each object to its cell center
-        for idx, (obj, box) in enumerate(zip(self.objects, boxes)):
+        for idx, (obj, _box) in enumerate(zip(self.objects, boxes)):
             r, c = divmod(idx, cols)
             target_cx = c * cell_w + max_w / 2
             target_cy = r * cell_h + max_h / 2
@@ -6048,9 +6045,7 @@ class VCollection:
         n = len(self.objects)
         if n == 0:
             return self
-        gx, gy, gw, gh = self.bbox(start)
-        cx = cx if cx is not None else gx + gw / 2
-        cy = cy if cy is not None else gy + gh / 2
+        cx, cy = self._resolve_center(start, cx, cy)
         for i, obj in enumerate(self.objects):
             ocx, ocy = obj.center(start)
             dx, dy = ocx - cx, ocy - cy
@@ -6431,10 +6426,7 @@ class VCollection:
         """
         if not self.objects or end <= start:
             return self
-        if cx is None or cy is None:
-            _cx, _cy = self.center(start)
-            cx = _cx if cx is None else cx
-            cy = _cy if cy is None else cy
+        cx, cy = self._resolve_center(start, cx, cy)
         for obj in self.objects:
             obj_cx, obj_cy = obj.center(start)
             dx = (obj_cx - cx) * (factor - 1)
@@ -6592,7 +6584,7 @@ class VCollection:
             def _dy(t, _s=_cs, _d=_cd, _h=_h, _e=easing):
                 p = _e((t - _s) / _d)
                 return -_h * (1 - p)
-            for xa, ya in obj._shift_reals():
+            for _xa, ya in obj._shift_reals():
                 ya.add(cs, ce, _dy, stay=True)
             for c in obj._shift_coors():
                 c.add(cs, ce, lambda t, _f=_dy: (0, _f(t)), stay=True)
@@ -6634,10 +6626,7 @@ class VCollection:
         if dur <= 0:
             return self
         # Resolve center
-        if cx is None or cy is None:
-            _cx, _cy = self.center(start)
-            cx = _cx if cx is None else cx
-            cy = _cy if cy is None else cy
+        cx, cy = self._resolve_center(start, cx, cy)
         # Compute initial angle and radius for each child
         child_data = []
         for obj in self.objects:
@@ -6765,11 +6754,7 @@ class VCollection:
             ty = cy + radius * math.sin(angle)
             obj_cx, obj_cy = obj.center(start)
             dx, dy = tx - obj_cx, ty - obj_cy
-            if end is None:
-                obj.shift(dx=dx, dy=dy, start=start)
-            else:
-                obj.shift(dx=dx, dy=dy, start=start,
-                          end=end, easing=easing)
+            obj.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
 
     def fan_out(self, cx: float | None = None, cy: float | None = None,
@@ -6787,12 +6772,7 @@ class VCollection:
         n = len(self.objects)
         if n == 0:
             return self
-        if cx is None or cy is None:
-            gx, gy, gw, gh = self.bbox(start)
-            if cx is None:
-                cx = gx + gw / 2
-            if cy is None:
-                cy = gy + gh / 2
+        cx, cy = self._resolve_center(start, cx, cy)
         for i, obj in enumerate(self.objects):
             angle = math.tau * i / n
             tx = cx + radius * math.cos(angle)

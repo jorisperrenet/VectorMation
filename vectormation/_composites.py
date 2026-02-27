@@ -6319,7 +6319,7 @@ class NumberLine(VCollection):
         """
         direction = _norm_dir(direction, 'down')
         p1x, p1y = self.number_to_point(x1)
-        p2x, p2y = self.number_to_point(x2)
+        p2x, _p2y = self.number_to_point(x2)
         lx, rx_ = min(p1x, p2x), max(p1x, p2x)
         w = rx_ - lx
         # Create a temporary rectangle as the brace target
@@ -6357,7 +6357,7 @@ class NumberLine(VCollection):
         """
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 3} | kwargs
         p1x, p1y = self.number_to_point(x1)
-        p2x, p2y = self.number_to_point(x2)
+        p2x, _p2y = self.number_to_point(x2)
         # Offset above the number line
         offset_y = -20
         ly = p1y + offset_y
@@ -6516,7 +6516,7 @@ class NumberLine(VCollection):
         _easing = easing or easings.smooth
         old_start, old_end = self.x_start, self.x_end
         length = self.length
-        ox, oy = self.origin_x, self.origin_y
+        ox = self.origin_x
         dur = end - start
 
         def _old_val_to_x(val):
@@ -7072,7 +7072,7 @@ class BarChart(VCollection):
     def add_value_labels(self, fmt='{:.0f}', offset=10, font_size=20, creation=0):
         """Add text labels showing each bar's value above (or below) the bar."""
         for bar, val in zip(self._bars, self.values):
-            bx, by, _, bh = bar.bbox(creation)
+            _, by, _, bh = bar.bbox(creation)
             lx = bar.center(creation)[0]
             ly = by - offset if val >= 0 else by + bh + offset + font_size
             label_text = fmt.format(val)

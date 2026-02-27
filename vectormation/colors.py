@@ -271,13 +271,13 @@ def complementary(color):
 
 def set_saturation(color, level):
     """Set the saturation of a color to an absolute level (0.0-1.0)."""
-    h, s, l = _hex_to_hsl(color)
+    h, _s, l = _hex_to_hsl(color)
     return _hsl_to_hex(h, max(0, min(1, level)), l)
 
 
 def set_lightness(color, level):
     """Set the lightness of a color to an absolute level (0.0-1.0)."""
-    h, s, l = _hex_to_hsl(color)
+    h, s, _l = _hex_to_hsl(color)
     return _hsl_to_hex(h, s, max(0, min(1, level)))
 
 
