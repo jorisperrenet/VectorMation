@@ -4972,6 +4972,8 @@ class Axes(VCollection):
             mean_val = sum(values) / len(values)
         else:
             data = list(func_or_data)
+            if not data:
+                raise ValueError('add_mean_line requires non-empty data')
             mean_val = sum(data) / len(data)
 
         style_kw = {'stroke': '#FFFF00', 'stroke_width': 1.5,

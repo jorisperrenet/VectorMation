@@ -4143,7 +4143,7 @@ class VObject(ABC):  # Vector Object
         'dash_dot': '10 5 2 5',
     }
 
-    def set_dash_pattern(self, pattern='dashes', start=0, stay=True):
+    def set_dash_pattern(self, pattern='dashes', start=0):
         """Set the stroke-dasharray at a given time.
 
         Pattern presets: 'solid' -> '', 'dashes' -> '10 5', 'dots' -> '2 4',
@@ -4156,13 +4156,15 @@ class VObject(ABC):  # Vector Object
 
     def show_if(self, condition_func, start=0, end=None):
         """Show the object only when condition_func(time) returns True.
-        Uses an updater that sets opacity to 0 or 1 based on the condition.
+        Sets opacity to 0 or 1 based on the condition via a callable.
         Returns self."""
-        def _updater(obj, time):
-            val = 1 if condition_func(time) else 0
-            obj.styling.opacity.set_onward(time, val)
-            obj.styling.fill_opacity.set_onward(time, val)
-        self.add_updater(_updater, start, end)
+        def _opacity(t):
+            return 1 if condition_func(t) else 0
+        self.styling.opacity.set_onward(start, _opacity)
+        self.styling.fill_opacity.set_onward(start, _opacity)
+        if end is not None:
+            self.styling.opacity.set_onward(end, self.styling.opacity.at_time(end))
+            self.styling.fill_opacity.set_onward(end, self.styling.fill_opacity.at_time(end))
         return self
 
     @staticmethod
@@ -5325,24 +5327,9 @@ class VCollection:
 
     def swap_children(self, i, j, start: float = 0, end: float = 1,
                        easing=easings.smooth):
-        """Animate swapping the positions of children at indices i and j."""
-        n = len(self.objects)
-        if i < 0 or j < 0 or i >= n or j >= n or i == j:
-            return self
-        a, b = self.objects[i], self.objects[j]
-        ax, ay, aw, ah = a.bbox(start)
-        bx, by, bw, bh = b.bbox(start)
-        acx, acy = ax + aw / 2, ay + ah / 2
-        bcx, bcy = bx + bw / 2, by + bh / 2
-        # Move a to b's position and vice versa using path_arc for visual interest
-        a.path_arc(bcx, bcy, start=start, end=end, angle=math.pi / 3, easing=easing)
-        b.path_arc(acx, acy, start=start, end=end, angle=math.pi / 3, easing=easing)
-        return self
-
-    def swap_animated(self, i, j, start=0, end=1, easing=easings.smooth):
         """Animate swapping the positions of children at indices i and j.
-        Each child moves along an arc to the other's position to avoid
-        overlapping in the middle.  Returns self."""
+        Each child moves along an arc to the other's position, using
+        opposite arc directions to avoid overlapping.  Returns self."""
         n = len(self.objects)
         if i < 0 or j < 0 or i >= n or j >= n or i == j:
             return self
@@ -5354,6 +5341,11 @@ class VCollection:
         a.path_arc(bcx, bcy, start=start, end=end, angle=math.pi / 3, easing=easing)
         b.path_arc(acx, acy, start=start, end=end, angle=-math.pi / 3, easing=easing)
         return self
+
+    def swap_animated(self, i, j, start=0, end=1, easing=easings.smooth):
+        """Animate swapping the positions of children at indices i and j.
+        Alias for :meth:`swap_children`."""
+        return self.swap_children(i, j, start=start, end=end, easing=easing)
 
     def highlight_nth(self, n, start=0, end=1, color='#FFFF00', easing=easings.smooth):
         """Highlight the nth child by temporarily changing its fill color while

@@ -1049,8 +1049,17 @@ class Polygon(VObject):
 
         parts = []
         for i in range(n):
-            prev = pts[(i - 1) % n]
             curr = pts[i]
+
+            # For open polylines, first and last vertices are endpoints (no smoothing)
+            if not self.closed and (i == 0 or i == n - 1):
+                if i == 0:
+                    parts.append(f'M {curr[0]},{curr[1]}')
+                else:
+                    parts.append(f'L {curr[0]},{curr[1]}')
+                continue
+
+            prev = pts[(i - 1) % n]
             nxt = pts[(i + 1) % n]
 
             # Vector from curr to prev / next
@@ -1067,10 +1076,7 @@ class Polygon(VObject):
 
             if len_in == 0 or len_out == 0:
                 # Degenerate edge — just use the vertex
-                if i == 0:
-                    parts.append(f'M {curr[0]},{curr[1]}')
-                else:
-                    parts.append(f'L {curr[0]},{curr[1]}')
+                parts.append(f'L {curr[0]},{curr[1]}')
                 continue
 
             # Start point: r pixels before the vertex along incoming edge
