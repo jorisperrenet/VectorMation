@@ -800,6 +800,34 @@ class _SegmentPrimitive3D(_Primitive3D):
                           self._end[1] - self._start[1],
                           self._end[2] - self._start[2])
 
+    def set_color(self, color):
+        """Set the stroke color. Returns self for chaining."""
+        self._stroke = color
+        return self
+
+
+class _PointPrimitive3D(_Primitive3D):
+    """Base for 3D primitives located at a single point."""
+
+    def shift(self, dx=0, dy=0, dz=0):
+        """Shift the point by (dx, dy, dz). Returns self for chaining."""
+        self._point = (self._point[0] + dx, self._point[1] + dy, self._point[2] + dz)
+        return self
+
+    def move_to(self, x, y, z):
+        """Move to (x, y, z). Returns self for chaining."""
+        self._point = (x, y, z)
+        return self
+
+    def get_position(self):
+        """Return the 3D position as a tuple."""
+        return self._point
+
+    def set_color(self, color):
+        """Set the fill color. Returns self for chaining."""
+        self._fill = color
+        return self
+
 
 class Line3D(_SegmentPrimitive3D):
     """A line segment in 3D space."""
@@ -811,11 +839,6 @@ class Line3D(_SegmentPrimitive3D):
         self._stroke = stroke
         self._stroke_width = stroke_width
 
-    def set_color(self, color):
-        """Set the stroke color. Returns self for chaining."""
-        self._stroke = color
-        return self
-
     def to_patches(self, axes, time):
         sx0, sy0, d0 = axes.project_point(*self._start, time)
         sx1, sy1, d1 = axes.project_point(*self._end, time)
@@ -825,7 +848,7 @@ class Line3D(_SegmentPrimitive3D):
         return [(depth, svg)]
 
 
-class Dot3D(_Primitive3D):
+class Dot3D(_PointPrimitive3D):
     """A dot in 3D space."""
 
     def __init__(self, point=(0, 0, 0), radius=5, fill='#fff', creation=0, z=0):
@@ -834,29 +857,10 @@ class Dot3D(_Primitive3D):
         self._radius = radius
         self._fill = fill
 
-    def shift(self, dx=0, dy=0, dz=0):
-        """Shift the point by (dx, dy, dz). Returns self for chaining."""
-        self._point = (self._point[0] + dx, self._point[1] + dy, self._point[2] + dz)
-        return self
-
-    def move_to(self, x, y, z):
-        """Move the dot to (x, y, z). Returns self for chaining."""
-        self._point = (x, y, z)
-        return self
-
-    def set_color(self, color):
-        """Set the fill color. Returns self for chaining."""
-        self._fill = color
-        return self
-
     def set_radius(self, radius):
         """Set the dot radius. Returns self for chaining."""
         self._radius = radius
         return self
-
-    def get_position(self):
-        """Return the 3D position as a tuple."""
-        return self._point
 
     def to_patches(self, axes, time):
         sx, sy, depth = axes.project_point(*self._point, time)
@@ -877,11 +881,6 @@ class Arrow3D(_SegmentPrimitive3D):
         self._stroke_width = stroke_width
         self._tip_length = tip_length
         self._tip_radius = tip_radius
-
-    def set_color(self, color):
-        """Set the stroke/tip color. Returns self for chaining."""
-        self._stroke = color
-        return self
 
     def to_patches(self, axes, time):
         patches = []
@@ -971,7 +970,7 @@ def Sphere3D(radius=1.5, center=(0, 0, 0), resolution=(16, 32),
                    creation=creation, z=z)
 
 
-class Text3D(_Primitive3D):
+class Text3D(_PointPrimitive3D):
     """A text label placed at a 3D position."""
 
     def __init__(self, text, point=(0, 0, 0), font_size=20, fill='#fff',
@@ -982,29 +981,10 @@ class Text3D(_Primitive3D):
         self._font_size = font_size
         self._fill = fill
 
-    def shift(self, dx=0, dy=0, dz=0):
-        """Shift the text position by (dx, dy, dz). Returns self for chaining."""
-        self._point = (self._point[0] + dx, self._point[1] + dy, self._point[2] + dz)
-        return self
-
-    def move_to(self, x, y, z):
-        """Move the text to (x, y, z). Returns self for chaining."""
-        self._point = (x, y, z)
-        return self
-
-    def set_color(self, color):
-        """Set the fill color. Returns self for chaining."""
-        self._fill = color
-        return self
-
     def set_text(self, text):
         """Set the displayed text. Returns self for chaining."""
         self._text = text
         return self
-
-    def get_position(self):
-        """Return the 3D position as a tuple."""
-        return self._point
 
     def to_patches(self, axes, time):
         sx, sy, depth = axes.project_point(*self._point, time)
