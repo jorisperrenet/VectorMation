@@ -1275,20 +1275,24 @@ class Ellipse(VObject):
         Line
             A tangent line centred on the ellipse at the specified angle.
         """
+        px, py, tx, ty = self._tangent_at(angle_deg, time)
+        dx, dy = tx * length / 2, ty * length / 2
+        return Line(x1=px - dx, y1=py - dy, x2=px + dx, y2=py + dy, **kwargs)
+
+    def _tangent_at(self, angle_deg, time=0):
+        """Return (px, py, tx, ty): point on ellipse and unit tangent direction."""
         cx, cy = self.c.at_time(time)
         rx = self.rx.at_time(time)
         ry = self.ry.at_time(time)
         angle = math.radians(angle_deg)
-        # Point on ellipse
         px = cx + rx * math.cos(angle)
         py = cy - ry * math.sin(angle)  # SVG y-down
-        # Tangent direction: derivative of parametric form
         tx = -rx * math.sin(angle)
         ty = -ry * math.cos(angle)  # SVG y-down
         mag = math.hypot(tx, ty)
         if mag > 0:
-            tx, ty = tx / mag * length / 2, ty / mag * length / 2
-        return Line(x1=px - tx, y1=py - ty, x2=px + tx, y2=py + ty, **kwargs)
+            tx, ty = tx / mag, ty / mag
+        return px, py, tx, ty
 
     def normal_at_angle(self, angle_deg, length=200, time=0, **kwargs):
         """Return a normal (perpendicular) :class:`Line` at the given angle on the ellipse.
@@ -1316,21 +1320,9 @@ class Ellipse(VObject):
         Line
             A normal line centred on the ellipse at the specified angle.
         """
-        cx, cy = self.c.at_time(time)
-        rx = self.rx.at_time(time)
-        ry = self.ry.at_time(time)
-        angle = math.radians(angle_deg)
-        # Point on ellipse
-        px = cx + rx * math.cos(angle)
-        py = cy - ry * math.sin(angle)  # SVG y-down
-        # Tangent direction: derivative of parametric form
-        tx = -rx * math.sin(angle)
-        ty = -ry * math.cos(angle)  # SVG y-down
+        px, py, tx, ty = self._tangent_at(angle_deg, time)
         # Normal is perpendicular to tangent: rotate 90 degrees
-        nx, ny = -ty, tx
-        mag = math.hypot(nx, ny)
-        if mag > 0:
-            nx, ny = nx / mag * length / 2, ny / mag * length / 2
+        nx, ny = -ty * length / 2, tx * length / 2
         return Line(x1=px - nx, y1=py - ny, x2=px + nx, y2=py + ny, **kwargs)
 
     def get_tangent_line(self, angle_deg, length=100, time=0, **kwargs):
@@ -1358,20 +1350,9 @@ class Ellipse(VObject):
         Line
             A tangent line centred on the ellipse at the specified angle.
         """
-        cx, cy = self.c.at_time(time)
-        rx = self.rx.at_time(time)
-        ry = self.ry.at_time(time)
-        angle = math.radians(angle_deg)
-        # Point on ellipse
-        px = cx + rx * math.cos(angle)
-        py = cy - ry * math.sin(angle)  # SVG y-down
-        # Tangent direction: derivative of parametric form
-        tx = -rx * math.sin(angle)
-        ty = -ry * math.cos(angle)  # SVG y-down
-        mag = math.hypot(tx, ty)
-        if mag > 0:
-            tx, ty = tx / mag * length / 2, ty / mag * length / 2
-        return Line(x1=px - tx, y1=py - ty, x2=px + tx, y2=py + ty, **kwargs)
+        px, py, tx, ty = self._tangent_at(angle_deg, time)
+        dx, dy = tx * length / 2, ty * length / 2
+        return Line(x1=px - dx, y1=py - dy, x2=px + dx, y2=py + dy, **kwargs)
 
     def __repr__(self):
         cx, cy = self.c.at_time(0)

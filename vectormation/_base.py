@@ -4211,17 +4211,11 @@ class VObject(ABC):  # Vector Object
         """Rotate the object to tilt toward a target point by max_angle degrees.
         Computes the angle from the object's center to (target_x, target_y) and
         rotates in that direction. Returns self."""
-        cx, cy = self.center(start)
-        dx = target_x - cx
+        _, cy = self.center(start)
         dy = target_y - cy
-        angle_rad = math.atan2(dy, dx)
-        # Tilt towards the target: rotate by max_angle in the direction of the target
-        # Positive angle_rad means target is below-right; we rotate clockwise (positive degrees)
-        # Use the sign of the angle to determine direction
-        angle_deg = math.degrees(angle_rad)
-        # Normalize: tilt by max_angle in the direction of the target
-        # The rotation amount is max_angle, direction determined by the angle to target
-        tilt = max_angle if angle_deg >= 0 else -max_angle
+        # In SVG coordinates (y-down), positive dy means target is below,
+        # so tilt clockwise (positive degrees); negative dy means above.
+        tilt = max_angle if dy >= 0 else -max_angle
         self.rotate_by(start, end, tilt, easing=easing)
         return self
 
