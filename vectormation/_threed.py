@@ -5,6 +5,7 @@ from xml.sax.saxutils import escape as _xml_escape
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 from vectormation._base import VObject, VCollection, _lerp
+from vectormation._composites import _nice_ticks
 
 # ---------------------------------------------------------------------------
 # Projection helpers
@@ -64,29 +65,6 @@ def _frange(start, stop, step):
         vals.append(v)
         v += step
     return vals
-
-
-def _nice_ticks(vmin, vmax, target_count=5):
-    """Generate nicely spaced tick values between vmin and vmax."""
-    span = vmax - vmin
-    if span <= 0:
-        return []
-    rough_step = span / target_count
-    mag = 10 ** math.floor(math.log10(rough_step))
-    step = rough_step
-    for nice in [1, 2, 2.5, 5, 10]:
-        step = nice * mag
-        if span / step <= target_count * 1.5:
-            break
-    start = math.ceil(vmin / step) * step
-    ticks = []
-    val = start
-    while val <= vmax + step * 0.01:
-        if abs(val) < step * 0.01:
-            val = 0.0
-        ticks.append(val)
-        val += step
-    return ticks
 
 
 # ---------------------------------------------------------------------------
@@ -447,13 +425,13 @@ class ThreeDAxes(VCollection):
 
         # Ticks
         if self._show_ticks:
-            for val in _nice_ticks(xr[0], xr[1]):
+            for val in _nice_ticks(xr[0], xr[1], 5):
                 svg, depth = self._render_tick_3d((val, 0, 0), (0, 1, 0), val, time)
                 patches.append((depth, svg))
-            for val in _nice_ticks(yr[0], yr[1]):
+            for val in _nice_ticks(yr[0], yr[1], 5):
                 svg, depth = self._render_tick_3d((0, val, 0), (1, 0, 0), val, time)
                 patches.append((depth, svg))
-            for val in _nice_ticks(zr[0], zr[1]):
+            for val in _nice_ticks(zr[0], zr[1], 5):
                 svg, depth = self._render_tick_3d((0, 0, val), (1, 0, 0), val, time)
                 patches.append((depth, svg))
 
@@ -461,11 +439,11 @@ class ThreeDAxes(VCollection):
         if self._show_grid:
             # XY plane at z = z_min
             z_grid = zr[0]
-            for val in _nice_ticks(xr[0], xr[1]):
+            for val in _nice_ticks(xr[0], xr[1], 5):
                 svg, depth = self._render_grid_line(
                     (val, yr[0], z_grid), (val, yr[1], z_grid), time)
                 patches.append((depth, svg))
-            for val in _nice_ticks(yr[0], yr[1]):
+            for val in _nice_ticks(yr[0], yr[1], 5):
                 svg, depth = self._render_grid_line(
                     (xr[0], val, z_grid), (xr[1], val, z_grid), time)
                 patches.append((depth, svg))

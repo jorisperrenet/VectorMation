@@ -545,8 +545,8 @@ class VObject(ABC):  # Vector Object
                 ya.add_onward(start, dy)
             else:
                 s, e = start, end
-                xa.add_onward(s, lambda t, _s=s, _e=e: dx * easing((t-_s)/(_e-_s)), last_change=e)
-                ya.add_onward(s, lambda t, _s=s, _e=e: dy * easing((t-_s)/(_e-_s)), last_change=e)
+                xa.add_onward(s, _ramp(s, e - s, dx, easing), last_change=e)
+                ya.add_onward(s, _ramp(s, e - s, dy, easing), last_change=e)
         return self
 
     # Alias
