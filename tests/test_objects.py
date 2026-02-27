@@ -11593,9 +11593,9 @@ class TestSetLifetime:
     def test_invisible_before_start(self):
         c = Circle(r=50, cx=100, cy=100)
         c.set_lifetime(1, 3)
-        # Before the lifetime, should be hidden (show set to 0 at creation,
-        # then to 1 at start=1)
-        assert c.show.at_time(0.5) == 0 or c.show.at_time(1) != 0
+        # Before the lifetime, should be hidden
+        assert c.show.at_time(0) == 0
+        assert c.show.at_time(0.5) == 0
 
     def test_invisible_after_end(self):
         c = Circle(r=50, cx=100, cy=100)

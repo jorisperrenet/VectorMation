@@ -6023,10 +6023,10 @@ class Brace(VCollection):
         """
         creation = kwargs.pop('creation', 0)
         if axis == 'x':
-            sx1 = axes._math_to_svg_x(start_val)
-            sx2 = axes._math_to_svg_x(end_val)
+            sx1 = axes._math_to_svg_x(start_val, creation)
+            sx2 = axes._math_to_svg_x(end_val, creation)
             # y-position: use the x-axis line (y_min mapped to SVG)
-            sy = axes._math_to_svg_y(axes.y_min.at_time(creation))
+            sy = axes._math_to_svg_y(axes.y_min.at_time(creation), creation)
             x_left = min(sx1, sx2)
             width = abs(sx2 - sx1)
             # Create a thin target rectangle along the x-axis
@@ -6035,10 +6035,10 @@ class Brace(VCollection):
             if direction is None:
                 direction = 'down'
         elif axis == 'y':
-            sy1 = axes._math_to_svg_y(start_val)
-            sy2 = axes._math_to_svg_y(end_val)
+            sy1 = axes._math_to_svg_y(start_val, creation)
+            sy2 = axes._math_to_svg_y(end_val, creation)
             # x-position: use the y-axis line (x_min mapped to SVG)
-            sx = axes._math_to_svg_x(axes.x_min.at_time(creation))
+            sx = axes._math_to_svg_x(axes.x_min.at_time(creation), creation)
             y_top = min(sy1, sy2)
             height = abs(sy2 - sy1)
             # Create a thin target rectangle along the y-axis

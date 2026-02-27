@@ -5138,6 +5138,7 @@ class VObject(ABC):  # Vector Object
         The object becomes visible at *start* and invisible at *end*.
         Returns self for chaining.
         """
+        self.set_visible(False, 0)
         self.set_visible(True, start)
         self.set_visible(False, end)
         return self
