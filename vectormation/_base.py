@@ -463,28 +463,7 @@ class VObject(ABC):  # Vector Object
         return self
 
     def visibility_toggle(self, *times):
-        """Toggle visibility at each given time.
-
-        The times are sorted, then at the first time the object becomes
-        visible, at the second it hides, at the third it shows again, and
-        so on.  The object is hidden before the first time.
-
-        Parameters
-        ----------
-        *times:
-            One or more time values at which to toggle visibility.
-
-        Returns
-        -------
-        self
-            For method chaining.
-
-        Example
-        -------
-        >>> c = Circle(r=50)
-        >>> c.visibility_toggle(1, 3, 5)
-        # visible during [1,3), hidden during [3,5), visible from 5 onward
-        """
+        """Toggle visibility at each given time (hidden before first, shown, hidden, ...)."""
         sorted_times = sorted(times)
         self.show.set_onward(0, False)
         for i, t in enumerate(sorted_times):
@@ -702,24 +681,7 @@ class VObject(ABC):  # Vector Object
         return self
 
     def animate_along_object(self, target, start=0, end=1, easing=None):
-        """Move along the boundary/path of another VObject.
-
-        Extracts the SVG path string from *target* via ``target.path(start)``
-        and delegates to :meth:`along_path`.
-
-        Parameters
-        ----------
-        target:
-            The VObject whose boundary to follow.
-        start:
-            Start time of the animation.
-        end:
-            End time of the animation.
-        easing:
-            Easing function (defaults to ``easings.smooth``).
-
-        Returns self.
-        """
+        """Move along the boundary/path of another VObject."""
         if easing is None:
             easing = easings.smooth
         path_d = target.path(start)
@@ -1227,37 +1189,7 @@ class VObject(ABC):  # Vector Object
 
     def fade_color(self, color, start: float = 0, end: float = 1,
                    attr: str = 'fill', easing=easings.smooth):
-        """Smoothly transition the fill (or stroke) color to *color* over [start, end].
-
-        This is the simplest single-step color animation.  Unlike
-        :meth:`set_color` (instant snap at *start*) and
-        :meth:`color_gradient_anim` (multi-stop gradient), this method
-        interpolates from the current color at *start* to the target *color*
-        at *end* using the Color attribute's ``move_to`` method.
-
-        Parameters
-        ----------
-        color:
-            Target color.  Accepts hex strings (``'#ff0000'``), named colors,
-            or RGB tuples.
-        start, end:
-            Animation time window in seconds.
-        attr:
-            Which styling attribute to animate: ``'fill'`` (default) or
-            ``'stroke'``.
-        easing:
-            Easing function.  Defaults to :func:`easings.smooth`.
-
-        Returns
-        -------
-        self
-
-        Example
-        -------
-        >>> circle = Circle(r=60)
-        >>> circle.fade_color('#ff0000', start=1, end=2)   # fade fill to red
-        >>> circle.fade_color('#00ff00', start=1, end=2, attr='stroke')
-        """
+        """Smoothly interpolate fill (or stroke) color to *color* over [start, end]."""
         style_attr = getattr(self.styling, attr)
         target = attributes.Color(0, color)
         interp = style_attr.interpolate(target, start, end, easing=easing)
@@ -1266,28 +1198,7 @@ class VObject(ABC):  # Vector Object
 
     def color_wave(self, start: float = 0, end: float = 1,
                     wave_color='#58C4DD', attr='fill', width=0.3, cycles=1):
-        """Animated color sweep across the object.
-
-        A wave-front of *wave_color* sweeps across the object's current base
-        color.  The sweep position advances linearly over [start, end].  At
-        any instant the rendered color is an interpolation: the base color
-        transitions to *wave_color* and back, with the peak of the wave at
-        the current sweep position.
-
-        Parameters
-        ----------
-        start, end:
-            Animation time window.
-        wave_color:
-            The highlight color that sweeps across.
-        attr:
-            ``'fill'`` or ``'stroke'``.
-        width:
-            Width of the wave front as a fraction of the total duration
-            (0 < width <= 1).  Smaller values give a sharper sweep.
-        cycles:
-            Number of complete sweep passes (default 1).
-        """
+        """Sweep *wave_color* across the current base color over [start, end]."""
         dur = end - start
         if dur <= 0:
             return self
@@ -1318,26 +1229,7 @@ class VObject(ABC):  # Vector Object
 
     def color_gradient_anim(self, colors, start: float = 0, end: float = 1,
                              attr: str = 'fill'):
-        """Animate through a sequence of colors over [start, end].
-
-        Divides the interval into ``len(colors) - 1`` equal segments and linearly
-        interpolates between each adjacent pair using RGB blending.
-
-        Parameters
-        ----------
-        colors:
-            Sequence of two or more color strings (hex or named).  Must have at
-            least two entries.
-        start, end:
-            Animation time window in seconds.
-        attr:
-            Which styling attribute to animate: ``'fill'`` (default) or
-            ``'stroke'``.
-
-        Returns
-        -------
-        self
-        """
+        """Animate through a sequence of *colors* over [start, end] via RGB interpolation."""
         if len(colors) < 2:
             return self
         dur = end - start
@@ -1726,23 +1618,7 @@ class VObject(ABC):  # Vector Object
         return self
 
     def flash_scale(self, factor=1.5, start: float = 0, end: float = 1, easing=easings.smooth):
-        """Quickly scale up to *factor* at the midpoint then back to original size.
-
-        Produces a single "flash" or "pop" effect: the object grows to
-        *factor* at the midpoint of [start, end] and smoothly returns to its
-        original scale by *end*.
-
-        Parameters
-        ----------
-        factor:
-            Peak scale factor reached at the midpoint (default 1.5).
-        start:
-            Animation start time.
-        end:
-            Animation end time.
-        easing:
-            Easing applied to the normalised time (default: smooth).
-        """
+        """Scale up to *factor* at the midpoint, then back to original size."""
         dur = end - start
         if dur <= 0:
             return self
@@ -1758,22 +1634,7 @@ class VObject(ABC):  # Vector Object
         return self
 
     def hover_scale(self, factor=1.2, start: float = 0, end: float = 1):
-        """Scale to *factor* at *start* and hold until *end*, then return to 1.0.
-
-        Unlike :meth:`flash_scale` (which peaks at the midpoint and returns),
-        this method holds the scaled size for the entire duration and only
-        snaps back at *end*.  Useful for hover/emphasis effects where the
-        object should stay enlarged while "active".
-
-        Parameters
-        ----------
-        factor:
-            Scale factor to hold during [start, end] (default 1.2).
-        start:
-            Time at which the object scales to *factor*.
-        end:
-            Time at which the object returns to its original scale.
-        """
+        """Hold scale at *factor* during [start, end], then snap back."""
         self._ensure_scale_origin(start)
         sx0 = self.styling.scale_x.at_time(start)
         sy0 = self.styling.scale_y.at_time(start)
@@ -1939,24 +1800,7 @@ class VObject(ABC):  # Vector Object
 
     def swing(self, start: float = 0, end: float = 1, amplitude=15,
               cx=None, cy=None, easing=easings.smooth):
-        """Pendulum-like rotation oscillation with natural decay.
-
-        Rotates the object back and forth like a pendulum that gradually comes
-        to rest.  The rotation angle follows ``amplitude * sin(2*pi*t) * (1-t)``
-        where ``t`` is the normalised time in [0, 1], producing a single-cycle
-        swing that decays to zero by the end of the interval.
-
-        Parameters
-        ----------
-        amplitude:
-            Maximum swing angle in degrees (default 15).
-        cx, cy:
-            Pivot point for the rotation.  Defaults to the top-centre of the
-            object's bounding box at ``start``.
-        easing:
-            Easing applied to the normalised time before computing the
-            envelope (default :func:`easings.smooth`).
-        """
+        """Pendulum-like rotation oscillation that decays to rest."""
         dur = end - start
         if dur <= 0:
             return self
@@ -3375,28 +3219,7 @@ class VObject(ABC):  # Vector Object
         return self
 
     def scale_to_fit(self, width=None, height=None, start=0, end=None, easing=easings.smooth):
-        """Scale the object to fit within a bounding box, preserving aspect ratio.
-
-        If both *width* and *height* are given, the scale factor is chosen so the
-        object fits inside both constraints (``min(target_w / current_w,
-        target_h / current_h)``).  If only one dimension is given the factor is
-        computed from that dimension alone.
-
-        Parameters
-        ----------
-        width:
-            Target width in SVG units (or ``None`` to ignore).
-        height:
-            Target height in SVG units (or ``None`` to ignore).
-        start:
-            Time at which the change begins.
-        end:
-            Time at which the change ends (``None`` = instant).
-        easing:
-            Easing function (defaults to ``easings.smooth``).
-
-        Returns self.
-        """
+        """Scale to fit within the given *width*/*height*, preserving aspect ratio."""
         cur_w = self.get_width(start)
         cur_h = self.get_height(start)
         if cur_w <= 0 and cur_h <= 0:

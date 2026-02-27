@@ -2041,30 +2041,7 @@ class Axes(VCollection):
 
     def add_labeled_point(self, x, y, label=None, dot_radius=5, direction='above',
                           creation=0, **kwargs):
-        """Add a Dot at math coordinates (x, y) with an optional Text label.
-
-        Parameters
-        ----------
-        x, y:
-            Math coordinates of the point.
-        label:
-            Optional label string.  If *None*, only the dot is created.
-        dot_radius:
-            Radius of the dot in SVG pixels (default 5).
-        direction:
-            Where to place the label relative to the dot.  One of
-            ``'above'``, ``'below'``, ``'left'``, ``'right'`` (default ``'above'``).
-        creation:
-            Creation time for the created objects.
-        **kwargs:
-            Extra keyword arguments forwarded to the Dot constructor
-            (e.g. ``fill``, ``z``).
-
-        Returns
-        -------
-        VCollection
-            A VCollection containing the dot and (if provided) the label.
-        """
+        """Add a Dot at (*x*, *y*) with an optional directional Text label."""
         z = kwargs.pop('z', 0)
         font_size = kwargs.pop('font_size', 20)
         label_color = kwargs.pop('label_color', '#fff')
