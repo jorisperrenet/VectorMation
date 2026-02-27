@@ -5580,3 +5580,258 @@ class TestTextSplitLines:
         parts = t.split_lines()
         assert len(parts.objects) == 3
         assert parts.objects[1].text.at_time(0) == ''
+
+
+class TestPolygonInteriorAngles:
+    def test_equilateral_triangle(self):
+        """An equilateral triangle should have three 60-degree interior angles."""
+        import math
+        s = 100
+        h = s * math.sqrt(3) / 2
+        p = Polygon((0, 0), (s, 0), (s / 2, -h))
+        angles = p.interior_angles()
+        assert len(angles) == 3
+        for a in angles:
+            assert a == pytest.approx(60, abs=1)
+
+    def test_right_triangle(self):
+        """A right triangle should have a 90-degree angle."""
+        p = Polygon((0, 0), (100, 0), (0, 100))
+        angles = p.interior_angles()
+        assert len(angles) == 3
+        assert any(abs(a - 90) < 1 for a in angles)
+
+    def test_square(self):
+        """A square should have four 90-degree interior angles."""
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        angles = p.interior_angles()
+        assert len(angles) == 4
+        for a in angles:
+            assert a == pytest.approx(90, abs=1)
+
+    def test_sum_of_angles(self):
+        """Sum of interior angles of an n-gon should be (n-2)*180."""
+        pentagon = Polygon((0, 0), (100, 0), (130, 80), (60, 130), (-20, 80))
+        angles = pentagon.interior_angles()
+        assert sum(angles) == pytest.approx(540, abs=2)
+
+    def test_open_polyline_returns_empty(self):
+        """Open polylines should return an empty list."""
+        p = Polygon((0, 0), (100, 0), (50, 100), closed=False)
+        assert p.interior_angles() == []
+
+    def test_degenerate_returns_empty(self):
+        """Fewer than 3 vertices should return an empty list."""
+        p = Polygon((0, 0), (100, 0))
+        assert p.interior_angles() == []
+
+
+class TestEllipseNormalAtAngle:
+    def test_normal_perpendicular_to_tangent(self):
+        """The normal line should be perpendicular to the tangent line."""
+        e = Ellipse(rx=100, ry=60, cx=500, cy=400)
+        tangent = e.tangent_at_angle(45, length=200)
+        normal = e.normal_at_angle(45, length=200)
+        td = tangent.get_direction()
+        nd = normal.get_direction()
+        dot = td[0] * nd[0] + td[1] * nd[1]
+        assert dot == pytest.approx(0, abs=1e-6)
+
+    def test_normal_passes_through_ellipse_point(self):
+        """The midpoint of the normal line should be on the ellipse."""
+        e = Ellipse(rx=100, ry=60, cx=500, cy=400)
+        normal = e.normal_at_angle(0, length=200)
+        mid = normal.get_midpoint()
+        # At 0 degrees the point is (600, 400)
+        assert mid[0] == pytest.approx(600, abs=1)
+        assert mid[1] == pytest.approx(400, abs=1)
+
+    def test_circle_normal_through_center(self):
+        """For a circle, the normal should pass through the centre."""
+        c = Circle(r=100, cx=500, cy=400)
+        normal = c.normal_at_angle(90, length=300)
+        # At 90 degrees the point is (500, 300) in SVG, centre is (500, 400)
+        # The normal should be vertical through (500, 300)
+        start = normal.get_start()
+        end = normal.get_end()
+        assert start[0] == pytest.approx(500, abs=1)
+        assert end[0] == pytest.approx(500, abs=1)
+
+    def test_normal_length(self):
+        """The normal line should have the requested length."""
+        e = Ellipse(rx=80, ry=40, cx=960, cy=540)
+        normal = e.normal_at_angle(30, length=150)
+        assert normal.get_length() == pytest.approx(150, abs=1)
+
+
+class TestLineSubdivideInto:
+    def test_two_segments(self):
+        """Subdividing into 2 should give two lines of equal length."""
+        line = Line(x1=0, y1=0, x2=200, y2=0)
+        segs = line.subdivide_into(2)
+        assert len(segs) == 2
+        assert segs[0].get_length() == pytest.approx(100, abs=1)
+        assert segs[1].get_length() == pytest.approx(100, abs=1)
+
+    def test_endpoints_match(self):
+        """First segment starts at p1, last ends at p2."""
+        line = Line(x1=10, y1=20, x2=110, y2=120)
+        segs = line.subdivide_into(3)
+        s0 = segs[0].get_start()
+        assert s0[0] == pytest.approx(10)
+        assert s0[1] == pytest.approx(20)
+        e2 = segs[2].get_end()
+        assert e2[0] == pytest.approx(110)
+        assert e2[1] == pytest.approx(120)
+
+    def test_segments_are_contiguous(self):
+        """Each segment's end should be the next segment's start."""
+        line = Line(x1=0, y1=0, x2=300, y2=400)
+        segs = line.subdivide_into(4)
+        for i in range(3):
+            end = segs[i].get_end()
+            start = segs[i + 1].get_start()
+            assert end[0] == pytest.approx(start[0], abs=1e-6)
+            assert end[1] == pytest.approx(start[1], abs=1e-6)
+
+    def test_one_segment(self):
+        """Subdividing into 1 should return the same line."""
+        line = Line(x1=50, y1=50, x2=150, y2=150)
+        segs = line.subdivide_into(1)
+        assert len(segs) == 1
+        assert segs[0].get_length() == pytest.approx(line.get_length(), abs=1)
+
+    def test_five_segments_equal_length(self):
+        """Five segments should all have the same length."""
+        line = Line(x1=0, y1=0, x2=500, y2=0)
+        segs = line.subdivide_into(5)
+        assert len(segs) == 5
+        for s in segs:
+            assert s.get_length() == pytest.approx(100, abs=1)
+
+
+class TestLineDistanceToPoint:
+    def test_point_on_line(self):
+        """Distance from a point on the line should be 0."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        assert line.distance_to_point(50, 0) == pytest.approx(0, abs=1e-6)
+
+    def test_perpendicular_distance(self):
+        """Distance from a point directly above the midpoint."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        assert line.distance_to_point(50, 30) == pytest.approx(30, abs=1e-6)
+
+    def test_beyond_endpoint(self):
+        """Distance from a point beyond the endpoint should use the endpoint."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        # Point at (200, 0) is beyond the end
+        assert line.distance_to_point(200, 0) == pytest.approx(100, abs=1e-6)
+
+    def test_diagonal_line(self):
+        """Test distance to a diagonal line segment."""
+        import math
+        line = Line(x1=0, y1=0, x2=100, y2=100)
+        # Point at (0, 100) -- closest is (50, 50), distance = sqrt(50^2+50^2)
+        d = line.distance_to_point(0, 100)
+        assert d == pytest.approx(math.sqrt(50**2 + 50**2), abs=1)
+
+
+class TestRectangleToLines:
+    def test_returns_four_lines(self):
+        """to_lines should return exactly 4 Line objects."""
+        r = Rectangle(width=100, height=50, x=10, y=20)
+        lines = r.to_lines()
+        assert len(lines) == 4
+        for l in lines:
+            assert isinstance(l, Line)
+
+    def test_top_edge(self):
+        """Top edge should go from top-left to top-right."""
+        r = Rectangle(width=100, height=50, x=10, y=20)
+        top = r.to_lines()[0]
+        s = top.get_start()
+        e = top.get_end()
+        assert s == pytest.approx((10, 20), abs=1e-6)
+        assert e == pytest.approx((110, 20), abs=1e-6)
+
+    def test_right_edge(self):
+        """Right edge should go from top-right to bottom-right."""
+        r = Rectangle(width=100, height=50, x=10, y=20)
+        right = r.to_lines()[1]
+        s = right.get_start()
+        e = right.get_end()
+        assert s == pytest.approx((110, 20), abs=1e-6)
+        assert e == pytest.approx((110, 70), abs=1e-6)
+
+    def test_bottom_edge(self):
+        """Bottom edge should go from bottom-right to bottom-left."""
+        r = Rectangle(width=100, height=50, x=10, y=20)
+        bottom = r.to_lines()[2]
+        s = bottom.get_start()
+        e = bottom.get_end()
+        assert s == pytest.approx((110, 70), abs=1e-6)
+        assert e == pytest.approx((10, 70), abs=1e-6)
+
+    def test_left_edge(self):
+        """Left edge should go from bottom-left to top-left."""
+        r = Rectangle(width=100, height=50, x=10, y=20)
+        left = r.to_lines()[3]
+        s = left.get_start()
+        e = left.get_end()
+        assert s == pytest.approx((10, 70), abs=1e-6)
+        assert e == pytest.approx((10, 20), abs=1e-6)
+
+    def test_total_perimeter(self):
+        """Sum of edge lengths should equal the rectangle perimeter."""
+        r = Rectangle(width=200, height=100, x=0, y=0)
+        lines = r.to_lines()
+        total = sum(l.get_length() for l in lines)
+        assert total == pytest.approx(600, abs=1)
+
+
+class TestArcSplitInto:
+    def test_two_arcs(self):
+        """Splitting into 2 should give two arcs each covering half the sweep."""
+        arc = Arc(cx=500, cy=400, r=100, start_angle=0, end_angle=90)
+        parts = arc.split_into(2)
+        assert len(parts) == 2
+        assert parts[0].start_angle.at_time(0) == pytest.approx(0)
+        assert parts[0].end_angle.at_time(0) == pytest.approx(45)
+        assert parts[1].start_angle.at_time(0) == pytest.approx(45)
+        assert parts[1].end_angle.at_time(0) == pytest.approx(90)
+
+    def test_three_arcs(self):
+        """Splitting into 3 should give three equal-sweep arcs."""
+        arc = Arc(cx=960, cy=540, r=120, start_angle=0, end_angle=180)
+        parts = arc.split_into(3)
+        assert len(parts) == 3
+        for i, p in enumerate(parts):
+            expected_start = i * 60
+            expected_end = (i + 1) * 60
+            assert p.start_angle.at_time(0) == pytest.approx(expected_start, abs=0.01)
+            assert p.end_angle.at_time(0) == pytest.approx(expected_end, abs=0.01)
+
+    def test_preserves_center_and_radius(self):
+        """All sub-arcs should share the same centre and radius."""
+        arc = Arc(cx=100, cy=200, r=50, start_angle=30, end_angle=120)
+        parts = arc.split_into(4)
+        for p in parts:
+            assert p.cx.at_time(0) == pytest.approx(100)
+            assert p.cy.at_time(0) == pytest.approx(200)
+            assert p.r.at_time(0) == pytest.approx(50)
+
+    def test_single_arc(self):
+        """Splitting into 1 should return a single arc with the same angles."""
+        arc = Arc(cx=960, cy=540, r=120, start_angle=10, end_angle=350)
+        parts = arc.split_into(1)
+        assert len(parts) == 1
+        assert parts[0].start_angle.at_time(0) == pytest.approx(10)
+        assert parts[0].end_angle.at_time(0) == pytest.approx(350)
+
+    def test_negative_sweep(self):
+        """Should handle arcs with end_angle < start_angle (clockwise sweep)."""
+        arc = Arc(cx=500, cy=500, r=100, start_angle=90, end_angle=0)
+        parts = arc.split_into(3)
+        assert len(parts) == 3
+        assert parts[0].start_angle.at_time(0) == pytest.approx(90)
+        assert parts[2].end_angle.at_time(0) == pytest.approx(0)

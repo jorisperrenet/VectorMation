@@ -1411,3 +1411,128 @@ class TestArrangeAlongPath:
         y1 = circles[1].center(0)[1]
         y2 = circles[2].center(0)[1]
         assert y0 < y1 < y2
+
+
+class TestConverge:
+    def test_converge_returns_self(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=200, cy=200)
+        col = VCollection(c1, c2)
+        assert col.converge(100, 100, start=0, end=1) is col
+
+    def test_converge_moves_to_target(self):
+        """All children should be at the convergence point at end time."""
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=200, cy=200)
+        c3 = Circle(r=10, cx=400, cy=100)
+        col = VCollection(c1, c2, c3)
+        col.converge(300, 300, start=0, end=1)
+        for c in [c1, c2, c3]:
+            cx, cy = c.center(1)
+            assert cx == pytest.approx(300, abs=2)
+            assert cy == pytest.approx(300, abs=2)
+
+    def test_converge_starts_at_original(self):
+        """Children should be at their original positions at start time."""
+        c1 = Circle(r=10, cx=50, cy=50)
+        c2 = Circle(r=10, cx=200, cy=200)
+        col = VCollection(c1, c2)
+        col.converge(300, 300, start=0, end=1)
+        cx1, cy1 = c1.center(0)
+        cx2, cy2 = c2.center(0)
+        assert cx1 == pytest.approx(50, abs=2)
+        assert cy1 == pytest.approx(50, abs=2)
+        assert cx2 == pytest.approx(200, abs=2)
+        assert cy2 == pytest.approx(200, abs=2)
+
+    def test_converge_empty_collection(self):
+        col = VCollection()
+        result = col.converge(100, 100, start=0, end=1)
+        assert result is col
+
+    def test_converge_zero_duration(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        col = VCollection(c1)
+        result = col.converge(500, 500, start=0, end=0)
+        assert result is col
+
+    def test_converge_to_canvas_center(self):
+        """Default convergence point should be canvas center (960, 540)."""
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=500, cy=500)
+        col = VCollection(c1, c2)
+        col.converge(start=0, end=1)
+        for c in [c1, c2]:
+            cx, cy = c.center(1)
+            assert cx == pytest.approx(960, abs=2)
+            assert cy == pytest.approx(540, abs=2)
+
+    def test_converge_already_at_target(self):
+        """If a child is already at the target, it should not move."""
+        c1 = Circle(r=10, cx=300, cy=300)
+        col = VCollection(c1)
+        col.converge(300, 300, start=0, end=1)
+        cx, cy = c1.center(0.5)
+        assert cx == pytest.approx(300, abs=2)
+        assert cy == pytest.approx(300, abs=2)
+
+
+class TestDiverge:
+    def test_diverge_returns_self(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=200)
+        col = VCollection(c1, c2)
+        assert col.diverge(factor=2, start=0, end=1) is col
+
+    def test_diverge_expands_outward(self):
+        """Children should be farther from the center after diverging."""
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=300, cy=300)
+        col = VCollection(c1, c2)
+        # Center of collection is at (200, 200)
+        col.diverge(factor=2, start=0, end=1)
+        cx1, cy1 = c1.center(1)
+        cx2, cy2 = c2.center(1)
+        # c1 was 100 from center, should now be 200 from center: at (0, 0)
+        assert cx1 == pytest.approx(0, abs=2)
+        assert cy1 == pytest.approx(0, abs=2)
+        # c2 was 100 from center, should now be 200 from center: at (400, 400)
+        assert cx2 == pytest.approx(400, abs=2)
+        assert cy2 == pytest.approx(400, abs=2)
+
+    def test_diverge_with_custom_center(self):
+        """Diverge from a custom center point."""
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=300, cy=100)
+        col = VCollection(c1, c2)
+        col.diverge(factor=3, cx=200, cy=100, start=0, end=1)
+        cx1, _ = c1.center(1)
+        cx2, _ = c2.center(1)
+        # c1: 100 from cx=200, factor=3 means add 2*100=200 away
+        assert cx1 == pytest.approx(-100, abs=2)
+        # c2: 100 from cx=200, factor=3 means add 2*100=200 away
+        assert cx2 == pytest.approx(500, abs=2)
+
+    def test_diverge_empty_collection(self):
+        col = VCollection()
+        result = col.diverge(factor=2, start=0, end=1)
+        assert result is col
+
+    def test_diverge_zero_duration(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        col = VCollection(c1)
+        result = col.diverge(factor=2, start=0, end=0)
+        assert result is col
+
+    def test_diverge_factor_one_no_movement(self):
+        """Factor of 1.0 should not move children."""
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=300, cy=300)
+        col = VCollection(c1, c2)
+        col.diverge(factor=1.0, start=0, end=1)
+        cx1, cy1 = c1.center(1)
+        cx2, cy2 = c2.center(1)
+        assert cx1 == pytest.approx(100, abs=2)
+        assert cy1 == pytest.approx(100, abs=2)
+        assert cx2 == pytest.approx(300, abs=2)
+        assert cy2 == pytest.approx(300, abs=2)

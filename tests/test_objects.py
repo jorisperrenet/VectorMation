@@ -8458,3 +8458,209 @@ class TestTypewriterReveal:
         # clip_path should not have been set to a function
         clip = c.styling.clip_path.at_time(1)
         assert clip == '' or clip == 0 or clip == '0'
+
+
+class TestTelegraph:
+    def test_telegraph_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        assert c.telegraph(start=0) is c
+
+    def test_telegraph_scales_at_midpoint(self):
+        """At the midpoint the scale should be above 1 (scaled up)."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.telegraph(start=0, duration=1, scale_factor=1.5)
+        mid_sx = c.styling.scale_x.at_time(0.5)
+        assert mid_sx > 1.0
+
+    def test_telegraph_opacity_dips_at_midpoint(self):
+        """Opacity should dip below 1 during the effect."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.telegraph(start=0, duration=1)
+        mid_op = c.styling.opacity.at_time(0.5)
+        assert mid_op < 1.0
+
+    def test_telegraph_scale_returns_at_end(self):
+        """Scale should return to approximately 1 at the end."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.telegraph(start=0, duration=1, scale_factor=1.4)
+        end_sx = c.styling.scale_x.at_time(1.0)
+        assert end_sx == pytest.approx(1.0, abs=0.05)
+
+    def test_telegraph_zero_duration_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.telegraph(start=0, duration=0)
+        assert result is c
+
+    def test_telegraph_renders_svg(self):
+        """Should render without error during the effect."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.telegraph(start=0, duration=0.5)
+        svg = c.to_svg(0.25)
+        assert 'circle' in svg.lower() or 'ellipse' in svg.lower()
+
+
+class TestSkate:
+    def test_skate_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        assert c.skate(500, 300, start=0, end=1) is c
+
+    def test_skate_moves_to_target(self):
+        """Object center should reach the target position at end."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.skate(500, 300, start=0, end=1, easing=easings.linear)
+        cx, cy = c.center(1)
+        assert cx == pytest.approx(500, abs=2)
+        assert cy == pytest.approx(300, abs=2)
+
+    def test_skate_rotates(self):
+        """Object should be rotated partway through."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.skate(500, 300, start=0, end=1, degrees=360, easing=easings.linear)
+        rot = c.styling.rotation.at_time(0.5)
+        assert abs(rot[0] - 180) < 2  # halfway through 360 degrees
+
+    def test_skate_zero_duration_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.skate(500, 300, start=0, end=0)
+        assert result is c
+
+    def test_skate_partial_rotation(self):
+        """Skating with partial rotation (e.g., 180 degrees)."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.skate(500, 300, start=0, end=1, degrees=180, easing=easings.linear)
+        rot = c.styling.rotation.at_time(1)
+        assert abs(rot[0] - 180) < 2
+
+
+class TestFlicker:
+    def test_flicker_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        assert c.flicker(start=0, end=1) is c
+
+    def test_flicker_opacity_varies(self):
+        """Opacity should vary during the flicker effect."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.flicker(start=0, end=1, frequency=8, min_opacity=0.1)
+        # Sample several points; at least one should have reduced opacity
+        opacities = [c.styling.opacity.at_time(t) for t in [0.1, 0.2, 0.3, 0.4]]
+        assert any(op < 1.0 for op in opacities)
+
+    def test_flicker_opacity_at_end(self):
+        """At the end, the decay envelope should drive opacity near 1.0."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.flicker(start=0, end=1, min_opacity=0.1)
+        end_op = c.styling.opacity.at_time(1.0)
+        assert end_op == pytest.approx(1.0, abs=0.1)
+
+    def test_flicker_respects_min_opacity(self):
+        """Opacity should never go below min_opacity."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.flicker(start=0, end=1, frequency=10, min_opacity=0.2)
+        for t_val in [i * 0.05 for i in range(1, 20)]:
+            op = c.styling.opacity.at_time(t_val)
+            assert op >= 0.19  # allow tiny float tolerance
+
+    def test_flicker_zero_duration_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.flicker(start=0, end=0)
+        assert result is c
+
+    def test_flicker_renders_svg(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.flicker(start=0, end=1)
+        svg = c.to_svg(0.5)
+        assert 'circle' in svg.lower() or 'ellipse' in svg.lower()
+
+
+class TestSlingshot:
+    def test_slingshot_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        assert c.slingshot(500, 300, start=0, end=1) is c
+
+    def test_slingshot_reaches_target_at_end(self):
+        """Object should be at/near the target position at end."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.slingshot(500, 300, start=0, end=1, easing=easings.linear)
+        cx, cy = c.center(1)
+        assert cx == pytest.approx(500, abs=5)
+        assert cy == pytest.approx(300, abs=5)
+
+    def test_slingshot_pullback_phase(self):
+        """Early in the animation, the object should move away from the target."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.slingshot(500, 300, start=0, end=1, pullback=0.3, easing=easings.linear)
+        # At t=0.1, the object should have pulled back (x < 100 since target is at 500)
+        cx_early, _ = c.center(0.1)
+        assert cx_early < 100  # pulled back from starting position
+
+    def test_slingshot_overshoot_phase(self):
+        """Around t=0.8 with linear easing, the object should overshoot past the target."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.slingshot(600, 100, start=0, end=1, pullback=0.3, overshoot=0.2, easing=easings.linear)
+        # At t=0.75, should be past the target (overshoot)
+        cx_overshoot, _ = c.center(0.75)
+        # The overshoot means cx should be > 600
+        assert cx_overshoot > 600
+
+    def test_slingshot_zero_duration_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.slingshot(500, 300, start=0, end=0)
+        assert result is c
+
+    def test_slingshot_renders_svg(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.slingshot(500, 300, start=0, end=1)
+        svg = c.to_svg(0.5)
+        assert 'circle' in svg.lower() or 'ellipse' in svg.lower()
+
+
+class TestAxesAddInflectionPoints:
+    def test_finds_inflection_of_cubic(self):
+        """x^3 has one inflection point at x=0."""
+        ax = Axes(x_range=(-3, 3), y_range=(-10, 10))
+        result = ax.add_inflection_points(lambda x: x**3, samples=400)
+        # Should find exactly one inflection point near x=0
+        dots = [o for o in result.objects if isinstance(o, Dot)]
+        assert len(dots) == 1
+
+    def test_inflection_point_position(self):
+        """The inflection point of x^3 should be near (0, 0)."""
+        ax = Axes(x_range=(-3, 3), y_range=(-10, 10))
+        result = ax.add_inflection_points(lambda x: x**3, samples=400)
+        dots = [o for o in result.objects if isinstance(o, Dot)]
+        assert len(dots) >= 1
+        # The dot should be positioned at the SVG coords corresponding to (0, 0)
+        sx, sy = ax.coords_to_point(0, 0)
+        cx, cy = dots[0].c.at_time(0)
+        assert cx == pytest.approx(sx, abs=15)
+        assert cy == pytest.approx(sy, abs=15)
+
+    def test_no_inflection_for_linear(self):
+        """A linear function should have no inflection points."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_inflection_points(lambda x: 2 * x + 1, samples=200)
+        dots = [o for o in result.objects if isinstance(o, Dot)]
+        assert len(dots) == 0
+
+    def test_sin_has_inflections(self):
+        """sin(x) on [0, 2*pi] should have an inflection point near x=pi."""
+        import math
+        ax = Axes(x_range=(0.5, 5.5), y_range=(-2, 2))
+        result = ax.add_inflection_points(lambda x: math.sin(x), samples=400)
+        dots = [o for o in result.objects if isinstance(o, Dot)]
+        assert len(dots) >= 1
+
+    def test_returns_vcollection(self):
+        """Result should be a VCollection."""
+        ax = Axes(x_range=(-3, 3), y_range=(-10, 10))
+        result = ax.add_inflection_points(lambda x: x**3)
+        assert isinstance(result, VCollection)
+
+    def test_custom_x_range(self):
+        """Should only find inflection points within the given x_range."""
+        import math
+        ax = Axes(x_range=(-10, 10), y_range=(-2, 2))
+        # sin(x) on [0.5, 2.5] should have no inflection at pi (3.14)
+        result = ax.add_inflection_points(lambda x: math.sin(x), x_range=(0.5, 2.5), samples=200)
+        dots = [o for o in result.objects if isinstance(o, Dot)]
+        assert len(dots) == 0

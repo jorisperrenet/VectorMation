@@ -2654,6 +2654,97 @@ class Axes(VCollection):
             objs.extend([dot, lbl])
         return VCollection(*objs, creation=creation, z=z)
 
+    def add_inflection_points(self, func, x_range=None, samples=200, h=1e-5,
+                              creation=0, z=3, dot_radius=5, font_size=18,
+                              color='#FFA726', **styling_kwargs):
+        """Find and label inflection points of *func* within *x_range*.
+
+        An inflection point is where the second derivative changes sign.  This
+        method numerically approximates the second derivative at evenly-spaced
+        sample points and detects sign changes.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x) -> y``.
+        x_range:
+            ``(x_min, x_max)`` in math coordinates.  Defaults to the current
+            axis range.
+        samples:
+            Number of sample points for scanning (default 200).
+        h:
+            Step size for the numerical second derivative (default 1e-5).
+        creation:
+            Creation time for the resulting objects.
+        z:
+            Z-index for the dots and labels.
+        dot_radius:
+            Radius of the marker dots (default 5).
+        font_size:
+            Font size for the labels (default 18).
+        color:
+            Default colour for dots and labels (default '#FFA726', orange).
+        **styling_kwargs:
+            Extra styling overrides (e.g. ``fill``).
+
+        Returns
+        -------
+        VCollection
+            A collection of (dot, label) pairs for each inflection point found.
+        """
+        from vectormation._shapes import Dot as _Dot, Text as _Text
+        xlo = x_range[0] if x_range else self.x_min.at_time(creation)
+        xhi = x_range[1] if x_range else self.x_max.at_time(creation)
+        step = (xhi - xlo) / samples
+
+        # Compute second derivative at sample points
+        def _f2(x):
+            return (func(x + h) - 2 * func(x) + func(x - h)) / (h * h)
+
+        xs = [xlo + i * step for i in range(samples + 1)]
+        f2s = [_f2(x) for x in xs]
+
+        # Detect sign changes in second derivative.
+        # A sign change is either: product < 0 (strict crossing) OR the value
+        # is essentially zero at sample i with different signs on either side.
+        inflections = []
+        for i in range(len(f2s) - 1):
+            if f2s[i] * f2s[i + 1] < 0:
+                # Strict sign change -- linear interpolation
+                denom = abs(f2s[i]) + abs(f2s[i + 1])
+                t = abs(f2s[i]) / denom if denom > 0 else 0.5
+                ix = xs[i] + t * step
+                iy = func(ix)
+                inflections.append((ix, iy))
+            elif abs(f2s[i]) < 1e-8 and i > 0 and f2s[i - 1] * f2s[i + 1] < 0:
+                # The second derivative is ~0 at this sample with a sign
+                # change on either side -- this is also an inflection point.
+                ix = xs[i]
+                iy = func(ix)
+                inflections.append((ix, iy))
+
+        fill_color = styling_kwargs.get('fill', color)
+        objs = []
+        for ix, iy in inflections:
+            sx, sy = self.coords_to_point(ix, iy, creation)
+            dot = _Dot(cx=sx, cy=sy, r=dot_radius, fill=fill_color,
+                       creation=creation, z=z + 1)
+            dot.c.set_onward(creation,
+                lambda t, _ix=ix, _iy=iy: self.coords_to_point(_ix, _iy, t))
+            lbl_text = f'({ix:.2f}, {iy:.2f})'
+            lbl = _Text(text=lbl_text, x=sx, y=sy - 15,
+                        font_size=font_size, fill=fill_color, stroke_width=0,
+                        text_anchor='middle', creation=creation, z=z + 2)
+            _ix, _iy = ix, iy
+            lbl.x.set_onward(creation,
+                lambda t, _ix=_ix, _iy=_iy: self.coords_to_point(_ix, _iy, t)[0])
+            lbl.y.set_onward(creation,
+                lambda t, _ix=_ix, _iy=_iy: self.coords_to_point(_ix, _iy, t)[1] - 15)
+            self._add_plot_obj(dot)
+            self._add_plot_obj(lbl)
+            objs.extend([dot, lbl])
+        return VCollection(*objs, creation=creation, z=z)
+
     def add_error_bars(self, x_data, y_data, y_err, creation=0, z=1,
                         cap_width=6, **styling_kwargs):
         """Add error bars at data points. y_err can be a single value or a list.

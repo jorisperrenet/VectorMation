@@ -1351,7 +1351,7 @@ class VObject(ABC):  # Vector Object
         _dir = dir_name
         _buff = buff
         def _update(obj, t):
-            _mx, _my, mw, mh = obj.bbox(t)
+            _, _, mw, mh = obj.bbox(t)
             ox, oy, ow, oh = other.bbox(t)
             ocx, ocy = ox + ow / 2, oy + oh / 2
             targets = {
@@ -3214,6 +3214,173 @@ class VObject(ABC):  # Vector Object
         ox, oy = other.center(time) if hasattr(other, 'center') else other
         return self.move_to(ox, oy, start_time=time)
 
+    def telegraph(self, start: float = 0, duration: float = 0.4,
+                  scale_factor: float = 1.4, shake_amplitude: float = 8,
+                  easing=easings.there_and_back):
+        """Quick attention-grabbing burst: scale spike + shake + opacity dip.
+
+        Combines a brief scale-up, a rapid horizontal shake, and an opacity
+        dip into a single short "telegraph" pulse.  Useful for signalling
+        that something important happened (e.g. an error, a notification).
+
+        Parameters
+        ----------
+        start:
+            Animation start time.
+        duration:
+            Total duration of the telegraph effect.
+        scale_factor:
+            Peak scale multiplier at the midpoint.
+        shake_amplitude:
+            Maximum horizontal displacement in pixels during the shake.
+        easing:
+            Easing function applied to the scale and opacity envelopes.
+        """
+        end = start + duration
+        dur = end - start
+        if dur <= 0:
+            return self
+        self._ensure_scale_origin(start)
+        _s, _d = start, max(dur, 1e-9)
+        # Scale spike
+        scale_fn = lambda t, _s=_s, _d=_d, _sf=scale_factor, _e=easing: (
+            1 + (_sf - 1) * _e((t - _s) / _d))
+        self.styling.scale_x.set(_s, end, scale_fn)
+        self.styling.scale_y.set(_s, end, scale_fn)
+        # Opacity dip (brief dim at peak)
+        opacity_fn = lambda t, _s=_s, _d=_d, _e=easing: (
+            1 - 0.3 * _e((t - _s) / _d))
+        self.styling.opacity.set(_s, end, opacity_fn)
+        # Rapid horizontal shake
+        shake_freq = 12
+        def _dx(t, _s=_s, _d=_d, _a=shake_amplitude, _freq=shake_freq, _e=easing):
+            p = (t - _s) / _d
+            return _a * math.sin(_freq * 2 * math.pi * p) * _e(p)
+        self._apply_shift_effect(start, end, dx_func=_dx)
+        return self
+
+    def skate(self, tx: float, ty: float, start: float = 0, end: float = 1,
+              degrees: float = 360, easing=easings.smooth):
+        """Slide to a target position while spinning, like skating on ice.
+
+        The object moves from its current center to (tx, ty) while
+        simultaneously rotating by *degrees*.
+
+        Parameters
+        ----------
+        tx, ty:
+            Target center position in SVG coordinates.
+        start:
+            Animation start time.
+        end:
+            Animation end time.
+        degrees:
+            Total rotation (in degrees) applied during the slide.
+        easing:
+            Easing function for both movement and rotation.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        # Move to target
+        self.center_to_pos(tx, ty, start_time=start, end_time=end, easing=easing)
+        # Rotate simultaneously
+        self.spin(start=start, end=end, degrees=degrees, easing=easing)
+        return self
+
+    def flicker(self, start: float = 0, end: float = 1, frequency: float = 8,
+                min_opacity: float = 0.1, easing=easings.smooth):
+        """Random-looking opacity flickering, like a failing light bulb.
+
+        The opacity oscillates rapidly between *min_opacity* and 1.0 using
+        a pseudo-random pattern built from layered sine waves.  The effect
+        fades out toward *end* so the object returns to full opacity.
+
+        Parameters
+        ----------
+        start:
+            Animation start time.
+        end:
+            Animation end time.
+        frequency:
+            Base oscillation frequency (higher = faster flicker).
+        min_opacity:
+            Minimum opacity reached during the deepest flickers.
+        easing:
+            Decay envelope -- controls how the flicker dies out.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        _s, _d, _freq, _mo = start, max(dur, 1e-9), frequency, min_opacity
+        def _opacity(t, _s=_s, _d=_d, _freq=_freq, _mo=_mo, _e=easing):
+            p = (t - _s) / _d
+            # Layered sine waves for pseudo-random flicker
+            flicker = (math.sin(_freq * 2 * math.pi * p) *
+                       math.sin(_freq * 3.7 * math.pi * p) *
+                       math.sin(_freq * 5.3 * math.pi * p))
+            # flicker is in [-1, 1]; map to [min_opacity, 1]
+            # Envelope decays toward end so object returns to full opacity
+            envelope = 1 - _e(p)
+            depth = (1 - _mo) * max(0, -flicker) * envelope
+            return 1 - depth
+        self.styling.opacity.set(start, end, _opacity, stay=True)
+        return self
+
+    def slingshot(self, tx: float, ty: float, start: float = 0, end: float = 1,
+                  pullback: float = 0.3, overshoot: float = 0.15,
+                  easing=easings.smooth):
+        """Pull back then launch toward the target with overshoot.
+
+        The object first moves away from the target (pullback phase),
+        then accelerates through the target and overshoots slightly
+        before settling at (tx, ty).
+
+        Parameters
+        ----------
+        tx, ty:
+            Target center position in SVG coordinates.
+        start:
+            Animation start time.
+        end:
+            Animation end time.
+        pullback:
+            Fraction of the total displacement to pull back (0.3 = 30%).
+        overshoot:
+            Fraction of the total displacement to overshoot past target.
+        easing:
+            Easing function for the overall progress curve.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        bx, by, bw, bh = self.bbox(start)
+        ox, oy = bx + bw / 2, by + bh / 2
+        total_dx, total_dy = tx - ox, ty - oy
+        _s, _d = start, max(dur, 1e-9)
+        _pb, _os = pullback, overshoot
+        _tdx, _tdy = total_dx, total_dy
+        def _progress(t, _s=_s, _d=_d, _pb=_pb, _os=_os, _e=easing):
+            p = _e((t - _s) / _d)
+            # Three phases: pullback (0-0.2), launch (0.2-0.8), settle (0.8-1.0)
+            if p < 0.2:
+                # Pull back: go from 0 to -pullback
+                return -_pb * math.sin(p / 0.2 * math.pi / 2)
+            elif p < 0.8:
+                # Launch: go from -pullback to (1 + overshoot)
+                phase = (p - 0.2) / 0.6
+                return -_pb + (-_pb - (1 + _os)) * (math.cos(phase * math.pi) - 1) / 2
+            else:
+                # Settle: go from (1 + overshoot) to 1
+                phase = (p - 0.8) / 0.2
+                return (1 + _os) - _os * math.sin(phase * math.pi / 2)
+        def _dx(t, _f=_progress, _tdx=_tdx):
+            return _f(t) * _tdx
+        def _dy(t, _f=_progress, _tdy=_tdy):
+            return _f(t) * _tdy
+        self._apply_shift_effect(start, end, dx_func=_dx, dy_func=_dy, stay=True)
+        return self
+
     @staticmethod
     def surround(other, buff=SMALL_BUFF, rx=6, ry=6, start_time: float = 0, follow=True):
         """Create a rectangle surrounding another object. Returns a Rectangle."""
@@ -4794,6 +4961,95 @@ class VCollection:
             bx, by, bw, bh = obj.bbox(start_time)
             cx, cy = bx + bw / 2, by + bh / 2
             obj.shift(dx=tx - cx, dy=ty - cy, start_time=start_time)
+        return self
+
+    def converge(self, x: float = 960, y: float = 540,
+                 start: float = 0, end: float = 1, easing=easings.smooth):
+        """Animate all children moving toward a common point.
+
+        Each child slides from its current center to the target point (x, y)
+        over [start, end].  This is useful for gathering scattered objects
+        into a single location.
+
+        Parameters
+        ----------
+        x, y:
+            Target convergence point in SVG coordinates.
+            Defaults to the canvas center (960, 540).
+        start:
+            Animation start time.
+        end:
+            Animation end time.
+        easing:
+            Easing function for the movement.
+
+        Returns
+        -------
+        self
+        """
+        n = len(self.objects)
+        if n == 0:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        for obj in self.objects:
+            bx, by, bw, bh = obj.bbox(start)
+            cx, cy = bx + bw / 2, by + bh / 2
+            dx, dy = x - cx, y - cy
+            if dx == 0 and dy == 0:
+                continue
+            obj.shift(dx=dx, dy=dy, start_time=start, end_time=end, easing=easing)
+        return self
+
+    def diverge(self, factor: float = 2.0, cx: float | None = None,
+                cy: float | None = None, start: float = 0, end: float = 1,
+                easing=easings.smooth):
+        """Animate all children moving away from a common center.
+
+        Each child slides outward from the collection's center (or the
+        specified center) by a distance equal to *factor* times its
+        current offset.  A factor of 2.0 doubles each child's distance
+        from the center.
+
+        Parameters
+        ----------
+        factor:
+            Expansion multiplier.  Values > 1 spread children apart;
+            values between 0 and 1 bring them closer together (but see
+            :meth:`converge` for bringing them to a single point).
+        cx, cy:
+            Center of expansion.  Defaults to the collection's bounding
+            box center at *start*.
+        start:
+            Animation start time.
+        end:
+            Animation end time.
+        easing:
+            Easing function for the movement.
+
+        Returns
+        -------
+        self
+        """
+        n = len(self.objects)
+        if n == 0:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        if cx is None or cy is None:
+            bx, by, bw, bh = self.bbox(start)
+            cx = bx + bw / 2
+            cy = by + bh / 2
+        for obj in self.objects:
+            bx, by, bw, bh = obj.bbox(start)
+            obj_cx, obj_cy = bx + bw / 2, by + bh / 2
+            dx = (obj_cx - cx) * (factor - 1)
+            dy = (obj_cy - cy) * (factor - 1)
+            if dx == 0 and dy == 0:
+                continue
+            obj.shift(dx=dx, dy=dy, start_time=start, end_time=end, easing=easing)
         return self
 
     def all_match(self, predicate):

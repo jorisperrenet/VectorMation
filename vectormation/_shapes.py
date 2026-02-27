@@ -538,6 +538,60 @@ class Polygon(VObject):
         """Mirror vertices across horizontal line y=cy."""
         return self._mirror(1, cy, time)
 
+    def interior_angles(self, time=0):
+        """Return the interior angles of the polygon in degrees.
+
+        For a closed polygon with *n* vertices, returns a list of *n* angles
+        (one per vertex) measured on the interior side.  For convex polygons
+        all angles are less than 180; for concave polygons some may exceed 180.
+
+        For an open polyline or a polygon with fewer than 3 vertices, returns
+        an empty list.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read vertex positions.
+
+        Returns
+        -------
+        list[float]
+            Interior angles in degrees, one per vertex.
+        """
+        if not self.closed:
+            return []
+        pts = self.get_vertices(time)
+        n = len(pts)
+        if n < 3:
+            return []
+        angles = []
+        for i in range(n):
+            ax, ay = pts[(i - 1) % n]
+            bx, by = pts[i]
+            cx, cy = pts[(i + 1) % n]
+            v1x, v1y = ax - bx, ay - by
+            v2x, v2y = cx - bx, cy - by
+            dot = v1x * v2x + v1y * v2y
+            cross = v1x * v2y - v1y * v2x
+            angle = math.atan2(abs(cross), dot)
+            angles.append(math.degrees(angle))
+        # Check winding: if the polygon is CW in SVG coords (positive signed area
+        # in screen space), the cross products are reliable.  Sum check: for a
+        # simple convex polygon, sum of interior angles = (n-2)*180.
+        # If the sum is too far off, some angles need to be 360-angle.
+        sa = self.signed_area(time)
+        for i in range(n):
+            ax, ay = pts[(i - 1) % n]
+            bx, by = pts[i]
+            cx, cy = pts[(i + 1) % n]
+            v1x, v1y = ax - bx, ay - by
+            v2x, v2y = cx - bx, cy - by
+            cross = v1x * v2y - v1y * v2x
+            # If cross sign matches the winding direction, this is a reflex angle
+            if (sa > 0 and cross > 0) or (sa < 0 and cross < 0):
+                angles[i] = 360 - angles[i]
+        return angles
+
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 
@@ -729,6 +783,49 @@ class Ellipse(VObject):
         if mag > 0:
             tx, ty = tx / mag * length / 2, ty / mag * length / 2
         return Line(x1=px - tx, y1=py - ty, x2=px + tx, y2=py + ty, **kwargs)
+
+    def normal_at_angle(self, angle_deg, length=200, time=0, **kwargs):
+        """Return a normal (perpendicular) :class:`Line` at the given angle on the ellipse.
+
+        The normal is perpendicular to the tangent at the specified point.
+        For an ellipse, the normal does *not* generally pass through the centre
+        (only for a circle).  The returned line is centred on the ellipse point
+        and extends ``length/2`` in each direction along the outward normal.
+
+        Parameters
+        ----------
+        angle_deg:
+            Angle in degrees (CCW from right, same convention as
+            :meth:`point_at_angle`).
+        length:
+            Total length of the normal line (default 200 px).
+        time:
+            Animation time at which to evaluate ellipse parameters.
+        **kwargs:
+            Extra keyword arguments forwarded to the :class:`Line`
+            constructor (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        Line
+            A normal line centred on the ellipse at the specified angle.
+        """
+        cx, cy = self.c.at_time(time)
+        rx = self.rx.at_time(time)
+        ry = self.ry.at_time(time)
+        angle = math.radians(angle_deg)
+        # Point on ellipse
+        px = cx + rx * math.cos(angle)
+        py = cy - ry * math.sin(angle)  # SVG y-down
+        # Tangent direction: derivative of parametric form
+        tx = -rx * math.sin(angle)
+        ty = -ry * math.cos(angle)  # SVG y-down
+        # Normal is perpendicular to tangent: rotate 90 degrees
+        nx, ny = -ty, tx
+        mag = math.hypot(nx, ny)
+        if mag > 0:
+            nx, ny = nx / mag * length / 2, ny / mag * length / 2
+        return Line(x1=px - nx, y1=py - ny, x2=px + nx, y2=py + ny, **kwargs)
 
     def __repr__(self):
         cx, cy = self.c.at_time(0)
@@ -1481,6 +1578,34 @@ class Rectangle(VObject):
         corners = self.get_corners(time)
         return Polygon(*corners, **kwargs)
 
+    def to_lines(self, time=0, **kwargs):
+        """Decompose this rectangle into its 4 edges as :class:`Line` objects.
+
+        Returns a list of 4 Lines in order: top, right, bottom, left
+        (clockwise from the top-left corner).  This is useful for animating
+        individual edges independently.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read the rectangle geometry.
+        **kwargs:
+            Extra keyword arguments forwarded to each :class:`Line`
+            constructor (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        list[Line]
+            ``[top, right, bottom, left]`` -- 4 Line objects.
+        """
+        tl, tr, br, bl = self.get_corners(time)
+        return [
+            Line(x1=tl[0], y1=tl[1], x2=tr[0], y2=tr[1], **kwargs),  # top
+            Line(x1=tr[0], y1=tr[1], x2=br[0], y2=br[1], **kwargs),  # right
+            Line(x1=br[0], y1=br[1], x2=bl[0], y2=bl[1], **kwargs),  # bottom
+            Line(x1=bl[0], y1=bl[1], x2=tl[0], y2=tl[1], **kwargs),  # left
+        ]
+
     def subdivide(self, rows=2, cols=2, time=0, **kwargs):
         """Subdivide this rectangle into a grid of *rows* x *cols* sub-rectangles.
 
@@ -1955,6 +2080,64 @@ class Line(VObject):
         x1, y1 = self.get_start(time)
         x2, y2 = self.get_end(time)
         return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
+
+    def subdivide_into(self, n=2, time=0, **kwargs):
+        """Divide this line into *n* equal segments.
+
+        Returns a list of *n* :class:`Line` objects, each spanning one
+        segment of the original line.  The first segment starts at p1 and
+        the last ends at p2.
+
+        Parameters
+        ----------
+        n:
+            Number of equal segments (must be >= 1).  Default is 2.
+        time:
+            Animation time at which to read the line endpoints.
+        **kwargs:
+            Extra keyword arguments forwarded to each :class:`Line`
+            constructor (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        list[Line]
+            A list of *n* Line objects.
+        """
+        if n < 1:
+            n = 1
+        x1, y1 = self.get_start(time)
+        x2, y2 = self.get_end(time)
+        dx = (x2 - x1) / n
+        dy = (y2 - y1) / n
+        segments = []
+        for i in range(n):
+            sx = x1 + i * dx
+            sy = y1 + i * dy
+            ex = x1 + (i + 1) * dx
+            ey = y1 + (i + 1) * dy
+            segments.append(Line(x1=sx, y1=sy, x2=ex, y2=ey, **kwargs))
+        return segments
+
+    def distance_to_point(self, px, py, time=0):
+        """Return the shortest distance from point ``(px, py)`` to this line segment.
+
+        The distance is measured to the closest point on the segment (clamped),
+        not to the infinite line extension.
+
+        Parameters
+        ----------
+        px, py:
+            Coordinates of the external point.
+        time:
+            Animation time at which to evaluate the line endpoints.
+
+        Returns
+        -------
+        float
+            Euclidean distance from the point to the nearest point on the segment.
+        """
+        cp = self.get_perpendicular_point(px, py, time)
+        return math.hypot(px - cp[0], py - cp[1])
 
     def __repr__(self):
         p1, p2 = self.p1.at_time(0), self.p2.at_time(0)
@@ -3285,6 +3468,42 @@ class Arc(VObject):
             end_angle=self.end_angle.at_time(time),
             **kwargs,
         )
+
+    def split_into(self, n=2, time=0, **kwargs):
+        """Split this arc into *n* equal sub-arcs.
+
+        Each sub-arc shares the same centre and radius but spans an equal
+        fraction of the total sweep angle.
+
+        Parameters
+        ----------
+        n:
+            Number of sub-arcs to create (must be >= 1).  Default is 2.
+        time:
+            Animation time at which to read the arc geometry.
+        **kwargs:
+            Extra keyword arguments forwarded to each :class:`Arc`
+            constructor (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        list[Arc]
+            A list of *n* Arc objects.
+        """
+        if n < 1:
+            n = 1
+        cx = self.cx.at_time(time)
+        cy = self.cy.at_time(time)
+        r = self.r.at_time(time)
+        sa = self.start_angle.at_time(time)
+        ea = self.end_angle.at_time(time)
+        step = (ea - sa) / n
+        arcs = []
+        for i in range(n):
+            a1 = sa + i * step
+            a2 = sa + (i + 1) * step
+            arcs.append(Arc(cx=cx, cy=cy, r=r, start_angle=a1, end_angle=a2, **kwargs))
+        return arcs
 
     def contains_point(self, px, py, time=0, tol=2):
         """Return True if (px, py) lies on the arc within tolerance.
