@@ -13,7 +13,7 @@ from vectormation._constants import (
     UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE,
     DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
     DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
-    _sample_function,
+    _sample_function, _normalize,
 )
 from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _ramp, _ramp_down, _lerp_point
 from vectormation._shapes import (
@@ -5371,8 +5371,7 @@ class NumberPlane(VCollection):
 def _arrowhead(from_x, from_y, to_x, to_y, tip_length, tip_width, fill, creation, z):
     """Create a triangular arrowhead polygon pointing from (from_x,from_y) toward (to_x,to_y)."""
     dx, dy = to_x - from_x, to_y - from_y
-    length = math.hypot(dx, dy) or 1
-    ux, uy = dx / length, dy / length
+    ux, uy = _normalize(dx, dy)
     px, py = -uy, ux
     bx, by = to_x - ux * tip_length, to_y - uy * tip_length
     hw = tip_width / 2
@@ -5407,8 +5406,7 @@ class Arrow(VCollection):
             p1 = shaft.p1.at_time(t)
             p2 = shaft.p2.at_time(t)
             dx, dy = p2[0] - p1[0], p2[1] - p1[1]
-            length = math.hypot(dx, dy) or 1
-            ux, uy = dx / length, dy / length
+            ux, uy = _normalize(dx, dy)
             px, py = -uy, ux
             bx, by = p2[0] - ux * tl, p2[1] - uy * tl
             return (p2, (bx + px * hw, by + py * hw), (bx - px * hw, by - py * hw))
@@ -5523,8 +5521,7 @@ class Arrow(VCollection):
         if buff > 0:
             length = math.hypot(end[0] - start[0], end[1] - start[1])
             if length > 2 * buff:
-                ux = (end[0] - start[0]) / length
-                uy = (end[1] - start[1]) / length
+                ux, uy = _normalize(end[0] - start[0], end[1] - start[1])
                 start = (start[0] + ux * buff, start[1] + uy * buff)
                 end = (end[0] - ux * buff, end[1] - uy * buff)
         return cls(x1=start[0], y1=start[1], x2=end[0], y2=end[1], **kwargs)
@@ -8497,11 +8494,12 @@ def brace_between_points(p1, p2, direction=None, label=None, buff=0, depth=18,
     # Build a thin invisible rect along the line
     dx, dy = x2 - x1, y2 - y1
     dist = math.hypot(dx, dy) or 1
+    ux, uy = _normalize(dx, dy)
     cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
     # Determine direction
     if direction is None:
         # Perpendicular (pointing to the left of p1→p2)
-        nx, ny = -dy / dist, dx / dist
+        nx, ny = -uy, ux
         if ny > 0:
             direction = 'down'
         elif ny < 0:
@@ -9113,8 +9111,7 @@ class Automaton(VCollection):
                 objects.append(lbl)
             else:
                 dx, dy = tx - fx, ty - fy
-                dist = math.hypot(dx, dy) or 1
-                ux, uy = dx / dist, dy / dist
+                ux, uy = _normalize(dx, dy)
                 # Shorten to circle edges
                 sx, sy = fx + ux * state_r, fy + uy * state_r
                 ex, ey = tx - ux * state_r, ty - uy * state_r
@@ -9232,12 +9229,12 @@ class NetworkGraph(VCollection):
             bx, by = self._node_positions[b]
             if directed:
                 dx, dy = bx - ax, by - ay
-                d = math.hypot(dx, dy) or 1
+                ux, uy = _normalize(dx, dy)
                 # Shorten to not overlap circles
-                ax2 = ax + dx / d * node_r
-                ay2 = ay + dy / d * node_r
-                bx2 = bx - dx / d * node_r
-                by2 = by - dy / d * node_r
+                ax2 = ax + ux * node_r
+                ay2 = ay + uy * node_r
+                bx2 = bx - ux * node_r
+                by2 = by - uy * node_r
                 arrow = Arrow(x1=ax2, y1=ay2, x2=bx2, y2=by2,
                               tip_length=12, tip_width=10,
                               creation=creation, z=z, stroke='#888', stroke_width=2)
@@ -9301,9 +9298,9 @@ class LabeledArrow(VCollection):
         arrow = Arrow(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z, **style_kw)
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
         dx, dy = x2 - x1, y2 - y1
-        dist = math.hypot(dx, dy) or 1
+        ux, uy = _normalize(dx, dy)
         # Perpendicular offset for the label
-        nx, ny = -dy / dist * label_buff, dx / dist * label_buff
+        nx, ny = -uy * label_buff, ux * label_buff
         lbl = _label_text(label, mx + nx, my + ny, font_size, creation=creation, z=z + 1)
         super().__init__(arrow, lbl, creation=creation, z=z)
         self.arrow = arrow
@@ -9473,8 +9470,9 @@ class DimensionLine(VCollection):
         x2, y2 = p2
         dx, dy = x2 - x1, y2 - y1
         length = math.hypot(dx, dy) or 1
+        ux, uy = _normalize(dx, dy)
         # Perpendicular unit vector
-        nx, ny = -dy / length * offset, dx / length * offset
+        nx, ny = -uy * offset, ux * offset
         # Offset endpoints
         ox1, oy1 = x1 + nx, y1 + ny
         ox2, oy2 = x2 + nx, y2 + ny
@@ -9489,7 +9487,7 @@ class DimensionLine(VCollection):
         ext2 = SLine(x1=x2, y1=y2, x2=ox2 + nx * 0.3, y2=oy2 + ny * 0.3,
                      creation=creation, z=z, **style_kw)
         # Tick marks at ends of dimension line
-        tnx, tny = -dy / length * tick_size / 2, dx / length * tick_size / 2
+        tnx, tny = -uy * tick_size / 2, ux * tick_size / 2
         tick1 = SLine(x1=ox1 - tnx, y1=oy1 - tny, x2=ox1 + tnx, y2=oy1 + tny,
                       creation=creation, z=z, **style_kw)
         tick2 = SLine(x1=ox2 - tnx, y1=oy2 - tny, x2=ox2 + tnx, y2=oy2 + tny,
@@ -10451,11 +10449,10 @@ class VennDiagram(VCollection):
                 lx = cx + (-1 if i == 0 else 1) * sizes[i] * 0.5
                 ly = cy - sizes[i] - 15
             else:
-                dx = cx - x
-                dy = cy - y
-                dist = math.hypot(dx, dy) or 1
-                lx = cx + dx / dist * (sizes[i] + 20)
-                ly = cy + dy / dist * (sizes[i] + 20) + font_size * TEXT_Y_OFFSET
+                dx, dy = cx - x, cy - y
+                ux, uy = _normalize(dx, dy)
+                lx = cx + ux * (sizes[i] + 20)
+                ly = cy + uy * (sizes[i] + 20) + font_size * TEXT_Y_OFFSET
             lbl = Text(text=str(labels[i]), x=lx, y=ly,
                        font_size=font_size, fill=colors[i % len(colors)],
                        stroke_width=0, text_anchor='middle',
@@ -11948,7 +11945,7 @@ class Resistor(VCollection):
         style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
         dx, dy = x2 - x1, y2 - y1
         length = math.hypot(dx, dy) or 1
-        ux, uy = dx / length, dy / length
+        ux, uy = _normalize(dx, dy)
         px, py = -uy, ux
         lead, zag_end = 0.25, 0.75
         n_zags, zag_amp = 6, 12
@@ -11976,8 +11973,7 @@ class Capacitor(VCollection):
                  creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
         dx, dy = x2 - x1, y2 - y1
-        length = math.hypot(dx, dy) or 1
-        ux, uy = dx / length, dy / length
+        ux, uy = _normalize(dx, dy)
         px, py = -uy, ux
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
         gap, plate_h = 8, 24
@@ -12009,7 +12005,7 @@ class Inductor(VCollection):
         style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
         dx, dy = x2 - x1, y2 - y1
         length = math.hypot(dx, dy) or 1
-        ux, uy = dx / length, dy / length
+        ux, uy = _normalize(dx, dy)
         px, py = -uy, ux
         lead = 0.2
         coil_start = lead
@@ -12044,7 +12040,7 @@ class Diode(VCollection):
         style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
         dx, dy = x2 - x1, y2 - y1
         length = math.hypot(dx, dy) or 1
-        ux, uy = dx / length, dy / length
+        ux, uy = _normalize(dx, dy)
         px, py = -uy, ux
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
         tri_h, tri_w = length * 0.2, 20
@@ -12084,8 +12080,7 @@ class LED(VCollection):
         diode = Diode(x1=x1, y1=y1, x2=x2, y2=y2, label='',
                       creation=creation, z=z, **styling_kwargs)
         dx, dy = x2 - x1, y2 - y1
-        length = math.hypot(dx, dy) or 1
-        ux, uy = dx / length, dy / length
+        ux, uy = _normalize(dx, dy)
         px, py = -uy, ux
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
         # Two small arrows (rays) coming off the diode
