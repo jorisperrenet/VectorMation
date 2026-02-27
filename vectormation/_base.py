@@ -25,6 +25,31 @@ style._RENDERED_DEFAULTS['mix_blend_mode'] = ''
 style.Styling.mix_blend_mode: attributes.String
 
 
+def _lerp(start, dur, a, b, easing):
+    """Return a lambda that interpolates from *a* to *b* over [start, start+dur]."""
+    return lambda t, _s=start, _d=dur, _a=a, _b=b, _e=easing: _a + (_b - _a) * _e((t - _s) / _d)
+
+
+def _ramp(start, dur, val, easing):
+    """Return a lambda that ramps from 0 to *val* over [start, start+dur]."""
+    return lambda t, _s=start, _d=dur, _v=val, _e=easing: _v * _e((t - _s) / _d)
+
+
+def _ramp_down(start, dur, val, easing):
+    """Return a lambda that ramps from *val* to 0 over [start, start+dur]."""
+    return lambda t, _s=start, _d=dur, _v=val, _e=easing: _v * (1 - _e((t - _s) / _d))
+
+
+def _norm_dir(direction, default='right'):
+    """Convert a tuple direction constant to its string name."""
+    return _DIR_NAMES.get(direction, default) if isinstance(direction, tuple) else direction
+
+
+def _norm_edge(edge, default='bottom'):
+    """Convert a tuple edge constant to its string name."""
+    return _EDGE_NAMES.get(edge, default) if isinstance(edge, tuple) else edge
+
+
 def _path_prefix(path, t):
     """Return the first t-fraction (0-1) of a morphing.Path by arc length."""
     length_to_keep = t * path.length()
@@ -72,8 +97,7 @@ def _make_brect(bbox_func, time, rx, ry, buff, follow, **bbox_kw):
 
 def _to_edge_impl(obj, edge, buff, start, end, easing):
     """Shared to_edge logic for VObject and VCollection."""
-    if isinstance(edge, tuple):
-        edge = _EDGE_NAMES.get(edge, 'bottom')
+    edge = _norm_edge(edge)
     x, y, w, h = obj.bbox(start)
     cx, cy = x + w / 2, y + h / 2
     targets = {'bottom': (cx, 1080 - buff - h / 2), 'top': (cx, buff + h / 2),
@@ -752,7 +776,7 @@ class VObject(ABC):  # Vector Object
         dur = e - s
         if dur <= 0:
             return self
-        self.styling.opacity.set(s, e, lambda t, _s=s, _d=dur, _ev=end_val: _ev * easing((t-_s)/_d))
+        self.styling.opacity.set(s, e, _ramp(s, dur, end_val, easing))
         if shift_dir is not None:
             dx = shift_dir[0] * shift_amount
             dy = shift_dir[1] * shift_amount
@@ -786,8 +810,7 @@ class VObject(ABC):  # Vector Object
             self._hide_from(start)
             return self
         s, e = start, end
-        self.styling.opacity.set(s, e,
-            lambda t, _s=s, _d=dur, _sv=start_val: _sv * (1 - easing((t - _s) / _d)))
+        self.styling.opacity.set(s, e, _ramp_down(s, dur, start_val, easing))
         self.shift(dx=dx, dy=dy, start=s, end=e, easing=easing)
         self._hide_from(e)
         return self
@@ -803,7 +826,7 @@ class VObject(ABC):  # Vector Object
             if change_existence:
                 self._hide_from(start)
             return self
-        self.styling.opacity.set(s, e, lambda t, _s=s, _d=dur, _sv=start_val: _sv * (1 - easing((t-_s)/_d)))
+        self.styling.opacity.set(s, e, _ramp_down(s, dur, start_val, easing))
         if shift_dir is not None:
             dx = shift_dir[0] * shift_amount
             dy = shift_dir[1] * shift_amount
@@ -872,10 +895,10 @@ class VObject(ABC):  # Vector Object
         s, op_base = start, self.styling.fill_opacity.at_time(start)
         if fade_in:
             rot_fn = lambda t, _s=s, _d=dur, _deg=degrees, _cx=cx, _cy=cy: (_deg * (1 - easing((t - _s) / _d)), _cx, _cy)
-            op_fn = lambda t, _s=s, _d=dur, _b=op_base: _b * easing((t - _s) / _d)
+            op_fn = _ramp(s, dur, op_base, easing)
         else:
             rot_fn = lambda t, _s=s, _d=dur, _deg=degrees, _cx=cx, _cy=cy: (_deg * easing((t - _s) / _d), _cx, _cy)
-            op_fn = lambda t, _s=s, _d=dur, _b=op_base: _b * (1 - easing((t - _s) / _d))
+            op_fn = _ramp_down(s, dur, op_base, easing)
         self.styling.rotation.set(s, end, rot_fn, stay=True)
         self.styling.fill_opacity.set(s, end, op_fn, stay=True)
         if change_existence and not fade_in:
@@ -978,11 +1001,11 @@ class VObject(ABC):  # Vector Object
         ox, oy = self._slide_offsets(direction, start)
         s = start
         if slide_in:
-            dx = (lambda t, _s=s, _d=dur, _ox=ox, _e=easing: _ox * (1 - _e((t - _s) / _d))) if ox else None
-            dy = (lambda t, _s=s, _d=dur, _oy=oy, _e=easing: _oy * (1 - _e((t - _s) / _d))) if oy else None
+            dx = _ramp_down(s, dur, ox, easing) if ox else None
+            dy = _ramp_down(s, dur, oy, easing) if oy else None
         else:
-            dx = (lambda t, _s=s, _d=dur, _ox=ox, _e=easing: _ox * _e((t - _s) / _d)) if ox else None
-            dy = (lambda t, _s=s, _d=dur, _oy=oy, _e=easing: _oy * _e((t - _s) / _d)) if oy else None
+            dx = _ramp(s, dur, ox, easing) if ox else None
+            dy = _ramp(s, dur, oy, easing) if oy else None
         self._apply_shift_effect(start, end, dx, dy, stay=True)
         if change_existence and not slide_in:
             self._hide_from(end)
@@ -1017,20 +1040,18 @@ class VObject(ABC):  # Vector Object
         dy = sign * direction[1] * distance
         s = start
         if fade_in:
-            dx_func = (lambda t, _s=s, _d=dur, _dx=dx, _e=easing: _dx * (1 - _e((t - _s) / _d))) if dx else None
-            dy_func = (lambda t, _s=s, _d=dur, _dy=dy, _e=easing: _dy * (1 - _e((t - _s) / _d))) if dy else None
+            dx_func = _ramp_down(s, dur, dx, easing) if dx else None
+            dy_func = _ramp_down(s, dur, dy, easing) if dy else None
         else:
-            dx_func = (lambda t, _s=s, _d=dur, _dx=dx, _e=easing: _dx * _e((t - _s) / _d)) if dx else None
-            dy_func = (lambda t, _s=s, _d=dur, _dy=dy, _e=easing: _dy * _e((t - _s) / _d)) if dy else None
+            dx_func = _ramp(s, dur, dx, easing) if dx else None
+            dy_func = _ramp(s, dur, dy, easing) if dy else None
         self._apply_shift_effect(start, end, dx_func, dy_func, stay=True)
         if fade_in:
             end_val = self.styling.opacity.at_time(end)
-            self.styling.opacity.set(s, end,
-                lambda t, _s=s, _d=dur, _ev=end_val, _e=easing: _ev * _e((t - _s) / _d))
+            self.styling.opacity.set(s, end, _ramp(s, dur, end_val, easing))
         else:
             start_val = self.styling.opacity.at_time(start)
-            self.styling.opacity.set(s, end,
-                lambda t, _s=s, _d=dur, _sv=start_val, _e=easing: _sv * (1 - _e((t - _s) / _d)))
+            self.styling.opacity.set(s, end, _ramp_down(s, dur, start_val, easing))
             if change_existence:
                 self._hide_from(end)
         return self
@@ -1101,7 +1122,7 @@ class VObject(ABC):  # Vector Object
         dur = e - s
         if dur <= 0:
             return self
-        self.styling.fill_opacity.set(s, e, lambda t, _s=s, _d=dur, _ev=end_val: _ev * easing((t-_s)/_d))
+        self.styling.fill_opacity.set(s, e, _ramp(s, dur, end_val, easing))
         self.styling.stroke_width.set(s, e, lambda t, _s=s, _d=dur, _msw=max_stroke_width, _sw=sw: _msw * stroke_easing((t-_s)/_d) + easing((t-_s)/_d) * _sw)
         return self
 
@@ -1428,8 +1449,7 @@ class VObject(ABC):  # Vector Object
         """Position this object next to another.
         direction: 'left', 'right', 'up', 'down' or a direction constant (UP, DOWN, LEFT, RIGHT).
         When *end* is given, animate the movement over [start, end]."""
-        if isinstance(direction, tuple):
-            direction = _DIR_NAMES.get(direction, 'right')
+        direction = _norm_dir(direction)
         mx, my, mw, mh = self.bbox(start)
         ox, oy, ow, oh = other.bbox(start)
         mcx, mcy = mx + mw/2, my + mh/2
@@ -1651,17 +1671,15 @@ class VObject(ABC):  # Vector Object
         if change_existence and fade_in:
             self._show_from(start)
         self._ensure_scale_origin(start)
-        s, fs, ts = start, from_scale, to_scale
-        scale_fn = lambda t, _s=s, _d=dur, _fs=fs, _ts=ts: _fs + (_ts - _fs) * easing((t - _s) / _d)
+        s = start
+        scale_fn = _lerp(s, dur, from_scale, to_scale, easing)
         self.styling.scale_x.set(s, end, scale_fn, stay=True)
         self.styling.scale_y.set(s, end, scale_fn, stay=True)
         base_op = self.styling.fill_opacity.at_time(start)
         if fade_in:
-            self.styling.fill_opacity.set(s, end,
-                lambda t, _s=s, _d=dur, _bo=base_op: _bo * easing((t - _s) / _d), stay=True)
+            self.styling.fill_opacity.set(s, end, _ramp(s, dur, base_op, easing), stay=True)
         else:
-            self.styling.fill_opacity.set(s, end,
-                lambda t, _s=s, _d=dur, _bo=base_op: _bo * (1 - easing((t - _s) / _d)), stay=True)
+            self.styling.fill_opacity.set(s, end, _ramp_down(s, dur, base_op, easing), stay=True)
         if change_existence and not fade_in:
             self._hide_from(end)
         return self
@@ -1764,9 +1782,9 @@ class VObject(ABC):  # Vector Object
             return self
         s = start
         if x_degrees:
-            self.styling.skew_x.set(s, end, lambda t, _s=s, _d=dur, _deg=x_degrees: _deg * easing((t - _s) / _d), stay=True)
+            self.styling.skew_x.set(s, end, _ramp(s, dur, x_degrees, easing), stay=True)
         if y_degrees:
-            self.styling.skew_y.set(s, end, lambda t, _s=s, _d=dur, _deg=y_degrees: _deg * easing((t - _s) / _d), stay=True)
+            self.styling.skew_y.set(s, end, _ramp(s, dur, y_degrees, easing), stay=True)
         return self
 
     def indicate(self, start: float = 0, end: float = 1, scale_factor=1.2, easing=easings.there_and_back):
@@ -2136,8 +2154,7 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        if isinstance(direction, tuple):
-            direction = 'up' if direction == UP else 'down'
+        direction = _norm_dir(direction, 'down')
         s = start
         sign = -1 if direction == 'up' else 1
         def dy(t):
@@ -2147,8 +2164,7 @@ class VObject(ABC):  # Vector Object
 
     def _scale_edge_anim(self, edge, start, end, grow, change_existence, easing):
         """Shared helper for grow_from_edge / shrink_to_edge."""
-        if isinstance(edge, tuple):
-            edge = _EDGE_NAMES.get(edge, 'bottom')
+        edge = _norm_edge(edge)
         if grow and change_existence:
             self._show_from(start)
         bx, by, bw, bh = self.bbox(start)
@@ -2163,10 +2179,7 @@ class VObject(ABC):  # Vector Object
         dur = e - s
         if dur <= 0:
             return self
-        if grow:
-            scale = lambda t, _s=s, _d=dur: easing((t - _s) / _d)
-        else:
-            scale = lambda t, _s=s, _d=dur: 1 - easing((t - _s) / _d)
+        scale = _ramp(s, dur, 1, easing) if grow else _ramp_down(s, dur, 1, easing)
         self.styling.scale_x.set(s, e, scale, stay=True)
         self.styling.scale_y.set(s, e, scale, stay=True)
         if not grow and change_existence:
@@ -2198,10 +2211,7 @@ class VObject(ABC):  # Vector Object
         dur = e - s
         if dur <= 0:
             return self
-        if grow:
-            scale = lambda t, _s=s, _d=dur: easing((t - _s) / _d)
-        else:
-            scale = lambda t, _s=s, _d=dur: 1 - easing((t - _s) / _d)
+        scale = _ramp(s, dur, 1, easing) if grow else _ramp_down(s, dur, 1, easing)
         self.styling.scale_x.set(s, e, scale, stay=True)
         self.styling.scale_y.set(s, e, scale, stay=True)
         if not grow and change_existence:
@@ -2587,11 +2597,8 @@ class VObject(ABC):  # Vector Object
         s = start
         self.styling.stroke = attributes.Color(s, color)
         old_w = self.styling.stroke_width.at_time(s)
-        self.styling.stroke_width.set(s, end,
-            lambda t, _s=s, _d=dur, _ow=old_w, _w=width: _ow + (_w - _ow) * easing((t - _s) / _d),
-            stay=True)
-        self.styling.stroke_opacity.set(s, end,
-            lambda t, _s=s, _d=dur: easing((t - _s) / _d), stay=True)
+        self.styling.stroke_width.set(s, end, _lerp(s, dur, old_w, width, easing), stay=True)
+        self.styling.stroke_opacity.set(s, end, _ramp(s, dur, 1, easing), stay=True)
         return self
 
     def flash_highlight(self, start: float = 0, end: float = 1, color='#FFFF00',
@@ -3209,8 +3216,7 @@ class VObject(ABC):  # Vector Object
                     return self
                 cur = attr.at_time(start)
                 s = start
-                attr.set(s, end,
-                    lambda t, _s=s, _d=dur, _c=cur, _o=opacity: _c + (_o - _c) * easing((t - _s) / _d), stay=True)
+                attr.set(s, end, _lerp(s, dur, cur, opacity, easing), stay=True)
         return self
 
     def undim(self, start: float = 0, end: float | None = None, easing=easings.smooth):
@@ -3285,8 +3291,7 @@ class VObject(ABC):  # Vector Object
         """Align an edge of this object with the same edge of another.
         edge: 'left', 'right', 'top', 'bottom' or a direction constant (UP, DOWN, LEFT, RIGHT).
         When *end* is given, animate the movement over [start, end]."""
-        if isinstance(edge, tuple):
-            edge = _EDGE_NAMES.get(edge, 'left')
+        edge = _norm_edge(edge, 'left')
         mx, my, mw, mh = self.bbox(start)
         ox, oy, ow, oh = other.bbox(start)
         offsets = {
@@ -6152,8 +6157,7 @@ class VCollection:
     def arrange(self, direction: str | tuple = 'right', buff=SMALL_BUFF, start: float = 0):
         """Lay out children in a row or column with spacing.
         direction: 'right', 'left', 'down', 'up' or a direction constant."""
-        if isinstance(direction, tuple):
-            direction = _DIR_NAMES.get(direction, 'right')
+        direction = _norm_dir(direction)
         if not self.objects:
             return self
         horizontal = direction in ('right', 'left')
@@ -6191,10 +6195,7 @@ class VCollection:
 
         Returns self.
         """
-        if isinstance(direction, tuple):
-            dir_name = _DIR_NAMES.get(direction, 'right')
-        else:
-            dir_name = direction
+        dir_name = _norm_dir(direction)
         if not self.objects:
             return self
         horizontal = dir_name in ('right', 'left')
@@ -6223,8 +6224,7 @@ class VCollection:
         """Distribute children evenly within the group's bounding box.
         Unlike arrange(), this spaces children evenly to fill the available space.
         direction: 'right', 'left', 'down', 'up' or a direction constant."""
-        if isinstance(direction, tuple):
-            direction = _DIR_NAMES.get(direction, 'right')
+        direction = _norm_dir(direction)
         if len(self.objects) < 2:
             return self
         horizontal = direction in ('right', 'left')
@@ -6273,8 +6273,7 @@ class VCollection:
         -------
         self
         """
-        if isinstance(direction, tuple):
-            direction = _DIR_NAMES.get(direction, 'right')
+        direction = _norm_dir(direction)
         if len(self.objects) == 0:
             return self
         horizontal = direction in ('right', 'left')
@@ -6586,8 +6585,7 @@ class VCollection:
         n = len(self.objects)
         if n == 0:
             return self
-        if isinstance(edge, tuple):
-            edge = _EDGE_NAMES.get(edge, 'left')
+        edge = _norm_edge(edge, 'left')
         # Find the target value from the collection's bbox
         gx, gy, gw, gh = self.bbox(start)
         targets = {
@@ -7159,8 +7157,7 @@ class VCollection:
         target: another VObject/VCollection.
         edge: 'left', 'right', 'top', 'bottom' or direction constant.
         When *end* is given, animate the movement over [start, end]."""
-        if isinstance(edge, tuple):
-            edge = _EDGE_NAMES.get(edge, 'left')
+        edge = _norm_edge(edge, 'left')
         mx, my, mw, mh = self.bbox(start)
         ox, oy, ow, oh = target.bbox(start)
         offsets = {
