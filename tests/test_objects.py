@@ -6720,3 +6720,178 @@ class TestScaleToSize:
         r.scale_to_size()
         assert r.get_width() == pytest.approx(200, rel=0.01)
         assert r.get_height() == pytest.approx(100, rel=0.01)
+
+
+# ── VObject.emphasize_scale ──────────────────────────────────────────────────
+
+class TestEmphasizeScale:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.emphasize_scale(0, 1)
+        assert result is c
+
+    def test_scale_at_start_is_original(self):
+        """At time=0 (start) scale should equal the base scale (1.0)."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.emphasize_scale(0, 1, factor=1.5)
+        assert c.styling.scale_x.at_time(0) == pytest.approx(1.0, abs=1e-3)
+        assert c.styling.scale_y.at_time(0) == pytest.approx(1.0, abs=1e-3)
+
+    def test_scale_at_end_is_original(self):
+        """After the animation the scale returns to the original value."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.emphasize_scale(0, 1, factor=1.5)
+        assert c.styling.scale_x.at_time(1) == pytest.approx(1.0, abs=1e-3)
+        assert c.styling.scale_y.at_time(1) == pytest.approx(1.0, abs=1e-3)
+
+    def test_peak_scale_greater_than_one(self):
+        """At midpoint the scale should be larger than the original (there_and_back peaks at 0.5)."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.emphasize_scale(0, 1, factor=1.4)
+        mid_scale = c.styling.scale_x.at_time(0.5)
+        assert mid_scale > 1.0
+
+    def test_uniform_scale_x_equals_y(self):
+        """Both axes must scale identically (uniform scale)."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.emphasize_scale(0, 1, factor=1.3)
+        for t in (0.0, 0.25, 0.5, 0.75, 1.0):
+            assert c.styling.scale_x.at_time(t) == pytest.approx(
+                c.styling.scale_y.at_time(t), abs=1e-9
+            )
+
+    def test_zero_duration_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.emphasize_scale(0.5, 0.5, factor=2.0)
+        assert result is c
+        assert c.styling.scale_x.at_time(0.5) == pytest.approx(1.0, abs=1e-3)
+
+    def test_respects_existing_scale(self):
+        """If the object already has a non-unit scale, the pulse is relative to that."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.styling.scale_x.set_onward(0, 2.0)
+        c.styling.scale_y.set_onward(0, 2.0)
+        c.emphasize_scale(0, 1, factor=1.5)
+        # At midpoint scale_x should be bigger than 2.0
+        assert c.styling.scale_x.at_time(0.5) > 2.0
+
+
+# ── Text.char_count ──────────────────────────────────────────────────────────
+
+class TestTextCharCount:
+    def test_simple_string(self):
+        t = Text(text='hello')
+        assert t.char_count() == 5
+
+    def test_empty_string(self):
+        t = Text(text='')
+        assert t.char_count() == 0
+
+    def test_spaces_count(self):
+        t = Text(text='hello world')
+        assert t.char_count() == 11
+
+    def test_returns_int(self):
+        t = Text(text='abc')
+        assert isinstance(t.char_count(), int)
+
+    def test_uses_time_zero(self):
+        """char_count uses the text at time=0, not a later animated value."""
+        t = Text(text='abc')
+        t.text.set_onward(1.0, 'longer text')
+        assert t.char_count() == 3
+
+
+# ── VCollection.filter_by_type ───────────────────────────────────────────────
+
+class TestFilterByType2:
+    def test_keeps_correct_type(self):
+        c1 = Circle(r=10)
+        r1 = Rectangle(50, 50)
+        c2 = Circle(r=20)
+        col = VCollection(c1, r1, c2)
+        result = col.filter_by_type(Circle)
+        assert len(result.objects) == 2
+        assert c1 in result.objects
+        assert c2 in result.objects
+
+    def test_excludes_wrong_type(self):
+        c = Circle(r=10)
+        r = Rectangle(50, 50)
+        col = VCollection(c, r)
+        result = col.filter_by_type(Rectangle)
+        assert r in result.objects
+        assert c not in result.objects
+
+    def test_empty_when_no_match(self):
+        c = Circle(r=10)
+        col = VCollection(c)
+        result = col.filter_by_type(Rectangle)
+        assert len(result.objects) == 0
+
+    def test_returns_vcollection(self):
+        c = Circle(r=10)
+        col = VCollection(c)
+        result = col.filter_by_type(Circle)
+        assert isinstance(result, VCollection)
+
+    def test_subclass_included(self):
+        """Dot is a subclass of Circle; filter_by_type(Circle) should include it."""
+        from vectormation.objects import Dot
+        d = Dot(cx=0, cy=0)
+        r = Rectangle(50, 50)
+        col = VCollection(d, r)
+        result = col.filter_by_type(Circle)
+        assert d in result.objects
+        assert r not in result.objects
+
+
+# ── Axes.screen_to_coords ────────────────────────────────────────────────────
+
+class TestAxesScreenToCoords:
+    def _make_axes(self):
+        return Axes(x_range=(-5, 5), y_range=(-5, 5))
+
+    def test_roundtrip_origin(self):
+        """coords_to_point(0,0) → screen_to_coords should return (0,0)."""
+        ax = self._make_axes()
+        sx, sy = ax.coords_to_point(0, 0)
+        x, y = ax.screen_to_coords(sx, sy)
+        assert x == pytest.approx(0.0, abs=1e-6)
+        assert y == pytest.approx(0.0, abs=1e-6)
+
+    def test_roundtrip_arbitrary(self):
+        ax = self._make_axes()
+        for mx, my in [(2.5, -3.0), (-1.0, 4.5), (5.0, 5.0), (-5.0, -5.0)]:
+            sx, sy = ax.coords_to_point(mx, my)
+            rx, ry = ax.screen_to_coords(sx, sy)
+            assert rx == pytest.approx(mx, abs=1e-5)
+            assert ry == pytest.approx(my, abs=1e-5)
+
+    def test_plot_top_left_is_xmin_ymax(self):
+        ax = self._make_axes()
+        sx, sy = ax.coords_to_point(-5, 5)
+        x, y = ax.screen_to_coords(sx, sy)
+        assert x == pytest.approx(-5.0, abs=1e-5)
+        assert y == pytest.approx(5.0, abs=1e-5)
+
+    def test_plot_bottom_right_is_xmax_ymin(self):
+        ax = self._make_axes()
+        sx, sy = ax.coords_to_point(5, -5)
+        x, y = ax.screen_to_coords(sx, sy)
+        assert x == pytest.approx(5.0, abs=1e-5)
+        assert y == pytest.approx(-5.0, abs=1e-5)
+
+    def test_asymmetric_range_roundtrip(self):
+        ax = Axes(x_range=(0, 10), y_range=(2, 8))
+        for mx, my in [(0, 2), (10, 8), (5, 5), (3.7, 6.2)]:
+            sx, sy = ax.coords_to_point(mx, my)
+            rx, ry = ax.screen_to_coords(sx, sy)
+            assert rx == pytest.approx(mx, abs=1e-5)
+            assert ry == pytest.approx(my, abs=1e-5)
+
+    def test_returns_tuple_of_floats(self):
+        ax = self._make_axes()
+        result = ax.screen_to_coords(960, 540)
+        assert isinstance(result, tuple)
+        assert len(result) == 2

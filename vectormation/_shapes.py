@@ -1498,6 +1498,10 @@ class Text(VObject):
             chars.append(t)
         return VCollection(*chars)
 
+    def char_count(self):
+        """Return the number of characters in the text string at time 0."""
+        return len(self.text.at_time(0))
+
     def fit_to_box(self, max_width, max_height=None, time=0):
         """Adjust font_size so the text fits within the given box dimensions.
 

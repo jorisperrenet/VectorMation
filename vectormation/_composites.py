@@ -716,6 +716,50 @@ class Axes(VCollection):
         """Convert math coordinates to SVG pixel coordinates."""
         return (self._math_to_svg_x(x, time), self._math_to_svg_y(y, time))
 
+    def screen_to_coords(self, sx, sy, time=0):
+        """Convert SVG pixel coordinates to math (axis) coordinates.
+
+        This is the inverse of :meth:`coords_to_point`.  Given a point
+        ``(sx, sy)`` in SVG pixel space it returns the corresponding
+        ``(x, y)`` math-space coordinates according to the current axis
+        ranges.  Log-scale axes are handled correctly.
+
+        Parameters
+        ----------
+        sx:
+            SVG x pixel coordinate.
+        sy:
+            SVG y pixel coordinate.
+        time:
+            Animation time at which to read the axis ranges.
+
+        Returns
+        -------
+        (float, float)
+            ``(x, y)`` math-space coordinates.
+        """
+        # --- X axis ---
+        xmin, xmax = self.x_min.at_time(time), self.x_max.at_time(time)
+        span_x = xmax - xmin if xmax != xmin else 1
+        if self._x_scale == 'log' and xmin > 0 and xmax > 0:
+            log_xmin, log_xmax = math.log10(xmin), math.log10(xmax)
+            span_x = log_xmax - log_xmin if log_xmax != log_xmin else 1
+            x = 10 ** (log_xmin + (sx - self.plot_x) / self.plot_width * span_x)
+        else:
+            x = xmin + (sx - self.plot_x) / self.plot_width * span_x
+
+        # --- Y axis ---
+        ymin, ymax = self.y_min.at_time(time), self.y_max.at_time(time)
+        span_y = ymax - ymin if ymax != ymin else 1
+        if self._y_scale == 'log' and ymin > 0 and ymax > 0:
+            log_ymin, log_ymax = math.log10(ymin), math.log10(ymax)
+            span_y = log_ymax - log_ymin if log_ymax != log_ymin else 1
+            y = 10 ** (log_ymin + (1 - (sy - self.plot_y) / self.plot_height) * span_y)
+        else:
+            y = ymin + (1 - (sy - self.plot_y) / self.plot_height) * span_y
+
+        return (x, y)
+
     def get_plot_center(self, time=0):
         """Return the SVG coordinates of the centre of the visible plot rectangle.
 

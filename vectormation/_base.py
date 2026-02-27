@@ -1383,6 +1383,39 @@ class VObject(ABC):  # Vector Object
         self.flash(start, end, color=color, easing=easing)
         return self
 
+    def emphasize_scale(self, start: float = 0, end: float = 1,
+                        factor: float = 1.2, easing=easings.there_and_back):
+        """Briefly scale up uniformly then return to normal for emphasis.
+
+        Unlike :meth:`pulsate` (which repeats multiple times) and
+        :meth:`squash_and_stretch` (which deforms x/y independently),
+        this applies a single symmetric scale pulse: both axes grow by
+        *factor* at the midpoint and return to their original size by *end*.
+
+        Parameters
+        ----------
+        start:
+            Animation start time.
+        end:
+            Animation end time.
+        factor:
+            Peak scale multiplier (e.g. 1.2 → 20% larger at the midpoint).
+        easing:
+            Easing function (default: there_and_back for a smooth out-and-back).
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        self._ensure_scale_origin(start)
+        s = start
+        sx0 = self.styling.scale_x.at_time(start)
+        sy0 = self.styling.scale_y.at_time(start)
+        scale_x = lambda t, _s=s, _d=dur, _b=sx0: _b * (1 + (factor - 1) * easing((t - _s) / _d))
+        scale_y = lambda t, _s=s, _d=dur, _b=sy0: _b * (1 + (factor - 1) * easing((t - _s) / _d))
+        self.styling.scale_x.set(s, end, scale_x)
+        self.styling.scale_y.set(s, end, scale_y)
+        return self
+
     def glow(self, start: float = 0, end: float = 1, color='#FFD700', radius=10):
         """Add an animated glow effect (stroke pulses outward then fades).
 
