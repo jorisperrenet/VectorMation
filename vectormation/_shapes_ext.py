@@ -872,51 +872,38 @@ class Text(VObject):
         """Return the text content reversed (does not modify the object)."""
         return self.text.at_time(time)[::-1]
 
-    def split_words(self, time=0):
-        """Split text into a VCollection of individual word Text objects.
-        Words are positioned horizontally at approximate character offsets."""
-        from vectormation._base import VCollection
+    def _text_split_ctx(self, time):
+        """Return (full_text, x, y, font_size, char_width, fill) for split methods."""
         full = str(self.text.at_time(time))
+        return (full, self.x.at_time(time), self.y.at_time(time),
+                self.font_size.at_time(time),
+                self.font_size.at_time(time) * CHAR_WIDTH_FACTOR,
+                self.styling.fill.time_func(time))
+
+    def split_words(self, time=0):
+        """Split text into a VCollection of individual word Text objects."""
+        from vectormation._base import VCollection
+        full, x, y, fs, cw, fill = self._text_split_ctx(time)
         words = full.split()
         if not words:
             return VCollection()
-        x = self.x.at_time(time)
-        y = self.y.at_time(time)
-        fs = self.font_size.at_time(time)
-        char_width = fs * CHAR_WIDTH_FACTOR
-        parts = []
-        cursor = 0
+        parts, cursor = [], 0
         for word in words:
             idx = full.index(word, cursor)
-            wx = x + idx * char_width
-            t = Text(text=word, x=wx, y=y, font_size=fs,
-                     creation=time, stroke_width=0,
-                     fill=self.styling.fill.time_func(time))
-            parts.append(t)
+            parts.append(Text(text=word, x=x + idx * cw, y=y, font_size=fs,
+                              creation=time, stroke_width=0, fill=fill))
             cursor = idx + len(word)
         return VCollection(*parts)
 
     def split_chars(self, time=0):
-        """Split text into a VCollection of individual character Text objects.
-        Characters are positioned horizontally at approximate character offsets."""
+        """Split text into a VCollection of individual character Text objects."""
         from vectormation._base import VCollection
-        full = str(self.text.at_time(time))
+        full, x, y, fs, cw, fill = self._text_split_ctx(time)
         if not full:
             return VCollection()
-        x = self.x.at_time(time)
-        y = self.y.at_time(time)
-        fs = self.font_size.at_time(time)
-        char_width = fs * CHAR_WIDTH_FACTOR
-        chars = []
-        for i, ch in enumerate(full):
-            if ch == ' ':
-                continue
-            cx = x + i * char_width
-            t = Text(text=ch, x=cx, y=y, font_size=fs,
-                     creation=time, stroke_width=0,
-                     fill=self.styling.fill.time_func(time))
-            chars.append(t)
-        return VCollection(*chars)
+        return VCollection(*(Text(text=ch, x=x + i * cw, y=y, font_size=fs,
+                                  creation=time, stroke_width=0, fill=fill)
+                             for i, ch in enumerate(full) if ch != ' '))
 
     def char_count(self, time=0):
         """Return the number of characters in the text content at the given time."""
@@ -938,20 +925,12 @@ class Text(VObject):
     def split_lines(self, time=0, line_spacing=1.4):
         """Split multi-line text (containing newlines) into separate Text objects."""
         from vectormation._base import VCollection
-        full = str(self.text.at_time(time))
-        lines = full.split('\n')
-        x = self.x.at_time(time)
-        y = self.y.at_time(time)
-        fs = self.font_size.at_time(time)
+        full, x, y, fs, _, fill = self._text_split_ctx(time)
         step = fs * line_spacing
-        fill_val = self.styling.fill.time_func(time)
-        parts = []
-        for i, line_text in enumerate(lines):
-            t = Text(text=line_text, x=x, y=y + i * step, font_size=fs,
-                     text_anchor=self._text_anchor, creation=time,
-                     stroke_width=0, fill=fill_val)
-            parts.append(t)
-        return VCollection(*parts)
+        return VCollection(*(Text(text=lt, x=x, y=y + i * step, font_size=fs,
+                                  text_anchor=self._text_anchor, creation=time,
+                                  stroke_width=0, fill=fill)
+                             for i, lt in enumerate(full.split('\n'))))
 
     def fit_to_box(self, max_width, max_height=None, time=0):
         """Adjust font_size so the text fits within the given box dimensions."""
