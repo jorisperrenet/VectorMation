@@ -2630,7 +2630,8 @@ class VCollection:
         for i, obj in enumerate(shuffled):
             obj_start = start + i * delay
             obj_end = obj_start + delay
-            getattr(obj, method_name)(obj_start, obj_end, **kwargs)
+            kw = dict(kwargs, start=obj_start, end=obj_end)
+            getattr(obj, method_name)(**kw)
         return self
 
     def wave_anim(self, start: float = 0, end: float = 1, amplitude=20, waves=1):
