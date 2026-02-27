@@ -5,6 +5,7 @@ from copy import deepcopy
 from typing import Any
 from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
+    CANVAS_WIDTH, CANVAS_HEIGHT,
     SMALL_BUFF, MED_SMALL_BUFF, DEFAULT_OBJECT_TO_EDGE_BUFF,
     UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR,
 )
@@ -100,8 +101,8 @@ def _to_edge_impl(obj, edge, buff, start, end, easing):
     edge = _norm_edge(edge)
     x, y, w, h = obj.bbox(start)
     cx, cy = x + w / 2, y + h / 2
-    targets = {'bottom': (cx, 1080 - buff - h / 2), 'top': (cx, buff + h / 2),
-               'left': (buff + w / 2, cy), 'right': (1920 - buff - w / 2, cy)}
+    targets = {'bottom': (cx, CANVAS_HEIGHT - buff - h / 2), 'top': (cx, buff + h / 2),
+               'left': (buff + w / 2, cy), 'right': (CANVAS_WIDTH - buff - w / 2, cy)}
     tx, ty = targets.get(edge, (cx, cy))
     return obj.center_to_pos(posx=tx, posy=ty, start=start,
                              end=end, easing=easing)
@@ -131,8 +132,8 @@ def _to_corner_impl(obj, corner, buff, start, end, easing):
     if isinstance(corner, tuple):
         corner = _CORNER_MAP.get(corner, 'bottom_right')
     _, _, w, h = obj.bbox(start)
-    tx = buff + w / 2 if 'left' in corner else 1920 - buff - w / 2
-    ty = buff + h / 2 if 'top' in corner else 1080 - buff - h / 2
+    tx = buff + w / 2 if 'left' in corner else CANVAS_WIDTH - buff - w / 2
+    ty = buff + h / 2 if 'top' in corner else CANVAS_HEIGHT - buff - h / 2
     return obj.center_to_pos(posx=tx, posy=ty, start=start,
                              end=end, easing=easing)
 
@@ -217,14 +218,14 @@ class VObject(ABC):  # Vector Object
     def is_on_screen(self, time=0):
         """Return True if the object's bounding box overlaps the visible canvas.
 
-        The canvas is the rectangle (0, 0, 1920, 1080).  An object with
+        The canvas is the rectangle (0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).  An object with
         zero-size bounding box is considered off-screen.
         """
         x, y, w, h = self.bbox(time)
         if w <= 0 or h <= 0:
             return False
-        # Check rectangle intersection with canvas (0,0)-(1920,1080)
-        return x + w > 0 and x < 1920 and y + h > 0 and y < 1080
+        # Check rectangle intersection with canvas
+        return x + w > 0 and x < CANVAS_WIDTH and y + h > 0 and y < CANVAS_HEIGHT
 
     def get_center(self, time=0):
         """Return (x, y) of the bounding box center."""
@@ -985,9 +986,9 @@ class VObject(ABC):  # Vector Object
         bx, by, bw, bh = self.bbox(start)
         offsets = {
             'left': (-bx - bw, 0),
-            'right': (1920 - bx, 0),
+            'right': (CANVAS_WIDTH - bx, 0),
             'up': (0, -by - bh),
-            'down': (0, 1080 - by),
+            'down': (0, CANVAS_HEIGHT - by),
         }
         return offsets.get(direction, (0, 0))
 

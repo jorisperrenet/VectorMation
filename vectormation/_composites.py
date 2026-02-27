@@ -9,6 +9,7 @@ import vectormation.attributes as attributes
 import vectormation.style as style
 import vectormation.morphing as morphing
 from vectormation._constants import (
+    CANVAS_WIDTH, CANVAS_HEIGHT,
     UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE,
     DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
     DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
@@ -357,7 +358,7 @@ class Axes(VCollection):
         if equal_aspect and y_range is not None and x_range[1] != x_range[0]:
             plot_height = int(plot_width * (y_range[1] - y_range[0])
                               / (x_range[1] - x_range[0]))
-            y = (1080 - plot_height) // 2
+            y = (CANVAS_HEIGHT - plot_height) // 2
         self.plot_x, self.plot_y = x, y
         self.plot_width, self.plot_height = plot_width, plot_height
         self.num_points = 200
@@ -9180,7 +9181,7 @@ class Code(VCollection):
             dur = end - start
             if dur > 0:
                 rect.styling.fill_opacity.set(start, end,
-                    lambda t, _s=start, _d=dur: opacity * easing((t - _s) / _d), stay=True)
+                    _ramp(start, dur, opacity, easing), stay=True)
             rects.append(rect)
         return VCollection(*rects) if rects else VCollection()
 
@@ -9739,7 +9740,7 @@ class StreamLines(VCollection):
                         break
                     cx += vx / mag * step_size
                     cy += vy / mag * step_size
-                    if cx < 0 or cx > 1920 or cy < 0 or cy > 1080:
+                    if cx < 0 or cx > CANVAS_WIDTH or cy < 0 or cy > CANVAS_HEIGHT:
                         break
                     pts.append((cx, cy))
                 if len(pts) > 1:

@@ -66,13 +66,13 @@ Circle
 Dot
 ---
 
-.. py:class:: Dot(r=7, cx=960, cy=540, **styling)
+.. py:class:: Dot(r=11, cx=960, cy=540, **styling)
 
    Bases: :py:class:`Circle`
 
    Small circle with default green fill (``#83C167``).
 
-   :param float r: Radius (default ``7``).
+   :param float r: Radius (default ``11``).
 
    .. py:attribute:: c
       :type: Coor
@@ -325,7 +325,7 @@ Angle
 
 .. py:class:: Angle(vertex, p1, p2, radius=36, **styling)
 
-   Bases: :py:class:`Arc`
+   Bases: :py:class:`VCollection`
 
    Angle indicator arc between two points meeting at a vertex.
    All three position parameters accept ``(x, y)`` tuples or :py:class:`Coor`

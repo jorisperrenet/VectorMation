@@ -26,11 +26,11 @@ Graph
 
    .. py:method:: add_function(func, **styling)
 
-      Add another function curve to the plot. Returns the :py:class:`Lines` object.
+      Add another function curve to the plot. Returns a :py:class:`Path` object.
 
    .. py:method:: plot(func, num_points=200, **styling)
 
-      Plot a function. Returns a :py:class:`Lines` object.
+      Plot a function. Returns a :py:class:`Path` object.
 
    .. py:method:: plot_line_graph(x_values, y_values, **styling)
 

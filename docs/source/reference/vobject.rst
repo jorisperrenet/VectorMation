@@ -203,9 +203,9 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Repeated scale pulses.
 
-   .. py:method:: blink(start=0, duration=0.3, easing=smooth)
+   .. py:method:: blink(start=0, end=None, count=1, duration=0.3, easing=smooth, num_blinks=None)
 
-      Opacity blink.
+      Opacity blink. *count* (or *num_blinks*) sets repetitions.
 
    .. py:method:: wiggle(start=0, end=1, amplitude=12, n_wiggles=4, easing=there_and_back)
 
@@ -219,7 +219,7 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Draw then remove a tracing rectangle. Returns a :py:class:`Path`.
 
-   .. py:method:: show_passing_flash(start=0, end=1, flash_width=0.2, easing=linear)
+   .. py:method:: show_passing_flash(start=0, end=1, flash_width=0.15, easing=linear)
 
       Travelling highlight along stroke.
 

@@ -11,7 +11,7 @@ from vectormation._constants import (
     DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
     _rotate_point, _sample_function, _distance, _normalize,
 )
-from vectormation._base import VObject
+from vectormation._base import VObject, _ramp, _ramp_down
 
 
 def _anim(attr, start, end, value, easing):
@@ -4450,7 +4450,7 @@ class Text(VObject):
         if dur <= 0:
             return rect
         rect.styling.fill_opacity.set(start, end,
-            lambda t, _s=start, _d=dur: opacity * easing((t - _s) / _d), stay=True)
+            _ramp(start, dur, opacity, easing), stay=True)
         return rect
 
     def highlight_substring(self, substring, color='#FFFF00', start=0, end=1,
@@ -4478,7 +4478,7 @@ class Text(VObject):
         dur = end - start
         if dur > 0:
             rect.styling.fill_opacity.set(start, end,
-                lambda t, _s=start, _d=dur: opacity * easing((t - _s) / _d), stay=True)
+                _ramp(start, dur, opacity, easing), stay=True)
         return rect
 
     def typewrite(self, start=0, end=1, cursor='|', change_existence=True):
@@ -4632,10 +4632,10 @@ class Text(VObject):
         mid = (start + end) / 2
         dur1, dur2 = mid - start, end - mid
         self.styling.opacity.set(start, mid,
-            lambda t, _s=start, _d=dur1: 1 - easing((t - _s) / _d), stay=True)
+            _ramp_down(start, dur1, 1, easing), stay=True)
         self.text.set_onward(mid, new_text)
         self.styling.opacity.set(mid, end,
-            lambda t, _m=mid, _d=dur2: easing((t - _m) / _d), stay=True)
+            _ramp(mid, dur2, 1, easing), stay=True)
         return self
 
     def update_text(self, new_text, start=0):
@@ -5203,8 +5203,8 @@ class Trace(VObject):
         else:
             s, e = start, end
             d = max(e - s, 1e-9)
-            self.styling.dx.add_onward(s, lambda t, _s=s, _d=d: dx * easing((t-_s)/_d), last_change=e)
-            self.styling.dy.add_onward(s, lambda t, _s=s, _d=d: dy * easing((t-_s)/_d), last_change=e)
+            self.styling.dx.add_onward(s, _ramp(s, d, dx, easing), last_change=e)
+            self.styling.dy.add_onward(s, _ramp(s, d, dy, easing), last_change=e)
         return self
 
     def path(self, time):
@@ -5276,8 +5276,8 @@ class Path(VObject):
         else:
             s, e = start, end
             d = max(e - s, 1e-9)
-            self.styling.dx.add_onward(s, lambda t, _s=s, _d=d: dx * easing((t-_s)/_d), last_change=e)
-            self.styling.dy.add_onward(s, lambda t, _s=s, _d=d: dy * easing((t-_s)/_d), last_change=e)
+            self.styling.dx.add_onward(s, _ramp(s, d, dx, easing), last_change=e)
+            self.styling.dy.add_onward(s, _ramp(s, d, dy, easing), last_change=e)
         return self
 
     def __repr__(self):

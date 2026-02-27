@@ -287,7 +287,7 @@ Arrow
    :width: 440
    :align: center
 
-.. py:class:: Arrow(x1=0, y1=0, x2=100, y2=100, tip_length=18, tip_width=12, **styling)
+.. py:class:: Arrow(x1=0, y1=0, x2=100, y2=100, tip_length=47, tip_width=47, **styling)
 
    Bases: :py:class:`VCollection`
 
@@ -311,7 +311,7 @@ Arrow
 DoubleArrow
 -----------
 
-.. py:class:: DoubleArrow(x1=0, y1=0, x2=100, y2=100, tip_length=18, tip_width=12, **styling)
+.. py:class:: DoubleArrow(x1=0, y1=0, x2=100, y2=100, tip_length=47, tip_width=47, **styling)
 
    Bases: :py:class:`Arrow`
 
@@ -326,7 +326,7 @@ CurvedArrow
    :width: 440
    :align: center
 
-.. py:class:: CurvedArrow(x1=0, y1=0, x2=100, y2=100, angle=0.4, tip_length=18, tip_width=12, **styling)
+.. py:class:: CurvedArrow(x1=0, y1=0, x2=100, y2=100, angle=0.4, tip_length=47, tip_width=47, **styling)
 
    Bases: :py:class:`VCollection`
 

@@ -24,6 +24,10 @@ DEFAULT_CHART_COLORS = [
     '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C',
 ]
 
+# Canvas dimensions
+CANVAS_WIDTH = 1920
+CANVAS_HEIGHT = 1080
+
 # Direction constants (pixel vectors)
 UP = (0, -1)
 DOWN = (0, 1)
@@ -33,7 +37,7 @@ UL = (-1, -1)
 UR = (1, -1)
 DL = (-1, 1)
 DR = (1, 1)
-ORIGIN = (960, 540)  # Screen center
+ORIGIN = (CANVAS_WIDTH // 2, CANVAS_HEIGHT // 2)  # Screen center
 
 
 def _clamp(value, min_val, max_val):

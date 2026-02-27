@@ -37,6 +37,7 @@ from vectormation.objects import (
     Countdown, Filmstrip, MorphObject, Title, NumberPlane,
     NeuralNetwork, Pendulum, StandingWave,
     ArrayViz, LinkedListViz, StackViz, QueueViz, Callout,
+    CANVAS_WIDTH, CANVAS_HEIGHT,
 )
 from vectormation.attributes import Coor, Real
 from vectormation.objects import MED_SMALL_BUFF
@@ -12848,3 +12849,174 @@ class TestMatrixHighlightRowColumn:
         # highlight_row should not crash for valid rows
         result = m.highlight_row(1, start=0, end=1)
         assert result is m
+
+
+class TestCanvasConstants:
+    def test_canvas_dimensions(self):
+        assert CANVAS_WIDTH == 1920
+        assert CANVAS_HEIGHT == 1080
+
+    def test_origin_derived_from_canvas(self):
+        from vectormation.objects import ORIGIN
+        assert ORIGIN == (CANVAS_WIDTH // 2, CANVAS_HEIGHT // 2)
+
+
+class TestTextTypewrite:
+    def test_typewrite_basic(self):
+        t = Text('Hello', x=100, y=100)
+        result = t.typewrite(start=0, end=1)
+        assert result is t
+        # At t=0 should show cursor
+        txt = t.text.at_time(0.01)
+        assert isinstance(txt, str)
+
+    def test_typewrite_end_shows_full_text(self):
+        t = Text('AB', x=100, y=100)
+        t.typewrite(start=0, end=1)
+        assert t.text.at_time(1.0) == 'AB'
+
+    def test_untype(self):
+        t = Text('Hello', x=100, y=100)
+        result = t.untype(start=0, end=1)
+        assert result is t
+        # At end, text should be empty
+        assert t.text.at_time(1.0) == ''
+
+    def test_scramble(self):
+        t = Text('ABC', x=100, y=100)
+        result = t.scramble(start=0, end=1)
+        assert result is t
+        # At end, text should be the original
+        assert t.text.at_time(1.0) == 'ABC'
+
+
+class TestCountAnimationCountTo:
+    def test_count_to(self):
+        c = CountAnimation(0, 10, start=0, end=1)
+        c.count_to(20, start=1, end=2)
+        # At t=2 should show 20
+        assert '20' in c.text.at_time(2.0)
+
+    def test_count_to_instant(self):
+        c = CountAnimation(0, 5, start=0, end=1)
+        c.count_to(100, start=1, end=1)  # instant
+        assert '100' in c.text.at_time(1.0)
+
+
+class TestValueTrackerLastChange:
+    def test_last_change_initial(self):
+        vt = ValueTracker(42)
+        assert vt.last_change == 0
+
+    def test_last_change_after_set(self):
+        vt = ValueTracker(0)
+        vt.set_value(10, start=2)
+        assert vt.last_change == 2
+
+
+class TestAngleEndAngle:
+    def test_end_angle_property(self):
+        a = Angle((100, 100), (200, 100), (100, 0))
+        assert hasattr(a, 'end_angle')
+        # Should return a Real attribute
+        val = a.end_angle
+        assert val is not None
+
+    def test_start_angle_property(self):
+        a = Angle((100, 100), (200, 100), (100, 0))
+        assert hasattr(a, 'start_angle')
+
+
+class TestBarChartSetBarColors:
+    def test_set_bar_colors_basic(self):
+        chart = BarChart([10, 20, 30], labels=['A', 'B', 'C'])
+        result = chart.set_bar_colors(['#ff0000', '#00ff00', '#0000ff'])
+        assert result is chart
+
+    def test_set_bar_colors_partial(self):
+        chart = BarChart([10, 20, 30], labels=['A', 'B', 'C'])
+        # Fewer colors than bars — should not crash
+        result = chart.set_bar_colors(['#ff0000'])
+        assert result is chart
+
+
+class TestTableGetRowColumn:
+    def test_get_row(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        row = t.get_row(0)
+        assert isinstance(row, VCollection)
+        assert len(row.objects) == 2
+
+    def test_get_column(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        col = t.get_column(1)
+        assert isinstance(col, VCollection)
+        assert len(col.objects) == 2
+
+
+class TestMatrixGetRowColumn:
+    def test_get_row(self):
+        m = Matrix([[1, 2], [3, 4]])
+        row = m.get_row(0)
+        assert isinstance(row, VCollection)
+        assert len(row.objects) == 2
+
+    def test_get_column(self):
+        m = Matrix([[1, 2], [3, 4]])
+        col = m.get_column(1)
+        assert isinstance(col, VCollection)
+        assert len(col.objects) == 2
+
+
+class TestVariableTracker:
+    def test_variable_tracker_property(self):
+        v = Variable('x', value=5)
+        tracker = v.tracker
+        assert tracker is not None
+
+    def test_variable_set_value(self):
+        v = Variable('x', value=5)
+        result = v.set_value(10, start=0)
+        assert result is v
+
+    def test_variable_animate_value(self):
+        v = Variable('x', value=5)
+        result = v.animate_value(20, start=0, end=1)
+        assert result is v
+
+
+class TestTextHighlightSubstring:
+    def test_highlight_returns_rect(self):
+        t = Text('Hello World', x=100, y=100)
+        rect = t.highlight(start=0, end=1)
+        assert isinstance(rect, Rectangle)
+
+    def test_highlight_substring_returns_rect(self):
+        t = Text('Hello World', x=100, y=100)
+        rect = t.highlight_substring('World', start=0, end=1)
+        assert isinstance(rect, Rectangle)
+
+    def test_highlight_substring_not_found(self):
+        t = Text('Hello', x=100, y=100)
+        rect = t.highlight_substring('XYZ', start=0, end=1)
+        # Should return an empty rect
+        assert isinstance(rect, Rectangle)
+
+
+class TestDecimalNumberTracker:
+    def test_decimal_tracker(self):
+        d = DecimalNumber(3.14)
+        tracker = d.tracker
+        assert tracker is not None
+
+    def test_decimal_set_and_get(self):
+        d = DecimalNumber(0)
+        d.set_value(42, start=0)
+        assert d.tracker.at_time(0) == pytest.approx(42)
+
+
+class TestScaleBy:
+    def test_scale_by_alias(self):
+        c = Circle()
+        result = c.scale_by(0, 1, 2.0)
+        assert result is c
