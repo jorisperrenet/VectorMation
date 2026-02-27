@@ -493,6 +493,27 @@ class Ellipse(VObject):
         angle = 2 * math.pi * t
         return (cx + rx * math.cos(angle), cy + ry * math.sin(angle))
 
+    def contains_point(self, px, py, time=0):
+        """Return True if point (px, py) is inside the ellipse.
+
+        Uses the standard ellipse equation:
+        ``((px - cx) / rx)^2 + ((py - cy) / ry)^2 <= 1``.
+
+        Parameters
+        ----------
+        px, py:
+            Point coordinates to test.
+        time:
+            Animation time at which to evaluate ellipse parameters.
+        """
+        cx = self.c.at_time(time)[0]
+        cy = self.c.at_time(time)[1]
+        rx = self.rx.at_time(time)
+        ry = self.ry.at_time(time)
+        if rx == 0 or ry == 0:
+            return False
+        return ((px - cx) / rx) ** 2 + ((py - cy) / ry) ** 2 <= 1
+
     def get_rx(self, time=0):
         return self.rx.at_time(time)
 
@@ -1156,6 +1177,27 @@ class Rectangle(VObject):
             )
         return Rectangle(new_w, new_h, x=rx + amount, y=ry + amount, **kwargs)
 
+    def to_polygon(self, time=0, **kwargs):
+        """Convert this rectangle to a Polygon with 4 vertices.
+
+        Returns a static snapshot at *time* -- the resulting Polygon is not
+        dynamically linked to this rectangle.  Styling from the rectangle is
+        not copied; pass ``**kwargs`` to set fill, stroke, etc.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read the rectangle geometry.
+        **kwargs:
+            Forwarded to :class:`Polygon`.
+
+        Returns
+        -------
+        Polygon
+        """
+        corners = self.get_corners(time)
+        return Polygon(*corners, **kwargs)
+
     def __repr__(self):
         return f'{self.__class__.__name__}({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f})'
 
@@ -1545,6 +1587,30 @@ class Line(VObject):
         return Line(px - nx * half, py - ny * half,
                     px + nx * half, py + ny * half, **kwargs)
 
+    def perpendicular_at(self, t=0.5, length=100, time=0, **kwargs):
+        """Return a Line perpendicular to this line at parameter t (0=start, 1=end).
+
+        Parameters
+        ----------
+        t:
+            Position along the line as a fraction (0 = start, 1 = end, default 0.5 = midpoint).
+        length:
+            Total length of the perpendicular line (default 100).
+        time:
+            Animation time at which to evaluate the line endpoints.
+        **kwargs:
+            Extra keyword arguments forwarded to the new Line constructor.
+        """
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        px = x1 + t * (x2 - x1)
+        py = y1 + t * (y2 - y1)
+        dx, dy = -(y2 - y1), x2 - x1  # perpendicular direction
+        mag = math.hypot(dx, dy)
+        if mag > 0:
+            dx, dy = dx / mag * length / 2, dy / mag * length / 2
+        return Line(x1=px - dx, y1=py - dy, x2=px + dx, y2=py + dy, **kwargs)
+
     def extend(self, factor=1.5, time=0, **kwargs):
         """Return a new Line extended in both directions by factor.
 
@@ -1699,6 +1765,37 @@ class Text(VObject):
             self.text.set_onward(s, full_text)
             return self
         self.text.set(s, e, lambda t, _s=s, _d=dur, _n=n: full_text[:max(1, int(_n * (t - _s) / _d))], stay=True)
+        return self
+
+    def reveal_by_word(self, start=0, end=1, change_existence=True, easing=None):
+        """Reveal text word by word over [start, end].
+
+        Similar to :meth:`typing` but reveals full words at a time instead of
+        individual characters.  Words are split by whitespace.
+        """
+        easing = easing or easings.linear
+        full_text = self.text.at_time(start)
+        words = full_text.split()
+        if not words:
+            return self
+        if change_existence:
+            self._show_from(start)
+        n = len(words)
+        dur = end - start
+        if dur <= 0:
+            self.text.set_onward(start, full_text)
+            return self
+
+        def _text_at(t, _words=words, _full=full_text, _n=n, _e=easing,
+                     _s=start, _d=dur):
+            p = _e((t - _s) / _d)
+            count = int(p * _n)
+            count = max(0, min(_n, count))
+            if count >= _n:
+                return _full
+            return ' '.join(_words[:count]) if count > 0 else ''
+
+        self.text.set(start, end, _text_at, stay=True)
         return self
 
     def highlight(self, start=0, end=1, color='#FFFF00', opacity=0.3, padding=4, easing=easings.there_and_back):
@@ -2578,6 +2675,49 @@ class Arc(VObject):
             end_angle=self.end_angle.at_time(time),
             **kwargs,
         )
+
+    @classmethod
+    def from_three_points(cls, p1, p2, p3, **kwargs):
+        """Create an Arc through three points (x, y tuples).
+
+        Computes the circumscribed circle of the three points and returns an
+        Arc that passes through all three in order (p1 -> p2 -> p3).
+
+        Raises ValueError if the points are collinear.
+        """
+        ax, ay = p1
+        bx, by = p2
+        cx, cy = p3
+        D = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
+        if abs(D) < 1e-10:
+            raise ValueError("Points are collinear; cannot define an arc")
+        a2 = ax * ax + ay * ay
+        b2 = bx * bx + by * by
+        c2 = cx * cx + cy * cy
+        ux = (a2 * (by - cy) + b2 * (cy - ay) + c2 * (ay - by)) / D
+        uy = (a2 * (cx - bx) + b2 * (ax - cx) + c2 * (bx - ax)) / D
+        r = math.hypot(ax - ux, ay - uy)
+        # Compute angles (note: SVG y-axis is flipped, so use -(y - uy))
+        a1 = math.degrees(math.atan2(-(ay - uy), ax - ux))
+        a2_angle = math.degrees(math.atan2(-(by - uy), bx - ux))
+        a3 = math.degrees(math.atan2(-(cy - uy), cx - ux))
+        # Normalize angles to [0, 360)
+        a1 = a1 % 360
+        a2_angle = a2_angle % 360
+        a3 = a3 % 360
+
+        def _angle_between_ccw(start, end):
+            return (end - start) % 360
+
+        ccw_12 = _angle_between_ccw(a1, a2_angle)
+        ccw_13 = _angle_between_ccw(a1, a3)
+        if ccw_12 < ccw_13:
+            # a2 is between a1 and a3 counterclockwise
+            return cls(r=r, start_angle=a1, end_angle=a1 + ccw_13, cx=ux, cy=uy, **kwargs)
+        else:
+            # Go clockwise: a1 to a3 the other way
+            cw_13 = 360 - ccw_13
+            return cls(r=r, start_angle=a1, end_angle=a1 - cw_13, cx=ux, cy=uy, **kwargs)
 
     def __repr__(self):
         return f'Arc(r={self.r.at_time(0):.0f}, {self.start_angle.at_time(0):.0f}°-{self.end_angle.at_time(0):.0f}°)'

@@ -1309,6 +1309,52 @@ class Axes(VCollection):
         ys = [fn(x) for x in xs]
         return sum(0.5 * (ys[i] + ys[i + 1]) * step for i in range(n))
 
+    def get_graph_length(self, func, x_start=None, x_end=None, samples=200):
+        """Return approximate arc length of *func*'s graph in SVG coordinates.
+
+        Samples the function at *samples* + 1 equally-spaced x values, converts
+        each (x, f(x)) to SVG coordinates via :meth:`coords_to_point`, and sums
+        the Euclidean distances between consecutive points.  Non-finite values
+        are skipped gracefully.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x)`` or a curve Path with a ``._func`` attribute
+            (as returned by :meth:`plot`).
+        x_start, x_end:
+            Domain bounds in mathematical (axis) coordinates.  Default to the
+            current axis x-range.
+        samples:
+            Number of line segments to use for the approximation (default 200).
+
+        Returns
+        -------
+        float
+            The approximate arc length in SVG pixels.
+        """
+        import math as _math
+        fn = self._resolve_func(func, 'func')
+        x0 = x_start if x_start is not None else self.x_min.at_time(0)
+        x1 = x_end if x_end is not None else self.x_max.at_time(0)
+        total = 0.0
+        prev = None
+        for i in range(samples + 1):
+            x = x0 + (x1 - x0) * i / samples
+            try:
+                y = fn(x)
+            except Exception:
+                prev = None
+                continue
+            if not _math.isfinite(y):
+                prev = None
+                continue
+            sx, sy = self.coords_to_point(x, y)
+            if prev is not None:
+                total += _math.hypot(sx - prev[0], sy - prev[1])
+            prev = (sx, sy)
+        return total
+
     def get_function_max(self, func, x_start, x_end, samples=200):
         """Find the x value where *func* achieves its maximum over [x_start, x_end].
 
@@ -4882,8 +4928,13 @@ class NumberLine(VCollection):
 
         super().__init__(*objects, creation=creation, z=z)
 
-    def number_to_point(self, value):
-        """Convert a number on the line to an SVG (x, y) coordinate."""
+    def number_to_point(self, value, time=0):
+        """Convert a number on the line to an SVG (x, y) coordinate.
+
+        This is the inverse of :meth:`point_to_number`.  The *time* parameter
+        is accepted for API consistency with other coordinate-mapping methods
+        but is currently unused because NumberLine geometry is static.
+        """
         span = self.x_end - self.x_start
         if span == 0:
             return (self.origin_x, self.origin_y)
@@ -5476,6 +5527,57 @@ class BarChart(VCollection):
             return None
         min_idx = min(range(len(self.values)), key=lambda i: self.values[i])
         return self._bars[min_idx]
+
+    def sort_bars(self, key=None, reverse=False, start=0, end=1, easing=easings.smooth):
+        """Animate reordering bars by value (or custom key function).
+
+        Parameters
+        ----------
+        key:
+            A function ``key(value) -> sort_key``.  If *None*, bars are sorted
+            by their numeric value.
+        reverse:
+            If *True*, sort in descending order.
+        start, end:
+            Animation time range for the reordering animation.
+        easing:
+            Easing function for the slide animation.
+
+        Returns
+        -------
+        self
+        """
+        if len(self._bars) <= 1:
+            return self
+        if key is None:
+            key = lambda v: v
+        # Build (sort_key, original_index) pairs and sort
+        indexed = [(key(val), i) for i, val in enumerate(self.values)]
+        indexed.sort(key=lambda x: x[0], reverse=reverse)
+        # Get current x positions of each bar at start time
+        old_xs = [bar.x.at_time(start) for bar in self._bars]
+        # Compute new positions: bar at indexed[new_pos][1] should move to old_xs[new_pos]
+        dur = end - start
+        if dur <= 0:
+            return self
+        for new_pos, (_, old_idx) in enumerate(indexed):
+            if new_pos == old_idx:
+                continue
+            bar = self._bars[old_idx]
+            target_x = old_xs[new_pos]
+            current_x = old_xs[old_idx]
+            dx = target_x - current_x
+            bar.shift(dx=dx, dy=0, start_time=start, end_time=end, easing=easing)
+            # Also move the associated label if it exists
+            lbl = self._labels[old_idx]
+            if lbl is not None:
+                lbl.shift(dx=dx, dy=0, start_time=start, end_time=end, easing=easing)
+        # Reorder internal lists to match new order
+        new_order = [orig_idx for _, orig_idx in indexed]
+        self._bars = [self._bars[i] for i in new_order]
+        self._labels = [self._labels[i] for i in new_order]
+        self.values = [self.values[i] for i in new_order]
+        return self
 
 
 class Table(VCollection):

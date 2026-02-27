@@ -3116,7 +3116,7 @@ class TestLineSplitAt:
 
     def test_default_t_is_half(self):
         line = Line(0, 0, 100, 0)
-        a, b = line.split_at()
+        a, _ = line.split_at()
         assert a.get_end() == pytest.approx((50.0, 0.0))
 
     def test_lengths_sum_to_original(self):
@@ -3126,7 +3126,7 @@ class TestLineSplitAt:
 
     def test_independent_objects(self):
         line = Line(0, 0, 100, 0)
-        a, b = line.split_at()
+        a, _ = line.split_at()
         # Moving the original should not affect returned lines
         line.shift(dx=999, start_time=0)
         assert a.get_start() == pytest.approx((0.0, 0.0))
@@ -3523,7 +3523,7 @@ class TestAxesGetAreaValue:
     def test_constant_function(self):
         ax = Axes(x_range=(0, 5), y_range=(0, 5))
         # integral of 2 from 1 to 4 = 6.0
-        result = ax.get_area_value(lambda x: 2.0, 1, 4)
+        result = ax.get_area_value(lambda _x: 2.0, 1, 4)
         assert result == pytest.approx(6.0, rel=1e-6)
 
     def test_linear_function(self):
@@ -3691,7 +3691,6 @@ class TestCircleChord:
         assert isinstance(ch, Line)
 
     def test_chord_endpoints_on_circle(self):
-        import math
         c = Circle(r=100, cx=200, cy=200)
         ch = c.chord(0, 180)
         x1, y1 = ch.p1.at_time(0)
@@ -3703,7 +3702,6 @@ class TestCircleChord:
         assert y2 == pytest.approx(200, abs=1e-6)
 
     def test_chord_90_degrees(self):
-        import math
         c = Circle(r=100, cx=0, cy=0)
         ch = c.chord(0, 90)
         x1, y1 = ch.p1.at_time(0)
@@ -3840,7 +3838,6 @@ class TestPolygonRotateVertices:
         """Rotate a point (100, 0) by 90 degrees around origin (0, 0)."""
         # In SVG coords (y-down) 90-deg CW: (x, y) -> (y, -x) relative to centre
         # i.e. (100, 0) -> (0, 100) around (0,0)
-        import math
         p = Polygon((100, 0), (100, 0))  # degenerate but sufficient
         rotated = p.rotate_vertices(90, cx=0, cy=0)
         verts = rotated.get_vertices()
@@ -4096,3 +4093,242 @@ class TestCycle38Shapes:
     def test_regular_polygon_circumradius(self):
         rp = RegularPolygon(6, 100)
         assert rp.get_circumradius() == 100
+
+
+class TestPerpendicularAt:
+    def test_perpendicular_at_midpoint_horizontal(self):
+        line = Line(100, 200, 300, 200)
+        perp = line.perpendicular_at(t=0.5, length=100)
+        p1 = perp.p1.at_time(0)
+        p2 = perp.p2.at_time(0)
+        # Midpoint of original is (200, 200)
+        mx = (p1[0] + p2[0]) / 2
+        my = (p1[1] + p2[1]) / 2
+        assert abs(mx - 200) < 1
+        assert abs(my - 200) < 1
+        # Perpendicular to horizontal should be vertical
+        assert abs(p1[0] - p2[0]) < 1
+
+    def test_perpendicular_at_start(self):
+        import math
+        line = Line(100, 100, 300, 100)
+        perp = line.perpendicular_at(t=0.0, length=80)
+        p1 = perp.p1.at_time(0)
+        p2 = perp.p2.at_time(0)
+        # Center of perpendicular should be at line start
+        mx = (p1[0] + p2[0]) / 2
+        my = (p1[1] + p2[1]) / 2
+        assert abs(mx - 100) < 1
+        assert abs(my - 100) < 1
+        # Length should be 80
+        length = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
+        assert abs(length - 80) < 1
+
+    def test_perpendicular_at_end_point(self):
+        line = Line(0, 0, 200, 0)
+        perp = line.perpendicular_at(t=1.0, length=60)
+        p1 = perp.p1.at_time(0)
+        p2 = perp.p2.at_time(0)
+        # Center should be at (200, 0)
+        mx = (p1[0] + p2[0]) / 2
+        assert abs(mx - 200) < 1
+
+    def test_perpendicular_at_diagonal_line(self):
+        import math
+        # 45-degree line
+        line = Line(0, 0, 100, 100)
+        perp = line.perpendicular_at(t=0.5, length=100)
+        p1 = perp.p1.at_time(0)
+        p2 = perp.p2.at_time(0)
+        # Perpendicular length should be 100
+        length = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
+        assert abs(length - 100) < 1
+        # Check perpendicularity via dot product
+        dx_orig = 100 - 0
+        dy_orig = 100 - 0
+        dx_perp = p2[0] - p1[0]
+        dy_perp = p2[1] - p1[1]
+        dot = dx_orig * dx_perp + dy_orig * dy_perp
+        assert abs(dot) < 1  # should be ~0 (perpendicular)
+
+
+class TestEllipseContainsPoint:
+    def test_center_is_inside(self):
+        e = Ellipse(rx=100, ry=50, cx=500, cy=400)
+        assert e.contains_point(500, 400) == True
+
+    def test_outside_point(self):
+        e = Ellipse(rx=100, ry=50, cx=500, cy=400)
+        # Well outside the ellipse
+        assert e.contains_point(700, 400) == False
+
+    def test_point_on_boundary(self):
+        e = Ellipse(rx=100, ry=50, cx=500, cy=400)
+        # Point on the right edge
+        assert e.contains_point(600, 400) == True  # exactly on boundary, <= 1
+
+    def test_point_just_inside(self):
+        e = Ellipse(rx=100, ry=50, cx=500, cy=400)
+        # Slightly inside from the right
+        assert e.contains_point(599, 400) == True
+
+    def test_point_just_outside(self):
+        e = Ellipse(rx=100, ry=50, cx=500, cy=400)
+        # Slightly outside from the right
+        assert e.contains_point(601, 400) == False
+
+    def test_zero_radius_returns_false(self):
+        e = Ellipse(rx=0, ry=50, cx=500, cy=400)
+        assert e.contains_point(500, 400) == False
+
+    def test_contains_point_circle(self):
+        from vectormation.objects import Circle
+        c = Circle(r=100, cx=500, cy=500)
+        # Circle is an Ellipse subclass
+        assert c.contains_point(500, 500) == True
+        assert c.contains_point(500, 400) == True  # on boundary
+        assert c.contains_point(500, 390) == False  # outside
+
+
+class TestAxesGetGraphLength:
+    def test_constant_function_length(self):
+        import math
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        # Constant function y=0 over x in [-5, 5]
+        # SVG length = horizontal distance between coords_to_point(-5,0) and coords_to_point(5,0)
+        p1 = ax.coords_to_point(-5, 0)
+        p2 = ax.coords_to_point(5, 0)
+        expected = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
+        length = ax.get_graph_length(lambda _x: 0)
+        assert abs(length - expected) < 1
+
+    def test_linear_function_length(self):
+        import math
+        ax = Axes(x_range=(0, 3), y_range=(0, 3))
+        # y = x from 0 to 3
+        p1 = ax.coords_to_point(0, 0)
+        p2 = ax.coords_to_point(3, 3)
+        expected = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
+        length = ax.get_graph_length(lambda x: x, x_start=0, x_end=3)
+        assert abs(length - expected) < 2
+
+    def test_graph_length_with_curve_object(self):
+        ax = Axes(x_range=(0, 5), y_range=(-2, 2))
+        curve = ax.plot(lambda x: x**2)
+        # Should accept a curve with ._func attribute
+        length = ax.get_graph_length(curve, x_start=0, x_end=2)
+        assert length > 0
+
+    def test_graph_length_partial_range(self):
+        ax = Axes(x_range=(-10, 10), y_range=(-10, 10))
+        full_length = ax.get_graph_length(lambda x: x, x_start=0, x_end=10)
+        half_length = ax.get_graph_length(lambda x: x, x_start=0, x_end=5)
+        # Half the range should give roughly half the length for a linear function
+        assert half_length < full_length
+        assert abs(half_length / full_length - 0.5) < 0.05
+
+
+# Arc.from_three_points
+
+class TestArcFromThreePoints:
+    def test_arc_passes_through_three_points(self):
+        """Arc created from three points should pass through all three."""
+        import math
+        p1 = (100, 200)
+        p2 = (200, 100)
+        p3 = (300, 200)
+        arc = Arc.from_three_points(p1, p2, p3)
+        cx, cy = arc.cx.at_time(0), arc.cy.at_time(0)
+        r = arc.r.at_time(0)
+        # All three points should be at distance r from center
+        for px, py in [p1, p2, p3]:
+            dist = math.hypot(px - cx, py - cy)
+            assert dist == pytest.approx(r, abs=0.01)
+
+    def test_arc_from_three_points_collinear_raises(self):
+        """Collinear points should raise ValueError."""
+        with pytest.raises(ValueError, match="collinear"):
+            Arc.from_three_points((0, 0), (1, 1), (2, 2))
+
+    def test_arc_from_three_points_kwargs(self):
+        """Extra kwargs should be forwarded to Arc constructor."""
+        arc = Arc.from_three_points((0, 100), (100, 0), (200, 100), stroke='#ff0000')
+        svg = arc.to_svg(0)
+        assert 'path' in svg  # It's rendered as a path
+
+    def test_arc_from_three_points_radius_correct(self):
+        """For points on a known circle, the radius should match."""
+        # Points on a circle of radius 100 centered at (200, 200)
+        r = 100
+        cx, cy = 200, 200
+        p1 = (cx + r, cy)
+        p2 = (cx, cy - r)
+        p3 = (cx - r, cy)
+        arc = Arc.from_three_points(p1, p2, p3)
+        assert arc.r.at_time(0) == pytest.approx(r, abs=0.1)
+        assert arc.cx.at_time(0) == pytest.approx(cx, abs=0.1)
+        assert arc.cy.at_time(0) == pytest.approx(cy, abs=0.1)
+
+
+# Text.reveal_by_word
+
+class TestTextRevealByWord:
+    def test_reveal_by_word_returns_self(self):
+        t = Text(text='hello world foo bar')
+        result = t.reveal_by_word(start=0, end=2)
+        assert result is t
+
+    def test_reveal_by_word_empty_at_start(self):
+        t = Text(text='hello world foo')
+        t.reveal_by_word(start=0, end=3, change_existence=False)
+        # At t=0 (start), progress=0 so 0 words
+        assert t.text.at_time(0) == ''
+
+    def test_reveal_by_word_full_at_end(self):
+        t = Text(text='hello world foo')
+        t.reveal_by_word(start=0, end=3, change_existence=False)
+        # At end or just after, full text is shown (stay=True)
+        assert t.text.at_time(3) == 'hello world foo'
+
+    def test_reveal_by_word_partial(self):
+        t = Text(text='one two three')
+        t.reveal_by_word(start=0, end=3, change_existence=False)
+        # At t=1.0, progress=1/3 -> int(0.333*3)=0 words?
+        # Actually: p = linear(1/3) = 0.333, count = int(0.333*3) = 0
+        # At t=1.5, progress=0.5, count=int(0.5*3)=1
+        text_at_1_5 = t.text.at_time(1.5)
+        assert text_at_1_5 == 'one'
+
+    def test_reveal_by_word_empty_text(self):
+        t = Text(text='')
+        result = t.reveal_by_word(start=0, end=1)
+        assert result is t
+
+
+# Rectangle.to_polygon
+
+class TestRectangleToPolygon:
+    def test_to_polygon_returns_polygon(self):
+        r = Rectangle(100, 50, x=10, y=20)
+        poly = r.to_polygon()
+        assert isinstance(poly, Polygon)
+
+    def test_to_polygon_has_four_vertices(self):
+        r = Rectangle(100, 50, x=10, y=20)
+        poly = r.to_polygon()
+        assert len(poly.vertices) == 4
+
+    def test_to_polygon_vertices_match_corners(self):
+        r = Rectangle(100, 50, x=10, y=20)
+        poly = r.to_polygon()
+        corners = r.get_corners()
+        verts = poly.get_vertices(0)
+        for c, v in zip(corners, verts):
+            assert c[0] == pytest.approx(v[0])
+            assert c[1] == pytest.approx(v[1])
+
+    def test_to_polygon_kwargs_forwarded(self):
+        r = Rectangle(100, 50, x=10, y=20)
+        poly = r.to_polygon(fill='#ff0000')
+        svg = poly.to_svg(0)
+        assert 'polygon' in svg

@@ -1669,6 +1669,39 @@ class VObject(ABC):  # Vector Object
         self.styling.scale_y.set(s, e, scale, stay=True)
         return self
 
+    def grow_from_corner(self, start=0, end=1, corner=None, change_existence=True, easing=easings.smooth):
+        """Grow from zero size anchored at a corner.
+
+        Parameters
+        ----------
+        start, end:
+            Time range for the animation.
+        corner:
+            Direction tuple indicating which corner to anchor, e.g. UL, UR,
+            DL, DR from ``_constants``.  Defaults to DL (bottom-left in SVG).
+        change_existence:
+            If True, the object is hidden before *start*.
+        easing:
+            Easing function for the scale interpolation.
+        """
+        from vectormation._constants import DL
+        corner = corner or DL
+        if change_existence:
+            self._show_from(start)
+        x, y, w, h = self.bbox(start)
+        # Map corner direction to point
+        cx = x if corner[0] <= 0 else x + w
+        cy = y if corner[1] <= 0 else y + h
+        self.styling._scale_origin = (cx, cy)
+        s, e = start, end
+        dur = e - s
+        if dur <= 0:
+            return self
+        scale = lambda t, _s=s, _d=dur: easing((t - _s) / _d)
+        self.styling.scale_x.set(s, e, scale, stay=True)
+        self.styling.scale_y.set(s, e, scale, stay=True)
+        return self
+
     def _spiral_anim(self, start, end, n_turns, spiral_in, change_existence, easing):
         """Shared helper for spiral_in / spiral_out."""
         dur = end - start
@@ -3563,6 +3596,30 @@ class VCollection:
         """Run an animation method on children one after another with no overlap.
         Equivalent to cascade with overlap=0."""
         return self.cascade(method_name, start=start, end=end, overlap=0, **kwargs)
+
+    def apply_sequentially(self, method_name, start=0, end=1, **kwargs):
+        """Apply method to each child in sequence, dividing [start, end] equally.
+
+        Unlike :meth:`sequential` / :meth:`cascade`, this directly computes
+        equal-duration time slices without any overlap logic, making it a
+        simpler and more predictable alternative.
+
+        Parameters
+        ----------
+        method_name:
+            Name of the animation method to call on each child (e.g. ``'fadein'``).
+        start, end:
+            Overall time range to divide among the children.
+        **kwargs:
+            Additional keyword arguments forwarded to each child method call.
+        """
+        n = len(self.objects)
+        if n == 0:
+            return self
+        dt = (end - start) / n
+        for i, obj in enumerate(self.objects):
+            getattr(obj, method_name)(start=start + i * dt, end=start + (i + 1) * dt, **kwargs)
+        return self
 
     def spread(self, x1, y1, x2, y2, start_time: float = 0):
         """Distribute children evenly along a line from (x1, y1) to (x2, y2)."""

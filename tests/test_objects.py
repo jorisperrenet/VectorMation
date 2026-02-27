@@ -7338,3 +7338,144 @@ class TestAttachTo:
         label = Text("A")
         label.attach_to(dot, start=0, end=1)
         assert len(label._updaters) == 1
+
+
+class TestGrowFromCorner:
+    def test_grow_from_corner_returns_self(self):
+        c = Circle(r=50, cx=200, cy=200)
+        result = c.grow_from_corner(start=0, end=1)
+        assert result is c
+
+    def test_grow_from_corner_hides_before_start(self):
+        c = Circle(r=50, cx=200, cy=200)
+        c.grow_from_corner(start=1, end=2)
+        assert not c.show.at_time(0.5)
+        assert c.show.at_time(1)
+
+    def test_grow_from_corner_scale_at_end(self):
+        from vectormation.objects import DL
+        c = Circle(r=50, cx=200, cy=200)
+        c.grow_from_corner(start=0, end=1, corner=DL, easing=easings.linear)
+        # At end, scale should be 1
+        assert c.styling.scale_x.at_time(1) == pytest.approx(1.0)
+        assert c.styling.scale_y.at_time(1) == pytest.approx(1.0)
+        # At start, scale should be 0
+        assert c.styling.scale_x.at_time(0) == pytest.approx(0.0)
+
+    def test_grow_from_corner_anchor_point_ur(self):
+        from vectormation.objects import UR
+        r = Rectangle(100, 80, x=300, y=300)
+        r.grow_from_corner(start=0, end=1, corner=UR, easing=easings.linear)
+        # Scale origin should be top-right corner of bbox
+        ox, oy = r.styling._scale_origin
+        bx, by, bw, bh = r.bbox(0)
+        assert ox == pytest.approx(bx + bw)  # right edge
+        assert oy == pytest.approx(by)        # top edge
+
+    def test_grow_from_corner_default_corner_is_dl(self):
+        r = Rectangle(100, 80, x=300, y=300)
+        r.grow_from_corner(start=0, end=1, easing=easings.linear)
+        # Default is DL = (-1, 1) = bottom-left
+        ox, oy = r.styling._scale_origin
+        bx, by, bw, bh = r.bbox(0)
+        assert ox == pytest.approx(bx)        # left edge
+        assert oy == pytest.approx(by + bh)   # bottom edge
+
+    def test_grow_from_corner_no_change_existence(self):
+        c = Circle(r=50, cx=200, cy=200)
+        c.grow_from_corner(start=1, end=2, change_existence=False)
+        # Object should remain visible before start
+        assert c.show.at_time(0.5) == True
+
+
+class TestApplySequentially:
+    def test_apply_sequentially_returns_self(self):
+        grp = VCollection(Circle(r=20, cx=100, cy=100),
+                          Circle(r=20, cx=200, cy=100))
+        result = grp.apply_sequentially('fadein', start=0, end=2)
+        assert result is grp
+
+    def test_apply_sequentially_divides_time_equally(self):
+        c1 = Circle(r=20, cx=100, cy=100)
+        c2 = Circle(r=20, cx=200, cy=100)
+        c3 = Circle(r=20, cx=300, cy=100)
+        grp = VCollection(c1, c2, c3)
+        grp.apply_sequentially('fadein', start=0, end=3)
+        # c1 should be visible at t=0.5 (its range is 0-1)
+        assert c1.show.at_time(0.5) == True
+        # c2 should NOT be visible at t=0.5 (its range is 1-2)
+        assert c2.show.at_time(0.5) == False
+        # c2 should be visible at t=1.5
+        assert c2.show.at_time(1.5) == True
+        # c3 should be visible at t=2.5
+        assert c3.show.at_time(2.5) == True
+
+    def test_apply_sequentially_empty_collection(self):
+        grp = VCollection()
+        result = grp.apply_sequentially('fadein', start=0, end=1)
+        assert result is grp
+
+    def test_apply_sequentially_single_child(self):
+        c = Circle(r=20, cx=100, cy=100)
+        grp = VCollection(c)
+        grp.apply_sequentially('fadein', start=0, end=2)
+        # The single child gets the full range 0-2
+        assert c.show.at_time(0.5) == True
+        assert c.show.at_time(2.5) == True
+
+
+# NumberLine.number_to_point with time parameter
+
+class TestNumberLineNumberToPointTime:
+    def test_number_to_point_with_time_parameter(self):
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=300)
+        pt = nl.number_to_point(5, time=0)
+        assert pt[0] == pytest.approx(350)  # 100 + 5/10*500
+        assert pt[1] == pytest.approx(300)
+
+    def test_number_to_point_time_default(self):
+        """Calling with and without time=0 should give the same result."""
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=300)
+        pt_no_time = nl.number_to_point(5)
+        pt_with_time = nl.number_to_point(5, time=0)
+        assert pt_no_time == pt_with_time
+
+    def test_number_to_point_roundtrip(self):
+        """number_to_point and point_to_number should be inverses."""
+        nl = NumberLine(x_range=(-5, 5, 1), length=600, x=200, y=400)
+        for val in [-5, -2.5, 0, 2.5, 5]:
+            pt = nl.number_to_point(val, time=0)
+            recovered = nl.point_to_number(pt)
+            assert recovered == pytest.approx(val, abs=0.001)
+
+
+# BarChart.sort_bars
+
+class TestBarChartSortBars:
+    def test_sort_bars_ascending(self):
+        bc = BarChart([30, 10, 50, 20], labels=['A', 'B', 'C', 'D'])
+        bc.sort_bars(start=0, end=1)
+        # After sorting, values should be in ascending order
+        assert bc.values == [10, 20, 30, 50]
+
+    def test_sort_bars_descending(self):
+        bc = BarChart([30, 10, 50, 20], labels=['A', 'B', 'C', 'D'])
+        bc.sort_bars(reverse=True, start=0, end=1)
+        # After sorting, values should be in descending order
+        assert bc.values == [50, 30, 20, 10]
+
+    def test_sort_bars_custom_key(self):
+        bc = BarChart([3, -1, 5, -2])
+        bc.sort_bars(key=abs, start=0, end=1)
+        assert bc.values == [-1, -2, 3, 5]
+
+    def test_sort_bars_returns_self(self):
+        bc = BarChart([3, 1, 2])
+        result = bc.sort_bars(start=0, end=1)
+        assert result is bc
+
+    def test_sort_bars_single_bar(self):
+        bc = BarChart([42])
+        result = bc.sort_bars(start=0, end=1)
+        assert result is bc
+        assert bc.values == [42]
