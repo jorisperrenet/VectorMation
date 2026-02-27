@@ -1881,8 +1881,6 @@ class VObject(ABC):  # Vector Object
         s, d = start, max(dur, 1e-9)
         orig_sw = self.styling.stroke_width.at_time(start)
         _, target_rgb = attributes.Color(0, color).parse(color)
-        orig_stroke = self.styling.stroke.time_func(start)
-        assert isinstance(orig_stroke, tuple)
         # Stroke color: target during animation, original after
         self.styling.stroke.set(s, end, lambda t, _rgb=target_rgb: _rgb, stay=False)
         # Stroke width: sinusoidal pulse between orig_sw and max_width
@@ -2220,7 +2218,7 @@ class VObject(ABC):  # Vector Object
 
         def _shimmer(t, _s=_s, _d=_d, _p=_p):
             progress = easing((t - _s) / _d)
-            # Raised cosine wave: oscillates between ~0.5 and 1.0
+            # Raised cosine wave: oscillates between 0.0 and 1.0
             wave = 0.5 * (1 + math.cos(2 * math.pi * _p * progress))
             # Map to opacity range 0.3..1.0 for a visible shimmer effect
             return 0.3 + 0.7 * wave

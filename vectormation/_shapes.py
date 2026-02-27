@@ -1011,6 +1011,8 @@ class Polygon(VObject):
             for (ax, ay), (bx, by) in edges:
                 new_pts.append((ax, ay))
                 new_pts.append(((ax + bx) / 2, (ay + by) / 2))
+            if not self.closed and pts:
+                new_pts.append(pts[-1])
             pts = new_pts
         return Polygon(*pts, closed=self.closed, **kwargs)
 

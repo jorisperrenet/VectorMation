@@ -7598,11 +7598,11 @@ class TestPolygonSubdivideEdges:
         assert sub.closed is True
 
     def test_open_polyline(self):
-        """Open polyline with 3 vertices (2 edges) -> 4 vertices after 1 iter."""
+        """Open polyline with 3 vertices (2 edges) -> 5 vertices after 1 iter."""
         p = Polygon((0, 0), (100, 0), (100, 100), closed=False)
         sub = p.subdivide_edges(iterations=1)
         verts = sub.get_vertices(0)
-        assert len(verts) == 4
+        assert len(verts) == 5
 
     def test_kwargs_forwarded(self):
         """Extra kwargs should be forwarded to the new Polygon."""

@@ -4864,11 +4864,10 @@ class Axes(VCollection):
         for xi, yi in zip(x_data, y_data):
             predicted = slope * xi + intercept
             line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
-            _xi, _yi, _pred = xi, yi, predicted
             line.p1.set_onward(creation,
-                lambda t, _x=_xi, _y=_yi: self.coords_to_point(_x, _y, t))
+                lambda t, _x=xi, _y=yi: self.coords_to_point(_x, _y, t))
             line.p2.set_onward(creation,
-                lambda t, _x=_xi, _p=_pred: self.coords_to_point(_x, _p, t))
+                lambda t, _x=xi, _p=predicted: self.coords_to_point(_x, _p, t))
             lines.append(line)
             self._add_plot_obj(line)
         group = VCollection(*lines, creation=creation, z=z)
@@ -4905,7 +4904,7 @@ class Axes(VCollection):
             A filled Path representing the band (already added to the axes).
         """
         fn = self._resolve_func(func, 'func')
-        spread_fn = self._resolve_func(spread_func, 'spread_func') if not callable(spread_func) else spread_func
+        spread_fn = self._resolve_func(spread_func, 'spread_func')
         band = Path('', x=0, y=0, creation=creation, z=-1,
                     fill=color, fill_opacity=opacity, stroke_width=0)
         _xr = x_range
