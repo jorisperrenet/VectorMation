@@ -2115,8 +2115,8 @@ class VObject(ABC):  # Vector Object
         return self
 
     def get_opacity(self, time: float = 0):
-        """Return the current fill opacity value at the given time."""
-        return self.styling.fill_opacity.at_time(time)
+        """Return the current opacity value at the given time (matches what set_opacity writes)."""
+        return self.styling.opacity.at_time(time)
 
     def set_position(self, x, y, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Move the object's center to (x, y). Shorthand for move_to.
@@ -3076,13 +3076,14 @@ class VCollection:
             obj.shift(dx=dx, dy=dy, start_time=start_time)
         return self
 
-    def write(self, start: float = 0, end: float = 1, processing=10, max_stroke_width=2, change_existence=True):
+    def write(self, start: float = 0, end: float = 1, processing=10, max_stroke_width=2, change_existence=True, easing=easings.smooth):
         if not self.objects:
             return self
         spc = (end - start) / (len(self.objects) + processing)
         for i, obj in enumerate(self.objects):
             obj.write(start=start+spc*i, end=start+spc*(i+processing+1),
-                      max_stroke_width=max_stroke_width, change_existence=change_existence)
+                      max_stroke_width=max_stroke_width, change_existence=change_existence,
+                      easing=easing)
         return self
 
 

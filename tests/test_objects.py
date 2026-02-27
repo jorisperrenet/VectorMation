@@ -5726,9 +5726,10 @@ class TestLerpPoint:
 
 class TestGetOpacity:
     def test_default(self):
+        # get_opacity reads the 'opacity' attribute (default 1.0), not fill_opacity
         c = Circle(r=50)
         opacity = c.get_opacity(0)
-        assert opacity == pytest.approx(0.7)  # default fill_opacity
+        assert opacity == pytest.approx(1.0)
 
     def test_after_set(self):
         c = Circle(r=50)
@@ -5736,8 +5737,15 @@ class TestGetOpacity:
         assert c.get_opacity(0) == pytest.approx(0.3)
 
     def test_custom_initial(self):
-        c = Circle(r=50, fill_opacity=1.0)
-        assert c.get_opacity(0) == pytest.approx(1.0)
+        # opacity kwarg sets the CSS opacity attribute
+        c = Circle(r=50, opacity=0.5)
+        assert c.get_opacity(0) == pytest.approx(0.5)
+
+    def test_set_opacity_roundtrip(self):
+        # set_opacity writes to 'opacity'; get_opacity reads it back correctly
+        c = Circle(r=50)
+        c.set_opacity(0.75, start=0)
+        assert c.get_opacity(0) == pytest.approx(0.75)
 
 
 class TestGetColors:

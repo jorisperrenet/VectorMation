@@ -5,6 +5,7 @@ from vectormation.objects import (
     Path, Trace, Text, Dot, Wedge, Sector, Star, RoundedRectangle, DashedLine,
     NumberLine, EquilateralTriangle, Arrow, CurvedArrow, VObject, VCollection,
     from_svg, CountAnimation, Annulus, DoubleArrow, FunctionGraph,
+    AnnularSector, PieChart, Axes,
 )
 from vectormation.attributes import Coor
 import vectormation.easings as easings
@@ -76,6 +77,51 @@ class TestPolygon:
         assert by == pytest.approx(0)
         assert bw == pytest.approx(100)
         assert bh == pytest.approx(100)
+
+
+class TestConvexHull:
+    def test_triangle_unchanged(self):
+        # Three points already forming a triangle should produce exactly those 3 hull points
+        p = Polygon.convex_hull((0, 0), (100, 0), (50, 100))
+        verts = p.get_vertices(0)
+        assert len(verts) == 3
+
+    def test_square(self):
+        # Four corners of a square: hull should have exactly 4 points
+        p = Polygon.convex_hull((0, 0), (100, 0), (100, 100), (0, 100))
+        verts = p.get_vertices(0)
+        assert len(verts) == 4
+
+    def test_interior_point_excluded(self):
+        # A point inside a square should be excluded from the hull
+        p = Polygon.convex_hull((0, 0), (100, 0), (100, 100), (0, 100), (50, 50))
+        verts = p.get_vertices(0)
+        assert len(verts) == 4
+        assert (50.0, 50.0) not in verts
+
+    def test_collinear_midpoints_excluded(self):
+        # Collinear middle points should be skipped; only the extreme endpoints kept
+        p = Polygon.convex_hull((0, 0), (50, 0), (100, 0), (100, 100), (0, 100))
+        verts = p.get_vertices(0)
+        assert (50.0, 0.0) not in verts
+
+    def test_too_few_points_raises(self):
+        with pytest.raises(ValueError):
+            Polygon.convex_hull((0, 0), (1, 1))
+
+    def test_returns_polygon(self):
+        p = Polygon.convex_hull((0, 0), (100, 0), (50, 100))
+        assert isinstance(p, Polygon)
+
+    def test_kwargs_forwarded(self):
+        p = Polygon.convex_hull((0, 0), (100, 0), (50, 100), fill='#ff0000')
+        svg = p.to_svg(0)
+        # Color may be rendered as rgb(...) or #rrggbb depending on style module
+        assert '255,0,0' in svg or 'ff0000' in svg
+
+    def test_all_collinear_raises(self):
+        with pytest.raises(ValueError):
+            Polygon.convex_hull((0, 0), (50, 50), (100, 100))
 
 
 class TestLine:
@@ -1780,3 +1826,195 @@ class TestCircleFromThreePoints:
         for px, py in [(100, 200), (300, 400), (500, 200)]:
             dist = math.sqrt((px - cx) ** 2 + (py - cy) ** 2)
             assert dist == pytest.approx(r, abs=1e-6)
+
+
+# ---------------------------------------------------------------------------
+# Getter/setter methods
+# ---------------------------------------------------------------------------
+
+class TestGettersSetters:
+    # Circle.get_radius and get_perimeter
+    def test_circle_get_radius(self):
+        c = Circle(r=75, cx=100, cy=200)
+        assert c.get_radius() == pytest.approx(75)
+
+    def test_circle_get_radius_after_set(self):
+        c = Circle(r=50)
+        c.set_radius(80)
+        assert c.get_radius() == pytest.approx(80)
+
+    def test_circle_get_perimeter_exact(self):
+        import math
+        c = Circle(r=100)
+        assert c.get_perimeter() == pytest.approx(2 * math.pi * 100)
+
+    def test_circle_get_perimeter_not_ramanujan(self):
+        import math
+        # For a circle rx==ry, exact perimeter == 2*pi*r, Ramanujan differs slightly
+        c = Circle(r=100)
+        assert c.get_perimeter() == pytest.approx(2 * math.pi * 100, rel=1e-12)
+
+    # Ellipse.get_rx, get_ry, set_center
+    def test_ellipse_get_rx(self):
+        e = Ellipse(rx=80, ry=40)
+        assert e.get_rx() == pytest.approx(80)
+
+    def test_ellipse_get_ry(self):
+        e = Ellipse(rx=80, ry=40)
+        assert e.get_ry() == pytest.approx(40)
+
+    def test_ellipse_get_rx_after_set(self):
+        e = Ellipse(rx=80, ry=40)
+        e.set_rx(120)
+        assert e.get_rx() == pytest.approx(120)
+
+    def test_ellipse_set_center(self):
+        e = Ellipse(rx=60, ry=30, cx=100, cy=200)
+        e.set_center(500, 300)
+        cx, cy = e.c.at_time(0)
+        assert cx == pytest.approx(500)
+        assert cy == pytest.approx(300)
+
+    def test_ellipse_set_center_animated(self):
+        e = Ellipse(rx=60, ry=30, cx=100, cy=200)
+        e.set_center(500, 300, start=0, end=1)
+        cx0, cy0 = e.c.at_time(0)
+        cx1, cy1 = e.c.at_time(1)
+        assert cx0 == pytest.approx(100)
+        assert cx1 == pytest.approx(500)
+
+    # Rectangle.get_size
+    def test_rectangle_get_size(self):
+        r = Rectangle(width=200, height=100)
+        w, h = r.get_size()
+        assert w == pytest.approx(200)
+        assert h == pytest.approx(100)
+
+    def test_rectangle_get_size_after_set(self):
+        r = Rectangle(width=200, height=100)
+        r.set_size(300, 150)
+        w, h = r.get_size()
+        assert w == pytest.approx(300)
+        assert h == pytest.approx(150)
+
+    # Annulus.get_inner_radius, get_outer_radius
+    def test_annulus_get_inner_radius(self):
+        a = Annulus(inner_radius=50, outer_radius=120)
+        assert a.get_inner_radius() == pytest.approx(50)
+
+    def test_annulus_get_outer_radius(self):
+        a = Annulus(inner_radius=50, outer_radius=120)
+        assert a.get_outer_radius() == pytest.approx(120)
+
+    def test_annulus_get_inner_radius_after_set(self):
+        a = Annulus(inner_radius=50, outer_radius=120)
+        a.set_inner_radius(70)
+        assert a.get_inner_radius() == pytest.approx(70)
+
+    def test_annulus_get_outer_radius_after_set(self):
+        a = Annulus(inner_radius=50, outer_radius=120)
+        a.set_outer_radius(200)
+        assert a.get_outer_radius() == pytest.approx(200)
+
+    # AnnularSector.set_inner_radius and get_area
+    def test_annular_sector_set_inner_radius(self):
+        s = AnnularSector(inner_radius=40, outer_radius=100, start_angle=0, end_angle=90)
+        s.set_inner_radius(60)
+        assert s.inner_r.at_time(0) == pytest.approx(60)
+
+    def test_annular_sector_set_inner_radius_animated(self):
+        s = AnnularSector(inner_radius=40, outer_radius=100, start_angle=0, end_angle=90)
+        s.set_inner_radius(80, start=0, end=1)
+        assert s.inner_r.at_time(0) == pytest.approx(40)
+        assert s.inner_r.at_time(1) == pytest.approx(80)
+
+    def test_annular_sector_get_area(self):
+        import math
+        # 90 degree sector, outer=100, inner=50
+        s = AnnularSector(inner_radius=50, outer_radius=100, start_angle=0, end_angle=90)
+        expected = 0.5 * math.radians(90) * (100 ** 2 - 50 ** 2)
+        assert s.get_area() == pytest.approx(expected)
+
+    # RoundedRectangle.get_corner_radius
+    def test_rounded_rectangle_get_corner_radius(self):
+        rr = RoundedRectangle(200, 100, corner_radius=15)
+        assert rr.get_corner_radius() == pytest.approx(15)
+
+    def test_rounded_rectangle_get_corner_radius_after_set(self):
+        rr = RoundedRectangle(200, 100, corner_radius=15)
+        rr.set_corner_radius(25)
+        assert rr.get_corner_radius() == pytest.approx(25)
+
+    # Text.get_font_size
+    def test_text_get_font_size(self):
+        t = Text(text='hello', font_size=36)
+        assert t.get_font_size() == pytest.approx(36)
+
+    def test_text_get_font_size_default(self):
+        t = Text(text='hello')
+        assert t.get_font_size() == pytest.approx(48)
+
+    # Line.set_start and set_end
+    def test_line_set_start(self):
+        l = Line(x1=0, y1=0, x2=100, y2=100)
+        l.set_start((50, 50))
+        x1, y1 = l.p1.at_time(0)
+        assert x1 == pytest.approx(50)
+        assert y1 == pytest.approx(50)
+
+    def test_line_set_end(self):
+        l = Line(x1=0, y1=0, x2=100, y2=100)
+        l.set_end((200, 300))
+        x2, y2 = l.p2.at_time(0)
+        assert x2 == pytest.approx(200)
+        assert y2 == pytest.approx(300)
+
+    def test_line_set_start_animated(self):
+        l = Line(x1=0, y1=0, x2=100, y2=100)
+        l.set_start((50, 50), start=0, end=1)
+        x0, y0 = l.p1.at_time(0)
+        x1, y1 = l.p1.at_time(1)
+        assert x0 == pytest.approx(0)
+        assert x1 == pytest.approx(50)
+
+    def test_line_set_end_animated(self):
+        l = Line(x1=0, y1=0, x2=100, y2=100)
+        l.set_end((300, 400), start=0, end=1)
+        x0, y0 = l.p2.at_time(0)
+        x1, y1 = l.p2.at_time(1)
+        assert x0 == pytest.approx(100)
+        assert x1 == pytest.approx(300)
+
+    # PieChart.get_sector
+    def test_piechart_get_sector(self):
+        pc = PieChart([1, 2, 3])
+        s0 = pc.get_sector(0)
+        assert s0 is pc._sectors[0]
+
+    def test_piechart_get_sector_is_wedge(self):
+        pc = PieChart([1, 2, 3])
+        assert isinstance(pc.get_sector(1), Wedge)
+
+    # Axes.set_x_range, set_y_range
+    def test_axes_set_x_range(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        ax.set_x_range(-10, 10)
+        assert ax.x_min.at_time(0) == pytest.approx(-10)
+        assert ax.x_max.at_time(0) == pytest.approx(10)
+
+    def test_axes_set_y_range(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        ax.set_y_range(-8, 8)
+        assert ax.y_min.at_time(0) == pytest.approx(-8)
+        assert ax.y_max.at_time(0) == pytest.approx(8)
+
+    def test_axes_set_x_range_with_start(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        ax.set_x_range(-20, 20, start=2)
+        assert ax.x_min.at_time(0) == pytest.approx(-5)
+        assert ax.x_min.at_time(2) == pytest.approx(-20)
+
+    def test_axes_set_y_range_returns_self(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        result = ax.set_y_range(-1, 1)
+        assert result is ax

@@ -678,13 +678,25 @@ class Axes(VCollection):
         self._add_plot_obj(line)
         return self
 
-    def set_x_range(self, start_time, end_time, x_range, **kwargs):
+    def set_x_range(self, x_min, x_max, start=0):
+        """Set the x-axis range from start time onward."""
+        self.x_min.set_onward(start, x_min)
+        self.x_max.set_onward(start, x_max)
+        return self
+
+    def set_y_range(self, y_min, y_max, start=0):
+        """Set the y-axis range from start time onward."""
+        self.y_min.set_onward(start, y_min)
+        self.y_max.set_onward(start, y_max)
+        return self
+
+    def animate_x_range(self, start_time, end_time, x_range, **kwargs):
         """Animate the x-axis range to new bounds."""
         self.x_min.move_to(start_time, end_time, x_range[0], **kwargs)
         self.x_max.move_to(start_time, end_time, x_range[1], **kwargs)
         return self
 
-    def set_y_range(self, start_time, end_time, y_range, **kwargs):
+    def animate_y_range(self, start_time, end_time, y_range, **kwargs):
         """Animate the y-axis range to new bounds."""
         self.y_min.move_to(start_time, end_time, y_range[0], **kwargs)
         self.y_max.move_to(start_time, end_time, y_range[1], **kwargs)
@@ -692,8 +704,8 @@ class Axes(VCollection):
 
     def set_ranges(self, start_time, end_time, x_range, y_range, **kwargs):
         """Animate both axis ranges to new bounds."""
-        self.set_x_range(start_time, end_time, x_range, **kwargs)
-        self.set_y_range(start_time, end_time, y_range, **kwargs)
+        self.animate_x_range(start_time, end_time, x_range, **kwargs)
+        self.animate_y_range(start_time, end_time, y_range, **kwargs)
         return self
 
     def coords_to_point(self, x, y, time=0):
@@ -4294,6 +4306,9 @@ class PieChart(VCollection):
 
     def __repr__(self):
         return f'PieChart({len(self.values)} sectors)'
+
+    def get_sector(self, index):
+        return self._sectors[index]
 
     def highlight_sector(self, index, start=0, end=1, pull_distance=30, easing=easings.there_and_back):
         """Pull out a sector from the pie to highlight it."""

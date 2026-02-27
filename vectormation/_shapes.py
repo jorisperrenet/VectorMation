@@ -147,6 +147,53 @@ class Polygon(VObject):
         return cls(*points, **kwargs)
 
     @classmethod
+    def convex_hull(cls, *points, **kwargs):
+        """Create a Polygon that is the convex hull of the given points using gift-wrapping (Jarvis march).
+
+        Raises ValueError if fewer than 3 points are given or all points are collinear.
+        Collinear intermediate points are skipped so only the extreme hull vertices are kept.
+        """
+        pts = [(float(p[0]), float(p[1])) for p in points]
+        if len(pts) < 3:
+            raise ValueError("convex_hull requires at least 3 points")
+
+        def _cross(o, a, b):
+            """Cross product of vectors OA and OB (positive = CCW, negative = CW, zero = collinear)."""
+            return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+
+        # Find the leftmost (then bottommost in SVG coords) point as start
+        start = min(pts, key=lambda p: (p[0], p[1]))
+        hull = []
+        current = start
+        while True:
+            hull.append(current)
+            # Find next point that is most CCW from current (skip collinear midpoints)
+            candidate = pts[0] if pts[0] != current else pts[1]
+            for p in pts:
+                if p == current:
+                    continue
+                cross = _cross(current, candidate, p)
+                if cross < 0:
+                    # p is more CCW — choose p as new candidate
+                    candidate = p
+                elif cross == 0:
+                    # collinear: keep the farther one (skip intermediate points)
+                    d_cand = (candidate[0] - current[0]) ** 2 + (candidate[1] - current[1]) ** 2
+                    d_p = (p[0] - current[0]) ** 2 + (p[1] - current[1]) ** 2
+                    if d_p > d_cand:
+                        candidate = p
+            if candidate == start:
+                break
+            current = candidate
+            if len(hull) > len(pts):
+                # Safety: degenerate case, all collinear
+                break
+
+        if len(hull) < 3:
+            raise ValueError("convex_hull: all points are collinear")
+        return cls(*hull, **kwargs)
+
+    @classmethod
     def from_svg_path(cls, path_d, **kwargs):
         """Create a Polygon from a simple SVG path string (M/L/Z commands only).
 
@@ -250,17 +297,16 @@ class Ellipse(VObject):
         """Return the area (pi * rx * ry)."""
         return math.pi * self.rx.at_time(time) * self.ry.at_time(time)
 
-    def get_circumference(self, time=0):
-        """Return the approximate perimeter (Ramanujan's approximation)."""
-        a, b = self.rx.at_time(time), self.ry.at_time(time)
-        return math.pi * (3 * (a + b) - math.sqrt((3 * a + b) * (a + 3 * b)))
-
     def get_perimeter(self, time=0):
-        """Approximate perimeter using Ramanujan's formula."""
+        """Approximate perimeter using Ramanujan's second formula (more accurate)."""
         a = self.rx.at_time(time)
         b = self.ry.at_time(time)
         h = ((a - b) / (a + b)) ** 2
         return math.pi * (a + b) * (1 + 3 * h / (10 + math.sqrt(4 - 3 * h)))
+
+    def get_circumference(self, time=0):
+        """Alias for get_perimeter. Returns approximate perimeter using Ramanujan's formula."""
+        return self.get_perimeter(time)
 
     def point_at_angle(self, degrees, time=0):
         """Return (x, y) on the ellipse at the given angle (degrees, CCW from right)."""
@@ -268,6 +314,19 @@ class Ellipse(VObject):
         rx, ry = self.rx.at_time(time), self.ry.at_time(time)
         rad = math.radians(degrees)
         return (cx + rx * math.cos(rad), cy - ry * math.sin(rad))
+
+    def get_rx(self, time=0):
+        return self.rx.at_time(time)
+
+    def get_ry(self, time=0):
+        return self.ry.at_time(time)
+
+    def set_center(self, cx, cy, start=0, end=None, easing=easings.smooth):
+        if end is None:
+            self.c.set_onward(start, (cx, cy))
+        else:
+            self.c.move_to(start, end, (cx, cy), easing=easing)
+        return self
 
     def set_rx(self, value, start=0, end=None, easing=easings.smooth):
         """Animate the x-radius to value."""
@@ -324,9 +383,13 @@ class Circle(Ellipse):
         r = self.rx.at_time(time)
         return math.pi * r * r
 
-    def get_circumference(self, time=0):
-        """Return the circumference (2 * pi * r)."""
+    def get_perimeter(self, time=0):
+        """Return the exact perimeter (2 * pi * r)."""
         return 2 * math.pi * self.rx.at_time(time)
+
+    def get_circumference(self, time=0):
+        """Alias for get_perimeter. Returns the exact circumference (2 * pi * r)."""
+        return self.get_perimeter(time)
 
     def point_on_circle(self, angle_degrees, time=0):
         """Return (x, y) on the circle at the given angle (degrees, CCW from right).
@@ -344,6 +407,12 @@ class Circle(Ellipse):
         return Line(x1=px - tx * half, y1=py - ty * half,
                     x2=px + tx * half, y2=py + ty * half,
                     creation=creation, **line_kwargs)
+
+    def get_radius(self, time=0):
+        return self.rx.at_time(time)
+
+    def get_perimeter(self, time=0):
+        return 2 * math.pi * self.rx.at_time(time)
 
     def set_radius(self, value, start=0, end=None, easing=easings.smooth):
         """Animate the radius to value."""
@@ -473,6 +542,9 @@ class Rectangle(VObject):
         """Return the perimeter (2 * (width + height))."""
         return 2 * (self.width.at_time(time) + self.height.at_time(time))
 
+    def get_size(self, time=0):
+        return (self.width.at_time(time), self.height.at_time(time))
+
     @classmethod
     def square(cls, side, **kwargs):
         """Create a square with equal width and height."""
@@ -550,7 +622,11 @@ class Line(VObject):
         return _distance(x1, y1, x2, y2)
 
     def get_angle(self, time=0):
-        """Return the angle (in degrees) from p1 to p2. 0 = right, 90 = down."""
+        """Return the angle (in degrees) from p1 to p2. 0 = right, 90 = down.
+
+        SVG convention (y-down): positive angles go clockwise.
+        """
+        # SVG convention (y-down): atan2(dy, dx) where dy increases downward
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         return math.degrees(math.atan2(y2 - y1, x2 - x1))
@@ -581,10 +657,28 @@ class Line(VObject):
         return (y2 - y1) / dx
 
     def angle(self, time=0):
-        """Return the angle of this line in degrees (0 = right, CCW positive)."""
+        """Return the angle of this line in degrees (0 = right, CCW positive).
+
+        Math convention (y-up): positive angles go counter-clockwise.
+        """
+        # Math convention (CCW, y-up): negate dy to flip from SVG y-down to math y-up
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         return math.degrees(math.atan2(-(y2 - y1), x2 - x1))
+
+    def set_start(self, point, start=0, end=None, easing=easings.smooth):
+        if end is None:
+            self.p1.set_onward(start, point)
+        else:
+            self.p1.move_to(start, end, point, easing=easing)
+        return self
+
+    def set_end(self, point, start=0, end=None, easing=easings.smooth):
+        if end is None:
+            self.p2.set_onward(start, point)
+        else:
+            self.p2.move_to(start, end, point, easing=easing)
+        return self
 
     def set_points(self, p1, p2, start=0):
         """Set both endpoints at once."""
@@ -751,6 +845,9 @@ class Text(VObject):
     def get_text(self, time=0):
         """Return the text string at the given time."""
         return self.text.at_time(time)
+
+    def get_font_size(self, time=0):
+        return self.font_size.at_time(time)
 
     def __repr__(self):
         t = self.text.at_time(0)
@@ -1364,6 +1461,9 @@ class RoundedRectangle(Rectangle):
     def __repr__(self):
         return f'RoundedRectangle({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f}, r={self.rx.at_time(0):.0f})'
 
+    def get_corner_radius(self, time=0):
+        return self.rx.at_time(time)
+
     def set_corner_radius(self, value, start=0, end=None, easing=easings.smooth):
         """Animate corner radius to value."""
         if end is None:
@@ -1595,6 +1695,12 @@ class Annulus(VObject):
     def __repr__(self):
         return f'Annulus(inner={self.inner_r.at_time(0):.0f}, outer={self.outer_r.at_time(0):.0f})'
 
+    def get_inner_radius(self, time=0):
+        return self.inner_r.at_time(time)
+
+    def get_outer_radius(self, time=0):
+        return self.outer_r.at_time(time)
+
     def set_inner_radius(self, value, start=0, end=None, easing=easings.smooth):
         """Animate or set the inner radius."""
         if end is None:
@@ -1725,6 +1831,20 @@ class AnnularSector(Arc):
         sweep_in = 1 - sweep_out
         return (f'M{ox1},{oy1}A{ro},{ro} 0 {large},{sweep_out} {ox2},{oy2}'
                 f'L{ix1},{iy1}A{ri},{ri} 0 {large},{sweep_in} {ix2},{iy2}Z')
+
+    def set_inner_radius(self, value, start=0, end=None, easing=easings.smooth):
+        if end is None:
+            self.inner_r.set_onward(start, value)
+        else:
+            self.inner_r.move_to(start, end, value, easing=easing)
+        return self
+
+    def get_area(self, time=0):
+        ri = self.inner_r.at_time(time)
+        ro = self.r.at_time(time)
+        angle1 = self.start_angle.at_time(time)
+        angle2 = self.end_angle.at_time(time)
+        return 0.5 * abs(angle2 - angle1) * math.pi / 180 * (ro * ro - ri * ri)
 
     def to_svg(self, time):
         return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"
