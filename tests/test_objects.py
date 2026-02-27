@@ -5467,3 +5467,77 @@ class TestAxesAnimateDrawFunction:
         ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
         path = ax.animate_draw_function(lambda x: x, start=0, end=1)
         assert path in ax.objects
+
+
+class TestTextSplitChars:
+    def test_split_chars_basic(self):
+        t = Text(text='ABC', x=100, y=200, font_size=48)
+        chars = t.split_chars()
+        assert len(chars.objects) == 3
+
+    def test_split_chars_skips_spaces(self):
+        t = Text(text='A B', x=100, y=200, font_size=48)
+        chars = t.split_chars()
+        assert len(chars.objects) == 2
+
+    def test_split_chars_empty(self):
+        t = Text(text='', x=100, y=200, font_size=48)
+        chars = t.split_chars()
+        assert len(chars.objects) == 0
+
+    def test_split_chars_returns_vcollection(self):
+        t = Text(text='Hi', x=100, y=200, font_size=48)
+        chars = t.split_chars()
+        assert isinstance(chars, VCollection)
+
+
+class TestBarChartGrowFromZero:
+    def test_grow_from_zero(self):
+        bc = BarChart(values=[10, 20, 30], labels=['A', 'B', 'C'])
+        result = bc.grow_from_zero(start=0, end=2)
+        assert result is bc
+
+    def test_grow_from_zero_no_stagger(self):
+        bc = BarChart(values=[10, 20], labels=['A', 'B'])
+        result = bc.grow_from_zero(start=0, end=1, stagger=False)
+        assert result is bc
+
+
+class TestCanvasDuration:
+    def test_duration_property(self):
+        import tempfile
+        from vectormation._canvas import VectorMathAnim
+        v = VectorMathAnim(tempfile.gettempdir())
+        c = Circle(r=50)
+        v.add(c)
+        c.fadein(0, 2)
+        assert v.duration >= 2
+
+    def test_duration_empty(self):
+        import tempfile
+        from vectormation._canvas import VectorMathAnim
+        v = VectorMathAnim(tempfile.gettempdir())
+        d = v.duration
+        assert isinstance(d, (int, float))
+
+
+class TestChecklistAnimations:
+    def test_check_item(self):
+        from vectormation.objects import Checklist
+        cl = Checklist('Task 1', 'Task 2', 'Task 3')
+        result = cl.check_item(0, start=0, end=0.3)
+        assert result is cl
+
+    def test_reveal_items(self):
+        from vectormation.objects import Checklist
+        cl = Checklist('A', 'B', 'C')
+        result = cl.reveal_items(start=0, end=1)
+        assert result is cl
+
+
+class TestStepperAdvance:
+    def test_advance(self):
+        from vectormation.objects import Stepper
+        s = Stepper(['Step 1', 'Step 2', 'Step 3'])
+        result = s.advance(0, 1, start=0, end=0.5)
+        assert result is s

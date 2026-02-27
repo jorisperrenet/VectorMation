@@ -237,6 +237,11 @@ class VectorMathAnim:
                 result.setdefault(cls_name, []).append(obj)
         return result
 
+    @property
+    def duration(self):
+        """Return the total animation duration in seconds (auto-detected)."""
+        return self._resolve_end_time(None)
+
     add = add_objects
     add_gradient = add_def
     add_clip_path = add_def

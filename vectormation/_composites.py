@@ -4500,6 +4500,19 @@ class BarChart(VCollection):
             self.objects.append(label)
         return self
 
+    def grow_from_zero(self, start=0, end=1, easing=easings.smooth, stagger=True, delay=0.1):
+        """Animate bars growing up from zero height at the baseline."""
+        n = len(self._bars)
+        for i, bar in enumerate(self._bars):
+            if stagger and n > 1:
+                bar_start = start + i * delay
+                bar_end = bar_start + (end - start - (n - 1) * delay)
+                bar_end = max(bar_end, bar_start + 0.01)
+            else:
+                bar_start, bar_end = start, end
+            bar.grow_from_edge('bottom', bar_start, bar_end, easing=easing)
+        return self
+
 
 class Table(VCollection):
     """Table for displaying tabular data with optional row/column labels.
@@ -7889,7 +7902,9 @@ class Checklist(VCollection):
             box_size = font_size * 0.75
         objects = []
         self._boxes = []
+        self._marks = []
         self._labels = []
+        self._check_color = check_color
         for i, item in enumerate(items):
             if isinstance(item, str):
                 label_text, checked = item, False
@@ -7912,8 +7927,30 @@ class Checklist(VCollection):
                         creation=creation, z=z)
             objects.extend([box, mark, lbl])
             self._boxes.append(box)
+            self._marks.append(mark)
             self._labels.append(lbl)
         super().__init__(*objects, creation=creation, z=z)
+
+    def check_item(self, index, start=0, end=0.3):
+        """Animate checking the item at index (shows the check mark)."""
+        if 0 <= index < len(self._marks):
+            self._marks[index].text.set_onward(start, '\u2713')
+            self._marks[index].fadein(start, end)
+            self._boxes[index].set_fill(self._check_color, start=start)
+        return self
+
+    def reveal_items(self, start=0, end=1, overlap=0.5):
+        """Cascade items into view sequentially."""
+        n = len(self.objects)
+        if n == 0:
+            return self
+        dur = end - start
+        step = dur / n if n > 0 else dur
+        for i, obj in enumerate(self.objects):
+            obj_start = start + i * step * (1 - overlap)
+            obj_end = obj_start + step
+            obj.fadein(obj_start, min(obj_end, end))
+        return self
 
 
 class Stepper(VCollection):
@@ -7930,6 +7967,9 @@ class Stepper(VCollection):
             steps = [str(i + 1) for i in range(steps)]
         objects = []
         self._circles = []
+        self._lines = []
+        self._active_color = active_color
+        self._inactive_color = inactive_color
         n = len(steps)
         for i, label in enumerate(steps):
             if direction == 'horizontal':
@@ -7958,7 +7998,24 @@ class Stepper(VCollection):
                             stroke=line_color, stroke_width=2,
                             creation=creation, z=z)
                 objects.append(conn)
+                self._lines.append(conn)
         super().__init__(*objects, creation=creation, z=z)
+
+    def advance(self, from_step, to_step, start=0, end=0.5):
+        """Animate transitioning active step highlight from from_step to to_step."""
+        # Dim old step circle
+        if 0 <= from_step < len(self._circles):
+            self._circles[from_step].set_fill(self._inactive_color, start=start)
+        # Highlight new step circle
+        if 0 <= to_step < len(self._circles):
+            self._circles[to_step].set_fill(self._active_color, start=start)
+        # Update connecting lines between steps
+        for i, line in enumerate(self._lines):
+            if i < to_step:
+                line.set_style(stroke=self._active_color, start=start)
+            else:
+                line.set_style(stroke=self._inactive_color, start=start)
+        return self
 
 
 class TagCloud(VCollection):

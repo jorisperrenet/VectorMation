@@ -882,10 +882,32 @@ class Text(VObject):
             wx = x + idx * char_width
             t = Text(text=word, x=wx, y=y, font_size=fs,
                      creation=time, stroke_width=0,
-                     fill=self.styling.fill.at_time(time))
+                     fill=self.styling.fill.time_func(time))
             parts.append(t)
             cursor = idx + len(word)
         return VCollection(*parts)
+
+    def split_chars(self, time=0):
+        """Split text into a VCollection of individual character Text objects.
+        Characters are positioned horizontally at approximate character offsets."""
+        from vectormation._base import VCollection
+        full = str(self.text.at_time(time))
+        if not full:
+            return VCollection()
+        x = self.x.at_time(time)
+        y = self.y.at_time(time)
+        fs = self.font_size.at_time(time)
+        char_width = fs * CHAR_WIDTH_FACTOR
+        chars = []
+        for i, ch in enumerate(full):
+            if ch == ' ':
+                continue
+            cx = x + i * char_width
+            t = Text(text=ch, x=cx, y=y, font_size=fs,
+                     creation=time, stroke_width=0,
+                     fill=self.styling.fill.time_func(time))
+            chars.append(t)
+        return VCollection(*chars)
 
     def fit_to_box(self, max_width, max_height=None, time=0):
         """Adjust font_size so the text fits within the given box dimensions.
