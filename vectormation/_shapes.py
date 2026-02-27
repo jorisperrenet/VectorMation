@@ -381,23 +381,7 @@ class Polygon(VObject):
         return Polygon(*new_pts, closed=self.closed)
 
     def buffer(self, distance, time=0):
-        """Return a new Polygon offset outward by *distance* pixels.
-
-        Alias for :meth:`offset`.  Positive *distance* expands the polygon
-        outward, negative shrinks it inward.
-
-        Parameters
-        ----------
-        distance:
-            Offset distance in pixels.  Positive = outward, negative = inward.
-        time:
-            Animation time at which to read vertex positions.
-
-        Returns
-        -------
-        Polygon
-            A new Polygon with vertices moved along averaged edge normals.
-        """
+        """Alias for :meth:`offset`."""
         return self.offset(distance, time=time)
 
     def inset(self, distance, time=0, **kwargs):
@@ -842,22 +826,7 @@ class Polygon(VObject):
         return angles
 
     def is_clockwise(self, time=0):
-        """Return True if the polygon vertices are in clockwise order.
-
-        In SVG coordinates (y-axis pointing down), a positive signed area
-        from the shoelace formula indicates clockwise winding.  This method
-        returns True when the signed area is positive (CW in SVG), False
-        when it is negative (CCW) or zero (degenerate).
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read vertex positions.
-
-        Returns
-        -------
-        bool
-        """
+        """Return True if vertices are in clockwise order (positive signed area in SVG coords)."""
         return self.signed_area(time) > 0
 
     def bounding_circle(self, time=0, **kwargs):
@@ -2689,45 +2658,11 @@ class Rectangle(VObject):
         return VCollection(*parts)
 
     def split_horizontal(self, n=2, time=0, **kwargs):
-        """Split this rectangle into *n* equal horizontal strips (rows).
-
-        Equivalent to ``self.split('horizontal', n, time, **kwargs)``.
-
-        Parameters
-        ----------
-        n:
-            Number of horizontal strips (must be >= 1).
-        time:
-            Animation time at which to read the current geometry.
-        **kwargs:
-            Extra styling keyword arguments forwarded to each sub-Rectangle.
-
-        Returns
-        -------
-        VCollection
-            A collection of *n* Rectangle objects stacked top-to-bottom.
-        """
+        """Split into *n* equal horizontal strips. Alias for ``split('horizontal', ...)``."""
         return self.split('horizontal', n, time, **kwargs)
 
     def split_vertical(self, n=2, time=0, **kwargs):
-        """Split this rectangle into *n* equal vertical strips (columns).
-
-        Equivalent to ``self.split('vertical', n, time, **kwargs)``.
-
-        Parameters
-        ----------
-        n:
-            Number of vertical strips (must be >= 1).
-        time:
-            Animation time at which to read the current geometry.
-        **kwargs:
-            Extra styling keyword arguments forwarded to each sub-Rectangle.
-
-        Returns
-        -------
-        VCollection
-            A collection of *n* Rectangle objects arranged left-to-right.
-        """
+        """Split into *n* equal vertical strips. Alias for ``split('vertical', ...)``."""
         return self.split('vertical', n, time, **kwargs)
 
     def inset(self, amount: float, time: float = 0, **kwargs):
@@ -3493,26 +3428,7 @@ class Line(VObject):
         return math.hypot(px - cp[0], py - cp[1])
 
     def contains_point(self, px, py, time=0, tol=2):
-        """Return True if ``(px, py)`` lies on this line segment within *tol* pixels.
-
-        The test measures the shortest Euclidean distance from the point to
-        the segment (clamped to the endpoints).  If that distance is at most
-        *tol* the point is considered to be on the segment.
-
-        Parameters
-        ----------
-        px, py:
-            Coordinates of the point to test.
-        time:
-            Animation time at which to evaluate the line endpoints.
-        tol:
-            Maximum distance in pixels for the point to be considered on the
-            segment (default ``2``).
-
-        Returns
-        -------
-        bool
-        """
+        """Return True if ``(px, py)`` is within *tol* pixels of this segment."""
         return self.distance_to_point(px, py, time) <= tol
 
     def add_tip(self, end=True, start=False, tip_length=None, tip_width=None, creation=0):
@@ -3620,21 +3536,7 @@ class Line(VObject):
         return Line(x1=px - dx, y1=py - dy, x2=px + dx, y2=py + dy, **kwargs)
 
     def bisector(self, time=0, length=200, **kwargs):
-        """Return the perpendicular bisector of this line.
-
-        The bisector passes through the midpoint and is perpendicular to
-        the line.  This is a convenience wrapper around
-        ``perpendicular_at(t=0.5, ...)``.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to evaluate the line endpoints.
-        length:
-            Total length of the bisector line (default 200).
-        **kwargs:
-            Extra keyword arguments forwarded to the new Line constructor.
-        """
+        """Return the perpendicular bisector (at midpoint). Alias for ``perpendicular_at(t=0.5)``."""
         return self.perpendicular_at(t=0.5, length=length, time=time, **kwargs)
 
     def extend(self, factor=1.5, start=0, end=None, easing=easings.smooth):
@@ -3891,29 +3793,7 @@ class Line(VObject):
         return Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **kwargs)
 
     def get_normal_line(self, t=0.5, length=100, time=0, **kwargs):
-        """Return a Line perpendicular to this line at parameter t (0=p1, 1=p2).
-
-        The normal line is centered at the point on this line corresponding to
-        parameter *t*.  This is a convenience wrapper around
-        :meth:`perpendicular_at`.
-
-        Parameters
-        ----------
-        t:
-            Position along the line as a fraction (0 = start, 1 = end,
-            default 0.5 = midpoint).
-        length:
-            Total length of the perpendicular line (default 100).
-        time:
-            Animation time at which to evaluate the line endpoints.
-        **kwargs:
-            Extra keyword arguments forwarded to the new Line constructor.
-
-        Returns
-        -------
-        Line
-            A new Line perpendicular to this line at the given parameter.
-        """
+        """Alias for :meth:`perpendicular_at` with default length=100."""
         return self.perpendicular_at(t=t, length=length, time=time, **kwargs)
 
     def intersection(self, other, time=0):
@@ -4361,20 +4241,7 @@ class Text(VObject):
         return self
 
     def reverse(self, time=0):
-        """Return the text content reversed.
-
-        This is a pure query method -- the object is **not** modified.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read the text.
-
-        Returns
-        -------
-        str
-            The reversed text string.
-        """
+        """Return the text content reversed (does not modify the object)."""
         return self.text.at_time(time)[::-1]
 
     def underline_anim(self, start: float = 0, end: float = 1, color=None,
@@ -4445,25 +4312,7 @@ class Text(VObject):
         return len(self.text.at_time(time))
 
     def word_count(self, time=0):
-        """Return the number of words in the text at the given time.
-
-        Words are defined by Python's :meth:`str.split` (splits on any
-        whitespace, ignoring leading/trailing spaces).
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read the text (default 0).
-
-        Returns
-        -------
-        int
-
-        Example
-        -------
-        >>> t = Text('hello world foo')
-        >>> t.word_count()
-        3
+        """Return the number of whitespace-separated words.
         >>> Text('  ').word_count()
         0
         """
@@ -5499,19 +5348,7 @@ class Arc(VObject):
         return self.point_at_angle(mid, time)
 
     def get_midpoint_on_arc(self, time=0):
-        """Return the point at the middle of the arc curve.
-
-        This computes the angle midway between ``start_angle`` and
-        ``end_angle`` and returns the corresponding (x, y) point on the arc.
-        Equivalent to :meth:`get_midpoint` — provided for API clarity when the
-        caller wants to emphasise that the result lies *on the arc* rather
-        than at the midpoint of the chord.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to evaluate the arc geometry.
-        """
+        """Alias for :meth:`get_midpoint` (point on the arc, not the chord)."""
         return self.get_midpoint(time)
 
     def to_wedge(self, time=0, **kwargs):
