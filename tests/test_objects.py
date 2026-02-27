@@ -5541,3 +5541,34 @@ class TestStepperAdvance:
         s = Stepper(['Step 1', 'Step 2', 'Step 3'])
         result = s.advance(0, 1, start=0, end=0.5)
         assert result is s
+
+
+class TestPieChartLabels:
+    def test_add_percentage_labels(self):
+        from vectormation.objects import PieChart
+        pc = PieChart(values=[30, 20, 50])
+        initial_count = len(pc.objects)
+        result = pc.add_percentage_labels()
+        assert result is pc
+        assert len(pc.objects) > initial_count
+
+
+class TestCodeRevealLines:
+    def test_reveal_lines(self):
+        from vectormation.objects import Code
+        c = Code('line1\nline2\nline3', language='python')
+        result = c.reveal_lines(start=0, end=2)
+        assert result is c
+
+    def test_reveal_lines_returns_self(self):
+        from vectormation.objects import Code
+        c = Code('a = 1\nb = 2', language='python')
+        assert c.reveal_lines(start=0, end=1) is c
+
+
+class TestTableSortByColumn:
+    def test_sort_by_column(self):
+        from vectormation.objects import Table
+        t = Table(data=[['B', '2'], ['A', '1'], ['C', '3']])
+        result = t.sort_by_column(0, start=0, end=1)
+        assert result is t

@@ -193,6 +193,26 @@ class Polygon(VObject):
             j = i
         return inside
 
+    def is_convex(self, time=0):
+        """Return True if this polygon is convex."""
+        pts = self.get_vertices(time)
+        n = len(pts)
+        if n < 3:
+            return True
+        sign = None
+        for i in range(n):
+            x1, y1 = pts[i]
+            x2, y2 = pts[(i + 1) % n]
+            x3, y3 = pts[(i + 2) % n]
+            cross = (x2 - x1) * (y3 - y2) - (y2 - y1) * (x3 - x2)
+            if abs(cross) < 1e-10:
+                continue
+            if sign is None:
+                sign = cross > 0
+            elif (cross > 0) != sign:
+                return False
+        return True
+
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 
@@ -234,6 +254,13 @@ class Ellipse(VObject):
         """Return the approximate perimeter (Ramanujan's approximation)."""
         a, b = self.rx.at_time(time), self.ry.at_time(time)
         return math.pi * (3 * (a + b) - math.sqrt((3 * a + b) * (a + 3 * b)))
+
+    def get_perimeter(self, time=0):
+        """Approximate perimeter using Ramanujan's formula."""
+        a = self.rx.at_time(time)
+        b = self.ry.at_time(time)
+        h = ((a - b) / (a + b)) ** 2
+        return math.pi * (a + b) * (1 + 3 * h / (10 + math.sqrt(4 - 3 * h)))
 
     def point_at_angle(self, degrees, time=0):
         """Return (x, y) on the ellipse at the given angle (degrees, CCW from right)."""
@@ -517,6 +544,12 @@ class Line(VObject):
         if length == 0:
             return (0.0, 0.0)
         return ((x2 - x1) / length, (y2 - y1) / length)
+
+    def angle(self, time=0):
+        """Return the angle of this line in degrees (0 = right, CCW positive)."""
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        return math.degrees(math.atan2(-(y2 - y1), x2 - x1))
 
     def set_points(self, p1, p2, start=0):
         """Set both endpoints at once."""

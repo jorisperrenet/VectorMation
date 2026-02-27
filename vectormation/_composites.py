@@ -4310,6 +4310,26 @@ class PieChart(VCollection):
             cum_new += new_values[i]
         return self
 
+    def add_percentage_labels(self, fmt='{:.0f}%', font_size=16, color='#fff', creation=0):
+        """Add percentage labels at the center of each sector."""
+        from vectormation._shapes import Text as _Text
+        total = sum(self.values) or 1
+        angle = 90  # PieChart starts at 90 degrees
+        for sector, val in zip(self._sectors, self.values):
+            sweep = 360 * val / total
+            mid_angle = math.radians(angle + sweep / 2)
+            r = sector.r.at_time(creation) * 0.65
+            cx = sector.cx.at_time(creation)
+            cy = sector.cy.at_time(creation)
+            lx = cx + r * math.cos(mid_angle)
+            ly = cy - r * math.sin(mid_angle)
+            label = _Text(text=fmt.format(val / total * 100), font_size=font_size,
+                          x=lx, y=ly, creation=creation, fill=color,
+                          text_anchor='middle', stroke_width=0)
+            self.objects.append(label)
+            angle += sweep
+        return self
+
 
 class DonutChart(VCollection):
     """Donut (ring) chart — PieChart with a hollow center.
@@ -4630,6 +4650,21 @@ class Table(VCollection):
         """
         for (r, c), value in updates.items():
             self.set_cell_value(r, c, str(value), start=start)
+        return self
+
+    def sort_by_column(self, col, start=0, end=1, reverse=False, easing=easings.smooth):
+        """Animate rows sliding to sorted positions based on column values."""
+        # Get text values from the column
+        values = [(self.entries[r][col].text.at_time(start), r) for r in range(len(self.entries))]
+        values.sort(key=lambda x: x[0], reverse=reverse)
+        # Get current y positions of each row (using first cell as reference)
+        ys = [self.entries[r][0].y.at_time(start) for r in range(len(self.entries))]
+        # Animate each row to its new y position
+        for new_pos, (_, old_row) in enumerate(values):
+            if new_pos != old_row:
+                dy = ys[new_pos] - ys[old_row]
+                for entry in self.entries[old_row]:
+                    entry.shift(dx=0, dy=dy, start_time=start, end_time=end, easing=easing)
         return self
 
     def __repr__(self):
@@ -5422,12 +5457,15 @@ class Code(VCollection):
                               corner_radius=8, creation=creation, z=z, **bg_style)
         objects.append(bg)
 
+        line_groups = []  # list of lists, one per source line
         for i, line in enumerate(lines):
             ly = y + i * font_size * line_height
+            line_objs = []
             # Line number
             ln = Text(text=f'{i+1:>3}', x=x, y=ly, font_size=font_size,
                       creation=creation, z=z, fill='#666', stroke_width=0)
             objects.append(ln)
+            line_objs.append(ln)
             # Code content with basic keyword highlighting
             code_x = x + font_size * 2.5
             expanded = line.replace('\t', ' ' * tab_width)
@@ -5449,7 +5487,9 @@ class Code(VCollection):
                 t = Text(text=word, x=wx, y=ly, font_size=font_size,
                          creation=creation, z=z, fill=color, stroke_width=0)
                 objects.append(t)
+                line_objs.append(t)
                 wx += len(word) * font_size * CHAR_WIDTH_FACTOR
+            line_groups.append(line_objs)
         super().__init__(*objects, creation=creation, z=z)
         self._code_x = x
         self._code_y = y
@@ -5458,6 +5498,7 @@ class Code(VCollection):
         self._bg_width = bg_width
         self._num_lines = len(lines)
         self._language = language
+        self._line_groups = line_groups
 
     def __repr__(self):
         return f'Code({self._num_lines} lines, lang={self._language!r})'
@@ -5483,6 +5524,41 @@ class Code(VCollection):
                     lambda t, _s=start, _d=dur: opacity * easing((t - _s) / _d), stay=True)
             rects.append(rect)
         return VCollection(*rects) if rects else VCollection()
+
+    def reveal_lines(self, start=0, end=1, overlap=0.5):
+        """Reveal code lines sequentially with staggered fadein.
+
+        Each line fades in over a portion of [start, end], with adjacent lines
+        overlapping by *overlap* (0 = no overlap, 1 = fully simultaneous).
+
+        Args:
+            start: animation start time.
+            end: animation end time.
+            overlap: fraction of overlap between consecutive line fadeins.
+        """
+        n = self._num_lines
+        if n == 0:
+            return self
+        dur = end - start
+        if dur <= 0 or n == 0:
+            return self
+        # Each line gets a slot; with overlap, the effective step between
+        # consecutive line starts shrinks.
+        # line_dur = duration for one line's fadein
+        # step = time between consecutive line starts
+        # total = step * (n - 1) + line_dur = dur
+        # step = line_dur * (1 - overlap)
+        # => line_dur * (1 - overlap) * (n - 1) + line_dur = dur
+        # => line_dur * ((1 - overlap) * (n - 1) + 1) = dur
+        denom = (1 - overlap) * (n - 1) + 1
+        line_dur = dur / denom
+        step = line_dur * (1 - overlap)
+        for i, group in enumerate(self._line_groups):
+            t0 = start + i * step
+            t1 = t0 + line_dur
+            for obj in group:
+                obj.fadein(start=t0, end=t1)
+        return self
 
 
 class ChessBoard(VCollection):
@@ -5937,6 +6013,13 @@ class NetworkGraph(VCollection):
         """Flash-highlight a node by its ID."""
         if node_id in self._node_circles:
             self._node_circles[node_id].flash(start, end, color=color, easing=easing)
+        return self
+
+    def add_highlight_node(self, node_name, start=0, end=1, color='#FFD700'):
+        """Highlight a node by flashing its color."""
+        if node_name in self._node_circles:
+            node = self._node_circles[node_name]
+            node.flash_color(color, start=start, duration=end - start)
         return self
 
     def get_node_position(self, node_id):

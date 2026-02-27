@@ -1595,3 +1595,43 @@ class TestGeometricQueries:
     def test_arc_get_sweep_large(self):
         a = Arc(start_angle=0, end_angle=270)
         assert a.get_sweep() == 270
+
+
+class TestGeometricExtras:
+    def test_polygon_is_convex_square(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        assert p.is_convex() is True
+
+    def test_polygon_is_convex_concave(self):
+        # L-shaped polygon (concave)
+        p = Polygon((0, 0), (100, 0), (100, 50), (50, 50), (50, 100), (0, 100))
+        assert p.is_convex() is False
+
+    def test_polygon_is_convex_triangle(self):
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        assert p.is_convex() is True
+
+    def test_ellipse_get_perimeter_circle(self):
+        import math
+        e = Ellipse(rx=100, ry=100)
+        expected = 2 * math.pi * 100
+        assert abs(e.get_perimeter() - expected) < 0.1
+
+    def test_ellipse_get_perimeter_ellipse(self):
+        e = Ellipse(rx=100, ry=50)
+        p = e.get_perimeter()
+        # Perimeter should be between 2*pi*50 and 2*pi*100
+        import math
+        assert 2 * math.pi * 50 < p < 2 * math.pi * 100
+
+    def test_line_angle_horizontal(self):
+        line = Line(0, 0, 100, 0)
+        assert abs(line.angle() - 0) < 0.01
+
+    def test_line_angle_up(self):
+        line = Line(0, 100, 0, 0)  # points up in SVG (y decreases)
+        assert abs(line.angle() - 90) < 0.01
+
+    def test_line_angle_down(self):
+        line = Line(0, 0, 0, 100)  # points down in SVG
+        assert abs(line.angle() - (-90)) < 0.01
