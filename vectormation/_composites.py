@@ -5081,14 +5081,10 @@ class Axes(VCollection):
             lbl.y.set_onward(creation, sy + sign * (font_size / 2 + buff))
         else:
             # Dynamic: track x_max
-            _func = func
-            _buff = buff
-            _fs = font_size
-            _sign = sign
-            def _lbl_x(t, _f=_func):
+            def _lbl_x(t):
                 xv = self.x_max.at_time(t)
                 return self._math_to_svg_x(xv, t)
-            def _lbl_y(t, _f=_func, _s=_sign, _b=_buff, _fz=_fs):
+            def _lbl_y(t, _f=func, _s=sign, _b=buff, _fz=font_size):
                 xv = self.x_max.at_time(t)
                 try:
                     yv = _f(xv)

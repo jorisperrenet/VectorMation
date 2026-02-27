@@ -4296,8 +4296,12 @@ class VObject(ABC):  # Vector Object
             return self
         self._show_from(start)
         _s, _d = start, max(dur, 1e-9)
-        tmpl = self._REVEAL_CLIP_TEMPLATES.get(
-            direction, self._REVEAL_CLIP_TEMPLATES['left'])
+        if direction not in self._REVEAL_CLIP_TEMPLATES:
+            raise ValueError(
+                f"Unsupported reveal direction '{direction}'. "
+                f"Must be one of: {', '.join(sorted(self._REVEAL_CLIP_TEMPLATES))}"
+            )
+        tmpl = self._REVEAL_CLIP_TEMPLATES[direction]
         def _clip(t, _s=_s, _d=_d, _tmpl=tmpl, _e=easing):
             return _tmpl(100 * (1 - _e((t - _s) / _d)))
         self.styling.clip_path.set(start, end, _clip, stay=True)
@@ -4370,7 +4374,6 @@ class VObject(ABC):  # Vector Object
         sx0 = self.styling.scale_x.at_time(start)
         sy0 = self.styling.scale_y.at_time(start)
         _s, _d, _f = start, max(dur, 1e-9), factor
-        _sx0, _sy0 = sx0, sy0
         _damp = 6.0
         _freq = 2 * math.pi * 2.5
 
@@ -4382,18 +4385,14 @@ class VObject(ABC):  # Vector Object
                 return 0.0
             return math.cos(_freq * p) * math.exp(-_damp * p)
 
-        def _esx(t, _s=_s, _d=_d, _f=_f, _sx0=_sx0, _easing=easing):
-            p = _easing((t - _s) / _d)
-            envelope = _elastic_envelope(p)
-            return _sx0 * (1 + (_f - 1) * envelope)
+        def _make_elastic(s0):
+            def _es(t, _s=_s, _d=_d, _f=_f, _s0=s0, _easing=easing):
+                p = _easing((t - _s) / _d)
+                return _s0 * (1 + (_f - 1) * _elastic_envelope(p))
+            return _es
 
-        def _esy(t, _s=_s, _d=_d, _f=_f, _sy0=_sy0, _easing=easing):
-            p = _easing((t - _s) / _d)
-            envelope = _elastic_envelope(p)
-            return _sy0 * (1 + (_f - 1) * envelope)
-
-        self.styling.scale_x.set(start, end, _esx, stay=True)
-        self.styling.scale_y.set(start, end, _esy, stay=True)
+        self.styling.scale_x.set(start, end, _make_elastic(sx0), stay=True)
+        self.styling.scale_y.set(start, end, _make_elastic(sy0), stay=True)
         return self
 
 
