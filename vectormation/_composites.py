@@ -1039,7 +1039,7 @@ class Matrix(VCollection):
         return f'Matrix({self.rows}x{self.cols})'
 
     def get_entry(self, row, col):
-        """Return the Text object at (row, col) for animation."""
+        """Return the Text object at (row, col)."""
         return self.entries[row][col]
 
     def get_row(self, row):
@@ -1052,8 +1052,7 @@ class Matrix(VCollection):
 
     def highlight_entry(self, row, col, start=0, end=1, color='#FFD700'):
         """Flash-highlight a single matrix entry."""
-        entry = self.get_entry(row, col)
-        entry.flash_color(color, start=start, duration=end - start)
+        self.entries[row][col].flash_color(color, start=start, duration=end - start)
         return self
 
     def highlight_row(self, row, start=0, end=1, color='#FFD700'):
