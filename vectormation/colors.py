@@ -160,7 +160,9 @@ def color_from_name(name):
 
 
 def _hex_to_rgb(hex_color):
-    """Convert hex color string to (r, g, b) tuple (0-255)."""
+    """Convert hex color (or named color) to (r, g, b) tuple (0-255)."""
+    if hex_color in colors:
+        hex_color = colors[hex_color]
     h = hex_color.lstrip('#')
     return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
 
@@ -173,10 +175,6 @@ def _rgb_to_hex(r, g, b):
 def color_gradient(color1, color2, n=5):
     """Generate a list of n hex colors interpolated between color1 and color2.
     Colors can be hex strings or named colors."""
-    if color1 in colors:
-        color1 = colors[color1]
-    if color2 in colors:
-        color2 = colors[color2]
     r1, g1, b1 = _hex_to_rgb(color1)
     r2, g2, b2 = _hex_to_rgb(color2)
     if n <= 1:
@@ -190,10 +188,6 @@ def color_gradient(color1, color2, n=5):
 def interpolate_color(color1, color2, t):
     """Interpolate between two colors at parameter t (0 to 1).
     Returns a hex color string."""
-    if color1 in colors:
-        color1 = colors[color1]
-    if color2 in colors:
-        color2 = colors[color2]
     r1, g1, b1 = _hex_to_rgb(color1)
     r2, g2, b2 = _hex_to_rgb(color2)
     return _rgb_to_hex(r1 + (r2 - r1) * t, g1 + (g2 - g1) * t, b1 + (b2 - b1) * t)
@@ -211,8 +205,6 @@ def darken(color, amount=0.3):
 
 def _hex_to_hsl(hex_color):
     """Convert hex color to (h, s, l) where h in [0,360], s/l in [0,1]."""
-    if hex_color in colors:
-        hex_color = colors[hex_color]
     r, g, b = _hex_to_rgb(hex_color)
     r, g, b = r / 255, g / 255, b / 255
     mx, mn = max(r, g, b), min(r, g, b)
@@ -291,8 +283,6 @@ def set_lightness(color, level):
 
 def invert(color):
     """Return the inverse (complementary negative) of a color."""
-    if color in colors:
-        color = colors[color]
     r, g, b = _hex_to_rgb(color)
     return f'#{255-r:02x}{255-g:02x}{255-b:02x}'
 
