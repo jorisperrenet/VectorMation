@@ -17,6 +17,34 @@ from vectormation._axes_helpers import (
     _get_arrow, _get_dynamic_object, _get_tex_object,
 )
 
+def _band_path(pts_hi, pts_lo):
+    """Build a closed SVG path string around *pts_hi* (forward) and *pts_lo* (reversed)."""
+    if not pts_hi:
+        return ''
+    parts = [f'M{pts_hi[0][0]:.1f},{pts_hi[0][1]:.1f}']
+    parts.extend(f'L{sx:.1f},{sy:.1f}' for sx, sy in pts_hi[1:])
+    parts.extend(f'L{sx:.1f},{sy:.1f}' for sx, sy in reversed(pts_lo))
+    parts.append('Z')
+    return ''.join(parts)
+
+
+def _regression(x_data, y_data):
+    """Return (slope, intercept) for a least-squares fit, or None if degenerate."""
+    n = len(x_data)
+    if n < 2:
+        return None
+    sx = sum(x_data)
+    sy = sum(y_data)
+    sxy = sum(x * y for x, y in zip(x_data, y_data))
+    sxx = sum(x * x for x in x_data)
+    denom = n * sxx - sx * sx
+    if abs(denom) < 1e-12:
+        return None
+    slope = (n * sxy - sx * sy) / denom
+    intercept = (sy - slope * sx) / n
+    return slope, intercept
+
+
 class _AxesExtMixin:
     """Advanced annotation and analysis methods for Axes, mixed in at definition time."""
 
@@ -356,18 +384,10 @@ class _AxesExtMixin:
         extend: how far to extend beyond data range (in math units).
         Returns the Line object."""
         style_kw = {'stroke': '#FFFF00', 'stroke_width': 2} | styling_kwargs
-        n = len(x_data)
-        if n < 2:
+        result = _regression(x_data, y_data)
+        if result is None:
             return None
-        sx = sum(x_data)
-        sy = sum(y_data)
-        sxy = sum(x * y for x, y in zip(x_data, y_data))
-        sxx = sum(x * x for x in x_data)
-        denom = n * sxx - sx * sx
-        if abs(denom) < 1e-12:
-            return None
-        slope = (n * sxy - sx * sy) / denom
-        intercept = (sy - slope * sx) / n
+        slope, intercept = result
         xlo = min(x_data) - extend
         xhi = max(x_data) + extend
         _m, _b, _xlo, _xhi = slope, intercept, xlo, xhi
@@ -401,15 +421,7 @@ class _AxesExtMixin:
                 _, sy_lo = self.coords_to_point(xv, _lo(xv), time)
                 pts_hi.append((sx, sy_hi))
                 pts_lo.append((sx, sy_lo))
-            if not pts_hi:
-                return ''
-            parts = [f'M{pts_hi[0][0]:.1f},{pts_hi[0][1]:.1f}']
-            for sx, sy in pts_hi[1:]:
-                parts.append(f'L{sx:.1f},{sy:.1f}')
-            for sx, sy in reversed(pts_lo):
-                parts.append(f'L{sx:.1f},{sy:.1f}')
-            parts.append('Z')
-            return ''.join(parts)
+            return _band_path(pts_hi, pts_lo)
         band.d.set_onward(creation, _band_d)
         self._add_plot_obj(band)
         return band
@@ -765,15 +777,7 @@ class _AxesExtMixin:
                           for j in range(len(_xs))]
                 pts_lo = [self.coords_to_point(_xs[j], _lo[j], time)
                           for j in range(len(_xs))]
-                if not pts_hi:
-                    return ''
-                parts = [f'M{pts_hi[0][0]:.1f},{pts_hi[0][1]:.1f}']
-                for sx, sy in pts_hi[1:]:
-                    parts.append(f'L{sx:.1f},{sy:.1f}')
-                for sx, sy in reversed(pts_lo):
-                    parts.append(f'L{sx:.1f},{sy:.1f}')
-                parts.append('Z')
-                return ''.join(parts)
+                return _band_path(pts_hi, pts_lo)
             area.d.set_onward(creation, _area_d)
             self._add_plot_obj(area)
             areas.append(area)
@@ -2001,18 +2005,10 @@ class _AxesExtMixin:
     def add_residual_lines(self, x_data, y_data, creation=0, z=1, **styling_kwargs):
         """Draw vertical residual lines from each data point to the regression line."""
         style_kw = {'stroke': '#FF6B6B', 'stroke_width': 2, 'stroke_dasharray': '4 3'} | styling_kwargs
-        n = len(x_data)
-        if n < 2:
+        result = _regression(x_data, y_data)
+        if result is None:
             return VCollection(creation=creation, z=z)
-        sx = sum(x_data)
-        sy = sum(y_data)
-        sxy = sum(x * y for x, y in zip(x_data, y_data))
-        sxx = sum(x * x for x in x_data)
-        denom = n * sxx - sx * sx
-        if abs(denom) < 1e-12:
-            return VCollection(creation=creation, z=z)
-        slope = (n * sxy - sx * sy) / denom
-        intercept = (sy - slope * sx) / n
+        slope, intercept = result
         lines = []
         for xi, yi in zip(x_data, y_data):
             predicted = slope * xi + intercept
@@ -2049,15 +2045,7 @@ class _AxesExtMixin:
                 sx_lo, sy_lo = self.coords_to_point(xv, yc - sp, time)
                 pts_hi.append((sx_hi, sy_hi))
                 pts_lo.append((sx_lo, sy_lo))
-            if not pts_hi:
-                return ''
-            parts = [f'M{pts_hi[0][0]:.1f},{pts_hi[0][1]:.1f}']
-            for sx, sy in pts_hi[1:]:
-                parts.append(f'L{sx:.1f},{sy:.1f}')
-            for sx, sy in reversed(pts_lo):
-                parts.append(f'L{sx:.1f},{sy:.1f}')
-            parts.append('Z')
-            return ''.join(parts)
+            return _band_path(pts_hi, pts_lo)
         band.d.set_onward(creation, _band_d)
         self._add_plot_obj(band)
         return band
