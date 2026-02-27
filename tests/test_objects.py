@@ -9299,3 +9299,184 @@ class TestDissolveOut:
         diffs = [abs(c1.styling.opacity.at_time(t) - c2.styling.opacity.at_time(t))
                  for t in [0.2, 0.4, 0.6]]
         assert any(d > 0.01 for d in diffs)
+
+
+class TestStampTrail:
+    def test_returns_list(self):
+        d = Dot(cx=100, cy=100)
+        d.shift(dx=200, start_time=0, end_time=1)
+        ghosts = d.stamp_trail(start=0, end=1, count=5)
+        assert isinstance(ghosts, list)
+        assert len(ghosts) == 5
+
+    def test_ghosts_frozen_at_different_positions(self):
+        d = Dot(cx=100, cy=100)
+        d.shift(dx=300, start_time=0, end_time=1, easing=easings.linear)
+        ghosts = d.stamp_trail(start=0, end=1, count=3)
+        # Each ghost should be frozen at a different x position
+        xs = [g.c.at_time(1)[0] for g in ghosts]
+        assert len(set(round(x, 1) for x in xs)) == 3
+
+    def test_ghosts_hidden_before_appearance(self):
+        d = Dot(cx=100, cy=100)
+        d.shift(dx=100, start_time=0, end_time=1)
+        ghosts = d.stamp_trail(start=0, end=1, count=2)
+        # First ghost should be hidden at t=0
+        assert ghosts[0].show.at_time(0) == False
+
+    def test_ghosts_fade_out(self):
+        d = Dot(cx=100, cy=100)
+        d.shift(dx=100, start_time=0, end_time=1)
+        ghosts = d.stamp_trail(start=0, end=1, count=2, fade_duration=0.3)
+        g = ghosts[0]
+        # Ghost should be hidden after fade_duration
+        t_appear = 1 / 3  # (0+1)*(1)/(2+1) = 1/3
+        assert g.show.at_time(t_appear + 0.3 + 0.01) == False
+
+    def test_returns_self_pattern(self):
+        """stamp_trail returns a list, not self (matches trail pattern)."""
+        d = Dot(cx=100, cy=100)
+        result = d.stamp_trail(start=0, end=1, count=3)
+        assert isinstance(result, list)
+
+    def test_empty_when_zero_count(self):
+        d = Dot(cx=100, cy=100)
+        ghosts = d.stamp_trail(start=0, end=1, count=0)
+        assert ghosts == []
+
+    def test_empty_when_zero_duration(self):
+        d = Dot(cx=100, cy=100)
+        ghosts = d.stamp_trail(start=1, end=1, count=5)
+        assert ghosts == []
+
+    def test_custom_opacity(self):
+        d = Dot(cx=100, cy=100)
+        d.shift(dx=100, start_time=0, end_time=1)
+        ghosts = d.stamp_trail(start=0, end=1, count=1, opacity=0.8, fade_duration=1.0)
+        g = ghosts[0]
+        t_appear = 0.5  # (0+1)*(1)/(1+1) = 0.5
+        # At appearance, opacity should be close to 0.8
+        assert g.styling.fill_opacity.at_time(t_appear) == pytest.approx(0.8, abs=0.05)
+
+
+class TestUnfold:
+    def test_returns_self(self):
+        r = Rectangle(200, 100, 100, 100)
+        result = r.unfold(start=0, end=1)
+        assert result is r
+
+    def test_scale_x_at_start_is_zero_right(self):
+        r = Rectangle(200, 100, 100, 100)
+        r.unfold(start=0, end=1, direction='right')
+        assert r.styling.scale_x.at_time(0) == pytest.approx(0, abs=0.01)
+
+    def test_scale_x_at_end_is_one_right(self):
+        r = Rectangle(200, 100, 100, 100)
+        r.unfold(start=0, end=1, direction='right')
+        assert r.styling.scale_x.at_time(1) == pytest.approx(1, abs=0.01)
+
+    def test_scale_y_unchanged_horizontal(self):
+        r = Rectangle(200, 100, 100, 100)
+        r.unfold(start=0, end=1, direction='right')
+        assert r.styling.scale_y.at_time(0.5) == pytest.approx(1, abs=0.01)
+
+    def test_left_direction(self):
+        r = Rectangle(200, 100, 100, 100)
+        r.unfold(start=0, end=1, direction='left')
+        # scale_x should go from 0 to 1
+        assert r.styling.scale_x.at_time(0) == pytest.approx(0, abs=0.01)
+        assert r.styling.scale_x.at_time(1) == pytest.approx(1, abs=0.01)
+        # Anchor should be right edge
+        assert r.styling._scale_origin[0] == pytest.approx(300, abs=1)
+
+    def test_down_direction(self):
+        r = Rectangle(200, 100, 100, 100)
+        r.unfold(start=0, end=1, direction='down')
+        # scale_y should go from 0 to 1, scale_x unchanged
+        assert r.styling.scale_y.at_time(0) == pytest.approx(0, abs=0.01)
+        assert r.styling.scale_y.at_time(1) == pytest.approx(1, abs=0.01)
+        assert r.styling.scale_x.at_time(0.5) == pytest.approx(1, abs=0.01)
+
+    def test_up_direction(self):
+        r = Rectangle(200, 100, 100, 100)
+        r.unfold(start=0, end=1, direction='up')
+        assert r.styling.scale_y.at_time(0) == pytest.approx(0, abs=0.01)
+        # Anchor at bottom edge
+        assert r.styling._scale_origin[1] == pytest.approx(200, abs=1)
+
+    def test_change_existence(self):
+        r = Rectangle(200, 100, 100, 100)
+        r.unfold(start=1, end=2, direction='right', change_existence=True)
+        assert r.show.at_time(0.5) == False
+        assert r.show.at_time(1) == True
+
+    def test_no_change_existence(self):
+        r = Rectangle(200, 100, 100, 100)
+        r.unfold(start=1, end=2, direction='right', change_existence=False)
+        # Should be visible before animation
+        assert r.show.at_time(0.5) == True
+
+    def test_zero_duration(self):
+        r = Rectangle(200, 100, 100, 100)
+        result = r.unfold(start=1, end=1)
+        assert result is r
+
+
+class TestGlitchShift:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=500, cy=500)
+        result = c.glitch_shift(start=0, end=1)
+        assert result is c
+
+    def test_position_displaced_during_effect(self):
+        c = Circle(r=50, cx=500, cy=500)
+        c.glitch_shift(start=0, end=1, intensity=30, steps=4, seed=42)
+        # During the effect, the x position should be displaced
+        displaced = False
+        for t in [0.1, 0.3, 0.5, 0.7]:
+            cx = c.c.at_time(t)[0]
+            if abs(cx - 500) > 1:
+                displaced = True
+        assert displaced
+
+    def test_position_restored_after_effect(self):
+        c = Circle(r=50, cx=500, cy=500)
+        c.glitch_shift(start=0, end=1, intensity=30, steps=4, seed=42)
+        # After the effect, position should return to original
+        cx, cy = c.c.at_time(1.1)
+        assert cx == pytest.approx(500, abs=1)
+        assert cy == pytest.approx(500, abs=1)
+
+    def test_only_horizontal_displacement(self):
+        c = Circle(r=50, cx=500, cy=500)
+        c.glitch_shift(start=0, end=1, intensity=30, steps=4, seed=42)
+        # y coordinate should remain unchanged during the effect
+        for t in [0.1, 0.3, 0.5, 0.7]:
+            cy = c.c.at_time(t)[1]
+            assert cy == pytest.approx(500, abs=1)
+
+    def test_seed_reproducibility(self):
+        c1 = Circle(r=50, cx=500, cy=500)
+        c1.glitch_shift(start=0, end=1, intensity=30, steps=4, seed=123)
+        c2 = Circle(r=50, cx=500, cy=500)
+        c2.glitch_shift(start=0, end=1, intensity=30, steps=4, seed=123)
+        for t in [0.1, 0.3, 0.5, 0.7]:
+            assert c1.c.at_time(t)[0] == pytest.approx(c2.c.at_time(t)[0], abs=0.01)
+
+    def test_different_seeds_differ(self):
+        c1 = Circle(r=50, cx=500, cy=500)
+        c1.glitch_shift(start=0, end=1, intensity=30, steps=8, seed=42)
+        c2 = Circle(r=50, cx=500, cy=500)
+        c2.glitch_shift(start=0, end=1, intensity=30, steps=8, seed=99)
+        diffs = [abs(c1.c.at_time(t)[0] - c2.c.at_time(t)[0]) for t in [0.1, 0.3, 0.5]]
+        assert any(d > 1 for d in diffs)
+
+    def test_zero_duration(self):
+        c = Circle(r=50, cx=500, cy=500)
+        result = c.glitch_shift(start=1, end=1)
+        assert result is c
+
+    def test_zero_steps(self):
+        c = Circle(r=50, cx=500, cy=500)
+        result = c.glitch_shift(start=0, end=1, steps=0)
+        assert result is c

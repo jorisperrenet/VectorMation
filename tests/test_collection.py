@@ -1990,3 +1990,139 @@ class TestDistributeAlongArc:
         p1 = children[1].c.at_time(0)
         expected_angle = 2 * math.pi / 3
         assert p1[0] == pytest.approx(500 + 100 * math.cos(expected_angle), abs=5)
+
+
+class TestFanOut:
+    def test_returns_self(self):
+        children = [Circle(r=10, cx=500, cy=500) for _ in range(3)]
+        col = VCollection(*children)
+        result = col.fan_out(start=0, end=1)
+        assert result is col
+
+    def test_children_spread_radially(self):
+        children = [Circle(r=10, cx=500, cy=500) for _ in range(4)]
+        col = VCollection(*children)
+        col.fan_out(cx=500, cy=500, radius=100, start=0, end=1, easing=easings.linear)
+        # After animation, children should be at compass points
+        # Child 0: angle=0 -> (600, 500)
+        p0 = children[0].c.at_time(1)
+        assert p0[0] == pytest.approx(600, abs=5)
+        assert p0[1] == pytest.approx(500, abs=5)
+        # Child 1: angle=pi/2 -> (500, 600)
+        p1 = children[1].c.at_time(1)
+        assert p1[0] == pytest.approx(500, abs=5)
+        assert p1[1] == pytest.approx(600, abs=5)
+
+    def test_children_start_at_original_position(self):
+        children = [Circle(r=10, cx=500, cy=500) for _ in range(3)]
+        col = VCollection(*children)
+        col.fan_out(cx=500, cy=500, radius=100, start=0, end=1, easing=easings.linear)
+        # At start, children should still be at original position
+        p0 = children[0].c.at_time(0)
+        assert p0[0] == pytest.approx(500, abs=5)
+        assert p0[1] == pytest.approx(500, abs=5)
+
+    def test_custom_center(self):
+        children = [Circle(r=10, cx=300, cy=300) for _ in range(2)]
+        col = VCollection(*children)
+        col.fan_out(cx=300, cy=300, radius=50, start=0, end=1, easing=easings.linear)
+        # Child 0 at angle 0: (350, 300)
+        p0 = children[0].c.at_time(1)
+        assert p0[0] == pytest.approx(350, abs=5)
+
+    def test_empty_collection(self):
+        col = VCollection()
+        result = col.fan_out(start=0, end=1)
+        assert result is col
+
+    def test_default_center_from_bbox(self):
+        """When cx/cy not given, uses collection bbox center."""
+        c1 = Circle(r=10, cx=400, cy=500)
+        c2 = Circle(r=10, cx=600, cy=500)
+        col = VCollection(c1, c2)
+        col.fan_out(radius=100, start=0, end=1, easing=easings.linear)
+        # Collection center is (500, 500)
+        # Child 0: angle=0 -> (600, 500)
+        p0 = c1.c.at_time(1)
+        assert p0[0] == pytest.approx(600, abs=5)
+
+    def test_custom_radius(self):
+        children = [Circle(r=10, cx=500, cy=500) for _ in range(2)]
+        col = VCollection(*children)
+        col.fan_out(cx=500, cy=500, radius=200, start=0, end=1, easing=easings.linear)
+        # Child 0 at angle 0: (700, 500)
+        p0 = children[0].c.at_time(1)
+        assert p0[0] == pytest.approx(700, abs=5)
+
+
+class TestAlignCenters:
+    def test_returns_self(self):
+        children = [Circle(r=10, cx=100, cy=100),
+                     Circle(r=10, cx=200, cy=200)]
+        col = VCollection(*children)
+        result = col.align_centers(axis='x')
+        assert result is col
+
+    def test_align_x_axis(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=200)
+        c3 = Circle(r=10, cx=300, cy=300)
+        col = VCollection(c1, c2, c3)
+        col.align_centers(axis='x')
+        # All children should have the same x center (collection center)
+        xs = [c.c.at_time(0)[0] for c in [c1, c2, c3]]
+        assert xs[0] == pytest.approx(xs[1], abs=1)
+        assert xs[1] == pytest.approx(xs[2], abs=1)
+
+    def test_align_y_axis(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=200)
+        c3 = Circle(r=10, cx=300, cy=300)
+        col = VCollection(c1, c2, c3)
+        col.align_centers(axis='y')
+        # All children should have the same y center
+        ys = [c.c.at_time(0)[1] for c in [c1, c2, c3]]
+        assert ys[0] == pytest.approx(ys[1], abs=1)
+        assert ys[1] == pytest.approx(ys[2], abs=1)
+
+    def test_custom_value(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=200)
+        col = VCollection(c1, c2)
+        col.align_centers(axis='x', value=500)
+        assert c1.c.at_time(0)[0] == pytest.approx(500, abs=1)
+        assert c2.c.at_time(0)[0] == pytest.approx(500, abs=1)
+
+    def test_animated(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=300, cy=200)
+        col = VCollection(c1, c2)
+        col.align_centers(axis='x', value=500, start_time=0, end_time=1, easing=easings.linear)
+        # At start, positions should be original
+        assert c1.c.at_time(0)[0] == pytest.approx(100, abs=1)
+        # At end, positions should be aligned
+        assert c1.c.at_time(1)[0] == pytest.approx(500, abs=1)
+        assert c2.c.at_time(1)[0] == pytest.approx(500, abs=1)
+
+    def test_empty_collection(self):
+        col = VCollection()
+        result = col.align_centers(axis='x')
+        assert result is col
+
+    def test_y_preserves_x(self):
+        """Aligning on y axis should not change x positions."""
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=300, cy=200)
+        col = VCollection(c1, c2)
+        col.align_centers(axis='y', value=500)
+        assert c1.c.at_time(0)[0] == pytest.approx(100, abs=1)
+        assert c2.c.at_time(0)[0] == pytest.approx(300, abs=1)
+
+    def test_x_preserves_y(self):
+        """Aligning on x axis should not change y positions."""
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=300, cy=200)
+        col = VCollection(c1, c2)
+        col.align_centers(axis='x', value=500)
+        assert c1.c.at_time(0)[1] == pytest.approx(100, abs=1)
+        assert c2.c.at_time(0)[1] == pytest.approx(200, abs=1)

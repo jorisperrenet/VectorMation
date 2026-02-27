@@ -750,6 +750,102 @@ class Polygon(VObject):
         cx, cy, r = _welzl(shuffled, [], len(shuffled))
         return Circle(r=r, cx=cx, cy=cy, **kwargs)
 
+    def triangulate(self, time=0, **kwargs):
+        """Decompose this polygon into triangles using ear-clipping.
+
+        Only works for simple (non-self-intersecting) polygons.  The polygon
+        must be closed and have at least 3 vertices.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read vertex positions.
+        **kwargs:
+            Extra styling keyword arguments forwarded to each triangle
+            :class:`Polygon` (e.g. ``fill``, ``stroke``).
+
+        Returns
+        -------
+        list[Polygon]
+            A list of triangular Polygon objects whose union covers the
+            original polygon.  For an *n*-vertex polygon this returns
+            *n - 2* triangles.
+
+        Raises
+        ------
+        ValueError
+            If the polygon has fewer than 3 vertices or is not closed.
+        """
+        pts = self.get_vertices(time)
+        n = len(pts)
+        if n < 3:
+            raise ValueError("triangulate requires at least 3 vertices")
+        if not self.closed:
+            raise ValueError("triangulate requires a closed polygon")
+
+        # Ensure counter-clockwise winding (positive signed area).
+        sa = 0
+        for i in range(n):
+            x0, y0 = pts[i]
+            x1, y1 = pts[(i + 1) % n]
+            sa += (x1 - x0) * (y1 + y0)
+        indices = list(range(n))
+        if sa > 0:
+            indices.reverse()
+
+        def _cross(o, a, b):
+            return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+
+        def _point_in_triangle(p, a, b, c):
+            d1 = _cross(p, a, b)
+            d2 = _cross(p, b, c)
+            d3 = _cross(p, c, a)
+            has_neg = (d1 < 0) or (d2 < 0) or (d3 < 0)
+            has_pos = (d1 > 0) or (d2 > 0) or (d3 > 0)
+            return not (has_neg and has_pos)
+
+        def _is_ear(idx_list, i):
+            n_idx = len(idx_list)
+            prev_i = idx_list[(i - 1) % n_idx]
+            curr_i = idx_list[i]
+            next_i = idx_list[(i + 1) % n_idx]
+            a, b, c = pts[prev_i], pts[curr_i], pts[next_i]
+            # Must be convex (positive cross product for CCW winding)
+            if _cross(a, b, c) <= 0:
+                return False
+            # No other vertex inside this triangle
+            for j in range(n_idx):
+                if j in ((i - 1) % n_idx, i, (i + 1) % n_idx):
+                    continue
+                if _point_in_triangle(pts[idx_list[j]], a, b, c):
+                    return False
+            return True
+
+        triangles = []
+        remaining = list(indices)
+        safety = 0
+        max_iter = n * n
+        while len(remaining) > 3 and safety < max_iter:
+            safety += 1
+            found = False
+            for i in range(len(remaining)):
+                if _is_ear(remaining, i):
+                    prev_i = remaining[(i - 1) % len(remaining)]
+                    curr_i = remaining[i]
+                    next_i = remaining[(i + 1) % len(remaining)]
+                    triangles.append(Polygon(
+                        pts[prev_i], pts[curr_i], pts[next_i], **kwargs))
+                    remaining.pop(i)
+                    found = True
+                    break
+            if not found:
+                break
+        # Last remaining triangle
+        if len(remaining) == 3:
+            triangles.append(Polygon(
+                pts[remaining[0]], pts[remaining[1]], pts[remaining[2]], **kwargs))
+        return triangles
+
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 
@@ -1175,6 +1271,52 @@ class Circle(Ellipse):
                                x2=tx_touch + td_x * half, y2=ty_touch + td_y * half,
                                **kwargs))
         return lines
+
+    def tangent_points(self, px, py, time=0):
+        """Return the tangent touch-points from an external point to the circle.
+
+        Computes the points on the circle where tangent lines from the external
+        point (px, py) would touch the circle.  This is the pure-geometry
+        counterpart of :meth:`get_tangent_lines` — it returns coordinate tuples
+        instead of Line objects.
+
+        Parameters
+        ----------
+        px, py:
+            Coordinates of the external point.
+        time:
+            Animation time at which to read the circle's position/radius.
+
+        Returns
+        -------
+        list[tuple[float, float]]
+            0, 1, or 2 touch-point (x, y) tuples:
+
+            * Empty list if the point is strictly inside the circle.
+            * One point if the point lies on the circle (within tolerance).
+            * Two points if the point is outside the circle.
+        """
+        cx, cy = self.c.at_time(time)
+        r = self.rx.at_time(time)
+        d = _distance(cx, cy, px, py)
+        if d < r - 1e-9:
+            return []
+        if abs(d) < 1e-12:
+            return []
+        if d <= r + 1e-9:
+            # Point is on the circle — it is itself the single tangent point.
+            ux, uy = (px - cx) / d, (py - cy) / d
+            return [(cx + r * ux, cy + r * uy)]
+        # Point is outside — two tangent points.
+        half_angle = math.acos(max(-1.0, min(1.0, r / d)))
+        base_angle = math.atan2(py - cy, px - cx)
+        points = []
+        for sign in (1, -1):
+            touch_angle = base_angle + sign * half_angle
+            tx = cx + r * math.cos(touch_angle)
+            ty = cy + r * math.sin(touch_angle)
+            points.append((tx, ty))
+        return points
 
     def chord(self, angle1, angle2, time=0, **kwargs):
         """Return a Line connecting two points on the circle at the given angles.
@@ -1696,6 +1838,58 @@ class Rectangle(VObject):
         w = self.width.at_time(time)
         h = self.height.at_time(time)
         return w / h if h != 0 else float('inf')
+
+    def sample_border(self, t, time=0):
+        """Return a point (x, y) on the rectangle border at parameter *t*.
+
+        The parameter *t* is in ``[0, 1)`` and maps to a position along the
+        perimeter, starting from the top-left corner and proceeding clockwise:
+
+        * ``t = 0``   : top-left corner
+        * ``t = 0.25``: approximately the top-right corner (exact when square)
+        * ``t = 0.5`` : approximately the bottom-right corner
+        * ``t = 0.75``: approximately the bottom-left corner
+
+        More precisely, the perimeter is parameterised proportionally to
+        arc length: the top edge occupies ``width / perimeter`` of the
+        parameter range, and so on.
+
+        Parameters
+        ----------
+        t:
+            Parameter in ``[0, 1)``.  Values outside this range are
+            wrapped via modulo.
+        time:
+            Animation time at which to read the rectangle geometry.
+
+        Returns
+        -------
+        tuple[float, float]
+            ``(x, y)`` on the border.
+        """
+        rx = float(self.x.at_time(time))
+        ry = float(self.y.at_time(time))
+        w = float(self.width.at_time(time))
+        h = float(self.height.at_time(time))
+        perim = 2 * (w + h)
+        if perim < 1e-12:
+            return (rx, ry)
+        t = t % 1.0
+        dist = t * perim
+        # Top edge: left to right
+        if dist <= w:
+            return (rx + dist, ry)
+        dist -= w
+        # Right edge: top to bottom
+        if dist <= h:
+            return (rx + w, ry + dist)
+        dist -= h
+        # Bottom edge: right to left
+        if dist <= w:
+            return (rx + w - dist, ry + h)
+        dist -= w
+        # Left edge: bottom to top
+        return (rx, ry + h - dist)
 
     @classmethod
     def square(cls, side, **kwargs):
@@ -2796,6 +2990,41 @@ class Line(VObject):
         iy = y1 + t * (y2 - y1)
         return (ix, iy)
 
+    def intersect_segment(self, other, time=0):
+        """Return the intersection point only if it lies within both segments.
+
+        Unlike :meth:`intersect_line`, which treats each line as extending
+        infinitely, this method returns ``None`` unless the intersection point
+        lies between p1 and p2 of **both** line segments.
+
+        Parameters
+        ----------
+        other : Line
+            Another Line segment to test against.
+        time:
+            Animation time at which to read endpoint coordinates.
+
+        Returns
+        -------
+        tuple[float, float] | None
+            ``(x, y)`` of the intersection if it lies within both segments,
+            otherwise ``None``.
+        """
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        x3, y3 = other.p1.at_time(time)
+        x4, y4 = other.p2.at_time(time)
+        denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+        if abs(denom) < 1e-10:
+            return None
+        t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom
+        u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom
+        if t < -1e-10 or t > 1 + 1e-10 or u < -1e-10 or u > 1 + 1e-10:
+            return None
+        ix = x1 + t * (x2 - x1)
+        iy = y1 + t * (y2 - y1)
+        return (ix, iy)
+
     def project_point(self, px, py, time=0):
         """Return the closest point on this line (extended) to point (px, py)."""
         x1, y1 = self.p1.at_time(time)
@@ -2805,6 +3034,35 @@ class Line(VObject):
         if len_sq < 1e-20:
             return (x1, y1)
         t = ((px - x1) * dx + (py - y1) * dy) / len_sq
+        return (x1 + t * dx, y1 + t * dy)
+
+    def closest_point_on_segment(self, px, py, time=0):
+        """Return the closest point on this line **segment** to point (px, py).
+
+        Unlike :meth:`project_point`, which projects onto the infinite line,
+        this method clamps the parameter *t* to ``[0, 1]`` so the result
+        always lies between p1 and p2.
+
+        Parameters
+        ----------
+        px, py:
+            Coordinates of the external point.
+        time:
+            Animation time at which to read the endpoint coordinates.
+
+        Returns
+        -------
+        tuple[float, float]
+            ``(x, y)`` of the closest point on the segment.
+        """
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        dx, dy = x2 - x1, y2 - y1
+        len_sq = dx * dx + dy * dy
+        if len_sq < 1e-20:
+            return (x1, y1)
+        t = ((px - x1) * dx + (py - y1) * dy) / len_sq
+        t = max(0.0, min(1.0, t))
         return (x1 + t * dx, y1 + t * dy)
 
     def parameter_at(self, px, py, time=0):
@@ -2907,6 +3165,8 @@ class Text(VObject):
         self.y = attributes.Real(creation, y)
         self.font_size = attributes.Real(creation, font_size)
         self._text_anchor = text_anchor
+        self._font_weight = None
+        self._font_style = None
         self.styling = style.Styling(styling_kwargs, creation=creation,
                                      fill='#fff', fill_opacity=1, stroke_width=0)
 
@@ -3130,6 +3390,44 @@ class Text(VObject):
     def set_font_size(self, size, start=0, end=None, easing=easings.smooth):
         """Animate font size to new value."""
         _anim(self.font_size, start, end, size, easing)
+        return self
+
+    def bold(self, weight='bold'):
+        """Set the font weight to bold.
+
+        Modifies the SVG ``font-weight`` attribute.  Call with no arguments
+        to make the text bold; pass ``weight='normal'`` to remove boldness.
+
+        Parameters
+        ----------
+        weight:
+            CSS font-weight value (e.g. ``'bold'``, ``'normal'``, ``'700'``).
+
+        Returns
+        -------
+        self
+            For method chaining.
+        """
+        self._font_weight = weight if weight != 'normal' else None
+        return self
+
+    def italic(self, style='italic'):
+        """Set the font style to italic.
+
+        Modifies the SVG ``font-style`` attribute.  Call with no arguments
+        to make the text italic; pass ``style='normal'`` to remove italics.
+
+        Parameters
+        ----------
+        style:
+            CSS font-style value (e.g. ``'italic'``, ``'oblique'``, ``'normal'``).
+
+        Returns
+        -------
+        self
+            For method chaining.
+        """
+        self._font_style = style if style != 'normal' else None
         return self
 
     def set_text(self, start: float, end: float, new_text, easing=easings.smooth):
@@ -3394,9 +3692,11 @@ class Text(VObject):
 
     def to_svg(self, time):
         anchor = f" text-anchor='{self._text_anchor}'" if self._text_anchor else ''
+        weight = f" font-weight='{self._font_weight}'" if self._font_weight else ''
+        fstyle = f" font-style='{self._font_style}'" if self._font_style else ''
         txt = _xml_escape(str(self.text.at_time(time)))
         return (f"<text x='{self.x.at_time(time)}' y='{self.y.at_time(time)}'"
-                f" font-size='{self.font_size.at_time(time)}'{anchor}{self.styling.svg_style(time)}"
+                f" font-size='{self.font_size.at_time(time)}'{anchor}{weight}{fstyle}{self.styling.svg_style(time)}"
                 f">{txt}</text>")
 
 

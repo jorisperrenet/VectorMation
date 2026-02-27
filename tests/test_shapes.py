@@ -1,4 +1,5 @@
 """Tests for shape classes in vectormation.objects."""
+import math
 import pytest
 from vectormation.objects import (
     Circle, Rectangle, Polygon, Line, Lines, RegularPolygon, Arc, Ellipse,
@@ -6513,3 +6514,352 @@ class TestRectangleFromBoundingBox:
         assert r.y.at_time(0) == pytest.approx(0)
         assert r.width.at_time(0) == pytest.approx(100)
         assert r.height.at_time(0) == pytest.approx(80)
+
+
+# ===== New feature tests =====
+
+class TestCircleTangentPoints:
+    """Tests for Circle.tangent_points()."""
+
+    def test_external_point_returns_two_points(self):
+        c = Circle(r=50, cx=100, cy=100)
+        pts = c.tangent_points(250, 100)
+        assert len(pts) == 2
+
+    def test_tangent_points_lie_on_circle(self):
+        c = Circle(r=50, cx=100, cy=100)
+        pts = c.tangent_points(250, 100)
+        for px, py in pts:
+            dist = math.hypot(px - 100, py - 100)
+            assert dist == pytest.approx(50, abs=1e-6)
+
+    def test_tangent_points_are_perpendicular_to_radius(self):
+        """Tangent at touch point is perpendicular to the radius vector."""
+        c = Circle(r=50, cx=100, cy=100)
+        ext_x, ext_y = 250, 100
+        pts = c.tangent_points(ext_x, ext_y)
+        for px, py in pts:
+            # Radius vector (center -> touch point)
+            rx, ry = px - 100, py - 100
+            # Vector from touch point to external point
+            tx, ty = ext_x - px, ext_y - py
+            dot = rx * tx + ry * ty
+            assert dot == pytest.approx(0, abs=1e-4)
+
+    def test_point_on_circle_returns_one_point(self):
+        c = Circle(r=50, cx=100, cy=100)
+        pts = c.tangent_points(150, 100)  # point is on the circle
+        assert len(pts) == 1
+        assert pts[0][0] == pytest.approx(150, abs=1e-6)
+        assert pts[0][1] == pytest.approx(100, abs=1e-6)
+
+    def test_point_inside_circle_returns_empty(self):
+        c = Circle(r=50, cx=100, cy=100)
+        pts = c.tangent_points(110, 100)  # inside
+        assert pts == []
+
+    def test_symmetric_external_point(self):
+        """Point directly above circle should give symmetric tangent points."""
+        c = Circle(r=50, cx=100, cy=100)
+        pts = c.tangent_points(100, -50)  # directly above
+        assert len(pts) == 2
+        # The two tangent points should be symmetric about x=100
+        assert pts[0][0] + pts[1][0] == pytest.approx(200, abs=1e-4)
+
+
+class TestPolygonTriangulate:
+    """Tests for Polygon.triangulate()."""
+
+    def test_triangle_returns_one_triangle(self):
+        tri = Polygon((0, 0), (100, 0), (50, 80))
+        result = tri.triangulate()
+        assert len(result) == 1
+        verts = result[0].get_vertices()
+        assert len(verts) == 3
+
+    def test_square_returns_two_triangles(self):
+        sq = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        result = sq.triangulate()
+        assert len(result) == 2
+
+    def test_pentagon_returns_three_triangles(self):
+        import math as m
+        pts = []
+        for i in range(5):
+            angle = 2 * m.pi * i / 5 - m.pi / 2
+            pts.append((100 + 50 * m.cos(angle), 100 + 50 * m.sin(angle)))
+        pent = Polygon(*pts)
+        result = pent.triangulate()
+        assert len(result) == 3
+
+    def test_triangulation_covers_area(self):
+        """Sum of triangle areas should equal the original polygon area."""
+        sq = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        triangles = sq.triangulate()
+        total_area = 0
+        for tri in triangles:
+            verts = tri.get_vertices()
+            # Shoelface formula for triangle
+            (x0, y0), (x1, y1), (x2, y2) = verts
+            area = abs((x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0)) / 2
+            total_area += area
+        assert total_area == pytest.approx(10000, abs=1)
+
+    def test_styling_kwargs_forwarded(self):
+        sq = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        result = sq.triangulate(fill='#FF0000')
+        svg = result[0].to_svg(0)
+        assert 'rgb(255,0,0)' in svg
+
+    def test_open_polygon_raises(self):
+        poly = Polygon((0, 0), (100, 0), (50, 80), closed=False)
+        with pytest.raises(ValueError, match="closed"):
+            poly.triangulate()
+
+    def test_fewer_than_3_vertices_raises(self):
+        poly = Polygon((0, 0), (100, 0))
+        with pytest.raises(ValueError, match="3 vertices"):
+            poly.triangulate()
+
+    def test_concave_polygon(self):
+        """L-shaped concave polygon should triangulate correctly."""
+        # L-shape (6 vertices)
+        pts = [(0, 0), (100, 0), (100, 50), (50, 50), (50, 100), (0, 100)]
+        poly = Polygon(*pts)
+        result = poly.triangulate()
+        assert len(result) == 4  # 6 - 2 = 4 triangles
+
+
+class TestLineIntersectSegment:
+    """Tests for Line.intersect_segment()."""
+
+    def test_crossing_segments(self):
+        l1 = Line(x1=0, y1=0, x2=100, y2=100)
+        l2 = Line(x1=0, y1=100, x2=100, y2=0)
+        pt = l1.intersect_segment(l2)
+        assert pt is not None
+        assert pt[0] == pytest.approx(50, abs=1e-6)
+        assert pt[1] == pytest.approx(50, abs=1e-6)
+
+    def test_non_crossing_segments_return_none(self):
+        """Segments that would intersect if extended, but don't overlap."""
+        l1 = Line(x1=0, y1=0, x2=10, y2=10)
+        l2 = Line(x1=20, y1=0, x2=30, y2=10)
+        pt = l1.intersect_segment(l2)
+        assert pt is None
+
+    def test_parallel_segments(self):
+        l1 = Line(x1=0, y1=0, x2=100, y2=0)
+        l2 = Line(x1=0, y1=10, x2=100, y2=10)
+        pt = l1.intersect_segment(l2)
+        assert pt is None
+
+    def test_t_intersection_at_endpoint(self):
+        """Segment ending exactly at the other segment."""
+        l1 = Line(x1=0, y1=50, x2=100, y2=50)
+        l2 = Line(x1=50, y1=0, x2=50, y2=50)
+        pt = l1.intersect_segment(l2)
+        assert pt is not None
+        assert pt[0] == pytest.approx(50, abs=1e-6)
+        assert pt[1] == pytest.approx(50, abs=1e-6)
+
+    def test_segments_would_intersect_if_extended(self):
+        """Lines intersect in infinite extension, but not as segments."""
+        l1 = Line(x1=0, y1=0, x2=10, y2=0)
+        l2 = Line(x1=50, y1=-10, x2=50, y2=10)
+        # Infinite lines cross at (50, 0), but l1 only goes to x=10
+        pt = l1.intersect_segment(l2)
+        assert pt is None
+
+    def test_same_as_intersect_line_when_segments_cross(self):
+        """When segments do cross, result should match intersect_line."""
+        l1 = Line(x1=0, y1=0, x2=200, y2=200)
+        l2 = Line(x1=200, y1=0, x2=0, y2=200)
+        seg_pt = l1.intersect_segment(l2)
+        line_pt = l1.intersect_line(l2)
+        assert seg_pt is not None
+        assert line_pt is not None
+        assert seg_pt[0] == pytest.approx(line_pt[0], abs=1e-6)
+        assert seg_pt[1] == pytest.approx(line_pt[1], abs=1e-6)
+
+
+class TestLineClosestPointOnSegment:
+    """Tests for Line.closest_point_on_segment()."""
+
+    def test_projection_within_segment(self):
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        pt = line.closest_point_on_segment(50, 30)
+        assert pt[0] == pytest.approx(50)
+        assert pt[1] == pytest.approx(0)
+
+    def test_clamps_to_start(self):
+        """Point beyond p1 should clamp to p1."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        pt = line.closest_point_on_segment(-50, 0)
+        assert pt[0] == pytest.approx(0)
+        assert pt[1] == pytest.approx(0)
+
+    def test_clamps_to_end(self):
+        """Point beyond p2 should clamp to p2."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        pt = line.closest_point_on_segment(200, 0)
+        assert pt[0] == pytest.approx(100)
+        assert pt[1] == pytest.approx(0)
+
+    def test_differs_from_project_point(self):
+        """project_point extends infinitely; closest_point_on_segment does not."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        proj = line.project_point(-50, 10)
+        seg = line.closest_point_on_segment(-50, 10)
+        # project_point gives x=-50 (extended), segment clamps to x=0
+        assert proj[0] == pytest.approx(-50)
+        assert seg[0] == pytest.approx(0)
+
+    def test_diagonal_segment(self):
+        line = Line(x1=0, y1=0, x2=100, y2=100)
+        pt = line.closest_point_on_segment(100, 0)
+        assert pt[0] == pytest.approx(50)
+        assert pt[1] == pytest.approx(50)
+
+    def test_degenerate_zero_length_segment(self):
+        """Zero-length segment returns the single point."""
+        line = Line(x1=50, y1=50, x2=50, y2=50)
+        pt = line.closest_point_on_segment(100, 100)
+        assert pt[0] == pytest.approx(50)
+        assert pt[1] == pytest.approx(50)
+
+
+class TestTextBoldItalic:
+    """Tests for Text.bold() and Text.italic()."""
+
+    def test_bold_adds_font_weight(self):
+        t = Text('Hello')
+        t.bold()
+        svg = t.to_svg(0)
+        assert "font-weight='bold'" in svg
+
+    def test_italic_adds_font_style(self):
+        t = Text('Hello')
+        t.italic()
+        svg = t.to_svg(0)
+        assert "font-style='italic'" in svg
+
+    def test_bold_and_italic_together(self):
+        t = Text('Hello')
+        t.bold().italic()
+        svg = t.to_svg(0)
+        assert "font-weight='bold'" in svg
+        assert "font-style='italic'" in svg
+
+    def test_bold_returns_self(self):
+        t = Text('Hello')
+        result = t.bold()
+        assert result is t
+
+    def test_italic_returns_self(self):
+        t = Text('Hello')
+        result = t.italic()
+        assert result is t
+
+    def test_default_no_weight_or_style(self):
+        t = Text('Hello')
+        svg = t.to_svg(0)
+        assert 'font-weight' not in svg
+        assert 'font-style' not in svg
+
+    def test_bold_normal_removes_weight(self):
+        t = Text('Hello')
+        t.bold()
+        t.bold('normal')
+        svg = t.to_svg(0)
+        assert 'font-weight' not in svg
+
+    def test_italic_normal_removes_style(self):
+        t = Text('Hello')
+        t.italic()
+        t.italic('normal')
+        svg = t.to_svg(0)
+        assert 'font-style' not in svg
+
+    def test_custom_weight_value(self):
+        t = Text('Hello')
+        t.bold('700')
+        svg = t.to_svg(0)
+        assert "font-weight='700'" in svg
+
+    def test_oblique_style(self):
+        t = Text('Hello')
+        t.italic('oblique')
+        svg = t.to_svg(0)
+        assert "font-style='oblique'" in svg
+
+
+class TestRectangleSampleBorder:
+    """Tests for Rectangle.sample_border()."""
+
+    def test_t0_is_top_left(self):
+        r = Rectangle(100, 50, x=10, y=20)
+        pt = r.sample_border(0)
+        assert pt[0] == pytest.approx(10)
+        assert pt[1] == pytest.approx(20)
+
+    def test_top_right_corner(self):
+        r = Rectangle(100, 50, x=0, y=0)
+        perim = 2 * (100 + 50)
+        t_tr = 100 / perim  # top edge is 100px long
+        pt = r.sample_border(t_tr)
+        assert pt[0] == pytest.approx(100)
+        assert pt[1] == pytest.approx(0)
+
+    def test_bottom_right_corner(self):
+        r = Rectangle(100, 50, x=0, y=0)
+        perim = 2 * (100 + 50)
+        t_br = (100 + 50) / perim
+        pt = r.sample_border(t_br)
+        assert pt[0] == pytest.approx(100)
+        assert pt[1] == pytest.approx(50)
+
+    def test_bottom_left_corner(self):
+        r = Rectangle(100, 50, x=0, y=0)
+        perim = 2 * (100 + 50)
+        t_bl = (100 + 50 + 100) / perim
+        pt = r.sample_border(t_bl)
+        assert pt[0] == pytest.approx(0)
+        assert pt[1] == pytest.approx(50)
+
+    def test_midpoint_top_edge(self):
+        r = Rectangle(100, 50, x=0, y=0)
+        perim = 2 * (100 + 50)
+        t_mid_top = 50 / perim
+        pt = r.sample_border(t_mid_top)
+        assert pt[0] == pytest.approx(50)
+        assert pt[1] == pytest.approx(0)
+
+    def test_wraps_around(self):
+        """t=1 should wrap to same as t=0."""
+        r = Rectangle(100, 50, x=10, y=20)
+        pt0 = r.sample_border(0)
+        pt1 = r.sample_border(1.0)
+        assert pt0[0] == pytest.approx(pt1[0])
+        assert pt0[1] == pytest.approx(pt1[1])
+
+    def test_square_quarter_marks(self):
+        """For a square, t=0.25 should be top-right, etc."""
+        r = Rectangle(100, 100, x=0, y=0)
+        pt = r.sample_border(0.25)
+        assert pt[0] == pytest.approx(100)
+        assert pt[1] == pytest.approx(0)
+        pt = r.sample_border(0.5)
+        assert pt[0] == pytest.approx(100)
+        assert pt[1] == pytest.approx(100)
+        pt = r.sample_border(0.75)
+        assert pt[0] == pytest.approx(0)
+        assert pt[1] == pytest.approx(100)
+
+    def test_negative_t_wraps(self):
+        """Negative t should wrap via modulo."""
+        r = Rectangle(100, 100, x=0, y=0)
+        pt = r.sample_border(-0.25)
+        pt_pos = r.sample_border(0.75)
+        assert pt[0] == pytest.approx(pt_pos[0])
+        assert pt[1] == pytest.approx(pt_pos[1])

@@ -3783,6 +3783,105 @@ class VObject(ABC):  # Vector Object
         self.styling.rotation.set(start, end, _rot, stay=True)
         return self
 
+    def stamp_trail(self, start: float = 0, end: float = 1, count=8,
+                    fade_duration=0.5, opacity=0.4):
+        """Leave ghostly copies that appear along the path and fade out.
+
+        Unlike ``trail`` which creates copies at fixed moments, stamp_trail
+        creates copies that each persist and gradually fade to zero opacity
+        over *fade_duration* seconds, producing a smooth afterimage effect.
+
+        Returns a list of ghost VObjects (must be added to canvas separately).
+        """
+        ghosts = []
+        dur = end - start
+        if dur <= 0 or count <= 0:
+            return ghosts
+        for i in range(count):
+            t_appear = start + dur * (i + 1) / (count + 1)
+            ghost = deepcopy(self)
+            # Freeze at position at t_appear
+            for xa, ya in ghost._shift_reals():
+                xa.set_onward(t_appear, xa.at_time(t_appear))
+                ya.set_onward(t_appear, ya.at_time(t_appear))
+            for c in ghost._shift_coors():
+                c.set_onward(t_appear, c.at_time(t_appear))
+            # Hidden before appearance
+            ghost.show.set_onward(0, False)
+            ghost.show.set_onward(t_appear, True)
+            # Fade out over fade_duration
+            t_gone = t_appear + fade_duration
+            ghost.show.set_onward(t_gone, False)
+            s, fd = t_appear, max(fade_duration, 1e-9)
+            fade_fn = lambda t, _s=s, _fd=fd, _o=opacity: _o * max(0, 1 - (t - _s) / _fd)
+            ghost.styling.fill_opacity.set(t_appear, t_gone, fade_fn)
+            ghost.styling.stroke_opacity.set(t_appear, t_gone, fade_fn)
+            ghosts.append(ghost)
+        return ghosts
+
+    def unfold(self, start: float = 0, end: float = 1, direction='right',
+               change_existence=True, easing=easings.smooth):
+        """Animate the object unfolding from zero width to full size.
+
+        The object scales from 0 to 1 on one axis only, anchored at the
+        opposite edge, like paper being unfolded.
+
+        direction: 'right' (unfold leftward anchor), 'left' (rightward anchor),
+                   'down' (unfold from top), 'up' (unfold from bottom).
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        if change_existence:
+            self._show_from(start)
+        bx, by, bw, bh = self.bbox(start)
+        # Determine anchor point and which axis to scale
+        horizontal = direction in ('left', 'right')
+        if direction == 'right':
+            self.styling._scale_origin = (bx, by + bh / 2)
+        elif direction == 'left':
+            self.styling._scale_origin = (bx + bw, by + bh / 2)
+        elif direction == 'down':
+            self.styling._scale_origin = (bx + bw / 2, by)
+        else:  # up
+            self.styling._scale_origin = (bx + bw / 2, by + bh)
+        s, d = start, max(dur, 1e-9)
+        scale_fn = lambda t, _s=s, _d=d, _e=easing: _e((t - _s) / _d)
+        if horizontal:
+            self.styling.scale_x.set(start, end, scale_fn, stay=True)
+        else:
+            self.styling.scale_y.set(start, end, scale_fn, stay=True)
+        return self
+
+    def glitch_shift(self, start: float = 0, end: float = 1, intensity=20,
+                     steps=8, seed=None):
+        """Random horizontal displacement with discrete jumps.
+
+        Unlike ``glitch`` which creates brief x+y jitter flashes, glitch_shift
+        produces sustained, discrete horizontal offsets that change at each step,
+        simulating a digital signal glitch. The displacement returns to zero at
+        *end*.
+
+        intensity: maximum horizontal displacement in pixels.
+        steps: number of discrete offset changes.
+        seed: optional random seed for reproducibility.
+        """
+        import random
+        dur = end - start
+        if dur <= 0 or steps <= 0:
+            return self
+        rng = random.Random(seed)
+        step_dur = dur / steps
+        for i in range(steps):
+            t0 = start + i * step_dur
+            t1 = t0 + step_dur
+            dx = rng.uniform(-intensity, intensity)
+            for xa, _ in self._shift_reals():
+                xa.add(t0, t1, lambda t, _dx=dx: _dx, stay=False)
+            for c in self._shift_coors():
+                c.add(t0, t1, lambda t, _dx=dx: (_dx, 0), stay=False)
+        return self
+
     @staticmethod
     def surround(other, buff=SMALL_BUFF, rx=6, ry=6, start_time: float = 0, follow=True):
         """Create a rectangle surrounding another object. Returns a Rectangle."""
@@ -5774,6 +5873,66 @@ class VCollection:
             if end_time is None:
                 obj.shift(dx=dx, dy=dy, start_time=start_time)
             else:
+                obj.shift(dx=dx, dy=dy, start_time=start_time,
+                          end_time=end_time, easing=easing)
+        return self
+
+    def fan_out(self, cx: float | None = None, cy: float | None = None,
+                radius: float = 200, start: float = 0, end: float = 1,
+                easing=easings.smooth):
+        """Animate children spreading radially from a center point.
+
+        All children move from their current positions to evenly spaced points
+        on a circle of the given radius around (cx, cy).  If cx/cy are None,
+        the collection's bounding box center is used.
+
+        This is a creation/reveal animation: children fan outward like
+        cards being dealt from a deck.
+        """
+        n = len(self.objects)
+        if n == 0:
+            return self
+        if cx is None or cy is None:
+            gx, gy, gw, gh = self.bbox(start)
+            if cx is None:
+                cx = gx + gw / 2
+            if cy is None:
+                cy = gy + gh / 2
+        for i, obj in enumerate(self.objects):
+            angle = 2 * math.pi * i / n
+            tx = cx + radius * math.cos(angle)
+            ty = cy + radius * math.sin(angle)
+            bx, by, bw, bh = obj.bbox(start)
+            obj_cx, obj_cy = bx + bw / 2, by + bh / 2
+            dx, dy = tx - obj_cx, ty - obj_cy
+            obj.shift(dx=dx, dy=dy, start_time=start, end_time=end, easing=easing)
+        return self
+
+    def align_centers(self, axis='x', value: float | None = None,
+                      start_time: float = 0, end_time: float | None = None,
+                      easing=easings.smooth):
+        """Align all children's centers along a common axis line.
+
+        axis: 'x' to align vertically (same x center) or 'y' to align
+              horizontally (same y center).
+        value: the target coordinate. If None, uses the collection's
+               bounding box center for that axis.
+        """
+        n = len(self.objects)
+        if n == 0:
+            return self
+        if value is None:
+            gx, gy, gw, gh = self.bbox(start_time)
+            value = (gx + gw / 2) if axis == 'x' else (gy + gh / 2)
+        for obj in self.objects:
+            bx, by, bw, bh = obj.bbox(start_time)
+            if axis == 'x':
+                dx = value - (bx + bw / 2)
+                dy = 0
+            else:
+                dx = 0
+                dy = value - (by + bh / 2)
+            if dx != 0 or dy != 0:
                 obj.shift(dx=dx, dy=dy, start_time=start_time,
                           end_time=end_time, easing=easing)
         return self
