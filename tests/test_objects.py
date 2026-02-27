@@ -10980,8 +10980,8 @@ class TestRemoveUpdater:
 
     def test_remove_updater_only_removes_matching(self):
         c = Circle(r=50)
-        def f1(obj, t): pass
-        def f2(obj, t): pass
+        def f1(_obj, _t): pass
+        def f2(_obj, _t): pass
         c.add_updater(f1, start=0, end=1)
         c.add_updater(f2, start=0, end=2)
         c.remove_updater(f1)
@@ -10990,7 +10990,7 @@ class TestRemoveUpdater:
 
     def test_remove_updater_removes_all_with_same_func(self):
         c = Circle(r=50)
-        def f1(obj, t): pass
+        def f1(_obj, _t): pass
         c.add_updater(f1, start=0, end=1)
         c.add_updater(f1, start=2, end=3)
         assert len(c._updaters) == 2
@@ -10999,8 +10999,8 @@ class TestRemoveUpdater:
 
     def test_remove_updater_noop_if_not_found(self):
         c = Circle(r=50)
-        def f1(obj, t): pass
-        def f2(obj, t): pass
+        def f1(_obj, _t): pass
+        def f2(_obj, _t): pass
         c.add_updater(f1)
         c.remove_updater(f2)  # not added, should not raise
         assert len(c._updaters) == 1

@@ -30,6 +30,7 @@ class Arrow(VCollection):
         self.tip = _arrowhead(x1, y1, x2, y2, tip_length, tip_width, tip_fill, creation, z)
         self._tip_length = tip_length
         self._tip_width = tip_width
+        self.tail = None
         objects = [self.shaft, self.tip]
         if double_ended:
             self.tail = _arrowhead(x2, y2, x1, y1, tip_length, tip_width, tip_fill, creation, z)
@@ -103,7 +104,7 @@ class Arrow(VCollection):
         """Set shaft stroke and tip fill to *color* from *start* onward."""
         self.shaft.styling.stroke.set_onward(start, color)
         self.tip.styling.fill.set_onward(start, color)
-        if hasattr(self, 'tail'):
+        if self.tail is not None:
             self.tail.styling.fill.set_onward(start, color)
         return self
 

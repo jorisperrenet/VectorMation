@@ -26,22 +26,15 @@ class MorphObject(VCollection):
         assert isinstance(morph_from, VCollection)
         assert isinstance(morph_to, VCollection)
 
-        def _flatten(collection):
+        def _flatten(collection, time=None):
+            """Flatten nested VCollections. When *time* is set, snapshot DynamicObjects."""
             for obj in collection:
                 if isinstance(obj, VCollection):
-                    yield from _flatten(obj)
-                else:
-                    yield obj
-
-        def _flatten_for_paths(collection, time):
-            """Like _flatten but snapshot DynamicObjects at *time*."""
-            for obj in collection:
-                if isinstance(obj, VCollection):
-                    yield from _flatten_for_paths(obj, time)
-                elif isinstance(obj, DynamicObject):
+                    yield from _flatten(obj, time)
+                elif time is not None and isinstance(obj, DynamicObject):
                     inner = obj._func(time)
                     if isinstance(inner, VCollection):
-                        yield from _flatten_for_paths(inner, time)
+                        yield from _flatten(inner, time)
                     elif hasattr(inner, 'path'):
                         yield inner
                 else:
@@ -56,8 +49,8 @@ class MorphObject(VCollection):
                 obj.show.set_onward(end, True)
 
         # Get SVG paths and stylings from all objects
-        paths_from = [(morphing.Path(obj.path(start)), obj.styling) for obj in _flatten_for_paths(morph_from, start)]
-        paths_to = [(morphing.Path(obj.path(end)), obj.styling) for obj in _flatten_for_paths(morph_to, end)]
+        paths_from = [(morphing.Path(obj.path(start)), obj.styling) for obj in _flatten(morph_from, start)]
+        paths_to = [(morphing.Path(obj.path(end)), obj.styling) for obj in _flatten(morph_to, end)]
         obj_from = morphing.Paths(*paths_from)
         obj_to = morphing.Paths(*paths_to)
 
