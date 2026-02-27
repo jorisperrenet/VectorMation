@@ -1623,6 +1623,24 @@ class VObject(ABC):  # Vector Object
         self.styling.scale_y.set(start, end, _make_pulse_scale(sy0))
         return self
 
+    def ripple_scale(self, start=0, end=1, num_ripples=3, max_factor=1.3, easing=easings.smooth):
+        """Produce multiple decaying scale pulses."""
+        self._ensure_scale_origin(start)
+        sx0 = self.styling.scale_x.at_time(start)
+        sy0 = self.styling.scale_y.at_time(start)
+        s, e, dur = start, end, end - start
+        if dur <= 0:
+            return self
+        def _ripple(t, _s=s, _d=dur, _n=num_ripples, _m=max_factor, _e=easing, _sx0=sx0):
+            p = _e((t - _s) / _d)
+            decay = 1 - p  # amplitude decreases over time
+            wave = math.sin(p * _n * 2 * math.pi)
+            factor = 1 + (_m - 1) * decay * wave
+            return _sx0 * factor
+        self.styling.scale_x.set(s, e, _ripple, stay=True)
+        self.styling.scale_y.set(s, e, lambda t, _f=_ripple, _r=sy0/sx0 if sx0 else 1: _f(t) * _r, stay=True)
+        return self
+
     def flash_scale(self, factor=1.5, start: float = 0, end: float = 1, easing=easings.smooth):
         """Quickly scale up to *factor* at the midpoint then back to original size.
 
@@ -3559,6 +3577,10 @@ class VCollection:
         if not self.objects:
             return None
         return min(self.objects, key=key)
+
+    def sum_by(self, key):
+        """Sum the result of key(child) across all children."""
+        return sum(key(obj) for obj in self.objects)
 
     def shuffle(self):
         """Randomly shuffle the order of children in-place."""

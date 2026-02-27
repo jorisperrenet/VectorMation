@@ -3391,6 +3391,28 @@ class Axes(VCollection):
         self._add_plot_obj(dot)
         return dot
 
+    def add_annotation(self, x, y, text, start=0, end=None, **kwargs):
+        """Add a text annotation at graph coordinates (x, y).
+
+        This is a convenience wrapper around :meth:`add_point_label`.
+
+        Parameters
+        ----------
+        x, y:
+            Math coordinates where the annotation should appear.
+        text:
+            The label text to display.
+        start:
+            Creation time (alias for the *creation* parameter).
+        end:
+            Unused — accepted for API consistency but ignored.
+        **kwargs:
+            Extra keyword arguments forwarded to :meth:`add_point_label`
+            (e.g. ``dot_radius``, ``font_size``, ``buff``).
+        """
+        kwargs.setdefault('creation', start)
+        return self.add_point_label(x, y, text=text, **kwargs)
+
     def add_annotation_box(self, x_coord, y_coord, text, box_width=120, box_height=40,
                             offset=(60, -60), font_size=14, creation=0, z=5, **styling_kwargs):
         """Add a text box with an arrow pointing to (x_coord, y_coord).

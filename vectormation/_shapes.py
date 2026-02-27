@@ -483,6 +483,28 @@ class Polygon(VObject):
         self._bbox_version += 1
         return self
 
+    def mirror_x(self, cx=None, time=0):
+        """Mirror vertices across vertical line x=cx."""
+        pts = self.get_vertices(time)
+        if cx is None:
+            cx = sum(p[0] for p in pts) / len(pts) if pts else 0
+        for v in self.vertices:
+            vx, vy = v.at_time(time)
+            v.set_onward(time, (2 * cx - vx, vy))
+        self._bbox_version += 1
+        return self
+
+    def mirror_y(self, cy=None, time=0):
+        """Mirror vertices across horizontal line y=cy."""
+        pts = self.get_vertices(time)
+        if cy is None:
+            cy = sum(p[1] for p in pts) / len(pts) if pts else 0
+        for v in self.vertices:
+            vx, vy = v.at_time(time)
+            v.set_onward(time, (vx, 2 * cy - vy))
+        self._bbox_version += 1
+        return self
+
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 
@@ -542,6 +564,18 @@ class Ellipse(VObject):
         if a == 0:
             return 0.0
         return math.sqrt(1 - (b / a) ** 2)
+
+    def get_foci(self, time=0):
+        """Return the two foci as ((x1,y1), (x2,y2))."""
+        cx, cy = self.c.at_time(time)
+        rx = self.rx.at_time(time)
+        ry = self.ry.at_time(time)
+        if rx >= ry:
+            c = math.sqrt(rx*rx - ry*ry)
+            return ((cx - c, cy), (cx + c, cy))
+        else:
+            c = math.sqrt(ry*ry - rx*rx)
+            return ((cx, cy - c), (cx, cy + c))
 
     def point_at_angle(self, degrees, time=0):
         """Return (x, y) on the ellipse at the given angle (degrees, CCW from right)."""
@@ -696,6 +730,12 @@ class Circle(Ellipse):
         cy = (p1[1] + p2[1]) / 2
         r = math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / 2
         return cls(r=r, cx=cx, cy=cy, **kwargs)
+
+    @classmethod
+    def from_center_and_point(cls, center, point, **kwargs):
+        """Create a Circle from center and a point on the circumference."""
+        r = math.hypot(point[0] - center[0], point[1] - center[1])
+        return cls(r=r, cx=center[0], cy=center[1], **kwargs)
 
     def tangent_line(self, angle_degrees, length=100, time=0, creation=0, **line_kwargs):
         """Return a Line tangent to the circle at the given angle.
@@ -1188,6 +1228,16 @@ class Rectangle(VObject):
         """Set both dimensions."""
         _anim(self.width, start, end, width, easing)
         _anim(self.height, start, end, height, easing)
+        return self
+
+    def grow_width(self, amount, start=0, end=1, easing=easings.smooth):
+        """Animate increasing width by amount."""
+        self.width.move_to(start, end, self.width.at_time(start) + amount, easing=easing)
+        return self
+
+    def grow_height(self, amount, start=0, end=1, easing=easings.smooth):
+        """Animate increasing height by amount."""
+        self.height.move_to(start, end, self.height.at_time(start) + amount, easing=easing)
         return self
 
     def contains_point(self, px, py, time=0):
@@ -2168,6 +2218,13 @@ class Text(VObject):
         self.text.set_onward(mid, new_text)
         self.styling.opacity.set(mid, end,
             lambda t, _m=mid, _d=dur2: easing((t - _m) / _d), stay=True)
+        return self
+
+    def reverse_text(self, time=0):
+        """Reverse the text at the given time."""
+        text = self.text.at_time(time)
+        if isinstance(text, str):
+            self.text.set_onward(time, text[::-1])
         return self
 
     def underline_anim(self, start: float = 0, end: float = 1, color=None,

@@ -7939,3 +7939,56 @@ class TestAxesGetYIntercept:
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
         result = ax.get_y_intercept(lambda x: 1 / x)
         assert result is None
+
+
+class TestRippleScale:
+    def test_ripple_scale_returns_self(self):
+        """ripple_scale should return self for chaining."""
+        c = Circle(r=50, cx=100, cy=100)
+        assert c.ripple_scale(start=0, end=1) is c
+
+    def test_ripple_scale_ends_at_original(self):
+        """At end time the scale should return to approximately the original."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.ripple_scale(start=0, end=1, num_ripples=3, max_factor=1.3)
+        # At t=1 the easing gives p=1, so decay=0, factor=1 => original scale
+        sx = c.styling.scale_x.at_time(1)
+        assert sx == pytest.approx(1.0, abs=0.01)
+
+    def test_ripple_scale_oscillates_midway(self):
+        """During the animation the scale should deviate from 1.0."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.ripple_scale(start=0, end=1, num_ripples=3, max_factor=1.5)
+        # Sample at a few midpoints — at least one should be != 1.0
+        scales = [c.styling.scale_x.at_time(t) for t in [0.1, 0.2, 0.3, 0.4]]
+        assert any(abs(s - 1.0) > 0.01 for s in scales)
+
+    def test_ripple_scale_zero_duration(self):
+        """Zero-duration ripple_scale should be a no-op."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.ripple_scale(start=0.5, end=0.5)
+        assert c.styling.scale_x.at_time(0.5) == pytest.approx(1.0)
+
+
+class TestAxesAddAnnotation:
+    def test_add_annotation_returns_tuple(self):
+        """add_annotation should return a (dot, label) tuple from add_point_label."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_annotation(2, 3, 'hello')
+        # add_point_label returns (dot, label)
+        assert len(result) == 2
+
+    def test_add_annotation_label_text(self):
+        """The label should contain the provided text."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        dot, label = ax.add_annotation(1, 1, 'test_label')
+        assert label.text.at_time(0) == 'test_label'
+
+    def test_add_annotation_at_correct_position(self):
+        """The dot should be placed at the correct SVG coordinates."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        dot, label = ax.add_annotation(0, 0, 'origin')
+        expected = ax.coords_to_point(0, 0)
+        pos = dot.c.at_time(0)
+        assert pos[0] == pytest.approx(expected[0], abs=1)
+        assert pos[1] == pytest.approx(expected[1], abs=1)

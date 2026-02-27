@@ -1177,3 +1177,23 @@ class TestMaxByMinBy:
         """min_by on an empty collection should return None."""
         col = VCollection()
         assert col.min_by(key=lambda c: 0) is None
+
+    def test_sum_by_basic(self):
+        """sum_by should sum key(child) across all children."""
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        c3 = Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        total = col.sum_by(lambda c: c.rx.at_time(0))
+        assert total == pytest.approx(60)
+
+    def test_sum_by_empty(self):
+        """sum_by on an empty collection should return 0."""
+        col = VCollection()
+        assert col.sum_by(lambda _c: 1) == 0
+
+    def test_sum_by_single_child(self):
+        """sum_by with one child returns that child's value."""
+        c = Circle(r=42)
+        col = VCollection(c)
+        assert col.sum_by(lambda c: c.rx.at_time(0)) == pytest.approx(42)

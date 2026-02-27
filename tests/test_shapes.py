@@ -4949,3 +4949,166 @@ class TestPolygonSignedArea:
         """With fewer than 3 vertices, signed_area should return 0."""
         line = Polygon((0, 0), (100, 100), closed=False)
         assert line.signed_area() == 0
+
+
+class TestCircleFromCenterAndPoint:
+    def test_from_center_and_point_basic(self):
+        """Create circle from center and a point on circumference."""
+        c = Circle.from_center_and_point((100, 200), (100, 250))
+        assert c.rx.at_time(0) == pytest.approx(50)
+        cx, cy = c.c.at_time(0)
+        assert cx == pytest.approx(100)
+        assert cy == pytest.approx(200)
+
+    def test_from_center_and_point_diagonal(self):
+        """Circle from center and diagonal point computes correct radius."""
+        c = Circle.from_center_and_point((0, 0), (3, 4))
+        assert c.rx.at_time(0) == pytest.approx(5.0)
+
+    def test_from_center_and_point_kwargs(self):
+        """Extra kwargs are forwarded to the Circle constructor."""
+        c = Circle.from_center_and_point((100, 100), (100, 200), stroke='#ff0000')
+        # Styling system normalizes colors to rgb() format
+        assert 'rgb(255,0,0)' in c.styling.stroke.at_time(0)
+
+
+class TestTextReverseText:
+    def test_reverse_text_basic(self):
+        """reverse_text should reverse the current text string."""
+        t = Text('hello')
+        t.reverse_text()
+        assert t.text.at_time(0) == 'olleh'
+
+    def test_reverse_text_returns_self(self):
+        """reverse_text should return self for chaining."""
+        t = Text('abc')
+        result = t.reverse_text()
+        assert result is t
+
+    def test_reverse_text_empty(self):
+        """reverse_text on empty string stays empty."""
+        t = Text('')
+        t.reverse_text()
+        assert t.text.at_time(0) == ''
+
+
+class TestPolygonMirror:
+    def test_mirror_x_default_center(self):
+        """mirror_x with default cx mirrors across the centroid x."""
+        poly = Polygon((0, 0), (100, 0), (100, 50), (0, 50))
+        poly.mirror_x()
+        verts = poly.get_vertices()
+        # Centroid x = 50. Vertex (0,0) -> (100,0), (100,0) -> (0,0), etc.
+        xs = sorted([v[0] for v in verts])
+        assert xs[0] == pytest.approx(0)
+        assert xs[-1] == pytest.approx(100)
+
+    def test_mirror_x_custom_center(self):
+        """mirror_x with explicit cx mirrors across x=cx."""
+        poly = Polygon((10, 0), (20, 0), (20, 10))
+        poly.mirror_x(cx=0)
+        verts = poly.get_vertices()
+        # (10,0) -> (-10,0), (20,0) -> (-20,0), (20,10) -> (-20,10)
+        assert verts[0][0] == pytest.approx(-10)
+        assert verts[1][0] == pytest.approx(-20)
+        assert verts[2][0] == pytest.approx(-20)
+
+    def test_mirror_y_default_center(self):
+        """mirror_y with default cy mirrors across the centroid y."""
+        poly = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        poly.mirror_y()
+        verts = poly.get_vertices()
+        ys = sorted([v[1] for v in verts])
+        assert ys[0] == pytest.approx(0)
+        assert ys[-1] == pytest.approx(100)
+
+    def test_mirror_y_custom_center(self):
+        """mirror_y with explicit cy mirrors across y=cy."""
+        poly = Polygon((0, 10), (10, 20), (5, 30))
+        poly.mirror_y(cy=0)
+        verts = poly.get_vertices()
+        # (0,10) -> (0,-10), (10,20) -> (10,-20), (5,30) -> (5,-30)
+        assert verts[0][1] == pytest.approx(-10)
+        assert verts[1][1] == pytest.approx(-20)
+        assert verts[2][1] == pytest.approx(-30)
+
+    def test_mirror_x_returns_self(self):
+        """mirror_x returns self for chaining."""
+        poly = Polygon((0, 0), (10, 0), (10, 10))
+        assert poly.mirror_x() is poly
+
+    def test_mirror_y_returns_self(self):
+        """mirror_y returns self for chaining."""
+        poly = Polygon((0, 0), (10, 0), (10, 10))
+        assert poly.mirror_y() is poly
+
+
+class TestEllipseGetFoci:
+    def test_foci_horizontal(self):
+        """When rx > ry, foci are on the horizontal axis."""
+        e = Ellipse(rx=100, ry=60, cx=500, cy=400)
+        f1, f2 = e.get_foci()
+        import math
+        c = math.sqrt(100**2 - 60**2)
+        assert f1[0] == pytest.approx(500 - c)
+        assert f1[1] == pytest.approx(400)
+        assert f2[0] == pytest.approx(500 + c)
+        assert f2[1] == pytest.approx(400)
+
+    def test_foci_vertical(self):
+        """When ry > rx, foci are on the vertical axis."""
+        e = Ellipse(rx=30, ry=50, cx=200, cy=300)
+        f1, f2 = e.get_foci()
+        import math
+        c = math.sqrt(50**2 - 30**2)
+        assert f1[0] == pytest.approx(200)
+        assert f1[1] == pytest.approx(300 - c)
+        assert f2[0] == pytest.approx(200)
+        assert f2[1] == pytest.approx(300 + c)
+
+    def test_foci_circle(self):
+        """When rx == ry (a circle), both foci are at the center."""
+        e = Ellipse(rx=50, ry=50, cx=100, cy=100)
+        f1, f2 = e.get_foci()
+        assert f1[0] == pytest.approx(100)
+        assert f1[1] == pytest.approx(100)
+        assert f2[0] == pytest.approx(100)
+        assert f2[1] == pytest.approx(100)
+
+
+class TestRectangleGrowWidth:
+    def test_grow_width_increases(self):
+        """grow_width should increase width by the given amount at end time."""
+        r = Rectangle(width=100, height=50, x=10, y=20)
+        r.grow_width(40, start=0, end=1)
+        assert r.width.at_time(1) == pytest.approx(140)
+
+    def test_grow_width_returns_self(self):
+        """grow_width should return self for chaining."""
+        r = Rectangle(width=100, height=50, x=10, y=20)
+        assert r.grow_width(20) is r
+
+    def test_grow_width_preserves_height(self):
+        """grow_width should not change the height."""
+        r = Rectangle(width=100, height=50, x=10, y=20)
+        r.grow_width(30, start=0, end=1)
+        assert r.height.at_time(1) == pytest.approx(50)
+
+
+class TestRectangleGrowHeight:
+    def test_grow_height_increases(self):
+        """grow_height should increase height by the given amount at end time."""
+        r = Rectangle(width=100, height=50, x=10, y=20)
+        r.grow_height(25, start=0, end=1)
+        assert r.height.at_time(1) == pytest.approx(75)
+
+    def test_grow_height_returns_self(self):
+        """grow_height should return self for chaining."""
+        r = Rectangle(width=100, height=50, x=10, y=20)
+        assert r.grow_height(20) is r
+
+    def test_grow_height_negative(self):
+        """grow_height with negative amount should decrease height."""
+        r = Rectangle(width=100, height=50, x=10, y=20)
+        r.grow_height(-20, start=0, end=1)
+        assert r.height.at_time(1) == pytest.approx(30)
