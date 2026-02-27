@@ -10,7 +10,7 @@ from vectormation._constants import (
     CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
     _rotate_point, _sample_function, _distance, _normalize,
 )
-from vectormation._base import VObject, _ramp, _ramp_down, _set_attr
+from vectormation._base import VObject, VCollection, _ramp, _ramp_down, _set_attr
 from vectormation._shapes import Polygon, Circle, Rectangle, Lines
 
 class Line(VObject):
@@ -2224,3 +2224,96 @@ class FunctionGraph(Lines):
     def get_slope_at(self, math_x, dx=1e-6):
         """Return the numerical derivative (in math coordinates) at math_x."""
         return (self._func(math_x + dx) - self._func(math_x - dx)) / (2 * dx)
+
+
+# ---------------------------------------------------------------------------
+# Fractals
+# ---------------------------------------------------------------------------
+
+def _koch_points(p1, p2, depth):
+    """Recursively generate Koch curve points between p1 and p2."""
+    if depth == 0:
+        return [p1]
+    dx, dy = p2[0] - p1[0], p2[1] - p1[1]
+    a = (p1[0] + dx / 3, p1[1] + dy / 3)
+    b = (p1[0] + dx * 2 / 3, p1[1] + dy * 2 / 3)
+    # Peak: rotate (a→b) by -60° around a
+    cos60, sin60 = 0.5, math.sin(math.radians(60))
+    peak = (a[0] + (b[0] - a[0]) * cos60 - (b[1] - a[1]) * sin60,
+            a[1] + (b[0] - a[0]) * sin60 + (b[1] - a[1]) * cos60)
+    return (_koch_points(p1, a, depth - 1) +
+            _koch_points(a, peak, depth - 1) +
+            _koch_points(peak, b, depth - 1) +
+            _koch_points(b, p2, depth - 1))
+
+
+class KochSnowflake(Polygon):
+    """Koch snowflake fractal polygon.
+
+    Parameters
+    ----------
+    cx, cy : float
+        Center position.
+    size : float
+        Side length of the initial equilateral triangle.
+    depth : int
+        Recursion depth (0 = triangle, 3 is typical).
+    """
+
+    def __init__(self, cx=960, cy=540, size=400, depth=3,
+                 creation: float = 0, z: float = 0, **styling_kwargs):
+        h = size * math.sqrt(3) / 2
+        # Equilateral triangle vertices (top, bottom-left, bottom-right)
+        p1 = (cx, cy - h * 2 / 3)
+        p2 = (cx - size / 2, cy + h / 3)
+        p3 = (cx + size / 2, cy + h / 3)
+        pts = (_koch_points(p1, p2, depth) +
+               _koch_points(p2, p3, depth) +
+               _koch_points(p3, p1, depth))
+        style_kw = {'stroke': '#58C4DD', 'fill_opacity': 0.1, 'stroke_width': 2} | styling_kwargs
+        super().__init__(*pts, creation=creation, z=z, **style_kw)
+
+    def __repr__(self):
+        return f'KochSnowflake({len(self.vertices)} pts)'
+
+
+def _sierpinski_triangles(ax, ay, bx, by, cx, cy, depth):
+    """Yield filled triangle vertex tuples for a Sierpinski triangle."""
+    if depth == 0:
+        yield ((ax, ay), (bx, by), (cx, cy))
+        return
+    mx_ab, my_ab = (ax + bx) / 2, (ay + by) / 2
+    mx_bc, my_bc = (bx + cx) / 2, (by + cy) / 2
+    mx_ca, my_ca = (cx + ax) / 2, (cy + ay) / 2
+    yield from _sierpinski_triangles(ax, ay, mx_ab, my_ab, mx_ca, my_ca, depth - 1)
+    yield from _sierpinski_triangles(mx_ab, my_ab, bx, by, mx_bc, my_bc, depth - 1)
+    yield from _sierpinski_triangles(mx_ca, my_ca, mx_bc, my_bc, cx, cy, depth - 1)
+
+
+class SierpinskiTriangle(VCollection):
+    """Sierpinski triangle fractal.
+
+    Parameters
+    ----------
+    cx, cy : float
+        Center position.
+    size : float
+        Side length of the outer triangle.
+    depth : int
+        Recursion depth (0 = solid triangle, 5 is typical).
+    """
+
+    def __init__(self, cx=960, cy=540, size=500, depth=4,
+                 creation: float = 0, z: float = 0, **styling_kwargs):
+        h = size * math.sqrt(3) / 2
+        ax, ay = cx, cy - h * 2 / 3
+        bx, by = cx - size / 2, cy + h / 3
+        cx_, cy_ = cx + size / 2, cy + h / 3
+        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.8,
+                     'stroke': '#58C4DD', 'stroke_width': 1} | styling_kwargs
+        triangles = [Polygon(*tri, creation=creation, z=z, **style_kw)
+                     for tri in _sierpinski_triangles(ax, ay, bx, by, cx_, cy_, depth)]
+        super().__init__(*triangles, creation=creation, z=z)
+
+    def __repr__(self):
+        return f'SierpinskiTriangle({len(self.objects)} triangles)'

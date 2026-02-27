@@ -1907,4 +1907,5 @@ from vectormation._shapes_ext import (  # noqa: E402
     Arc, Wedge, Annulus, ArcBetweenPoints, AnnularSector,
     CubicBezier, ArcPolygon, ScreenRectangle, BackgroundRectangle, Elbow,
     _TextBlockMixin, Paragraph, BulletedList, NumberedList, FunctionGraph,
+    KochSnowflake, SierpinskiTriangle,
 )

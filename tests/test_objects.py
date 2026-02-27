@@ -14078,3 +14078,70 @@ class TestAnimatedBoundary:
         # Should be larger than the target
         rx, ry, rw, rh = r.bbox(0)
         assert x < rx and y < ry and w > rw and h > rh
+
+
+class TestKochSnowflake:
+    def test_basic(self):
+        from vectormation.objects import KochSnowflake
+        k = KochSnowflake()
+        svg = k.to_svg(0)
+        assert '<polygon' in svg
+        assert 'KochSnowflake' in repr(k)
+
+    def test_depth_0(self):
+        from vectormation.objects import KochSnowflake
+        k = KochSnowflake(depth=0)
+        # depth=0 means plain triangle → 3 vertices
+        assert len(k.vertices) == 3
+
+    def test_depth_1(self):
+        from vectormation.objects import KochSnowflake
+        k = KochSnowflake(depth=1)
+        # depth=1: each side gets 4 segments → 12 vertices
+        assert len(k.vertices) == 12
+
+    def test_custom_styling(self):
+        from vectormation.objects import KochSnowflake
+        k = KochSnowflake(stroke='red', fill='blue')
+        svg = k.to_svg(0)
+        assert 'stroke=' in svg and 'fill=' in svg
+
+    def test_size_affects_bbox(self):
+        from vectormation.objects import KochSnowflake
+        small = KochSnowflake(size=100, depth=1)
+        large = KochSnowflake(size=400, depth=1)
+        sw = small.bbox(0)[2]
+        lw = large.bbox(0)[2]
+        assert lw > sw
+
+
+class TestSierpinskiTriangle:
+    def test_basic(self):
+        from vectormation.objects import SierpinskiTriangle
+        s = SierpinskiTriangle()
+        assert len(s.objects) > 0
+        assert 'SierpinskiTriangle' in repr(s)
+
+    def test_depth_0(self):
+        from vectormation.objects import SierpinskiTriangle
+        s = SierpinskiTriangle(depth=0)
+        assert len(s.objects) == 1
+
+    def test_depth_counts(self):
+        from vectormation.objects import SierpinskiTriangle
+        for d in range(4):
+            s = SierpinskiTriangle(depth=d)
+            assert len(s.objects) == 3 ** d
+
+    def test_svg_output(self):
+        from vectormation.objects import SierpinskiTriangle
+        s = SierpinskiTriangle(depth=2)
+        for obj in s.objects:
+            svg = obj.to_svg(0)
+            assert '<polygon' in svg
+
+    def test_custom_styling(self):
+        from vectormation.objects import SierpinskiTriangle
+        s = SierpinskiTriangle(fill='red', depth=1)
+        svg = s.objects[0].to_svg(0)
+        assert 'rgb(252,98,85)' in svg

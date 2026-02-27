@@ -43,6 +43,7 @@ from vectormation._shapes import (
     ArcBetweenPoints, Elbow, AnnularSector, ArcPolygon,
     CubicBezier, Paragraph, BulletedList, NumberedList,
     SurroundingRectangle, SurroundingCircle, BackgroundRectangle, ScreenRectangle,
+    KochSnowflake, SierpinskiTriangle,
 )
 # Aliases
 Sector = Wedge
