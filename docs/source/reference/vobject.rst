@@ -171,6 +171,42 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Grow from a specified edge.
 
+   .. py:method:: slide_in(direction='right', start=0, end=1, easing=smooth, change_existence=True)
+
+      Slide in from off-screen.
+
+   .. py:method:: slide_out(direction='right', start=0, end=1, easing=smooth, change_existence=True)
+
+      Slide out to off-screen.
+
+   .. py:method:: wipe(direction='right', start=0, end=1, easing=smooth, reverse=False)
+
+      Clip-path wipe reveal (or hide if *reverse*).
+
+   .. py:method:: typewriter_reveal(start=0, end=1, direction='right', easing=smooth)
+
+      Progressive clip-path reveal (typewriter effect).
+
+   .. py:method:: typewriter_delete(start=0, end=1, direction='right', easing=smooth)
+
+      Progressive clip-path hide (reverse typewriter).
+
+   .. py:method:: reveal_clip(start=0, end=1, direction='left', easing=smooth)
+
+      Progressive reveal using clip-path inset.
+
+   .. py:method:: pop_in(start=0, end=0.5, change_existence=True)
+
+      Quick overshoot scale-in.
+
+   .. py:method:: elastic_in(start=0, end=1, change_existence=True)
+
+      Elastic bounce-in.
+
+   .. py:method:: elastic_out(start=0, end=1, change_existence=True)
+
+      Elastic bounce-out.
+
    .. rubric:: Colour & Styling
 
    .. py:method:: set_color(start, end, fill=None, stroke=None, easing=smooth, color_space='rgb')
@@ -219,7 +255,7 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Wave distortion.
 
-   .. py:method:: circumscribe(start=0, end=1, buff=14, color='#FFFF00', stroke_width=4, easing=smooth)
+   .. py:method:: circumscribe(start=0, end=1, buff=14, color=None, easing=smooth, **styling)
 
       Draw then remove a tracing rectangle. Returns a :py:class:`Path`.
 
@@ -331,13 +367,15 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Set the object height at *start*.
 
-   .. py:method:: broadcast(start=0, duration=0.5, color=None, max_radius=200)
+   .. py:method:: broadcast(start=0, duration=0.5, num_copies=3, max_scale=3, color=None)
 
-      Expanding ring broadcast from the object centre.
+      Emit expanding, fading copies from the object centre.
+      Returns a :py:class:`VCollection` (must be added to canvas).
 
-   .. py:method:: clone(n=1, direction='right', buff=SMALL_BUFF, start=0)
+   .. py:method:: clone(offset_x=0, offset_y=0, *, count=None, dx=0, dy=0, start=0)
 
-      Create *n* fading clones positioned next to self.
+      Deep copy shifted by ``(offset_x, offset_y)``. When *count* is given,
+      returns a :py:class:`VCollection` of *count* clones stepped by ``(dx, dy)``.
 
    .. py:method:: add_label(text, direction='up', buff=20, font_size=None, start=0)
 

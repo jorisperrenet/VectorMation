@@ -247,6 +247,28 @@ VCollection
 
       Assign a gradient of opacities across children.
 
+   .. rubric:: Advanced
+
+   .. py:method:: distribute_along_arc(cx=960, cy=540, radius=300, start_angle=0, end_angle=360, start=0)
+
+      Place children along an arc.
+
+   .. py:method:: fan_out(cx=960, cy=540, radius=300, start_angle=-45, end_angle=45, start=0)
+
+      Spread children in a fan pattern.
+
+   .. py:method:: cascade_fadein(start=0, delay=0.15, duration=0.5, easing=smooth)
+
+      Staggered fade-in of children with delay.
+
+   .. py:method:: connect_children(start=0, stroke='#fff', stroke_width=2)
+
+      Draw lines connecting consecutive children.
+
+   .. py:method:: batch_animate(method_name, args_list, start=0, delay=0.1)
+
+      Call a method on each child with per-child arguments.
+
 ----
 
 MorphObject

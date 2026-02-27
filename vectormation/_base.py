@@ -1431,13 +1431,13 @@ class VObject(ABC):  # Vector Object
         for i in range(n_segs):
             t0 = start + i * seg_dur
             t1 = t0 + seg_dur
-            _r0, _g0, _b0 = parsed[i]
-            _r1, _g1, _b1 = parsed[i + 1]
+            r0, g0, b0 = parsed[i]
+            r1, g1, b1 = parsed[i + 1]
             _t0, _d = t0, seg_dur
             style_attr.set(t0, t1,
                 lambda t, _s=_t0, _dd=_d,
-                       _r0=_r0, _g0=_g0, _b0=_b0,
-                       _r1=_r1, _g1=_g1, _b1=_b1: (
+                       _r0=r0, _g0=g0, _b0=b0,
+                       _r1=r1, _g1=g1, _b1=b1: (
                     _r0 + (_r1 - _r0) * ((t - _s) / _dd),
                     _g0 + (_g1 - _g0) * ((t - _s) / _dd),
                     _b0 + (_b1 - _b0) * ((t - _s) / _dd)),
@@ -3129,20 +3129,15 @@ class VObject(ABC):  # Vector Object
             copy.show.set_onward(t0, True)
             sx0 = copy.styling.scale_x.at_time(t0)
             sy0 = copy.styling.scale_y.at_time(t0)
-            _s, _d = t0, max(t1 - t0, 1e-9)
-            _sx0, _sy0, _ms = sx0, sy0, max_scale
+            dur = max(t1 - t0, 1e-9)
             copy.styling.scale_x.set(t0, t1,
-                lambda t, _s=_s, _d=_d, _sx0=_sx0, _ms=_ms:
-                    _sx0 * (1 + (_ms - 1) * ((t - _s) / _d)),
-                stay=True)
+                _lerp(t0, dur, sx0, sx0 * max_scale, easings.linear), stay=True)
             copy.styling.scale_y.set(t0, t1,
-                lambda t, _s=_s, _d=_d, _sy0=_sy0, _ms=_ms:
-                    _sy0 * (1 + (_ms - 1) * ((t - _s) / _d)),
-                stay=True)
+                _lerp(t0, dur, sy0, sy0 * max_scale, easings.linear), stay=True)
             copy.styling.fill_opacity.set(t0, t1,
-                lambda t, _s=_s, _d=_d: max(0, 1 - (t - _s) / _d), stay=True)
+                _ramp_down(t0, dur, 1, easings.linear), stay=True)
             copy.styling.stroke_opacity.set(t0, t1,
-                lambda t, _s=_s, _d=_d: max(0, 1 - (t - _s) / _d), stay=True)
+                _ramp_down(t0, dur, 1, easings.linear), stay=True)
             if color:
                 copy.styling.stroke.set_onward(t0, color)
                 copy.styling.fill.set_onward(t0, color)

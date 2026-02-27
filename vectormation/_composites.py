@@ -1206,8 +1206,8 @@ class Axes(VCollection):
                     pts = []
                     n = max(len(old_data), len(new_data))
                     for i in range(n):
-                        ox, oy = old_data[i] if i < len(old_data) else old_data[-1]
-                        nx, ny = new_data[i] if i < len(new_data) else new_data[-1]
+                        ox, oy = old_data[i] if i < len(old_data) else (old_data[-1] if old_data else new_data[i])
+                        nx, ny = new_data[i] if i < len(new_data) else (new_data[-1] if new_data else old_data[i])
                         ix = ox + (nx - ox) * p
                         iy = oy + (ny - oy) * p
                         pts.append((axes_ref._math_to_svg_x(ix, time),

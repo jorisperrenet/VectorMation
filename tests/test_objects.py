@@ -13438,3 +13438,76 @@ class TestRotateChildren:
         g = VGroup()
         result = g.rotate_children()
         assert result is g
+
+
+class TestEmphasize:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.emphasize(start=0, duration=0.8) is c
+
+    def test_scale_changes(self):
+        c = Circle()
+        c.emphasize(start=0, duration=0.5, scale_factor=1.3)
+        mid = c.styling.scale_x.at_time(0.25)
+        assert mid > 1.0
+
+
+class TestGrowFromPoint:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.grow_from_point(960, 540, start=0, end=1) is c
+
+    def test_invisible_at_start(self):
+        c = Circle()
+        c.grow_from_point(960, 540, start=0, end=1)
+        sx = c.styling.scale_x.at_time(0)
+        assert sx < 0.01
+
+
+class TestShrinkToPoint:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.shrink_to_point(960, 540, start=0, end=1) is c
+
+
+class TestShrinkToEdge:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.shrink_to_edge('bottom', start=0, end=1) is c
+
+
+class TestSpiralOut:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.spiral_out(start=0, end=1) is c
+
+
+class TestShowPassingFlash:
+    def test_returns_path(self):
+        c = Circle()
+        result = c.show_passing_flash(start=0, end=1)
+        assert isinstance(result, Path)
+
+
+class TestSequential:
+    def test_returns_self(self):
+        g = VGroup(Circle(), Dot())
+        result = g.sequential('fadein', start=0, end=1)
+        assert result is g
+
+
+class TestForEach:
+    def test_calls_method(self):
+        g = VGroup(Circle(cx=100), Circle(cx=200))
+        g.for_each('set_fill', color='#ff0000')
+        # No crash = success
+
+
+class TestReverseChildren:
+    def test_reverses_order(self):
+        c1 = Circle(cx=100)
+        c2 = Circle(cx=200)
+        g = VGroup(c1, c2)
+        g.reverse_children()
+        assert g.objects[0] is c2
+        assert g.objects[1] is c1

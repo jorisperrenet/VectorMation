@@ -4,7 +4,7 @@ Text & LaTeX
 Text
 ----
 
-.. py:class:: Text(text='', x=960, y=540, font_size=30, text_anchor=None, **styling)
+.. py:class:: Text(text='', x=960, y=540, font_size=48, text_anchor=None, font_family=None, **styling)
 
    Plain SVG ``<text>`` element.
 
