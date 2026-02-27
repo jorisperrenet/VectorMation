@@ -79,9 +79,7 @@ class VCollection(_BBoxMethodsMixin):
             )
         return self.objects[index]
 
-    def nth(self, n):
-        """Alias for :meth:`get_child`."""
-        return self.get_child(n)
+    nth = get_child
 
     def first(self):
         """Return the first child object."""
@@ -589,20 +587,11 @@ class VCollection(_BBoxMethodsMixin):
     def radial_arrange(self, radius=200, start_angle=0, center=None,
                        start: float = 0):
         """Arrange children in a circle instantly (defaults center to collection bbox center)."""
-        n = len(self.objects)
-        if n == 0:
-            return self
         if center is None:
             center = self.center(start)
         cx, cy = center
-        for i, obj in enumerate(self.objects):
-            angle = start_angle + math.tau * i / n
-            tx = cx + radius * math.cos(angle)
-            ty = cy + radius * math.sin(angle)
-            obj_cx, obj_cy = obj.center(start)
-            dx, dy = tx - obj_cx, ty - obj_cy
-            obj.shift(dx=dx, dy=dy, start=start)
-        return self
+        return self.distribute_radial(cx=cx, cy=cy, radius=radius,
+                                      start_angle=start_angle, start=start)
 
     @staticmethod
     def _grid_dims(n, rows, cols):
@@ -732,9 +721,7 @@ class VCollection(_BBoxMethodsMixin):
             getattr(obj, method_name)(start=start + i * dt, end=start + (i + 1) * dt, **kwargs)
         return self
 
-    def apply_sequential(self, method_name, start=0, end=1, **kwargs):
-        """Alias for :meth:`apply_sequentially`."""
-        return self.apply_sequentially(method_name, start=start, end=end, **kwargs)
+    apply_sequential = apply_sequentially
 
     def spread(self, x1, y1, x2, y2, start: float = 0):
         """Distribute children evenly along a line from (x1, y1) to (x2, y2)."""
@@ -1485,18 +1472,9 @@ class VCollection(_BBoxMethodsMixin):
                 radius: float = 200, start: float = 0, end: float = 1,
                 easing=easings.smooth):
         """Animate children spreading radially from a center point to evenly spaced positions."""
-        n = len(self.objects)
-        if n == 0:
-            return self
         cx, cy = self._resolve_center(start, cx, cy)
-        for i, obj in enumerate(self.objects):
-            angle = math.tau * i / n
-            tx = cx + radius * math.cos(angle)
-            ty = cy + radius * math.sin(angle)
-            obj_cx, obj_cy = obj.center(start)
-            dx, dy = tx - obj_cx, ty - obj_cy
-            obj.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
-        return self
+        return self.distribute_radial(cx=cx, cy=cy, radius=radius,
+                                      start=start, end=end, easing=easing)
 
     def align_centers(self, axis='x', value: float | None = None,
                       start: float = 0, end: float | None = None,

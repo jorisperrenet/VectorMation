@@ -1020,9 +1020,7 @@ class Axes(_AxesExtMixin, VCollection):
         ys = [fn(x) for x in xs]
         return sum(0.5 * (ys[i] + ys[i + 1]) * step for i in range(n))
 
-    def get_integral(self, func, x_start, x_end, samples=200):
-        """Alias for :meth:`get_area_value`."""
-        return self.get_area_value(func, x_start, x_end, samples=samples)
+    get_integral = get_area_value
 
     def get_average(self, func, x_start=None, x_end=None, samples=200):
         """Return the average value of *func* over [x_start, x_end]."""

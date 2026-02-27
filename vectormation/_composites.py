@@ -642,9 +642,7 @@ class Table(VCollection):
         """Return the Text object at (row, col) for animation."""
         return self.entries[row][col]
 
-    def get_cell(self, row, col):
-        """Alias for :meth:`get_entry`."""
-        return self.get_entry(row, col)
+    get_cell = get_entry
 
     def get_cell_rect(self, row, col, padding=2, **kwargs):
         """Return a Rectangle covering the cell at (row, col)."""
