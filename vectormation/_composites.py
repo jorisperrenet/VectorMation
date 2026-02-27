@@ -9390,9 +9390,8 @@ class Callout(VCollection):
         direction = _norm_dir(direction, 'up')
 
         # Resolve target position
-        if hasattr(target, 'bbox'):
-            bx, by, bw, bh = target.bbox(creation)
-            tx, ty = bx + bw / 2, by + bh / 2
+        if hasattr(target, 'center'):
+            tx, ty = target.center(creation)
         else:
             tx, ty = target
 
@@ -9637,8 +9636,7 @@ class Stamp(VCollection):
         objects = []
         for px, py in points:
             c = deepcopy(template)
-            bx, by, bw, bh = c.bbox(creation)
-            cx, cy = bx + bw / 2, by + bh / 2
+            cx, cy = c.center(creation)
             c.shift(dx=px - cx, dy=py - cy, start=creation)
             objects.append(c)
         super().__init__(*objects, creation=creation, z=z)
@@ -11511,9 +11509,9 @@ class SampleSpace(VCollection):
         self._parts = [r1, r2]
         if labels:
             for rect, label in zip([r1, r2], labels):
-                bx, by, bw, bh = rect.bbox(creation)
+                rcx, rcy = rect.center(creation)
                 self.objects.append(
-                    _label_text(label, bx + bw / 2, by + bh / 2, 24,
+                    _label_text(label, rcx, rcy, 24,
                                 creation=creation, z=z + 0.2))
         return self
 
@@ -11534,9 +11532,9 @@ class SampleSpace(VCollection):
         self._parts = [r1, r2]
         if labels:
             for rect, label in zip([r1, r2], labels):
-                bx, by, bw, bh = rect.bbox(creation)
+                rcx, rcy = rect.center(creation)
                 self.objects.append(
-                    _label_text(label, bx + bw / 2, by + bh / 2, 24,
+                    _label_text(label, rcx, rcy, 24,
                                 creation=creation, z=z + 0.2))
         return self
 

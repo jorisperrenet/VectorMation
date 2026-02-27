@@ -3872,12 +3872,12 @@ class VObject(ABC):  # Vector Object
         Uses an updater to track other's center and reposition self each frame.
         Returns self."""
         def _bind(obj, time, _other=other, _ox=offset_x, _oy=offset_y):
-            bx, by, bw, bh = _other.bbox(time)
-            target_x = bx + bw / 2 + _ox
-            target_y = by + bh / 2 + _oy
-            sx, sy, sw, sh = obj.bbox(time)
-            dx = target_x - (sx + sw / 2)
-            dy = target_y - (sy + sh / 2)
+            ocx, ocy = _other.center(time)
+            target_x = ocx + _ox
+            target_y = ocy + _oy
+            scx, scy = obj.center(time)
+            dx = target_x - scx
+            dy = target_y - scy
             if abs(dx) > 0.01 or abs(dy) > 0.01:
                 for xa, ya in obj._shift_reals():
                     xa.set_onward(time, xa.at_time(time) + dx)
