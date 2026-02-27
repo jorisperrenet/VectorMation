@@ -5132,6 +5132,57 @@ class VObject(ABC):  # Vector Object
         self.to_svg = _gradient_to_svg  # type: ignore[assignment]
         return self
 
+    def set_lifetime(self, start, end):
+        """Set bounded visibility: visible only from *start* to *end*.
+
+        The object becomes visible at *start* and invisible at *end*.
+        Returns self for chaining.
+        """
+        self.set_visible(True, start)
+        self.set_visible(False, end)
+        return self
+
+    def get_style(self, time=0):
+        """Return the current styling as a dict at the given time.
+
+        Returns a dict with keys: fill, stroke, fill_opacity, stroke_opacity,
+        stroke_width, opacity.
+        """
+        return {
+            'fill': self.styling.fill.at_time(time),
+            'stroke': self.styling.stroke.at_time(time),
+            'fill_opacity': self.styling.fill_opacity.at_time(time),
+            'stroke_opacity': self.styling.stroke_opacity.at_time(time),
+            'stroke_width': self.styling.stroke_width.at_time(time),
+            'opacity': self.styling.opacity.at_time(time),
+        }
+
+    def move_towards(self, other, fraction=0.5, start=0, end=None, easing=None):
+        """Move a fraction of the way toward another object or point.
+
+        Parameters
+        ----------
+        other:
+            A VObject (uses its center) or an (x, y) tuple.
+        fraction:
+            How far to move (0 = stay, 1 = reach other's center).
+        start:
+            Start time for the animation.
+        end:
+            End time (None = instant move).
+        easing:
+            Easing function for the animation.
+        """
+        cx, cy = self.get_center(start)
+        if hasattr(other, 'get_center'):
+            tx, ty = other.get_center(start)
+        else:
+            tx, ty = other
+        nx = cx + fraction * (tx - cx)
+        ny = cy + fraction * (ty - cy)
+        return self.center_to_pos(posx=nx, posy=ny, start_time=start,
+                                  end_time=end, easing=easing or easings.smooth)
+
 
 class VCollection:
     """Container for a group of VObjects, delegating operations to children."""
@@ -7735,6 +7786,53 @@ class VCollection:
                 obj.shift(dx=delta, start_time=0)
             else:
                 obj.shift(dy=delta, start_time=0)
+        return self
+
+    def sort_by_distance(self, point, reverse=False, start_time=0):
+        """Sort children by distance from a point.
+
+        Parameters
+        ----------
+        point:
+            An (x, y) tuple to measure distance from.
+        reverse:
+            If True, sort farthest first.
+        start_time:
+            Time at which to evaluate each child's center.
+
+        Returns self.
+        """
+        px, py = point
+        self.objects.sort(
+            key=lambda obj: math.hypot(obj.center(start_time)[0] - px,
+                                       obj.center(start_time)[1] - py),
+            reverse=reverse,
+        )
+        return self
+
+    def apply_each(self, method_name, **per_child_kwargs):
+        """Call a method on each child with per-child arguments.
+
+        Each keyword argument should be a list whose length matches the
+        number of children.  For child *i*, the i-th element of each list
+        is passed as the corresponding keyword argument.
+
+        Example::
+
+            col.apply_each('set_fill', color=['#f00', '#0f0', '#00f'])
+
+        Returns self.
+        """
+        n = len(self.objects)
+        for key, values in per_child_kwargs.items():
+            if len(values) != n:
+                raise ValueError(
+                    f"Length of '{key}' ({len(values)}) does not match "
+                    f"number of children ({n})"
+                )
+        for i, child in enumerate(self.objects):
+            kwargs_i = {key: values[i] for key, values in per_child_kwargs.items()}
+            getattr(child, method_name)(**kwargs_i)
         return self
 
 

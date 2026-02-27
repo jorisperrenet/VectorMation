@@ -10777,3 +10777,279 @@ class TestAxesAddFilledCurve:
         result = ax.add_filled_curve(lambda x: x**2, color='#FF0000',
                                      opacity=0.5, reveal=False)
         assert isinstance(result, VCollection)
+
+
+# ---------------------------------------------------------------------------
+# Path.tangent_at
+# ---------------------------------------------------------------------------
+
+class TestPathTangentAt:
+    def test_horizontal_path_tangent(self):
+        """Tangent of a horizontal line path should point right."""
+        p = Path('M0,0 L100,0')
+        dx, dy = p.tangent_at(0.5)
+        assert dx == pytest.approx(1.0, abs=1e-3)
+        assert dy == pytest.approx(0.0, abs=1e-3)
+
+    def test_vertical_path_tangent(self):
+        """Tangent of a vertical line path should point down."""
+        p = Path('M0,0 L0,100')
+        dx, dy = p.tangent_at(0.5)
+        assert dx == pytest.approx(0.0, abs=1e-3)
+        assert dy == pytest.approx(1.0, abs=1e-3)
+
+    def test_unit_vector(self):
+        """Tangent should be a unit vector."""
+        p = Path('M0,0 L30,40')
+        dx, dy = p.tangent_at(0.5)
+        mag = math.hypot(dx, dy)
+        assert mag == pytest.approx(1.0, abs=1e-6)
+
+    def test_diagonal_direction(self):
+        """Tangent on a 45-degree path should have equal dx and dy."""
+        p = Path('M0,0 L100,100')
+        dx, dy = p.tangent_at(0.5)
+        assert abs(dx) == pytest.approx(abs(dy), abs=1e-3)
+
+    def test_empty_path(self):
+        """Empty path should return (0, 0)."""
+        p = Path('')
+        assert p.tangent_at(0.5) == (0.0, 0.0)
+
+    def test_proportion_at_start(self):
+        """Tangent at proportion=0 should work."""
+        p = Path('M0,0 L100,0')
+        dx, dy = p.tangent_at(0.0)
+        assert dx == pytest.approx(1.0, abs=1e-3)
+
+    def test_proportion_at_end(self):
+        """Tangent at proportion=1 should work."""
+        p = Path('M0,0 L100,0')
+        dx, dy = p.tangent_at(1.0)
+        assert dx == pytest.approx(1.0, abs=1e-3)
+
+
+# ---------------------------------------------------------------------------
+# Line.from_slope_point
+# ---------------------------------------------------------------------------
+
+class TestLineFromSlopePoint:
+    def test_horizontal_line(self):
+        """Slope 0 should produce a horizontal line."""
+        line = Line.from_slope_point(0, (960, 540), length=200)
+        s = line.get_start()
+        e = line.get_end()
+        assert s[1] == pytest.approx(540)
+        assert e[1] == pytest.approx(540)
+        assert line.get_length() == pytest.approx(200, abs=1)
+
+    def test_vertical_line(self):
+        """Infinite slope should produce a vertical line."""
+        line = Line.from_slope_point(float('inf'), (960, 540), length=200)
+        s = line.get_start()
+        e = line.get_end()
+        assert s[0] == pytest.approx(960)
+        assert e[0] == pytest.approx(960)
+        assert line.get_length() == pytest.approx(200, abs=1)
+
+    def test_negative_inf_slope(self):
+        """Negative infinite slope should also produce a vertical line."""
+        line = Line.from_slope_point(float('-inf'), (960, 540), length=200)
+        s = line.get_start()
+        e = line.get_end()
+        assert s[0] == pytest.approx(960)
+        assert e[0] == pytest.approx(960)
+
+    def test_slope_1_diagonal(self):
+        """Slope 1 should give a 45-degree line."""
+        line = Line.from_slope_point(1, (100, 100), length=200)
+        assert line.get_length() == pytest.approx(200, abs=1)
+        slope = line.get_slope()
+        assert slope == pytest.approx(1.0, abs=1e-6)
+
+    def test_centered_at_point(self):
+        """The midpoint should be at the given point."""
+        line = Line.from_slope_point(0, (500, 300), length=200)
+        mid = line.get_midpoint()
+        assert mid[0] == pytest.approx(500, abs=1e-6)
+        assert mid[1] == pytest.approx(300, abs=1e-6)
+
+    def test_custom_length(self):
+        """Custom length should be respected."""
+        line = Line.from_slope_point(2, (0, 0), length=500)
+        assert line.get_length() == pytest.approx(500, abs=1)
+
+    def test_kwargs_forwarded(self):
+        """Extra kwargs should reach the Line constructor."""
+        line = Line.from_slope_point(0, (960, 540), stroke='#ff0000')
+        svg = line.to_svg(0)
+        assert 'rgb(255,0,0)' in svg or '#ff0000' in svg
+
+
+# ---------------------------------------------------------------------------
+# Table.transpose
+# ---------------------------------------------------------------------------
+
+class TestTableTranspose:
+    def test_dimensions_swapped(self):
+        """After transpose, rows and cols should swap."""
+        t = Table([[1, 2, 3], [4, 5, 6]])
+        assert t.rows == 2
+        assert t.cols == 3
+        t.transpose()
+        assert t.rows == 3
+        assert t.cols == 2
+
+    def test_entries_rearranged(self):
+        """Entries grid should reflect the transposition."""
+        t = Table([[1, 2, 3], [4, 5, 6]])
+        # Before: entries[0][1] has text '2'
+        assert t.entries[0][1].text.at_time(0) == '2'
+        t.transpose()
+        # After transpose: what was row 0 col 1 is now row 1 col 0
+        assert t.entries[1][0].text.at_time(0) == '2'
+
+    def test_all_entries_preserved(self):
+        """All original entries should still be present."""
+        data = [[1, 2], [3, 4]]
+        t = Table(data)
+        original_texts = set()
+        for r in range(t.rows):
+            for c in range(t.cols):
+                original_texts.add(t.entries[r][c].text.at_time(0))
+        t.transpose()
+        transposed_texts = set()
+        for r in range(t.rows):
+            for c in range(t.cols):
+                transposed_texts.add(t.entries[r][c].text.at_time(0))
+        assert original_texts == transposed_texts
+
+    def test_returns_self(self):
+        """transpose() should return self for chaining."""
+        t = Table([[1, 2], [3, 4]])
+        result = t.transpose()
+        assert result is t
+
+    def test_animated_transpose(self):
+        """Animated transpose should not error."""
+        t = Table([[1, 2], [3, 4]])
+        t.transpose(start=0, end=1)
+        assert t.rows == 2
+        assert t.cols == 2
+
+    def test_square_table_transpose(self):
+        """Transposing a square table should swap off-diagonal entries."""
+        t = Table([['a', 'b'], ['c', 'd']])
+        t.transpose()
+        # (0,1) was 'b', after transpose entries[1][0] should be 'b'
+        assert t.entries[1][0].text.at_time(0) == 'b'
+        assert t.entries[0][1].text.at_time(0) == 'c'
+
+
+# ---------------------------------------------------------------------------
+# Axes.mark_intersection
+# ---------------------------------------------------------------------------
+
+class TestAxesGetGraphIntersection:
+    def test_finds_intersection(self):
+        """Should find intersection of two crossing functions."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        f1 = lambda x: x
+        f2 = lambda x: -x + 2
+        dot = ax.mark_intersection(f1, f2, x_range=(0, 3))
+        assert dot is not None
+
+    def test_returns_dot(self):
+        """Without label, should return a Dot."""
+        from vectormation.objects import Dot as DotCls
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        dot = ax.mark_intersection(lambda x: x, lambda x: 2 - x, x_range=(0, 3))
+        assert isinstance(dot, DotCls)
+
+    def test_with_label_returns_collection(self):
+        """With label, should return a VCollection."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.mark_intersection(
+            lambda x: x, lambda x: 2 - x,
+            x_range=(0, 3), label='P')
+        assert isinstance(result, VCollection)
+
+    def test_no_intersection_returns_none(self):
+        """Non-crossing functions should return None."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.mark_intersection(
+            lambda x: x + 10, lambda x: x - 10, x_range=(-5, 5))
+        assert result is None
+
+    def test_default_x_range(self):
+        """When x_range is None, should use axes' x range."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        dot = ax.mark_intersection(lambda x: x, lambda x: -x)
+        # x=0, y=0 is the intersection
+        assert dot is not None
+
+    def test_kwargs_forwarded_to_dot(self):
+        """Extra kwargs like fill and r should reach the Dot."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        dot = ax.mark_intersection(
+            lambda x: x, lambda x: -x,
+            fill='#00FF00', r=10)
+        svg = dot.to_svg(0)
+        assert 'rgb(0,255,0)' in svg or '#00FF00' in svg
+        assert "r='10'" in svg
+
+
+# ---------------------------------------------------------------------------
+# Brace.for_range
+# ---------------------------------------------------------------------------
+
+class TestBraceForRange:
+    def test_x_range_creates_brace(self):
+        """for_range on x-axis should produce a Brace."""
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        b = Brace.for_range(ax, 'x', 2, 8)
+        assert isinstance(b, Brace)
+
+    def test_y_range_creates_brace(self):
+        """for_range on y-axis should produce a Brace."""
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        b = Brace.for_range(ax, 'y', 1, 5)
+        assert isinstance(b, Brace)
+
+    def test_invalid_axis_raises(self):
+        """Invalid axis should raise ValueError."""
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        with pytest.raises(ValueError):
+            Brace.for_range(ax, 'z', 0, 5)
+
+    def test_with_label(self):
+        """Brace with label should include text."""
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        b = Brace.for_range(ax, 'x', 2, 8, label=r'$\Delta x$')
+        # Label adds a second object to the brace collection
+        assert len(b.objects) == 2
+
+    def test_default_direction_x(self):
+        """Default direction for x-axis should be 'down'."""
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        b = Brace.for_range(ax, 'x', 2, 8)
+        assert b._direction == 'down'
+
+    def test_default_direction_y(self):
+        """Default direction for y-axis should be 'left'."""
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        b = Brace.for_range(ax, 'y', 1, 5)
+        assert b._direction == 'left'
+
+    def test_custom_direction(self):
+        """Custom direction should override the default."""
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        b = Brace.for_range(ax, 'x', 2, 8, direction='up')
+        assert b._direction == 'up'
+
+    def test_renders_svg(self):
+        """Brace should render valid SVG."""
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        b = Brace.for_range(ax, 'x', 2, 8)
+        svg = b.to_svg(0)
+        assert '<path' in svg or '<g' in svg

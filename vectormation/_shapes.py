@@ -3607,6 +3607,45 @@ class Line(VObject):
         return cls(ox, oy, ox + dx * length, oy + dy * length, **kwargs)
 
     @classmethod
+    def from_slope_point(cls, slope, point, length=200, **kwargs):
+        """Create a Line passing through *point* with the given *slope*.
+
+        The line is centered at *point* and extends *length/2* pixels in
+        each direction along the slope.
+
+        Parameters
+        ----------
+        slope:
+            The slope (dy/dx) of the line.  Use ``float('inf')`` or
+            ``float('-inf')`` for vertical lines.
+        point:
+            ``(px, py)`` — a point the line passes through.
+        length:
+            Total length of the resulting line in pixels.
+        **kwargs:
+            Forwarded to the :class:`Line` constructor.
+
+        Returns
+        -------
+        Line
+
+        Examples
+        --------
+        >>> Line.from_slope_point(1, (960, 540))       # 45-degree line
+        >>> Line.from_slope_point(0, (960, 540))        # horizontal line
+        >>> Line.from_slope_point(float('inf'), (960, 540))  # vertical line
+        """
+        px, py = point
+        half = length / 2
+        if math.isinf(slope):
+            # Vertical line
+            return cls(px, py - half, px, py + half, **kwargs)
+        dx = 1.0 / math.sqrt(1 + slope * slope)
+        dy = slope * dx
+        return cls(px - dx * half, py - dy * half,
+                   px + dx * half, py + dy * half, **kwargs)
+
+    @classmethod
     def from_objects(cls, obj_a, obj_b, buff=0, **kwargs):
         """Create a Line connecting the nearest edges of two objects.
 
@@ -5223,6 +5262,40 @@ class Path(VObject):
             return (pt.real, pt.imag)
         pt = parsed.point(parsed.ilength(total * max(0, min(1, proportion))))
         return (pt.real, pt.imag)
+
+    def tangent_at(self, proportion, time=0):
+        """Return the unit tangent direction (dx, dy) at a proportional distance along the path.
+
+        Parameters
+        ----------
+        proportion:
+            A value in [0, 1] specifying the position along the arc length.
+        time:
+            Animation time at which to read the path data.
+
+        Returns
+        -------
+        (dx, dy)
+            A unit vector tuple representing the tangent direction at the
+            given proportion.  Returns ``(0.0, 0.0)`` for empty or
+            zero-length paths.
+        """
+        d = self.d.at_time(time)
+        if not d:
+            return (0.0, 0.0)
+        from svgpathtools import parse_path
+        parsed = parse_path(d)
+        total = parsed.length()
+        if total == 0:
+            return (0.0, 0.0)
+        t_param = parsed.ilength(total * max(0, min(1, proportion)))
+        # derivative() returns a complex number (dx + dy*j)
+        deriv = parsed.derivative(t_param)
+        dx, dy = deriv.real, deriv.imag
+        mag = math.hypot(dx, dy)
+        if mag < 1e-12:
+            return (0.0, 0.0)
+        return (dx / mag, dy / mag)
 
     def trim(self, t_start=0.0, t_end=1.0, time=0):
         """Return a new Path representing the sub-path between proportions

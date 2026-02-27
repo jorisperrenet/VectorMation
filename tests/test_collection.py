@@ -3508,3 +3508,86 @@ class TestArrangeInCircle:
             cx, cy = c.center(0)
             dist = math.sqrt((cx - 400)**2 + (cy - 400)**2)
             assert dist == pytest.approx(150, abs=2)
+
+
+class TestSortByDistance:
+    def test_sorts_nearest_first(self):
+        c1 = Circle(r=5, cx=100, cy=100)
+        c2 = Circle(r=5, cx=10, cy=10)
+        c3 = Circle(r=5, cx=50, cy=50)
+        col = VCollection(c1, c2, c3)
+        col.sort_by_distance((0, 0))
+        # c2 is closest to origin, then c3, then c1
+        assert col[0] is c2
+        assert col[1] is c3
+        assert col[2] is c1
+
+    def test_sorts_farthest_first(self):
+        c1 = Circle(r=5, cx=100, cy=100)
+        c2 = Circle(r=5, cx=10, cy=10)
+        c3 = Circle(r=5, cx=50, cy=50)
+        col = VCollection(c1, c2, c3)
+        col.sort_by_distance((0, 0), reverse=True)
+        assert col[0] is c1
+        assert col[2] is c2
+
+    def test_returns_self(self):
+        c1 = Circle(r=5, cx=10, cy=10)
+        col = VCollection(c1)
+        result = col.sort_by_distance((0, 0))
+        assert result is col
+
+    def test_single_element(self):
+        c = Circle(r=5, cx=50, cy=50)
+        col = VCollection(c)
+        col.sort_by_distance((0, 0))
+        assert col[0] is c
+
+    def test_custom_point(self):
+        c1 = Circle(r=5, cx=0, cy=0)
+        c2 = Circle(r=5, cx=200, cy=200)
+        c3 = Circle(r=5, cx=100, cy=100)
+        col = VCollection(c1, c2, c3)
+        # Sort relative to (200, 200) — c2 is closest
+        col.sort_by_distance((200, 200))
+        assert col[0] is c2
+        assert col[2] is c1
+
+
+class TestApplyEach:
+    def test_apply_each_set_fill(self):
+        c1 = Circle(r=5, cx=0, cy=0)
+        c2 = Circle(r=5, cx=50, cy=50)
+        c3 = Circle(r=5, cx=100, cy=100)
+        col = VCollection(c1, c2, c3)
+        col.apply_each('set_fill', color=['#ff0000', '#00ff00', '#0000ff'])
+        assert 'rgb(255,0,0)' in c1.styling.fill.at_time(0)
+        assert 'rgb(0,255,0)' in c2.styling.fill.at_time(0)
+        assert 'rgb(0,0,255)' in c3.styling.fill.at_time(0)
+
+    def test_apply_each_multiple_kwargs(self):
+        c1 = Circle(r=5, cx=0, cy=0)
+        c2 = Circle(r=5, cx=50, cy=50)
+        col = VCollection(c1, c2)
+        col.apply_each('set_fill', color=['#ff0000', '#00ff00'],
+                        opacity=[0.5, 0.8])
+        assert c1.styling.fill_opacity.at_time(0) == pytest.approx(0.5)
+        assert c2.styling.fill_opacity.at_time(0) == pytest.approx(0.8)
+
+    def test_returns_self(self):
+        c1 = Circle(r=5, cx=0, cy=0)
+        col = VCollection(c1)
+        result = col.apply_each('set_fill', color=['#ff0000'])
+        assert result is col
+
+    def test_mismatched_length_raises(self):
+        c1 = Circle(r=5, cx=0, cy=0)
+        c2 = Circle(r=5, cx=50, cy=50)
+        col = VCollection(c1, c2)
+        with pytest.raises(ValueError, match="does not match"):
+            col.apply_each('set_fill', color=['#ff0000'])
+
+    def test_empty_collection(self):
+        col = VCollection()
+        result = col.apply_each('set_fill')
+        assert result is col

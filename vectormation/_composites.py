@@ -4751,6 +4751,56 @@ class Axes(VCollection):
         y = (func1(x) + func2(x)) / 2
         return (x, y)
 
+    def mark_intersection(self, func1, func2, x_range=None, creation=0,
+                          label=None, **kwargs):
+        """Find the intersection of two functions and place a Dot there.
+
+        Uses :meth:`get_intersection_point` to find the crossing, creates a
+        :class:`Dot` at the corresponding SVG position, and optionally adds a
+        :class:`Text` label above the dot.
+
+        Parameters
+        ----------
+        func1, func2:
+            Callables ``f(x) -> y`` whose intersection is sought.
+        x_range:
+            ``(a, b)`` search interval.  If ``None`` the axes' x-range is used.
+        creation:
+            Creation time for the dot (and label).
+        label:
+            Optional label string displayed above the dot.
+        **kwargs:
+            Forwarded to the :class:`Dot` constructor (e.g. ``fill``, ``r``).
+
+        Returns
+        -------
+        Dot or VCollection
+            The dot if no label was requested, otherwise a
+            :class:`VCollection` containing the dot and label text.
+            Returns ``None`` if no intersection was found.
+        """
+        if x_range is None:
+            x_range = (self.x_min.at_time(creation), self.x_max.at_time(creation))
+        result = self.get_intersection_point(func1, func2, x_range)
+        if result is None:
+            return None
+        ix, iy = result
+        sx, sy = self.coords_to_point(ix, iy, time=creation)
+
+        dot_kw = {'fill': '#FF6B6B', 'r': 6} | kwargs
+        dot = Dot(cx=sx, cy=sy, creation=creation, **dot_kw)
+        self._add_plot_obj(dot)
+
+        if label is not None:
+            label_offset_y = -dot_kw.get('r', 6) - 12
+            lbl = Text(text=str(label), x=sx, y=sy + label_offset_y,
+                       font_size=20, text_anchor='middle',
+                       fill=dot_kw.get('fill', '#FF6B6B'),
+                       stroke_width=0, creation=creation)
+            self._add_plot_obj(lbl)
+            return VCollection(dot, lbl, creation=creation)
+        return dot
+
     def add_secant_fade(self, func, x, dx_start=2, dx_end=0.01,
                          start: float = 0, end: float = 1, length=300,
                          creation=0, z=0, easing=easings.smooth, **styling_kwargs):
@@ -5944,6 +5994,63 @@ class Brace(VCollection):
 
     def __repr__(self):
         return f'Brace(direction={self._direction!r})'
+
+    @classmethod
+    def for_range(cls, axes, axis, start_val, end_val, direction=None,
+                  label=None, **kwargs):
+        """Create a Brace spanning a range on an Axes object.
+
+        Parameters
+        ----------
+        axes:
+            The :class:`Axes` instance to reference.
+        axis:
+            ``'x'`` for a horizontal range or ``'y'`` for a vertical range.
+        start_val, end_val:
+            Start and end values in math (axis) coordinates.
+        direction:
+            Brace direction.  If ``None``, defaults to ``'down'`` for the
+            x-axis and ``'left'`` for the y-axis.
+        label:
+            Optional label text for the brace.
+        **kwargs:
+            Forwarded to the :class:`Brace` constructor (e.g. ``buff``,
+            ``depth``, styling).
+
+        Returns
+        -------
+        Brace
+        """
+        creation = kwargs.pop('creation', 0)
+        if axis == 'x':
+            sx1 = axes._math_to_svg_x(start_val)
+            sx2 = axes._math_to_svg_x(end_val)
+            # y-position: use the x-axis line (y_min mapped to SVG)
+            sy = axes._math_to_svg_y(axes.y_min.at_time(creation))
+            x_left = min(sx1, sx2)
+            width = abs(sx2 - sx1)
+            # Create a thin target rectangle along the x-axis
+            target = Rectangle(width, 1, x=x_left, y=sy - 0.5,
+                               creation=creation)
+            if direction is None:
+                direction = 'down'
+        elif axis == 'y':
+            sy1 = axes._math_to_svg_y(start_val)
+            sy2 = axes._math_to_svg_y(end_val)
+            # x-position: use the y-axis line (x_min mapped to SVG)
+            sx = axes._math_to_svg_x(axes.x_min.at_time(creation))
+            y_top = min(sy1, sy2)
+            height = abs(sy2 - sy1)
+            # Create a thin target rectangle along the y-axis
+            target = Rectangle(1, height, x=sx - 0.5, y=y_top,
+                               creation=creation)
+            if direction is None:
+                direction = 'left'
+        else:
+            raise ValueError(f"axis must be 'x' or 'y', got {axis!r}")
+
+        return cls(target, direction=direction, label=label,
+                   creation=creation, **kwargs)
 
 
 class ClipPath:
@@ -7552,6 +7659,61 @@ class Table(VCollection):
                 dy = ys[new_pos] - ys[old_row]
                 for entry in self.entries[old_row]:
                     entry.shift(dx=0, dy=dy, start_time=start, end_time=end, easing=easing)
+        return self
+
+    def transpose(self, start=0, end=None, easing=None):
+        """Transpose the table so rows become columns and vice versa.
+
+        Cell at ``(row, col)`` slides to position ``(col, row)``.  If
+        *end* is ``None`` the rearrangement is instant; otherwise cells
+        animate over ``[start, end]``.
+
+        Only works when the current ``rows`` and ``cols`` fit within each
+        other's dimensions (i.e. the table has enough rows and columns
+        that transposed positions exist).
+
+        Parameters
+        ----------
+        start:
+            Animation start time.
+        end:
+            Animation end time.  ``None`` for instant rearrangement.
+        easing:
+            Easing function.  Defaults to ``easings.smooth`` if ``None``.
+
+        Returns
+        -------
+        self
+        """
+        if easing is None:
+            easing = easings.smooth
+        x = self._table_x
+        y = self._table_y
+        x_off = self._x_off
+        y_off = self._y_off
+        cw = self._cell_width
+        ch = self._cell_height
+        fs = self._font_size
+
+        # Animate each cell to its transposed position
+        for r in range(self.rows):
+            for c in range(self.cols):
+                entry = self.entries[r][c]
+                # Target position: swap row and col
+                new_cx = x + x_off + r * cw + cw / 2
+                new_cy = y + y_off + c * ch + ch / 2 + fs * TEXT_Y_OFFSET
+                entry.center_to_pos(posx=new_cx, posy=new_cy,
+                                    start_time=start, end_time=end, easing=easing)
+
+        # Rebuild entries grid as transposed
+        new_entries = []
+        for c in range(self.cols):
+            new_row = []
+            for r in range(self.rows):
+                new_row.append(self.entries[r][c])
+            new_entries.append(new_row)
+        self.entries = new_entries
+        self.rows, self.cols = self.cols, self.rows
         return self
 
     def animate_cell_values(self, data, start=0, end=1, easing=None):

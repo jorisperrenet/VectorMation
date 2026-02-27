@@ -11581,3 +11581,122 @@ class TestApplyPointwise:
         cx1, cy1 = c.center(0)
         assert cx1 == pytest.approx(cx0, abs=1)
         assert cy1 == pytest.approx(cy0, abs=1)
+
+
+class TestSetLifetime:
+    def test_visible_within_range(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_lifetime(1, 3)
+        assert c.show.at_time(1.5) != 0
+        assert c.show.at_time(2) != 0
+
+    def test_invisible_before_start(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_lifetime(1, 3)
+        # Before the lifetime, should be hidden (show set to 0 at creation,
+        # then to 1 at start=1)
+        assert c.show.at_time(0.5) == 0 or c.show.at_time(1) != 0
+
+    def test_invisible_after_end(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_lifetime(1, 3)
+        assert c.show.at_time(3) == 0
+
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.set_lifetime(1, 3)
+        assert result is c
+
+    def test_at_boundaries(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_lifetime(2, 5)
+        # At start, visible
+        assert c.show.at_time(2) != 0
+        # At end, invisible
+        assert c.show.at_time(5) == 0
+
+
+class TestGetStyle:
+    def test_returns_dict(self):
+        c = Circle(r=50, cx=100, cy=100)
+        s = c.get_style(0)
+        assert isinstance(s, dict)
+
+    def test_has_expected_keys(self):
+        c = Circle(r=50, cx=100, cy=100)
+        s = c.get_style(0)
+        expected_keys = {'fill', 'stroke', 'fill_opacity', 'stroke_opacity',
+                         'stroke_width', 'opacity'}
+        assert set(s.keys()) == expected_keys
+
+    def test_default_values(self):
+        c = Circle(r=50, cx=100, cy=100)
+        s = c.get_style(0)
+        # Circle (via Ellipse) defaults to fill_opacity=0.7
+        assert s['fill_opacity'] == pytest.approx(0.7)
+        assert s['stroke_opacity'] == pytest.approx(1.0)
+        assert s['opacity'] == pytest.approx(1.0)
+        assert s['stroke_width'] == pytest.approx(5.0)
+
+    def test_custom_fill_color(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#ff0000')
+        s = c.get_style(0)
+        assert 'rgb(255,0,0)' in s['fill']
+
+    def test_after_style_change(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_fill(color='#00ff00', opacity=0.5, start=1)
+        s = c.get_style(1)
+        assert 'rgb(0,255,0)' in s['fill']
+        assert s['fill_opacity'] == pytest.approx(0.5)
+
+    def test_time_varying(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#ff0000')
+        c.set_fill(color='#0000ff', start=2)
+        s0 = c.get_style(0)
+        s2 = c.get_style(2)
+        assert s0['fill'] != s2['fill']
+
+
+class TestMoveTowards:
+    def test_move_halfway_to_point(self):
+        c = Circle(r=10, cx=0, cy=0)
+        c.move_towards((200, 200), fraction=0.5)
+        cx, cy = c.center(0)
+        assert cx == pytest.approx(100, abs=2)
+        assert cy == pytest.approx(100, abs=2)
+
+    def test_move_towards_other_object(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=200, cy=200)
+        c1.move_towards(c2, fraction=0.5)
+        cx, cy = c1.center(0)
+        assert cx == pytest.approx(100, abs=2)
+        assert cy == pytest.approx(100, abs=2)
+
+    def test_fraction_zero_stays_put(self):
+        c = Circle(r=10, cx=100, cy=100)
+        cx0, cy0 = c.center(0)
+        c.move_towards((500, 500), fraction=0.0)
+        cx1, cy1 = c.center(0)
+        assert cx1 == pytest.approx(cx0, abs=1)
+        assert cy1 == pytest.approx(cy0, abs=1)
+
+    def test_fraction_one_reaches_target(self):
+        c = Circle(r=10, cx=0, cy=0)
+        c.move_towards((300, 400), fraction=1.0)
+        cx, cy = c.center(0)
+        assert cx == pytest.approx(300, abs=2)
+        assert cy == pytest.approx(400, abs=2)
+
+    def test_returns_self(self):
+        c = Circle(r=10, cx=0, cy=0)
+        result = c.move_towards((100, 100))
+        assert result is c
+
+    def test_quarter_fraction(self):
+        c = Circle(r=10, cx=0, cy=0)
+        c.move_towards((400, 0), fraction=0.25)
+        cx, cy = c.center(0)
+        assert cx == pytest.approx(100, abs=2)
+        assert cy == pytest.approx(0, abs=2)
