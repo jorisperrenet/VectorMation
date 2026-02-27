@@ -132,6 +132,7 @@ class TexObject(VCollection):
         from vectormation.tex_file_writing import get_characters
         import vectormation._canvas as _cm
         tex_dir = f'{_cm.save_directory}/tex' if hasattr(_cm, 'save_directory') else tempfile.mkdtemp()
+        self._tex = to_render
         self.char_viewbox, chars = get_characters(tex_dir, to_render, 'latex', '')
 
         # Normalize: scale raw dvisvgm pt coordinates to pixel size
@@ -156,6 +157,9 @@ class TexObject(VCollection):
         for obj in self.objects:
             obj.styling.dx.add_onward(creation, lambda t, _xm=xmin: self.x.at_time(t) - _xm)
             obj.styling.dy.add_onward(creation, lambda t, _ym=ymin: self.y.at_time(t) - _ym)
+
+    def __repr__(self):
+        return f'TexObject({self._tex!r})'
 
 class SplitTexObject:
     """Renders multiple lines of LaTeX, each as a separate TexObject.
@@ -1354,6 +1358,9 @@ class DynamicObject(VObject):
     def bbox(self, time):
         return self._eval(time).bbox(time)
 
+    def __repr__(self):
+        return f'DynamicObject()'
+
 class Matrix(VCollection):
     """Display a mathematical matrix with square bracket delimiters.
 
@@ -1407,6 +1414,9 @@ class Matrix(VCollection):
 
         super().__init__(*objects, creation=creation, z=z)
         self.rows, self.cols = rows, cols
+
+    def __repr__(self):
+        return f'Matrix({self.rows}x{self.cols})'
 
     def get_entry(self, row, col):
         """Return the Text object at (row, col) for animation."""
@@ -1585,6 +1595,9 @@ class ParametricFunction(Lines):
         super().__init__(*pts, creation=creation, z=z, **style_kw)
         self._func = func
         self._t_min, self._t_max = t_min, t_max
+
+    def __repr__(self):
+        return f'ParametricFunction(t=[{self._t_min}, {self._t_max}])'
 
     def get_point(self, t):
         """Return (x, y) at parameter value t."""

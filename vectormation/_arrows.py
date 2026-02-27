@@ -182,6 +182,9 @@ class DoubleArrow(Arrow):
                          tip_width=tip_width, double_ended=True,
                          creation=creation, z=z, **styling_kwargs)
 
+    def __repr__(self):
+        return f'DoubleArrow()'
+
 
 class CurvedArrow(VCollection):
     """Arrow with a curved (quadratic bezier) shaft and a triangular tip."""
@@ -196,6 +199,9 @@ class CurvedArrow(VCollection):
                      creation=creation, z=z, **shaft_style)
         tip = _arrowhead(cx, cy, x2, y2, tip_length, tip_width, tip_fill, creation, z)
         super().__init__(shaft, tip, creation=creation, z=z)
+
+    def __repr__(self):
+        return f'CurvedArrow()'
 
 
 def _transform_rel_svg_path(raw, m00, m01, m10, m11, tx, ty):
