@@ -1120,6 +1120,11 @@ class VObject(ABC):  # Vector Object
         """Return (scale_x, scale_y) at the given time."""
         return self.styling.scale_x.at_time(time), self.styling.scale_y.at_time(time)
 
+    def _init_scale_anim(self, start):
+        """Ensure scale origin is set and return (scale_x, scale_y) at start."""
+        self._ensure_scale_origin(start)
+        return self._get_scale(start)
+
     def scale_to(self, start: float, end: float, factor, easing=easings.smooth):
         """Animate to an absolute scale factor (e.g. factor=2 → double original size)."""
         self._ensure_scale_origin(start)
@@ -1598,8 +1603,7 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        self._ensure_scale_origin(start)
-        sx0, sy0 = self._get_scale(start)
+        sx0, sy0 = self._init_scale_anim(start)
         _s, _d, _amp, _cnt = start, max(dur, 1e-9), amplitude, count
         def _make_pulse_scale(base):
             return lambda t, _s=_s, _d=_d, _amp=_amp, _cnt=_cnt, _b=base, _e=easing: \
@@ -1610,8 +1614,7 @@ class VObject(ABC):  # Vector Object
 
     def ripple_scale(self, start: float = 0, end: float = 1, num_ripples=3, max_factor=1.3, easing=easings.smooth):
         """Produce multiple decaying scale pulses."""
-        self._ensure_scale_origin(start)
-        sx0, sy0 = self._get_scale(start)
+        sx0, sy0 = self._init_scale_anim(start)
         s, e, dur = start, end, end - start
         if dur <= 0:
             return self
@@ -1630,8 +1633,7 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        self._ensure_scale_origin(start)
-        sx0, sy0 = self._get_scale(start)
+        sx0, sy0 = self._init_scale_anim(start)
         _s, _d, _f = start, max(dur, 1e-9), factor
         def _make_flash(base):
             return lambda t, _s=_s, _d=_d, _f=_f, _b=base, _e=easing: \
@@ -1642,8 +1644,7 @@ class VObject(ABC):  # Vector Object
 
     def hover_scale(self, factor=1.2, start: float = 0, end: float = 1):
         """Hold scale at *factor* during [start, end], then snap back."""
-        self._ensure_scale_origin(start)
-        sx0, sy0 = self._get_scale(start)
+        sx0, sy0 = self._init_scale_anim(start)
         self.styling.scale_x.set_onward(start, sx0 * factor)
         self.styling.scale_y.set_onward(start, sy0 * factor)
         self.styling.scale_x.set_onward(end, sx0)
@@ -2518,8 +2519,7 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        self._ensure_scale_origin(start)
-        sx0, sy0 = self._get_scale(start)
+        sx0, sy0 = self._init_scale_anim(start)
         _s, _d, _sf, _beats = start, max(dur, 1e-9), scale_factor, beats
 
         def _ecg_scale(t, _s=_s, _d=_d, _sf=_sf, _beats=_beats,
@@ -2571,8 +2571,7 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        self._ensure_scale_origin(start)
-        sx0, sy0 = self._get_scale(start)
+        sx0, sy0 = self._init_scale_anim(start)
         _s, _d, _amp, _spd = start, max(dur, 1e-9), amplitude, speed
 
         def _make_breathe(base):
@@ -3453,8 +3452,7 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        self._ensure_scale_origin(start)
-        sx0, sy0 = self._get_scale(start)
+        sx0, sy0 = self._init_scale_anim(start)
         _s, _d = start, max(dur, 1e-9)
         _h, _b, _sf = height, bounces, squash_factor
         _sx0, _sy0 = sx0, sy0
@@ -3525,8 +3523,7 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        self._ensure_scale_origin(start)
-        sx0, sy0 = self._get_scale(start)
+        sx0, sy0 = self._init_scale_anim(start)
         _s, _d = start, max(dur, 1e-9)
         _ts, _os, _osc = target_scale, overshoot, oscillations
         _sx0, _sy0 = sx0, sy0
@@ -3847,8 +3844,7 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        self._ensure_scale_origin(start)
-        sx0, sy0 = self._get_scale(start)
+        sx0, sy0 = self._init_scale_anim(start)
         _s, _d, _f = start, max(dur, 1e-9), factor
         compensate = 1.0 / _f if _f > 1e-9 else 1.0
 
@@ -4176,8 +4172,7 @@ class VObject(ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        self._ensure_scale_origin(start)
-        sx0, sy0 = self._get_scale(start)
+        sx0, sy0 = self._init_scale_anim(start)
         _s, _d, _f = start, max(dur, 1e-9), factor
         _damp = 6.0
         _freq = math.tau * 2.5
