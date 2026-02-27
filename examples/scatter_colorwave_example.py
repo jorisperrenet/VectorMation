@@ -29,10 +29,10 @@ dots.gather_to(cx=350, cy=350, start=4, end=5)
 # --- Color wave demo ---
 circle = Circle(cx=900, cy=350, r=80, fill='#FF6B6B', stroke='#FF6B6B', stroke_width=3)
 circle.fadein(0.5, 1)
-circle.color_wave(start=1.5, end=5.5, colors=('#FF6B6B', '#58C4DD', '#83C167', '#FFFF00'),
-                  attr='fill', cycles=2)
-circle.color_wave(start=1.5, end=5.5, colors=('#FF6B6B', '#58C4DD', '#83C167', '#FFFF00'),
-                  attr='stroke', cycles=2)
+circle.color_gradient_anim(colors=('#FF6B6B', '#58C4DD', '#83C167', '#FFFF00'),
+                           start=1.5, end=5.5, attr='fill')
+circle.color_gradient_anim(colors=('#FF6B6B', '#58C4DD', '#83C167', '#FFFF00'),
+                           start=1.5, end=5.5, attr='stroke')
 
 wave_label = Text(text='Color Wave', x=900, y=230,
                   font_size=24, fill='#aaa', stroke_width=0, text_anchor='middle')

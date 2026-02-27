@@ -1302,13 +1302,8 @@ class VObject(ABC):  # Vector Object
                        _br=_br, _wr=_wr):
             # sweep position in [0, 1], repeating for multiple cycles
             p = (((t - _s) / _d) * _cyc) % 1.0
-            # Gaussian-like envelope centred at the sweep position
-            # The "position" of each pixel is just the time dimension
-            # for a single-fill object, so we use `p` as the wave centre.
-            # Distance from the wave centre (wrapped):
-            dist = abs(p - 0.5)  # 0.5 is "object centre"
-            # Symmetric wave: remap so wave peaks when sweep pos crosses 0.5
-            dist2 = abs(p * 2 - 1)  # 0 at edges, 1 at centre
+            # Symmetric distance: 1 at edges of sweep, 0 at centre
+            dist2 = abs(p * 2 - 1)
             envelope = max(0.0, 1.0 - dist2 / _w) if _w > 0 else 0.0
             envelope = envelope * envelope * (3 - 2 * envelope)  # smoothstep
             return (_br[0] + (_wr[0] - _br[0]) * envelope,

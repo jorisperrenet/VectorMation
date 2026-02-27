@@ -5545,8 +5545,8 @@ class NumberLine(VCollection):
     def get_range_length(self):
         """Return the numeric length of the number line's range.
 
-        This is the absolute difference ``x_end - x_start`` in the number
-        line's value space (not the SVG pixel length).
+        This is ``x_end - x_start`` in the number line's value space
+        (not the SVG pixel length).
 
         Returns
         -------
