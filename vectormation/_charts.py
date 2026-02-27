@@ -439,37 +439,7 @@ class BarChart(VCollection):
 
     def sort_bars(self, key=None, reverse=False, start=0, end=1, easing=easings.smooth):
         """Animate reordering bars by value (or custom key function)."""
-        if len(self._bars) <= 1:
-            return self
-        if key is None:
-            key = lambda v: v
-        # Build (sort_key, original_index) pairs and sort
-        indexed = [(key(val), i) for i, val in enumerate(self.values)]
-        indexed.sort(key=lambda x: x[0], reverse=reverse)
-        # Get current x positions of each bar at start time
-        old_xs = [bar.x.at_time(start) for bar in self._bars]
-        # Compute new positions: bar at indexed[new_pos][1] should move to old_xs[new_pos]
-        dur = end - start
-        if dur <= 0:
-            return self
-        for new_pos, (_, old_idx) in enumerate(indexed):
-            if new_pos == old_idx:
-                continue
-            bar = self._bars[old_idx]
-            target_x = old_xs[new_pos]
-            current_x = old_xs[old_idx]
-            dx = target_x - current_x
-            bar.shift(dx=dx, dy=0, start=start, end=end, easing=easing)
-            # Also move the associated label if it exists
-            lbl = self._labels[old_idx]
-            if lbl is not None:
-                lbl.shift(dx=dx, dy=0, start=start, end=end, easing=easing)
-        # Reorder internal lists to match new order
-        new_order = [orig_idx for _, orig_idx in indexed]
-        self._bars = [self._bars[i] for i in new_order]
-        self._labels = [self._labels[i] for i in new_order]
-        self.values = [self.values[i] for i in new_order]
-        return self
+        return self.animate_sort(key=key, reverse=reverse, start=start, end=end, easing=easing)
 
     def add_bar(self, value, label=None, start=0, end=None):
         """Add a new bar to the right side of the chart."""
@@ -1709,49 +1679,40 @@ class SampleSpace(VCollection):
     def __repr__(self):
         return 'SampleSpace()'
 
-    def divide_horizontally(self, proportion, colors=('#58C4DD', '#FC6255'), labels=None,
-                            creation=0, z=0):
-        """Split the space horizontally by proportion (0-1). Left gets first color."""
-        w1 = self._width * proportion
-        w2 = self._width - w1
-        r1 = Rectangle(width=w1, height=self._height,
-                       x=self._x, y=self._y,
-                       fill=colors[0], fill_opacity=0.4, stroke_width=0,
-                       creation=creation, z=z + 0.1)
-        r2 = Rectangle(width=w2, height=self._height,
-                       x=self._x + w1, y=self._y,
-                       fill=colors[1], fill_opacity=0.4, stroke_width=0,
-                       creation=creation, z=z + 0.1)
+    def _divide(self, horizontal, proportion, colors, labels, creation, z):
+        """Shared logic for divide_horizontally / divide_vertically."""
+        if horizontal:
+            s1, s2 = self._width * proportion, self._width * (1 - proportion)
+            r1 = Rectangle(width=s1, height=self._height, x=self._x, y=self._y,
+                           fill=colors[0], fill_opacity=0.4, stroke_width=0,
+                           creation=creation, z=z + 0.1)
+            r2 = Rectangle(width=s2, height=self._height, x=self._x + s1, y=self._y,
+                           fill=colors[1], fill_opacity=0.4, stroke_width=0,
+                           creation=creation, z=z + 0.1)
+        else:
+            s1, s2 = self._height * proportion, self._height * (1 - proportion)
+            r1 = Rectangle(width=self._width, height=s1, x=self._x, y=self._y,
+                           fill=colors[0], fill_opacity=0.4, stroke_width=0,
+                           creation=creation, z=z + 0.1)
+            r2 = Rectangle(width=self._width, height=s2, x=self._x, y=self._y + s1,
+                           fill=colors[1], fill_opacity=0.4, stroke_width=0,
+                           creation=creation, z=z + 0.1)
         self.objects.extend([r1, r2])
         self._parts = [r1, r2]
         if labels:
             for rect, label in zip([r1, r2], labels):
                 rcx, rcy = rect.center(creation)
                 self.objects.append(
-                    _label_text(label, rcx, rcy, 24,
-                                creation=creation, z=z + 0.2))
+                    _label_text(label, rcx, rcy, 24, creation=creation, z=z + 0.2))
         return self
+
+    def divide_horizontally(self, proportion, colors=('#58C4DD', '#FC6255'), labels=None,
+                            creation=0, z=0):
+        """Split the space horizontally by proportion (0-1). Left gets first color."""
+        return self._divide(True, proportion, colors, labels, creation, z)
 
     def divide_vertically(self, proportion, colors=('#58C4DD', '#FC6255'), labels=None,
                           creation=0, z=0):
         """Split the space vertically by proportion (0-1). Top gets first color."""
-        h1 = self._height * proportion
-        h2 = self._height - h1
-        r1 = Rectangle(width=self._width, height=h1,
-                       x=self._x, y=self._y,
-                       fill=colors[0], fill_opacity=0.4, stroke_width=0,
-                       creation=creation, z=z + 0.1)
-        r2 = Rectangle(width=self._width, height=h2,
-                       x=self._x, y=self._y + h1,
-                       fill=colors[1], fill_opacity=0.4, stroke_width=0,
-                       creation=creation, z=z + 0.1)
-        self.objects.extend([r1, r2])
-        self._parts = [r1, r2]
-        if labels:
-            for rect, label in zip([r1, r2], labels):
-                rcx, rcy = rect.center(creation)
-                self.objects.append(
-                    _label_text(label, rcx, rcy, 24,
-                                creation=creation, z=z + 0.2))
-        return self
+        return self._divide(False, proportion, colors, labels, creation, z)
 
