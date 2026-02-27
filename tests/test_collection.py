@@ -2322,3 +2322,64 @@ class TestApplySequential:
         # After the full animation, both should be hidden
         assert c1.show.at_time(1.5) is False
         assert c2.show.at_time(2.5) is False
+
+
+class TestDistributeEvenly:
+    def test_returns_self(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c1, c2)
+        result = col.distribute_evenly(100, 100, 500, 100)
+        assert result is col
+
+    def test_two_children_at_endpoints(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c1, c2)
+        col.distribute_evenly(100, 200, 400, 200)
+        # c1 center should be at (100, 200)
+        bx1, by1, bw1, bh1 = c1.bbox(0)
+        assert bx1 + bw1 / 2 == pytest.approx(100, abs=1)
+        assert by1 + bh1 / 2 == pytest.approx(200, abs=1)
+        # c2 center should be at (400, 200)
+        bx2, by2, bw2, bh2 = c2.bbox(0)
+        assert bx2 + bw2 / 2 == pytest.approx(400, abs=1)
+        assert by2 + bh2 / 2 == pytest.approx(200, abs=1)
+
+    def test_three_children_evenly_spaced(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=0, cy=0)
+        c3 = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c1, c2, c3)
+        col.distribute_evenly(0, 0, 200, 0)
+        # Centers should be at x=0, 100, 200
+        bx1, _, bw1, _ = c1.bbox(0)
+        bx2, _, bw2, _ = c2.bbox(0)
+        bx3, _, bw3, _ = c3.bbox(0)
+        assert bx1 + bw1 / 2 == pytest.approx(0, abs=1)
+        assert bx2 + bw2 / 2 == pytest.approx(100, abs=1)
+        assert bx3 + bw3 / 2 == pytest.approx(200, abs=1)
+
+    def test_diagonal_distribution(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=0, cy=0)
+        c3 = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c1, c2, c3)
+        col.distribute_evenly(0, 0, 200, 400)
+        # c2 center should be at midpoint (100, 200)
+        bx2, by2, bw2, bh2 = c2.bbox(0)
+        assert bx2 + bw2 / 2 == pytest.approx(100, abs=1)
+        assert by2 + bh2 / 2 == pytest.approx(200, abs=1)
+
+    def test_single_child_at_start(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c1)
+        col.distribute_evenly(300, 400, 600, 800)
+        bx, by, bw, bh = c1.bbox(0)
+        assert bx + bw / 2 == pytest.approx(300, abs=1)
+        assert by + bh / 2 == pytest.approx(400, abs=1)
+
+    def test_empty_collection(self):
+        col = VCollection()
+        result = col.distribute_evenly(0, 0, 100, 100)
+        assert result is col

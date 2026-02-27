@@ -4822,6 +4822,121 @@ class Axes(VCollection):
         kwargs.setdefault('stroke', color)
         return self.plot(func, creation=creation, **kwargs)
 
+    def add_residual_lines(self, x_data, y_data, creation=0, z=1, **styling_kwargs):
+        """Draw vertical residual lines from each data point to the regression line.
+
+        Computes least-squares regression (y = mx + b) from the data, then
+        draws a vertical Line from each observed (x, y) to the predicted
+        (x, mx + b).  Useful for visualising regression fit quality.
+
+        Parameters
+        ----------
+        x_data, y_data:
+            Sequences of numeric x and y values.
+        creation:
+            Appearance time.
+        z:
+            Draw order.
+        **styling_kwargs:
+            Styling overrides for the residual lines.
+
+        Returns
+        -------
+        VCollection
+            A VCollection of Line objects (one per data point).  Returns an
+            empty VCollection if there are fewer than 2 data points or the
+            regression is degenerate.
+        """
+        style_kw = {'stroke': '#FF6B6B', 'stroke_width': 2, 'stroke_dasharray': '4 3'} | styling_kwargs
+        n = len(x_data)
+        if n < 2:
+            return VCollection(creation=creation, z=z)
+        sx = sum(x_data)
+        sy = sum(y_data)
+        sxy = sum(x * y for x, y in zip(x_data, y_data))
+        sxx = sum(x * x for x in x_data)
+        denom = n * sxx - sx * sx
+        if abs(denom) < 1e-12:
+            return VCollection(creation=creation, z=z)
+        slope = (n * sxy - sx * sy) / denom
+        intercept = (sy - slope * sx) / n
+        lines = []
+        for xi, yi in zip(x_data, y_data):
+            predicted = slope * xi + intercept
+            line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+            _xi, _yi, _pred = xi, yi, predicted
+            line.p1.set_onward(creation,
+                lambda t, _x=_xi, _y=_yi: self.coords_to_point(_x, _y, t))
+            line.p2.set_onward(creation,
+                lambda t, _x=_xi, _p=_pred: self.coords_to_point(_x, _p, t))
+            lines.append(line)
+            self._add_plot_obj(line)
+        group = VCollection(*lines, creation=creation, z=z)
+        return group
+
+    def add_spread_band(self, func, spread_func, x_range=None, num_points=100,
+                        color='#58C4DD', opacity=0.2, creation=0):
+        """Draw a shaded band around a curve defined by a centre function and spread.
+
+        The band extends from ``func(x) - spread_func(x)`` to
+        ``func(x) + spread_func(x)`` for each x.
+
+        Parameters
+        ----------
+        func:
+            Centre function y = func(x), or a curve with ``._func``.
+        spread_func:
+            Half-width function: ``spread_func(x)`` returns the distance
+            above and below the centre at x.
+        x_range:
+            Optional ``(x0, x1)`` tuple.  Defaults to the visible axis range.
+        num_points:
+            Number of sample points along x.
+        color:
+            Fill color for the band.
+        opacity:
+            Fill opacity.
+        creation:
+            Appearance time.
+
+        Returns
+        -------
+        Path
+            A filled Path representing the band (already added to the axes).
+        """
+        fn = self._resolve_func(func, 'func')
+        spread_fn = self._resolve_func(spread_func, 'spread_func') if not callable(spread_func) else spread_func
+        band = Path('', x=0, y=0, creation=creation, z=-1,
+                    fill=color, fill_opacity=opacity, stroke_width=0)
+        _xr = x_range
+        _n = num_points
+        def _band_d(time, _fn=fn, _sf=spread_fn, _xr=_xr, _n=_n):
+            xmin, xmax = self.x_min.at_time(time), self.x_max.at_time(time)
+            x0 = _xr[0] if _xr else xmin
+            x1 = _xr[1] if _xr else xmax
+            step = (x1 - x0) / max(_n, 1)
+            pts_hi, pts_lo = [], []
+            for i in range(_n + 1):
+                xv = x0 + i * step
+                yc = _fn(xv)
+                sp = _sf(xv)
+                sx_hi, sy_hi = self.coords_to_point(xv, yc + sp, time)
+                sx_lo, sy_lo = self.coords_to_point(xv, yc - sp, time)
+                pts_hi.append((sx_hi, sy_hi))
+                pts_lo.append((sx_lo, sy_lo))
+            if not pts_hi:
+                return ''
+            parts = [f'M{pts_hi[0][0]:.1f},{pts_hi[0][1]:.1f}']
+            for sx, sy in pts_hi[1:]:
+                parts.append(f'L{sx:.1f},{sy:.1f}')
+            for sx, sy in reversed(pts_lo):
+                parts.append(f'L{sx:.1f},{sy:.1f}')
+            parts.append('Z')
+            return ''.join(parts)
+        band.d.set_onward(creation, _band_d)
+        self._add_plot_obj(band)
+        return band
+
     def __repr__(self):
         xn, xx = self.x_min.at_time(0), self.x_max.at_time(0)
         if self.y_min is not None:
@@ -5924,6 +6039,53 @@ class NumberLine(VCollection):
         brace = Brace(target, direction=direction, label=label, **kwargs)
         self.objects.append(brace)
         return brace
+
+    def add_interval_bracket(self, x1, x2, closed_left=True, closed_right=True,
+                              creation=0, **kwargs):
+        """Show an interval on the number line with bracket notation.
+
+        Draws a horizontal line between ``x1`` and ``x2`` with bracket or
+        parenthesis characters at each end to indicate whether the endpoint
+        is included (closed) or excluded (open).
+
+        Parameters
+        ----------
+        x1, x2:
+            Numeric values on the line defining the interval endpoints.
+        closed_left:
+            If True, use ``'['`` at the left endpoint; otherwise ``'('``.
+        closed_right:
+            If True, use ``']'`` at the right endpoint; otherwise ``')'``.
+        creation:
+            Appearance time.
+        **kwargs:
+            Extra styling keyword arguments for the connecting line.
+
+        Returns
+        -------
+        VCollection
+            A VCollection containing the connecting line and two bracket
+            Text objects (already appended to this NumberLine's objects).
+        """
+        style_kw = {'stroke': '#58C4DD', 'stroke_width': 3} | kwargs
+        p1x, p1y = self.number_to_point(x1)
+        p2x, p2y = self.number_to_point(x2)
+        # Offset above the number line
+        offset_y = -20
+        ly = p1y + offset_y
+        bar = Line(x1=p1x, y1=ly, x2=p2x, y2=ly, creation=creation, **style_kw)
+        left_char = '[' if closed_left else '('
+        right_char = ']' if closed_right else ')'
+        font_size = 24
+        left_text = Text(text=left_char, x=p1x - font_size * 0.3, y=ly + font_size * 0.35,
+                         font_size=font_size, creation=creation,
+                         fill=style_kw.get('stroke', '#58C4DD'), stroke_width=0)
+        right_text = Text(text=right_char, x=p2x + font_size * 0.05, y=ly + font_size * 0.35,
+                          font_size=font_size, creation=creation,
+                          fill=style_kw.get('stroke', '#58C4DD'), stroke_width=0)
+        group = VCollection(bar, left_text, right_text, creation=creation)
+        self.objects.append(group)
+        return group
 
     def __repr__(self):
         return f'NumberLine([{self.x_start}, {self.x_end}], step={self.x_step})'

@@ -7546,3 +7546,334 @@ class TestNumberLineAddTickLabelsRange:
         nl.add_tick_labels_range(0, 3, 1)
         svg = nl.to_svg(0)
         assert '<text' in svg
+
+
+class TestPolygonSubdivideEdges:
+    def test_triangle_one_iteration(self):
+        """Triangle with 3 edges -> 6 vertices after one subdivision."""
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        sub = p.subdivide_edges(iterations=1)
+        verts = sub.get_vertices(0)
+        assert len(verts) == 6
+
+    def test_triangle_midpoints_correct(self):
+        """Midpoints of triangle edges should be at the correct positions."""
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        sub = p.subdivide_edges(iterations=1)
+        verts = sub.get_vertices(0)
+        # Expected: (0,0), (50,0), (100,0), (75,50), (50,100), (25,50)
+        assert verts[0] == pytest.approx((0, 0), abs=1e-9)
+        assert verts[1] == pytest.approx((50, 0), abs=1e-9)
+        assert verts[2] == pytest.approx((100, 0), abs=1e-9)
+        assert verts[3] == pytest.approx((75, 50), abs=1e-9)
+        assert verts[4] == pytest.approx((50, 100), abs=1e-9)
+        assert verts[5] == pytest.approx((25, 50), abs=1e-9)
+
+    def test_square_one_iteration(self):
+        """Square with 4 edges -> 8 vertices after one subdivision."""
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        sub = p.subdivide_edges(iterations=1)
+        verts = sub.get_vertices(0)
+        assert len(verts) == 8
+
+    def test_two_iterations_doubles_again(self):
+        """Two iterations on a triangle: 3 -> 6 -> 12 vertices."""
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        sub = p.subdivide_edges(iterations=2)
+        verts = sub.get_vertices(0)
+        assert len(verts) == 12
+
+    def test_zero_iterations_returns_copy(self):
+        """Zero iterations should return a polygon with the same vertices."""
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        sub = p.subdivide_edges(iterations=0)
+        verts = sub.get_vertices(0)
+        assert len(verts) == 3
+        assert verts[0] == pytest.approx((0, 0), abs=1e-9)
+
+    def test_preserves_closed(self):
+        """Result should preserve the closed flag of the original."""
+        p = Polygon((0, 0), (100, 0), (50, 100), closed=True)
+        sub = p.subdivide_edges(iterations=1)
+        assert sub.closed is True
+
+    def test_open_polyline(self):
+        """Open polyline with 3 vertices (2 edges) -> 4 vertices after 1 iter."""
+        p = Polygon((0, 0), (100, 0), (100, 100), closed=False)
+        sub = p.subdivide_edges(iterations=1)
+        verts = sub.get_vertices(0)
+        assert len(verts) == 4
+
+    def test_kwargs_forwarded(self):
+        """Extra kwargs should be forwarded to the new Polygon."""
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        sub = p.subdivide_edges(iterations=1, stroke='#ff0000')
+        svg = sub.to_svg(0)
+        assert 'stroke=' in svg
+        # Color may be normalized to rgb() form
+        assert '255' in svg or '#ff0000' in svg
+
+
+class TestLineExtend:
+    def test_extend_horizontal_factor_1_5(self):
+        """Factor 1.5 should extend a horizontal line by 50% on each side."""
+        line = Line(x1=100, y1=200, x2=200, y2=200)
+        ext = line.extend(factor=1.5)
+        p1 = ext.p1.at_time(0)
+        p2 = ext.p2.at_time(0)
+        # Original dx=100. Extra = 0.5 * 100 = 50 on each side.
+        assert p1[0] == pytest.approx(50, abs=1e-6)
+        assert p1[1] == pytest.approx(200, abs=1e-6)
+        assert p2[0] == pytest.approx(250, abs=1e-6)
+        assert p2[1] == pytest.approx(200, abs=1e-6)
+
+    def test_extend_factor_1_no_change(self):
+        """Factor 1.0 should return a line with the same endpoints."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        ext = line.extend(factor=1.0)
+        p1 = ext.p1.at_time(0)
+        p2 = ext.p2.at_time(0)
+        assert p1[0] == pytest.approx(0, abs=1e-6)
+        assert p2[0] == pytest.approx(100, abs=1e-6)
+
+    def test_extend_shrink(self):
+        """Factor < 1 should shrink the line."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        ext = line.extend(factor=0.5)
+        p1 = ext.p1.at_time(0)
+        p2 = ext.p2.at_time(0)
+        # Original dx=100. Extra = -0.5 * 100 = -50. So p1 moves right 50, p2 moves left 50
+        assert p1[0] == pytest.approx(50, abs=1e-6)
+        assert p2[0] == pytest.approx(50, abs=1e-6)
+
+    def test_extend_diagonal(self):
+        """Extending a diagonal line should preserve direction."""
+        line = Line(x1=0, y1=0, x2=60, y2=80)
+        ext = line.extend(factor=2.0)
+        p1 = ext.p1.at_time(0)
+        p2 = ext.p2.at_time(0)
+        dx = p2[0] - p1[0]
+        dy = p2[1] - p1[1]
+        length = math.hypot(dx, dy)
+        # Original length = 100. Factor 2 extends by 100 on each side -> total 300?
+        # Actually: extra = factor - 1 = 1.0. new_p1 = p1 - dx*extra, new_p2 = p2 + dx*extra
+        # new_p1 = (0 - 60, 0 - 80) = (-60, -80); new_p2 = (60+60, 80+80) = (120, 160)
+        # total length = hypot(180, 240) = 300
+        assert length == pytest.approx(300, abs=1e-4)
+
+    def test_extend_returns_new_line(self):
+        """extend should return a new Line, not modify in place."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        ext = line.extend(factor=2.0)
+        assert ext is not line
+        # Original should be unchanged
+        assert line.p1.at_time(0)[0] == pytest.approx(0, abs=1e-6)
+        assert line.p2.at_time(0)[0] == pytest.approx(100, abs=1e-6)
+
+    def test_extend_kwargs_forwarded(self):
+        """Extra kwargs should be forwarded to the new Line."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        ext = line.extend(factor=1.5, stroke='#ff0000')
+        svg = ext.to_svg(0)
+        assert 'stroke=' in svg
+        # Color may be normalized to rgb() form
+        assert '255' in svg or '#ff0000' in svg
+
+
+class TestAxesAddResidualLines:
+    def test_basic_residual_lines(self):
+        """Residual lines should be created for each data point."""
+        ax = Axes(x_range=(-1, 10, 1), y_range=(-1, 10, 1))
+        x_data = [1, 2, 3, 4, 5]
+        y_data = [2, 4, 5, 4, 5]
+        group = ax.add_residual_lines(x_data, y_data)
+        assert len(group.objects) == 5
+
+    def test_residual_lines_are_vertical(self):
+        """Each residual line should be vertical (same x for p1 and p2)."""
+        ax = Axes(x_range=(-1, 10, 1), y_range=(-1, 10, 1))
+        x_data = [1, 2, 3]
+        y_data = [2, 4, 6]
+        group = ax.add_residual_lines(x_data, y_data)
+        for line in group.objects:
+            p1 = line.p1.at_time(0)
+            p2 = line.p2.at_time(0)
+            assert p1[0] == pytest.approx(p2[0], abs=0.5)
+
+    def test_perfect_fit_zero_residuals(self):
+        """For a perfect linear fit, residual lines should have zero length."""
+        ax = Axes(x_range=(-1, 10, 1), y_range=(-1, 10, 1))
+        x_data = [1, 2, 3, 4]
+        y_data = [2, 4, 6, 8]  # y = 2x, perfect fit
+        group = ax.add_residual_lines(x_data, y_data)
+        for line in group.objects:
+            p1 = line.p1.at_time(0)
+            p2 = line.p2.at_time(0)
+            assert p1[1] == pytest.approx(p2[1], abs=0.5)
+
+    def test_fewer_than_two_points(self):
+        """With fewer than 2 points, should return empty VCollection."""
+        ax = Axes(x_range=(-1, 10, 1), y_range=(-1, 10, 1))
+        group = ax.add_residual_lines([1], [2])
+        assert len(group.objects) == 0
+
+    def test_styling_kwargs(self):
+        """Custom styling should be applied to residual lines."""
+        ax = Axes(x_range=(-1, 10, 1), y_range=(-1, 10, 1))
+        group = ax.add_residual_lines([1, 2, 3], [2, 4, 6], stroke='#00ff00')
+        svg = group.objects[0].to_svg(0)
+        # Color may be normalized to rgb() form
+        assert 'rgb(0,255,0)' in svg or '#00ff00' in svg
+
+    def test_default_dashed_style(self):
+        """Residual lines should be dashed by default."""
+        ax = Axes(x_range=(-1, 10, 1), y_range=(-1, 10, 1))
+        group = ax.add_residual_lines([1, 2, 3], [2, 4, 6])
+        svg = group.objects[0].to_svg(0)
+        assert 'stroke-dasharray' in svg
+
+
+class TestAxesAddSpreadBand:
+    def test_basic_spread_band(self):
+        """Band should be a Path added to axes objects."""
+        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
+        n_before = len(ax.objects)
+        band = ax.add_spread_band(lambda x: x, lambda x: 0.5)
+        assert n_before < len(ax.objects)
+        assert hasattr(band, 'd')
+
+    def test_spread_band_svg_not_empty(self):
+        """Band should produce non-empty SVG at time 0."""
+        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
+        band = ax.add_spread_band(lambda x: x, lambda x: 0.5)
+        svg = band.to_svg(0)
+        assert 'M' in svg
+
+    def test_spread_band_default_color(self):
+        """Band should use default blue color."""
+        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
+        band = ax.add_spread_band(lambda x: x, lambda x: 0.5)
+        svg = band.to_svg(0)
+        # #58C4DD -> rgb(88,196,221)
+        assert 'rgb(88,196,221)' in svg or '#58C4DD' in svg
+
+    def test_spread_band_custom_color(self):
+        """Custom color should override default."""
+        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
+        band = ax.add_spread_band(lambda x: x, lambda x: 0.5, color='#FF0000')
+        svg = band.to_svg(0)
+        assert 'rgb(255,0,0)' in svg or '#FF0000' in svg
+
+    def test_spread_band_with_x_range(self):
+        """x_range should limit the band extent."""
+        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
+        band = ax.add_spread_band(lambda x: 0, lambda x: 1, x_range=(0, 2))
+        d = band.d.at_time(0)
+        assert 'M' in d
+        assert 'Z' in d
+
+    def test_spread_band_with_curve_func(self):
+        """Should work with a curve returned by plot() that has ._func."""
+        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
+        curve = ax.plot(lambda x: x**2)
+        band = ax.add_spread_band(curve, lambda x: 0.5)
+        svg = band.to_svg(0)
+        assert 'M' in svg
+
+
+class TestNumberLineAddIntervalBracket:
+    def test_basic_interval(self):
+        """Interval bracket should return a VCollection with 3 objects."""
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500)
+        group = nl.add_interval_bracket(2, 8)
+        # bar + left bracket text + right bracket text
+        assert len(group.objects) == 3
+
+    def test_closed_brackets(self):
+        """Closed interval should use '[' and ']'."""
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500)
+        group = nl.add_interval_bracket(2, 8, closed_left=True, closed_right=True)
+        left_text = group.objects[1]
+        right_text = group.objects[2]
+        assert left_text.text.at_time(0) == '['
+        assert right_text.text.at_time(0) == ']'
+
+    def test_open_brackets(self):
+        """Open interval should use '(' and ')'."""
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500)
+        group = nl.add_interval_bracket(2, 8, closed_left=False, closed_right=False)
+        left_text = group.objects[1]
+        right_text = group.objects[2]
+        assert left_text.text.at_time(0) == '('
+        assert right_text.text.at_time(0) == ')'
+
+    def test_half_open_interval(self):
+        """Half-open [a, b) should use '[' and ')'."""
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500)
+        group = nl.add_interval_bracket(2, 8, closed_left=True, closed_right=False)
+        left_text = group.objects[1]
+        right_text = group.objects[2]
+        assert left_text.text.at_time(0) == '['
+        assert right_text.text.at_time(0) == ')'
+
+    def test_bar_position(self):
+        """The connecting bar should span between the two points."""
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500)
+        group = nl.add_interval_bracket(2, 8)
+        bar = group.objects[0]
+        p1 = bar.p1.at_time(0)
+        p2 = bar.p2.at_time(0)
+        expected_x1 = nl.number_to_point(2)[0]
+        expected_x2 = nl.number_to_point(8)[0]
+        assert p1[0] == pytest.approx(expected_x1, abs=1)
+        assert p2[0] == pytest.approx(expected_x2, abs=1)
+
+    def test_added_to_numberline(self):
+        """The group should be added to the number line's objects."""
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500)
+        n_before = len(nl.objects)
+        nl.add_interval_bracket(2, 8)
+        assert len(nl.objects) == n_before + 1
+
+    def test_renders_svg(self):
+        """Interval bracket should render in SVG output."""
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500)
+        nl.add_interval_bracket(2, 8)
+        svg = nl.to_svg(0)
+        assert '<line' in svg
+        assert '<text' in svg
+
+
+class TestTextCharCount:
+    def test_basic_count(self):
+        """char_count should return the number of characters."""
+        t = Text(text='hello')
+        assert t.char_count() == 5
+
+    def test_empty_text(self):
+        """Empty text should have 0 characters."""
+        t = Text(text='')
+        assert t.char_count() == 0
+
+    def test_with_spaces(self):
+        """Spaces should be counted."""
+        t = Text(text='hello world')
+        assert t.char_count() == 11
+
+    def test_with_time_parameter(self):
+        """char_count should respect the time parameter."""
+        t = Text(text='hi')
+        t.text.set_onward(1, 'hello world')
+        assert t.char_count(time=0) == 2
+        assert t.char_count(time=1) == 11
+
+    def test_with_typing_animation(self):
+        """char_count during typing animation should reflect partial text."""
+        t = Text(text='abcdef')
+        t.typing(start=0, end=6, change_existence=False)
+        # At time 0, typing shows at least 1 char
+        count_start = t.char_count(time=0)
+        assert count_start >= 1
+        # At time 6, all chars should be shown
+        count_end = t.char_count(time=6)
+        assert count_end == 6

@@ -9791,3 +9791,180 @@ class TestTypewriterCursor:
         t.typewriter_cursor(start=0, end=2)
         text_val = t.text.at_time(3)
         assert text_val == 'hello'
+
+
+class TestPulseOutline:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.pulse_outline(start=0, end=2)
+        assert result is c
+
+    def test_stroke_width_increases_during_animation(self):
+        c = Circle(r=50, cx=100, cy=100)
+        orig_sw = c.styling.stroke_width.at_time(0)
+        c.pulse_outline(start=0, end=2, max_width=12, cycles=1, easing=easings.linear)
+        # At the midpoint of a single cycle, sin(pi * 1 * 0.5) = sin(pi/2) = 1
+        mid_sw = c.styling.stroke_width.at_time(1.0)
+        assert mid_sw == pytest.approx(12, abs=0.5)
+
+    def test_stroke_width_returns_to_original_after(self):
+        c = Circle(r=50, cx=100, cy=100)
+        orig_sw = c.styling.stroke_width.at_time(0)
+        c.pulse_outline(start=0, end=2, max_width=12, cycles=1, easing=easings.linear)
+        # After end, stay=False so it reverts
+        after_sw = c.styling.stroke_width.at_time(3.0)
+        assert after_sw == pytest.approx(orig_sw, abs=0.5)
+
+    def test_stroke_color_set_during_animation(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.pulse_outline(start=0, end=2, color='#FF0000')
+        stroke_val = c.styling.stroke.time_func(1.0)
+        # Should be red (255, 0, 0) during animation
+        assert stroke_val[0] == 255
+        assert stroke_val[1] == 0
+        assert stroke_val[2] == 0
+
+    def test_zero_duration_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        orig_sw = c.styling.stroke_width.at_time(0)
+        c.pulse_outline(start=1, end=1)
+        assert c.styling.stroke_width.at_time(1) == pytest.approx(orig_sw)
+
+    def test_multiple_cycles(self):
+        c = Circle(r=50, cx=100, cy=100)
+        orig_sw = c.styling.stroke_width.at_time(0)
+        c.pulse_outline(start=0, end=4, max_width=10, cycles=2, easing=easings.linear)
+        # At t=1 (progress=0.25), sin(pi * 2 * 0.25) = sin(pi/2) = 1 -> max
+        sw_at_1 = c.styling.stroke_width.at_time(1.0)
+        assert sw_at_1 == pytest.approx(10, abs=0.5)
+        # At t=2 (progress=0.5), sin(pi * 2 * 0.5) = sin(pi) = 0 -> original
+        sw_at_2 = c.styling.stroke_width.at_time(2.0)
+        assert sw_at_2 == pytest.approx(orig_sw, abs=0.5)
+
+
+class TestShimmer:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.shimmer(start=0, end=2)
+        assert result is c
+
+    def test_opacity_varies_during_animation(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.shimmer(start=0, end=2, passes=1, easing=easings.linear)
+        # At start (progress=0), cos(0)=1, opacity = 0.3 + 0.7*1 = 1.0
+        op_start = c.styling.opacity.at_time(0)
+        assert op_start == pytest.approx(1.0, abs=0.05)
+        # At midpoint (progress=0.5), cos(pi)=-1, opacity = 0.3 + 0.7*0 = 0.3
+        op_mid = c.styling.opacity.at_time(1.0)
+        assert op_mid == pytest.approx(0.3, abs=0.05)
+
+    def test_opacity_restores_after_end(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.shimmer(start=0, end=2, passes=1)
+        # After end, stay=False so opacity should revert to default (1.0)
+        op_after = c.styling.opacity.at_time(3.0)
+        assert op_after == pytest.approx(1.0, abs=0.05)
+
+    def test_zero_duration_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.shimmer(start=1, end=1)
+        assert c.styling.opacity.at_time(1) == pytest.approx(1.0)
+
+    def test_multiple_passes(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.shimmer(start=0, end=4, passes=2, easing=easings.linear)
+        # At progress=0.25, cos(2*pi*2*0.25) = cos(pi) = -1, opacity = 0.3
+        op_at_1 = c.styling.opacity.at_time(1.0)
+        assert op_at_1 == pytest.approx(0.3, abs=0.05)
+        # At progress=0.5, cos(2*pi*2*0.5) = cos(2*pi) = 1, opacity = 1.0
+        op_at_2 = c.styling.opacity.at_time(2.0)
+        assert op_at_2 == pytest.approx(1.0, abs=0.05)
+
+
+class TestBlinkNumBlinks:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.blink(start=0, end=3, num_blinks=3, easing=easings.linear)
+        assert result is c
+
+    def test_opacity_toggles_off(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.blink(start=0, end=3, num_blinks=3, easing=easings.linear)
+        # Each blink cycle = 1.0s. First half (0..0.5) should be off.
+        # At t=0.25, progress=0.25/3=0.0833, phase=(0.0833*3)%1 = 0.25 < 0.5 -> off
+        op = c.styling.opacity.at_time(0.25)
+        assert op == pytest.approx(0.0, abs=0.01)
+
+    def test_opacity_toggles_on(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.blink(start=0, end=3, num_blinks=3, easing=easings.linear)
+        # At t=0.75, progress=0.75/3=0.25, phase=(0.25*3)%1 = 0.75 >= 0.5 -> on
+        op = c.styling.opacity.at_time(0.75)
+        assert op == pytest.approx(1.0, abs=0.01)
+
+    def test_zero_duration_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.blink(start=1, end=1, num_blinks=3)
+        assert c.styling.opacity.at_time(1) == pytest.approx(1.0)
+
+    def test_zero_num_blinks_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.blink(start=0, end=2, num_blinks=0)
+        assert c.styling.opacity.at_time(1) == pytest.approx(1.0)
+
+    def test_restores_after_end(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.blink(start=0, end=2, num_blinks=2, easing=easings.linear)
+        # After end, stay=False so should revert
+        op_after = c.styling.opacity.at_time(3.0)
+        assert op_after == pytest.approx(1.0, abs=0.05)
+
+
+class TestPinTo:
+    def test_returns_self(self):
+        target = Circle(r=50, cx=200, cy=200)
+        follower = Circle(r=10, cx=0, cy=0)
+        result = follower.pin_to(target, edge='center', start=0, end=1)
+        assert result is follower
+
+    def test_pin_to_center(self):
+        target = Circle(r=50, cx=200, cy=200)
+        follower = Circle(r=10, cx=0, cy=0)
+        follower.pin_to(target, edge='center', start=0, end=1)
+        follower._run_updaters(0.5)
+        fx, fy, fw, fh = follower.bbox(0.5)
+        fcx, fcy = fx + fw / 2, fy + fh / 2
+        assert fcx == pytest.approx(200, abs=1)
+        assert fcy == pytest.approx(200, abs=1)
+
+    def test_pin_to_top(self):
+        target = Rectangle(width=100, height=60, x=150, y=170)
+        follower = Circle(r=10, cx=0, cy=0)
+        follower.pin_to(target, edge='top', start=0, end=1)
+        follower._run_updaters(0.5)
+        fx, fy, fw, fh = follower.bbox(0.5)
+        fcx, fcy = fx + fw / 2, fy + fh / 2
+        # Target top edge: (150 + 100/2, 170) = (200, 170)
+        assert fcx == pytest.approx(200, abs=1)
+        assert fcy == pytest.approx(170, abs=1)
+
+    def test_pin_to_bottom_right(self):
+        target = Rectangle(width=100, height=60, x=150, y=170)
+        follower = Circle(r=10, cx=0, cy=0)
+        follower.pin_to(target, edge='bottom_right', start=0, end=1)
+        follower._run_updaters(0.5)
+        fx, fy, fw, fh = follower.bbox(0.5)
+        fcx, fcy = fx + fw / 2, fy + fh / 2
+        # Target bottom_right: (150 + 100, 170 + 60) = (250, 230)
+        assert fcx == pytest.approx(250, abs=1)
+        assert fcy == pytest.approx(230, abs=1)
+
+    def test_pin_to_with_offset(self):
+        target = Circle(r=50, cx=200, cy=200)
+        follower = Circle(r=10, cx=0, cy=0)
+        follower.pin_to(target, edge='center', offset_x=20, offset_y=-10, start=0, end=1)
+        follower._run_updaters(0.5)
+        fx, fy, fw, fh = follower.bbox(0.5)
+        fcx, fcy = fx + fw / 2, fy + fh / 2
+        assert fcx == pytest.approx(220, abs=1)
+        assert fcy == pytest.approx(190, abs=1)

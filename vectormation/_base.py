@@ -1866,6 +1866,33 @@ class VObject(ABC):  # Vector Object
             stay=False)
         return self
 
+    def pulse_outline(self, start: float = 0, end: float = 1, color='#FFFF00',
+                      max_width=8, cycles=2, easing=easings.smooth):
+        """Animate the stroke pulsing between current width and *max_width*.
+
+        The stroke color is set to *color* during the animation and the
+        stroke width oscillates sinusoidally for *cycles* full pulses.
+        At *end*, the original stroke color and width are restored.
+        Returns self.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        s, d = start, max(dur, 1e-9)
+        orig_sw = self.styling.stroke_width.at_time(start)
+        _, target_rgb = attributes.Color(0, color).parse(color)
+        orig_stroke = self.styling.stroke.time_func(start)
+        assert isinstance(orig_stroke, tuple)
+        # Stroke color: target during animation, original after
+        self.styling.stroke.set(s, end, lambda t, _rgb=target_rgb: _rgb, stay=False)
+        # Stroke width: sinusoidal pulse between orig_sw and max_width
+        _osw, _mw, _c = orig_sw, max_width, cycles
+        self.styling.stroke_width.set(s, end,
+            lambda t, _s=s, _d=d, _osw=_osw, _mw=_mw, _c=_c:
+                _osw + (_mw - _osw) * abs(math.sin(math.pi * _c * easing((t - _s) / _d))),
+            stay=False)
+        return self
+
     def circumscribe(self, start: float = 0, end: float = 1, buff=SMALL_BUFF, color=None, easing=easings.smooth, **styling_kwargs):
         """Draw and remove a rectangle tracing around this object.
         Returns the rectangle Path (must be added to canvas)."""
@@ -2081,14 +2108,36 @@ class VObject(ABC):  # Vector Object
         return self
 
     def blink(self, start: float = 0, end: float | None = None, count: int = 1,
-              duration: float = 0.3, easing=easings.smooth):
+              duration: float = 0.3, easing=easings.smooth, num_blinks: int | None = None):
         """Flash opacity on/off.
 
-        When *end* is given, divides [start, end] into *count* square-wave cycles:
-        each cycle toggles the opacity from 1 to 0 and back using the easing.
-        When *end* is None (legacy single-blink mode), blinks once over *duration*
-        seconds with a smooth fade to 0 and back.
+        When *num_blinks* is given (with *end*), uses a single step-function
+        that rapidly toggles visibility between 0 and 1 for *num_blinks*
+        cycles over ``[start, end]``.
+
+        When *end* is given without *num_blinks*, divides [start, end] into
+        *count* square-wave cycles: each cycle toggles the opacity from 1 to 0
+        and back using the easing.
+
+        When *end* is None (legacy single-blink mode), blinks once over
+        *duration* seconds with a smooth fade to 0 and back.
         """
+        if num_blinks is not None and end is not None:
+            # Step-function blink mode: single .set() with on/off phases
+            dur = end - start
+            if dur <= 0 or num_blinks <= 0:
+                return self
+            _s, _d, _nb = start, max(dur, 1e-9), num_blinks
+
+            def _step(t, _s=_s, _d=_d, _nb=_nb):
+                progress = easing((t - _s) / _d)
+                # Each blink is a full cycle; in the first half of a cycle
+                # the object is off (0), in the second half it's on (1)
+                phase = (progress * _nb) % 1.0
+                return 0.0 if phase < 0.5 else 1.0
+
+            self.styling.opacity.set(start, end, _step, stay=False)
+            return self
         if end is not None:
             # Multi-blink square-wave mode
             dur = end - start
@@ -2154,6 +2203,29 @@ class VObject(ABC):  # Vector Object
             return _min + (_max - _min) * wave
 
         self.styling.opacity.set(start, end, _opacity, stay=True)
+        return self
+
+    def shimmer(self, start: float = 0, end: float = 1, passes=2, easing=easings.smooth):
+        """Create a sweep highlight effect by oscillating opacity.
+
+        The opacity oscillates with brief peaks that sweep through over
+        *passes* full cycles during ``[start, end]``.  Uses a raised-cosine
+        wave so that opacity dips and peaks create a travelling shimmer.
+        Returns self.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        _s, _d, _p = start, max(dur, 1e-9), passes
+
+        def _shimmer(t, _s=_s, _d=_d, _p=_p):
+            progress = easing((t - _s) / _d)
+            # Raised cosine wave: oscillates between ~0.5 and 1.0
+            wave = 0.5 * (1 + math.cos(2 * math.pi * _p * progress))
+            # Map to opacity range 0.3..1.0 for a visible shimmer effect
+            return 0.3 + 0.7 * wave
+
+        self.styling.opacity.set(start, end, _shimmer, stay=False)
         return self
 
     def shake(self, start: float = 0, end: float = 0.5, amplitude=5, frequency=20, easing=easings.there_and_back):
@@ -3985,6 +4057,50 @@ class VObject(ABC):  # Vector Object
                     val = c.at_time(time)
                     c.set_onward(time, (val[0] + dx, val[1] + dy))
         self.add_updater(_bind, start, end)
+        return self
+
+    def pin_to(self, other, edge='center', offset_x=0, offset_y=0, start=0, end=None):
+        """Anchor this object to a specific edge/corner of *other*.
+
+        Unlike :meth:`bind_to` which tracks the target's center, this tracks
+        a specific edge point (e.g. 'top', 'bottom_right') of the target's
+        bounding box and maintains the given offset from that point.
+
+        Parameters
+        ----------
+        other:
+            The target object to pin to.
+        edge:
+            Which point on the target to track. Options: 'center', 'top',
+            'bottom', 'left', 'right', 'top_left', 'top_right',
+            'bottom_left', 'bottom_right'.
+        offset_x, offset_y:
+            Additional pixel offset from the computed edge point.
+        start, end:
+            Time interval during which the updater is active.
+
+        Returns self.
+        """
+        edge_fn = _EDGE_POINTS.get(edge, _EDGE_POINTS['center'])
+
+        def _pin(obj, time, _other=other, _edge_fn=edge_fn,
+                 _ox=offset_x, _oy=offset_y):
+            bx, by, bw, bh = _other.bbox(time)
+            ex, ey = _edge_fn(bx, by, bw, bh)
+            target_x = ex + _ox
+            target_y = ey + _oy
+            sx, sy, sw, sh = obj.bbox(time)
+            dx = target_x - (sx + sw / 2)
+            dy = target_y - (sy + sh / 2)
+            if abs(dx) > 0.01 or abs(dy) > 0.01:
+                for xa, ya in obj._shift_reals():
+                    xa.set_onward(time, xa.at_time(time) + dx)
+                    ya.set_onward(time, ya.at_time(time) + dy)
+                for c in obj._shift_coors():
+                    val = c.at_time(time)
+                    c.set_onward(time, (val[0] + dx, val[1] + dy))
+
+        self.add_updater(_pin, start, end)
         return self
 
     def duplicate(self, count=2, direction=RIGHT, buff=MED_SMALL_BUFF):
@@ -6127,6 +6243,26 @@ class VCollection:
             if dx != 0 or dy != 0:
                 obj.shift(dx=dx, dy=dy, start_time=start_time,
                           end_time=end_time, easing=easing)
+        return self
+
+    def distribute_evenly(self, start_x, start_y, end_x, end_y):
+        """Distribute children evenly along a line from (start_x, start_y) to (end_x, end_y).
+
+        The first child is centered at the start point, the last child at the
+        end point, and the rest are evenly spaced between them.  With a single
+        child, it is placed at the start point.  Returns self.
+        """
+        n = len(self.objects)
+        if n == 0:
+            return self
+        if n == 1:
+            self.objects[0].center_to_pos(posx=start_x, posy=start_y)
+            return self
+        for i, obj in enumerate(self.objects):
+            frac = i / (n - 1)
+            px = start_x + frac * (end_x - start_x)
+            py = start_y + frac * (end_y - start_y)
+            obj.center_to_pos(posx=px, posy=py)
         return self
 
 

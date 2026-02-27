@@ -981,6 +981,39 @@ class Polygon(VObject):
                               x2=bx + nx, y2=by + ny, **kwargs))
         return VCollection(*edges)
 
+    def subdivide_edges(self, iterations=1, time=0, **kwargs):
+        """Split each edge at its midpoint, creating a polygon with 2x vertices per iteration.
+
+        For a triangle with 3 edges, one iteration gives 6 vertices (original +
+        midpoints).  Multiple iterations subdivide recursively.
+
+        Parameters
+        ----------
+        iterations:
+            Number of subdivision passes.  Each pass doubles the vertex count.
+        time:
+            Animation time at which to read vertex positions.
+        **kwargs:
+            Extra styling keyword arguments forwarded to the new Polygon.
+
+        Returns
+        -------
+        Polygon
+            A new Polygon with subdivided edges.
+        """
+        pts = self.get_vertices(time)
+        for _ in range(iterations):
+            new_pts = []
+            n = len(pts)
+            edges = list(zip(pts, pts[1:]))
+            if self.closed and n > 1:
+                edges.append((pts[-1], pts[0]))
+            for (ax, ay), (bx, by) in edges:
+                new_pts.append((ax, ay))
+                new_pts.append(((ax + bx) / 2, (ay + by) / 2))
+            pts = new_pts
+        return Polygon(*pts, closed=self.closed, **kwargs)
+
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 
@@ -3792,9 +3825,9 @@ class Text(VObject):
             chars.append(t)
         return VCollection(*chars)
 
-    def char_count(self):
-        """Return the number of characters in the text string at time 0."""
-        return len(self.text.at_time(0))
+    def char_count(self, time=0):
+        """Return the number of characters in the text content at the given time."""
+        return len(self.text.at_time(time))
 
     def word_count(self, time=0):
         """Return the number of words in the text at the given time.
