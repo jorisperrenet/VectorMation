@@ -14362,3 +14362,23 @@ class TestMatrixAugmented:
     def test_augmented_repr(self):
         m = Matrix.augmented([[1]], [[2]])
         assert 'Matrix' in repr(m)
+
+
+class TestNeuralNetworkHighlightPath:
+    def test_highlight_path_basic(self):
+        from vectormation.objects import NeuralNetwork
+        nn = NeuralNetwork([3, 4, 2])
+        result = nn.highlight_path([0, 1, 0], start=0, delay=0.3)
+        assert result is nn
+
+    def test_highlight_path_wrong_length(self):
+        from vectormation.objects import NeuralNetwork
+        nn = NeuralNetwork([3, 4, 2])
+        result = nn.highlight_path([0, 1], start=0)  # too short
+        assert result is nn  # should be no-op
+
+    def test_highlight_path_with_colors(self):
+        from vectormation.objects import NeuralNetwork
+        nn = NeuralNetwork([2, 3, 2])
+        result = nn.highlight_path([1, 2, 0], color='#FF0000', edge_color='#00FF00')
+        assert result is nn

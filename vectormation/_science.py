@@ -330,6 +330,38 @@ class NeuralNetwork(VCollection):
                              color=color)
         return self
 
+    def highlight_path(self, path, start=0, delay=0.3, color='#FF6B6B',
+                       edge_color='#FF6B6B'):
+        """Highlight a specific path through the network.
+
+        path : list[int]
+            Neuron indices per layer (e.g. [0, 2, 1] for a 3-layer net).
+        """
+        if len(path) != len(self._layers):
+            return self
+        n_layers = len(self._layers)
+        # Highlight neurons along the path
+        for li, ni in enumerate(path):
+            t = start + li * delay
+            if 0 <= ni < len(self._layers[li]):
+                self._layers[li][ni].flash(start=t, end=t + delay, color=color)
+        # Highlight edges between consecutive path neurons
+        if not self._edges:
+            return self
+        sizes = [len(layer) for layer in self._layers]
+        for li in range(n_layers - 1):
+            n1, n2 = path[li], path[li + 1]
+            if not (0 <= n1 < sizes[li] and 0 <= n2 < sizes[li + 1]):
+                continue
+            # Edge index in fully connected layer: n1 * sizes[li+1] + n2
+            offset = sum(sizes[i] * sizes[i + 1] for i in range(li))
+            edge_idx = offset + n1 * sizes[li + 1] + n2
+            if 0 <= edge_idx < len(self._edges):
+                t = start + li * delay
+                self._edges[edge_idx].flash(start=t, end=t + delay * 2,
+                                             color=edge_color)
+        return self
+
 class Pendulum(VCollection):
     """Animated pendulum with a pivot, rod, and bob.
 
