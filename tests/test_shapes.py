@@ -9933,3 +9933,305 @@ class TestBarChartHighlightBar:
         chart.highlight_bar(0, color='#FF0000', start=0, end=1)
         # Should not raise and bar should exist
         assert chart._bars[0] is not None
+
+
+# ---- Rectangle.from_two_objects ----
+
+class TestRectangleFromTwoObjects:
+    def test_basic_enclosure(self):
+        """Rectangle should enclose two non-overlapping rectangles."""
+        a = Rectangle(100, 50, x=10, y=20)
+        b = Rectangle(80, 60, x=200, y=100)
+        r = Rectangle.from_two_objects(a, b)
+        rx = r.x.at_time(0)
+        ry = r.y.at_time(0)
+        rw = r.width.at_time(0)
+        rh = r.height.at_time(0)
+        # Union: x from 10 to max(110, 280)=280, y from 20 to max(70, 160)=160
+        assert rx == pytest.approx(10)
+        assert ry == pytest.approx(20)
+        assert rw == pytest.approx(270)
+        assert rh == pytest.approx(140)
+
+    def test_with_padding(self):
+        """Padding should expand the result on all sides."""
+        a = Rectangle(100, 100, x=0, y=0)
+        b = Rectangle(100, 100, x=100, y=0)
+        r = Rectangle.from_two_objects(a, b, padding=10)
+        assert r.x.at_time(0) == pytest.approx(-10)
+        assert r.y.at_time(0) == pytest.approx(-10)
+        assert r.width.at_time(0) == pytest.approx(220)
+        assert r.height.at_time(0) == pytest.approx(120)
+
+    def test_overlapping_objects(self):
+        """Should work for overlapping objects."""
+        a = Rectangle(200, 200, x=0, y=0)
+        b = Rectangle(100, 100, x=50, y=50)
+        r = Rectangle.from_two_objects(a, b)
+        assert r.x.at_time(0) == pytest.approx(0)
+        assert r.y.at_time(0) == pytest.approx(0)
+        assert r.width.at_time(0) == pytest.approx(200)
+        assert r.height.at_time(0) == pytest.approx(200)
+
+    def test_with_circle(self):
+        """Should work with circles (any object with bbox)."""
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=30, cx=300, cy=200)
+        r = Rectangle.from_two_objects(c1, c2)
+        # c1 bbox: (50, 50, 100, 100) -> (50..150, 50..150)
+        # c2 bbox: (270, 170, 60, 60) -> (270..330, 170..230)
+        assert r.x.at_time(0) == pytest.approx(50)
+        assert r.y.at_time(0) == pytest.approx(50)
+        assert r.width.at_time(0) == pytest.approx(280)
+        assert r.height.at_time(0) == pytest.approx(180)
+
+    def test_kwargs_forwarded(self):
+        """Extra kwargs should be forwarded to the Rectangle constructor."""
+        a = Rectangle(50, 50, x=0, y=0)
+        b = Rectangle(50, 50, x=100, y=100)
+        r = Rectangle.from_two_objects(a, b, fill='#FF0000')
+        fill = r.styling.fill.at_time(0).lower()
+        assert '255' in fill or 'ff0000' in fill
+
+    def test_returns_rectangle(self):
+        """Return type should be Rectangle."""
+        a = Rectangle(50, 50, x=0, y=0)
+        b = Rectangle(50, 50, x=100, y=0)
+        r = Rectangle.from_two_objects(a, b)
+        assert isinstance(r, Rectangle)
+
+
+# ---- Line.from_objects ----
+
+class TestLineFromObjects:
+    def test_horizontal_connection(self):
+        """Two objects side by side should connect via right/left edges."""
+        a = Rectangle(100, 100, x=0, y=0)
+        b = Rectangle(100, 100, x=300, y=0)
+        line = Line.from_objects(a, b)
+        p1 = line.get_start()
+        p2 = line.get_end()
+        # a right edge: (100, 50), b left edge: (300, 50)
+        assert p1[0] == pytest.approx(100)
+        assert p1[1] == pytest.approx(50)
+        assert p2[0] == pytest.approx(300)
+        assert p2[1] == pytest.approx(50)
+
+    def test_vertical_connection(self):
+        """Two objects stacked vertically should connect via bottom/top edges."""
+        a = Rectangle(100, 100, x=0, y=0)
+        b = Rectangle(100, 100, x=0, y=300)
+        line = Line.from_objects(a, b)
+        p1 = line.get_start()
+        p2 = line.get_end()
+        # a bottom edge: (50, 100), b top edge: (50, 300)
+        assert p1[0] == pytest.approx(50)
+        assert p1[1] == pytest.approx(100)
+        assert p2[0] == pytest.approx(50)
+        assert p2[1] == pytest.approx(300)
+
+    def test_with_buff(self):
+        """buff should shorten both endpoints inward."""
+        a = Rectangle(100, 100, x=0, y=0)
+        b = Rectangle(100, 100, x=300, y=0)
+        line = Line.from_objects(a, b, buff=10)
+        p1 = line.get_start()
+        p2 = line.get_end()
+        # Without buff: (100, 50) to (300, 50), horizontal
+        # With buff=10: (110, 50) to (290, 50)
+        assert p1[0] == pytest.approx(110)
+        assert p2[0] == pytest.approx(290)
+
+    def test_reverse_horizontal(self):
+        """Object B to the left of A should use left/right edges."""
+        a = Rectangle(100, 100, x=300, y=0)
+        b = Rectangle(100, 100, x=0, y=0)
+        line = Line.from_objects(a, b)
+        p1 = line.get_start()
+        p2 = line.get_end()
+        # a left edge: (300, 50), b right edge: (100, 50)
+        assert p1[0] == pytest.approx(300)
+        assert p2[0] == pytest.approx(100)
+
+    def test_kwargs_forwarded(self):
+        """Extra kwargs should be forwarded to the Line constructor."""
+        a = Rectangle(100, 100, x=0, y=0)
+        b = Rectangle(100, 100, x=300, y=0)
+        line = Line.from_objects(a, b, stroke='#FF0000')
+        svg = line.to_svg(0).lower()
+        assert '255' in svg or 'ff0000' in svg
+
+    def test_returns_line(self):
+        """Return type should be Line."""
+        a = Rectangle(100, 100, x=0, y=0)
+        b = Rectangle(100, 100, x=300, y=0)
+        assert isinstance(Line.from_objects(a, b), Line)
+
+
+# ---- Text.wrap ----
+
+class TestTextWrap:
+    def test_basic_wrap(self):
+        """Text that exceeds max_width should be split into multiple lines."""
+        t = Text(text='hello world foo bar baz', x=100, y=100, font_size=48)
+        col = t.wrap(max_width=300)
+        # Should produce multiple lines (text is ~48*0.6*23 = 662px total)
+        assert len(col.objects) > 1
+
+    def test_single_word(self):
+        """A single word should produce exactly one line."""
+        t = Text(text='hello', x=100, y=100, font_size=48)
+        col = t.wrap(max_width=1000)
+        assert len(col.objects) == 1
+        assert col.objects[0].text.at_time(0) == 'hello'
+
+    def test_empty_text(self):
+        """Empty text should produce empty VCollection."""
+        t = Text(text='', x=100, y=100, font_size=48)
+        col = t.wrap(max_width=300)
+        assert len(col.objects) == 0
+
+    def test_wide_enough_no_wrap(self):
+        """Text fitting within max_width should remain as one line."""
+        t = Text(text='hi', x=100, y=100, font_size=20)
+        col = t.wrap(max_width=1000)
+        assert len(col.objects) == 1
+        assert col.objects[0].text.at_time(0) == 'hi'
+
+    def test_line_positions(self):
+        """Lines should be positioned vertically with line_height spacing."""
+        t = Text(text='word1 word2 word3 word4 word5 word6', x=50, y=200, font_size=40)
+        col = t.wrap(max_width=200)
+        if len(col.objects) >= 2:
+            y0 = col.objects[0].y.at_time(0)
+            y1 = col.objects[1].y.at_time(0)
+            expected_spacing = 40 * 1.2  # font_size * 1.2
+            assert y1 - y0 == pytest.approx(expected_spacing)
+
+    def test_returns_vcollection(self):
+        """Return type should be VCollection."""
+        t = Text(text='hello world', x=100, y=100, font_size=48)
+        col = t.wrap(max_width=300)
+        assert isinstance(col, VCollection)
+
+    def test_preserves_x_position(self):
+        """All wrapped lines should share the same x position."""
+        t = Text(text='aaa bbb ccc ddd eee', x=150, y=100, font_size=48)
+        col = t.wrap(max_width=200)
+        for obj in col.objects:
+            assert obj.x.at_time(0) == pytest.approx(150)
+
+    def test_preserves_font_size(self):
+        """All wrapped lines should have the same font size."""
+        t = Text(text='aaa bbb ccc ddd eee', x=150, y=100, font_size=36)
+        col = t.wrap(max_width=200)
+        for obj in col.objects:
+            assert obj.font_size.at_time(0) == pytest.approx(36)
+
+
+# ---- Axes.add_animation_trace ----
+
+class TestAxesAddAnimationTrace:
+    def test_returns_self(self):
+        """add_animation_trace should return self for chaining."""
+        ax = Axes()
+        result = ax.add_animation_trace(lambda x: x ** 2, 0, 5)
+        assert result is ax
+
+    def test_dot_and_trail(self):
+        """Default call should add objects (dot + trail)."""
+        ax = Axes()
+        initial_count = len(ax.objects)
+        ax.add_animation_trace(lambda x: x, 0, 5)
+        assert len(ax.objects) > initial_count
+
+    def test_dot_only(self):
+        """trail=False should still add a dot."""
+        ax = Axes()
+        initial_count = len(ax.objects)
+        ax.add_animation_trace(lambda x: x, 0, 5, trail=False)
+        assert len(ax.objects) > initial_count
+
+    def test_trail_only(self):
+        """dot=False should still add trail objects."""
+        ax = Axes()
+        initial_count = len(ax.objects)
+        ax.add_animation_trace(lambda x: x, 0, 5, dot=False)
+        assert len(ax.objects) > initial_count
+
+    def test_neither_dot_nor_trail(self):
+        """dot=False, trail=False should not add anything."""
+        ax = Axes()
+        initial_count = len(ax.objects)
+        ax.add_animation_trace(lambda x: x, 0, 5, dot=False, trail=False)
+        assert len(ax.objects) == initial_count
+
+
+# ---- BarChart.animate_sort ----
+
+class TestBarChartAnimateSort:
+    def test_returns_self(self):
+        """animate_sort should return self for chaining."""
+        chart = BarChart([30, 10, 20])
+        result = chart.animate_sort()
+        assert result is chart
+
+    def test_values_reordered(self):
+        """After animate_sort, values should be sorted ascending."""
+        chart = BarChart([30, 10, 20])
+        chart.animate_sort()
+        assert chart.values == [10, 20, 30]
+
+    def test_values_reordered_descending(self):
+        """reverse=True should sort descending."""
+        chart = BarChart([10, 30, 20])
+        chart.animate_sort(reverse=True)
+        assert chart.values == [30, 20, 10]
+
+    def test_single_bar(self):
+        """A single-bar chart should be a no-op."""
+        chart = BarChart([42])
+        result = chart.animate_sort()
+        assert result is chart
+        assert chart.values == [42]
+
+    def test_already_sorted(self):
+        """Already sorted values should be unchanged."""
+        chart = BarChart([10, 20, 30])
+        chart.animate_sort()
+        assert chart.values == [10, 20, 30]
+
+    def test_custom_key(self):
+        """Custom key function should be used for sorting."""
+        chart = BarChart([3, -1, 2], labels=['a', 'b', 'c'])
+        chart.animate_sort(key=abs)
+        assert chart.values == [-1, 2, 3]
+
+    def test_bars_animate_positions(self):
+        """Bar x positions should be animated between start and end."""
+        chart = BarChart([30, 10, 20])
+        # Record initial x positions
+        old_xs = [bar.x.at_time(0) for bar in chart._bars]
+        chart.animate_sort(start=0, end=1)
+        # At time=0.5, some bars should be mid-transition
+        # The bars have been reordered in the list, so check that
+        # x values at time 1 are in the expected sorted positions
+        xs_at_end = [bar.x.at_time(1) for bar in chart._bars]
+        # After sorting [30,10,20] -> [10,20,30]
+        # The bar now at index 0 (value 10, was index 1) should be at old_xs[0]
+        assert xs_at_end[0] == pytest.approx(old_xs[0], abs=1)
+
+    def test_labels_moved(self):
+        """Labels should also be animated alongside their bars."""
+        chart = BarChart([30, 10, 20], labels=['A', 'B', 'C'])
+        chart.animate_sort(start=0, end=1)
+        # After sort: values [10, 20, 30], labels [B, C, A]
+        assert chart._labels[0].text.at_time(0) == 'B'
+        assert chart._labels[1].text.at_time(0) == 'C'
+        assert chart._labels[2].text.at_time(0) == 'A'
+
+    def test_zero_duration(self):
+        """Zero duration should return self without error."""
+        chart = BarChart([30, 10, 20])
+        result = chart.animate_sort(start=0, end=0)
+        assert result is chart

@@ -4862,6 +4862,117 @@ class VObject(ABC):  # Vector Object
         self.text.set_onward(end, text)
         return self
 
+    def look_at(self, target, start=0, end=None, easing=None):
+        """Rotate so this object points toward *target*.
+
+        Parameters
+        ----------
+        target:
+            An (x, y) tuple or a VObject (uses its center).
+        start:
+            Time at which the rotation begins.
+        end:
+            Time at which the rotation ends (``None`` = instant snap).
+        easing:
+            Easing function for the animated rotation.
+        """
+        if easing is None:
+            easing = easings.smooth
+        # Resolve target coordinates
+        if isinstance(target, tuple):
+            tx, ty = target
+        else:
+            tx, ty = target.get_center(start)
+        cx, cy = self.get_center(start)
+        angle_rad = math.atan2(ty - cy, tx - cx)
+        angle_deg = math.degrees(angle_rad)
+        if end is None:
+            return self.rotate_to(start, start, angle_deg, easing=easing)
+        return self.rotate_to(start, end, angle_deg, easing=easing)
+
+    def animate_to(self, target_obj, start=0, end=1, easing=None):
+        """Animate position, scale, and colors to match *target_obj*.
+
+        Over [start, end] this object moves to the target's center,
+        scales to match its width, and transitions fill/stroke colors.
+
+        Returns self.
+        """
+        if easing is None:
+            easing = easings.smooth
+        # Move to target center
+        tx, ty = target_obj.get_center(start)
+        self.center_to_pos(posx=tx, posy=ty, start_time=start, end_time=end, easing=easing)
+        # Scale to match target width
+        tw = target_obj.get_width(start)
+        cur_w = self.get_width(start)
+        if cur_w > 0 and tw > 0:
+            factor = tw / cur_w
+            self.scale(factor, start=start, end=end, easing=easing)
+        # Helper to convert rgb(r,g,b) strings to hex for set_color
+        def _to_hex(color_str):
+            if isinstance(color_str, str) and color_str.startswith('rgb('):
+                parts = color_str[4:-1].split(',')
+                r, g, b = int(parts[0]), int(parts[1]), int(parts[2])
+                return f'#{r:02x}{g:02x}{b:02x}'
+            return color_str
+        # Transition fill color
+        target_fill = target_obj.styling.fill.at_time(start)
+        if target_fill and target_fill != 'none':
+            self.set_color(start, end, fill=_to_hex(target_fill), easing=easing)
+        # Transition stroke color
+        target_stroke = target_obj.styling.stroke.at_time(start)
+        if target_stroke and target_stroke != 'none':
+            self.set_color(start, end, stroke=_to_hex(target_stroke), easing=easing)
+        return self
+
+    def set_gradient_fill(self, colors, direction='horizontal', start=0):
+        """Apply an SVG gradient fill to this object.
+
+        Parameters
+        ----------
+        colors:
+            List of CSS color strings for gradient stops, evenly spaced.
+        direction:
+            ``'horizontal'``, ``'vertical'``, or ``'radial'``.
+        start:
+            Time from which the gradient is visible.
+
+        Returns self.
+        """
+        gid = f'grad{id(self)}'
+        n = len(colors)
+        stops = ''.join(
+            f"<stop offset='{i / max(n - 1, 1) * 100}%' stop-color='{c}'/>"
+            for i, c in enumerate(colors)
+        )
+        if direction == 'radial':
+            grad_def = (
+                f"<radialGradient id='{gid}'>"
+                f"{stops}</radialGradient>"
+            )
+        else:
+            if direction == 'vertical':
+                x1, y1, x2, y2 = 0, 0, 0, 1
+            else:  # horizontal
+                x1, y1, x2, y2 = 0, 0, 1, 0
+            grad_def = (
+                f"<linearGradient id='{gid}' x1='{x1}' y1='{y1}' x2='{x2}' y2='{y2}'>"
+                f"{stops}</linearGradient>"
+            )
+        _orig_to_svg = self.to_svg
+
+        def _gradient_to_svg(time, _orig=_orig_to_svg, _gid=gid,
+                             _def=grad_def, _start=start):
+            inner = _orig(time)
+            if time >= _start:
+                return (f"<g><defs>{_def}</defs>"
+                        f"<g fill='url(#{_gid})'>{inner}</g></g>")
+            return inner
+
+        self.to_svg = _gradient_to_svg  # type: ignore[assignment]
+        return self
+
 
 class VCollection:
     """Container for a group of VObjects, delegating operations to children."""
@@ -4891,6 +5002,18 @@ class VCollection:
     def clear(self):
         """Remove all children."""
         self.objects.clear()
+        return self
+
+    def insert_at(self, index, *objs):
+        """Insert one or more objects at *index*.
+
+        Negative indices are supported (same semantics as ``list.insert``).
+        Objects are inserted in order so that ``objs[0]`` ends up at *index*.
+
+        Returns self.
+        """
+        for i, obj in enumerate(objs):
+            self.objects.insert(index + i if index >= 0 else index, obj)
         return self
 
     def send_to_back(self, child):
@@ -5832,6 +5955,48 @@ class VCollection:
             for key in ('start', 'end', 'start_time', 'end_time'):
                 if key in kw:
                     kw[key] = kw[key] + i * delay
+            getattr(obj, method_name)(**kw)
+        return self
+
+    def stagger_along_path(self, method_name, path_d, start=0, end=1,
+                           delay=0.1, **kwargs):
+        """Position children along an SVG path, then call *method_name* with stagger.
+
+        Each child is moved to an evenly-spaced point on the path described
+        by the SVG path string *path_d*, then the named animation method is
+        invoked with timing staggered by *delay*.
+
+        Parameters
+        ----------
+        method_name:
+            Name of the method to call on each child.
+        path_d:
+            SVG path data string (e.g. ``'M0,0 L500,500'``).
+        start:
+            Base start time for the first child's method call.
+        end:
+            Base end time for the first child's method call.
+        delay:
+            Timing offset between successive children.
+        **kwargs:
+            Extra keyword arguments forwarded to the method.
+        """
+        from svgpathtools import parse_path
+        n = len(self.objects)
+        if n == 0:
+            return self
+        parsed = parse_path(path_d)
+        total_len = parsed.length()
+        for i, obj in enumerate(self.objects):
+            # Sample evenly along the path
+            frac = i / max(n - 1, 1)
+            pt = parsed.point(frac)
+            px, py = pt.real, pt.imag
+            obj.center_to_pos(posx=px, posy=py, start_time=start)
+            # Call the method with staggered timing
+            kw = dict(kwargs)
+            kw['start'] = start + i * delay
+            kw['end'] = end + i * delay
             getattr(obj, method_name)(**kw)
         return self
 

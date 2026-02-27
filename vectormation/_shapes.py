@@ -2575,6 +2575,41 @@ class Rectangle(VObject):
             **kwargs,
         )
 
+    @classmethod
+    def from_two_objects(cls, obj_a, obj_b, padding=0, **kwargs):
+        """Create a Rectangle that encloses two objects' bounding boxes.
+
+        Computes the union of ``obj_a.bbox(0)`` and ``obj_b.bbox(0)``,
+        adds *padding* on every side, and returns a new Rectangle.
+
+        Parameters
+        ----------
+        obj_a, obj_b:
+            Any objects with a ``bbox(time)`` method returning
+            ``(x, y, width, height)``.
+        padding:
+            Extra space in pixels added to each side (default ``0``).
+        **kwargs:
+            Extra keyword arguments forwarded to the Rectangle constructor.
+
+        Returns
+        -------
+        Rectangle
+        """
+        ax, ay, aw, ah = obj_a.bbox(0)
+        bx, by, bw, bh = obj_b.bbox(0)
+        x1 = min(ax, bx)
+        y1 = min(ay, by)
+        x2 = max(ax + aw, bx + bw)
+        y2 = max(ay + ah, by + bh)
+        return cls(
+            x2 - x1 + 2 * padding,
+            y2 - y1 + 2 * padding,
+            x=x1 - padding,
+            y=y1 - padding,
+            **kwargs,
+        )
+
     def set_size(self, width, height, start=0, end=None, easing=easings.smooth):
         """Set both dimensions."""
         _anim(self.width, start, end, width, easing)
@@ -3462,6 +3497,62 @@ class Line(VObject):
         dx = math.cos(rad)
         dy = -math.sin(rad)  # negate because SVG y-axis points downward
         return cls(ox, oy, ox + dx * length, oy + dy * length, **kwargs)
+
+    @classmethod
+    def from_objects(cls, obj_a, obj_b, buff=0, **kwargs):
+        """Create a Line connecting the nearest edges of two objects.
+
+        The direction from *obj_a*'s center to *obj_b*'s center determines
+        which edges to use: if the horizontal distance is greater than the
+        vertical distance, the right edge of the closer object and the left
+        edge of the farther object are used (or vice-versa); otherwise the
+        bottom/top edges are used.
+
+        Parameters
+        ----------
+        obj_a, obj_b:
+            Any objects with ``bbox(time)`` and ``get_edge(name, time)``
+            methods.
+        buff:
+            Distance in pixels to shorten each endpoint inward along the
+            line direction (default ``0``).
+        **kwargs:
+            Extra keyword arguments forwarded to the Line constructor.
+
+        Returns
+        -------
+        Line
+        """
+        ca = obj_a.center(0)
+        cb = obj_b.center(0)
+        dx = cb[0] - ca[0]
+        dy = cb[1] - ca[1]
+        if abs(dx) >= abs(dy):
+            # Horizontal: use right/left edges
+            if dx >= 0:
+                p1 = obj_a.get_edge('right', 0)
+                p2 = obj_b.get_edge('left', 0)
+            else:
+                p1 = obj_a.get_edge('left', 0)
+                p2 = obj_b.get_edge('right', 0)
+        else:
+            # Vertical: use bottom/top edges
+            if dy >= 0:
+                p1 = obj_a.get_edge('bottom', 0)
+                p2 = obj_b.get_edge('top', 0)
+            else:
+                p1 = obj_a.get_edge('top', 0)
+                p2 = obj_b.get_edge('bottom', 0)
+        # Apply buff to shorten both endpoints
+        if buff > 0:
+            ldx = p2[0] - p1[0]
+            ldy = p2[1] - p1[1]
+            length = math.hypot(ldx, ldy)
+            if length > 2 * buff:
+                ux, uy = ldx / length, ldy / length
+                p1 = (p1[0] + ux * buff, p1[1] + uy * buff)
+                p2 = (p2[0] - ux * buff, p2[1] - uy * buff)
+        return cls(p1[0], p1[1], p2[0], p2[1], **kwargs)
 
     def lerp(self, t, time=0):
         """Return point (x, y) at parameter t (0=start, 1=end) along the line."""
@@ -4645,6 +4736,66 @@ class Text(VObject):
             fill=color, fill_opacity=opacity, stroke_width=0,
         )
         return VCollection(rect, self, creation=time)
+
+    def wrap(self, max_width, time=0):
+        """Word-wrap text to fit within *max_width* pixels.
+
+        Splits the text into words and accumulates them into lines, starting
+        a new line whenever the next word would exceed *max_width*.  Returns
+        a ``VCollection`` of :class:`Text` objects (one per line), positioned
+        vertically with ``font_size * 1.2`` line spacing.
+
+        Parameters
+        ----------
+        max_width:
+            Maximum width in pixels for each line.
+        time:
+            Animation time at which to read the text and font size.
+
+        Returns
+        -------
+        VCollection
+            A VCollection of Text objects, one per wrapped line.
+        """
+        from vectormation._base import VCollection
+        full = str(self.text.at_time(time))
+        words = full.split()
+        if not words:
+            return VCollection()
+        fs = self.font_size.at_time(time)
+        x = self.x.at_time(time)
+        y = self.y.at_time(time)
+        fill_color = self.styling.fill.time_func(time)
+        line_height = fs * 1.2
+        lines = []
+        current_words = []
+        current_width = 0
+        space_width = self._estimate_width(' ', fs)
+        for word in words:
+            word_width = self._estimate_width(word, fs)
+            test_width = current_width + (space_width if current_words else 0) + word_width
+            if current_words and test_width > max_width:
+                lines.append(' '.join(current_words))
+                current_words = [word]
+                current_width = word_width
+            else:
+                current_words.append(word)
+                current_width = test_width
+        if current_words:
+            lines.append(' '.join(current_words))
+        parts = []
+        for i, line_text in enumerate(lines):
+            t = Text(text=line_text, x=x, y=y + i * line_height,
+                     font_size=fs, creation=time, stroke_width=0,
+                     fill=fill_color)
+            if self._text_anchor:
+                t._text_anchor = self._text_anchor
+            if self._font_weight:
+                t._font_weight = self._font_weight
+            if self._font_style:
+                t._font_style = self._font_style
+            parts.append(t)
+        return VCollection(*parts)
 
     def to_svg(self, time):
         anchor = f" text-anchor='{self._text_anchor}'" if self._text_anchor else ''

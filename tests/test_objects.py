@@ -11145,3 +11145,166 @@ class TestDropShadow:
         assert "dx='4'" in svg
         assert "dy='4'" in svg
         assert "stdDeviation='6'" in svg
+
+
+class TestLookAt:
+    def test_look_at_tuple_right(self):
+        """Looking at a point to the right should give ~0 degrees rotation."""
+        c = Circle(r=20, cx=100, cy=100)
+        c.look_at((200, 100), start=0)
+        rot = c.styling.rotation.at_time(0)
+        assert rot[0] == pytest.approx(0, abs=1)
+
+    def test_look_at_tuple_down(self):
+        """Looking at a point below should give ~90 degrees."""
+        c = Circle(r=20, cx=100, cy=100)
+        c.look_at((100, 200), start=0)
+        rot = c.styling.rotation.at_time(0)
+        assert rot[0] == pytest.approx(90, abs=1)
+
+    def test_look_at_tuple_left(self):
+        """Looking at a point to the left should give ~180 or ~-180 degrees."""
+        c = Circle(r=20, cx=100, cy=100)
+        c.look_at((0, 100), start=0)
+        rot = c.styling.rotation.at_time(0)
+        assert abs(rot[0]) == pytest.approx(180, abs=1)
+
+    def test_look_at_tuple_up(self):
+        """Looking at a point above should give ~-90 degrees."""
+        c = Circle(r=20, cx=100, cy=100)
+        c.look_at((100, 0), start=0)
+        rot = c.styling.rotation.at_time(0)
+        assert rot[0] == pytest.approx(-90, abs=1)
+
+    def test_look_at_vobject(self):
+        """Target can be another VObject."""
+        c1 = Circle(r=20, cx=100, cy=100)
+        c2 = Circle(r=20, cx=200, cy=100)
+        c1.look_at(c2, start=0)
+        rot = c1.styling.rotation.at_time(0)
+        assert rot[0] == pytest.approx(0, abs=1)
+
+    def test_look_at_animated(self):
+        """When end is provided, rotation should animate."""
+        c = Circle(r=20, cx=100, cy=100)
+        c.look_at((100, 200), start=0, end=1, easing=easings.linear)
+        rot_start = c.styling.rotation.at_time(0)
+        rot_end = c.styling.rotation.at_time(1)
+        # At end, should be ~90 degrees (pointing down)
+        assert rot_end[0] == pytest.approx(90, abs=1)
+
+    def test_look_at_returns_self(self):
+        c = Circle(r=20, cx=100, cy=100)
+        result = c.look_at((200, 200), start=0)
+        assert result is c
+
+    def test_look_at_diagonal(self):
+        """Looking at a 45-degree diagonal."""
+        c = Circle(r=20, cx=100, cy=100)
+        c.look_at((200, 200), start=0)
+        rot = c.styling.rotation.at_time(0)
+        assert rot[0] == pytest.approx(45, abs=1)
+
+
+class TestAnimateTo:
+    def test_animate_to_position(self):
+        """Object should move to target's center."""
+        c1 = Circle(r=20, cx=100, cy=100)
+        c2 = Circle(r=20, cx=400, cy=300)
+        c1.animate_to(c2, start=0, end=1, easing=easings.linear)
+        cx, cy = c1.center(1)
+        assert cx == pytest.approx(400, abs=5)
+        assert cy == pytest.approx(300, abs=5)
+
+    def test_animate_to_returns_self(self):
+        c1 = Circle(r=20, cx=100, cy=100)
+        c2 = Circle(r=40, cx=300, cy=300)
+        result = c1.animate_to(c2, start=0, end=1)
+        assert result is c1
+
+    def test_animate_to_copies_fill(self):
+        """Should animate fill color to match target."""
+        c1 = Circle(r=20, cx=100, cy=100, fill='#ff0000')
+        c2 = Circle(r=20, cx=200, cy=200, fill='#00ff00')
+        c1.animate_to(c2, start=0, end=1, easing=easings.linear)
+        # At end, fill should be the target color (rgb format)
+        fill_end = c1.styling.fill.at_time(1)
+        assert fill_end == 'rgb(0,255,0)'
+
+    def test_animate_to_copies_stroke(self):
+        """Should animate stroke color to match target."""
+        c1 = Circle(r=20, cx=100, cy=100, stroke='#ff0000')
+        c2 = Circle(r=20, cx=200, cy=200, stroke='#0000ff')
+        c1.animate_to(c2, start=0, end=1, easing=easings.linear)
+        stroke_end = c1.styling.stroke.at_time(1)
+        assert stroke_end == 'rgb(0,0,255)'
+
+    def test_animate_to_scales(self):
+        """Object should scale to match target width."""
+        c1 = Circle(r=20, cx=100, cy=100)
+        c2 = Circle(r=40, cx=300, cy=300)
+        c1.animate_to(c2, start=0, end=1, easing=easings.linear)
+        w1_end = c1.get_width(1)
+        w2 = c2.get_width(0)
+        assert w1_end == pytest.approx(w2, rel=0.15)
+
+
+class TestSetGradientFill:
+    def test_horizontal_gradient(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_gradient_fill(['#ff0000', '#0000ff'], direction='horizontal')
+        svg = c.to_svg(0)
+        assert '<linearGradient' in svg
+        assert "x1='0'" in svg
+        assert "x2='1'" in svg
+        assert '#ff0000' in svg
+        assert '#0000ff' in svg
+
+    def test_vertical_gradient(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_gradient_fill(['#ff0000', '#0000ff'], direction='vertical')
+        svg = c.to_svg(0)
+        assert '<linearGradient' in svg
+        assert "y2='1'" in svg
+
+    def test_radial_gradient(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_gradient_fill(['#ff0000', '#0000ff'], direction='radial')
+        svg = c.to_svg(0)
+        assert '<radialGradient' in svg
+
+    def test_gradient_not_before_start(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_gradient_fill(['#ff0000', '#0000ff'], start=5)
+        svg = c.to_svg(0)
+        assert '<linearGradient' not in svg
+
+    def test_gradient_after_start(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_gradient_fill(['#ff0000', '#0000ff'], start=5)
+        svg = c.to_svg(5)
+        assert '<linearGradient' in svg
+
+    def test_gradient_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.set_gradient_fill(['#ff0000', '#0000ff'])
+        assert result is c
+
+    def test_gradient_three_colors(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_gradient_fill(['#ff0000', '#00ff00', '#0000ff'])
+        svg = c.to_svg(0)
+        assert '#ff0000' in svg
+        assert '#00ff00' in svg
+        assert '#0000ff' in svg
+        assert "offset='0%" in svg or "offset='0.0%" in svg
+        assert "offset='50" in svg
+        assert "offset='100" in svg
+
+    def test_gradient_wraps_inner_svg(self):
+        """The gradient wraps the object's original SVG output."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_gradient_fill(['#ff0000', '#0000ff'])
+        svg = c.to_svg(0)
+        assert '<circle' in svg
+        assert 'url(#' in svg

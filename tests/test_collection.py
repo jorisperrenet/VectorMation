@@ -3075,3 +3075,119 @@ class TestCollectionScaleAboutPoint:
         cx, cy = c1.center(0)
         assert cx == pytest.approx(100, abs=1)
         assert cy == pytest.approx(100, abs=1)
+
+
+class TestInsertAt:
+    def test_insert_at_beginning(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=100, cy=100)
+        col = VCollection(c1, c2)
+        c3 = Circle(r=10, cx=50, cy=50)
+        col.insert_at(0, c3)
+        assert col[0] is c3
+        assert col[1] is c1
+        assert col[2] is c2
+
+    def test_insert_at_middle(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=100, cy=100)
+        col = VCollection(c1, c2)
+        c3 = Circle(r=10, cx=50, cy=50)
+        col.insert_at(1, c3)
+        assert col[0] is c1
+        assert col[1] is c3
+        assert col[2] is c2
+
+    def test_insert_at_end(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=100, cy=100)
+        col = VCollection(c1, c2)
+        c3 = Circle(r=10, cx=50, cy=50)
+        col.insert_at(2, c3)
+        assert col[0] is c1
+        assert col[1] is c2
+        assert col[2] is c3
+
+    def test_insert_at_negative_index(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=100, cy=100)
+        col = VCollection(c1, c2)
+        c3 = Circle(r=10, cx=50, cy=50)
+        col.insert_at(-1, c3)
+        # list.insert(-1, x) inserts before the last element
+        assert c3 in col.objects
+        assert len(col) == 3
+
+    def test_insert_at_multiple_objects(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=100, cy=100)
+        col = VCollection(c1, c2)
+        c3 = Circle(r=10, cx=50, cy=50)
+        c4 = Circle(r=10, cx=75, cy=75)
+        col.insert_at(1, c3, c4)
+        assert len(col) == 4
+        assert col[0] is c1
+        assert col[1] is c3
+        assert col[2] is c4
+        assert col[3] is c2
+
+    def test_insert_at_returns_self(self):
+        col = VCollection(Circle(r=10))
+        result = col.insert_at(0, Circle(r=10))
+        assert result is col
+
+    def test_insert_at_empty_collection(self):
+        col = VCollection()
+        c1 = Circle(r=10, cx=50, cy=50)
+        col.insert_at(0, c1)
+        assert len(col) == 1
+        assert col[0] is c1
+
+
+class TestStaggerAlongPath:
+    def test_stagger_along_path_positions_children(self):
+        """Children should be positioned along the path."""
+        c1 = Circle(r=5, cx=0, cy=0)
+        c2 = Circle(r=5, cx=0, cy=0)
+        c3 = Circle(r=5, cx=0, cy=0)
+        col = VCollection(c1, c2, c3)
+        col.stagger_along_path('fadein', 'M0,0 L300,0', start=0, end=1, delay=0.5)
+        # c1 at start (0,0), c2 at middle (150,0), c3 at end (300,0)
+        cx1, cy1 = c1.center(0)
+        cx2, cy2 = c2.center(0)
+        cx3, cy3 = c3.center(0)
+        assert cx1 == pytest.approx(0, abs=5)
+        assert cx2 == pytest.approx(150, abs=5)
+        assert cx3 == pytest.approx(300, abs=5)
+
+    def test_stagger_along_path_returns_self(self):
+        c1 = Circle(r=5, cx=0, cy=0)
+        col = VCollection(c1)
+        result = col.stagger_along_path('fadein', 'M0,0 L100,0', start=0, end=1)
+        assert result is col
+
+    def test_stagger_along_path_empty_collection(self):
+        col = VCollection()
+        result = col.stagger_along_path('fadein', 'M0,0 L100,0', start=0, end=1)
+        assert result is col
+
+    def test_stagger_along_path_single_child(self):
+        """A single child should be placed at the start of the path."""
+        c1 = Circle(r=5, cx=0, cy=0)
+        col = VCollection(c1)
+        col.stagger_along_path('fadein', 'M100,200 L300,400', start=0, end=1)
+        cx, cy = c1.center(0)
+        assert cx == pytest.approx(100, abs=5)
+        assert cy == pytest.approx(200, abs=5)
+
+    def test_stagger_along_path_timing(self):
+        """Each child's method call should be staggered by delay."""
+        c1 = Circle(r=5, cx=0, cy=0)
+        c2 = Circle(r=5, cx=0, cy=0)
+        col = VCollection(c1, c2)
+        col.stagger_along_path('fadein', 'M0,0 L200,0', start=0, end=1, delay=0.5)
+        # c1 fadein at start=0, c2 fadein at start=0.5
+        # Before c2's start, c2 should not yet be showing
+        assert not c2.show.at_time(-0.1)
+        # After c2's fadein, c2 should be visible
+        assert c2.show.at_time(1.5)

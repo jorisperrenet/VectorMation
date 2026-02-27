@@ -2373,6 +2373,52 @@ class Axes(VCollection):
         group = VCollection(dot, trail, creation=creation, z=z)
         return group
 
+    def add_animation_trace(self, func, x_start, x_end, start=0, end=1,
+                             dot=True, trail=True, color='#FFFF00', **kwargs):
+        """Combined convenience: moving dot on a function curve with trailing path.
+
+        Internally uses :meth:`add_cursor` for the dot and :meth:`add_trace`
+        for the trail, coordinating their timing.
+
+        Parameters
+        ----------
+        func:
+            The function ``f(x) -> y`` to trace.
+        x_start, x_end:
+            Math x-range for the animation.
+        start, end:
+            Animation time range.
+        dot:
+            If *True* (default), show a moving dot on the curve.
+        trail:
+            If *True* (default), draw a trailing path behind the dot.
+        color:
+            Color for both the dot and trail (default ``'#FFFF00'``).
+        **kwargs:
+            Extra keyword arguments forwarded to ``add_cursor``/``add_trace``
+            (e.g. ``r``, ``trail_width``, ``easing``).
+
+        Returns
+        -------
+        self
+        """
+        if trail and dot:
+            # add_trace already creates both dot and trail
+            self.add_trace(func, x_start, x_end, start=start, end=end,
+                           fill=color, stroke=color, **kwargs)
+        elif dot:
+            self.add_cursor(func, x_start, x_end, start=start, end=end,
+                            fill=color, **kwargs)
+        elif trail:
+            # Trail only: use add_trace but make the dot invisible
+            trace_kw = {k: v for k, v in kwargs.items() if k != 'r'}
+            group = self.add_trace(func, x_start, x_end, start=start, end=end,
+                                   r=0, fill=color, stroke=color, **trace_kw)
+            # Hide the dot in the group (first object)
+            if group.objects:
+                group.objects[0].styling.opacity.set_onward(0, 0)
+        return self
+
     def get_line_from_to(self, x1, y1, x2, y2, creation=0, z=0, **styling_kwargs):
         """Draw a solid line between two math coordinate points.
         Returns a Line object."""
@@ -7095,6 +7141,79 @@ class BarChart(VCollection):
             lbl = self._labels[old_idx]
             if lbl is not None:
                 lbl.shift(dx=dx, dy=0, start_time=start, end_time=end, easing=easing)
+        # Reorder internal lists to match new order
+        new_order = [orig_idx for _, orig_idx in indexed]
+        self._bars = [self._bars[i] for i in new_order]
+        self._labels = [self._labels[i] for i in new_order]
+        self.values = [self.values[i] for i in new_order]
+        return self
+
+    def animate_sort(self, key=None, reverse=False, start=0, end=1, easing=None):
+        """Smoothly animate bars sliding into sorted order.
+
+        Like :meth:`sort_bars`, but animates bar positions with ``move_to``
+        for smooth interpolation.  Labels are moved alongside their bars.
+
+        Parameters
+        ----------
+        key:
+            A function ``key(value) -> sort_key``.  If *None*, bars are
+            sorted by their numeric value.
+        reverse:
+            If *True*, sort in descending order.
+        start, end:
+            Animation time range.
+        easing:
+            Easing function for the animation.  Defaults to
+            ``easings.smooth``.
+
+        Returns
+        -------
+        self
+        """
+        if easing is None:
+            easing = easings.smooth
+        if len(self._bars) <= 1:
+            return self
+        if key is None:
+            key = lambda v: v
+        indexed = [(key(val), i) for i, val in enumerate(self.values)]
+        indexed.sort(key=lambda x: x[0], reverse=reverse)
+        # Record current x positions and centers at start time
+        old_xs = [bar.x.at_time(start) for bar in self._bars]
+        old_centers = []
+        for bar in self._bars:
+            bx, by, bw, bh = bar.bbox(start)
+            old_centers.append((bx + bw / 2, by + bh / 2))
+        dur = end - start
+        if dur <= 0:
+            return self
+        for new_pos, (_, old_idx) in enumerate(indexed):
+            if new_pos == old_idx:
+                continue
+            bar = self._bars[old_idx]
+            target_x = old_xs[new_pos]
+            current_x = old_xs[old_idx]
+            # Animate bar x position smoothly
+            _cx = current_x
+            _tx = target_x
+            _s, _d = start, dur
+            _e = easing
+            bar.x.set(start, end,
+                lambda t, _cx=_cx, _tx=_tx, _s=_s, _d=_d, _e=_e:
+                    _cx + (_tx - _cx) * _e((t - _s) / _d),
+                stay=True)
+            # Also animate label if present
+            lbl = self._labels[old_idx]
+            if lbl is not None:
+                lbl_x = lbl.x.at_time(start)
+                dx = target_x - current_x
+                _lx = lbl_x
+                _ldx = dx
+                lbl.x.set(start, end,
+                    lambda t, _lx=_lx, _ldx=_ldx, _s=_s, _d=_d, _e=_e:
+                        _lx + _ldx * _e((t - _s) / _d),
+                    stay=True)
         # Reorder internal lists to match new order
         new_order = [orig_idx for _, orig_idx in indexed]
         self._bars = [self._bars[i] for i in new_order]
