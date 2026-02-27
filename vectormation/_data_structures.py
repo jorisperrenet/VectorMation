@@ -5,8 +5,8 @@ import vectormation.attributes as attributes
 from vectormation._constants import (
     ORIGIN, TEXT_Y_OFFSET, _label_text, _get_arrow,
 )
-from vectormation._base import VObject, VCollection, _lerp
-from vectormation._shapes import Circle, Rectangle, RoundedRectangle, Line, Text, Path
+from vectormation._base import VCollection, _lerp
+from vectormation._shapes import Circle, Rectangle, Line, Text
 
 
 def _flash_fill(obj, color, start, end, default='#264653'):
