@@ -714,16 +714,16 @@ class Stepper(VCollection):
         """Animate transitioning active step highlight from from_step to to_step."""
         # Dim old step circle
         if 0 <= from_step < len(self._circles):
-            self._circles[from_step].set_fill(self._inactive_color, start=start)
+            self._circles[from_step].set_fill(self._inactive_color, start=start, end=end)
         # Highlight new step circle
         if 0 <= to_step < len(self._circles):
-            self._circles[to_step].set_fill(self._active_color, start=start)
+            self._circles[to_step].set_fill(self._active_color, start=start, end=end)
         # Update connecting lines between steps
         for i, line in enumerate(self._lines):
             if i < to_step:
-                line.set_style(stroke=self._active_color, start=start)
+                line.set_stroke(self._active_color, start=start, end=end)
             else:
-                line.set_style(stroke=self._inactive_color, start=start)
+                line.set_stroke(self._inactive_color, start=start, end=end)
         return self
 
     def __repr__(self):

@@ -3,7 +3,7 @@ import math
 import vectormation.easings as easings
 from vectormation._constants import (
     ORIGIN, DEFAULT_CHART_COLORS,
-    CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET, _normalize, _label_text, _get_arrow,
+    TEXT_Y_OFFSET, _normalize, _label_text, _get_arrow,
 )
 from vectormation._base import VCollection
 from vectormation._shapes import (
