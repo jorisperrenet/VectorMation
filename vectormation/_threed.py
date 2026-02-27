@@ -1,5 +1,6 @@
 """3D objects: ThreeDAxes, Surface, primitives (Line3D, Dot3D, Arrow3D, etc.)."""
 import math
+from copy import deepcopy
 from xml.sax.saxutils import escape as _xml_escape
 
 import vectormation.easings as easings
@@ -762,20 +763,31 @@ class _ParametricWireframe:
 # 3D Primitives
 # ---------------------------------------------------------------------------
 
-class Line3D:
-    """A line segment in 3D space."""
+class _Primitive3D:
+    """Base for 3D primitives with show/z attributes and copy()."""
 
-    def __init__(self, start, end, stroke='#fff', stroke_width=2, creation=0, z=0):
+    def __init__(self, creation=0, z=0):
         self.show = attributes.Real(creation, True)
         self.z = attributes.Real(creation, z)
-        self._start = tuple(start)
-        self._end = tuple(end)
-        self._stroke = stroke
-        self._stroke_width = stroke_width
 
     @property
     def last_change(self):
         return max(self.show.last_change, self.z.last_change)
+
+    def copy(self):
+        """Return a deep copy of this object."""
+        return deepcopy(self)
+
+
+class Line3D(_Primitive3D):
+    """A line segment in 3D space."""
+
+    def __init__(self, start, end, stroke='#fff', stroke_width=2, creation=0, z=0):
+        super().__init__(creation, z)
+        self._start = tuple(start)
+        self._end = tuple(end)
+        self._stroke = stroke
+        self._stroke_width = stroke_width
 
     def shift(self, dx=0, dy=0, dz=0):
         """Shift both endpoints by (dx, dy, dz). Returns self for chaining."""
@@ -807,11 +819,6 @@ class Line3D:
                           self._end[1] - self._start[1],
                           self._end[2] - self._start[2])
 
-    def copy(self):
-        """Return a deep copy of this object."""
-        from copy import deepcopy
-        return deepcopy(self)
-
     def to_patches(self, axes, time):
         sx0, sy0, d0 = axes.project_point(*self._start, time)
         sx1, sy1, d1 = axes.project_point(*self._end, time)
@@ -821,19 +828,14 @@ class Line3D:
         return [(depth, svg)]
 
 
-class Dot3D:
+class Dot3D(_Primitive3D):
     """A dot in 3D space."""
 
     def __init__(self, point=(0, 0, 0), radius=5, fill='#fff', creation=0, z=0):
-        self.show = attributes.Real(creation, True)
-        self.z = attributes.Real(creation, z)
+        super().__init__(creation, z)
         self._point = tuple(point)
         self._radius = radius
         self._fill = fill
-
-    @property
-    def last_change(self):
-        return max(self.show.last_change, self.z.last_change)
 
     def shift(self, dx=0, dy=0, dz=0):
         """Shift the point by (dx, dy, dz). Returns self for chaining."""
@@ -859,11 +861,6 @@ class Dot3D:
         """Return the 3D position as a tuple."""
         return self._point
 
-    def copy(self):
-        """Return a deep copy of this object."""
-        from copy import deepcopy
-        return deepcopy(self)
-
     def to_patches(self, axes, time):
         sx, sy, depth = axes.project_point(*self._point, time)
         svg = (f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="{self._radius}" '
@@ -871,23 +868,18 @@ class Dot3D:
         return [(depth, svg)]
 
 
-class Arrow3D:
+class Arrow3D(_Primitive3D):
     """An arrow in 3D space with a cone tip."""
 
     def __init__(self, start, end, stroke='#fff', stroke_width=2,
                  tip_length=12, tip_radius=4, creation=0, z=0):
-        self.show = attributes.Real(creation, True)
-        self.z = attributes.Real(creation, z)
+        super().__init__(creation, z)
         self._start = tuple(start)
         self._end = tuple(end)
         self._stroke = stroke
         self._stroke_width = stroke_width
         self._tip_length = tip_length
         self._tip_radius = tip_radius
-
-    @property
-    def last_change(self):
-        return max(self.show.last_change, self.z.last_change)
 
     def shift(self, dx=0, dy=0, dz=0):
         """Shift both endpoints by (dx, dy, dz). Returns self for chaining."""
@@ -912,11 +904,6 @@ class Arrow3D:
         return math.hypot(self._end[0] - self._start[0],
                           self._end[1] - self._start[1],
                           self._end[2] - self._start[2])
-
-    def copy(self):
-        """Return a deep copy of this object."""
-        from copy import deepcopy
-        return deepcopy(self)
 
     def to_patches(self, axes, time):
         patches = []
@@ -946,32 +933,22 @@ class Arrow3D:
         return patches
 
 
-class ParametricCurve3D:
+class ParametricCurve3D(_Primitive3D):
     """A parametric curve in 3D space."""
 
     def __init__(self, func, t_range=(0, 1), num_points=100,
                  stroke='#fff', stroke_width=2, creation=0, z=0):
-        self.show = attributes.Real(creation, True)
-        self.z = attributes.Real(creation, z)
+        super().__init__(creation, z)
         self._func = func
         self._t_range = t_range
         self._num_points = num_points
         self._stroke = stroke
         self._stroke_width = stroke_width
 
-    @property
-    def last_change(self):
-        return max(self.show.last_change, self.z.last_change)
-
     def set_color(self, color):
         """Set the stroke color. Returns self for chaining."""
         self._stroke = color
         return self
-
-    def copy(self):
-        """Return a deep copy of this object."""
-        from copy import deepcopy
-        return deepcopy(self)
 
     def to_patches(self, axes, time):
         t0, t1 = self._t_range
@@ -1016,21 +993,16 @@ def Sphere3D(radius=1.5, center=(0, 0, 0), resolution=(16, 32),
                    creation=creation, z=z)
 
 
-class Text3D:
+class Text3D(_Primitive3D):
     """A text label placed at a 3D position."""
 
     def __init__(self, text, point=(0, 0, 0), font_size=20, fill='#fff',
                  creation=0, z=0):
-        self.show = attributes.Real(creation, True)
-        self.z = attributes.Real(creation, z)
+        super().__init__(creation, z)
         self._text = text
         self._point = tuple(point)
         self._font_size = font_size
         self._fill = fill
-
-    @property
-    def last_change(self):
-        return max(self.show.last_change, self.z.last_change)
 
     def shift(self, dx=0, dy=0, dz=0):
         """Shift the text position by (dx, dy, dz). Returns self for chaining."""
@@ -1055,11 +1027,6 @@ class Text3D:
     def get_position(self):
         """Return the 3D position as a tuple."""
         return self._point
-
-    def copy(self):
-        """Return a deep copy of this object."""
-        from copy import deepcopy
-        return deepcopy(self)
 
     def to_patches(self, axes, time):
         sx, sy, depth = axes.project_point(*self._point, time)

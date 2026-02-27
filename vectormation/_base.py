@@ -408,17 +408,7 @@ class VObject(ABC):  # Vector Object
         return self
 
     def delay(self, duration, start=0):
-        """Hide the object for *duration* seconds starting from *start*, then show it.
-
-        Useful for staggering appearances without complex timing math.
-
-        Parameters
-        ----------
-        duration:
-            How long (in seconds) the object stays hidden.
-        start:
-            Time at which the hiding begins (default 0).
-        """
+        """Hide for *duration* seconds from *start*, then show."""
         self._show_from(start + duration)
         return self
 
@@ -5440,28 +5430,7 @@ class VCollection:
         return -1
 
     def group_by(self, key_func):
-        """Group children by the result of *key_func*.
-
-        Parameters
-        ----------
-        key_func:
-            A callable that takes a single child object and returns a hashable
-            key.  For example ``type`` groups by class, ``lambda o: o.z``
-            groups by z-order.
-
-        Returns
-        -------
-        dict
-            A mapping from each distinct key value to a :class:`VCollection`
-            containing all children that produced that key.
-
-        Examples
-        --------
-        >>> circles = VCollection(Circle(), Circle(), Rectangle())
-        >>> groups = circles.group_by(type)
-        >>> groups[Circle]   # VCollection of two circles
-        >>> groups[Rectangle]  # VCollection of one rectangle
-        """
+        """Return a dict mapping *key_func(child)* to VCollections of matching children."""
         groups: dict = {}
         for obj in self.objects:
             k = key_func(obj)
@@ -5476,51 +5445,14 @@ class VCollection:
         return VCollection(*yes), VCollection(*no)
 
     def chunk(self, size: int):
-        """Split children into sub-collections of at most *size* elements each.
-
-        Returns a list of :class:`VCollection` objects.  The last chunk may
-        contain fewer than *size* elements when the number of children is not
-        exactly divisible by *size*.
-
-        Parameters
-        ----------
-        size:
-            Maximum number of children per chunk.  Must be >= 1.
-
-        Returns
-        -------
-        list of VCollection
-
-        Raises
-        ------
-        ValueError
-            If *size* is less than 1.
-
-        Examples
-        --------
-        >>> col = VCollection(*[Circle() for _ in range(10)])
-        >>> chunks = col.chunk(3)
-        >>> [len(c.objects) for c in chunks]
-        [3, 3, 3, 1]
-        """
+        """Split children into sub-collections of at most *size* each."""
         if size < 1:
             raise ValueError(f"chunk size must be >= 1, got {size!r}")
         objs = self.objects
         return [VCollection(*objs[i:i + size]) for i in range(0, len(objs), size)]
 
     def sort_by_position(self, axis='x', reverse=False):
-        """Sort children in-place by their x or y position.
-
-        Parameters
-        ----------
-        axis:
-            ``'x'`` to sort by centre x coordinate (left-to-right),
-            ``'y'`` to sort by centre y coordinate (top-to-bottom).
-        reverse:
-            If ``True``, sort in descending order.
-
-        Returns self.
-        """
+        """Sort children in-place by their x or y centre coordinate."""
         if axis == 'x':
             self.objects.sort(key=lambda obj: obj.center(0)[0], reverse=reverse)
         elif axis == 'y':
@@ -5528,23 +5460,7 @@ class VCollection:
         return self
 
     def group_into(self, n):
-        """Split the collection into *n* sub-collections of roughly equal size.
-
-        Returns a :class:`VCollection` whose children are themselves
-        :class:`VCollection` instances.
-
-        Parameters
-        ----------
-        n:
-            Number of groups.  Must be >= 1.
-
-        Raises
-        ------
-        ValueError
-            If *n* is less than 1.
-
-        Returns a VCollection of VCollections.
-        """
+        """Split into *n* roughly equal sub-collections. Returns a VCollection of VCollections."""
         if n < 1:
             raise ValueError(f"n must be >= 1, got {n!r}")
         objs = self.objects

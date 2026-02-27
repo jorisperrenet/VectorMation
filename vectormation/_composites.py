@@ -4849,33 +4849,7 @@ class Axes(VCollection):
         return self._axis_labels[1] if len(self._axis_labels) >= 2 else None
 
     def get_x_axis_line(self, creation=0, **kwargs):
-        """Return a Line representing the x-axis (y = 0 in math coordinates).
-
-        The line runs from the left edge to the right edge of the plot area,
-        sitting at the SVG y-coordinate corresponding to y = 0.  If y = 0 is
-        outside the current y-range the line is placed at the bottom edge.
-
-        This is useful for highlighting or animating the axis itself — for
-        example fading it in, changing its colour, or drawing it with
-        :meth:`~VObject.draw_along`.
-
-        Parameters
-        ----------
-        creation:
-            Creation time for the returned Line.
-        **kwargs:
-            Styling keyword arguments forwarded to :class:`Line`
-            (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        Line
-
-        Example
-        -------
-        >>> axes = Axes(x_range=(-5, 5), y_range=(-3, 3))
-        >>> x_line = axes.get_x_axis_line(stroke='#FF0000', stroke_width=3)
-        """
+        """Return a Line spanning the x-axis (y=0) of the plot area."""
         style_kw = {'stroke': '#888888', 'stroke_width': 2, 'fill_opacity': 0} | kwargs
         x1 = self.plot_x
         x2 = self.plot_x + self.plot_width
@@ -4883,29 +4857,7 @@ class Axes(VCollection):
         return Line(x1=x1, y1=y, x2=x2, y2=y, creation=creation, **style_kw)
 
     def get_y_axis_line(self, creation=0, **kwargs):
-        """Return a Line representing the y-axis (x = 0 in math coordinates).
-
-        The line runs from the top edge to the bottom edge of the plot area,
-        sitting at the SVG x-coordinate corresponding to x = 0.  If x = 0 is
-        outside the current x-range the line is placed at the left edge.
-
-        Parameters
-        ----------
-        creation:
-            Creation time for the returned Line.
-        **kwargs:
-            Styling keyword arguments forwarded to :class:`Line`
-            (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        Line
-
-        Example
-        -------
-        >>> axes = Axes(x_range=(-5, 5), y_range=(-3, 3))
-        >>> y_line = axes.get_y_axis_line(stroke='#0088FF', stroke_width=3)
-        """
+        """Return a Line spanning the y-axis (x=0) of the plot area."""
         style_kw = {'stroke': '#888888', 'stroke_width': 2, 'fill_opacity': 0} | kwargs
         y1 = self.plot_y
         y2 = self.plot_y + self.plot_height
