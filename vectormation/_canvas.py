@@ -46,6 +46,9 @@ class VectorMathAnim:
         self.background = None
         self.sections = []  # List of section end times (sorted)
         self.speed_multiplier = 1.0  # Playback speed multiplier
+
+    def __repr__(self):
+        return f'VectorMathAnim({self.width}x{self.height})'
         self.single_picture = False  # If True, display a single static frame
         self.snap_enabled = False  # If True, send snap points to browser
 

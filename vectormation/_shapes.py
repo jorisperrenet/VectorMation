@@ -2948,6 +2948,9 @@ class SurroundingRectangle(RoundedRectangle):
             self.width.set_onward(creation, lambda t: _bbox(t)[2] + 2*buff)
             self.height.set_onward(creation, lambda t: _bbox(t)[3] + 2*buff)
 
+    def __repr__(self):
+        return 'SurroundingRectangle()'
+
 class SurroundingCircle(Circle):
     """Circle that surrounds a target object with padding.
     If follow=True (default), tracks the target as it moves."""
@@ -2964,6 +2967,9 @@ class SurroundingCircle(Circle):
             _r_func = lambda t: math.hypot(_bbox(t)[2], _bbox(t)[3]) / 2 + buff
             self.rx.set_onward(creation, _r_func)
             self.ry.set_onward(creation, _r_func)
+
+    def __repr__(self):
+        return 'SurroundingCircle()'
 
 # Re-export extended shapes so `from vectormation._shapes import X` still works
 from vectormation._shapes_ext import (  # noqa: E402

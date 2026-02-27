@@ -1786,6 +1786,9 @@ class CountAnimation(Text):
         self._fmt = fmt
         self._last_val = end_val
 
+    def __repr__(self):
+        return f'CountAnimation({self._last_val})'
+
     def count_to(self, target, start, end, easing=easings.smooth):
         """Animate counting from the current value to a new target."""
         from_val = self._last_val
@@ -1829,6 +1832,9 @@ class ValueTracker:
     def at_time(self, time):
         return self.value.at_time(time)
 
+    def __repr__(self):
+        return f'ValueTracker({self.value.at_time(0)})'
+
 class DecimalNumber(Text):
     """Text that dynamically displays a numeric value, updating each frame.
 
@@ -1860,6 +1866,9 @@ class DecimalNumber(Text):
     def animate_value(self, target, start, end, easing=easings.smooth):
         self._tracker.move_to(start, end, target, easing=easing)
         return self
+
+    def __repr__(self):
+        return f'DecimalNumber({self._tracker.at_time(0)})'
 
 class Trace(VObject):
     """Follows a point every dt and renders as a polyline."""
@@ -2658,12 +2667,18 @@ class BackgroundRectangle(Rectangle):
         super().__init__(bw + 2*buff, bh + 2*buff, x=bx - buff, y=by - buff,
                          creation=creation, z=z, **style_kw)
 
+    def __repr__(self):
+        return 'BackgroundRectangle()'
+
 class ScreenRectangle(Rectangle):
     """A rectangle with the canvas aspect ratio (16:9).
     height is derived from width automatically."""
     def __init__(self, width=480, creation: float = 0, z: float = 0, **kwargs):
         height = width * 9 / 16
         super().__init__(width=width, height=height, creation=creation, z=z, **kwargs)
+
+    def __repr__(self):
+        return 'ScreenRectangle()'
 
 class ArcBetweenPoints(Arc):
     """Arc connecting two points, bulging by a given angle.
@@ -2694,6 +2709,9 @@ class ArcBetweenPoints(Arc):
         super().__init__(cx=cx, cy=cy, r=r, start_angle=sa, end_angle=ea,
                          creation=creation, z=z, **styling_kwargs)
 
+    def __repr__(self):
+        return 'ArcBetweenPoints()'
+
 class Elbow(Lines):
     """Right-angle connector (L-shape) between two directions.
 
@@ -2706,6 +2724,9 @@ class Elbow(Lines):
             (cx + width, cy), (cx, cy), (cx, cy + height),
             creation=creation, z=z, **style_kw)
 
+    def __repr__(self):
+        return 'Elbow()'
+
 class AnnularSector(Arc):
     """Sector of an annulus (ring wedge).
 
@@ -2717,6 +2738,9 @@ class AnnularSector(Arc):
                          end_angle=end_angle, creation=creation, z=z,
                          **({'fill_opacity': 0.7, 'stroke': '#fff', 'stroke_width': DEFAULT_STROKE_WIDTH} | styling_kwargs))
         self.inner_r = attributes.Real(creation, inner_radius)
+
+    def __repr__(self):
+        return 'AnnularSector()'
 
     def _extra_attrs(self):
         return super()._extra_attrs() + [self.inner_r]

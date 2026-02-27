@@ -109,6 +109,9 @@ class MorphObject(VCollection):
         super().__init__(*objects, creation=start, z=z)
         self.show.set_onward(end, False)
 
+    def __repr__(self):
+        return 'MorphObject()'
+
 class LabeledDot(VCollection):
     """Dot with a centered text label."""
     def __init__(self, label='', r=24, cx=960, cy=540, creation: float = 0, z: float = 0, font_size=None, **styling_kwargs):
@@ -121,6 +124,9 @@ class LabeledDot(VCollection):
         super().__init__(dot, text, creation=creation, z=z)
         self.dot = dot
         self.label = text
+
+    def __repr__(self):
+        return 'LabeledDot()'
 
 class TexObject(VCollection):
     """Renders LaTeX content as SVG paths via dvisvgm.
@@ -168,6 +174,8 @@ class SplitTexObject:
         self.lines = [TexObject(line, x=x, y=y + i * line_spacing, creation=creation, **styles)
                       for i, line in enumerate(lines)]
 
+    def __repr__(self):
+        return f'SplitTexObject({len(self.lines)} lines)'
     def __iter__(self): return iter(self.lines)
     def __getitem__(self, idx): return self.lines[idx]
     def __len__(self): return len(self.lines)
@@ -1498,6 +1506,9 @@ class TexCountAnimation(DynamicObject):
             return self._build_number(val, creation=t)
 
         super().__init__(build_fn, creation=creation, z=z)
+
+    def __repr__(self):
+        return f'TexCountAnimation({self._last_val})'
 
     def _compute_value(self, t):
         """Compute the displayed number at time t."""

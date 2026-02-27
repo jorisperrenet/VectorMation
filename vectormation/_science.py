@@ -33,6 +33,9 @@ class Resistor(VCollection):
                                 creation=creation, z=z + 0.1))
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'Resistor()'
+
 
 class Capacitor(VCollection):
     """Electrical capacitor symbol (two parallel plates)."""
@@ -63,6 +66,9 @@ class Capacitor(VCollection):
                                 fill='#aaa', stroke_width=0, text_anchor='middle',
                                 creation=creation, z=z + 0.1))
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'Capacitor()'
 
 
 class Inductor(VCollection):
@@ -97,6 +103,9 @@ class Inductor(VCollection):
                                 fill='#aaa', stroke_width=0, text_anchor='middle',
                                 creation=creation, z=z + 0.1))
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'Inductor()'
 
 
 class Diode(VCollection):
@@ -137,6 +146,9 @@ class Diode(VCollection):
                                 creation=creation, z=z + 0.1))
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'Diode()'
+
 
 class LED(VCollection):
     """Light-emitting diode symbol (diode with light rays)."""
@@ -173,6 +185,9 @@ class LED(VCollection):
                                 fill='#aaa', stroke_width=0, text_anchor='middle',
                                 creation=creation, z=z + 0.1))
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'LED()'
 
 
 class UnitInterval:
@@ -230,6 +245,9 @@ class Molecule2D(VCollection):
             self._atom_objects.append(atom_c)
             objects.extend([atom_c, lbl])
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return f'Molecule2D({len(self._atom_objects)} atoms)'
 
 
 class NeuralNetwork(VCollection):
@@ -299,6 +317,10 @@ class NeuralNetwork(VCollection):
             self._layers.append(layer_circles)
 
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        sizes = [len(l) for l in self._layers]
+        return f'NeuralNetwork({sizes})'
 
     def label_input(self, labels, font_size=20, buff=30, **kwargs):
         """Add labels to the left of input neurons."""
@@ -414,6 +436,9 @@ class Pendulum(VCollection):
         self.bob = bob
         super().__init__(rod, pivot, bob, creation=creation, z=z)
 
+    def __repr__(self):
+        return f'Pendulum(length={self._length})'
+
 
 class StandingWave(VCollection):
     """Animated standing wave between two fixed points.
@@ -481,3 +506,6 @@ class StandingWave(VCollection):
         self.dot2 = dot2
         self.wave = wave
         super().__init__(wave, dot1, dot2, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'StandingWave()'

@@ -48,6 +48,9 @@ class Array(VCollection):
                 objects.append(idx)
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return f'Array({len(self._cells)} cells)'
+
     def highlight_cell(self, index, start=0, end=1, color='#58C4DD', easing=easings.there_and_back):
         """Flash-highlight a cell by index."""
         if 0 <= index < len(self._cells):
@@ -111,6 +114,9 @@ class Stack(VCollection):
                 objects.extend([cell, lbl])
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return f'Stack({len(self._items)} items)'
+
     def push(self, value, start=0, end=0.5):
         """Animate pushing a value onto the stack."""
         n = len(self._items)
@@ -168,6 +174,9 @@ class Queue(VCollection):
                 self._items.append((cell, lbl))
                 objects.extend([cell, lbl])
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return f'Queue({len(self._items)} items)'
 
     def enqueue(self, value, start=0, end=0.5):
         """Animate adding a value to the back of the queue."""
@@ -238,6 +247,9 @@ class LinkedList(VCollection):
                                 creation=creation, z=z))
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return f'LinkedList({len(self._nodes)} nodes)'
+
     def highlight_node(self, index, start=0, end=1, color='#FF6B6B',
                        easing=easings.there_and_back):
         """Flash-highlight a node by index."""
@@ -295,18 +307,11 @@ class BinaryTree(VCollection):
         _draw(tree, x, y, h_spacing)
         super().__init__(*objects, creation=creation, z=z)
 
-    def highlight_node(self, index, color='#E9C46A', start=0, end=0.5):
-        """Temporarily highlight a node by index (depth-first order).
+    def __repr__(self):
+        return f'BinaryTree({len(self._node_objects)} nodes)'
 
-        Parameters
-        ----------
-        index : int
-            Node index in depth-first (pre-order) order.
-        color : str
-            Highlight fill colour.
-        start, end : float
-            Time range for the highlight.
-        """
+    def highlight_node(self, index, color='#E9C46A', start=0, end=0.5):
+        """Temporarily highlight a node by index (depth-first order)."""
         if 0 <= index < len(self._node_objects):
             _flash_fill(self._node_objects[index], color, start, end, '#1e1e2e')
         return self
@@ -370,6 +375,9 @@ class ArrayViz(VCollection):
                 self._index_labels.append(idx_lbl)
                 objects.append(idx_lbl)
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return f'ArrayViz({self.values})'
 
     def highlight(self, index, start=0, end=1, color='#FFFF00'):
         """Temporarily highlight a cell by changing its fill colour."""
@@ -498,6 +506,9 @@ class LinkedListViz(VCollection):
         self._null_arr = null_arr
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return f'LinkedListViz({self.values})'
+
     def highlight(self, index, start=0, end=1, color='#FFFF00'):
         """Temporarily highlight a node."""
         if 0 <= index < len(self._nodes):
@@ -572,6 +583,9 @@ class StackViz(VCollection):
         self._top_label = top_lbl
         objects.extend([self._top_arrow, top_lbl])
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return f'StackViz({self.values})'
 
     def push(self, value, start=0, end=0.5):
         """Animate pushing a value onto the stack."""
@@ -668,6 +682,9 @@ class QueueViz(VCollection):
                                  creation=creation, z=z)
         objects.extend([self._front_label, self._back_label])
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return f'QueueViz({self.values})'
 
     def enqueue(self, value, start=0, end=0.5):
         """Animate adding a value to the back of the queue."""

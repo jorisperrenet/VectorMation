@@ -33,6 +33,9 @@ class Title(VCollection):
                          stroke='#888', stroke_width=2, creation=creation, z=z)
         super().__init__(txt, underline, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'Title()'
+
 
 class Variable(VCollection):
     """Display a variable label with an animated numeric value.
@@ -64,6 +67,9 @@ class Variable(VCollection):
         self.number.animate_value(target, start, end, easing)
         return self
 
+    def __repr__(self):
+        return 'Variable()'
+
 
 class Underline(VCollection):
     """Underline beneath a target object."""
@@ -83,6 +89,9 @@ class Underline(VCollection):
             line.p2.set_onward(creation, lambda t: (_bbox(t)[0] + _bbox(t)[2], _bbox(t)[1] + _bbox(t)[3] + buff))
         super().__init__(line, creation=creation, z=z)
         self.line = line
+
+    def __repr__(self):
+        return 'Underline()'
 
 
 # ---------------------------------------------------------------------------
@@ -264,6 +273,9 @@ class Label(VCollection):
                               fill='#1e1e2e', fill_opacity=0.9, stroke='#555', stroke_width=1)
         super().__init__(bg, txt, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'Label()'
+
 
 def _labeled_line_init(self, line_obj, x1, y1, x2, y2, label, font_size, label_buff, creation, z):
     """Shared init for LabeledLine and LabeledArrow."""
@@ -284,6 +296,9 @@ class LabeledLine(VCollection):
         line = Line(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z, **style_kw)
         _labeled_line_init(self, line, x1, y1, x2, y2, label, font_size, label_buff, creation, z)
 
+    def __repr__(self):
+        return 'LabeledLine()'
+
 class LabeledArrow(VCollection):
     """Arrow with a text label placed at its midpoint."""
     def __init__(self, x1=860, y1=540, x2=1060, y2=540, label='',
@@ -293,6 +308,9 @@ class LabeledArrow(VCollection):
         arrow = Arrow(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z, **style_kw)
         _labeled_line_init(self, arrow, x1, y1, x2, y2, label, font_size, label_buff, creation, z)
         self.arrow = arrow  # backward compat alias
+
+    def __repr__(self):
+        return 'LabeledArrow()'
 
 
 # ---------------------------------------------------------------------------
@@ -334,6 +352,9 @@ class Callout(VCollection):
         pointer = SLine(x1=tx, y1=ty, x2=lx, y2=ly - th / 2 if direction == 'up' else ly + th / 2 if direction == 'down' else ly,
                         creation=creation, z=z, stroke='#888', stroke_width=1)
         super().__init__(pointer, bg, lbl, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'Callout()'
 
 
 class DimensionLine(VCollection):
@@ -382,6 +403,9 @@ class DimensionLine(VCollection):
                     creation=creation, z=z + 1, fill='#aaa', stroke_width=0)
         super().__init__(main, ext1, ext2, tick1, tick2, lbl, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'DimensionLine()'
+
 
 class Tooltip(VCollection):
     """Small animated tooltip that appears and disappears near a target.
@@ -413,6 +437,9 @@ class Tooltip(VCollection):
         fade_time = min(0.3, duration / 3)
         self.fadein(start, start + fade_time)
         self.fadeout(start + duration - fade_time, start + duration)
+
+    def __repr__(self):
+        return 'Tooltip()'
 
 
 # ---------------------------------------------------------------------------
@@ -446,6 +473,9 @@ class TextBox(VCollection):
         super().__init__(box, lbl, creation=creation, z=z)
         self.box = box
         self.label = lbl
+
+    def __repr__(self):
+        return 'TextBox()'
 
 
 class Bracket(VCollection):
@@ -482,6 +512,9 @@ class Bracket(VCollection):
             objects.append(lbl)
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'Bracket()'
+
 
 class IconGrid(VCollection):
     """Grid of colored shapes (circles, squares) for infographic-style visualizations.
@@ -509,6 +542,9 @@ class IconGrid(VCollection):
                                 fill=color, stroke_width=0, creation=creation, z=z)
             objects.append(obj)
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'IconGrid()'
 
 
 class SpeechBubble(VCollection):
@@ -555,6 +591,9 @@ class SpeechBubble(VCollection):
         self.tail = tail
         self.label = lbl
 
+    def __repr__(self):
+        return 'SpeechBubble()'
+
 
 class Badge(VCollection):
     """Pill-shaped label (fully rounded corners), like GitHub badges/tags.
@@ -581,6 +620,9 @@ class Badge(VCollection):
         super().__init__(box, lbl, creation=creation, z=z)
         self.box = box
         self.label = lbl
+
+    def __repr__(self):
+        return 'Badge()'
 
 
 class Divider(VCollection):
@@ -629,6 +671,9 @@ class Divider(VCollection):
                            creation=creation, z=z, **style_kw)
             objects = [ln]
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'Divider()'
 
 
 # ---------------------------------------------------------------------------
@@ -700,6 +745,9 @@ class Checklist(VCollection):
             obj.fadein(obj_start, min(obj_end, end))
         return self
 
+    def __repr__(self):
+        return 'Checklist()'
+
 
 class Stepper(VCollection):
     """Step indicator: numbered circles connected by a line, with active step highlight.
@@ -765,6 +813,9 @@ class Stepper(VCollection):
                 line.set_style(stroke=self._inactive_color, start=start)
         return self
 
+    def __repr__(self):
+        return 'Stepper()'
+
 
 class TagCloud(VCollection):
     """Word/tag cloud with varying font sizes based on weights.
@@ -803,6 +854,9 @@ class TagCloud(VCollection):
             row_height = max(row_height, fs + 4)
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'TagCloud()'
+
 
 class StatusIndicator(VCollection):
     """Colored dot with a text label, like a server/service status indicator.
@@ -827,6 +881,9 @@ class StatusIndicator(VCollection):
         super().__init__(dot, lbl, creation=creation, z=z)
         self.dot = dot
         self.label = lbl
+
+    def __repr__(self):
+        return 'StatusIndicator()'
 
 
 class Meter(VCollection):
@@ -860,6 +917,9 @@ class Meter(VCollection):
         self.bg = bg
         self.fill_rect = fill_rect
 
+    def __repr__(self):
+        return 'Meter()'
+
 
 class Breadcrumb(VCollection):
     """Navigation breadcrumb trail (e.g., Home > Products > Details).
@@ -890,6 +950,9 @@ class Breadcrumb(VCollection):
                 cx += font_size * CHAR_WIDTH_FACTOR + gap
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'Breadcrumb()'
+
 
 # ---------------------------------------------------------------------------
 # Countdown / Filmstrip
@@ -910,6 +973,9 @@ class Countdown(VCollection):
                          stay=True)
         super().__init__(txt, creation=creation, z=z)
         self._text = txt
+
+    def __repr__(self):
+        return 'Countdown()'
 
 
 class Filmstrip(VCollection):
@@ -942,6 +1008,9 @@ class Filmstrip(VCollection):
         if 0 <= index < len(self._frames):
             self._frames[index].flash(start, end, color=color, easing=easing)
         return self
+
+    def __repr__(self):
+        return 'Filmstrip()'
 
 
 # ---------------------------------------------------------------------------
@@ -1009,3 +1078,6 @@ class RoundedCornerPolygon(VObject):
         if not d:
             return ''
         return f'<path d="{d}"{self.styling.svg_style(time)} />'
+
+    def __repr__(self):
+        return 'RoundedCornerPolygon()'

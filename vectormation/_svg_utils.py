@@ -30,6 +30,9 @@ class ClipPath:
         self.id = f'clip{id(self)}'
         self.objects = list(objects)
 
+    def __repr__(self):
+        return 'ClipPath()'
+
     def to_svg_def(self, time):
         paths = ''.join(obj.to_svg(time) for obj in self.objects)
         return f"<clipPath id='{self.id}'>{paths}</clipPath>"
@@ -44,6 +47,9 @@ class BlurFilter:
     def __init__(self, std_deviation=4):
         self.id = f'blur{id(self)}'
         self.std_deviation = std_deviation
+
+    def __repr__(self):
+        return 'BlurFilter()'
 
     def to_svg_def(self, time=None):
         return (f"<filter id='{self.id}'>"
@@ -61,6 +67,9 @@ class DropShadowFilter:
         self.dx, self.dy = dx, dy
         self.std_deviation = std_deviation
         self.color, self.opacity = color, opacity
+
+    def __repr__(self):
+        return 'DropShadowFilter()'
 
     def to_svg_def(self, time=None):
         return (f"<filter id='{self.id}'>"
@@ -170,6 +179,9 @@ class Angle(VCollection):
 
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'Angle()'
+
     @property
     def start_angle(self):
         return self.arc.start_angle
@@ -238,6 +250,9 @@ class RightAngle(VCollection):
         )
         super().__init__(corner, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'RightAngle()'
+
 
 class Cross(VCollection):
     """X mark shape, useful for indicating errors or crossing out."""
@@ -249,6 +264,9 @@ class Cross(VCollection):
         l2 = Line(x1=cx - half, y1=cy + half, x2=cx + half, y2=cy - half,
                   creation=creation, z=z, **style_kw)
         super().__init__(l1, l2, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'Cross()'
 
 
 # ---------------------------------------------------------------------------
@@ -395,6 +413,9 @@ class ZoomedInset(VObject):
         self.frame_width = frame_width
         self.styling = style.Styling({}, creation=creation)
 
+    def __repr__(self):
+        return 'ZoomedInset()'
+
     def _extra_attrs(self):
         return [self.src_x, self.src_y, self.src_w, self.src_h,
                 self.dst_x, self.dst_y, self.dst_w, self.dst_h]
@@ -475,6 +496,9 @@ class _BooleanOp(VObject):
         self._off_x = attributes.Real(creation, 0)
         self._off_y = attributes.Real(creation, 0)
         self._uid = id(self)
+
+    def __repr__(self):
+        return f'{type(self).__name__}()'
 
     def _extra_attrs(self):
         return [self._off_x, self._off_y]
@@ -720,6 +744,9 @@ class ArrowVectorField(VCollection):
             objects.append(arrow)
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'ArrowVectorField()'
+
 
 class StreamLines(VCollection):
     """Animated flow lines for a vector field.
@@ -755,6 +782,9 @@ class StreamLines(VCollection):
                 y += y_step
             x += x_step
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'StreamLines()'
 
 
 class Cutout(VObject):

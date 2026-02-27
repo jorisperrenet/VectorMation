@@ -824,6 +824,9 @@ class PolarAxes(VCollection):
         super().__init__(*objects, creation=creation, z=z)
         self._px_per_unit = px_per_unit
 
+    def __repr__(self):
+        return 'PolarAxes()'
+
     def polar_to_point(self, r, theta_deg):
         """Convert (r, theta) to SVG pixel coordinates."""
         theta = math.radians(theta_deg)
@@ -876,7 +879,11 @@ class Legend(VCollection):
                 cursor_x += swatch_size + spacing + len(label) * font_size * CHAR_WIDTH_FACTOR + spacing * 2
             else:
                 cursor_y += swatch_size + spacing
+        self._n_items = len(items)
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return f'Legend({self._n_items} items)'
 
 
 class RadarChart(VCollection):
@@ -946,6 +953,9 @@ class RadarChart(VCollection):
         self._data_poly = data_poly
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'RadarChart()'
+
 
 class ProgressBar(VCollection):
     """Animated progress bar that fills from left to right.
@@ -985,7 +995,8 @@ class ProgressBar(VCollection):
         fill_w = self._fill.width.at_time(time)
         return fill_w / self._bar_width if self._bar_width else 0
 
-
+    def __repr__(self):
+        return f'ProgressBar({self.get_progress():.0%})'
 
 
 class WaterfallChart(VCollection):
@@ -1078,6 +1089,9 @@ class WaterfallChart(VCollection):
             _add_bar(n, 0, total, total_color, lbl, val_text)
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'WaterfallChart()'
+
 
 class GanttChart(VCollection):
     """Gantt chart for project timelines.
@@ -1146,6 +1160,9 @@ class GanttChart(VCollection):
                         stroke='#333', stroke_width=0.5, creation=creation, z=z - 0.1)
             objects.append(grid)
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'GanttChart()'
 
 
 class SankeyDiagram(VCollection):
@@ -1216,6 +1233,9 @@ class SankeyDiagram(VCollection):
         _draw_nodes(targets, tgt_rects, len(sources), 'start', node_width + 5)
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'SankeyDiagram()'
+
 
 class FunnelChart(VCollection):
     """Funnel chart showing progressive narrowing stages.
@@ -1251,6 +1271,9 @@ class FunnelChart(VCollection):
             objects.append(lbl)
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'FunnelChart()'
+
 
 class TreeMap(VCollection):
     """Treemap visualization using squarified layout.
@@ -1283,6 +1306,9 @@ class TreeMap(VCollection):
                            creation=creation, z=z + 0.1)
                 objects.append(lbl)
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'TreeMap()'
 
     @staticmethod
     def _squarify(items, x, y, w, h, total):
@@ -1415,6 +1441,9 @@ class GaugeChart(VCollection):
             objects.append(sub_lbl)
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'GaugeChart()'
+
     @staticmethod
     def _interp_gauge_color(frac, colors):
         """Interpolate gauge color from color stops list [(color, position), ...]."""
@@ -1494,6 +1523,8 @@ class SparkLine(VObject):
             svg += f'<circle cx="{ex:.1f}" cy="{ey:.1f}" r="{self._endpoint_r}" fill="{color}"/>'
         return svg
 
+    def __repr__(self):
+        return 'SparkLine()'
 
 
 
@@ -1542,6 +1573,9 @@ class KPICard(VCollection):
                               creation=creation, z=z + 0.1)
             objects.append(spark)
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'KPICard()'
 
 
 class BulletChart(VCollection):
@@ -1593,6 +1627,9 @@ class BulletChart(VCollection):
             objects.append(lbl)
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'BulletChart()'
+
 
 class CalendarHeatmap(VCollection):
     """Grid heatmap like a GitHub contribution graph.
@@ -1632,6 +1669,9 @@ class CalendarHeatmap(VCollection):
                               creation=creation, z=z)
             objects.append(rect)
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'CalendarHeatmap()'
 
 
 class WaffleChart(VCollection):
@@ -1684,7 +1724,8 @@ class WaffleChart(VCollection):
             cell_idx += 1
         super().__init__(*(objects + legend_objs), creation=creation, z=z)
 
-
+    def __repr__(self):
+        return 'WaffleChart()'
 
 
 class CircularProgressBar(VCollection):
@@ -1718,6 +1759,9 @@ class CircularProgressBar(VCollection):
             objects.append(lbl)
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'CircularProgressBar()'
+
 
 class Scoreboard(VCollection):
     """Score/metric display panel.
@@ -1727,6 +1771,7 @@ class Scoreboard(VCollection):
     def __init__(self, entries, x=100, y=100, col_width=200, row_height=60,
                  bg_color='#1a1a2e', label_color='#aaa', value_color='#fff',
                  font_size=28, cols=None, creation: float = 0, z: float = 0):
+        self._n_entries = len(entries) if entries else 0
         if not entries:
             super().__init__(creation=creation, z=z)
             return
@@ -1768,6 +1813,9 @@ class Scoreboard(VCollection):
                            creation=creation, z=z + 0.05)
                 objects.append(div)
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return f'Scoreboard({self._n_entries} rows)'
 
 
 class MatrixHeatmap(VCollection):
@@ -1833,6 +1881,9 @@ class MatrixHeatmap(VCollection):
                            text_anchor='middle', creation=creation, z=z + 0.1)
                 objects.append(lbl)
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'MatrixHeatmap()'
 
 
 class BoxPlot(VCollection):
@@ -1903,6 +1954,9 @@ class BoxPlot(VCollection):
             objects.extend([stem_lo, stem_hi])
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'BoxPlot()'
+
 
 class SampleSpace(VCollection):
     """Rectangle representing a probability sample space, divisible into regions.
@@ -1918,6 +1972,9 @@ class SampleSpace(VCollection):
         self._x, self._y = x, y
         self._parts = []
         super().__init__(self._rect, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'SampleSpace()'
 
     def divide_horizontally(self, proportion, colors=('#58C4DD', '#FC6255'), labels=None,
                             creation=0, z=0):

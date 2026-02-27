@@ -89,6 +89,9 @@ class ChessBoard(VCollection):
 
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return f'ChessBoard({len(self._pieces)} pieces)'
+
     def move_piece(self, from_sq, to_sq, start=0, end=1, easing=easings.smooth):
         """Animate moving a piece from one square to another (e.g. 'e2' -> 'e4')."""
         piece = self._pieces.get(from_sq)
@@ -182,6 +185,9 @@ class PeriodicTable(VCollection):
 
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'PeriodicTable()'
+
     def highlight(self, symbol, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
         """Highlight an element by symbol."""
         if symbol in self._cells:
@@ -243,6 +249,9 @@ class BohrAtom(VCollection):
                 self._electron_dots.append(dot)
 
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return f'BohrAtom({len(self._electron_dots)} electrons)'
 
     def orbit(self, start=0, end=None, speed=45):
         """Animate all electrons orbiting around the nucleus."""
@@ -342,6 +351,9 @@ class Automaton(VCollection):
                 objects.append(lbl)
 
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return f'Automaton({len(self._state_positions)} states)'
 
     def highlight_state(self, state_name, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
         """Highlight a state by flashing its circle."""
@@ -480,6 +492,9 @@ class NetworkGraph(VCollection):
 
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return f'NetworkGraph({len(self._node_positions)} nodes)'
+
     def highlight_node(self, node_id, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
         """Flash-highlight a node by its ID."""
         if node_id in self._node_circles:
@@ -609,6 +624,9 @@ class Tree(VCollection):
                                         creation=creation, z=z, stroke='#888', stroke_width=2))
             Tree._draw_edges_impl(child, positions, objects, creation, z, LineClass)
 
+    def __repr__(self):
+        return f'Tree({len(self._positions_by_label)} nodes)'
+
     def get_node_position(self, label):
         """Get (x, y) position of a node by label (first occurrence if duplicates)."""
         return self._positions_by_label.get(label, ORIGIN)
@@ -639,6 +657,9 @@ class Stamp(VCollection):
             c.shift(dx=px - cx, dy=py - cy, start=creation)
             objects.append(c)
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return f'Stamp({len(self.objects)} copies)'
 
 
 # ---------------------------------------------------------------------------
@@ -677,6 +698,9 @@ class TimelineBar(VCollection):
                        text_anchor='middle', creation=creation, z=z + 0.1)
             objects.extend([tick, dot, txt])
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'TimelineBar()'
 
 
 # ---------------------------------------------------------------------------
@@ -729,6 +753,9 @@ class FlowChart(VCollection):
                             creation=creation, z=z - 0.1)
                 objects.append(arr)
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return f'FlowChart({len(self._boxes)} steps)'
 
 
 # ---------------------------------------------------------------------------
@@ -785,6 +812,9 @@ class VennDiagram(VCollection):
             objects.append(lbl)
         super().__init__(*objects, creation=creation, z=z)
 
+    def __repr__(self):
+        return 'VennDiagram()'
+
 
 # ---------------------------------------------------------------------------
 # OrgChart
@@ -826,6 +856,9 @@ class OrgChart(VCollection):
         self._draw_tree(root, positions, objects, colors, 0,
                         box_width, box_height, font_size, creation, z)
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'OrgChart()'
 
     def _draw_tree(self, node, positions, objects, colors, depth,
                    box_width, box_height, font_size, creation, z):
@@ -929,3 +962,6 @@ class MindMap(VCollection):
                                 text_anchor='middle', creation=creation, z=z + 0.3)
                     objects.append(gtxt)
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return 'MindMap()'

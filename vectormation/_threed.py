@@ -128,6 +128,7 @@ class ThreeDAxes(VCollection):
 
         # Build LaTeX axis labels as child TexObjects
         label_offset = 0.4
+
         for label_text, pos_3d in [
             (x_label, (x_range[1] + label_offset, 0, 0)),
             (y_label, (0, y_range[1] + label_offset, 0)),
@@ -135,6 +136,9 @@ class ThreeDAxes(VCollection):
         ]:
             if label_text:
                 self._build_axis_label(label_text, pos_3d, creation)
+
+    def __repr__(self):
+        return 'ThreeDAxes()'
 
     @property
     def last_change(self):
@@ -525,6 +529,9 @@ class Surface(VObject):
         self._fill_opacity = fill_opacity
         self._is_parametric = None  # auto-detect
 
+    def __repr__(self):
+        return 'Surface()'
+
     @property
     def last_change(self):
         return max(self.show.last_change, self.z.last_change)
@@ -808,6 +815,9 @@ class Line3D(_SegmentPrimitive3D):
         self._stroke = stroke
         self._stroke_width = stroke_width
 
+    def __repr__(self):
+        return 'Line3D()'
+
     def to_patches(self, axes, time):
         sx0, sy0, d0 = axes.project_point(*self._start, time)
         sx1, sy1, d1 = axes.project_point(*self._end, time)
@@ -825,6 +835,9 @@ class Dot3D(_PointPrimitive3D):
         self._point = tuple(point)
         self._radius = radius
         self._fill = fill
+
+    def __repr__(self):
+        return 'Dot3D()'
 
     def set_radius(self, radius):
         """Set the dot radius. Returns self for chaining."""
@@ -850,6 +863,9 @@ class Arrow3D(_SegmentPrimitive3D):
         self._stroke_width = stroke_width
         self._tip_length = tip_length
         self._tip_radius = tip_radius
+
+    def __repr__(self):
+        return 'Arrow3D()'
 
     def to_patches(self, axes, time):
         patches = []
@@ -890,6 +906,9 @@ class ParametricCurve3D(_Primitive3D):
         self._num_points = num_points
         self._stroke = stroke
         self._stroke_width = stroke_width
+
+    def __repr__(self):
+        return 'ParametricCurve3D()'
 
     def set_color(self, color):
         """Set the stroke color. Returns self for chaining."""
@@ -939,6 +958,9 @@ class Text3D(_PointPrimitive3D):
         self._point = tuple(point)
         self._font_size = font_size
         self._fill = fill
+
+    def __repr__(self):
+        return 'Text3D()'
 
     def set_text(self, text):
         """Set the displayed text. Returns self for chaining."""
