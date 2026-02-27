@@ -589,8 +589,7 @@ class VObject(ABC):  # Vector Object
         return self
 
     def teleport(self, x, y, start: float = 0, time: float | None = None):
-        """Instantly move object center to (x, y) at the given time (no animation).
-        Uses center_to_pos with set_onward for an instant jump."""
+        """Instantly move object center to (x, y) at the given time (no animation)."""
         t = time if time is not None else start
         return self.center_to_pos(posx=x, posy=y, start_time=t)
 
@@ -5292,13 +5291,11 @@ class VCollection:
 
     def reverse(self):
         """Reverse the order of children in-place. Alias for reverse_children."""
-        self.objects.reverse()
-        return self
+        return self.reverse_children()
 
     def reverse_order(self):
-        """Reverse the order of children in-place. Returns self."""
-        self.objects.reverse()
-        return self
+        """Reverse the order of children in-place. Alias for reverse_children."""
+        return self.reverse_children()
 
     def rotate_order(self, n=1):
         """Rotate children order by *n* positions.
@@ -6234,7 +6231,7 @@ class VCollection:
           extra ``**kwargs``::
 
               col_a.zip_with(col_b, 'become')
-              col_a.zip_with(col_b, 'set_color', start=1, end=2)
+              col_a.zip_with(col_b, 'set_color', color='#FF0000')
 
         * **Callable** — ``method_name_or_func`` is a callable; it is invoked
           as ``func(obj_a, obj_b, time)`` for each pair (legacy behaviour)::

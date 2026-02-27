@@ -1452,8 +1452,8 @@ class Circle(Ellipse):
         return self.get_perimeter(time)
 
     def circumference(self, time=0):
-        """Return the circumference (2 * pi * r)."""
-        return 2 * math.pi * self.rx.at_time(time)
+        """Return the circumference (2 * pi * r). Alias for get_perimeter."""
+        return self.get_perimeter(time)
 
     def point_on_circle(self, angle_degrees, time=0):
         """Return (x, y) on the circle at the given angle (degrees, CCW from right).
