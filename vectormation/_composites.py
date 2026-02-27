@@ -2651,6 +2651,77 @@ class Axes(VCollection):
             objs.extend([dot, lbl])
         return VCollection(*objs, creation=creation, z=z)
 
+    def _scan_sign_changes(self, deriv_func, eval_func, x_range, samples,
+                           creation, classify=False):
+        """Sample *deriv_func* and find x-values where it changes sign.
+
+        Returns a list of ``(x, y)`` tuples (or ``(x, y, type)`` when
+        *classify* is True, with type ``'min'``/``'max'`` based on the
+        sign direction of the change).  *eval_func* is called to get the
+        y-value at each detected crossing.
+        """
+        xlo = x_range[0] if x_range else self.x_min.at_time(creation)
+        xhi = x_range[1] if x_range else self.x_max.at_time(creation)
+        step = (xhi - xlo) / samples
+        xs = [xlo + i * step for i in range(samples + 1)]
+        ds = []
+        for x in xs:
+            try:
+                d = deriv_func(x)
+                ds.append(d if math.isfinite(d) else None)
+            except Exception:
+                ds.append(None)
+
+        results = []
+        for i in range(len(ds) - 1):
+            if ds[i] is None or ds[i + 1] is None:
+                continue
+            cx = None
+            sign_ref = None  # value whose sign determines classification
+            if ds[i] * ds[i + 1] < 0:
+                denom = abs(ds[i]) + abs(ds[i + 1])
+                t = abs(ds[i]) / denom if denom > 0 else 0.5
+                cx = xs[i] + t * step
+                sign_ref = ds[i]
+            elif abs(ds[i]) < 1e-8 and i > 0:
+                if ds[i - 1] is not None and ds[i + 1] is not None and ds[i - 1] * ds[i + 1] < 0:
+                    cx = xs[i]
+                    sign_ref = ds[i - 1]
+            if cx is not None:
+                try:
+                    cy = eval_func(cx)
+                except Exception:
+                    continue
+                if not math.isfinite(cy):
+                    continue
+                if classify:
+                    results.append((cx, cy, 'max' if sign_ref > 0 else 'min'))
+                else:
+                    results.append((cx, cy))
+        return results
+
+    def _make_plot_dot_label(self, mx, my, label_text, offset_y, creation, z,
+                             dot_radius, font_size, fill_color):
+        """Create an animated Dot + Text at math coords (mx, my).
+
+        Returns ``(dot, label)`` and registers both via ``_add_plot_obj``.
+        """
+        sx, sy = self.coords_to_point(mx, my, creation)
+        dot = Dot(cx=sx, cy=sy, r=dot_radius, fill=fill_color,
+                  creation=creation, z=z + 1)
+        dot.c.set_onward(creation,
+            lambda t, _cx=mx, _cy=my: self.coords_to_point(_cx, _cy, t))
+        lbl = Text(text=label_text, x=sx, y=sy + offset_y,
+                   font_size=font_size, fill=fill_color, stroke_width=0,
+                   text_anchor='middle', creation=creation, z=z + 2)
+        lbl.x.set_onward(creation,
+            lambda t, _cx=mx, _cy=my: self.coords_to_point(_cx, _cy, t)[0])
+        lbl.y.set_onward(creation,
+            lambda t, _cx=mx, _cy=my, _oy=offset_y: self.coords_to_point(_cx, _cy, t)[1] + _oy)
+        self._add_plot_obj(dot)
+        self._add_plot_obj(lbl)
+        return dot, lbl
+
     def add_inflection_points(self, func, x_range=None, samples=200, h=1e-5,
                               creation=0, z=3, dot_radius=5, font_size=18,
                               color='#FFA726', **styling_kwargs):
@@ -2689,54 +2760,16 @@ class Axes(VCollection):
         VCollection
             A collection of (dot, label) pairs for each inflection point found.
         """
-        xlo = x_range[0] if x_range else self.x_min.at_time(creation)
-        xhi = x_range[1] if x_range else self.x_max.at_time(creation)
-        step = (xhi - xlo) / samples
-
-        # Compute second derivative at sample points
         def _f2(x):
             return (func(x + h) - 2 * func(x) + func(x - h)) / (h * h)
 
-        xs = [xlo + i * step for i in range(samples + 1)]
-        f2s = [_f2(x) for x in xs]
-
-        # Detect sign changes in second derivative.
-        # A sign change is either: product < 0 (strict crossing) OR the value
-        # is essentially zero at sample i with different signs on either side.
-        inflections = []
-        for i in range(len(f2s) - 1):
-            if f2s[i] * f2s[i + 1] < 0:
-                # Strict sign change -- linear interpolation
-                denom = abs(f2s[i]) + abs(f2s[i + 1])
-                t = abs(f2s[i]) / denom if denom > 0 else 0.5
-                ix = xs[i] + t * step
-                iy = func(ix)
-                inflections.append((ix, iy))
-            elif abs(f2s[i]) < 1e-8 and i > 0 and f2s[i - 1] * f2s[i + 1] < 0:
-                # The second derivative is ~0 at this sample with a sign
-                # change on either side -- this is also an inflection point.
-                ix = xs[i]
-                iy = func(ix)
-                inflections.append((ix, iy))
-
+        inflections = self._scan_sign_changes(_f2, func, x_range, samples, creation)
         fill_color = styling_kwargs.get('fill', color)
         objs = []
         for ix, iy in inflections:
-            sx, sy = self.coords_to_point(ix, iy, creation)
-            dot = Dot(cx=sx, cy=sy, r=dot_radius, fill=fill_color,
-                      creation=creation, z=z + 1)
-            dot.c.set_onward(creation,
-                lambda t, _ix=ix, _iy=iy: self.coords_to_point(_ix, _iy, t))
-            lbl_text = f'({ix:.2f}, {iy:.2f})'
-            lbl = Text(text=lbl_text, x=sx, y=sy - 15,
-                       font_size=font_size, fill=fill_color, stroke_width=0,
-                       text_anchor='middle', creation=creation, z=z + 2)
-            lbl.x.set_onward(creation,
-                lambda t, _ix=ix, _iy=iy: self.coords_to_point(_ix, _iy, t)[0])
-            lbl.y.set_onward(creation,
-                lambda t, _ix=ix, _iy=iy: self.coords_to_point(_ix, _iy, t)[1] - 15)
-            self._add_plot_obj(dot)
-            self._add_plot_obj(lbl)
+            dot, lbl = self._make_plot_dot_label(
+                ix, iy, f'({ix:.2f}, {iy:.2f})', -15,
+                creation, z, dot_radius, font_size, fill_color)
             objs.extend([dot, lbl])
         return VCollection(*objs, creation=creation, z=z)
 
@@ -2788,63 +2821,15 @@ class Axes(VCollection):
             ``'max'``.
         """
         fn = self._resolve_func(func, 'func')
-        xlo = x_range[0] if x_range else self.x_min.at_time(creation)
-        xhi = x_range[1] if x_range else self.x_max.at_time(creation)
-        step = (xhi - xlo) / samples
 
         def _deriv(x):
             return (fn(x + h) - fn(x - h)) / (2 * h)
 
-        xs = [xlo + i * step for i in range(samples + 1)]
-        ds = []
-        for x in xs:
-            try:
-                d = _deriv(x)
-                ds.append(d if math.isfinite(d) else None)
-            except Exception:
-                ds.append(None)
-
-        criticals = []
-        for i in range(len(ds) - 1):
-            if ds[i] is None or ds[i + 1] is None:
-                continue
-            if ds[i] * ds[i + 1] < 0:
-                # Strict sign change: interpolate to find approximate zero
-                denom = abs(ds[i]) + abs(ds[i + 1])
-                t = abs(ds[i]) / denom if denom > 0 else 0.5
-                cx = xs[i] + t * step
-                try:
-                    cy = fn(cx)
-                except Exception:
-                    continue
-                if not math.isfinite(cy):
-                    continue
-                # Classify: derivative goes from positive to negative = max
-                ctype = 'max' if ds[i] > 0 else 'min'
-                criticals.append((cx, cy, ctype))
-            elif abs(ds[i]) < 1e-8 and i > 0:
-                # Derivative is ~0 at sample i: check if there's a sign
-                # change across this zero (from i-1 to i+1)
-                if ds[i - 1] is not None and ds[i + 1] is not None and ds[i - 1] * ds[i + 1] < 0:
-                    cx = xs[i]
-                    try:
-                        cy = fn(cx)
-                    except Exception:
-                        continue
-                    if not math.isfinite(cy):
-                        continue
-                    ctype = 'max' if ds[i - 1] > 0 else 'min'
-                    criticals.append((cx, cy, ctype))
-
+        criticals = self._scan_sign_changes(_deriv, fn, x_range, samples,
+                                            creation, classify=True)
         fill_color = styling_kwargs.get('fill', color)
         objs = []
         for cx, cy, ctype in criticals:
-            sx, sy = self.coords_to_point(cx, cy, creation)
-            dot = Dot(cx=sx, cy=sy, r=dot_radius, fill=fill_color,
-                      creation=creation, z=z + 1)
-            dot.c.set_onward(creation,
-                lambda t, _cx=cx, _cy=cy: self.coords_to_point(_cx, _cy, t))
-            dot._critical_type = ctype
             if label_type == 'coords':
                 lbl_text = f'({cx:.2f}, {cy:.2f})'
             elif label_type == 'type':
@@ -2852,15 +2837,10 @@ class Axes(VCollection):
             else:
                 lbl_text = f'{ctype} ({cx:.2f}, {cy:.2f})'
             offset_y = 15 if ctype == 'min' else -15
-            lbl = Text(text=lbl_text, x=sx, y=sy + offset_y,
-                       font_size=font_size, fill=fill_color, stroke_width=0,
-                       text_anchor='middle', creation=creation, z=z + 2)
-            lbl.x.set_onward(creation,
-                lambda t, _cx=cx, _cy=cy: self.coords_to_point(_cx, _cy, t)[0])
-            lbl.y.set_onward(creation,
-                lambda t, _cx=cx, _cy=cy, _oy=offset_y: self.coords_to_point(_cx, _cy, t)[1] + _oy)
-            self._add_plot_obj(dot)
-            self._add_plot_obj(lbl)
+            dot, lbl = self._make_plot_dot_label(
+                cx, cy, lbl_text, offset_y,
+                creation, z, dot_radius, font_size, fill_color)
+            dot._critical_type = ctype
             objs.extend([dot, lbl])
         return VCollection(*objs, creation=creation, z=z)
 

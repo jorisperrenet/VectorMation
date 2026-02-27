@@ -2215,7 +2215,6 @@ class VObject(ABC):  # Vector Object
         """Emit expanding, fading rings from the object's center.
         Returns a VCollection of Circle objects (must be added to canvas)."""
         from vectormation._shapes import Circle as _Circle
-        from vectormation._base import VCollection
         bx, by, bw, bh = self.bbox(start)
         cx, cy = bx + bw / 2, by + bh / 2
         rings = []
@@ -3430,15 +3429,15 @@ class VObject(ABC):  # Vector Object
             squash = impact * decay
             return (vert, squash)
 
-        def _dy(t, _s=_s, _d=_d, _h=_h, _b=_b, _easing=easing):
+        def _dy(t, _h=_h):
             vert, _ = _bounce_progress(t)
             return vert * _h
 
-        def _ssx(t, _s=_s, _d=_d, _sf=_sf, _sx0=_sx0):
+        def _ssx(t, _sf=_sf, _sx0=_sx0):
             _, squash = _bounce_progress(t)
             return _sx0 * (1 + (_sf - 1) * squash)
 
-        def _ssy(t, _s=_s, _d=_d, _sf=_sf, _sy0=_sy0):
+        def _ssy(t, _sf=_sf, _sy0=_sy0):
             _, squash = _bounce_progress(t)
             peak = 1 + (_sf - 1) * squash
             return _sy0 / peak if peak > 1e-9 else _sy0
