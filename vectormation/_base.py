@@ -5215,33 +5215,7 @@ class VCollection:
         return self
 
     def get_child(self, index):
-        """Return the child object at *index*.
-
-        Supports both positive and negative indices (Python convention).
-        Raises :exc:`IndexError` with a descriptive message when the index is
-        out of range.
-
-        Parameters
-        ----------
-        index:
-            Integer position.  Negative indices count from the end
-            (e.g. ``-1`` is the last child).
-
-        Returns
-        -------
-        The child VObject or VCollection at *index*.
-
-        Raises
-        ------
-        IndexError
-            When *index* is out of the valid range.
-
-        Example
-        -------
-        >>> col = VCollection(Circle(), Rectangle(100, 50))
-        >>> col.get_child(0)   # first child
-        >>> col.get_child(-1)  # last child
-        """
+        """Return the child at *index* (supports negative indices)."""
         n = len(self.objects)
         if index < -n or index >= n:
             raise IndexError(
@@ -5250,56 +5224,15 @@ class VCollection:
         return self.objects[index]
 
     def nth(self, n):
-        """Return the nth child (0-indexed).  Negative indices are supported.
-
-        This is a convenience alias for :meth:`get_child` with a slightly
-        shorter name, matching the ``first()`` / ``last()`` naming style.
-
-        Parameters
-        ----------
-        n:
-            Integer index.  Negative values count from the end.
-
-        Returns
-        -------
-        The child at position *n*.
-
-        Raises
-        ------
-        IndexError
-            When *n* is out of range.
-
-        Example
-        -------
-        >>> col = VCollection(Circle(), Rectangle(100, 50), Dot())
-        >>> col.nth(0)   # first child
-        >>> col.nth(2)   # third child
-        >>> col.nth(-1)  # last child
-        """
+        """Alias for :meth:`get_child`."""
         return self.get_child(n)
 
     def first(self):
-        """Return the first child object.
-
-        Raises :exc:`IndexError` if the collection is empty.
-
-        Example
-        -------
-        >>> col = VCollection(Circle(), Rectangle(100, 50))
-        >>> col.first()  # same as col.get_child(0)
-        """
+        """Return the first child object."""
         return self.get_child(0)
 
     def last(self):
-        """Return the last child object.
-
-        Raises :exc:`IndexError` if the collection is empty.
-
-        Example
-        -------
-        >>> col = VCollection(Circle(), Rectangle(100, 50))
-        >>> col.last()  # same as col.get_child(-1)
-        """
+        """Return the last child object."""
         return self.get_child(-1)
 
     def _delegate(self, method, *args, **kwargs):
@@ -5624,22 +5557,7 @@ class VCollection:
         return VCollection(*groups)
 
     def enumerate_children(self):
-        """Return a list of (index, child) tuples for all children.
-
-        Convenience wrapper around the built-in ``enumerate`` so callers do
-        not need to access ``self.objects`` directly.
-
-        Returns
-        -------
-        list of (int, VObject)
-            Index-object pairs in insertion order.
-
-        Example
-        -------
-        >>> col = VCollection(Circle(), Rectangle(100, 50))
-        >>> for i, obj in col.enumerate_children():
-        ...     print(i, obj)
-        """
+        """Return a list of ``(index, child)`` tuples."""
         return list(enumerate(self.objects))
 
     def select(self, start=0, end=None):
@@ -5647,97 +5565,23 @@ class VCollection:
         return VCollection(*self.objects[start:end])
 
     def take(self, n):
-        """Return a new VCollection with the first *n* children.
-
-        Equivalent to ``select(0, n)``.  If *n* is greater than or equal to
-        the number of children the full collection is returned.  If *n* is
-        zero an empty VCollection is returned.
-
-        Parameters
-        ----------
-        n:
-            Number of children to keep from the start of the collection.
-
-        Returns
-        -------
-        VCollection
-        """
+        """Return a new VCollection with the first *n* children."""
         return VCollection(*self.objects[:n])
 
     def skip(self, n):
-        """Return a new VCollection skipping the first *n* children.
-
-        Equivalent to ``select(n)``.  If *n* is greater than or equal to the
-        number of children an empty VCollection is returned.  If *n* is zero
-        the full collection is returned unchanged.
-
-        Parameters
-        ----------
-        n:
-            Number of children to skip from the start of the collection.
-
-        Returns
-        -------
-        VCollection
-        """
+        """Return a new VCollection skipping the first *n* children."""
         return VCollection(*self.objects[n:])
 
     def interleave(self, other):
-        """Merge two collections by alternating their children.
-
-        Returns a new VCollection with elements interleaved as
-        [a1, b1, a2, b2, ...].  If one collection is longer than the other,
-        the remaining elements are appended at the end.
-
-        Parameters
-        ----------
-        other:
-            Another VCollection (or subclass) whose children to interleave with
-            this collection's children.
-
-        Returns
-        -------
-        VCollection
-            A new collection containing the interleaved children.  The original
-            collections are not modified.
-
-        Example
-        -------
-        >>> a = VCollection(Circle(), Circle())
-        >>> b = VCollection(Rectangle(10,10), Rectangle(10,10), Rectangle(10,10))
-        >>> c = a.interleave(b)
-        >>> len(c)   # 5 — circle, rect, circle, rect, rect
-        """
-        result = []
-        a_list = list(self.objects)
-        b_list = list(other.objects)
-        max_len = max(len(a_list), len(b_list))
-        for i in range(max_len):
-            if i < len(a_list):
-                result.append(a_list[i])
-            if i < len(b_list):
-                result.append(b_list[i])
+        """Return a new VCollection with children alternated: [a1, b1, a2, b2, ...]."""
+        from itertools import zip_longest
+        sentinel = object()
+        result = [x for pair in zip_longest(self.objects, other.objects, fillvalue=sentinel)
+                  for x in pair if x is not sentinel]
         return VCollection(*result)
 
     def flatten(self):
-        """Flatten nested VCollections into a single-level collection in-place.
-
-        Any child that is itself a :class:`VCollection` (or subclass) has its
-        children extracted and inserted into this collection at the child's
-        position.  The process repeats until no nested collections remain.
-
-        Returns
-        -------
-        self
-
-        Examples
-        --------
-        >>> inner = VCollection(Circle(), Rectangle(50, 50))
-        >>> outer = VCollection(inner, Dot())
-        >>> outer.flatten()
-        >>> len(outer.objects)  # 3: Circle, Rectangle, Dot
-        3
-        """
+        """Flatten nested VCollections into a single-level collection in-place."""
         changed = True
         while changed:
             changed = False
@@ -5840,26 +5684,7 @@ class VCollection:
         return self
 
     def set_z_order(self, order):
-        """Reorder children by index list.
-
-        ``order[i]`` is the index of the child to place at position *i*.
-        The length of *order* must equal the number of children and must
-        contain each index exactly once (i.e. a permutation).
-
-        Parameters
-        ----------
-        order:
-            List of integer indices specifying the new order.
-
-        Returns
-        -------
-        self
-
-        Example
-        -------
-        >>> col = VCollection(a, b, c)
-        >>> col.set_z_order([2, 0, 1])  # new order: c, a, b
-        """
+        """Reorder children by index list (a permutation of ``range(len(self))``)."""
         self.objects = [self.objects[i] for i in order]
         return self
 
@@ -5890,14 +5715,12 @@ class VCollection:
     def set_color_by_gradient(self, *colors, attr='fill', start=0):
         """Assign interpolated colors across children.
         colors: two or more hex color strings to interpolate between."""
+        setter = 'set_fill' if attr == 'fill' else 'set_stroke'
         n = len(self.objects)
         if n < 2 or len(colors) < 2:
             if colors and n:
                 for obj in self.objects:
-                    if attr == 'fill':
-                        obj.set_fill(colors[0], start=start)
-                    else:
-                        obj.set_stroke(colors[0], start=start)
+                    getattr(obj, setter)(colors[0], start=start)
             return self
         from vectormation.colors import interpolate_color
         for i, obj in enumerate(self.objects):
@@ -5906,10 +5729,7 @@ class VCollection:
             idx = min(int(seg), len(colors) - 2)
             local_t = seg - idx
             color = interpolate_color(colors[idx], colors[idx + 1], local_t)
-            if attr == 'fill':
-                obj.set_fill(color, start=start)
-            else:
-                obj.set_stroke(color, start=start)
+            getattr(obj, setter)(color, start=start)
         return self
 
     def set_opacity_by_gradient(self, start_opacity, end_opacity, attr='fill', start=0):

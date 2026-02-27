@@ -1933,59 +1933,11 @@ class Axes(VCollection):
         return (fn(x_val + h) - fn(x_val - h)) / (2 * h)
 
     def get_slope(self, func, x_val, h=0.001):
-        """Return the slope of *func* at *x_val*.
-
-        This is a convenience alias for :meth:`get_derivative`.
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x)`` or a curve Path with a ``._func`` attribute.
-        x_val:
-            The x value at which to evaluate the slope.
-        h:
-            Step size for the central-difference approximation.
-
-        Returns
-        -------
-        float
-            The approximate slope f'(x_val).
-        """
+        """Alias for :meth:`get_derivative`."""
         return self.get_derivative(func, x_val, h=h)
 
     def get_secant_slope(self, func, x, dx):
-        """Return the secant slope ``(f(x + dx) - f(x)) / dx``.
-
-        Unlike :meth:`get_derivative` which uses the symmetric central-difference
-        formula, this computes the one-sided difference quotient — the slope of
-        the secant line connecting ``(x, f(x))`` and ``(x + dx, f(x + dx))``.
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x)`` or a curve Path with a ``._func`` attribute
-            (as returned by :meth:`plot`).
-        x:
-            The starting x value (in mathematical axis coordinates).
-        dx:
-            The horizontal step.  Must not be zero.
-
-        Returns
-        -------
-        float
-            The secant slope.
-
-        Raises
-        ------
-        ValueError
-            If *dx* is zero.
-
-        Examples
-        --------
-        >>> ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        >>> ax.get_secant_slope(lambda x: x**2, 1, 1)   # (4 - 1) / 1 = 3.0
-        >>> ax.get_secant_slope(lambda x: x**2, 2, 0.5)  # (6.25 - 4) / 0.5 = 4.5
-        """
+        """Return the secant slope ``(f(x + dx) - f(x)) / dx``."""
         if dx == 0:
             raise ValueError("dx must not be zero")
         fn = self._resolve_func(func, 'func')
@@ -6438,34 +6390,11 @@ class NumberLine(VCollection):
         return (self.x_start, self.x_end)
 
     def get_range_length(self):
-        """Return the numeric length of the number line's range.
-
-        This is ``x_end - x_start`` in the number line's value space
-        (not the SVG pixel length).
-
-        Returns
-        -------
-        float
-        """
+        """Return ``x_end - x_start``."""
         return self.x_end - self.x_start
 
     def snap_to_tick(self, value):
-        """Return the nearest tick mark value to *value*.
-
-        Tick marks are placed at ``x_start + k * x_step`` for integer k.
-        The returned value is the closest such tick mark, clamped to the
-        number line's range ``[x_start, x_end]``.
-
-        Parameters
-        ----------
-        value:
-            A numeric value to snap.
-
-        Returns
-        -------
-        float
-            The nearest tick value within the range.
-        """
+        """Return the nearest tick mark value, clamped to ``[x_start, x_end]``."""
         if value <= self.x_start:
             return self.x_start
         if value >= self.x_end:
