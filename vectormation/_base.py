@@ -2550,13 +2550,15 @@ class VObject(ABC):  # Vector Object
             _ramp_down(s, dur, total, easing), stay=True)
         return self
 
-    # inset(top right bottom left) templates for wipe direction
-    _WIPE_TEMPLATES = {
-        'right': 'inset(0 {p:.1f}% 0 0)', 'left': 'inset(0 0 0 {p:.1f}%)',
-        'down': 'inset(0 0 {p:.1f}% 0)', 'up': 'inset({p:.1f}% 0 0 0)',
+    # Shared inset clip-path templates: direction = which side gets clipped.
+    _CLIP_INSET = {
+        'right': lambda pct: f'inset(0 {pct:.1f}% 0 0)',
+        'left':  lambda pct: f'inset(0 0 0 {pct:.1f}%)',
+        'down':  lambda pct: f'inset(0 0 {pct:.1f}% 0)',
+        'up':    lambda pct: f'inset({pct:.1f}% 0 0 0)',
     }
-    # When reversed, right<->left and down<->up
-    _WIPE_REVERSE = {'right': 'left', 'left': 'right', 'down': 'up', 'up': 'down'}
+    _CLIP_REVERSE = {'right': 'left', 'left': 'right', 'down': 'up', 'up': 'down',
+                     'top': 'bottom', 'bottom': 'top'}
 
     def wipe(self, direction='right', start: float = 0, end: float = 1,
              easing=easings.smooth, reverse=False):
@@ -2567,9 +2569,9 @@ class VObject(ABC):  # Vector Object
         if dur <= 0:
             return self
         s = start
-        key = self._WIPE_REVERSE[direction] if reverse else direction
-        tmpl = self._WIPE_TEMPLATES[key]
-        func = lambda t, _s=s, _d=dur, _t=tmpl: _t.format(p=100 * (1 - easing((t - _s) / _d)))
+        key = self._CLIP_REVERSE.get(direction, direction) if reverse else direction
+        tmpl = self._CLIP_INSET[key]
+        func = lambda t, _s=s, _d=dur, _tmpl=tmpl: _tmpl(100 * (1 - easing((t - _s) / _d)))
         self.styling.clip_path.set(s, end, func, stay=True)
         if reverse:
             self._hide_from(end)
@@ -3028,16 +3030,6 @@ class VObject(ABC):  # Vector Object
         self.styling.rotation.set(start, end, _rot)
         return self
 
-    # Shared inset templates for typewriter_reveal / typewriter_delete.
-    # Each maps a percentage (0 = no clip, 100 = fully clipped) to an
-    # ``inset()`` CSS clip-path value.
-    _TYPEWRITER_TEMPLATES = {
-        'right': lambda pct: f'inset(0 {pct:.1f}% 0 0)',
-        'left':  lambda pct: f'inset(0 0 0 {pct:.1f}%)',
-        'down':  lambda pct: f'inset(0 0 {pct:.1f}% 0)',
-        'up':    lambda pct: f'inset({pct:.1f}% 0 0 0)',
-    }
-
     def _typewriter_clip(self, start, end, direction, easing, reveal):
         """Shared logic for typewriter_reveal / typewriter_delete."""
         dur = end - start
@@ -3048,8 +3040,7 @@ class VObject(ABC):  # Vector Object
         else:
             self._hide_from(end)
         _s, _d = start, max(dur, 1e-9)
-        tmpl = self._TYPEWRITER_TEMPLATES.get(
-            direction, self._TYPEWRITER_TEMPLATES['right'])
+        tmpl = self._CLIP_INSET.get(direction, self._CLIP_INSET['right'])
         if reveal:
             def _clip(t, _s=_s, _d=_d, _tmpl=tmpl, _e=easing):
                 return _tmpl(100 * (1 - _e((t - _s) / _d)))
@@ -3794,14 +3785,11 @@ class VObject(ABC):  # Vector Object
         self._ensure_scale_origin(start)
         _s, _d = start, max(duration, 1e-9)
         # Scale spike
-        scale_fn = lambda t, _s=_s, _d=_d, _sf=scale_factor, _e=easing: (
-            1 + (_sf - 1) * _e((t - _s) / _d))
+        scale_fn = _lerp(_s, _d, 1, scale_factor, easing)
         self.styling.scale_x.set(_s, end, scale_fn)
         self.styling.scale_y.set(_s, end, scale_fn)
         # Opacity dip (brief dim at peak)
-        opacity_fn = lambda t, _s=_s, _d=_d, _e=easing: (
-            1 - 0.3 * _e((t - _s) / _d))
-        self.styling.opacity.set(_s, end, opacity_fn)
+        self.styling.opacity.set(_s, end, _lerp(_s, _d, 1, 0.7, easing))
         # Rapid horizontal shake
         shake_freq = 12
         def _dx(t, _s=_s, _d=_d, _a=shake_amplitude, _freq=shake_freq, _e=easing):
@@ -4611,45 +4599,28 @@ class VObject(ABC):  # Vector Object
 
     # -- Reveal clip --
 
-    _REVEAL_CLIP_TEMPLATES = {
-        'left':   lambda pct: f'inset(0 {pct:.1f}% 0 0)',   # reveals left to right
-        'right':  lambda pct: f'inset(0 0 0 {pct:.1f}%)',    # reveals right to left
-        'top':    lambda pct: f'inset(0 0 {pct:.1f}% 0)',    # reveals top to bottom
-        'bottom': lambda pct: f'inset({pct:.1f}% 0 0 0)',    # reveals bottom to top
-    }
+    # Maps reveal_clip direction names to _CLIP_INSET keys.
+    # 'left' (reveal left→right) clips the right side, etc.
+    _REVEAL_DIR = {'left': 'right', 'right': 'left', 'top': 'down', 'bottom': 'up'}
 
     def reveal_clip(self, start=0, end=1, direction='left', easing=easings.smooth):
         """Progressive reveal using SVG clip-path.
 
-        Creates a clip-path inset rect that expands from one side, gradually
-        revealing the object.
-
-        Parameters
-        ----------
-        start, end:
-            Time interval for the reveal animation.
-        direction:
-            Which direction the reveal progresses: ``'left'`` (reveals left
-            to right), ``'right'`` (reveals right to left), ``'top'``
-            (reveals top to bottom), ``'bottom'`` (reveals bottom to top).
-        easing:
-            Easing function for the reveal progress.
-
-        Returns
-        -------
-        self
+        direction: ``'left'`` (reveals left to right), ``'right'`` (reveals
+        right to left), ``'top'`` (top to bottom), ``'bottom'`` (bottom to top).
         """
         dur = end - start
         if dur <= 0:
             return self
         self._show_from(start)
         _s, _d = start, max(dur, 1e-9)
-        if direction not in self._REVEAL_CLIP_TEMPLATES:
+        key = self._REVEAL_DIR.get(direction)
+        if key is None:
             raise ValueError(
                 f"Unsupported reveal direction '{direction}'. "
-                f"Must be one of: {', '.join(sorted(self._REVEAL_CLIP_TEMPLATES))}"
+                f"Must be one of: {', '.join(sorted(self._REVEAL_DIR))}"
             )
-        tmpl = self._REVEAL_CLIP_TEMPLATES[direction]
+        tmpl = self._CLIP_INSET[key]
         def _clip(t, _s=_s, _d=_d, _tmpl=tmpl, _e=easing):
             return _tmpl(100 * (1 - _e((t - _s) / _d)))
         self.styling.clip_path.set(start, end, _clip, stay=True)
