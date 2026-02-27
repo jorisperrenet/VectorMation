@@ -1,12 +1,11 @@
 """Diagram classes: Tree, FlowChart, NetworkGraph, Automaton, etc."""
 import math
 import vectormation.easings as easings
-import vectormation.attributes as attributes
 from vectormation._constants import (
     ORIGIN, DEFAULT_CHART_COLORS,
     CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET, _normalize, _label_text, _get_arrow,
 )
-from vectormation._base import VObject, VCollection, _lerp
+from vectormation._base import VObject, VCollection
 from vectormation._shapes import (
     Circle, Dot, Rectangle, RoundedRectangle, Line,
     Text, Path, Arc,

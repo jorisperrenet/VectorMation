@@ -1,9 +1,7 @@
 """Helper functions shared by _base.py and _base_effects.py."""
 import math
-from copy import deepcopy
 
 import vectormation.easings as easings
-import vectormation.attributes as attributes
 import vectormation.morphing as morphing
 from vectormation._constants import (
     CANVAS_WIDTH, CANVAS_HEIGHT,

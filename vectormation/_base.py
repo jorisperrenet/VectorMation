@@ -906,59 +906,21 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def scale_to_size(self, width=None, height=None, start: float = 0,
                       end: float | None = None, easing=easings.smooth):
-        """Scale the object to fit a target pixel width and/or height.
-
-        If only *width* is given, scale proportionally so the bounding box
-        reaches that width.  If only *height* is given, scale proportionally
-        to that height.  If *both* are given, scale each axis independently
-        (aspect ratio may not be preserved).
-
-        The animation runs from *start* to *end*.  When *end* is ``None`` the
-        change is applied instantly at *start*.
-
-        Parameters
-        ----------
-        width:
-            Target bounding-box width in SVG pixels, or ``None`` to skip.
-        height:
-            Target bounding-box height in SVG pixels, or ``None`` to skip.
-        start:
-            Time at which the change begins (and from which the current size
-            is measured).
-        end:
-            Time at which the change ends.  ``None`` = instant.
-        easing:
-            Easing function for the animation.
-
-        Returns
-        -------
-        self
-
-        Examples
-        --------
-        >>> rect = Rectangle(200, 100)
-        >>> rect.scale_to_size(width=400)          # double width, proportional
-        >>> rect.scale_to_size(width=300, height=300, start=0, end=1)
-        """
+        """Scale to fit a target pixel width and/or height. Both given = independent axes."""
         _, _, cur_w, cur_h = self.bbox(start)
         self._ensure_scale_origin(start)
         if width is not None and height is not None:
-            x_factor = width / cur_w if cur_w != 0 else 1
-            y_factor = height / cur_h if cur_h != 0 else 1
-            target_sx = self.styling.scale_x.at_time(start) * x_factor
-            target_sy = self.styling.scale_y.at_time(start) * y_factor
+            fx = width / cur_w if cur_w else 1
+            fy = height / cur_h if cur_h else 1
         elif width is not None:
-            factor = width / cur_w if cur_w != 0 else 1
-            target_sx = self.styling.scale_x.at_time(start) * factor
-            target_sy = self.styling.scale_y.at_time(start) * factor
+            fx = fy = width / cur_w if cur_w else 1
         elif height is not None:
-            factor = height / cur_h if cur_h != 0 else 1
-            target_sx = self.styling.scale_x.at_time(start) * factor
-            target_sy = self.styling.scale_y.at_time(start) * factor
+            fx = fy = height / cur_h if cur_h else 1
         else:
             return self
-        for attr, target in [(self.styling.scale_x, target_sx), (self.styling.scale_y, target_sy)]:
-            _set_attr(attr, start, end, target, easing)
+        sx, sy = self.styling.scale_x, self.styling.scale_y
+        for attr, f in [(sx, fx), (sy, fy)]:
+            _set_attr(attr, start, end, attr.at_time(start) * f, easing)
         return self
 
     def rotate_to(self, start: float, end: float, degrees, cx=None, cy=None, easing=easings.smooth):
@@ -1438,24 +1400,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def emphasize_scale(self, start: float = 0, end: float = 1,
                         scale_factor: float = 1.2, easing=easings.there_and_back):
-        """Briefly scale up uniformly then return to normal for emphasis.
-
-        Unlike :meth:`pulsate` (which repeats multiple times) and
-        :meth:`squash_and_stretch` (which deforms x/y independently),
-        this applies a single symmetric scale pulse: both axes grow by
-        *scale_factor* at the midpoint and return to their original size by *end*.
-
-        Parameters
-        ----------
-        start:
-            Animation start time.
-        end:
-            Animation end time.
-        scale_factor:
-            Peak scale multiplier (e.g. 1.2 → 20% larger at the midpoint).
-        easing:
-            Easing function (default: there_and_back for a smooth out-and-back).
-        """
+        """Single symmetric scale pulse for emphasis (both axes, returns to normal)."""
         dur = end - start
         if dur <= 0:
             return self
@@ -1488,24 +1433,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def drop_shadow(self, color='#000000', dx=4, dy=4, blur=6, start=0):
-        """Apply an SVG drop-shadow filter to this object.
-
-        The filter is rendered inline by wrapping the element's SVG
-        output in a ``<g>`` with a ``<defs>`` block containing an
-        ``<feDropShadow>`` filter.
-
-        Parameters
-        ----------
-        color:
-            Shadow colour (CSS colour string).
-        dx, dy:
-            Horizontal and vertical offset of the shadow in SVG units.
-        blur:
-            Standard deviation for the Gaussian blur (``stdDeviation``).
-        start:
-            Time from which the shadow is visible.  Before *start* the
-            object renders normally without a shadow.
-        """
+        """Apply an SVG feDropShadow filter, visible from *start* onward."""
         fid = f'ds{id(self)}'
         filter_def = (
             f"<filter id='{fid}' x='-50%' y='-50%' width='200%' height='200%'>"
@@ -2262,25 +2190,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def heartbeat(self, start: float = 0, end: float = 1, beats=3,
                    scale_factor=1.3, easing=easings.smooth):
-        """ECG-style double-pulse heartbeat: two quick scale bumps (lub-dub)
-        followed by a rest pause, repeated *beats* times.
-
-        Each beat occupies ``duration / beats`` seconds and consists of:
-          - A first sharp pulse (the "lub") reaching *scale_factor*,
-          - A slightly smaller second pulse (the "dub") at 75% amplitude,
-          - A rest period at baseline scale.
-
-        Parameters
-        ----------
-        start, end:
-            Animation time window.
-        beats:
-            Number of lub-dub cycles.
-        scale_factor:
-            Peak scale multiplier for the first (stronger) pulse.
-        easing:
-            Easing applied to each individual pulse envelope.
-        """
+        """ECG-style double-pulse heartbeat: lub-dub + rest, repeated *beats* times."""
         dur = end - start
         if dur <= 0:
             return self
@@ -2313,26 +2223,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def breathe(self, start: float = 0, end: float = 1, amplitude=0.08,
                 speed=1.0, easing=easings.smooth):
-        """Gentle, continuous breathing animation — steady scale oscillation.
-
-        The object smoothly scales up and down in a calm, rhythmic pattern
-        without decay, simulating natural breathing.  Unlike :meth:`pulsate`
-        (which uses abs(sin) and is intended as a one-shot attention grab)
-        and :meth:`undulate` (which decays over time), ``breathe`` produces
-        a steady oscillation that looks natural for the entire duration.
-
-        Parameters
-        ----------
-        start, end:
-            Time interval for the animation.
-        amplitude:
-            Fractional scale deviation from baseline (e.g. 0.08 means the
-            object scales between 0.92x and 1.08x).
-        speed:
-            Breathing cycles per second (default 1.0).
-        easing:
-            Easing applied to normalised time before computing the oscillation.
-        """
+        """Steady scale oscillation simulating natural breathing."""
         dur = end - start
         if dur <= 0:
             return self
@@ -2348,27 +2239,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def pendulum(self, start: float = 0, end: float = 1, amplitude=20,
                  oscillations=4, cx=None, cy=None, easing=easings.smooth):
-        """Multi-cycle pendulum oscillation with exponential amplitude decay.
-
-        Rotates the object back and forth like a pendulum that gradually loses
-        energy.  Unlike :meth:`swing` (a single decaying cycle) this method
-        performs multiple oscillations with exponential damping, giving a more
-        realistic physical feel.
-
-        Parameters
-        ----------
-        start, end:
-            Time interval for the animation.
-        amplitude:
-            Initial swing angle in degrees (default 20).
-        oscillations:
-            Number of full back-and-forth cycles (default 4).
-        cx, cy:
-            Pivot point for the rotation.  Defaults to the top-centre of the
-            object's bounding box (like hanging from a hook).
-        easing:
-            Easing applied to normalised time before computing the envelope.
-        """
+        """Damped pendulum oscillation — rotates back and forth with exponential decay."""
         dur = end - start
         if dur <= 0:
             return self
@@ -2525,51 +2396,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self.dim(start=start, end=end, opacity=1.0, easing=easing)
 
     def clone(self, offset_x=0, offset_y=0, *, count=None, dx=0, dy=0, start=0):
-        """Create a deep copy of this object, optionally shifted by an offset.
-
-        **Single-copy form** (default)::
-
-            clone(offset_x=0, offset_y=0)
-
-        Returns one independent deep copy of the object shifted by
-        *(offset_x, offset_y)* pixels.  This is the primary use-case — a
-        convenient ``copy()`` that also moves the duplicate into position.
-
-        **Multi-copy form** (legacy, for backwards compatibility)::
-
-            clone(count=N, dx=step_x, dy=step_y, start=t)
-
-        When *count* is given the method returns a :class:`VCollection` of
-        *count* clones where the i-th clone is shifted by *(dx*i, dy*i)*
-        from the original position.  The original is **not** included.
-
-        Parameters
-        ----------
-        offset_x:
-            Horizontal pixel offset for the single returned clone.
-        offset_y:
-            Vertical pixel offset for the single returned clone.
-        count:
-            When provided, switches to multi-copy mode and returns a
-            VCollection of *count* clones.
-        dx, dy:
-            Per-clone step offset used only in multi-copy mode.
-        start:
-            Animation time at which the positional shift is applied in
-            multi-copy mode.
-
-        Returns
-        -------
-        VObject or VCollection
-            A single deep copy when *count* is ``None`` (default), or a
-            :class:`VCollection` of *count* clones when *count* is given.
-
-        Examples
-        --------
-        >>> c = Circle(r=50, cx=100, cy=200)
-        >>> c2 = c.clone(offset_x=120)          # one copy 120 px to the right
-        >>> copies = c.clone(count=3, dx=100)   # three copies stepped by 100 px
-        """
+        """Deep copy, optionally shifted. With count=N returns VCollection of N shifted clones."""
         if count is not None:
             clones = []
             for i in range(1, count + 1):
@@ -2678,27 +2505,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def morph_style(self, target_style, start: float, end: float, easing=easings.smooth):
-        """Smoothly transition styling attributes to match another object's style.
-
-        Animates fill color, stroke color, stroke_width, fill_opacity, and
-        stroke_opacity from their current values at *start* to the values of
-        *target_style* at *start*, over the interval [start, end].
-
-        Parameters
-        ----------
-        target_style:
-            Another VObject whose styling values are used as the animation targets.
-        start, end:
-            Animation time window in seconds.
-        easing:
-            Easing function (default: smooth).
-
-        Example
-        -------
-        >>> r1 = Rectangle(100, 50, fill='#f00', stroke='#fff', stroke_width=4)
-        >>> r2 = Rectangle(100, 50, fill='#00f', stroke='#ff0', stroke_width=8)
-        >>> r1.morph_style(r2, start=1, end=2)
-        """
+        """Animate styling (fill, stroke, opacity, etc.) to match another object's style."""
         morph_attrs = ['fill', 'stroke', 'stroke_width', 'fill_opacity', 'stroke_opacity']
         for attr_name in morph_attrs:
             src = getattr(self.styling, attr_name)
@@ -2726,25 +2533,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self.stretch(factor, factor, start, end, easing)
 
     def scale_about_point(self, factor, px, py, start: float = 0, end: float | None = None, easing=easings.smooth):
-        """Scale the object by *factor* about the pivot point (*px*, *py*).
-
-        The pivot stays fixed while the object scales and its center
-        moves accordingly.  This is equivalent to translating so that
-        the pivot is at the origin, scaling, then translating back.
-
-        Parameters
-        ----------
-        factor:
-            Scale multiplier (e.g. 2 = double size).
-        px, py:
-            Pivot point in SVG coordinates.
-        start:
-            Time at which the change begins.
-        end:
-            Time at which the change ends (``None`` = instant).
-        easing:
-            Easing function for the animation.
-        """
+        """Scale by *factor* about pivot point (*px*, *py*)."""
         self.styling._scale_origin = (px, py)
         return self.stretch(factor, factor, start, end, easing)
 
@@ -2773,21 +2562,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def set_stroke_dash(self, pattern, start: float = 0):
-        """Set the stroke dash pattern.
-
-        Parameters
-        ----------
-        pattern:
-            A string like ``'5 3'`` or a list/tuple like ``[5, 3]`` specifying
-            alternating dash and gap lengths (same as SVG ``stroke-dasharray``).
-            Pass an empty string ``''`` or ``None`` to remove dashing.
-        start:
-            Animation time at which the pattern takes effect.
-
-        Returns
-        -------
-        self
-        """
+        """Set the stroke dash pattern (string like '5 3' or list/tuple)."""
         if pattern is None:
             pattern_str = ''
         elif isinstance(pattern, (list, tuple)):
@@ -2798,23 +2573,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def set_backstroke(self, color='#000000', width=8, start=0):
-        """Add a background stroke for readability using ``paint-order: stroke fill``.
-
-        This renders the stroke *behind* the fill, which is useful for adding
-        an outline/halo to text or shapes so they remain readable on busy
-        backgrounds.
-
-        Parameters
-        ----------
-        color:
-            Stroke colour (CSS colour string).
-        width:
-            Stroke width in SVG units.
-        start:
-            Time from which the backstroke is visible.
-
-        Returns self.
-        """
+        """Add a background stroke (rendered behind fill) for readability."""
         self.set_stroke(color=color, width=width, start=start)
         _orig_to_svg = self.to_svg
 
@@ -2840,32 +2599,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
     def animate_opacity(self, start_opacity: float, end_opacity: float,
                         start: float = 0, end: float = 1,
                         easing=easings.smooth):
-        """Animate opacity from *start_opacity* to *end_opacity* over [start, end].
-
-        More flexible than :meth:`fadein` (which always goes 0 → current) or
-        :meth:`fadeout` (which always goes current → 0).  Use this method when
-        you need arbitrary opacity transitions, e.g. from 0.3 to 0.8.
-
-        Parameters
-        ----------
-        start_opacity:
-            Opacity value at the beginning of the animation (0–1).
-        end_opacity:
-            Opacity value at the end of the animation (0–1).
-        start, end:
-            Time interval over which the transition occurs.
-        easing:
-            Easing function (default ``easings.smooth``).
-
-        Returns
-        -------
-        self
-
-        Example
-        -------
-        >>> c = Circle()
-        >>> c.animate_opacity(0.2, 1.0, start=0, end=1)
-        """
+        """Animate opacity from *start_opacity* to *end_opacity* over [start, end]."""
         dur = end - start
         if dur <= 0:
             self.styling.opacity.set_onward(start, end_opacity)

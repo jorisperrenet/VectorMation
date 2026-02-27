@@ -2,13 +2,12 @@
 import math
 
 import vectormation.easings as easings
-import vectormation.attributes as attributes
 from vectormation._constants import (
     UNIT, DEFAULT_FONT_SIZE,
     DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
     _sample_function, _normalize,
 )
-from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _ramp, _lerp_point
+from vectormation._base import VCollection
 from vectormation._shapes import (
     Polygon, Circle, Dot, Rectangle, RoundedRectangle, Line,
     Text, Path,

@@ -10,7 +10,7 @@ from vectormation._constants import (
     CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
     _rotate_point, _sample_function, _distance, _normalize,
 )
-from vectormation._base import VObject, _norm_dir, _norm_edge, _lerp, _ramp, _ramp_down, _lerp_point, _set_attr
+from vectormation._base import VObject, _ramp, _ramp_down, _set_attr
 from vectormation._shapes import Polygon, Circle, Rectangle, Lines
 
 class Line(VObject):

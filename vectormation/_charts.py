@@ -8,7 +8,7 @@ from vectormation._constants import (
     SMALL_BUFF, DEFAULT_CHART_COLORS,
     CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET, _label_text,
 )
-from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _ramp, _lerp_point
+from vectormation._base import VObject, VCollection, _lerp
 from vectormation._shapes import (
     Polygon, Circle, Ellipse, Dot, Rectangle, RoundedRectangle, Line, Lines,
     Text, Path, Arc, Wedge,

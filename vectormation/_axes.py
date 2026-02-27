@@ -9,7 +9,7 @@ from vectormation._constants import (
     DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
     _sample_function, _normalize,
 )
-from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _ramp, _lerp_point
+from vectormation._base import VObject, VCollection, _lerp, _lerp_point
 from vectormation._axes_helpers import (
     _MARCH_SEGS, _AREA_STYLE, _HIGHLIGHT_STYLE,
     _get_arrow, _get_dynamic_object, _get_tex_object,

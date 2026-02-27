@@ -5,7 +5,7 @@ from copy import deepcopy
 
 import vectormation.easings as easings
 import vectormation.attributes as attributes
-from vectormation._constants import ORIGIN, SMALL_BUFF, UP, DOWN, RIGHT, DR
+from vectormation._constants import ORIGIN, SMALL_BUFF, UP, DOWN, RIGHT
 from vectormation._base import (
     VObject, _norm_dir, _norm_edge, _ramp, _lerp_point,
     _DIR_NAMES, _EDGE_NAMES,

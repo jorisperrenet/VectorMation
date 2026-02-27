@@ -1,13 +1,11 @@
 """Arrow classes: Arrow, DoubleArrow, CurvedArrow, Brace."""
 import math
 import re
-import vectormation.easings as easings
-import vectormation.attributes as attributes
 from vectormation._constants import (
     DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
     SMALL_BUFF, _normalize,
 )
-from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _lerp_point
+from vectormation._base import VObject, VCollection, _norm_dir
 from vectormation._shapes import Polygon, Line, Path, Rectangle
 
 
