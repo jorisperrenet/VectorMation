@@ -1,12 +1,20 @@
 """Re-export module: imports all public names from sub-modules.
 
 The actual implementations live in:
-  _constants.py  — size/direction constants, helper functions
-  _base.py       — VObject (base class), VCollection, VGroup
-  _canvas.py     — VectorMathAnim (canvas/video)
-  _shapes.py     — basic shapes (Polygon, Circle, Rectangle, Line, Text, Arc, etc.)
-  _composites.py — composites (Arrow, Axes, Graph, NumberLine, Table, etc.)
-  _threed.py     — 3D objects (ThreeDAxes, Surface, Line3D, Dot3D, etc.)
+  _constants.py      — size/direction constants, helper functions
+  _base.py           — VObject (base class), VCollection, VGroup
+  _canvas.py         — VectorMathAnim (canvas/video)
+  _shapes.py         — basic shapes (Polygon, Circle, Rectangle, Line, Text, Arc, etc.)
+  _arrows.py         — Arrow, DoubleArrow, CurvedArrow, Brace
+  _axes.py           — Axes, Graph, NumberPlane, ComplexPlane
+  _composites.py     — remaining composites (NumberLine, Table, etc.)
+  _charts.py         — (future: chart classes)
+  _diagrams.py       — diagram classes (Tree, FlowChart, NetworkGraph, etc.)
+  _ui.py             — UI component classes (TextBox, Badge, etc.)
+  _data_structures.py — data structure visualizations (Array, Stack, etc.)
+  _science.py        — science/electronics classes (Resistor, NeuralNetwork, etc.)
+  _svg_utils.py      — SVG utilities, boolean ops (from_svg, Union, etc.)
+  _threed.py         — 3D objects (ThreeDAxes, Surface, Line3D, Dot3D, etc.)
 """
 # Re-export everything so `from vectormation.objects import X` still works.
 
@@ -39,41 +47,60 @@ from vectormation._shapes import (
 # Alias
 Sector = Wedge
 
+from vectormation._arrows import Arrow, DoubleArrow, CurvedArrow, Brace
+
+from vectormation._axes import Axes, Graph, NumberPlane, ComplexPlane
+
 from vectormation._composites import (
     MorphObject, LabeledDot, TexObject, SplitTexObject,
-    Axes, Graph, NumberPlane,
-    Arrow, DoubleArrow, CurvedArrow, Brace,
+    NumberLine,
     ClipPath, BlurFilter, DropShadowFilter,
-    Angle, RightAngle, Cross, NumberLine,
+    Angle, RightAngle, Cross,
     PieChart, DonutChart, BarChart, Table, Matrix,
     DynamicObject, ZoomedInset,
     Union, Difference, Intersection, Exclusion,
-    Title,
-    Variable, Underline, brace_between_points,
-    ArrowVectorField, ComplexPlane, Code,
-    ChessBoard, PeriodicTable, BohrAtom, Automaton,
-    NetworkGraph,
-    Label, LabeledArrow, StreamLines, PolarAxes,
-    Callout, DimensionLine, Tooltip, Tree,
-    Stamp, TimelineBar, Legend, RadarChart, ProgressBar, FlowChart,
+    brace_between_points,
+    ArrowVectorField,
+    StreamLines, PolarAxes,
+    always_redraw, parse_args,
+    from_svg, from_svg_file, _parse_inline_style,
+    SampleSpace,
     WaterfallChart, GanttChart, SankeyDiagram,
     FunnelChart, TreeMap, GaugeChart, SparkLine,
-    VennDiagram, OrgChart,
     KPICard, BulletChart, CalendarHeatmap,
-    WaffleChart, MindMap,
+    WaffleChart,
     CircularProgressBar, Scoreboard,
-    MatrixHeatmap, BoxPlot, TextBox, Bracket, IconGrid,
+    MatrixHeatmap, BoxPlot,
+    RadarChart, ProgressBar, Legend,
+)
+
+from vectormation._diagrams import (
+    ChessBoard, PeriodicTable, BohrAtom, Automaton,
+    NetworkGraph, Tree, Stamp, TimelineBar,
+    FlowChart, VennDiagram, OrgChart, MindMap,
+)
+
+from vectormation._ui import (
+    Title, Variable, Underline, Code,
+    Label, LabeledArrow,
+    Callout, DimensionLine, Tooltip,
+    TextBox, Bracket, IconGrid,
     SpeechBubble, Badge, Divider,
     Checklist, Stepper, TagCloud,
     StatusIndicator, Meter, Breadcrumb,
     Countdown, Filmstrip,
-    SampleSpace, RoundedCornerPolygon,
+    RoundedCornerPolygon,
+)
+
+from vectormation._data_structures import (
     Array, Stack, Queue, LinkedList, BinaryTree,
+    ArrayViz, LinkedListViz, StackViz, QueueViz,
+    _flash_fill,
+)
+
+from vectormation._science import (
     Resistor, Capacitor, Inductor, Diode, LED, UnitInterval, Molecule2D,
     NeuralNetwork, Pendulum, StandingWave,
-    ArrayViz, LinkedListViz, StackViz, QueueViz,
-    from_svg, from_svg_file, always_redraw, parse_args,
-    _parse_inline_style,
 )
 
 from vectormation.colors import (LinearGradient, RadialGradient,

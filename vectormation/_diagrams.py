@@ -1,0 +1,942 @@
+"""Diagram classes: Tree, FlowChart, NetworkGraph, Automaton, etc."""
+import math
+import vectormation.easings as easings
+import vectormation.attributes as attributes
+from vectormation._constants import (
+    CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN, UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE,
+    DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET, _normalize,
+)
+from vectormation._base import VObject, VCollection, _lerp
+from vectormation._shapes import (
+    Polygon, Circle, Dot, Rectangle, RoundedRectangle, Line, Lines,
+    Text, Path, Arc,
+)
+
+
+def _get_arrow():
+    from vectormation._arrows import Arrow
+    return Arrow
+
+
+def _label_text(text, x, y, font_size, creation=0, z=0, **overrides):
+    kw = {'fill': '#fff', 'stroke_width': 0} | overrides
+    return Text(text=str(text), x=x, y=y + font_size * TEXT_Y_OFFSET,
+                font_size=font_size, text_anchor='middle', creation=creation, z=z, **kw)
+
+
+# ---------------------------------------------------------------------------
+# ChessBoard
+# ---------------------------------------------------------------------------
+
+class ChessBoard(VCollection):
+    """Chess board visualization.
+
+    size: pixel size of the board.
+    show_coordinates: whether to show rank/file labels.
+    """
+    _PIECE_SYMBOLS = {
+        'K': '\u2654', 'Q': '\u2655', 'R': '\u2656', 'B': '\u2657', 'N': '\u2658', 'P': '\u2659',
+        'k': '\u265a', 'q': '\u265b', 'r': '\u265c', 'b': '\u265d', 'n': '\u265e', 'p': '\u265f',
+    }
+
+    def __init__(self, fen='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR',
+                 cx=960, cy=540, size=600, show_coordinates=True,
+                 light_color='#f0d9b5', dark_color='#b58863',
+                 creation: float = 0, z: float = 0):
+        cell = size / 8
+        x0 = cx - size / 2
+        y0 = cy - size / 2
+        objects = []
+        self._pieces = {}
+        self._cell = cell
+        self._x0, self._y0 = x0, y0
+
+        # Draw squares
+        for row in range(8):
+            for col in range(8):
+                color = light_color if (row + col) % 2 == 0 else dark_color
+                sq = Rectangle(cell, cell, x=x0 + col * cell, y=y0 + row * cell,
+                               creation=creation, z=z,
+                               fill=color, fill_opacity=1, stroke_width=0)
+                objects.append(sq)
+
+        # Coordinate labels
+        if show_coordinates:
+            for col in range(8):
+                lbl = Text(text=chr(ord('a') + col),
+                           x=x0 + col * cell + cell / 2,
+                           y=y0 + size + 18,
+                           font_size=16, text_anchor='middle',
+                           creation=creation, z=z, fill='#aaa', stroke_width=0)
+                objects.append(lbl)
+            for row in range(8):
+                lbl = Text(text=str(8 - row),
+                           x=x0 - 14,
+                           y=y0 + row * cell + cell / 2 + 6,
+                           font_size=16, text_anchor='middle',
+                           creation=creation, z=z, fill='#aaa', stroke_width=0)
+                objects.append(lbl)
+
+        # Place pieces from FEN
+        rows = fen.split('/')
+        for row_idx, row_str in enumerate(rows):
+            col_idx = 0
+            for ch in row_str:
+                if ch.isdigit():
+                    col_idx += int(ch)
+                elif ch in self._PIECE_SYMBOLS:
+                    px = x0 + col_idx * cell + cell / 2
+                    py = y0 + row_idx * cell + cell / 2 + cell * 0.1
+                    piece = Text(text=self._PIECE_SYMBOLS[ch],
+                                 x=px, y=py, font_size=cell * 0.7,
+                                 text_anchor='middle',
+                                 creation=creation, z=z + 1,
+                                 fill='#fff' if ch.isupper() else '#222',
+                                 stroke_width=0)
+                    sq_name = chr(ord('a') + col_idx) + str(8 - row_idx)
+                    self._pieces[sq_name] = piece
+                    objects.append(piece)
+                    col_idx += 1
+
+        super().__init__(*objects, creation=creation, z=z)
+
+    def move_piece(self, from_sq, to_sq, start=0, end=1, easing=easings.smooth):
+        """Animate moving a piece from one square to another (e.g. 'e2' -> 'e4')."""
+        piece = self._pieces.get(from_sq)
+        if piece is None:
+            return self
+        fc, fr = ord(from_sq[0]) - ord('a'), 8 - int(from_sq[1])
+        tc, tr = ord(to_sq[0]) - ord('a'), 8 - int(to_sq[1])
+        dx = (tc - fc) * self._cell
+        dy = (tr - fr) * self._cell
+        piece.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
+        # Update piece mapping
+        self._pieces[to_sq] = piece
+        del self._pieces[from_sq]
+        return self
+
+
+# ---------------------------------------------------------------------------
+# PeriodicTable + helper
+# ---------------------------------------------------------------------------
+
+_ELEMENT_DATA = [
+    (1, 'H', 'Hydrogen', 1, 1), (2, 'He', 'Helium', 18, 1),
+    (3, 'Li', 'Lithium', 1, 2), (4, 'Be', 'Beryllium', 2, 2),
+    (5, 'B', 'Boron', 13, 2), (6, 'C', 'Carbon', 14, 2),
+    (7, 'N', 'Nitrogen', 15, 2), (8, 'O', 'Oxygen', 16, 2),
+    (9, 'F', 'Fluorine', 17, 2), (10, 'Ne', 'Neon', 18, 2),
+    (11, 'Na', 'Sodium', 1, 3), (12, 'Mg', 'Magnesium', 2, 3),
+    (13, 'Al', 'Aluminium', 13, 3), (14, 'Si', 'Silicon', 14, 3),
+    (15, 'P', 'Phosphorus', 15, 3), (16, 'S', 'Sulfur', 16, 3),
+    (17, 'Cl', 'Chlorine', 17, 3), (18, 'Ar', 'Argon', 18, 3),
+    (19, 'K', 'Potassium', 1, 4), (20, 'Ca', 'Calcium', 2, 4),
+    (21, 'Sc', 'Scandium', 3, 4), (22, 'Ti', 'Titanium', 4, 4),
+    (23, 'V', 'Vanadium', 5, 4), (24, 'Cr', 'Chromium', 6, 4),
+    (25, 'Mn', 'Manganese', 7, 4), (26, 'Fe', 'Iron', 8, 4),
+    (27, 'Co', 'Cobalt', 9, 4), (28, 'Ni', 'Nickel', 10, 4),
+    (29, 'Cu', 'Copper', 11, 4), (30, 'Zn', 'Zinc', 12, 4),
+    (31, 'Ga', 'Gallium', 13, 4), (32, 'Ge', 'Germanium', 14, 4),
+    (33, 'As', 'Arsenic', 15, 4), (34, 'Se', 'Selenium', 16, 4),
+    (35, 'Br', 'Bromine', 17, 4), (36, 'Kr', 'Krypton', 18, 4),
+]
+
+_CATEGORY_COLORS = {
+    'nonmetal': '#58C4DD', 'noble_gas': '#9A72AC', 'alkali': '#FC6255',
+    'alkaline': '#F0AC5F', 'metalloid': '#5CD0B3', 'halogen': '#FFFF00',
+    'transition': '#C55F73', 'post_transition': '#83C167',
+}
+
+
+def _element_category(z):
+    if z in (1, 6, 7, 8, 15, 16, 34): return 'nonmetal'
+    if z in (2, 10, 18, 36): return 'noble_gas'
+    if z in (3, 11, 19): return 'alkali'
+    if z in (4, 12, 20): return 'alkaline'
+    if z in (5, 14, 32, 33): return 'metalloid'
+    if z in (9, 17, 35): return 'halogen'
+    if 21 <= z <= 30: return 'transition'
+    return 'post_transition'
+
+
+class PeriodicTable(VCollection):
+    """Periodic table of elements (first 36 elements).
+
+    cell_size: pixel size of each element cell.
+    """
+    def __init__(self, cx=960, cy=540, cell_size=48, creation: float = 0, z: float = 0):
+        objects = []
+        total_w = 18 * cell_size
+        total_h = 4 * cell_size
+        x0 = cx - total_w / 2
+        y0 = cy - total_h / 2
+
+        self._cells = {}
+        for atomic_num, symbol, _name, col, row in _ELEMENT_DATA:
+            cat = _element_category(atomic_num)
+            color = _CATEGORY_COLORS.get(cat, '#888')
+            ex = x0 + (col - 1) * cell_size
+            ey = y0 + (row - 1) * cell_size
+            bg = Rectangle(cell_size - 2, cell_size - 2, x=ex + 1, y=ey + 1,
+                           creation=creation, z=z,
+                           fill=color, fill_opacity=0.3, stroke=color, stroke_width=1)
+            objects.append(bg)
+            num_t = Text(text=str(atomic_num), x=ex + 4, y=ey + 12,
+                         font_size=10, creation=creation, z=z,
+                         fill='#aaa', stroke_width=0)
+            objects.append(num_t)
+            sym_t = Text(text=symbol, x=ex + cell_size / 2, y=ey + cell_size / 2 + 4,
+                         font_size=18, text_anchor='middle',
+                         creation=creation, z=z, fill='#fff', stroke_width=0)
+            objects.append(sym_t)
+            self._cells[symbol] = (bg, num_t, sym_t)
+
+        super().__init__(*objects, creation=creation, z=z)
+
+    def highlight(self, symbol, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+        """Highlight an element by symbol."""
+        if symbol in self._cells:
+            bg, _, sym = self._cells[symbol]
+            bg.indicate(start, end, easing=easing)
+            sym.flash(start, end, color=color, easing=easing)
+        return self
+
+
+# ---------------------------------------------------------------------------
+# BohrAtom
+# ---------------------------------------------------------------------------
+
+class BohrAtom(VCollection):
+    """Bohr model of an atom with electron shells.
+
+    protons: number of protons (atomic number).
+    neutrons: number of neutrons.
+    electrons: list of electrons per shell, e.g. [2, 8, 1] for sodium.
+    """
+    def __init__(self, protons=1, neutrons=0, electrons=None, cx=960, cy=540,
+                 nucleus_r=30, shell_spacing=40, creation: float = 0, z: float = 0):
+        objects = []
+
+        # Nucleus
+        nucleus = Circle(r=nucleus_r, cx=cx, cy=cy, creation=creation, z=z + 1,
+                         fill='#FC6255', fill_opacity=0.8, stroke='#fff', stroke_width=2)
+        objects.append(nucleus)
+        nucleus_text = f'{protons}p\u207a' if neutrons == 0 else f'{protons}p {neutrons}n'
+        label = Text(text=nucleus_text, x=cx, y=cy + 6,
+                     font_size=max(10, nucleus_r * 0.5), text_anchor='middle',
+                     creation=creation, z=z + 2, fill='#fff', stroke_width=0)
+        objects.append(label)
+
+        if electrons is None:
+            # Auto-fill shells: 2, 8, 8, 18, ...
+            remaining = protons
+            electrons = []
+            for cap in [2, 8, 8, 18, 18, 32]:
+                if remaining <= 0:
+                    break
+                electrons.append(min(remaining, cap))
+                remaining -= electrons[-1]
+
+        # Electron shells
+        self._electron_dots = []
+        for shell_idx, n_electrons in enumerate(electrons):
+            r = nucleus_r + (shell_idx + 1) * shell_spacing
+            orbit = Circle(r=r, cx=cx, cy=cy, creation=creation, z=z,
+                           fill_opacity=0, stroke='#58C4DD', stroke_width=1, stroke_opacity=0.4)
+            objects.append(orbit)
+            for e in range(n_electrons):
+                angle = math.tau * e / n_electrons
+                ex = cx + r * math.cos(angle)
+                ey = cy - r * math.sin(angle)
+                dot = Dot(r=5, cx=ex, cy=ey, creation=creation, z=z + 1,
+                          fill='#58C4DD', fill_opacity=1)
+                objects.append(dot)
+                self._electron_dots.append(dot)
+
+        super().__init__(*objects, creation=creation, z=z)
+
+    def orbit(self, start=0, end=None, speed=45):
+        """Animate all electrons orbiting around the nucleus."""
+        for dot in self._electron_dots:
+            dot.always_rotate(start=start, end=end, degrees_per_second=speed)
+        return self
+
+
+# ---------------------------------------------------------------------------
+# Automaton
+# ---------------------------------------------------------------------------
+
+class Automaton(VCollection):
+    """Finite state machine / automaton visualization.
+
+    states: list of state names, e.g. ['q0', 'q1', 'q2']
+    transitions: list of (from_state, to_state, label) tuples
+    accept_states: set of accepting state names (drawn with double circle)
+    initial_state: name of the initial state (gets an incoming arrow)
+    """
+    def __init__(self, states, transitions, accept_states=None, initial_state=None,
+                 cx=960, cy=540, radius=300, state_r=35, font_size=20,
+                 creation: float = 0, z: float = 0):
+        Arrow = _get_arrow()
+        objects = []
+        accept_states = accept_states or set()
+        n = len(states)
+        self._state_positions = {}
+        self._state_circles = {}
+        if n == 0:
+            super().__init__(creation=creation, z=z)
+            return
+
+        # Arrange states in a circle
+        for i, name in enumerate(states):
+            angle = math.tau * i / n - math.pi / 2
+            sx = cx + radius * math.cos(angle)
+            sy = cy + radius * math.sin(angle)
+            self._state_positions[name] = (sx, sy)
+
+            circle = Circle(r=state_r, cx=sx, cy=sy, creation=creation, z=z,
+                            fill='#1e1e2e', fill_opacity=0.9, stroke='#58C4DD', stroke_width=2)
+            objects.append(circle)
+            self._state_circles[name] = circle
+
+            if name in accept_states:
+                inner = Circle(r=state_r - 5, cx=sx, cy=sy, creation=creation, z=z,
+                               fill_opacity=0, stroke='#58C4DD', stroke_width=2)
+                objects.append(inner)
+
+            label = Text(text=name, x=sx, y=sy + font_size * TEXT_Y_OFFSET,
+                         font_size=font_size, text_anchor='middle',
+                         creation=creation, z=z + 1, fill='#fff', stroke_width=0)
+            objects.append(label)
+
+        # Initial state arrow
+        if initial_state and initial_state in self._state_positions:
+            sx, sy = self._state_positions[initial_state]
+            objects.append(Arrow(x1=sx - state_r - 50, y1=sy, x2=sx - state_r - 2, y2=sy,
+                                 tip_length=12, tip_width=10,
+                                 creation=creation, z=z, stroke='#fff', stroke_width=2))
+
+        # Transitions
+        for from_s, to_s, label_text in transitions:
+            if from_s not in self._state_positions or to_s not in self._state_positions:
+                continue
+            fx, fy = self._state_positions[from_s]
+            tx, ty = self._state_positions[to_s]
+
+            if from_s == to_s:
+                # Self-loop: arc above the state
+                loop_r = state_r * 0.8
+                loop = Arc(cx=fx, cy=fy - state_r - loop_r, r=loop_r,
+                           start_angle=210, end_angle=330,
+                           creation=creation, z=z, stroke='#83C167', stroke_width=2)
+                objects.append(loop)
+                lbl = Text(text=label_text, x=fx, y=fy - state_r - loop_r * 2 - 8,
+                           font_size=font_size * 0.8, text_anchor='middle',
+                           creation=creation, z=z + 1, fill='#83C167', stroke_width=0)
+                objects.append(lbl)
+            else:
+                dx, dy = tx - fx, ty - fy
+                ux, uy = _normalize(dx, dy)
+                # Shorten to circle edges
+                sx, sy = fx + ux * state_r, fy + uy * state_r
+                ex, ey = tx - ux * state_r, ty - uy * state_r
+                arrow = Arrow(x1=sx, y1=sy, x2=ex, y2=ey,
+                              tip_length=12, tip_width=10,
+                              creation=creation, z=z, stroke='#83C167', stroke_width=2)
+                objects.append(arrow)
+                mx, my = (sx + ex) / 2, (sy + ey) / 2
+                # Offset label perpendicular to arrow
+                px, py = -uy * 15, ux * 15
+                lbl = Text(text=label_text, x=mx + px, y=my + py + font_size * TEXT_Y_OFFSET,
+                           font_size=font_size * 0.8, text_anchor='middle',
+                           creation=creation, z=z + 1, fill='#83C167', stroke_width=0)
+                objects.append(lbl)
+
+        super().__init__(*objects, creation=creation, z=z)
+
+    def highlight_state(self, state_name, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+        """Highlight a state by flashing its circle."""
+        if state_name in self._state_circles:
+            self._state_circles[state_name].flash(start, end, color=color, easing=easing)
+        return self
+
+
+# ---------------------------------------------------------------------------
+# NetworkGraph
+# ---------------------------------------------------------------------------
+
+class NetworkGraph(VCollection):
+    """Network/graph visualization with nodes and edges.
+
+    nodes: dict mapping node_id -> label string, or a list of labels.
+    edges: list of (from_id, to_id) or (from_id, to_id, label) tuples.
+    layout: 'circular', 'spring', or 'grid'.
+    directed: whether to draw arrows (True) or lines (False).
+    """
+    def __init__(self, nodes, edges=None, cx=960, cy=540, radius=300,
+                 node_r=30, font_size=20, layout='circular', directed=False,
+                 creation: float = 0, z: float = 0):
+        Arrow = _get_arrow()
+        objects = []
+        edges = edges or []
+
+        # Normalize nodes to dict
+        if isinstance(nodes, (list, tuple)):
+            nodes = {i: str(v) for i, v in enumerate(nodes)}
+
+        node_ids = list(nodes.keys())
+        n = len(node_ids)
+        self._node_positions = {}
+        self._node_circles = {}
+        if n == 0:
+            super().__init__(creation=creation, z=z)
+            return
+
+        # Layout
+        if layout == 'circular':
+            for i, nid in enumerate(node_ids):
+                angle = math.tau * i / max(n, 1) - math.pi / 2
+                nx = cx + radius * math.cos(angle)
+                ny = cy + radius * math.sin(angle)
+                self._node_positions[nid] = (nx, ny)
+        elif layout == 'grid':
+            cols = max(1, int(math.ceil(math.sqrt(n))))
+            spacing = radius * 2 / max(cols - 1, 1) if cols > 1 else 0
+            x0 = cx - (cols - 1) * spacing / 2
+            y0 = cy - ((n - 1) // cols) * spacing / 2
+            for i, nid in enumerate(node_ids):
+                r, c = divmod(i, cols)
+                self._node_positions[nid] = (x0 + c * spacing, y0 + r * spacing)
+        else:  # spring (simple force-directed, few iterations)
+            import random
+            rng = random.Random(42)
+            pos = {nid: (cx + rng.uniform(-radius, radius), cy + rng.uniform(-radius, radius))
+                   for nid in node_ids}
+            for _ in range(50):
+                forces = {nid: [0.0, 0.0] for nid in node_ids}
+                # Repulsion
+                for i, a in enumerate(node_ids):
+                    for b in node_ids[i + 1:]:
+                        dx = pos[a][0] - pos[b][0]
+                        dy = pos[a][1] - pos[b][1]
+                        d = math.hypot(dx, dy) + 1
+                        f = 5000 / (d * d)
+                        forces[a][0] += f * dx / d
+                        forces[a][1] += f * dy / d
+                        forces[b][0] -= f * dx / d
+                        forces[b][1] -= f * dy / d
+                # Attraction (edges)
+                for edge in edges:
+                    a, b = edge[0], edge[1]
+                    if a not in pos or b not in pos:
+                        continue
+                    dx = pos[b][0] - pos[a][0]
+                    dy = pos[b][1] - pos[a][1]
+                    d = math.hypot(dx, dy) + 1
+                    f = d * 0.01
+                    forces[a][0] += f * dx / d
+                    forces[a][1] += f * dy / d
+                    forces[b][0] -= f * dx / d
+                    forces[b][1] -= f * dy / d
+                for nid in node_ids:
+                    pos[nid] = (pos[nid][0] + forces[nid][0] * 0.1,
+                                pos[nid][1] + forces[nid][1] * 0.1)
+            # Center the layout
+            avg_x = sum(p[0] for p in pos.values()) / n if n else cx
+            avg_y = sum(p[1] for p in pos.values()) / n if n else cy
+            for nid in node_ids:
+                self._node_positions[nid] = (pos[nid][0] - avg_x + cx,
+                                             pos[nid][1] - avg_y + cy)
+
+        # Draw edges
+        for edge in edges:
+            a, b = edge[0], edge[1]
+            label = edge[2] if len(edge) > 2 else None
+            if a not in self._node_positions or b not in self._node_positions:
+                continue
+            ax, ay = self._node_positions[a]
+            bx, by = self._node_positions[b]
+            if directed:
+                dx, dy = bx - ax, by - ay
+                ux, uy = _normalize(dx, dy)
+                # Shorten to not overlap circles
+                ax2 = ax + ux * node_r
+                ay2 = ay + uy * node_r
+                bx2 = bx - ux * node_r
+                by2 = by - uy * node_r
+                arrow = Arrow(x1=ax2, y1=ay2, x2=bx2, y2=by2,
+                              tip_length=12, tip_width=10,
+                              creation=creation, z=z, stroke='#888', stroke_width=2)
+                objects.append(arrow)
+            else:
+                line = Line(x1=ax, y1=ay, x2=bx, y2=by,
+                            creation=creation, z=z, stroke='#888', stroke_width=2)
+                objects.append(line)
+            if label:
+                mx, my = (ax + bx) / 2, (ay + by) / 2
+                lbl = Text(text=str(label), x=mx, y=my - 10,
+                           font_size=font_size * 0.8, text_anchor='middle',
+                           creation=creation, z=z + 2, fill='#aaa', stroke_width=0)
+                objects.append(lbl)
+
+        # Draw nodes
+        for nid in node_ids:
+            nx, ny = self._node_positions[nid]
+            circle = Circle(r=node_r, cx=nx, cy=ny, creation=creation, z=z + 1,
+                            fill='#1e1e2e', fill_opacity=0.9, stroke='#58C4DD', stroke_width=2)
+            objects.append(circle)
+            self._node_circles[nid] = circle
+            lbl = _label_text(nodes[nid], nx, ny, font_size, creation=creation, z=z + 2)
+            objects.append(lbl)
+
+        super().__init__(*objects, creation=creation, z=z)
+
+    def highlight_node(self, node_id, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+        """Flash-highlight a node by its ID."""
+        if node_id in self._node_circles:
+            self._node_circles[node_id].flash(start, end, color=color, easing=easing)
+        return self
+
+    def get_node_position(self, node_id):
+        """Get the (x, y) position of a node."""
+        return self._node_positions.get(node_id, ORIGIN)
+
+
+# ---------------------------------------------------------------------------
+# Tree
+# ---------------------------------------------------------------------------
+
+class Tree(VCollection):
+    """Hierarchical tree layout visualization.
+
+    data: nested dict like {'root': {'child1': {}, 'child2': {'leaf': {}}}}
+          or a tuple tree: ('root', [('child1', []), ('child2', [('leaf', [])])])
+    layout: 'down' (root at top) or 'right' (root at left).
+    """
+    def __init__(self, data, cx=960, cy=100, h_spacing=120, v_spacing=100,
+                 node_r=20, font_size=18, layout='down',
+                 creation: float = 0, z: float = 0):
+        objects = []
+
+        # Normalize data to (label, children) format
+        if isinstance(data, dict):
+            data = self._dict_to_tree(data)
+
+        # Use id(node_tuple) as key to handle duplicate labels
+        positions = {}   # id(node) -> (x, y)
+        labels = {}      # id(node) -> label string
+        widths = {}      # id(node) -> subtree width
+        node_map = {}    # label -> id(node) (first occurrence, for API)
+
+        self._collect_nodes(data, labels, node_map)
+        self._calc_widths(data, widths, h_spacing)
+        self._layout(data, cx, cy, widths, h_spacing, v_spacing, positions, layout)
+
+        # Draw edges
+        self._draw_edges_impl(data, positions, objects, creation, z, Line)
+
+        # Draw nodes (skip empty-label nodes)
+        self._node_objects = {}
+        self._positions_by_label = {}
+        for node_tuple, (nx, ny) in [(n, positions[id(n)]) for n in self._all_nodes(data) if id(n) in positions]:
+            label = node_tuple[0]
+            if not label:
+                continue
+            circle = Circle(r=node_r, cx=nx, cy=ny, creation=creation, z=z + 1,
+                            fill='#1e1e2e', fill_opacity=0.9, stroke='#58C4DD', stroke_width=2)
+            objects.append(circle)
+            nid = id(node_tuple)
+            self._node_objects[nid] = circle
+            if label not in self._positions_by_label:
+                self._positions_by_label[label] = (nx, ny)
+                self._node_objects[label] = circle  # label-based lookup (first occurrence)
+            lbl = _label_text(label, nx, ny, font_size, creation=creation, z=z + 2)
+            objects.append(lbl)
+
+        super().__init__(*objects, creation=creation, z=z)
+
+    @staticmethod
+    def _all_nodes(node):
+        """Yield all nodes in pre-order."""
+        yield node
+        for child in node[1]:
+            yield from Tree._all_nodes(child)
+
+    @staticmethod
+    def _collect_nodes(node, labels, node_map):
+        label = node[0]
+        labels[id(node)] = label
+        if label and label not in node_map:
+            node_map[label] = id(node)
+        for child in node[1]:
+            Tree._collect_nodes(child, labels, node_map)
+
+    @staticmethod
+    def _dict_to_tree(d):
+        """Convert dict tree to tuple tree."""
+        if not d:
+            return ('', [])
+        key = next(iter(d))
+        children = d[key]
+        if isinstance(children, dict):
+            return (key, [Tree._dict_to_tree({k: v}) for k, v in children.items()])
+        return (key, [])
+
+    @staticmethod
+    def _calc_widths(node, widths, spacing):
+        if not node[1]:
+            widths[id(node)] = spacing
+        else:
+            total = 0
+            for child in node[1]:
+                Tree._calc_widths(child, widths, spacing)
+                total += widths[id(child)]
+            widths[id(node)] = max(total, spacing)
+
+    @staticmethod
+    def _layout(node, x, y, widths, h_spacing, v_spacing, positions, layout):
+        positions[id(node)] = (x, y)
+        children = node[1]
+        if not children:
+            return
+        total_w = sum(widths[id(c)] for c in children)
+        cur = x - total_w / 2
+        for child in children:
+            cw = widths[id(child)]
+            child_x = cur + cw / 2
+            if layout == 'down':
+                Tree._layout(child, child_x, y + v_spacing, widths, h_spacing, v_spacing, positions, layout)
+            else:
+                Tree._layout(child, x + v_spacing, child_x, widths, h_spacing, v_spacing, positions, layout)
+            cur += cw
+
+    @staticmethod
+    def _draw_edges_impl(node, positions, objects, creation, z, LineClass):
+        px, py = positions[id(node)]
+        for child in node[1]:
+            if id(child) in positions:
+                ccx, ccy = positions[id(child)]
+                objects.append(LineClass(x1=px, y1=py, x2=ccx, y2=ccy,
+                                        creation=creation, z=z, stroke='#888', stroke_width=2))
+            Tree._draw_edges_impl(child, positions, objects, creation, z, LineClass)
+
+    def get_node_position(self, label):
+        """Get (x, y) position of a node by label (first occurrence if duplicates)."""
+        return self._positions_by_label.get(label, ORIGIN)
+
+    def highlight_node(self, label, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+        """Flash-highlight a node by label."""
+        if label in self._node_objects:
+            self._node_objects[label].flash(start, end, color=color, easing=easing)
+        return self
+
+
+# ---------------------------------------------------------------------------
+# Stamp
+# ---------------------------------------------------------------------------
+
+class Stamp(VCollection):
+    """Place copies of a template object at specified positions.
+
+    template: the VObject to copy.
+    points: list of (x, y) positions to place copies at.
+    """
+    def __init__(self, template, points, creation: float = 0, z: float = 0):
+        from copy import deepcopy
+        objects = []
+        for px, py in points:
+            c = deepcopy(template)
+            cx, cy = c.center(creation)
+            c.shift(dx=px - cx, dy=py - cy, start=creation)
+            objects.append(c)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+# ---------------------------------------------------------------------------
+# TimelineBar
+# ---------------------------------------------------------------------------
+
+class TimelineBar(VCollection):
+    """Visual timeline bar with labeled markers.
+
+    markers: dict of {time_val: label} pairs.
+    total_duration: the max time value represented.
+    """
+    def __init__(self, markers, total_duration=10, x=200, y=900,
+                 width=1520, height=6, marker_color='#FFFF00',
+                 font_size=14, creation: float = 0, z: float = 0):
+        objects = []
+        # Track bar
+        track = Rectangle(width, height, x=x, y=y - height / 2,
+                          fill='#444', fill_opacity=0.8, stroke_width=0,
+                          creation=creation, z=z)
+        objects.append(track)
+        # Markers
+        if total_duration <= 0:
+            total_duration = 1
+        for t_val, label in markers.items():
+            frac = t_val / total_duration
+            mx = x + frac * width
+            tick = Line(x1=mx, y1=y - 15, x2=mx, y2=y + 15,
+                        stroke=marker_color, stroke_width=2,
+                        creation=creation, z=z + 0.1)
+            dot = Circle(r=4, cx=mx, cy=y, fill=marker_color,
+                         fill_opacity=1, stroke_width=0,
+                         creation=creation, z=z + 0.2)
+            txt = Text(text=str(label), x=mx, y=y - 22,
+                       font_size=font_size, fill='#ccc', stroke_width=0,
+                       text_anchor='middle', creation=creation, z=z + 0.1)
+            objects.extend([tick, dot, txt])
+        super().__init__(*objects, creation=creation, z=z)
+
+
+# ---------------------------------------------------------------------------
+# FlowChart
+# ---------------------------------------------------------------------------
+
+class FlowChart(VCollection):
+    """Simple flow chart with labeled boxes connected by arrows.
+
+    steps: list of str labels for each box.
+    direction: 'right' or 'down'.
+    """
+    def __init__(self, steps, direction='right', x=200, y=400,
+                 box_width=200, box_height=60, spacing=80,
+                 box_color='#58C4DD', text_color='#fff', arrow_color='#999',
+                 font_size=20, corner_radius=8, creation: float = 0, z: float = 0):
+        Arrow = _get_arrow()
+        objects = []
+        self._boxes = []
+        self._labels = []
+        horizontal = direction == 'right'
+        for i, label in enumerate(steps):
+            if horizontal:
+                bx = x + i * (box_width + spacing)
+                by = y
+            else:
+                bx = x
+                by = y + i * (box_height + spacing)
+            box = RoundedRectangle(box_width, box_height, x=bx, y=by,
+                                   corner_radius=corner_radius,
+                                   fill=box_color, fill_opacity=0.8,
+                                   stroke=box_color, creation=creation, z=z)
+            txt = Text(text=label, x=bx + box_width / 2, y=by + box_height / 2 + font_size * TEXT_Y_OFFSET,
+                       font_size=font_size, fill=text_color, stroke_width=0,
+                       text_anchor='middle', creation=creation, z=z + 0.1)
+            self._boxes.append(box)
+            self._labels.append(txt)
+            objects.extend([box, txt])
+            # Arrow between boxes
+            if i > 0:
+                if horizontal:
+                    prev_bx = x + (i - 1) * (box_width + spacing)
+                    ax1, ay1 = prev_bx + box_width, y + box_height / 2
+                    ax2, ay2 = bx, y + box_height / 2
+                else:
+                    prev_by = y + (i - 1) * (box_height + spacing)
+                    ax1, ay1 = x + box_width / 2, prev_by + box_height
+                    ax2, ay2 = x + box_width / 2, by
+                arr = Arrow(ax1, ay1, ax2, ay2, stroke=arrow_color,
+                            creation=creation, z=z - 0.1)
+                objects.append(arr)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+# ---------------------------------------------------------------------------
+# VennDiagram
+# ---------------------------------------------------------------------------
+
+class VennDiagram(VCollection):
+    """Venn diagram with 2 or 3 overlapping circles.
+
+    labels: list of 2 or 3 labels.
+    sizes: optional list of radii (default equal).
+    """
+    def __init__(self, labels, sizes=None, x=960, y=540, radius=150,
+                 colors=None, font_size=24, creation: float = 0, z: float = 0):
+        n = len(labels)
+        if n < 2 or n > 3:
+            super().__init__(creation=creation, z=z)
+            return
+        if colors is None:
+            colors = ['#58C4DD', '#FF6B6B', '#83C167']
+        if sizes is None:
+            sizes = [radius] * n
+        objects = []
+        # Circle positions
+        if n == 2:
+            sep = radius * 0.7
+            positions = [(x - sep / 2, y), (x + sep / 2, y)]
+        else:
+            sep = radius * 0.65
+            ang120 = math.tau / 3
+            positions = [(x + sep * math.cos(math.pi / 2 + i * ang120),
+                          y - sep * math.sin(math.pi / 2 + i * ang120))
+                         for i in range(3)]
+        for i, (cx, cy) in enumerate(positions):
+            c = Circle(r=sizes[i], cx=cx, cy=cy,
+                       fill=colors[i % len(colors)], fill_opacity=0.25,
+                       stroke=colors[i % len(colors)], stroke_width=2,
+                       creation=creation, z=z)
+            objects.append(c)
+        # Labels outside circles
+        for i, (cx, cy) in enumerate(positions):
+            if n == 2:
+                lx = cx + (-1 if i == 0 else 1) * sizes[i] * 0.5
+                ly = cy - sizes[i] - 15
+            else:
+                dx, dy = cx - x, cy - y
+                ux, uy = _normalize(dx, dy)
+                lx = cx + ux * (sizes[i] + 20)
+                ly = cy + uy * (sizes[i] + 20) + font_size * TEXT_Y_OFFSET
+            lbl = Text(text=str(labels[i]), x=lx, y=ly,
+                       font_size=font_size, fill=colors[i % len(colors)],
+                       stroke_width=0, text_anchor='middle',
+                       creation=creation, z=z + 0.1)
+            objects.append(lbl)
+        super().__init__(*objects, creation=creation, z=z)
+
+
+# ---------------------------------------------------------------------------
+# OrgChart
+# ---------------------------------------------------------------------------
+
+class OrgChart(VCollection):
+    """Organization chart from a tree structure.
+
+    root: (label, [children]) where children are the same structure.
+    Example: ('CEO', [('CTO', [('Dev', [])]), ('CFO', [])])
+    """
+    def __init__(self, root, x=960, y=80, h_spacing=180, v_spacing=100,
+                 box_width=120, box_height=40, font_size=16,
+                 colors=None, creation: float = 0, z: float = 0):
+        if colors is None:
+            colors = list(DEFAULT_CHART_COLORS)
+        # Layout: BFS to compute positions
+        levels = []
+        queue = [(root, 0)]
+        while queue:
+            node, depth = queue.pop(0)
+            while len(levels) <= depth:
+                levels.append([])
+            levels[depth].append(node)
+            _label, children = node
+            for child in children:
+                queue.append((child, depth + 1))
+        # Assign x positions per level
+        positions = {}
+        for depth, nodes in enumerate(levels):
+            total_w = len(nodes) * h_spacing
+            start_x = x - total_w / 2 + h_spacing / 2
+            for i, node in enumerate(nodes):
+                nx = start_x + i * h_spacing
+                ny = y + depth * v_spacing
+                positions[id(node)] = (nx, ny)
+        objects = []
+        # Draw connections then boxes (so boxes are on top)
+        self._draw_tree(root, positions, objects, colors, 0,
+                        box_width, box_height, font_size, creation, z)
+        super().__init__(*objects, creation=creation, z=z)
+
+    def _draw_tree(self, node, positions, objects, colors, depth,
+                   box_width, box_height, font_size, creation, z):
+        label, children = node
+        nx, ny = positions[id(node)]
+        color = colors[depth % len(colors)]
+        # Connection lines to children
+        for child in children:
+            cx, cy = positions[id(child)]
+            mid_y = ny + box_height / 2 + (cy - ny - box_height / 2) / 2
+            # L-shaped connector: down, across, down
+            d = (f'M{nx:.1f},{ny + box_height:.1f} '
+                 f'L{nx:.1f},{mid_y:.1f} '
+                 f'L{cx:.1f},{mid_y:.1f} '
+                 f'L{cx:.1f},{cy:.1f}')
+            conn = Path(d, stroke='#666', stroke_width=1.5,
+                        fill_opacity=0, creation=creation, z=z)
+            objects.append(conn)
+        # Box
+
+        rect = RoundedRectangle(width=box_width, height=box_height,
+                                 x=nx - box_width / 2, y=ny,
+                                 corner_radius=6, fill=color, fill_opacity=0.85,
+                                 stroke=color, stroke_width=1,
+                                 creation=creation, z=z + 0.1)
+        objects.append(rect)
+        # Label
+        lbl = Text(text=str(label), x=nx, y=ny + box_height / 2 + font_size * TEXT_Y_OFFSET,
+                   font_size=font_size, fill='#fff', stroke_width=0,
+                   text_anchor='middle', creation=creation, z=z + 0.2)
+        objects.append(lbl)
+        for child in children:
+            self._draw_tree(child, positions, objects, colors, depth + 1,
+                            box_width, box_height, font_size, creation, z)
+
+
+# ---------------------------------------------------------------------------
+# MindMap
+# ---------------------------------------------------------------------------
+
+class MindMap(VCollection):
+    """Radial mind map diagram.
+
+    root: (label, [children]) where children have the same structure.
+    """
+    def __init__(self, root, cx=960, cy=540, radius=250, font_size=18,
+                 colors=None, creation: float = 0, z: float = 0):
+        if colors is None:
+            colors = list(DEFAULT_CHART_COLORS)
+        objects = []
+        root_label, children = root
+        # Central node
+        root_dot = Circle(r=35, cx=cx, cy=cy, fill=colors[0], fill_opacity=0.9,
+                          stroke=colors[0], stroke_width=2, creation=creation, z=z + 0.2)
+        objects.append(root_dot)
+        root_txt = Text(text=str(root_label), x=cx, y=cy + font_size * TEXT_Y_OFFSET,
+                        font_size=font_size, fill='#fff', stroke_width=0,
+                        text_anchor='middle', creation=creation, z=z + 0.3)
+        objects.append(root_txt)
+        if not children:
+            super().__init__(*objects, creation=creation, z=z)
+            return
+        n = len(children)
+        for i, (child_label, grandchildren) in enumerate(children):
+            angle = math.tau * i / n - math.pi / 2
+            bx = cx + radius * math.cos(angle)
+            by = cy + radius * math.sin(angle)
+            color = colors[(i + 1) % len(colors)]
+            # Branch line
+            line = Line(x1=cx, y1=cy, x2=bx, y2=by, stroke=color,
+                        stroke_width=2, stroke_opacity=0.5,
+                        creation=creation, z=z)
+            objects.append(line)
+            # Branch node
+            br = 25
+            bdot = Circle(r=br, cx=bx, cy=by, fill=color, fill_opacity=0.85,
+                          stroke=color, stroke_width=1.5, creation=creation, z=z + 0.2)
+            objects.append(bdot)
+            btxt = Text(text=str(child_label), x=bx, y=by + font_size * 0.3,
+                        font_size=font_size * 0.85, fill='#fff', stroke_width=0,
+                        text_anchor='middle', creation=creation, z=z + 0.3)
+            objects.append(btxt)
+            # Grandchildren as smaller nodes
+            if grandchildren:
+                gn = len(grandchildren)
+                spread = math.pi * 0.6
+                base_angle = angle - spread / 2
+                for j, (gc_label, _) in enumerate(grandchildren):
+                    ga = base_angle + spread * j / max(gn - 1, 1)
+                    gx = bx + radius * 0.5 * math.cos(ga)
+                    gy = by + radius * 0.5 * math.sin(ga)
+                    gl = Line(x1=bx, y1=by, x2=gx, y2=gy, stroke=color,
+                              stroke_width=1, stroke_opacity=0.4,
+                              creation=creation, z=z)
+                    objects.append(gl)
+                    gdot = Dot(cx=gx, cy=gy, r=15, fill=color, fill_opacity=0.7,
+                               stroke_width=0, creation=creation, z=z + 0.2)
+                    objects.append(gdot)
+                    gtxt = Text(text=str(gc_label), x=gx, y=gy + font_size * 0.25,
+                                font_size=font_size * 0.65, fill='#ddd', stroke_width=0,
+                                text_anchor='middle', creation=creation, z=z + 0.3)
+                    objects.append(gtxt)
+        super().__init__(*objects, creation=creation, z=z)
