@@ -1485,9 +1485,8 @@ class Circle(Ellipse):
         -------
         Circle
         """
-        bx, by, bw, bh = vobject.bbox(time)
-        cx = bx + bw / 2
-        cy = by + bh / 2
+        _, _, bw, bh = vobject.bbox(time)
+        cx, cy = vobject.center(time)
         r = math.hypot(bw / 2, bh / 2) + padding
         return cls(r=r, cx=cx, cy=cy, **kwargs)
 
@@ -5176,15 +5175,14 @@ class SurroundingCircle(Circle):
     If follow=True (default), tracks the target as it moves."""
     def __init__(self, target, buff=SMALL_BUFF, follow=True,
                  creation: float = 0, z: float = 0, **styling_kwargs):
-        bx, by, bw, bh = target.bbox(creation)
+        _, _, bw, bh = target.bbox(creation)
         r = math.hypot(bw, bh) / 2 + buff
-        cx, cy = bx + bw / 2, by + bh / 2
+        cx, cy = target.center(creation)
         style_kw = {'fill_opacity': 0, 'stroke': '#FFFF00'} | styling_kwargs
         super().__init__(r=r, cx=cx, cy=cy, creation=creation, z=z, **style_kw)
         if follow:
             _bbox = _cached_bbox(target)
-            self.c.set_onward(creation, lambda t: (_bbox(t)[0] + _bbox(t)[2] / 2,
-                                                    _bbox(t)[1] + _bbox(t)[3] / 2))
+            self.c.set_onward(creation, lambda t: target.center(t))
             _r_func = lambda t: math.hypot(_bbox(t)[2], _bbox(t)[3]) / 2 + buff
             self.rx.set_onward(creation, _r_func)
             self.ry.set_onward(creation, _r_func)

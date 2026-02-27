@@ -2673,7 +2673,7 @@ class Axes(VCollection):
     def add_title(self, text, font_size=32, buff=20, creation=0, z=5, **styling_kwargs):
         """Add a title above the axes. Returns the Text object."""
         style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
-        cx = self.plot_x + self.plot_width / 2
+        cx = self.get_plot_center()[0]
         ty = self.plot_y - buff
         lbl = Text(text=text, x=cx, y=ty, font_size=font_size,
                     text_anchor='middle', creation=creation, z=z, **style_kw)
@@ -5052,7 +5052,7 @@ class Axes(VCollection):
             try:
                 sy = self._math_to_svg_y(func(x_pos), creation)
             except Exception:
-                sy = self.plot_y + self.plot_height / 2
+                sy = self.get_plot_center()[1]
             lbl.x.set_onward(creation, sx)
             lbl.y.set_onward(creation, sy + sign * (font_size / 2 + buff))
         else:
