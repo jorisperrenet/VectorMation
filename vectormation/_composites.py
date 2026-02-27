@@ -7426,9 +7426,8 @@ class BarChart(VCollection):
         bx = self._x + n * bar_width + (bar_width - inner_width) / 2
         by = self._y + self._height - bar_h if value >= 0 else self._y + self._height
         color = self._colors[n % len(self._colors)]
-        creation = start
         bar = Rectangle(inner_width, bar_h, x=bx, y=by,
-                        creation=creation, z=self._z,
+                        creation=start, z=self._z,
                         fill=color, fill_opacity=0.8, stroke_width=0)
         if end is not None:
             # Animate: start at zero height at baseline, grow to full
@@ -7458,7 +7457,7 @@ class BarChart(VCollection):
                        x=bx + inner_width / 2,
                        y=self._y + self._height + 24,
                        font_size=14, text_anchor='middle',
-                       creation=creation, z=self._z,
+                       creation=start, z=self._z,
                        fill='#aaa', stroke_width=0)
             self.objects.append(lbl)
             self._labels.append(lbl)

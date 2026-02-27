@@ -6141,7 +6141,7 @@ class VCollection:
             cursor += size + buff
         return self
 
-    def animated_arrange(self, direction=RIGHT, buff=MED_SMALL_BUFF, start=0, end=1, easing=None):
+    def animated_arrange(self, direction=RIGHT, buff=SMALL_BUFF, start=0, end=1, easing=None):
         """Animated version of :meth:`arrange`.
 
         Computes the target positions that ``arrange`` would produce,
