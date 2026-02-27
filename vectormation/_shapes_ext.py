@@ -61,9 +61,7 @@ class Line(VObject):
         x1, y1, x2, y2 = self._ep(time)
         return _distance(x1, y1, x2, y2)
 
-    def length(self, time=0):
-        """Return the Euclidean length of the line (alias for get_length)."""
-        return self.get_length(time)
+    length = get_length
 
     def get_angle(self, time=0):
         """Return the angle (in degrees) from p1 to p2."""
@@ -111,9 +109,7 @@ class Line(VObject):
         dot = max(-1.0, min(1.0, dot))  # clamp for numerical safety
         return math.degrees(math.acos(dot))
 
-    def angle_with(self, other, time=0):
-        """Alias for :meth:`angle_to`."""
-        return self.angle_to(other, time)
+    angle_with = angle_to
 
     def is_parallel(self, other, time=0, tol=1e-6):
         """Return True if cross product of directions is within *tol* of zero."""
@@ -238,10 +234,7 @@ class Line(VObject):
         """Create a Line from two (x, y) tuples."""
         return cls(p1[0], p1[1], p2[0], p2[1], **kwargs)
 
-    @classmethod
-    def from_points(cls, p1, p2, **kwargs):
-        """Create a Line from two (x, y) tuples. Alias for :meth:`between`."""
-        return cls.between(p1, p2, **kwargs)
+    from_points = between
 
     @classmethod
     def vertical(cls, x, y1, y2, **kwargs):
@@ -1604,9 +1597,7 @@ class Arc(VObject):
         mid = (self.start_angle.at_time(time) + self.end_angle.at_time(time)) / 2
         return self.point_at_angle(mid, time)
 
-    def get_midpoint_on_arc(self, time=0):
-        """Alias for :meth:`get_midpoint` (point on the arc, not the chord)."""
-        return self.get_midpoint(time)
+    get_midpoint_on_arc = get_midpoint
 
     def to_wedge(self, time=0, **kwargs):
         """Return a :class:`Wedge` with the same geometry as this arc at *time*."""

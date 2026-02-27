@@ -889,9 +889,7 @@ class Ellipse(VObject):
         h = ((a - b) / (a + b)) ** 2
         return math.pi * (a + b) * (1 + 3 * h / (10 + math.sqrt(4 - 3 * h)))
 
-    def get_circumference(self, time=0):
-        """Alias for get_perimeter. Returns approximate perimeter using Ramanujan's formula."""
-        return self.get_perimeter(time)
+    get_circumference = get_perimeter
 
     def eccentricity(self, time=0):
         """Return the eccentricity of the ellipse."""
@@ -1484,9 +1482,7 @@ class Rectangle(VObject):
         """Return the four corners: top-left, top-right, bottom-right, bottom-left."""
         return self.snap_points(time)
 
-    def get_corners(self, time=0):
-        """Return ``[tl, tr, br, bl]`` as (x, y) tuples. Alias for get_vertices."""
-        return self.get_vertices(time)
+    get_corners = get_vertices
 
     def get_area(self, time=0):
         """Return the area (width * height)."""
