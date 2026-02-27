@@ -592,6 +592,69 @@ class Axes(VCollection):
 
     plot = add_function
 
+    def add_parametric_plot(self, fx, fy, t_range=(0, 1), num_points=100,
+                            creation=0, z=0, **styling_kwargs):
+        """Plot a parametric curve x=fx(t), y=fy(t).
+
+        Returns a Path object whose ``d`` attribute is recomputed each
+        frame so that the curve follows animated axis ranges.
+
+        Parameters
+        ----------
+        fx:
+            Callable mapping parameter t to x math-coordinate.
+        fy:
+            Callable mapping parameter t to y math-coordinate.
+        t_range:
+            ``(t_min, t_max)`` parameter range.  Default ``(0, 1)``.
+        num_points:
+            Number of sample points along the curve.  Default 100.
+        creation:
+            Creation time of the returned Path.
+        z:
+            Z-layer ordering.
+        **styling_kwargs:
+            Extra keyword arguments forwarded to the Path styling
+            (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        Path
+            The curve Path (already appended to this Axes' objects).
+        """
+        if hasattr(self, '_deferred_axes'):
+            # We need y_range set; use fy to auto-detect
+            self._build_deferred_axes(fy, num_points)
+        style_kw = {'stroke': '#58C4DD', 'stroke_width': 5, 'fill_opacity': 0} | styling_kwargs
+        curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
+        _axes = self
+        _fx, _fy = fx, fy
+        _t_min, _t_max = t_range
+        _np = num_points
+
+        def _compute_d(time):
+            pts = []
+            for i in range(_np + 1):
+                t = _t_min + (_t_max - _t_min) * i / _np
+                xv = _fx(t)
+                yv = _fy(t)
+                if not (math.isfinite(xv) and math.isfinite(yv)):
+                    continue
+                sx, sy = _axes.coords_to_point(xv, yv, time)
+                pts.append((sx, sy))
+            if not pts:
+                return ''
+            d = f'M{pts[0][0]},{pts[0][1]}'
+            for sx, sy in pts[1:]:
+                d += f'L{sx},{sy}'
+            return d
+
+        curve.d.set_onward(creation, _compute_d)
+        curve._func = None  # no single-variable function
+        curve._num_points = num_points
+        self._add_plot_obj(curve)
+        return curve
+
     def plot_piecewise(self, pieces, creation=0, **kwargs):
         """Plot a piecewise function defined by ``[(func, x_min, x_max), ...]``.
 
@@ -5740,6 +5803,48 @@ class NumberLine(VCollection):
                    font_size=font_size, creation=creation, **kw)
         self.objects.append(lbl)
         return self
+
+    def add_brace(self, x1, x2, label=None, direction='down', **kwargs):
+        """Add a curly brace between two values on the number line.
+
+        Uses the existing :class:`Brace` class positioned between the
+        SVG coordinates of *x1* and *x2* on the line.
+
+        Parameters
+        ----------
+        x1, x2:
+            Numeric values on the number line defining the brace span.
+        label:
+            Optional text label placed near the brace midpoint.
+        direction:
+            Which side the brace sits on.  Accepts a string
+            (``'down'``, ``'up'``, ``'left'``, ``'right'``) or a
+            direction constant (``DOWN``, ``UP``, ``LEFT``, ``RIGHT``).
+            Default ``'down'``.
+        **kwargs:
+            Extra keyword arguments forwarded to the :class:`Brace`
+            constructor (e.g. ``fill``, ``depth``, ``buff``).
+
+        Returns
+        -------
+        Brace
+            The Brace object (already appended to this NumberLine's
+            objects list).
+        """
+        # Convert direction constant tuples to string
+        _dir_map = {(0, 1): 'down', (0, -1): 'up',
+                    (-1, 0): 'left', (1, 0): 'right'}
+        if isinstance(direction, (tuple, list)):
+            direction = _dir_map.get(tuple(direction), 'down')
+        p1x, p1y = self.number_to_point(x1)
+        p2x, p2y = self.number_to_point(x2)
+        lx, rx_ = min(p1x, p2x), max(p1x, p2x)
+        w = rx_ - lx
+        # Create a temporary rectangle as the brace target
+        target = Rectangle(w, 1, x=lx, y=p1y - 0.5)
+        brace = Brace(target, direction=direction, label=label, **kwargs)
+        self.objects.append(brace)
+        return brace
 
     def __repr__(self):
         return f'NumberLine([{self.x_start}, {self.x_end}], step={self.x_step})'

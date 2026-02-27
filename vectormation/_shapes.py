@@ -846,6 +846,50 @@ class Polygon(VObject):
                 pts[remaining[0]], pts[remaining[1]], pts[remaining[2]], **kwargs))
         return triangles
 
+    def explode_edges(self, gap=10, **kwargs):
+        """Return a VCollection of Line objects, one per edge, offset outward.
+
+        Each edge is converted to a Line and pushed outward from the polygon
+        centre by *gap* pixels along the edge's outward normal.  Useful for
+        showing polygon decomposition.
+
+        Parameters
+        ----------
+        gap:
+            Pixel distance to offset each edge outward from the centroid.
+        **kwargs:
+            Extra keyword arguments forwarded to each :class:`Line`
+            constructor (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        VCollection
+            A VCollection of Line objects.
+        """
+        from vectormation._base import VCollection
+        pts = self.get_vertices(0)
+        n = len(pts)
+        if n < 2:
+            return VCollection()
+        cx, cy = self.get_center(0)
+        edges = []
+        pairs = list(zip(pts, pts[1:]))
+        if self.closed and n > 2:
+            pairs.append((pts[-1], pts[0]))
+        for (ax, ay), (bx, by) in pairs:
+            # Edge midpoint
+            mx, my = (ax + bx) / 2, (ay + by) / 2
+            # Direction from center to edge midpoint
+            dx, dy = mx - cx, my - cy
+            dist = math.hypot(dx, dy)
+            if dist > 0:
+                nx, ny = dx / dist * gap, dy / dist * gap
+            else:
+                nx, ny = 0, 0
+            edges.append(Line(x1=ax + nx, y1=ay + ny,
+                              x2=bx + nx, y2=by + ny, **kwargs))
+        return VCollection(*edges)
+
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 
@@ -1714,6 +1758,39 @@ class Circle(Ellipse):
             sweep_deg = 360  # full circle
         return r * math.radians(sweep_deg)
 
+    def get_sectors(self, n, **kwargs):
+        """Divide the circle into *n* equal sectors (Wedge objects).
+
+        Each sector spans ``360/n`` degrees.  The sectors share the circle's
+        centre and radius at time 0.
+
+        Parameters
+        ----------
+        n:
+            Number of sectors (must be >= 1).
+        **kwargs:
+            Extra keyword arguments forwarded to each :class:`Wedge`
+            constructor (e.g. ``fill``, ``stroke``).
+
+        Returns
+        -------
+        VCollection
+            A VCollection containing *n* Wedge objects.
+        """
+        from vectormation._base import VCollection
+        if n < 1:
+            n = 1
+        cx, cy = self.c.at_time(0)
+        r = self.rx.at_time(0)
+        step = 360 / n
+        sectors = []
+        for i in range(n):
+            sa = i * step
+            ea = (i + 1) * step
+            sectors.append(Wedge(cx=cx, cy=cy, r=r,
+                                 start_angle=sa, end_angle=ea, **kwargs))
+        return VCollection(*sectors)
+
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)
         return f"<circle cx='{cx}' cy='{cy}' r='{self.rx.at_time(time)}'{self.styling.svg_style(time)} />"
@@ -1886,6 +1963,46 @@ class Rectangle(VObject):
         dist -= w
         # Left edge: bottom to top
         return (rx, ry + h - dist)
+
+    def get_grid_lines(self, rows, cols, time=0, **kwargs):
+        """Return a VCollection of Lines forming a grid inside this rectangle.
+
+        *rows* horizontal lines and *cols* vertical lines divide the
+        interior into ``(rows + 1)`` horizontal bands and ``(cols + 1)``
+        vertical bands.
+
+        Parameters
+        ----------
+        rows:
+            Number of horizontal dividing lines.
+        cols:
+            Number of vertical dividing lines.
+        time:
+            Animation time at which to read the rectangle geometry.
+        **kwargs:
+            Extra keyword arguments forwarded to each :class:`Line`
+            constructor (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        VCollection
+            A VCollection of Line objects.
+        """
+        from vectormation._base import VCollection
+        rx = float(self.x.at_time(time))
+        ry = float(self.y.at_time(time))
+        w = float(self.width.at_time(time))
+        h = float(self.height.at_time(time))
+        lines = []
+        # Horizontal lines
+        for i in range(1, rows + 1):
+            y_pos = ry + h * i / (rows + 1)
+            lines.append(Line(x1=rx, y1=y_pos, x2=rx + w, y2=y_pos, **kwargs))
+        # Vertical lines
+        for j in range(1, cols + 1):
+            x_pos = rx + w * j / (cols + 1)
+            lines.append(Line(x1=x_pos, y1=ry, x2=x_pos, y2=ry + h, **kwargs))
+        return VCollection(*lines)
 
     @classmethod
     def square(cls, side, **kwargs):
@@ -2834,7 +2951,7 @@ class Line(VObject):
         return Line(px - nx * half, py - ny * half,
                     px + nx * half, py + ny * half, **kwargs)
 
-    def perpendicular_at(self, t=0.5, length=100, time=0, **kwargs):
+    def perpendicular_at(self, t=0.5, length=None, time=0, **kwargs):
         """Return a Line perpendicular to this line at parameter t (0=start, 1=end).
 
         Parameters
@@ -2842,7 +2959,8 @@ class Line(VObject):
         t:
             Position along the line as a fraction (0 = start, 1 = end, default 0.5 = midpoint).
         length:
-            Total length of the perpendicular line (default 100).
+            Total length of the perpendicular line.  Defaults to the
+            original line's length when ``None``.
         time:
             Animation time at which to evaluate the line endpoints.
         **kwargs:
@@ -2850,6 +2968,8 @@ class Line(VObject):
         """
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
+        if length is None:
+            length = math.hypot(x2 - x1, y2 - y1)
         px = x1 + t * (x2 - x1)
         py = y1 + t * (y2 - y1)
         dx, dy = -(y2 - y1), x2 - x1  # perpendicular direction

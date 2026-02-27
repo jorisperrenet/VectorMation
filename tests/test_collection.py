@@ -2126,3 +2126,144 @@ class TestAlignCenters:
         col.align_centers(axis='x', value=500)
         assert c1.c.at_time(0)[1] == pytest.approx(100, abs=1)
         assert c2.c.at_time(0)[1] == pytest.approx(200, abs=1)
+
+
+class TestRadialArrange:
+    def test_returns_self(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c1, c2)
+        result = col.radial_arrange(radius=100)
+        assert result is col
+
+    def test_children_on_circle(self):
+        """All children should be placed at the specified radius from center."""
+        circles = [Circle(r=5, cx=0, cy=0) for _ in range(4)]
+        col = VCollection(*circles)
+        center = (500, 500)
+        col.radial_arrange(radius=200, center=center)
+        for c in circles:
+            cx, cy = c.c.at_time(0)
+            dist = math.sqrt((cx - 500) ** 2 + (cy - 500) ** 2)
+            assert dist == pytest.approx(200, abs=2)
+
+    def test_equal_spacing(self):
+        """Children should be evenly spaced around the circle."""
+        circles = [Circle(r=5, cx=0, cy=0) for _ in range(4)]
+        col = VCollection(*circles)
+        col.radial_arrange(radius=100, center=(500, 500))
+        # 4 objects: angles 0, pi/2, pi, 3pi/2
+        positions = [c.c.at_time(0) for c in circles]
+        # First child at angle 0 (to the right)
+        assert positions[0][0] == pytest.approx(600, abs=2)
+        assert positions[0][1] == pytest.approx(500, abs=2)
+        # Second child at angle pi/2 (below, since y increases downward)
+        assert positions[1][0] == pytest.approx(500, abs=2)
+        assert positions[1][1] == pytest.approx(600, abs=2)
+
+    def test_start_angle(self):
+        """start_angle should rotate the arrangement."""
+        circles = [Circle(r=5, cx=0, cy=0) for _ in range(4)]
+        col = VCollection(*circles)
+        col.radial_arrange(radius=100, start_angle=math.pi / 2, center=(500, 500))
+        # First child at angle pi/2 (below)
+        pos = circles[0].c.at_time(0)
+        assert pos[0] == pytest.approx(500, abs=2)
+        assert pos[1] == pytest.approx(600, abs=2)
+
+    def test_default_center(self):
+        """Without explicit center, should use the collection's bbox center."""
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=200)
+        col = VCollection(c1, c2)
+        # bbox center is (150, 150)
+        col.radial_arrange(radius=50)
+        # Both children should be 50px from (150, 150)
+        for c in [c1, c2]:
+            cx, cy = c.c.at_time(0)
+            dist = math.sqrt((cx - 150) ** 2 + (cy - 150) ** 2)
+            assert dist == pytest.approx(50, abs=2)
+
+    def test_empty_collection(self):
+        col = VCollection()
+        result = col.radial_arrange(radius=100)
+        assert result is col
+
+    def test_single_child(self):
+        """A single child should be placed at start_angle on the circle."""
+        c = Circle(r=5, cx=0, cy=0)
+        col = VCollection(c)
+        col.radial_arrange(radius=100, center=(500, 500))
+        pos = c.c.at_time(0)
+        assert pos[0] == pytest.approx(600, abs=2)
+        assert pos[1] == pytest.approx(500, abs=2)
+
+
+class TestStaggerScale:
+    def test_returns_self(self):
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=200, cy=200)
+        col = VCollection(c1, c2)
+        result = col.stagger_scale(start=0, end=2, scale_factor=1.5, delay=0.3)
+        assert result is col
+
+    def test_children_pop_sequentially(self):
+        """Each child should hit peak scale at different times due to stagger."""
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=300, cy=300)
+        col = VCollection(c1, c2)
+        col.stagger_scale(start=0, end=3, scale_factor=2.0, delay=1.0,
+                          easing=easings.linear)
+        # c1 starts at t=0, c2 starts at t=1.0
+        # At t=0, c1 just started (scale ~1), c2 hasn't started yet
+        assert c1.styling.scale_x.at_time(0) == pytest.approx(1.0, abs=0.1)
+
+    def test_peak_scale(self):
+        """At the midpoint of each child's animation, scale should peak near scale_factor."""
+        c1 = Circle(r=50, cx=100, cy=100)
+        col = VCollection(c1)
+        col.stagger_scale(start=0, end=2, scale_factor=1.5, delay=0.2,
+                          easing=easings.linear)
+        # Single child: pop from 0 to 2, peak at t=1 (midpoint)
+        # sin(pi * linear(0.5)) = sin(pi/2) = 1 => scale = 1 + 0.5 * 1 = 1.5
+        sx_mid = c1.styling.scale_x.at_time(1)
+        assert sx_mid == pytest.approx(1.5, abs=0.1)
+
+    def test_scale_returns_at_end(self):
+        """After pop, scale should return close to 1."""
+        c1 = Circle(r=50, cx=100, cy=100)
+        col = VCollection(c1)
+        col.stagger_scale(start=0, end=2, scale_factor=1.5, delay=0.2,
+                          easing=easings.linear)
+        # At end of animation (t=2), sin(pi*1) = 0 => scale = 1
+        sx_end = c1.styling.scale_x.at_time(2)
+        assert sx_end == pytest.approx(1.0, abs=0.1)
+
+    def test_empty_collection(self):
+        col = VCollection()
+        result = col.stagger_scale(start=0, end=1)
+        assert result is col
+
+    def test_backward_compat_target_scale(self):
+        """The old 'target_scale' parameter should still work."""
+        c1 = Circle(r=50, cx=100, cy=100)
+        col = VCollection(c1)
+        col.stagger_scale(start=0, end=2, target_scale=2.0, delay=0.2,
+                          easing=easings.linear)
+        sx_mid = c1.styling.scale_x.at_time(1)
+        assert sx_mid == pytest.approx(2.0, abs=0.1)
+
+    def test_multiple_children_stagger(self):
+        """Children later in the list should start their animation later."""
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=300, cy=300)
+        c3 = Circle(r=50, cx=500, cy=500)
+        col = VCollection(c1, c2, c3)
+        col.stagger_scale(start=0, end=4, scale_factor=2.0, delay=0.5,
+                          easing=easings.linear)
+        # c1 starts at 0, c2 starts at 0.5, c3 starts at 1.0
+        # Before c2 starts, c2 should still be at scale 1
+        assert c2.styling.scale_x.at_time(0.25) == pytest.approx(1.0, abs=0.1)
+        # After c3 starts, c3 should be scaling up
+        sx_c3 = c3.styling.scale_x.at_time(1.5)
+        assert sx_c3 > 1.05

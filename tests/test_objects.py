@@ -9480,3 +9480,157 @@ class TestGlitchShift:
         c = Circle(r=50, cx=500, cy=500)
         result = c.glitch_shift(start=0, end=1, steps=0)
         assert result is c
+
+
+class TestWaveThrough:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=500, cy=500)
+        result = c.wave_through(start=0, end=2, amplitude=30, frequency=2)
+        assert result is c
+
+    def test_y_displacement_at_midpoint(self):
+        """At the midpoint the envelope is at maximum, so there should be displacement."""
+        c = Circle(r=50, cx=500, cy=500)
+        c.wave_through(start=0, end=2, amplitude=30, frequency=1, direction='y',
+                       easing=easings.linear)
+        # At quarter-way through (t=0.5), sin(2*pi*1*0.25)=sin(pi/2)=1
+        # envelope = linear(0.25) * (1-linear(0.25)) * 4 = 0.25*0.75*4 = 0.75
+        # displacement = 30 * 1 * 0.75 = 22.5
+        cy_mid = c.c.at_time(0.5)[1]
+        # The y coordinate should be displaced from the original 500
+        assert abs(cy_mid - 500) > 10
+
+    def test_x_direction(self):
+        """With direction='x', displacement should be on the x axis."""
+        c = Circle(r=50, cx=500, cy=500)
+        c.wave_through(start=0, end=2, amplitude=30, frequency=1, direction='x',
+                       easing=easings.linear)
+        cx_mid = c.c.at_time(0.5)[0]
+        cy_mid = c.c.at_time(0.5)[1]
+        # x should be displaced, y should stay at 500
+        assert abs(cx_mid - 500) > 10
+        assert cy_mid == pytest.approx(500, abs=1)
+
+    def test_zero_duration_noop(self):
+        c = Circle(r=50, cx=500, cy=500)
+        result = c.wave_through(start=1, end=1)
+        assert result is c
+        assert c.c.at_time(1) == (500, 500)
+
+    def test_returns_to_origin(self):
+        """At start and end, displacement should be zero."""
+        c = Circle(r=50, cx=500, cy=500)
+        c.wave_through(start=0, end=2, amplitude=40, frequency=3, direction='y')
+        # At the very start, displacement should be 0 (sin(0)=0)
+        assert c.c.at_time(0)[1] == pytest.approx(500, abs=1)
+        # At the very end, displacement should be 0 (envelope is 0)
+        assert c.c.at_time(2)[1] == pytest.approx(500, abs=1)
+
+    def test_custom_frequency(self):
+        """Higher frequency should produce more oscillations."""
+        c1 = Circle(r=50, cx=500, cy=500)
+        c1.wave_through(start=0, end=2, amplitude=30, frequency=1, direction='y',
+                        easing=easings.linear)
+        c2 = Circle(r=50, cx=500, cy=500)
+        c2.wave_through(start=0, end=2, amplitude=30, frequency=4, direction='y',
+                        easing=easings.linear)
+        # Sample at many points and count zero crossings - higher freq should have more
+        samples1 = [c1.c.at_time(t)[1] - 500 for t in [i * 0.1 for i in range(21)]]
+        samples2 = [c2.c.at_time(t)[1] - 500 for t in [i * 0.1 for i in range(21)]]
+        crossings1 = sum(1 for i in range(len(samples1) - 1) if samples1[i] * samples1[i+1] < 0)
+        crossings2 = sum(1 for i in range(len(samples2) - 1) if samples2[i] * samples2[i+1] < 0)
+        assert crossings2 > crossings1
+
+
+class TestCountdown:
+    def test_basic_countdown(self):
+        t = Text('', x=500, y=500)
+        t.countdown(start=0, end=3, from_val=3)
+        assert t.text.at_time(0) == '3'
+        assert t.text.at_time(1) == '2'
+        assert t.text.at_time(2) == '1'
+
+    def test_countdown_returns_self(self):
+        t = Text('', x=500, y=500)
+        result = t.countdown(start=0, end=3, from_val=3)
+        assert result is t
+
+    def test_countdown_from_5(self):
+        t = Text('', x=500, y=500)
+        t.countdown(start=0, end=5, from_val=5)
+        assert t.text.at_time(0) == '5'
+        assert t.text.at_time(1) == '4'
+        assert t.text.at_time(2) == '3'
+        assert t.text.at_time(3) == '2'
+        assert t.text.at_time(4) == '1'
+
+    def test_countdown_non_text_raises(self):
+        c = Circle(r=50, cx=500, cy=500)
+        with pytest.raises(TypeError, match="Text"):
+            c.countdown(start=0, end=3)
+
+    def test_zero_duration(self):
+        t = Text('', x=500, y=500)
+        result = t.countdown(start=1, end=1, from_val=3)
+        assert result is t
+
+    def test_from_val_1(self):
+        t = Text('', x=500, y=500)
+        t.countdown(start=0, end=1, from_val=1)
+        assert t.text.at_time(0) == '1'
+
+
+class TestSqueeze:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=500, cy=500)
+        result = c.squeeze(start=0, end=1, axis='x', factor=0.5)
+        assert result is c
+
+    def test_squeeze_x_at_end(self):
+        """After squeeze along x, scale_x should be factor and scale_y should be 1/factor."""
+        c = Circle(r=50, cx=500, cy=500)
+        c.squeeze(start=0, end=1, axis='x', factor=0.5, easing=easings.linear)
+        sx = c.styling.scale_x.at_time(1)
+        sy = c.styling.scale_y.at_time(1)
+        assert sx == pytest.approx(0.5, abs=0.05)
+        assert sy == pytest.approx(2.0, abs=0.05)
+
+    def test_squeeze_y_at_end(self):
+        """Squeezing along y should compress y and expand x."""
+        c = Circle(r=50, cx=500, cy=500)
+        c.squeeze(start=0, end=1, axis='y', factor=0.5, easing=easings.linear)
+        sx = c.styling.scale_x.at_time(1)
+        sy = c.styling.scale_y.at_time(1)
+        assert sy == pytest.approx(0.5, abs=0.05)
+        assert sx == pytest.approx(2.0, abs=0.05)
+
+    def test_squeeze_preserves_area(self):
+        """scale_x * scale_y should be approximately 1 (area preserved)."""
+        c = Circle(r=50, cx=500, cy=500)
+        c.squeeze(start=0, end=1, axis='x', factor=0.7, easing=easings.linear)
+        sx = c.styling.scale_x.at_time(0.5)
+        sy = c.styling.scale_y.at_time(0.5)
+        assert sx * sy == pytest.approx(1.0, abs=0.05)
+
+    def test_squeeze_at_start_unchanged(self):
+        """At start time, scales should still be at their initial values."""
+        c = Circle(r=50, cx=500, cy=500)
+        c.squeeze(start=0, end=1, axis='x', factor=0.5, easing=easings.linear)
+        sx = c.styling.scale_x.at_time(0)
+        sy = c.styling.scale_y.at_time(0)
+        assert sx == pytest.approx(1.0, abs=0.05)
+        assert sy == pytest.approx(1.0, abs=0.05)
+
+    def test_squeeze_stays(self):
+        """After the animation ends, the squeeze should persist."""
+        c = Circle(r=50, cx=500, cy=500)
+        c.squeeze(start=0, end=1, axis='x', factor=0.5, easing=easings.linear)
+        sx = c.styling.scale_x.at_time(2)
+        sy = c.styling.scale_y.at_time(2)
+        assert sx == pytest.approx(0.5, abs=0.05)
+        assert sy == pytest.approx(2.0, abs=0.05)
+
+    def test_zero_duration(self):
+        c = Circle(r=50, cx=500, cy=500)
+        result = c.squeeze(start=1, end=1)
+        assert result is c

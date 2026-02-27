@@ -6,7 +6,7 @@ from vectormation.objects import (
     Path, Trace, Text, Dot, Wedge, Sector, Star, RoundedRectangle, DashedLine,
     NumberLine, EquilateralTriangle, Arrow, CurvedArrow, VObject, VCollection,
     from_svg, CountAnimation, Annulus, FunctionGraph,
-    AnnularSector, PieChart, DonutChart, Axes,
+    AnnularSector, PieChart, DonutChart, Axes, Brace,
 )
 from vectormation.attributes import Coor
 import vectormation.easings as easings
@@ -6863,3 +6863,362 @@ class TestRectangleSampleBorder:
         pt_pos = r.sample_border(0.75)
         assert pt[0] == pytest.approx(pt_pos[0])
         assert pt[1] == pytest.approx(pt_pos[1])
+
+
+# ── Feature tests ──────────────────────────────────────────────────────
+
+
+class TestCircleGetSectors:
+    def test_returns_vcollection(self):
+        c = Circle(r=100, cx=200, cy=300)
+        result = c.get_sectors(4)
+        assert isinstance(result, VCollection)
+
+    def test_correct_number_of_sectors(self):
+        c = Circle(r=100, cx=200, cy=300)
+        result = c.get_sectors(6)
+        assert len(result.objects) == 6
+
+    def test_single_sector_is_full_circle(self):
+        c = Circle(r=100, cx=200, cy=300)
+        result = c.get_sectors(1)
+        assert len(result.objects) == 1
+        w = result.objects[0]
+        assert isinstance(w, Wedge)
+        assert w.start_angle.at_time(0) == pytest.approx(0)
+        assert w.end_angle.at_time(0) == pytest.approx(360)
+
+    def test_sector_angles(self):
+        c = Circle(r=100, cx=200, cy=300)
+        result = c.get_sectors(4)
+        for i, w in enumerate(result.objects):
+            assert isinstance(w, Wedge)
+            assert w.start_angle.at_time(0) == pytest.approx(i * 90)
+            assert w.end_angle.at_time(0) == pytest.approx((i + 1) * 90)
+
+    def test_sectors_share_circle_center_and_radius(self):
+        c = Circle(r=75, cx=500, cy=400)
+        result = c.get_sectors(3)
+        for w in result.objects:
+            assert w.cx.at_time(0) == pytest.approx(500)
+            assert w.cy.at_time(0) == pytest.approx(400)
+            assert w.r.at_time(0) == pytest.approx(75)
+
+    def test_kwargs_forwarded(self):
+        c = Circle(r=100, cx=200, cy=300)
+        result = c.get_sectors(2, fill='#ff0000')
+        svg = result.objects[0].to_svg(0)
+        assert 'rgb(255,0,0)' in svg or '#ff0000' in svg
+
+    def test_each_sector_is_wedge(self):
+        c = Circle(r=50, cx=0, cy=0)
+        result = c.get_sectors(5)
+        for w in result.objects:
+            assert isinstance(w, Wedge)
+
+    def test_n_less_than_1_treated_as_1(self):
+        c = Circle(r=100, cx=0, cy=0)
+        result = c.get_sectors(0)
+        assert len(result.objects) == 1
+
+
+class TestPolygonExplodeEdges:
+    def test_returns_vcollection(self):
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        result = p.explode_edges()
+        assert isinstance(result, VCollection)
+
+    def test_triangle_has_three_edges(self):
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        result = p.explode_edges()
+        assert len(result.objects) == 3
+
+    def test_all_edges_are_lines(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        result = p.explode_edges()
+        for obj in result.objects:
+            assert isinstance(obj, Line)
+
+    def test_square_has_four_edges(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        result = p.explode_edges()
+        assert len(result.objects) == 4
+
+    def test_gap_offsets_edges_outward(self):
+        """Edges should be pushed away from the centroid by gap pixels."""
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        cx, cy = p.get_center(0)  # (50, 50)
+        result_0 = p.explode_edges(gap=0)
+        result_10 = p.explode_edges(gap=10)
+        # Each line midpoint should be farther from center with gap > 0
+        for l0, l10 in zip(result_0.objects, result_10.objects):
+            mx0 = (l0.p1.at_time(0)[0] + l0.p2.at_time(0)[0]) / 2
+            my0 = (l0.p1.at_time(0)[1] + l0.p2.at_time(0)[1]) / 2
+            mx10 = (l10.p1.at_time(0)[0] + l10.p2.at_time(0)[0]) / 2
+            my10 = (l10.p1.at_time(0)[1] + l10.p2.at_time(0)[1]) / 2
+            dist0 = math.hypot(mx0 - cx, my0 - cy)
+            dist10 = math.hypot(mx10 - cx, my10 - cy)
+            assert dist10 > dist0
+
+    def test_gap_zero_edges_match_polygon(self):
+        """With gap=0, edge endpoints should match polygon vertices exactly."""
+        p = Polygon((0, 0), (200, 0), (200, 200), (0, 200))
+        result = p.explode_edges(gap=0)
+        # First edge should go from vertex 0 to vertex 1
+        l = result.objects[0]
+        assert l.p1.at_time(0)[0] == pytest.approx(0)
+        assert l.p1.at_time(0)[1] == pytest.approx(0)
+        assert l.p2.at_time(0)[0] == pytest.approx(200)
+        assert l.p2.at_time(0)[1] == pytest.approx(0)
+
+    def test_kwargs_forwarded_to_lines(self):
+        p = Polygon((0, 0), (100, 0), (50, 100))
+        result = p.explode_edges(gap=5, stroke='#ff0000')
+        svg = result.objects[0].to_svg(0)
+        assert 'rgb(255,0,0)' in svg or '#ff0000' in svg
+
+    def test_open_polyline_no_closing_edge(self):
+        """An open polyline should not include the closing edge."""
+        p = Polygon((0, 0), (100, 0), (100, 100), closed=False)
+        result = p.explode_edges()
+        assert len(result.objects) == 2
+
+
+class TestLinePerpendicularAt:
+    def test_default_length_matches_original(self):
+        """Default length should equal the original line's length."""
+        line = Line(x1=0, y1=0, x2=300, y2=0)
+        perp = line.perpendicular_at(0.5)
+        assert perp.get_length() == pytest.approx(300)
+
+    def test_perpendicular_at_midpoint(self):
+        """Perpendicular at t=0.5 should be centered at midpoint."""
+        line = Line(x1=0, y1=0, x2=200, y2=0)
+        perp = line.perpendicular_at(0.5, length=100)
+        mid = perp.get_midpoint()
+        assert mid[0] == pytest.approx(100)
+        assert mid[1] == pytest.approx(0)
+
+    def test_perpendicular_at_start(self):
+        """Perpendicular at t=0 should be centered at start point."""
+        line = Line(x1=50, y1=50, x2=150, y2=50)
+        perp = line.perpendicular_at(0, length=80)
+        mid = perp.get_midpoint()
+        assert mid[0] == pytest.approx(50)
+        assert mid[1] == pytest.approx(50)
+
+    def test_perpendicular_at_end(self):
+        """Perpendicular at t=1 should be centered at end point."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        perp = line.perpendicular_at(1, length=60)
+        mid = perp.get_midpoint()
+        assert mid[0] == pytest.approx(100)
+        assert mid[1] == pytest.approx(0)
+
+    def test_is_actually_perpendicular(self):
+        """The angle between original and perpendicular should be ~90 degrees."""
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        perp = line.perpendicular_at(0.5, length=100)
+        angle = line.angle_to(perp)
+        assert angle == pytest.approx(90, abs=0.1)
+
+    def test_custom_length(self):
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        perp = line.perpendicular_at(0.5, length=50)
+        assert perp.get_length() == pytest.approx(50)
+
+    def test_kwargs_forwarded(self):
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        perp = line.perpendicular_at(0.5, length=50, stroke='#ff0000')
+        svg = perp.to_svg(0)
+        assert 'rgb(255,0,0)' in svg or '#ff0000' in svg
+
+    def test_diagonal_line(self):
+        """Perpendicular on a diagonal line should still be 90 degrees."""
+        line = Line(x1=0, y1=0, x2=100, y2=100)
+        perp = line.perpendicular_at(0.5, length=100)
+        angle = line.angle_to(perp)
+        assert angle == pytest.approx(90, abs=0.1)
+
+
+class TestRectangleGetGridLines:
+    def test_returns_vcollection(self):
+        r = Rectangle(200, 100, x=0, y=0)
+        result = r.get_grid_lines(1, 1)
+        assert isinstance(result, VCollection)
+
+    def test_correct_number_of_lines(self):
+        r = Rectangle(200, 100, x=0, y=0)
+        # 2 horizontal + 3 vertical = 5 total
+        result = r.get_grid_lines(2, 3)
+        assert len(result.objects) == 5
+
+    def test_all_objects_are_lines(self):
+        r = Rectangle(200, 100, x=0, y=0)
+        result = r.get_grid_lines(2, 2)
+        for obj in result.objects:
+            assert isinstance(obj, Line)
+
+    def test_horizontal_line_positions(self):
+        """1 horizontal line in a 300x300 rect should be at y=150."""
+        r = Rectangle(300, 300, x=0, y=0)
+        result = r.get_grid_lines(1, 0)
+        assert len(result.objects) == 1
+        line = result.objects[0]
+        y1 = line.p1.at_time(0)[1]
+        y2 = line.p2.at_time(0)[1]
+        assert y1 == pytest.approx(150)
+        assert y2 == pytest.approx(150)
+        # Spans full width
+        assert line.p1.at_time(0)[0] == pytest.approx(0)
+        assert line.p2.at_time(0)[0] == pytest.approx(300)
+
+    def test_vertical_line_positions(self):
+        """1 vertical line in a 300x300 rect at (10,20) should be at x=160."""
+        r = Rectangle(300, 300, x=10, y=20)
+        result = r.get_grid_lines(0, 1)
+        assert len(result.objects) == 1
+        line = result.objects[0]
+        x1 = line.p1.at_time(0)[0]
+        x2 = line.p2.at_time(0)[0]
+        assert x1 == pytest.approx(160)
+        assert x2 == pytest.approx(160)
+        # Spans full height
+        assert line.p1.at_time(0)[1] == pytest.approx(20)
+        assert line.p2.at_time(0)[1] == pytest.approx(320)
+
+    def test_zero_rows_zero_cols(self):
+        r = Rectangle(200, 100, x=0, y=0)
+        result = r.get_grid_lines(0, 0)
+        assert len(result.objects) == 0
+
+    def test_kwargs_forwarded(self):
+        r = Rectangle(200, 100, x=0, y=0)
+        result = r.get_grid_lines(1, 1, stroke='#ff0000')
+        svg = result.objects[0].to_svg(0)
+        assert 'rgb(255,0,0)' in svg or '#ff0000' in svg
+
+    def test_even_spacing(self):
+        """3 horizontal lines in height=400 should be at y=100, 200, 300."""
+        r = Rectangle(200, 400, x=0, y=0)
+        result = r.get_grid_lines(3, 0)
+        assert len(result.objects) == 3
+        for i, line in enumerate(result.objects):
+            expected_y = 400 * (i + 1) / 4
+            assert line.p1.at_time(0)[1] == pytest.approx(expected_y)
+
+
+class TestAxesAddParametricPlot:
+    def test_returns_path(self):
+        axes = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        curve = axes.add_parametric_plot(
+            fx=lambda t: math.cos(t),
+            fy=lambda t: math.sin(t),
+            t_range=(0, 2 * math.pi),
+        )
+        assert isinstance(curve, Path)
+
+    def test_curve_added_to_axes(self):
+        axes = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        n_before = len(axes.objects)
+        axes.add_parametric_plot(
+            fx=lambda t: t,
+            fy=lambda t: t,
+            t_range=(0, 1),
+        )
+        assert len(axes.objects) == n_before + 1
+
+    def test_d_attribute_nonempty(self):
+        axes = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        curve = axes.add_parametric_plot(
+            fx=lambda t: math.cos(t),
+            fy=lambda t: math.sin(t),
+            t_range=(0, 2 * math.pi),
+        )
+        d = curve.d.at_time(0)
+        assert len(d) > 0
+        assert d.startswith('M')
+
+    def test_d_contains_line_segments(self):
+        axes = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        curve = axes.add_parametric_plot(
+            fx=lambda t: t,
+            fy=lambda t: t ** 2,
+            t_range=(-2, 2),
+            num_points=50,
+        )
+        d = curve.d.at_time(0)
+        assert 'L' in d
+
+    def test_styling_kwargs(self):
+        axes = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        curve = axes.add_parametric_plot(
+            fx=lambda t: t,
+            fy=lambda t: t,
+            t_range=(0, 1),
+            stroke='#ff0000',
+        )
+        svg = curve.to_svg(0)
+        assert 'rgb(255,0,0)' in svg or '#ff0000' in svg
+
+    def test_num_points_controls_sampling(self):
+        axes = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        curve_10 = axes.add_parametric_plot(
+            fx=lambda t: t, fy=lambda t: t,
+            t_range=(0, 1), num_points=10,
+        )
+        curve_100 = axes.add_parametric_plot(
+            fx=lambda t: t, fy=lambda t: t,
+            t_range=(0, 1), num_points=100,
+        )
+        # More points means longer d string (more L segments)
+        d10 = curve_10.d.at_time(0)
+        d100 = curve_100.d.at_time(0)
+        assert len(d100) > len(d10)
+
+
+class TestNumberLineAddBrace:
+    def test_returns_brace(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        brace = nl.add_brace(2, 5)
+        assert isinstance(brace, Brace)
+
+    def test_brace_added_to_objects(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        n_before = len(nl.objects)
+        nl.add_brace(2, 5)
+        assert len(nl.objects) == n_before + 1
+
+    def test_brace_with_label(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        brace = nl.add_brace(2, 5, label='3')
+        # Brace with label should have 2 sub-objects (path + label)
+        assert len(brace.objects) == 2
+
+    def test_brace_without_label(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        brace = nl.add_brace(2, 5)
+        # Brace without label should have 1 sub-object (path only)
+        assert len(brace.objects) == 1
+
+    def test_direction_string(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        brace = nl.add_brace(2, 5, direction='up')
+        assert brace._direction == 'up'
+
+    def test_direction_tuple_constant(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        brace = nl.add_brace(2, 5, direction=(0, 1))  # DOWN
+        assert brace._direction == 'down'
+
+    def test_brace_renders_svg(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        nl.add_brace(2, 5)
+        svg = nl.to_svg(0)
+        assert '<path' in svg
+
+    def test_brace_kwargs_forwarded(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        brace = nl.add_brace(1, 4, fill='#ff0000')
+        svg = brace.objects[0].to_svg(0)
+        assert 'rgb(255,0,0)' in svg or '#ff0000' in svg

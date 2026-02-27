@@ -3881,6 +3881,92 @@ class VObject(ABC):  # Vector Object
                 c.add(t0, t1, lambda t, _dx=dx: (_dx, 0), stay=False)
         return self
 
+    def wave_through(self, start: float = 0, end: float = 1, amplitude=20,
+                     frequency=2, direction='y', easing=easings.smooth):
+        """Wave animation: the object follows a sinusoidal path while moving forward.
+
+        The object oscillates perpendicular to the primary movement direction.
+        direction: 'y' oscillates vertically while progressing forward,
+                   'x' oscillates horizontally while progressing forward.
+        amplitude: max displacement in pixels.
+        frequency: number of full wave cycles over the duration.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        _s, _d, _a, _freq = start, max(dur, 1e-9), amplitude, frequency
+
+        def _wave(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
+            progress = (t - _s) / _d
+            envelope = _easing(progress) * (1 - _easing(progress)) * 4
+            return _a * math.sin(2 * math.pi * _freq * progress) * envelope
+
+        if direction == 'y':
+            return self._apply_shift_effect(start, end, dy_func=_wave)
+        else:
+            return self._apply_shift_effect(start, end, dx_func=_wave)
+
+    def countdown(self, start: float = 0, end: float = 1, from_val=3,
+                  easing=easings.linear):
+        """For Text objects: display a countdown (from_val, from_val-1, ..., 1).
+
+        Changes the text content at evenly spaced intervals.
+        Only works on Text objects (must have a ``text`` attribute of type
+        ``attributes.String``).
+
+        Raises TypeError if called on a non-Text object.
+        """
+        from vectormation._shapes import Text as _Text
+        if not isinstance(self, _Text):
+            raise TypeError("countdown() can only be called on Text objects")
+        dur = end - start
+        if dur <= 0 or from_val < 1:
+            return self
+        step_dur = dur / from_val
+        for i in range(from_val):
+            t = start + i * step_dur
+            val = from_val - i
+            self.text.set_onward(t, str(val))
+        return self
+
+    def squeeze(self, start: float = 0, end: float = 1, axis='x',
+                factor=0.5, easing=easings.smooth):
+        """Squeeze the object along one axis, scaling up the other to preserve area.
+
+        axis: 'x' or 'y' — the axis to compress.
+        factor: squeeze amount (0.5 means compress to half along that axis).
+        The complementary axis scales by 1/factor to preserve visual area.
+        Unlike squish(), this animates to the squeezed state and stays there.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        self._ensure_scale_origin(start)
+        sx0 = self.styling.scale_x.at_time(start)
+        sy0 = self.styling.scale_y.at_time(start)
+        _s, _d, _f = start, max(dur, 1e-9), factor
+        compensate = 1.0 / _f if _f > 1e-9 else 1.0
+
+        def _primary(t, _s=_s, _d=_d, _f=_f, _easing=easing):
+            progress = _easing((t - _s) / _d)
+            return 1 + (_f - 1) * progress
+
+        def _compensate(t, _s=_s, _d=_d, _c=compensate, _easing=easing):
+            progress = _easing((t - _s) / _d)
+            return 1 + (_c - 1) * progress
+
+        if axis == 'x':
+            self.styling.scale_x.set(start, end,
+                lambda t, _b=sx0: _b * _primary(t), stay=True)
+            self.styling.scale_y.set(start, end,
+                lambda t, _b=sy0: _b * _compensate(t), stay=True)
+        else:
+            self.styling.scale_y.set(start, end,
+                lambda t, _b=sy0: _b * _primary(t), stay=True)
+            self.styling.scale_x.set(start, end,
+                lambda t, _b=sx0: _b * _compensate(t), stay=True)
+        return self
+
     @staticmethod
     def surround(other, buff=SMALL_BUFF, rx=6, ry=6, start_time: float = 0, follow=True):
         """Create a rectangle surrounding another object. Returns a Rectangle."""
@@ -4729,6 +4815,37 @@ class VCollection:
                           end_time=end_time, easing=easing)
         return self
 
+    def radial_arrange(self, radius=200, start_angle=0, center=None,
+                       start_time: float = 0):
+        """Arrange children in a circle with given radius and starting angle.
+
+        Unlike :meth:`distribute_radial` which accepts animated end_time,
+        this is a simple instant layout method.  center defaults to the
+        collection's bounding-box center.
+
+        Parameters
+        ----------
+        radius: distance from center to each child's center.
+        start_angle: angle in radians for the first child (0 = right).
+        center: (cx, cy) tuple, or None to use the collection center.
+        """
+        n = len(self.objects)
+        if n == 0:
+            return self
+        if center is None:
+            gx, gy, gw, gh = self.bbox(start_time)
+            center = (gx + gw / 2, gy + gh / 2)
+        cx, cy = center
+        for i, obj in enumerate(self.objects):
+            angle = start_angle + 2 * math.pi * i / n
+            tx = cx + radius * math.cos(angle)
+            ty = cy + radius * math.sin(angle)
+            bx, by, bw, bh = obj.bbox(start_time)
+            obj_cx, obj_cy = bx + bw / 2, by + bh / 2
+            dx, dy = tx - obj_cx, ty - obj_cy
+            obj.shift(dx=dx, dy=dy, start_time=start_time)
+        return self
+
     def arrange_in_grid(self, rows=None, cols=None, buff=SMALL_BUFF, start_time: float = 0):
         """Lay out children in a grid. If rows/cols omitted, picks a square-ish grid."""
         n = len(self.objects)
@@ -5096,18 +5213,42 @@ class VCollection:
             obj.color_gradient_anim(colors=colors, start=t0, end=t1, attr=attr)
         return self
 
-    def stagger_scale(self, start: float = 0, end: float = 1, target_scale=1.5, easing=easings.smooth):
-        """Sequentially scale each child up then back to 1."""
+    def stagger_scale(self, start: float = 0, end: float = 1,
+                       scale_factor=1.5, delay=0.2, easing=easings.smooth,
+                       target_scale=None):
+        """Scale each child up then back down with a stagger delay between children.
+
+        Creates a "popping" wave effect where each child grows to *scale_factor*
+        and shrinks back to its original size, with *delay* seconds between
+        successive children starting their animation.
+
+        scale_factor: peak scale factor for each child's pop.
+        delay: time offset between successive children starting.
+        target_scale: deprecated alias for scale_factor (backward compatibility).
+        """
+        if target_scale is not None:
+            scale_factor = target_scale
         n = len(self.objects)
         if n == 0 or end <= start:
             return self
         dur = end - start
-        child_dur = dur / n * 1.5  # overlap
-        step = dur / n
+        # Each child gets a pop duration: total time minus all delays, but
+        # at least enough for one cycle
+        pop_dur = max(dur - (n - 1) * delay, dur / n) if n > 1 else dur
         for i, obj in enumerate(self.objects):
-            s = start + i * step
-            e = min(s + child_dur, end)
-            obj.pulsate(start=s, end=e, scale_factor=target_scale, easing=easing)
+            s = start + i * delay
+            e = min(s + pop_dur, start + dur + (n - 1) * delay)
+            if e <= s:
+                continue
+            obj._ensure_scale_origin(s)
+            _sx0 = obj.styling.scale_x.at_time(s)
+            _sy0 = obj.styling.scale_y.at_time(s)
+            _s, _d, _sf = s, max(e - s, 1e-9), scale_factor
+            def _make_pop(base, _s=_s, _d=_d, _sf=_sf, _easing=easing):
+                return lambda t, _b=base, _s=_s, _d=_d, _sf=_sf, _easing=_easing: \
+                    _b * (1 + (_sf - 1) * math.sin(math.pi * _easing((t - _s) / _d)))
+            obj.styling.scale_x.set(s, e, _make_pop(_sx0))
+            obj.styling.scale_y.set(s, e, _make_pop(_sy0))
         return self
 
     def stagger_rotate(self, start: float = 0, end: float = 1, degrees=360, easing=easings.smooth):
