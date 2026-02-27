@@ -1492,6 +1492,30 @@ class Line(VObject):
         dx, dy = self.get_direction(time)
         return (-dy, dx)
 
+    def angle_to(self, other, time=0):
+        """Return the angle in degrees between this line and another.
+
+        Computes the angle between the two direction vectors using the
+        dot-product formula.  The result is always in [0, 180].
+
+        Parameters
+        ----------
+        other:
+            Another :class:`Line` instance.
+        time:
+            Animation time at which to read both lines.
+
+        Returns
+        -------
+        float
+            Angle in degrees.
+        """
+        d1 = self.get_direction(time)
+        d2 = other.get_direction(time)
+        dot = d1[0] * d2[0] + d1[1] * d2[1]
+        dot = max(-1.0, min(1.0, dot))  # clamp for numerical safety
+        return math.degrees(math.acos(dot))
+
     def get_slope(self, time=0):
         """Return the slope (dy/dx) of the line, or float('inf') for vertical lines.
         Uses SVG coordinates (y increases downward)."""
@@ -1967,7 +1991,6 @@ class Text(VObject):
         if idx < 0:
             return Rectangle(0, 0, x=0, y=0)  # empty rect
         fs = self.font_size.at_time(start)
-        char_w = fs * CHAR_WIDTH_FACTOR
         x = self.x.at_time(start)
         y = self.y.at_time(start)
         # Adjust for text anchor
@@ -2490,15 +2513,6 @@ class Path(VObject):
             return cls(' '.join(parts), **kwargs)
 
         # Smooth: Catmull-Rom → cubic Bezier conversion
-        # For open curves, duplicate the first and last points to anchor the tangents.
-        if closed:
-            # For closed curves, wrap around
-            ctrl_pts = pts + [pts[0], pts[1]]
-            prev_pts = [pts[-1]] + pts
-        else:
-            ctrl_pts = [pts[0]] + pts + [pts[-1]]
-            prev_pts = [pts[0]] + pts
-
         n = len(pts)
         parts = [f'M{pts[0][0]},{pts[0][1]}']
         for i in range(n - 1 if not closed else n):

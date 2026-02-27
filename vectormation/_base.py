@@ -883,6 +883,52 @@ class VObject(ABC):  # Vector Object
             lambda t, _s=s, _d=dur, _ev=end_val, _e=easing: _ev * _e((t - _s) / _d))
         return self
 
+    def fade_slide_out(self, direction=None, distance=200, start: float = 0, end: float = 1,
+                       change_existence=True, easing=easings.smooth):
+        """Slide away in a direction while fading from 1 to 0.
+
+        The reverse of :meth:`fade_slide_in`.  The object moves *distance*
+        pixels in *direction* while its opacity goes from its current value
+        to 0.
+
+        Parameters
+        ----------
+        direction:
+            Direction tuple to slide toward (e.g. ``DOWN``, ``LEFT``).
+            Defaults to ``DOWN``.
+        distance:
+            How far (in pixels) the object travels.
+        start, end:
+            Time interval for the animation.
+        change_existence:
+            If True the object is hidden at *end*.
+        easing:
+            Easing function (default ``easings.smooth``).
+
+        Returns
+        -------
+        self
+        """
+        direction = direction or DOWN
+        dur = end - start
+        if dur <= 0:
+            if change_existence:
+                self._hide_from(start)
+            return self
+        dx = direction[0] * distance
+        dy = direction[1] * distance
+        s, e = start, end
+        dx_func = (lambda t, _s=s, _d=dur, _dx=dx, _e=easing: _dx * _e((t - _s) / _d)) if dx else None
+        dy_func = (lambda t, _s=s, _d=dur, _dy=dy, _e=easing: _dy * _e((t - _s) / _d)) if dy else None
+        self._apply_shift_effect(start, end, dx_func, dy_func, stay=True)
+        # Fade out opacity from current value to 0
+        start_val = self.styling.opacity.at_time(start)
+        self.styling.opacity.set(s, e,
+            lambda t, _s=s, _d=dur, _sv=start_val, _e=easing: _sv * (1 - _e((t - _s) / _d)))
+        if change_existence:
+            self._hide_from(end)
+        return self
+
     def write(self, start: float = 0, end: float = 1, max_stroke_width=2, change_existence=True, easing=easings.smooth, stroke_easing=easings.there_and_back):
         """Animate fill_opacity from 0 to current with a stroke pulse effect."""
         if change_existence:
@@ -1045,10 +1091,12 @@ class VObject(ABC):  # Vector Object
             target_sy = self.styling.scale_y.at_time(start) * y_factor
         elif width is not None:
             factor = width / cur_w if cur_w != 0 else 1
-            target_sx = target_sy = self.styling.scale_x.at_time(start) * factor
+            target_sx = self.styling.scale_x.at_time(start) * factor
+            target_sy = self.styling.scale_y.at_time(start) * factor
         elif height is not None:
             factor = height / cur_h if cur_h != 0 else 1
-            target_sx = target_sy = self.styling.scale_y.at_time(start) * factor
+            target_sx = self.styling.scale_x.at_time(start) * factor
+            target_sy = self.styling.scale_y.at_time(start) * factor
         else:
             return self
         for attr, target in [(self.styling.scale_x, target_sx), (self.styling.scale_y, target_sy)]:

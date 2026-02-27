@@ -1806,7 +1806,7 @@ class TestCamera:
 
     def test_camera_shift(self):
         self.canvas.camera_shift(100, 50, start=0, end=1)
-        svg = self.canvas.generate_frame_svg(1)
+        self.canvas.generate_frame_svg(1)  # force frame generation
         # After shift, viewbox x should have moved by 100
         assert self.canvas.vb_x.at_time(1) == pytest.approx(100)
 
@@ -2311,7 +2311,7 @@ class TestThreeDAxes:
 
     def test_wireframe(self):
         ax = ThreeDAxes()
-        wf = ax.plot_surface_wireframe(lambda x, y: x**2 + y**2, x_steps=5, y_steps=5)
+        ax.plot_surface_wireframe(lambda x, y: x**2 + y**2, x_steps=5, y_steps=5)
         svg = ax.to_svg(0)
         assert '<polyline' in svg
 
@@ -3092,19 +3092,19 @@ class TestMorphObject:
     def test_source_hidden_after_start(self):
         c = Circle(r=50, cx=100, cy=100)
         r = Rectangle(100, 100, x=300, y=300)
-        m = MorphObject(c, r, start=0, end=1)
+        MorphObject(c, r, start=0, end=1)
         assert not c.show.at_time(0.5)
 
     def test_target_visible_after_end(self):
         c = Circle(r=50, cx=100, cy=100)
         r = Rectangle(100, 100, x=300, y=300)
-        m = MorphObject(c, r, start=0, end=1)
+        MorphObject(c, r, start=0, end=1)
         assert r.show.at_time(1.5)
 
     def test_target_hidden_before_end(self):
         c = Circle(r=50, cx=100, cy=100)
         r = Rectangle(100, 100, x=300, y=300)
-        m = MorphObject(c, r, start=1, end=2)
+        MorphObject(c, r, start=1, end=2)
         assert not r.show.at_time(0.5)
 
     def test_with_rotation(self):
@@ -5092,7 +5092,6 @@ class TestLineGeometricUtils:
         line = Line(100, 100, 300, 100)
         par = line.parallel(50)
         p1 = par.p1.at_time(0)
-        p2 = par.p2.at_time(0)
         # Should be 50 pixels offset in y
         assert abs(p1[1] - 50) < 1 or abs(p1[1] - 150) < 1
 
@@ -5222,7 +5221,7 @@ class TestAxesLabeledPoints:
 
     def test_add_marked_region(self):
         ax = Axes(x_range=(0, 10, 1), y_range=(0, 10, 1))
-        rect = ax.add_marked_region(2, 5, color='#FF0000')
+        ax.add_marked_region(2, 5, color='#FF0000')
         svg = ax.to_svg(0)
         assert 'rect' in svg.lower() or '<rect' in svg
 
@@ -6338,7 +6337,7 @@ class TestAxesShadeRegion:
 
     def test_shade_region_added_to_axes(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        rect = ax.shade_region(x_start=-1, x_end=1)
+        ax.shade_region(x_start=-1, x_end=1)
         # The rectangle should appear in the axes SVG output
         svg = ax.to_svg(0)
         assert '<rect' in svg
@@ -6604,7 +6603,7 @@ class TestAxesAddCallout:
 
     def test_creation_time(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        result = ax.add_callout(0, 0, 'Late', creation=2)
+        ax.add_callout(0, 0, 'Late', creation=2)
         # SVG at t=0 should not contain the callout
         svg0 = ax.to_svg(0)
         svg3 = ax.to_svg(3)
@@ -7685,3 +7684,90 @@ class TestAxesGetSlope:
         ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
         slope = ax.get_slope(lambda x: x**3, 2.0, h=0.0001)
         assert slope == pytest.approx(12.0, abs=0.01)
+
+
+# ---------- fade_slide_out ----------
+class TestFadeSlideOut:
+    def test_fade_slide_out_returns_self(self):
+        c = Circle(r=50, cx=500, cy=500)
+        result = c.fade_slide_out(direction=DOWN, distance=200, start=0, end=1)
+        assert result is c
+
+    def test_fade_slide_out_opacity_at_start_is_one(self):
+        """At the start of the animation, opacity should still be 1."""
+        c = Circle(r=50, cx=500, cy=500)
+        c.fade_slide_out(direction=DOWN, distance=200, start=0, end=1,
+                         easing=easings.linear)
+        op = c.styling.opacity.at_time(0)
+        assert op == pytest.approx(1, abs=0.01)
+
+    def test_fade_slide_out_opacity_at_end_is_zero(self):
+        """At the end of the animation, opacity should be 0."""
+        c = Circle(r=50, cx=500, cy=500)
+        c.fade_slide_out(direction=DOWN, distance=200, start=0, end=1,
+                         easing=easings.linear)
+        op = c.styling.opacity.at_time(1)
+        assert op == pytest.approx(0, abs=0.01)
+
+    def test_fade_slide_out_hides_object(self):
+        """Object should become hidden at end time."""
+        c = Circle(r=50, cx=500, cy=500)
+        c.fade_slide_out(direction=UP, distance=100, start=2, end=3)
+        assert c.show.at_time(2.5) is True
+        assert c.show.at_time(3) is False
+
+    def test_fade_slide_out_zero_duration(self):
+        """Zero-duration should hide immediately and return self."""
+        c = Circle(r=50, cx=500, cy=500)
+        result = c.fade_slide_out(direction=LEFT, distance=100, start=1, end=1)
+        assert result is c
+
+
+# ---------- Line.angle_to ----------
+class TestLineAngleTo:
+    def test_angle_to_perpendicular(self):
+        """Two perpendicular lines should have a 90 degree angle."""
+        l1 = Line(x1=0, y1=0, x2=100, y2=0)
+        l2 = Line(x1=0, y1=0, x2=0, y2=100)
+        assert l1.angle_to(l2) == pytest.approx(90.0, abs=0.01)
+
+    def test_angle_to_parallel(self):
+        """Two parallel lines should have a 0 degree angle."""
+        l1 = Line(x1=0, y1=0, x2=100, y2=0)
+        l2 = Line(x1=50, y1=50, x2=200, y2=50)
+        assert l1.angle_to(l2) == pytest.approx(0.0, abs=0.01)
+
+    def test_angle_to_opposite(self):
+        """Two anti-parallel lines should have a 180 degree angle."""
+        l1 = Line(x1=0, y1=0, x2=100, y2=0)
+        l2 = Line(x1=100, y1=0, x2=0, y2=0)
+        assert l1.angle_to(l2) == pytest.approx(180.0, abs=0.01)
+
+    def test_angle_to_45_degrees(self):
+        """A horizontal line and a 45-degree line."""
+        l1 = Line(x1=0, y1=0, x2=100, y2=0)
+        l2 = Line(x1=0, y1=0, x2=100, y2=100)
+        assert l1.angle_to(l2) == pytest.approx(45.0, abs=0.01)
+
+
+# ---------- Axes.get_integral ----------
+class TestAxesGetIntegral:
+    def test_get_integral_x_squared(self):
+        """Integral of x^2 from 0 to 3 should be 9."""
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 25])
+        val = ax.get_integral(lambda x: x**2, 0, 3)
+        assert val == pytest.approx(9.0, abs=0.1)
+
+    def test_get_integral_matches_get_area_value(self):
+        """get_integral should give same results as get_area_value."""
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        f = lambda x: math.sin(x)
+        v1 = ax.get_area_value(f, 0, math.pi, samples=200)
+        v2 = ax.get_integral(f, 0, math.pi, samples=200)
+        assert v1 == pytest.approx(v2)
+
+    def test_get_integral_constant_function(self):
+        """Integral of f(x)=5 from 0 to 4 should be 20."""
+        ax = Axes(x_range=[0, 10], y_range=[0, 10])
+        val = ax.get_integral(lambda x: 5, 0, 4)
+        assert val == pytest.approx(20.0, abs=0.01)

@@ -123,7 +123,7 @@ class TestThreeDAxes:
 
     def test_to_svg_contains_labels(self):
         ax = ThreeDAxes(x_label='x', y_label='y', z_label='z')
-        svg = ax.to_svg(0)
+        ax.to_svg(0)  # force SVG generation
         # Labels are rendered as TexObjects (SVG paths), not plain <text>
         assert len(ax.objects) == 3  # 3 TexObject labels
 
@@ -563,7 +563,7 @@ class TestAddGridPlane:
 
     def test_grid_renders_in_svg(self):
         ax = ThreeDAxes(x_range=(-1, 1), z_range=(-1, 1))
-        grid = ax.add_grid_plane(plane='xz', step=1)
+        ax.add_grid_plane(plane='xz', step=1)
         svg = ax.to_svg(0)
         # Grid lines are rendered as VCollection children
         assert svg.count("stroke-opacity='0.3'") > 0 or 'stroke-opacity' in svg

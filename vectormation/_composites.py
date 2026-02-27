@@ -1173,7 +1173,6 @@ class Axes(VCollection):
         n_series = len(data)
         if n_series == 0:
             return VCollection(creation=creation, z=z)
-        n_groups = max(len(s) for s in data)
         if colors is None:
             colors = ['#FF6B6B', '#58C4DD', '#83C167', '#FFFF00',
                       '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C']
@@ -1337,6 +1336,27 @@ class Axes(VCollection):
         xs = [x_start + i * step for i in range(n + 1)]
         ys = [fn(x) for x in xs]
         return sum(0.5 * (ys[i] + ys[i + 1]) * step for i in range(n))
+
+    def get_integral(self, func, x_start, x_end, samples=200):
+        """Alias for :meth:`get_area_value` with a default of 200 samples.
+
+        Computes the numerical definite integral of *func* over
+        [x_start, x_end] using the trapezoidal rule.
+
+        Parameters
+        ----------
+        func:
+            A callable ``f(x)`` or a curve Path with a ``._func`` attribute.
+        x_start, x_end:
+            Integration bounds in mathematical (axis) coordinates.
+        samples:
+            Number of trapezoid intervals (default 200).
+
+        Returns
+        -------
+        float
+        """
+        return self.get_area_value(func, x_start, x_end, samples=samples)
 
     def get_graph_length(self, func, x_start=None, x_end=None, samples=200):
         """Return approximate arc length of *func*'s graph in SVG coordinates.
@@ -7909,7 +7929,6 @@ class GanttChart(VCollection):
             return
         if colors is None:
             colors = list(DEFAULT_CHART_COLORS)
-        total_h = height if height else n * (bar_height + bar_spacing) + 40
         # Compute time range
         all_starts = [t[1] for t in tasks]
         all_ends = [t[2] for t in tasks]
@@ -8979,7 +8998,6 @@ class IconGrid(VCollection):
     def __init__(self, data, x=100, y=100, cols=10, size=15, gap=3,
                  shape='circle', creation=0, z=0):
         objects = []
-        idx = 0
         # Flatten data into a list of colors
         colors = []
         for count, color in data:
