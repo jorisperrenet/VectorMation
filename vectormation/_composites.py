@@ -15,7 +15,7 @@ from vectormation._constants import (
     DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
     _sample_function,
 )
-from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _ramp
+from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _ramp, _ramp_down
 from vectormation._shapes import (
     Polygon, Circle, Ellipse, Dot, Rectangle, RoundedRectangle, Line, Lines,
     Text, Path, Arc, Wedge,
@@ -6941,10 +6941,12 @@ class NumberLine(VCollection):
         dur = end - start
 
         def _old_val_to_x(val):
-            return ox + (val - old_start) / (old_end - old_start) * length
+            span = old_end - old_start
+            return ox + (val - old_start) / span * length if span else ox
 
         def _new_val_to_x(val):
-            return ox + (val - new_start) / (new_end - new_start) * length
+            span = new_end - new_start
+            return ox + (val - new_start) / span * length if span else ox
 
         # Skip object 0 (the main line/arrow) -- it spans the full length
         # and does not move.
@@ -6961,10 +6963,8 @@ class NumberLine(VCollection):
                 val = old_start + (cur_x - ox) / length * (old_end - old_start)
                 new_x = _new_val_to_x(val)
                 if dur <= 0:
-                    obj.p1.set_onward(start,
-                        lambda t, _nx=new_x, _y1=obj.p1.at_time(start)[1]: (_nx, _y1))
-                    obj.p2.set_onward(start,
-                        lambda t, _nx=new_x, _y2=obj.p2.at_time(start)[1]: (_nx, _y2))
+                    obj.p1.set_onward(start, (new_x, obj.p1.at_time(start)[1]))
+                    obj.p2.set_onward(start, (new_x, obj.p2.at_time(start)[1]))
                 else:
                     old_x = cur_x
                     p1_y = obj.p1.at_time(start)[1]
@@ -7750,24 +7750,14 @@ class BarChart(VCollection):
             target_x = old_xs[new_pos]
             current_x = old_xs[old_idx]
             # Animate bar x position smoothly
-            _cx = current_x
-            _tx = target_x
-            _s, _d = start, dur
-            _e = easing
             bar.x.set(start, end,
-                lambda t, _cx=_cx, _tx=_tx, _s=_s, _d=_d, _e=_e:
-                    _cx + (_tx - _cx) * _e((t - _s) / _d),
-                stay=True)
+                _lerp(start, dur, current_x, target_x, easing), stay=True)
             # Also animate label if present
             lbl = self._labels[old_idx]
             if lbl is not None:
                 lbl_x = lbl.x.at_time(start)
-                dx = target_x - current_x
-                _lx = lbl_x
-                _ldx = dx
                 lbl.x.set(start, end,
-                    lambda t, _lx=_lx, _ldx=_ldx, _s=_s, _d=_d, _e=_e:
-                        _lx + _ldx * _e((t - _s) / _d),
+                    _lerp(start, dur, lbl_x, lbl_x + target_x - current_x, easing),
                     stay=True)
         # Reorder internal lists to match new order
         new_order = [orig_idx for _, orig_idx in indexed]
@@ -7928,8 +7918,7 @@ class Table(VCollection):
             dur = end - start
             if dur > 0:
                 entry.styling.fill_opacity.set(start, end,
-                    lambda t, _s=start, _d=dur, _op=opacity:
-                        _op * easing((t - _s) / _d))
+                    _ramp(start, dur, opacity, easing))
         return self
 
     def highlight_column(self, col, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):

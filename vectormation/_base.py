@@ -5477,39 +5477,21 @@ class VCollection:
     def get_height(self, time=0):
         return self.bbox(time)[3]
 
-    def set_width(self, width, start: float = 0, end: float | None = None, easing=None):
-        """Scale the entire group so its bounding box has the given *width*.
-
-        When *end* is given the scale is animated over [start, end].
-        """
-        cur = self.get_width(start)
+    def _scale_to_dim(self, cur, target, start, end, easing):
+        """Scale to match a target dimension (width or height)."""
         if cur == 0:
             return self
-        factor = width / cur
-        kw = {'start': start}
-        if end is not None:
-            kw['end'] = end
-        if easing is not None:
-            kw['easing'] = easing
-        self.scale(factor, **kw)
+        factor = target / cur
+        self.scale(factor, start=start, end=end, easing=easing or easings.smooth)
         return self
+
+    def set_width(self, width, start: float = 0, end: float | None = None, easing=None):
+        """Scale the entire group so its bounding box has the given *width*."""
+        return self._scale_to_dim(self.get_width(start), width, start, end, easing)
 
     def set_height(self, height, start: float = 0, end: float | None = None, easing=None):
-        """Scale the entire group so its bounding box has the given *height*.
-
-        When *end* is given the scale is animated over [start, end].
-        """
-        cur = self.get_height(start)
-        if cur == 0:
-            return self
-        factor = height / cur
-        kw = {'start': start}
-        if end is not None:
-            kw['end'] = end
-        if easing is not None:
-            kw['easing'] = easing
-        self.scale(factor, **kw)
-        return self
+        """Scale the entire group so its bounding box has the given *height*."""
+        return self._scale_to_dim(self.get_height(start), height, start, end, easing)
 
     def total_width(self, time=0):
         """Return the sum of all children's individual bounding-box widths at *time*.
