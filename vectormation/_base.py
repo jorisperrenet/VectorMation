@@ -315,7 +315,8 @@ class VObject(ABC):  # Vector Object
         dy = y - self.get_y(start)
         return self.shift(dy=dy, start=start)
 
-    def set_width(self, width, start: float = 0, stretch=False):
+    def set_width(self, width, start: float = 0, end: float | None = None,
+                  stretch=False, easing=None):
         """Scale so the bounding box has the given width. If stretch=True, only scale X."""
         cur = self.get_width(start)
         if cur == 0:
@@ -325,10 +326,11 @@ class VObject(ABC):  # Vector Object
             self._ensure_scale_origin(start)
             self.styling.scale_x.set_onward(start, self.styling.scale_x.at_time(start) * factor)
         else:
-            self.scale(factor, start=start)
+            self.scale(factor, start=start, end=end, easing=easing or easings.smooth)
         return self
 
-    def set_height(self, height, start: float = 0, stretch=False):
+    def set_height(self, height, start: float = 0, end: float | None = None,
+                   stretch=False, easing=None):
         """Scale so the bounding box has the given height. If stretch=True, only scale Y."""
         cur = self.get_height(start)
         if cur == 0:
@@ -338,7 +340,7 @@ class VObject(ABC):  # Vector Object
             self._ensure_scale_origin(start)
             self.styling.scale_y.set_onward(start, self.styling.scale_y.at_time(start) * factor)
         else:
-            self.scale(factor, start=start)
+            self.scale(factor, start=start, end=end, easing=easing or easings.smooth)
         return self
 
     def to_edge(self, edge: str | tuple = DOWN, buff=DEFAULT_OBJECT_TO_EDGE_BUFF,

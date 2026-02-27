@@ -12353,6 +12353,32 @@ class TestSaveStateRestore:
         assert c.restore(start=1, end=2) is c
 
 
+class TestFollowSpline:
+    def test_follow_spline_returns_self(self):
+        c = Circle(r=20, cx=100, cy=100)
+        pts = [(100, 100), (200, 50), (300, 100), (400, 50)]
+        result = c.follow_spline(pts, start=0, end=2)
+        assert result is c
+
+    def test_follow_spline_moves_through_points(self):
+        c = Circle(r=20, cx=100, cy=100)
+        pts = [(100, 100), (300, 300)]
+        c.follow_spline(pts, start=0, end=1)
+        cx0, cy0 = c.get_center(0)
+        cx1, cy1 = c.get_center(1)
+        assert abs(cx0 - 100) < 2
+        assert abs(cy0 - 100) < 2
+        assert abs(cx1 - 300) < 2
+        assert abs(cy1 - 300) < 2
+
+    def test_follow_spline_single_point_noop(self):
+        c = Circle(r=20, cx=100, cy=100)
+        result = c.follow_spline([(100, 100)], start=0, end=1)
+        assert result is c
+        cx, cy = c.get_center(0.5)
+        assert abs(cx - 100) < 2
+
+
 class TestPathArc:
     def test_path_arc_moves_object(self):
         c = Circle(r=20, cx=100, cy=100)
