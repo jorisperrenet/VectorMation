@@ -237,7 +237,8 @@ class Polygon(VObject):
         style_kwargs = {}
         for name in ('fill_opacity', 'stroke_width',
                       'stroke_opacity', 'opacity', 'stroke_dasharray',
-                      'stroke_linecap', 'stroke_linejoin'):
+                      'stroke_dashoffset', 'stroke_linecap', 'stroke_linejoin',
+                      'fill_rule'):
             style_kwargs[name] = getattr(self.styling, name).at_time(time)
         for name in ('fill', 'stroke'):
             attr = getattr(self.styling, name)
@@ -4138,7 +4139,7 @@ class Line(VObject):
         """
         if isinstance(other, Line):
             return self.intersect_segment(other, time)
-        # Circle (and its subclass Ellipse with intersect_line)
+        # Circle (subclass of Ellipse) or any object with intersect_line
         if hasattr(other, 'intersect_line'):
             return other.intersect_line(self, time)
         raise TypeError(f"intersection not supported between Line and {type(other).__name__}")
@@ -5157,7 +5158,8 @@ class Path(VObject):
         style_kwargs = {}
         for name in ('fill_opacity', 'stroke_width',
                       'stroke_opacity', 'opacity', 'stroke_dasharray',
-                      'stroke_linecap', 'stroke_linejoin'):
+                      'stroke_dashoffset', 'stroke_linecap', 'stroke_linejoin',
+                      'fill_rule'):
             style_kwargs[name] = getattr(self.styling, name).at_time(time)
         for name in ('fill', 'stroke'):
             attr = getattr(self.styling, name)

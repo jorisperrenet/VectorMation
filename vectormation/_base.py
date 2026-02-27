@@ -3557,7 +3557,7 @@ class VObject(ABC):  # Vector Object
             self.scale(oh / mh, start=time)
         return self
 
-    def scale_to_fit(self, width=None, height=None, start=0, end=None, easing=None):
+    def scale_to_fit(self, width=None, height=None, start=0, end=None, easing=easings.smooth):
         """Scale the object to fit within a bounding box, preserving aspect ratio.
 
         If both *width* and *height* are given, the scale factor is chosen so the

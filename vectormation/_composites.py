@@ -6751,16 +6751,14 @@ class PieChart(VCollection):
         -------
         self
         """
-        total = sum(self.values) or 1
         for idx in indices:
             if idx < 0 or idx >= len(self._sectors):
                 continue
             sector = self._sectors[idx]
-            # Compute the cumulative start angle for this sector
-            cum = sum(self.values[:idx])
-            start_a = 360 * cum / total + 90  # PieChart starts at 90 degrees
-            sweep = 360 * self.values[idx] / total
-            mid_rad = math.radians(start_a + sweep / 2)
+            # Read angles from the actual Wedge attributes
+            sa = sector.start_angle.at_time(start) if hasattr(sector.start_angle, 'at_time') else 0
+            ea = sector.end_angle.at_time(start) if hasattr(sector.end_angle, 'at_time') else 0
+            mid_rad = math.radians((sa + ea) / 2)
             dx = distance * math.cos(mid_rad)
             dy = -distance * math.sin(mid_rad)
             sector.shift(dx=dx, dy=dy, start_time=start, end_time=end, easing=easing or easings.smooth)
