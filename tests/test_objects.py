@@ -4800,6 +4800,49 @@ class TestDataStructures:
         assert '42' in svg
 
 
+class TestArraySetValueAndSort:
+    def test_set_value(self):
+        from vectormation.objects import Array
+        arr = Array([1, 2, 3])
+        result = arr.set_value(1, 99, start=0, end=0.5)
+        assert result is arr
+
+    def test_sort_returns_self(self):
+        from vectormation.objects import Array
+        arr = Array([3, 1, 2])
+        result = arr.sort(start=0, end=2)
+        assert result is arr
+
+    def test_sort_empty(self):
+        from vectormation.objects import Array
+        arr = Array([])
+        result = arr.sort(start=0, end=1)
+        assert result is arr
+
+
+class TestLinkedListAppendRemove:
+    def test_append_node(self):
+        from vectormation.objects import LinkedList
+        ll = LinkedList([1, 2])
+        result = ll.append_node(3, start=0, end=0.5)
+        assert result is ll
+        assert len(ll._nodes) == 3
+
+    def test_remove_node(self):
+        from vectormation.objects import LinkedList
+        ll = LinkedList([1, 2, 3])
+        result = ll.remove_node(1, start=0, end=0.5)
+        assert result is ll
+        assert len(ll._nodes) == 2
+
+    def test_remove_out_of_range(self):
+        from vectormation.objects import LinkedList
+        ll = LinkedList([1])
+        result = ll.remove_node(5)
+        assert result is ll
+        assert len(ll._nodes) == 1
+
+
 class TestCircuitComponents:
     def test_resistor(self):
         from vectormation.objects import Resistor

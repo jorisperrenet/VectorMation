@@ -1234,11 +1234,17 @@ class DecimalMatrix(Matrix):
         formatted = [[f'{float(v):.{decimals}f}' for v in row] for row in data]
         super().__init__(formatted, **kwargs)
 
+    def __repr__(self):
+        return f'DecimalMatrix({self.rows}x{self.cols})'
+
 class IntegerMatrix(Matrix):
     """Matrix that formats entries as integers."""
     def __init__(self, data, **kwargs):
         formatted = [[str(int(round(float(v)))) for v in row] for row in data]
         super().__init__(formatted, **kwargs)
+
+    def __repr__(self):
+        return f'IntegerMatrix({self.rows}x{self.cols})'
 
 class TexCountAnimation(DynamicObject):
     """Animated number display using pre-rendered LaTeX digit glyphs."""

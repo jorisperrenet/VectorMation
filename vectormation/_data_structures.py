@@ -55,12 +55,35 @@ class Array(VCollection):
         """Animate swapping the values at indices i and j."""
         if 0 <= i < len(self._labels) and 0 <= j < len(self._labels):
             li, lj = self._labels[i], self._labels[j]
-            bxi = li.bbox(start)[0] + li.bbox(start)[2] / 2
-            bxj = lj.bbox(start)[0] + lj.bbox(start)[2] / 2
-            dx = bxj - bxi
+            dx = lj.center(start)[0] - li.center(start)[0]
             li.shift(dx=dx, start=start, end=end, easing=easing)
             lj.shift(dx=-dx, start=start, end=end, easing=easing)
             self._labels[i], self._labels[j] = self._labels[j], self._labels[i]
+        return self
+
+    def set_value(self, index, value, start=0, end=0.5):
+        """Animate changing a cell's displayed value."""
+        if 0 <= index < len(self._labels):
+            self._labels[index].set_text(start, end, str(value))
+        return self
+
+    def sort(self, start=0, end=2, easing=easings.smooth, delay=0.15):
+        """Animate a bubble sort, staggering swaps over [start, end]."""
+        n = len(self._labels)
+        # Pre-compute the swap sequence (bubble sort)
+        swaps = []
+        values = [self._labels[i].text.at_time(start) for i in range(n)]
+        for _ in range(n):
+            for j in range(n - 1):
+                if str(values[j]) > str(values[j + 1]):
+                    values[j], values[j + 1] = values[j + 1], values[j]
+                    swaps.append((j, j + 1))
+        # Animate the swaps with staggered timing
+        t = start
+        for i_idx, j_idx in swaps:
+            swap_end = min(t + delay, end)
+            self.swap_cells(i_idx, j_idx, start=t, end=swap_end, easing=easing)
+            t += delay
         return self
 
     def add_pointer(self, index, label='', color='#FF6B6B', creation=0, z=1):
@@ -204,6 +227,11 @@ class LinkedList(VCollection):
                  arrow_color='#fff', creation: float = 0, z: float = 0):
         Arrow = _get_arrow()
         self._nodes = []
+        self._x, self._y = x, y
+        self._node_width, self._node_height = node_width, node_height
+        self._gap, self._font_size = gap, font_size
+        self._fill, self._text_color = fill, text_color
+        self._border_color, self._arrow_color = border_color, arrow_color
         objects = []
         step = node_width + gap
         for i, val in enumerate(values):
@@ -237,6 +265,44 @@ class LinkedList(VCollection):
         """Flash-highlight a node by index."""
         if 0 <= index < len(self._nodes):
             self._nodes[index][0].flash(start, end, color=color, easing=easing)
+        return self
+
+    def append_node(self, value, start=0, end=0.5):
+        """Animate appending a new node at the end of the list."""
+        Arrow = _get_arrow()
+        n = len(self._nodes)
+        step = self._node_width + self._gap
+        nx = self._x + n * step
+        ay = self._y + self._node_height / 2
+        # Create the new node and label
+        node = Rectangle(width=self._node_width, height=self._node_height,
+                         x=nx, y=self._y, fill=self._fill,
+                         stroke=self._border_color, stroke_width=2,
+                         creation=start, z=0)
+        lbl = _label_text(str(value), nx + self._node_width / 2,
+                          self._y + self._node_height / 2,
+                          self._font_size, creation=start, z=0.1,
+                          fill=self._text_color)
+        # Arrow from previous node to new node
+        if n > 0:
+            ax1 = self._x + (n - 1) * step + self._node_width
+            arrow = Arrow(x1=ax1, y1=ay, x2=nx, y2=ay,
+                          creation=start, z=0, stroke=self._arrow_color,
+                          fill=self._arrow_color)
+            self.objects.append(arrow)
+        self._nodes.append((node, lbl))
+        node.fadein(start=start, end=end)
+        lbl.fadein(start=start, end=end)
+        self.objects.extend([node, lbl])
+        return self
+
+    def remove_node(self, index, start=0, end=0.5):
+        """Animate removing a node by index (fades it out)."""
+        if index < 0 or index >= len(self._nodes):
+            return self
+        node, lbl = self._nodes.pop(index)
+        node.fadeout(start=start, end=end)
+        lbl.fadeout(start=start, end=end)
         return self
 
 class BinaryTree(VCollection):
