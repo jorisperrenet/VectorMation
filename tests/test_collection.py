@@ -582,3 +582,87 @@ class TestInterleave:
         a.interleave(b)
         assert len(a.objects) == 1
         assert len(b.objects) == 1
+
+
+class TestVObjectFadeShift:
+    def test_fade_shift_returns_self(self):
+        c = Circle(r=50)
+        result = c.fade_shift(dx=100, dy=0, start=0, end=1)
+        assert result is c
+
+    def test_fade_shift_opacity_reaches_zero(self):
+        c = Circle(r=50)
+        c.fade_shift(dx=0, dy=0, start=0, end=1)
+        assert c.styling.opacity.at_time(1) == pytest.approx(0, abs=0.05)
+
+    def test_fade_shift_object_hidden_at_end(self):
+        c = Circle(r=50)
+        c.fade_shift(dx=0, dy=100, start=0, end=1)
+        assert not c.show.at_time(1)
+
+    def test_fade_shift_applies_displacement(self):
+        """After fade_shift the object should be displaced by (dx, dy)."""
+        c = Circle(r=50, cx=100, cy=200)
+        c.fade_shift(dx=50, dy=30, start=0, end=1)
+        cx, cy = c.c.at_time(1)
+        assert cx == pytest.approx(150)
+        assert cy == pytest.approx(230)
+
+    def test_fade_shift_no_displacement_mid_opacity(self):
+        """Opacity should be between 0 and 1 at the midpoint."""
+        c = Circle(r=50)
+        c.fade_shift(dx=0, dy=0, start=0, end=2)
+        op = c.styling.opacity.at_time(1)
+        assert 0.0 < op < 1.0
+
+    def test_fade_shift_zero_duration_hides_immediately(self):
+        """Zero-duration fade_shift should hide the object immediately."""
+        c = Circle(r=50)
+        c.fade_shift(dx=10, dy=10, start=1, end=1)
+        assert not c.show.at_time(1)
+
+
+class TestVCollectionNthFirstLast:
+    def test_nth_returns_correct_child(self):
+        c0, c1, c2 = Circle(r=10), Circle(r=20), Circle(r=30)
+        col = VCollection(c0, c1, c2)
+        assert col.nth(0) is c0
+        assert col.nth(1) is c1
+        assert col.nth(2) is c2
+
+    def test_nth_negative_index(self):
+        c0, c1, c2 = Circle(r=10), Circle(r=20), Circle(r=30)
+        col = VCollection(c0, c1, c2)
+        assert col.nth(-1) is c2
+        assert col.nth(-2) is c1
+
+    def test_nth_out_of_range_raises(self):
+        col = VCollection(Circle(r=10))
+        with pytest.raises(IndexError):
+            col.nth(5)
+
+    def test_first_returns_first_child(self):
+        c0, c1 = Circle(r=10), Circle(r=20)
+        col = VCollection(c0, c1)
+        assert col.first() is c0
+
+    def test_last_returns_last_child(self):
+        c0, c1 = Circle(r=10), Circle(r=20)
+        col = VCollection(c0, c1)
+        assert col.last() is c1
+
+    def test_first_on_empty_raises(self):
+        col = VCollection()
+        with pytest.raises(IndexError):
+            col.first()
+
+    def test_last_on_empty_raises(self):
+        col = VCollection()
+        with pytest.raises(IndexError):
+            col.last()
+
+    def test_first_last_same_object_when_single_child(self):
+        c = Circle(r=10)
+        col = VCollection(c)
+        assert col.first() is c
+        assert col.last() is c

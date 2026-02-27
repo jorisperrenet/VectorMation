@@ -673,6 +673,37 @@ class Circle(Ellipse):
         r = self.rx.at_time(time)
         return RegularPolygon(n, radius=r, cx=cx, cy=cy, angle=angle, **kwargs)
 
+    def arc_between(self, start_angle, end_angle, time=0, **kwargs):
+        """Return an Arc with the same centre and radius as this circle.
+
+        The arc spans from *start_angle* to *end_angle* (degrees, CCW from
+        right, standard math convention matching :meth:`point_at_angle`).
+
+        Parameters
+        ----------
+        start_angle, end_angle:
+            Start and end angles in degrees.
+        time:
+            Time at which to read the circle's position and radius.
+        **kwargs:
+            Extra styling keyword arguments forwarded to :class:`Arc`
+            (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        Arc
+            A new :class:`Arc` centred on this circle.
+
+        Example
+        -------
+        >>> c = Circle(r=100, cx=500, cy=300)
+        >>> arc = c.arc_between(0, 90)   # top-right quarter arc
+        """
+        cx, cy = self.c.at_time(time)
+        r = self.rx.at_time(time)
+        return Arc(cx=cx, cy=cy, r=r,
+                   start_angle=start_angle, end_angle=end_angle, **kwargs)
+
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)
         return f"<circle cx='{cx}' cy='{cy}' r='{self.rx.at_time(time)}'{self.styling.svg_style(time)} />"
@@ -1543,6 +1574,31 @@ class Text(VObject):
     def char_count(self):
         """Return the number of characters in the text string at time 0."""
         return len(self.text.at_time(0))
+
+    def word_count(self, time=0):
+        """Return the number of words in the text at the given time.
+
+        Words are defined by Python's :meth:`str.split` (splits on any
+        whitespace, ignoring leading/trailing spaces).
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read the text (default 0).
+
+        Returns
+        -------
+        int
+
+        Example
+        -------
+        >>> t = Text('hello world foo')
+        >>> t.word_count()
+        3
+        >>> Text('  ').word_count()
+        0
+        """
+        return len(self.text.at_time(time).split())
 
     def fit_to_box(self, max_width, max_height=None, time=0):
         """Adjust font_size so the text fits within the given box dimensions.

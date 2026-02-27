@@ -3719,6 +3719,75 @@ class Axes(VCollection):
                 return lbl
         return self._axis_labels[1] if len(self._axis_labels) >= 2 else None
 
+    def get_x_axis_line(self, creation=0, **kwargs):
+        """Return a Line representing the x-axis (y = 0 in math coordinates).
+
+        The line runs from the left edge to the right edge of the plot area,
+        sitting at the SVG y-coordinate corresponding to y = 0.  If y = 0 is
+        outside the current y-range the line is placed at the bottom edge.
+
+        This is useful for highlighting or animating the axis itself — for
+        example fading it in, changing its colour, or drawing it with
+        :meth:`~VObject.draw_along`.
+
+        Parameters
+        ----------
+        creation:
+            Creation time for the returned Line.
+        **kwargs:
+            Styling keyword arguments forwarded to :class:`Line`
+            (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        Line
+
+        Example
+        -------
+        >>> axes = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        >>> x_line = axes.get_x_axis_line(stroke='#FF0000', stroke_width=3)
+        """
+        style_kw = {'stroke': '#888888', 'stroke_width': 2, 'fill_opacity': 0} | kwargs
+        x1 = self.plot_x
+        x2 = self.plot_x + self.plot_width
+        y = self._baseline_y(creation)
+        return Line(x1=x1, y1=y, x2=x2, y2=y, creation=creation, **style_kw)
+
+    def get_y_axis_line(self, creation=0, **kwargs):
+        """Return a Line representing the y-axis (x = 0 in math coordinates).
+
+        The line runs from the top edge to the bottom edge of the plot area,
+        sitting at the SVG x-coordinate corresponding to x = 0.  If x = 0 is
+        outside the current x-range the line is placed at the left edge.
+
+        Parameters
+        ----------
+        creation:
+            Creation time for the returned Line.
+        **kwargs:
+            Styling keyword arguments forwarded to :class:`Line`
+            (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        Line
+
+        Example
+        -------
+        >>> axes = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        >>> y_line = axes.get_y_axis_line(stroke='#0088FF', stroke_width=3)
+        """
+        style_kw = {'stroke': '#888888', 'stroke_width': 2, 'fill_opacity': 0} | kwargs
+        y1 = self.plot_y
+        y2 = self.plot_y + self.plot_height
+        xmin = self.x_min.at_time(creation)
+        xmax = self.x_max.at_time(creation)
+        if xmin <= 0 <= xmax:
+            x = self._math_to_svg_x(0, creation)
+        else:
+            x = self.plot_x
+        return Line(x1=x, y1=y1, x2=x, y2=y2, creation=creation, **style_kw)
+
     def plot_normal(self, mean=0, std=1, color='#4FC3F7', num_points=100,
                     creation=0, fill=True, fill_opacity=0.3, **kwargs):
         """Plot a normal (Gaussian) distribution curve.

@@ -3164,7 +3164,6 @@ class TestAxesGetPlotCenter:
         """The plot centre is not the same as the math (0,0) origin."""
         ax = Axes(x_range=(-10, 10), y_range=(-10, 10))
         cx, cy = ax.get_plot_center()
-        ox, oy = ax.coords_to_point(0, 0)
         # They happen to coincide only when the range is symmetric AND the
         # plot is centred — but the method should still return the geometric
         # centre of the plot area, not the origin.
@@ -3198,7 +3197,6 @@ class TestRectangleGetDiagonalLength:
 class TestLineGetNormal:
     def test_horizontal_line_normal_is_vertical(self):
         """A right-pointing line should have an upward normal (in SVG y-down this is (0,-1))."""
-        import math
         l = Line(x1=0, y1=0, x2=10, y2=0)
         nx, ny = l.get_normal()
         # direction is (1,0), normal is (-0,1) = (0,1) but _normalize(-0,1)=(0,1)
@@ -3268,3 +3266,124 @@ class TestAxesAddTangentAt:
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
         line = ax.add_tangent_at(lambda x: x, x_val=0, stroke_width=5)
         assert line.styling.stroke_width.at_time(0) == pytest.approx(5)
+
+
+class TestCircleArcBetween:
+    def test_returns_arc_instance(self):
+        c = Circle(r=100, cx=500, cy=300)
+        arc = c.arc_between(0, 90)
+        assert isinstance(arc, Arc)
+
+    def test_arc_has_same_center(self):
+        c = Circle(r=100, cx=500, cy=300)
+        arc = c.arc_between(0, 90)
+        assert arc.cx.at_time(0) == pytest.approx(500)
+        assert arc.cy.at_time(0) == pytest.approx(300)
+
+    def test_arc_has_same_radius(self):
+        c = Circle(r=80, cx=200, cy=400)
+        arc = c.arc_between(45, 135)
+        assert arc.r.at_time(0) == pytest.approx(80)
+
+    def test_arc_angles_preserved(self):
+        c = Circle(r=100, cx=960, cy=540)
+        arc = c.arc_between(30, 150)
+        assert arc.start_angle.at_time(0) == pytest.approx(30)
+        assert arc.end_angle.at_time(0) == pytest.approx(150)
+
+    def test_arc_between_accepts_kwargs(self):
+        c = Circle(r=100)
+        arc = c.arc_between(0, 180, stroke_width=5)
+        assert arc.styling.stroke_width.at_time(0) == pytest.approx(5)
+
+    def test_arc_between_respects_time(self):
+        """arc_between reads position/radius at the specified time."""
+        c = Circle(r=50, cx=100, cy=100)
+        c.shift(dx=200, dy=100, start_time=1)
+        arc = c.arc_between(0, 90, time=1)
+        assert arc.cx.at_time(0) == pytest.approx(300)
+        assert arc.cy.at_time(0) == pytest.approx(200)
+
+
+class TestTextWordCount:
+    def test_basic_word_count(self):
+        t = Text('hello world foo')
+        assert t.word_count() == 3
+
+    def test_single_word(self):
+        assert Text('word').word_count() == 1
+
+    def test_empty_string(self):
+        assert Text('').word_count() == 0
+
+    def test_whitespace_only(self):
+        assert Text('   ').word_count() == 0
+
+    def test_multiple_spaces(self):
+        assert Text('hello   world').word_count() == 2
+
+    def test_default_time_zero(self):
+        t = Text('one two three four')
+        assert t.word_count() == 4
+
+    def test_word_count_at_time(self):
+        """word_count respects the time parameter."""
+        t = Text('one two')
+        # Simulate text change at time 2
+        t.text.set_onward(2, 'alpha beta gamma delta')
+        assert t.word_count(time=0) == 2
+        assert t.word_count(time=2) == 4
+
+
+class TestAxesAxisLines:
+    def test_get_x_axis_line_returns_line(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        line = ax.get_x_axis_line()
+        assert isinstance(line, Line)
+
+    def test_get_y_axis_line_returns_line(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        line = ax.get_y_axis_line()
+        assert isinstance(line, Line)
+
+    def test_x_axis_line_is_horizontal(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        line = ax.get_x_axis_line()
+        y1 = line.p1.at_time(0)[1]
+        y2 = line.p2.at_time(0)[1]
+        assert y1 == pytest.approx(y2)
+
+    def test_y_axis_line_is_vertical(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        line = ax.get_y_axis_line()
+        x1 = line.p1.at_time(0)[0]
+        x2 = line.p2.at_time(0)[0]
+        assert x1 == pytest.approx(x2)
+
+    def test_x_axis_line_spans_plot_width(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3), x=260, plot_width=1400)
+        line = ax.get_x_axis_line()
+        x1 = line.p1.at_time(0)[0]
+        x2 = line.p2.at_time(0)[0]
+        assert x1 == pytest.approx(260)
+        assert x2 == pytest.approx(1660)
+
+    def test_y_axis_line_at_zero_within_range(self):
+        """When x=0 is in range the y-axis line sits at x=0 in math coords."""
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3), x=260, plot_width=1400)
+        line = ax.get_y_axis_line()
+        x_val = line.p1.at_time(0)[0]
+        # x=0 is the midpoint of [-5, 5], so SVG x = 260 + 700 = 960
+        assert x_val == pytest.approx(960)
+
+    def test_y_axis_line_at_left_edge_when_zero_out_of_range(self):
+        """When x=0 is outside x_range, line falls back to the left plot edge."""
+        ax = Axes(x_range=(1, 10), y_range=(-3, 3), x=260, plot_width=1400)
+        line = ax.get_y_axis_line()
+        x_val = line.p1.at_time(0)[0]
+        assert x_val == pytest.approx(260)
+
+    def test_get_x_axis_line_accepts_styling(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        line = ax.get_x_axis_line(stroke='#FF0000', stroke_width=4)
+        assert line.styling.stroke_width.at_time(0) == pytest.approx(4)

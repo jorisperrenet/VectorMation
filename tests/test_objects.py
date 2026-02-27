@@ -2133,8 +2133,8 @@ class TestAnimationMethods:
     def test_move_to_animated(self):
         c = Circle(r=50, cx=100, cy=100)
         c.move_to(500, 400, start_time=0, end_time=1, easing=easings.linear)
-        cx0, cy0 = c.center(0)
-        cx1, cy1 = c.center(1)
+        cx0, _ = c.center(0)
+        cx1, _ = c.center(1)
         assert cx0 == pytest.approx(100, abs=1)
         assert cx1 == pytest.approx(500, abs=1)
 
@@ -3447,8 +3447,8 @@ class TestFunctionGraphQuery:
 
     def test_get_point_from_x_endpoints(self):
         fg = FunctionGraph(lambda x: x * x, x_range=(-2, 2))
-        sx0, sy0 = fg.get_point_from_x(-2)
-        sx1, sy1 = fg.get_point_from_x(2)
+        _, sy0 = fg.get_point_from_x(-2)
+        _, sy1 = fg.get_point_from_x(2)
         # Both endpoints should have the same y (since (-2)^2 == 2^2)
         assert sy0 == pytest.approx(sy1, abs=1)
 
@@ -3803,7 +3803,6 @@ class TestStaggerRandom:
 
     def test_different_seeds_give_different_order(self):
         # With enough children, different seeds should produce different orderings
-        circles = [Circle(r=i * 10 + 10) for i in range(5)]
         g1 = VCollection(*[Circle(r=i * 10 + 10) for i in range(5)])
         g2 = VCollection(*[Circle(r=i * 10 + 10) for i in range(5)])
         g1.stagger_random('fadein', start=0, end=5, seed=1)
@@ -5503,8 +5502,7 @@ class TestTableBatchOps:
 
 class TestSurfaceCheckerboard:
     def test_set_checkerboard(self):
-        from vectormation._threed import ThreeDAxes, Surface
-        axes = ThreeDAxes()
+        from vectormation._threed import Surface
         s = Surface(lambda u, v: (u, v, 0), u_range=(0, 1), v_range=(0, 1))
         s.set_checkerboard('#FF0000', '#0000FF')
         assert s._checkerboard_colors == ('#FF0000', '#0000FF')

@@ -626,6 +626,38 @@ class VObject(ABC):  # Vector Object
             self.shift(dx=dx, dy=dy, start_time=start, end_time=end, easing=easing)
         return self
 
+    def fade_shift(self, dx=0, dy=0, start: float = 0, end: float = 1, easing=easings.smooth):
+        """Simultaneously fade out while shifting by (dx, dy) over [start, end].
+
+        Animates opacity from its current value to 0 while shifting the object
+        by (dx, dy).  The object is hidden at *end*.  Useful as an exit animation
+        that moves an element off-screen while it disappears.
+
+        Parameters
+        ----------
+        dx, dy:
+            Total pixel displacement to apply over the animation.
+        start, end:
+            Time interval for the animation.
+        easing:
+            Easing function (default ``easings.smooth``).
+
+        Returns
+        -------
+        self
+        """
+        start_val = self.styling.opacity.at_time(start)
+        dur = end - start
+        if dur <= 0:
+            self._hide_from(start)
+            return self
+        s, e = start, end
+        self.styling.opacity.set(s, e,
+            lambda t, _s=s, _d=dur, _sv=start_val: _sv * (1 - easing((t - _s) / _d)))
+        self.shift(dx=dx, dy=dy, start_time=s, end_time=e, easing=easing)
+        self._hide_from(e)
+        return self
+
     def fadeout(self, start: float = 0, end: float = 1, shift_dir=None, shift_amount=50,
                 change_existence=True, easing=easings.smooth):
         """Animate opacity from current value to 0 over [start, end].
@@ -2560,6 +2592,59 @@ class VCollection:
                 f"child index {index} out of range for collection with {n} object(s)"
             )
         return self.objects[index]
+
+    def nth(self, n):
+        """Return the nth child (0-indexed).  Negative indices are supported.
+
+        This is a convenience alias for :meth:`get_child` with a slightly
+        shorter name, matching the ``first()`` / ``last()`` naming style.
+
+        Parameters
+        ----------
+        n:
+            Integer index.  Negative values count from the end.
+
+        Returns
+        -------
+        The child at position *n*.
+
+        Raises
+        ------
+        IndexError
+            When *n* is out of range.
+
+        Example
+        -------
+        >>> col = VCollection(Circle(), Rectangle(100, 50), Dot())
+        >>> col.nth(0)   # first child
+        >>> col.nth(2)   # third child
+        >>> col.nth(-1)  # last child
+        """
+        return self.get_child(n)
+
+    def first(self):
+        """Return the first child object.
+
+        Raises :exc:`IndexError` if the collection is empty.
+
+        Example
+        -------
+        >>> col = VCollection(Circle(), Rectangle(100, 50))
+        >>> col.first()  # same as col.get_child(0)
+        """
+        return self.get_child(0)
+
+    def last(self):
+        """Return the last child object.
+
+        Raises :exc:`IndexError` if the collection is empty.
+
+        Example
+        -------
+        >>> col = VCollection(Circle(), Rectangle(100, 50))
+        >>> col.last()  # same as col.get_child(-1)
+        """
+        return self.get_child(-1)
 
     def _delegate(self, method, *args, **kwargs):
         """Call method on each child object, return self."""
