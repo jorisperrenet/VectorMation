@@ -17,7 +17,6 @@ from vectormation._axes_helpers import (
     _get_arrow, _get_dynamic_object, _get_tex_object,
 )
 
-
 class _AxesExtMixin:
     """Advanced annotation and analysis methods for Axes, mixed in at definition time."""
 
@@ -2149,5 +2148,4 @@ class _AxesExtMixin:
             yn, yx = self.y_min.at_time(0), self.y_max.at_time(0)
             return f'Axes(x=[{xn:.1f}, {xx:.1f}], y=[{yn:.1f}, {yx:.1f}])'
         return f'Axes(x=[{xn:.1f}, {xx:.1f}])'
-
 

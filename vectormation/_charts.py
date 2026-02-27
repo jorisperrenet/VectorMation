@@ -14,11 +14,9 @@ from vectormation._shapes import (
     Text, Path, Arc, Wedge,
 )
 
-
 def _get_axes():
     from vectormation._axes import Axes
     return Axes
-
 
 class PieChart(VCollection):
     """Pie chart visualization using Wedge sectors."""
@@ -143,7 +141,6 @@ class PieChart(VCollection):
             self.objects.append(label)
             angle += sweep
         return self
-
 
 class DonutChart(VCollection):
     """Donut (ring) chart — PieChart with a hollow center."""
@@ -270,7 +267,6 @@ class DonutChart(VCollection):
 
             sector.d.set(start, end, _make_d, stay=True)
         return self
-
 
 class BarChart(VCollection):
     """Simple bar chart visualization."""
@@ -618,8 +614,6 @@ class BarChart(VCollection):
         self.values = [self.values[i] for i in new_order]
         return self
 
-
-
 class PolarAxes(VCollection):
     """Polar coordinate system with radial gridlines and angle markers."""
     def __init__(self, cx=960, cy=540, max_radius=400, r_range=(0, 5),
@@ -691,10 +685,6 @@ class PolarAxes(VCollection):
         self.objects.append(curve)
         return curve
 
-
-
-
-
 class Legend(VCollection):
     """Chart legend with colored swatches and labels."""
     def __init__(self, items, x=100, y=100, swatch_size=16, spacing=8,
@@ -722,7 +712,6 @@ class Legend(VCollection):
 
     def __repr__(self):
         return f'Legend({self._n_items} items)'
-
 
 class RadarChart(VCollection):
     """Radar/spider chart visualization."""
@@ -789,7 +778,6 @@ class RadarChart(VCollection):
     def __repr__(self):
         return 'RadarChart()'
 
-
 class ProgressBar(VCollection):
     """Animated progress bar that fills from left to right."""
     def __init__(self, width=400, height=30, x=760, y=520,
@@ -824,7 +812,6 @@ class ProgressBar(VCollection):
 
     def __repr__(self):
         return f'ProgressBar({self.get_progress():.0%})'
-
 
 class WaterfallChart(VCollection):
     """Waterfall chart showing cumulative effect of positive/negative values."""
@@ -914,7 +901,6 @@ class WaterfallChart(VCollection):
     def __repr__(self):
         return 'WaterfallChart()'
 
-
 class GanttChart(VCollection):
     """Gantt chart for project timelines."""
     def __init__(self, tasks, x=100, y=80, width=1200, height=None,
@@ -982,7 +968,6 @@ class GanttChart(VCollection):
 
     def __repr__(self):
         return 'GanttChart()'
-
 
 class SankeyDiagram(VCollection):
     """Sankey flow diagram showing flows between nodes."""
@@ -1052,7 +1037,6 @@ class SankeyDiagram(VCollection):
     def __repr__(self):
         return 'SankeyDiagram()'
 
-
 class FunnelChart(VCollection):
     """Funnel chart showing progressive narrowing stages."""
     def __init__(self, stages, x=100, y=100, width=600, height=500,
@@ -1086,7 +1070,6 @@ class FunnelChart(VCollection):
 
     def __repr__(self):
         return 'FunnelChart()'
-
 
 class TreeMap(VCollection):
     """Treemap visualization using squarified layout."""
@@ -1179,7 +1162,6 @@ class TreeMap(VCollection):
                 cw -= strip_w
         return result
 
-
 class GaugeChart(VCollection):
     """Speedometer / gauge chart."""
     def __init__(self, value, min_val=0, max_val=100, x=960, y=540,
@@ -1271,7 +1253,6 @@ class GaugeChart(VCollection):
                 return f'#{r:02x}{g:02x}{b:02x}'
         return colors[-1][0]
 
-
 class SparkLine(VObject):
     """Minimal inline chart (sparkline) rendered as a single SVG path."""
     def __init__(self, data, x=100, y=100, width=120, height=30,
@@ -1330,8 +1311,6 @@ class SparkLine(VObject):
     def __repr__(self):
         return 'SparkLine()'
 
-
-
 class KPICard(VCollection):
     """Metric card showing a title, large value, optional subtitle and trend sparkline."""
     def __init__(self, title, value, subtitle=None, trend_data=None,
@@ -1377,7 +1356,6 @@ class KPICard(VCollection):
 
     def __repr__(self):
         return 'KPICard()'
-
 
 class BulletChart(VCollection):
     """Bullet chart: qualitative ranges + actual bar + target marker."""
@@ -1427,7 +1405,6 @@ class BulletChart(VCollection):
     def __repr__(self):
         return 'BulletChart()'
 
-
 class CalendarHeatmap(VCollection):
     """Grid heatmap like a GitHub contribution graph."""
     def __init__(self, data, rows=7, cols=52, x=100, y=100,
@@ -1466,7 +1443,6 @@ class CalendarHeatmap(VCollection):
 
     def __repr__(self):
         return 'CalendarHeatmap()'
-
 
 class WaffleChart(VCollection):
     """Waffle chart: grid of colored squares showing category proportions."""
@@ -1518,7 +1494,6 @@ class WaffleChart(VCollection):
     def __repr__(self):
         return 'WaffleChart()'
 
-
 class CircularProgressBar(VCollection):
     """Circular progress indicator with percentage text."""
     def __init__(self, value, x=960, y=540, radius=80, stroke_width=12,
@@ -1549,7 +1524,6 @@ class CircularProgressBar(VCollection):
 
     def __repr__(self):
         return 'CircularProgressBar()'
-
 
 class Scoreboard(VCollection):
     """Score/metric display panel."""
@@ -1601,7 +1575,6 @@ class Scoreboard(VCollection):
 
     def __repr__(self):
         return f'Scoreboard({self._n_entries} rows)'
-
 
 class MatrixHeatmap(VCollection):
     """Labeled matrix heatmap with colored cells."""
@@ -1665,7 +1638,6 @@ class MatrixHeatmap(VCollection):
 
     def __repr__(self):
         return 'MatrixHeatmap()'
-
 
 class BoxPlot(VCollection):
     """Box-and-whisker plot for one or more data groups."""
@@ -1734,7 +1706,6 @@ class BoxPlot(VCollection):
     def __repr__(self):
         return 'BoxPlot()'
 
-
 class SampleSpace(VCollection):
     """Rectangle representing a probability sample space, divisible into regions."""
     def __init__(self, width=500, height=400, x=710, y=340, creation: float = 0, z: float = 0, **styling_kwargs):
@@ -1795,6 +1766,4 @@ class SampleSpace(VCollection):
                     _label_text(label, rcx, rcy, 24,
                                 creation=creation, z=z + 0.2))
         return self
-
-
 

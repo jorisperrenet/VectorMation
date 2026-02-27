@@ -1813,7 +1813,6 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(line)
         return line
 
-
 class Graph(Axes):
     """Axes with an initial function curve plotted."""
     def __init__(self, func, x_range=(-5, 5), y_range=None, num_points=200,
@@ -1842,7 +1841,6 @@ class Graph(Axes):
     def __repr__(self):
         xn, xx = self.x_min.at_time(0), self.x_max.at_time(0)
         return f'Graph(x=[{xn:.1f}, {xx:.1f}])'
-
 
 class NumberPlane(VCollection):
     """Cartesian coordinate plane with background grid lines."""
@@ -1993,9 +1991,6 @@ class NumberPlane(VCollection):
 
         self.objects = new_objects
         return self
-
-
-
 
 class ComplexPlane(Axes):
     """Complex number plane with Re/Im axes."""
