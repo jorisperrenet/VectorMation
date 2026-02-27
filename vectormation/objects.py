@@ -66,7 +66,7 @@ from vectormation._svg_utils import (
     ZoomedInset,
     Union, Difference, Intersection, Exclusion,
     brace_between_points,
-    ArrowVectorField, StreamLines,
+    ArrowVectorField, StreamLines, Cutout,
     from_svg, from_svg_file, _parse_inline_style,
 )
 

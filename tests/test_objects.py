@@ -13911,3 +13911,34 @@ class TestHomotopy:
         p.homotopy(lambda x, y, t: (x + 200 * t, y), start=0, end=2)
         pts = p.snap_points(1)
         assert abs(pts[0][0] - 100) < 1  # halfway at t=1
+
+# ── Cutout ──────────────────────────────────────────────────────────────────
+
+class TestCutout:
+    def test_basic(self):
+        from vectormation.objects import Cutout
+        c = Cutout(hole_x=100, hole_y=100, hole_w=200, hole_h=200)
+        svg = c.to_svg(0)
+        assert 'fill-rule' in svg
+        assert 'evenodd' in svg
+
+    def test_surround(self):
+        from vectormation.objects import Cutout
+        rect = Rectangle(200, 100, x=400, y=300)
+        c = Cutout()
+        c.surround(rect, buff=10)
+        assert abs(c.hole_x.at_time(0) - 390) < 1
+        assert abs(c.hole_y.at_time(0) - 290) < 1
+
+    def test_animate_hole(self):
+        from vectormation.objects import Cutout
+        c = Cutout(hole_x=100, hole_y=100, hole_w=200, hole_h=200)
+        c.set_hole(x=500, y=300, start=0, end=1)
+        assert abs(c.hole_x.at_time(1) - 500) < 1
+        assert abs(c.hole_y.at_time(1) - 300) < 1
+
+    def test_rounded_corners(self):
+        from vectormation.objects import Cutout
+        c = Cutout(hole_x=100, hole_y=100, hole_w=200, hole_h=200, rx=10, ry=10)
+        svg = c.to_svg(0)
+        assert 'a10,10' in svg  # arc commands for rounded corners

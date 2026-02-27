@@ -755,3 +755,80 @@ class StreamLines(VCollection):
                 y += y_step
             x += x_step
         super().__init__(*objects, creation=creation, z=z)
+
+
+class Cutout(VObject):
+    """Full-screen overlay with a rectangular cutout (spotlight effect).
+
+    The overlay fills the canvas with a semi-transparent color and cuts out
+    a rectangular hole at the specified position, drawing focus to the content
+    underneath. The hole position and size can be animated.
+    """
+    def __init__(self, hole_x=660, hole_y=340, hole_w=600, hole_h=400,
+                 color='#000', opacity=0.7, rx=0, ry=0,
+                 creation: float = 0, z: float = 99, **styling_kwargs):
+        super().__init__(creation=creation, z=z)
+        self.hole_x = attributes.Real(creation, hole_x)
+        self.hole_y = attributes.Real(creation, hole_y)
+        self.hole_w = attributes.Real(creation, hole_w)
+        self.hole_h = attributes.Real(creation, hole_h)
+        self.rx = rx
+        self.ry = ry
+        self.styling = style.Styling(
+            styling_kwargs, creation=creation,
+            fill=color, fill_opacity=opacity, stroke_width=0,
+        )
+
+    def _extra_attrs(self):
+        return [self.hole_x, self.hole_y, self.hole_w, self.hole_h]
+
+    def _shift_reals(self):
+        return [(self.hole_x, self.hole_y)]
+
+    def snap_points(self, time):
+        hx = self.hole_x.at_time(time)
+        hy = self.hole_y.at_time(time)
+        return [(hx, hy)]
+
+    def bbox(self, time=0):
+        return (0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+
+    def path(self, time):
+        return ''
+
+    def set_hole(self, x=None, y=None, w=None, h=None,
+                 start=0, end=None, easing=easings.smooth):
+        """Animate hole position/size."""
+        from vectormation._base_helpers import _set_attr
+        if x is not None: _set_attr(self.hole_x, start, end, x, easing)
+        if y is not None: _set_attr(self.hole_y, start, end, y, easing)
+        if w is not None: _set_attr(self.hole_w, start, end, w, easing)
+        if h is not None: _set_attr(self.hole_h, start, end, h, easing)
+        return self
+
+    def surround(self, obj, buff=20, start=0, end=None, easing=easings.smooth):
+        """Move the cutout hole to surround a VObject's bounding box."""
+        bx, by, bw, bh = obj.bbox(start)
+        return self.set_hole(bx - buff, by - buff, bw + 2*buff, bh + 2*buff,
+                             start=start, end=end, easing=easing)
+
+    def to_svg(self, time):
+        hx = self.hole_x.at_time(time)
+        hy = self.hole_y.at_time(time)
+        hw = self.hole_w.at_time(time)
+        hh = self.hole_h.at_time(time)
+        # Outer rect (full canvas) + inner rect (hole), even-odd fill rule
+        d = (f'M0,0 H{CANVAS_WIDTH} V{CANVAS_HEIGHT} H0 Z '
+             f'M{hx},{hy} h{hw} v{hh} h{-hw} Z')
+        if self.rx or self.ry:
+            rx, ry = self.rx, self.ry
+            d = (f'M0,0 H{CANVAS_WIDTH} V{CANVAS_HEIGHT} H0 Z '
+                 f'M{hx+rx},{hy} h{hw-2*rx} '
+                 f'a{rx},{ry} 0 0 1 {rx},{ry} v{hh-2*ry} '
+                 f'a{rx},{ry} 0 0 1 {-rx},{ry} h{-(hw-2*rx)} '
+                 f'a{rx},{ry} 0 0 1 {-rx},{-ry} v{-(hh-2*ry)} '
+                 f'a{rx},{ry} 0 0 1 {rx},{-ry} Z')
+        return f"<path d='{d}' fill-rule='evenodd'{self.styling.svg_style(time)} />"
+
+    def __repr__(self):
+        return f'Cutout(hole=({self.hole_x.at_time(0)}, {self.hole_y.at_time(0)}))'
