@@ -6709,34 +6709,6 @@ class VCollection:
         return self
 
 
-    def interleave(self, other_collection):
-        """Interleave children from this collection with children from another.
-
-        Returns a new VCollection with alternating children:
-        ``[self[0], other[0], self[1], other[1], ...]``.
-        If one collection is longer, the remaining children are appended.
-        Neither original collection is modified.
-
-        Parameters
-        ----------
-        other_collection:
-            Another VCollection (or VGroup) whose children to interleave with.
-
-        Returns
-        -------
-        VCollection
-            A new collection with the interleaved children.
-        """
-        result = []
-        a, b = self.objects, other_collection.objects
-        max_len = max(len(a), len(b))
-        for i in range(max_len):
-            if i < len(a):
-                result.append(a[i])
-            if i < len(b):
-                result.append(b[i])
-        return VCollection(*result)
-
     def label_children(self, labels, direction=UP, buff=20, font_size=None, creation=0):
         """Create Text labels positioned relative to each child.
 
