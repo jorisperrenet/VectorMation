@@ -45,26 +45,32 @@ class Array(VCollection):
     def __repr__(self):
         return f'Array({len(self._cells)} cells)'
 
+    def _check_index(self, index):
+        n = len(self._cells)
+        if index < 0 or index >= n:
+            raise IndexError(f"Array index {index} out of range (0..{n - 1})")
+
     def highlight_cell(self, index, start=0, end=1, color='#58C4DD', easing=easings.there_and_back):
         """Flash-highlight a cell by index."""
-        if 0 <= index < len(self._cells):
-            self._cells[index].flash(start, end, color=color, easing=easing)
+        self._check_index(index)
+        self._cells[index].flash(start, end, color=color, easing=easing)
         return self
 
     def swap_cells(self, i, j, start=0, end=1, easing=easings.smooth):
         """Animate swapping the values at indices i and j."""
-        if 0 <= i < len(self._labels) and 0 <= j < len(self._labels):
-            li, lj = self._labels[i], self._labels[j]
-            dx = lj.center(start)[0] - li.center(start)[0]
-            li.shift(dx=dx, start=start, end=end, easing=easing)
-            lj.shift(dx=-dx, start=start, end=end, easing=easing)
-            self._labels[i], self._labels[j] = self._labels[j], self._labels[i]
+        self._check_index(i)
+        self._check_index(j)
+        li, lj = self._labels[i], self._labels[j]
+        dx = lj.center(start)[0] - li.center(start)[0]
+        li.shift(dx=dx, start=start, end=end, easing=easing)
+        lj.shift(dx=-dx, start=start, end=end, easing=easing)
+        self._labels[i], self._labels[j] = self._labels[j], self._labels[i]
         return self
 
     def set_value(self, index, value, start=0, end=0.5):
         """Animate changing a cell's displayed value."""
-        if 0 <= index < len(self._labels):
-            self._labels[index].set_text(start, end, str(value))
+        self._check_index(index)
+        self._labels[index].set_text(start, end, str(value))
         return self
 
     def sort(self, start=0, end=2, easing=easings.smooth, delay=0.15):

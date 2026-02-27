@@ -36,6 +36,7 @@ from vectormation.objects import (
     PeriodicTable, BohrAtom,
     Countdown, Filmstrip, MorphObject, Title, NumberPlane,
     NeuralNetwork, Pendulum, StandingWave,
+    Array, Stack, Queue, LinkedList, BinaryTree,
     ArrayViz, LinkedListViz, StackViz, QueueViz, LED,
     CANVAS_WIDTH, CANVAS_HEIGHT,
     pi_format, pi_ticks,
@@ -14588,3 +14589,55 @@ class TestTableRemoveColumn:
         result = t.remove_column(0, start=0, animate=True)
         assert result is t
         assert t.cols == 1
+
+
+class TestArrayIndexValidation:
+    def test_highlight_cell_raises_on_bad_index(self):
+        a = Array([1, 2, 3])
+        import pytest
+        with pytest.raises(IndexError):
+            a.highlight_cell(5)
+
+    def test_swap_cells_raises_on_bad_index(self):
+        a = Array([1, 2, 3])
+        import pytest
+        with pytest.raises(IndexError):
+            a.swap_cells(0, 10)
+
+    def test_set_value_raises_on_bad_index(self):
+        a = Array([1, 2, 3])
+        import pytest
+        with pytest.raises(IndexError):
+            a.set_value(5, 99)
+
+    def test_highlight_cell_valid_index(self):
+        a = Array([10, 20, 30])
+        result = a.highlight_cell(1)
+        assert result is a
+
+    def test_swap_cells_valid_indices(self):
+        a = Array([10, 20, 30])
+        result = a.swap_cells(0, 2)
+        assert result is a
+
+    def test_set_value_valid_index(self):
+        a = Array([10, 20, 30])
+        result = a.set_value(1, 99)
+        assert result is a
+
+
+class TestBarChartGetBarsRenamed:
+    def test_get_bars_default(self):
+        bc = BarChart([10, 20, 30])
+        bars = bc.get_bars()
+        assert len(bars.objects) == 3
+
+    def test_get_bars_sliced(self):
+        bc = BarChart([10, 20, 30, 40])
+        bars = bc.get_bars(start_idx=1, end_idx=3)
+        assert len(bars.objects) == 2
+
+    def test_sort_bars_alias(self):
+        bc = BarChart([30, 10, 20])
+        result = bc.sort_bars()
+        assert result is bc

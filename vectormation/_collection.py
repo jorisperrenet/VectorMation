@@ -746,12 +746,12 @@ class VCollection(_BBoxMethodsMixin):
         # Find the target value from the collection's bbox
         gx, gy, gw, gh = self.bbox(start)
         targets = {
-            'left': lambda bx, by, bw, bh: (gx - bx, 0),
-            'right': lambda bx, by, bw, bh: ((gx + gw) - (bx + bw), 0),
-            'top': lambda bx, by, bw, bh: (0, gy - by),
-            'bottom': lambda bx, by, bw, bh: (0, (gy + gh) - (by + bh)),
-            'center_x': lambda bx, by, bw, bh: (gx + gw / 2 - (bx + bw / 2), 0),
-            'center_y': lambda bx, by, bw, bh: (0, gy + gh / 2 - (by + bh / 2)),
+            'left': lambda bx, _y, _w, _h: (gx - bx, 0),
+            'right': lambda bx, _y, bw, _h: ((gx + gw) - (bx + bw), 0),
+            'top': lambda _x, by, _w, _h: (0, gy - by),
+            'bottom': lambda _x, by, _w, bh: (0, (gy + gh) - (by + bh)),
+            'center_x': lambda bx, _y, bw, _h: (gx + gw / 2 - (bx + bw / 2), 0),
+            'center_y': lambda _x, by, _w, bh: (0, gy + gh / 2 - (by + bh / 2)),
         }
         func = targets.get(edge)
         if func is None:
@@ -1362,7 +1362,7 @@ class VCollection(_BBoxMethodsMixin):
             def _dy(t, _s=_cs, _d=_cd, _h=_h, _e=easing):
                 p = _e((t - _s) / _d)
                 return -_h * (1 - p)
-            for _xa, ya in obj._shift_reals():
+            for _, ya in obj._shift_reals():
                 ya.add(cs, ce, _dy, stay=True)
             for c in obj._shift_coors():
                 c.add(cs, ce, lambda t, _f=_dy: (0, _f(t)), stay=True)
