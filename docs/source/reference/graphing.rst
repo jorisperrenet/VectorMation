@@ -24,13 +24,13 @@ Graph
 
    .. rubric:: Adding Curves
 
-   .. py:method:: add_function(func, **styling)
+   .. py:method:: add_function(func, label=None, label_direction='up', num_points=200, x_range=None, **styling)
 
       Add another function curve to the plot. Returns a :py:class:`Path` object.
 
-   .. py:method:: plot(func, num_points=200, **styling)
+   .. py:method:: plot(func, label=None, label_direction='up', num_points=200, x_range=None, **styling)
 
-      Plot a function. Returns a :py:class:`Path` object.
+      Plot a function (alias for :py:meth:`add_function`). Returns a :py:class:`Path` object.
 
    .. py:method:: plot_line_graph(x_values, y_values, **styling)
 
@@ -38,13 +38,13 @@ Graph
 
    .. rubric:: Coordinate Conversion
 
-   .. py:method:: coords_to_point(x, y)
+   .. py:method:: coords_to_point(x, y, time=0)
 
       Convert math coordinates to SVG coordinates.
 
       :returns: ``(svg_x, svg_y)``
 
-   .. py:method:: input_to_graph_point(x, func)
+   .. py:method:: input_to_graph_point(x, func, time=0)
 
       Get the SVG point on a function at *x*.
 

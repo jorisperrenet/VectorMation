@@ -271,7 +271,7 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Shimmer the fill — briefly tints toward white and back.
 
-   .. py:method:: swing(start=0, end=1, amplitude=15, damping=3, easing=smooth)
+   .. py:method:: swing(start=0, end=1, amplitude=15, cx=None, cy=None, easing=smooth)
 
       Single damped pendulum swing.
 
@@ -291,7 +291,7 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Briefly flash a fill color (uses ``duration``).
 
-   .. py:method:: pulse_outline(start=0, end=1, color='#FFFF00', stroke_width=4, easing=smooth)
+   .. py:method:: pulse_outline(start=0, end=1, color='#FFFF00', max_width=8, cycles=2, easing=smooth)
 
       Pulsating outline glow.
 
@@ -303,7 +303,7 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Gentle continuous breathing — steady scale oscillation.
 
-   .. py:method:: heartbeat(start=0, end=1, speed=1.5, scale=1.1, easing=smooth)
+   .. py:method:: heartbeat(start=0, end=1, beats=3, scale_factor=1.3, easing=smooth)
 
       Heartbeat-style double-pulse.
 

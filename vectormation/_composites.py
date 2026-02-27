@@ -2191,7 +2191,7 @@ class Axes(VCollection):
         self._add_plot_obj(group)
         return group
 
-    def add_marked_region(self, x1, x2, color='#FFFF00', opacity=0.15, creation=0, z=0):
+    def add_marked_region(self, x1, x2, color='#FFFF00', opacity=0.2, creation=0, z=0):
         """Highlight a vertical region on the axes between x1 and x2.
 
         Returns the Rectangle highlight.
@@ -2607,7 +2607,7 @@ class Axes(VCollection):
         self._add_plot_obj(rect)
         return rect
 
-    def add_horizontal_band(self, y1, y2, color='#FFFF00', opacity=0.15, creation=0):
+    def add_horizontal_band(self, y1, y2, color='#FFFF00', opacity=0.2, creation=0):
         """Add a shaded horizontal band between y-values *y1* and *y2*.
 
         The band spans the full x-range of the axes and respects animated
@@ -9164,7 +9164,7 @@ class Code(VCollection):
     def __repr__(self):
         return f'Code({self._num_lines} lines, lang={self._language!r})'
 
-    def highlight_lines(self, line_nums, start=0, end=1, color='#FFFF00', opacity=0.15,
+    def highlight_lines(self, line_nums, start=0, end=1, color='#FFFF00', opacity=0.2,
                         easing=easings.there_and_back):
         """Highlight specific code lines with a colored overlay.
         line_nums: int or list of 1-based line numbers.
