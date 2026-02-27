@@ -1464,7 +1464,7 @@ class Axes(VCollection):
                 continue
             if ya == 0.0:
                 # Exact zero at left endpoint (avoid double-counting with previous interval)
-                if i == 0 or (ys[i - 1] is not None and ys[i - 1] * ya <= 0):
+                if i == 0 or ys[i - 1] is None or ys[i - 1] != 0.0:
                     zeros.append((xa, 0.0))
                 continue
             if ya * yb >= 0:
@@ -1493,7 +1493,7 @@ class Axes(VCollection):
             zeros.append(((lo + hi) * 0.5, 0.0))
         # Handle exact zero at final sample point
         if ys[-1] == 0.0 and n > 0:
-            if ys[-2] is not None and ys[-2] * ys[-1] <= 0:
+            if ys[-2] is None or ys[-2] != 0.0:
                 zeros.append((xs[-1], 0.0))
         zeros.sort(key=lambda p: p[0])
         return zeros

@@ -121,29 +121,6 @@ class Polygon(VObject):
         """Return the polygon's area (alias for area())."""
         return self.area(time)
 
-    def is_convex(self, time=0):
-        """Return True if this polygon is convex."""
-        pts = self.get_vertices(time)
-        n = len(pts)
-        if n < 3:
-            return True
-        sign = None
-        for i in range(n):
-            x1, y1 = pts[i]
-            x2, y2 = pts[(i + 1) % n]
-            x3, y3 = pts[(i + 2) % n]
-            cross = (x2 - x1) * (y3 - y2) - (y2 - y1) * (x3 - x2)
-            if cross != 0:
-                s = cross > 0
-                if sign is None:
-                    sign = s
-                elif s != sign:
-                    return False
-        return True
-
-    def __repr__(self):
-        return f'Polygon(n={len(self.vertices)})'
-
     def is_regular(self, tol=1e-3, time=0):
         """Return True if all edges have the same length (within tolerance).
 
@@ -1018,11 +995,6 @@ class Rectangle(VObject):
 
     def get_size(self, time=0):
         return (self.width.at_time(time), self.height.at_time(time))
-
-    def __repr__(self):
-        w = self.width.at_time(0)
-        h = self.height.at_time(0)
-        return f'Rectangle({w:.0f}x{h:.0f})'
 
     @classmethod
     def square(cls, side, **kwargs):

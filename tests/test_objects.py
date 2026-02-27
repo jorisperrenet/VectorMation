@@ -7057,7 +7057,7 @@ class TestAxesFunctionMaxMin:
         """sin(x) has min ~-1 at x=3*pi/2 in [pi, 2*pi]."""
         import math
         ax = Axes(x_range=(0, 7), y_range=(-1, 1))
-        x, y = ax.get_function_min(math.sin, math.pi, 2 * math.pi)
+        _, y = ax.get_function_min(math.sin, math.pi, 2 * math.pi)
         assert y == pytest.approx(-1.0, abs=0.01)
 
 

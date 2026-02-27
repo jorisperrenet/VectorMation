@@ -1203,13 +1203,13 @@ class VObject(ABC):  # Vector Object
         buff = buff if buff is not None else MED_SMALL_BUFF
         dir_name = _DIR_NAMES.get(direction, 'right')
         # Snapshot the initial center of self so we can compute deltas
-        init_cx, init_cy = self.center(start)
-        _init_cx, _init_cy = init_cx, init_cy
+        _init_cx, _init_cy = self.center(start)
+        _init_dx = self.styling.dx.at_time(start)
+        _init_dy = self.styling.dy.at_time(start)
         _dir = dir_name
         _buff = buff
         def _update(obj, t):
             mx, my, mw, mh = obj.bbox(t)
-            mcx, mcy = mx + mw / 2, my + mh / 2
             ox, oy, ow, oh = other.bbox(t)
             ocx, ocy = ox + ow / 2, oy + oh / 2
             targets = {
@@ -1219,8 +1219,8 @@ class VObject(ABC):  # Vector Object
                 'up':    (ocx, oy - _buff - mh / 2),
             }
             tx, ty = targets[_dir]
-            obj.styling.dx.set_onward(t, tx - _init_cx)
-            obj.styling.dy.set_onward(t, ty - _init_cy)
+            obj.styling.dx.set_onward(t, tx - _init_cx + _init_dx)
+            obj.styling.dy.set_onward(t, ty - _init_cy + _init_dy)
         self.add_updater(_update, start=start, end=end)
         return self
 
