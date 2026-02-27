@@ -17,6 +17,13 @@ from vectormation._axes_helpers import (
     _get_arrow, _get_dynamic_object, _get_tex_object,
 )
 
+def _dyn_line(line, creation, p1_func, p2_func):
+    """Set dynamic endpoint functions on a Line (saves repeated set_onward boilerplate)."""
+    line.p1.set_onward(creation, p1_func)
+    line.p2.set_onward(creation, p2_func)
+    return line
+
+
 def _band_path(pts_hi, pts_lo):
     """Build a closed SVG path string around *pts_hi* (forward) and *pts_lo* (reversed)."""
     if not pts_hi:
@@ -73,12 +80,11 @@ class _AxesExtMixin:
 
         line = Line(x1=0, y1=0, x2=0, y2=0,
                     creation=creation, z=z, stroke=arrow_color, stroke_width=1)
-        line.p1.set_onward(creation,
-            lambda t, _x=x, _y=y, _dx=dx, _dy=dy:
-                (self.coords_to_point(_x, _y, t)[0] + _dx,
-                 self.coords_to_point(_x, _y, t)[1] + _dy))
-        line.p2.set_onward(creation,
-            lambda t, _x=x, _y=y: self.coords_to_point(_x, _y, t))
+        _dyn_line(line, creation,
+                  lambda t, _x=x, _y=y, _dx=dx, _dy=dy:
+                      (self.coords_to_point(_x, _y, t)[0] + _dx,
+                       self.coords_to_point(_x, _y, t)[1] + _dy),
+                  lambda t, _x=x, _y=y: self.coords_to_point(_x, _y, t))
 
         label = Text(text=str(text), x=0, y=0, font_size=font_size,
                      fill=color, stroke_width=0, text_anchor='middle',
@@ -132,16 +138,9 @@ class _AxesExtMixin:
         """Draw a horizontal line at math y-coordinate from the y-axis to x."""
         style_kw = {'stroke': '#FFFF00', 'stroke_width': 2, 'stroke_dasharray': '5 5'} | styling_kwargs
         line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
-        def _p1(t):
-            sy = self._math_to_svg_y(y_val, t)
-            sx = self.plot_x
-            return (sx, sy)
-        def _p2(t):
-            sy = self._math_to_svg_y(y_val, t)
-            sx = self._math_to_svg_x(x, t)
-            return (sx, sy)
-        line.p1.set_onward(creation, _p1)
-        line.p2.set_onward(creation, _p2)
+        _dyn_line(line, creation,
+                  lambda t: (self.plot_x, self._math_to_svg_y(y_val, t)),
+                  lambda t: (self._math_to_svg_x(x, t), self._math_to_svg_y(y_val, t)))
         self._add_plot_obj(line)
         return line
 
@@ -151,11 +150,13 @@ class _AxesExtMixin:
         line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
         _v = value
         if direction == 'vertical':
-            line.p1.set_onward(creation, lambda t, _v=_v: (self._math_to_svg_x(_v, t), self.plot_y))
-            line.p2.set_onward(creation, lambda t, _v=_v: (self._math_to_svg_x(_v, t), self.plot_y + self.plot_height))
+            _dyn_line(line, creation,
+                      lambda t, _v=_v: (self._math_to_svg_x(_v, t), self.plot_y),
+                      lambda t, _v=_v: (self._math_to_svg_x(_v, t), self.plot_y + self.plot_height))
         else:
-            line.p1.set_onward(creation, lambda t, _v=_v: (self.plot_x, self._math_to_svg_y(_v, t)))
-            line.p2.set_onward(creation, lambda t, _v=_v: (self.plot_x + self.plot_width, self._math_to_svg_y(_v, t)))
+            _dyn_line(line, creation,
+                      lambda t, _v=_v: (self.plot_x, self._math_to_svg_y(_v, t)),
+                      lambda t, _v=_v: (self.plot_x + self.plot_width, self._math_to_svg_y(_v, t)))
         return line
 
     def add_asymptote(self, value, direction='vertical', creation=0, z=0, **styling_kwargs):
@@ -392,10 +393,9 @@ class _AxesExtMixin:
         xhi = max(x_data) + extend
         _m, _b, _xlo, _xhi = slope, intercept, xlo, xhi
         line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
-        line.p1.set_onward(creation,
-            lambda t, _m=_m, _b=_b, _xlo=_xlo: self.coords_to_point(_xlo, _m * _xlo + _b, t))
-        line.p2.set_onward(creation,
-            lambda t, _m=_m, _b=_b, _xhi=_xhi: self.coords_to_point(_xhi, _m * _xhi + _b, t))
+        _dyn_line(line, creation,
+                  lambda t, _m=_m, _b=_b, _xlo=_xlo: self.coords_to_point(_xlo, _m * _xlo + _b, t),
+                  lambda t, _m=_m, _b=_b, _xhi=_xhi: self.coords_to_point(_xhi, _m * _xhi + _b, t))
         self._add_plot_obj(line)
         return line
 
@@ -578,14 +578,14 @@ class _AxesExtMixin:
             return mp, sp
         # Vertical line from x-axis to curve point
         v_line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
-        v_line.p1.set_onward(creation,
-            lambda t: (_cached(t)[1][0], self.plot_y + self.plot_height))
-        v_line.p2.set_onward(creation, lambda t: _cached(t)[1])
+        _dyn_line(v_line, creation,
+                  lambda t: (_cached(t)[1][0], self.plot_y + self.plot_height),
+                  lambda t: _cached(t)[1])
         # Horizontal line from y-axis to curve point
         h_line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
-        h_line.p1.set_onward(creation,
-            lambda t: (self.plot_x, _cached(t)[1][1]))
-        h_line.p2.set_onward(creation, lambda t: _cached(t)[1])
+        _dyn_line(h_line, creation,
+                  lambda t: (self.plot_x, _cached(t)[1][1]),
+                  lambda t: _cached(t)[1])
         # Dot at intersection
         dot = Dot(cx=0, cy=0, r=5, fill=dot_color, stroke_width=0,
                   creation=creation, z=z + 1)
@@ -659,12 +659,11 @@ class _AxesExtMixin:
                             stroke_width=style_kw.get('stroke_width', 2) + 1,
                             creation=creation, z=z + 1)
             _med, _xp2, _hw2 = median, xp, hw * 0.6
-            med_line.p1.set_onward(creation,
-                lambda t, _xp=_xp2, _hw=_hw2, _m=_med: (
-                    self._math_to_svg_x(_xp - _hw, t), self._math_to_svg_y(_m, t)))
-            med_line.p2.set_onward(creation,
-                lambda t, _xp=_xp2, _hw=_hw2, _m=_med: (
-                    self._math_to_svg_x(_xp + _hw, t), self._math_to_svg_y(_m, t)))
+            _dyn_line(med_line, creation,
+                      lambda t, _xp=_xp2, _hw=_hw2, _m=_med: (
+                          self._math_to_svg_x(_xp - _hw, t), self._math_to_svg_y(_m, t)),
+                      lambda t, _xp=_xp2, _hw=_hw2, _m=_med: (
+                          self._math_to_svg_x(_xp + _hw, t), self._math_to_svg_y(_m, t)))
             objs.append(med_line)
         for obj in objs:
             self._add_plot_obj(obj)
@@ -834,10 +833,9 @@ class _AxesExtMixin:
             # Connecting line
             line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **line_kw)
             _yp, _sv, _ev = yp, sv, ev
-            line.p1.set_onward(creation,
-                lambda t, _y=_yp, _x=_sv: self.coords_to_point(_x, _y, t))
-            line.p2.set_onward(creation,
-                lambda t, _y=_yp, _x=_ev: self.coords_to_point(_x, _y, t))
+            _dyn_line(line, creation,
+                      lambda t, _y=_yp, _x=_sv: self.coords_to_point(_x, _y, t),
+                      lambda t, _y=_yp, _x=_ev: self.coords_to_point(_x, _y, t))
             objs.append(line)
             # Start dot
             d1 = Dot(cx=0, cy=0, r=6, fill=start_color, stroke_width=0,
@@ -944,10 +942,9 @@ class _AxesExtMixin:
         objs = []
         for yp, xv in zip(y_positions, values):
             line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **line_kw)
-            line.p1.set_onward(creation,
-                lambda t, _y=yp, _x=baseline: self.coords_to_point(_x, _y, t))
-            line.p2.set_onward(creation,
-                lambda t, _y=yp, _x=xv: self.coords_to_point(_x, _y, t))
+            _dyn_line(line, creation,
+                      lambda t, _y=yp, _x=baseline: self.coords_to_point(_x, _y, t),
+                      lambda t, _y=yp, _x=xv: self.coords_to_point(_x, _y, t))
             dot = Dot(cx=0, cy=0, r=r, creation=creation, z=z + 1, **dot_kw)
             dot.c.set_onward(creation,
                 lambda t, _y=yp, _x=xv: self.coords_to_point(_x, _y, t))
@@ -1474,12 +1471,11 @@ class _AxesExtMixin:
                 dy = seg_length * math.sin(angle)
                 line = Line(x1=0, y1=0, x2=0, y2=0,
                             creation=creation, z=z, **style_kw)
-                line.p1.set_onward(creation,
-                    lambda t, _x=x, _y=y, _dx=dx, _dy=dy:
-                        self.coords_to_point(_x - _dx, _y - _dy, t))
-                line.p2.set_onward(creation,
-                    lambda t, _x=x, _y=y, _dx=dx, _dy=dy:
-                        self.coords_to_point(_x + _dx, _y + _dy, t))
+                _dyn_line(line, creation,
+                          lambda t, _x=x, _y=y, _dx=dx, _dy=dy:
+                              self.coords_to_point(_x - _dx, _y - _dy, t),
+                          lambda t, _x=x, _y=y, _dx=dx, _dy=dy:
+                              self.coords_to_point(_x + _dx, _y + _dy, t))
                 self._add_plot_obj(line)
                 lines.append(line)
                 y += y_step
@@ -1562,8 +1558,7 @@ class _AxesExtMixin:
                 sy = self._math_to_svg_y(_yv, t)
                 sx = self._math_to_svg_x(_x_end, t) if _x_end is not None else self.plot_x + self.plot_width
                 return (sx, sy)
-            line.p1.set_onward(creation, _p1)
-            line.p2.set_onward(creation, _p2)
+            _dyn_line(line, creation, _p1, _p2)
             self._add_plot_obj(line)
             lines.append(line)
         return VCollection(*lines, creation=creation, z=z)
@@ -1617,14 +1612,14 @@ class _AxesExtMixin:
         v_line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z,
                       stroke=style_kw.get('stroke', '#FFFF00'),
                       stroke_width=1, stroke_dasharray='4 3')
-        v_line.p1.set_onward(creation, _pt)
-        v_line.p2.set_onward(creation, lambda t: (_pt(t)[0], self.plot_y + self.plot_height))
+        _dyn_line(v_line, creation, _pt,
+                  lambda t: (_pt(t)[0], self.plot_y + self.plot_height))
         # Dashed line to y-axis
         h_line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z,
                       stroke=style_kw.get('stroke', '#FFFF00'),
                       stroke_width=1, stroke_dasharray='4 3')
-        h_line.p1.set_onward(creation, _pt)
-        h_line.p2.set_onward(creation, lambda t: (self.plot_x, _pt(t)[1]))
+        _dyn_line(h_line, creation, _pt,
+                  lambda t: (self.plot_x, _pt(t)[1]))
         # Label
         label_text = text if text is not None else f'({x}, {y})'
         lbl = Text(text=label_text, x=0, y=0, font_size=16,
@@ -1720,8 +1715,7 @@ class _AxesExtMixin:
                 mx, my = (sx1 + sx2) / 2, (sy1 + sy2) / 2
                 return (mx + _sign * dx / mag * half, my + _sign * dy / mag * half)
             return _pt
-        line.p1.set_onward(creation, _secant_endpoint(-1))
-        line.p2.set_onward(creation, _secant_endpoint(+1))
+        _dyn_line(line, creation, _secant_endpoint(-1), _secant_endpoint(+1))
         self._add_plot_obj(line)
         return line
 
@@ -2013,10 +2007,9 @@ class _AxesExtMixin:
         for xi, yi in zip(x_data, y_data):
             predicted = slope * xi + intercept
             line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
-            line.p1.set_onward(creation,
-                lambda t, _x=xi, _y=yi: self.coords_to_point(_x, _y, t))
-            line.p2.set_onward(creation,
-                lambda t, _x=xi, _p=predicted: self.coords_to_point(_x, _p, t))
+            _dyn_line(line, creation,
+                      lambda t, _x=xi, _y=yi: self.coords_to_point(_x, _y, t),
+                      lambda t, _x=xi, _p=predicted: self.coords_to_point(_x, _p, t))
             lines.append(line)
             self._add_plot_obj(line)
         group = VCollection(*lines, creation=creation, z=z)

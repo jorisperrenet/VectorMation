@@ -957,6 +957,28 @@ class Table(VCollection):
         self.entries[i], self.entries[j] = self.entries[j], self.entries[i]
         return self
 
+    def swap_columns(self, i, j, start=0, end=1, easing=easings.smooth):
+        """Animate swapping two table columns."""
+        if i == j or not (0 <= i < self.cols) or not (0 <= j < self.cols):
+            return self
+        for r in range(self.rows):
+            a, b = self.entries[r][i], self.entries[r][j]
+            ax, bx = a.x.at_time(start), b.x.at_time(start)
+            a.shift(dx=bx - ax, start=start, end=end, easing=easing)
+            b.shift(dx=ax - bx, start=start, end=end, easing=easing)
+            self.entries[r][i], self.entries[r][j] = self.entries[r][j], self.entries[r][i]
+        return self
+
+    def highlight_where(self, predicate, start=0, end=1, color='#FFFF00',
+                        easing=easings.there_and_back):
+        """Highlight cells whose text satisfies *predicate(text) -> bool*."""
+        for r in range(self.rows):
+            for c in range(self.cols):
+                txt = self.entries[r][c].text.at_time(start)
+                if predicate(str(txt)):
+                    self.entries[r][c].flash(start, end, color=color, easing=easing)
+        return self
+
     def __repr__(self):
         return f'Table({self.rows}x{self.cols})'
 

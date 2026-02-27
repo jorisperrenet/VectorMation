@@ -14382,3 +14382,49 @@ class TestNeuralNetworkHighlightPath:
         nn = NeuralNetwork([2, 3, 2])
         result = nn.highlight_path([1, 2, 0], color='#FF0000', edge_color='#00FF00')
         assert result is nn
+
+
+class TestTableSwapColumns:
+    def test_swap_basic(self):
+        t = Table([[1, 2], [3, 4]])
+        result = t.swap_columns(0, 1, start=0, end=1)
+        assert result is t
+        # entries in columns should be swapped
+        assert t.entries[0][0].text.at_time(0) == '2'
+        assert t.entries[0][1].text.at_time(0) == '1'
+
+    def test_swap_noop_same(self):
+        t = Table([[1, 2], [3, 4]])
+        result = t.swap_columns(0, 0)
+        assert result is t
+
+    def test_swap_out_of_range(self):
+        t = Table([[1, 2], [3, 4]])
+        result = t.swap_columns(0, 5)
+        assert result is t
+
+    def test_swap_positions_move(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        x0 = t.entries[0][0].x.at_time(0)
+        x1 = t.entries[0][1].x.at_time(0)
+        assert x0 != x1
+        t.swap_columns(0, 1, start=0, end=1)
+        new_x0 = t.entries[0][0].x.at_time(2)
+        assert abs(new_x0 - x0) < 1
+
+
+class TestTableHighlightWhere:
+    def test_highlight_where_matches(self):
+        t = Table([[1, 2], [3, 4]])
+        result = t.highlight_where(lambda x: x == '4', start=0, end=1)
+        assert result is t
+
+    def test_highlight_where_no_matches(self):
+        t = Table([['a', 'b']])
+        result = t.highlight_where(lambda x: x == 'z', start=0, end=1)
+        assert result is t
+
+    def test_highlight_where_numeric(self):
+        t = Table([[10, 20], [30, 40]])
+        result = t.highlight_where(lambda x: int(x) > 15, start=0, end=1)
+        assert result is t
