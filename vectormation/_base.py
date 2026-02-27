@@ -5,7 +5,7 @@ from copy import deepcopy
 from typing import Any
 from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
-    CANVAS_WIDTH, CANVAS_HEIGHT,
+    CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
     SMALL_BUFF, MED_SMALL_BUFF, DEFAULT_OBJECT_TO_EDGE_BUFF,
     UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR,
 )
@@ -932,7 +932,7 @@ class VObject(ABC):  # Vector Object
                     return p / 0.7 * _o
                 return _o + (1 - _o) * ((p - 0.7) / 0.3)
         else:
-            scale_fn = lambda t, _s=s, _d=dur, _e=easing: 1 - _e((t - _s) / _d)
+            scale_fn = _ramp_down(s, dur, 1, easing)
         self.styling.scale_x.set(s, end, scale_fn, stay=True)
         self.styling.scale_y.set(s, end, scale_fn, stay=True)
         if change_existence and not pop_in:
@@ -1997,8 +1997,7 @@ class VObject(ABC):  # Vector Object
         for attr in (self.styling.scale_x, self.styling.scale_y):
             base = attr.at_time(start)
             _sf = scale_factor
-            attr.set(s, end,
-                lambda t, _s=s, _d=dur, _b=base, _sf=_sf: _b * (1 + (_sf - 1) * easing((t - _s) / _d)))
+            attr.set(s, end, _lerp(s, dur, base, base * _sf, easing))
         return self
 
     def glow(self, start: float = 0, end: float = 1, color='#FFD700', radius=10):
@@ -2321,11 +2320,9 @@ class VObject(ABC):  # Vector Object
                 t1 = t0 + cycle
                 _t0, _t_mid, _h = t0, t_mid, half
                 self.styling.opacity.set(
-                    _t0, _t_mid,
-                    lambda t, _s=_t0, _hh=_h: 1 - easing((t - _s) / _hh))
+                    _t0, _t_mid, _ramp_down(_t0, _h, 1, easing))
                 self.styling.opacity.set(
-                    _t_mid, t1,
-                    lambda t, _m=_t_mid, _hh=_h: easing((t - _m) / _hh),
+                    _t_mid, t1, _ramp(_t_mid, _h, 1, easing),
                     stay=True)
             return self
         # Legacy single-blink mode: flash to 0 and back over *duration*
@@ -2334,8 +2331,8 @@ class VObject(ABC):  # Vector Object
         mid = start + duration / 2
         blink_end = start + duration
         half = duration / 2
-        self.styling.opacity.set(start, mid, lambda t, _s=start, _h=half: 1 - easing((t - _s) / _h))
-        self.styling.opacity.set(mid, blink_end, lambda t, _m=mid, _h=half: easing((t - _m) / _h))
+        self.styling.opacity.set(start, mid, _ramp_down(start, half, 1, easing))
+        self.styling.opacity.set(mid, blink_end, _ramp(mid, half, 1, easing))
         return self
 
     def blink_opacity(self, start: float = 0, end: float = 1, frequency: float = 2,
@@ -6316,7 +6313,7 @@ class VCollection:
             Easing function for animated mode.
         """
         if center is None:
-            center = (960, 540)
+            center = ORIGIN
         cx, cy = center
         return self.distribute_radial(cx=cx, cy=cy, radius=radius,
                                       start_angle=start_angle,
@@ -7490,9 +7487,7 @@ class VCollection:
             # Fade in
             _cs, _cd = cs, max(ce - cs, 1e-9)
             end_opacity = obj.styling.opacity.at_time(cs)
-            obj.styling.opacity.set(cs, ce,
-                lambda t, _s=_cs, _d=_cd, _ev=end_opacity, _e=easing:
-                    _ev * _e((t - _s) / _d))
+            obj.styling.opacity.set(cs, ce, _ramp(_cs, _cd, end_opacity, easing))
             # Drop from above: shift up by height, then animate down
             _h = height
             def _dy(t, _s=_cs, _d=_cd, _h=_h, _e=easing):

@@ -13020,3 +13020,105 @@ class TestScaleBy:
         c = Circle()
         result = c.scale_by(0, 1, 2.0)
         assert result is c
+
+
+class TestAxesAddCoordinates:
+    def test_add_coordinates_returns_self(self):
+        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        result = ax.add_coordinates()
+        assert result is ax
+        assert len(ax.objects) > 0
+
+    def test_add_grid_returns_self(self):
+        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        result = ax.add_grid()
+        assert result is ax
+
+    def test_set_ranges(self):
+        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        ax.set_x_range(-5, 5, start=0)
+        ax.set_y_range(-3, 3, start=0)
+        assert ax.x_min.at_time(0) == pytest.approx(-5)
+        assert ax.x_max.at_time(0) == pytest.approx(5)
+        assert ax.y_min.at_time(0) == pytest.approx(-3)
+        assert ax.y_max.at_time(0) == pytest.approx(3)
+
+    def test_add_zero_line_x(self):
+        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        result = ax.add_zero_line(axis='x')
+        assert result is ax
+
+    def test_add_zero_line_y(self):
+        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        result = ax.add_zero_line(axis='y')
+        assert result is ax
+
+
+class TestAxesAddTitle:
+    def test_add_title_returns_text(self):
+        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        result = ax.add_title('My Plot')
+        assert isinstance(result, Text)
+
+
+class TestAxesAnimateRange:
+    def test_animate_x_range(self):
+        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        result = ax.animate_x_range(0, 1, (-5, 5))
+        assert result is ax
+
+    def test_animate_y_range(self):
+        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        result = ax.animate_y_range(0, 1, (-5, 5))
+        assert result is ax
+
+
+class TestCodeHighlightLines:
+    def test_highlight_lines_returns_vcollection(self):
+        code = Code('def foo():\n    return 42', language='python')
+        result = code.highlight_lines([1])
+        assert isinstance(result, VCollection)
+
+    def test_reveal_lines(self):
+        code = Code('line1\nline2\nline3', language='python')
+        result = code.reveal_lines(start=0, end=1)
+        assert result is code
+
+
+class TestTitleObject:
+    def test_title_creates(self):
+        t = Title('Hello')
+        assert len(t.objects) == 2  # text + underline
+
+    def test_title_svg_renders(self):
+        c = VectorMathAnim(save_dir='/tmp/t')
+        t = Title('Test')
+        c.add_objects(t)
+        svg = c.generate_frame_svg(0)
+        assert 'Test' in svg
+
+
+class TestDynamicObjectTest:
+    def test_creates(self):
+        d = DynamicObject(lambda t: Circle(r=10 + t * 10))
+        assert d is not None
+
+    def test_renders(self):
+        c = VectorMathAnim(save_dir='/tmp/t')
+        d = DynamicObject(lambda t: Circle(r=10 + t * 10))
+        c.add_objects(d)
+        svg = c.generate_frame_svg(0)
+        assert 'circle' in svg.lower()
+
+
+class TestCurvedArrowBasic:
+    def test_curved_arrow_has_two_children(self):
+        ca = CurvedArrow(x1=100, y1=100, x2=300, y2=300)
+        assert len(ca.objects) == 2  # shaft + tip
+
+
+class TestChessBoardMovePiece:
+    def test_move_piece(self):
+        cb = ChessBoard()
+        result = cb.move_piece((0, 1), (0, 3), start=0, end=1)
+        assert result is cb

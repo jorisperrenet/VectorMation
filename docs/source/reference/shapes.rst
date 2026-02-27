@@ -414,3 +414,222 @@ Trace
    .. py:method:: to_polygon(time)
 
       Convert the trace to a :py:class:`Polygon`.
+
+----
+
+FunctionGraph
+-------------
+
+.. py:class:: FunctionGraph(func, x_range=(-5, 5), y_range=None, x=360, y=140, width=1200, height=800, num_points=200, **styling)
+
+   Bases: :py:class:`Lines`
+
+   Plot a function as a polyline (no axes, ticks, or labels).
+
+   :param callable func: ``f(x) → y`` function.
+   :param tuple x_range: ``(start, end)`` in math coordinates.
+   :param tuple y_range: ``(min, max)`` or ``None`` for auto.
+   :param int num_points: Sampling resolution.
+
+----
+
+CubicBezier
+-----------
+
+.. py:class:: CubicBezier(p0=(860,540), p1=(910,440), p2=(1010,440), p3=(1060,540), **styling)
+
+   Cubic Bezier curve from four control points.
+
+   .. py:attribute:: p0
+      :type: Coor
+
+   .. py:attribute:: p1
+      :type: Coor
+
+   .. py:attribute:: p2
+      :type: Coor
+
+   .. py:attribute:: p3
+      :type: Coor
+
+----
+
+ArcBetweenPoints
+----------------
+
+.. py:class:: ArcBetweenPoints(start, end, angle=60, **styling)
+
+   Bases: :py:class:`Arc`
+
+   Arc connecting two points, bulging by a given angle.
+
+   :param tuple start: Start ``(x, y)`` point.
+   :param tuple end: End ``(x, y)`` point.
+   :param float angle: Bulge angle in degrees (positive = left of start→end).
+
+----
+
+Elbow
+-----
+
+.. py:class:: Elbow(cx=960, cy=540, width=40, height=40, **styling)
+
+   Bases: :py:class:`Lines`
+
+   Right-angle connector (L-shape).
+
+   :param float width: Horizontal arm size.
+   :param float height: Vertical arm size.
+
+----
+
+AnnularSector
+-------------
+
+.. py:class:: AnnularSector(inner_radius=60, outer_radius=120, cx=960, cy=540, start_angle=0, end_angle=90, **styling)
+
+   Bases: :py:class:`Arc`
+
+   Sector of an annulus (ring wedge). Like a Wedge but with an inner radius cut out.
+
+   :param float inner_radius: Inner radius.
+   :param float outer_radius: Outer radius.
+
+----
+
+Paragraph
+---------
+
+.. py:class:: Paragraph(*lines, x=960, y=540, font_size=36, alignment='left', line_spacing=1.4, **styling)
+
+   Multi-line text with alignment and line spacing.
+
+   :param lines: Text strings, one per line.
+   :param str alignment: ``'left'``, ``'center'``, or ``'right'``.
+   :param float line_spacing: Multiplier for vertical spacing between lines.
+
+----
+
+BulletedList
+------------
+
+.. py:class:: BulletedList(*items, bullet='•', indent=30, x=960, y=540, font_size=36, **styling)
+
+   List of items with bullet points.
+
+   :param items: Text strings.
+   :param str bullet: Bullet character.
+   :param float indent: Pixel indentation for each item.
+
+----
+
+NumberedList
+------------
+
+.. py:class:: NumberedList(*items, indent=30, start_number=1, x=960, y=540, font_size=36, **styling)
+
+   Bases: similar to :py:class:`BulletedList`
+
+   List of items with numeric labels (1. 2. 3. …).
+
+   :param items: Text strings.
+   :param float indent: Pixel indentation after the number.
+   :param int start_number: First number in the sequence.
+
+----
+
+SurroundingRectangle
+--------------------
+
+.. py:class:: SurroundingRectangle(target, buff=14, corner_radius=6, follow=True, **styling)
+
+   Bases: :py:class:`RoundedRectangle`
+
+   Rectangle that surrounds a target object with padding.
+   If ``follow=True`` (default), tracks the target as it moves.
+
+   :param VObject target: Object to surround.
+   :param float buff: Padding around the target.
+   :param bool follow: Track target position dynamically.
+
+----
+
+SurroundingCircle
+-----------------
+
+.. py:class:: SurroundingCircle(target, buff=14, follow=True, **styling)
+
+   Bases: :py:class:`Circle`
+
+   Circle that surrounds a target object with padding.
+
+   :param VObject target: Object to surround.
+   :param float buff: Padding around the target.
+   :param bool follow: Track target position dynamically.
+
+----
+
+BackgroundRectangle
+-------------------
+
+.. py:class:: BackgroundRectangle(target, buff=14, z=-1, **styling)
+
+   Bases: :py:class:`Rectangle`
+
+   Semi-transparent rectangle behind a target object (useful for text backgrounds).
+   Default fill is black at 75% opacity.
+
+   :param VObject target: Object to put background behind.
+   :param float buff: Padding around the target.
+
+----
+
+ScreenRectangle
+---------------
+
+.. py:class:: ScreenRectangle(width=480, **styling)
+
+   Bases: :py:class:`Rectangle`
+
+   Rectangle with the canvas aspect ratio (16:9). Height is derived from width.
+
+   :param float width: Width in pixels.
+
+----
+
+ValueTracker
+------------
+
+.. py:class:: ValueTracker(value=0, creation=0)
+
+   Convenience wrapper around a time-varying Real attribute. Use to drive
+   reactive animations (e.g. link a label's position to a value).
+
+   :param float value: Initial value.
+
+   .. py:method:: set_value(start, end, value, **kwargs)
+
+      Animate to a new value over ``[start, end]``.
+
+   .. py:method:: at_time(time)
+
+      Return the value at a given time.
+
+----
+
+DecimalNumber
+-------------
+
+.. py:class:: DecimalNumber(value=0, fmt='{:.2f}', x=960, y=540, font_size=48, **styling)
+
+   Bases: :py:class:`Text`
+
+   Text that dynamically displays a numeric value, updating each frame.
+
+   :param value: Initial value, or a :py:class:`Real` / :py:class:`ValueTracker` to track.
+   :param str fmt: Format string for display.
+
+   .. py:attribute:: tracker
+      :type: Real
+
+      The underlying tracked value.

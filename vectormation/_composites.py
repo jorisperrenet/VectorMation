@@ -9,7 +9,7 @@ import vectormation.attributes as attributes
 import vectormation.style as style
 import vectormation.morphing as morphing
 from vectormation._constants import (
-    CANVAS_WIDTH, CANVAS_HEIGHT,
+    CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
     UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE,
     DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
     DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
@@ -8508,7 +8508,7 @@ def from_svg(element, **styles):
         kw = _merged_attrs('x', 'y', 'font-size', 'text-anchor', 'transform')
         fs = float(element.get('font-size', inline.get('font-size', 48)))
         anchor = element.get('text-anchor', inline.get('text-anchor', None))
-        return Text(text=content, x=g('x', 960) + tx, y=g('y', 540) + ty,
+        return Text(text=content, x=g('x', ORIGIN[0]) + tx, y=g('y', ORIGIN[1]) + ty,
                     font_size=fs, text_anchor=anchor, **kw)
     elif tag == 'g':
         children = []
@@ -8825,10 +8825,10 @@ class Title(VCollection):
         defaults = {'font_size': 60, 'text_anchor': 'middle', 'fill': '#fff',
                     'stroke_width': 0}
         defaults.update(kwargs)
-        txt = Text(text, x=960, y=DEFAULT_OBJECT_TO_EDGE_BUFF + 60,
+        txt = Text(text, x=ORIGIN[0], y=DEFAULT_OBJECT_TO_EDGE_BUFF + 60,
                    creation=creation, z=z, **defaults)
-        underline = Line(x1=960 - 200, y1=DEFAULT_OBJECT_TO_EDGE_BUFF + 80,
-                         x2=960 + 200, y2=DEFAULT_OBJECT_TO_EDGE_BUFF + 80,
+        underline = Line(x1=ORIGIN[0] - 200, y1=DEFAULT_OBJECT_TO_EDGE_BUFF + 80,
+                         x2=ORIGIN[0] + 200, y2=DEFAULT_OBJECT_TO_EDGE_BUFF + 80,
                          stroke='#888', stroke_width=2, creation=creation, z=z)
         super().__init__(txt, underline, creation=creation, z=z)
 
@@ -9677,7 +9677,7 @@ class NetworkGraph(VCollection):
 
     def get_node_position(self, node_id):
         """Get the (x, y) position of a node."""
-        return self._node_positions.get(node_id, (960, 540))
+        return self._node_positions.get(node_id, ORIGIN)
 
 
 class Label(VCollection):
@@ -10058,7 +10058,7 @@ class Tree(VCollection):
 
     def get_node_position(self, label):
         """Get (x, y) position of a node by label (first occurrence if duplicates)."""
-        return self._positions_by_label.get(label, (960, 540))
+        return self._positions_by_label.get(label, ORIGIN)
 
     def highlight_node(self, label, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
         """Flash-highlight a node by label."""
@@ -12859,9 +12859,9 @@ class ArrayViz(VCollection):
         from vectormation._shapes import Rectangle, Text
         n = len(values)
         if x is None:
-            x = 960 - n * cell_size / 2
+            x = ORIGIN[0] - n * cell_size / 2
         if y is None:
-            y = 540 - cell_size / 2
+            y = ORIGIN[1] - cell_size / 2
         self._cells = []
         self._labels = []
         self._index_labels = []
@@ -12975,7 +12975,7 @@ class LinkedListViz(VCollection):
         from vectormation._shapes import Circle, Text
         n = len(values)
         if x is None:
-            x = 960 - (n - 1) * spacing / 2
+            x = ORIGIN[0] - (n - 1) * spacing / 2
         self._nodes = []
         self._labels = []
         self._arrows = []
@@ -13054,9 +13054,9 @@ class StackViz(VCollection):
         from vectormation._shapes import Rectangle, Text
         n = len(values)
         if x is None:
-            x = 960 - cell_width / 2
+            x = ORIGIN[0] - cell_width / 2
         if y is None:
-            y = 540 + n * cell_height / 2
+            y = ORIGIN[1] + n * cell_height / 2
         self._cell_width = cell_width
         self._cell_height = cell_height
         self._base_x = x
@@ -13152,9 +13152,9 @@ class QueueViz(VCollection):
         from vectormation._shapes import Rectangle, Text
         n = len(values)
         if x is None:
-            x = 960 - n * cell_width / 2
+            x = ORIGIN[0] - n * cell_width / 2
         if y is None:
-            y = 540 - cell_height / 2
+            y = ORIGIN[1] - cell_height / 2
         self._cell_width = cell_width
         self._cell_height = cell_height
         self._base_x = x

@@ -699,3 +699,189 @@ SampleSpace
    Bases: :py:class:`VCollection`
 
    Rectangular probability sample space diagram.
+
+----
+
+Charts
+------
+
+NumberLine
+~~~~~~~~~~
+
+.. py:class:: NumberLine(x_range=(-5, 5, 1), length=720, x=240, y=540, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Number line with ticks and labels.
+
+   :param tuple x_range: ``(start, end, step)`` or ``(start, end)`` with auto step.
+   :param float length: Total length in pixels.
+
+   .. py:method:: number_to_point(value)
+
+      Convert a numeric value to its ``(x, y)`` pixel position.
+
+   .. py:method:: animate_range(start, end, new_range)
+
+      Animate the range to new bounds.
+
+PieChart
+~~~~~~~~
+
+.. py:class:: PieChart(values, labels=None, colors=None, cx=960, cy=540, r=240, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Pie chart using Wedge sectors.
+
+   :param list values: Numeric values (proportional sizes).
+   :param list labels: Optional labels per sector.
+   :param list colors: Custom colour list (defaults to ``DEFAULT_CHART_COLORS``).
+
+   .. py:method:: animate_values(new_values, start=0, end=1)
+
+      Animate sector sizes to new values.
+
+DonutChart
+~~~~~~~~~~
+
+.. py:class:: DonutChart(values, labels=None, colors=None, cx=960, cy=540, inner_ratio=0.5, r=240, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Donut (ring) chart — PieChart with a hollow centre.
+
+   :param float inner_ratio: Ratio of inner radius to outer radius.
+
+BarChart
+~~~~~~~~
+
+.. py:class:: BarChart(values, labels=None, colors=None, bar_width=60, max_height=400, x=None, y=None, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Bar chart visualization.
+
+   :param list values: Numeric values (one per bar).
+   :param list labels: Optional labels below each bar.
+   :param list colors: Custom bar colours.
+
+   .. py:method:: animate_values(new_values, start=0, end=1)
+
+      Animate bar heights to new values.
+
+   .. py:method:: add_bar(value, label=None, color=None, start=0, end=0.5)
+
+      Animate adding a new bar.
+
+   .. py:method:: remove_bar(index=-1, start=0, end=0.5)
+
+      Animate removing a bar.
+
+   .. py:method:: set_bar_colors(colors, start=0)
+
+      Change bar colours.
+
+RadarChart
+~~~~~~~~~~
+
+.. py:class:: RadarChart(values, labels=None, cx=960, cy=540, radius=250, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Radar/spider chart.
+
+   :param list values: Numeric values (one per axis).
+   :param list labels: Axis labels.
+
+Legend
+~~~~~~
+
+.. py:class:: Legend(items, x=None, y=None, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Chart legend with coloured swatches and labels.
+
+   :param list items: List of ``(color, label)`` tuples.
+
+ProgressBar
+~~~~~~~~~~~
+
+.. py:class:: ProgressBar(width=600, height=40, progress=0, x=660, y=520, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Animated progress bar that fills from left to right.
+
+   .. py:method:: animate_to(value, start=0, end=1)
+
+      Animate progress to a target value (0–1).
+
+FlowChart
+~~~~~~~~~
+
+.. py:class:: FlowChart(steps, x=None, y=540, direction='right', **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Flow chart with labelled boxes connected by arrows.
+
+   :param list steps: List of string labels for each box.
+
+----
+
+Annotations
+-----------
+
+Label
+~~~~~
+
+.. py:class:: Label(text, x=960, y=540, font_size=36, padding=10, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Text label with a surrounding box/frame.
+
+Callout
+~~~~~~~
+
+.. py:class:: Callout(text, target, x=None, y=None, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Text callout with a pointer line to a target position.
+
+DimensionLine
+~~~~~~~~~~~~~
+
+.. py:class:: DimensionLine(p1, p2, label='', **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Technical dimension line between two points with measurement label.
+
+   :param tuple p1: Start ``(x, y)`` point.
+   :param tuple p2: End ``(x, y)`` point.
+   :param str label: Measurement text.
+
+Tooltip
+~~~~~~~
+
+.. py:class:: Tooltip(text, target, start=0, end=1, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Small animated tooltip that appears near a target.
+
+NumberPlane
+~~~~~~~~~~~
+
+.. py:class:: NumberPlane(x_range=(-7, 7, 1), y_range=(-4, 4, 1), **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Cartesian coordinate plane with background grid lines.
+
+   :param tuple x_range: ``(min, max, step)`` in logical units.
+   :param tuple y_range: ``(min, max, step)`` in logical units.
