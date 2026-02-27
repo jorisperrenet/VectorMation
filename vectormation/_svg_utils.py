@@ -87,13 +87,7 @@ class DropShadowFilter:
 # ---------------------------------------------------------------------------
 
 class Angle(VCollection):
-    """Draw an angle arc between two lines meeting at a vertex, with optional label.
-
-    vertex, p1, p2: (x, y) tuples or Coor objects (for time-varying angles).
-    radius: arc radius in pixels.
-    label: TeX string (e.g. r'$\\theta$'), True for degree value, or None for no label.
-    label_radius: distance from vertex to label center (default: radius * 1.75).
-    """
+    """Draw an angle arc between two lines meeting at a vertex, with optional label."""
     def __init__(self, vertex, p1, p2, radius=36, label=None, label_radius=None,
                  label_font_size=36, creation: float = 0, z: float = 0, **styling_kwargs):
         self.vertex = vertex if isinstance(vertex, attributes.Coor) else attributes.Coor(creation, vertex)
@@ -387,15 +381,7 @@ def from_svg_file(filepath, creation=0, z=0, **styles):
 # ---------------------------------------------------------------------------
 
 class ZoomedInset(VObject):
-    """Magnified inset view of a region on the canvas.
-
-    Shows a source rectangle (frame) on the canvas and a magnified display
-    rectangle elsewhere. Objects within the source region appear enlarged in
-    the display. The frame and display can be animated independently.
-
-    source: (x, y, w, h) — the region to zoom into (canvas coordinates).
-    display: (x, y, w, h) — where to draw the magnified view.
-    """
+    """Magnified inset view of a region on the canvas."""
     def __init__(self, canvas, source, display, creation: float = 0, z=999,
                  frame_color='#FFFF00', display_color='#FFFF00', frame_width=2):
         super().__init__(creation=creation, z=z)
@@ -479,13 +465,7 @@ class ZoomedInset(VObject):
 # ---------------------------------------------------------------------------
 
 class _BooleanOp(VObject):
-    """Base for boolean shape operations.
-
-    Rendering uses SVG clip-paths so that each operation shows the correct
-    filled region *and* strokes only along the true boundary.  All styling
-    transforms (scale, rotate, …) are applied on a wrapping ``<g>`` so that
-    clip regions transform together with the geometry.
-    """
+    """Base for boolean shape operations."""
     _fill_rule = None  # override in subclass
 
     def __init__(self, shape_a, shape_b, creation: float = 0, z: float = 0, **styling_kwargs):
@@ -588,12 +568,7 @@ class _BooleanOp(VObject):
 
 
 class Union(_BooleanOp):
-    """Boolean union — combined area of both shapes.
-
-    Fill uses nonzero fill-rule on combined paths.  Strokes are drawn per
-    shape, each clipped to exclude the other's interior so that only the
-    outer boundary is stroked.
-    """
+    """Boolean union — combined area of both shapes."""
     def to_svg(self, time):
         pa, pb = self._a.path(time), self._b.path(time)
         u = self._uid
@@ -606,11 +581,7 @@ class Union(_BooleanOp):
 
 
 class Difference(_BooleanOp):
-    """Boolean difference: shape_a minus shape_b.
-
-    Fill uses evenodd on combined paths clipped to shape_a.  Strokes:
-    shape_a outside shape_b + shape_b inside shape_a.
-    """
+    """Boolean difference: shape_a minus shape_b."""
     def to_svg(self, time):
         pa, pb = self._a.path(time), self._b.path(time)
         u = self._uid
@@ -634,11 +605,7 @@ class Exclusion(_BooleanOp):
 
 
 class Intersection(_BooleanOp):
-    """Boolean intersection — only where both shapes overlap.
-
-    Fill: shape_a clipped to shape_b.  Strokes: each shape's outline
-    clipped to the other so only the intersection boundary is drawn.
-    """
+    """Boolean intersection — only where both shapes overlap."""
     def path(self, time):
         return self._a.path(time)
 
@@ -668,11 +635,7 @@ class Intersection(_BooleanOp):
 
 def brace_between_points(p1, p2, direction=None, label=None, buff=0, depth=18,
                          creation=0, z=0, **styling_kwargs):
-    """Create a Brace between two arbitrary points.
-
-    If direction is None, it is inferred perpendicular to the line p1→p2.
-    Returns a Brace (VCollection).
-    """
+    """Create a Brace between two arbitrary points."""
     x1, y1 = p1
     x2, y2 = p2
     # Build a thin invisible rect along the line
@@ -710,11 +673,7 @@ def brace_between_points(p1, p2, direction=None, label=None, buff=0, depth=18,
 # ---------------------------------------------------------------------------
 
 class ArrowVectorField(VCollection):
-    """Vector field visualization using arrows.
-
-    func: callable(x, y) -> (vx, vy) returning the vector at (x, y).
-    x_range, y_range: (min, max, step) in pixel coordinates.
-    """
+    """Vector field visualization using arrows."""
     def __init__(self, func, x_range=(60, 1860, 120), y_range=(60, 1020, 120),
                  max_length=80, creation=0, z=0, **styling_kwargs):
         Arrow = _get_arrow()
@@ -749,11 +708,7 @@ class ArrowVectorField(VCollection):
 
 
 class StreamLines(VCollection):
-    """Animated flow lines for a vector field.
-
-    func: callable(x, y) -> (vx, vy).
-    Draws streamlines by integrating the field using Euler steps.
-    """
+    """Animated flow lines for a vector field."""
     def __init__(self, func, x_range=(60, 1860, 200), y_range=(60, 1020, 200),
                  n_steps=40, step_size=5, creation=0, z=0, **styling_kwargs):
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 2, 'fill_opacity': 0} | styling_kwargs
@@ -788,12 +743,7 @@ class StreamLines(VCollection):
 
 
 class Cutout(VObject):
-    """Full-screen overlay with a rectangular cutout (spotlight effect).
-
-    The overlay fills the canvas with a semi-transparent color and cuts out
-    a rectangular hole at the specified position, drawing focus to the content
-    underneath. The hole position and size can be animated.
-    """
+    """Full-screen overlay with a rectangular cutout (spotlight effect)."""
     def __init__(self, hole_x=660, hole_y=340, hole_w=600, hole_h=400,
                  color='#000', opacity=0.7, rx=0, ry=0,
                  creation: float = 0, z: float = 99, **styling_kwargs):

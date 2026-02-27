@@ -1679,27 +1679,7 @@ class VCollection(_BBoxMethodsMixin):
         return connectors
 
     def align_children(self, axis='x', anchor='center'):
-        """Align children along a shared axis.
-
-        For ``axis='x'``: aligns children's x-positions so they share the
-        same x-coordinate, based on *anchor* (``'min'`` = left edges,
-        ``'center'`` = centers, ``'max'`` = right edges).
-
-        For ``axis='y'``: same logic applied to y-positions (``'min'`` = top
-        edges, ``'center'`` = centers, ``'max'`` = bottom edges).
-
-        The reference value is the mean of all children's anchor values.
-        Each child is shifted to match that reference.
-
-        Parameters
-        ----------
-        axis:
-            ``'x'`` or ``'y'``.
-        anchor:
-            ``'min'``, ``'center'``, or ``'max'``.
-
-        Returns self.
-        """
+        """Align children along a shared axis using the mean of their anchor values."""
         if len(self.objects) < 2:
             return self
         # Compute anchor value for each child
@@ -1731,19 +1711,7 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def sort_by_distance(self, point, reverse=False, start=0):
-        """Sort children by distance from a point.
-
-        Parameters
-        ----------
-        point:
-            An (x, y) tuple to measure distance from.
-        reverse:
-            If True, sort farthest first.
-        start:
-            Time at which to evaluate each child's center.
-
-        Returns self.
-        """
+        """Sort children in-place by distance from a point."""
         px, py = point
         centers = {id(obj): obj.center(start) for obj in self.objects}
         self.objects.sort(
@@ -1754,18 +1722,7 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def apply_each(self, method_name, **per_child_kwargs):
-        """Call a method on each child with per-child arguments.
-
-        Each keyword argument should be a list whose length matches the
-        number of children.  For child *i*, the i-th element of each list
-        is passed as the corresponding keyword argument.
-
-        Example::
-
-            col.apply_each('set_fill', color=['#f00', '#0f0', '#00f'])
-
-        Returns self.
-        """
+        """Call a method on each child with per-child keyword arguments (lists of values)."""
         n = len(self.objects)
         for key, values in per_child_kwargs.items():
             if len(values) != n:

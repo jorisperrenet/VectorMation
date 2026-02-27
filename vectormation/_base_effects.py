@@ -184,9 +184,7 @@ class _VObjectEffectsMixin:
         _sx0, _sy0 = sx0, sy0
 
         def _bounce_progress(t, _s=_s, _d=_d, _b=_b, _easing=easing):
-            """Return (vertical_offset, squash_envelope) at time t.
-            vertical_offset: 0 at ground, negative upward.
-            squash_envelope: 0 normally, peaks at 1.0 at impact moments."""
+            """Return (vertical_offset, squash_envelope) at time t."""
             p = _easing((t - _s) / _d)
             if p >= 1.0:
                 return (0.0, 0.0)
@@ -241,10 +239,7 @@ class _VObjectEffectsMixin:
         _freq = math.tau * (_osc + 0.25)
 
         def _spring_curve(p, _ts=_ts, _damp=_damp, _freq=_freq):
-            """Map progress p in [0,1] to a scale multiplier that overshoots
-            *_ts* and settles at *_ts*.
-            Uses a classic damped oscillation: target + (1-target)*exp(-d*p)*cos(f*p).
-            At p=0 this equals 1.0 (original); it decays toward target."""
+            """Map progress p in [0,1] to a damped-oscillation scale multiplier."""
             if p >= 1.0:
                 return _ts
             if p <= 0.0:
@@ -478,9 +473,7 @@ class _VObjectEffectsMixin:
         return self
 
     def bind_to(self, other, offset_x=0, offset_y=0, start=0, end=None):
-        """Keep this object at a fixed offset relative to another object's center.
-        Uses an updater to track other's center and reposition self each frame.
-        Returns self."""
+        """Keep this object at a fixed offset relative to another object's center."""
         def _bind(obj, time, _other=other, _ox=offset_x, _oy=offset_y):
             ocx, ocy = _other.center(time)
             target_x = ocx + _ox
@@ -536,9 +529,7 @@ class _VObjectEffectsMixin:
         return self.path_arc(x, y, start=start, end=end, angle=angle, easing=easing)
 
     def typewriter_cursor(self, start, end, blink_rate=0.5, cursor_char='|'):
-        """For Text objects: append a blinking cursor character.
-        The cursor blinks on/off at blink_rate (seconds per blink cycle).
-        Returns self."""
+        """For Text objects: append a blinking cursor character."""
         from vectormation._shapes import Text as _Text
         if not isinstance(self, _Text):
             raise TypeError("typewriter_cursor() can only be called on Text objects")
@@ -981,21 +972,7 @@ class _VObjectEffectsMixin:
         }
 
     def move_towards(self, other, fraction=0.5, start=0, end=None, easing=None):
-        """Move a fraction of the way toward another object or point.
-
-        Parameters
-        ----------
-        other:
-            A VObject (uses its center) or an (x, y) tuple.
-        fraction:
-            How far to move (0 = stay, 1 = reach other's center).
-        start:
-            Start time for the animation.
-        end:
-            End time (None = instant move).
-        easing:
-            Easing function for the animation.
-        """
+        """Move a fraction of the way toward another object or point."""
         cx, cy = self.get_center(start)
         tx, ty = _coords_of(other, start)
         nx = cx + fraction * (tx - cx)
@@ -1004,32 +981,7 @@ class _VObjectEffectsMixin:
                                   end=end, easing=easing or easings.smooth)
 
     def add_label(self, text, direction=UP, buff=20, font_size=None, follow=False, creation=0, **kwargs):
-        """Attach a text label next to this object.
-
-        Creates a :class:`Text` object positioned via :meth:`next_to` and
-        returns a :class:`VCollection` containing both *self* and the label.
-
-        Parameters
-        ----------
-        text:
-            The label string.
-        direction:
-            Direction constant for placement (e.g. ``UP``, ``DOWN``).
-        buff:
-            Pixel buffer between the object and the label.
-        font_size:
-            Optional font size for the label.  Defaults to ``None``
-            which uses the Text default.
-        follow:
-            If ``True``, add an updater so the label tracks this
-            object's position continuously.
-        creation:
-            Creation time for the label.
-        **kwargs:
-            Extra keyword arguments forwarded to the ``Text`` constructor.
-
-        Returns a VCollection(self, label).
-        """
+        """Attach a text label next to this object. Returns a VCollection(self, label)."""
         from vectormation._shapes import Text as _Text  # lazy import
         label_kwargs = dict(creation=creation)
         if font_size is not None:
@@ -1047,28 +999,7 @@ class _VObjectEffectsMixin:
         return VCollection(self, label)
 
     def place_between(self, obj_a, obj_b, fraction=0.5, start=0, end=None, easing=None):
-        """Position this object between two other objects or points.
-
-        Computes the target as ``(1 - fraction) * center_a + fraction * center_b``
-        and moves there using :meth:`center_to_pos`.
-
-        Parameters
-        ----------
-        obj_a:
-            First reference — a VObject (uses ``get_center``) or an ``(x, y)`` tuple.
-        obj_b:
-            Second reference — a VObject or tuple.
-        fraction:
-            Interpolation factor (0.0 = at *obj_a*, 1.0 = at *obj_b*).
-        start:
-            Start time for the movement.
-        end:
-            End time (``None`` = instant).
-        easing:
-            Easing function for animation.
-
-        Returns self.
-        """
+        """Position this object between two other objects or points."""
         ax, ay = _coords_of(obj_a, start)
         bx, by = _coords_of(obj_b, start)
         tx = (1 - fraction) * ax + fraction * bx
@@ -1077,11 +1008,7 @@ class _VObjectEffectsMixin:
                                   end=end, easing=easing or easings.smooth)
 
     def homotopy(self, func, start: float = 0, end: float = 1):
-        """Apply a continuous point-wise transformation over time.
-
-        *func(x, y, t)* → *(x', y')* is called for each coordinate attribute,
-        where *t* progresses linearly from 0 to 1 over [start, end].
-        Works on Polygon vertices, Line endpoints, and (x, y) Real pairs.
+        """Apply a continuous point-wise transformation *func(x, y, t) -> (x', y')* over time.
         """
         dur = end - start
         if dur <= 0:

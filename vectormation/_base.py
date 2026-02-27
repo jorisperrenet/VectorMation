@@ -79,11 +79,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                 func(self, time)
 
     def remove_updater(self, func):
-        """Remove a specific updater by function reference.
-
-        Searches ``self._updaters`` for tuples whose first element is
-        *func* and removes them.  Returns self.
-        """
+        """Remove a specific updater by function reference."""
         self._updaters = [(f, s, e) for f, s, e in self._updaters if f is not func]
         return self
 
@@ -215,11 +211,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.show.set_onward(time, False)
 
     def show_during(self, *ranges):
-        """Show this object only during the specified time ranges.
-
-        Each range is a (start, end) tuple. Object is hidden outside all ranges.
-        Usage: obj.show_during((0, 1), (3, 5))
-        """
+        """Show this object only during the specified time ranges."""
         # Flatten if passed a list of tuples
         if len(ranges) == 1 and isinstance(ranges[0], list):
             ranges = ranges[0]
@@ -231,11 +223,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def hide_during(self, *ranges):
-        """Hide this object during the specified time ranges, visible otherwise.
-
-        Each range is a (start, end) tuple. Object is visible outside all ranges.
-        Usage: obj.hide_during((2, 4))
-        """
+        """Hide this object during the specified time ranges, visible otherwise."""
         if len(ranges) == 1 and isinstance(ranges[0], list):
             ranges = ranges[0]
         for start, end in ranges:
@@ -244,14 +232,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def set_visible(self, visible, start=0):
-        """Show or hide the object at a given time.
-
-        If visible=True, show the object from *start* onward.
-        If visible=False, hide the object from *start* onward.
-        Returns self for chaining.
-
-        Usage: obj.set_visible(False, start=2)
-        """
+        """Show or hide the object at a given time."""
         self.show.set_onward(start, 1 if visible else 0)
         return self
 
@@ -478,9 +459,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def path_arc(self, tx, ty, start: float = 0, end: float = 1,
                  angle=math.pi / 2, easing=easings.smooth):
-        """Move the object's center to (tx, ty) along a circular arc.
-        angle: arc angle in radians (positive = clockwise in SVG coords).
-        0 = straight line, pi/2 = quarter circle, pi = semicircle."""
+        """Move the object's center to (tx, ty) along a circular arc."""
         dur = end - start
         if dur <= 0:
             return self
@@ -827,9 +806,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return res
 
     def create(self, start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
-        """Animate drawing the path of this object from start to end.
-        Returns a new Path object that must be added to the canvas.
-        The original object becomes visible at `end`."""
+        """Animate drawing the path of this object from start to end."""
         return self._create_path_anim(start, end, False, change_existence, easing)
 
     def uncreate(self, start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
@@ -838,9 +815,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self._create_path_anim(start, end, True, change_existence, easing)
 
     def draw_along(self, start: float = 0, end: float = 1, easing=easings.smooth, change_existence=True):
-        """Animate drawing the stroke of this object using stroke-dashoffset.
-        Uses svgpathtools to compute total path length, then animates
-        stroke-dashoffset from length to 0."""
+        """Animate drawing the stroke of this object using stroke-dashoffset."""
         _, total_length = _parse_path(self.path(start))
 
         if change_existence:
@@ -861,9 +836,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def show_passing_flash(self, start: float = 0, end: float = 1, flash_width=0.15,
                            color='#FFFF00', stroke_width=6, easing=easings.linear):
-        """A bright flash that travels along this object's path.
-        Returns a new Path object that must be added to the canvas.
-        flash_width: fraction of path visible at any time (0-1)."""
+        """A bright flash that travels along this object's path."""
         _, total = _parse_path(self.path(start))
         if total <= 0:
             from vectormation._shapes import Path
@@ -1015,9 +988,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def next_to(self, other, direction: str | tuple = 'right', buff=SMALL_BUFF, start: float = 0, end: float | None = None, easing=None):
-        """Position this object next to another.
-        direction: 'left', 'right', 'up', 'down' or a direction constant (UP, DOWN, LEFT, RIGHT).
-        When *end* is given, animate the movement over [start, end]."""
+        """Position this object next to another."""
         direction = _norm_dir(direction)
         mx, my, mw, mh = self.bbox(start)
         ox, oy, ow, oh = other.bbox(start)
@@ -1217,11 +1188,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def appear_from(self, source, start: float = 0, end: float = 1,
                     change_existence=True, easing=easings.smooth):
-        """Appear from *source*'s center position, sliding and fading into place.
-
-        source: a VObject (uses get_center) or an (x, y) tuple.
-        The object fades in while moving from the source position to its own.
-        """
+        """Appear from *source*'s center position, sliding and fading into place."""
         if change_existence:
             self._show_from(start)
         dur = end - start
@@ -1413,11 +1380,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def glow(self, start: float = 0, end: float = 1, color='#FFD700', radius=10):
-        """Add an animated glow effect (stroke pulses outward then fades).
-
-        The stroke expands to ``radius`` extra width at the midpoint, then
-        shrinks back while the stroke opacity fades in and out.
-        """
+        """Add an animated glow effect (stroke pulses outward then fades)."""
         dur = end - start
         if dur <= 0:
             return self
@@ -1457,13 +1420,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def pulse_outline(self, start: float = 0, end: float = 1, color='#FFFF00',
                       max_width=8, cycles=2, easing=easings.smooth):
-        """Animate the stroke pulsing between current width and *max_width*.
-
-        The stroke color is set to *color* during the animation and the
-        stroke width oscillates sinusoidally for *cycles* full pulses.
-        At *end*, the original stroke color and width are restored.
-        Returns self.
-        """
+        """Animate the stroke pulsing between current width and *max_width*."""
         dur = end - start
         if dur <= 0:
             return self
@@ -1617,10 +1574,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def draw_border_then_fill(self, start: float = 0, end: float = 1,
                               border_fraction=0.5, change_existence=True, easing=easings.smooth):
-        """Animate drawing the stroke first, then fading in the fill.
-
-        border_fraction: fraction of [start, end] for the stroke phase.
-        """
+        """Animate drawing the stroke first, then fading in the fill."""
         if change_existence:
             self._show_from(start)
         mid = start + (end - start) * border_fraction
@@ -1642,19 +1596,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def blink(self, start: float = 0, end: float | None = None, count: int = 1,
               duration: float = 0.3, easing=easings.smooth, num_blinks: int | None = None):
-        """Flash opacity on/off.
-
-        When *num_blinks* is given (with *end*), uses a single step-function
-        that rapidly toggles visibility between 0 and 1 for *num_blinks*
-        cycles over ``[start, end]``.
-
-        When *end* is given without *num_blinks*, divides [start, end] into
-        *count* square-wave cycles: each cycle toggles the opacity from 1 to 0
-        and back using the easing.
-
-        When *end* is None (legacy single-blink mode), blinks once over
-        *duration* seconds with a smooth fade to 0 and back.
-        """
+        """Flash opacity on/off."""
         if num_blinks is not None and end is not None:
             # Step-function blink mode: single .set() with on/off phases
             dur = end - start
@@ -1720,13 +1662,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def shimmer(self, start: float = 0, end: float = 1, passes=2, easing=easings.smooth):
-        """Create a sweep highlight effect by oscillating opacity.
-
-        The opacity oscillates with brief peaks that sweep through over
-        *passes* full cycles during ``[start, end]``.  Uses a raised-cosine
-        wave so that opacity dips and peaks create a travelling shimmer.
-        Returns self.
-        """
+        """Create a sweep highlight effect by oscillating opacity."""
         dur = end - start
         if dur <= 0:
             return self
@@ -1743,11 +1679,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def shake(self, start: float = 0, end: float = 0.5, amplitude=5, frequency=20, easing=easings.there_and_back):
-        """Rapid random-looking jitter effect for emphasis or error states.
-
-        amplitude: max displacement in pixels.
-        frequency: oscillations per unit time.
-        """
+        """Rapid random-looking jitter effect for emphasis or error states."""
         dur = end - start
         if dur <= 0:
             return self
@@ -1912,9 +1844,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def wipe(self, direction='right', start: float = 0, end: float = 1,
              easing=easings.smooth, reverse=False):
-        """Reveal (or hide if reverse=True) with a clip-path wipe effect.
-        direction: 'right', 'left', 'up', 'down'.
-        Uses SVG clip-path inset() to animate a clipping rectangle."""
+        """Reveal (or hide if reverse=True) with a clip-path wipe effect."""
         dur = end - start
         if dur <= 0:
             return self
@@ -1944,10 +1874,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def flash_highlight(self, start: float = 0, end: float = 1, color='#FFFF00',
                         width=3, easing=easings.there_and_back):
-        """Briefly highlight the object with a colored border flash using a surrounding rectangle.
-        Creates a Rectangle slightly larger than this object whose stroke flashes the given color
-        and then fades back out. Returns the highlight rectangle (must be added to canvas).
-        """
+        """Briefly highlight the object with a colored border flash using a surrounding rectangle."""
         from vectormation._shapes import Rectangle  # lazy to avoid circular import
         bx, by, bw, bh = self.bbox(start)
         buff = 6
@@ -2079,11 +2006,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def reflect(self, axis='vertical', start: float = 0):
-        """Mirror/reflect the object across an axis through its center.
-
-        axis: 'vertical' (flip left-right), 'horizontal' (flip top-bottom).
-        Applies an instant SVG transform (no animation).
-        """
+        """Mirror/reflect the object across an axis through its center."""
         self.styling._scale_origin = self.center(start)
         attr = self.styling.scale_x if axis == 'vertical' else self.styling.scale_y
         attr.set_onward(start, -attr.at_time(start))
@@ -2091,9 +2014,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def squish(self, start: float = 0, end: float = 1, axis='x', factor=0.5,
                 easing=easings.smooth):
-        """Squish the object along an axis and bounce back.
-        axis: 'x' or 'y'. factor: squish amount (0=flat, 1=no change).
-        The complementary axis stretches to compensate (preserves visual area)."""
+        """Squish the object along an axis and bounce back."""
         dur = end - start
         if dur <= 0:
             return self
@@ -2410,9 +2331,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return c
 
     def align_to(self, other, edge: str | tuple = 'left', start: float = 0, end: float | None = None, easing=None):
-        """Align an edge of this object with the same edge of another.
-        edge: 'left', 'right', 'top', 'bottom' or a direction constant (UP, DOWN, LEFT, RIGHT).
-        When *end* is given, animate the movement over [start, end]."""
+        """Align an edge of this object with the same edge of another."""
         edge = _norm_edge(edge, 'left')
         mx, my, mw, mh = self.bbox(start)
         ox, oy, ow, oh = other.bbox(start)
@@ -2611,10 +2530,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def set_position(self, x, y, start: float = 0, end: float | None = None, easing=easings.smooth):
-        """Move the object's center to (x, y). Shorthand for move_to.
-
-        Animated over [start, end] if end is given, instant otherwise.
-        """
+        """Move the object's center to (x, y). Shorthand for move_to."""
         return self.move_to(x, y, start=start, end=end, easing=easing)
 
     def stretch(self, x_factor: float = 1, y_factor: float = 1, start: float = 0, end: float | None = None, easing=easings.smooth):

@@ -873,8 +873,7 @@ class Axes(_AxesExtMixin, VCollection):
     def plot_grouped_bar(self, data, group_labels=None, bar_width=0.25,
                           group_spacing=1.0, colors=None, creation=0, z=0,
                           **styling_kwargs):
-        """Plot grouped bar chart. data: list of lists (each inner list is one series).
-        Returns a VCollection of all bars."""
+        """Plot a grouped bar chart. Returns a VCollection of all bars."""
         n_series = len(data)
         if n_series == 0:
             return VCollection(creation=creation, z=z)
@@ -945,11 +944,7 @@ class Axes(_AxesExtMixin, VCollection):
         raise TypeError(f'{label} must be a function or a curve returned by plot()')
 
     def get_graph_intersection(self, f1, f2, x_range=None, n=1000):
-        """Find approximate intersection points between two functions/curves.
-
-        Returns a list of (math_x, math_y) tuples where f1(x) ~= f2(x).
-        Uses sign-change detection with linear interpolation for sub-step accuracy.
-        """
+        """Find approximate intersection points between two functions/curves."""
         func1 = self._resolve_func(f1, 'f1')
         func2 = self._resolve_func(f2, 'f2')
         xmin = x_range[0] if x_range else self.x_min.at_time(0)
@@ -979,10 +974,7 @@ class Axes(_AxesExtMixin, VCollection):
         return points
 
     def get_area(self, curve_or_func, x_range=None, bounded_graph=None, creation=0, z=0, **styling_kwargs):
-        """Create a shaded area under a curve/function (or between two curves).
-
-        *curve_or_func* can be a function, or a Path returned by plot() (which has ._func).
-        """
+        """Create a shaded area under a curve/function (or between two curves)."""
         style_kw = _AREA_STYLE | styling_kwargs
         func = self._resolve_func(curve_or_func, 'curve_or_func')
         bound_func = self._resolve_func(bounded_graph, 'bounded_graph') if bounded_graph is not None else None
@@ -1017,34 +1009,7 @@ class Axes(_AxesExtMixin, VCollection):
         return area
 
     def get_area_value(self, func, x_start, x_end, samples=100):
-        """Return the numerical integral of *func* over [x_start, x_end].
-
-        Uses the trapezoidal rule with *samples* equally-spaced intervals.
-        This is a pure numerical computation — no visual element is created.
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x)`` or a curve Path with a ``._func`` attribute
-            (as returned by :meth:`plot`).
-        x_start, x_end:
-            Integration bounds in mathematical (axis) coordinates.
-        samples:
-            Number of trapezoid intervals (default 100).  More samples give
-            a more accurate result.
-
-        Returns
-        -------
-        float
-            The approximate definite integral of *func* from *x_start* to
-            *x_end*.
-
-        Examples
-        --------
-        >>> ax = Axes(...)
-        >>> ax.get_area_value(lambda x: x**2, 0, 3)   # approx 9.0
-        >>> ax.get_area_value(math.sin, 0, math.pi)   # approx 2.0
-        """
+        """Return the numerical integral of *func* over [x_start, x_end] using the trapezoidal rule."""
         fn = self._resolve_func(func, 'func')
         n = max(int(samples), 2)
         step = (x_end - x_start) / n
@@ -1057,26 +1022,7 @@ class Axes(_AxesExtMixin, VCollection):
         return self.get_area_value(func, x_start, x_end, samples=samples)
 
     def get_average(self, func, x_start=None, x_end=None, samples=200):
-        """Return the average value of *func* over [x_start, x_end].
-
-        Computes ``(1 / (x1 - x0)) * integral(func, x0, x1)`` using the
-        trapezoidal rule.
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x)`` or a curve Path with a ``._func`` attribute.
-        x_start, x_end:
-            Integration bounds in mathematical (axis) coordinates.  Default
-            to the current axis x-range at time 0.
-        samples:
-            Number of trapezoid intervals (default 200).
-
-        Returns
-        -------
-        float
-            The average value of the function over the interval.
-        """
+        """Return the average value of *func* over [x_start, x_end]."""
         x0 = x_start if x_start is not None else float(self.x_min.at_time(0))
         x1 = x_end if x_end is not None else float(self.x_max.at_time(0))
         if x0 == x1:
@@ -1086,29 +1032,7 @@ class Axes(_AxesExtMixin, VCollection):
         return integral / (x1 - x0)
 
     def get_graph_length(self, func, x_start=None, x_end=None, samples=200):
-        """Return approximate arc length of *func*'s graph in SVG coordinates.
-
-        Samples the function at *samples* + 1 equally-spaced x values, converts
-        each (x, f(x)) to SVG coordinates via :meth:`coords_to_point`, and sums
-        the Euclidean distances between consecutive points.  Non-finite values
-        are skipped gracefully.
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x)`` or a curve Path with a ``._func`` attribute
-            (as returned by :meth:`plot`).
-        x_start, x_end:
-            Domain bounds in mathematical (axis) coordinates.  Default to the
-            current axis x-range.
-        samples:
-            Number of line segments to use for the approximation (default 200).
-
-        Returns
-        -------
-        float
-            The approximate arc length in SVG pixels.
-        """
+        """Return approximate arc length of *func*'s graph in SVG pixel coordinates."""
         import math as _math
         fn = self._resolve_func(func, 'func')
         x0 = x_start if x_start is not None else self.x_min.at_time(0)
@@ -1257,38 +1181,7 @@ class Axes(_AxesExtMixin, VCollection):
             return None
 
     def get_derivative(self, func, x_val, h=0.001):
-        """Return the numerical derivative of *func* at *x_val*.
-
-        Uses the symmetric central-difference formula::
-
-            f'(x) ≈ (f(x + h) - f(x - h)) / (2h)
-
-        This is a pure numerical computation — no visual element is created.
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x)`` or a curve Path with a ``._func`` attribute
-            (as returned by :meth:`plot`).
-        x_val:
-            The x value at which to evaluate the derivative (in mathematical
-            axis coordinates).
-        h:
-            Step size for the central-difference approximation (default
-            ``0.001``).  Smaller values give more accurate results for smooth
-            functions but may amplify floating-point noise.
-
-        Returns
-        -------
-        float
-            The approximate derivative f'(x_val).
-
-        Examples
-        --------
-        >>> ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        >>> ax.get_derivative(lambda x: x**2, 3.0)   # approx 6.0
-        >>> ax.get_derivative(math.sin, 0.0)          # approx 1.0
-        """
+        """Return the numerical derivative of *func* at *x_val* using central differences."""
         fn = self._resolve_func(func, 'func')
         return (fn(x_val + h) - fn(x_val - h)) / (2 * h)
 
@@ -1305,10 +1198,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_legend(self, entries, position='upper right', font_size=18,
                     bg_color='#1a1a2e', bg_opacity=0.8, creation=0, z=10):
-        """Add a legend box.
-        entries: list of (label_str, color_str) pairs.
-        position: 'upper right', 'upper left', 'lower right', 'lower left'.
-        Returns a VCollection."""
+        """Add a legend box with colored swatches and labels. Returns a VCollection."""
         if not entries:
             return VCollection(creation=creation, z=z)
         row_h = font_size + 8
@@ -1346,53 +1236,20 @@ class Axes(_AxesExtMixin, VCollection):
         return group
 
     def get_area_between(self, func1, func2, x_range=None, creation=0, z=0, **styling_kwargs):
-        """Shade the area between two functions.
-        func1, func2: callables. The area between them is shaded.
-        x_range: optional (min, max) to limit domain.
-        Returns a Path object."""
+        """Shade the area between two functions. Returns a Path."""
         style_kw = _AREA_STYLE | styling_kwargs
         return self.get_area(func1, bounded_graph=func2, x_range=x_range,
                              creation=creation, z=z, **style_kw)
 
     def shade_between(self, func1, func2, x_range=None, color='#58C4DD',
                       opacity=0.2, creation=0, z=0, **styling_kwargs):
-        """Shade the region between two functions.
-
-        A convenience wrapper around :meth:`get_area_between` that accepts
-        *color* and *opacity* as top-level parameters.  Both *func1* and
-        *func2* may be callables or curve objects returned by :meth:`plot`.
-
-        Parameters
-        ----------
-        func1, func2:
-            Callables ``f(x)`` or curve Paths with ``._func`` attribute.
-        x_range:
-            Optional ``(min, max)`` to limit the shaded domain.
-        color:
-            Fill color (default ``'#58C4DD'``).
-        opacity:
-            Fill opacity (default 0.2).
-        creation:
-            Creation time.
-        z:
-            Z-layer.
-        **styling_kwargs:
-            Additional styling forwarded to the Path.
-
-        Returns
-        -------
-        Path
-            The filled area Path (already added to the axes).
-        """
+        """Shade the region between two functions with given color and opacity."""
         kw = {'fill': color, 'fill_opacity': opacity} | styling_kwargs
         return self.get_area_between(func1, func2, x_range=x_range,
                                      creation=creation, z=z, **kw)
 
     def get_rect(self, x1, y1, x2, y2, creation=0, z=0, **styling_kwargs):
-        """Create a Rectangle from two corners in math coordinates.
-
-        Each coordinate can be a static number or an animated attribute (has ``.at_time()``).
-        """
+        """Create a Rectangle from two corners in math coordinates."""
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.3, 'stroke': '#fff', 'stroke_width': 1} | styling_kwargs
         rect = Rectangle(width=0, height=0, creation=creation, z=z, **style_kw)
         def _val(c, t):
@@ -1441,8 +1298,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_dot_label(self, x, y, label=None, dot_color='#FF6B6B', dot_radius=6,
                        label_offset=(10, -10), font_size=20, creation=0, z=0):
-        """Add a labeled dot at math coordinates (x, y). Returns (dot, label_text).
-        If no label is given, label_text is None."""
+        """Add a labeled dot at math coordinates (x, y). Returns (dot, label_text)."""
         sx, sy = self.coords_to_point(x, y, time=creation)
         dot = Dot(cx=sx, cy=sy, r=dot_radius, fill=dot_color,
                   creation=creation, z=z)
@@ -1464,12 +1320,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_point_label(self, x, y, text=None, dot_radius=6, font_size=20, buff=10,
                         creation=0, **kwargs) -> 'tuple[Dot, Text]':
-        """Add a dot at math coordinates (x, y) with an optional text label.
-
-        text: label string.  If None, defaults to '(x, y)' format.
-        buff: pixel offset above the dot for the label.
-        Returns (dot, label).
-        """
+        """Add a dot at math coordinates (x, y) with an optional text label. Returns (dot, label)."""
         if text is None:
             text = f'({x:g}, {y:g})'
         dot_color = kwargs.pop('dot_color', '#FF6B6B')

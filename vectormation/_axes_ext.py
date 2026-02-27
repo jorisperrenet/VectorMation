@@ -1746,32 +1746,7 @@ class _AxesExtMixin:
 
     def mark_intersection(self, func1, func2, x_range=None, creation=0,
                           label=None, **kwargs):
-        """Find the intersection of two functions and place a Dot there.
-
-        Uses :meth:`get_intersection_point` to find the crossing, creates a
-        :class:`Dot` at the corresponding SVG position, and optionally adds a
-        :class:`Text` label above the dot.
-
-        Parameters
-        ----------
-        func1, func2:
-            Callables ``f(x) -> y`` whose intersection is sought.
-        x_range:
-            ``(a, b)`` search interval.  If ``None`` the axes' x-range is used.
-        creation:
-            Creation time for the dot (and label).
-        label:
-            Optional label string displayed above the dot.
-        **kwargs:
-            Forwarded to the :class:`Dot` constructor (e.g. ``fill``, ``r``).
-
-        Returns
-        -------
-        Dot or VCollection
-            The dot if no label was requested, otherwise a
-            :class:`VCollection` containing the dot and label text.
-            Returns ``None`` if no intersection was found.
-        """
+        """Find the intersection of two functions and place a Dot (and optional label) there."""
         if x_range is None:
             x_range = (self.x_min.at_time(creation), self.x_max.at_time(creation))
         result = self.get_intersection_point(func1, func2, x_range)
@@ -1893,38 +1868,7 @@ class _AxesExtMixin:
 
     def plot_derivative(self, func, h=0.001, num_points=200,
                         creation=0, z=0, **styling_kwargs):
-        """Plot the numerical derivative of a function.
-
-        Creates a new curve representing ``f'(x)`` computed via the
-        central difference formula::
-
-            f'(x) = (f(x + h) - f(x - h)) / (2 * h)
-
-        The returned Path is a live curve that resamples each frame
-        (like :meth:`plot`), so it responds to animated axis ranges.
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x)`` or a curve Path with a ``._func`` attribute
-            (as returned by :meth:`plot`).
-        h:
-            Step size for the central difference (default 0.001).
-        num_points:
-            Number of sample points for the curve (default 200).
-        creation:
-            Creation time for the returned Path.
-        z:
-            Z-index for layering.
-        **styling_kwargs:
-            Styling overrides.  Defaults to a green dashed line.
-
-        Returns
-        -------
-        Path
-            A Path object (with ``._func`` set to the derivative function)
-            added to the axes.
-        """
+        """Plot the numerical derivative of a function using central differences."""
         fn = self._resolve_func(func, 'func')
 
         def _deriv(x, _f=fn, _hh=h):
@@ -1944,39 +1888,7 @@ class _AxesExtMixin:
 
     def get_trapezoidal_rule(self, func, x_range, dx=0.5, creation=0, z=0,
                              **styling_kwargs):
-        """Visualize the trapezoidal rule approximation of the area under *func*.
-
-        Unlike :meth:`get_riemann_rectangles` which draws axis-aligned
-        rectangles evaluated at the left endpoint, this method draws
-        trapezoids whose top edges connect the function values at the left
-        and right endpoints of each sub-interval, giving a more accurate
-        visual approximation of the integral.
-
-        The result is a :class:`DynamicObject` that rebuilds each frame,
-        so it responds correctly to animated axis ranges.
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x)`` to approximate.
-        x_range:
-            ``(x_min, x_max)`` bounds for the approximation domain in
-            math coordinates.
-        dx:
-            Width of each sub-interval in math coordinates (default 0.5).
-        creation:
-            Creation time.
-        z:
-            Z-index for layering.
-        **styling_kwargs:
-            Styling overrides (default: semi-transparent blue fill with
-            white stroke).
-
-        Returns
-        -------
-        DynamicObject
-            A dynamic collection of Polygon trapezoids, added to the axes.
-        """
+        """Visualize the trapezoidal rule approximation of the area under *func*."""
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.4,
                     'stroke': '#fff', 'stroke_width': 1} | styling_kwargs
         fn = self._resolve_func(func, 'func')
@@ -2088,30 +2000,7 @@ class _AxesExtMixin:
         return self.plot(func, creation=creation, **kwargs)
 
     def add_residual_lines(self, x_data, y_data, creation=0, z=1, **styling_kwargs):
-        """Draw vertical residual lines from each data point to the regression line.
-
-        Computes least-squares regression (y = mx + b) from the data, then
-        draws a vertical Line from each observed (x, y) to the predicted
-        (x, mx + b).  Useful for visualising regression fit quality.
-
-        Parameters
-        ----------
-        x_data, y_data:
-            Sequences of numeric x and y values.
-        creation:
-            Appearance time.
-        z:
-            Draw order.
-        **styling_kwargs:
-            Styling overrides for the residual lines.
-
-        Returns
-        -------
-        VCollection
-            A VCollection of Line objects (one per data point).  Returns an
-            empty VCollection if there are fewer than 2 data points or the
-            regression is degenerate.
-        """
+        """Draw vertical residual lines from each data point to the regression line."""
         style_kw = {'stroke': '#FF6B6B', 'stroke_width': 2, 'stroke_dasharray': '4 3'} | styling_kwargs
         n = len(x_data)
         if n < 2:
@@ -2140,34 +2029,7 @@ class _AxesExtMixin:
 
     def add_spread_band(self, func, spread_func, x_range=None, num_points=100,
                         color='#58C4DD', opacity=0.2, creation=0):
-        """Draw a shaded band around a curve defined by a centre function and spread.
-
-        The band extends from ``func(x) - spread_func(x)`` to
-        ``func(x) + spread_func(x)`` for each x.
-
-        Parameters
-        ----------
-        func:
-            Centre function y = func(x), or a curve with ``._func``.
-        spread_func:
-            Half-width function: ``spread_func(x)`` returns the distance
-            above and below the centre at x.
-        x_range:
-            Optional ``(x0, x1)`` tuple.  Defaults to the visible axis range.
-        num_points:
-            Number of sample points along x.
-        color:
-            Fill color for the band.
-        opacity:
-            Fill opacity.
-        creation:
-            Appearance time.
-
-        Returns
-        -------
-        Path
-            A filled Path representing the band (already added to the axes).
-        """
+        """Draw a shaded band from func(x)-spread_func(x) to func(x)+spread_func(x)."""
         fn = self._resolve_func(func, 'func')
         spread_fn = self._resolve_func(spread_func, 'spread_func')
         band = Path('', x=0, y=0, creation=creation, z=-1,
@@ -2202,31 +2064,7 @@ class _AxesExtMixin:
         return band
 
     def add_mean_line(self, func_or_data, x_range=None, creation=0, **kwargs):
-        """Add a horizontal dashed line at the mean value of a function or data.
-
-        If *func_or_data* is callable, it is sampled uniformly over *x_range*
-        (defaulting to the current axis x-range) and the mean of the sampled
-        values is used.  If it is a list (or other sequence), the arithmetic
-        mean is computed directly.
-
-        Parameters
-        ----------
-        func_or_data:
-            A callable ``f(x) -> y`` or a list/sequence of numeric values.
-        x_range:
-            ``(x_start, x_end)`` over which to sample a callable.  Ignored
-            when *func_or_data* is a list.  Defaults to the axis x-range at
-            time 0.
-        creation:
-            Creation time for the line.
-        **kwargs:
-            Override default styling (stroke, stroke_width, stroke_dasharray).
-
-        Returns
-        -------
-        Line
-            The horizontal mean line (already added to the axes).
-        """
+        """Add a horizontal dashed line at the mean value of a function or data."""
         if callable(func_or_data):
             if x_range is None:
                 x_range = (self.x_min.at_time(0), self.x_max.at_time(0))
@@ -2249,39 +2087,7 @@ class _AxesExtMixin:
 
     def add_function_label(self, func_or_curve, label_text, x_pos=None,
                            direction='above', font_size=24, creation=0, z=1, **kwargs):
-        """Add a text label near a function curve at a specific x-position.
-
-        If *func_or_curve* is a callable, it is used directly as ``y = f(x)``.
-        If it is a curve Path object with a ``_func`` attribute (as returned
-        by :meth:`add_function`), its stored function is used.
-
-        Parameters
-        ----------
-        func_or_curve:
-            A callable ``f(x) -> y`` or a Path object with ``._func``.
-        label_text:
-            The string to display.
-        x_pos:
-            Math x-coordinate at which to place the label.  If ``None``,
-            the label is placed at the rightmost visible x value (``x_max``).
-        direction:
-            ``'above'`` (default) or ``'below'`` — controls whether the
-            label appears above or below the curve.
-        font_size:
-            Font size of the label text.
-        creation:
-            Creation time for the returned Text object.
-        z:
-            Z-layer ordering.
-        **kwargs:
-            Extra keyword arguments forwarded to the :class:`Text`
-            constructor (e.g. ``fill``, ``stroke``).
-
-        Returns
-        -------
-        Text
-            The label Text object (already added to the axes).
-        """
+        """Add a text label near a function curve at a specific x-position."""
         func = getattr(func_or_curve, '_func', None) or func_or_curve
         buff = 12
         sign = -1 if direction == 'above' else 1
@@ -2318,35 +2124,7 @@ class _AxesExtMixin:
 
     def annotate_area(self, func_or_curve, x_range, label=None, color='#58C4DD',
                        opacity=0.3, start=0, **kwargs):
-        """Create a shaded area under a curve with an optional centered label.
-
-        Combines :meth:`get_area` with label placement.  The area is created
-        using the existing ``get_area`` method and an optional ``Text`` label
-        is placed at the center of the x_range on the curve midpoint.
-
-        Parameters
-        ----------
-        func_or_curve:
-            A callable ``f(x)`` or a Path with ``._func`` (as returned by
-            :meth:`plot`).
-        x_range:
-            ``(x_start, x_end)`` in math coordinates.
-        label:
-            Optional text string for a label centered on the shaded area.
-        color:
-            Fill color for the area.
-        opacity:
-            Fill opacity for the area.
-        start:
-            Creation time for the area and label.
-        **kwargs:
-            Extra keyword arguments forwarded to ``get_area``.
-
-        Returns
-        -------
-        VCollection
-            A VCollection containing the area Path and (if provided) the label.
-        """
+        """Create a shaded area under a curve with an optional centered label."""
         area = self.get_area(func_or_curve, x_range=x_range, creation=start,
                              fill=color, fill_opacity=opacity, **kwargs)
         objects = [area]

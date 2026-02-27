@@ -13,11 +13,7 @@ from vectormation._axes import _nice_ticks
 # ---------------------------------------------------------------------------
 
 def _project_point(x, y, z, phi, theta, scale, cx, cy):
-    """Orthographic projection of (x, y, z) to (svg_x, svg_y, depth).
-
-    *phi*: elevation angle from the z-axis (0 = looking straight down).
-    *theta*: azimuthal rotation in the xy-plane.
-    """
+    """Orthographic projection of (x, y, z) to (svg_x, svg_y, depth)."""
     sp, cp = math.sin(phi), math.cos(phi)
     st, ct = math.sin(theta), math.cos(theta)
     screen_x = -st * x + ct * y
@@ -87,15 +83,7 @@ def _frange(start, stop, step):
 # ---------------------------------------------------------------------------
 
 class ThreeDAxes(VCollection):
-    """3D coordinate axes with camera control, ticks, labels, and depth-sorted rendering.
-
-    *phi*: elevation from the z-axis (radians). Default 60° (pi/3).
-    *theta*: azimuthal angle (radians). Default -45° (-pi/4).
-    *scale*: pixels per math unit.
-
-    Camera angles are animatable ``attributes.Real`` values — use
-    ``set_camera_orientation()`` or animate them directly.
-    """
+    """3D coordinate axes with camera control, ticks, labels, and depth-sorted rendering."""
 
     def __init__(self, x_range=(-3, 3), y_range=(-3, 3), z_range=(-3, 3),
                  cx=960, cy=540, scale=160,
@@ -218,10 +206,7 @@ class ThreeDAxes(VCollection):
         return self
 
     def begin_ambient_camera_rotation(self, start=0, end=None, rate=0.1):
-        """Continuously rotate the camera theta at *rate* radians per second.
-
-        If *end* is None, runs until ``last_change`` of other animations + 10s.
-        """
+        """Continuously rotate the camera theta at *rate* radians per second."""
         theta0 = self.theta.at_time(start)
         if end is None:
             self.theta.set_onward(start, lambda t: theta0 + rate * (t - start))
@@ -243,10 +228,7 @@ class ThreeDAxes(VCollection):
                      fill_color='#4488ff', checkerboard_colors=None,
                      stroke_color='#333', stroke_width=0.5, fill_opacity=0.8,
                      creation=0, z=0):
-        """Create and register a Surface for z = func(x, y).
-
-        If u_range/v_range are not given, defaults to x_range/y_range.
-        """
+        """Create and register a Surface for z = func(x, y)."""
         if u_range is None:
             u_range = self._x_range
         if v_range is None:
@@ -260,13 +242,7 @@ class ThreeDAxes(VCollection):
 
     def get_graph_3d(self, func, x_range=None, plane='xz', num_points=100,
                      stroke='#FFFF00', stroke_width=2, creation=0, z=0):
-        """Plot a 2D function as a curve in 3D space.
-
-        *func*: callable f(x) -> y.
-        *plane*: which plane to draw in — 'xz' means f maps x->z (y=0),
-                 'xy' means x->y (z=0), 'yz' means y->z (x=0).
-        Returns a ParametricCurve3D added to this axes.
-        """
+        """Plot a 2D function as a curve in 3D space."""
         if x_range is None:
             x_range = self._x_range
         x0, x1 = x_range
@@ -287,10 +263,7 @@ class ThreeDAxes(VCollection):
 
     def plot_surface_wireframe(self, func, x_steps=20, y_steps=20,
                                creation=0, z=0, **styling_kwargs):
-        """Plot a z=f(x,y) surface as a wireframe (backward compat).
-
-        Returns a VCollection of projected Lines added to this axes.
-        """
+        """Plot a z=f(x,y) surface as a wireframe (backward compat)."""
         line_style = {'stroke': '#4488ff', 'stroke_width': 1} | styling_kwargs
         wireframe = _WireframeSurface(self, func, self._x_range, self._y_range,
                                       x_steps, y_steps, line_style, creation=creation, z=z)
@@ -310,13 +283,7 @@ class ThreeDAxes(VCollection):
 
     def add_grid_plane(self, plane='xz', step=1, color='#444444', opacity=0.3,
                         stroke_width=0.5, creation=0):
-        """Add a grid plane to the 3D axes.
-
-        *plane*: ``'xz'`` (horizontal floor), ``'xy'`` (vertical front),
-        ``'yz'`` (vertical side).
-
-        Returns the grid as a ``VCollection`` of projected lines.
-        """
+        """Add a grid plane to the 3D axes."""
         from vectormation._shapes import Line
         lines = []
         x_min, x_max = self._x_range[0], self._x_range[1]
@@ -503,13 +470,7 @@ class ThreeDAxes(VCollection):
 # ---------------------------------------------------------------------------
 
 class Surface(VObject):
-    """Filled surface with depth sorting and Lambertian shading.
-
-    *func*: callable ``(u, v) -> z`` for height-map or ``(u, v) -> (x, y, z)`` for parametric.
-    *u_range*/*v_range*: parameter ranges ``(min, max)``.
-    *resolution*: ``(u_steps, v_steps)`` number of subdivisions.
-    *checkerboard_colors*: optional ``(color_a, color_b)`` for alternating face colors.
-    """
+    """Filled surface with depth sorting and Lambertian shading."""
 
     def __init__(self, func, u_range=(-3, 3), v_range=(-3, 3),
                  resolution=(20, 20),
@@ -978,10 +939,7 @@ class Text3D(_PointPrimitive3D):
 def Cube(side_length=2, center=(0, 0, 0), fill_color='#58C4DD',
          stroke_color='#333', stroke_width=0.5, fill_opacity=0.8,
          creation=0, z=0):
-    """Create a list of 6 Surface objects representing a cube.
-
-    Returns a list; add each to the axes with ``axes.add_surface(face)``.
-    """
+    """Create a list of 6 Surface objects representing a cube."""
     cx, cy, cz = center
     h = side_length / 2
     faces = []
@@ -1034,10 +992,7 @@ def Cone3D(radius=1, height=2, center=(0, 0, 0), resolution=(16, 16),
            fill_color='#58C4DD', checkerboard_colors=None,
            stroke_color='#333', stroke_width=0.3, fill_opacity=0.9,
            creation=0, z=0):
-    """Create a Surface representing a cone (open-ended, side only).
-
-    The apex is at center + (0, 0, height/2), the base at center - (0, 0, height/2).
-    """
+    """Create a Surface representing a cone (open-ended, side only)."""
     cx, cy, cz = center
     def cone_func(u, v):
         # u: angle 0..tau, v: 0 (apex) to 1 (base)
@@ -1076,10 +1031,7 @@ def Torus3D(major_radius=2, minor_radius=0.5, center=(0, 0, 0),
 def Prism3D(n_sides=6, radius=1, height=2, center=(0, 0, 0),
             fill_color='#58C4DD', stroke_color='#333', stroke_width=0.5,
             fill_opacity=0.8, creation=0, z=0):
-    """Create a list of Surfaces representing an n-sided prism.
-
-    Returns a list of Surface objects (side faces + top + bottom caps).
-    """
+    """Create a list of Surfaces representing an n-sided prism."""
     cx, cy, cz = center
     h = height / 2
     faces = []

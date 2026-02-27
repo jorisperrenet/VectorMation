@@ -65,11 +65,7 @@ class Arrow(VCollection):
         self.tip.vertices[2].set_onward(start, lambda t: _cached_geom(t)[2])
 
     def set_start(self, x, y, start=0, end=None):
-        """Animate the arrow start point.
-
-        If end is None, set instantly at start.
-        Otherwise animate from current position to (x, y).
-        """
+        """Animate the arrow start point."""
         if end is None:
             self.shaft.p1.set_onward(start, lambda t: (x, y))
         else:
@@ -78,11 +74,7 @@ class Arrow(VCollection):
         return self
 
     def set_end(self, x, y, start=0, end=None):
-        """Animate the arrow end point.
-
-        If end is None, set instantly at start.
-        Otherwise animate from current position to (x, y).
-        """
+        """Animate the arrow end point."""
         if end is None:
             self.shaft.p2.set_onward(start, lambda t: (x, y))
         else:
@@ -117,28 +109,7 @@ class Arrow(VCollection):
 
     @classmethod
     def between(cls, obj_a, obj_b, buff=0, **kwargs):
-        """Create an Arrow connecting two VObjects.
-
-        The arrow direction is computed from the centers of *obj_a* and
-        *obj_b*.  The endpoints are placed on the appropriate edges of each
-        object (e.g. if *obj_b* is to the right of *obj_a*, the arrow starts
-        at ``obj_a.get_edge('right')`` and ends at ``obj_b.get_edge('left')``).
-
-        Parameters
-        ----------
-        obj_a:
-            Source VObject.
-        obj_b:
-            Target VObject.
-        buff:
-            Buffer distance applied to shorten both ends of the arrow.
-        **kwargs:
-            Extra keyword arguments forwarded to the Arrow constructor.
-
-        Returns
-        -------
-        Arrow
-        """
+        """Create an Arrow connecting two VObjects."""
         ca = obj_a.get_edge('center', time=0)
         cb = obj_b.get_edge('center', time=0)
         dx = cb[0] - ca[0]
@@ -203,11 +174,7 @@ class CurvedArrow(VCollection):
 
 
 def _transform_rel_svg_path(raw, m00, m01, m10, m11, tx, ty):
-    """Parse a relative SVG path and convert to absolute coords with an affine transform.
-
-    Transform: (x, y) -> (m00*x + m01*y + tx, m10*x + m11*y + ty)
-    Only handles the lowercase commands used in the brace template: m c v h s z.
-    """
+    """Parse a relative SVG path and convert to absolute coords with an affine transform."""
     tokens = re.findall(r'[mcvhsz]|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?', raw)
 
     def xf(x, y):
@@ -305,15 +272,7 @@ _BRACE_HEIGHT = 0.167
 
 
 class Brace(VCollection):
-    """Curly brace annotation pointing at a target object.
-
-    Uses a LaTeX-style curly-brace shape, rendered as a filled path.
-
-    direction: 'down', 'up', 'left', or 'right' -- which side the brace sits on.
-    label: optional text placed near the brace midpoint.
-    buff: spacing between the target and the brace in pixels.
-    depth: peak height of the brace tip in pixels.
-    """
+    """Curly brace annotation pointing at a target object."""
     def __init__(self, target, direction='down', label=None, buff=SMALL_BUFF,
                  depth=18, creation: float = 0, z: float = 0, **styling_kwargs):
         direction = _norm_dir(direction, 'down')
@@ -381,29 +340,7 @@ class Brace(VCollection):
     @classmethod
     def for_range(cls, axes, axis, start_val, end_val, direction=None,
                   label=None, **kwargs):
-        """Create a Brace spanning a range on an Axes object.
-
-        Parameters
-        ----------
-        axes:
-            The :class:`Axes` instance to reference.
-        axis:
-            ``'x'`` for a horizontal range or ``'y'`` for a vertical range.
-        start_val, end_val:
-            Start and end values in math (axis) coordinates.
-        direction:
-            Brace direction.  If ``None``, defaults to ``'down'`` for the
-            x-axis and ``'left'`` for the y-axis.
-        label:
-            Optional label text for the brace.
-        **kwargs:
-            Forwarded to the :class:`Brace` constructor (e.g. ``buff``,
-            ``depth``, styling).
-
-        Returns
-        -------
-        Brace
-        """
+        """Create a Brace spanning a range on an Axes object."""
         creation = kwargs.pop('creation', 0)
         if axis == 'x':
             sx1 = axes._math_to_svg_x(start_val, creation)

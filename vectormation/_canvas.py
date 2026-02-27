@@ -12,14 +12,7 @@ import vectormation.style as style
 logger = logging.getLogger('vectormation')
 
 class VectorMathAnim:
-    """Canvas/video where we can ask a frame at a certain time.
-
-    This is the top-level object that manages all VObjects and controls
-    animation playback, frame generation, and display.
-
-    width/height: canvas dimensions in pixels (default 1920x1080 Full HD).
-    scale: output resolution multiplier (default 1). Use scale=2 for 4K.
-    """
+    """Canvas/video where we can ask a frame at a certain time."""
     def __init__(self, save_dir, width=1920, height=1080, scale=1, verbose=False):
         if verbose:
             logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
@@ -102,9 +95,7 @@ class VectorMathAnim:
         return self
 
     def camera_follow(self, obj, start, end=None):
-        """Make the camera center on an object over [start, end].
-        If end is None, follows indefinitely.
-        The viewBox is clamped to stay within the canvas bounds."""
+        """Make the camera center on an object over [start, end]."""
         w, h = self.width, self.height
         def _vb_x(t):
             cx = obj.center(t)[0]
@@ -149,9 +140,7 @@ class VectorMathAnim:
         return self
 
     def set_background(self, creation=0, z=-1, grid=False, grid_spacing=60, grid_color='#333', **styling):
-        """Sets the background of the animation (otherwise no background is added).
-        grid: if True, draw a grid on top of the background.
-        grid_spacing: pixels between grid lines. grid_color: color of grid lines."""
+        """Sets the background of the animation (otherwise no background is added)."""
         if self.background is not None:
             del self.objects[id(self.background)]
         st = style.Styling(styling, creation=creation, stroke_width=0)
@@ -171,9 +160,7 @@ class VectorMathAnim:
         return self
 
     def add_section(self, time):
-        """Add a section break at the given time.
-        During playback, animation pauses at each section break and waits
-        for the user to press Space to continue to the next section."""
+        """Add a section break at the given time."""
         self.sections.append(time)
         self.sections.sort()
         return self
@@ -403,11 +390,7 @@ class VectorMathAnim:
             logger.info('Exported section %d at t=%.2f to %s', i, t, filename)
 
     def export_png(self, time=0, filename='frame.png', scale=None):
-        """Export a single frame as PNG using cairosvg.
-
-        scale: output resolution multiplier. Defaults to self.scale (1).
-        With the default 1920x1080 canvas, output is 1920x1080 (Full HD).
-        Use scale=2 for 3840x2160 (4K)."""
+        """Export a single frame as PNG using cairosvg."""
         try:
             import cairosvg  # type: ignore[import-not-found]
         except ImportError:
@@ -436,11 +419,7 @@ class VectorMathAnim:
             t += dt
 
     def export_video(self, filename='animation.mp4', start=0, end=None, fps=60, scale=None):
-        """Export animation as video using cairosvg + ffmpeg.
-
-        scale: output resolution multiplier. Defaults to self.scale (1).
-        With the default 1920x1080 canvas, output is 1920x1080 (Full HD).
-        Use scale=2 for 3840x2160 (4K)."""
+        """Export animation as video using cairosvg + ffmpeg."""
         import subprocess, shutil
         try:
             import cairosvg  # type: ignore[import-not-found]
@@ -471,11 +450,7 @@ class VectorMathAnim:
             shutil.rmtree(tmpdir, ignore_errors=True)
 
     def export_gif(self, filename='animation.gif', start=0, end=None, fps=30, scale=None, loop=0):
-        """Export animation as an animated GIF using cairosvg + Pillow.
-
-        scale: output resolution multiplier. Defaults to self.scale (1).
-        With the default 1920x1080 canvas, output is 1920x1080 (Full HD).
-        Use scale=2 for 3840x2160 (4K)."""
+        """Export animation as an animated GIF using cairosvg + Pillow."""
         try:
             import cairosvg  # type: ignore[import-not-found]
         except ImportError:

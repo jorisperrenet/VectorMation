@@ -64,11 +64,7 @@ def _lerp_point(x1, y1, x2, y2, t):
 
 def _sample_function(func, x_min, x_max, y_range, num_points, px, py, pw, ph,
                      extra_xs=None):
-    """Sample func over [x_min, x_max] and map to SVG coordinates in (px, py, pw, ph).
-    Returns (y_min, y_max, segments, clamped) where:
-    - segments: list of vertex lists, each a contiguous in-bounds section
-    - clamped: flat vertex list with y clamped to [py, py+ph]
-    extra_xs: additional x values to include as sample points (e.g. domain boundaries)."""
+    """Sample func over [x_min, x_max] and map to SVG coordinates in (px, py, pw, ph)."""
     xs = [x_min + i * (x_max - x_min) / num_points for i in range(num_points + 1)]
     if extra_xs:
         xs_set = set(xs)
@@ -163,18 +159,7 @@ def interpolate_value(a, b, alpha):
 
 
 def smooth_index(lst, real_index):
-    """Smoothly index into a list with a float index in [0, 1].
-
-    Returns the linearly interpolated value between adjacent list items.
-    Useful for sampling parametric curves from discrete point lists.
-
-    Parameters
-    ----------
-    lst : list
-        List of numeric values (or tuples for 2D/3D points).
-    real_index : float
-        Index in [0, 1], where 0 maps to lst[0] and 1 maps to lst[-1].
-    """
+    """Smoothly index into a list with a float index in [0, 1]."""
     n = len(lst)
     if n == 0:
         raise ValueError('Cannot index into an empty list')

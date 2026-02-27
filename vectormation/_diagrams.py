@@ -17,11 +17,7 @@ from vectormation._shapes import (
 # ---------------------------------------------------------------------------
 
 class ChessBoard(VCollection):
-    """Chess board visualization.
-
-    size: pixel size of the board.
-    show_coordinates: whether to show rank/file labels.
-    """
+    """Chess board visualization."""
     _PIECE_SYMBOLS = {
         'K': '\u2654', 'Q': '\u2655', 'R': '\u2656', 'B': '\u2657', 'N': '\u2658', 'P': '\u2659',
         'k': '\u265a', 'q': '\u265b', 'r': '\u265c', 'b': '\u265d', 'n': '\u265e', 'p': '\u265f',
@@ -151,10 +147,7 @@ def _element_category(z):
 
 
 class PeriodicTable(VCollection):
-    """Periodic table of elements (first 36 elements).
-
-    cell_size: pixel size of each element cell.
-    """
+    """Periodic table of elements (first 36 elements)."""
     def __init__(self, cx=960, cy=540, cell_size=48, creation: float = 0, z: float = 0):
         objects = []
         total_w = 18 * cell_size
@@ -201,12 +194,7 @@ class PeriodicTable(VCollection):
 # ---------------------------------------------------------------------------
 
 class BohrAtom(VCollection):
-    """Bohr model of an atom with electron shells.
-
-    protons: number of protons (atomic number).
-    neutrons: number of neutrons.
-    electrons: list of electrons per shell, e.g. [2, 8, 1] for sodium.
-    """
+    """Bohr model of an atom with electron shells."""
     def __init__(self, protons=1, neutrons=0, electrons=None, cx=960, cy=540,
                  nucleus_r=30, shell_spacing=40, creation: float = 0, z: float = 0):
         objects = []
@@ -264,13 +252,7 @@ class BohrAtom(VCollection):
 # ---------------------------------------------------------------------------
 
 class Automaton(VCollection):
-    """Finite state machine / automaton visualization.
-
-    states: list of state names, e.g. ['q0', 'q1', 'q2']
-    transitions: list of (from_state, to_state, label) tuples
-    accept_states: set of accepting state names (drawn with double circle)
-    initial_state: name of the initial state (gets an incoming arrow)
-    """
+    """Finite state machine / automaton visualization."""
     def __init__(self, states, transitions, accept_states=None, initial_state=None,
                  cx=960, cy=540, radius=300, state_r=35, font_size=20,
                  creation: float = 0, z: float = 0):
@@ -366,13 +348,7 @@ class Automaton(VCollection):
 # ---------------------------------------------------------------------------
 
 class NetworkGraph(VCollection):
-    """Network/graph visualization with nodes and edges.
-
-    nodes: dict mapping node_id -> label string, or a list of labels.
-    edges: list of (from_id, to_id) or (from_id, to_id, label) tuples.
-    layout: 'circular', 'spring', or 'grid'.
-    directed: whether to draw arrows (True) or lines (False).
-    """
+    """Network/graph visualization with nodes and edges."""
     def __init__(self, nodes, edges=None, cx=960, cy=540, radius=300,
                  node_r=30, font_size=20, layout='circular', directed=False,
                  creation: float = 0, z: float = 0):
@@ -510,12 +486,7 @@ class NetworkGraph(VCollection):
 # ---------------------------------------------------------------------------
 
 class Tree(VCollection):
-    """Hierarchical tree layout visualization.
-
-    data: nested dict like {'root': {'child1': {}, 'child2': {'leaf': {}}}}
-          or a tuple tree: ('root', [('child1', []), ('child2', [('leaf', [])])])
-    layout: 'down' (root at top) or 'right' (root at left).
-    """
+    """Hierarchical tree layout visualization."""
     def __init__(self, data, cx=960, cy=100, h_spacing=120, v_spacing=100,
                  node_r=20, font_size=18, layout='down',
                  creation: float = 0, z: float = 0):
@@ -642,11 +613,7 @@ class Tree(VCollection):
 # ---------------------------------------------------------------------------
 
 class Stamp(VCollection):
-    """Place copies of a template object at specified positions.
-
-    template: the VObject to copy.
-    points: list of (x, y) positions to place copies at.
-    """
+    """Place copies of a template object at specified positions."""
     def __init__(self, template, points, creation: float = 0, z: float = 0):
         from copy import deepcopy
         objects = []
@@ -666,11 +633,7 @@ class Stamp(VCollection):
 # ---------------------------------------------------------------------------
 
 class TimelineBar(VCollection):
-    """Visual timeline bar with labeled markers.
-
-    markers: dict of {time_val: label} pairs.
-    total_duration: the max time value represented.
-    """
+    """Visual timeline bar with labeled markers."""
     def __init__(self, markers, total_duration=10, x=200, y=900,
                  width=1520, height=6, marker_color='#FFFF00',
                  font_size=14, creation: float = 0, z: float = 0):
@@ -707,11 +670,7 @@ class TimelineBar(VCollection):
 # ---------------------------------------------------------------------------
 
 class FlowChart(VCollection):
-    """Simple flow chart with labeled boxes connected by arrows.
-
-    steps: list of str labels for each box.
-    direction: 'right' or 'down'.
-    """
+    """Simple flow chart with labeled boxes connected by arrows."""
     def __init__(self, steps, direction='right', x=200, y=400,
                  box_width=200, box_height=60, spacing=80,
                  box_color='#58C4DD', text_color='#fff', arrow_color='#999',
@@ -762,11 +721,7 @@ class FlowChart(VCollection):
 # ---------------------------------------------------------------------------
 
 class VennDiagram(VCollection):
-    """Venn diagram with 2 or 3 overlapping circles.
-
-    labels: list of 2 or 3 labels.
-    sizes: optional list of radii (default equal).
-    """
+    """Venn diagram with 2 or 3 overlapping circles."""
     def __init__(self, labels, sizes=None, x=960, y=540, radius=150,
                  colors=None, font_size=24, creation: float = 0, z: float = 0):
         n = len(labels)
@@ -820,11 +775,7 @@ class VennDiagram(VCollection):
 # ---------------------------------------------------------------------------
 
 class OrgChart(VCollection):
-    """Organization chart from a tree structure.
-
-    root: (label, [children]) where children are the same structure.
-    Example: ('CEO', [('CTO', [('Dev', [])]), ('CFO', [])])
-    """
+    """Organization chart from a tree structure."""
     def __init__(self, root, x=960, y=80, h_spacing=180, v_spacing=100,
                  box_width=120, box_height=40, font_size=16,
                  colors=None, creation: float = 0, z: float = 0):
@@ -899,10 +850,7 @@ class OrgChart(VCollection):
 # ---------------------------------------------------------------------------
 
 class MindMap(VCollection):
-    """Radial mind map diagram.
-
-    root: (label, [children]) where children have the same structure.
-    """
+    """Radial mind map diagram."""
     def __init__(self, root, cx=960, cy=540, radius=250, font_size=18,
                  colors=None, creation: float = 0, z: float = 0):
         if colors is None:

@@ -17,10 +17,7 @@ def _flash_fill(obj, color, start, end, default='#264653'):
 
 
 class Array(VCollection):
-    """Visual array data structure with cells, indices, and animation methods.
-
-    values: list of initial values to display in cells.
-    """
+    """Visual array data structure with cells, indices, and animation methods."""
     def __init__(self, values, x=360, y=440, cell_width=80, cell_height=60,
                  font_size=24, index_font_size=16,
                  fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
@@ -85,10 +82,7 @@ class Array(VCollection):
 
 
 class Stack(VCollection):
-    """Visual stack data structure (LIFO) with push/pop animations.
-
-    values: initial values (bottom to top).
-    """
+    """Visual stack data structure (LIFO) with push/pop animations."""
     def __init__(self, values=None, x=860, y=600, cell_width=100, cell_height=50,
                  font_size=22, fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
                  creation: float = 0, z: float = 0):
@@ -146,10 +140,7 @@ class Stack(VCollection):
 
 
 class Queue(VCollection):
-    """Visual queue data structure (FIFO) with enqueue/dequeue animations.
-
-    values: initial values (front to back).
-    """
+    """Visual queue data structure (FIFO) with enqueue/dequeue animations."""
     def __init__(self, values=None, x=360, y=440, cell_width=80, cell_height=60,
                  font_size=22, fill='#1e1e2e', text_color='#fff', border_color='#83C167',
                  creation: float = 0, z: float = 0):
@@ -211,10 +202,7 @@ class Queue(VCollection):
 
 
 class LinkedList(VCollection):
-    """Visual linked list with nodes and arrow pointers.
-
-    values: list of node values.
-    """
+    """Visual linked list with nodes and arrow pointers."""
     def __init__(self, values, x=200, y=440, node_width=80, node_height=50,
                  gap=40, font_size=22,
                  fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
@@ -258,11 +246,7 @@ class LinkedList(VCollection):
 
 
 class BinaryTree(VCollection):
-    """Visual binary tree with automatic layout.
-
-    tree: nested tuple (value, left_subtree, right_subtree).
-    Leaves can be just a value or (value, None, None).
-    """
+    """Visual binary tree with automatic layout."""
     def __init__(self, tree, x=960, y=120, h_spacing=200, v_spacing=100,
                  node_radius=25, font_size=20,
                  fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
@@ -317,26 +301,7 @@ class BinaryTree(VCollection):
 
 
 class ArrayViz(VCollection):
-    """Visualise an array as a row of labeled cells.
-
-    Each element is rendered as a Rectangle with centred Text inside.
-    Supports animated swaps, highlights, and value changes.
-
-    Parameters
-    ----------
-    values : list
-        Initial values to display in the array.
-    cell_size : float
-        Width and height of each cell.
-    x, y : float
-        Position of the top-left corner of the first cell.
-    colors : list or None
-        Per-cell fill colours.  If *None*, all cells use *default_fill*.
-    default_fill : str
-        Default cell fill colour.
-    show_indices : bool
-        If *True*, show 0-based indices below each cell.
-    """
+    """Visualise an array as a row of labeled cells."""
 
     def __init__(self, values, cell_size=80, x=None, y=None,
                  colors=None, default_fill='#264653', show_indices=True,
@@ -385,11 +350,7 @@ class ArrayViz(VCollection):
         return self
 
     def swap(self, i, j, start=0, end=1, easing=easings.smooth):
-        """Animate swapping the values at indices *i* and *j*.
-
-        Cell rectangles stay in place; labels animate to the other position
-        using arc paths.
-        """
+        """Animate swapping the values at indices *i* and *j*."""
         if i == j or not (0 <= i < len(self._labels)) or not (0 <= j < len(self._labels)):
             return self
         a, b = self._labels[i], self._labels[j]
@@ -402,11 +363,7 @@ class ArrayViz(VCollection):
         return self
 
     def set_value(self, index, new_val, start=0, end=None):
-        """Change the displayed value of a cell.
-
-        If *end* is given, the old text fades out and the new text fades in
-        over [start, end].  Otherwise the change is instant.
-        """
+        """Change the displayed value of a cell."""
         if 0 <= index < len(self._labels):
             lbl = self._labels[index]
             if end is not None:
@@ -417,10 +374,7 @@ class ArrayViz(VCollection):
         return self
 
     def pointer(self, index, label='', start=0, end=None, color='#FC6255'):
-        """Add an arrow pointer above a cell.
-
-        Returns the Arrow object (also added to self).
-        """
+        """Add an arrow pointer above a cell."""
         Arrow = _get_arrow()
         if not (0 <= index < len(self._cells)):
             return self
@@ -442,19 +396,7 @@ class ArrayViz(VCollection):
 
 
 class LinkedListViz(VCollection):
-    """Visualise a singly linked list as nodes connected by arrows.
-
-    Parameters
-    ----------
-    values : list
-        Initial node values.
-    node_radius : float
-        Radius of each node circle.
-    spacing : float
-        Horizontal distance between node centres.
-    x, y : float
-        Position of the first node's centre.
-    """
+    """Visualise a singly linked list as nodes connected by arrows."""
 
     def __init__(self, values, node_radius=35, spacing=140,
                  x=None, y=540, node_fill='#264653',
@@ -515,10 +457,7 @@ class LinkedListViz(VCollection):
         return self
 
     def traverse(self, start=0, delay=0.5, color='#FFFF00'):
-        """Animate traversing each node in sequence.
-
-        Each node lights up for *delay* seconds in order.
-        """
+        """Animate traversing each node in sequence."""
         for i in range(len(self._nodes)):
             t = start + i * delay
             self.highlight(i, t, t + delay, color)
@@ -526,17 +465,7 @@ class LinkedListViz(VCollection):
 
 
 class StackViz(VCollection):
-    """Visualise a stack (LIFO) as vertically stacked cells.
-
-    Parameters
-    ----------
-    values : list
-        Initial values (bottom to top).
-    cell_width, cell_height : float
-        Dimensions of each cell.
-    x, y : float
-        Position of the bottom-left corner of the bottom cell.
-    """
+    """Visualise a stack (LIFO) as vertically stacked cells."""
 
     def __init__(self, values, cell_width=120, cell_height=50,
                  x=None, y=None, fill='#264653',
@@ -626,17 +555,7 @@ class StackViz(VCollection):
 
 
 class QueueViz(VCollection):
-    """Visualise a queue (FIFO) as a horizontal row of cells.
-
-    Parameters
-    ----------
-    values : list
-        Initial values (front on the left, back on the right).
-    cell_width, cell_height : float
-        Dimensions of each cell.
-    x, y : float
-        Position of the top-left corner of the front cell.
-    """
+    """Visualise a queue (FIFO) as a horizontal row of cells."""
 
     def __init__(self, values, cell_width=80, cell_height=60,
                  x=None, y=None, fill='#264653',
