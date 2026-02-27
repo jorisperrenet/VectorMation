@@ -2106,8 +2106,7 @@ class VObject(ABC):  # Vector Object
               degrees=360, easing=easings.linear):
         """Orbit the object around (cx, cy).
         If radius is None, uses current distance from center."""
-        bx, by, bw, bh = self.bbox(start)
-        obj_cx, obj_cy = bx + bw / 2, by + bh / 2
+        obj_cx, obj_cy = self.center(start)
         if radius is None:
             radius = math.hypot(obj_cx - cx, obj_cy - cy)
             if radius == 0:
@@ -5479,8 +5478,7 @@ class VCollection:
             angle = start_angle + math.tau * i / n
             tx = cx + radius * math.cos(angle)
             ty = cy + radius * math.sin(angle)
-            bx, by, bw, bh = obj.bbox(start)
-            obj_cx, obj_cy = bx + bw / 2, by + bh / 2
+            obj_cx, obj_cy = obj.center(start)
             dx, dy = tx - obj_cx, ty - obj_cy
             if end is None:
                 obj.shift(dx=dx, dy=dy, start=start)
@@ -5514,8 +5512,7 @@ class VCollection:
             angle = start_angle + math.tau * i / n
             tx = cx + radius * math.cos(angle)
             ty = cy + radius * math.sin(angle)
-            bx, by, bw, bh = obj.bbox(start)
-            obj_cx, obj_cy = bx + bw / 2, by + bh / 2
+            obj_cx, obj_cy = obj.center(start)
             dx, dy = tx - obj_cx, ty - obj_cy
             obj.shift(dx=dx, dy=dy, start=start)
         return self
@@ -6469,8 +6466,7 @@ class VCollection:
             cx = bx + bw / 2
             cy = by + bh / 2
         for obj in self.objects:
-            bx, by, bw, bh = obj.bbox(start)
-            obj_cx, obj_cy = bx + bw / 2, by + bh / 2
+            obj_cx, obj_cy = obj.center(start)
             dx = (obj_cx - cx) * (factor - 1)
             dy = (obj_cy - cy) * (factor - 1)
             if dx == 0 and dy == 0:
@@ -6798,8 +6794,7 @@ class VCollection:
                 angle = start_angle + (end_angle - start_angle) * t_frac
             tx = cx + radius * math.cos(angle)
             ty = cy + radius * math.sin(angle)
-            bx, by, bw, bh = obj.bbox(start)
-            obj_cx, obj_cy = bx + bw / 2, by + bh / 2
+            obj_cx, obj_cy = obj.center(start)
             dx, dy = tx - obj_cx, ty - obj_cy
             if end is None:
                 obj.shift(dx=dx, dy=dy, start=start)
@@ -6833,8 +6828,7 @@ class VCollection:
             angle = math.tau * i / n
             tx = cx + radius * math.cos(angle)
             ty = cy + radius * math.sin(angle)
-            bx, by, bw, bh = obj.bbox(start)
-            obj_cx, obj_cy = bx + bw / 2, by + bh / 2
+            obj_cx, obj_cy = obj.center(start)
             dx, dy = tx - obj_cx, ty - obj_cy
             obj.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
