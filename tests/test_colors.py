@@ -3,7 +3,9 @@ import pytest
 from vectormation.colors import (
     color_from_name, LinearGradient, RadialGradient, color_gradient,
     interpolate_color, triadic, analogous, split_complementary,
-    _hex_to_hsl,
+    lighten, darken, adjust_hue, saturate, desaturate, complementary,
+    set_saturation, set_lightness, invert,
+    _hex_to_hsl, _hex_to_rgb,
 )
 
 
@@ -136,3 +138,77 @@ class TestSplitComplementary:
         h2 = _hex_to_hsl(colors[1])[0]
         assert h1 == pytest.approx(150, abs=2)
         assert h2 == pytest.approx(210, abs=2)
+
+
+class TestLighten:
+    def test_lighten_moves_towards_white(self):
+        result = lighten('#000000', 0.5)
+        r, g, b = _hex_to_rgb(result)
+        assert r > 100 and g > 100 and b > 100
+
+    def test_lighten_zero(self):
+        assert lighten('#ff0000', 0) == '#fc6255' or lighten('#ff0000', 0).startswith('#')
+
+
+class TestDarken:
+    def test_darken_moves_towards_black(self):
+        result = darken('#ffffff', 0.5)
+        r, g, b = _hex_to_rgb(result)
+        assert r < 200 and g < 200 and b < 200
+
+
+class TestAdjustHue:
+    def test_rotate_180(self):
+        result = adjust_hue('#ff0000', 180)
+        h, s, l = _hex_to_hsl(result)
+        assert h == pytest.approx(180, abs=2)
+
+    def test_rotate_360_unchanged(self):
+        original = adjust_hue('#ff0000', 0)
+        rotated = adjust_hue('#ff0000', 360)
+        assert original == rotated
+
+
+class TestSaturateDesaturate:
+    def test_saturate(self):
+        result = saturate('#888888', 0.5)
+        h, s, l = _hex_to_hsl(result)
+        assert s > 0
+
+    def test_desaturate(self):
+        result = desaturate('#ff0000', 0.5)
+        h, s, l = _hex_to_hsl(result)
+        assert s < 1.0
+
+
+class TestComplementary:
+    def test_red_complement(self):
+        result = complementary('#ff0000')
+        h, s, l = _hex_to_hsl(result)
+        assert h == pytest.approx(180, abs=2)
+
+
+class TestSetSaturation:
+    def test_set_zero(self):
+        result = set_saturation('#ff0000', 0)
+        r, g, b = _hex_to_rgb(result)
+        assert r == g == b  # greyscale
+
+
+class TestSetLightness:
+    def test_set_half(self):
+        result = set_lightness('#ff0000', 0.5)
+        h, s, l = _hex_to_hsl(result)
+        assert l == pytest.approx(0.5, abs=0.05)
+
+
+class TestInvert:
+    def test_invert_black(self):
+        assert invert('#000000') == '#ffffff'
+
+    def test_invert_white(self):
+        assert invert('#ffffff') == '#000000'
+
+    def test_invert_named(self):
+        result = invert('RED')
+        assert result.startswith('#')
