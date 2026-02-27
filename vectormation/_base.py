@@ -222,6 +222,10 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         """Hide from time onward."""
         self.show.set_onward(time, False)
 
+    def is_visible(self, time=0):
+        """Return True if this object is shown at the given time."""
+        return bool(self.show.at_time(time))
+
     def show_during(self, *ranges):
         """Show this object only during the specified time ranges."""
         # Flatten if passed a list of tuples

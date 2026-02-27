@@ -92,6 +92,17 @@ class Array(VCollection):
             t += delay
         return self
 
+    def reverse(self, start=0, end=2, easing=easings.smooth, delay=0.15):
+        """Animate reversing the array by swapping from outside in."""
+        n = len(self._labels)
+        t = start
+        for i in range(n // 2):
+            j = n - 1 - i
+            swap_end = min(t + delay, end)
+            self.swap_cells(i, j, start=t, end=swap_end, easing=easing)
+            t += delay
+        return self
+
     def add_pointer(self, index, label='', color='#FF6B6B', creation=0, z=1):
         """Add a pointer arrow above a cell."""
         Arrow = _get_arrow()

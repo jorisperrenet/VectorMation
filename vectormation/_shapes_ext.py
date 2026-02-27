@@ -1595,6 +1595,13 @@ class Arc(VObject):
 
     get_midpoint_on_arc = get_midpoint
 
+    def complement(self, time=0, **kwargs):
+        """Return an Arc spanning the complementary angle (remaining portion of the circle)."""
+        ea = self.end_angle.at_time(time)
+        sa = self.start_angle.at_time(time)
+        return Arc(cx=self.cx.at_time(time), cy=self.cy.at_time(time),
+                   r=self.r.at_time(time), start_angle=ea, end_angle=sa + 360, **kwargs)
+
     def to_wedge(self, time=0, **kwargs):
         """Return a :class:`Wedge` with the same geometry as this arc at *time*."""
         return Wedge(

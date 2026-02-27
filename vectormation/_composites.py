@@ -1050,6 +1050,19 @@ class DynamicObject(VObject):
     def __repr__(self):
         return f'DynamicObject()'
 
+def _det(m):
+    """Recursive determinant of a numeric 2D list."""
+    n = len(m)
+    if n == 1:
+        return m[0][0]
+    if n == 2:
+        return m[0][0] * m[1][1] - m[0][1] * m[1][0]
+    d = 0.0
+    for c in range(n):
+        minor = [[m[r][j] for j in range(n) if j != c] for r in range(1, n)]
+        d += ((-1) ** c) * m[0][c] * _det(minor)
+    return d
+
 class Matrix(VCollection):
     """Display a mathematical matrix with square bracket delimiters."""
     def __init__(self, data, x=960, y=540, font_size=36, h_spacing=80, v_spacing=50,
@@ -1179,6 +1192,23 @@ class Matrix(VCollection):
                         else f'{_ov + (_nv - _ov) * _e((t - _s) / _d):g}',
                     stay=True)
         return self
+
+    def get_values(self, time=0):
+        """Return a 2D list of numeric values from the matrix entries at *time*."""
+        return [[float(self.entries[r][c].text.at_time(time))
+                 for c in range(self.cols)] for r in range(self.rows)]
+
+    def trace(self, time=0):
+        """Return the trace (sum of diagonal elements) of a square matrix."""
+        if self.rows != self.cols:
+            raise ValueError(f'trace requires a square matrix, got {self.rows}x{self.cols}')
+        return sum(float(self.entries[i][i].text.at_time(time)) for i in range(self.rows))
+
+    def determinant(self, time=0):
+        """Compute the determinant of a square matrix (up to ~10x10)."""
+        if self.rows != self.cols:
+            raise ValueError(f'determinant requires a square matrix, got {self.rows}x{self.cols}')
+        return _det(self.get_values(time))
 
     def set_row_colors(self, *colors, start=0):
         """Set colors for each row. Cycles if fewer colors than rows."""

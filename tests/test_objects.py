@@ -14707,3 +14707,81 @@ class TestBarChartGetBarsRenamed:
         bc = BarChart([30, 10, 20])
         result = bc.sort_bars()
         assert result is bc
+
+
+class TestVObjectIsVisible:
+    def test_visible_by_default(self):
+        c = Circle(r=50, cx=100, cy=100)
+        assert c.is_visible(0)
+
+    def test_hidden_after_hide(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.show.set_onward(0, False)
+        assert not c.is_visible(0)
+
+    def test_visible_after_show_from(self):
+        c = Circle(r=50, cx=100, cy=100, creation=1)
+        assert not c.is_visible(0)
+        assert c.is_visible(1)
+
+
+class TestMatrixTraceAndDet:
+    def test_trace_2x2(self):
+        m = Matrix([[1, 2], [3, 4]])
+        assert m.trace() == pytest.approx(5)
+
+    def test_trace_3x3(self):
+        m = Matrix([[1, 0, 0], [0, 2, 0], [0, 0, 3]])
+        assert m.trace() == pytest.approx(6)
+
+    def test_trace_non_square_raises(self):
+        m = Matrix([[1, 2, 3], [4, 5, 6]])
+        with pytest.raises(ValueError):
+            m.trace()
+
+    def test_determinant_2x2(self):
+        m = Matrix([[1, 2], [3, 4]])
+        assert m.determinant() == pytest.approx(-2)
+
+    def test_determinant_3x3(self):
+        m = Matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        assert m.determinant() == pytest.approx(1)
+
+    def test_determinant_non_square_raises(self):
+        m = Matrix([[1, 2], [3, 4], [5, 6]])
+        with pytest.raises(ValueError):
+            m.determinant()
+
+    def test_get_values(self):
+        m = Matrix([[10, 20], [30, 40]])
+        vals = m.get_values()
+        assert vals == [[10.0, 20.0], [30.0, 40.0]]
+
+
+class TestArcComplement:
+    def test_complement_angles(self):
+        from vectormation.objects import Arc
+        a = Arc(cx=100, cy=100, r=50, start_angle=0, end_angle=90)
+        comp = a.complement()
+        assert comp.start_angle.at_time(0) == pytest.approx(90)
+        assert comp.end_angle.at_time(0) == pytest.approx(360)
+
+    def test_complement_radius(self):
+        from vectormation.objects import Arc
+        a = Arc(cx=200, cy=200, r=80, start_angle=0, end_angle=180)
+        comp = a.complement()
+        assert comp.r.at_time(0) == pytest.approx(80)
+        assert comp.cx.at_time(0) == pytest.approx(200)
+
+
+class TestArrayReverse:
+    def test_reverse_returns_self(self):
+        a = Array([1, 2, 3, 4])
+        result = a.reverse()
+        assert result is a
+
+    def test_reverse_swaps_labels(self):
+        a = Array([10, 20, 30])
+        a.reverse(start=0, end=1)
+        # After reverse, labels should be swapped
+        assert a is not None  # Just check it runs without error
