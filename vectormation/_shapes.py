@@ -1740,6 +1740,38 @@ class Arc(VObject):
         mid = (self.start_angle.at_time(time) + self.end_angle.at_time(time)) / 2
         return self.point_at_angle(mid, time)
 
+    def to_wedge(self, time=0, **kwargs):
+        """Return a :class:`Wedge` with the same geometry as this arc at *time*.
+
+        The result is a static snapshot — it is not dynamically linked to the
+        original arc.  Styling from the arc is not copied; pass ``**kwargs`` to
+        set fill, stroke, etc. on the resulting wedge.
+
+        Parameters
+        ----------
+        time:
+            Time at which to read the arc's center, radius and angles.
+        **kwargs:
+            Forwarded to :class:`Wedge`.
+
+        Returns
+        -------
+        Wedge
+
+        Example
+        -------
+        >>> arc = Arc(cx=500, cy=400, r=100, start_angle=30, end_angle=120)
+        >>> wedge = arc.to_wedge(fill='#44aaff', fill_opacity=0.6)
+        """
+        return Wedge(
+            cx=self.cx.at_time(time),
+            cy=self.cy.at_time(time),
+            r=self.r.at_time(time),
+            start_angle=self.start_angle.at_time(time),
+            end_angle=self.end_angle.at_time(time),
+            **kwargs,
+        )
+
     def __repr__(self):
         return f'Arc(r={self.r.at_time(0):.0f}, {self.start_angle.at_time(0):.0f}°-{self.end_angle.at_time(0):.0f}°)'
 

@@ -952,6 +952,60 @@ class VObject(ABC):  # Vector Object
         style_attr.set(start, end, _interp_rgb, stay=False)
         return self
 
+    def color_gradient_anim(self, colors, start: float = 0, end: float = 1,
+                             attr: str = 'fill'):
+        """Animate through a sequence of colors over [start, end].
+
+        Divides the interval into ``len(colors) - 1`` equal segments and linearly
+        interpolates between each adjacent pair using RGB blending.
+
+        Parameters
+        ----------
+        colors:
+            Sequence of two or more color strings (hex or named).  Must have at
+            least two entries.
+        start, end:
+            Animation time window in seconds.
+        attr:
+            Which styling attribute to animate: ``'fill'`` (default) or
+            ``'stroke'``.
+
+        Returns
+        -------
+        self
+        """
+        if len(colors) < 2:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        # Parse all colors to (r, g, b) tuples up front
+        from vectormation.colors import _hex_to_rgb, color_from_name
+        def _to_rgb(c):
+            if not c.startswith('#'):
+                c = color_from_name(c.upper())
+            return _hex_to_rgb(c)
+        parsed = [_to_rgb(c) for c in colors]
+        n_segs = len(colors) - 1
+        seg_dur = dur / n_segs
+        style_attr = getattr(self.styling, attr)
+        style_attr.use = 'rgb'
+        for i in range(n_segs):
+            t0 = start + i * seg_dur
+            t1 = t0 + seg_dur
+            _r0, _g0, _b0 = parsed[i]
+            _r1, _g1, _b1 = parsed[i + 1]
+            _t0, _d = t0, seg_dur
+            style_attr.set(t0, t1,
+                lambda t, _s=_t0, _dd=_d,
+                       _r0=_r0, _g0=_g0, _b0=_b0,
+                       _r1=_r1, _g1=_g1, _b1=_b1: (
+                    _r0 + (_r1 - _r0) * ((t - _s) / _dd),
+                    _g0 + (_g1 - _g0) * ((t - _s) / _dd),
+                    _b0 + (_b1 - _b0) * ((t - _s) / _dd)),
+                stay=(i == n_segs - 1))
+        return self
+
     def next_to(self, other, direction: str | tuple = 'right', buff=SMALL_BUFF, start_time: float = 0):
         """Position this object next to another.
         direction: 'left', 'right', 'up', 'down' or a direction constant (UP, DOWN, LEFT, RIGHT)."""
@@ -2620,6 +2674,59 @@ class VCollection:
             else:
                 obj.shift(dy=offset, start_time=start_time)
             cursor += size + spacing
+        return self
+
+    def space_evenly(self, direction: str | tuple = 'right', total_span=None,
+                     start_pos=None, start_time: float = 0):
+        """Distribute children so they fill exactly *total_span* pixels.
+
+        Unlike :meth:`arrange` (fixed gap between children) and :meth:`distribute`
+        (uses existing group bbox), ``space_evenly`` lets you specify an explicit
+        span and optional start position, then positions children so their combined
+        widths (or heights) plus equal gaps exactly fill that span.
+
+        Parameters
+        ----------
+        direction:
+            ``'right'`` / ``'left'`` (horizontal) or ``'down'`` / ``'up'``
+            (vertical).
+        total_span:
+            Total pixel width (horizontal) or height (vertical) to fill.
+            Defaults to the group's current bounding-box dimension.
+        start_pos:
+            Left edge (horizontal) or top edge (vertical) of the first child.
+            Defaults to the current leftmost / topmost edge of the group.
+        start_time:
+            Time at which to read current positions.
+
+        Returns
+        -------
+        self
+        """
+        if isinstance(direction, tuple):
+            direction = _DIR_NAMES.get(direction, 'right')
+        if len(self.objects) == 0:
+            return self
+        horizontal = direction in ('right', 'left')
+        boxes = [obj.bbox(start_time) for obj in self.objects]
+        sizes = [b[2] if horizontal else b[3] for b in boxes]
+        total_child_size = sum(sizes)
+        group_box = self.bbox(start_time)
+        if total_span is None:
+            total_span = group_box[2] if horizontal else group_box[3]
+        if start_pos is None:
+            start_pos = group_box[0] if horizontal else group_box[1]
+        n = len(self.objects)
+        gap = (total_span - total_child_size) / (n - 1) if n > 1 else 0
+        cursor = start_pos
+        for obj, box, size in zip(self.objects, boxes, sizes):
+            edge = box[0] if horizontal else box[1]
+            offset = cursor - edge
+            if horizontal:
+                obj.shift(dx=offset, start_time=start_time)
+            else:
+                obj.shift(dy=offset, start_time=start_time)
+            cursor += size + gap
         return self
 
     def distribute_radial(self, cx=960, cy=540, radius=200, start_angle=0,

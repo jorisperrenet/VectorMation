@@ -6281,3 +6281,222 @@ class TestAxesShadeRegion:
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
         rect = ax.shade_region(x_start=0, x_end=2, fill='#f00', fill_opacity=0.5)
         assert rect.styling.fill_opacity.at_time(0) == pytest.approx(0.5)
+
+
+# ── color_gradient_anim ─────────────────────────────────────────────────────
+
+class TestColorGradientAnim:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.color_gradient_anim(['#ff0000', '#0000ff'], start=0, end=1)
+        assert result is c
+
+    def test_fill_at_start_is_first_color(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.color_gradient_anim(['#ff0000', '#0000ff'], start=0, end=1)
+        fill = c.styling.fill.at_time(0)
+        assert 'rgb(255,0,0)' == fill
+
+    def test_fill_at_end_is_last_color(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.color_gradient_anim(['#ff0000', '#0000ff'], start=0, end=1)
+        fill = c.styling.fill.at_time(1)
+        assert 'rgb(0,0,255)' == fill
+
+    def test_midpoint_interpolated(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.color_gradient_anim(['#ff0000', '#0000ff'], start=0, end=2)
+        fill = c.styling.fill.at_time(1)
+        # At t=1 (halfway) → rgb(127 or 128, 0, 127 or 128)
+        assert '127' in fill or '128' in fill
+
+    def test_three_color_segments(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.color_gradient_anim(['#ff0000', '#00ff00', '#0000ff'], start=0, end=2)
+        # At t=1 should be pure green (midpoint between red→green→blue)
+        fill = c.styling.fill.at_time(1)
+        assert 'rgb(0,255,0)' == fill
+
+    def test_stroke_attr(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.color_gradient_anim(['#ffffff', '#000000'], start=0, end=1, attr='stroke')
+        stroke_start = c.styling.stroke.at_time(0)
+        stroke_end = c.styling.stroke.at_time(1)
+        assert 'rgb(255,255,255)' == stroke_start
+        assert 'rgb(0,0,0)' == stroke_end
+
+    def test_single_color_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.color_gradient_anim(['#ff0000'], start=0, end=1)
+        assert result is c  # returns self without error
+
+    def test_zero_duration_noop(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.color_gradient_anim(['#ff0000', '#0000ff'], start=1, end=1)
+        assert result is c
+
+
+# ── Arc.to_wedge ────────────────────────────────────────────────────────────
+
+class TestArcToWedge:
+    def test_returns_wedge_type(self):
+        arc = Arc(cx=500, cy=400, r=100, start_angle=0, end_angle=90)
+        w = arc.to_wedge()
+        assert type(w).__name__ == 'Wedge'
+
+    def test_geometry_matches_arc(self):
+        arc = Arc(cx=500, cy=400, r=80, start_angle=30, end_angle=120)
+        w = arc.to_wedge()
+        assert w.cx.at_time(0) == pytest.approx(500)
+        assert w.cy.at_time(0) == pytest.approx(400)
+        assert w.r.at_time(0) == pytest.approx(80)
+        assert w.start_angle.at_time(0) == pytest.approx(30)
+        assert w.end_angle.at_time(0) == pytest.approx(120)
+
+    def test_kwargs_forwarded(self):
+        arc = Arc(cx=100, cy=200, r=50, start_angle=0, end_angle=180)
+        w = arc.to_wedge(fill='#44aaff', fill_opacity=0.8)
+        assert w.styling.fill_opacity.at_time(0) == pytest.approx(0.8)
+
+    def test_produces_valid_svg(self):
+        arc = Arc(cx=300, cy=300, r=100, start_angle=45, end_angle=225)
+        w = arc.to_wedge()
+        svg = w.to_svg(0)
+        assert svg.startswith('<path')
+        assert 'Z' in svg  # wedge closes through centre
+
+    def test_independent_of_original(self):
+        arc = Arc(cx=500, cy=400, r=100, start_angle=0, end_angle=90)
+        w = arc.to_wedge()
+        # Modifying arc should not affect the snapshot wedge
+        arc.r.set_onward(0, 999)
+        assert w.r.at_time(0) == pytest.approx(100)
+
+    def test_time_parameter(self):
+        arc = Arc(cx=500, cy=400, r=50, start_angle=0, end_angle=90)
+        arc.r.set_onward(1, 200)
+        w_t0 = arc.to_wedge(time=0)
+        w_t2 = arc.to_wedge(time=2)
+        assert w_t0.r.at_time(0) == pytest.approx(50)
+        assert w_t2.r.at_time(0) == pytest.approx(200)
+
+
+# ── VCollection.space_evenly ─────────────────────────────────────────────────
+
+class TestSpaceEvenly:
+    def test_returns_self(self):
+        c1, c2, c3 = Circle(r=20, cx=0, cy=0), Circle(r=20, cx=100, cy=0), Circle(r=20, cx=200, cy=0)
+        col = VCollection(c1, c2, c3)
+        result = col.space_evenly(total_span=400, start_pos=0)
+        assert result is col
+
+    def test_fills_exact_span(self):
+        circles = [Circle(r=20, cx=i * 50, cy=0) for i in range(3)]
+        col = VCollection(*circles)
+        col.space_evenly(total_span=500, start_pos=0)
+        boxes = [c.bbox(0) for c in circles]
+        leftmost = min(b[0] for b in boxes)
+        rightmost = max(b[0] + b[2] for b in boxes)
+        assert leftmost == pytest.approx(0, abs=1)
+        assert rightmost == pytest.approx(500, abs=1)
+
+    def test_equal_gaps(self):
+        circles = [Circle(r=10, cx=i * 10, cy=0) for i in range(4)]
+        col = VCollection(*circles)
+        col.space_evenly(total_span=300, start_pos=0)
+        lefts = [c.bbox(0)[0] for c in circles]
+        gaps = []
+        for i in range(1, len(lefts)):
+            prev_right = circles[i-1].bbox(0)[0] + circles[i-1].bbox(0)[2]
+            gaps.append(lefts[i] - prev_right)
+        # All gaps should be equal
+        assert all(abs(g - gaps[0]) < 1 for g in gaps)
+
+    def test_start_pos_respected(self):
+        circles = [Circle(r=20, cx=0, cy=0) for _ in range(3)]
+        col = VCollection(*circles)
+        col.space_evenly(total_span=300, start_pos=100)
+        leftmost = min(c.bbox(0)[0] for c in circles)
+        assert leftmost == pytest.approx(100, abs=1)
+
+    def test_single_child_no_error(self):
+        c = Circle(r=30, cx=0, cy=0)
+        col = VCollection(c)
+        result = col.space_evenly(total_span=200, start_pos=0)
+        assert result is col
+
+    def test_empty_collection_no_error(self):
+        col = VCollection()
+        result = col.space_evenly(total_span=200, start_pos=0)
+        assert result is col
+
+    def test_vertical_direction(self):
+        circles = [Circle(r=10, cx=0, cy=i * 10) for i in range(3)]
+        col = VCollection(*circles)
+        col.space_evenly(direction='down', total_span=400, start_pos=0)
+        tops = [c.bbox(0)[1] for c in circles]
+        bottoms = [c.bbox(0)[1] + c.bbox(0)[3] for c in circles]
+        assert min(tops) == pytest.approx(0, abs=1)
+        assert max(bottoms) == pytest.approx(400, abs=1)
+
+    def test_default_span_uses_bbox(self):
+        # With no total_span, it should use the existing group bbox span
+        c1 = Circle(r=20, cx=0, cy=0)
+        c2 = Circle(r=20, cx=200, cy=0)
+        c3 = Circle(r=20, cx=400, cy=0)
+        col = VCollection(c1, c2, c3)
+        original_span = col.get_width(0)
+        col.space_evenly()
+        new_span = col.get_width(0)
+        assert new_span == pytest.approx(original_span, abs=2)
+
+
+# ── Axes.add_callout ─────────────────────────────────────────────────────────
+
+class TestAxesAddCallout:
+    def test_returns_vcollection(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_callout(1, 2, 'Max')
+        assert isinstance(result, VCollection)
+
+    def test_has_three_children(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_callout(0, 0, 'Origin')
+        assert len(result.objects) == 3  # line, box, label
+
+    def test_text_appears_in_svg(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        ax.add_callout(1, 1, 'TestLabel')
+        svg = ax.to_svg(0)
+        assert 'TestLabel' in svg
+
+    def test_rect_appears_in_svg(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        ax.add_callout(1, 1, 'Note')
+        svg = ax.to_svg(0)
+        assert '<rect' in svg
+
+    def test_custom_text_color(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_callout(0, 0, 'Hi', text_color='#ff0000')
+        lbl = result.objects[2]
+        assert 'rgb(255,0,0)' in lbl.to_svg(0)
+
+    def test_creation_time(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_callout(0, 0, 'Late', creation=2)
+        # SVG at t=0 should not contain the callout
+        svg0 = ax.to_svg(0)
+        svg3 = ax.to_svg(3)
+        assert 'Late' not in svg0
+        assert 'Late' in svg3
+
+    def test_box_tracks_dynamic_axes(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.add_callout(2, 2, 'Moving')
+        box = result.objects[1]
+        x0 = box.x.at_time(0)
+        # After an axis range change the box should shift
+        ax.x_min.set_onward(0, -10)
+        x1 = box.x.at_time(0)
+        assert x0 != x1

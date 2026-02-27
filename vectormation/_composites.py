@@ -1438,6 +1438,98 @@ class Axes(VCollection):
         self._add_plot_obj(group)
         return group
 
+    def add_callout(self, x, y, text, offset_x=60, offset_y=-60,
+                    font_size=18, box_padding=8, corner_radius=4,
+                    creation=0, z=5, **styling_kwargs):
+        """Add a floating text callout box with a line pointing to a data point.
+
+        Unlike :meth:`add_arrow_annotation` (which uses a full arrow with a tip),
+        ``add_callout`` draws a plain leader line from the box to the data point,
+        making it suitable for dense charts where arrowheads would clutter the view.
+
+        Parameters
+        ----------
+        x, y:
+            Data coordinates of the point to annotate.
+        text:
+            Label text shown inside the callout box.
+        offset_x, offset_y:
+            Pixel offset of the callout box centre from the data point.
+            Positive x is right, positive y is down (SVG convention).
+        font_size:
+            Font size for the label text.
+        box_padding:
+            Padding inside the callout box around the text.
+        corner_radius:
+            Corner radius of the callout box rectangle.
+        creation:
+            Appearance time.
+        z:
+            Draw order.
+        **styling_kwargs:
+            Overrides for the default box and text colors.
+
+        Returns
+        -------
+        VCollection with (leader_line, box, label).
+        """
+        text_color = styling_kwargs.pop('text_color', '#fff')
+        box_fill = styling_kwargs.pop('box_fill', '#333')
+        box_stroke = styling_kwargs.pop('box_stroke', '#aaa')
+        box_stroke_width = styling_kwargs.pop('box_stroke_width', 1)
+
+        sx, sy = self.coords_to_point(x, y, creation)
+
+        # Rough text size estimate for initial box placement
+        char_w = font_size * 0.6
+        est_w = len(text) * char_w + 2 * box_padding
+        est_h = font_size + 2 * box_padding
+
+        bx = sx + offset_x - est_w / 2
+        by = sy + offset_y - est_h / 2
+
+        # Leader line from data point to box edge
+        line = Line(x1=sx, y1=sy, x2=sx + offset_x, y2=sy + offset_y,
+                    creation=creation, z=z,
+                    stroke=box_stroke, stroke_width=box_stroke_width, fill_opacity=0)
+
+        # Background box
+        box = RoundedRectangle(width=est_w, height=est_h,
+                               x=bx, y=by, corner_radius=corner_radius,
+                               creation=creation, z=z + 0.1,
+                               fill=box_fill, fill_opacity=0.92,
+                               stroke=box_stroke, stroke_width=box_stroke_width)
+
+        # Label centred in the box
+        lbl = Text(text=text, x=sx + offset_x, y=sy + offset_y,
+                   font_size=font_size, text_anchor='middle',
+                   fill=text_color, stroke_width=0,
+                   creation=creation, z=z + 0.2)
+
+        # Make all elements track the data point dynamically
+        _ox, _oy = offset_x, offset_y
+        _ew, _eh = est_w, est_h
+        _pad = box_padding
+
+        def _pt(t, _x=x, _y=y):
+            return self.coords_to_point(_x, _y, t)
+
+        line.p1.set_onward(creation, lambda t: _pt(t))
+        line.p2.set_onward(creation,
+            lambda t, _ox=_ox, _oy=_oy: (_pt(t)[0] + _ox, _pt(t)[1] + _oy))
+        box.x.set_onward(creation,
+            lambda t, _ox=_ox, _ew=_ew: _pt(t)[0] + _ox - _ew / 2)
+        box.y.set_onward(creation,
+            lambda t, _oy=_oy, _eh=_eh: _pt(t)[1] + _oy - _eh / 2)
+        lbl.x.set_onward(creation,
+            lambda t, _ox=_ox: _pt(t)[0] + _ox)
+        lbl.y.set_onward(creation,
+            lambda t, _oy=_oy: _pt(t)[1] + _oy)
+
+        group = VCollection(line, box, lbl, creation=creation, z=z)
+        self._add_plot_obj(group)
+        return group
+
     def add_cursor(self, func, x_start, x_end, start: float = 0, end: float = 1,
                     r=6, creation=0, z=5, easing=easings.smooth, **styling_kwargs):
         """Add an animated dot that travels along func from x_start to x_end.
