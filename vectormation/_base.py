@@ -1184,7 +1184,7 @@ class VObject(ABC):  # Vector Object
             self.styling.stroke_dashoffset.set_onward(s, 0)
             return self
         self.styling.stroke_dashoffset.set(s, e,
-            lambda t, _s=s, _d=dur, _tl=total_length: _tl * (1 - easing((t - _s) / _d)), stay=True)
+            _ramp_down(s, dur, total_length, easing), stay=True)
         return self
 
     def show_passing_flash(self, start: float = 0, end: float = 1, flash_width=0.15,
@@ -1210,7 +1210,7 @@ class VObject(ABC):  # Vector Object
         s = start
         flash.styling.stroke_dasharray.set_onward(s, f'{total * flash_width} {gap}')
         flash.styling.stroke_dashoffset.set(s, end,
-            lambda t, _s=s, _d=dur, _tot=total: _tot * (1 - easing((t - _s) / _d)), stay=True)
+            _ramp_down(s, dur, total, easing), stay=True)
         return flash
 
     def _ensure_scale_origin(self, time):
@@ -2274,7 +2274,7 @@ class VObject(ABC):  # Vector Object
         dur2 = e2 - s2
         if dur2 > 0:
             self.styling.fill_opacity.set(s2, e2,
-                lambda t, _s=s2, _d=dur2, _tfo=target_fo: _tfo * easing((t - _s) / _d), stay=True)
+                _ramp(s2, dur2, target_fo, easing), stay=True)
         else:
             self.styling.fill_opacity.set_onward(mid, target_fo)
         return self
@@ -2557,8 +2557,7 @@ class VObject(ABC):  # Vector Object
         s = start
         self.styling.stroke_dasharray.set_onward(s, f'{dash_length} {gap}')
         self.styling.stroke_dashoffset.set(s, end,
-            lambda t, _s=s, _d=dur, _tot=total: _tot * (1 - easing((t - _s) / _d)),
-            stay=True)
+            _ramp_down(s, dur, total, easing), stay=True)
         return self
 
     # inset(top right bottom left) templates for wipe direction
@@ -2619,7 +2618,7 @@ class VObject(ABC):  # Vector Object
         if dur > 0:
             s = start
             rect.styling.stroke_opacity.set(s, end,
-                lambda t, _s=s, _d=dur: easing((t - _s) / _d), stay=True)
+                _ramp(s, dur, 1, easing), stay=True)
         return rect
 
     def color_cycle(self, colors, start: float = 0, end: float = 1, attr='fill',

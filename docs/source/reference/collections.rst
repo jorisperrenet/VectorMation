@@ -464,3 +464,238 @@ BinaryTree
    .. py:method:: highlight_node(index, color='#E9C46A', start=0, end=0.5)
 
       Temporarily highlight a node by depth-first index.
+
+----
+
+Table
+~~~~~
+
+.. py:class:: Table(data, row_labels=None, col_labels=None, x=120, y=60, cell_width=160, cell_height=60, font_size=24, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Tabular data display with optional row/column labels.
+
+   :param list data: 2D list of values ``data[row][col]``.
+
+   .. py:method:: get_entry(row, col)
+
+      Return the Text object at ``(row, col)``.
+
+   .. py:method:: get_row(row)
+
+      Return a VCollection of all Text objects in a row.
+
+   .. py:method:: get_column(col)
+
+      Return a VCollection of all Text objects in a column.
+
+   .. py:method:: highlight_cell(row, col, start=0, end=1, color='#FFFF00')
+
+      Flash-highlight a single cell.
+
+   .. py:method:: highlight_row(row_idx, start=0, end=1, color='#FFFF00', opacity=0.3)
+
+      Highlight all cells in a row.
+
+Matrix
+~~~~~~
+
+.. py:class:: Matrix(data, x=960, y=540, font_size=36, h_spacing=80, v_spacing=50, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Mathematical matrix with bracket delimiters.
+
+   :param list data: 2D list of values.
+
+   .. py:method:: get_entry(row, col)
+
+      Return the Text object at ``(row, col)``.
+
+   .. py:method:: get_row(row)
+
+      Return a VCollection of all entries in a row.
+
+   .. py:method:: get_column(col)
+
+      Return a VCollection of all entries in a column.
+
+   .. py:method:: highlight_row(row, start=0, end=1, color='#FFD700')
+
+      Flash-highlight all entries in a row.
+
+   .. py:method:: highlight_column(col, start=0, end=1, color='#FFD700')
+
+      Flash-highlight all entries in a column.
+
+Code
+~~~~
+
+.. py:class:: Code(text, language='python', x=100, y=80, font_size=24, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Syntax-highlighted code display.
+
+   :param str text: Source code string.
+   :param str language: Programming language for highlighting.
+
+   .. py:method:: highlight_lines(line_numbers, color='#FFFF00', opacity=0.3, start=0, end=1)
+
+      Highlight specific line numbers with a background colour.
+
+   .. py:method:: reveal_lines(start=0, end=1, overlap=0.5)
+
+      Reveal code lines sequentially with staggered fadein.
+
+Title
+~~~~~
+
+.. py:class:: Title(text, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Centered title text at the top of the canvas with an underline.
+
+Variable
+~~~~~~~~
+
+.. py:class:: Variable(label, value=0, fmt='{:.2f}', x=960, y=540, font_size=48, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   A labelled numeric value display (e.g. ``x = 3.14``).
+
+   .. py:method:: set_value(val, start=0)
+
+      Set the value instantly.
+
+   .. py:method:: animate_value(target, start, end, easing=smooth)
+
+      Animate to a target value.
+
+   .. py:attribute:: tracker
+
+      The underlying Real attribute for the displayed value.
+
+DynamicObject
+~~~~~~~~~~~~~
+
+.. py:class:: DynamicObject(func, creation=0, z=0)
+
+   Bases: :py:class:`VObject`
+
+   VObject whose SVG is regenerated every frame by calling ``func(time)``.
+   The function should return a VObject.
+
+NetworkGraph
+~~~~~~~~~~~~
+
+.. py:class:: NetworkGraph(nodes, edges, x=960, y=540, node_radius=25, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Graph/network diagram with automatic force-directed layout.
+
+   :param list nodes: List of node labels.
+   :param list edges: List of ``(from, to)`` or ``(from, to, label)`` tuples.
+
+   .. py:method:: highlight_node(node, color='#E9C46A', start=0, end=0.5)
+
+      Temporarily highlight a node.
+
+   .. py:method:: highlight_edge(from_node, to_node, color='#E76F51', start=0, end=0.5)
+
+      Temporarily highlight an edge.
+
+NeuralNetwork
+~~~~~~~~~~~~~
+
+.. py:class:: NeuralNetwork(layers, x=960, y=540, node_radius=15, h_spacing=200, v_spacing=50, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Neural network diagram with layers of nodes and weighted connections.
+
+   :param list layers: List of integers giving the number of nodes per layer.
+
+   .. py:method:: activate(layer, node, start=0, end=0.5, color='#E9C46A')
+
+      Highlight a specific neuron.
+
+----
+
+Circuit Components
+~~~~~~~~~~~~~~~~~~
+
+.. py:class:: Resistor(x1=860, y1=540, x2=1060, y2=540, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Resistor symbol (zigzag).
+
+.. py:class:: Capacitor(x1=860, y1=540, x2=1060, y2=540, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Capacitor symbol (two parallel plates).
+
+.. py:class:: Inductor(x1=860, y1=540, x2=1060, y2=540, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Inductor symbol (coil).
+
+.. py:class:: Diode(x1=860, y1=540, x2=1060, y2=540, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Diode symbol (triangle + line).
+
+.. py:class:: LED(x1=860, y1=540, x2=1060, y2=540, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   LED symbol (diode with arrows).
+
+----
+
+Physics
+~~~~~~~
+
+.. py:class:: Pendulum(length=200, angle=30, x=960, y=200, start=0, end=5, damping=0.98, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Animated pendulum with damped oscillation.
+
+.. py:class:: StandingWave(n=3, width=600, amplitude=80, x=660, y=540, start=0, end=3, frequency=1, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Animated standing wave with *n* antinodes.
+
+.. py:class:: Molecule2D(atoms, bonds, x=960, y=540, scale=100, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   2D molecular structure diagram.
+
+   :param list atoms: List of ``(element, x, y)`` tuples.
+   :param list bonds: List of ``(atom_idx1, atom_idx2)`` or ``(atom_idx1, atom_idx2, order)`` tuples.
+
+.. py:class:: UnitInterval(x_range=(0, 1, 0.25), **kwargs)
+
+   Bases: :py:class:`NumberLine`
+
+   A NumberLine pre-configured for the unit interval [0, 1].
+
+SampleSpace
+~~~~~~~~~~~~
+
+.. py:class:: SampleSpace(width=600, height=400, x=660, y=340, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Rectangular probability sample space diagram.
