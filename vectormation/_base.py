@@ -1794,10 +1794,9 @@ class VObject(ABC):  # Vector Object
         if dur <= 0:
             return self
         self._ensure_scale_origin(start)
-        s = start
-        scale = lambda t, _s=s, _d=dur: 1 + (scale_factor - 1) * easing((t - _s) / _d)
-        self.styling.scale_x.set(s, end, scale)
-        self.styling.scale_y.set(s, end, scale)
+        scale = _lerp(start, dur, 1, scale_factor, easing)
+        self.styling.scale_x.set(start, end, scale)
+        self.styling.scale_y.set(start, end, scale)
         return self
 
     def flash(self, start: float = 0, end: float = 1, color='#FFFF00', easing=easings.there_and_back):
@@ -1821,12 +1820,11 @@ class VObject(ABC):  # Vector Object
         if dur <= 0:
             return self
         self._ensure_scale_origin(start)
-        s = start
-        scale = lambda t, _s=s, _d=dur: 1 + (scale_factor - 1) * easing((t - _s) / _d)
-        opacity_f = lambda t, _s=s, _d=dur: 1 - 0.4 * easing((t - _s) / _d)
-        self.styling.scale_x.set(s, end, scale)
-        self.styling.scale_y.set(s, end, scale)
-        self.styling.opacity.set(s, end, opacity_f)
+        scale = _lerp(start, dur, 1, scale_factor, easing)
+        opacity_f = _lerp(start, dur, 1, 0.6, easing)
+        self.styling.scale_x.set(start, end, scale)
+        self.styling.scale_y.set(start, end, scale)
+        self.styling.opacity.set(start, end, opacity_f)
         return self
 
     def pulsate(self, start: float = 0, end: float = 1, scale_factor=1.3,
@@ -2438,11 +2436,11 @@ class VObject(ABC):  # Vector Object
         if dur <= 0:
             return self
         self._ensure_scale_origin(start)
-        _s, _d = start, max(dur, 1e-9)
+        _d = max(dur, 1e-9)
         self.styling.scale_x.set(start, end,
-            lambda t, _s=_s, _d=_d, _xf=x_factor, _easing=easing: 1 + (_xf - 1) * _easing((t - _s) / _d), stay=True)
+            _lerp(start, _d, 1, x_factor, easing), stay=True)
         self.styling.scale_y.set(start, end,
-            lambda t, _s=_s, _d=_d, _yf=y_factor, _easing=easing: 1 + (_yf - 1) * _easing((t - _s) / _d), stay=True)
+            _lerp(start, _d, 1, y_factor, easing), stay=True)
         return self
 
     def jiggle(self, start: float = 0, end: float = 1, amount=5, easing=easings.smooth):
@@ -3121,17 +3119,14 @@ class VObject(ABC):  # Vector Object
             tx, ty = target
         cx, cy = self.get_center(start)
         ddx, ddy = tx - cx, ty - cy
-        _s, _d = start, max(dur, 1e-9)
+        _d = max(dur, 1e-9)
         for xa, ya in self._shift_reals():
-            xa.add(start, end,
-                lambda t, _s=_s, _d=_d, _dx=ddx, _easing=easing: _dx * _easing((t - _s) / _d),
-                stay=True)
-            ya.add(start, end,
-                lambda t, _s=_s, _d=_d, _dy=ddy, _easing=easing: _dy * _easing((t - _s) / _d),
-                stay=True)
+            xa.add(start, end, _ramp(start, _d, ddx, easing), stay=True)
+            ya.add(start, end, _ramp(start, _d, ddy, easing), stay=True)
+        _s, _dd = start, _d
         for c in self._shift_coors():
             c.add(start, end,
-                lambda t, _s=_s, _d=_d, _dx=ddx, _dy=ddy, _easing=easing:
+                lambda t, _s=_s, _d=_dd, _dx=ddx, _dy=ddy, _easing=easing:
                     (_dx * _easing((t - _s) / _d), _dy * _easing((t - _s) / _d)),
                 stay=True)
         return self

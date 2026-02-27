@@ -12038,7 +12038,7 @@ class TestNeuralNetwork:
 
 # ── Pendulum ─────────────────────────────────────────────────────────────────
 
-class TestPendulum:
+class TestPendulumObject:
     def test_creates(self):
         p = Pendulum()
         assert len(p.objects) > 0
@@ -12188,7 +12188,7 @@ class TestPopIn:
 
 # ── Elastic / Bounce ─────────────────────────────────────────────────────────
 
-class TestElasticBounce:
+class TestElasticInOut:
     def test_elastic_in_returns_self(self):
         c = Circle(r=50, cx=100, cy=100)
         result = c.elastic_in(start=0, end=1)
