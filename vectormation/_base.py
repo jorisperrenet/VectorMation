@@ -41,6 +41,13 @@ def _ramp_down(start, dur, val, easing):
     return lambda t, _s=start, _d=dur, _v=val, _e=easing: _v * (1 - _e((t - _s) / _d))
 
 
+def _lerp_point(start, dur, a, b, easing):
+    """Return a lambda that interpolates 2D points from *a* to *b* over [start, start+dur]."""
+    return lambda t, _s=start, _d=dur, _a=a, _b=b, _e=easing: (
+        _a[0] + (_b[0] - _a[0]) * _e((t - _s) / _d),
+        _a[1] + (_b[1] - _a[1]) * _e((t - _s) / _d))
+
+
 def _clip_reveal(tmpl, start, dur, easing):
     """Return a clip-path function that reveals (100% clipped → 0%) over [start, start+dur]."""
     return lambda t, _s=start, _d=dur, _tmpl=tmpl, _e=easing: _tmpl(100 * (1 - _e((t - _s) / _d)))
@@ -5905,13 +5912,8 @@ class VCollection:
         self.objects.reverse()
         return self
 
-    def reverse(self):
-        """Reverse the order of children in-place. Alias for reverse_children."""
-        return self.reverse_children()
-
-    def reverse_order(self):
-        """Reverse the order of children in-place. Alias for reverse_children."""
-        return self.reverse_children()
+    reverse = reverse_children
+    reverse_order = reverse_children
 
     def rotate_order(self, n=1):
         """Rotate children order by *n* positions.
@@ -6355,7 +6357,7 @@ class VCollection:
         """Call method on each child with staggered timing offsets."""
         for i, obj in enumerate(self.objects):
             kw = dict(kwargs)
-            for key in ('start', 'end', 'start', 'end'):
+            for key in ('start', 'end'):
                 if key in kw:
                     kw[key] = kw[key] + i * delay
             getattr(obj, method_name)(**kw)
@@ -6975,19 +6977,7 @@ class VCollection:
             func(obj, i)
         return self
 
-    def apply_function(self, func):
-        """Apply a transformation function to each child.
-
-        The function receives the child and its index: ``func(child, index)``.
-        Returns self for chaining.
-
-        Example
-        -------
-        >>> col.apply_function(lambda obj, i: obj.set_color(0, 1, fill='red'))
-        """
-        for i, obj in enumerate(self.objects):
-            func(obj, i)
-        return self
+    apply_function = apply
 
     def apply_with_delay(self, func, delay=0.1, start=0):
         """Apply *func* to each child with an incremental time delay.

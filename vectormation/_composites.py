@@ -15,7 +15,7 @@ from vectormation._constants import (
     DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
     _sample_function,
 )
-from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _ramp, _ramp_down
+from vectormation._base import VObject, VCollection, _norm_dir, _lerp, _ramp, _ramp_down, _lerp_point
 from vectormation._shapes import (
     Polygon, Circle, Ellipse, Dot, Rectangle, RoundedRectangle, Line, Lines,
     Text, Path, Arc, Wedge,
@@ -5686,13 +5686,9 @@ class NumberPlane(VCollection):
             seg.shift(dx=0, dy=0, start=start, end=start)  # anchor
             # Animate endpoints
             seg.p1.set(start, end,
-                lambda t, _s=start, _d=dur, _a=(sx0, sy0), _b=(tsx0, tsy0):
-                    (_a[0] + (_b[0] - _a[0]) * easing((t - _s) / _d),
-                     _a[1] + (_b[1] - _a[1]) * easing((t - _s) / _d)))
+                _lerp_point(start, dur, (sx0, sy0), (tsx0, tsy0), easing))
             seg.p2.set(start, end,
-                lambda t, _s=start, _d=dur, _a=(sx1, sy1), _b=(tsx1, tsy1):
-                    (_a[0] + (_b[0] - _a[0]) * easing((t - _s) / _d),
-                     _a[1] + (_b[1] - _a[1]) * easing((t - _s) / _d)))
+                _lerp_point(start, dur, (sx1, sy1), (tsx1, tsy1), easing))
             return seg
 
         style = {'stroke': '#4488AA', 'stroke_width': 2, 'stroke_opacity': 0.6}
@@ -9020,13 +9016,9 @@ class ComplexPlane(Axes):
 
             seg = Line(x1=sx0, y1=sy0, x2=sx1, y2=sy1, creation=0, **style_kw)
             seg.p1.set(start, end,
-                lambda t, _s=start, _d=dur, _a=(sx0, sy0), _b=(tsx0, tsy0):
-                    (_a[0] + (_b[0] - _a[0]) * easing((t - _s) / _d),
-                     _a[1] + (_b[1] - _a[1]) * easing((t - _s) / _d)))
+                _lerp_point(start, dur, (sx0, sy0), (tsx0, tsy0), easing))
             seg.p2.set(start, end,
-                lambda t, _s=start, _d=dur, _a=(sx1, sy1), _b=(tsx1, tsy1):
-                    (_a[0] + (_b[0] - _a[0]) * easing((t - _s) / _d),
-                     _a[1] + (_b[1] - _a[1]) * easing((t - _s) / _d)))
+                _lerp_point(start, dur, (sx1, sy1), (tsx1, tsy1), easing))
             return seg
 
         # Vertical lines: for each x on the grid, subdivide the y range
