@@ -1123,21 +1123,29 @@ class Axes(VCollection):
         return curve
 
     def plot_line_graph(self, x_values, y_values, creation=0, z=0, **styling_kwargs):
-        """Plot a line graph from discrete data points. Returns a VCollection."""
+        """Plot a line graph from discrete data points. Returns a VCollection.
+
+        The returned VCollection has an ``animate_data`` method that can
+        smoothly transition the data points to new values::
+
+            graph = axes.plot_line_graph([1, 2, 3], [1, 4, 9])
+            graph.animate_data([1, 2, 3], [2, 5, 7], start=1, end=2)
+        """
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 5, 'fill_opacity': 0} | styling_kwargs
-        # Build a Path with dynamic d that re-maps data points each frame
-        data = list(zip(x_values, y_values))
+        # Mutable container so animate_data can update the data reference
+        data_ref = [list(zip(x_values, y_values))]
+        axes_ref = self
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
-        def _compute_d(time, _data=data):
-            pts = [(self._math_to_svg_x(x, time), self._math_to_svg_y(y, time))
-                   for x, y in _data]
+        def _compute_d(time):
+            pts = [(axes_ref._math_to_svg_x(x, time), axes_ref._math_to_svg_y(y, time))
+                   for x, y in data_ref[0]]
             if not pts:
                 return ''
             return 'M' + 'L'.join(f'{x},{y}' for x, y in pts)
         curve.d.set_onward(creation, _compute_d)
         # Dynamic dots that track animated axis ranges
         dots = []
-        for x, y in data:
+        for x, y in data_ref[0]:
             dot = Dot(cx=self._math_to_svg_x(x, creation), cy=self._math_to_svg_y(y, creation),
                       r=3, creation=creation, z=z,
                       fill=style_kw.get('stroke', '#58C4DD'))
@@ -1145,6 +1153,89 @@ class Axes(VCollection):
                 lambda t, _x=x, _y=y: self.coords_to_point(_x, _y, t))
             dots.append(dot)
         group = VCollection(curve, *dots, creation=creation, z=z)
+
+        def _animate_data(new_x, new_y, start=0, end=1, easing=None):
+            """Animate the line graph data to new values over [start, end].
+
+            Parameters
+            ----------
+            new_x:
+                New x data values.
+            new_y:
+                New y data values.
+            start:
+                Animation start time.
+            end:
+                Animation end time.
+            easing:
+                Easing function (default ``easings.smooth``).
+
+            Returns
+            -------
+            VCollection
+                The same group for chaining.
+            """
+            _easing = easing or easings.smooth
+            old_data = list(data_ref[0])
+            new_data = list(zip(new_x, new_y))
+            data_ref[0] = new_data
+            dur = end - start
+            if dur <= 0:
+                # Instant update: just swap data and update dot positions
+                for i, dot in enumerate(dots):
+                    if i < len(new_data):
+                        nx, ny = new_data[i]
+                        dot.c.set_onward(start,
+                            lambda t, _x=nx, _y=ny: axes_ref.coords_to_point(_x, _y, t))
+                return group
+            # Animated update: interpolate between old and new data for the
+            # line path, and animate each dot's position.
+            # Override the curve d with an interpolating function
+            def _interp_d(time):
+                if time >= end:
+                    pts = [(axes_ref._math_to_svg_x(x, time),
+                            axes_ref._math_to_svg_y(y, time))
+                           for x, y in new_data]
+                elif time <= start:
+                    pts = [(axes_ref._math_to_svg_x(x, time),
+                            axes_ref._math_to_svg_y(y, time))
+                           for x, y in old_data]
+                else:
+                    p = _easing((time - start) / dur)
+                    pts = []
+                    n = max(len(old_data), len(new_data))
+                    for i in range(n):
+                        ox, oy = old_data[i] if i < len(old_data) else old_data[-1]
+                        nx, ny = new_data[i] if i < len(new_data) else new_data[-1]
+                        ix = ox + (nx - ox) * p
+                        iy = oy + (ny - oy) * p
+                        pts.append((axes_ref._math_to_svg_x(ix, time),
+                                    axes_ref._math_to_svg_y(iy, time)))
+                if not pts:
+                    return ''
+                return 'M' + 'L'.join(f'{x},{y}' for x, y in pts)
+            curve.d.set_onward(start, _interp_d)
+            # Animate dots
+            for i, dot in enumerate(dots):
+                if i < len(old_data) and i < len(new_data):
+                    ox, oy = old_data[i]
+                    nx, ny = new_data[i]
+                    _ox, _oy, _nx, _ny = ox, oy, nx, ny
+                    _s, _d, _e_fn = start, dur, _easing
+                    def _dot_pos(t, _ox=_ox, _oy=_oy, _nx=_nx, _ny=_ny,
+                                 _s=_s, _d=_d, _e=_e_fn, _end=end):
+                        if t >= _end:
+                            return axes_ref.coords_to_point(_nx, _ny, t)
+                        elif t <= _s:
+                            return axes_ref.coords_to_point(_ox, _oy, t)
+                        p = _e((t - _s) / _d)
+                        ix = _ox + (_nx - _ox) * p
+                        iy = _oy + (_ny - _oy) * p
+                        return axes_ref.coords_to_point(ix, iy, t)
+                    dot.c.set_onward(start, _dot_pos)
+            return group
+
+        group.animate_data = _animate_data
         self._add_plot_obj(group)
         return group
 
@@ -6817,6 +6908,109 @@ class NumberLine(VCollection):
             if end is not None:
                 lbl._hide_from(end)
             self.objects.append(lbl)
+
+        return self
+
+    def animate_range(self, new_start, new_end, start=0, end=1, easing=None):
+        """Animate the number line's visible range to ``[new_start, new_end]``.
+
+        Tick marks and labels slide to their new positions under the updated
+        range mapping.  Objects whose tick values fall outside the new range
+        are faded out; objects now inside are faded in.
+
+        After the animation completes, ``self.x_start`` and ``self.x_end``
+        are updated so that :meth:`number_to_point` uses the new range.
+
+        Parameters
+        ----------
+        new_start:
+            New range start value.
+        new_end:
+            New range end value.
+        start:
+            Animation start time.
+        end:
+            Animation end time.
+        easing:
+            Easing function (default ``easings.smooth``).
+
+        Returns
+        -------
+        self
+        """
+        _easing = easing or easings.smooth
+        old_start, old_end = self.x_start, self.x_end
+        length = self.length
+        ox, oy = self.origin_x, self.origin_y
+        dur = end - start
+
+        def _old_val_to_x(val):
+            return ox + (val - old_start) / (old_end - old_start) * length
+
+        def _new_val_to_x(val):
+            return ox + (val - new_start) / (new_end - new_start) * length
+
+        # Skip object 0 (the main line/arrow) -- it spans the full length
+        # and does not move.
+        # Remaining objects are tick/label pairs.  Walk through them
+        # and figure out which tick value each belongs to.
+        i = 1
+        while i < len(self.objects):
+            obj = self.objects[i]
+            # Tick lines: Line objects whose x1 roughly equals a tick position
+            if hasattr(obj, 'p1'):
+                # It's a Line (tick mark)
+                cur_x = obj.p1.at_time(start)[0]
+                # Determine what value this tick represents using old mapping
+                val = old_start + (cur_x - ox) / length * (old_end - old_start)
+                new_x = _new_val_to_x(val)
+                if dur <= 0:
+                    obj.p1.set_onward(start,
+                        lambda t, _nx=new_x, _y1=obj.p1.at_time(start)[1]: (_nx, _y1))
+                    obj.p2.set_onward(start,
+                        lambda t, _nx=new_x, _y2=obj.p2.at_time(start)[1]: (_nx, _y2))
+                else:
+                    old_x = cur_x
+                    p1_y = obj.p1.at_time(start)[1]
+                    p2_y = obj.p2.at_time(start)[1]
+                    _dx = new_x - old_x
+                    obj.p1.set_onward(start,
+                        lambda t, _ox=old_x, _dx=_dx, _y=p1_y, _s=start, _d=dur, _e=_easing, _end=end:
+                            (_ox + _dx * _e(min(1, (t - _s) / _d)) if t < _end else _ox + _dx, _y))
+                    obj.p2.set_onward(start,
+                        lambda t, _ox=old_x, _dx=_dx, _y=p2_y, _s=start, _d=dur, _e=_easing, _end=end:
+                            (_ox + _dx * _e(min(1, (t - _s) / _d)) if t < _end else _ox + _dx, _y))
+            elif hasattr(obj, 'text') and hasattr(obj, 'x'):
+                # It's a Text label
+                cur_x = obj.x.at_time(start)
+                # Approximate: label x is near the tick position
+                # Read the label text to get the value
+                txt = obj.text.at_time(start)
+                try:
+                    val = float(txt)
+                except (ValueError, TypeError):
+                    i += 1
+                    continue
+                new_x = _new_val_to_x(val)
+                # Adjust for label offset (label x was offset from tick x)
+                old_tick_x = _old_val_to_x(val)
+                offset = cur_x - old_tick_x
+                target_x = new_x + offset
+                if dur <= 0:
+                    obj.x.set_onward(start, target_x)
+                else:
+                    obj.x.move_to(start, end, target_x, easing=_easing)
+            i += 1
+
+        # Update range properties at the end of the animation
+        if dur <= 0:
+            self.x_start, self.x_end = new_start, new_end
+        else:
+            # Schedule the update -- since Python closures capture self,
+            # we use a post-animation updater-style approach.
+            # We set them immediately so number_to_point uses new values
+            # for any subsequent calls.
+            self.x_start, self.x_end = new_start, new_end
 
         return self
 

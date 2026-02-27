@@ -11283,3 +11283,204 @@ class TestBarChartRemoveBar:
         # It should have moved left
         new_x = chart._bars[1].x.at_time(0)
         assert new_x < old_x2
+
+
+# ---- New feature tests ----
+
+
+class TestPathReverse:
+    def test_reverse_returns_new_path(self):
+        p = Path('M0,0 L100,0 L100,100')
+        rev = p.reverse()
+        assert isinstance(rev, Path)
+        assert rev is not p
+
+    def test_reverse_reverses_d_string(self):
+        p = Path('M0,0 L100,0 L100,100')
+        rev = p.reverse()
+        d = rev.d.at_time(0)
+        # The reversed path should start near (100, 100) and end near (0, 0)
+        assert d.startswith('M')
+        # Parse start point from the reversed d-string
+        assert '100' in d[:20]
+
+    def test_reverse_copies_styling(self):
+        p = Path('M0,0 L100,0', stroke='#ff0000', stroke_width=5)
+        rev = p.reverse()
+        assert rev.styling.stroke_width.at_time(0) == 5
+
+    def test_reverse_empty_path(self):
+        p = Path('')
+        rev = p.reverse()
+        assert rev.d.at_time(0) == ''
+
+    def test_reverse_preserves_length(self):
+        p = Path('M0,0 L100,0 L100,100')
+        rev = p.reverse()
+        assert p.get_length() == pytest.approx(rev.get_length(), abs=1)
+
+    def test_reverse_with_time_param(self):
+        p = Path('M0,0 L50,0')
+        p.d.set_onward(1, 'M0,0 L200,0')
+        rev = p.reverse(time=1)
+        d = rev.d.at_time(0)
+        # Should have reversed the d-string at time=1
+        assert '200' in d
+
+    def test_reverse_start_end_points_swap(self):
+        p = Path('M10,20 L80,90')
+        rev = p.reverse()
+        # The reversed path starts where the original ended
+        start = rev.point_from_proportion(0)
+        assert start[0] == pytest.approx(80, abs=1)
+        assert start[1] == pytest.approx(90, abs=1)
+        end = rev.point_from_proportion(1)
+        assert end[0] == pytest.approx(10, abs=1)
+        assert end[1] == pytest.approx(20, abs=1)
+
+
+class TestTextUpdateText:
+    def test_update_text_changes_text(self):
+        t = Text('hello')
+        t.update_text('world')
+        assert t.text.at_time(0) == 'world'
+
+    def test_update_text_at_later_time(self):
+        t = Text('hello')
+        t.update_text('world', start=2)
+        # Before start, original text
+        assert t.text.at_time(1) == 'hello'
+        # At and after start, new text
+        assert t.text.at_time(2) == 'world'
+        assert t.text.at_time(5) == 'world'
+
+    def test_update_text_returns_self(self):
+        t = Text('hello')
+        result = t.update_text('world')
+        assert result is t
+
+    def test_update_text_chaining(self):
+        t = Text('a')
+        t.update_text('b', start=1).update_text('c', start=2)
+        assert t.text.at_time(0) == 'a'
+        assert t.text.at_time(1) == 'b'
+        assert t.text.at_time(2) == 'c'
+
+    def test_update_text_empty(self):
+        t = Text('hello')
+        t.update_text('')
+        assert t.text.at_time(0) == ''
+
+
+class TestAxesPlotLineGraphAnimateData:
+    def test_plot_line_graph_returns_vcollection(self):
+        axes = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
+        graph = axes.plot_line_graph([1, 2, 3], [1, 4, 9])
+        assert isinstance(graph, VCollection)
+
+    def test_plot_line_graph_has_animate_data(self):
+        axes = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
+        graph = axes.plot_line_graph([1, 2, 3], [1, 4, 9])
+        assert hasattr(graph, 'animate_data')
+        assert callable(graph.animate_data)
+
+    def test_animate_data_returns_group(self):
+        axes = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
+        graph = axes.plot_line_graph([1, 2, 3], [1, 4, 9])
+        result = graph.animate_data([1, 2, 3], [2, 5, 7], start=1, end=2)
+        assert result is graph
+
+    def test_animate_data_instant(self):
+        axes = Axes(x_range=(0, 5, 1), y_range=(0, 10, 1))
+        graph = axes.plot_line_graph([1, 2, 3], [2, 4, 6])
+        # Instant update (start == end)
+        graph.animate_data([1, 2, 3], [3, 5, 7], start=0, end=0)
+        # Dots should now point at new data at time=0
+        dot0 = graph.objects[1]  # first dot
+        pos = dot0.c.at_time(0)
+        expected = axes.coords_to_point(1, 3, 0)
+        assert pos[0] == pytest.approx(expected[0], abs=1)
+        assert pos[1] == pytest.approx(expected[1], abs=1)
+
+    def test_animate_data_interpolation(self):
+        axes = Axes(x_range=(0, 5, 1), y_range=(0, 10, 1))
+        graph = axes.plot_line_graph([1, 2], [2, 4])
+        graph.animate_data([1, 2], [4, 8], start=0, end=1)
+        # At end time, dots should be at new positions
+        dot0 = graph.objects[1]  # first dot
+        pos_end = dot0.c.at_time(1)
+        expected = axes.coords_to_point(1, 4, 1)
+        assert pos_end[0] == pytest.approx(expected[0], abs=1)
+        assert pos_end[1] == pytest.approx(expected[1], abs=1)
+
+    def test_animate_data_midpoint_is_interpolated(self):
+        axes = Axes(x_range=(0, 5, 1), y_range=(0, 10, 1))
+        graph = axes.plot_line_graph([1], [0])
+        graph.animate_data([1], [10], start=0, end=1, easing=easings.linear)
+        # At time=0.5 with linear easing, should be at y=5
+        dot0 = graph.objects[1]
+        pos_mid = dot0.c.at_time(0.5)
+        expected = axes.coords_to_point(1, 5, 0.5)
+        assert pos_mid[0] == pytest.approx(expected[0], abs=1)
+        assert pos_mid[1] == pytest.approx(expected[1], abs=1)
+
+    def test_plot_line_graph_d_attribute_is_dynamic(self):
+        axes = Axes(x_range=(0, 5, 1), y_range=(0, 10, 1))
+        graph = axes.plot_line_graph([1, 2], [3, 6])
+        # The curve (first object) should have a d-string with M and L
+        curve = graph.objects[0]
+        d = curve.d.at_time(0)
+        assert d.startswith('M')
+        assert 'L' in d
+
+
+class TestNumberLineAnimateRange:
+    def test_animate_range_updates_properties(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        nl.animate_range(-10, 10, start=0, end=1)
+        assert nl.x_start == -10
+        assert nl.x_end == 10
+
+    def test_animate_range_returns_self(self):
+        nl = NumberLine(x_range=(-5, 5, 1))
+        result = nl.animate_range(-10, 10, start=0, end=1)
+        assert result is nl
+
+    def test_animate_range_instant(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        nl.animate_range(0, 20, start=0, end=0)
+        assert nl.x_start == 0
+        assert nl.x_end == 20
+
+    def test_animate_range_number_to_point_uses_new_range(self):
+        nl = NumberLine(x_range=(0, 10, 1), length=100, x=0, y=0)
+        nl.animate_range(0, 20, start=0, end=1)
+        # After animation, number_to_point should use new range
+        px, py = nl.number_to_point(10)
+        # 10 in range [0,20] with length 100 => x = 50
+        assert px == pytest.approx(50, abs=1)
+
+    def test_animate_range_ticks_move(self):
+        nl = NumberLine(x_range=(0, 10, 5), length=100, x=0, y=0,
+                        include_arrows=False, include_numbers=False)
+        # Ticks at values 0, 5, 10
+        # Initial tick positions: 0, 50, 100
+        tick0 = nl.objects[1]  # first tick (value=0)
+        tick1 = nl.objects[2]  # second tick (value=5)
+        old_x1 = tick1.p1.at_time(0)[0]
+        assert old_x1 == pytest.approx(50, abs=1)
+
+        nl.animate_range(0, 20, start=0, end=1)
+        # After animation, tick at value=5 should be at x=25
+        new_x1 = tick1.p1.at_time(1)[0]
+        assert new_x1 == pytest.approx(25, abs=1)
+
+    def test_animate_range_with_easing(self):
+        nl = NumberLine(x_range=(0, 10, 5), length=100, x=0, y=0,
+                        include_arrows=False, include_numbers=False)
+        nl.animate_range(0, 20, start=0, end=1, easing=easings.linear)
+        # Tick at value=5, at time=0.5 with linear easing: should be halfway
+        tick1 = nl.objects[2]  # second tick (value=5)
+        # Old x=50, new x=25, midpoint=37.5
+        mid_x = tick1.p1.at_time(0.5)[0]
+        assert mid_x == pytest.approx(37.5, abs=1)

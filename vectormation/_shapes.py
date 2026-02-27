@@ -4638,6 +4638,27 @@ class Text(VObject):
             lambda t, _m=mid, _d=dur2: easing((t - _m) / _d), stay=True)
         return self
 
+    def update_text(self, new_text, start=0):
+        """Instantly change the displayed text from *start* onward.
+
+        This is a convenience wrapper around
+        ``self.text.set_onward(start, new_text)`` for simple text
+        replacements that don't need an animated transition.
+
+        Parameters
+        ----------
+        new_text:
+            The new text string to display.
+        start:
+            Time from which the new text is shown.
+
+        Returns
+        -------
+        self
+        """
+        self.text.set_onward(start, new_text)
+        return self
+
     def reverse_text(self, time=0):
         """Reverse the text at the given time."""
         text = self.text.at_time(time)
@@ -5372,6 +5393,41 @@ class Path(VObject):
             attr = getattr(self.styling, name)
             style_kwargs[name] = attr.time_func(time)
         return Path(sub.d(), **style_kwargs)
+
+    def reverse(self, time=0):
+        """Return a new Path with the segments reversed.
+
+        Uses ``svgpathtools`` to parse the ``d`` attribute at *time*,
+        reverses the parsed path, and converts it back to a ``d``-string.
+        Styling is copied from this Path at *time*.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read the path data and styling.
+
+        Returns
+        -------
+        Path
+            A new Path with the reversed segment order.
+        """
+        d = self.d.at_time(time)
+        if not d:
+            return Path('')
+        from svgpathtools import parse_path
+        parsed = parse_path(d)
+        reversed_d = parsed.reversed().d()
+        # Copy styling (same pattern as trim / Polygon.to_path)
+        style_kwargs = {}
+        for name in ('fill_opacity', 'stroke_width',
+                      'stroke_opacity', 'opacity', 'stroke_dasharray',
+                      'stroke_dashoffset', 'stroke_linecap', 'stroke_linejoin',
+                      'fill_rule'):
+            style_kwargs[name] = getattr(self.styling, name).at_time(time)
+        for name in ('fill', 'stroke'):
+            attr = getattr(self.styling, name)
+            style_kwargs[name] = attr.time_func(time)
+        return Path(reversed_d, **style_kwargs)
 
     def path(self, time):
         return self.d.at_time(time)

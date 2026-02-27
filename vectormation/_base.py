@@ -1429,23 +1429,30 @@ class VObject(ABC):  # Vector Object
                 stay=(i == n_segs - 1))
         return self
 
-    def next_to(self, other, direction: str | tuple = 'right', buff=SMALL_BUFF, start_time: float = 0):
+    def next_to(self, other, direction: str | tuple = 'right', buff=SMALL_BUFF, start_time: float = 0, end_time: float | None = None, easing=None):
         """Position this object next to another.
-        direction: 'left', 'right', 'up', 'down' or a direction constant (UP, DOWN, LEFT, RIGHT)."""
+        direction: 'left', 'right', 'up', 'down' or a direction constant (UP, DOWN, LEFT, RIGHT).
+        When *end_time* is given, animate the movement over [start_time, end_time]."""
         if isinstance(direction, tuple):
             direction = _DIR_NAMES.get(direction, 'right')
         mx, my, mw, mh = self.bbox(start_time)
         ox, oy, ow, oh = other.bbox(start_time)
         mcx, mcy = mx + mw/2, my + mh/2
         ocx, ocy = ox + ow/2, oy + oh/2
-        offsets = {
-            'right': (ox + ow + buff + mw/2 - mcx, ocy - mcy),
-            'left':  (ox - buff - mw/2 - mcx, ocy - mcy),
-            'down':  (ocx - mcx, oy + oh + buff + mh/2 - mcy),
-            'up':    (ocx - mcx, oy - buff - mh/2 - mcy),
+        targets = {
+            'right': (ox + ow + buff + mw/2, ocy),
+            'left':  (ox - buff - mw/2, ocy),
+            'down':  (ocx, oy + oh + buff + mh/2),
+            'up':    (ocx, oy - buff - mh/2),
         }
-        dx, dy = offsets[direction]
-        self.shift(dx=dx, dy=dy, start_time=start_time)
+        tx, ty = targets[direction]
+        if end_time is not None:
+            kw = {'start_time': start_time, 'end_time': end_time}
+            if easing is not None:
+                kw['easing'] = easing
+            self.center_to_pos(tx, ty, **kw)
+        else:
+            self.shift(dx=tx - mcx, dy=ty - mcy, start_time=start_time)
         return self
 
     def attach_to(self, other, direction=None, buff=None, start=0, end=None):
@@ -3293,9 +3300,10 @@ class VObject(ABC):  # Vector Object
         cx2, cy2 = other.get_center(time) if hasattr(other, 'get_center') else other
         return math.degrees(math.atan2(cy2 - cy1, cx2 - cx1))
 
-    def align_to(self, other, edge: str | tuple = 'left', start_time: float = 0):
+    def align_to(self, other, edge: str | tuple = 'left', start_time: float = 0, end_time: float | None = None, easing=None):
         """Align an edge of this object with the same edge of another.
-        edge: 'left', 'right', 'top', 'bottom' or a direction constant (UP, DOWN, LEFT, RIGHT)."""
+        edge: 'left', 'right', 'top', 'bottom' or a direction constant (UP, DOWN, LEFT, RIGHT).
+        When *end_time* is given, animate the movement over [start_time, end_time]."""
         if isinstance(edge, tuple):
             edge = _EDGE_NAMES.get(edge, 'left')
         mx, my, mw, mh = self.bbox(start_time)
@@ -3307,7 +3315,12 @@ class VObject(ABC):  # Vector Object
             'bottom': (0, (oy + oh) - (my + mh)),
         }
         dx, dy = offsets[edge]
-        self.shift(dx=dx, dy=dy, start_time=start_time)
+        kw = {'start_time': start_time}
+        if end_time is not None:
+            kw['end_time'] = end_time
+        if easing is not None:
+            kw['easing'] = easing
+        self.shift(dx=dx, dy=dy, **kw)
         return self
 
     @staticmethod
@@ -5550,6 +5563,40 @@ class VCollection:
     def get_height(self, time=0):
         return self.bbox(time)[3]
 
+    def set_width(self, width, start: float = 0, end: float | None = None, easing=None):
+        """Scale the entire group so its bounding box has the given *width*.
+
+        When *end* is given the scale is animated over [start, end].
+        """
+        cur = self.get_width(start)
+        if cur == 0:
+            return self
+        factor = width / cur
+        kw = {'start': start}
+        if end is not None:
+            kw['end'] = end
+        if easing is not None:
+            kw['easing'] = easing
+        self.scale(factor, **kw)
+        return self
+
+    def set_height(self, height, start: float = 0, end: float | None = None, easing=None):
+        """Scale the entire group so its bounding box has the given *height*.
+
+        When *end* is given the scale is animated over [start, end].
+        """
+        cur = self.get_height(start)
+        if cur == 0:
+            return self
+        factor = height / cur
+        kw = {'start': start}
+        if end is not None:
+            kw['end'] = end
+        if easing is not None:
+            kw['easing'] = easing
+        self.scale(factor, **kw)
+        return self
+
     def total_width(self, time=0):
         """Return the sum of all children's individual bounding-box widths at *time*.
 
@@ -6382,6 +6429,38 @@ class VCollection:
             obj.shift(dx=target_cx - cur_cx, dy=target_cy - cur_cy, start_time=start_time)
         return self
 
+    def animated_arrange_in_grid(self, rows=None, cols=None, buff=SMALL_BUFF, start: float = 0, end: float = 1, easing=None):
+        """Animated version of :meth:`arrange_in_grid`.
+
+        Computes the same grid layout as *arrange_in_grid* but animates each
+        child to its target position over [start, end] using *center_to_pos*.
+        """
+        n = len(self.objects)
+        if not n:
+            return self
+        if rows is None and cols is None:
+            cols = math.ceil(math.sqrt(n))
+            rows = math.ceil(n / cols)
+        elif rows is None:
+            rows = math.ceil(n / cols)
+        elif cols is None:
+            cols = math.ceil(n / rows)
+        # Measure max cell size
+        boxes = [obj.bbox(start) for obj in self.objects]
+        max_w = max(b[2] for b in boxes)
+        max_h = max(b[3] for b in boxes)
+        cell_w, cell_h = max_w + buff, max_h + buff
+        # Animate each object to its cell center
+        for idx, (obj, box) in enumerate(zip(self.objects, boxes)):
+            r, c = divmod(idx, cols)
+            target_cx = c * cell_w + max_w / 2
+            target_cy = r * cell_h + max_h / 2
+            kw = {'start_time': start, 'end_time': end}
+            if easing is not None:
+                kw['easing'] = easing
+            obj.center_to_pos(target_cx, target_cy, **kw)
+        return self
+
     def stagger(self, method_name, delay, **kwargs):
         """Call method on each child with staggered timing offsets."""
         for i, obj in enumerate(self.objects):
@@ -7096,10 +7175,11 @@ class VCollection:
                 method_name_or_func(a, b, time)
         return self
 
-    def align_to(self, target, edge='left', start_time: float = 0):
+    def align_to(self, target, edge='left', start_time: float = 0, end_time: float | None = None, easing=None):
         """Align the collection's edge to match *target*'s edge.
         target: another VObject/VCollection.
-        edge: 'left', 'right', 'top', 'bottom' or direction constant."""
+        edge: 'left', 'right', 'top', 'bottom' or direction constant.
+        When *end_time* is given, animate the movement over [start_time, end_time]."""
         if isinstance(edge, tuple):
             edge = _EDGE_NAMES.get(edge, 'left')
         mx, my, mw, mh = self.bbox(start_time)
@@ -7111,8 +7191,13 @@ class VCollection:
             'bottom': (0, (oy + oh) - (my + mh)),
         }
         dx, dy = offsets.get(edge, (0, 0))
+        kw = {'start_time': start_time}
+        if end_time is not None:
+            kw['end_time'] = end_time
+        if easing is not None:
+            kw['easing'] = easing
         for obj in self.objects:
-            obj.shift(dx=dx, dy=dy, start_time=start_time)
+            obj.shift(dx=dx, dy=dy, **kw)
         return self
 
     def write(self, start: float = 0, end: float = 1, processing=10, max_stroke_width=2, change_existence=True, easing=easings.smooth):

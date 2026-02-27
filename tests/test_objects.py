@@ -11863,3 +11863,141 @@ class TestSetClip:
         # Each should have a different clip id
         assert f'clip{id(c1)}' in svg1
         assert f'clip{id(c2)}' in svg2
+
+
+class TestAnimatedNextTo:
+    """Tests for VObject.next_to with end_time (animated movement)."""
+
+    def test_next_to_animated_right(self):
+        a = Rectangle(100, 50, x=100, y=100)
+        b = Rectangle(80, 50, x=0, y=0)
+        b.next_to(a, 'right', start_time=0, end_time=1, easing=easings.linear)
+        # At time 0, b should still be near its original position
+        bx_start, _, _, _ = b.bbox(0)
+        # At time 1, b should be to the right of a
+        bx_end, _, _, _ = b.bbox(1)
+        assert bx_end > 200  # b is to the right of a
+
+    def test_next_to_animated_left(self):
+        a = Rectangle(100, 50, x=200, y=100)
+        b = Rectangle(80, 50, x=500, y=500)
+        b.next_to(a, LEFT, start_time=0, end_time=1, easing=easings.linear)
+        bx, _, bw, _ = b.bbox(1)
+        assert bx + bw < 200  # b is to the left of a at end
+
+    def test_next_to_animated_up(self):
+        a = Rectangle(100, 50, x=100, y=200)
+        b = Rectangle(100, 30, x=0, y=0)
+        b.next_to(a, UP, start_time=0, end_time=1, easing=easings.linear)
+        _, by, _, bh = b.bbox(1)
+        assert by + bh < 200  # b is above a at end
+
+    def test_next_to_animated_down(self):
+        a = Rectangle(100, 50, x=100, y=100)
+        b = Rectangle(100, 30, x=0, y=0)
+        b.next_to(a, DOWN, start_time=0, end_time=1, easing=easings.linear)
+        _, by, _, _ = b.bbox(1)
+        assert by > 150  # b is below a at end
+
+    def test_next_to_animated_midway(self):
+        """At time 0.5 with linear easing, position should be halfway."""
+        a = Rectangle(100, 50, x=100, y=100)
+        b = Rectangle(80, 50, x=0, y=0)
+        b.next_to(a, 'right', start_time=0, end_time=1, easing=easings.linear)
+        bx_0, _, _, _ = b.bbox(0)
+        bx_1, _, _, _ = b.bbox(1)
+        bx_mid, _, _, _ = b.bbox(0.5)
+        expected_mid = (bx_0 + bx_1) / 2
+        assert bx_mid == pytest.approx(expected_mid, abs=1)
+
+    def test_next_to_animated_returns_self(self):
+        a = Rectangle(100, 50, x=100, y=100)
+        b = Rectangle(80, 50, x=0, y=0)
+        result = b.next_to(a, 'right', start_time=0, end_time=1)
+        assert result is b
+
+    def test_next_to_without_end_time_backward_compat(self):
+        """Without end_time, next_to should still work instantly."""
+        a = Rectangle(100, 50, x=100, y=100)
+        b = Rectangle(80, 50, x=0, y=0)
+        b.next_to(a, RIGHT)
+        bx, _, _, _ = b.bbox(0)
+        assert bx > 200
+
+    def test_next_to_animated_with_direction_constant(self):
+        a = Rectangle(100, 50, x=100, y=100)
+        b = Rectangle(80, 50, x=0, y=0)
+        b.next_to(a, RIGHT, start_time=0, end_time=1, easing=easings.linear)
+        bx, _, _, _ = b.bbox(1)
+        assert bx > 200
+
+    def test_next_to_animated_default_easing(self):
+        """When easing is not given, center_to_pos uses its default (smooth)."""
+        a = Rectangle(100, 50, x=100, y=100)
+        b = Rectangle(80, 50, x=0, y=0)
+        b.next_to(a, 'right', start_time=0, end_time=1)
+        bx, _, _, _ = b.bbox(1)
+        assert bx > 200
+
+
+class TestAnimatedAlignTo:
+    """Tests for VObject.align_to with end_time (animated movement)."""
+
+    def test_align_to_animated_left(self):
+        a = Rectangle(100, 50, x=200, y=100)
+        b = Rectangle(80, 50, x=0, y=0)
+        b.align_to(a, 'left', start_time=0, end_time=1, easing=easings.linear)
+        bx, _, _, _ = b.bbox(1)
+        assert bx == pytest.approx(200)
+
+    def test_align_to_animated_right(self):
+        a = Rectangle(100, 50, x=200, y=100)
+        b = Rectangle(80, 50, x=0, y=0)
+        b.align_to(a, 'right', start_time=0, end_time=1, easing=easings.linear)
+        bx, _, bw, _ = b.bbox(1)
+        assert bx + bw == pytest.approx(300)
+
+    def test_align_to_animated_top(self):
+        a = Rectangle(100, 50, x=200, y=100)
+        b = Rectangle(80, 50, x=0, y=300)
+        b.align_to(a, 'top', start_time=0, end_time=1, easing=easings.linear)
+        _, by, _, _ = b.bbox(1)
+        assert by == pytest.approx(100)
+
+    def test_align_to_animated_bottom(self):
+        a = Rectangle(100, 50, x=200, y=100)
+        b = Rectangle(80, 50, x=0, y=0)
+        b.align_to(a, 'bottom', start_time=0, end_time=1, easing=easings.linear)
+        _, by, _, bh = b.bbox(1)
+        assert by + bh == pytest.approx(150)
+
+    def test_align_to_animated_midway(self):
+        a = Rectangle(100, 50, x=200, y=100)
+        b = Rectangle(80, 50, x=0, y=0)
+        b.align_to(a, 'left', start_time=0, end_time=1, easing=easings.linear)
+        bx_0, _, _, _ = b.bbox(0)
+        bx_1, _, _, _ = b.bbox(1)
+        bx_mid, _, _, _ = b.bbox(0.5)
+        expected_mid = (bx_0 + bx_1) / 2
+        assert bx_mid == pytest.approx(expected_mid, abs=1)
+
+    def test_align_to_animated_returns_self(self):
+        a = Rectangle(100, 50, x=200, y=100)
+        b = Rectangle(80, 50, x=0, y=0)
+        result = b.align_to(a, 'left', start_time=0, end_time=1)
+        assert result is b
+
+    def test_align_to_without_end_time_backward_compat(self):
+        """Without end_time, align_to should still work instantly."""
+        a = Rectangle(100, 50, x=200, y=100)
+        b = Rectangle(80, 50, x=0, y=0)
+        b.align_to(a, LEFT)
+        bx, _, _, _ = b.bbox(0)
+        assert bx == pytest.approx(200)
+
+    def test_align_to_animated_with_direction_constant(self):
+        a = Rectangle(100, 50, x=200, y=100)
+        b = Rectangle(80, 50, x=0, y=0)
+        b.align_to(a, LEFT, start_time=0, end_time=1, easing=easings.linear)
+        bx, _, _, _ = b.bbox(1)
+        assert bx == pytest.approx(200)

@@ -3660,3 +3660,230 @@ class TestAnimatedArrange:
         # Mid should be between start and end (linear easing)
         if cx1_start != cx1_end:
             assert min(cx1_start, cx1_end) <= cx1_mid <= max(cx1_start, cx1_end)
+
+
+class TestVCollectionSetWidth:
+    """Tests for VCollection.set_width."""
+
+    def test_set_width_scales_group(self):
+        c1 = Circle(r=20, cx=0, cy=0)
+        c2 = Circle(r=20, cx=100, cy=0)
+        col = VCollection(c1, c2)
+        original_width = col.get_width(0)
+        target = original_width * 2
+        col.set_width(target, start=0)
+        # VCollection.scale sets the group SVG transform (_scale_x/_scale_y)
+        assert col._scale_x.at_time(0) == pytest.approx(2.0)
+        assert col._scale_y.at_time(0) == pytest.approx(2.0)
+
+    def test_set_width_returns_self(self):
+        c1 = Circle(r=20, cx=0, cy=0)
+        col = VCollection(c1)
+        result = col.set_width(100, start=0)
+        assert result is col
+
+    def test_set_width_zero_current_width(self):
+        """If current width is 0, set_width should be a no-op."""
+        c1 = Circle(r=0, cx=0, cy=0)
+        col = VCollection(c1)
+        col.set_width(100, start=0)
+        # Should not raise, and scale should remain 1
+        assert col._scale_x.at_time(0) == pytest.approx(1.0)
+
+    def test_set_width_animated(self):
+        c1 = Circle(r=20, cx=0, cy=0)
+        c2 = Circle(r=20, cx=100, cy=0)
+        col = VCollection(c1, c2)
+        original_width = col.get_width(0)
+        target = original_width * 2
+        col.set_width(target, start=0, end=1, easing=easings.linear)
+        # At time 0, scale should still be 1; at time 1, scale should be 2
+        assert col._scale_x.at_time(0) == pytest.approx(1.0)
+        assert col._scale_x.at_time(1) == pytest.approx(2.0)
+
+    def test_set_width_not_delegated_to_children(self):
+        """set_width on VCollection should scale the group, not each child individually."""
+        c1 = Circle(r=20, cx=0, cy=0)
+        c2 = Circle(r=20, cx=200, cy=0)
+        col = VCollection(c1, c2)
+        group_width = col.get_width(0)
+        col.set_width(group_width / 2, start=0)
+        # Group scale should be 0.5, not children individually resized
+        assert col._scale_x.at_time(0) == pytest.approx(0.5)
+        # Children's own scale should be unmodified
+        assert c1.styling.scale_x.at_time(0) == pytest.approx(1.0)
+        assert c2.styling.scale_x.at_time(0) == pytest.approx(1.0)
+
+    def test_set_width_computes_correct_factor(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=50, cy=0)
+        col = VCollection(c1, c2)
+        # Width is 70 (from -10 to 60)
+        col.set_width(140, start=0)
+        assert col._scale_x.at_time(0) == pytest.approx(2.0)
+
+
+class TestVCollectionSetHeight:
+    """Tests for VCollection.set_height."""
+
+    def test_set_height_scales_group(self):
+        c1 = Circle(r=20, cx=0, cy=0)
+        c2 = Circle(r=20, cx=0, cy=100)
+        col = VCollection(c1, c2)
+        original_height = col.get_height(0)
+        target = original_height * 2
+        col.set_height(target, start=0)
+        assert col._scale_y.at_time(0) == pytest.approx(2.0)
+
+    def test_set_height_returns_self(self):
+        c1 = Circle(r=20, cx=0, cy=0)
+        col = VCollection(c1)
+        result = col.set_height(100, start=0)
+        assert result is col
+
+    def test_set_height_zero_current_height(self):
+        """If current height is 0, set_height should be a no-op."""
+        c1 = Circle(r=0, cx=0, cy=0)
+        col = VCollection(c1)
+        col.set_height(100, start=0)
+        # Should not raise, scale should remain 1
+        assert col._scale_y.at_time(0) == pytest.approx(1.0)
+
+    def test_set_height_animated(self):
+        c1 = Circle(r=20, cx=0, cy=0)
+        c2 = Circle(r=20, cx=0, cy=100)
+        col = VCollection(c1, c2)
+        original_height = col.get_height(0)
+        target = original_height * 2
+        col.set_height(target, start=0, end=1, easing=easings.linear)
+        assert col._scale_y.at_time(0) == pytest.approx(1.0)
+        assert col._scale_y.at_time(1) == pytest.approx(2.0)
+
+    def test_set_height_computes_correct_factor(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=10, cx=0, cy=80)
+        col = VCollection(c1, c2)
+        # Height is 100 (from -10 to 90)
+        col.set_height(200, start=0)
+        assert col._scale_y.at_time(0) == pytest.approx(2.0)
+
+
+class TestAnimatedArrangeInGrid:
+    """Tests for VCollection.animated_arrange_in_grid."""
+
+    def test_animated_arrange_in_grid_positions(self):
+        """At end time, children should be in the same layout as arrange_in_grid."""
+        c1 = Circle(r=20, cx=500, cy=500)
+        c2 = Circle(r=20, cx=500, cy=500)
+        c3 = Circle(r=20, cx=500, cy=500)
+        c4 = Circle(r=20, cx=500, cy=500)
+        col = VCollection(c1, c2, c3, c4)
+        col.animated_arrange_in_grid(rows=2, cols=2, buff=14, start=0, end=1, easing=easings.linear)
+        # At time 1, verify the grid layout: c1 top-left, c2 top-right, c3 bottom-left, c4 bottom-right
+        cx1, cy1 = c1.center(1)
+        cx2, cy2 = c2.center(1)
+        cx3, cy3 = c3.center(1)
+        cx4, cy4 = c4.center(1)
+        # c1 and c3 should be in the same column (same x)
+        assert cx1 == pytest.approx(cx3, abs=1)
+        # c2 and c4 should be in the same column (same x)
+        assert cx2 == pytest.approx(cx4, abs=1)
+        # c1 and c2 should be in the same row (same y)
+        assert cy1 == pytest.approx(cy2, abs=1)
+        # c3 and c4 should be in the same row (same y)
+        assert cy3 == pytest.approx(cy4, abs=1)
+        # c2 should be to the right of c1
+        assert cx2 > cx1
+        # c3 should be below c1
+        assert cy3 > cy1
+
+    def test_animated_arrange_in_grid_midway(self):
+        """At midpoint with linear easing, positions should be halfway."""
+        c1 = Circle(r=20, cx=0, cy=0)
+        c2 = Circle(r=20, cx=200, cy=200)
+        col = VCollection(c1, c2)
+        cx1_0, cy1_0 = c1.center(0)
+        cx2_0, cy2_0 = c2.center(0)
+        col.animated_arrange_in_grid(rows=1, cols=2, buff=14, start=0, end=1, easing=easings.linear)
+        cx1_mid, _ = c1.center(0.5)
+        cx1_end, _ = c1.center(1)
+        # Midway should be between start and end
+        if cx1_0 != cx1_end:
+            assert min(cx1_0, cx1_end) <= cx1_mid <= max(cx1_0, cx1_end)
+
+    def test_animated_arrange_in_grid_returns_self(self):
+        c1 = Circle(r=20, cx=0, cy=0)
+        col = VCollection(c1)
+        result = col.animated_arrange_in_grid(rows=1, cols=1, start=0, end=1)
+        assert result is col
+
+    def test_animated_arrange_in_grid_empty(self):
+        col = VCollection()
+        result = col.animated_arrange_in_grid(rows=1, cols=1, start=0, end=1)
+        assert result is col
+
+    def test_animated_arrange_in_grid_auto_rows_cols(self):
+        """When rows/cols are omitted, picks a square-ish grid."""
+        objs = [Circle(r=10, cx=i * 50, cy=0) for i in range(6)]
+        col = VCollection(*objs)
+        col.animated_arrange_in_grid(buff=10, start=0, end=1, easing=easings.linear)
+        # 6 objects -> 3 cols, 2 rows
+        # At end, row0 should have objs 0,1,2 and row1 should have objs 3,4,5
+        _, cy0 = objs[0].center(1)
+        _, cy3 = objs[3].center(1)
+        assert cy3 > cy0  # second row below first
+
+    def test_animated_arrange_in_grid_rows_only(self):
+        """When only rows is given, cols is computed."""
+        objs = [Circle(r=10, cx=0, cy=0) for _ in range(4)]
+        col = VCollection(*objs)
+        col.animated_arrange_in_grid(rows=2, buff=10, start=0, end=1, easing=easings.linear)
+        # 4 objects, 2 rows -> 2 cols
+        cx0, _ = objs[0].center(1)
+        cx1, _ = objs[1].center(1)
+        assert cx1 > cx0  # second obj in same row, to the right
+
+    def test_animated_arrange_in_grid_cols_only(self):
+        """When only cols is given, rows is computed."""
+        objs = [Circle(r=10, cx=0, cy=0) for _ in range(4)]
+        col = VCollection(*objs)
+        col.animated_arrange_in_grid(cols=2, buff=10, start=0, end=1, easing=easings.linear)
+        _, cy0 = objs[0].center(1)
+        _, cy2 = objs[2].center(1)
+        assert cy2 > cy0  # third obj is in second row
+
+
+class TestVCollectionAnimatedAlignTo:
+    """Tests for VCollection.align_to with end_time (animated movement)."""
+
+    def test_align_to_animated_left(self):
+        target = Rectangle(100, 50, x=200, y=100)
+        c1 = Circle(r=20, cx=0, cy=0)
+        c2 = Circle(r=20, cx=50, cy=50)
+        col = VCollection(c1, c2)
+        col.align_to(target, 'left', start_time=0, end_time=1, easing=easings.linear)
+        bx, _, _, _ = col.bbox(1)
+        assert bx == pytest.approx(200, abs=1)
+
+    def test_align_to_animated_right(self):
+        target = Rectangle(100, 50, x=200, y=100)
+        c1 = Circle(r=20, cx=0, cy=0)
+        c2 = Circle(r=20, cx=50, cy=50)
+        col = VCollection(c1, c2)
+        col.align_to(target, 'right', start_time=0, end_time=1, easing=easings.linear)
+        bx, _, bw, _ = col.bbox(1)
+        assert bx + bw == pytest.approx(300, abs=1)
+
+    def test_align_to_animated_returns_self(self):
+        target = Rectangle(100, 50, x=200, y=100)
+        col = VCollection(Circle(r=20, cx=0, cy=0))
+        result = col.align_to(target, 'left', start_time=0, end_time=1)
+        assert result is col
+
+    def test_align_to_without_end_time_backward_compat(self):
+        target = Rectangle(100, 50, x=200, y=100)
+        c1 = Circle(r=20, cx=0, cy=0)
+        col = VCollection(c1)
+        col.align_to(target, LEFT)
+        bx, _, _, _ = col.bbox(0)
+        assert bx == pytest.approx(200, abs=1)
