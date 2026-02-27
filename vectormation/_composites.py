@@ -979,6 +979,45 @@ class Table(VCollection):
                     self.entries[r][c].flash(start, end, color=color, easing=easing)
         return self
 
+    def remove_row(self, index, start=0, animate=True):
+        """Remove a row by index, fading out its cells."""
+        if index < 0 or index >= self.rows:
+            raise IndexError(f"row index {index} out of range (0..{self.rows - 1})")
+        ch = self._cell_height
+        # Fade out and remove cells in the target row
+        removed = self.entries.pop(index)
+        for cell in removed:
+            if animate:
+                cell.fadeout(start=start, end=start + 0.3)
+            else:
+                self.objects.remove(cell)
+        # Shift rows below upward by one cell height
+        for r in range(index, len(self.entries)):
+            for cell in self.entries[r]:
+                cell.shift(dy=-ch, start=start, end=start + 0.3 if animate else start)
+        self.rows -= 1
+        return self
+
+    def remove_column(self, index, start=0, animate=True):
+        """Remove a column by index, fading out its cells."""
+        if index < 0 or index >= self.cols:
+            raise IndexError(f"column index {index} out of range (0..{self.cols - 1})")
+        cw = self._cell_width
+        # Fade out and remove cells in the target column
+        for r in range(self.rows):
+            cell = self.entries[r].pop(index)
+            if animate:
+                cell.fadeout(start=start, end=start + 0.3)
+            else:
+                self.objects.remove(cell)
+        # Shift columns to the right leftward by one cell width
+        for r in range(self.rows):
+            for c in range(index, len(self.entries[r])):
+                self.entries[r][c].shift(dx=-cw, start=start,
+                                         end=start + 0.3 if animate else start)
+        self.cols -= 1
+        return self
+
     def __repr__(self):
         return f'Table({self.rows}x{self.cols})'
 

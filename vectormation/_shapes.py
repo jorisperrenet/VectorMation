@@ -132,9 +132,7 @@ class Polygon(VObject):
             total += _distance(pts[0][0], pts[0][1], pts[-1][0], pts[-1][1])
         return total
 
-    def get_perimeter(self, time=0):
-        """Alias for :meth:`perimeter`."""
-        return self.perimeter(time)
+    get_perimeter = perimeter
 
     def edge_lengths(self, time=0):
         """Return list of edge lengths."""
@@ -190,9 +188,7 @@ class Polygon(VObject):
             return 0.0
         return abs(self.signed_area(time))
 
-    def get_area(self, time=0):
-        """Return the polygon's area (alias for area())."""
-        return self.area(time)
+    get_area = area
 
     def winding_number(self, px, py, time=0):
         """Return the winding number of point (px, py) relative to this polygon."""
@@ -572,6 +568,21 @@ class Polygon(VObject):
     def is_clockwise(self, time=0):
         """Return True if vertices are in clockwise order (positive signed area in SVG coords)."""
         return self.signed_area(time) > 0
+
+    def get_diagonals(self, time=0, **kwargs):
+        """Return all diagonals of a closed polygon as Line objects."""
+        pts = self.get_vertices(time)
+        n = len(pts)
+        if n < 4 or not self.closed:
+            return []
+        diags = []
+        for i in range(n):
+            for j in range(i + 2, n):
+                if i == 0 and j == n - 1:
+                    continue  # skip edge connecting first and last vertex
+                diags.append(Line(x1=pts[i][0], y1=pts[i][1],
+                                  x2=pts[j][0], y2=pts[j][1], **kwargs))
+        return diags
 
     def bounding_circle(self, time=0, **kwargs):
         """Return the smallest enclosing circle of the polygon's vertices."""
@@ -1666,12 +1677,16 @@ class Rectangle(VObject):
         return VCollection(*parts)
 
     def split_horizontal(self, n=2, time=0, **kwargs):
-        """Split into *n* equal horizontal strips. Alias for ``split('horizontal', ...)``."""
+        """Split into *n* equal horizontal strips."""
         return self.split('horizontal', n, time, **kwargs)
 
     def split_vertical(self, n=2, time=0, **kwargs):
         """Split into *n* equal vertical strips. Alias for ``split('vertical', ...)``."""
         return self.split('vertical', n, time, **kwargs)
+
+    def quadrants(self, time=0, **kwargs):
+        """Split this rectangle into 4 equal quadrants (2x2 grid)."""
+        return self.subdivide(2, 2, time, **kwargs)
 
     def inset(self, amount: float, time: float = 0, **kwargs):
         """Return a new Rectangle inset by *amount* pixels on every side."""

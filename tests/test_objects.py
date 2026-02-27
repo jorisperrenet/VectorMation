@@ -14455,3 +14455,93 @@ class TestTableHighlightWhere:
         t = Table([[10, 20], [30, 40]])
         result = t.highlight_where(lambda x: int(x) > 15, start=0, end=1)
         assert result is t
+
+
+class TestPolygonGetDiagonals:
+    def test_triangle_no_diagonals(self):
+        p = Polygon((0, 0), (100, 0), (50, 80))
+        assert p.get_diagonals() == []
+
+    def test_square_diagonals(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        diags = p.get_diagonals()
+        assert len(diags) == 2
+        assert all(isinstance(d, Line) for d in diags)
+
+    def test_pentagon_diagonals(self):
+        import math
+        pts = [(100 * math.cos(2 * math.pi * i / 5), 100 * math.sin(2 * math.pi * i / 5)) for i in range(5)]
+        p = Polygon(*pts)
+        # Pentagon has n*(n-3)/2 = 5*2/2 = 5 diagonals
+        diags = p.get_diagonals()
+        assert len(diags) == 5
+
+    def test_open_polyline_no_diagonals(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100), closed=False)
+        assert p.get_diagonals() == []
+
+
+class TestRectangleQuadrants:
+    def test_quadrants_count(self):
+        r = Rectangle(200, 100, x=100, y=50)
+        q = r.quadrants()
+        assert len(q.objects) == 4
+
+    def test_quadrants_sizes(self):
+        r = Rectangle(200, 100, x=100, y=50)
+        q = r.quadrants()
+        for part in q.objects:
+            assert abs(part.width.at_time(0) - 100) < 0.01
+            assert abs(part.height.at_time(0) - 50) < 0.01
+
+
+class TestTableRemoveRow:
+    def test_remove_row_basic(self):
+        t = Table([[1, 2], [3, 4], [5, 6]])
+        result = t.remove_row(1, animate=False)
+        assert result is t
+        assert t.rows == 2
+
+    def test_remove_row_out_of_range(self):
+        t = Table([[1, 2]])
+        import pytest
+        with pytest.raises(IndexError):
+            t.remove_row(5)
+
+    def test_remove_row_entries_updated(self):
+        t = Table([['a', 'b'], ['c', 'd'], ['e', 'f']])
+        t.remove_row(0, animate=False)
+        assert t.rows == 2
+        assert t.entries[0][0].text.at_time(0) == 'c'
+
+    def test_remove_row_animated(self):
+        t = Table([[1, 2], [3, 4]])
+        result = t.remove_row(0, start=0, animate=True)
+        assert result is t
+        assert t.rows == 1
+
+
+class TestTableRemoveColumn:
+    def test_remove_column_basic(self):
+        t = Table([[1, 2, 3], [4, 5, 6]])
+        result = t.remove_column(1, animate=False)
+        assert result is t
+        assert t.cols == 2
+
+    def test_remove_column_out_of_range(self):
+        t = Table([[1, 2]])
+        import pytest
+        with pytest.raises(IndexError):
+            t.remove_column(5)
+
+    def test_remove_column_entries_updated(self):
+        t = Table([['a', 'b', 'c']])
+        t.remove_column(0, animate=False)
+        assert t.cols == 2
+        assert t.entries[0][0].text.at_time(0) == 'b'
+
+    def test_remove_column_animated(self):
+        t = Table([[1, 2], [3, 4]])
+        result = t.remove_column(0, start=0, animate=True)
+        assert result is t
+        assert t.cols == 1
