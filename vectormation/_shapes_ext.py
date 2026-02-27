@@ -1082,6 +1082,8 @@ class ValueTracker:
     def get_value(self, time=0):
         return self.value.at_time(time)
 
+    at_time = get_value
+
     def set_value(self, val, start=0):
         self.value.set_onward(start, val)
         return self
@@ -1089,9 +1091,6 @@ class ValueTracker:
     def animate_value(self, target, start, end, easing=easings.smooth):
         self.value.move_to(start, end, target, easing=easing)
         return self
-
-    def at_time(self, time):
-        return self.value.at_time(time)
 
     def increment_value(self, delta, start=0):
         """Add *delta* to the current value at *start*."""
@@ -1476,7 +1475,7 @@ class Image(VObject):
                 f"{self.styling.svg_style(time)} />")
 
 class Arc(VObject):
-    """SVG arc segment defined by centre, radius, and start/end angles (degrees)."""
+    """SVG arc segment defined by center, radius, and start/end angles (degrees)."""
     def __init__(self, cx: float = 960, cy: float = 540, r: float = 120, start_angle: float = 0, end_angle: float = 90,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
@@ -1635,7 +1634,7 @@ class Arc(VObject):
         cx = self.cx.at_time(time)
         cy = self.cy.at_time(time)
         r = self.r.at_time(time)
-        # Check distance to centre equals radius (within tolerance)
+        # Check distance to center equals radius (within tolerance)
         dist = math.hypot(px - cx, py - cy)
         if abs(dist - r) > tol:
             return False
@@ -1701,7 +1700,7 @@ class Arc(VObject):
         return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"
 
 class Wedge(Arc):
-    """Arc that closes through the centre (pie/wedge shape)."""
+    """Arc that closes through the center (pie/wedge shape)."""
     def __init__(self, cx: float = 960, cy: float = 540, r: float = 120, start_angle: float = 0, end_angle: float = 90,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(cx=cx, cy=cy, r=r, start_angle=start_angle, end_angle=end_angle,

@@ -965,7 +965,7 @@ class Ellipse(VObject):
         return self
 
     def tangent_at_angle(self, angle_deg, length=200, time=0, **kwargs):
-        """Return a tangent Line at the given angle, centred on the ellipse point."""
+        """Return a tangent Line at the given angle, centered on the ellipse point."""
         px, py, tx, ty = self._tangent_at(angle_deg, time)
         dx, dy = tx * length / 2, ty * length / 2
         return Line(x1=px - dx, y1=py - dy, x2=px + dx, y2=py + dy, **kwargs)
@@ -1253,7 +1253,7 @@ class Circle(Ellipse):
         return RegularPolygon(n, radius=circum_r, cx=cx, cy=cy, angle=angle, **kwargs)
 
     def arc_between(self, start_angle, end_angle, time=0, **kwargs):
-        """Return an Arc with the same centre and radius as this circle."""
+        """Return an Arc with the same center and radius as this circle."""
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
         return Arc(cx=cx, cy=cy, r=r,

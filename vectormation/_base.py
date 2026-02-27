@@ -948,7 +948,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                        _br=_br, _wr=_wr):
             # sweep position in [0, 1], repeating for multiple cycles
             p = (((t - _s) / _d) * _cyc) % 1.0
-            # Symmetric distance: 1 at edges of sweep, 0 at centre
+            # Symmetric distance: 1 at edges of sweep, 0 at center
             dist2 = abs(p * 2 - 1)
             envelope = max(0.0, 1.0 - dist2 / _w) if _w > 0 else 0.0
             envelope = envelope * envelope * (3 - 2 * envelope)  # smoothstep
@@ -1068,7 +1068,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def apply_pointwise(self, func, time=0):
-        """Apply ``func(x, y) -> (x', y')`` to the object's centre position."""
+        """Apply ``func(x, y) -> (x', y')`` to the object's center position."""
         cx, cy = self.center(time)
         nx, ny = func(cx, cy)
         self.move_to(nx, ny, start=time)

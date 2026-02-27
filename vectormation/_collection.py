@@ -238,7 +238,7 @@ class VCollection(_BBoxMethodsMixin):
         return [VCollection(*objs[i:i + size]) for i in range(0, len(objs), size)]
 
     def sort_by_position(self, axis='x', reverse=False):
-        """Sort children in-place by their x or y centre coordinate."""
+        """Sort children in-place by their x or y center coordinate."""
         if axis == 'x':
             self.objects.sort(key=lambda obj: obj.center(0)[0], reverse=reverse)
         elif axis == 'y':
@@ -859,15 +859,19 @@ class VCollection(_BBoxMethodsMixin):
                     c.add(t0, t1, lambda t, _f=_dy: (0, _f(t)))
         return self
 
+    def _dim_others(self, index, start, end, opacity=0.2, easing=easings.smooth):
+        """Dim all children except *index*, restoring near *end*."""
+        for i, obj in enumerate(self.objects):
+            if i != index:
+                obj.dim(start=start, end=start + (end - start) * 0.3,
+                        opacity=opacity, easing=easing)
+                obj.undim(start=start + (end - start) * 0.7, end=end, easing=easing)
+
     def highlight_child(self, index, start: float = 0, end: float = 1,
                          dim_opacity=0.2, easing=easings.smooth):
         """Emphasize child at `index` by dimming all others.
         At `end`, all opacities are restored."""
-        for i, obj in enumerate(self.objects):
-            if i != index:
-                obj.dim(start=start, end=start + (end - start) * 0.3,
-                        opacity=dim_opacity, easing=easing)
-                obj.undim(start=start + (end - start) * 0.7, end=end, easing=easing)
+        self._dim_others(index, start, end, dim_opacity, easing)
         return self
 
     def swap_children(self, i, j, start: float = 0, end: float = 1,
@@ -893,12 +897,7 @@ class VCollection(_BBoxMethodsMixin):
         if n < 0 or n >= len(self.objects):
             return self
         mid = start + (end - start) * 0.5
-        # Dim non-target children
-        for i, obj in enumerate(self.objects):
-            if i != n:
-                obj.dim(start=start, end=start + (end - start) * 0.3,
-                        opacity=0.3, easing=easing)
-                obj.undim(start=start + (end - start) * 0.7, end=end, easing=easing)
+        self._dim_others(n, start, end, 0.3, easing)
         # Change nth child fill to highlight color, then restore
         target = self.objects[n]
         # Save original fill as raw tuple for reliable round-tripping

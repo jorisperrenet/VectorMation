@@ -534,7 +534,7 @@ class Axes(_AxesExtMixin, VCollection):
         return (x, y)
 
     def get_plot_center(self, time=0):
-        """Return the SVG pixel coordinates of the centre of the plot rectangle."""
+        """Return the SVG pixel coordinates of the center of the plot rectangle."""
         cx = self.plot_x + self.plot_width / 2
         cy = self.plot_y + self.plot_height / 2
         return (cx, cy)
@@ -1518,7 +1518,7 @@ class Axes(_AxesExtMixin, VCollection):
                                fill=box_fill, fill_opacity=0.92,
                                stroke=box_stroke, stroke_width=box_stroke_width)
 
-        # Label centred in the box
+        # Label centered in the box
         lbl = Text(text=text, x=sx + offset_x, y=sy + offset_y,
                    font_size=font_size, text_anchor='middle',
                    fill=text_color, stroke_width=0,

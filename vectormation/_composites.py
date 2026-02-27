@@ -56,11 +56,11 @@ class MorphObject(VCollection):
 
         mapping = obj_from.morph(obj_to, start=start, end=end, easing=easing)
 
-        # Compute rotation centre from source/target bounding boxes
+        # Compute rotation center from source/target bounding boxes
         if rotation_degrees != 0:
             bbox_from = morph_from.bbox(start)
             bbox_to = morph_to.bbox(end)
-            # Average the centres of both bounding boxes
+            # Average the centers of both bounding boxes
             cx = (bbox_from[0] + bbox_from[2] / 2 + bbox_to[0] + bbox_to[2] / 2) / 2
             cy = (bbox_from[1] + bbox_from[3] / 2 + bbox_to[1] + bbox_to[3] / 2) / 2
         else:

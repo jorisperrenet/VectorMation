@@ -232,7 +232,7 @@ class VectorMathAnim:
     add_clip_path = add_def
 
     def get_snap_points(self, time=None):
-        """Extract snappable points (vertices, endpoints, centres) from all visible objects."""
+        """Extract snappable points (vertices, endpoints, centers) from all visible objects."""
         if time is None:
             time = self.time
         points = []

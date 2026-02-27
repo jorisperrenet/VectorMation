@@ -845,7 +845,7 @@ class Spotlight(VObject):
     Parameters
     ----------
     target : tuple or VObject
-        Centre of the spotlight. A (x, y) tuple or a VObject (uses its center).
+        Center of the spotlight. A (x, y) tuple or a VObject (uses its center).
     radius : float
         Radius of the bright area.
     color : str
