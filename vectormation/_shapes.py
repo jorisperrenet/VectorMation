@@ -424,6 +424,39 @@ class Polygon(VObject):
             return cls((0, 0), **kwargs)
         return cls(*points, **kwargs)
 
+    def get_convex_hull(self, time=0, **kwargs):
+        """Return a new Polygon that is the convex hull of this polygon's vertices.
+
+        Unlike the classmethod :meth:`convex_hull` which takes explicit points,
+        this instance method computes the hull from the polygon's own vertices
+        at the given *time*.
+
+        Uses the gift-wrapping (Jarvis march) algorithm.  Collinear intermediate
+        points are skipped so only the extreme hull vertices are kept.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read vertex positions.
+        **kwargs:
+            Extra keyword arguments forwarded to the Polygon constructor
+            (e.g. ``fill``, ``stroke``).
+
+        Returns
+        -------
+        Polygon
+            A new convex Polygon whose vertices are a subset of this
+            polygon's vertices.
+
+        Raises
+        ------
+        ValueError
+            If the polygon has fewer than 3 vertices or all vertices
+            are collinear.
+        """
+        pts = self.get_vertices(time)
+        return Polygon.convex_hull(*pts, **kwargs)
+
     def contains_point(self, px, py, time=0):
         """Point-in-polygon test using ray-casting algorithm."""
         pts = self.get_vertices(time)
@@ -1397,6 +1430,87 @@ class Circle(Ellipse):
         d_sq = (px - cx) ** 2 + (py - cy) ** 2
         return d_sq - r * r
 
+    def chord_length(self, distance, time=0):
+        """Return the length of a chord at the given distance from the center.
+
+        A chord is a straight line segment whose endpoints lie on the circle.
+        Given the perpendicular distance *d* from the center to the chord, the
+        chord length is::
+
+            chord = 2 * sqrt(r^2 - d^2)
+
+        Parameters
+        ----------
+        distance:
+            Perpendicular distance from the circle's center to the chord.
+            Must be between 0 and the radius (inclusive).  A distance of 0
+            gives the diameter (longest chord), while a distance equal to
+            the radius gives 0 (the chord degenerates to a single point).
+        time:
+            Animation time at which to read the circle's radius.
+
+        Returns
+        -------
+        float
+            Length of the chord.
+
+        Raises
+        ------
+        ValueError
+            If *distance* is negative or greater than the radius.
+
+        Examples
+        --------
+        >>> c = Circle(r=100)
+        >>> c.chord_length(0)     # diameter = 200.0
+        >>> c.chord_length(100)   # 0.0
+        >>> c.chord_length(60)    # 2 * sqrt(100^2 - 60^2) = 160.0
+        """
+        r = self.get_radius(time)
+        d = float(distance)
+        if d < 0:
+            raise ValueError(f"distance must be non-negative, got {d}")
+        if d > r + 1e-9:
+            raise ValueError(f"distance ({d}) exceeds radius ({r})")
+        if d >= r:
+            return 0.0
+        return 2 * math.sqrt(r * r - d * d)
+
+    def arc_length(self, start_angle, end_angle, time=0):
+        """Return the arc length between two angles on the circle.
+
+        The arc length is the distance along the circle's circumference
+        from *start_angle* to *end_angle*.  The sweep is always taken as
+        the absolute difference, so ``arc_length(0, 90)`` and
+        ``arc_length(90, 0)`` return the same value.
+
+        Parameters
+        ----------
+        start_angle:
+            Start angle in degrees (CCW from the right).
+        end_angle:
+            End angle in degrees (CCW from the right).
+        time:
+            Animation time at which to read the circle's radius.
+
+        Returns
+        -------
+        float
+            The arc length in SVG pixels.
+
+        Examples
+        --------
+        >>> c = Circle(r=100)
+        >>> c.arc_length(0, 360)       # full circumference = 2*pi*100
+        >>> c.arc_length(0, 90)        # quarter arc = pi*100/2
+        >>> c.arc_length(0, 180)       # semicircle = pi*100
+        """
+        r = self.get_radius(time)
+        sweep_deg = abs(end_angle - start_angle) % 360
+        if abs(end_angle - start_angle) != 0 and sweep_deg == 0:
+            sweep_deg = 360  # full circle
+        return r * math.radians(sweep_deg)
+
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)
         return f"<circle cx='{cx}' cy='{cy}' r='{self.rx.at_time(time)}'{self.styling.svg_style(time)} />"
@@ -1768,6 +1882,41 @@ class Rectangle(VObject):
             Line(x1=br[0], y1=br[1], x2=bl[0], y2=bl[1], **kwargs),  # bottom
             Line(x1=bl[0], y1=bl[1], x2=tl[0], y2=tl[1], **kwargs),  # left
         ]
+
+    def diagonal_lines(self, time=0, **kwargs):
+        """Return the two diagonal Line objects of this rectangle.
+
+        The first diagonal connects the top-left corner to the bottom-right
+        corner.  The second connects the top-right corner to the bottom-left
+        corner.
+
+        Parameters
+        ----------
+        time:
+            Animation time at which to read the rectangle geometry.
+        **kwargs:
+            Extra keyword arguments forwarded to each :class:`Line`
+            constructor (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        (Line, Line)
+            A tuple of two Line objects: ``(top_left_to_bottom_right,
+            top_right_to_bottom_left)``.
+
+        Example
+        -------
+        >>> r = Rectangle(width=200, height=100, x=0, y=0)
+        >>> d1, d2 = r.diagonal_lines()
+        >>> d1.get_start()  # (0.0, 0.0)  top-left
+        >>> d1.get_end()    # (200.0, 100.0)  bottom-right
+        >>> d2.get_start()  # (200.0, 0.0)  top-right
+        >>> d2.get_end()    # (0.0, 100.0)  bottom-left
+        """
+        tl, tr, br, bl = self.get_corners(time)
+        d1 = Line(x1=tl[0], y1=tl[1], x2=br[0], y2=br[1], **kwargs)
+        d2 = Line(x1=tr[0], y1=tr[1], x2=bl[0], y2=bl[1], **kwargs)
+        return (d1, d2)
 
     def subdivide(self, rows=2, cols=2, time=0, **kwargs):
         """Subdivide this rectangle into a grid of *rows* x *cols* sub-rectangles.
@@ -2464,6 +2613,44 @@ class Line(VObject):
         return Line(x1 + nx * offset, y1 + ny * offset,
                     x2 + nx * offset, y2 + ny * offset, **kwargs)
 
+    def parallel_through(self, point, time=0, **kwargs):
+        """Return a new Line parallel to this one, passing through the given point.
+
+        The returned line has the same direction and length as this line, but
+        its midpoint is placed at *point*.
+
+        Parameters
+        ----------
+        point:
+            An ``(x, y)`` tuple through which the new line should pass.
+            The new line's midpoint is placed at this location.
+        time:
+            Animation time at which to read this line's direction and length.
+        **kwargs:
+            Extra keyword arguments forwarded to the :class:`Line` constructor
+            (e.g. ``stroke``, ``stroke_width``).
+
+        Returns
+        -------
+        Line
+            A new Line with the same direction and length as this line,
+            centered on *point*.
+
+        Example
+        -------
+        >>> l = Line(0, 0, 200, 0)
+        >>> l2 = l.parallel_through((100, 50))
+        >>> l2.get_start()   # (0.0, 50.0)
+        >>> l2.get_end()     # (200.0, 50.0)
+        """
+        x1, y1 = self.p1.at_time(time)
+        x2, y2 = self.p2.at_time(time)
+        dx, dy = x2 - x1, y2 - y1
+        px, py = point
+        # Center the parallel line on the given point
+        return Line(x1=px - dx / 2, y1=py - dy / 2,
+                    x2=px + dx / 2, y2=py + dy / 2, **kwargs)
+
     def rotate_around_midpoint(self, angle_deg, time=0):
         """Rotate line endpoints around the midpoint by angle_deg degrees."""
         mx, my = self.get_midpoint(time)
@@ -3036,6 +3223,55 @@ class Text(VObject):
         if isinstance(text, str) and 0 <= index < len(text):
             return text[index]
         return ''
+
+    def truncate(self, n, ellipsis='...', time=0):
+        """Truncate the text to at most *n* characters, appending *ellipsis* if trimmed.
+
+        If the text is already *n* characters or shorter, nothing changes.
+        Otherwise the text is shortened to ``n - len(ellipsis)`` characters
+        plus the ellipsis string, so the total length is exactly *n*.
+
+        Parameters
+        ----------
+        n:
+            Maximum number of characters in the resulting text (including
+            the ellipsis).  Must be >= ``len(ellipsis)``.
+        ellipsis:
+            The string to append when truncation occurs (default ``'...'``).
+            Set to ``''`` to simply chop the text without any suffix.
+        time:
+            Animation time at which to read and modify the text.
+
+        Returns
+        -------
+        self
+            For method chaining.
+
+        Raises
+        ------
+        ValueError
+            If *n* is less than the length of the ellipsis string.
+
+        Examples
+        --------
+        >>> t = Text('Hello, World!')
+        >>> t.truncate(8)
+        >>> t.get_text()   # 'Hello...'
+        >>> t2 = Text('Hi')
+        >>> t2.truncate(10)   # no change (already short enough)
+        >>> t2.get_text()     # 'Hi'
+        """
+        elen = len(ellipsis)
+        if n < elen:
+            raise ValueError(f"n ({n}) must be >= length of ellipsis ({elen})")
+        full = self.text.at_time(time)
+        if not isinstance(full, str):
+            full = str(full)
+        if len(full) <= n:
+            return self
+        truncated = full[:n - elen] + ellipsis
+        self.text.set_onward(time, truncated)
+        return self
 
     def to_svg(self, time):
         anchor = f" text-anchor='{self._text_anchor}'" if self._text_anchor else ''

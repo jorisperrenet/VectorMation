@@ -1662,3 +1662,162 @@ class TestSlidingWindow:
         col = VCollection(*circles)
         windows = col.sliding_window(2)
         assert len(windows) == 3
+
+
+class TestWaterfall:
+    """Tests for VCollection.waterfall — staggered gravity-drop entrance."""
+
+    def test_returns_self(self):
+        c1 = Circle(r=20, cx=100, cy=400)
+        c2 = Circle(r=20, cx=200, cy=400)
+        col = VCollection(c1, c2)
+        result = col.waterfall(start=0, end=2)
+        assert result is col
+
+    def test_children_hidden_before_start(self):
+        c1 = Circle(r=20, cx=100, cy=400)
+        c2 = Circle(r=20, cx=200, cy=400)
+        col = VCollection(c1, c2)
+        col.waterfall(start=1, end=3)
+        # Both should be hidden before the waterfall starts
+        assert c1.show.at_time(0.5) is False
+        assert c2.show.at_time(0.5) is False
+
+    def test_first_child_visible_at_start(self):
+        c1 = Circle(r=20, cx=100, cy=400)
+        c2 = Circle(r=20, cx=200, cy=400)
+        col = VCollection(c1, c2)
+        col.waterfall(start=0, end=2)
+        # First child should become visible at start
+        assert c1.show.at_time(0) is True
+
+    def test_second_child_delayed(self):
+        c1 = Circle(r=20, cx=100, cy=400)
+        c2 = Circle(r=20, cx=200, cy=400)
+        c3 = Circle(r=20, cx=300, cy=400)
+        col = VCollection(c1, c2, c3)
+        col.waterfall(start=0, end=3, stagger_frac=0.0)
+        # With stagger_frac=0 (sequential), c2 shouldn't start until after c1
+        assert c2.show.at_time(0) is False
+
+    def test_empty_collection_noop(self):
+        col = VCollection()
+        result = col.waterfall(start=0, end=1)
+        assert result is col
+
+    def test_zero_duration_noop(self):
+        c1 = Circle(r=20, cx=100, cy=400)
+        col = VCollection(c1)
+        result = col.waterfall(start=1, end=1)
+        assert result is col
+
+    def test_children_at_rest_position_after_end(self):
+        c1 = Circle(r=20, cx=100, cy=400)
+        col = VCollection(c1)
+        original_cy = c1.c.at_time(0)[1]
+        col.waterfall(start=0, end=1, height=200, easing=easings.linear)
+        # After animation ends, child should be at (approximately) its original position
+        final_cy = c1.c.at_time(1)[1]
+        assert final_cy == pytest.approx(original_cy, abs=1)
+
+    def test_children_offset_during_animation(self):
+        c1 = Circle(r=20, cx=100, cy=400)
+        col = VCollection(c1)
+        original_cy = c1.c.at_time(0)[1]
+        col.waterfall(start=0, end=1, height=200, easing=easings.linear)
+        # During animation, child should be above its rest position
+        mid_cy = c1.c.at_time(0.5)[1]
+        # y offset at 0.5 linear: -200*(1-0.5) = -100
+        assert mid_cy == pytest.approx(original_cy - 100, abs=5)
+
+    def test_single_child_fills_duration(self):
+        c1 = Circle(r=20, cx=100, cy=400)
+        col = VCollection(c1)
+        col.waterfall(start=0, end=2, height=100, easing=easings.linear)
+        # Single child should use the full duration
+        assert c1.show.at_time(0) is True
+        mid_cy = c1.c.at_time(1)[1]
+        original_cy = 400
+        # At t=1 (halfway through dur=2), offset = -100*(1-0.5) = -50
+        assert mid_cy == pytest.approx(original_cy - 50, abs=5)
+
+
+class TestOrbitAround:
+    """Tests for VCollection.orbit_around — children revolving around a center."""
+
+    def test_returns_self(self):
+        c1 = Circle(r=10, cx=100, cy=300)
+        c2 = Circle(r=10, cx=200, cy=300)
+        col = VCollection(c1, c2)
+        result = col.orbit_around(cx=150, cy=300, radius=100, start=0, end=2)
+        assert result is col
+
+    def test_empty_collection_noop(self):
+        col = VCollection()
+        result = col.orbit_around(start=0, end=1)
+        assert result is col
+
+    def test_zero_duration_noop(self):
+        c1 = Circle(r=10, cx=100, cy=300)
+        col = VCollection(c1)
+        result = col.orbit_around(start=1, end=1)
+        assert result is col
+
+    def test_children_move_in_circle(self):
+        """A child at (cx+R, cy) should orbit to (cx, cy+R) at quarter revolution."""
+        c1 = Circle(r=10, cx=250, cy=300)  # Right of center
+        col = VCollection(c1)
+        col.orbit_around(cx=150, cy=300, radius=100, start=0, end=4,
+                         revolutions=1, easing=easings.linear)
+        # At t=1 (quarter revolution): should be at bottom (cx, cy+R) = (150, 400)
+        pos = c1.c.at_time(1)
+        assert pos[0] == pytest.approx(150, abs=5)
+        assert pos[1] == pytest.approx(400, abs=5)
+
+    def test_full_revolution_returns_to_start(self):
+        """After one full revolution, child should be back near start."""
+        c1 = Circle(r=10, cx=250, cy=300)
+        col = VCollection(c1)
+        col.orbit_around(cx=150, cy=300, radius=100, start=0, end=4,
+                         revolutions=1, easing=easings.linear)
+        pos_start = c1.c.at_time(0)
+        pos_end = c1.c.at_time(4)
+        assert pos_end[0] == pytest.approx(pos_start[0], abs=2)
+        assert pos_end[1] == pytest.approx(pos_start[1], abs=2)
+
+    def test_default_center_uses_bbox(self):
+        """When cx/cy not given, should use group bbox center."""
+        c1 = Circle(r=10, cx=100, cy=300)
+        c2 = Circle(r=10, cx=200, cy=300)
+        col = VCollection(c1, c2)
+        # Should not raise
+        result = col.orbit_around(radius=100, start=0, end=2)
+        assert result is col
+
+    def test_half_revolution(self):
+        """At half revolution, child at (cx+R, cy) should be at (cx-R, cy)."""
+        c1 = Circle(r=10, cx=250, cy=300)  # Right of center at distance 100
+        col = VCollection(c1)
+        col.orbit_around(cx=150, cy=300, radius=100, start=0, end=2,
+                         revolutions=1, easing=easings.linear)
+        # At t=1 (half revolution): should be at (cx-R, cy) = (50, 300)
+        pos = c1.c.at_time(1)
+        assert pos[0] == pytest.approx(50, abs=5)
+        assert pos[1] == pytest.approx(300, abs=5)
+
+    def test_multiple_children_maintain_spacing(self):
+        """Two children 180 degrees apart should stay 180 degrees apart."""
+        c1 = Circle(r=10, cx=250, cy=300)  # Right of center
+        c2 = Circle(r=10, cx=50, cy=300)   # Left of center
+        col = VCollection(c1, c2)
+        col.orbit_around(cx=150, cy=300, radius=100, start=0, end=4,
+                         revolutions=1, easing=easings.linear)
+        # At t=1 (quarter revolution):
+        # c1 starts at angle 0 -> should be at angle pi/2 (bottom)
+        # c2 starts at angle pi -> should be at angle 3pi/2 (top)
+        pos1 = c1.c.at_time(1)
+        pos2 = c2.c.at_time(1)
+        assert pos1[0] == pytest.approx(150, abs=5)
+        assert pos1[1] == pytest.approx(400, abs=5)
+        assert pos2[0] == pytest.approx(150, abs=5)
+        assert pos2[1] == pytest.approx(200, abs=5)

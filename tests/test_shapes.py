@@ -6063,3 +6063,248 @@ class TestLineIsPerpendicular:
         l2 = Line(0, 0, 0, 100)
         assert l1.is_perpendicular(l2)
         assert l1.angle_to(l2) == pytest.approx(90, abs=0.1)
+
+
+class TestPolygonGetConvexHull:
+    def test_convex_polygon_hull_is_same(self):
+        """Convex hull of a convex polygon should have the same vertices."""
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        hull = p.get_convex_hull()
+        hull_verts = hull.get_vertices()
+        assert len(hull_verts) == 4
+
+    def test_concave_polygon_hull_removes_interior(self):
+        """Convex hull of a concave polygon should remove the interior vertex."""
+        # Star-shaped: center indent at (50, 10) is inside the hull
+        p = Polygon((0, 0), (50, 10), (100, 0), (100, 100), (0, 100))
+        hull = p.get_convex_hull()
+        hull_verts = hull.get_vertices()
+        # The hull should have 4 vertices, not 5 (the indent is removed)
+        assert len(hull_verts) == 4
+
+    def test_convex_hull_is_convex(self):
+        """The returned hull should be a convex polygon."""
+        p = Polygon((10, 10), (50, 50), (90, 10), (90, 90), (10, 90))
+        hull = p.get_convex_hull()
+        assert hull.is_convex()
+
+    def test_convex_hull_raises_on_too_few(self):
+        """Fewer than 3 vertices should raise ValueError."""
+        p = Polygon((0, 0), (1, 1))
+        with pytest.raises(ValueError):
+            p.get_convex_hull()
+
+    def test_convex_hull_passes_kwargs(self):
+        """Keyword arguments should be forwarded to the new Polygon."""
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        hull = p.get_convex_hull(fill='#ff0000')
+        svg = hull.to_svg(0)
+        assert 'rgb(255,0,0)' in svg
+
+
+class TestCircleChordLength:
+    def test_chord_at_zero_distance_is_diameter(self):
+        """Chord at distance 0 from center should equal the diameter."""
+        c = Circle(r=100)
+        assert c.chord_length(0) == pytest.approx(200.0)
+
+    def test_chord_at_radius_is_zero(self):
+        """Chord at distance r from center should be zero."""
+        c = Circle(r=50)
+        assert c.chord_length(50) == pytest.approx(0.0)
+
+    def test_chord_at_known_distance(self):
+        """Chord at distance 60 from center of r=100 should be 160."""
+        # 2 * sqrt(100^2 - 60^2) = 2 * sqrt(6400) = 2 * 80 = 160
+        c = Circle(r=100)
+        assert c.chord_length(60) == pytest.approx(160.0)
+
+    def test_chord_at_half_radius(self):
+        """Chord at r/2 should be 2 * sqrt(3/4) * r = r * sqrt(3)."""
+        c = Circle(r=100)
+        import math
+        expected = 100 * math.sqrt(3)
+        assert c.chord_length(50) == pytest.approx(expected)
+
+    def test_negative_distance_raises(self):
+        """Negative distance should raise ValueError."""
+        c = Circle(r=100)
+        with pytest.raises(ValueError):
+            c.chord_length(-10)
+
+    def test_distance_exceeds_radius_raises(self):
+        """Distance greater than radius should raise ValueError."""
+        c = Circle(r=50)
+        with pytest.raises(ValueError):
+            c.chord_length(60)
+
+
+class TestCircleArcLength:
+    def test_full_circle(self):
+        """Arc length for 0 to 360 should equal the circumference."""
+        import math
+        c = Circle(r=100)
+        assert c.arc_length(0, 360) == pytest.approx(2 * math.pi * 100)
+
+    def test_quarter_arc(self):
+        """Arc length for 90 degrees should be pi*r/2."""
+        import math
+        c = Circle(r=100)
+        assert c.arc_length(0, 90) == pytest.approx(math.pi * 100 / 2)
+
+    def test_semicircle(self):
+        """Arc length for 180 degrees should be pi*r."""
+        import math
+        c = Circle(r=100)
+        assert c.arc_length(0, 180) == pytest.approx(math.pi * 100)
+
+    def test_symmetric(self):
+        """arc_length(a, b) should equal arc_length(b, a)."""
+        c = Circle(r=50)
+        assert c.arc_length(30, 120) == pytest.approx(c.arc_length(120, 30))
+
+    def test_zero_sweep(self):
+        """Arc length for same start and end should be zero."""
+        c = Circle(r=100)
+        assert c.arc_length(45, 45) == pytest.approx(0.0)
+
+
+class TestLineParallelThrough:
+    def test_horizontal_line(self):
+        """Parallel line through a point offset vertically."""
+        l = Line(0, 0, 200, 0)
+        l2 = l.parallel_through((100, 50))
+        s = l2.get_start()
+        e = l2.get_end()
+        assert s[0] == pytest.approx(0.0)
+        assert s[1] == pytest.approx(50.0)
+        assert e[0] == pytest.approx(200.0)
+        assert e[1] == pytest.approx(50.0)
+
+    def test_vertical_line(self):
+        """Parallel line through a point offset horizontally."""
+        l = Line(0, 0, 0, 100)
+        l2 = l.parallel_through((50, 50))
+        s = l2.get_start()
+        e = l2.get_end()
+        assert s[0] == pytest.approx(50.0)
+        assert s[1] == pytest.approx(0.0)
+        assert e[0] == pytest.approx(50.0)
+        assert e[1] == pytest.approx(100.0)
+
+    def test_preserves_length(self):
+        """The parallel line should have the same length as the original."""
+        l = Line(10, 20, 110, 120)
+        l2 = l.parallel_through((200, 300))
+        assert l2.get_length() == pytest.approx(l.get_length())
+
+    def test_is_parallel(self):
+        """The new line should be parallel to the original."""
+        l = Line(0, 0, 100, 50)
+        l2 = l.parallel_through((300, 400))
+        assert l.is_parallel(l2)
+
+    def test_passes_kwargs(self):
+        """Keyword arguments should be forwarded to the new Line."""
+        l = Line(0, 0, 100, 0)
+        l2 = l.parallel_through((50, 50), stroke='#ff0000')
+        svg = l2.to_svg(0)
+        assert 'rgb(255,0,0)' in svg
+
+
+class TestRectangleDiagonalLines:
+    def test_basic_rectangle(self):
+        """Diagonal lines of a simple rectangle."""
+        r = Rectangle(width=200, height=100, x=0, y=0)
+        d1, d2 = r.diagonal_lines()
+        # d1: top-left (0,0) -> bottom-right (200,100)
+        assert d1.get_start() == pytest.approx((0.0, 0.0), abs=1e-9)
+        assert d1.get_end() == pytest.approx((200.0, 100.0), abs=1e-9)
+        # d2: top-right (200,0) -> bottom-left (0,100)
+        assert d2.get_start() == pytest.approx((200.0, 0.0), abs=1e-9)
+        assert d2.get_end() == pytest.approx((0.0, 100.0), abs=1e-9)
+
+    def test_diagonals_equal_length(self):
+        """Both diagonals of a rectangle should have the same length."""
+        r = Rectangle(width=300, height=400, x=10, y=20)
+        d1, d2 = r.diagonal_lines()
+        assert d1.get_length() == pytest.approx(d2.get_length())
+
+    def test_diagonals_length_matches_diagonal_length(self):
+        """Diagonal line length should match get_diagonal_length."""
+        r = Rectangle(width=3, height=4, x=0, y=0)
+        d1, d2 = r.diagonal_lines()
+        assert d1.get_length() == pytest.approx(r.get_diagonal_length())
+        assert d2.get_length() == pytest.approx(5.0)
+
+    def test_diagonals_intersect_at_center(self):
+        """The two diagonals should intersect at the rectangle center."""
+        r = Rectangle(width=200, height=100, x=50, y=50)
+        d1, d2 = r.diagonal_lines()
+        pt = d1.intersect_line(d2)
+        assert pt is not None
+        assert pt[0] == pytest.approx(150.0)  # 50 + 200/2
+        assert pt[1] == pytest.approx(100.0)  # 50 + 100/2
+
+    def test_square_diagonals_are_perpendicular(self):
+        """Diagonals of a square should be perpendicular."""
+        r = Rectangle(width=100, height=100, x=0, y=0)
+        d1, d2 = r.diagonal_lines()
+        assert d1.is_perpendicular(d2)
+
+    def test_passes_kwargs(self):
+        """Extra kwargs should be forwarded to the Line constructor."""
+        r = Rectangle(width=100, height=50, x=0, y=0)
+        d1, d2 = r.diagonal_lines(stroke='#00ff00')
+        assert 'rgb(0,255,0)' in d1.to_svg(0)
+        assert 'rgb(0,255,0)' in d2.to_svg(0)
+
+
+class TestTextTruncate:
+    def test_truncate_long_text(self):
+        """Truncating a long text should shorten it with ellipsis."""
+        t = Text('Hello, World!')
+        t.truncate(8)
+        assert t.get_text() == 'Hello...'
+
+    def test_truncate_short_text_no_change(self):
+        """Text shorter than n should be unchanged."""
+        t = Text('Hi')
+        t.truncate(10)
+        assert t.get_text() == 'Hi'
+
+    def test_truncate_exact_length_no_change(self):
+        """Text exactly n chars should be unchanged."""
+        t = Text('Hello')
+        t.truncate(5)
+        assert t.get_text() == 'Hello'
+
+    def test_truncate_custom_ellipsis(self):
+        """Custom ellipsis string should be appended."""
+        t = Text('abcdefghij')
+        t.truncate(7, ellipsis='..')
+        assert t.get_text() == 'abcde..'
+
+    def test_truncate_empty_ellipsis(self):
+        """Empty ellipsis should just chop the text."""
+        t = Text('Hello, World!')
+        t.truncate(5, ellipsis='')
+        assert t.get_text() == 'Hello'
+
+    def test_truncate_returns_self(self):
+        """truncate should return self for chaining."""
+        t = Text('Hello, World!')
+        result = t.truncate(8)
+        assert result is t
+
+    def test_truncate_raises_on_small_n(self):
+        """n smaller than ellipsis length should raise ValueError."""
+        t = Text('Hello')
+        with pytest.raises(ValueError):
+            t.truncate(2, ellipsis='...')
+
+    def test_truncate_n_equals_ellipsis_len(self):
+        """n equal to ellipsis length should give just the ellipsis."""
+        t = Text('Hello, World!')
+        t.truncate(3, ellipsis='...')
+        assert t.get_text() == '...'

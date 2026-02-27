@@ -8880,3 +8880,178 @@ class TestStrobe:
         c = Circle(r=50, cx=400, cy=400)
         c.strobe(start=0, end=1, flashes=3, duty=0.0)
         assert c.styling.opacity.at_time(0.5) == pytest.approx(0.0)
+
+
+class TestZoomTo:
+    """Tests for VObject.zoom_to — animated camera zoom to focus on an object."""
+
+    def test_returns_self(self):
+        c = Circle(r=50, cx=300, cy=200)
+        canvas = VectorMathAnim(save_dir='/tmp/_vma_test_zoom', width=1920, height=1080)
+        result = c.zoom_to(canvas, start=0, end=1)
+        assert result is c
+
+    def test_viewbox_targets_object(self):
+        c = Circle(r=50, cx=300, cy=200)
+        canvas = VectorMathAnim(save_dir='/tmp/_vma_test_zoom', width=1920, height=1080)
+        c.zoom_to(canvas, start=0, end=1, padding=50, easing=easings.linear)
+        # After animation completes, viewBox should be centered around (300, 200)
+        vb_x = canvas.vb_x.at_time(1)
+        vb_y = canvas.vb_y.at_time(1)
+        vb_w = canvas.vb_w.at_time(1)
+        vb_h = canvas.vb_h.at_time(1)
+        # Center of viewBox should be near the object center
+        vb_cx = vb_x + vb_w / 2
+        vb_cy = vb_y + vb_h / 2
+        assert vb_cx == pytest.approx(300, abs=5)
+        assert vb_cy == pytest.approx(200, abs=5)
+
+    def test_viewbox_shrinks(self):
+        c = Circle(r=50, cx=960, cy=540)
+        canvas = VectorMathAnim(save_dir='/tmp/_vma_test_zoom', width=1920, height=1080)
+        c.zoom_to(canvas, start=0, end=1, padding=100, easing=easings.linear)
+        vb_w = canvas.vb_w.at_time(1)
+        # viewBox should be much smaller than full canvas
+        assert vb_w < 1920
+
+    def test_zero_duration_noop(self):
+        c = Circle(r=50, cx=300, cy=200)
+        canvas = VectorMathAnim(save_dir='/tmp/_vma_test_zoom', width=1920, height=1080)
+        c.zoom_to(canvas, start=1, end=1)
+        # Should still be at default viewBox
+        assert canvas.vb_w.at_time(1) == pytest.approx(1920)
+
+    def test_preserves_aspect_ratio(self):
+        r = Rectangle(width=400, height=50, x=100, y=100)
+        canvas = VectorMathAnim(save_dir='/tmp/_vma_test_zoom', width=1920, height=1080)
+        r.zoom_to(canvas, start=0, end=1, padding=50, easing=easings.linear)
+        vb_w = canvas.vb_w.at_time(1)
+        vb_h = canvas.vb_h.at_time(1)
+        canvas_aspect = 1920 / 1080
+        assert vb_w / vb_h == pytest.approx(canvas_aspect, abs=0.01)
+
+
+class TestTypewriterDelete:
+    """Tests for VObject.typewriter_delete — progressive clip-path removal."""
+
+    def test_returns_self(self):
+        c = Circle(r=50, cx=400, cy=400)
+        result = c.typewriter_delete(start=0, end=1)
+        assert result is c
+
+    def test_hidden_after_end(self):
+        c = Circle(r=50, cx=400, cy=400)
+        c.typewriter_delete(start=0, end=1)
+        assert c.show.at_time(1.5) is False
+
+    def test_visible_before_start(self):
+        c = Circle(r=50, cx=400, cy=400)
+        c.typewriter_delete(start=1, end=2)
+        # Object should be visible before the delete starts
+        assert c.show.at_time(0.5) is True
+
+    def test_clip_path_set_during_animation(self):
+        c = Circle(r=50, cx=400, cy=400)
+        c.typewriter_delete(start=0, end=1, easing=easings.linear)
+        clip = c.styling.clip_path.at_time(0.5)
+        assert 'inset' in clip
+
+    def test_clip_fully_hidden_at_end(self):
+        c = Circle(r=50, cx=400, cy=400)
+        c.typewriter_delete(start=0, end=1, direction='right', easing=easings.linear)
+        clip = c.styling.clip_path.at_time(1)
+        # At progress=1.0, the inset should clip everything (0% remaining)
+        assert 'inset' in clip
+        assert '0.0%' in clip
+
+    def test_clip_fully_visible_at_start(self):
+        c = Circle(r=50, cx=400, cy=400)
+        c.typewriter_delete(start=0, end=1, direction='right', easing=easings.linear)
+        clip = c.styling.clip_path.at_time(0)
+        # At progress=0.0, nothing should be clipped (100% visible)
+        assert '100.0%' in clip
+
+    def test_direction_left(self):
+        c = Circle(r=50, cx=400, cy=400)
+        c.typewriter_delete(start=0, end=1, direction='left', easing=easings.linear)
+        clip = c.styling.clip_path.at_time(0.5)
+        assert 'inset' in clip
+
+    def test_direction_up(self):
+        c = Circle(r=50, cx=400, cy=400)
+        c.typewriter_delete(start=0, end=1, direction='up', easing=easings.linear)
+        clip = c.styling.clip_path.at_time(0.5)
+        assert 'inset' in clip
+
+    def test_direction_down(self):
+        c = Circle(r=50, cx=400, cy=400)
+        c.typewriter_delete(start=0, end=1, direction='down', easing=easings.linear)
+        clip = c.styling.clip_path.at_time(0.5)
+        assert 'inset' in clip
+
+    def test_zero_duration_noop(self):
+        c = Circle(r=50, cx=400, cy=400)
+        result = c.typewriter_delete(start=1, end=1)
+        assert result is c
+
+
+class TestDomino:
+    """Tests for VObject.domino — tipping-over rotation effect."""
+
+    def test_returns_self(self):
+        r = Rectangle(width=50, height=100, x=400, y=300)
+        result = r.domino(start=0, end=1)
+        assert result is r
+
+    def test_hidden_after_end(self):
+        r = Rectangle(width=50, height=100, x=400, y=300)
+        r.domino(start=0, end=1)
+        assert r.show.at_time(1.5) is False
+
+    def test_no_rotation_at_start(self):
+        r = Rectangle(width=50, height=100, x=400, y=300)
+        r.domino(start=0, end=1, easing=easings.linear)
+        rot = r.styling.rotation.at_time(0)
+        assert rot[0] == pytest.approx(0, abs=0.1)
+
+    def test_full_rotation_at_end(self):
+        r = Rectangle(width=50, height=100, x=400, y=300)
+        r.domino(start=0, end=1, angle=90, easing=easings.linear)
+        rot = r.styling.rotation.at_time(1)
+        assert rot[0] == pytest.approx(90, abs=0.1)
+
+    def test_direction_left(self):
+        r = Rectangle(width=50, height=100, x=400, y=300)
+        r.domino(start=0, end=1, direction='left', angle=90, easing=easings.linear)
+        rot = r.styling.rotation.at_time(1)
+        # Left direction should rotate negatively
+        assert rot[0] == pytest.approx(-90, abs=0.1)
+
+    def test_pivot_point_right(self):
+        r = Rectangle(width=50, height=100, x=400, y=300)
+        r.domino(start=0, end=1, direction='right', easing=easings.linear)
+        rot = r.styling.rotation.at_time(0.5)
+        # Pivot should be at bottom-right of bbox
+        bx, by, bw, bh = r.bbox(0)
+        assert rot[1] == pytest.approx(bx + bw, abs=0.1)
+        assert rot[2] == pytest.approx(by + bh, abs=0.1)
+
+    def test_pivot_point_left(self):
+        r = Rectangle(width=50, height=100, x=400, y=300)
+        r.domino(start=0, end=1, direction='left', easing=easings.linear)
+        rot = r.styling.rotation.at_time(0.5)
+        # Pivot should be at bottom-left of bbox
+        bx, by, _, bh = r.bbox(0)
+        assert rot[1] == pytest.approx(bx, abs=0.1)
+        assert rot[2] == pytest.approx(by + bh, abs=0.1)
+
+    def test_zero_duration_noop(self):
+        r = Rectangle(width=50, height=100, x=400, y=300)
+        result = r.domino(start=1, end=1)
+        assert result is r
+
+    def test_mid_animation_rotation(self):
+        r = Rectangle(width=50, height=100, x=400, y=300)
+        r.domino(start=0, end=1, angle=90, easing=easings.linear)
+        rot = r.styling.rotation.at_time(0.5)
+        assert rot[0] == pytest.approx(45, abs=1)

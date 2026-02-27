@@ -3537,6 +3537,147 @@ class VObject(ABC):  # Vector Object
         self.styling.opacity.set(start, end, _opacity, stay=False)
         return self
 
+    def zoom_to(self, canvas, start: float = 0, end: float = 1,
+                padding: float = 100, easing=easings.smooth):
+        """Animate the camera to zoom in and focus on this object.
+
+        Adjusts the canvas viewBox so that this object fills the frame
+        (with *padding* pixels of breathing room).  The aspect ratio of the
+        canvas is preserved.  This is a convenience wrapper around the
+        camera_zoom/camera_shift primitives that targets a specific object.
+
+        Parameters
+        ----------
+        canvas:
+            The :class:`VectorMathAnim` instance whose camera to control.
+        start, end:
+            Time interval for the zoom animation.
+        padding:
+            Extra pixels around the object's bounding box.
+        easing:
+            Easing function for the camera transition.
+
+        Returns
+        -------
+        self
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        bx, by, bw, bh = self.bbox(start)
+        target_x = bx - padding
+        target_y = by - padding
+        target_w = bw + 2 * padding
+        target_h = bh + 2 * padding
+        if target_w <= 0 or target_h <= 0:
+            return self
+        # Maintain canvas aspect ratio
+        aspect = canvas.width / canvas.height
+        if target_w / target_h > aspect:
+            target_h = target_w / aspect
+            target_y = by + bh / 2 - target_h / 2
+        else:
+            target_w = target_h * aspect
+            target_x = bx + bw / 2 - target_w / 2
+        canvas.vb_x.move_to(start, end, target_x, easing=easing)
+        canvas.vb_y.move_to(start, end, target_y, easing=easing)
+        canvas.vb_w.move_to(start, end, target_w, easing=easing)
+        canvas.vb_h.move_to(start, end, target_h, easing=easing)
+        return self
+
+    def typewriter_delete(self, start: float = 0, end: float = 1,
+                          direction='right', easing=easings.smooth):
+        """Progressively hide the object with a clip-path sweep.
+
+        The reverse of :meth:`typewriter_reveal`: the object starts fully
+        visible and is progressively clipped away, creating a deletion or
+        closing-curtain effect.  The object is hidden after *end*.
+
+        Parameters
+        ----------
+        start, end:
+            Time interval for the delete animation.
+        direction:
+            Which edge the deletion sweeps toward: ``'right'`` (clips from
+            left-to-right), ``'left'`` (right-to-left), ``'down'``
+            (top-to-bottom), ``'up'`` (bottom-to-top).
+        easing:
+            Easing function for the sweep progress.
+
+        Returns
+        -------
+        self
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        self._hide_from(end)
+        _s, _d = start, max(dur, 1e-9)
+        # Deletion sweeps in the given direction, progressively clipping
+        # from the opposite edge inward.
+        clip_templates = {
+            'right': lambda pct: f'inset(0 {100 - pct:.1f}% 0 0)',
+            'left':  lambda pct: f'inset(0 0 0 {100 - pct:.1f}%)',
+            'down':  lambda pct: f'inset(0 0 {100 - pct:.1f}% 0)',
+            'up':    lambda pct: f'inset({100 - pct:.1f}% 0 0 0)',
+        }
+        tmpl = clip_templates.get(direction, clip_templates['right'])
+
+        def _clip(t, _s=_s, _d=_d, _tmpl=tmpl, _e=easing):
+            progress = _e((t - _s) / _d)
+            return _tmpl(100 * progress)
+
+        self.styling.clip_path.set(start, end, _clip, stay=True)
+        return self
+
+    def domino(self, start: float = 0, end: float = 1, direction='right',
+               angle: float = 90, easing=easings.smooth):
+        """Tip the object over like a falling domino.
+
+        The object rotates around its bottom edge in the given direction,
+        as if toppling over.  At the end of the animation the object is
+        hidden.
+
+        Parameters
+        ----------
+        start, end:
+            Time interval for the animation.
+        direction:
+            ``'right'`` to fall rightward (pivot on bottom-right),
+            ``'left'`` to fall leftward (pivot on bottom-left).
+        angle:
+            Rotation angle in degrees (default 90).  Positive values tip
+            in the specified direction.
+        easing:
+            Easing function; defaults to ``smooth`` for a natural-looking fall.
+
+        Returns
+        -------
+        self
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        self._hide_from(end)
+        bx, by, bw, bh = self.bbox(start)
+        if direction == 'left':
+            pivot_x = bx
+            pivot_y = by + bh
+            target_angle = -angle
+        else:
+            pivot_x = bx + bw
+            pivot_y = by + bh
+            target_angle = angle
+        _s, _d = start, max(dur, 1e-9)
+        _px, _py, _ta = pivot_x, pivot_y, target_angle
+
+        def _rot(t, _s=_s, _d=_d, _ta=_ta, _px=_px, _py=_py, _e=easing):
+            p = _e((t - _s) / _d)
+            return (_ta * p, _px, _py)
+
+        self.styling.rotation.set(start, end, _rot, stay=True)
+        return self
+
     @staticmethod
     def surround(other, buff=SMALL_BUFF, rx=6, ry=6, start_time: float = 0, follow=True):
         """Create a rectangle surrounding another object. Returns a Rectangle."""
@@ -5292,6 +5433,147 @@ class VCollection:
             result.append(VCollection(*objs[i:i + size]))
             i += step
         return result
+
+    def waterfall(self, start: float = 0, end: float = 1, height: float = 200,
+                  stagger_frac: float = 0.3, easing=easings.smooth):
+        """Staggered gravity-like entrance: children drop in from above.
+
+        Each child starts above its final position (offset by *height* pixels)
+        and falls down into place with a cascading delay.  Children also fade
+        in during the fall.  Earlier children in the list start falling first.
+
+        Parameters
+        ----------
+        start, end:
+            Overall time interval for the waterfall.
+        height:
+            How far above its resting position each child starts (pixels).
+        stagger_frac:
+            Fraction of each child's duration that overlaps with the next
+            child's start (0 = fully sequential, 1 = all start at once).
+        easing:
+            Easing function for each child's fall; ``easings.smooth`` gives
+            a decelerating landing feel.
+
+        Returns
+        -------
+        self
+        """
+        n = len(self.objects)
+        if n == 0:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        # Compute per-child window with stagger overlap
+        if n == 1:
+            child_dur = dur
+            delay = 0
+        else:
+            # Each child gets a window; consecutive windows overlap by stagger_frac
+            child_dur = dur / (1 + (1 - stagger_frac) * (n - 1))
+            delay = child_dur * (1 - stagger_frac)
+
+        for i, obj in enumerate(self.objects):
+            cs = start + i * delay
+            ce = cs + child_dur
+            # Hide before entrance
+            obj.show.set_onward(0, False)
+            obj.show.set_onward(cs, True)
+            # Fade in
+            _cs, _cd = cs, max(ce - cs, 1e-9)
+            end_opacity = obj.styling.opacity.at_time(cs)
+            obj.styling.opacity.set(cs, ce,
+                lambda t, _s=_cs, _d=_cd, _ev=end_opacity, _e=easing:
+                    _ev * _e((t - _s) / _d))
+            # Drop from above: shift up by height, then animate down
+            _h = height
+            def _dy(t, _s=_cs, _d=_cd, _h=_h, _e=easing):
+                p = _e((t - _s) / _d)
+                return -_h * (1 - p)
+            for xa, ya in obj._shift_reals():
+                ya.add(cs, ce, _dy, stay=True)
+            for c in obj._shift_coors():
+                c.add(cs, ce, lambda t, _f=_dy: (0, _f(t)), stay=True)
+        return self
+
+    def orbit_around(self, cx=None, cy=None, radius=None,
+                     start: float = 0, end: float = 1, revolutions: float = 1,
+                     easing=easings.linear):
+        """Animate children orbiting around a center point.
+
+        Each child is placed on a circle at equal angular intervals and
+        then rotated around (cx, cy) over the time interval.  Children
+        maintain their angular spacing while revolving.
+
+        Parameters
+        ----------
+        cx, cy:
+            Center of the orbit.  Defaults to the collection's bounding-box
+            center.
+        radius:
+            Orbit radius in pixels.  Defaults to the average distance from
+            each child's center to (cx, cy) at *start*.
+        start, end:
+            Time interval for the orbit animation.
+        revolutions:
+            Number of full revolutions (1.0 = 360 degrees).
+        easing:
+            Easing function applied to the angular progress.  Use
+            ``easings.linear`` for constant-speed orbiting.
+
+        Returns
+        -------
+        self
+        """
+        n = len(self.objects)
+        if n == 0:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        # Resolve center
+        if cx is None or cy is None:
+            bx, by, bw, bh = self.bbox(start)
+            cx = bx + bw / 2 if cx is None else cx
+            cy = by + bh / 2 if cy is None else cy
+        # Compute initial angle and radius for each child
+        child_data = []
+        for obj in self.objects:
+            bx, by, bw, bh = obj.bbox(start)
+            ocx, ocy = bx + bw / 2, by + bh / 2
+            dx, dy = ocx - cx, ocy - cy
+            dist = math.hypot(dx, dy)
+            angle0 = math.atan2(dy, dx)
+            child_data.append((angle0, dist, ocx, ocy))
+        if radius is None:
+            radius = sum(d[1] for d in child_data) / max(n, 1)
+            # Use at least a small radius to avoid degenerate orbits
+            if radius < 1:
+                radius = 100
+        _s, _d = start, max(dur, 1e-9)
+        _cx, _cy, _r, _rev = cx, cy, radius, revolutions
+
+        for i, obj in enumerate(self.objects):
+            angle0, _, ocx, ocy = child_data[i]
+            _a0, _ocx, _ocy = angle0, ocx, ocy
+            def _dx(t, _s=_s, _d=_d, _cx=_cx, _r=_r, _rev=_rev,
+                    _a0=_a0, _ocx=_ocx, _e=easing):
+                p = _e((t - _s) / _d)
+                angle = _a0 + 2 * math.pi * _rev * p
+                return _cx + _r * math.cos(angle) - _ocx
+            def _dy(t, _s=_s, _d=_d, _cy=_cy, _r=_r, _rev=_rev,
+                    _a0=_a0, _ocy=_ocy, _e=easing):
+                p = _e((t - _s) / _d)
+                angle = _a0 + 2 * math.pi * _rev * p
+                return _cy + _r * math.sin(angle) - _ocy
+            for xa, ya in obj._shift_reals():
+                xa.add(start, end, _dx)
+                ya.add(start, end, _dy)
+            for c in obj._shift_coors():
+                c.add(start, end,
+                      lambda t, _fdx=_dx, _fdy=_dy: (_fdx(t), _fdy(t)))
+        return self
 
 
 VGroup = VCollection
