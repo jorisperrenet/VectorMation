@@ -3590,9 +3590,7 @@ class VObject(ABC):  # Vector Object
             self.styling.opacity.set_onward(start, end_opacity)
             self.styling.fill_opacity.set_onward(start, end_opacity)
             return self
-        s, d = start, dur
-        sv, ev = start_opacity, end_opacity
-        fn = lambda t, _s=s, _d=d, _sv=sv, _ev=ev, _e=easing: _sv + (_ev - _sv) * _e((t - _s) / _d)
+        fn = _lerp(start, dur, start_opacity, end_opacity, easing)
         self.styling.opacity.set(start, end, fn, stay=True)
         self.styling.fill_opacity.set(start, end, fn, stay=True)
         return self
@@ -4288,7 +4286,7 @@ class VObject(ABC):  # Vector Object
             self.styling._scale_origin = (bx + bw / 2, by)
         else:  # up
             self.styling._scale_origin = (bx + bw / 2, by + bh)
-        scale_fn = lambda t, _s=start, _d=dur, _e=easing: _e((t - _s) / _d)
+        scale_fn = _ramp(start, dur, 1, easing)
         if horizontal:
             self.styling.scale_x.set(start, end, scale_fn, stay=True)
         else:

@@ -9694,13 +9694,6 @@ class NetworkGraph(VCollection):
             self._node_circles[node_id].flash(start, end, color=color, easing=easing)
         return self
 
-    def add_highlight_node(self, node_name, start=0, end=1, color='#FFD700'):
-        """Highlight a node by flashing its color."""
-        if node_name in self._node_circles:
-            node = self._node_circles[node_name]
-            node.flash_color(color, start=start, duration=end - start)
-        return self
-
     def get_node_position(self, node_id):
         """Get the (x, y) position of a node."""
         return self._node_positions.get(node_id, (960, 540))
@@ -12367,11 +12360,7 @@ class BinaryTree(VCollection):
             Time range for the highlight.
         """
         if 0 <= index < len(self._node_objects):
-            node = self._node_objects[index]
-            orig = node.styling.fill.time_func(0)
-            orig_hex = '#{:02x}{:02x}{:02x}'.format(*orig) if orig else '#1e1e2e'
-            node.set_fill(color=color, start=start)
-            node.set_fill(color=orig_hex, start=end)
+            _flash_fill(self._node_objects[index], color, start, end, '#1e1e2e')
         return self
 
 
@@ -12853,6 +12842,14 @@ class StandingWave(VCollection):
         super().__init__(wave, dot1, dot2, creation=creation, z=z)
 
 
+def _flash_fill(obj, color, start, end, default='#264653'):
+    """Temporarily change an object's fill colour, reverting at *end*."""
+    orig = obj.styling.fill.time_func(0)
+    orig_hex = '#{:02x}{:02x}{:02x}'.format(*orig) if orig else default
+    obj.set_fill(color=color, start=start)
+    obj.set_fill(color=orig_hex, start=end)
+
+
 class ArrayViz(VCollection):
     """Visualise an array as a row of labeled cells.
 
@@ -12916,10 +12913,7 @@ class ArrayViz(VCollection):
     def highlight(self, index, start=0, end=1, color='#FFFF00'):
         """Temporarily highlight a cell by changing its fill colour."""
         if 0 <= index < len(self._cells):
-            orig = self._cells[index].styling.fill.time_func(0)
-            orig_hex = '#{:02x}{:02x}{:02x}'.format(*orig) if orig else '#264653'
-            self._cells[index].set_color(start, start, fill=color)
-            self._cells[index].set_color(end, end, fill=orig_hex)
+            _flash_fill(self._cells[index], color, start, end)
         return self
 
     def swap(self, i, j, start=0, end=1, easing=easings.smooth):
@@ -13046,10 +13040,7 @@ class LinkedListViz(VCollection):
     def highlight(self, index, start=0, end=1, color='#FFFF00'):
         """Temporarily highlight a node."""
         if 0 <= index < len(self._nodes):
-            orig = self._nodes[index].styling.fill.time_func(0)
-            orig_hex = '#{:02x}{:02x}{:02x}'.format(*orig) if orig else '#264653'
-            self._nodes[index].set_color(start, start, fill=color)
-            self._nodes[index].set_color(end, end, fill=orig_hex)
+            _flash_fill(self._nodes[index], color, start, end)
         return self
 
     def traverse(self, start=0, delay=0.5, color='#FFFF00'):
@@ -13259,10 +13250,7 @@ class QueueViz(VCollection):
     def highlight(self, index, color='#E9C46A', start=0, end=0.5):
         """Temporarily highlight a cell at *index*."""
         if 0 <= index < len(self._queue_cells):
-            orig = self._queue_cells[index].styling.fill.time_func(0)
-            orig_hex = '#{:02x}{:02x}{:02x}'.format(*orig) if orig else self._fill
-            self._queue_cells[index].set_fill(color=color, start=start)
-            self._queue_cells[index].set_fill(color=orig_hex, start=end)
+            _flash_fill(self._queue_cells[index], color, start, end, self._fill)
         return self
 
 
