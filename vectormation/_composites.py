@@ -7142,6 +7142,11 @@ class BarChart(VCollection):
             super().__init__(creation=creation, z=z)
             self.values, self.bar_count, self._bars, self._labels = [], 0, [], []
             self._height, self._y = height, y
+            self._x, self._width = x, width
+            self._bar_spacing = bar_spacing
+            self._colors = colors
+            self._creation = creation
+            self._z = z
             return
         max_val = max(abs(v) for v in values) if values else 1
         bar_width = width / n
@@ -7182,6 +7187,12 @@ class BarChart(VCollection):
         self._labels = label_objs
         self._height = height
         self._y = y
+        self._x = x
+        self._width = width
+        self._bar_spacing = bar_spacing
+        self._colors = colors
+        self._creation = creation
+        self._z = z
 
     @classmethod
     def from_dict(cls, data, **kwargs):
@@ -7383,6 +7394,145 @@ class BarChart(VCollection):
         self._bars = [self._bars[i] for i in new_order]
         self._labels = [self._labels[i] for i in new_order]
         self.values = [self.values[i] for i in new_order]
+        return self
+
+    def add_bar(self, value, label=None, start=0, end=None):
+        """Add a new bar to the right side of the chart.
+
+        Parameters
+        ----------
+        value:
+            Numeric value for the new bar.
+        label:
+            Optional label string displayed below the bar.
+        start:
+            Time at which the bar appears (or animation begins).
+        end:
+            If provided, the bar animates growing from height 0 over
+            ``[start, end]``.  If ``None``, the bar appears instantly.
+
+        Returns
+        -------
+        self
+        """
+        n = len(self._bars)
+        all_vals = list(self.values) + [value]
+        max_val = max(abs(v) for v in all_vals) if all_vals else 1
+        # Recompute bar layout for n+1 bars
+        new_n = n + 1
+        bar_width = self._width / new_n
+        inner_width = bar_width * (1 - self._bar_spacing)
+        bar_h = abs(value) / max_val * self._height * 0.85
+        bx = self._x + n * bar_width + (bar_width - inner_width) / 2
+        by = self._y + self._height - bar_h if value >= 0 else self._y + self._height
+        color = self._colors[n % len(self._colors)]
+        creation = start
+        bar = Rectangle(inner_width, bar_h, x=bx, y=by,
+                        creation=creation, z=self._z,
+                        fill=color, fill_opacity=0.8, stroke_width=0)
+        if end is not None:
+            # Animate: start at zero height at baseline, grow to full
+            bar.height.set_onward(start, 0)
+            bar.y.set_onward(start, self._y + self._height)
+            dur = end - start
+            if dur > 0:
+                _oh, _nh = 0, bar_h
+                _oy = self._y + self._height
+                _ny = by
+                _s, _d = start, dur
+                bar.height.set(start, end,
+                    lambda t, _oh=_oh, _nh=_nh, _s=_s, _d=_d:
+                        _oh + (_nh - _oh) * easings.smooth((t - _s) / _d),
+                    stay=True)
+                bar.y.set(start, end,
+                    lambda t, _oy=_oy, _ny=_ny, _s=_s, _d=_d:
+                        _oy + (_ny - _oy) * easings.smooth((t - _s) / _d),
+                    stay=True)
+        self.objects.append(bar)
+        self._bars.append(bar)
+        self.values = all_vals
+        self.bar_count = new_n
+        # Label
+        if label is not None:
+            lbl = Text(text=str(label),
+                       x=bx + inner_width / 2,
+                       y=self._y + self._height + 24,
+                       font_size=14, text_anchor='middle',
+                       creation=creation, z=self._z,
+                       fill='#aaa', stroke_width=0)
+            self.objects.append(lbl)
+            self._labels.append(lbl)
+        else:
+            self._labels.append(None)
+        return self
+
+    def remove_bar(self, index, start=0, end=None):
+        """Remove a bar by index.
+
+        Parameters
+        ----------
+        index:
+            Index of the bar to remove (0-based).
+        start:
+            Time at which the removal begins.
+        end:
+            If provided, the bar shrinks to zero height over
+            ``[start, end]`` before being removed.  If ``None``, the
+            bar is removed instantly.
+
+        Returns
+        -------
+        self
+        """
+        n = len(self._bars)
+        if index < -n or index >= n:
+            raise IndexError(f"bar index {index} out of range for chart with {n} bars")
+        if index < 0:
+            index += n
+        bar = self._bars[index]
+        lbl = self._labels[index]
+        if end is not None:
+            dur = end - start
+            if dur > 0:
+                # Animate shrinking to zero height at baseline
+                _oh = bar.height.at_time(start)
+                _oy = bar.y.at_time(start)
+                _by = self._y + self._height
+                _s, _d = start, dur
+                bar.height.set(start, end,
+                    lambda t, _oh=_oh, _s=_s, _d=_d:
+                        _oh * (1 - easings.smooth((t - _s) / _d)),
+                    stay=True)
+                bar.y.set(start, end,
+                    lambda t, _oy=_oy, _by=_by, _s=_s, _d=_d:
+                        _oy + (_by - _oy) * easings.smooth((t - _s) / _d),
+                    stay=True)
+            # Hide bar and label after animation
+            bar._hide_from(end)
+            if lbl is not None:
+                lbl._hide_from(end)
+        else:
+            bar._hide_from(start)
+            if lbl is not None:
+                lbl._hide_from(start)
+        # Remove from tracking lists
+        self._bars.pop(index)
+        self._labels.pop(index)
+        self.values = list(self.values)
+        self.values.pop(index)
+        self.bar_count = len(self._bars)
+        # Shift remaining bars left to fill gap
+        if index < len(self._bars):
+            new_n = len(self._bars)
+            if new_n > 0:
+                bar_width = self._width / new_n
+                inner_width = bar_width * (1 - self._bar_spacing)
+                shift_time = end if end is not None else start
+                for i in range(index, len(self._bars)):
+                    target_x = self._x + i * bar_width + (bar_width - inner_width) / 2
+                    self._bars[i].x.set_onward(shift_time, target_x)
+                    if self._labels[i] is not None:
+                        self._labels[i].x.set_onward(shift_time, target_x + inner_width / 2)
         return self
 
     def animate_sort(self, key=None, reverse=False, start=0, end=1, easing=None):

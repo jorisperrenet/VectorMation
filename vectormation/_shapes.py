@@ -4327,13 +4327,14 @@ class Text(VObject):
     _NARROW = set('iIlj1|!.,;:\'"()[]{}')
     _WIDE = set('mMwWOQD@')
 
-    def __init__(self, text='', x: float = 960, y: float = 540, font_size: float = 48, text_anchor=None, creation: float = 0, z=0, **styling_kwargs):
+    def __init__(self, text='', x: float = 960, y: float = 540, font_size: float = 48, text_anchor=None, font_family=None, creation: float = 0, z=0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.text = attributes.String(creation, text)
         self.x = attributes.Real(creation, x)
         self.y = attributes.Real(creation, y)
         self.font_size = attributes.Real(creation, font_size)
         self._text_anchor = text_anchor
+        self._font_family = font_family
         self._font_weight = None
         self._font_style = None
         self.styling = style.Styling(styling_kwargs, creation=creation,
@@ -4597,6 +4598,29 @@ class Text(VObject):
             For method chaining.
         """
         self._font_style = style if style != 'normal' else None
+        return self
+
+    def set_font_family(self, family, start=0):
+        """Set the font family for this text element.
+
+        Modifies the SVG ``font-family`` attribute.  Pass ``None`` to
+        remove a previously set font family.
+
+        Parameters
+        ----------
+        family:
+            CSS font-family value (e.g. ``'monospace'``, ``'Arial'``,
+            ``'serif'``).  Pass ``None`` to clear.
+        start:
+            Time at which the change takes effect (unused for this
+            discrete property, kept for API consistency).
+
+        Returns
+        -------
+        self
+            For method chaining.
+        """
+        self._font_family = family
         return self
 
     def set_text(self, start: float, end: float, new_text, easing=easings.smooth):
@@ -5005,6 +5029,8 @@ class Text(VObject):
                      fill=fill_color)
             if self._text_anchor:
                 t._text_anchor = self._text_anchor
+            if self._font_family:
+                t._font_family = self._font_family
             if self._font_weight:
                 t._font_weight = self._font_weight
             if self._font_style:
@@ -5016,9 +5042,10 @@ class Text(VObject):
         anchor = f" text-anchor='{self._text_anchor}'" if self._text_anchor else ''
         weight = f" font-weight='{self._font_weight}'" if self._font_weight else ''
         fstyle = f" font-style='{self._font_style}'" if self._font_style else ''
+        ffamily = f" font-family='{self._font_family}'" if self._font_family else ''
         txt = _xml_escape(str(self.text.at_time(time)))
         return (f"<text x='{self.x.at_time(time)}' y='{self.y.at_time(time)}'"
-                f" font-size='{self.font_size.at_time(time)}'{anchor}{weight}{fstyle}{self.styling.svg_style(time)}"
+                f" font-size='{self.font_size.at_time(time)}'{anchor}{weight}{fstyle}{ffamily}{self.styling.svg_style(time)}"
                 f">{txt}</text>")
 
 
@@ -5685,6 +5712,35 @@ class Arc(VObject):
             _anim(self.start_angle, start, end, start_angle, easing)
         if end_angle is not None:
             _anim(self.end_angle, start, end, end_angle, easing)
+        return self
+
+    def animate_sweep(self, target_angle, start=0, end=None, easing=None):
+        """Animate the end angle of this arc to *target_angle* (degrees).
+
+        This effectively animates the "sweep" of the arc by moving the
+        end angle while keeping the start angle fixed.
+
+        Parameters
+        ----------
+        target_angle:
+            The target end angle in degrees.
+        start:
+            Time at which the animation begins (or the instant change
+            occurs if *end* is ``None``).
+        end:
+            Time at which the animation ends.  ``None`` means an
+            instant change at *start*.
+        easing:
+            Easing function for the animation.  Defaults to
+            ``easings.smooth``.
+
+        Returns
+        -------
+        self
+        """
+        if easing is None:
+            easing = easings.smooth
+        _anim(self.end_angle, start, end, target_angle, easing)
         return self
 
     def get_midpoint(self, time=0):

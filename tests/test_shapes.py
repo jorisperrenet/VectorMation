@@ -11053,3 +11053,233 @@ class TestBraceForRange:
         b = Brace.for_range(ax, 'x', 2, 8)
         svg = b.to_svg(0)
         assert '<path' in svg or '<g' in svg
+
+
+# ---- Text.set_font_family / font_family ----
+
+class TestTextFontFamily:
+    def test_font_family_constructor(self):
+        """font_family param should be stored and rendered in SVG."""
+        t = Text('hello', font_family='monospace')
+        svg = t.to_svg(0)
+        assert "font-family='monospace'" in svg
+
+    def test_font_family_constructor_none_default(self):
+        """Default font_family=None should not add font-family attribute."""
+        t = Text('hello')
+        svg = t.to_svg(0)
+        assert 'font-family' not in svg
+
+    def test_set_font_family_method(self):
+        """set_font_family should update _font_family and render in SVG."""
+        t = Text('hello')
+        result = t.set_font_family('Arial')
+        assert result is t
+        svg = t.to_svg(0)
+        assert "font-family='Arial'" in svg
+
+    def test_set_font_family_none_clears(self):
+        """set_font_family(None) should remove font-family from SVG."""
+        t = Text('hello', font_family='serif')
+        t.set_font_family(None)
+        svg = t.to_svg(0)
+        assert 'font-family' not in svg
+
+    def test_font_family_with_spaces(self):
+        """Font families with spaces should be rendered correctly."""
+        t = Text('hello', font_family='Times New Roman')
+        svg = t.to_svg(0)
+        assert "font-family='Times New Roman'" in svg
+
+    def test_font_family_preserved_in_wrap(self):
+        """wrap should copy _font_family to child Text objects."""
+        t = Text('a b c d e f', font_family='monospace', font_size=20)
+        parts = t.wrap(max_width=50, time=0)
+        for child in parts.objects:
+            assert child._font_family == 'monospace'
+
+    def test_font_family_combined_with_bold_italic(self):
+        """font_family should coexist with font_weight and font_style."""
+        t = Text('hello', font_family='serif')
+        t.bold()
+        t.italic()
+        svg = t.to_svg(0)
+        assert "font-family='serif'" in svg
+        assert "font-weight='bold'" in svg
+        assert "font-style='italic'" in svg
+
+
+# ---- Arc.animate_sweep ----
+
+class TestArcAnimateSweep:
+    def test_animate_sweep_instant(self):
+        """animate_sweep with end=None should set end_angle instantly."""
+        a = Arc(start_angle=0, end_angle=90)
+        result = a.animate_sweep(180, start=0)
+        assert result is a
+        assert a.end_angle.at_time(0) == pytest.approx(180)
+
+    def test_animate_sweep_animated(self):
+        """animate_sweep with end should animate end_angle."""
+        a = Arc(start_angle=0, end_angle=90)
+        a.animate_sweep(270, start=0, end=1)
+        # At start, should still be near 90
+        assert a.end_angle.at_time(0) == pytest.approx(90)
+        # At end, should be 270
+        assert a.end_angle.at_time(1) == pytest.approx(270)
+
+    def test_animate_sweep_midpoint(self):
+        """At the midpoint the end_angle should be between start and target."""
+        a = Arc(start_angle=0, end_angle=0)
+        a.animate_sweep(180, start=0, end=1)
+        mid = a.end_angle.at_time(0.5)
+        assert 0 < mid < 180
+
+    def test_animate_sweep_preserves_start_angle(self):
+        """animate_sweep should not affect start_angle."""
+        a = Arc(start_angle=45, end_angle=90)
+        a.animate_sweep(360, start=0, end=1)
+        assert a.start_angle.at_time(0) == pytest.approx(45)
+        assert a.start_angle.at_time(1) == pytest.approx(45)
+
+    def test_animate_sweep_with_easing(self):
+        """animate_sweep should accept a custom easing."""
+        a = Arc(start_angle=0, end_angle=0)
+        a.animate_sweep(90, start=0, end=1, easing=easings.linear)
+        # With linear easing, midpoint should be exactly 45
+        assert a.end_angle.at_time(0.5) == pytest.approx(45)
+
+    def test_animate_sweep_returns_self(self):
+        """animate_sweep should return self for chaining."""
+        a = Arc()
+        assert a.animate_sweep(180) is a
+
+
+# ---- BarChart.add_bar ----
+
+class TestBarChartAddBar:
+    def test_add_bar_increases_count(self):
+        """add_bar should increase bar_count and bars list."""
+        chart = BarChart([10, 20])
+        assert chart.bar_count == 2
+        result = chart.add_bar(30)
+        assert result is chart
+        assert chart.bar_count == 3
+        assert len(chart._bars) == 3
+        assert chart.values == [10, 20, 30]
+
+    def test_add_bar_creates_rectangle(self):
+        """The new bar should be a Rectangle with correct height."""
+        chart = BarChart([10, 20], x=0, y=0, width=200, height=100)
+        chart.add_bar(20)
+        new_bar = chart._bars[-1]
+        assert isinstance(new_bar, Rectangle)
+        # Bar should have non-zero height
+        assert new_bar.height.at_time(0) > 0
+
+    def test_add_bar_with_label(self):
+        """add_bar with label should create a Text label."""
+        chart = BarChart([10], labels=['A'])
+        chart.add_bar(20, label='B')
+        assert len(chart._labels) == 2
+        assert chart._labels[1] is not None
+        assert chart._labels[1].text.at_time(0) == 'B'
+
+    def test_add_bar_without_label(self):
+        """add_bar without label should append None to _labels."""
+        chart = BarChart([10])
+        chart.add_bar(20)
+        assert len(chart._labels) == 2
+        assert chart._labels[1] is None
+
+    def test_add_bar_animated(self):
+        """add_bar with end should animate bar growing from zero."""
+        chart = BarChart([10, 20], x=0, y=0, width=200, height=100)
+        chart.add_bar(30, start=0, end=1)
+        new_bar = chart._bars[-1]
+        # At start, height should be 0
+        assert new_bar.height.at_time(0) == pytest.approx(0)
+        # At end, height should be non-zero
+        assert new_bar.height.at_time(1) > 0
+
+    def test_add_bar_to_empty_chart(self):
+        """add_bar on an empty chart should work correctly."""
+        chart = BarChart([])
+        chart.add_bar(10)
+        assert chart.bar_count == 1
+        assert len(chart._bars) == 1
+        assert chart.values == [10]
+
+    def test_add_bar_in_objects(self):
+        """The new bar should be added to the VCollection's objects."""
+        chart = BarChart([10])
+        before = len(chart.objects)
+        chart.add_bar(20)
+        assert len(chart.objects) > before
+
+
+# ---- BarChart.remove_bar ----
+
+class TestBarChartRemoveBar:
+    def test_remove_bar_decreases_count(self):
+        """remove_bar should decrease bar_count and bars list."""
+        chart = BarChart([10, 20, 30])
+        result = chart.remove_bar(1, start=0)
+        assert result is chart
+        assert chart.bar_count == 2
+        assert len(chart._bars) == 2
+        assert chart.values == [10, 30]
+
+    def test_remove_bar_first(self):
+        """Removing the first bar should shift remaining bars."""
+        chart = BarChart([10, 20, 30])
+        chart.remove_bar(0, start=0)
+        assert chart.bar_count == 2
+        assert chart.values == [20, 30]
+
+    def test_remove_bar_last(self):
+        """Removing the last bar should not need shifting."""
+        chart = BarChart([10, 20, 30])
+        chart.remove_bar(2, start=0)
+        assert chart.bar_count == 2
+        assert chart.values == [10, 20]
+
+    def test_remove_bar_negative_index(self):
+        """remove_bar should support negative indices."""
+        chart = BarChart([10, 20, 30])
+        chart.remove_bar(-1, start=0)
+        assert chart.bar_count == 2
+        assert chart.values == [10, 20]
+
+    def test_remove_bar_out_of_range(self):
+        """Out of range index should raise IndexError."""
+        chart = BarChart([10, 20])
+        with pytest.raises(IndexError):
+            chart.remove_bar(5)
+
+    def test_remove_bar_animated(self):
+        """remove_bar with end should animate shrinking."""
+        chart = BarChart([10, 20, 30], x=0, y=0, width=300, height=100)
+        bar = chart._bars[1]
+        chart.remove_bar(1, start=0, end=1)
+        # Bar height should shrink to near zero at end
+        assert bar.height.at_time(1) == pytest.approx(0, abs=0.1)
+
+    def test_remove_bar_hides_label(self):
+        """remove_bar should hide the associated label."""
+        chart = BarChart([10, 20, 30], labels=['A', 'B', 'C'])
+        lbl = chart._labels[1]
+        chart.remove_bar(1, start=0)
+        # Label should be hidden (show is False at time 0)
+        assert lbl.show.at_time(0) == False
+
+    def test_remove_bar_shifts_remaining(self):
+        """After removal, remaining bars should have updated x positions."""
+        chart = BarChart([10, 20, 30], x=0, y=0, width=300, height=100)
+        # Record original position of bar at index 2
+        old_x2 = chart._bars[2].x.at_time(0)
+        chart.remove_bar(0, start=0)
+        # The bar that was at index 2 is now at index 1
+        # It should have moved left
+        new_x = chart._bars[1].x.at_time(0)
+        assert new_x < old_x2

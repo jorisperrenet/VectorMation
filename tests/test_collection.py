@@ -1,7 +1,7 @@
 """Tests for VCollection: delegation, stagger, and to_svg."""
 import math
 import pytest
-from vectormation.objects import VCollection, Circle, Rectangle, Line, Arrow, DOWN
+from vectormation.objects import VCollection, Circle, Rectangle, Line, Arrow, DOWN, RIGHT, UP, LEFT
 import vectormation.easings as easings
 
 
@@ -3591,3 +3591,72 @@ class TestApplyEach:
         col = VCollection()
         result = col.apply_each('set_fill')
         assert result is col
+
+
+class TestAnimatedArrange:
+    def test_returns_self(self):
+        c1 = Circle(r=20, cx=0, cy=0)
+        c2 = Circle(r=20, cx=0, cy=0)
+        col = VCollection(c1, c2)
+        result = col.animated_arrange(direction=RIGHT, start=0, end=1)
+        assert result is col
+
+    def test_children_at_target_after_animation(self):
+        c1 = Circle(r=20, cx=0, cy=0)
+        c2 = Circle(r=20, cx=0, cy=0)
+        col = VCollection(c1, c2)
+        col.animated_arrange(direction=RIGHT, buff=10, start=0, end=1, easing=easings.linear)
+        # At time 1 (end), children should be arranged side by side
+        cx1, cy1 = c1.center(1)
+        cx2, cy2 = c2.center(1)
+        # c2 center should be to the right of c1 center
+        assert cx2 > cx1
+
+    def test_children_separated_by_buff(self):
+        c1 = Circle(r=20, cx=100, cy=100)
+        c2 = Circle(r=20, cx=100, cy=100)
+        col = VCollection(c1, c2)
+        buff = 10
+        col.animated_arrange(direction=RIGHT, buff=buff, start=0, end=1, easing=easings.linear)
+        # At time 1, the gap between c1 right edge and c2 left edge should equal buff
+        x1, _, w1, _ = c1.bbox(1)
+        x2, _, w2, _ = c2.bbox(1)
+        gap = x2 - (x1 + w1)
+        assert gap == pytest.approx(buff, abs=2)
+
+    def test_animated_arrange_down(self):
+        c1 = Circle(r=20, cx=100, cy=100)
+        c2 = Circle(r=20, cx=100, cy=100)
+        col = VCollection(c1, c2)
+        col.animated_arrange(direction=DOWN, buff=10, start=0, end=1, easing=easings.linear)
+        # At time 1, c2 should be below c1
+        _, cy1 = c1.center(1)
+        _, cy2 = c2.center(1)
+        assert cy2 > cy1
+
+    def test_animated_arrange_empty(self):
+        col = VCollection()
+        result = col.animated_arrange(direction=RIGHT, start=0, end=1)
+        assert result is col
+
+    def test_animated_arrange_single_child(self):
+        c = Circle(r=20, cx=100, cy=100)
+        col = VCollection(c)
+        col.animated_arrange(direction=RIGHT, start=0, end=1, easing=easings.linear)
+        # Single child: arrange starts cursor at 0, so the child moves to x=20 (r=20, so center at 0+20)
+        # The y should remain unchanged
+        _, cy = c.center(1)
+        assert cy == pytest.approx(100, abs=2)
+
+    def test_animated_arrange_midway(self):
+        c1 = Circle(r=20, cx=200, cy=200)
+        c2 = Circle(r=20, cx=200, cy=200)
+        col = VCollection(c1, c2)
+        col.animated_arrange(direction=RIGHT, buff=10, start=0, end=1, easing=easings.linear)
+        # At time 0.5, children should be partway to their targets
+        cx1_start, _ = c1.center(0)
+        cx1_mid, _ = c1.center(0.5)
+        cx1_end, _ = c1.center(1)
+        # Mid should be between start and end (linear easing)
+        if cx1_start != cx1_end:
+            assert min(cx1_start, cx1_end) <= cx1_mid <= max(cx1_start, cx1_end)

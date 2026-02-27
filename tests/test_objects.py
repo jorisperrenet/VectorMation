@@ -11700,3 +11700,166 @@ class TestMoveTowards:
         cx, cy = c.center(0)
         assert cx == pytest.approx(100, abs=2)
         assert cy == pytest.approx(0, abs=2)
+
+
+class TestAddLabel:
+    def test_returns_vcollection_with_label(self):
+        c = Circle(r=50, cx=500, cy=500)
+        result = c.add_label("Hello")
+        assert isinstance(result, VCollection)
+        assert len(result) == 2
+        assert result[0] is c
+        assert isinstance(result[1], Text)
+
+    def test_label_positioned_above(self):
+        from vectormation.objects import UP
+        c = Circle(r=50, cx=500, cy=500)
+        result = c.add_label("Hello", direction=UP, buff=20)
+        label = result[1]
+        # Label center should be above the circle center
+        lx, ly = label.center(0)
+        assert ly < 500  # UP means smaller y
+
+    def test_label_positioned_below(self):
+        from vectormation.objects import DOWN
+        c = Circle(r=50, cx=500, cy=500)
+        result = c.add_label("Below", direction=DOWN, buff=20)
+        label = result[1]
+        lx, ly = label.center(0)
+        assert ly > 500  # DOWN means larger y
+
+    def test_label_custom_font_size(self):
+        c = Circle(r=50, cx=500, cy=500)
+        result = c.add_label("Big", font_size=72)
+        label = result[1]
+        assert label.font_size.at_time(0) == 72
+
+    def test_label_follow_adds_updater(self):
+        c = Circle(r=50, cx=500, cy=500)
+        result = c.add_label("Follow", follow=True)
+        label = result[1]
+        assert len(label._updaters) == 1
+
+    def test_label_no_follow_no_updater(self):
+        c = Circle(r=50, cx=500, cy=500)
+        result = c.add_label("Static", follow=False)
+        label = result[1]
+        assert len(label._updaters) == 0
+
+    def test_label_creation_time(self):
+        c = Circle(r=50, cx=500, cy=500)
+        result = c.add_label("Late", creation=2)
+        label = result[1]
+        # Label should not be visible before creation
+        assert not label.show.at_time(1.9)
+
+
+class TestPlaceBetween:
+    def test_place_between_two_objects(self):
+        a = Circle(r=10, cx=100, cy=100)
+        b = Circle(r=10, cx=300, cy=100)
+        c = Circle(r=10, cx=0, cy=0)
+        c.place_between(a, b)
+        cx, cy = c.center(0)
+        assert cx == pytest.approx(200, abs=2)
+        assert cy == pytest.approx(100, abs=2)
+
+    def test_place_between_tuples(self):
+        c = Circle(r=10, cx=0, cy=0)
+        c.place_between((100, 200), (300, 400))
+        cx, cy = c.center(0)
+        assert cx == pytest.approx(200, abs=2)
+        assert cy == pytest.approx(300, abs=2)
+
+    def test_place_between_mixed(self):
+        a = Circle(r=10, cx=100, cy=100)
+        c = Circle(r=10, cx=0, cy=0)
+        c.place_between(a, (300, 100))
+        cx, cy = c.center(0)
+        assert cx == pytest.approx(200, abs=2)
+        assert cy == pytest.approx(100, abs=2)
+
+    def test_place_between_fraction_zero(self):
+        a = Circle(r=10, cx=100, cy=100)
+        b = Circle(r=10, cx=300, cy=100)
+        c = Circle(r=10, cx=0, cy=0)
+        c.place_between(a, b, fraction=0.0)
+        cx, cy = c.center(0)
+        assert cx == pytest.approx(100, abs=2)
+        assert cy == pytest.approx(100, abs=2)
+
+    def test_place_between_fraction_one(self):
+        a = Circle(r=10, cx=100, cy=100)
+        b = Circle(r=10, cx=300, cy=100)
+        c = Circle(r=10, cx=0, cy=0)
+        c.place_between(a, b, fraction=1.0)
+        cx, cy = c.center(0)
+        assert cx == pytest.approx(300, abs=2)
+        assert cy == pytest.approx(100, abs=2)
+
+    def test_place_between_custom_fraction(self):
+        c = Circle(r=10, cx=0, cy=0)
+        c.place_between((0, 0), (400, 0), fraction=0.25)
+        cx, cy = c.center(0)
+        assert cx == pytest.approx(100, abs=2)
+        assert cy == pytest.approx(0, abs=2)
+
+    def test_place_between_returns_self(self):
+        c = Circle(r=10, cx=0, cy=0)
+        result = c.place_between((100, 100), (200, 200))
+        assert result is c
+
+    def test_place_between_animated(self):
+        c = Circle(r=10, cx=0, cy=0)
+        c.place_between((0, 0), (400, 0), start=0, end=1, easing=easings.linear)
+        # At time 0, should still be at original position
+        cx0, cy0 = c.center(0)
+        assert cx0 == pytest.approx(0, abs=2)
+        # At time 1, should be at midpoint
+        cx1, cy1 = c.center(1)
+        assert cx1 == pytest.approx(200, abs=2)
+
+
+class TestSetClip:
+    def test_set_clip_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        clip = Rectangle(width=80, height=80, x=60, y=60)
+        result = c.set_clip(clip)
+        assert result is c
+
+    def test_set_clip_injects_clippath(self):
+        c = Circle(r=50, cx=100, cy=100)
+        clip = Rectangle(width=80, height=80, x=60, y=60)
+        c.set_clip(clip, start=0)
+        svg = c.to_svg(0)
+        assert 'clipPath' in svg
+        assert 'clip-path' in svg
+
+    def test_set_clip_before_start_no_clip(self):
+        c = Circle(r=50, cx=100, cy=100)
+        clip = Rectangle(width=80, height=80, x=60, y=60)
+        c.set_clip(clip, start=1)
+        svg = c.to_svg(0)
+        assert 'clipPath' not in svg
+
+    def test_set_clip_contains_clip_obj_svg(self):
+        c = Circle(r=50, cx=100, cy=100)
+        clip = Circle(r=40, cx=100, cy=100)
+        c.set_clip(clip, start=0)
+        svg = c.to_svg(0)
+        # The clip SVG should contain the circle element from the clip object
+        assert '<circle' in svg
+        # The outer object SVG should also contain its own circle
+        assert svg.count('<circle') >= 2  # clip circle + self circle
+
+    def test_set_clip_unique_id(self):
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=200, cy=200)
+        clip = Rectangle(width=80, height=80, x=60, y=60)
+        c1.set_clip(clip)
+        c2.set_clip(clip)
+        svg1 = c1.to_svg(0)
+        svg2 = c2.to_svg(0)
+        # Each should have a different clip id
+        assert f'clip{id(c1)}' in svg1
+        assert f'clip{id(c2)}' in svg2

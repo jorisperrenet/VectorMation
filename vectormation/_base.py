@@ -5132,6 +5132,40 @@ class VObject(ABC):  # Vector Object
         self.to_svg = _gradient_to_svg  # type: ignore[assignment]
         return self
 
+    def set_clip(self, clip_obj, start=0):
+        """Apply an SVG clip-path from another VObject's outline.
+
+        Generates a unique clip ID, wraps ``to_svg`` to inject a
+        ``<clipPath>`` defs block containing the clip object's SVG,
+        and applies ``clip-path="url(#id)"`` to this object's output.
+
+        Parameters
+        ----------
+        clip_obj:
+            A VObject whose shape defines the clipping region.
+        start:
+            Time from which the clip is applied.  Before *start* the
+            object renders normally without clipping.
+
+        Returns self.
+        """
+        cid = f'clip{id(self)}'
+        _orig_to_svg = self.to_svg
+
+        def _clipped_to_svg(time, _orig=_orig_to_svg, _cid=cid,
+                            _clip=clip_obj, _start=start):
+            inner = _orig(time)
+            if time >= _start:
+                clip_svg = _clip.to_svg(time)
+                return (f"<g clip-path='url(#{_cid})'>"
+                        f"<defs><clipPath id='{_cid}'>"
+                        f"{clip_svg}</clipPath></defs>"
+                        f"{inner}</g>")
+            return inner
+
+        self.to_svg = _clipped_to_svg  # type: ignore[assignment]
+        return self
+
     def set_lifetime(self, start, end):
         """Set bounded visibility: visible only from *start* to *end*.
 
@@ -5182,6 +5216,84 @@ class VObject(ABC):  # Vector Object
         nx = cx + fraction * (tx - cx)
         ny = cy + fraction * (ty - cy)
         return self.center_to_pos(posx=nx, posy=ny, start_time=start,
+                                  end_time=end, easing=easing or easings.smooth)
+
+    def add_label(self, text, direction=UP, buff=20, font_size=None, follow=False, creation=0, **kwargs):
+        """Attach a text label next to this object.
+
+        Creates a :class:`Text` object positioned via :meth:`next_to` and
+        returns a :class:`VCollection` containing both *self* and the label.
+
+        Parameters
+        ----------
+        text:
+            The label string.
+        direction:
+            Direction constant for placement (e.g. ``UP``, ``DOWN``).
+        buff:
+            Pixel buffer between the object and the label.
+        font_size:
+            Optional font size for the label.  Defaults to ``None``
+            which uses the Text default.
+        follow:
+            If ``True``, add an updater so the label tracks this
+            object's position continuously.
+        creation:
+            Creation time for the label.
+        **kwargs:
+            Extra keyword arguments forwarded to the ``Text`` constructor.
+
+        Returns a VCollection(self, label).
+        """
+        from vectormation._shapes import Text as _Text  # lazy import
+        label_kwargs = dict(creation=creation)
+        if font_size is not None:
+            label_kwargs['font_size'] = font_size
+        label_kwargs.update(kwargs)
+        label = _Text(text, **label_kwargs)
+        label.next_to(self, direction, buff, start_time=creation)
+        if follow:
+            _dir = direction
+            _buff = buff
+            def _follow_updater(lbl, t, _parent=self, _d=_dir, _b=_buff):
+                lbl.next_to(_parent, _d, _b, start_time=t)
+            label.add_updater(_follow_updater, start=creation)
+        return VCollection(self, label)
+
+    def place_between(self, obj_a, obj_b, fraction=0.5, start=0, end=None, easing=None):
+        """Position this object between two other objects or points.
+
+        Computes the target as ``(1 - fraction) * center_a + fraction * center_b``
+        and moves there using :meth:`center_to_pos`.
+
+        Parameters
+        ----------
+        obj_a:
+            First reference — a VObject (uses ``get_center``) or an ``(x, y)`` tuple.
+        obj_b:
+            Second reference — a VObject or tuple.
+        fraction:
+            Interpolation factor (0.0 = at *obj_a*, 1.0 = at *obj_b*).
+        start:
+            Start time for the movement.
+        end:
+            End time (``None`` = instant).
+        easing:
+            Easing function for animation.
+
+        Returns self.
+        """
+        if hasattr(obj_a, 'get_center'):
+            ax, ay = obj_a.get_center(start)
+        else:
+            ax, ay = obj_a
+        if hasattr(obj_b, 'get_center'):
+            bx, by = obj_b.get_center(start)
+        else:
+            bx, by = obj_b
+        tx = (1 - fraction) * ax + fraction * bx
+        ty = (1 - fraction) * ay + fraction * by
+        return self.center_to_pos(posx=tx, posy=ty, start_time=start,
                                   end_time=end, easing=easing or easings.smooth)
 
 
@@ -6027,6 +6139,55 @@ class VCollection:
             else:
                 obj.shift(dy=sign * offset, start_time=start_time)
             cursor += size + buff
+        return self
+
+    def animated_arrange(self, direction=RIGHT, buff=MED_SMALL_BUFF, start=0, end=1, easing=None):
+        """Animated version of :meth:`arrange`.
+
+        Computes the target positions that ``arrange`` would produce,
+        then animates each child to its target via :meth:`center_to_pos`.
+
+        Parameters
+        ----------
+        direction:
+            Direction constant (e.g. ``RIGHT``, ``DOWN``) or string.
+        buff:
+            Pixel spacing between children.
+        start:
+            Start time for the animation.
+        end:
+            End time for the animation.
+        easing:
+            Easing function (defaults to ``easings.smooth``).
+
+        Returns self.
+        """
+        if isinstance(direction, tuple):
+            dir_name = _DIR_NAMES.get(direction, 'right')
+        else:
+            dir_name = direction
+        if not self.objects:
+            return self
+        horizontal = dir_name in ('right', 'left')
+        sign = 1 if dir_name in ('right', 'down') else -1
+        # Compute target centers for each child
+        cursor = 0
+        targets = []
+        for obj in self.objects:
+            x, y, w, h = obj.bbox(start)
+            cx, cy = x + w / 2, y + h / 2
+            size = w if horizontal else h
+            offset = cursor - (x if horizontal else y)
+            if horizontal:
+                targets.append((cx + sign * offset, cy))
+            else:
+                targets.append((cx, cy + sign * offset))
+            cursor += size + buff
+        # Animate each child to its target
+        _easing = easing or easings.smooth
+        for obj, (tx, ty) in zip(self.objects, targets):
+            obj.center_to_pos(posx=tx, posy=ty, start_time=start,
+                              end_time=end, easing=_easing)
         return self
 
     def distribute(self, direction: str | tuple = 'right', buff=0, start_time: float = 0):
