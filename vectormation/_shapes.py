@@ -71,30 +71,7 @@ class Polygon(VObject):
         return [(float(x), float(y)) for x, y in (v.at_time(time) for v in self.vertices)]
 
     def move_vertex(self, index, x, y, start=0, end=None, easing=easings.smooth):
-        """Animate a single vertex to a new position.
-
-        Parameters
-        ----------
-        index:
-            Vertex index (0-based). Negative indices are supported.
-        x, y:
-            Target position for the vertex.
-        start:
-            Time at which the change begins.
-        end:
-            Time at which the change ends.  ``None`` means instant.
-        easing:
-            Easing function for the animation.
-
-        Returns
-        -------
-        self
-
-        Raises
-        ------
-        IndexError
-            If *index* is out of range.
-        """
+        """Animate a single vertex to a new position."""
         n = len(self.vertices)
         if index < -n or index >= n:
             raise IndexError(f"vertex index {index} out of range for polygon with {n} vertices")
@@ -102,25 +79,7 @@ class Polygon(VObject):
         return self
 
     def to_path_string(self, time=0):
-        """Return an SVG path d-string representation of the polygon.
-
-        For a closed polygon with vertices [(x1,y1), (x2,y2), ...],
-        returns "M x1,y1 L x2,y2 L ... Z".  For open polylines the
-        trailing Z is omitted.
-
-        Unlike :meth:`path`, vertex coordinates are formatted as floats
-        and an empty polygon returns ``''`` instead of raising.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read vertex positions.
-
-        Returns
-        -------
-        str
-            SVG path d-string.
-        """
+        """Return an SVG path d-string representation of the polygon."""
         verts = self.get_vertices(time)
         if not verts:
             return ''
@@ -140,18 +99,7 @@ class Polygon(VObject):
         return (sum(p[0] for p in pts) / n, sum(p[1] for p in pts) / n)
 
     def centroid(self, time=0):
-        """Return the geometric centroid (cx, cy) using the polygon centroid formula.
-
-        For polygons with 3+ vertices this uses the area-weighted centroid
-        formula which accounts for vertex distribution, unlike ``get_center``
-        which simply averages the vertices.  For degenerate cases (0-2 vertices
-        or near-zero area) the plain average is returned.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read vertex positions.
-        """
+        """Return the geometric centroid (cx, cy) using the polygon centroid formula."""
         pts = self.get_vertices(time)
         n = len(pts)
         if n == 0:
@@ -200,21 +148,7 @@ class Polygon(VObject):
         return [math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in pairs]
 
     def to_path(self, time=0):
-        """Convert the polygon to a :class:`Path` object.
-
-        Returns a new Path whose ``d`` attribute is the SVG path string
-        of this polygon at *time*.  Styling (stroke, fill, opacity, etc.)
-        is copied from the polygon's current values at *time*.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read vertex positions and styling.
-
-        Returns
-        -------
-        Path
-        """
+        """Convert the polygon to a :class:`Path` object."""
         d = self.path(time)
         # Snapshot styling values at the given time.
         # Color attributes return rgb(...) strings from at_time(), but the
@@ -242,12 +176,7 @@ class Polygon(VObject):
         return min(lengths) if lengths else 0
 
     def signed_area(self, time=0):
-        """Return the signed area using the shoelace formula.
-
-        Positive for counter-clockwise winding, negative for clockwise
-        (in standard math coordinates).  In SVG coordinates (y-down) the
-        sign is flipped.
-        """
+        """Return the signed area using the shoelace formula."""
         pts = self.get_vertices(time)
         n = len(pts)
         if n < 3:
@@ -266,20 +195,7 @@ class Polygon(VObject):
         return self.area(time)
 
     def winding_number(self, px, py, time=0):
-        """Return the winding number of point (px, py) relative to this polygon.
-
-        The winding number counts how many times the polygon winds around the
-        point.  A return value of 0 means the point is outside.
-
-        Parameters
-        ----------
-        px:
-            X coordinate of the query point.
-        py:
-            Y coordinate of the query point.
-        time:
-            Animation time at which to read vertex positions.
-        """
+        """Return the winding number of point (px, py) relative to this polygon."""
         pts = self.get_vertices(time)
         n = len(pts)
         if n < 3:
@@ -299,23 +215,7 @@ class Polygon(VObject):
         return wn
 
     def is_regular(self, tol=1e-3, time=0):
-        """Return True if all edges have the same length (within tolerance).
-
-        An open polyline is never considered regular.  A polygon with fewer
-        than 3 vertices always returns False.
-
-        Parameters
-        ----------
-        tol:
-            Maximum allowed relative deviation from the mean edge length.
-            Default is ``1e-3`` (0.1%).
-        time:
-            Animation time at which to evaluate vertex positions.
-
-        Returns
-        -------
-        bool
-        """
+        """Return True if all edges have the same length (within tolerance)."""
         if not self.closed:
             return False
         pts = self.get_vertices(time)
@@ -330,12 +230,7 @@ class Polygon(VObject):
         return all(abs(l - mean) <= tol * mean for l in lengths)
 
     def offset(self, distance, time=0):
-        """Return a new Polygon with vertices moved along averaged edge normals.
-
-        Positive distance moves outward, negative moves inward.
-        For each vertex, compute the average of the two adjacent edge normals,
-        then move the vertex along that average normal by distance.
-        """
+        """Return a new Polygon with vertices moved along averaged edge normals."""
         pts = [v.at_time(time) for v in self.vertices]
         n = len(pts)
         if n < 2:
@@ -383,33 +278,7 @@ class Polygon(VObject):
         return self.offset(distance, time=time)
 
     def inset(self, distance, time=0, **kwargs):
-        """Return a new Polygon inset by *distance* pixels.
-
-        Each edge of the polygon is moved inward along its inward normal by
-        *distance* pixels.  The new vertices are computed as the intersections
-        of the offset edges.  This works correctly for convex polygons; for
-        concave polygons the result is a best-effort approximation.
-
-        Parameters
-        ----------
-        distance:
-            Number of pixels to inset.  Must be positive.
-        time:
-            Animation time at which to read current vertex positions.
-        **kwargs:
-            Extra styling keyword arguments forwarded to the new Polygon.
-
-        Returns
-        -------
-        Polygon
-            A new Polygon with inset vertices.
-
-        Raises
-        ------
-        ValueError
-            If *distance* would cause the polygon to collapse (i.e. any pair
-            of adjacent offset edges fails to intersect properly).
-        """
+        """Return a new Polygon inset by *distance* pixels."""
         pts = self.get_vertices(time)
         n = len(pts)
         if n < 3:
@@ -474,31 +343,7 @@ class Polygon(VObject):
         return result
 
     def rotate_vertices(self, angle_deg, cx=None, cy=None, time=0):
-        """Return a new Polygon with all vertices rotated by angle_deg degrees.
-
-        The rotation is applied around the point ``(cx, cy)``.  If *cx* and
-        *cy* are not given the centroid of the polygon (at *time*) is used as
-        the rotation centre.
-
-        The returned polygon is a plain (non-animated) copy — its vertices are
-        set to the rotated positions at creation time 0.
-
-        Parameters
-        ----------
-        angle_deg:
-            Rotation angle in degrees (positive = clockwise in SVG coordinates,
-            which use a y-down system).
-        cx, cy:
-            Centre of rotation in SVG pixel coordinates.  Defaults to the
-            polygon's centroid.
-        time:
-            Animation time at which to read the current vertex positions.
-
-        Returns
-        -------
-        Polygon
-            A new Polygon with rotated vertices and the same ``closed`` flag.
-        """
+        """Return a new Polygon with all vertices rotated by angle_deg degrees."""
         pts = self.get_vertices(time)
         if cx is None or cy is None:
             centroid = self.get_center(time)
@@ -521,11 +366,7 @@ class Polygon(VObject):
 
     @classmethod
     def convex_hull(cls, *points, **kwargs):
-        """Create a Polygon that is the convex hull of the given points using gift-wrapping (Jarvis march).
-
-        Raises ValueError if fewer than 3 points are given or all points are collinear.
-        Collinear intermediate points are skipped so only the extreme hull vertices are kept.
-        """
+        """Create a Polygon that is the convex hull of the given points using gift-wrapping (Jarvis march)."""
         pts = [(float(p[0]), float(p[1])) for p in points]
         if len(pts) < 3:
             raise ValueError("convex_hull requires at least 3 points")
@@ -564,10 +405,7 @@ class Polygon(VObject):
 
     @classmethod
     def from_svg_path(cls, path_d, **kwargs):
-        """Create a Polygon from a simple SVG path string (M/L/Z commands only).
-
-        Parses MoveTo (M/m), LineTo (L/l), and ClosePath (Z/z) commands.
-        """
+        """Create a Polygon from a simple SVG path string (M/L/Z commands only)."""
         import re
         points = []
         cx, cy = 0.0, 0.0
@@ -596,35 +434,7 @@ class Polygon(VObject):
         return cls(*points, **kwargs)
 
     def get_convex_hull(self, time=0, **kwargs):
-        """Return a new Polygon that is the convex hull of this polygon's vertices.
-
-        Unlike the classmethod :meth:`convex_hull` which takes explicit points,
-        this instance method computes the hull from the polygon's own vertices
-        at the given *time*.
-
-        Uses the gift-wrapping (Jarvis march) algorithm.  Collinear intermediate
-        points are skipped so only the extreme hull vertices are kept.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read vertex positions.
-        **kwargs:
-            Extra keyword arguments forwarded to the Polygon constructor
-            (e.g. ``fill``, ``stroke``).
-
-        Returns
-        -------
-        Polygon
-            A new convex Polygon whose vertices are a subset of this
-            polygon's vertices.
-
-        Raises
-        ------
-        ValueError
-            If the polygon has fewer than 3 vertices or all vertices
-            are collinear.
-        """
+        """Return a new Polygon that is the convex hull of this polygon's vertices."""
         pts = self.get_vertices(time)
         return Polygon.convex_hull(*pts, **kwargs)
 
@@ -663,22 +473,7 @@ class Polygon(VObject):
         return True
 
     def get_edges(self, time=0):
-        """Return a list of Line objects for each edge of the polygon.
-
-        For a closed polygon the last edge connects the final vertex back to
-        the first.  For an open polyline the last-to-first closing edge is
-        omitted.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to evaluate vertex positions.
-
-        Returns
-        -------
-        list[Line]
-            Each Line corresponds to one edge of the polygon.
-        """
+        """Return a list of Line objects for each edge of the polygon."""
         pts = self.get_vertices(time)
         n = len(pts)
         if n < 2:
@@ -695,22 +490,7 @@ class Polygon(VObject):
         return edges
 
     def get_edge_midpoints(self, time=0):
-        """Return a list of midpoint (x, y) tuples for each edge.
-
-        For a closed polygon this includes the midpoint of the closing edge
-        from the last vertex back to the first.  For an open polyline only
-        the interior segments are included.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to evaluate vertex positions.
-
-        Returns
-        -------
-        list[tuple[float, float]]
-            One midpoint per edge.
-        """
+        """Return a list of midpoint (x, y) tuples for each edge."""
         pts = self.get_vertices(time)
         n = len(pts)
         if n < 2:
@@ -727,16 +507,7 @@ class Polygon(VObject):
         return midpoints
 
     def translate(self, dx, dy):
-        """Translate all vertices by (*dx*, *dy*).
-
-        This is a geometric operation on the polygon's vertices (applied
-        immediately at time 0), not an SVG transform.
-
-        Parameters
-        ----------
-        dx, dy:
-            Horizontal and vertical offset to apply to every vertex.
-        """
+        """Translate all vertices by (*dx*, *dy*)."""
         for v in self.vertices:
             v.add_onward(0, (dx, dy))
         self._bbox_version += 1
@@ -752,10 +523,7 @@ class Polygon(VObject):
         return self
 
     def _mirror(self, axis, center=None, time=0):
-        """Mirror vertices across an axis line.
-
-        *axis* is 0 for x (vertical mirror line) or 1 for y (horizontal).
-        """
+        """Mirror vertices across an axis line."""
         pts = self.get_vertices(time)
         if center is None:
             center = sum(p[axis] for p in pts) / len(pts) if pts else 0
@@ -775,25 +543,7 @@ class Polygon(VObject):
         return self._mirror(1, cy, time)
 
     def interior_angles(self, time=0):
-        """Return the interior angles of the polygon in degrees.
-
-        For a closed polygon with *n* vertices, returns a list of *n* angles
-        (one per vertex) measured on the interior side.  For convex polygons
-        all angles are less than 180; for concave polygons some may exceed 180.
-
-        For an open polyline or a polygon with fewer than 3 vertices, returns
-        an empty list.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read vertex positions.
-
-        Returns
-        -------
-        list[float]
-            Interior angles in degrees, one per vertex.
-        """
+        """Return the interior angles of the polygon in degrees."""
         if not self.closed:
             return []
         pts = self.get_vertices(time)
@@ -824,30 +574,7 @@ class Polygon(VObject):
         return self.signed_area(time) > 0
 
     def bounding_circle(self, time=0, **kwargs):
-        """Return the smallest enclosing circle of the polygon's vertices.
-
-        Uses Welzl's algorithm (randomised, expected linear time) to compute
-        the minimum bounding circle.  The returned :class:`Circle` is a static
-        snapshot at the given *time*.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read vertex positions.
-        **kwargs:
-            Extra keyword arguments forwarded to :class:`Circle` (e.g.
-            ``stroke``, ``fill``).
-
-        Returns
-        -------
-        Circle
-            The smallest circle that contains all vertices of this polygon.
-
-        Raises
-        ------
-        ValueError
-            If the polygon has no vertices.
-        """
+        """Return the smallest enclosing circle of the polygon's vertices."""
         pts = self.get_vertices(time)
         if not pts:
             raise ValueError("bounding_circle requires at least one vertex")
@@ -907,31 +634,7 @@ class Polygon(VObject):
         return Circle(r=r, cx=cx, cy=cy, **kwargs)
 
     def triangulate(self, time=0, **kwargs):
-        """Decompose this polygon into triangles using ear-clipping.
-
-        Only works for simple (non-self-intersecting) polygons.  The polygon
-        must be closed and have at least 3 vertices.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read vertex positions.
-        **kwargs:
-            Extra styling keyword arguments forwarded to each triangle
-            :class:`Polygon` (e.g. ``fill``, ``stroke``).
-
-        Returns
-        -------
-        list[Polygon]
-            A list of triangular Polygon objects whose union covers the
-            original polygon.  For an *n*-vertex polygon this returns
-            *n - 2* triangles.
-
-        Raises
-        ------
-        ValueError
-            If the polygon has fewer than 3 vertices or is not closed.
-        """
+        """Decompose this polygon into triangles using ear-clipping."""
         pts = self.get_vertices(time)
         n = len(pts)
         if n < 3:
@@ -1000,25 +703,7 @@ class Polygon(VObject):
         return triangles
 
     def explode_edges(self, gap=10, **kwargs):
-        """Return a VCollection of Line objects, one per edge, offset outward.
-
-        Each edge is converted to a Line and pushed outward from the polygon
-        centre by *gap* pixels along the edge's outward normal.  Useful for
-        showing polygon decomposition.
-
-        Parameters
-        ----------
-        gap:
-            Pixel distance to offset each edge outward from the centroid.
-        **kwargs:
-            Extra keyword arguments forwarded to each :class:`Line`
-            constructor (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        VCollection
-            A VCollection of Line objects.
-        """
+        """Return a VCollection of Line objects, one per edge, offset outward."""
         from vectormation._base import VCollection
         pts = self.get_vertices(0)
         n = len(pts)
@@ -1044,25 +729,7 @@ class Polygon(VObject):
         return VCollection(*edges)
 
     def subdivide_edges(self, iterations=1, time=0, **kwargs):
-        """Split each edge at its midpoint, creating a polygon with 2x vertices per iteration.
-
-        For a triangle with 3 edges, one iteration gives 6 vertices (original +
-        midpoints).  Multiple iterations subdivide recursively.
-
-        Parameters
-        ----------
-        iterations:
-            Number of subdivision passes.  Each pass doubles the vertex count.
-        time:
-            Animation time at which to read vertex positions.
-        **kwargs:
-            Extra styling keyword arguments forwarded to the new Polygon.
-
-        Returns
-        -------
-        Polygon
-            A new Polygon with subdivided edges.
-        """
+        """Split each edge at its midpoint, creating a polygon with 2x vertices per iteration."""
         pts = self.get_vertices(time)
         for _ in range(iterations):
             new_pts = []
@@ -1079,27 +746,7 @@ class Polygon(VObject):
         return Polygon(*pts, closed=self.closed, **kwargs)
 
     def smooth_corners(self, radius=10, time=0, **kwargs):
-        """Return a Path with Bezier-smoothed corners.
-
-        For each corner vertex, replace the sharp angle with a quadratic
-        Bezier curve that starts ``radius`` pixels before the vertex along
-        the incoming edge and ends ``radius`` pixels after along the
-        outgoing edge.
-
-        Parameters
-        ----------
-        radius:
-            How far (in pixels) from each corner the smoothing begins/ends.
-        time:
-            Animation time at which to read vertex positions.
-        **kwargs:
-            Extra styling keyword arguments forwarded to :class:`Path`.
-
-        Returns
-        -------
-        Path
-            A new Path with rounded corners.
-        """
+        """Return a Path with Bezier-smoothed corners."""
         pts = self.get_vertices(time)
         n = len(pts)
         if n < 3:
@@ -1161,24 +808,7 @@ class Polygon(VObject):
         return Path(d, **kwargs)
 
     def apply_pointwise(self, func, time=0):
-        """Apply an arbitrary function to all vertices.
-
-        *func* is called as ``func(x, y)`` for each vertex and must return
-        an ``(x', y')`` tuple.  The vertex position is read at *time* via
-        ``at_time`` and the result is written back with ``set_onward``.
-
-        Parameters
-        ----------
-        func:
-            A callable ``(x, y) -> (x', y')``.
-        time:
-            Animation time at which to read current positions and write
-            the transformed positions.
-
-        Returns
-        -------
-        self
-        """
+        """Apply an arbitrary function to all vertices."""
         for v in self.vertices:
             x, y = v.at_time(time)
             nx, ny = func(float(x), float(y))
@@ -1233,11 +863,7 @@ class Ellipse(VObject):
         return self.get_perimeter(time)
 
     def eccentricity(self, time=0):
-        """Return the eccentricity of the ellipse.
-
-        Eccentricity e = sqrt(1 - (b/a)^2) where a = max(rx, ry) and b = min(rx, ry).
-        Returns 0 for a circle (rx == ry) and approaches 1 as the ellipse becomes more elongated.
-        """
+        """Return the eccentricity of the ellipse."""
         a = max(self.rx.at_time(time), self.ry.at_time(time))
         b = min(self.rx.at_time(time), self.ry.at_time(time))
         if a == 0:
@@ -1262,51 +888,14 @@ class Ellipse(VObject):
         return (cx + rx * math.cos(rad), cy - ry * math.sin(rad))
 
     def get_point_at_parameter(self, t, time=0):
-        """Return (x, y) on the ellipse at parameter t in [0, 1].
-
-        t=0 corresponds to the rightmost point (angle 0), t=0.25 to the bottom
-        (SVG convention, y increases downward), t=0.5 to the leftmost point, and
-        t=0.75 to the top.  Uses the standard parametric form::
-
-            x = cx + rx * cos(2 * pi * t)
-            y = cy + ry * sin(2 * pi * t)
-
-        Parameters
-        ----------
-        t:
-            Parameter in [0, 1].  Values outside this range are allowed and
-            wrap naturally via trigonometry.
-        time:
-            Animation time at which to read cx, cy, rx, ry.
-
-        Returns
-        -------
-        (x, y) tuple of floats.
-
-        Example
-        -------
-        >>> e = Ellipse(rx=100, ry=50, cx=500, cy=400)
-        >>> e.get_point_at_parameter(0)    # rightmost: (600.0, 400.0)
-        >>> e.get_point_at_parameter(0.25) # bottom:    (500.0, 450.0)
-        """
+        """Return (x, y) on the ellipse at parameter t in [0, 1]."""
         cx, cy = self.c.at_time(time)
         rx, ry = self.rx.at_time(time), self.ry.at_time(time)
         angle = math.tau * t
         return (cx + rx * math.cos(angle), cy + ry * math.sin(angle))
 
     def contains_point(self, px, py, time=0):
-        """Return True if point (px, py) is inside the ellipse.
-
-        Uses the standard ellipse equation:
-        ``((px - cx) / rx)^2 + ((py - cy) / ry)^2 <= 1``.
-
-        Parameters
-        ----------
-        px, py:
-            Point coordinates to test.
-        time:
-            Animation time at which to evaluate ellipse parameters.
-        """
+        """Return True if point (px, py) is inside the ellipse."""
         cx = self.c.at_time(time)[0]
         cy = self.c.at_time(time)[1]
         rx = self.rx.at_time(time)
@@ -1424,20 +1013,7 @@ class Circle(Ellipse):
 
     @classmethod
     def from_diameter(cls, p1, p2, **kwargs):
-        """Create a Circle from two diameter endpoints.
-
-        Parameters
-        ----------
-        p1, p2:
-            Two (x, y) points defining the diameter.
-        **kwargs:
-            Extra keyword arguments forwarded to the Circle constructor.
-
-        Returns
-        -------
-        Circle
-            A new Circle centered at the midpoint with radius = half the distance.
-        """
+        """Create a Circle from two diameter endpoints."""
         cx = (p1[0] + p2[0]) / 2
         cy = (p1[1] + p2[1]) / 2
         r = math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / 2
@@ -1451,26 +1027,7 @@ class Circle(Ellipse):
 
     @classmethod
     def from_bounding_box(cls, vobject, padding=0, time=0, **kwargs):
-        """Create a Circle that circumscribes another object's bounding box.
-
-        The circle is centered at the bbox center with radius equal to half
-        the diagonal of the bounding box plus *padding*.
-
-        Parameters
-        ----------
-        vobject:
-            A VObject whose bounding box will be circumscribed.
-        padding:
-            Extra radius in pixels beyond the bbox half-diagonal.
-        time:
-            Time at which to read the bounding box.
-        **kwargs:
-            Extra keyword arguments forwarded to the Circle constructor.
-
-        Returns
-        -------
-        Circle
-        """
+        """Create a Circle that circumscribes another object's bounding box."""
         _, _, bw, bh = vobject.bbox(time)
         cx, cy = vobject.center(time)
         r = math.hypot(bw / 2, bh / 2) + padding
@@ -1489,26 +1046,7 @@ class Circle(Ellipse):
                     creation=creation, **line_kwargs)
 
     def tangent_at_point(self, px, py, length=200, time=0, creation=0, **line_kwargs):
-        """Return a Line tangent to the circle at the point closest to (px, py).
-
-        Finds the nearest point on the circle surface to the given external
-        (or internal) point, then constructs the tangent at that point.
-        The tangent is perpendicular to the radius at the contact point.
-
-        Parameters
-        ----------
-        px, py:
-            Reference point. The tangent is drawn at whichever point on the
-            circle lies closest to this location.
-        length:
-            Total length of the returned tangent line segment.
-        time:
-            Animation time at which to read the circle's position and radius.
-        creation:
-            Creation time for the returned Line object.
-        **line_kwargs:
-            Additional styling keyword arguments forwarded to Line.
-        """
+        """Return a Line tangent to the circle at the point closest to (px, py)."""
         cx, cy = self.c.at_time(time)
         # Angle from circle center to the given point
         angle_rad = math.atan2(-(py - cy), px - cx)  # negate dy for SVG coords
@@ -1517,37 +1055,7 @@ class Circle(Ellipse):
                                  creation=creation, **line_kwargs)
 
     def get_tangent_lines(self, px, py, time=0, length=200, **kwargs):
-        """Return the two tangent lines from external point (px, py) to the circle.
-
-        Uses the standard geometric construction:
-
-        * Compute distance *d* from the point to the circle center.
-        * If the point is strictly inside the circle (*d* < *r*), return ``[]``.
-        * If the point lies on the circle (*d* ≈ *r*), return a single-element
-          list containing the one tangent line.
-        * Otherwise return two Line objects, one for each tangent.
-
-        Each Line runs through the tangent touch-point and is oriented along
-        the tangent direction (perpendicular to the radius at the touch point),
-        centred on the touch point with total length *length*.
-
-        Parameters
-        ----------
-        px, py:
-            Coordinates of the external (or boundary) point.
-        time:
-            Animation time at which to read the circle's position/radius.
-        length:
-            Total length of each returned tangent Line segment.
-        **kwargs:
-            Extra styling keyword arguments forwarded to Line (e.g. stroke,
-            stroke_width).
-
-        Returns
-        -------
-        list of Line
-            0, 1, or 2 Line objects.
-        """
+        """Return the two tangent lines from external point (px, py) to the circle."""
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
         d = _distance(cx, cy, px, py)
@@ -1589,29 +1097,7 @@ class Circle(Ellipse):
         return lines
 
     def tangent_points(self, px, py, time=0):
-        """Return the tangent touch-points from an external point to the circle.
-
-        Computes the points on the circle where tangent lines from the external
-        point (px, py) would touch the circle.  This is the pure-geometry
-        counterpart of :meth:`get_tangent_lines` — it returns coordinate tuples
-        instead of Line objects.
-
-        Parameters
-        ----------
-        px, py:
-            Coordinates of the external point.
-        time:
-            Animation time at which to read the circle's position/radius.
-
-        Returns
-        -------
-        list[tuple[float, float]]
-            0, 1, or 2 touch-point (x, y) tuples:
-
-            * Empty list if the point is strictly inside the circle.
-            * One point if the point lies on the circle (within tolerance).
-            * Two points if the point is outside the circle.
-        """
+        """Return the tangent touch-points from an external point to the circle."""
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
         d = _distance(cx, cy, px, py)
@@ -1631,33 +1117,7 @@ class Circle(Ellipse):
                 for s in (1, -1)]
 
     def chord(self, angle1, angle2, time=0, **kwargs):
-        """Return a Line connecting two points on the circle at the given angles.
-
-        Both angles are measured in degrees, counter-clockwise from the
-        rightmost point (the standard mathematical convention, which maps to
-        SVG coordinates where y increases downward).
-
-        Parameters
-        ----------
-        angle1, angle2:
-            Angles in degrees for the two endpoints of the chord.
-        time:
-            Animation time at which to read the circle's center and radius.
-        **kwargs:
-            Extra styling keyword arguments forwarded to :class:`Line`
-            (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        Line
-            A Line segment connecting ``point_at_angle(angle1)`` to
-            ``point_at_angle(angle2)``.
-
-        Example
-        -------
-        >>> c = Circle(r=100, cx=200, cy=200)
-        >>> ch = c.chord(0, 90)   # connects (300,200) to (200,100)
-        """
+        """Return a Line connecting two points on the circle at the given angles."""
         x1, y1 = self.point_at_angle(angle1, time)
         x2, y2 = self.point_at_angle(angle2, time)
         return Line(x1=x1, y1=y1, x2=x2, y2=y2, **kwargs)
@@ -1679,10 +1139,7 @@ class Circle(Ellipse):
 
     @classmethod
     def from_three_points(cls, p1, p2, p3, **kwargs):
-        """Create a Circle (circumscribed circle) passing through three points.
-
-        Each point is an (x, y) tuple. Raises ValueError if points are collinear.
-        """
+        """Create a Circle (circumscribed circle) passing through three points."""
         ax, ay = p1
         bx, by = p2
         cx, cy = p3
@@ -1720,11 +1177,7 @@ class Circle(Ellipse):
         return points
 
     def intersect_circle(self, other, time=0):
-        """Return intersection points with another Circle as list of (x, y) tuples.
-
-        Returns 0 points if circles are too far apart or one contains the
-        other, 1 point if they are tangent, 2 points otherwise.
-        """
+        """Return intersection points with another Circle as list of (x, y) tuples."""
         cx1, cy1 = self.c.at_time(time)
         cx2, cy2 = other.c.at_time(time)
         r1 = self.rx.at_time(time)
@@ -1752,56 +1205,13 @@ class Circle(Ellipse):
         return _distance(cx, cy, px, py) <= r
 
     def inscribed_polygon(self, n, angle=0, time=0, **kwargs):
-        """Return a regular *n*-gon whose vertices lie on this circle.
-
-        The polygon is constructed from the circle's current position and radius
-        at *time*, so the result is a static snapshot (not dynamically linked).
-
-        Parameters
-        ----------
-        n:
-            Number of sides / vertices (≥ 3).
-        angle:
-            Rotation of the first vertex in degrees, measured counter-clockwise
-            from the right (standard math convention).  Default 0 places the
-            first vertex at the rightmost point.
-        time:
-            The time at which to read the circle's position and radius.
-        **kwargs:
-            Forwarded to :class:`RegularPolygon`.
-
-        Returns
-        -------
-        RegularPolygon
-        """
+        """Return a regular *n*-gon whose vertices lie on this circle."""
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
         return RegularPolygon(n, radius=r, cx=cx, cy=cy, angle=angle, **kwargs)
 
     def circumscribed_polygon(self, n, angle=0, time=0, **kwargs):
-        """Return a regular *n*-gon circumscribed around this circle.
-
-        The polygon's edges are tangent to the circle.  Each vertex lies at
-        distance ``r / cos(pi / n)`` from the centre — the circumradius of a
-        regular n-gon whose inradius equals this circle's radius.
-
-        Parameters
-        ----------
-        n:
-            Number of sides / vertices (>= 3).
-        angle:
-            Rotation of the first vertex in degrees, measured counter-clockwise
-            from the right (standard math convention).  Default 0 places the
-            first vertex at the rightmost point.
-        time:
-            The time at which to read the circle's position and radius.
-        **kwargs:
-            Forwarded to :class:`RegularPolygon`.
-
-        Returns
-        -------
-        RegularPolygon
-        """
+        """Return a regular *n*-gon circumscribed around this circle."""
         if n < 3:
             raise ValueError(f"circumscribed_polygon requires n >= 3, got {n}")
         cx, cy = self.c.at_time(time)
@@ -1812,89 +1222,18 @@ class Circle(Ellipse):
         return RegularPolygon(n, radius=circum_r, cx=cx, cy=cy, angle=angle, **kwargs)
 
     def arc_between(self, start_angle, end_angle, time=0, **kwargs):
-        """Return an Arc with the same centre and radius as this circle.
-
-        The arc spans from *start_angle* to *end_angle* (degrees, CCW from
-        right, standard math convention matching :meth:`point_at_angle`).
-
-        Parameters
-        ----------
-        start_angle, end_angle:
-            Start and end angles in degrees.
-        time:
-            Time at which to read the circle's position and radius.
-        **kwargs:
-            Extra styling keyword arguments forwarded to :class:`Arc`
-            (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        Arc
-            A new :class:`Arc` centred on this circle.
-
-        Example
-        -------
-        >>> c = Circle(r=100, cx=500, cy=300)
-        >>> arc = c.arc_between(0, 90)   # top-right quarter arc
-        """
+        """Return an Arc with the same centre and radius as this circle."""
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
         return Arc(cx=cx, cy=cy, r=r,
                    start_angle=start_angle, end_angle=end_angle, **kwargs)
 
     def get_arc(self, start_angle=0, end_angle=180, time=0, **kwargs):
-        """Create an Arc from this circle's center and radius.
-
-        Convenience wrapper around :meth:`arc_between` with default angles
-        of 0 and 180 degrees.
-
-        Parameters
-        ----------
-        start_angle:
-            Start angle in degrees (default 0).
-        end_angle:
-            End angle in degrees (default 180).
-        time:
-            Animation time at which to read the circle's position and radius.
-        **kwargs:
-            Extra styling keyword arguments forwarded to :class:`Arc`.
-
-        Returns
-        -------
-        Arc
-        """
+        """Create an Arc from this circle's center and radius."""
         return self.arc_between(start_angle, end_angle, time=time, **kwargs)
 
     def diameter_line(self, angle_deg: float = 0, time: float = 0, **kwargs):
-        """Return a Line representing the diameter at the given angle.
-
-        The line passes through the circle's centre and extends one radius in
-        each direction, so its total length equals the diameter (2 * r).
-
-        Parameters
-        ----------
-        angle_deg:
-            Angle of the diameter in degrees, measured counter-clockwise from
-            the right (standard math convention, matching
-            :meth:`point_at_angle`).  0° gives a horizontal diameter;
-            90° gives a vertical one.
-        time:
-            Animation time at which to read the circle's position and radius.
-        **kwargs:
-            Extra styling keyword arguments forwarded to :class:`Line`
-            (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        Line
-            A line segment whose endpoints lie on opposite sides of the circle.
-
-        Example
-        -------
-        >>> c = Circle(r=100, cx=200, cy=200)
-        >>> d = c.diameter_line(0)    # horizontal diameter
-        >>> d = c.diameter_line(90)   # vertical diameter
-        """
+        """Return a Line representing the diameter at the given angle."""
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
         rad = math.radians(angle_deg)
@@ -1903,33 +1242,7 @@ class Circle(Ellipse):
         return Line(x1=cx - dx, y1=cy - dy, x2=cx + dx, y2=cy + dy, **kwargs)
 
     def segment_area(self, start_angle, end_angle, time=0):
-        """Return the area of a circular segment between two angles.
-
-        A circular segment is the region between a chord and the arc it
-        subtends.  The segment area is computed as::
-
-            segment_area = sector_area - triangle_area
-
-        where the sector is the pie-slice from *start_angle* to *end_angle*
-        and the triangle is formed by the two radii and the chord.
-
-        Parameters
-        ----------
-        start_angle, end_angle:
-            Angles in degrees defining the arc.
-        time:
-            Animation time at which to read the circle's radius.
-
-        Returns
-        -------
-        float
-            The area of the circular segment (always non-negative).
-
-        Example
-        -------
-        >>> c = Circle(r=100)
-        >>> c.segment_area(0, 180)   # semicircle area = pi*r^2/2
-        """
+        """Return the area of a circular segment between two angles."""
         r = self.get_radius(time)
         sweep_deg = abs(end_angle - start_angle) % 360
         if sweep_deg == 0:
@@ -1940,74 +1253,14 @@ class Circle(Ellipse):
         return abs(0.5 * r * r * (theta - math.sin(theta)))
 
     def power_of_point(self, px, py, time=0):
-        """Return the power of point (px, py) with respect to this circle.
-
-        The power of a point is defined as::
-
-            power = d^2 - r^2
-
-        where *d* is the distance from the point to the circle center and
-        *r* is the radius.
-
-        * Negative: the point is inside the circle.
-        * Zero: the point is on the circle.
-        * Positive: the point is outside the circle.
-
-        This value is useful in computational geometry for determining
-        point-circle relationships and for constructing radical axes.
-
-        Parameters
-        ----------
-        px, py:
-            Coordinates of the query point.
-        time:
-            Animation time at which to read the circle's position and radius.
-
-        Returns
-        -------
-        float
-        """
+        """Return the power of point (px, py) with respect to this circle."""
         cx, cy = self.c.at_time(time)
         r = self.get_radius(time)
         d_sq = (px - cx) ** 2 + (py - cy) ** 2
         return d_sq - r * r
 
     def chord_length(self, distance, time=0):
-        """Return the length of a chord at the given distance from the center.
-
-        A chord is a straight line segment whose endpoints lie on the circle.
-        Given the perpendicular distance *d* from the center to the chord, the
-        chord length is::
-
-            chord = 2 * sqrt(r^2 - d^2)
-
-        Parameters
-        ----------
-        distance:
-            Perpendicular distance from the circle's center to the chord.
-            Must be between 0 and the radius (inclusive).  A distance of 0
-            gives the diameter (longest chord), while a distance equal to
-            the radius gives 0 (the chord degenerates to a single point).
-        time:
-            Animation time at which to read the circle's radius.
-
-        Returns
-        -------
-        float
-            Length of the chord.
-
-        Raises
-        ------
-        ValueError
-            If *distance* is negative or greater than the radius.
-
-        Examples
-        --------
-        >>> c = Circle(r=100)
-        >>> c.chord_length(0)     # diameter = 200.0
-        >>> c.chord_length(100)   # 0.0
-        >>> c.chord_length(60)    # 2 * sqrt(100^2 - 60^2) = 160.0
-        """
+        """Return the length of a chord at the given distance from the center."""
         r = self.get_radius(time)
         d = float(distance)
         if d < 0:
@@ -2019,34 +1272,7 @@ class Circle(Ellipse):
         return 2 * math.sqrt(r * r - d * d)
 
     def arc_length(self, start_angle, end_angle, time=0):
-        """Return the arc length between two angles on the circle.
-
-        The arc length is the distance along the circle's circumference
-        from *start_angle* to *end_angle*.  The sweep is always taken as
-        the absolute difference, so ``arc_length(0, 90)`` and
-        ``arc_length(90, 0)`` return the same value.
-
-        Parameters
-        ----------
-        start_angle:
-            Start angle in degrees (CCW from the right).
-        end_angle:
-            End angle in degrees (CCW from the right).
-        time:
-            Animation time at which to read the circle's radius.
-
-        Returns
-        -------
-        float
-            The arc length in SVG pixels.
-
-        Examples
-        --------
-        >>> c = Circle(r=100)
-        >>> c.arc_length(0, 360)       # full circumference = 2*pi*100
-        >>> c.arc_length(0, 90)        # quarter arc = pi*100/2
-        >>> c.arc_length(0, 180)       # semicircle = pi*100
-        """
+        """Return the arc length between two angles on the circle."""
         r = self.get_radius(time)
         sweep_deg = abs(end_angle - start_angle) % 360
         if abs(end_angle - start_angle) != 0 and sweep_deg == 0:
@@ -2054,24 +1280,7 @@ class Circle(Ellipse):
         return r * math.radians(sweep_deg)
 
     def get_sectors(self, n, **kwargs):
-        """Divide the circle into *n* equal sectors (Wedge objects).
-
-        Each sector spans ``360/n`` degrees.  The sectors share the circle's
-        centre and radius at time 0.
-
-        Parameters
-        ----------
-        n:
-            Number of sectors (must be >= 1).
-        **kwargs:
-            Extra keyword arguments forwarded to each :class:`Wedge`
-            constructor (e.g. ``fill``, ``stroke``).
-
-        Returns
-        -------
-        VCollection
-            A VCollection containing *n* Wedge objects.
-        """
+        """Divide the circle into *n* equal sectors (Wedge objects)."""
         from vectormation._base import VCollection
         if n < 1:
             n = 1
@@ -2087,27 +1296,7 @@ class Circle(Ellipse):
         return VCollection(*sectors)
 
     def annular_sector(self, inner_ratio=0.5, start_angle=0, end_angle=360, **kwargs):
-        """Create an annular sector (donut slice) as a Path.
-
-        Uses this circle's center and radius as the outer boundary.
-        The inner boundary is at ``inner_ratio * radius``.
-
-        Parameters
-        ----------
-        inner_ratio:
-            Fraction of the outer radius for the inner boundary (0 < ratio < 1).
-        start_angle:
-            Start angle in degrees (0 = right, counter-clockwise in math coords).
-        end_angle:
-            End angle in degrees.
-        **kwargs:
-            Styling keyword arguments forwarded to the Path constructor.
-
-        Returns
-        -------
-        Path
-            A Path object with the annular sector shape.
-        """
+        """Create an annular sector (donut slice) as a Path."""
         cx, cy = self.c.at_time(0)
         ro = self.rx.at_time(0)
         ri = ro * inner_ratio
@@ -2154,31 +1343,7 @@ class Circle(Ellipse):
         return Path(d, **style_kw)
 
     def inscribed_polygon(self, n, start_angle=0, angle=None, time=0, **kwargs):
-        """Return a regular *n*-sided polygon inscribed in this circle.
-
-        Vertices are placed at equal angular intervals starting from
-        *start_angle* (degrees, counter-clockwise from the positive
-        x-axis in math convention; y is inverted for SVG).
-
-        Parameters
-        ----------
-        n:
-            Number of sides (must be >= 3).
-        start_angle:
-            Starting angle in degrees (CCW from right).
-        angle:
-            Alias for *start_angle*.  If both are given, *angle* takes
-            precedence.
-        time:
-            Animation time at which to read the circle's center and radius.
-        **kwargs:
-            Extra styling keyword arguments forwarded to :class:`RegularPolygon`.
-
-        Returns
-        -------
-        RegularPolygon
-            A new RegularPolygon inscribed in the circle.
-        """
+        """Return a regular *n*-sided polygon inscribed in this circle."""
         if angle is not None:
             start_angle = angle
         cx, cy = self.c.at_time(time)
@@ -2186,55 +1351,14 @@ class Circle(Ellipse):
         return RegularPolygon(n, radius=r, cx=cx, cy=cy, angle=start_angle, **kwargs)
 
     def get_annulus(self, inner_ratio=0.5, time=0, **kwargs):
-        """Create an Annulus (ring) using this circle's center and radius.
-
-        The outer radius of the annulus equals this circle's radius; the inner
-        radius is ``inner_ratio * radius``.
-
-        Parameters
-        ----------
-        inner_ratio:
-            Fraction of the outer radius used as the inner radius.
-            Must be in (0, 1).  Default 0.5.
-        time:
-            Animation time at which to read the circle's center and radius.
-        **kwargs:
-            Extra keyword arguments forwarded to the :class:`Annulus`
-            constructor (e.g. ``fill``, ``stroke``).
-
-        Returns
-        -------
-        Annulus
-            A new Annulus centered on this circle.
-        """
+        """Create an Annulus (ring) using this circle's center and radius."""
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
         return Annulus(inner_radius=r * inner_ratio, outer_radius=r,
                        cx=cx, cy=cy, **kwargs)
 
     def tangent_line_from_point(self, px, py, time=0, length=200, **kwargs):
-        """Return tangent line(s) from an external point to this circle.
-
-        Uses the standard geometric construction: compute the distance from
-        the point to the circle center, then find the tangent touch points.
-
-        Parameters
-        ----------
-        px, py:
-            Coordinates of the external point.
-        time:
-            Animation time at which to read the circle's position/radius.
-        length:
-            Total length of each returned tangent Line segment.
-        **kwargs:
-            Extra styling keyword arguments forwarded to :class:`Line`.
-
-        Returns
-        -------
-        list of Line
-            0 lines if the point is inside the circle, 1 if on the
-            boundary, or 2 if outside.
-        """
+        """Return tangent line(s) from an external point to this circle."""
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
         d = _distance(cx, cy, px, py)
@@ -2365,33 +1489,7 @@ class Rectangle(VObject):
         return w / h if h != 0 else float('inf')
 
     def sample_border(self, t, time=0):
-        """Return a point (x, y) on the rectangle border at parameter *t*.
-
-        The parameter *t* is in ``[0, 1)`` and maps to a position along the
-        perimeter, starting from the top-left corner and proceeding clockwise:
-
-        * ``t = 0``   : top-left corner
-        * ``t = 0.25``: approximately the top-right corner (exact when square)
-        * ``t = 0.5`` : approximately the bottom-right corner
-        * ``t = 0.75``: approximately the bottom-left corner
-
-        More precisely, the perimeter is parameterised proportionally to
-        arc length: the top edge occupies ``width / perimeter`` of the
-        parameter range, and so on.
-
-        Parameters
-        ----------
-        t:
-            Parameter in ``[0, 1)``.  Values outside this range are
-            wrapped via modulo.
-        time:
-            Animation time at which to read the rectangle geometry.
-
-        Returns
-        -------
-        tuple[float, float]
-            ``(x, y)`` on the border.
-        """
+        """Return a point (x, y) on the rectangle border at parameter *t*."""
         rx = float(self.x.at_time(time))
         ry = float(self.y.at_time(time))
         w = float(self.width.at_time(time))
@@ -2417,29 +1515,7 @@ class Rectangle(VObject):
         return (rx, ry + h - dist)
 
     def get_grid_lines(self, rows, cols, time=0, **kwargs):
-        """Return a VCollection of Lines forming a grid inside this rectangle.
-
-        *rows* horizontal lines and *cols* vertical lines divide the
-        interior into ``(rows + 1)`` horizontal bands and ``(cols + 1)``
-        vertical bands.
-
-        Parameters
-        ----------
-        rows:
-            Number of horizontal dividing lines.
-        cols:
-            Number of vertical dividing lines.
-        time:
-            Animation time at which to read the rectangle geometry.
-        **kwargs:
-            Extra keyword arguments forwarded to each :class:`Line`
-            constructor (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        VCollection
-            A VCollection of Line objects.
-        """
+        """Return a VCollection of Lines forming a grid inside this rectangle."""
         from vectormation._base import VCollection
         rx = float(self.x.at_time(time))
         ry = float(self.y.at_time(time))
@@ -2468,60 +1544,14 @@ class Rectangle(VObject):
 
     @classmethod
     def from_corners(cls, x1, y1, x2, y2, **kwargs):
-        """Create a Rectangle from two opposite corner points.
-
-        The two points do not need to be in any particular order — the
-        method normalises them so that ``(x, y)`` is always the top-left
-        corner and ``width``/``height`` are always positive.
-
-        Parameters
-        ----------
-        x1, y1:
-            First corner coordinates (e.g. top-left in SVG space).
-        x2, y2:
-            Opposite corner coordinates (e.g. bottom-right in SVG space).
-        **kwargs:
-            Extra keyword arguments forwarded to the Rectangle constructor
-            (e.g. ``stroke``, ``fill``, ``rx`` for rounded corners).
-
-        Returns
-        -------
-        Rectangle
-            A new Rectangle whose top-left corner is at
-            ``(min(x1,x2), min(y1,y2))`` with positive width and height.
-
-        Example
-        -------
-        >>> r = Rectangle.from_corners(50, 100, 250, 300)
-        >>> r.x.at_time(0), r.y.at_time(0)   # (50.0, 100.0)
-        >>> r.width.at_time(0), r.height.at_time(0)  # (200.0, 200.0)
-        """
+        """Create a Rectangle from two opposite corner points."""
         lx, rx_ = min(x1, x2), max(x1, x2)
         ty, by = min(y1, y2), max(y1, y2)
         return cls(rx_ - lx, by - ty, x=lx, y=ty, **kwargs)
 
     @classmethod
     def from_bounding_box(cls, vobject, padding=0, time=0, **kwargs):
-        """Create a Rectangle that encloses another object's bounding box.
-
-        Parameters
-        ----------
-        vobject:
-            Any object with a ``bbox(time)`` method that returns
-            ``(x, y, width, height)``.
-        padding:
-            Extra space in pixels added to each side of the bounding box
-            (default ``0``).
-        time:
-            Animation time at which to read the target's bounding box.
-        **kwargs:
-            Extra keyword arguments forwarded to the Rectangle constructor
-            (e.g. ``stroke``, ``fill``).
-
-        Returns
-        -------
-        Rectangle
-        """
+        """Create a Rectangle that encloses another object's bounding box."""
         bx, by, bw, bh = vobject.bbox(time)
         return cls(
             bw + 2 * padding,
@@ -2533,25 +1563,7 @@ class Rectangle(VObject):
 
     @classmethod
     def from_two_objects(cls, obj_a, obj_b, padding=0, **kwargs):
-        """Create a Rectangle that encloses two objects' bounding boxes.
-
-        Computes the union of ``obj_a.bbox(0)`` and ``obj_b.bbox(0)``,
-        adds *padding* on every side, and returns a new Rectangle.
-
-        Parameters
-        ----------
-        obj_a, obj_b:
-            Any objects with a ``bbox(time)`` method returning
-            ``(x, y, width, height)``.
-        padding:
-            Extra space in pixels added to each side (default ``0``).
-        **kwargs:
-            Extra keyword arguments forwarded to the Rectangle constructor.
-
-        Returns
-        -------
-        Rectangle
-        """
+        """Create a Rectangle that encloses two objects' bounding boxes."""
         ax, ay, aw, ah = obj_a.bbox(0)
         bx, by, bw, bh = obj_b.bbox(0)
         x1 = min(ax, bx)
@@ -2605,26 +1617,7 @@ class Rectangle(VObject):
         return RoundedRectangle(w, h, x=x, y=y, corner_radius=radius, **style_kw)
 
     def split(self, direction='horizontal', count=2, time=0, **kwargs):
-        """Split this rectangle into *count* equal sub-rectangles.
-
-        Parameters
-        ----------
-        direction:
-            ``'horizontal'`` splits into *count* rows stacked top-to-bottom.
-            ``'vertical'`` splits into *count* columns arranged left-to-right.
-        count:
-            Number of equal pieces (must be >= 1).
-        time:
-            Animation time at which to read the current rectangle geometry.
-        **kwargs:
-            Extra styling keyword arguments forwarded to each sub-Rectangle.
-
-        Returns
-        -------
-        VCollection
-            A collection of *count* Rectangle objects that together tile the
-            original rectangle exactly.
-        """
+        """Split this rectangle into *count* equal sub-rectangles."""
         from vectormation._base import VCollection
         if count < 1:
             raise ValueError("split: count must be >= 1")
@@ -2652,41 +1645,7 @@ class Rectangle(VObject):
         return self.split('vertical', n, time, **kwargs)
 
     def inset(self, amount: float, time: float = 0, **kwargs):
-        """Return a new Rectangle inset by *amount* pixels on every side.
-
-        The returned rectangle is centred on the same position as the original
-        but is smaller by ``2 * amount`` in both width and height.  This is
-        useful for creating inner borders or nested frames.
-
-        Parameters
-        ----------
-        amount:
-            Number of pixels to inset on each side.  Positive values shrink
-            the rectangle; negative values expand it.
-        time:
-            Animation time at which to read the current rectangle geometry.
-        **kwargs:
-            Extra styling keyword arguments forwarded to the new Rectangle
-            (e.g. ``stroke``, ``fill``).  Any attribute not specified here
-            will **not** be automatically copied from the parent rectangle —
-            use :meth:`round_corners` if you need a full style copy.
-
-        Returns
-        -------
-        Rectangle
-            A new Rectangle with reduced dimensions.
-
-        Raises
-        ------
-        ValueError
-            If *amount* is so large that the inset width or height would
-            become non-positive.
-
-        Example
-        -------
-        >>> outer = Rectangle(200, 100, x=100, y=50)
-        >>> inner = outer.inset(10)   # 180x80 at (110, 60)
-        """
+        """Return a new Rectangle inset by *amount* pixels on every side."""
         rx = float(self.x.at_time(time))
         ry = float(self.y.at_time(time))
         rw = float(self.width.at_time(time))
@@ -2735,34 +1694,7 @@ class Rectangle(VObject):
         return (d1, d2)
 
     def subdivide(self, rows=2, cols=2, time=0, **kwargs):
-        """Subdivide this rectangle into a grid of *rows* x *cols* sub-rectangles.
-
-        Unlike :meth:`split` which only divides along one axis, this method
-        creates a full 2-D grid tiling the original rectangle.
-
-        Parameters
-        ----------
-        rows:
-            Number of rows (vertical divisions).  Must be >= 1.
-        cols:
-            Number of columns (horizontal divisions).  Must be >= 1.
-        time:
-            Animation time at which to read the current rectangle geometry.
-        **kwargs:
-            Extra styling keyword arguments forwarded to each sub-Rectangle
-            (e.g. ``fill``, ``stroke``).
-
-        Returns
-        -------
-        VCollection
-            A collection of ``rows * cols`` Rectangle objects arranged in
-            row-major order (row 0 col 0, row 0 col 1, ..., row 1 col 0, ...).
-
-        Raises
-        ------
-        ValueError
-            If *rows* or *cols* is less than 1.
-        """
+        """Subdivide this rectangle into a grid of *rows* x *cols* sub-rectangles."""
         from vectormation._base import VCollection
         if rows < 1 or cols < 1:
             raise ValueError(f"subdivide: rows and cols must be >= 1, got rows={rows}, cols={cols}")
@@ -2781,27 +1713,7 @@ class Rectangle(VObject):
         return VCollection(*parts)
 
     def chamfer(self, size=10, time=0, **kwargs):
-        """Return a :class:`Path` where each corner is cut at 45 degrees.
-
-        Creates an octagonal shape by cutting each corner of the rectangle
-        by *size* pixels.
-
-        Parameters
-        ----------
-        size:
-            The distance along each edge from the corner where the cut
-            starts (default 10 px).
-        time:
-            Animation time at which to read the rectangle geometry.
-        **kwargs:
-            Extra keyword arguments forwarded to the :class:`Path`
-            constructor (e.g. ``stroke``, ``fill``).
-
-        Returns
-        -------
-        Path
-            A closed Path with 8 vertices (an octagon).
-        """
+        """Return a :class:`Path` where each corner is cut at 45 degrees."""
         x = float(self.x.at_time(time))
         y = float(self.y.at_time(time))
         w = float(self.width.at_time(time))

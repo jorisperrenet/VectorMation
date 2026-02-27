@@ -43,13 +43,7 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def insert_at(self, index, *objs):
-        """Insert one or more objects at *index*.
-
-        Negative indices are supported (same semantics as ``list.insert``).
-        Objects are inserted in order so that ``objs[0]`` ends up at *index*.
-
-        Returns self.
-        """
+        """Insert one or more objects at *index*, preserving insertion order."""
         # Resolve negative indices once so that subsequent inserts stay correct
         # as the list grows.
         if index < 0:
@@ -68,14 +62,7 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def bring_to_front(self, child):
-        """Move a child to the front (rendered last, on top).
-
-        Parameters
-        ----------
-        child:
-            Either the child object itself or its integer index in
-            ``self.objects``.
-        """
+        """Move a child to the front (rendered last, on top)."""
         if isinstance(child, int):
             child = self.objects[child]
         if child in self.objects:
@@ -357,20 +344,7 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def shuffle_animate(self, start=0, end=1, easing=None):
-        """Animated random shuffle — all children smoothly slide to randomly reassigned positions.
-
-        Records each child's current center, generates a random permutation,
-        then animates each child to its new position.
-
-        Parameters
-        ----------
-        start:
-            Animation start time.
-        end:
-            Animation end time.
-        easing:
-            Easing function (default: None = smooth).
-        """
+        """Animated random shuffle -- children smoothly slide to randomly reassigned positions."""
         import random
         n = len(self.objects)
         if n < 2:
@@ -391,11 +365,7 @@ class VCollection(_BBoxMethodsMixin):
     reverse_order = reverse_children
 
     def rotate_order(self, n=1):
-        """Rotate children order by *n* positions.
-
-        Positive *n* moves the first *n* children to the end (like
-        ``collections.deque.rotate(-n)``).  Returns *self*.
-        """
+        """Rotate children order by *n* positions (first *n* move to end)."""
         if not self.objects:
             return self
         n = n % len(self.objects)
@@ -488,11 +458,7 @@ class VCollection(_BBoxMethodsMixin):
         return self.stretch(factor, factor, start, end, easing)
 
     def scale_about_point(self, factor, px, py, start: float = 0, end: float | None = None, easing=easings.smooth):
-        """Scale all children about the pivot point (*px*, *py*).
-
-        Sets the group's scale origin to the pivot and applies the
-        scale factor, so the pivot stays fixed while children move.
-        """
+        """Scale all children about the pivot point (*px*, *py*)."""
         self._scale_origin = (px, py)
         return self.stretch(factor, factor, start, end, easing)
 
@@ -533,26 +499,7 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def animated_arrange(self, direction=RIGHT, buff=SMALL_BUFF, start=0, end=1, easing=None):
-        """Animated version of :meth:`arrange`.
-
-        Computes the target positions that ``arrange`` would produce,
-        then animates each child to its target via :meth:`center_to_pos`.
-
-        Parameters
-        ----------
-        direction:
-            Direction constant (e.g. ``RIGHT``, ``DOWN``) or string.
-        buff:
-            Pixel spacing between children.
-        start:
-            Start time for the animation.
-        end:
-            End time for the animation.
-        easing:
-            Easing function (defaults to ``easings.smooth``).
-
-        Returns self.
-        """
+        """Animated version of :meth:`arrange` -- smoothly moves children to arranged positions."""
         dir_name = _norm_dir(direction)
         if not self.objects:
             return self
@@ -606,31 +553,7 @@ class VCollection(_BBoxMethodsMixin):
 
     def space_evenly(self, direction: str | tuple = 'right', total_span=None,
                      start_pos=None, start: float = 0):
-        """Distribute children so they fill exactly *total_span* pixels.
-
-        Unlike :meth:`arrange` (fixed gap between children) and :meth:`distribute`
-        (uses existing group bbox), ``space_evenly`` lets you specify an explicit
-        span and optional start position, then positions children so their combined
-        widths (or heights) plus equal gaps exactly fill that span.
-
-        Parameters
-        ----------
-        direction:
-            ``'right'`` / ``'left'`` (horizontal) or ``'down'`` / ``'up'``
-            (vertical).
-        total_span:
-            Total pixel width (horizontal) or height (vertical) to fill.
-            Defaults to the group's current bounding-box dimension.
-        start_pos:
-            Left edge (horizontal) or top edge (vertical) of the first child.
-            Defaults to the current leftmost / topmost edge of the group.
-        start:
-            Time at which to read current positions.
-
-        Returns
-        -------
-        self
-        """
+        """Distribute children with equal gaps to fill exactly *total_span* pixels."""
         direction = _norm_dir(direction)
         if len(self.objects) == 0:
             return self
@@ -658,28 +581,7 @@ class VCollection(_BBoxMethodsMixin):
 
     def arrange_in_circle(self, radius=150, center=None, start_angle=0,
                           start=0, end=None, easing=None):
-        """Arrange children in a circle.
-
-        If *center* is ``None``, the canvas center ``(960, 540)`` is used.
-        Each child is placed at angle ``start_angle + i * 2*pi/n``.
-
-        Delegates to :meth:`distribute_radial`.
-
-        Parameters
-        ----------
-        radius:
-            Distance from center to each child's center.
-        center:
-            ``(cx, cy)`` tuple, or ``None`` for canvas center.
-        start_angle:
-            Angle in radians for the first child (0 = right).
-        start:
-            Animation start time.
-        end:
-            Animation end time.  ``None`` = instant placement.
-        easing:
-            Easing function for animated mode.
-        """
+        """Arrange children in a circle (delegates to :meth:`distribute_radial`)."""
         if center is None:
             center = ORIGIN
         cx, cy = center
@@ -707,18 +609,7 @@ class VCollection(_BBoxMethodsMixin):
 
     def radial_arrange(self, radius=200, start_angle=0, center=None,
                        start: float = 0):
-        """Arrange children in a circle with given radius and starting angle.
-
-        Unlike :meth:`distribute_radial` which accepts animated end,
-        this is a simple instant layout method.  center defaults to the
-        collection's bounding-box center.
-
-        Parameters
-        ----------
-        radius: distance from center to each child's center.
-        start_angle: angle in radians for the first child (0 = right).
-        center: (cx, cy) tuple, or None to use the collection center.
-        """
+        """Arrange children in a circle instantly (defaults center to collection bbox center)."""
         n = len(self.objects)
         if n == 0:
             return self
@@ -762,11 +653,7 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def animated_arrange_in_grid(self, rows=None, cols=None, buff=SMALL_BUFF, start: float = 0, end: float = 1, easing=None):
-        """Animated version of :meth:`arrange_in_grid`.
-
-        Computes the same grid layout as *arrange_in_grid* but animates each
-        child to its target position over [start, end] using *center_to_pos*.
-        """
+        """Animated version of :meth:`arrange_in_grid` -- smoothly moves children to grid positions."""
         n = len(self.objects)
         if not n:
             return self
@@ -805,27 +692,7 @@ class VCollection(_BBoxMethodsMixin):
 
     def stagger_along_path(self, method_name, path_d, start=0, end=1,
                            delay=0.1, **kwargs):
-        """Position children along an SVG path, then call *method_name* with stagger.
-
-        Each child is moved to an evenly-spaced point on the path described
-        by the SVG path string *path_d*, then the named animation method is
-        invoked with timing staggered by *delay*.
-
-        Parameters
-        ----------
-        method_name:
-            Name of the method to call on each child.
-        path_d:
-            SVG path data string (e.g. ``'M0,0 L500,500'``).
-        start:
-            Base start time for the first child's method call.
-        end:
-            Base end time for the first child's method call.
-        delay:
-            Timing offset between successive children.
-        **kwargs:
-            Extra keyword arguments forwarded to the method.
-        """
+        """Position children along an SVG path, then call *method_name* with staggered timing."""
         from svgpathtools import parse_path
         n = len(self.objects)
         if n == 0:
@@ -889,21 +756,7 @@ class VCollection(_BBoxMethodsMixin):
         return self.cascade(method_name, start=start, end=end, overlap=0, **kwargs)
 
     def apply_sequentially(self, method_name, start=0, end=1, **kwargs):
-        """Apply method to each child in sequence, dividing [start, end] equally.
-
-        Unlike :meth:`sequential` / :meth:`cascade`, this directly computes
-        equal-duration time slices without any overlap logic, making it a
-        simpler and more predictable alternative.
-
-        Parameters
-        ----------
-        method_name:
-            Name of the animation method to call on each child (e.g. ``'fadein'``).
-        start, end:
-            Overall time range to divide among the children.
-        **kwargs:
-            Additional keyword arguments forwarded to each child method call.
-        """
+        """Apply method to each child in sequence, dividing [start, end] into equal time slices."""
         n = len(self.objects)
         if n == 0:
             return self
@@ -996,28 +849,7 @@ class VCollection(_BBoxMethodsMixin):
 
     def fade_in_one_by_one(self, start: float = 0, end: float = 1,
                             overlap=0.0, easing=easings.smooth):
-        """Fade in each child sequentially with optional overlap.
-
-        Each child gets an equal-duration window in which it fades in.
-        When *overlap* is 0 the windows are strictly sequential (no two
-        children animate at the same time).  Positive overlap values let
-        consecutive windows overlap so the next child starts fading in
-        before the previous one finishes.
-
-        Parameters
-        ----------
-        start, end:
-            Overall time interval.
-        overlap:
-            Fraction of each child's window that overlaps with the next
-            (0 = sequential, positive = overlapping).
-        easing:
-            Easing function for each child's fade.
-
-        Returns
-        -------
-        self
-        """
+        """Fade in each child sequentially with optional overlap between windows."""
         n = len(self.objects)
         if n == 0:
             return self
@@ -1147,11 +979,7 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def each(self, func):
-        """Call ``func(child)`` for every child and return self.
-
-        Unlike :meth:`for_each` (named method) and :meth:`apply` (passes
-        ``(child, index)``), this accepts a plain callable.
-        """
+        """Call ``func(child)`` for every child and return self."""
         for obj in self.objects:
             func(obj)
         return self
@@ -1195,16 +1023,7 @@ class VCollection(_BBoxMethodsMixin):
     def stagger_scale(self, start: float = 0, end: float = 1,
                        scale_factor=1.5, delay=0.2, easing=easings.smooth,
                        target_scale=None):
-        """Scale each child up then back down with a stagger delay between children.
-
-        Creates a "popping" wave effect where each child grows to *scale_factor*
-        and shrinks back to its original size, with *delay* seconds between
-        successive children starting their animation.
-
-        scale_factor: peak scale factor for each child's pop.
-        delay: time offset between successive children starting.
-        target_scale: deprecated alias for scale_factor (backward compatibility).
-        """
+        """Scale each child up then back down with a stagger delay, creating a popping wave."""
         if target_scale is not None:
             scale_factor = target_scale
         n = len(self.objects)
@@ -1246,13 +1065,7 @@ class VCollection(_BBoxMethodsMixin):
 
     def animate_each(self, method, start: float = 0, end: float = 1,
                      delay=None, reverse=False, **method_kwargs):
-        """Call *method* on each child with staggered timing.
-
-        method: string name of a VObject method (e.g. 'fadein', 'wiggle', 'indicate').
-        delay: time between each child's start (auto-computed from duration if None).
-        reverse: iterate children in reverse order.
-        Extra keyword arguments are forwarded to the method.
-        """
+        """Call *method* on each child with staggered timing."""
         n = len(self.objects)
         if n == 0:
             return self
@@ -1404,66 +1217,13 @@ class VCollection(_BBoxMethodsMixin):
     apply_function = apply
 
     def apply_with_delay(self, func, delay=0.1, start=0):
-        """Apply *func* to each child with an incremental time delay.
-
-        Calls ``func(child, index, start)`` for each child, where
-        ``start = start + index * delay``.
-
-        Parameters
-        ----------
-        func:
-            A callable receiving ``(child, index, start)``.
-        delay:
-            Time delay between successive children.
-        start:
-            Base start time for the first child.
-
-        Returns
-        -------
-        self
-        """
+        """Apply ``func(child, index, start)`` to each child with incremental time delay."""
         for i, obj in enumerate(self.objects):
             func(obj, i, start + i * delay)
         return self
 
     def zip_with(self, other, method_name_or_func, start=0, end=1, time=None, **kwargs):
-        """Apply a method or function pairwise to children of this and another collection.
-
-        Two calling styles are supported:
-
-        * **Method-name string** — ``method_name_or_func`` is a ``str``; the
-          named method is called on each child of *self* with the corresponding
-          child of *other* as its first positional argument, followed by any
-          extra ``**kwargs``::
-
-              col_a.zip_with(col_b, 'become')
-              col_a.zip_with(col_b, 'set_color', color='#FF0000')
-
-        * **Callable** — ``method_name_or_func`` is a callable; it is invoked
-          as ``func(obj_a, obj_b, time)`` for each pair (legacy behaviour)::
-
-              col_a.zip_with(col_b, lambda a, b, t: a.move_to(*b.center(t), t))
-
-        Iteration stops at the shorter collection's length.
-
-        Parameters
-        ----------
-        other:
-            Another :class:`VCollection` or any iterable of objects.
-        method_name_or_func:
-            Either a ``str`` naming a method on each child object, or a
-            callable with signature ``(obj_a, obj_b, time)``.
-        start:
-            Start time. Default 0.
-        end:
-            End time. Default 1.
-        time:
-            Legacy parameter for the callable form. If not provided, defaults
-            to *start*.
-        **kwargs:
-            Extra keyword arguments forwarded to the method when using the
-            string form.  Ignored in the callable form.
-        """
+        """Apply a method or function pairwise to children of this and another collection."""
         if time is None:
             time = start
         other_objs = other.objects if hasattr(other, 'objects') else list(other)
@@ -1510,27 +1270,7 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def snake_layout(self, cols=None, buff=SMALL_BUFF, start: float = 0):
-        """Arrange children in a snake/zigzag grid pattern.
-
-        Like :meth:`arrange_in_grid`, but alternates row direction: the first
-        row goes left-to-right, the second row goes right-to-left, and so on.
-        This creates a continuous reading path that avoids large jumps between
-        row endings and beginnings, useful for flowcharts, timelines, or any
-        sequential layout where visual continuity matters.
-
-        Parameters
-        ----------
-        cols:
-            Number of columns per row.  Defaults to ``ceil(sqrt(n))``.
-        buff:
-            Pixel spacing between cells (default ``SMALL_BUFF``).
-        start:
-            Time at which to read current positions and apply shifts.
-
-        Returns
-        -------
-        self
-        """
+        """Arrange children in a snake/zigzag grid (alternating row direction)."""
         n = len(self.objects)
         if not n:
             return self
@@ -1555,27 +1295,7 @@ class VCollection(_BBoxMethodsMixin):
 
     def arrange_along_path(self, path_d, start: float = 0,
                            easing=None):
-        """Position children evenly along an arbitrary SVG path.
-
-        Each child's center is moved to a point on the path.  The children
-        are spaced equally by arc length so they distribute uniformly along
-        curves, straight segments, or any combination.
-
-        Parameters
-        ----------
-        path_d:
-            An SVG path ``d`` attribute string (e.g.
-            ``'M100,500 C300,100 600,100 800,500'``).
-        start:
-            Time at which to read current positions and apply shifts.
-        easing:
-            Optional easing function to remap the parameter distribution.
-            When ``None`` children are spaced uniformly by arc length.
-
-        Returns
-        -------
-        self
-        """
+        """Position children evenly along an arbitrary SVG path by arc length."""
         n = len(self.objects)
         if n == 0:
             return self
@@ -1595,28 +1315,7 @@ class VCollection(_BBoxMethodsMixin):
 
     def converge(self, x: float = 960, y: float = 540,
                  start: float = 0, end: float = 1, easing=easings.smooth):
-        """Animate all children moving toward a common point.
-
-        Each child slides from its current center to the target point (x, y)
-        over [start, end].  This is useful for gathering scattered objects
-        into a single location.
-
-        Parameters
-        ----------
-        x, y:
-            Target convergence point in SVG coordinates.
-            Defaults to the canvas center (960, 540).
-        start:
-            Animation start time.
-        end:
-            Animation end time.
-        easing:
-            Easing function for the movement.
-
-        Returns
-        -------
-        self
-        """
+        """Animate all children moving toward a common point (x, y)."""
         if not self.objects or end <= start:
             return self
         for obj in self.objects:
@@ -1630,33 +1329,7 @@ class VCollection(_BBoxMethodsMixin):
     def diverge(self, factor: float = 2.0, cx: float | None = None,
                 cy: float | None = None, start: float = 0, end: float = 1,
                 easing=easings.smooth):
-        """Animate all children moving away from a common center.
-
-        Each child slides outward from the collection's center (or the
-        specified center) by a distance equal to *factor* times its
-        current offset.  A factor of 2.0 doubles each child's distance
-        from the center.
-
-        Parameters
-        ----------
-        factor:
-            Expansion multiplier.  Values > 1 spread children apart;
-            values between 0 and 1 bring them closer together (but see
-            :meth:`converge` for bringing them to a single point).
-        cx, cy:
-            Center of expansion.  Defaults to the collection's bounding
-            box center at *start*.
-        start:
-            Animation start time.
-        end:
-            Animation end time.
-        easing:
-            Easing function for the movement.
-
-        Returns
-        -------
-        self
-        """
+        """Animate all children moving away from a common center by *factor* times their offset."""
         if not self.objects or end <= start:
             return self
         cx, cy = self._resolve_center(start, cx, cy)
@@ -1678,35 +1351,7 @@ class VCollection(_BBoxMethodsMixin):
         return any(predicate(obj) for obj in self.objects)
 
     def pair_up(self):
-        """Group adjacent children into pairs.
-
-        Returns a list of :class:`VCollection` objects, each containing
-        exactly two children.  If the number of children is odd, the last
-        child is placed alone in a final single-element collection.
-
-        This is useful for pairing labels with shapes, creating before/after
-        pairs, or processing children two at a time.
-
-        Returns
-        -------
-        list of VCollection
-            Each collection contains two adjacent children (or one if the
-            total count is odd).
-
-        Raises
-        ------
-        ValueError
-            If the collection is empty.
-
-        Examples
-        --------
-        >>> col = VCollection(a, b, c, d)
-        >>> pairs = col.pair_up()
-        >>> len(pairs)
-        2
-        >>> len(pairs[0].objects)
-        2
-        """
+        """Group adjacent children into pairs of VCollections."""
         if len(self.objects) == 0:
             raise ValueError("Cannot pair_up an empty collection")
         result = []
@@ -1717,39 +1362,7 @@ class VCollection(_BBoxMethodsMixin):
         return result
 
     def sliding_window(self, size: int, step: int = 1):
-        """Yield overlapping sub-collections using a sliding window.
-
-        Slides a window of *size* elements across the children list,
-        advancing by *step* each time.  Each window is returned as a
-        :class:`VCollection`.
-
-        Parameters
-        ----------
-        size:
-            Number of children in each window.  Must be >= 1.
-        step:
-            Number of positions to advance between windows.  Must be >= 1.
-
-        Returns
-        -------
-        list of VCollection
-            Each sub-collection contains *size* children (the last window
-            may contain fewer if *step* does not divide evenly).
-
-        Raises
-        ------
-        ValueError
-            If *size* or *step* is less than 1.
-
-        Examples
-        --------
-        >>> col = VCollection(a, b, c, d, e)
-        >>> windows = col.sliding_window(3, step=1)
-        >>> len(windows)
-        3
-        >>> [len(w.objects) for w in windows]
-        [3, 3, 3]
-        """
+        """Return overlapping sub-collections using a sliding window of *size* with *step*."""
         if size < 1:
             raise ValueError(f"window size must be >= 1, got {size!r}")
         if step < 1:
@@ -1764,29 +1377,7 @@ class VCollection(_BBoxMethodsMixin):
 
     def waterfall(self, start: float = 0, end: float = 1, height: float = 200,
                   stagger_frac: float = 0.3, easing=easings.smooth):
-        """Staggered gravity-like entrance: children drop in from above.
-
-        Each child starts above its final position (offset by *height* pixels)
-        and falls down into place with a cascading delay.  Children also fade
-        in during the fall.  Earlier children in the list start falling first.
-
-        Parameters
-        ----------
-        start, end:
-            Overall time interval for the waterfall.
-        height:
-            How far above its resting position each child starts (pixels).
-        stagger_frac:
-            Fraction of each child's duration that overlaps with the next
-            child's start (0 = fully sequential, 1 = all start at once).
-        easing:
-            Easing function for each child's fall; ``easings.smooth`` gives
-            a decelerating landing feel.
-
-        Returns
-        -------
-        self
-        """
+        """Staggered gravity-like entrance: children drop in from above with cascading delay."""
         n = len(self.objects)
         if n == 0:
             return self
@@ -1826,32 +1417,7 @@ class VCollection(_BBoxMethodsMixin):
     def orbit_around(self, cx=None, cy=None, radius=None,
                      start: float = 0, end: float = 1, revolutions: float = 1,
                      easing=easings.linear):
-        """Animate children orbiting around a center point.
-
-        Each child is placed on a circle at equal angular intervals and
-        then rotated around (cx, cy) over the time interval.  Children
-        maintain their angular spacing while revolving.
-
-        Parameters
-        ----------
-        cx, cy:
-            Center of the orbit.  Defaults to the collection's bounding-box
-            center.
-        radius:
-            Orbit radius in pixels.  Defaults to the average distance from
-            each child's center to (cx, cy) at *start*.
-        start, end:
-            Time interval for the orbit animation.
-        revolutions:
-            Number of full revolutions (1.0 = 360 degrees).
-        easing:
-            Easing function applied to the angular progress.  Use
-            ``easings.linear`` for constant-speed orbiting.
-
-        Returns
-        -------
-        self
-        """
+        """Animate children orbiting around a center point with equal angular spacing."""
         n = len(self.objects)
         if n == 0:
             return self
@@ -1899,24 +1465,7 @@ class VCollection(_BBoxMethodsMixin):
 
     def cascade_scale(self, start: float = 0, end: float = 1, factor=1.5,
                       delay=0.15, easing=easings.smooth):
-        """Stagger scale animations across children with a fixed delay.
-
-        Each child scales from its current size to *factor* times its size
-        and back, with each successive child starting *delay* seconds after
-        the previous one.  The per-child animation duration is automatically
-        computed so that the last child finishes at *end*.
-
-        Parameters
-        ----------
-        start, end:
-            Overall time window for the staggered animation.
-        factor:
-            Peak scale multiplier for each child's pulse.
-        delay:
-            Seconds between the start of one child's animation and the next.
-        easing:
-            Easing used for the there-and-back scale motion.
-        """
+        """Stagger scale-up-and-back animations across children with a fixed delay."""
         n = len(self.objects)
         if n == 0:
             return self
@@ -1945,32 +1494,7 @@ class VCollection(_BBoxMethodsMixin):
                               start: float = 0,
                               end: float | None = None,
                               easing=easings.smooth):
-        """Arrange children evenly along a circular arc.
-
-        Unlike :meth:`distribute_radial` (which places children around a
-        full circle), this method distributes children along an arc spanning
-        from *start_angle* to *end_angle* (in radians).
-
-        Parameters
-        ----------
-        cx, cy:
-            Center of the arc (default: canvas center).
-        radius:
-            Arc radius in pixels.
-        start_angle:
-            Starting angle in radians (0 = right, pi/2 = down).
-        end_angle:
-            Ending angle in radians.  Defaults to ``start_angle + pi``
-            (a semicircle).
-        start:
-            Time at which to read current positions and apply the layout.
-        end:
-            If given, animate the children into position over
-            [start, end].  If ``None``, positions are set
-            instantly.
-        easing:
-            Easing for the animated version.
-        """
+        """Arrange children evenly along a circular arc from *start_angle* to *end_angle*."""
         n = len(self.objects)
         if n == 0:
             return self
@@ -1993,15 +1517,7 @@ class VCollection(_BBoxMethodsMixin):
     def fan_out(self, cx: float | None = None, cy: float | None = None,
                 radius: float = 200, start: float = 0, end: float = 1,
                 easing=easings.smooth):
-        """Animate children spreading radially from a center point.
-
-        All children move from their current positions to evenly spaced points
-        on a circle of the given radius around (cx, cy).  If cx/cy are None,
-        the collection's bounding box center is used.
-
-        This is a creation/reveal animation: children fan outward like
-        cards being dealt from a deck.
-        """
+        """Animate children spreading radially from a center point to evenly spaced positions."""
         n = len(self.objects)
         if n == 0:
             return self
@@ -2018,13 +1534,7 @@ class VCollection(_BBoxMethodsMixin):
     def align_centers(self, axis='x', value: float | None = None,
                       start: float = 0, end: float | None = None,
                       easing=easings.smooth):
-        """Align all children's centers along a common axis line.
-
-        axis: 'x' to align vertically (same x center) or 'y' to align
-              horizontally (same y center).
-        value: the target coordinate. If None, uses the collection's
-               bounding box center for that axis.
-        """
+        """Align all children's centers along a common axis line."""
         n = len(self.objects)
         if n == 0:
             return self
@@ -2045,12 +1555,7 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def distribute_evenly(self, start_x, start_y, end_x, end_y):
-        """Distribute children evenly along a line from (start_x, start_y) to (end_x, end_y).
-
-        The first child is centered at the start point, the last child at the
-        end point, and the rest are evenly spaced between them.  With a single
-        child, it is placed at the start point.  Returns self.
-        """
+        """Distribute children evenly along a line from (start_x, start_y) to (end_x, end_y)."""
         n = len(self.objects)
         if n == 0:
             return self
@@ -2065,15 +1570,7 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def cascade_fadein(self, start=0, end=1, direction='left_to_right', easing=easings.smooth):
-        """Fade in children with a cascade effect based on spatial ordering.
-
-        direction determines sort order:
-          'left_to_right' - sorts by x-position (ascending)
-          'top_to_bottom' - sorts by y-position (ascending)
-          'center_out' - sorts by distance from collection center (ascending)
-
-        Each child gets a staggered fadein. Returns self.
-        """
+        """Fade in children with a cascade effect based on spatial ordering."""
         n = len(self.objects)
         if n == 0:
             return self
@@ -2107,26 +1604,7 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def label_children(self, labels, direction=UP, buff=20, font_size=None, creation=0):
-        """Create Text labels positioned relative to each child.
-
-        Parameters
-        ----------
-        labels : list[str]
-            List of label strings, one per child.
-        direction : tuple
-            Direction to place labels relative to children (e.g. UP, DOWN).
-        buff : float
-            Buffer space between child and label.
-        font_size : float or None
-            Font size for labels. If None, uses the default (48).
-        creation : float
-            Creation time for the label objects.
-
-        Returns
-        -------
-        VCollection
-            A new VCollection containing the Text labels.
-        """
+        """Create Text labels positioned relative to each child and return them as a VCollection."""
         from vectormation._shapes import Text  # lazy to avoid circular import
         label_objects = []
         for i, obj in enumerate(self.objects):
@@ -2141,35 +1619,7 @@ class VCollection(_BBoxMethodsMixin):
         return VCollection(*label_objects)
 
     def batch_animate(self, method_name, start=0, end=1, param_name=None, values=None, **kwargs):
-        """Call a method on each child with a different parameter value.
-
-        The *start* and *end* timing parameters are passed to the target
-        method using whichever naming convention it expects.  If *kwargs*
-        already contains explicit timing keys (``start``, ``end``,
-        ``start``, ``end``), those take precedence.  Otherwise
-        this method inspects the target to choose the right names.
-
-        Parameters
-        ----------
-        method_name : str
-            Name of the method to call on each child.
-        start : float
-            Start time for the animation.
-        end : float
-            End time for the animation.
-        param_name : str or None
-            If given, this keyword argument varies per child.
-        values : list or None
-            List of values, one per child. If param_name is given, each value
-            is passed as that kwarg. Otherwise, each value is passed as the
-            first positional argument after start/end.
-        **kwargs
-            Additional keyword arguments passed to every child's method call.
-
-        Returns
-        -------
-        self
-        """
+        """Call a method on each child with a different parameter value from *values*."""
         import inspect
         if values is None:
             values = [None] * len(self.objects)
@@ -2199,34 +1649,7 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def connect_children(self, arrow=False, buff=0, start=0, **kwargs):
-        """Draw connecting lines or arrows between consecutive children.
-
-        For each pair of consecutive children ``(children[i], children[i+1])``,
-        a :class:`Line` (or :class:`Arrow` if *arrow* is ``True``) is created
-        from the right edge of child *i* to the left edge of child *i+1*.
-
-        The *buff* parameter shrinks each connector by that many pixels at
-        each end (useful to avoid overlapping the children).
-
-        All connectors are added to this collection. Returns the list of
-        connector objects.
-
-        Parameters
-        ----------
-        arrow:
-            If ``True``, use Arrow connectors instead of Lines.
-        buff:
-            Inset from each child edge in SVG units.
-        start:
-            Creation time for the connectors.
-        **kwargs:
-            Extra keyword arguments passed to the Line/Arrow constructor.
-
-        Returns
-        -------
-        list
-            The connector objects (also added to this collection).
-        """
+        """Draw connecting lines or arrows between consecutive children, adding them to the collection."""
         connectors = []
         for i in range(len(self.objects) - 1):
             child_a = self.objects[i]

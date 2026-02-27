@@ -123,10 +123,7 @@ class Axes(_AxesExtMixin, VCollection):
                 self.y_min.at_time(time), self.y_max.at_time(time))
 
     def get_plot_area(self):
-        """Return (plot_x, plot_y, plot_width, plot_height) for the SVG plot region.
-
-        These are the pixel coordinates of the axes bounding box, set at construction time.
-        """
+        """Return (plot_x, plot_y, plot_width, plot_height) for the SVG plot region."""
         return (self.plot_x, self.plot_y, self.plot_width, self.plot_height)
 
     def _math_to_svg_x(self, val, time=0):
@@ -160,13 +157,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def _make_curve(self, func, creation, z, num_points=None, x_range=None,
                     lincl=True, rincl=True, **style_kwargs):
-        """Create a Path whose 'd' attribute resamples func each frame.
-
-        x_range: optional (min, max) to limit the curve domain.  Both bounds
-        are stored as Real attributes on the returned Path (``._domain_min``,
-        ``._domain_max``) so they can be animated.
-        lincl/rincl: whether the left/right bounds are inclusive (default True).
-        """
+        """Create a Path whose 'd' attribute resamples func each frame."""
         if num_points is None:
             num_points = self.num_points
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kwargs)
@@ -251,17 +242,7 @@ class Axes(_AxesExtMixin, VCollection):
     def add_function(self, func, label=None, label_direction='up', label_x_val=None,
                      num_points=200, x_range=None, lincl=True, rincl=True,
                      creation=0, z=0, **styling_kwargs):
-        """Add a function curve to these axes.  Returns the Path object.
-
-        If *label* is provided, a TeX label is created and positioned on the
-        curve.  The label fill colour defaults to the curve's stroke colour.
-        If *y_range* was not set on the Axes, it is auto-detected from the
-        first function added.
-        x_range: optional (min, max) to limit the curve domain.  Both bounds
-        are stored as Real attributes (``._domain_min``, ``._domain_max``)
-        so they can be animated.
-        lincl/rincl: whether the left/right bounds are inclusive (default True).
-        """
+        """Add a function curve to these axes. Returns the Path object."""
         if hasattr(self, '_deferred_axes'):
             self._build_deferred_axes(func, num_points)
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 5, 'fill_opacity': 0} | styling_kwargs
@@ -289,40 +270,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_filled_curve(self, func, x_range=None, color='#58C4DD',
                          opacity=0.3, start=0, end=None, reveal=True, **kwargs):
-        """Plot a curve AND its filled area underneath in one call.
-
-        Combines :meth:`add_function` for the curve and :meth:`get_area`
-        for the shaded region.  When *reveal* is ``True`` the curve is
-        animated with ``draw_along`` and the area fades in over
-        ``[start, end]``.
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x)`` to plot.
-        x_range:
-            Optional ``(x_min, x_max)`` domain for the curve and area.
-        color:
-            Stroke colour for the curve and fill colour for the area.
-        opacity:
-            Fill opacity for the shaded area.
-        start:
-            Animation start time for the reveal animation.
-        end:
-            Animation end time.  ``None`` means no animation — the curve
-            and area appear instantly at *start*.
-        reveal:
-            If ``True`` and *end* is not ``None``, animate the curve with
-            ``draw_along`` and fade the area in.
-        **kwargs:
-            Extra keyword arguments forwarded to :meth:`add_function`
-            (e.g. ``num_points``, ``stroke_width``).
-
-        Returns
-        -------
-        VCollection
-            A two-element collection ``[curve, area]``.
-        """
+        """Plot a curve and its filled area underneath in one call."""
         curve_kwargs = {k: v for k, v in kwargs.items()
                         if k not in ('fill', 'fill_opacity')}
         curve = self.add_function(func, x_range=x_range, creation=start,
@@ -338,34 +286,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_parametric_plot(self, fx, fy, t_range=(0, 1), num_points=100,
                             creation=0, z=0, **styling_kwargs):
-        """Plot a parametric curve x=fx(t), y=fy(t).
-
-        Returns a Path object whose ``d`` attribute is recomputed each
-        frame so that the curve follows animated axis ranges.
-
-        Parameters
-        ----------
-        fx:
-            Callable mapping parameter t to x math-coordinate.
-        fy:
-            Callable mapping parameter t to y math-coordinate.
-        t_range:
-            ``(t_min, t_max)`` parameter range.  Default ``(0, 1)``.
-        num_points:
-            Number of sample points along the curve.  Default 100.
-        creation:
-            Creation time of the returned Path.
-        z:
-            Z-layer ordering.
-        **styling_kwargs:
-            Extra keyword arguments forwarded to the Path styling
-            (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        Path
-            The curve Path (already appended to this Axes' objects).
-        """
+        """Plot a parametric curve x=fx(t), y=fy(t). Returns a Path object."""
         if hasattr(self, '_deferred_axes'):
             # Sample fy over t_range (not x_range) to auto-detect y bounds
             t_min, t_max = t_range
@@ -411,26 +332,7 @@ class Axes(_AxesExtMixin, VCollection):
         return curve
 
     def plot_piecewise(self, pieces, creation=0, **kwargs):
-        """Plot a piecewise function defined by ``[(func, x_min, x_max), ...]``.
-
-        Each *(func, x_min, x_max)* tuple is plotted only over its domain
-        using :meth:`add_function` (alias ``plot``).
-
-        Parameters
-        ----------
-        pieces:
-            List of ``(callable, x_min, x_max)`` tuples.
-        creation:
-            Creation time forwarded to each curve.
-        **kwargs:
-            Extra keyword arguments forwarded to ``add_function`` for every
-            piece (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        VGroup
-            A VGroup containing all of the individual curve segments.
-        """
+        """Plot a piecewise function defined by ``[(func, x_min, x_max), ...]``. Returns a VGroup."""
         from vectormation._base import VGroup
         curves = []
         for func, x_min, x_max in pieces:
@@ -571,27 +473,7 @@ class Axes(_AxesExtMixin, VCollection):
         return self.coords_to_point(x, y, time)
 
     def screen_to_coords(self, sx, sy, time=0):
-        """Convert SVG pixel coordinates to math (axis) coordinates.
-
-        This is the inverse of :meth:`coords_to_point`.  Given a point
-        ``(sx, sy)`` in SVG pixel space it returns the corresponding
-        ``(x, y)`` math-space coordinates according to the current axis
-        ranges.  Log-scale axes are handled correctly.
-
-        Parameters
-        ----------
-        sx:
-            SVG x pixel coordinate.
-        sy:
-            SVG y pixel coordinate.
-        time:
-            Animation time at which to read the axis ranges.
-
-        Returns
-        -------
-        (float, float)
-            ``(x, y)`` math-space coordinates.
-        """
+        """Convert SVG pixel coordinates to math (axis) coordinates (inverse of coords_to_point)."""
         # --- X axis ---
         xmin, xmax = self.x_min.at_time(time), self.x_max.at_time(time)
         span_x = xmax - xmin if xmax != xmin else 1
@@ -615,33 +497,7 @@ class Axes(_AxesExtMixin, VCollection):
         return (x, y)
 
     def get_plot_center(self, time=0):
-        """Return the SVG coordinates of the centre of the visible plot rectangle.
-
-        This is the geometric centre of the pixel area defined by
-        ``(plot_x, plot_y, plot_width, plot_height)`` — *not* the axes origin
-        (i.e. the point where x=0 and y=0 in math space).
-
-        The result is independent of the current axis ranges; it only depends
-        on the SVG layout of the axes widget.
-
-        Parameters
-        ----------
-        time:
-            Animation time (unused for the layout geometry, included for API
-            consistency with other axes helpers).
-
-        Returns
-        -------
-        (float, float)
-            ``(cx, cy)`` SVG pixel coordinates of the plot-area centre.
-
-        Examples
-        --------
-        >>> ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
-        >>> cx, cy = ax.get_plot_center()
-        >>> # cx == ax.plot_x + ax.plot_width / 2
-        >>> # cy == ax.plot_y + ax.plot_height / 2
-        """
+        """Return the SVG pixel coordinates of the centre of the plot rectangle."""
         cx = self.plot_x + self.plot_width / 2
         cy = self.plot_y + self.plot_height / 2
         return (cx, cy)
@@ -651,12 +507,7 @@ class Axes(_AxesExtMixin, VCollection):
         return self.coords_to_point(x, func(x), time)
 
     def get_graph_value(self, func, x, time=0):
-        """Evaluate *func* at *x* and return the y-value.
-
-        This is a simple convenience wrapper: ``axes.get_graph_value(f, 3)``
-        is equivalent to ``f(3)``, but provides a consistent Axes-based API
-        and a natural counterpart to :meth:`input_to_graph_point`.
-        """
+        """Evaluate *func* at *x* and return the y-value."""
         return func(x)
 
     def get_point_on_graph(self, func, x, time=0):
@@ -668,9 +519,7 @@ class Axes(_AxesExtMixin, VCollection):
         return self.coords_to_point(x, y, time=time)
 
     def graph_position(self, func, x_attr):
-        """Return a callable(time) -> (svg_x, svg_y) that tracks a point on func.
-        x_attr: a Real attribute or any object with .at_time(t), or a plain callable(t).
-        """
+        """Return a callable(time) -> (svg_x, svg_y) that tracks a point on func."""
         get_x = x_attr.at_time if hasattr(x_attr, 'at_time') else x_attr
         def _pos(time):
             xv = get_x(time)
@@ -679,11 +528,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def get_graph_label(self, func, label, x_val=None, direction='up', buff=SMALL_BUFF,
                          font_size=48, creation=0, z=0, **styling_kwargs):
-        """Create a TeX label positioned near the end of a plotted function.
-
-        The label dynamically tracks the current x_max (or a fixed *x_val*)
-        so it follows the curve as axis ranges animate.
-        """
+        """Create a TeX label positioned near a plotted function curve."""
         style_kw = {'fill': '#fff', 'stroke_width': 0} | styling_kwargs
         label_obj = _get_tex_object()(label, font_size=font_size, creation=creation, z=z, **style_kw)
         _, _, lw, lh = label_obj.bbox(creation)
@@ -706,11 +551,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def plot_parametric(self, func, t_range=(0, 1), num_points=200,
                         creation=0, z=0, **styling_kwargs):
-        """Plot a parametric curve func(t) -> (x, y) in math coordinates.
-
-        t_range: (t_min, t_max) parameter range.
-        Returns a Path object.
-        """
+        """Plot a parametric curve func(t) -> (x, y) in math coordinates. Returns a Path."""
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 5, 'fill_opacity': 0} | styling_kwargs
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
         def _compute_d(time, _func=func, _np=num_points, _tr=t_range):
@@ -729,9 +570,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def plot_polar(self, func, theta_range=(0, math.tau), num_points=200,
                     creation=0, z=0, **styling_kwargs):
-        """Plot a polar curve r=func(theta) on these axes.
-        theta_range: (min, max) in radians.
-        Returns a Path object."""
+        """Plot a polar curve r=func(theta) on these axes. Returns a Path."""
         def _parametric(theta):
             r = func(theta)
             return (r * math.cos(theta), r * math.sin(theta))
@@ -740,11 +579,7 @@ class Axes(_AxesExtMixin, VCollection):
                                     z=z, **styling_kwargs)
 
     def plot_implicit(self, func, num_points=100, creation=0, z=0, **styling_kwargs):
-        """Plot an implicit curve f(x, y) = 0 using marching squares.
-
-        func: callable(x, y) -> float; the zero contour is drawn.
-        Returns a Path object.
-        """
+        """Plot an implicit curve f(x, y) = 0 using marching squares. Returns a Path."""
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
         def _compute_d(time, _func=func, _n=num_points):
@@ -787,14 +622,7 @@ class Axes(_AxesExtMixin, VCollection):
         return curve
 
     def plot_line_graph(self, x_values, y_values, creation=0, z=0, **styling_kwargs):
-        """Plot a line graph from discrete data points. Returns a VCollection.
-
-        The returned VCollection has an ``animate_data`` method that can
-        smoothly transition the data points to new values::
-
-            graph = axes.plot_line_graph([1, 2, 3], [1, 4, 9])
-            graph.animate_data([1, 2, 3], [2, 5, 7], start=1, end=2)
-        """
+        """Plot a line graph from discrete data points. Returns a VCollection with animate_data()."""
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 5, 'fill_opacity': 0} | styling_kwargs
         # Mutable container so animate_data can update the data reference
         data_ref = [list(zip(x_values, y_values))]
@@ -819,26 +647,7 @@ class Axes(_AxesExtMixin, VCollection):
         group = VCollection(curve, *dots, creation=creation, z=z)
 
         def _animate_data(new_x, new_y, start=0, end=1, easing=None):
-            """Animate the line graph data to new values over [start, end].
-
-            Parameters
-            ----------
-            new_x:
-                New x data values.
-            new_y:
-                New y data values.
-            start:
-                Animation start time.
-            end:
-                Animation end time.
-            easing:
-                Easing function (default ``easings.smooth``).
-
-            Returns
-            -------
-            VCollection
-                The same group for chaining.
-            """
+            """Animate the line graph data to new values over [start, end]."""
             _easing = easing or easings.smooth
             old_data = list(data_ref[0])
             new_data = list(zip(new_x, new_y))
@@ -904,8 +713,7 @@ class Axes(_AxesExtMixin, VCollection):
         return group
 
     def plot_scatter(self, x_values, y_values, r=5, creation=0, z=0, **styling_kwargs):
-        """Plot a scatter plot (dots only, no connecting lines).
-        Returns a VCollection of Dot objects."""
+        """Plot a scatter plot (dots only, no connecting lines). Returns a VCollection."""
         style_kw = {'fill': '#58C4DD', 'stroke_width': 0} | styling_kwargs
         data = list(zip(x_values, y_values))
         dots = []
@@ -970,9 +778,7 @@ class Axes(_AxesExtMixin, VCollection):
         return curve
 
     def plot_histogram(self, data, bins=10, creation=0, z=0, **styling_kwargs):
-        """Plot a histogram from raw data values.
-        bins: int (number of bins) or list of bin edges.
-        Returns a VCollection of Rectangle objects."""
+        """Plot a histogram from raw data values. Returns a VCollection of Rectangles."""
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.5,
                     'stroke': '#58C4DD', 'stroke_width': 1} | styling_kwargs
         if isinstance(bins, int):
@@ -1008,9 +814,7 @@ class Axes(_AxesExtMixin, VCollection):
         return group
 
     def plot_bar(self, x_values, y_values, bar_width=0.6, creation=0, z=0, **styling_kwargs):
-        """Plot a bar chart inside the axes coordinate system.
-        x_values: list of x positions (numeric), y_values: corresponding heights.
-        Returns a VCollection of Rectangle objects."""
+        """Plot a bar chart inside the axes coordinate system. Returns a VCollection."""
         # Pop 'width'/'height' from kwargs — they conflict with Rectangle positional args
         styling_kwargs.pop('width', None)
         styling_kwargs.pop('height', None)
@@ -1039,8 +843,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def plot_stem(self, x_values, y_values, baseline=0, r=4, creation=0, z=0,
                    **styling_kwargs):
-        """Plot a stem chart: vertical lines from baseline to each data point with a dot marker.
-        Returns a VCollection of lines and dots."""
+        """Plot a stem chart with vertical lines and dot markers. Returns a VCollection."""
         line_kw = {'stroke': '#58C4DD', 'stroke_width': 1.5}
         dot_kw = {'fill': '#58C4DD', 'stroke_width': 0}
         for k, v in styling_kwargs.items():

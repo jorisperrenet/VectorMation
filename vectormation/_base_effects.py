@@ -39,24 +39,7 @@ class _VObjectEffectsMixin:
         return self.move_to(ox, oy, start=time)
 
     def point_from_proportion(self, t, time=0):
-        """Return the (x, y) point at proportion *t* (0-1) along this object's SVG path outline.
-
-        Uses ``svgpathtools`` (lazy import) to parse the path string returned
-        by ``self.path(time)``, compute the total arc length, and sample at
-        ``t * total_length``.
-
-        Parameters
-        ----------
-        t:
-            Proportion along the path (0 = start, 1 = end).
-        time:
-            Time at which to evaluate the path.
-
-        Returns
-        -------
-        tuple[float, float]
-            The (x, y) point on the path at the given proportion.
-        """
+        """Return the (x, y) point at proportion *t* (0-1) along this object's SVG path outline."""
         path_d = self.path(time)
         if not path_d:
             return self.center(time)
@@ -70,31 +53,7 @@ class _VObjectEffectsMixin:
 
     def connect(self, other, start_edge='right', end_edge='left', arrow=False,
                 follow=False, start=0, **kwargs):
-        """Create a Line (or Arrow) connecting *self* to *other* at specified edges.
-
-        Parameters
-        ----------
-        other:
-            The target VObject to connect to.
-        start_edge:
-            Edge name on *self* for the start of the connector
-            (e.g. 'right', 'left', 'top', 'bottom', 'center').
-        end_edge:
-            Edge name on *other* for the end of the connector.
-        arrow:
-            If True, return an Arrow instead of a Line.
-        follow:
-            If True, add an updater so the connector tracks both objects.
-        start:
-            Creation time for the connector.
-        **kwargs:
-            Extra styling keyword arguments passed to the Line/Arrow constructor.
-
-        Returns
-        -------
-        Line or Arrow
-            The connector object (must still be added to a canvas).
-        """
+        """Create a Line (or Arrow) connecting *self* to *other* at specified edges."""
         p1 = self.get_edge(start_edge, time=start)
         p2 = other.get_edge(end_edge, time=start)
         if arrow:
@@ -119,22 +78,7 @@ class _VObjectEffectsMixin:
         return connector
 
     def match_style(self, other, time=0):
-        """Copy fill, stroke, opacity, and stroke_width from *other* at *time*.
-
-        Reads the styling attributes of *other* at the given time and sets
-        them on *self* from that time onward.
-
-        Parameters
-        ----------
-        other:
-            The VObject whose style to copy.
-        time:
-            The time at which to read *other*'s style and apply to *self*.
-
-        Returns
-        -------
-        self
-        """
+        """Copy fill, stroke, opacity, and stroke_width from *other* at *time*."""
         # Copy fill and stroke colors using set_onward to preserve earlier animations
         self.styling.fill.set_onward(time, other.styling.fill.time_func(time))
         self.styling.stroke.set_onward(time, other.styling.stroke.time_func(time))
@@ -147,25 +91,7 @@ class _VObjectEffectsMixin:
     def telegraph(self, start: float = 0, duration: float = 0.4,
                   scale_factor: float = 1.4, shake_amplitude: float = 8,
                   easing=easings.there_and_back):
-        """Quick attention-grabbing burst: scale spike + shake + opacity dip.
-
-        Combines a brief scale-up, a rapid horizontal shake, and an opacity
-        dip into a single short "telegraph" pulse.  Useful for signalling
-        that something important happened (e.g. an error, a notification).
-
-        Parameters
-        ----------
-        start:
-            Animation start time.
-        duration:
-            Total duration of the telegraph effect.
-        scale_factor:
-            Peak scale multiplier at the midpoint.
-        shake_amplitude:
-            Maximum horizontal displacement in pixels during the shake.
-        easing:
-            Easing function applied to the scale and opacity envelopes.
-        """
+        """Quick attention-grabbing burst: scale spike + shake + opacity dip."""
         if duration <= 0:
             return self
         end = start + duration
@@ -187,24 +113,7 @@ class _VObjectEffectsMixin:
 
     def skate(self, tx: float, ty: float, start: float = 0, end: float = 1,
               degrees: float = 360, easing=easings.smooth):
-        """Slide to a target position while spinning, like skating on ice.
-
-        The object moves from its current center to (tx, ty) while
-        simultaneously rotating by *degrees*.
-
-        Parameters
-        ----------
-        tx, ty:
-            Target center position in SVG coordinates.
-        start:
-            Animation start time.
-        end:
-            Animation end time.
-        degrees:
-            Total rotation (in degrees) applied during the slide.
-        easing:
-            Easing function for both movement and rotation.
-        """
+        """Slide to a target position while spinning, like skating on ice."""
         if end <= start:
             return self
         self.center_to_pos(tx, ty, start=start, end=end, easing=easing)
@@ -213,25 +122,7 @@ class _VObjectEffectsMixin:
 
     def flicker(self, start: float = 0, end: float = 1, frequency: float = 8,
                 min_opacity: float = 0.1, easing=easings.smooth):
-        """Random-looking opacity flickering, like a failing light bulb.
-
-        The opacity oscillates rapidly between *min_opacity* and 1.0 using
-        a pseudo-random pattern built from layered sine waves.  The effect
-        fades out toward *end* so the object returns to full opacity.
-
-        Parameters
-        ----------
-        start:
-            Animation start time.
-        end:
-            Animation end time.
-        frequency:
-            Base oscillation frequency (higher = faster flicker).
-        min_opacity:
-            Minimum opacity reached during the deepest flickers.
-        easing:
-            Decay envelope -- controls how the flicker dies out.
-        """
+        """Random-looking opacity flickering, like a failing light bulb."""
         if end <= start:
             return self
         _s, _d, _freq, _mo = start, max(end - start, 1e-9), frequency, min_opacity
@@ -252,27 +143,7 @@ class _VObjectEffectsMixin:
     def slingshot(self, tx: float, ty: float, start: float = 0, end: float = 1,
                   pullback: float = 0.3, overshoot: float = 0.15,
                   easing=easings.smooth):
-        """Pull back then launch toward the target with overshoot.
-
-        The object first moves away from the target (pullback phase),
-        then accelerates through the target and overshoots slightly
-        before settling at (tx, ty).
-
-        Parameters
-        ----------
-        tx, ty:
-            Target center position in SVG coordinates.
-        start:
-            Animation start time.
-        end:
-            Animation end time.
-        pullback:
-            Fraction of the total displacement to pull back (0.3 = 30%).
-        overshoot:
-            Fraction of the total displacement to overshoot past target.
-        easing:
-            Easing function for the overall progress curve.
-        """
+        """Pull back then launch toward the target with overshoot."""
         if end <= start:
             return self
         ox, oy = self.center(start)
@@ -303,26 +174,7 @@ class _VObjectEffectsMixin:
 
     def elastic_bounce(self, start: float = 0, end: float = 1, height=100,
                        bounces=3, squash_factor=1.4, easing=easings.smooth):
-        """Bounce the object with squash-and-stretch deformation at each impact.
-
-        Simulates a ball bouncing: the object falls, hits the ground with a
-        squash (wide+short), then stretches (narrow+tall) as it rebounds.
-        Each successive bounce is smaller than the previous one.
-
-        Parameters
-        ----------
-        start, end:
-            Animation time window.
-        height:
-            Peak bounce height in pixels for the first bounce.
-        bounces:
-            Number of bounces.
-        squash_factor:
-            Peak horizontal scale factor at each impact (>1 = wider).
-            The vertical axis squashes by 1/squash_factor.
-        easing:
-            Easing applied to overall progress.
-        """
+        """Bounce the object with squash-and-stretch deformation at each impact."""
         dur = end - start
         if dur <= 0:
             return self
@@ -375,25 +227,7 @@ class _VObjectEffectsMixin:
     def morph_scale(self, target_scale: float = 2.0, start: float = 0, end: float = 1,
                     overshoot: float = 0.3, oscillations: int = 2,
                     easing=easings.smooth):
-        """Scale to *target_scale* with a spring-like overshoot that settles.
-
-        Unlike :meth:`slingshot` (which overshoots in position), this method
-        overshoots in *scale*.  The object scales past the target, oscillates
-        with decreasing amplitude, and settles exactly at *target_scale*.
-
-        Parameters
-        ----------
-        target_scale:
-            Final scale factor to settle at (e.g. 2.0 = double size).
-        start, end:
-            Animation time window.
-        overshoot:
-            Fraction of the scale delta to overshoot (0.3 = 30% past target).
-        oscillations:
-            Number of damped oscillations before settling.
-        easing:
-            Easing applied to the overall progress.
-        """
+        """Scale to *target_scale* with a spring-like overshoot that settles."""
         dur = end - start
         if dur <= 0:
             return self
@@ -431,21 +265,7 @@ class _VObjectEffectsMixin:
 
     def strobe(self, start: float = 0, end: float = 1, flashes: int = 5,
                duty: float = 0.5):
-        """Rapid hard on/off blink effect like a strobe light.
-
-        Unlike :meth:`blink_opacity` which uses smooth sinusoidal fading,
-        this method produces a sharp square-wave visibility pattern.
-
-        Parameters
-        ----------
-        start, end:
-            Time interval during which the strobe is active.
-        flashes:
-            Number of on/off cycles.
-        duty:
-            Fraction of each cycle the object is visible (0.0-1.0).
-            0.5 = equal on/off time.  Lower values = shorter flashes.
-        """
+        """Rapid hard on/off blink effect like a strobe light."""
         dur = end - start
         if dur <= 0 or flashes <= 0:
             return self
@@ -462,28 +282,7 @@ class _VObjectEffectsMixin:
 
     def zoom_to(self, canvas, start: float = 0, end: float = 1,
                 padding: float = 100, easing=easings.smooth):
-        """Animate the camera to zoom in and focus on this object.
-
-        Adjusts the canvas viewBox so that this object fills the frame
-        (with *padding* pixels of breathing room).  The aspect ratio of the
-        canvas is preserved.  This is a convenience wrapper around the
-        camera_zoom/camera_shift primitives that targets a specific object.
-
-        Parameters
-        ----------
-        canvas:
-            The :class:`VectorMathAnim` instance whose camera to control.
-        start, end:
-            Time interval for the zoom animation.
-        padding:
-            Extra pixels around the object's bounding box.
-        easing:
-            Easing function for the camera transition.
-
-        Returns
-        -------
-        self
-        """
+        """Animate the camera to zoom in and focus on this object."""
         dur = end - start
         if dur <= 0:
             return self
@@ -516,29 +315,7 @@ class _VObjectEffectsMixin:
 
     def domino(self, start: float = 0, end: float = 1, direction='right',
                angle: float = 90, easing=easings.smooth):
-        """Tip the object over like a falling domino.
-
-        The object rotates around its bottom edge in the given direction,
-        as if toppling over.  At the end of the animation the object is
-        hidden.
-
-        Parameters
-        ----------
-        start, end:
-            Time interval for the animation.
-        direction:
-            ``'right'`` to fall rightward (pivot on bottom-right),
-            ``'left'`` to fall leftward (pivot on bottom-left).
-        angle:
-            Rotation angle in degrees (default 90).  Positive values tip
-            in the specified direction.
-        easing:
-            Easing function; defaults to ``smooth`` for a natural-looking fall.
-
-        Returns
-        -------
-        self
-        """
+        """Tip the object over like a falling domino, rotating around its bottom edge."""
         dur = end - start
         if dur <= 0:
             return self
@@ -564,14 +341,7 @@ class _VObjectEffectsMixin:
 
     def stamp_trail(self, start: float = 0, end: float = 1, count=8,
                     fade_duration=0.5, opacity=0.4):
-        """Leave ghostly copies that appear along the path and fade out.
-
-        Unlike ``trail`` which creates copies at fixed moments, stamp_trail
-        creates copies that each persist and gradually fade to zero opacity
-        over *fade_duration* seconds, producing a smooth afterimage effect.
-
-        Returns a list of ghost VObjects (must be added to canvas separately).
-        """
+        """Leave ghostly fading copies along the path. Returns a list of ghost VObjects."""
         ghosts = []
         dur = end - start
         if dur <= 0 or count <= 0:
@@ -600,14 +370,7 @@ class _VObjectEffectsMixin:
 
     def unfold(self, start: float = 0, end: float = 1, direction='right',
                change_existence=True, easing=easings.smooth):
-        """Animate the object unfolding from zero width to full size.
-
-        The object scales from 0 to 1 on one axis only, anchored at the
-        opposite edge, like paper being unfolded.
-
-        direction: 'right' (unfold leftward anchor), 'left' (rightward anchor),
-                   'down' (unfold from top), 'up' (unfold from bottom).
-        """
+        """Animate the object unfolding from zero width to full size along one axis."""
         dur = end - start
         if dur <= 0:
             return self
@@ -634,17 +397,7 @@ class _VObjectEffectsMixin:
 
     def glitch_shift(self, start: float = 0, end: float = 1, intensity=20,
                      steps=8, seed=None):
-        """Random horizontal displacement with discrete jumps.
-
-        Unlike ``glitch`` which creates brief x+y jitter flashes, glitch_shift
-        produces sustained, discrete horizontal offsets that change at each step,
-        simulating a digital signal glitch. The displacement returns to zero at
-        *end*.
-
-        intensity: maximum horizontal displacement in pixels.
-        steps: number of discrete offset changes.
-        seed: optional random seed for reproducibility.
-        """
+        """Random discrete horizontal displacement jumps simulating a digital glitch."""
         import random
         dur = end - start
         if dur <= 0 or steps <= 0:
@@ -663,14 +416,7 @@ class _VObjectEffectsMixin:
 
     def wave_through(self, start: float = 0, end: float = 1, amplitude=20,
                      frequency=2, direction='y', easing=easings.smooth):
-        """Wave animation: the object follows a sinusoidal path while moving forward.
-
-        The object oscillates perpendicular to the primary movement direction.
-        direction: 'y' oscillates vertically while progressing forward,
-                   'x' oscillates horizontally while progressing forward.
-        amplitude: max displacement in pixels.
-        frequency: number of full wave cycles over the duration.
-        """
+        """Sinusoidal oscillation along the given axis with a fading envelope."""
         dur = end - start
         if dur <= 0:
             return self
@@ -687,14 +433,7 @@ class _VObjectEffectsMixin:
             return self._apply_shift_effect(start, end, dx_func=_wave)
 
     def countdown(self, start: float = 0, end: float = 1, from_val=3):
-        """For Text objects: display a countdown (from_val, from_val-1, ..., 1).
-
-        Changes the text content at evenly spaced intervals.
-        Only works on Text objects (must have a ``text`` attribute of type
-        ``attributes.String``).
-
-        Raises TypeError if called on a non-Text object.
-        """
+        """For Text objects: display a countdown from *from_val* to 1."""
         from vectormation._shapes import Text as _Text
         if not isinstance(self, _Text):
             raise TypeError("countdown() can only be called on Text objects")
@@ -710,13 +449,7 @@ class _VObjectEffectsMixin:
 
     def squeeze(self, start: float = 0, end: float = 1, axis='x',
                 factor=0.5, easing=easings.smooth):
-        """Squeeze the object along one axis, scaling up the other to preserve area.
-
-        axis: 'x' or 'y' — the axis to compress.
-        factor: squeeze amount (0.5 means compress to half along that axis).
-        The complementary axis scales by 1/factor to preserve visual area.
-        Unlike squish(), this animates to the squeezed state and stays there.
-        """
+        """Squeeze the object along one axis, scaling up the other to preserve area."""
         dur = end - start
         if dur <= 0:
             return self
@@ -766,27 +499,7 @@ class _VObjectEffectsMixin:
         return self
 
     def pin_to(self, other, edge='center', offset_x=0, offset_y=0, start=0, end=None):
-        """Anchor this object to a specific edge/corner of *other*.
-
-        Unlike :meth:`bind_to` which tracks the target's center, this tracks
-        a specific edge point (e.g. 'top', 'bottom_right') of the target's
-        bounding box and maintains the given offset from that point.
-
-        Parameters
-        ----------
-        other:
-            The target object to pin to.
-        edge:
-            Which point on the target to track. Options: 'center', 'top',
-            'bottom', 'left', 'right', 'top_left', 'top_right',
-            'bottom_left', 'bottom_right'.
-        offset_x, offset_y:
-            Additional pixel offset from the computed edge point.
-        start, end:
-            Time interval during which the updater is active.
-
-        Returns self.
-        """
+        """Anchor this object to a specific edge/corner of *other* via an updater."""
         edge_fn = _EDGE_POINTS.get(edge, _EDGE_POINTS['center'])
 
         def _pin(obj, time, _other=other, _edge_fn=edge_fn,
@@ -839,9 +552,7 @@ class _VObjectEffectsMixin:
         return self
 
     def parallax(self, dx, dy, start=0, end=1, depth_factor=0.5, easing=easings.smooth):
-        """Move the object by (dx*depth_factor, dy*depth_factor) instead of the
-        full (dx, dy).  This creates a parallax/depth illusion where background
-        objects move slower.  Uses shift animation internally.  Returns self."""
+        """Shift by a fraction of (dx, dy) to create a parallax depth illusion."""
         return self.shift(dx=dx * depth_factor, dy=dy * depth_factor,
                           start=start, end=end, easing=easing)
 
@@ -853,20 +564,13 @@ class _VObjectEffectsMixin:
     }
 
     def set_dash_pattern(self, pattern='dashes', start=0):
-        """Set the stroke-dasharray at a given time.
-
-        Pattern presets: 'solid' -> '', 'dashes' -> '10 5', 'dots' -> '2 4',
-        'dash_dot' -> '10 5 2 5'.  Also accepts a custom string.
-        Uses set_onward on the stroke_dasharray styling attribute.  Returns self.
-        """
+        """Set the stroke-dasharray at a given time. Accepts preset names or a custom string."""
         pattern_str = self._DASH_PRESETS.get(pattern, pattern)
         self.styling.stroke_dasharray.set_onward(start, pattern_str)
         return self
 
     def show_if(self, condition_func, start=0, end=None):
-        """Show the object only when condition_func(time) returns True.
-        Sets opacity to 0 or 1 based on the condition via a callable.
-        Returns self."""
+        """Show the object only when *condition_func(time)* returns True."""
         def _opacity(t):
             return 1 if condition_func(t) else 0
         self.styling.opacity.set_onward(start, _opacity)
@@ -889,17 +593,14 @@ class _VObjectEffectsMixin:
         return self
 
     def spin_and_fade(self, start=0, end=1, spins=1.5, direction=1, easing=easings.smooth):
-        """Combined animation: rotate and fade out simultaneously over [start, end].
-        spins: number of full rotations. direction: 1 = clockwise, -1 = counterclockwise.
-        Returns self."""
+        """Rotate and fade out simultaneously over [start, end]."""
         degrees = spins * 360 * direction
         self.rotate_by(start, end, degrees, easing=easing)
         self.set_opacity(0, start=start, end=end, easing=easing)
         return self
 
     def grow_to_size(self, target_width=None, target_height=None, start=0, end=1, easing=easings.smooth):
-        """Animate the object to reach a specific width and/or height over [start, end].
-        If only one dimension is given, maintain aspect ratio. Returns self."""
+        """Animate the object to reach a specific width and/or height."""
         cur_w = self.get_width(start)
         cur_h = self.get_height(start)
         if cur_w <= 0 or cur_h <= 0:
@@ -917,9 +618,7 @@ class _VObjectEffectsMixin:
         return self
 
     def tilt_towards(self, target_x, target_y, max_angle=15, start=0, end=1, easing=easings.smooth):
-        """Rotate the object to tilt toward a target point by max_angle degrees.
-        Computes the angle from the object's center to (target_x, target_y) and
-        rotates in that direction. Returns self."""
+        """Rotate the object to tilt toward a target point by *max_angle* degrees."""
         _, cy = self.center(start)
         dy = target_y - cy
         # In SVG coordinates (y-down), positive dy means target is below,
@@ -936,22 +635,7 @@ class _VObjectEffectsMixin:
     })
 
     def set_blend_mode(self, mode, start=0):
-        """Set the SVG mix-blend-mode on this object.
-
-        Supported modes: 'normal', 'multiply', 'screen', 'overlay',
-        'darken', 'lighten', 'color-dodge', 'color-burn'.
-
-        Parameters
-        ----------
-        mode:
-            One of the supported blend mode strings.
-        start:
-            Time from which the blend mode is active.
-
-        Returns
-        -------
-        self
-        """
+        """Set the SVG mix-blend-mode on this object."""
         if mode not in self._VALID_BLEND_MODES:
             raise ValueError(
                 f"Unsupported blend mode '{mode}'. "
@@ -967,11 +651,7 @@ class _VObjectEffectsMixin:
     _REVEAL_DIR = {'left': 'right', 'right': 'left', 'top': 'down', 'bottom': 'up'}
 
     def reveal_clip(self, start=0, end=1, direction='left', easing=easings.smooth):
-        """Progressive reveal using SVG clip-path.
-
-        direction: ``'left'`` (reveals left to right), ``'right'`` (reveals
-        right to left), ``'top'`` (top to bottom), ``'bottom'`` (bottom to top).
-        """
+        """Progressive reveal using SVG clip-path in the given direction."""
         dur = end - start
         if dur <= 0:
             return self
@@ -989,29 +669,7 @@ class _VObjectEffectsMixin:
     # -- Repeat animation --
 
     def repeat_animation(self, method_name, count=2, start=0, end=1, **kwargs):
-        """Repeat an animation method *count* times within [start, end].
-
-        Divides the time evenly into *count* sub-intervals and calls
-        ``getattr(self, method_name)`` for each with the appropriate
-        ``start`` and ``end`` keyword arguments.
-
-        Parameters
-        ----------
-        method_name:
-            Name of an animation method on this object (e.g. ``'pulsate'``,
-            ``'shake'``, ``'fadein'``).
-        count:
-            Number of repetitions.
-        start, end:
-            Overall time interval.
-        **kwargs:
-            Extra keyword arguments forwarded to each invocation (excluding
-            ``start`` and ``end``).
-
-        Returns
-        -------
-        self
-        """
+        """Repeat an animation method *count* times within [start, end]."""
         if count <= 0:
             return self
         dur = end - start
@@ -1028,24 +686,7 @@ class _VObjectEffectsMixin:
     # -- Elastic scale --
 
     def elastic_scale(self, start=0, end=1, factor=1.5, easing=easings.smooth):
-        """Scale up elastically then bounce back to original size.
-
-        The object overshoots to *factor* at the start and then oscillates
-        back to its original scale using a damped cosine envelope.
-
-        Parameters
-        ----------
-        start, end:
-            Time interval for the animation.
-        factor:
-            Peak scale multiplier at the overshoot.
-        easing:
-            Easing function for overall progress.
-
-        Returns
-        -------
-        self
-        """
+        """Scale up elastically then bounce back to original size."""
         dur = end - start
         if dur <= 0:
             return self
@@ -1073,26 +714,7 @@ class _VObjectEffectsMixin:
         return self
 
     def snap_to_grid(self, grid_size=50, start=0, end=1, easing=easings.smooth):
-        """Animate the object's center to the nearest grid point.
-
-        Computes the nearest grid-aligned position from the current center,
-        then uses shift to move there.
-
-        Parameters
-        ----------
-        grid_size : float
-            Spacing of the grid (in pixels).
-        start : float
-            Animation start time.
-        end : float
-            Animation end time.
-        easing : callable
-            Easing function for the movement.
-
-        Returns
-        -------
-        self
-        """
+        """Animate the object's center to the nearest grid point."""
         cx, cy = self.center(start)
         target_x = round(cx / grid_size) * grid_size
         target_y = round(cy / grid_size) * grid_size
@@ -1103,29 +725,7 @@ class _VObjectEffectsMixin:
         return self
 
     def add_background(self, color='#000000', opacity=0.5, padding=20, creation=0, z=-1):
-        """Create a semi-transparent Rectangle behind the object as a readability backdrop.
-
-        Computes dimensions from the object's bounding box plus padding.
-        Returns the Rectangle (the caller should add it to the canvas).
-
-        Parameters
-        ----------
-        color : str
-            Fill color for the background rectangle.
-        opacity : float
-            Fill opacity for the background rectangle.
-        padding : float
-            Extra space around the object's bounding box.
-        creation : float
-            Creation time for the rectangle.
-        z : float
-            Z-index for the rectangle (default -1, behind most objects).
-
-        Returns
-        -------
-        Rectangle
-            The background rectangle.
-        """
+        """Create a semi-transparent Rectangle behind the object as a readability backdrop."""
         from vectormation._shapes import Rectangle  # lazy to avoid circular import
         x, y, w, h = self.bbox(creation)
         rect = Rectangle(
@@ -1142,25 +742,7 @@ class _VObjectEffectsMixin:
         return rect
 
     def cycle_colors(self, colors, start=0, end=1, easing=easings.linear):
-        """Cycle the fill color through a list of colors over [start, end].
-
-        Each color gets an equal time slice. Uses set_fill for each transition.
-
-        Parameters
-        ----------
-        colors : list[str]
-            List of color strings to cycle through.
-        start : float
-            Animation start time.
-        end : float
-            Animation end time.
-        easing : callable
-            Easing function for each color transition.
-
-        Returns
-        -------
-        self
-        """
+        """Cycle the fill color through a list of colors over [start, end]."""
         dur = end - start
         if dur <= 0 or len(colors) < 2:
             return self
@@ -1189,21 +771,7 @@ class _VObjectEffectsMixin:
         return self
 
     def freeze(self, start, end=None):
-        """Freeze the object's appearance at time *start*.
-
-        All animated attributes stop changing — an updater saves the object's
-        styling state at *start* and continuously restores it so the object
-        appears constant.
-
-        Parameters
-        ----------
-        start:
-            Time at which to capture the frozen state.
-        end:
-            Time at which the freeze ends.  ``None`` means forever.
-
-        Returns self.
-        """
+        """Freeze the object's appearance at time *start* until *end*."""
         _captured = {}
 
         def _capture(obj, t):
@@ -1227,10 +795,7 @@ class _VObjectEffectsMixin:
         return self
 
     def delay_animation(self, method_name, delay, *args, **kwargs):
-        """Schedule an animation to start after a delay.
-
-        Shifts ``start`` and ``end`` kwargs by *delay* before calling the method.
-        """
+        """Schedule an animation to start after a delay."""
         import inspect
         method = getattr(self, method_name)
         params = inspect.signature(method).parameters
@@ -1242,22 +807,7 @@ class _VObjectEffectsMixin:
         return self
 
     def wobble(self, start=0, end=1, intensity=5, frequency=3, easing=easings.smooth):
-        """Organic wobbling motion combining small rotations and position shifts.
-
-        Combines sine waves at slightly different frequencies to produce a
-        natural-looking oscillation that is not perfectly periodic.
-
-        Parameters
-        ----------
-        intensity:
-            Max displacement in pixels (shift) and degrees (rotation).
-        frequency:
-            Base oscillation frequency (cycles per time unit).
-        easing:
-            Envelope easing — controls how the wobble fades out.
-
-        Returns self.
-        """
+        """Organic wobbling motion combining small rotations and position shifts."""
         dur = end - start
         if dur <= 0:
             return self
@@ -1285,13 +835,7 @@ class _VObjectEffectsMixin:
         return self
 
     def focus_zoom(self, start=0, end=1, zoom_factor=1.3, easing=easings.smooth):
-        """Zoom in slightly on the object then back to normal, like a camera focus effect.
-
-        Scale up to *zoom_factor* at the midpoint, then back to 1.0 at end.
-        Uses a sin-based envelope so the transition is smooth.
-
-        Returns self.
-        """
+        """Zoom in slightly on the object then back to normal, like a camera focus effect."""
         dur = end - start
         if dur <= 0:
             return self
@@ -1305,13 +849,7 @@ class _VObjectEffectsMixin:
         return self
 
     def typewriter_effect(self, text, start=0, end=1, easing=easings.linear):
-        """For Text objects only: gradually reveal text character by character.
-
-        At progress p, show the first floor(p * len(text)) characters.
-        Uses self.text.set() to animate the text attribute.
-
-        Returns self.
-        """
+        """For Text objects only: gradually reveal text character by character."""
         from vectormation._shapes import Text as _Text
         if not isinstance(self, _Text):
             raise TypeError("typewriter_effect() can only be called on Text objects")
@@ -1331,19 +869,7 @@ class _VObjectEffectsMixin:
         return self
 
     def look_at(self, target, start=0, end=None, easing=None):
-        """Rotate so this object points toward *target*.
-
-        Parameters
-        ----------
-        target:
-            An (x, y) tuple or a VObject (uses its center).
-        start:
-            Time at which the rotation begins.
-        end:
-            Time at which the rotation ends (``None`` = instant snap).
-        easing:
-            Easing function for the animated rotation.
-        """
+        """Rotate so this object points toward *target*."""
         if easing is None:
             easing = easings.smooth
         # Resolve target coordinates
@@ -1359,13 +885,7 @@ class _VObjectEffectsMixin:
         return self.rotate_to(start, end, angle_deg, easing=easing)
 
     def animate_to(self, target_obj, start=0, end=1, easing=None):
-        """Animate position, scale, and colors to match *target_obj*.
-
-        Over [start, end] this object moves to the target's center,
-        scales to match its width, and transitions fill/stroke colors.
-
-        Returns self.
-        """
+        """Animate position, scale, and colors to match *target_obj*."""
         if easing is None:
             easing = easings.smooth
         # Move to target center
@@ -1389,19 +909,7 @@ class _VObjectEffectsMixin:
         return self
 
     def set_gradient_fill(self, colors, direction='horizontal', start=0):
-        """Apply an SVG gradient fill to this object.
-
-        Parameters
-        ----------
-        colors:
-            List of CSS color strings for gradient stops, evenly spaced.
-        direction:
-            ``'horizontal'``, ``'vertical'``, or ``'radial'``.
-        start:
-            Time from which the gradient is visible.
-
-        Returns self.
-        """
+        """Apply an SVG gradient fill to this object."""
         gid = f'grad{id(self)}'
         n = len(colors)
         stops = ''.join(
@@ -1436,22 +944,7 @@ class _VObjectEffectsMixin:
         return self
 
     def set_clip(self, clip_obj, start=0):
-        """Apply an SVG clip-path from another VObject's outline.
-
-        Generates a unique clip ID, wraps ``to_svg`` to inject a
-        ``<clipPath>`` defs block containing the clip object's SVG,
-        and applies ``clip-path="url(#id)"`` to this object's output.
-
-        Parameters
-        ----------
-        clip_obj:
-            A VObject whose shape defines the clipping region.
-        start:
-            Time from which the clip is applied.  Before *start* the
-            object renders normally without clipping.
-
-        Returns self.
-        """
+        """Apply an SVG clip-path from another VObject's outline."""
         cid = f'clip{id(self)}'
         _orig_to_svg = self.to_svg
 
@@ -1470,22 +963,14 @@ class _VObjectEffectsMixin:
         return self
 
     def set_lifetime(self, start, end):
-        """Set bounded visibility: visible only from *start* to *end*.
-
-        The object becomes visible at *start* and invisible at *end*.
-        Returns self for chaining.
-        """
+        """Set bounded visibility: visible only from *start* to *end*."""
         self.set_visible(False, 0)
         self.set_visible(True, start)
         self.set_visible(False, end)
         return self
 
     def get_style(self, time=0):
-        """Return the current styling as a dict at the given time.
-
-        Returns a dict with keys: fill, stroke, fill_opacity, stroke_opacity,
-        stroke_width, opacity.
-        """
+        """Return the current styling as a dict at the given time."""
         return {
             'fill': self.styling.fill.at_time(time),
             'stroke': self.styling.stroke.at_time(time),

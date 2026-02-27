@@ -63,10 +63,7 @@ class Line(VObject):
         return self.get_length(time)
 
     def get_angle(self, time=0):
-        """Return the angle (in degrees) from p1 to p2. 0 = right, 90 = down.
-
-        SVG convention (y-down): positive angles go clockwise.
-        """
+        """Return the angle (in degrees) from p1 to p2."""
         # SVG convention (y-down): atan2(dy, dx) where dy increases downward
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
@@ -79,40 +76,7 @@ class Line(VObject):
         return ((x1 + x2) / 2, (y1 + y2) / 2)
 
     def split_at(self, t: float = 0.5, time: float = 0):
-        """Split the line at parameter *t* and return two new Line objects.
-
-        The parameter *t* is in ``[0, 1]`` where 0 = start and 1 = end.
-        Values outside this range are clamped automatically.
-
-        The split point is::
-
-            P = p1 + t * (p2 - p1)
-
-        Both returned lines inherit no styling — pass ``**kwargs`` to
-        :class:`Line` after the call if styling is required.
-
-        Parameters
-        ----------
-        t:
-            Split parameter in [0, 1].  Default 0.5 = midpoint split.
-        time:
-            Animation time at which to read the endpoint coordinates.
-
-        Returns
-        -------
-        (Line, Line)
-            ``(first_segment, second_segment)`` where the first segment runs
-            from p1 to the split point and the second from the split point
-            to p2.
-
-        Examples
-        --------
-        >>> line = Line(0, 0, 200, 0)
-        >>> a, b = line.split_at(0.5)
-        >>> a.get_end()    # (100.0, 0.0)
-        >>> b.get_start()  # (100.0, 0.0)
-        >>> a, b = line.split_at(0.25)
-        """
+        """Split the line at parameter *t* and return two new Line objects."""
         t = max(0.0, min(1.0, t))
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
@@ -123,10 +87,7 @@ class Line(VObject):
         return first, second
 
     def get_unit_vector(self, time=0):
-        """Return the normalized direction vector (dx, dy) from p1 to p2.
-
-        Alias for :meth:`get_direction`.
-        """
+        """Return the normalized direction vector (dx, dy) from p1 to p2."""
         return self.get_direction(time)
 
     def get_direction(self, time=0):
@@ -183,10 +144,7 @@ class Line(VObject):
         return (y2 - y1) / dx
 
     def angle(self, time=0):
-        """Return the angle of this line in degrees (0 = right, CCW positive).
-
-        Math convention (y-up): positive angles go counter-clockwise.
-        """
+        """Return the angle of this line in degrees (0 = right, CCW positive)."""
         # Math convention (CCW, y-up): negate dy to flip from SVG y-down to math y-up
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
@@ -219,23 +177,7 @@ class Line(VObject):
         return self
 
     def set_length(self, length, start=0, end=None, easing=easings.smooth):
-        """Set absolute length while keeping the midpoint fixed.
-
-        Parameters
-        ----------
-        length:
-            Target length in SVG pixels.
-        start:
-            Time at which the change begins.
-        end:
-            Time at which the change ends.  ``None`` means instant.
-        easing:
-            Easing function for the animation.
-
-        Returns
-        -------
-        self
-        """
+        """Set absolute length while keeping the midpoint fixed."""
         x1, y1 = self.p1.at_time(start)
         x2, y2 = self.p2.at_time(start)
         cur = _distance(x1, y1, x2, y2)
@@ -249,29 +191,7 @@ class Line(VObject):
         return self
 
     def extend_to(self, length, anchor='start', start=0, end=None, easing=easings.smooth):
-        """Extend or shrink the line to *length*, keeping one endpoint fixed.
-
-        Unlike :meth:`set_length` (which keeps the midpoint fixed), this method
-        lets you choose which endpoint acts as the anchor:
-
-        * ``anchor='start'`` — p1 is fixed; p2 moves to achieve the new length.
-        * ``anchor='end'``   — p2 is fixed; p1 moves to achieve the new length.
-
-        The direction of the line is preserved in both cases.
-
-        Parameters
-        ----------
-        length:
-            Target length in SVG pixels.
-        anchor:
-            Which endpoint to keep fixed: ``'start'`` (p1) or ``'end'`` (p2).
-        start:
-            Time at which the change begins.
-        end:
-            Time at which the change ends.  ``None`` means instant.
-        easing:
-            Easing function for the animation.
-        """
+        """Extend or shrink the line to *length*, keeping one endpoint fixed."""
         x1, y1 = self.p1.at_time(start)
         x2, y2 = self.p2.at_time(start)
         cur = _distance(x1, y1, x2, y2)
@@ -289,22 +209,7 @@ class Line(VObject):
         return self
 
     def get_perpendicular_point(self, px, py, time=0):
-        """Find the point on the line closest to ``(px, py)``.
-
-        Uses orthogonal projection of the external point onto the infinite line
-        through p1 and p2, then clamps to the segment.
-
-        Parameters
-        ----------
-        px, py:
-            Coordinates of the external point.
-        time:
-            Animation time at which to evaluate the line endpoints.
-
-        Returns
-        -------
-        (x, y): the closest point on the line segment.
-        """
+        """Find the point on the line closest to ``(px, py)``."""
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         dx, dy = x2 - x1, y2 - y1
@@ -338,28 +243,7 @@ class Line(VObject):
 
     @classmethod
     def from_direction(cls, origin, direction, length=100, **kwargs):
-        """Create a Line from *origin* along *direction* for *length* pixels.
-
-        Parameters
-        ----------
-        origin:
-            Start point ``(x, y)``.
-        direction:
-            Direction vector ``(dx, dy)``.  Does **not** need to be a unit
-            vector — it is normalised internally.  If the zero vector is given
-            the end-point equals the origin.
-        length:
-            Length of the resulting line in pixels.
-        **kwargs:
-            Forwarded to the :class:`Line` constructor.
-
-        Examples
-        --------
-        >>> import math
-        >>> Line.from_direction((960, 540), (1, 0), 200)   # horizontal right
-        >>> Line.from_direction((960, 540), (0, 1), 100)   # downward
-        >>> Line.from_direction((0, 0), (1, 1), 100)       # diagonal
-        """
+        """Create a Line from *origin* along *direction* for *length* pixels."""
         ox, oy = origin
         dx, dy = direction
         mag = math.hypot(dx, dy)
@@ -370,35 +254,7 @@ class Line(VObject):
 
     @classmethod
     def from_angle(cls, origin, angle_deg, length=100, **kwargs):
-        """Create a Line from *origin* at *angle_deg* degrees for *length* pixels.
-
-        The angle follows the standard mathematical convention measured
-        **counter-clockwise from the positive x-axis**.  Because SVG uses a
-        y-down coordinate system, an angle of 0° points right, 90° points
-        **up** (negative y direction in SVG), and 180° points left.
-
-        Parameters
-        ----------
-        origin:
-            Start point ``(x, y)``.
-        angle_deg:
-            Angle in degrees, measured counter-clockwise from the positive
-            x-axis.
-        length:
-            Length of the resulting line in pixels (default 100).
-        **kwargs:
-            Forwarded to the :class:`Line` constructor.
-
-        Returns
-        -------
-        Line
-
-        Examples
-        --------
-        >>> Line.from_angle((960, 540), 0, 200)    # horizontal right
-        >>> Line.from_angle((960, 540), 90, 100)   # upward (SVG y-down)
-        >>> Line.from_angle((960, 540), 45, 100)   # 45° upper-right
-        """
+        """Create a Line from *origin* at *angle_deg* degrees for *length* pixels."""
         ox, oy = origin
         rad = math.radians(angle_deg)
         dx = math.cos(rad)
@@ -407,33 +263,7 @@ class Line(VObject):
 
     @classmethod
     def from_slope_point(cls, slope, point, length=200, **kwargs):
-        """Create a Line passing through *point* with the given *slope*.
-
-        The line is centered at *point* and extends *length/2* pixels in
-        each direction along the slope.
-
-        Parameters
-        ----------
-        slope:
-            The slope (dy/dx) of the line.  Use ``float('inf')`` or
-            ``float('-inf')`` for vertical lines.
-        point:
-            ``(px, py)`` — a point the line passes through.
-        length:
-            Total length of the resulting line in pixels.
-        **kwargs:
-            Forwarded to the :class:`Line` constructor.
-
-        Returns
-        -------
-        Line
-
-        Examples
-        --------
-        >>> Line.from_slope_point(1, (960, 540))       # 45-degree line
-        >>> Line.from_slope_point(0, (960, 540))        # horizontal line
-        >>> Line.from_slope_point(float('inf'), (960, 540))  # vertical line
-        """
+        """Create a Line passing through *point* with the given *slope*."""
         px, py = point
         half = length / 2
         if math.isinf(slope):
@@ -446,29 +276,7 @@ class Line(VObject):
 
     @classmethod
     def from_objects(cls, obj_a, obj_b, buff=0, **kwargs):
-        """Create a Line connecting the nearest edges of two objects.
-
-        The direction from *obj_a*'s center to *obj_b*'s center determines
-        which edges to use: if the horizontal distance is greater than the
-        vertical distance, the right edge of the closer object and the left
-        edge of the farther object are used (or vice-versa); otherwise the
-        bottom/top edges are used.
-
-        Parameters
-        ----------
-        obj_a, obj_b:
-            Any objects with ``bbox(time)`` and ``get_edge(name, time)``
-            methods.
-        buff:
-            Distance in pixels to shorten each endpoint inward along the
-            line direction (default ``0``).
-        **kwargs:
-            Extra keyword arguments forwarded to the Line constructor.
-
-        Returns
-        -------
-        Line
-        """
+        """Create a Line connecting the nearest edges of two objects."""
         ca = obj_a.center(0)
         cb = obj_b.center(0)
         dx = cb[0] - ca[0]
@@ -507,27 +315,7 @@ class Line(VObject):
         return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
 
     def subdivide_into(self, n=2, time=0, **kwargs):
-        """Divide this line into *n* equal segments.
-
-        Returns a list of *n* :class:`Line` objects, each spanning one
-        segment of the original line.  The first segment starts at p1 and
-        the last ends at p2.
-
-        Parameters
-        ----------
-        n:
-            Number of equal segments (must be >= 1).  Default is 2.
-        time:
-            Animation time at which to read the line endpoints.
-        **kwargs:
-            Extra keyword arguments forwarded to each :class:`Line`
-            constructor (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        list[Line]
-            A list of *n* Line objects.
-        """
+        """Divide this line into *n* equal segments."""
         if n < 1:
             n = 1
         x1, y1 = self.get_start(time)
@@ -544,31 +332,7 @@ class Line(VObject):
         return segments
 
     def divide(self, n=2, time=0):
-        """Return *n* + 1 points that divide the line into *n* equal segments.
-
-        Unlike :meth:`subdivide_into` which returns new :class:`Line` objects,
-        this method returns the division points themselves as a list of
-        ``(x, y)`` tuples.  The first point is always p1 and the last is
-        always p2.
-
-        Parameters
-        ----------
-        n:
-            Number of equal segments (must be >= 1).  Default is 2.
-        time:
-            Animation time at which to read the line endpoints.
-
-        Returns
-        -------
-        list[tuple[float, float]]
-            A list of *n* + 1 ``(x, y)`` points.
-
-        Example
-        -------
-        >>> line = Line(0, 0, 200, 0)
-        >>> line.divide(4)
-        [(0.0, 0.0), (50.0, 0.0), (100.0, 0.0), (150.0, 0.0), (200.0, 0.0)]
-        """
+        """Return *n* + 1 points that divide the line into *n* equal segments."""
         if n < 1:
             n = 1
         x1, y1 = self.get_start(time)
@@ -577,23 +341,7 @@ class Line(VObject):
                 for i in range(n + 1)]
 
     def distance_to_point(self, px, py, time=0):
-        """Return the shortest distance from point ``(px, py)`` to this line segment.
-
-        The distance is measured to the closest point on the segment (clamped),
-        not to the infinite line extension.
-
-        Parameters
-        ----------
-        px, py:
-            Coordinates of the external point.
-        time:
-            Animation time at which to evaluate the line endpoints.
-
-        Returns
-        -------
-        float
-            Euclidean distance from the point to the nearest point on the segment.
-        """
+        """Return the shortest distance from point ``(px, py)`` to this line segment."""
         cp = self.get_perpendicular_point(px, py, time)
         return math.hypot(px - cp[0], py - cp[1])
 
@@ -602,28 +350,7 @@ class Line(VObject):
         return self.distance_to_point(px, py, time) <= tol
 
     def add_tip(self, end=True, start=False, tip_length=None, tip_width=None, creation=0):
-        """Create arrowhead tip polygon(s) at line endpoints.
-
-        Parameters
-        ----------
-        end:
-            If True, add a tip at the end (p2) of the line.
-        start:
-            If True, add a tip at the start (p1) of the line.
-        tip_length:
-            Length of the tip along the line direction.  Defaults to
-            ``DEFAULT_ARROW_TIP_LENGTH``.
-        tip_width:
-            Width of the tip perpendicular to the line.  Defaults to
-            ``DEFAULT_ARROW_TIP_WIDTH``.
-        creation:
-            Creation time for the tip polygons.
-
-        Returns
-        -------
-        VCollection
-            A VCollection containing the line and tip polygon(s).
-        """
+        """Create arrowhead tip polygon(s) at line endpoints."""
         from vectormation._base import VCollection
         tl = tip_length if tip_length is not None else DEFAULT_ARROW_TIP_LENGTH
         tw = tip_width if tip_width is not None else DEFAULT_ARROW_TIP_WIDTH
@@ -657,12 +384,7 @@ class Line(VObject):
         return f'Line(({p1[0]:.0f},{p1[1]:.0f})->({p2[0]:.0f},{p2[1]:.0f}))'
 
     def perpendicular(self, at_proportion=0.5, length=None, time=0, **kwargs):
-        """Return a new Line perpendicular to this line at the given proportion.
-
-        at_proportion: 0 = start, 1 = end (default 0.5 = midpoint).
-        length: length of the new line (defaults to same as this line).
-        Extra kwargs are forwarded to the new Line constructor.
-        """
+        """Return a new Line perpendicular to this line at the given proportion."""
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         dx, dy = x2 - x1, y2 - y1
@@ -679,20 +401,7 @@ class Line(VObject):
                     px + nx * half, py + ny * half, **kwargs)
 
     def perpendicular_at(self, t=0.5, length=None, time=0, **kwargs):
-        """Return a Line perpendicular to this line at parameter t (0=start, 1=end).
-
-        Parameters
-        ----------
-        t:
-            Position along the line as a fraction (0 = start, 1 = end, default 0.5 = midpoint).
-        length:
-            Total length of the perpendicular line.  Defaults to the
-            original line's length when ``None``.
-        time:
-            Animation time at which to evaluate the line endpoints.
-        **kwargs:
-            Extra keyword arguments forwarded to the new Line constructor.
-        """
+        """Return a Line perpendicular to this line at parameter t (0=start, 1=end)."""
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         dx, dy = -(y2 - y1), x2 - x1  # perpendicular direction
@@ -710,25 +419,7 @@ class Line(VObject):
         return self.perpendicular_at(t=0.5, length=length, time=time, **kwargs)
 
     def extend(self, factor=1.5, start=0, end=None, easing=easings.smooth):
-        """Scale the line length by *factor* while keeping the midpoint fixed.
-
-        ``factor=2`` doubles the length.  ``factor=0.5`` halves it.
-
-        Parameters
-        ----------
-        factor:
-            Multiplicative factor for the line length.
-        start:
-            Time at which the change begins.
-        end:
-            Time at which the change ends.  ``None`` means instant.
-        easing:
-            Easing function for the animation.
-
-        Returns
-        -------
-        self
-        """
+        """Scale the line length by *factor* while keeping the midpoint fixed."""
         x1, y1 = self.p1.at_time(start)
         x2, y2 = self.p2.at_time(start)
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
@@ -738,17 +429,7 @@ class Line(VObject):
         return self
 
     def scale_length(self, factor=2.0, time=0):
-        """Scale line length by *factor* in place, keeping the midpoint fixed.
-
-        ``factor=2`` doubles the length while the midpoint stays the same.
-
-        Parameters
-        ----------
-        factor:
-            Multiplicative factor for the line length.
-        time:
-            Time at which to read/set the endpoints.
-        """
+        """Scale line length by *factor* in place, keeping the midpoint fixed."""
         return self.extend(factor=factor, start=time)
 
     def parallel(self, offset=50, time=0, **kwargs):
@@ -765,35 +446,7 @@ class Line(VObject):
                     x2 + nx * offset, y2 + ny * offset, **kwargs)
 
     def parallel_through(self, point, time=0, **kwargs):
-        """Return a new Line parallel to this one, passing through the given point.
-
-        The returned line has the same direction and length as this line, but
-        its midpoint is placed at *point*.
-
-        Parameters
-        ----------
-        point:
-            An ``(x, y)`` tuple through which the new line should pass.
-            The new line's midpoint is placed at this location.
-        time:
-            Animation time at which to read this line's direction and length.
-        **kwargs:
-            Extra keyword arguments forwarded to the :class:`Line` constructor
-            (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        Line
-            A new Line with the same direction and length as this line,
-            centered on *point*.
-
-        Example
-        -------
-        >>> l = Line(0, 0, 200, 0)
-        >>> l2 = l.parallel_through((100, 50))
-        >>> l2.get_start()   # (0.0, 50.0)
-        >>> l2.get_end()     # (200.0, 50.0)
-        """
+        """Return a new Line parallel to this one, passing through the given point."""
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         dx, dy = x2 - x1, y2 - y1
@@ -815,11 +468,7 @@ class Line(VObject):
         return self
 
     def _intersect_params(self, other, time=0):
-        """Return (t, u) line-line intersection parameters, or None if parallel.
-
-        t is the parameter along self, u along other.  The intersection
-        point is ``p1 + t * (p2 - p1)`` on self.
-        """
+        """Return (t, u) line-line intersection parameters, or None if parallel."""
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         x3, y3 = other.p1.at_time(time)
@@ -842,25 +491,7 @@ class Line(VObject):
         return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
 
     def intersect_segment(self, other, time=0):
-        """Return the intersection point only if it lies within both segments.
-
-        Unlike :meth:`intersect_line`, which treats each line as extending
-        infinitely, this method returns ``None`` unless the intersection point
-        lies between p1 and p2 of **both** line segments.
-
-        Parameters
-        ----------
-        other : Line
-            Another Line segment to test against.
-        time:
-            Animation time at which to read endpoint coordinates.
-
-        Returns
-        -------
-        tuple[float, float] | None
-            ``(x, y)`` of the intersection if it lies within both segments,
-            otherwise ``None``.
-        """
+        """Return the intersection point only if it lies within both segments."""
         params = self._intersect_params(other, time)
         if params is None:
             return None
@@ -883,50 +514,14 @@ class Line(VObject):
         return (x1 + t * dx, y1 + t * dy)
 
     def closest_point_on_segment(self, px, py, time=0):
-        """Return the closest point on this line **segment** to point (px, py).
-
-        Unlike :meth:`project_point`, which projects onto the infinite line,
-        this method clamps the parameter *t* to ``[0, 1]`` so the result
-        always lies between p1 and p2.
-
-        Parameters
-        ----------
-        px, py:
-            Coordinates of the external point.
-        time:
-            Animation time at which to read the endpoint coordinates.
-
-        Returns
-        -------
-        tuple[float, float]
-            ``(x, y)`` of the closest point on the segment.
-        """
+        """Return the closest point on this line **segment** to point (px, py)."""
         t = max(0.0, min(1.0, self.parameter_at(px, py, time)))
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
 
     def parameter_at(self, px, py, time=0):
-        """Return the parameter t for the projection of (px, py) onto the line.
-
-        The parameter t is defined such that the projection point equals
-        ``p1 + t * (p2 - p1)``.  A value of 0 corresponds to p1, 1 to p2.
-        The result is unclamped, so t < 0 or t > 1 means the projection
-        falls outside the segment.
-
-        Parameters
-        ----------
-        px, py:
-            Coordinates of the external point.
-        time:
-            Animation time at which to evaluate the line endpoints.
-
-        Returns
-        -------
-        float
-            The unclamped parameter t for the closest point on the infinite
-            line through p1 and p2.
-        """
+        """Return the parameter t for the projection of (px, py) onto the line."""
         x1, y1 = self.p1.at_time(time)
         x2, y2 = self.p2.at_time(time)
         dx, dy = x2 - x1, y2 - y1
@@ -936,28 +531,7 @@ class Line(VObject):
         return float(((px - x1) * dx + (py - y1) * dy) / len_sq)
 
     def project_onto(self, other, time=0, **kwargs):
-        """Project this line segment onto another line and return the projection.
-
-        The projection is the "shadow" of this line segment cast onto the
-        infinite line defined by *other*.  Each endpoint of ``self`` is
-        orthogonally projected onto *other*, and the resulting segment is
-        returned as a new :class:`Line`.
-
-        Parameters
-        ----------
-        other:
-            The :class:`Line` onto which to project.
-        time:
-            Animation time at which to evaluate both lines.
-        **kwargs:
-            Extra styling keyword arguments forwarded to the new Line.
-
-        Returns
-        -------
-        Line
-            A new Line whose endpoints are the projections of self's
-            endpoints onto *other*.
-        """
+        """Project this line segment onto another line and return the projection."""
         p1 = other.project_point(*self.get_start(time), time=time)
         p2 = other.project_point(*self.get_end(time), time=time)
         return Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **kwargs)
@@ -967,35 +541,7 @@ class Line(VObject):
         return self.perpendicular_at(t=t, length=length, time=time, **kwargs)
 
     def intersection(self, other, time=0):
-        """Return the intersection of this line with *other*.
-
-        Dispatches based on the type of *other*:
-
-        - If *other* is a :class:`Line`, delegates to
-          :meth:`intersect_segment` and returns a single ``(x, y)``
-          tuple or ``None``.
-        - If *other* is a :class:`Circle` (or :class:`Ellipse`),
-          delegates to ``other.intersect_line(self, time)`` and returns
-          a list of ``(x, y)`` tuples (may be empty).
-
-        Parameters
-        ----------
-        other:
-            A Line or Circle instance.
-        time:
-            Animation time at which to evaluate geometry.
-
-        Returns
-        -------
-        tuple | list | None
-            Single point for Line-Line (or None), list of points for
-            Line-Circle.
-
-        Raises
-        ------
-        TypeError
-            If *other* is not a Line or Circle.
-        """
+        """Return the intersection of this line with *other*."""
         if isinstance(other, Line):
             return self.intersect_segment(other, time)
         # Circle (subclass of Ellipse) or any object with intersect_line
@@ -1004,28 +550,7 @@ class Line(VObject):
         raise TypeError(f"intersection not supported between Line and {type(other).__name__}")
 
     def reflect_over(self, other, time=0, **kwargs):
-        """Reflect this line's endpoints over another line and return the result.
-
-        Each endpoint is reflected across the infinite line defined by
-        *other* using the standard reflection formula::
-
-            reflected = 2 * projection - original
-
-        Parameters
-        ----------
-        other:
-            The :class:`Line` to reflect over.
-        time:
-            Animation time at which to evaluate both lines.
-        **kwargs:
-            Extra styling keyword arguments forwarded to the new Line.
-
-        Returns
-        -------
-        Line
-            A new Line whose endpoints are the reflections of self's
-            endpoints over *other*.
-        """
+        """Reflect this line's endpoints over another line and return the result."""
         s1 = self.get_start(time)
         s2 = self.get_end(time)
         proj1 = other.project_point(s1[0], s1[1], time=time)
@@ -1035,28 +560,7 @@ class Line(VObject):
         return Line(x1=r1[0], y1=r1[1], x2=r2[0], y2=r2[1], **kwargs)
 
     def bisector(self, time=0, length=None, **kwargs):
-        """Return the perpendicular bisector of this line.
-
-        The bisector passes through the midpoint and is perpendicular to
-        the direction from p1 to p2.  Its total length defaults to the
-        length of this line if *length* is not specified.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read the line's endpoints.
-        length:
-            Total length of the returned bisector line.  ``None`` means
-            use this line's own length.
-        **kwargs:
-            Extra keyword arguments forwarded to the :class:`Line`
-            constructor (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        Line
-            A new Line centred at the midpoint, perpendicular to this line.
-        """
+        """Return the perpendicular bisector of this line."""
         mx, my = self.get_midpoint(time)
         nx, ny = self.get_normal(time)
         if length is None:
@@ -1152,11 +656,7 @@ class Text(VObject):
         return self
 
     def reveal_by_word(self, start=0, end=1, change_existence=True, easing=None):
-        """Reveal text word by word over [start, end].
-
-        Similar to :meth:`typing` but reveals full words at a time instead of
-        individual characters.  Words are split by whitespace.
-        """
+        """Reveal text word by word over [start, end]."""
         easing = easing or easings.linear
         full_text = self.text.at_time(start)
         words = full_text.split()
@@ -1308,63 +808,17 @@ class Text(VObject):
         return self
 
     def bold(self, weight='bold'):
-        """Set the font weight to bold.
-
-        Modifies the SVG ``font-weight`` attribute.  Call with no arguments
-        to make the text bold; pass ``weight='normal'`` to remove boldness.
-
-        Parameters
-        ----------
-        weight:
-            CSS font-weight value (e.g. ``'bold'``, ``'normal'``, ``'700'``).
-
-        Returns
-        -------
-        self
-            For method chaining.
-        """
+        """Set the font weight to bold."""
         self._font_weight = weight if weight != 'normal' else None
         return self
 
     def italic(self, style='italic'):
-        """Set the font style to italic.
-
-        Modifies the SVG ``font-style`` attribute.  Call with no arguments
-        to make the text italic; pass ``style='normal'`` to remove italics.
-
-        Parameters
-        ----------
-        style:
-            CSS font-style value (e.g. ``'italic'``, ``'oblique'``, ``'normal'``).
-
-        Returns
-        -------
-        self
-            For method chaining.
-        """
+        """Set the font style to italic."""
         self._font_style = style if style != 'normal' else None
         return self
 
     def set_font_family(self, family, start=0):
-        """Set the font family for this text element.
-
-        Modifies the SVG ``font-family`` attribute.  Pass ``None`` to
-        remove a previously set font family.
-
-        Parameters
-        ----------
-        family:
-            CSS font-family value (e.g. ``'monospace'``, ``'Arial'``,
-            ``'serif'``).  Pass ``None`` to clear.
-        start:
-            Time at which the change takes effect (unused for this
-            discrete property, kept for API consistency).
-
-        Returns
-        -------
-        self
-            For method chaining.
-        """
+        """Set the font family for this text element."""
         self._font_family = family
         return self
 
@@ -1384,23 +838,7 @@ class Text(VObject):
         return self
 
     def update_text(self, new_text, start=0):
-        """Instantly change the displayed text from *start* onward.
-
-        This is a convenience wrapper around
-        ``self.text.set_onward(start, new_text)`` for simple text
-        replacements that don't need an animated transition.
-
-        Parameters
-        ----------
-        new_text:
-            The new text string to display.
-        start:
-            Time from which the new text is shown.
-
-        Returns
-        -------
-        self
-        """
+        """Instantly change the displayed text from *start* onward."""
         self.text.set_onward(start, new_text)
         return self
 
@@ -1466,10 +904,7 @@ class Text(VObject):
         return len(self.text.at_time(time))
 
     def word_count(self, time=0):
-        """Return the number of whitespace-separated words.
-        >>> Text('  ').word_count()
-        0
-        """
+        """Return the number of whitespace-separated words."""
         return len(self.text.at_time(time).split())
 
     def word_at(self, index, time=0):
@@ -1482,35 +917,7 @@ class Text(VObject):
         return ''
 
     def split_lines(self, time=0, line_spacing=1.4):
-        """Split multi-line text (containing newlines) into separate Text objects.
-
-        Each line of text becomes a separate :class:`Text` positioned
-        vertically below the previous one.  Lines are spaced by
-        ``font_size * line_spacing`` pixels.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read the current text content,
-            position, and font size.
-        line_spacing:
-            Vertical spacing as a multiple of the font size (default 1.4).
-            A value of 1.0 means lines are packed tightly; 1.4 adds 40%
-            extra space for readability.
-
-        Returns
-        -------
-        VCollection
-            A collection of Text objects, one per line.  If the text has
-            no newlines, the collection contains a single Text object
-            with the full text.
-
-        Example
-        -------
-        >>> t = Text(text='Hello\\nWorld\\nFoo', x=100, y=200)
-        >>> parts = t.split_lines()
-        >>> len(parts.objects)  # 3
-        """
+        """Split multi-line text (containing newlines) into separate Text objects."""
         from vectormation._base import VCollection
         full = str(self.text.at_time(time))
         lines = full.split('\n')
@@ -1528,11 +935,7 @@ class Text(VObject):
         return VCollection(*parts)
 
     def fit_to_box(self, max_width, max_height=None, time=0):
-        """Adjust font_size so the text fits within the given box dimensions.
-
-        Uses width estimation to find appropriate font size.
-        Returns self for chaining.
-        """
+        """Adjust font_size so the text fits within the given box dimensions."""
         text = self.text.at_time(time)
         if not text:
             return self
@@ -1570,42 +973,7 @@ class Text(VObject):
         return ''
 
     def truncate(self, n, ellipsis='...', time=0):
-        """Truncate the text to at most *n* characters, appending *ellipsis* if trimmed.
-
-        If the text is already *n* characters or shorter, nothing changes.
-        Otherwise the text is shortened to ``n - len(ellipsis)`` characters
-        plus the ellipsis string, so the total length is exactly *n*.
-
-        Parameters
-        ----------
-        n:
-            Maximum number of characters in the resulting text (including
-            the ellipsis).  Must be >= ``len(ellipsis)``.
-        ellipsis:
-            The string to append when truncation occurs (default ``'...'``).
-            Set to ``''`` to simply chop the text without any suffix.
-        time:
-            Animation time at which to read and modify the text.
-
-        Returns
-        -------
-        self
-            For method chaining.
-
-        Raises
-        ------
-        ValueError
-            If *n* is less than the length of the ellipsis string.
-
-        Examples
-        --------
-        >>> t = Text('Hello, World!')
-        >>> t.truncate(8)
-        >>> t.get_text()   # 'Hello...'
-        >>> t2 = Text('Hi')
-        >>> t2.truncate(10)   # no change (already short enough)
-        >>> t2.get_text()     # 'Hi'
-        """
+        """Truncate the text to at most *n* characters, appending *ellipsis* if trimmed."""
         elen = len(ellipsis)
         if n < elen:
             raise ValueError(f"n ({n}) must be >= length of ellipsis ({elen})")
@@ -1619,28 +987,7 @@ class Text(VObject):
         return self
 
     def split_into_words(self, time=0, **kwargs):
-        """Split text into a VCollection of individual word Text objects.
-
-        Each word becomes a separate Text object positioned approximately
-        where it would appear in the original text.  Uses
-        :meth:`_estimate_width` for more accurate per-character width
-        estimation than the fixed ``CHAR_WIDTH_FACTOR`` used by
-        :meth:`split_words`.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read text content, position and
-            font size.
-        **kwargs:
-            Extra keyword arguments forwarded to each :class:`Text`
-            constructor (e.g. ``fill``, ``stroke_width``).
-
-        Returns
-        -------
-        VCollection
-            A collection of Text objects, one per whitespace-delimited word.
-        """
+        """Split text into a VCollection of individual word Text objects."""
         from vectormation._base import VCollection
         full = str(self.text.at_time(time))
         words = full.split()
@@ -1666,24 +1013,7 @@ class Text(VObject):
         return VCollection(*parts)
 
     def add_background_rectangle(self, color='#000000', opacity=0.5, padding=10, time=0):
-        """Create a Rectangle behind the text, sized from bbox + padding.
-
-        Parameters
-        ----------
-        color:
-            Fill color for the background rectangle.
-        opacity:
-            Fill opacity for the background rectangle.
-        padding:
-            Extra padding in pixels around the text bbox.
-        time:
-            Time at which to read the text bbox.
-
-        Returns
-        -------
-        VCollection
-            A VCollection containing the background rectangle and this text.
-        """
+        """Create a Rectangle behind the text, sized from bbox + padding."""
         from vectormation._base import VCollection
         bx, by, bw, bh = self.bbox(time)
         rect = Rectangle(
@@ -1695,25 +1025,7 @@ class Text(VObject):
         return VCollection(rect, self, creation=time)
 
     def wrap(self, max_width, time=0):
-        """Word-wrap text to fit within *max_width* pixels.
-
-        Splits the text into words and accumulates them into lines, starting
-        a new line whenever the next word would exceed *max_width*.  Returns
-        a ``VCollection`` of :class:`Text` objects (one per line), positioned
-        vertically with ``font_size * 1.2`` line spacing.
-
-        Parameters
-        ----------
-        max_width:
-            Maximum width in pixels for each line.
-        time:
-            Animation time at which to read the text and font size.
-
-        Returns
-        -------
-        VCollection
-            A VCollection of Text objects, one per wrapped line.
-        """
+        """Word-wrap text to fit within *max_width* pixels."""
         from vectormation._base import VCollection
         full = str(self.text.at_time(time))
         words = full.split()
@@ -1806,10 +1118,7 @@ class CountAnimation(Text):
         return self
 
 class ValueTracker:
-    """Convenience wrapper around a time-varying Real attribute.
-
-    Use to drive reactive animations (e.g. link a label's position to a value).
-    """
+    """Convenience wrapper around a time-varying Real attribute."""
     def __init__(self, value=0, creation: float = 0):
         self.value = attributes.Real(creation, value)
         self.show = attributes.Real(creation, True)
@@ -1836,11 +1145,7 @@ class ValueTracker:
         return f'ValueTracker({self.value.at_time(0)})'
 
 class DecimalNumber(Text):
-    """Text that dynamically displays a numeric value, updating each frame.
-
-    value: initial numeric value, or an attributes.Real / ValueTracker to track.
-    fmt: format string for display.
-    """
+    """Text that dynamically displays a numeric value, updating each frame."""
     def __init__(self, value: 'float | ValueTracker | attributes.Real' = 0, fmt='{:.2f}', x=960, y=540, font_size=48,
                  text_anchor=None, creation: float = 0, z: float = 0, **styling_kwargs):
         if isinstance(value, ValueTracker):
@@ -2006,22 +1311,7 @@ class Path(VObject):
         return (pt.real, pt.imag)
 
     def tangent_at(self, proportion, time=0):
-        """Return the unit tangent direction (dx, dy) at a proportional distance along the path.
-
-        Parameters
-        ----------
-        proportion:
-            A value in [0, 1] specifying the position along the arc length.
-        time:
-            Animation time at which to read the path data.
-
-        Returns
-        -------
-        (dx, dy)
-            A unit vector tuple representing the tangent direction at the
-            given proportion.  Returns ``(0.0, 0.0)`` for empty or
-            zero-length paths.
-        """
+        """Return the unit tangent direction (dx, dy) at a proportional distance along the path."""
         d = self.d.at_time(time)
         if not d:
             return (0.0, 0.0)
@@ -2040,27 +1330,7 @@ class Path(VObject):
         return (dx / mag, dy / mag)
 
     def trim(self, t_start=0.0, t_end=1.0, time=0):
-        """Return a new Path representing the sub-path between proportions
-        *t_start* and *t_end* along the arc length.
-
-        Both parameters are clamped to ``[0, 1]`` and represent fractions of
-        the total arc length.  The styling of the returned Path is copied
-        from this Path at *time*.
-
-        Parameters
-        ----------
-        t_start:
-            Start proportion along the arc length (0 = path start).
-        t_end:
-            End proportion along the arc length (1 = path end).
-        time:
-            Animation time at which to read the path data.
-
-        Returns
-        -------
-        Path
-            A new Path covering the requested sub-range.
-        """
+        """Return a new Path representing the sub-path between proportions."""
         d = self.d.at_time(time)
         if not d:
             return Path('')
@@ -2089,22 +1359,7 @@ class Path(VObject):
         return Path(sub.d(), **style_kwargs)
 
     def reverse(self, time=0):
-        """Return a new Path with the segments reversed.
-
-        Uses ``svgpathtools`` to parse the ``d`` attribute at *time*,
-        reverses the parsed path, and converts it back to a ``d``-string.
-        Styling is copied from this Path at *time*.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to read the path data and styling.
-
-        Returns
-        -------
-        Path
-            A new Path with the reversed segment order.
-        """
+        """Return a new Path with the segments reversed."""
         d = self.d.at_time(time)
         if not d:
             return Path('')
@@ -2131,13 +1386,7 @@ class Path(VObject):
 
     @classmethod
     def from_points(cls, points, closed=False, smooth=False, **kwargs):
-        """Create a Path from a list of (x, y) points.
-
-        If smooth=False, straight line segments are used (M x,y L x,y ...).
-        If smooth=True, Catmull-Rom splines are used for smooth interpolation,
-        converted to cubic Bezier curves.
-        If closed=True, the path ends with a Z command.
-        """
+        """Create a Path from a list of (x, y) points."""
         pts = list(points)
         if not pts:
             return cls('', **kwargs)
@@ -2310,29 +1559,7 @@ class Arc(VObject):
         return self
 
     def animate_sweep(self, target_angle, start=0, end=None, easing=None):
-        """Animate the end angle of this arc to *target_angle* (degrees).
-
-        This effectively animates the "sweep" of the arc by moving the
-        end angle while keeping the start angle fixed.
-
-        Parameters
-        ----------
-        target_angle:
-            The target end angle in degrees.
-        start:
-            Time at which the animation begins (or the instant change
-            occurs if *end* is ``None``).
-        end:
-            Time at which the animation ends.  ``None`` means an
-            instant change at *start*.
-        easing:
-            Easing function for the animation.  Defaults to
-            ``easings.smooth``.
-
-        Returns
-        -------
-        self
-        """
+        """Animate the end angle of this arc to *target_angle* (degrees)."""
         if easing is None:
             easing = easings.smooth
         _set_attr(self.end_angle, start, end, target_angle, easing)
@@ -2348,28 +1575,7 @@ class Arc(VObject):
         return self.get_midpoint(time)
 
     def to_wedge(self, time=0, **kwargs):
-        """Return a :class:`Wedge` with the same geometry as this arc at *time*.
-
-        The result is a static snapshot — it is not dynamically linked to the
-        original arc.  Styling from the arc is not copied; pass ``**kwargs`` to
-        set fill, stroke, etc. on the resulting wedge.
-
-        Parameters
-        ----------
-        time:
-            Time at which to read the arc's center, radius and angles.
-        **kwargs:
-            Forwarded to :class:`Wedge`.
-
-        Returns
-        -------
-        Wedge
-
-        Example
-        -------
-        >>> arc = Arc(cx=500, cy=400, r=100, start_angle=30, end_angle=120)
-        >>> wedge = arc.to_wedge(fill='#44aaff', fill_opacity=0.6)
-        """
+        """Return a :class:`Wedge` with the same geometry as this arc at *time*."""
         return Wedge(
             cx=self.cx.at_time(time),
             cy=self.cy.at_time(time),
@@ -2380,26 +1586,7 @@ class Arc(VObject):
         )
 
     def split_into(self, n=2, time=0, **kwargs):
-        """Split this arc into *n* equal sub-arcs.
-
-        Each sub-arc shares the same centre and radius but spans an equal
-        fraction of the total sweep angle.
-
-        Parameters
-        ----------
-        n:
-            Number of sub-arcs to create (must be >= 1).  Default is 2.
-        time:
-            Animation time at which to read the arc geometry.
-        **kwargs:
-            Extra keyword arguments forwarded to each :class:`Arc`
-            constructor (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        list[Arc]
-            A list of *n* Arc objects.
-        """
+        """Split this arc into *n* equal sub-arcs."""
         if n < 1:
             n = 1
         cx = self.cx.at_time(time)
@@ -2416,21 +1603,7 @@ class Arc(VObject):
         return arcs
 
     def contains_point(self, px, py, time=0, tol=2):
-        """Return True if (px, py) lies on the arc within tolerance.
-
-        The point must be within *tol* pixels of the arc radius **and** its
-        angle (relative to the arc centre) must fall within the arc's angular
-        sweep.
-
-        Parameters
-        ----------
-        px, py:
-            Point coordinates to test.
-        time:
-            Animation time at which to evaluate the arc geometry.
-        tol:
-            Distance tolerance in pixels (default 2).
-        """
+        """Return True if (px, py) lies on the arc within tolerance."""
         cx = self.cx.at_time(time)
         cy = self.cy.at_time(time)
         r = self.r.at_time(time)
@@ -2452,13 +1625,7 @@ class Arc(VObject):
 
     @classmethod
     def from_three_points(cls, p1, p2, p3, **kwargs):
-        """Create an Arc through three points (x, y tuples).
-
-        Computes the circumscribed circle of the three points and returns an
-        Arc that passes through all three in order (p1 -> p2 -> p3).
-
-        Raises ValueError if the points are collinear.
-        """
+        """Create an Arc through three points (x, y tuples)."""
         ax, ay = p1
         bx, by = p2
         cx, cy = p3
@@ -2494,24 +1661,7 @@ class Arc(VObject):
             return cls(r=r, start_angle=a1, end_angle=a1 - cw_13, cx=ux, cy=uy, **kwargs)
 
     def get_chord(self, time=0, **kwargs):
-        """Return a Line connecting the start and end points of the arc.
-
-        The chord is the straight line segment from the arc's start point
-        to its end point — useful for geometry visualizations.
-
-        Parameters
-        ----------
-        time:
-            Animation time at which to evaluate the arc geometry.
-        **kwargs:
-            Extra keyword arguments forwarded to the :class:`Line`
-            constructor (e.g. ``stroke``, ``stroke_width``).
-
-        Returns
-        -------
-        Line
-            A Line from the arc's start point to its end point.
-        """
+        """Return a Line connecting the start and end points of the arc."""
         x1, y1 = self.get_start_point(time)
         x2, y2 = self.get_end_point(time)
         return Line(x1=x1, y1=y1, x2=x2, y2=y2, **kwargs)
@@ -2536,28 +1686,7 @@ class Wedge(Arc):
         return 0.5 * r * r * math.radians(sweep)
 
     def to_arc(self, time=0, **kwargs):
-        """Return an :class:`Arc` with the same geometry as this wedge at *time*.
-
-        The result is a static snapshot — it is not dynamically linked to the
-        original wedge.  Styling from the wedge is not copied; pass ``**kwargs``
-        to set stroke, fill, etc. on the resulting arc.
-
-        Parameters
-        ----------
-        time:
-            Time at which to read the wedge's center, radius, and angles.
-        **kwargs:
-            Forwarded to :class:`Arc`.
-
-        Returns
-        -------
-        Arc
-
-        Example
-        -------
-        >>> wedge = Wedge(cx=500, cy=400, r=100, start_angle=30, end_angle=120)
-        >>> arc = wedge.to_arc(stroke='#44aaff', stroke_width=3)
-        """
+        """Return an :class:`Arc` with the same geometry as this wedge at *time*."""
         return Arc(
             cx=self.cx.at_time(time),
             cy=self.cy.at_time(time),
@@ -2681,10 +1810,7 @@ class ScreenRectangle(Rectangle):
         return 'ScreenRectangle()'
 
 class ArcBetweenPoints(Arc):
-    """Arc connecting two points, bulging by a given angle.
-
-    angle: how much the arc bulges (degrees). Positive = left of start→end.
-    """
+    """Arc connecting two points, bulging by a given angle."""
     def __init__(self, start, end, angle=60, creation: float = 0, z: float = 0, **styling_kwargs):
         x1, y1 = start
         x2, y2 = end
@@ -2713,10 +1839,7 @@ class ArcBetweenPoints(Arc):
         return 'ArcBetweenPoints()'
 
 class Elbow(Lines):
-    """Right-angle connector (L-shape) between two directions.
-
-    width/height: pixel size of each arm.
-    """
+    """Right-angle connector (L-shape) between two directions."""
     def __init__(self, cx=960, cy=540, width=40, height=40,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#fff', 'stroke_width': DEFAULT_STROKE_WIDTH, 'fill_opacity': 0} | styling_kwargs
@@ -2728,10 +1851,7 @@ class Elbow(Lines):
         return 'Elbow()'
 
 class AnnularSector(Arc):
-    """Sector of an annulus (ring wedge).
-
-    Like a Wedge but with an inner radius cut out.
-    """
+    """Sector of an annulus (ring wedge)."""
     def __init__(self, inner_radius=60, outer_radius=120, cx=960, cy=540,
                  start_angle=0, end_angle=90, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(cx=cx, cy=cy, r=outer_radius, start_angle=start_angle,

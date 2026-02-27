@@ -129,11 +129,7 @@ class LabeledDot(VCollection):
         return 'LabeledDot()'
 
 class TexObject(VCollection):
-    """Renders LaTeX content as SVG paths via dvisvgm.
-
-    font_size: target height in pixels (default 30, matching Text).
-    scale_x/scale_y in styles act as multipliers on the font_size-derived scale.
-    """
+    """Renders LaTeX content as SVG paths via dvisvgm."""
     def __init__(self, to_render, x=0, y=0, font_size=48, creation: float = 0, z: float = 0, **styles):
         from vectormation.tex_file_writing import get_characters
         import vectormation._canvas as _cm
@@ -181,10 +177,7 @@ class SplitTexObject:
     def __len__(self): return len(self.lines)
 
 class NumberLine(VCollection):
-    """A number line with ticks and labels, with optional endpoint arrows.
-
-    x_range: (start, end, step) or (start, end) with auto step.
-    """
+    """A number line with ticks and labels, with optional endpoint arrows."""
     def __init__(self, x_range=(-5, 5, 1), length=720, x=240, y=540,
                  include_arrows=True, include_numbers=True,
                  tick_size=2*SMALL_BUFF, font_size=_TICK_FONT_SIZE,
@@ -228,12 +221,7 @@ class NumberLine(VCollection):
         super().__init__(*objects, creation=creation, z=z)
 
     def number_to_point(self, value, time=0):
-        """Convert a number on the line to an SVG (x, y) coordinate.
-
-        This is the inverse of :meth:`point_to_number`.  The *time* parameter
-        is accepted for API consistency with other coordinate-mapping methods
-        but is currently unused because NumberLine geometry is static.
-        """
+        """Convert a number on the line to an SVG (x, y) coordinate."""
         span = self.x_end - self.x_start
         if span == 0:
             return (self.origin_x, self.origin_y)
@@ -272,12 +260,7 @@ class NumberLine(VCollection):
 
     def add_pointer(self, value, label=None, color='#FF6B6B', size=12,
                      creation=0, z=1):
-        """Add an animated pointer (triangle) above the number line at *value*.
-
-        *value* may be a number or an ``attributes.Real`` — if animatable the
-        pointer tracks the value automatically.  Returns the pointer
-        ``VCollection`` (already added to this NumberLine's objects).
-        """
+        """Add an animated pointer (triangle) above the number line at *value*."""
         # Triangle pointing down at the value
         px, py = self.number_to_point(
             value.at_time(creation) if hasattr(value, 'at_time') else value
@@ -320,11 +303,7 @@ class NumberLine(VCollection):
         return group
 
     def animate_pointer(self, pointer_group, target_value, start=0, end=1, easing=easings.smooth):
-        """Animate a pointer (from add_pointer) to a new value.
-
-        pointer_group: the VCollection returned by add_pointer()
-        target_value: the new value to point to
-        """
+        """Animate a pointer (from add_pointer) to a new value."""
         dur = end - start
         if dur <= 0:
             return self
@@ -359,28 +338,7 @@ class NumberLine(VCollection):
         return rect
 
     def add_dot_at(self, value, color='#FF6B6B', radius=8, creation=0, **kwargs):
-        """Add a colored dot at a specific value on the number line.
-
-        Uses :meth:`number_to_point` to convert the value to SVG coordinates.
-
-        Parameters
-        ----------
-        value:
-            Numeric position on the line.
-        color:
-            Fill color for the dot (default ``'#FF6B6B'``).
-        radius:
-            Radius of the dot in SVG pixels (default 8).
-        creation:
-            Creation time for the Dot.
-        **kwargs:
-            Extra keyword arguments forwarded to the Dot constructor.
-
-        Returns
-        -------
-        Dot
-            The created Dot (already appended to this NumberLine's objects).
-        """
+        """Add a colored dot at a specific value on the number line."""
         px, py = self.number_to_point(value)
         kw = {'fill': color, 'stroke_width': 0} | kwargs
         dot = Dot(cx=px, cy=py, r=radius, creation=creation, **kw)
@@ -389,41 +347,7 @@ class NumberLine(VCollection):
 
     def highlight_range(self, start_val, end_val, color='#FFFF00',
                         height=16, opacity=0.4, creation=0, z=1, **kwargs):
-        """Highlight a numeric range on the number line with a colored rectangle.
-
-        Creates a semi-transparent filled rectangle that spans from *start_val*
-        to *end_val* along the line.  Unlike :meth:`add_segment` (which uses a
-        fixed 0.7 opacity and blue color), this method exposes *color*,
-        *height*, and *opacity* as top-level parameters so common highlight
-        colors (yellow, green, red…) can be applied directly.
-
-        Parameters
-        ----------
-        start_val, end_val:
-            Numeric values on the line.  They are clamped to the range
-            [x_start, x_end] so the rectangle never extends beyond the axis.
-        color:
-            Fill color for the highlight rectangle.  Default ``'#FFFF00'``
-            (yellow).
-        height:
-            Pixel height of the highlight rectangle (it is centred on the
-            line).
-        opacity:
-            Fill opacity in [0, 1].  Default 0.4 gives a translucent overlay.
-        creation:
-            Creation time for the returned Rectangle.
-        z:
-            Z-layer for the rectangle.
-        **kwargs:
-            Extra styling keyword arguments forwarded to Rectangle (e.g.
-            ``stroke_width``, ``stroke``).
-
-        Returns
-        -------
-        Rectangle
-            The highlight rectangle (already appended to this NumberLine's
-            objects list).
-        """
+        """Highlight a numeric range on the number line with a colored rectangle."""
         # Clamp to valid axis range
         sv = max(self.x_start, min(self.x_end, start_val))
         ev = max(self.x_start, min(self.x_end, end_val))
@@ -440,14 +364,7 @@ class NumberLine(VCollection):
         return rect
 
     def add_label(self, value, text, buff=10, font_size=24, side='below', creation=0, **kwargs):
-        """Add a text label at the given value on the number line.
-
-        value: the numeric position on the line.
-        text: the string to display.
-        buff: pixel distance above or below the line.
-        side: 'below' (default) or 'above'.
-        Returns self.
-        """
+        """Add a text label at the given value on the number line."""
         px, py = self.number_to_point(value)
         kw = {'fill': '#fff', 'stroke_width': 0, 'text_anchor': 'middle'} | kwargs
         if side == 'above':
@@ -461,31 +378,7 @@ class NumberLine(VCollection):
 
     def add_tick_labels_range(self, start_val, end_val, step, format_func=None,
                               font_size=None, creation=0):
-        """Batch-add tick labels for values from *start_val* to *end_val*.
-
-        Adds Text objects positioned at each tick value along the number line.
-
-        Parameters
-        ----------
-        start_val:
-            First tick value (inclusive).
-        end_val:
-            Last tick value (inclusive, if reachable by *step*).
-        step:
-            Increment between tick values.  Must be positive.
-        format_func:
-            Callable that converts a numeric value to a label string.
-            Defaults to ``str``.
-        font_size:
-            Font size for the labels.  Defaults to the number line's font
-            size (the ``_TICK_FONT_SIZE`` used during construction).
-        creation:
-            Appearance time (seconds).
-
-        Returns
-        -------
-        self
-        """
+        """Batch-add tick labels for values from *start_val* to *end_val*."""
         if format_func is None:
             format_func = str
         if font_size is None:
@@ -502,32 +395,7 @@ class NumberLine(VCollection):
         return self
 
     def add_brace(self, x1, x2, label=None, direction='down', **kwargs):
-        """Add a curly brace between two values on the number line.
-
-        Uses the existing :class:`Brace` class positioned between the
-        SVG coordinates of *x1* and *x2* on the line.
-
-        Parameters
-        ----------
-        x1, x2:
-            Numeric values on the number line defining the brace span.
-        label:
-            Optional text label placed near the brace midpoint.
-        direction:
-            Which side the brace sits on.  Accepts a string
-            (``'down'``, ``'up'``, ``'left'``, ``'right'``) or a
-            direction constant (``DOWN``, ``UP``, ``LEFT``, ``RIGHT``).
-            Default ``'down'``.
-        **kwargs:
-            Extra keyword arguments forwarded to the :class:`Brace`
-            constructor (e.g. ``fill``, ``depth``, ``buff``).
-
-        Returns
-        -------
-        Brace
-            The Brace object (already appended to this NumberLine's
-            objects list).
-        """
+        """Add a curly brace between two values on the number line."""
         direction = _norm_dir(direction, 'down')
         p1x, p1y = self.number_to_point(x1)
         p2x, _p2y = self.number_to_point(x2)
@@ -541,31 +409,7 @@ class NumberLine(VCollection):
 
     def add_interval_bracket(self, x1, x2, closed_left=True, closed_right=True,
                               creation=0, **kwargs):
-        """Show an interval on the number line with bracket notation.
-
-        Draws a horizontal line between ``x1`` and ``x2`` with bracket or
-        parenthesis characters at each end to indicate whether the endpoint
-        is included (closed) or excluded (open).
-
-        Parameters
-        ----------
-        x1, x2:
-            Numeric values on the line defining the interval endpoints.
-        closed_left:
-            If True, use ``'['`` at the left endpoint; otherwise ``'('``.
-        closed_right:
-            If True, use ``']'`` at the right endpoint; otherwise ``')'``.
-        creation:
-            Appearance time.
-        **kwargs:
-            Extra styling keyword arguments for the connecting line.
-
-        Returns
-        -------
-        VCollection
-            A VCollection containing the connecting line and two bracket
-            Text objects (already appended to this NumberLine's objects).
-        """
+        """Show an interval on the number line with bracket notation."""
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 3} | kwargs
         p1x, p1y = self.number_to_point(x1)
         p2x, _p2y = self.number_to_point(x2)
@@ -587,30 +431,7 @@ class NumberLine(VCollection):
         return group
 
     def animate_add_tick(self, value, start=0, end=1, label=None, easing=None):
-        """Dynamically add a tick mark at *value* with a pop-in animation.
-
-        Creates a small vertical Line at the position on the number line and
-        optionally a Text label below it.  Both fade and scale in during
-        ``[start, end]``.
-
-        Parameters
-        ----------
-        value:
-            Numeric value on the number line where the tick should appear.
-        start:
-            Time at which the animation begins.
-        end:
-            Time at which the animation ends.
-        label:
-            Optional label text below the tick.  If ``None``, no label is added.
-        easing:
-            Easing function for the animation.  Defaults to
-            ``easings.smooth``.
-
-        Returns
-        -------
-        self
-        """
+        """Dynamically add a tick mark at *value* with a pop-in animation."""
         if easing is None:
             easing = easings.smooth
         px, py = self.number_to_point(value)
@@ -633,25 +454,7 @@ class NumberLine(VCollection):
 
     def add_animated_pointer(self, value_func, start=0, end=None, color='#FFFF00',
                              label=True):
-        """Add a pointer (triangle) that tracks a dynamic value function over time.
-
-        Parameters
-        ----------
-        value_func:
-            A callable ``f(time)`` returning the numeric value on the line.
-        start:
-            Time at which the pointer appears.
-        end:
-            Time at which the pointer disappears (``None`` = forever).
-        color:
-            Fill color for the pointer triangle.
-        label:
-            If True, add a Text showing the current value below the pointer.
-
-        Returns
-        -------
-        self
-        """
+        """Add a pointer (triangle) that tracks a dynamic value function over time."""
         size = 12
         _nl = self
         _vf = value_func
@@ -698,32 +501,7 @@ class NumberLine(VCollection):
         return self
 
     def animate_range(self, new_start, new_end, start=0, end=1, easing=None):
-        """Animate the number line's visible range to ``[new_start, new_end]``.
-
-        Tick marks and labels slide to their new positions under the updated
-        range mapping.  Objects whose tick values fall outside the new range
-        are faded out; objects now inside are faded in.
-
-        After the animation completes, ``self.x_start`` and ``self.x_end``
-        are updated so that :meth:`number_to_point` uses the new range.
-
-        Parameters
-        ----------
-        new_start:
-            New range start value.
-        new_end:
-            New range end value.
-        start:
-            Animation start time.
-        end:
-            Animation end time.
-        easing:
-            Easing function (default ``easings.smooth``).
-
-        Returns
-        -------
-        self
-        """
+        """Animate the number line's visible range to ``[new_start, new_end]``."""
         _easing = easing or easings.smooth
         old_start, old_end = self.x_start, self.x_end
         length = self.length
@@ -804,11 +582,7 @@ class NumberLine(VCollection):
         return f'NumberLine([{self.x_start}, {self.x_end}], step={self.x_step})'
 
 class Table(VCollection):
-    """Table for displaying tabular data with optional row/column labels.
-
-    data: 2D list of values (data[row][col]).
-    row_labels/col_labels: optional label lists.
-    """
+    """Table for displaying tabular data with optional row/column labels."""
     def __init__(self, data, row_labels=None, col_labels=None,
                  x=120, y=60, cell_width=160, cell_height=60,
                  font_size=24, creation: float = 0, z: float = 0, **styling_kwargs):
@@ -880,11 +654,7 @@ class Table(VCollection):
         return self.get_entry(row, col)
 
     def get_cell_rect(self, row, col, padding=2, **kwargs):
-        """Return a Rectangle covering the cell at (row, col).
-
-        The Rectangle is not added to the table; callers can animate or add it
-        to a canvas independently.  padding shrinks the rect inward on all sides.
-        """
+        """Return a Rectangle covering the cell at (row, col)."""
         rx = self._table_x + self._x_off + col * self._cell_width + padding
         ry = self._table_y + self._y_off + row * self._cell_height + padding
         w = self._cell_width - 2 * padding
@@ -906,31 +676,7 @@ class Table(VCollection):
         return self
 
     def highlight_row(self, row_idx, start=0, end=1, color='#FFFF00', opacity=0.3, easing=None):
-        """Highlight all cells in a row by setting their fill color.
-
-        The highlight fades in at *start* and fades out at *end* using the
-        fill opacity.  If *easing* is ``None``, ``easings.there_and_back``
-        is used so the highlight peaks at the midpoint and fades out by *end*.
-
-        Parameters
-        ----------
-        row_idx:
-            Row index (0-based).
-        start:
-            Time at which the highlight begins.
-        end:
-            Time at which the highlight ends.
-        color:
-            Fill color for the highlight.
-        opacity:
-            Peak fill opacity for the highlight.
-        easing:
-            Easing function.  If ``None``, ``easings.there_and_back`` is used.
-
-        Returns
-        -------
-        self
-        """
+        """Highlight all cells in a row by setting their fill color."""
         if easing is None:
             easing = easings.there_and_back
         for entry in self.entries[row_idx]:
@@ -969,10 +715,7 @@ class Table(VCollection):
         return self
 
     def set_cell_values(self, updates, start=0):
-        """Batch update multiple cell values.
-
-        updates: dict of {(row, col): value, ...}
-        """
+        """Batch update multiple cell values."""
         for (r, c), value in updates.items():
             self.set_cell_value(r, c, str(value), start=start)
         return self
@@ -993,29 +736,7 @@ class Table(VCollection):
         return self
 
     def transpose(self, start=0, end=None, easing=None):
-        """Transpose the table so rows become columns and vice versa.
-
-        Cell at ``(row, col)`` slides to position ``(col, row)``.  If
-        *end* is ``None`` the rearrangement is instant; otherwise cells
-        animate over ``[start, end]``.
-
-        Only works when the current ``rows`` and ``cols`` fit within each
-        other's dimensions (i.e. the table has enough rows and columns
-        that transposed positions exist).
-
-        Parameters
-        ----------
-        start:
-            Animation start time.
-        end:
-            Animation end time.  ``None`` for instant rearrangement.
-        easing:
-            Easing function.  Defaults to ``easings.smooth`` if ``None``.
-
-        Returns
-        -------
-        self
-        """
+        """Transpose the table so rows become columns and vice versa."""
         if easing is None:
             easing = easings.smooth
         x = self._table_x
@@ -1048,30 +769,7 @@ class Table(VCollection):
         return self
 
     def animate_cell_values(self, data, start=0, end=1, easing=None):
-        """Animate table cells changing to new values.
-
-        For each cell, the text transitions from its current value to the
-        corresponding value in *data*.  Numeric values are interpolated
-        smoothly (like CountAnimation); non-numeric text is swapped at the
-        midpoint of the animation.
-
-        Parameters
-        ----------
-        data:
-            A 2D list matching the table dimensions.  ``data[row][col]``
-            gives the target value for the cell at ``(row, col)``.
-        start:
-            Animation start time.
-        end:
-            Animation end time.
-        easing:
-            Easing function for the transition.  Defaults to
-            ``easings.smooth`` if ``None``.
-
-        Returns
-        -------
-        self
-        """
+        """Animate table cells changing to new values with numeric interpolation."""
         if easing is None:
             easing = easings.smooth
         dur = end - start
@@ -1117,26 +815,7 @@ class Table(VCollection):
         return self
 
     def animate_cells(self, cells, method_name='flash', start=0, delay=0.15, **kwargs):
-        """Apply an animation method to specific cells with a stagger delay.
-
-        Parameters
-        ----------
-        cells:
-            List of (row, col) tuples identifying the cells to animate.
-        method_name:
-            Name of the animation method to call on each cell's Text object
-            (e.g. ``'flash'``, ``'indicate'``, ``'wiggle'``).
-        start:
-            Start time for the first cell's animation.
-        delay:
-            Time offset between successive cells.
-        **kwargs:
-            Extra keyword arguments forwarded to each animation method call.
-
-        Returns
-        -------
-        self
-        """
+        """Apply an animation method to specific cells with a stagger delay."""
         for i, (r, c) in enumerate(cells):
             entry = self.entries[r][c]
             method = getattr(entry, method_name)
@@ -1146,30 +825,7 @@ class Table(VCollection):
 
     @classmethod
     def from_dict(cls, data, **kwargs):
-        """Create a Table from a Python dict.
-
-        Keys become column headers and values become row data.  If the values
-        are lists, each element becomes a separate row.  Scalar values are
-        wrapped in a single-element list.
-
-        Parameters
-        ----------
-        data:
-            A dict mapping column header strings to values or lists of values.
-        **kwargs:
-            Extra keyword arguments forwarded to the Table constructor
-            (e.g. ``x``, ``y``, ``cell_width``, ``font_size``).
-
-        Returns
-        -------
-        Table
-
-        Examples
-        --------
-        >>> t = Table.from_dict({'Name': ['Alice', 'Bob'], 'Age': [30, 25]})
-        >>> t.rows  # 2
-        >>> t.cols  # 2
-        """
+        """Create a Table from a dict (keys become column headers, values become rows)."""
         headers = list(data.keys())
         # Normalize all values to lists
         columns = []
@@ -1186,27 +842,7 @@ class Table(VCollection):
         return cls(grid, col_labels=headers, **kwargs)
 
     def add_row(self, values, start=0, animate=True):
-        """Append a new row to the bottom of the table.
-
-        Creates Text objects for each cell value, adds a horizontal
-        separator line, and extends the existing vertical lines downward.
-        If *animate* is True the new elements fade in at *start*.
-
-        Parameters
-        ----------
-        values:
-            Sequence of cell values (one per column).  Extra values are
-            silently ignored; missing columns get an empty string.
-        start:
-            Time at which the new row appears.
-        animate:
-            If True, new elements fade in over 0.5 seconds starting at
-            *start*.
-
-        Returns
-        -------
-        self
-        """
+        """Append a new row to the bottom of the table."""
         x = self._table_x
         y_off = self._y_off
         cw = self._cell_width
@@ -1262,27 +898,7 @@ class Table(VCollection):
         return self
 
     def add_column(self, values, start=0, animate=True):
-        """Append a new column to the right of the table.
-
-        Creates Text objects for each cell value, adds a vertical
-        separator line, and extends the existing horizontal lines to the
-        right.  If *animate* is True the new elements fade in at *start*.
-
-        Parameters
-        ----------
-        values:
-            Sequence of cell values (one per row).  Extra values are
-            silently ignored; missing rows get an empty string.
-        start:
-            Time at which the new column appears.
-        animate:
-            If True, new elements fade in over 0.5 seconds starting at
-            *start*.
-
-        Returns
-        -------
-        self
-        """
+        """Append a new column to the right of the table."""
         x = self._table_x
         y_off = self._y_off
         cw = self._cell_width
@@ -1370,11 +986,7 @@ class DynamicObject(VObject):
         return f'DynamicObject()'
 
 class Matrix(VCollection):
-    """Display a mathematical matrix with square bracket delimiters.
-
-    data: 2D list of values.
-    x, y: position of the matrix center.
-    """
+    """Display a mathematical matrix with square bracket delimiters."""
     def __init__(self, data, x=960, y=540, font_size=36, h_spacing=80, v_spacing=50,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         if not data or not data[0]:
@@ -1458,14 +1070,7 @@ class Matrix(VCollection):
         return self
 
 class TexCountAnimation(DynamicObject):
-    """Animated number display using pre-rendered LaTeX digit glyphs.
-
-    Pre-renders digits 0-9, minus sign, and decimal point as SVGs at init,
-    then composites them dynamically each frame — much faster than re-rendering
-    LaTeX per frame.
-
-    >>> counter = TexCountAnimation(0, 100, start=0, end=3)
-    """
+    """Animated number display using pre-rendered LaTeX digit glyphs."""
 
     _glyph_cache = {}  # class-level: {(tex_dir, font_size): {char: (vb, chars)}}
 
@@ -1586,17 +1191,7 @@ def parse_args():
     return parser.parse_args()
 
 class ParametricFunction(Lines):
-    """A curve defined by a parametric function f(t) -> (x, y).
-
-    Parameters
-    ----------
-    func : callable
-        Function taking a float t and returning (x, y) in SVG coordinates.
-    t_range : tuple
-        (t_min, t_max) parameter range.
-    num_points : int
-        Number of sample points.
-    """
+    """A curve defined by a parametric function f(t) -> (x, y)."""
     def __init__(self, func, t_range=(0, 1), num_points=200,
                  creation=0, z=0, **styling_kwargs):
         t_min, t_max = t_range

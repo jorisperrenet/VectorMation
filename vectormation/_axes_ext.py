@@ -269,41 +269,7 @@ class _AxesExtMixin:
     def add_inflection_points(self, func, x_range=None, samples=200, h=1e-5,
                               creation=0, z=3, dot_radius=5, font_size=18,
                               color='#FFA726', **styling_kwargs):
-        """Find and label inflection points of *func* within *x_range*.
-
-        An inflection point is where the second derivative changes sign.  This
-        method numerically approximates the second derivative at evenly-spaced
-        sample points and detects sign changes.
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x) -> y``.
-        x_range:
-            ``(x_min, x_max)`` in math coordinates.  Defaults to the current
-            axis range.
-        samples:
-            Number of sample points for scanning (default 200).
-        h:
-            Step size for the numerical second derivative (default 1e-5).
-        creation:
-            Creation time for the resulting objects.
-        z:
-            Z-index for the dots and labels.
-        dot_radius:
-            Radius of the marker dots (default 5).
-        font_size:
-            Font size for the labels (default 18).
-        color:
-            Default colour for dots and labels (default '#FFA726', orange).
-        **styling_kwargs:
-            Extra styling overrides (e.g. ``fill``).
-
-        Returns
-        -------
-        VCollection
-            A collection of (dot, label) pairs for each inflection point found.
-        """
+        """Find and label inflection points of *func* within *x_range*."""
         def _f2(x):
             return (func(x + h) - 2 * func(x) + func(x - h)) / (h * h)
 
@@ -321,49 +287,7 @@ class _AxesExtMixin:
                             creation=0, z=3, dot_radius=5, font_size=18,
                             color='#E040FB', label_type='both',
                             **styling_kwargs):
-        """Find and mark critical points (local minima and maxima) of *func*.
-
-        A critical point is where the first derivative changes sign.  This
-        method numerically approximates the derivative at evenly-spaced
-        sample points, detects sign changes, and classifies each as a
-        local minimum (negative-to-positive) or local maximum
-        (positive-to-negative).
-
-        Parameters
-        ----------
-        func:
-            A callable ``f(x) -> y`` or a curve returned by :meth:`plot`.
-        x_range:
-            ``(x_min, x_max)`` in math coordinates.  Defaults to the current
-            axis range.
-        samples:
-            Number of sample points for scanning (default 200).
-        h:
-            Step size for the numerical derivative (default 1e-5).
-        creation:
-            Creation time for the resulting objects.
-        z:
-            Z-index for the dots and labels.
-        dot_radius:
-            Radius of the marker dots (default 5).
-        font_size:
-            Font size for the labels (default 18).
-        color:
-            Default colour for dots and labels (default '#E040FB', purple).
-        label_type:
-            What to show in labels: ``'coords'`` for ``(x, y)`` values,
-            ``'type'`` for ``'min'``/``'max'``, or ``'both'`` (default)
-            for type and coordinates.
-        **styling_kwargs:
-            Extra styling overrides (e.g. ``fill``).
-
-        Returns
-        -------
-        VCollection
-            A collection of (dot, label) pairs for each critical point found.
-            Each dot has a ``._critical_type`` attribute set to ``'min'`` or
-            ``'max'``.
-        """
+        """Find and mark critical points (local minima and maxima) of *func*."""
         fn = self._resolve_func(func, 'func')
 
         def _deriv(x):
@@ -1141,24 +1065,7 @@ class _AxesExtMixin:
         return dot
 
     def add_annotation(self, x, y, text, start=0, end=None, **kwargs):
-        """Add a text annotation at graph coordinates (x, y).
-
-        This is a convenience wrapper around :meth:`add_point_label`.
-
-        Parameters
-        ----------
-        x, y:
-            Math coordinates where the annotation should appear.
-        text:
-            The label text to display.
-        start:
-            Creation time (alias for the *creation* parameter).
-        end:
-            Unused — accepted for API consistency but ignored.
-        **kwargs:
-            Extra keyword arguments forwarded to :meth:`add_point_label`
-            (e.g. ``dot_radius``, ``font_size``, ``buff``).
-        """
+        """Add a text annotation at graph coordinates (x, y), wrapper around add_point_label."""
         kwargs.setdefault('creation', start)
         return self.add_point_label(x, y, text=text, **kwargs)
 
@@ -1816,28 +1723,7 @@ class _AxesExtMixin:
         return line
 
     def get_intersection_point(self, func1, func2, x_range, tol=0.01):
-        """Find the x-value where two functions intersect using bisection.
-
-        Searches for a root of ``func1(x) - func2(x)`` on *x_range* = (a, b).
-        Requires that the difference changes sign across the interval (i.e. the
-        functions cross at least once inside it).
-
-        Parameters
-        ----------
-        func1, func2:
-            Callables that each accept a single float x and return a float y.
-        x_range:
-            A ``(a, b)`` tuple defining the search interval.
-        tol:
-            Convergence tolerance on the x-axis.  Iteration stops when the
-            interval width is smaller than *tol*.
-
-        Returns
-        -------
-        (x, y) tuple
-            The approximate intersection point in math coordinates, or ``None``
-            if no sign change was found (functions may not cross in the range).
-        """
+        """Find the x-value where two functions intersect using bisection on *x_range*."""
         a, b = float(x_range[0]), float(x_range[1])
         fa = func1(a) - func2(a)
         fb = func1(b) - func2(b)

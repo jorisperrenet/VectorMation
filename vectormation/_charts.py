@@ -21,12 +21,7 @@ def _get_axes():
 
 
 class PieChart(VCollection):
-    """Pie chart visualization using Wedge sectors.
-
-    values: list of numeric values (proportional sizes).
-    labels: optional list of labels.
-    colors: list of sector colors (cycles if shorter than values).
-    """
+    """Pie chart visualization using Wedge sectors."""
     def __init__(self, values, labels=None, colors=None, cx=960, cy=540, r=240,
                  start_angle=90, creation: float = 0, z: float = 0):
         if colors is None:
@@ -57,21 +52,7 @@ class PieChart(VCollection):
 
     @classmethod
     def from_dict(cls, data, **kwargs):
-        """Create a PieChart from a dictionary.
-
-        Keys become labels and values become sector sizes.
-
-        Parameters
-        ----------
-        data:
-            A dictionary mapping label strings to numeric values.
-        **kwargs:
-            Extra keyword arguments forwarded to the PieChart constructor.
-
-        Returns
-        -------
-        PieChart
-        """
+        """Create a PieChart from a dictionary."""
         values = list(data.values())
         labels = list(data.keys())
         return cls(values, labels=labels, **kwargs)
@@ -102,28 +83,7 @@ class PieChart(VCollection):
         return self
 
     def explode(self, indices, distance=20, start=0, end=None, easing=None):
-        """Permanently shift specified sectors outward from the pie center.
-
-        For each index in *indices*, the sector's bisect angle is computed
-        and the sector is shifted along that direction by *distance* pixels.
-
-        Parameters
-        ----------
-        indices:
-            Sequence of sector indices to explode.
-        distance:
-            How many pixels to shift each sector outward.
-        start:
-            Time at which the shift begins.
-        end:
-            Time at which the shift ends.  ``None`` means instant.
-        easing:
-            Easing function for the animation.
-
-        Returns
-        -------
-        self
-        """
+        """Permanently shift specified sectors outward from the pie center."""
         for idx in indices:
             if idx < 0 or idx >= len(self._sectors):
                 continue
@@ -186,12 +146,7 @@ class PieChart(VCollection):
 
 
 class DonutChart(VCollection):
-    """Donut (ring) chart — PieChart with a hollow center.
-
-    values: list of numeric values (proportional sizes).
-    labels: optional list of labels.
-    inner_radius: radius of the hole (0 < inner_radius < r).
-    """
+    """Donut (ring) chart — PieChart with a hollow center."""
     def __init__(self, values, labels=None, colors=None, cx=960, cy=540,
                  r=240, inner_radius=120, start_angle=90,
                  center_text=None, font_size=17, creation: float = 0, z: float = 0):
@@ -318,12 +273,7 @@ class DonutChart(VCollection):
 
 
 class BarChart(VCollection):
-    """Simple bar chart visualization.
-
-    values: list of numeric values.
-    labels: optional list of labels (same length as values).
-    colors: list of bar colors (cycles if shorter than values).
-    """
+    """Simple bar chart visualization."""
     def __init__(self, values, labels=None, colors=None, x=120, y=60,
                  width=1440, height=840, bar_spacing=0.2,
                  creation: float = 0, z: float = 0):
@@ -388,21 +338,7 @@ class BarChart(VCollection):
 
     @classmethod
     def from_dict(cls, data, **kwargs):
-        """Create a BarChart from a dictionary.
-
-        Keys become labels and values become bar heights.
-
-        Parameters
-        ----------
-        data:
-            A dictionary mapping label strings to numeric values.
-        **kwargs:
-            Extra keyword arguments forwarded to the BarChart constructor.
-
-        Returns
-        -------
-        BarChart
-        """
+        """Create a BarChart from a dictionary."""
         values = list(data.values())
         labels = list(data.keys())
         return cls(values, labels=labels, **kwargs)
@@ -454,26 +390,7 @@ class BarChart(VCollection):
         return VCollection(*bars)
 
     def highlight_bar(self, index, color='#FFFF00', start=0, end=None, opacity=None):
-        """Highlight a specific bar by changing its fill color.
-
-        Parameters
-        ----------
-        index:
-            Bar index (0-based).
-        color:
-            Target fill color for the bar.
-        start:
-            Time at which the highlight begins.
-        end:
-            Time at which the color transition ends.  ``None`` means
-            the color is set instantly at *start*.
-        opacity:
-            If provided, also set the bar's fill opacity.
-
-        Returns
-        -------
-        self
-        """
+        """Highlight a specific bar by changing its fill color."""
         n = len(self._bars)
         if index < -n or index >= n:
             raise IndexError(f"bar index {index} out of range for chart with {n} bars")
@@ -537,24 +454,7 @@ class BarChart(VCollection):
         return self._bars[idx]
 
     def sort_bars(self, key=None, reverse=False, start=0, end=1, easing=easings.smooth):
-        """Animate reordering bars by value (or custom key function).
-
-        Parameters
-        ----------
-        key:
-            A function ``key(value) -> sort_key``.  If *None*, bars are sorted
-            by their numeric value.
-        reverse:
-            If *True*, sort in descending order.
-        start, end:
-            Animation time range for the reordering animation.
-        easing:
-            Easing function for the slide animation.
-
-        Returns
-        -------
-        self
-        """
+        """Animate reordering bars by value (or custom key function)."""
         if len(self._bars) <= 1:
             return self
         if key is None:
@@ -588,24 +488,7 @@ class BarChart(VCollection):
         return self
 
     def add_bar(self, value, label=None, start=0, end=None):
-        """Add a new bar to the right side of the chart.
-
-        Parameters
-        ----------
-        value:
-            Numeric value for the new bar.
-        label:
-            Optional label string displayed below the bar.
-        start:
-            Time at which the bar appears (or animation begins).
-        end:
-            If provided, the bar animates growing from height 0 over
-            ``[start, end]``.  If ``None``, the bar appears instantly.
-
-        Returns
-        -------
-        self
-        """
+        """Add a new bar to the right side of the chart."""
         n = len(self._bars)
         all_vals = list(self.values) + [value]
         max_val = max(abs(v) for v in all_vals) if all_vals else 1
@@ -650,23 +533,7 @@ class BarChart(VCollection):
         return self
 
     def remove_bar(self, index, start=0, end=None):
-        """Remove a bar by index.
-
-        Parameters
-        ----------
-        index:
-            Index of the bar to remove (0-based).
-        start:
-            Time at which the removal begins.
-        end:
-            If provided, the bar shrinks to zero height over
-            ``[start, end]`` before being removed.  If ``None``, the
-            bar is removed instantly.
-
-        Returns
-        -------
-        self
-        """
+        """Remove a bar by index."""
         n = len(self._bars)
         if index < -n or index >= n:
             raise IndexError(f"bar index {index} out of range for chart with {n} bars")
@@ -714,28 +581,7 @@ class BarChart(VCollection):
         return self
 
     def animate_sort(self, key=None, reverse=False, start=0, end=1, easing=None):
-        """Smoothly animate bars sliding into sorted order.
-
-        Like :meth:`sort_bars`, but animates bar positions with ``move_to``
-        for smooth interpolation.  Labels are moved alongside their bars.
-
-        Parameters
-        ----------
-        key:
-            A function ``key(value) -> sort_key``.  If *None*, bars are
-            sorted by their numeric value.
-        reverse:
-            If *True*, sort in descending order.
-        start, end:
-            Animation time range.
-        easing:
-            Easing function for the animation.  Defaults to
-            ``easings.smooth``.
-
-        Returns
-        -------
-        self
-        """
+        """Smoothly animate bars sliding into sorted order."""
         if easing is None:
             easing = easings.smooth
         if len(self._bars) <= 1:
@@ -775,12 +621,7 @@ class BarChart(VCollection):
 
 
 class PolarAxes(VCollection):
-    """Polar coordinate system with radial gridlines and angle markers.
-
-    r_range: (min, max) radius in abstract units.
-    n_rings: number of concentric rings.
-    n_sectors: number of angular sectors (lines from center).
-    """
+    """Polar coordinate system with radial gridlines and angle markers."""
     def __init__(self, cx=960, cy=540, max_radius=400, r_range=(0, 5),
                  n_rings=5, n_sectors=12, creation=0, z=0):
         from vectormation._shapes import Circle, Line, Text
@@ -855,10 +696,7 @@ class PolarAxes(VCollection):
 
 
 class Legend(VCollection):
-    """Chart legend with colored swatches and labels.
-
-    items: list of (color, label) tuples.
-    """
+    """Chart legend with colored swatches and labels."""
     def __init__(self, items, x=100, y=100, swatch_size=16, spacing=8,
                  font_size=16, direction='down', creation: float = 0, z: float = 0):
         from vectormation._shapes import Rectangle, Text
@@ -887,12 +725,7 @@ class Legend(VCollection):
 
 
 class RadarChart(VCollection):
-    """Radar/spider chart visualization.
-
-    values: list of numeric values (one per axis).
-    labels: optional list of axis labels.
-    max_val: maximum value for the chart (scales all values).
-    """
+    """Radar/spider chart visualization."""
     def __init__(self, values, labels=None, max_val=None, colors=None,
                  cx=960, cy=540, radius=250, font_size=16,
                  fill_opacity=0.3, creation: float = 0, z: float = 0):
@@ -958,13 +791,7 @@ class RadarChart(VCollection):
 
 
 class ProgressBar(VCollection):
-    """Animated progress bar that fills from left to right.
-
-    width, height: dimensions of the bar.
-    x, y: top-left corner position.
-    bg_color: background track color.
-    fill_color: fill bar color.
-    """
+    """Animated progress bar that fills from left to right."""
     def __init__(self, width=400, height=30, x=760, y=520,
                  bg_color='#333', fill_color='#58C4DD',
                  corner_radius=6, creation: float = 0, z: float = 0):
@@ -1000,12 +827,7 @@ class ProgressBar(VCollection):
 
 
 class WaterfallChart(VCollection):
-    """Waterfall chart showing cumulative effect of positive/negative values.
-
-    values: list of numbers (positive = increase, negative = decrease).
-    labels: optional list of labels for each bar.
-    show_total: if True, adds a total bar at the end.
-    """
+    """Waterfall chart showing cumulative effect of positive/negative values."""
     def __init__(self, values, labels=None, x=200, y=100,
                  width=800, height=400, bar_width=0.7,
                  pos_color='#83C167', neg_color='#FF6B6B', total_color='#58C4DD',
@@ -1094,10 +916,7 @@ class WaterfallChart(VCollection):
 
 
 class GanttChart(VCollection):
-    """Gantt chart for project timelines.
-
-    tasks: list of (label, start, end) tuples or (label, start, end, color).
-    """
+    """Gantt chart for project timelines."""
     def __init__(self, tasks, x=100, y=80, width=1200, height=None,
                  bar_height=30, bar_spacing=10, colors=None,
                  font_size=16, creation: float = 0, z: float = 0):
@@ -1166,10 +985,7 @@ class GanttChart(VCollection):
 
 
 class SankeyDiagram(VCollection):
-    """Sankey flow diagram showing flows between nodes.
-
-    flows: list of (source_label, target_label, value) tuples.
-    """
+    """Sankey flow diagram showing flows between nodes."""
     def __init__(self, flows, x=100, y=100, width=1200, height=600,
                  node_width=30, node_spacing=20, colors=None,
                  font_size=16, creation: float = 0, z: float = 0):
@@ -1238,10 +1054,7 @@ class SankeyDiagram(VCollection):
 
 
 class FunnelChart(VCollection):
-    """Funnel chart showing progressive narrowing stages.
-
-    stages: list of (label, value) tuples, ordered top-to-bottom.
-    """
+    """Funnel chart showing progressive narrowing stages."""
     def __init__(self, stages, x=100, y=100, width=600, height=500,
                  colors=None, font_size=18, gap=4, creation: float = 0, z: float = 0):
         if not stages:
@@ -1276,10 +1089,7 @@ class FunnelChart(VCollection):
 
 
 class TreeMap(VCollection):
-    """Treemap visualization using squarified layout.
-
-    data: list of (label, value) tuples.
-    """
+    """Treemap visualization using squarified layout."""
     def __init__(self, data, x=100, y=100, width=800, height=600,
                  colors=None, font_size=14, padding=2, creation: float = 0, z: float = 0):
         if not data:
@@ -1371,10 +1181,7 @@ class TreeMap(VCollection):
 
 
 class GaugeChart(VCollection):
-    """Speedometer / gauge chart.
-
-    value: current value.  min_val/max_val: gauge range.
-    """
+    """Speedometer / gauge chart."""
     def __init__(self, value, min_val=0, max_val=100, x=960, y=540,
                  radius=200, start_angle=225, end_angle=-45,
                  colors=None, label=None, font_size=36,
@@ -1466,10 +1273,7 @@ class GaugeChart(VCollection):
 
 
 class SparkLine(VObject):
-    """Minimal inline chart (sparkline) rendered as a single SVG path.
-
-    data: list of numeric values.
-    """
+    """Minimal inline chart (sparkline) rendered as a single SVG path."""
     def __init__(self, data, x=100, y=100, width=120, height=30,
                  stroke='#58C4DD', stroke_width=1.5,
                  show_endpoint=False, creation: float = 0, z: float = 0, **styling_kwargs):
@@ -1529,10 +1333,7 @@ class SparkLine(VObject):
 
 
 class KPICard(VCollection):
-    """Metric card showing a title, large value, optional subtitle and trend sparkline.
-
-    title: metric name.  value: displayed value string.
-    """
+    """Metric card showing a title, large value, optional subtitle and trend sparkline."""
     def __init__(self, title, value, subtitle=None, trend_data=None,
                  x=100, y=100, width=280, height=160,
                  bg_color='#1a1a2e', title_color='#aaa', value_color='#fff',
@@ -1579,11 +1380,7 @@ class KPICard(VCollection):
 
 
 class BulletChart(VCollection):
-    """Bullet chart: qualitative ranges + actual bar + target marker.
-
-    actual: actual value.  target: target value.
-    ranges: list of (value, color) tuples for qualitative ranges, sorted ascending.
-    """
+    """Bullet chart: qualitative ranges + actual bar + target marker."""
     def __init__(self, actual, target, ranges=None, label=None,
                  x=100, y=100, width=500, height=40,
                  bar_color='#333', target_color='#fff',
@@ -1632,10 +1429,7 @@ class BulletChart(VCollection):
 
 
 class CalendarHeatmap(VCollection):
-    """Grid heatmap like a GitHub contribution graph.
-
-    data: dict mapping (row, col) to a value, or a flat list (auto-arranged into rows).
-    """
+    """Grid heatmap like a GitHub contribution graph."""
     def __init__(self, data, rows=7, cols=52, x=100, y=100,
                  cell_size=14, gap=2, colormap=None,
                  creation: float = 0, z: float = 0):
@@ -1675,10 +1469,7 @@ class CalendarHeatmap(VCollection):
 
 
 class WaffleChart(VCollection):
-    """Waffle chart: grid of colored squares showing category proportions.
-
-    categories: list of (label, value, color) tuples.
-    """
+    """Waffle chart: grid of colored squares showing category proportions."""
     def __init__(self, categories, x=100, y=100, grid_size=10,
                  cell_size=20, gap=3, font_size=14, creation: float = 0, z: float = 0):
         total = sum(v for _, v, _ in categories) or 1
@@ -1729,10 +1520,7 @@ class WaffleChart(VCollection):
 
 
 class CircularProgressBar(VCollection):
-    """Circular progress indicator with percentage text.
-
-    value: 0-100 (percent complete).
-    """
+    """Circular progress indicator with percentage text."""
     def __init__(self, value, x=960, y=540, radius=80, stroke_width=12,
                  track_color='#2a2a3a', bar_color='#58C4DD',
                  font_size=36, show_text=True, creation: float = 0, z: float = 0):
@@ -1764,10 +1552,7 @@ class CircularProgressBar(VCollection):
 
 
 class Scoreboard(VCollection):
-    """Score/metric display panel.
-
-    entries: list of (label, value) tuples.
-    """
+    """Score/metric display panel."""
     def __init__(self, entries, x=100, y=100, col_width=200, row_height=60,
                  bg_color='#1a1a2e', label_color='#aaa', value_color='#fff',
                  font_size=28, cols=None, creation: float = 0, z: float = 0):
@@ -1819,11 +1604,7 @@ class Scoreboard(VCollection):
 
 
 class MatrixHeatmap(VCollection):
-    """Labeled matrix heatmap with colored cells.
-
-    data: 2D list of values (rows x cols).
-    row_labels / col_labels: optional label lists.
-    """
+    """Labeled matrix heatmap with colored cells."""
     def __init__(self, data, row_labels=None, col_labels=None,
                  x=100, y=100, cell_size=50, gap=2,
                  colormap=None, font_size=14, show_values=True,
@@ -1887,11 +1668,7 @@ class MatrixHeatmap(VCollection):
 
 
 class BoxPlot(VCollection):
-    """Box-and-whisker plot for one or more data groups.
-
-    data_groups: list of lists of numeric values.
-    positions: x-positions for each box (defaults to 1, 2, 3, ...).
-    """
+    """Box-and-whisker plot for one or more data groups."""
     def __init__(self, data_groups, positions=None, x=100, y=100,
                  plot_width=400, plot_height=300, box_width=30,
                  box_color='#58C4DD', whisker_color='#aaa', median_color='#FF6B6B',
@@ -1959,10 +1736,7 @@ class BoxPlot(VCollection):
 
 
 class SampleSpace(VCollection):
-    """Rectangle representing a probability sample space, divisible into regions.
-
-    Useful for visualizing conditional probability, Bayes' theorem, etc.
-    """
+    """Rectangle representing a probability sample space, divisible into regions."""
     def __init__(self, width=500, height=400, x=710, y=340, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'fill': '#222', 'fill_opacity': 0.5,
                     'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
