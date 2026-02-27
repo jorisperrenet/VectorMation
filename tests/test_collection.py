@@ -1256,3 +1256,36 @@ class TestRemoveAt:
         col = VCollection(Circle(r=10))
         with pytest.raises(IndexError):
             col.remove_at(5)
+
+    def test_all_match_true(self):
+        """all_match should return True when all children satisfy predicate."""
+        col = VCollection(Circle(r=10), Circle(r=20), Circle(r=30))
+        assert col.all_match(lambda obj: isinstance(obj, Circle)) is True
+
+    def test_all_match_false(self):
+        """all_match should return False when at least one child fails."""
+        from vectormation.objects import Rectangle
+        col = VCollection(Circle(r=10), Rectangle(20, 20), Circle(r=30))
+        assert col.all_match(lambda obj: isinstance(obj, Circle)) is False
+
+    def test_all_match_empty(self):
+        """all_match on empty collection should return True (vacuous truth)."""
+        col = VCollection()
+        assert col.all_match(lambda obj: False) is True
+
+    def test_any_match_true(self):
+        """any_match should return True when at least one child satisfies predicate."""
+        from vectormation.objects import Rectangle
+        col = VCollection(Circle(r=10), Rectangle(20, 20))
+        assert col.any_match(lambda obj: isinstance(obj, Circle)) is True
+
+    def test_any_match_false(self):
+        """any_match should return False when no children satisfy predicate."""
+        from vectormation.objects import Rectangle
+        col = VCollection(Rectangle(10, 10), Rectangle(20, 20))
+        assert col.any_match(lambda obj: isinstance(obj, Circle)) is False
+
+    def test_any_match_empty(self):
+        """any_match on empty collection should return False."""
+        col = VCollection()
+        assert col.any_match(lambda obj: True) is False

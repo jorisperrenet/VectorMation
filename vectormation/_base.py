@@ -1351,7 +1351,7 @@ class VObject(ABC):  # Vector Object
         _dir = dir_name
         _buff = buff
         def _update(obj, t):
-            mx, my, mw, mh = obj.bbox(t)
+            _mx, _my, mw, mh = obj.bbox(t)
             ox, oy, ow, oh = other.bbox(t)
             ocx, ocy = ox + ow / 2, oy + oh / 2
             targets = {
@@ -2050,6 +2050,43 @@ class VObject(ABC):  # Vector Object
         half = duration / 2
         self.styling.opacity.set(start, mid, lambda t, _s=start, _h=half: 1 - easing((t - _s) / _h))
         self.styling.opacity.set(mid, blink_end, lambda t, _m=mid, _h=half: easing((t - _m) / _h))
+        return self
+
+    def blink_opacity(self, start: float = 0, end: float = 1, frequency: float = 2,
+                       min_opacity: float = 0.0, max_opacity: float = 1.0,
+                       easing=easings.smooth):
+        """Oscillate opacity between *min_opacity* and *max_opacity*.
+
+        The opacity cycles sinusoidally at the given *frequency* (cycles per
+        second) over the interval ``[start, end]``.  The easing function is
+        applied to the normalised sine wave so that the transition between
+        min and max can be smoothed or shaped.
+
+        Parameters
+        ----------
+        start, end:
+            Time interval during which the oscillation is active.
+        frequency:
+            Number of full oscillation cycles per second.
+        min_opacity, max_opacity:
+            The opacity range to oscillate between.
+        easing:
+            Easing applied to each half-cycle.
+        """
+        dur = end - start
+        if dur <= 0 or frequency <= 0:
+            return self
+        _s, _d = start, dur
+        _min, _max = min_opacity, max_opacity
+        _freq = frequency
+
+        def _opacity(t, _s=_s, _d=_d, _min=_min, _max=_max, _freq=_freq):
+            progress = (t - _s) / _d
+            # sine wave: 0..1..0..-1..0 per cycle; we map to 0..1 range
+            wave = 0.5 * (1 - math.cos(2 * math.pi * _freq * progress))
+            return _min + (_max - _min) * wave
+
+        self.styling.opacity.set(start, end, _opacity, stay=True)
         return self
 
     def shake(self, start: float = 0, end: float = 0.5, amplitude=5, frequency=20, easing=easings.there_and_back):
@@ -4545,6 +4582,15 @@ class VCollection:
                       max_stroke_width=max_stroke_width, change_existence=change_existence,
                       easing=easing)
         return self
+
+
+    def all_match(self, predicate):
+        """Return True if all children match the predicate."""
+        return all(predicate(obj) for obj in self.objects)
+
+    def any_match(self, predicate):
+        """Return True if any child matches the predicate."""
+        return any(predicate(obj) for obj in self.objects)
 
 
 VGroup = VCollection

@@ -3022,7 +3022,7 @@ class TestLineUtilities:
 
     def test_get_length(self):
         l = Line(x1=0, y1=0, x2=300, y2=400)
-        assert abs(l.get_length() - 500.0) < 0.01
+        assert l.get_length() == pytest.approx(500.0, abs=0.01)
 
     def test_get_length_zero(self):
         l = Line(x1=100, y1=100, x2=100, y2=100)
@@ -3030,21 +3030,21 @@ class TestLineUtilities:
 
     def test_get_angle_horizontal(self):
         l = Line(x1=0, y1=0, x2=100, y2=0)
-        assert abs(l.get_angle() - 0.0) < 0.01
+        assert l.get_angle() == pytest.approx(0.0, abs=0.01)
 
     def test_get_angle_vertical_down(self):
         l = Line(x1=0, y1=0, x2=0, y2=100)
-        assert abs(l.get_angle() - 90.0) < 0.01
+        assert l.get_angle() == pytest.approx(90.0, abs=0.01)
 
     def test_get_angle_diagonal(self):
         l = Line(x1=0, y1=0, x2=100, y2=100)
-        assert abs(l.get_angle() - 45.0) < 0.01
+        assert l.get_angle() == pytest.approx(45.0, abs=0.01)
 
     def test_get_unit_vector(self):
         l = Line(x1=0, y1=0, x2=300, y2=400)
         ux, uy = l.get_unit_vector()
-        assert abs(ux - 0.6) < 0.01
-        assert abs(uy - 0.8) < 0.01
+        assert ux == pytest.approx(0.6, abs=0.01)
+        assert uy == pytest.approx(0.8, abs=0.01)
 
     def test_get_unit_vector_zero_length(self):
         l = Line(x1=50, y1=50, x2=50, y2=50)
@@ -3053,32 +3053,32 @@ class TestLineUtilities:
     def test_animated_line_at_time(self):
         l = Line(x1=0, y1=0, x2=100, y2=0)
         l.p2.set(0, 1, lambda t: (100 + 200 * t, 0))
-        assert abs(l.get_length(time=0) - 100) < 1
-        assert abs(l.get_length(time=1) - 300) < 1
+        assert l.get_length(time=0) == pytest.approx(100, abs=1)
+        assert l.get_length(time=1) == pytest.approx(300, abs=1)
 
 
 class TestArcUtilities:
     def test_get_start_point(self):
         a = Arc(cx=0, cy=0, r=100, start_angle=0, end_angle=90)
         sx, sy = a.get_start_point()
-        assert abs(sx - 100) < 0.01
-        assert abs(sy - 0) < 0.01
+        assert sx == pytest.approx(100, abs=0.01)
+        assert sy == pytest.approx(0, abs=0.01)
 
     def test_get_end_point(self):
         a = Arc(cx=0, cy=0, r=100, start_angle=0, end_angle=90)
         ex, ey = a.get_end_point()
-        assert abs(ex - 0) < 0.01
-        assert abs(ey - (-100)) < 0.01  # 90 degrees: y = -r*sin(90) = -100
+        assert ex == pytest.approx(0, abs=0.01)
+        assert ey == pytest.approx(-100, abs=0.01)  # 90 degrees: y = -r*sin(90) = -100
 
     def test_get_arc_length(self):
         from math import pi
         a = Arc(cx=0, cy=0, r=100, start_angle=0, end_angle=180)
-        assert abs(a.get_arc_length() - 100 * pi) < 0.01
+        assert a.get_arc_length() == pytest.approx(100 * pi, abs=0.01)
 
     def test_get_arc_length_quarter(self):
         from math import pi
         a = Arc(cx=0, cy=0, r=200, start_angle=0, end_angle=90)
-        assert abs(a.get_arc_length() - 200 * pi / 2) < 0.01
+        assert a.get_arc_length() == pytest.approx(200 * pi / 2, abs=0.01)
 
 
 class TestMorphObject:
@@ -3173,26 +3173,26 @@ class TestPolygonUtilities:
     def test_get_center(self):
         p = Polygon((0, 0), (300, 0), (300, 300), (0, 300))
         cx, cy = p.get_center()
-        assert abs(cx - 150) < 0.01
-        assert abs(cy - 150) < 0.01
+        assert cx == pytest.approx(150, abs=0.01)
+        assert cy == pytest.approx(150, abs=0.01)
 
     def test_perimeter_square(self):
         p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
-        assert abs(p.perimeter() - 400) < 0.01
+        assert p.perimeter() == pytest.approx(400, abs=0.01)
 
     def test_perimeter_open(self):
         from vectormation.objects import Lines as Polyline
         l = Polyline((0, 0), (100, 0), (100, 100))
         # Open: only 2 segments, no closing edge
-        assert abs(l.perimeter() - 200) < 0.01
+        assert l.perimeter() == pytest.approx(200, abs=0.01)
 
     def test_area_square(self):
         p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
-        assert abs(p.area() - 10000) < 0.01
+        assert p.area() == pytest.approx(10000, abs=0.01)
 
     def test_area_triangle(self):
         p = Polygon((0, 0), (200, 0), (100, 100))
-        assert abs(p.area() - 10000) < 0.01
+        assert p.area() == pytest.approx(10000, abs=0.01)
 
     def test_area_open_is_zero(self):
         from vectormation.objects import Lines as Polyline
@@ -3269,19 +3269,19 @@ class TestCircleGeometry:
     def test_get_area(self):
         from math import pi
         c = Circle(r=100)
-        assert abs(c.get_area() - pi * 10000) < 0.01
+        assert c.get_area() == pytest.approx(pi * 10000, abs=0.01)
 
     def test_get_circumference(self):
         from math import pi
         c = Circle(r=50)
-        assert abs(c.get_circumference() - 2 * pi * 50) < 0.01
+        assert c.get_circumference() == pytest.approx(2 * pi * 50, abs=0.01)
 
     def test_animated_radius(self):
         from math import pi
         c = Circle(r=100)
         c.rx.set(0, 1, lambda t: 100 + 100 * t)
-        assert abs(c.get_area(time=0) - pi * 10000) < 1
-        assert abs(c.get_area(time=1) - pi * 40000) < 1
+        assert c.get_area(time=0) == pytest.approx(pi * 10000, abs=1)
+        assert c.get_area(time=1) == pytest.approx(pi * 40000, abs=1)
 
 
 class TestInputValidation:
@@ -3310,20 +3310,20 @@ class TestEllipseGeometry:
     def test_get_area(self):
         from math import pi
         e = Ellipse(rx=100, ry=50)
-        assert abs(e.get_area() - pi * 100 * 50) < 0.01
+        assert e.get_area() == pytest.approx(pi * 100 * 50, abs=0.01)
 
     def test_get_circumference(self):
         # For a circle (rx==ry==100), should give 2*pi*100
         from math import pi
         e = Ellipse(rx=100, ry=100)
-        assert abs(e.get_circumference() - 2 * pi * 100) < 0.01
+        assert e.get_circumference() == pytest.approx(2 * pi * 100, abs=0.01)
 
     def test_circle_inherits(self):
         from math import pi
         c = Circle(r=50)
         # Circle inherits from Ellipse, should work
-        assert abs(c.get_area() - pi * 2500) < 0.01
-        assert abs(c.get_circumference() - 2 * pi * 50) < 0.01
+        assert c.get_area() == pytest.approx(pi * 2500, abs=0.01)
+        assert c.get_circumference() == pytest.approx(2 * pi * 50, abs=0.01)
 
 
 class TestCanvasRemoveClear:
@@ -7589,7 +7589,7 @@ class TestPlotPiecewise:
         ax = Axes(x_range=[-5, 5], y_range=[-10, 10])
         pieces = [
             (lambda x: -x, -5, -1),
-            (lambda x: 1, -1, 1),
+            (lambda _x: 1, -1, 1),
             (lambda x: x, 1, 5),
         ]
         group = ax.plot_piecewise(pieces)
@@ -7767,7 +7767,7 @@ class TestAxesGetIntegral:
     def test_get_integral_constant_function(self):
         """Integral of f(x)=5 from 0 to 4 should be 20."""
         ax = Axes(x_range=[0, 10], y_range=[0, 10])
-        val = ax.get_integral(lambda x: 5, 0, 4)
+        val = ax.get_integral(lambda _x: 5, 0, 4)
         assert val == pytest.approx(20.0, abs=0.01)
 
 
@@ -8149,3 +8149,49 @@ class TestEllipseTangentAtAngle:
         svg = line.to_svg(0)
         assert 'stroke-width=\'3\'' in svg
         assert 'rgb(255,0,0)' in svg or '#f00' in svg
+
+
+class TestBlinkOpacity:
+    def test_blink_opacity_oscillates(self):
+        """blink_opacity should oscillate opacity over time."""
+        c = Circle(r=50)
+        c.blink_opacity(start=0, end=2, frequency=1, min_opacity=0.2, max_opacity=0.8)
+        # At t=0, opacity should be at min (cos(0)=1, wave=0 -> min)
+        op_start = c.styling.opacity.at_time(0)
+        assert op_start == pytest.approx(0.2, abs=0.05)
+        # At t=1.0 (progress=0.5, peak of one cycle), opacity should be at max
+        op_peak = c.styling.opacity.at_time(1.0)
+        assert op_peak == pytest.approx(0.8, abs=0.05)
+        # At t=2.0 (full cycle), should be back at min
+        op_end = c.styling.opacity.at_time(2.0)
+        assert op_end == pytest.approx(0.2, abs=0.05)
+
+    def test_blink_opacity_returns_self(self):
+        """blink_opacity should return self for chaining."""
+        c = Circle(r=50)
+        result = c.blink_opacity(start=0, end=1)
+        assert result is c
+
+    def test_blink_opacity_zero_duration_noop(self):
+        """blink_opacity with zero duration should be a no-op."""
+        c = Circle(r=50)
+        c.blink_opacity(start=1, end=1)
+        # Default opacity should be unchanged (1.0)
+        assert c.styling.opacity.at_time(0) == pytest.approx(1.0)
+
+
+class TestAxesGetGraphValue:
+    def test_get_graph_value_linear(self):
+        """get_graph_value should return func(x)."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        f = lambda x: 2 * x + 1
+        assert ax.get_graph_value(f, 3) == pytest.approx(7)
+        assert ax.get_graph_value(f, -2) == pytest.approx(-3)
+        assert ax.get_graph_value(f, 0) == pytest.approx(1)
+
+    def test_get_graph_value_quadratic(self):
+        """get_graph_value should work with any callable."""
+        ax = Axes(x_range=(0, 10), y_range=(0, 100))
+        f = lambda x: x ** 2
+        assert ax.get_graph_value(f, 5) == pytest.approx(25)
+        assert ax.get_graph_value(f, 0) == pytest.approx(0)

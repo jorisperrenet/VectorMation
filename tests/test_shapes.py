@@ -1682,8 +1682,8 @@ class TestGeometricQueries:
         result = line.set_length(200, start=0)
         assert result is line
         p2 = line.p2.at_time(0)
-        assert abs(p2[0] - 200) < 0.01
-        assert abs(p2[1]) < 0.01
+        assert p2[0] == pytest.approx(200, abs=0.01)
+        assert p2[1] == pytest.approx(0, abs=0.01)
 
     def test_line_set_length_animated(self):
         line = Line(0, 0, 100, 0)
@@ -1736,7 +1736,7 @@ class TestGeometricQueries:
         import math
         an = Annulus(inner_radius=30, outer_radius=100)
         expected = math.pi * (100**2 - 30**2)
-        assert abs(an.get_area() - expected) < 0.01
+        assert an.get_area() == pytest.approx(expected, abs=0.01)
 
     def test_annulus_set_radii(self):
         an = Annulus(inner_radius=30, outer_radius=100)
@@ -1755,22 +1755,22 @@ class TestGeometricQueries:
         a = Arc(cx=0, cy=0, r=100, start_angle=0, end_angle=180)
         mx, my = a.get_midpoint()
         # Midpoint at 90 degrees = top of circle
-        assert abs(mx - 0) < 0.01
-        assert abs(my - (-100)) < 0.01  # y is inverted in SVG
+        assert mx == pytest.approx(0, abs=0.01)
+        assert my == pytest.approx(-100, abs=0.01)  # y is inverted in SVG
 
     def test_wedge_get_area(self):
         import math
         w = Wedge(r=100, start_angle=0, end_angle=90)
         expected = 0.5 * 100**2 * math.radians(90)
-        assert abs(w.get_area() - expected) < 0.01
+        assert w.get_area() == pytest.approx(expected, abs=0.01)
 
     def test_cubicbezier_point_at(self):
         from vectormation.objects import CubicBezier
         b = CubicBezier(p0=(0, 0), p1=(100, 0), p2=(100, 100), p3=(200, 100))
         start = b.point_at(0)
         end = b.point_at(1)
-        assert abs(start[0] - 0) < 0.01 and abs(start[1] - 0) < 0.01
-        assert abs(end[0] - 200) < 0.01 and abs(end[1] - 100) < 0.01
+        assert start[0] == pytest.approx(0, abs=0.01) and start[1] == pytest.approx(0, abs=0.01)
+        assert end[0] == pytest.approx(200, abs=0.01) and end[1] == pytest.approx(100, abs=0.01)
         mid = b.point_at(0.5)
         assert 50 < mid[0] < 150  # somewhere in the middle
 
@@ -1780,10 +1780,10 @@ class TestGeometricQueries:
         b = CubicBezier(p0=(0, 0), p1=(100, 0), p2=(100, 0), p3=(200, 0))
         dx, dy = b.tangent_at(0.5)
         # Horizontal line, tangent should point right
-        assert abs(dx - 1.0) < 0.1
-        assert abs(dy) < 0.1
+        assert dx == pytest.approx(1.0, abs=0.1)
+        assert dy == pytest.approx(0, abs=0.1)
         # Unit vector
-        assert abs(math.hypot(dx, dy) - 1.0) < 0.01
+        assert math.hypot(dx, dy) == pytest.approx(1.0, abs=0.01)
 
     def test_arc_get_sweep(self):
         a = Arc(start_angle=30, end_angle=120)
@@ -1812,7 +1812,7 @@ class TestGeometricExtras:
         import math
         e = Ellipse(rx=100, ry=100)
         expected = 2 * math.pi * 100
-        assert abs(e.get_perimeter() - expected) < 0.1
+        assert e.get_perimeter() == pytest.approx(expected, abs=0.1)
 
     def test_ellipse_get_perimeter_ellipse(self):
         e = Ellipse(rx=100, ry=50)
@@ -1823,15 +1823,15 @@ class TestGeometricExtras:
 
     def test_line_angle_horizontal(self):
         line = Line(0, 0, 100, 0)
-        assert abs(line.angle() - 0) < 0.01
+        assert line.angle() == pytest.approx(0, abs=0.01)
 
     def test_line_angle_up(self):
         line = Line(0, 100, 0, 0)  # points up in SVG (y decreases)
-        assert abs(line.angle() - 90) < 0.01
+        assert line.angle() == pytest.approx(90, abs=0.01)
 
     def test_line_angle_down(self):
         line = Line(0, 0, 0, 100)  # points down in SVG
-        assert abs(line.angle() - (-90)) < 0.01
+        assert line.angle() == pytest.approx(-90, abs=0.01)
 
 
 class TestRegularPolygonMethods:
@@ -4103,10 +4103,10 @@ class TestPerpendicularAt:
         # Midpoint of original is (200, 200)
         mx = (p1[0] + p2[0]) / 2
         my = (p1[1] + p2[1]) / 2
-        assert abs(mx - 200) < 1
-        assert abs(my - 200) < 1
+        assert mx == pytest.approx(200, abs=1)
+        assert my == pytest.approx(200, abs=1)
         # Perpendicular to horizontal should be vertical
-        assert abs(p1[0] - p2[0]) < 1
+        assert p1[0] == pytest.approx(p2[0], abs=1)
 
     def test_perpendicular_at_start(self):
         import math
@@ -4117,11 +4117,11 @@ class TestPerpendicularAt:
         # Center of perpendicular should be at line start
         mx = (p1[0] + p2[0]) / 2
         my = (p1[1] + p2[1]) / 2
-        assert abs(mx - 100) < 1
-        assert abs(my - 100) < 1
+        assert mx == pytest.approx(100, abs=1)
+        assert my == pytest.approx(100, abs=1)
         # Length should be 80
         length = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
-        assert abs(length - 80) < 1
+        assert length == pytest.approx(80, abs=1)
 
     def test_perpendicular_at_end_point(self):
         line = Line(0, 0, 200, 0)
@@ -4130,7 +4130,7 @@ class TestPerpendicularAt:
         p2 = perp.p2.at_time(0)
         # Center should be at (200, 0)
         mx = (p1[0] + p2[0]) / 2
-        assert abs(mx - 200) < 1
+        assert mx == pytest.approx(200, abs=1)
 
     def test_perpendicular_at_diagonal_line(self):
         import math
@@ -4141,7 +4141,7 @@ class TestPerpendicularAt:
         p2 = perp.p2.at_time(0)
         # Perpendicular length should be 100
         length = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
-        assert abs(length - 100) < 1
+        assert length == pytest.approx(100, abs=1)
         # Check perpendicularity via dot product
         dx_orig = 100 - 0
         dy_orig = 100 - 0
@@ -5312,3 +5312,46 @@ class TestPolygonLongestShortestEdge:
         p = Polygon((0, 0), closed=False)
         assert p.get_longest_edge() == 0
         assert p.get_shortest_edge() == 0
+
+
+class TestLineRotateAroundMidpoint:
+    def test_rotate_90_degrees(self):
+        """Rotating a horizontal line 90 degrees should make it vertical."""
+        import math
+        line = Line(100, 200, 300, 200)  # horizontal line
+        mid = line.get_midpoint(0)
+        assert mid[0] == pytest.approx(200)
+        assert mid[1] == pytest.approx(200)
+        line.rotate_around_midpoint(90, time=0)
+        # After 90 deg rotation, endpoints should be vertical through midpoint
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        # Midpoint should be preserved
+        new_mid = ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)
+        assert new_mid[0] == pytest.approx(200, abs=1e-6)
+        assert new_mid[1] == pytest.approx(200, abs=1e-6)
+        # Line should now be vertical: x coords should be the same
+        assert p1[0] == pytest.approx(p2[0], abs=1e-6)
+        # Length should be preserved
+        length = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
+        assert length == pytest.approx(200, abs=1e-6)
+
+    def test_rotate_180_swaps_endpoints(self):
+        """Rotating 180 degrees should swap endpoint positions."""
+        line = Line(100, 200, 300, 400)
+        orig_p1 = line.p1.at_time(0)
+        orig_p2 = line.p2.at_time(0)
+        line.rotate_around_midpoint(180, time=0)
+        new_p1 = line.p1.at_time(0)
+        new_p2 = line.p2.at_time(0)
+        # p1 should now be where p2 was and vice versa
+        assert new_p1[0] == pytest.approx(orig_p2[0], abs=1e-6)
+        assert new_p1[1] == pytest.approx(orig_p2[1], abs=1e-6)
+        assert new_p2[0] == pytest.approx(orig_p1[0], abs=1e-6)
+        assert new_p2[1] == pytest.approx(orig_p1[1], abs=1e-6)
+
+    def test_rotate_returns_self(self):
+        """rotate_around_midpoint should return self for chaining."""
+        line = Line(0, 0, 100, 0)
+        result = line.rotate_around_midpoint(45)
+        assert result is line

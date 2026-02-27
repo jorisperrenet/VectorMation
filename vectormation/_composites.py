@@ -863,6 +863,15 @@ class Axes(VCollection):
         """Convert a math x-value and function to SVG pixel coordinates: (x, f(x))."""
         return self.coords_to_point(x, func(x), time)
 
+    def get_graph_value(self, func, x, time=0):
+        """Evaluate *func* at *x* and return the y-value.
+
+        This is a simple convenience wrapper: ``axes.get_graph_value(f, 3)``
+        is equivalent to ``f(3)``, but provides a consistent Axes-based API
+        and a natural counterpart to :meth:`input_to_graph_point`.
+        """
+        return func(x)
+
     def get_point_on_graph(self, func, x, time=0):
         """Like :meth:`input_to_graph_point` but returns ``None`` on error."""
         try:
@@ -7553,7 +7562,7 @@ class Tooltip(VCollection):
                  padding=6, creation=0, z=10, **styling_kwargs):
         from vectormation._shapes import Text as SText, RoundedRectangle
         if hasattr(target, 'bbox'):
-            bx, by, bw, bh = target.bbox(creation)
+            bx, by, bw, _bh = target.bbox(creation)
             tx, ty = bx + bw / 2, by
         else:
             tx, ty = target
@@ -8224,7 +8233,7 @@ class TreeMap(VCollection):
         sorted_data = sorted(enumerate(data), key=lambda iv: iv[1][1], reverse=True)
         rects = self._squarify(sorted_data, x, y, width, height, total)
         objects = []
-        for orig_idx, (label, val), (rx, ry, rw, rh) in rects:
+        for orig_idx, (label, _val), (rx, ry, rw, rh) in rects:
             color = colors[orig_idx % len(colors)]
             rect = Rectangle(width=max(rw - padding, 1), height=max(rh - padding, 1),
                               x=rx + padding / 2, y=ry + padding / 2,
@@ -8521,7 +8530,7 @@ class OrgChart(VCollection):
             while len(levels) <= depth:
                 levels.append([])
             levels[depth].append(node)
-            label, children = node
+            _label, children = node
             for child in children:
                 queue.append((child, depth + 1))
         # Assign x positions per level
@@ -9592,7 +9601,7 @@ class SampleSpace(VCollection):
         self.objects.extend([r1, r2])
         self._parts = [r1, r2]
         if labels:
-            for i, (rect, label) in enumerate(zip([r1, r2], labels)):
+            for rect, label in zip([r1, r2], labels):
                 bx, by, bw, bh = rect.bbox(creation)
                 self.objects.append(
                     _label_text(label, bx + bw / 2, by + bh / 2, 24,
@@ -9615,7 +9624,7 @@ class SampleSpace(VCollection):
         self.objects.extend([r1, r2])
         self._parts = [r1, r2]
         if labels:
-            for i, (rect, label) in enumerate(zip([r1, r2], labels)):
+            for rect, label in zip([r1, r2], labels):
                 bx, by, bw, bh = rect.bbox(creation)
                 self.objects.append(
                     _label_text(label, bx + bw / 2, by + bh / 2, 24,

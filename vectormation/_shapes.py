@@ -2024,6 +2024,18 @@ class Line(VObject):
         return Line(x1 + nx * offset, y1 + ny * offset,
                     x2 + nx * offset, y2 + ny * offset, **kwargs)
 
+    def rotate_around_midpoint(self, angle_deg, time=0):
+        """Rotate line endpoints around the midpoint by angle_deg degrees."""
+        mx, my = self.get_midpoint(time)
+        angle = math.radians(angle_deg)
+        for p in [self.p1, self.p2]:
+            px, py = p.at_time(time)
+            dx, dy = px - mx, py - my
+            new_dx = dx * math.cos(angle) - dy * math.sin(angle)
+            new_dy = dx * math.sin(angle) + dy * math.cos(angle)
+            p.set_onward(time, (mx + new_dx, my + new_dy))
+        return self
+
     def intersect_line(self, other, time=0):
         """Return intersection point (x, y) of this line with another, or None if parallel."""
         x1, y1 = self.p1.at_time(time)
