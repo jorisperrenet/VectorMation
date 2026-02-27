@@ -4909,21 +4909,15 @@ class VObject(ABC):  # Vector Object
         if cur_w > 0 and tw > 0:
             factor = tw / cur_w
             self.scale(factor, start=start, end=end, easing=easing)
-        # Helper to convert rgb(r,g,b) strings to hex for set_color
-        def _to_hex(color_str):
-            if isinstance(color_str, str) and color_str.startswith('rgb('):
-                parts = color_str[4:-1].split(',')
-                r, g, b = int(parts[0]), int(parts[1]), int(parts[2])
-                return f'#{r:02x}{g:02x}{b:02x}'
-            return color_str
-        # Transition fill color
-        target_fill = target_obj.styling.fill.at_time(start)
-        if target_fill and target_fill != 'none':
-            self.set_color(start, end, fill=_to_hex(target_fill), easing=easing)
+        # Transition fill color — use raw tuple from time_func to avoid
+        # round-tripping through at_time()'s "rgb(...)" string format.
+        target_fill = target_obj.styling.fill.time_func(start)
+        if target_fill:
+            self.set_color(start, end, fill=self._rgb_to_hex(target_fill), easing=easing)
         # Transition stroke color
-        target_stroke = target_obj.styling.stroke.at_time(start)
-        if target_stroke and target_stroke != 'none':
-            self.set_color(start, end, stroke=_to_hex(target_stroke), easing=easing)
+        target_stroke = target_obj.styling.stroke.time_func(start)
+        if target_stroke:
+            self.set_color(start, end, stroke=self._rgb_to_hex(target_stroke), easing=easing)
         return self
 
     def set_gradient_fill(self, colors, direction='horizontal', start=0):
@@ -5012,8 +5006,12 @@ class VCollection:
 
         Returns self.
         """
+        # Resolve negative indices once so that subsequent inserts stay correct
+        # as the list grows.
+        if index < 0:
+            index = max(len(self.objects) + index, 0)
         for i, obj in enumerate(objs):
-            self.objects.insert(index + i if index >= 0 else index, obj)
+            self.objects.insert(index + i, obj)
         return self
 
     def send_to_back(self, child):
@@ -5986,7 +5984,6 @@ class VCollection:
         if n == 0:
             return self
         parsed = parse_path(path_d)
-        total_len = parsed.length()
         for i, obj in enumerate(self.objects):
             # Sample evenly along the path
             frac = i / max(n - 1, 1)

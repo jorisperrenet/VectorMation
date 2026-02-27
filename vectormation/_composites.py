@@ -2402,21 +2402,24 @@ class Axes(VCollection):
         -------
         self
         """
+        # Filter kwargs for each target method to avoid passing
+        # unsupported parameters (e.g. trail_width to add_cursor).
+        _cursor_keys = {'r', 'creation', 'z', 'easing'}
+        _trace_keys = _cursor_keys | {'trail_width'}
+        cursor_kw = {k: v for k, v in kwargs.items() if k in _cursor_keys or k not in _trace_keys}
+        trace_kw = kwargs
         if trail and dot:
             # add_trace already creates both dot and trail
             self.add_trace(func, x_start, x_end, start=start, end=end,
-                           fill=color, stroke=color, **kwargs)
+                           fill=color, stroke=color, **trace_kw)
         elif dot:
             self.add_cursor(func, x_start, x_end, start=start, end=end,
-                            fill=color, **kwargs)
+                            fill=color, **cursor_kw)
         elif trail:
-            # Trail only: use add_trace but make the dot invisible
-            trace_kw = {k: v for k, v in kwargs.items() if k != 'r'}
-            group = self.add_trace(func, x_start, x_end, start=start, end=end,
-                                   r=0, fill=color, stroke=color, **trace_kw)
-            # Hide the dot in the group (first object)
-            if group.objects:
-                group.objects[0].styling.opacity.set_onward(0, 0)
+            # Trail only: use add_trace with r=0 to hide the dot
+            kw = {k: v for k, v in trace_kw.items() if k != 'r'}
+            self.add_trace(func, x_start, x_end, start=start, end=end,
+                           r=0, fill=color, stroke=color, **kw)
         return self
 
     def get_line_from_to(self, x1, y1, x2, y2, creation=0, z=0, **styling_kwargs):
@@ -7179,12 +7182,8 @@ class BarChart(VCollection):
             key = lambda v: v
         indexed = [(key(val), i) for i, val in enumerate(self.values)]
         indexed.sort(key=lambda x: x[0], reverse=reverse)
-        # Record current x positions and centers at start time
+        # Record current x positions at start time
         old_xs = [bar.x.at_time(start) for bar in self._bars]
-        old_centers = []
-        for bar in self._bars:
-            bx, by, bw, bh = bar.bbox(start)
-            old_centers.append((bx + bw / 2, by + bh / 2))
         dur = end - start
         if dur <= 0:
             return self
