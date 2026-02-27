@@ -785,21 +785,21 @@ class VCollection(_BBoxMethodsMixin):
             getattr(obj, method_name)(start=s, end=e, **kwargs)
         return self
 
+    def _stagger_fade(self, method, start, end, shift_dir, shift_amount, overlap, easing):
+        return self.cascade(method, start=start, end=end, overlap=overlap,
+                            shift_dir=shift_dir, shift_amount=shift_amount, easing=easing)
+
     def stagger_fadein(self, start: float = 0, end: float = 1,
                         shift_dir=None, shift_amount=50, overlap=0.5,
                         easing=easings.smooth):
-        """Fade in children with staggered timing and optional shift direction.
-        Convenience wrapper around cascade + fadein."""
-        kwargs = {'shift_dir': shift_dir, 'shift_amount': shift_amount, 'easing': easing}
-        return self.cascade('fadein', start=start, end=end, overlap=overlap, **kwargs)
+        """Fade in children with staggered timing and optional shift direction."""
+        return self._stagger_fade('fadein', start, end, shift_dir, shift_amount, overlap, easing)
 
     def stagger_fadeout(self, start: float = 0, end: float = 1,
                          shift_dir=None, shift_amount=50, overlap=0.5,
                          easing=easings.smooth):
-        """Fade out children with staggered timing and optional shift direction.
-        Convenience wrapper around cascade + fadeout."""
-        kwargs = {'shift_dir': shift_dir, 'shift_amount': shift_amount, 'easing': easing}
-        return self.cascade('fadeout', start=start, end=end, overlap=overlap, **kwargs)
+        """Fade out children with staggered timing and optional shift direction."""
+        return self._stagger_fade('fadeout', start, end, shift_dir, shift_amount, overlap, easing)
 
     def fade_in_one_by_one(self, start: float = 0, end: float = 1,
                             overlap=0.0, easing=easings.smooth):

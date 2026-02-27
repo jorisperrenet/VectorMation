@@ -268,16 +268,16 @@ class BarChart(VCollection):
             self._z = z
             return
         max_val = max(abs(v) for v in values) if values else 1
-        bar_width = width / n
-        inner_width = bar_width * (1 - bar_spacing)
+        # Store instance vars early so _bar_geometry can use them
+        self._height, self._y = height, y
+        self._x, self._width = x, width
+        self._bar_spacing = bar_spacing
         objects: list[VObject] = []
         bars: list = []
         label_objs: list = []
 
         for i, val in enumerate(values):
-            bar_h = abs(val) / max_val * height * 0.85
-            bx = x + i * bar_width + (bar_width - inner_width) / 2
-            by = y + height - bar_h if val >= 0 else y + height
+            _, inner_width, bar_h, bx, by = self._bar_geometry(val, i, n, max_val)
             color = colors[i % len(colors)]
             bar = Rectangle(inner_width, bar_h, x=bx, y=by,
                             creation=creation, z=z,
@@ -304,14 +304,18 @@ class BarChart(VCollection):
         self.bar_count = n
         self._bars = bars
         self._labels = label_objs
-        self._height = height
-        self._y = y
-        self._x = x
-        self._width = width
-        self._bar_spacing = bar_spacing
         self._colors = colors
         self._creation = creation
         self._z = z
+
+    def _bar_geometry(self, value, index, n_bars, max_val):
+        """Compute (bar_width, inner_width, bar_h, bx, by) for a bar."""
+        bw = self._width / n_bars
+        iw = bw * (1 - self._bar_spacing)
+        bh = abs(value) / max_val * self._height * 0.85
+        bx = self._x + index * bw + (bw - iw) / 2
+        by = (self._y + self._height - bh) if value >= 0 else (self._y + self._height)
+        return bw, iw, bh, bx, by
 
     @classmethod
     def from_dict(cls, data, **kwargs):
@@ -435,13 +439,8 @@ class BarChart(VCollection):
         n = len(self._bars)
         all_vals = list(self.values) + [value]
         max_val = max(abs(v) for v in all_vals) if all_vals else 1
-        # Recompute bar layout for n+1 bars
         new_n = n + 1
-        bar_width = self._width / new_n
-        inner_width = bar_width * (1 - self._bar_spacing)
-        bar_h = abs(value) / max_val * self._height * 0.85
-        bx = self._x + n * bar_width + (bar_width - inner_width) / 2
-        by = self._y + self._height - bar_h if value >= 0 else self._y + self._height
+        _bw, inner_width, bar_h, bx, by = self._bar_geometry(value, n, new_n, max_val)
         color = self._colors[n % len(self._colors)]
         bar = Rectangle(inner_width, bar_h, x=bx, y=by,
                         creation=start, z=self._z,
