@@ -58,6 +58,20 @@ def _shade_color(base_rgb, normal, light_dir):
     return f'rgb({r},{g},{b})'
 
 
+def _polyline_patch(points_3d, axes, time, stroke, stroke_width):
+    """Project 3D points and return a (depth, svg_polyline) patch."""
+    pts = []
+    total_depth = 0
+    for x, y, z in points_3d:
+        sx, sy, d = axes.project_point(x, y, z, time)
+        pts.append(f'{sx:.1f},{sy:.1f}')
+        total_depth += d
+    depth = total_depth / len(pts) if pts else 0
+    svg = (f'<polyline points="{" ".join(pts)}" fill="none" '
+           f'stroke="{stroke}" stroke-width="{stroke_width}"/>')
+    return (depth, svg)
+
+
 def _frange(start, stop, step):
     """Generate float range values."""
     vals = []
@@ -310,33 +324,26 @@ class ThreeDAxes(VCollection):
         line_kw = dict(stroke=color, stroke_opacity=opacity,
                        stroke_width=stroke_width, creation=creation)
 
+        def _grid_line(p1_3d, p2_3d):
+            p1 = self.project_point(*p1_3d, creation)
+            p2 = self.project_point(*p2_3d, creation)
+            lines.append(Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **line_kw))
+
         if plane == 'xz':
             for x in _frange(x_min, x_max, step):
-                p1 = self.project_point(x, 0, z_min, creation)
-                p2 = self.project_point(x, 0, z_max, creation)
-                lines.append(Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **line_kw))
+                _grid_line((x, 0, z_min), (x, 0, z_max))
             for z in _frange(z_min, z_max, step):
-                p1 = self.project_point(x_min, 0, z, creation)
-                p2 = self.project_point(x_max, 0, z, creation)
-                lines.append(Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **line_kw))
+                _grid_line((x_min, 0, z), (x_max, 0, z))
         elif plane == 'xy':
             for x in _frange(x_min, x_max, step):
-                p1 = self.project_point(x, y_min, 0, creation)
-                p2 = self.project_point(x, y_max, 0, creation)
-                lines.append(Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **line_kw))
+                _grid_line((x, y_min, 0), (x, y_max, 0))
             for y in _frange(y_min, y_max, step):
-                p1 = self.project_point(x_min, y, 0, creation)
-                p2 = self.project_point(x_max, y, 0, creation)
-                lines.append(Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **line_kw))
+                _grid_line((x_min, y, 0), (x_max, y, 0))
         elif plane == 'yz':
             for y in _frange(y_min, y_max, step):
-                p1 = self.project_point(0, y, z_min, creation)
-                p2 = self.project_point(0, y, z_max, creation)
-                lines.append(Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **line_kw))
+                _grid_line((0, y, z_min), (0, y, z_max))
             for z in _frange(z_min, z_max, step):
-                p1 = self.project_point(0, y_min, z, creation)
-                p2 = self.project_point(0, y_max, z, creation)
-                lines.append(Line(x1=p1[0], y1=p1[1], x2=p2[0], y2=p2[1], **line_kw))
+                _grid_line((0, y_min, z), (0, y_max, z))
 
         grid = VCollection(*lines, creation=creation)
         self.add(grid)
@@ -421,15 +428,14 @@ class ThreeDAxes(VCollection):
 
         # Ticks
         if self._show_ticks:
-            for val in _nice_ticks(xr[0], xr[1], 5):
-                svg, depth = self._render_tick_3d((val, 0, 0), (0, 1, 0), val, time)
-                patches.append((depth, svg))
-            for val in _nice_ticks(yr[0], yr[1], 5):
-                svg, depth = self._render_tick_3d((0, val, 0), (1, 0, 0), val, time)
-                patches.append((depth, svg))
-            for val in _nice_ticks(zr[0], zr[1], 5):
-                svg, depth = self._render_tick_3d((0, 0, val), (1, 0, 0), val, time)
-                patches.append((depth, svg))
+            for rng, pos_fn, perp in [
+                (xr, lambda v: (v, 0, 0), (0, 1, 0)),
+                (yr, lambda v: (0, v, 0), (1, 0, 0)),
+                (zr, lambda v: (0, 0, v), (1, 0, 0)),
+            ]:
+                for val in _nice_ticks(rng[0], rng[1], 5):
+                    svg, depth = self._render_tick_3d(pos_fn(val), perp, val, time)
+                    patches.append((depth, svg))
 
         # Grid
         if self._show_grid:
@@ -662,32 +668,16 @@ class _WireframeSurface:
         # Lines along x
         for j in range(self._y_steps + 1):
             yv = y0 + j * dy
-            pts = []
-            total_depth = 0
-            for i in range(self._x_steps + 1):
-                xv = x0 + i * dx
-                sx, sy, d = axes.project_point(xv, yv, self._func(xv, yv), time)
-                pts.append(f'{sx:.1f},{sy:.1f}')
-                total_depth += d
-            depth = total_depth / (self._x_steps + 1)
-            svg = (f'<polyline points="{" ".join(pts)}" fill="none" '
-                   f'stroke="{stroke}" stroke-width="{sw}"/>')
-            patches.append((depth, svg))
+            pts3d = [(x0 + i * dx, yv, self._func(x0 + i * dx, yv))
+                     for i in range(self._x_steps + 1)]
+            patches.append(_polyline_patch(pts3d, axes, time, stroke, sw))
 
         # Lines along y
         for i in range(self._x_steps + 1):
             xv = x0 + i * dx
-            pts = []
-            total_depth = 0
-            for j in range(self._y_steps + 1):
-                yv = y0 + j * dy
-                sx, sy, d = axes.project_point(xv, yv, self._func(xv, yv), time)
-                pts.append(f'{sx:.1f},{sy:.1f}')
-                total_depth += d
-            depth = total_depth / (self._y_steps + 1)
-            svg = (f'<polyline points="{" ".join(pts)}" fill="none" '
-                   f'stroke="{stroke}" stroke-width="{sw}"/>')
-            patches.append((depth, svg))
+            pts3d = [(xv, y0 + j * dy, self._func(xv, y0 + j * dy))
+                     for j in range(self._y_steps + 1)]
+            patches.append(_polyline_patch(pts3d, axes, time, stroke, sw))
 
         return patches
 
@@ -722,34 +712,16 @@ class _ParametricWireframe:
         # Lines along u
         for j in range(self._v_steps + 1):
             vv = v0 + j * dv
-            pts = []
-            total_depth = 0
-            for i in range(self._u_steps + 1):
-                uu = u0 + i * du
-                x, y, z = self._func(uu, vv)
-                sx, sy, d = axes.project_point(x, y, z, time)
-                pts.append(f'{sx:.1f},{sy:.1f}')
-                total_depth += d
-            depth = total_depth / (self._u_steps + 1)
-            svg = (f'<polyline points="{" ".join(pts)}" fill="none" '
-                   f'stroke="{stroke}" stroke-width="{sw}"/>')
-            patches.append((depth, svg))
+            pts3d = [self._func(u0 + i * du, vv)
+                     for i in range(self._u_steps + 1)]
+            patches.append(_polyline_patch(pts3d, axes, time, stroke, sw))
 
         # Lines along v
         for i in range(self._u_steps + 1):
             uu = u0 + i * du
-            pts = []
-            total_depth = 0
-            for j in range(self._v_steps + 1):
-                vv = v0 + j * dv
-                x, y, z = self._func(uu, vv)
-                sx, sy, d = axes.project_point(x, y, z, time)
-                pts.append(f'{sx:.1f},{sy:.1f}')
-                total_depth += d
-            depth = total_depth / (self._v_steps + 1)
-            svg = (f'<polyline points="{" ".join(pts)}" fill="none" '
-                   f'stroke="{stroke}" stroke-width="{sw}"/>')
-            patches.append((depth, svg))
+            pts3d = [self._func(uu, v0 + j * dv)
+                     for j in range(self._v_steps + 1)]
+            patches.append(_polyline_patch(pts3d, axes, time, stroke, sw))
 
         return patches
 
@@ -930,18 +902,8 @@ class ParametricCurve3D(_Primitive3D):
     def to_patches(self, axes, time):
         t0, t1 = self._t_range
         dt = (t1 - t0) / max(self._num_points, 1)
-        pts = []
-        total_depth = 0
-        for i in range(self._num_points + 1):
-            t = t0 + i * dt
-            x, y, z = self._func(t)
-            sx, sy, d = axes.project_point(x, y, z, time)
-            pts.append(f'{sx:.1f},{sy:.1f}')
-            total_depth += d
-        depth = total_depth / (self._num_points + 1)
-        svg = (f'<polyline points="{" ".join(pts)}" fill="none" '
-               f'stroke="{self._stroke}" stroke-width="{self._stroke_width}"/>')
-        return [(depth, svg)]
+        pts3d = [self._func(t0 + i * dt) for i in range(self._num_points + 1)]
+        return [_polyline_patch(pts3d, axes, time, self._stroke, self._stroke_width)]
 
 
 # ---------------------------------------------------------------------------
