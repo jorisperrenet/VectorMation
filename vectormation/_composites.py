@@ -2501,6 +2501,40 @@ class Axes(VCollection):
             line.fadein(start=start, end=end)
         return line
 
+    def add_vertical_line(self, x, start=None, end=None, creation=0, z=1, **styling_kwargs):
+        """Draw a vertical dashed line across the full plot height at *x*.
+
+        This is a convenience wrapper around ``_make_span_line`` for the
+        common case of adding a reference/guide line at a specific x value.
+
+        Parameters
+        ----------
+        x:
+            The math x-coordinate at which to draw the line.
+        start, end:
+            Optional time range to animate the line's opacity from 0 to 1.
+            If both are ``None`` the line appears instantly at *creation*.
+        creation:
+            Time at which the line is created.
+        z:
+            Z-order for depth sorting (default 1).
+        **styling_kwargs:
+            Override default styling (stroke, stroke_width,
+            stroke_dasharray, etc.).
+
+        Returns
+        -------
+        Line
+            The created Line object (already added to the axes).
+        """
+        style_kw = {'stroke': '#FFFF00', 'stroke_width': 1.5,
+                    'stroke_dasharray': '6 3'} | styling_kwargs
+        line = self._make_span_line(x, 'vertical', creation, z, style_kw)
+        self._add_plot_obj(line)
+        if start is not None and end is not None:
+            line.fadein(start=start, end=end)
+        return line
+
     def add_min_max_labels(self, func, x_range=None, samples=200, creation=0, z=3,
                             dot_radius=5, font_size=18, **styling_kwargs):
         """Find and label local min/max of func within x_range.

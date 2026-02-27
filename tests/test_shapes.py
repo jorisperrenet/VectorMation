@@ -4650,3 +4650,103 @@ class TestArcGetMidpointOnArc:
         expected_y = -100 * math.sin(math.radians(60))  # SVG y is inverted
         assert mx == pytest.approx(expected_x, abs=0.01)
         assert my == pytest.approx(expected_y, abs=0.01)
+
+
+class TestLineLerp:
+    def test_lerp_start(self):
+        line = Line(x1=0, y1=0, x2=100, y2=200)
+        x, y = line.lerp(0)
+        assert x == pytest.approx(0)
+        assert y == pytest.approx(0)
+
+    def test_lerp_end(self):
+        line = Line(x1=0, y1=0, x2=100, y2=200)
+        x, y = line.lerp(1)
+        assert x == pytest.approx(100)
+        assert y == pytest.approx(200)
+
+    def test_lerp_midpoint(self):
+        line = Line(x1=10, y1=20, x2=30, y2=60)
+        x, y = line.lerp(0.5)
+        assert x == pytest.approx(20)
+        assert y == pytest.approx(40)
+
+    def test_lerp_quarter(self):
+        line = Line(x1=0, y1=0, x2=400, y2=0)
+        x, y = line.lerp(0.25)
+        assert x == pytest.approx(100)
+        assert y == pytest.approx(0)
+
+    def test_lerp_extrapolate_beyond(self):
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        x, y = line.lerp(2.0)
+        assert x == pytest.approx(200)
+        assert y == pytest.approx(0)
+
+
+class TestPolygonScaleVertices:
+    def test_scale_up(self):
+        poly = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
+        cx, cy = poly.centroid(0)
+        poly.scale_vertices(2.0)
+        pts = poly.get_vertices(0)
+        new_cx, new_cy = poly.centroid(0)
+        # Centroid should stay the same
+        assert new_cx == pytest.approx(cx, abs=0.1)
+        assert new_cy == pytest.approx(cy, abs=0.1)
+        # The distance from centroid to each vertex should double
+        for (ox, oy), (nx, ny) in zip([(0, 0), (100, 0), (100, 100), (0, 100)], pts):
+            orig_dist = ((ox - cx)**2 + (oy - cy)**2)**0.5
+            new_dist = ((nx - new_cx)**2 + (ny - new_cy)**2)**0.5
+            assert new_dist == pytest.approx(orig_dist * 2.0, abs=0.1)
+
+    def test_scale_down(self):
+        poly = Polygon((0, 0), (200, 0), (200, 200), (0, 200))
+        poly.scale_vertices(0.5)
+        pts = poly.get_vertices(0)
+        cx, cy = poly.centroid(0)
+        # After scaling by 0.5, each vertex should be half as far from centroid
+        # Original centroid of a square (0,0)-(200,200) is (100, 100)
+        for nx, ny in pts:
+            dist = ((nx - cx)**2 + (ny - cy)**2)**0.5
+            # Original distance was sqrt(100^2 + 100^2) = 141.42
+            assert dist == pytest.approx(141.42 / 2, abs=1)
+
+    def test_scale_returns_self(self):
+        poly = Polygon((0, 0), (100, 0), (50, 100))
+        result = poly.scale_vertices(1.5)
+        assert result is poly
+
+    def test_scale_by_one_no_change(self):
+        poly = Polygon((10, 20), (30, 40), (50, 10))
+        original = poly.get_vertices(0)
+        poly.scale_vertices(1.0)
+        for (ox, oy), (nx, ny) in zip(original, poly.get_vertices(0)):
+            assert nx == pytest.approx(ox, abs=1e-6)
+            assert ny == pytest.approx(oy, abs=1e-6)
+
+
+class TestTextCharAt:
+    def test_char_at_first(self):
+        t = Text('Hello')
+        assert t.char_at(0) == 'H'
+
+    def test_char_at_last(self):
+        t = Text('Hello')
+        assert t.char_at(4) == 'o'
+
+    def test_char_at_middle(self):
+        t = Text('abcdef')
+        assert t.char_at(3) == 'd'
+
+    def test_char_at_out_of_range(self):
+        t = Text('Hi')
+        assert t.char_at(5) == ''
+
+    def test_char_at_negative_index(self):
+        t = Text('Hi')
+        assert t.char_at(-1) == ''
+
+    def test_char_at_empty_string(self):
+        t = Text('')
+        assert t.char_at(0) == ''

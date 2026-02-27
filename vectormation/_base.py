@@ -1313,6 +1313,31 @@ class VObject(ABC):  # Vector Object
         self.add_updater(_update, start=start, end=end)
         return self
 
+    def follow(self, other, start=0, end=None):
+        """Follow another object's center position from *start* to *end*.
+
+        Uses an updater so that ``self``'s center continuously tracks
+        ``other``'s center each frame.
+
+        Parameters
+        ----------
+        other:
+            The target object whose center to follow.
+        start:
+            Time at which the following begins.
+        end:
+            Time at which the following ends (``None`` = forever).
+        """
+        _init_cx, _init_cy = self.center(start)
+        _init_dx = self.styling.dx.at_time(start)
+        _init_dy = self.styling.dy.at_time(start)
+        def _update(obj, t):
+            ocx, ocy = other.center(t)
+            obj.styling.dx.set_onward(t, ocx - _init_cx + _init_dx)
+            obj.styling.dy.set_onward(t, ocy - _init_cy + _init_dy)
+        self.add_updater(_update, start=start, end=end)
+        return self
+
     def _scale_anim(self, start, end, scale_func, easing, stay=False):
         """Core helper for scale-based animations around the center."""
         self.styling._scale_origin = self.center(start)
@@ -3477,6 +3502,18 @@ class VCollection:
     def reverse(self):
         """Reverse the order of children in-place. Alias for reverse_children."""
         self.objects.reverse()
+        return self
+
+    def rotate_order(self, n=1):
+        """Rotate children order by *n* positions.
+
+        Positive *n* moves the first *n* children to the end (like
+        ``collections.deque.rotate(-n)``).  Returns *self*.
+        """
+        if not self.objects:
+            return self
+        n = n % len(self.objects)
+        self.objects = self.objects[n:] + self.objects[:n]
         return self
 
     def set_z_order(self, order):

@@ -1083,3 +1083,41 @@ class TestBringToFront:
         col = VCollection(c1, c2, c3)
         col.bring_to_front(c2)
         assert len(col.objects) == 3
+
+
+class TestRotateOrder:
+    def test_rotate_order_by_one(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        c3 = Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        col.rotate_order(1)
+        assert col.objects == [c2, c3, c1]
+
+    def test_rotate_order_by_two(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        c3 = Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        col.rotate_order(2)
+        assert col.objects == [c3, c1, c2]
+
+    def test_rotate_order_full_cycle(self):
+        """Rotating by len(objects) should produce the same order."""
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        c3 = Circle(r=30)
+        col = VCollection(c1, c2, c3)
+        col.rotate_order(3)
+        assert col.objects == [c1, c2, c3]
+
+    def test_rotate_order_returns_self(self):
+        col = VCollection(Circle(r=10), Circle(r=20))
+        result = col.rotate_order(1)
+        assert result is col
+
+    def test_rotate_order_empty(self):
+        """Rotating an empty collection should not raise."""
+        col = VCollection()
+        result = col.rotate_order(1)
+        assert result is col

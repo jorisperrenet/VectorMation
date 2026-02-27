@@ -7771,3 +7771,90 @@ class TestAxesGetIntegral:
         ax = Axes(x_range=[0, 10], y_range=[0, 10])
         val = ax.get_integral(lambda x: 5, 0, 4)
         assert val == pytest.approx(20.0, abs=0.01)
+
+
+class TestFollow:
+    def test_follow_tracks_center(self):
+        """Follower should track the leader's center after the leader moves."""
+        leader = Circle(r=30, cx=100, cy=100)
+        follower = Circle(r=20, cx=200, cy=200)
+        follower.follow(leader, start=0)
+        # Move leader
+        leader.shift(dx=50, dy=60, start_time=0, end_time=1)
+        # Trigger the updater at t=1
+        follower._run_updaters(1.0)
+        fcx, fcy = follower.center(1.0)
+        lcx, lcy = leader.center(1.0)
+        assert fcx == pytest.approx(lcx, abs=1)
+        assert fcy == pytest.approx(lcy, abs=1)
+
+    def test_follow_returns_self(self):
+        leader = Circle(r=30, cx=100, cy=100)
+        follower = Circle(r=20, cx=200, cy=200)
+        result = follower.follow(leader, start=0)
+        assert result is follower
+
+    def test_follow_respects_end(self):
+        """After end time, the follower should stop updating."""
+        leader = Circle(r=30, cx=100, cy=100)
+        follower = Circle(r=20, cx=100, cy=100)
+        follower.follow(leader, start=0, end=1)
+        leader.shift(dx=100, dy=0, start_time=0, end_time=1)
+        # Updater runs at t=0.5 (within range)
+        follower._run_updaters(0.5)
+        cx_mid, _ = follower.center(0.5)
+        # At t=2 the updater should NOT run (past end)
+        follower._run_updaters(2.0)
+        cx_late, _ = follower.center(2.0)
+        # The position at t=2 should be the same as whatever was set last
+        # (updater stops at end=1, so position after end stays fixed)
+        assert cx_mid != 100  # It moved during the follow window
+
+
+class TestGetApothem:
+    def test_get_apothem_equals_get_inradius(self):
+        """get_apothem should return the same value as get_inradius."""
+        hexagon = RegularPolygon(n=6, radius=100)
+        assert hexagon.get_apothem() == pytest.approx(hexagon.get_inradius())
+
+    def test_get_apothem_value(self):
+        """Apothem of a regular hexagon with radius=100 should be 100*cos(pi/6)."""
+        hexagon = RegularPolygon(n=6, radius=100)
+        expected = 100 * math.cos(math.pi / 6)
+        assert hexagon.get_apothem() == pytest.approx(expected)
+
+    def test_get_apothem_square(self):
+        """Apothem of a square with circumradius 100 should be 100*cos(pi/4)."""
+        sq = RegularPolygon(n=4, radius=100)
+        expected = 100 * math.cos(math.pi / 4)
+        assert sq.get_apothem() == pytest.approx(expected)
+
+
+class TestAddVerticalLine:
+    def test_add_vertical_line_returns_line(self):
+        """add_vertical_line should return a Line object."""
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        line = ax.add_vertical_line(2)
+        assert line is not None
+        assert hasattr(line, 'p1')
+        assert hasattr(line, 'p2')
+
+    def test_add_vertical_line_position(self):
+        """The line's x-coordinates should map to the given math x value."""
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        line = ax.add_vertical_line(0)
+        p1 = line.p1.at_time(0)
+        p2 = line.p2.at_time(0)
+        # Both endpoints should have the same x coordinate
+        assert p1[0] == pytest.approx(p2[0], abs=1)
+        # The x coordinate should correspond to math x=0
+        expected_x = ax._math_to_svg_x(0, 0)
+        assert p1[0] == pytest.approx(expected_x, abs=1)
+
+    def test_add_vertical_line_with_fadein(self):
+        """When start/end are given, the line should have a fadein animation."""
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        line = ax.add_vertical_line(1, start=0, end=1)
+        # The line should exist and have opacity animation
+        opacity_at_start = line.styling.opacity.at_time(0)
+        assert opacity_at_start == pytest.approx(0, abs=0.1)

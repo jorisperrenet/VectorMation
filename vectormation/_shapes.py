@@ -443,6 +443,15 @@ class Polygon(VObject):
         self._bbox_version += 1
         return self
 
+    def scale_vertices(self, factor, time=0):
+        """Scale all vertices relative to the centroid by factor."""
+        cx, cy = self.centroid(time)
+        for v in self.vertices:
+            vx, vy = v.at_time(time)
+            v.set_onward(time, (cx + (vx - cx) * factor, cy + (vy - cy) * factor))
+        self._bbox_version += 1
+        return self
+
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 
@@ -1713,6 +1722,12 @@ class Line(VObject):
         dy = -math.sin(rad)  # negate because SVG y-axis points downward
         return cls(ox, oy, ox + dx * length, oy + dy * length, **kwargs)
 
+    def lerp(self, t, time=0):
+        """Return point (x, y) at parameter t (0=start, 1=end) along the line."""
+        x1, y1 = self.get_start(time)
+        x2, y2 = self.get_end(time)
+        return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
+
     def __repr__(self):
         p1, p2 = self.p1.at_time(0), self.p2.at_time(0)
         return f'Line(({p1[0]:.0f},{p1[1]:.0f})->({p2[0]:.0f},{p2[1]:.0f}))'
@@ -2233,6 +2248,13 @@ class Text(VObject):
             self.text.set_onward(time, full.lower())
         return self
 
+    def char_at(self, index, time=0):
+        """Return the character at the given index."""
+        text = self.text.at_time(time)
+        if isinstance(text, str) and 0 <= index < len(text):
+            return text[index]
+        return ''
+
     def to_svg(self, time):
         anchor = f" text-anchor='{self._text_anchor}'" if self._text_anchor else ''
         txt = _xml_escape(str(self.text.at_time(time)))
@@ -2603,6 +2625,10 @@ class RegularPolygon(Polygon):
         """Return the inradius (apothem) of the regular polygon.
         Computed from the circumradius: inradius = r * cos(pi / n)."""
         return self._radius * math.cos(math.pi / self._n)
+
+    def get_apothem(self, time=0):
+        """Return the apothem of the regular polygon (alias for :meth:`get_inradius`)."""
+        return self.get_inradius(time)
 
     def get_circumradius(self, time=0):
         """Return the circumscribed circle radius."""
