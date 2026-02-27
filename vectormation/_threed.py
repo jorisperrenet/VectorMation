@@ -779,7 +779,34 @@ class _Primitive3D:
         return deepcopy(self)
 
 
-class Line3D(_Primitive3D):
+class _SegmentPrimitive3D(_Primitive3D):
+    """Base for 3D primitives defined by _start/_end endpoints."""
+
+    def shift(self, dx=0, dy=0, dz=0):
+        """Shift both endpoints by (dx, dy, dz). Returns self for chaining."""
+        self._start = (self._start[0] + dx, self._start[1] + dy, self._start[2] + dz)
+        self._end = (self._end[0] + dx, self._end[1] + dy, self._end[2] + dz)
+        return self
+
+    def move_to(self, x, y, z):
+        """Move the midpoint to (x, y, z). Returns self for chaining."""
+        mx, my, mz = self.get_midpoint()
+        return self.shift(x - mx, y - my, z - mz)
+
+    def get_midpoint(self):
+        """Return the 3D midpoint."""
+        return ((self._start[0] + self._end[0]) / 2,
+                (self._start[1] + self._end[1]) / 2,
+                (self._start[2] + self._end[2]) / 2)
+
+    def get_length(self):
+        """Return the 3D Euclidean length."""
+        return math.hypot(self._end[0] - self._start[0],
+                          self._end[1] - self._start[1],
+                          self._end[2] - self._start[2])
+
+
+class Line3D(_SegmentPrimitive3D):
     """A line segment in 3D space."""
 
     def __init__(self, start, end, stroke='#fff', stroke_width=2, creation=0, z=0):
@@ -789,35 +816,10 @@ class Line3D(_Primitive3D):
         self._stroke = stroke
         self._stroke_width = stroke_width
 
-    def shift(self, dx=0, dy=0, dz=0):
-        """Shift both endpoints by (dx, dy, dz). Returns self for chaining."""
-        self._start = (self._start[0] + dx, self._start[1] + dy, self._start[2] + dz)
-        self._end = (self._end[0] + dx, self._end[1] + dy, self._end[2] + dz)
-        return self
-
-    def move_to(self, x, y, z):
-        """Move the midpoint of the line to (x, y, z). Returns self for chaining."""
-        mx = (self._start[0] + self._end[0]) / 2
-        my = (self._start[1] + self._end[1]) / 2
-        mz = (self._start[2] + self._end[2]) / 2
-        return self.shift(x - mx, y - my, z - mz)
-
     def set_color(self, color):
         """Set the stroke color. Returns self for chaining."""
         self._stroke = color
         return self
-
-    def get_midpoint(self):
-        """Return the 3D midpoint of the line segment."""
-        return ((self._start[0] + self._end[0]) / 2,
-                (self._start[1] + self._end[1]) / 2,
-                (self._start[2] + self._end[2]) / 2)
-
-    def get_length(self):
-        """Return the 3D Euclidean length of the line segment."""
-        return math.hypot(self._end[0] - self._start[0],
-                          self._end[1] - self._start[1],
-                          self._end[2] - self._start[2])
 
     def to_patches(self, axes, time):
         sx0, sy0, d0 = axes.project_point(*self._start, time)
@@ -868,7 +870,7 @@ class Dot3D(_Primitive3D):
         return [(depth, svg)]
 
 
-class Arrow3D(_Primitive3D):
+class Arrow3D(_SegmentPrimitive3D):
     """An arrow in 3D space with a cone tip."""
 
     def __init__(self, start, end, stroke='#fff', stroke_width=2,
@@ -881,29 +883,10 @@ class Arrow3D(_Primitive3D):
         self._tip_length = tip_length
         self._tip_radius = tip_radius
 
-    def shift(self, dx=0, dy=0, dz=0):
-        """Shift both endpoints by (dx, dy, dz). Returns self for chaining."""
-        self._start = (self._start[0] + dx, self._start[1] + dy, self._start[2] + dz)
-        self._end = (self._end[0] + dx, self._end[1] + dy, self._end[2] + dz)
-        return self
-
-    def move_to(self, x, y, z):
-        """Move the midpoint of the arrow to (x, y, z). Returns self for chaining."""
-        mx = (self._start[0] + self._end[0]) / 2
-        my = (self._start[1] + self._end[1]) / 2
-        mz = (self._start[2] + self._end[2]) / 2
-        return self.shift(x - mx, y - my, z - mz)
-
     def set_color(self, color):
         """Set the stroke/tip color. Returns self for chaining."""
         self._stroke = color
         return self
-
-    def get_length(self):
-        """Return the 3D Euclidean length of the arrow shaft."""
-        return math.hypot(self._end[0] - self._start[0],
-                          self._end[1] - self._start[1],
-                          self._end[2] - self._start[2])
 
     def to_patches(self, axes, time):
         patches = []

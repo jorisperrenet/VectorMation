@@ -77,6 +77,14 @@ def _coords_of(obj, time=0):
     return obj
 
 
+def _set_attr(attr, start, end, value, easing):
+    """Set attr instantly (end=None) or animate to value."""
+    if end is None:
+        attr.set_onward(start, value)
+    else:
+        attr.move_to(start, end, value, easing=easing)
+
+
 def _path_prefix(path, t):
     """Return the first t-fraction (0-1) of a morphing.Path by arc length."""
     length_to_keep = t * path.length()
@@ -1174,10 +1182,7 @@ class VObject(ABC):  # Vector Object
         else:
             return self
         for attr, target in [(self.styling.scale_x, target_sx), (self.styling.scale_y, target_sy)]:
-            if end is None:
-                attr.set_onward(start, target)
-            else:
-                attr.move_to(start, end, target, easing=easing)
+            _set_attr(attr, start, end, target, easing)
         return self
 
     def rotate_to(self, start: float, end: float, degrees, cx=None, cy=None, easing=easings.smooth):
@@ -3005,10 +3010,7 @@ class VObject(ABC):  # Vector Object
             else:
                 self.set_color(start, end, fill=color, easing=easing, color_space=color_space)
         if opacity is not None:
-            if end is None:
-                self.styling.fill_opacity.set_onward(start, opacity)
-            else:
-                self.styling.fill_opacity.move_to(start, end, opacity, easing=easing)
+            _set_attr(self.styling.fill_opacity, start, end, opacity, easing)
         return self
 
     def set_stroke(self, color=None, width=None, opacity=None, start: float = 0, end: float | None = None, easing=easings.smooth, color_space='rgb'):
@@ -3019,15 +3021,9 @@ class VObject(ABC):  # Vector Object
             else:
                 self.set_color(start, end, stroke=color, easing=easing, color_space=color_space)
         if width is not None:
-            if end is None:
-                self.styling.stroke_width.set_onward(start, width)
-            else:
-                self.styling.stroke_width.move_to(start, end, width, easing=easing)
+            _set_attr(self.styling.stroke_width, start, end, width, easing)
         if opacity is not None:
-            if end is None:
-                self.styling.stroke_opacity.set_onward(start, opacity)
-            else:
-                self.styling.stroke_opacity.move_to(start, end, opacity, easing=easing)
+            _set_attr(self.styling.stroke_opacity, start, end, opacity, easing)
         return self
 
     def set_stroke_dash(self, pattern, start: float = 0):
@@ -3088,10 +3084,7 @@ class VObject(ABC):  # Vector Object
     def set_opacity(self, value, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Set fill_opacity and stroke opacity together. Animated if end is given."""
         for attr in (self.styling.fill_opacity, self.styling.opacity):
-            if end is None:
-                attr.set_onward(start, value)
-            else:
-                attr.move_to(start, end, value, easing=easing)
+            _set_attr(attr, start, end, value, easing)
         return self
 
     def get_opacity(self, time: float = 0):
@@ -3148,11 +3141,7 @@ class VObject(ABC):  # Vector Object
         """Non-uniform scale. Instant if end is None, animated otherwise."""
         self._ensure_scale_origin(start)
         for attr, factor in [(self.styling.scale_x, x_factor), (self.styling.scale_y, y_factor)]:
-            target = attr.at_time(start) * factor
-            if end is None:
-                attr.set_onward(start, target)
-            else:
-                attr.move_to(start, end, target, easing=easing)
+            _set_attr(attr, start, end, attr.at_time(start) * factor, easing)
         return self
 
     def match_width(self, other, time: float = 0):
@@ -5319,11 +5308,7 @@ class VCollection:
         if self._scale_origin is None:
             self._scale_origin = self._resolve_center(start, None, None)
         for attr, factor in [(self._scale_x, x_factor), (self._scale_y, y_factor)]:
-            target = attr.at_time(start) * factor
-            if end is None:
-                attr.set_onward(start, target)
-            else:
-                attr.move_to(start, end, target, easing=easing)
+            _set_attr(attr, start, end, attr.at_time(start) * factor, easing)
         return self
 
     def rotate_to(self, start: float, end: float, degrees, cx=None, cy=None, easing=easings.smooth):
