@@ -2267,3 +2267,58 @@ class TestStaggerScale:
         # After c3 starts, c3 should be scaling up
         sx_c3 = c3.styling.scale_x.at_time(1.5)
         assert sx_c3 > 1.05
+
+
+class TestApplySequential:
+    def test_apply_sequential_returns_self(self):
+        c1 = Circle(r=50)
+        c2 = Circle(r=50)
+        col = VCollection(c1, c2)
+        result = col.apply_sequential('fadein', 0, 2)
+        assert result is col
+
+    def test_apply_sequential_divides_time_evenly(self):
+        """With 3 children and time 0-3, each child gets 1 second."""
+        c1 = Circle(r=50)
+        c2 = Circle(r=50)
+        c3 = Circle(r=50)
+        col = VCollection(c1, c2, c3)
+        col.apply_sequential('fadein', 0, 3)
+        # c1 should be shown from time 0 (its fadein starts at 0)
+        assert c1.show.at_time(0) is True
+        # c2 should be shown from time 1 (its fadein starts at 1)
+        assert c2.show.at_time(1) is True
+        # c3 should be shown from time 2 (its fadein starts at 2)
+        assert c3.show.at_time(2) is True
+
+    def test_apply_sequential_empty_collection(self):
+        col = VCollection()
+        result = col.apply_sequential('fadein', 0, 3)
+        assert result is col
+
+    def test_apply_sequential_single_child(self):
+        """Single child gets the entire time range."""
+        c = Circle(r=50)
+        col = VCollection(c)
+        col.apply_sequential('fadein', 0, 2)
+        assert c.show.at_time(0) is True
+
+    def test_apply_sequential_with_kwargs(self):
+        """Extra kwargs should be forwarded to the method."""
+        c1 = Circle(r=50)
+        c2 = Circle(r=50)
+        col = VCollection(c1, c2)
+        col.apply_sequential('fadein', 0, 2, easing=easings.linear)
+        # Both should be shown at their respective start times
+        assert c1.show.at_time(0) is True
+        assert c2.show.at_time(1) is True
+
+    def test_apply_sequential_fadeout(self):
+        """Should work with fadeout as well."""
+        c1 = Circle(r=50)
+        c2 = Circle(r=50)
+        col = VCollection(c1, c2)
+        col.apply_sequential('fadeout', 0, 2)
+        # After the full animation, both should be hidden
+        assert c1.show.at_time(1.5) is False
+        assert c2.show.at_time(2.5) is False

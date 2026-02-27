@@ -2290,6 +2290,41 @@ class Axes(VCollection):
         self._add_plot_obj(rect)
         return rect
 
+    def add_horizontal_band(self, y1, y2, color='#FFFF00', opacity=0.15, creation=0):
+        """Add a shaded horizontal band between y-values *y1* and *y2*.
+
+        The band spans the full x-range of the axes and respects animated
+        axis ranges via :meth:`coords_to_point`.
+
+        Parameters
+        ----------
+        y1, y2:
+            Vertical math-coordinate bounds of the band.
+        color:
+            Fill color.  Default ``'#FFFF00'`` (yellow).
+        opacity:
+            Fill opacity.  Default ``0.15``.
+        creation:
+            Appearance time (seconds).
+
+        Returns
+        -------
+        Rectangle
+            The band rectangle (already added to the axes objects).
+        """
+        rect = Rectangle(width=0, height=0, x=0, y=0,
+                          creation=creation, z=-1,
+                          fill=color, fill_opacity=opacity, stroke_width=0)
+        _lo, _hi = y1, y2
+        rect.x.set_onward(creation, lambda t: self.plot_x)
+        rect.width.set_onward(creation, lambda t: self.plot_width)
+        rect.y.set_onward(creation, lambda t, _l=_lo, _h=_hi: min(
+            self._math_to_svg_y(_l, t), self._math_to_svg_y(_h, t)))
+        rect.height.set_onward(creation, lambda t, _l=_lo, _h=_hi: abs(
+            self._math_to_svg_y(_h, t) - self._math_to_svg_y(_l, t)))
+        self._add_plot_obj(rect)
+        return rect
+
     def shade_region(self, x_start, x_end, y_start=None, y_end=None,
                      creation=0, z=-1, **styling_kwargs):
         """Shade an axis-aligned rectangular region in math coordinates.
@@ -5815,6 +5850,48 @@ class NumberLine(VCollection):
         self.objects.append(lbl)
         return self
 
+    def add_tick_labels_range(self, start_val, end_val, step, format_func=None,
+                              font_size=None, creation=0):
+        """Batch-add tick labels for values from *start_val* to *end_val*.
+
+        Adds Text objects positioned at each tick value along the number line.
+
+        Parameters
+        ----------
+        start_val:
+            First tick value (inclusive).
+        end_val:
+            Last tick value (inclusive, if reachable by *step*).
+        step:
+            Increment between tick values.  Must be positive.
+        format_func:
+            Callable that converts a numeric value to a label string.
+            Defaults to ``str``.
+        font_size:
+            Font size for the labels.  Defaults to the number line's font
+            size (the ``_TICK_FONT_SIZE`` used during construction).
+        creation:
+            Appearance time (seconds).
+
+        Returns
+        -------
+        self
+        """
+        if format_func is None:
+            format_func = str
+        if font_size is None:
+            font_size = _TICK_FONT_SIZE
+        val = start_val
+        while val <= end_val + step * 0.001:
+            px, py = self.number_to_point(val)
+            label_text = format_func(val)
+            lbl = Text(text=label_text, x=px, y=py + SMALL_BUFF + font_size,
+                       font_size=font_size, creation=creation,
+                       fill='#fff', stroke_width=0, text_anchor='middle')
+            self.objects.append(lbl)
+            val += step
+        return self
+
     def add_brace(self, x1, x2, label=None, direction='down', **kwargs):
         """Add a curly brace between two values on the number line.
 
@@ -6410,10 +6487,41 @@ class Table(VCollection):
         self.entries[row][col].flash(start, end, color=color, easing=easing)
         return self
 
-    def highlight_row(self, row, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
-        """Flash-highlight all cells in a row."""
-        for entry in self.entries[row]:
-            entry.flash(start, end, color=color, easing=easing)
+    def highlight_row(self, row_idx, start=0, end=1, color='#FFFF00', opacity=0.3, easing=None):
+        """Highlight all cells in a row by setting their fill color.
+
+        The highlight fades in at *start* and fades out at *end* using the
+        fill opacity.  If *easing* is ``None``, ``easings.there_and_back``
+        is used so the highlight peaks at the midpoint and fades out by *end*.
+
+        Parameters
+        ----------
+        row_idx:
+            Row index (0-based).
+        start:
+            Time at which the highlight begins.
+        end:
+            Time at which the highlight ends.
+        color:
+            Fill color for the highlight.
+        opacity:
+            Peak fill opacity for the highlight.
+        easing:
+            Easing function.  If ``None``, ``easings.there_and_back`` is used.
+
+        Returns
+        -------
+        self
+        """
+        if easing is None:
+            easing = easings.there_and_back
+        for entry in self.entries[row_idx]:
+            entry.set_fill(color=color, start=start)
+            dur = end - start
+            if dur > 0:
+                entry.styling.fill_opacity.set(start, end,
+                    lambda t, _s=start, _d=dur, _op=opacity:
+                        _op * easing((t - _s) / _d))
         return self
 
     def highlight_column(self, col, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):

@@ -6,7 +6,7 @@ from vectormation.objects import (
     Path, Trace, Text, Dot, Wedge, Sector, Star, RoundedRectangle, DashedLine,
     NumberLine, EquilateralTriangle, Arrow, CurvedArrow, VObject, VCollection,
     from_svg, CountAnimation, Annulus, FunctionGraph,
-    AnnularSector, PieChart, DonutChart, Axes, Brace,
+    AnnularSector, PieChart, DonutChart, Axes, Brace, Table,
 )
 from vectormation.attributes import Coor
 import vectormation.easings as easings
@@ -7222,3 +7222,327 @@ class TestNumberLineAddBrace:
         brace = nl.add_brace(1, 4, fill='#ff0000')
         svg = brace.objects[0].to_svg(0)
         assert 'rgb(255,0,0)' in svg or '#ff0000' in svg
+
+
+class TestPolygonInset:
+    def test_returns_polygon(self):
+        p = Polygon((0, 0), (200, 0), (200, 100), (0, 100))
+        inner = p.inset(10)
+        assert isinstance(inner, Polygon)
+
+    def test_vertex_count_preserved(self):
+        p = Polygon((0, 0), (200, 0), (200, 100), (0, 100))
+        inner = p.inset(10)
+        assert len(inner.vertices) == 4
+
+    def test_inset_shrinks_area(self):
+        """Inset polygon should have smaller area than original."""
+        p = Polygon((0, 0), (200, 0), (200, 100), (0, 100))
+        inner = p.inset(10)
+        assert inner.area() < p.area()
+
+    def test_inset_rectangle_dimensions(self):
+        """Insetting a rectangular polygon should reduce width and height."""
+        p = Polygon((0, 0), (200, 0), (200, 100), (0, 100))
+        inner = p.inset(10)
+        verts = inner.get_vertices()
+        xs = [v[0] for v in verts]
+        ys = [v[1] for v in verts]
+        w = max(xs) - min(xs)
+        h = max(ys) - min(ys)
+        assert w == pytest.approx(180.0, abs=1e-6)
+        assert h == pytest.approx(80.0, abs=1e-6)
+
+    def test_inset_rectangle_position(self):
+        """Inset rectangle vertices should be offset by distance from edges."""
+        p = Polygon((0, 0), (200, 0), (200, 100), (0, 100))
+        inner = p.inset(10)
+        verts = inner.get_vertices()
+        xs = sorted(set(round(v[0], 3) for v in verts))
+        ys = sorted(set(round(v[1], 3) for v in verts))
+        assert xs[0] == pytest.approx(10.0, abs=1e-3)
+        assert xs[-1] == pytest.approx(190.0, abs=1e-3)
+        assert ys[0] == pytest.approx(10.0, abs=1e-3)
+        assert ys[-1] == pytest.approx(90.0, abs=1e-3)
+
+    def test_collapse_raises(self):
+        """Inset too large should raise ValueError."""
+        p = Polygon((0, 0), (100, 0), (100, 50), (0, 50))
+        with pytest.raises(ValueError):
+            p.inset(30)  # Would make height negative (50 - 2*30 = -10)
+
+    def test_triangle_inset(self):
+        """Insetting a triangle should return a valid smaller triangle."""
+        # Equilateral-ish triangle
+        p = Polygon((100, 0), (200, 173), (0, 173))
+        inner = p.inset(5)
+        assert len(inner.vertices) == 3
+        assert inner.area() < p.area()
+
+    def test_kwargs_forwarded(self):
+        """Style kwargs should be forwarded to the new Polygon."""
+        p = Polygon((0, 0), (200, 0), (200, 100), (0, 100))
+        inner = p.inset(10, stroke='#f00')
+        svg = inner.to_svg(0)
+        assert 'rgb(255,0,0)' in svg
+
+    def test_does_not_modify_original(self):
+        """inset() should not change the original polygon."""
+        p = Polygon((0, 0), (200, 0), (200, 100), (0, 100))
+        orig_area = p.area()
+        p.inset(10)
+        assert p.area() == pytest.approx(orig_area, abs=1e-6)
+
+    def test_fewer_than_3_vertices_raises(self):
+        """Polygon with fewer than 3 vertices cannot be inset."""
+        p = Polygon((0, 0), (100, 0), closed=False)
+        with pytest.raises(ValueError):
+            p.inset(5)
+
+    def test_closed_flag_preserved(self):
+        """The inset polygon inherits the closed flag from the original."""
+        p = Polygon((0, 0), (200, 0), (200, 100), (0, 100), closed=True)
+        inner = p.inset(10)
+        assert inner.closed is True
+
+
+class TestCircleAnnularSector:
+    def test_returns_path(self):
+        c = Circle(r=100, cx=500, cy=500)
+        p = c.annular_sector()
+        assert isinstance(p, Path)
+
+    def test_svg_contains_arc_commands(self):
+        c = Circle(r=100, cx=500, cy=500)
+        p = c.annular_sector(inner_ratio=0.5, start_angle=0, end_angle=90)
+        svg = p.to_svg(0)
+        assert '<path' in svg
+        assert 'A' in p.d.at_time(0)
+
+    def test_inner_ratio_affects_path(self):
+        """Different inner_ratios should produce different paths."""
+        c = Circle(r=100, cx=500, cy=500)
+        p1 = c.annular_sector(inner_ratio=0.3, start_angle=0, end_angle=90)
+        p2 = c.annular_sector(inner_ratio=0.7, start_angle=0, end_angle=90)
+        assert p1.d.at_time(0) != p2.d.at_time(0)
+
+    def test_full_annulus(self):
+        """360-degree span should produce a full annulus."""
+        c = Circle(r=100, cx=500, cy=500)
+        p = c.annular_sector(inner_ratio=0.5, start_angle=0, end_angle=360)
+        d = p.d.at_time(0)
+        assert 'A' in d
+
+    def test_semicircle_sector(self):
+        """180-degree span should produce a semicircular annular sector."""
+        c = Circle(r=100, cx=500, cy=500)
+        p = c.annular_sector(inner_ratio=0.5, start_angle=0, end_angle=180)
+        d = p.d.at_time(0)
+        assert 'A' in d
+        assert 'L' in d
+
+    def test_kwargs_forwarded(self):
+        """Style kwargs should be forwarded to the Path."""
+        c = Circle(r=100, cx=500, cy=500)
+        p = c.annular_sector(fill='#ff0000')
+        svg = p.to_svg(0)
+        assert 'rgb(255,0,0)' in svg
+
+    def test_default_styling(self):
+        """Default annular sector should have fill and stroke."""
+        c = Circle(r=100, cx=500, cy=500)
+        p = c.annular_sector(start_angle=0, end_angle=90)
+        svg = p.to_svg(0)
+        assert '<path' in svg
+
+    def test_small_angle_sector(self):
+        """Small angle sector should work correctly."""
+        c = Circle(r=100, cx=500, cy=500)
+        p = c.annular_sector(inner_ratio=0.5, start_angle=0, end_angle=30)
+        d = p.d.at_time(0)
+        assert 'M' in d
+        assert 'A' in d
+
+
+class TestAxesAddHorizontalBand:
+    def test_returns_rectangle(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        band = ax.add_horizontal_band(1, 3)
+        assert isinstance(band, Rectangle)
+
+    def test_band_added_to_objects(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        n_before = len(ax.objects)
+        ax.add_horizontal_band(1, 3)
+        assert len(ax.objects) == n_before + 1
+
+    def test_band_spans_full_width(self):
+        """Band width should equal the plot width."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        band = ax.add_horizontal_band(1, 3)
+        assert band.width.at_time(0) == pytest.approx(ax.plot_width, abs=1e-6)
+
+    def test_band_x_at_plot_x(self):
+        """Band x should be at plot_x."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        band = ax.add_horizontal_band(1, 3)
+        assert band.x.at_time(0) == pytest.approx(ax.plot_x, abs=1e-6)
+
+    def test_band_height_proportional(self):
+        """Band height should correspond to the y range."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5), plot_height=1000)
+        band = ax.add_horizontal_band(1, 3)
+        # y range of 2 out of 10 total = 20% of plot_height = 200
+        assert band.height.at_time(0) == pytest.approx(200.0, abs=1e-6)
+
+    def test_custom_color(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        band = ax.add_horizontal_band(1, 3, color='#FF0000')
+        svg = band.to_svg(0)
+        assert 'rgb(255,0,0)' in svg
+
+    def test_custom_opacity(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        band = ax.add_horizontal_band(1, 3, opacity=0.5)
+        assert band.styling.fill_opacity.at_time(0) == pytest.approx(0.5, abs=1e-6)
+
+    def test_reversed_y_values(self):
+        """Should handle y1 > y2 gracefully (positive height)."""
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        band = ax.add_horizontal_band(3, 1)
+        assert band.height.at_time(0) > 0
+
+
+class TestTableHighlightRow:
+    def test_returns_self(self):
+        t = Table([[1, 2], [3, 4]])
+        result = t.highlight_row(0, start=0, end=1)
+        assert result is t
+
+    def test_changes_fill_color(self):
+        """Highlighting should change the fill color of row cells."""
+        t = Table([[1, 2], [3, 4]])
+        t.highlight_row(0, start=0, end=1, color='#FF0000')
+        # At start time, fill should be the highlight color
+        entry = t.entries[0][0]
+        fill = entry.styling.fill.time_func(0)
+        assert fill == (255, 0, 0)
+
+    def test_opacity_at_midpoint(self):
+        """With there_and_back easing, opacity should peak at midpoint."""
+        t = Table([[1, 2], [3, 4]])
+        t.highlight_row(0, start=0, end=2, opacity=0.6)
+        entry = t.entries[0][0]
+        mid_opacity = entry.styling.fill_opacity.at_time(1)
+        # At midpoint of there_and_back, should be near peak
+        assert mid_opacity > 0.3
+
+    def test_opacity_at_boundaries(self):
+        """Opacity should be near zero at start and end."""
+        t = Table([[1, 2], [3, 4]])
+        t.highlight_row(0, start=0, end=2, opacity=0.6)
+        entry = t.entries[0][0]
+        start_opacity = entry.styling.fill_opacity.at_time(0)
+        end_opacity = entry.styling.fill_opacity.at_time(2)
+        assert start_opacity == pytest.approx(0.0, abs=0.05)
+        assert end_opacity == pytest.approx(0.0, abs=0.05)
+
+    def test_all_cells_in_row_highlighted(self):
+        """All cells in the row should be affected."""
+        t = Table([[1, 2, 3], [4, 5, 6]])
+        t.highlight_row(0, start=0, end=1, color='#00FF00')
+        for entry in t.entries[0]:
+            fill = entry.styling.fill.time_func(0)
+            assert fill == (0, 255, 0)
+
+    def test_other_row_unaffected(self):
+        """Cells in other rows should not be affected."""
+        t = Table([['a', 'b'], ['c', 'd']])
+        t.highlight_row(0, start=0, end=1, color='#FF0000')
+        entry = t.entries[1][0]
+        fill = entry.styling.fill.time_func(0)
+        # Should remain white (#fff), not red
+        assert fill == (255, 255, 255)
+
+    def test_custom_easing(self):
+        """Custom easing should be used for opacity."""
+        t = Table([[1, 2], [3, 4]])
+        t.highlight_row(0, start=0, end=1, easing=easings.linear)
+        # Just verify it doesn't raise
+        entry = t.entries[0][0]
+        _ = entry.styling.fill_opacity.at_time(0.5)
+
+
+class TestNumberLineAddTickLabelsRange:
+    def test_returns_self(self):
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500,
+                        include_numbers=False)
+        result = nl.add_tick_labels_range(0, 5, 1)
+        assert result is nl
+
+    def test_labels_added_to_objects(self):
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500,
+                        include_numbers=False)
+        n_before = len(nl.objects)
+        nl.add_tick_labels_range(0, 5, 1)
+        # 0, 1, 2, 3, 4, 5 = 6 labels
+        assert len(nl.objects) == n_before + 6
+
+    def test_labels_are_text_objects(self):
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500,
+                        include_numbers=False)
+        n_before = len(nl.objects)
+        nl.add_tick_labels_range(2, 4, 1)
+        for obj in nl.objects[n_before:]:
+            assert isinstance(obj, Text)
+
+    def test_label_positions(self):
+        """Labels should be positioned at the correct x coordinates."""
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500,
+                        include_numbers=False)
+        n_before = len(nl.objects)
+        nl.add_tick_labels_range(0, 10, 5)
+        # Values: 0, 5, 10 -> x: 100, 350, 600
+        labels = nl.objects[n_before:]
+        assert len(labels) == 3
+        assert labels[0].x.at_time(0) == pytest.approx(100.0, abs=1e-3)
+        assert labels[1].x.at_time(0) == pytest.approx(350.0, abs=1e-3)
+        assert labels[2].x.at_time(0) == pytest.approx(600.0, abs=1e-3)
+
+    def test_custom_format_func(self):
+        """Custom format function should be applied to labels."""
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500,
+                        include_numbers=False)
+        n_before = len(nl.objects)
+        nl.add_tick_labels_range(0, 2, 1, format_func=lambda v: f'x={v}')
+        labels = nl.objects[n_before:]
+        assert labels[0].text.at_time(0) == 'x=0'
+        assert labels[1].text.at_time(0) == 'x=1'
+        assert labels[2].text.at_time(0) == 'x=2'
+
+    def test_custom_font_size(self):
+        """Custom font_size should be applied to labels."""
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500,
+                        include_numbers=False)
+        n_before = len(nl.objects)
+        nl.add_tick_labels_range(0, 2, 1, font_size=30)
+        labels = nl.objects[n_before:]
+        for lbl in labels:
+            assert lbl.font_size.at_time(0) == pytest.approx(30)
+
+    def test_fractional_step(self):
+        """Non-integer step should work."""
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500,
+                        include_numbers=False)
+        n_before = len(nl.objects)
+        nl.add_tick_labels_range(0, 1, 0.5)
+        # 0, 0.5, 1.0 = 3 labels
+        assert len(nl.objects) == n_before + 3
+
+    def test_renders_svg(self):
+        """Labels should render in SVG output."""
+        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500,
+                        include_numbers=False)
+        nl.add_tick_labels_range(0, 3, 1)
+        svg = nl.to_svg(0)
+        assert '<text' in svg

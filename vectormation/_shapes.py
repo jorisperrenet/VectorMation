@@ -298,6 +298,102 @@ class Polygon(VObject):
             new_pts.append((new_x, new_y))
         return Polygon(*new_pts, closed=self.closed)
 
+    def inset(self, distance, time=0, **kwargs):
+        """Return a new Polygon inset by *distance* pixels.
+
+        Each edge of the polygon is moved inward along its inward normal by
+        *distance* pixels.  The new vertices are computed as the intersections
+        of the offset edges.  This works correctly for convex polygons; for
+        concave polygons the result is a best-effort approximation.
+
+        Parameters
+        ----------
+        distance:
+            Number of pixels to inset.  Must be positive.
+        time:
+            Animation time at which to read current vertex positions.
+        **kwargs:
+            Extra styling keyword arguments forwarded to the new Polygon.
+
+        Returns
+        -------
+        Polygon
+            A new Polygon with inset vertices.
+
+        Raises
+        ------
+        ValueError
+            If *distance* would cause the polygon to collapse (i.e. any pair
+            of adjacent offset edges fails to intersect properly).
+        """
+        pts = self.get_vertices(time)
+        n = len(pts)
+        if n < 3:
+            raise ValueError("Cannot inset a polygon with fewer than 3 vertices")
+
+        # Determine winding direction to figure out which side is "inward".
+        # signed_area > 0 means CW in SVG (y-down), < 0 means CCW.
+        sa = self.signed_area(time)
+        # For CW (sa > 0): outward normal is (dy, -dx), inward = (-dy, dx).
+        # For CCW (sa < 0): outward normal is (-dy, dx), inward = (dy, -dx).
+        # sign = -1 for CW, +1 for CCW flips outward->inward.
+        sign = -1.0 if sa >= 0 else 1.0
+
+        # Compute offset edges: each edge moved inward by distance.
+        offset_edges = []
+        for i in range(n):
+            j = (i + 1) % n
+            dx = pts[j][0] - pts[i][0]
+            dy = pts[j][1] - pts[i][1]
+            edge_len = math.hypot(dx, dy)
+            if edge_len < 1e-12:
+                raise ValueError("Degenerate edge with zero length")
+            # Inward normal direction depends on winding
+            nx = sign * dy / edge_len
+            ny = sign * (-dx) / edge_len
+            # Offset edge points
+            ox = nx * distance
+            oy = ny * distance
+            p1 = (pts[i][0] + ox, pts[i][1] + oy)
+            p2 = (pts[j][0] + ox, pts[j][1] + oy)
+            offset_edges.append((p1, p2))
+
+        # Find intersections of consecutive offset edges
+        new_pts = []
+        for i in range(n):
+            j = (i + 1) % n
+            p1, p2 = offset_edges[i]
+            p3, p4 = offset_edges[j]
+            # Line-line intersection
+            x1, y1 = p1
+            x2, y2 = p2
+            x3, y3 = p3
+            x4, y4 = p4
+            denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+            if abs(denom) < 1e-12:
+                raise ValueError(
+                    f"Inset distance {distance} causes polygon to collapse "
+                    f"(parallel edges at vertex {j})"
+                )
+            t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom
+            ix = x1 + t * (x2 - x1)
+            iy = y1 + t * (y2 - y1)
+            new_pts.append((ix, iy))
+
+        # Validate: check that the inset polygon has the same sign of area
+        inset_area = 0.0
+        for i in range(len(new_pts)):
+            j = (i + 1) % len(new_pts)
+            inset_area += new_pts[i][0] * new_pts[j][1] - new_pts[j][0] * new_pts[i][1]
+        inset_area *= 0.5
+        if sa != 0 and (sa * inset_area) < 0:
+            raise ValueError(
+                f"Inset distance {distance} causes polygon to collapse "
+                f"(area sign flipped)"
+            )
+
+        return Polygon(*new_pts, closed=self.closed, **kwargs)
+
     def rotate_vertices(self, angle_deg, cx=None, cy=None, time=0):
         """Return a new Polygon with all vertices rotated by angle_deg degrees.
 
@@ -1790,6 +1886,73 @@ class Circle(Ellipse):
             sectors.append(Wedge(cx=cx, cy=cy, r=r,
                                  start_angle=sa, end_angle=ea, **kwargs))
         return VCollection(*sectors)
+
+    def annular_sector(self, inner_ratio=0.5, start_angle=0, end_angle=360, **kwargs):
+        """Create an annular sector (donut slice) as a Path.
+
+        Uses this circle's center and radius as the outer boundary.
+        The inner boundary is at ``inner_ratio * radius``.
+
+        Parameters
+        ----------
+        inner_ratio:
+            Fraction of the outer radius for the inner boundary (0 < ratio < 1).
+        start_angle:
+            Start angle in degrees (0 = right, counter-clockwise in math coords).
+        end_angle:
+            End angle in degrees.
+        **kwargs:
+            Styling keyword arguments forwarded to the Path constructor.
+
+        Returns
+        -------
+        Path
+            A Path object with the annular sector shape.
+        """
+        cx, cy = self.c.at_time(0)
+        ro = self.rx.at_time(0)
+        ri = ro * inner_ratio
+        sa_rad = math.radians(start_angle)
+        ea_rad = math.radians(end_angle)
+        # Outer arc start/end points
+        ox1 = cx + ro * math.cos(sa_rad)
+        oy1 = cy - ro * math.sin(sa_rad)
+        ox2 = cx + ro * math.cos(ea_rad)
+        oy2 = cy - ro * math.sin(ea_rad)
+        # Inner arc start/end points (reversed direction)
+        ix1 = cx + ri * math.cos(ea_rad)
+        iy1 = cy - ri * math.sin(ea_rad)
+        ix2 = cx + ri * math.cos(sa_rad)
+        iy2 = cy - ri * math.sin(sa_rad)
+        # Determine large-arc flag
+        angle_span = abs(end_angle - start_angle) % 360
+        if angle_span == 0 and abs(end_angle - start_angle) >= 360:
+            angle_span = 360
+        large = 1 if angle_span > 180 else 0
+        # Sweep: for SVG with y-inverted, CCW math angles map to CW SVG sweep=0
+        sweep_out = 0 if end_angle > start_angle else 1
+        sweep_in = 1 - sweep_out
+        if angle_span >= 360:
+            # Full annulus: two half-arcs to avoid degenerate zero-length arc
+            mid_rad = (sa_rad + ea_rad) / 2 + math.pi
+            omx = cx + ro * math.cos(mid_rad)
+            omy = cy - ro * math.sin(mid_rad)
+            imx = cx + ri * math.cos(mid_rad)
+            imy = cy - ri * math.sin(mid_rad)
+            d = (f'M{ox1},{oy1}'
+                 f'A{ro},{ro} 0 1,0 {omx},{omy}'
+                 f'A{ro},{ro} 0 1,0 {ox1},{oy1}'
+                 f'M{ix2},{iy2}'
+                 f'A{ri},{ri} 0 1,1 {imx},{imy}'
+                 f'A{ri},{ri} 0 1,1 {ix2},{iy2}Z')
+        else:
+            d = (f'M{ox1},{oy1}'
+                 f'A{ro},{ro} 0 {large},{sweep_out} {ox2},{oy2}'
+                 f'L{ix1},{iy1}'
+                 f'A{ri},{ri} 0 {large},{sweep_in} {ix2},{iy2}Z')
+        style_kw = {'fill': '#fff', 'fill_opacity': 0.7, 'stroke': '#fff',
+                     'stroke_width': DEFAULT_STROKE_WIDTH} | kwargs
+        return Path(d, **style_kw)
 
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)

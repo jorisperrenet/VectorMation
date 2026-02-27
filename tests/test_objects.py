@@ -9542,7 +9542,7 @@ class TestWaveThrough:
         assert crossings2 > crossings1
 
 
-class TestCountdown:
+class TestCountdownText:
     def test_basic_countdown(self):
         t = Text('', x=500, y=500)
         t.countdown(start=0, end=3, from_val=3)
@@ -9634,3 +9634,160 @@ class TestSqueeze:
         c = Circle(r=50, cx=500, cy=500)
         result = c.squeeze(start=1, end=1)
         assert result is c
+
+
+class TestBindTo:
+    def test_bind_to_returns_self(self):
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=300, cy=300)
+        result = c1.bind_to(c2, offset_x=10, offset_y=20, start=0, end=2)
+        assert result is c1
+
+    def test_bind_to_adds_updater(self):
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=300, cy=300)
+        initial_count = len(c1._updaters)
+        c1.bind_to(c2, start=0, end=2)
+        assert len(c1._updaters) == initial_count + 1
+
+    def test_bind_to_follows_target(self):
+        """After running the updater, c1 should be at c2's center + offset."""
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=300, cy=300)
+        c1.bind_to(c2, offset_x=50, offset_y=0, start=0, end=5)
+        # Manually run updaters at time=1
+        c1._run_updaters(1)
+        cx1 = c1.center(1)
+        cx2 = c2.center(1)
+        assert cx1[0] == pytest.approx(cx2[0] + 50, abs=1)
+        assert cx1[1] == pytest.approx(cx2[1], abs=1)
+
+    def test_bind_to_with_zero_offset(self):
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=500, cy=500)
+        c1.bind_to(c2, start=0, end=5)
+        c1._run_updaters(1)
+        cx1 = c1.center(1)
+        cx2 = c2.center(1)
+        assert cx1[0] == pytest.approx(cx2[0], abs=1)
+        assert cx1[1] == pytest.approx(cx2[1], abs=1)
+
+
+class TestDuplicate:
+    def test_duplicate_returns_vcollection(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.duplicate(count=3)
+        assert isinstance(result, VCollection)
+
+    def test_duplicate_count(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.duplicate(count=4)
+        assert len(result.objects) == 4
+
+    def test_duplicate_default_count(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.duplicate()
+        assert len(result.objects) == 2
+
+    def test_duplicate_does_not_include_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.duplicate(count=3)
+        for obj in result.objects:
+            assert obj is not c
+
+    def test_duplicate_copies_are_independent(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.duplicate(count=2)
+        # Copies should be distinct objects
+        assert result.objects[0] is not result.objects[1]
+
+    def test_duplicate_arranges_objects(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.duplicate(count=2, direction=RIGHT, buff=34)
+        # After arrangement, second copy should be to the right of the first
+        x0 = result.objects[0].center(0)[0]
+        x1 = result.objects[1].center(0)[0]
+        assert x1 > x0
+
+
+class TestArcTo:
+    def test_arc_to_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.arc_to(500, 500, start=0, end=1)
+        assert result is c
+
+    def test_arc_to_reaches_target(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.arc_to(500, 500, start=0, end=1, easing=easings.linear)
+        cx, cy = c.center(1)
+        assert cx == pytest.approx(500, abs=2)
+        assert cy == pytest.approx(500, abs=2)
+
+    def test_arc_to_midpoint_differs_from_straight(self):
+        """The arc path should deviate from a straight line at the midpoint."""
+        c_arc = Circle(r=50, cx=100, cy=100)
+        c_arc.arc_to(500, 100, start=0, end=1, angle=math.pi/2, easing=easings.linear)
+        mid_arc = c_arc.center(0.5)
+        # Straight line midpoint would be (300, 100)
+        # Arc should deviate in y
+        assert abs(mid_arc[1] - 100) > 10
+
+    def test_arc_to_custom_angle(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.arc_to(500, 100, start=0, end=1, angle=math.pi, easing=easings.linear)
+        # At end, should still reach target
+        cx, cy = c.center(1)
+        assert cx == pytest.approx(500, abs=2)
+        assert cy == pytest.approx(100, abs=2)
+
+    def test_arc_to_zero_duration(self):
+        """Zero or negative duration should still return self."""
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.arc_to(500, 500, start=1, end=0)
+        assert result is c
+
+
+class TestTypewriterCursor:
+    def test_typewriter_cursor_returns_self(self):
+        t = Text('hello', x=100, y=100)
+        result = t.typewriter_cursor(start=0, end=2)
+        assert result is t
+
+    def test_typewriter_cursor_appends_cursor(self):
+        t = Text('hello', x=100, y=100)
+        t.typewriter_cursor(start=0, end=2, blink_rate=0.5, cursor_char='|')
+        # At time 0 (start of blink cycle, int(0)%2==0), cursor should be visible
+        text_val = t.text.at_time(0)
+        assert text_val == 'hello|'
+
+    def test_typewriter_cursor_blinks_off(self):
+        t = Text('hello', x=100, y=100)
+        t.typewriter_cursor(start=0, end=10, blink_rate=1.0, cursor_char='|')
+        # At time 1.0, cycle = 1.0, int(1.0)%2 == 1, cursor off
+        text_val = t.text.at_time(1.0)
+        assert text_val == 'hello'
+
+    def test_typewriter_cursor_blinks_on_again(self):
+        t = Text('hello', x=100, y=100)
+        t.typewriter_cursor(start=0, end=10, blink_rate=1.0, cursor_char='|')
+        # At time 2.0, cycle = 2.0, int(2.0)%2 == 0, cursor on
+        text_val = t.text.at_time(2.0)
+        assert text_val == 'hello|'
+
+    def test_typewriter_cursor_custom_char(self):
+        t = Text('hello', x=100, y=100)
+        t.typewriter_cursor(start=0, end=5, blink_rate=0.5, cursor_char='_')
+        text_val = t.text.at_time(0)
+        assert text_val == 'hello_'
+
+    def test_typewriter_cursor_on_non_text_raises(self):
+        c = Circle(r=50, cx=100, cy=100)
+        with pytest.raises(TypeError):
+            c.typewriter_cursor(start=0, end=2)
+
+    def test_typewriter_cursor_after_end(self):
+        """After end time, cursor should no longer be present."""
+        t = Text('hello', x=100, y=100)
+        t.typewriter_cursor(start=0, end=2)
+        text_val = t.text.at_time(3)
+        assert text_val == 'hello'
