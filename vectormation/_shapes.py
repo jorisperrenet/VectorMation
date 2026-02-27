@@ -1029,18 +1029,9 @@ class Circle(Ellipse):
         """Return the exact perimeter (2 * pi * r)."""
         return math.tau * self.rx.at_time(time)
 
-    def get_circumference(self, time=0):
-        """Alias for get_perimeter. Returns the exact circumference (2 * pi * r)."""
-        return self.get_perimeter(time)
-
-    def circumference(self, time=0):
-        """Return the circumference (2 * pi * r). Alias for get_perimeter."""
-        return self.get_perimeter(time)
-
-    def point_on_circle(self, angle_degrees, time=0):
-        """Return (x, y) on the circle at the given angle (degrees, CCW from right).
-        Alias for point_at_angle."""
-        return self.point_at_angle(angle_degrees, time)
+    get_circumference = get_perimeter
+    circumference = get_perimeter
+    point_on_circle = point_at_angle
 
     @classmethod
     def from_diameter(cls, p1, p2, **kwargs):

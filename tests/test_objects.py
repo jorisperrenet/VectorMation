@@ -14384,6 +14384,33 @@ class TestNeuralNetworkHighlightPath:
         assert result is nn
 
 
+class TestArcSagittaAndTangent:
+    def test_sagitta_semicircle(self):
+        from vectormation.objects import Arc
+        a = Arc(r=100, start_angle=0, end_angle=180)
+        # Sagitta of a semicircle = r
+        assert abs(a.get_sagitta() - 100) < 1e-6
+
+    def test_sagitta_quarter(self):
+        from vectormation.objects import Arc
+        a = Arc(r=100, start_angle=0, end_angle=90)
+        # Sagitta = r * (1 - cos(45°)) ≈ 29.29
+        expected = 100 * (1 - math.cos(math.radians(45)))
+        assert abs(a.get_sagitta() - expected) < 1e-6
+
+    def test_tangent_at_returns_line(self):
+        from vectormation.objects import Arc
+        a = Arc(r=100, start_angle=0, end_angle=180)
+        line = a.tangent_at(0)
+        assert isinstance(line, Line)
+
+    def test_tangent_at_length(self):
+        from vectormation.objects import Arc
+        a = Arc(r=100, start_angle=0, end_angle=180)
+        line = a.tangent_at(90, length=200)
+        assert abs(line.get_length() - 200) < 1
+
+
 class TestTableSwapColumns:
     def test_swap_basic(self):
         t = Table([[1, 2], [3, 4]])

@@ -1556,6 +1556,22 @@ class Arc(VObject):
         """Return the total sweep angle in degrees."""
         return abs(self.end_angle.at_time(time) - self.start_angle.at_time(time))
 
+    def get_sagitta(self, time=0):
+        """Return the sagitta (height of the arc segment from chord to arc)."""
+        r = self.r.at_time(time)
+        half_angle = math.radians(self.get_sweep(time) / 2)
+        return r * (1 - math.cos(half_angle))
+
+    def tangent_at(self, degrees, length=100, time=0, **kwargs):
+        """Return a Line tangent to the arc at the given angle (degrees)."""
+        px, py = self.point_at_angle(degrees, time)
+        rad = math.radians(degrees)
+        # Tangent is perpendicular to radius: (-sin, -cos) in SVG coords
+        tx, ty = -math.sin(rad), -math.cos(rad)
+        half = length / 2
+        return Line(x1=px - tx * half, y1=py + ty * half,
+                    x2=px + tx * half, y2=py - ty * half, **kwargs)
+
     def point_at_angle(self, degrees, time=0):
         """Return (x, y) on the arc at the given angle (degrees, CCW from right)."""
         cx, cy = self.cx.at_time(time), self.cy.at_time(time)
