@@ -1057,9 +1057,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         _new_rgb = _new_color.time_func(0)
         def _update(obj, t):
             if predicate(t):
-                obj.styling.fill.set_onward(t, lambda _t, _c=_new_rgb: _c)
+                obj.styling.fill.set_onward(t, lambda _, _c=_new_rgb: _c)
             else:
-                obj.styling.fill.set_onward(t, lambda _t, _c=_orig_rgb: _c)
+                obj.styling.fill.set_onward(t, lambda _, _c=_orig_rgb: _c)
         self.add_updater(_update, start=start, end=end)
         return self
 

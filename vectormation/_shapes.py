@@ -1902,7 +1902,7 @@ class SurroundingCircle(Circle):
 
 # Re-export extended shapes so `from vectormation._shapes import X` still works
 from vectormation._shapes_ext import (  # noqa: E402
-    Line, DashedLine, Text, CountAnimation, ValueTracker, DecimalNumber, Integer,
+    Line, DashedLine, Text, CountAnimation, ValueTracker, ComplexValueTracker, DecimalNumber, Integer,
     Trace, Path, Image,
     Arc, Wedge, Annulus, ArcBetweenPoints, AnnularSector,
     CubicBezier, ScreenRectangle, BackgroundRectangle, Elbow,

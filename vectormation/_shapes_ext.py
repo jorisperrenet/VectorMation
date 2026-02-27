@@ -226,9 +226,7 @@ class Line(VObject):
         """Rotate the line to the given angle (degrees) about its midpoint or start."""
         x1, y1 = self.p1.at_time(start)
         x2, y2 = self.p2.at_time(start)
-        cur_angle = math.atan2(y2 - y1, x2 - x1)
         target = math.radians(angle_deg)
-        delta = target - cur_angle
         length = _distance(x1, y1, x2, y2)
         if about == 'start':
             new_p2 = (x1 + length * math.cos(target), y1 + length * math.sin(target))
@@ -1168,6 +1166,35 @@ class ValueTracker:
 
     def __repr__(self):
         return f'ValueTracker({self.value.at_time(0)})'
+
+class ComplexValueTracker:
+    """ValueTracker for complex numbers with real and imaginary parts."""
+    def __init__(self, value=0+0j, creation: float = 0):
+        if isinstance(value, (int, float)):
+            value = complex(value)
+        self.real = attributes.Real(creation, value.real)
+        self.imag = attributes.Real(creation, value.imag)
+        self.show = attributes.Real(creation, True)
+
+    def get_value(self, time=0):
+        return complex(self.real.at_time(time), self.imag.at_time(time))
+
+    def set_value(self, val, start=0):
+        if isinstance(val, (int, float)):
+            val = complex(val)
+        self.real.set_onward(start, val.real)
+        self.imag.set_onward(start, val.imag)
+        return self
+
+    def animate_value(self, target, start, end, easing=easings.smooth):
+        if isinstance(target, (int, float)):
+            target = complex(target)
+        self.real.move_to(start, end, target.real, easing=easing)
+        self.imag.move_to(start, end, target.imag, easing=easing)
+        return self
+
+    def __repr__(self):
+        return f'ComplexValueTracker({self.get_value(0)})'
 
 class DecimalNumber(Text):
     """Text that dynamically displays a numeric value, updating each frame."""

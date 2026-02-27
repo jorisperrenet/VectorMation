@@ -11588,3 +11588,28 @@ class TestInteger:
         # At time 0.5, should be ~5
         svg = i.to_svg(0.5)
         assert '5' in svg
+
+class TestComplexValueTracker:
+    def test_initial_value(self):
+        from vectormation.objects import ComplexValueTracker
+        cvt = ComplexValueTracker(3+4j)
+        assert cvt.get_value(0) == (3+4j)
+
+    def test_set_value(self):
+        from vectormation.objects import ComplexValueTracker
+        cvt = ComplexValueTracker(0)
+        cvt.set_value(5+2j, start=0)
+        assert cvt.get_value(0) == pytest.approx(5+2j)
+
+    def test_animate_value(self):
+        from vectormation.objects import ComplexValueTracker
+        cvt = ComplexValueTracker(0+0j)
+        cvt.animate_value(10+10j, start=0, end=1, easing=easings.linear)
+        v = cvt.get_value(0.5)
+        assert v.real == pytest.approx(5, abs=0.5)
+        assert v.imag == pytest.approx(5, abs=0.5)
+
+    def test_repr(self):
+        from vectormation.objects import ComplexValueTracker
+        cvt = ComplexValueTracker(1+2j)
+        assert 'ComplexValueTracker' in repr(cvt)
