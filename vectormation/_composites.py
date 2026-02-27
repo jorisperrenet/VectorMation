@@ -2079,11 +2079,10 @@ class Axes(VCollection):
             lbl = Text(text=str(label), x=lx, y=ly, font_size=font_size,
                        fill=label_color, stroke_width=0, text_anchor=anchor,
                        creation=creation, z=z)
-            _ox, _oy = ox, oy
             lbl.x.set_onward(creation,
-                lambda t, _x=x, _y=y, _ox=_ox: self.coords_to_point(_x, _y, t)[0] + _ox)
+                lambda t, _x=x, _y=y, _ox=ox: self.coords_to_point(_x, _y, t)[0] + _ox)
             lbl.y.set_onward(creation,
-                lambda t, _x=x, _y=y, _oy=_oy: self.coords_to_point(_x, _y, t)[1] + _oy)
+                lambda t, _x=x, _y=y, _oy=oy: self.coords_to_point(_x, _y, t)[1] + _oy)
             self._add_plot_obj(lbl)
             objs.append(lbl)
         return VCollection(*objs, creation=creation, z=z)
@@ -2117,8 +2116,8 @@ class Axes(VCollection):
         Path
             The filled area Path returned by :meth:`get_area`.
         """
-        curve = self.add_function(func, label=label, x_range=x_range,
-                                  creation=creation, stroke=color)
+        self.add_function(func, label=label, x_range=x_range,
+                          creation=creation, stroke=color)
         area = self.get_area(func, x_range=x_range, creation=creation,
                              fill=color, fill_opacity=opacity, stroke_width=0)
         return area

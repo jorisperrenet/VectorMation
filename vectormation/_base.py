@@ -4497,17 +4497,17 @@ class VObject(ABC):  # Vector Object
         self.set_fill(color=colors[0], start=start)
         # Use Color.set to define each interpolation segment
         src = self.styling.fill
+        def _make_interp(_cf, _ct, _ss, _dd, _easing):
+            def _interp(t):
+                p = _easing((t - _ss) / _dd)
+                return tuple(_cf[j] + (_ct[j] - _cf[j]) * p for j in range(len(_cf)))
+            return _interp
         for i in range(n - 1):
             seg_s = start + dur * i / (n - 1)
             seg_e = start + dur * (i + 1) / (n - 1)
             c_from = parsed[i]
             c_to = parsed[i + 1]
             _d = max(seg_e - seg_s, 1e-9)
-            def _make_interp(_cf, _ct, _ss, _dd, _easing):
-                def _interp(t):
-                    p = _easing((t - _ss) / _dd)
-                    return tuple(_cf[j] + (_ct[j] - _cf[j]) * p for j in range(len(_cf)))
-                return _interp
             src.set(seg_s, seg_e, _make_interp(c_from, c_to, seg_s, _d, easing), stay=(i == n - 2))
         return self
 

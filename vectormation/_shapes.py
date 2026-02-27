@@ -78,6 +78,9 @@ class Polygon(VObject):
         returns "M x1,y1 L x2,y2 L ... Z".  For open polylines the
         trailing Z is omitted.
 
+        Unlike :meth:`path`, vertex coordinates are formatted as floats
+        and an empty polygon returns ``''`` instead of raising.
+
         Parameters
         ----------
         time:
