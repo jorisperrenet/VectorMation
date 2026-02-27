@@ -5487,18 +5487,6 @@ class TestAnimatePointer:
 
 
 class TestUtilityFunctions:
-    def test_clamp(self):
-        from vectormation._constants import _clamp
-        assert _clamp(5, 0, 10) == 5
-        assert _clamp(-5, 0, 10) == 0
-        assert _clamp(15, 0, 10) == 10
-
-    def test_lerp(self):
-        from vectormation._constants import _lerp
-        assert _lerp(0, 10, 0.5) == 5
-        assert _lerp(0, 10, 0) == 0
-        assert _lerp(0, 10, 1) == 10
-
     def test_distance(self):
         from vectormation._constants import _distance
         assert abs(_distance(0, 0, 3, 4) - 5) < 1e-10
@@ -5909,29 +5897,6 @@ class TestMatchPosition:
 # Math helpers in _constants.py
 # ---------------------------------------------------------------------------
 
-class TestAngleBetween:
-    def test_right(self):
-        from vectormation._constants import _angle_between
-        assert _angle_between(0, 0, 1, 0) == pytest.approx(0)
-
-    def test_up(self):
-        import math
-        from vectormation._constants import _angle_between
-        # atan2(-1, 0) = -pi/2
-        assert _angle_between(0, 0, 0, -1) == pytest.approx(-math.pi / 2)
-
-    def test_diagonal(self):
-        import math
-        from vectormation._constants import _angle_between
-        assert _angle_between(0, 0, 1, 1) == pytest.approx(math.pi / 4)
-
-    def test_left(self):
-        import math
-        from vectormation._constants import _angle_between
-        angle = _angle_between(0, 0, -1, 0)
-        assert abs(angle) == pytest.approx(math.pi)
-
-
 class TestNormalize:
     def test_unit_x(self):
         from vectormation._constants import _normalize
@@ -5956,20 +5921,6 @@ class TestNormalize:
     def test_zero_vector(self):
         from vectormation._constants import _normalize
         assert _normalize(0, 0) == (0.0, 0.0)
-
-
-class TestMidpoint:
-    def test_basic(self):
-        from vectormation._constants import _midpoint
-        mx, my = _midpoint(0, 0, 10, 10)
-        assert mx == pytest.approx(5.0)
-        assert my == pytest.approx(5.0)
-
-    def test_negative(self):
-        from vectormation._constants import _midpoint
-        mx, my = _midpoint(-4, -6, 4, 6)
-        assert mx == pytest.approx(0.0)
-        assert my == pytest.approx(0.0)
 
 
 class TestLerpPoint:

@@ -40,14 +40,6 @@ DR = (1, 1)
 ORIGIN = (CANVAS_WIDTH // 2, CANVAS_HEIGHT // 2)  # Screen center
 
 
-def _clamp(value, min_val, max_val):
-    """Clamp value to [min_val, max_val] range."""
-    return max(min_val, min(max_val, value))
-
-def _lerp(a, b, t):
-    """Linear interpolation between a and b at parameter t."""
-    return a + (b - a) * t
-
 def _distance(x1, y1, x2, y2):
     """Euclidean distance between two points."""
     return math.hypot(x2 - x1, y2 - y1)
@@ -59,20 +51,12 @@ def _rotate_point(px, py, ox, oy, angle_rad):
     return (ox + cos_a * (px - ox) - sin_a * (py - oy),
             oy + sin_a * (px - ox) + cos_a * (py - oy))
 
-def _angle_between(x1, y1, x2, y2):
-    """Return the angle in radians from (x1,y1) to (x2,y2), measured from the positive x-axis."""
-    return math.atan2(y2 - y1, x2 - x1)
-
 def _normalize(x, y):
     """Return the unit vector (ux, uy) for vector (x, y). Returns (0, 0) for zero-length vectors."""
     mag = math.hypot(x, y)
     if mag == 0:
         return (0.0, 0.0)
     return (x / mag, y / mag)
-
-def _midpoint(x1, y1, x2, y2):
-    """Return the midpoint between (x1,y1) and (x2,y2)."""
-    return ((x1 + x2) / 2, (y1 + y2) / 2)
 
 def _lerp_point(x1, y1, x2, y2, t):
     """Linearly interpolate between (x1,y1) and (x2,y2) at parameter t."""
