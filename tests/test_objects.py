@@ -8960,16 +8960,15 @@ class TestTypewriterDelete:
         c = Circle(r=50, cx=400, cy=400)
         c.typewriter_delete(start=0, end=1, direction='right', easing=easings.linear)
         clip = c.styling.clip_path.at_time(1)
-        # At progress=1.0, the inset should clip everything (0% remaining)
-        assert 'inset' in clip
-        assert '0.0%' in clip
+        # At progress=1.0, the inset should clip everything (100% from right)
+        assert clip == 'inset(0 100.0% 0 0)'
 
     def test_clip_fully_visible_at_start(self):
         c = Circle(r=50, cx=400, cy=400)
         c.typewriter_delete(start=0, end=1, direction='right', easing=easings.linear)
         clip = c.styling.clip_path.at_time(0)
-        # At progress=0.0, nothing should be clipped (100% visible)
-        assert '100.0%' in clip
+        # At progress=0.0, nothing should be clipped (0% from right)
+        assert clip == 'inset(0 0.0% 0 0)'
 
     def test_direction_left(self):
         c = Circle(r=50, cx=400, cy=400)

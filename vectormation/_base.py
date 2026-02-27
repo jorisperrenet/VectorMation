@@ -2685,6 +2685,37 @@ class VObject(ABC):  # Vector Object
         self.styling.rotation.set(start, end, _rot)
         return self
 
+    # Shared inset templates for typewriter_reveal / typewriter_delete.
+    # Each maps a percentage (0 = no clip, 100 = fully clipped) to an
+    # ``inset()`` CSS clip-path value.
+    _TYPEWRITER_TEMPLATES = {
+        'right': lambda pct: f'inset(0 {pct:.1f}% 0 0)',
+        'left':  lambda pct: f'inset(0 0 0 {pct:.1f}%)',
+        'down':  lambda pct: f'inset(0 0 {pct:.1f}% 0)',
+        'up':    lambda pct: f'inset({pct:.1f}% 0 0 0)',
+    }
+
+    def _typewriter_clip(self, start, end, direction, easing, reveal):
+        """Shared logic for typewriter_reveal / typewriter_delete."""
+        dur = end - start
+        if dur <= 0:
+            return self
+        if reveal:
+            self._show_from(start)
+        else:
+            self._hide_from(end)
+        _s, _d = start, max(dur, 1e-9)
+        tmpl = self._TYPEWRITER_TEMPLATES.get(
+            direction, self._TYPEWRITER_TEMPLATES['right'])
+        if reveal:
+            def _clip(t, _s=_s, _d=_d, _tmpl=tmpl, _e=easing):
+                return _tmpl(100 * (1 - _e((t - _s) / _d)))
+        else:
+            def _clip(t, _s=_s, _d=_d, _tmpl=tmpl, _e=easing):
+                return _tmpl(100 * _e((t - _s) / _d))
+        self.styling.clip_path.set(start, end, _clip, stay=True)
+        return self
+
     def typewriter_reveal(self, start: float = 0, end: float = 1,
                           direction='right', easing=easings.smooth):
         """Progressively reveal the object with a clip-path sweep.
@@ -2710,26 +2741,7 @@ class VObject(ABC):  # Vector Object
         -------
         self
         """
-        dur = end - start
-        if dur <= 0:
-            return self
-        self._show_from(start)
-        _s, _d = start, max(dur, 1e-9)
-        # The inset template clips away from the sweep edge
-        templates = {
-            'right': lambda pct: f'inset(0 {pct:.1f}% 0 0)',
-            'left':  lambda pct: f'inset(0 0 0 {pct:.1f}%)',
-            'down':  lambda pct: f'inset(0 0 {pct:.1f}% 0)',
-            'up':    lambda pct: f'inset({pct:.1f}% 0 0 0)',
-        }
-        tmpl = templates.get(direction, templates['right'])
-
-        def _clip(t, _s=_s, _d=_d, _tmpl=tmpl, _e=easing):
-            progress = _e((t - _s) / _d)
-            return _tmpl(100 * (1 - progress))
-
-        self.styling.clip_path.set(start, end, _clip, stay=True)
-        return self
+        return self._typewriter_clip(start, end, direction, easing, reveal=True)
 
     def cross_out(self, start: float = 0, end: float = 0.5, color='#FC6255',
                    stroke_width=4, buff=5):
@@ -3608,27 +3620,7 @@ class VObject(ABC):  # Vector Object
         -------
         self
         """
-        dur = end - start
-        if dur <= 0:
-            return self
-        self._hide_from(end)
-        _s, _d = start, max(dur, 1e-9)
-        # Deletion sweeps in the given direction, progressively clipping
-        # from the opposite edge inward.
-        clip_templates = {
-            'right': lambda pct: f'inset(0 {100 - pct:.1f}% 0 0)',
-            'left':  lambda pct: f'inset(0 0 0 {100 - pct:.1f}%)',
-            'down':  lambda pct: f'inset(0 0 {100 - pct:.1f}% 0)',
-            'up':    lambda pct: f'inset({100 - pct:.1f}% 0 0 0)',
-        }
-        tmpl = clip_templates.get(direction, clip_templates['right'])
-
-        def _clip(t, _s=_s, _d=_d, _tmpl=tmpl, _e=easing):
-            progress = _e((t - _s) / _d)
-            return _tmpl(100 * progress)
-
-        self.styling.clip_path.set(start, end, _clip, stay=True)
-        return self
+        return self._typewriter_clip(start, end, direction, easing, reveal=False)
 
     def domino(self, start: float = 0, end: float = 1, direction='right',
                angle: float = 90, easing=easings.smooth):
