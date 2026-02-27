@@ -26,6 +26,6 @@ pol.styling.fill_opacity.set(7, 8, lambda t: 0.35*(t-7), stay=True)
 canvas.add_objects(trace, pol)
 
 if args.verbose:
-    canvas.export_video('docs/source/_static/videos/heart.mp4', fps=30, end_time=9)
+    canvas.export_video('docs/source/_static/videos/heart.mp4', fps=30, end=9)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

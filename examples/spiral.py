@@ -18,6 +18,6 @@ point.c.rotate_around(0, 5, (500, 500), 360*4)
 canvas.add_objects(trace, point)
 
 if args.verbose:
-    canvas.export_video('docs/source/_static/videos/spiral.mp4', fps=30, end_time=6)
+    canvas.export_video('docs/source/_static/videos/spiral.mp4', fps=30, end=6)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

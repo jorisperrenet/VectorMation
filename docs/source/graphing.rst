@@ -21,7 +21,7 @@ Basic Usage
                  y_range=(-1.5, 1.5))
 
    canvas.add_objects(graph)
-   canvas.browser_display(end_time=0)
+   canvas.browser_display(end=0)
 
 Constructor
 ^^^^^^^^^^^

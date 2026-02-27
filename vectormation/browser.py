@@ -204,10 +204,10 @@ body {
                 svgContent.innerHTML = msg.svg;
                 currentViewbox = msg.viewbox;
                 var t = msg.time !== undefined ? msg.time : 0;
-                var endT = msg.end_time !== undefined ? msg.end_time : 0;
+                var endT = msg.end !== undefined ? msg.end : 0;
                 currentEndTime = endT;
-                var duration = endT - (msg.start_time !== undefined ? msg.start_time : 0);
-                var pct = duration > 0 ? ((t - (msg.start_time || 0)) / duration * 100) : 100;
+                var duration = endT - (msg.start !== undefined ? msg.start : 0);
+                var pct = duration > 0 ? ((t - (msg.start || 0)) / duration * 100) : 100;
                 progressBar.style.width = Math.min(100, Math.max(0, pct)) + '%';
                 progressText.textContent = t.toFixed(2) + 's / ' + endT.toFixed(2) + 's';
                 if (msg.speed !== undefined) currentSpeed = msg.speed;
@@ -569,8 +569,8 @@ class BrowserViewer:
                     'frame': canvas.frame_count,
                     'total_frames': total,
                     'time': canvas.time,
-                    'start_time': canvas.start_anim,
-                    'end_time': canvas.end_anim,
+                    'start': canvas.start_anim,
+                    'end': canvas.end_anim,
                     'viewbox': list(canvas.viewbox),
                     'speed': canvas.speed_multiplier,
                 }

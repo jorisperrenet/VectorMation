@@ -18,6 +18,6 @@ morph = MorphObject(circle, square, start=1.5, end=4, rotation_degrees=360)
 
 canvas.add_objects(circle, morph, square)
 if args.verbose:
-    canvas.export_video('docs/source/_static/videos/rotating_morph.mp4', fps=30, end_time=5)
+    canvas.export_video('docs/source/_static/videos/rotating_morph.mp4', fps=30, end=5)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

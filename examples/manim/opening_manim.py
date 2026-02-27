@@ -24,7 +24,7 @@ transform_title.fadein(2.5, 3.5, change_existence=True)
 
 morph = MorphObject(title, transform_title, start=2.5, end=3.5)
 
-formula.shift(dy=100, start_time=2.5, end_time=3.5)
+formula.shift(dy=100, start=2.5, end=3.5)
 formula.fadeout(2.5, 3.5)
 
 # Step 3: Fade out transform_title, fade in "This is a grid" at same position,

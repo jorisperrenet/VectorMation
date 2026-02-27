@@ -19,6 +19,6 @@ dot.c.set_onward(0, ax.graph_position(func, x_val))
 
 canvas.add_objects(ax, dot)
 if args.verbose:
-    canvas.export_video('docs/source/_static/videos/arg_min.mp4', fps=30, end_time=3)
+    canvas.export_video('docs/source/_static/videos/arg_min.mp4', fps=30, end=3)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

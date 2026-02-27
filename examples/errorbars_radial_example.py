@@ -45,7 +45,7 @@ radial_label = Text(text='Radial Layout', x=1450, y=380,
 radial_label.fadein(3, 3.5)
 
 dots.distribute_radial(cx=1450, cy=550, radius=100,
-                        start_time=3.5, end_time=4.5)
+                        start=3.5, end=4.5)
 
 # Swirl one dot
 dots[0].swirl(start=5, end=6, turns=2)

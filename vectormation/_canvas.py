@@ -240,7 +240,7 @@ class VectorMathAnim:
     @property
     def duration(self):
         """Return the total animation duration in seconds (auto-detected)."""
-        return self._resolve_end_time(None)
+        return self._resolve_end(None)
 
     add = add_objects
     add_gradient = add_def
@@ -421,23 +421,23 @@ class VectorMathAnim:
                          output_height=int(self.height * scale))
         logger.info('Exported PNG to %s', filename)
 
-    def _resolve_end_time(self, end_time):
-        if end_time is None:
+    def _resolve_end(self, end):
+        if end is None:
             candidates = [obj.last_change for obj in self.objects.values()]
             candidates.extend(a.last_change for a in (self.vb_x, self.vb_y, self.vb_w, self.vb_h))
             return max(candidates)
-        return end_time
+        return end
 
-    def _frame_times(self, start_time, end_time, fps):
-        """Generate frame timestamps from start_time to end_time at given fps."""
+    def _frame_times(self, start, end, fps):
+        """Generate frame timestamps from start to end at given fps."""
         fps = max(fps, 1)
         dt = 1.0 / fps
-        t = start_time
-        while t <= end_time + dt * 0.5:
+        t = start
+        while t <= end + dt * 0.5:
             yield t
             t += dt
 
-    def export_video(self, filename='animation.mp4', start_time=0, end_time=None, fps=60, scale=None):
+    def export_video(self, filename='animation.mp4', start=0, end=None, fps=60, scale=None):
         """Export animation as video using cairosvg + ffmpeg.
 
         scale: output resolution multiplier. Defaults to self.scale (1).
@@ -451,13 +451,13 @@ class VectorMathAnim:
         if shutil.which('ffmpeg') is None:
             raise RuntimeError('ffmpeg is required for video export. Install it from https://ffmpeg.org/')
 
-        end_time = self._resolve_end_time(end_time)
+        end = self._resolve_end(end)
         scale = scale or self.scale
         output_w, output_h = int(self.width * scale), int(self.height * scale)
         tmpdir = tempfile.mkdtemp(prefix='vectormation_')
         try:
             n_frames = 0
-            for i, t in enumerate(self._frame_times(start_time, end_time, fps)):
+            for i, t in enumerate(self._frame_times(start, end, fps)):
                 svg = self.generate_frame_svg(t)
                 cairosvg.svg2png(bytestring=svg.encode(),
                                  output_width=output_w, output_height=output_h,
@@ -472,7 +472,7 @@ class VectorMathAnim:
         finally:
             shutil.rmtree(tmpdir, ignore_errors=True)
 
-    def export_gif(self, filename='animation.gif', start_time=0, end_time=None, fps=30, scale=None, loop=0):
+    def export_gif(self, filename='animation.gif', start=0, end=None, fps=30, scale=None, loop=0):
         """Export animation as an animated GIF using cairosvg + Pillow.
 
         scale: output resolution multiplier. Defaults to self.scale (1).
@@ -488,11 +488,11 @@ class VectorMathAnim:
             raise ImportError('Pillow is required for GIF export. Install it with: pip install Pillow')
         import io
 
-        end_time = self._resolve_end_time(end_time)
+        end = self._resolve_end(end)
         scale = scale or self.scale
         output_w, output_h = int(self.width * scale), int(self.height * scale)
         frames = []
-        for t in self._frame_times(start_time, end_time, fps):
+        for t in self._frame_times(start, end, fps):
             svg = self.generate_frame_svg(t)
             png_data: bytes = cairosvg.svg2png(bytestring=svg.encode(),
                                                output_width=output_w, output_height=output_h)  # type: ignore[assignment]
@@ -526,28 +526,28 @@ class VectorMathAnim:
             })
         return result
 
-    def browser_display(self, start_time=0, end_time=None, fps=60,
+    def browser_display(self, start=0, end=None, fps=60,
                         port=8765, hot_reload=False):
         """View the animation in a browser via WebSocket.
-        If end_time == 0, displays a single static picture (no animation)."""
+        If end == 0, displays a single static picture (no animation)."""
         import inspect
         from vectormation.browser import BrowserViewer
 
-        if end_time == 0:
-            # Single picture mode: just display the frame at start_time
+        if end == 0:
+            # Single picture mode: just display the frame at start
             self.single_picture = True
-            end_time = start_time
-            logger.info('Single picture mode at t=%.2f', start_time)
-        elif end_time is None:
-            end_time = self._resolve_end_time(None)
-            logger.info('Found that the ending time is %s', end_time)
-        self.end_anim = end_time
-        if start_time < 0:
-            self.start_anim = end_time + start_time
+            end = start
+            logger.info('Single picture mode at t=%.2f', start)
+        elif end is None:
+            end = self._resolve_end(None)
+            logger.info('Found that the ending time is %s', end)
+        self.end_anim = end
+        if start < 0:
+            self.start_anim = end + start
         else:
-            self.start_anim = start_time
+            self.start_anim = start
         self.animate = not self.single_picture
-        self.time = start_time
+        self.time = start
         self.frame_count = 0
         self.dt = 1 / fps
 

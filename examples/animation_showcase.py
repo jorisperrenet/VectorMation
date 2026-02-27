@@ -132,14 +132,14 @@ section('Movement', 2, t)
 sh = Dot(r=10, cx=cols[0] - 30, cy=rows[2], fill='#58C4DD')
 canvas.add_objects(sh)
 sh.fadein(start=t, end=t + 0.3)
-sh.shift(dx=60, dy=0, start_time=t + 0.3, end_time=t + 1.5)
+sh.shift(dx=60, dy=0, start=t + 0.3, end=t + 1.5)
 lbl('shift', 0, 2, t)
 
 # move_to
 mt = Dot(r=10, cx=cols[1] - 30, cy=rows[2] + 20, fill='#FC6255')
 canvas.add_objects(mt)
 mt.fadein(start=t + 0.3, end=t + 0.6)
-mt.move_to(cols[1] + 30, rows[2] - 20, start_time=t + 0.6, end_time=t + 1.8)
+mt.move_to(cols[1] + 30, rows[2] - 20, start=t + 0.6, end=t + 1.8)
 lbl('move_to', 1, 2, t + 0.3)
 
 # center_to_pos
@@ -147,7 +147,7 @@ ctp = Rectangle(30, 30, x=cols[2] - 30, y=rows[2] + 16,
                 fill='#83C167', fill_opacity=0.8, stroke='#A6CF8C', stroke_width=4)
 canvas.add_objects(ctp)
 ctp.fadein(start=t + 0.6, end=t + 0.9)
-ctp.center_to_pos(cols[2] + 16, rows[2] - 16, start_time=t + 0.9, end_time=t + 2.0)
+ctp.center_to_pos(cols[2] + 16, rows[2] - 16, start=t + 0.9, end=t + 2.0)
 lbl('center_to_pos', 2, 2, t + 0.6)
 
 # along_path
@@ -316,6 +316,6 @@ sct.scale_to(start=t + 1.5, end=t + 2.8, factor=2.0)
 lbl('scale_to', 4, 5, t + 1.2)
 
 if args.verbose:
-    canvas.export_video('docs/source/_static/videos/animation_showcase.mp4', fps=30, end_time=22)
+    canvas.export_video('docs/source/_static/videos/animation_showcase.mp4', fps=30, end=22)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

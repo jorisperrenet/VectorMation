@@ -13,4 +13,4 @@ graph = Graph(math.sin, x_range=(-2 * math.pi, 2 * math.pi),
 
 canvas.add_objects(graph)
 if not args.no_display:
-    canvas.browser_display(end_time=0, fps=args.fps, port=args.port, hot_reload=True)
+    canvas.browser_display(end=0, fps=args.fps, port=args.port, hot_reload=True)

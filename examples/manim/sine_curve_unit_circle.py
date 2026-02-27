@@ -40,7 +40,7 @@ h_line.p2.set_onward(0, lambda t: curve_dot.c.at_time(t))
 canvas.add_objects(ax, circle, radius_line, h_line, dot, curve_dot)
 if args.verbose:
     canvas.export_video('docs/source/_static/videos/sine_curve_unit_circle.mp4',
-                         fps=30, end_time=DURATION)
+                         fps=30, end=DURATION)
 if not args.no_display:
-    canvas.browser_display(start_time=0, end_time=DURATION, fps=args.fps,
+    canvas.browser_display(start=0, end=DURATION, fps=args.fps,
                            port=args.port, hot_reload=True)

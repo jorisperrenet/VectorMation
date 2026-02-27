@@ -32,7 +32,7 @@ pulse_label.fadein(1, 1.5)
 moving_rect = Rectangle(width=60, height=40, x=1100, y=250,
                          fill='#FFFF00', stroke_width=0)
 moving_rect.fadein(0.5, 1)
-moving_rect.shift(dx=400, start_time=1, end_time=5)
+moving_rect.shift(dx=400, start=1, end=5)
 
 ghosts = [moving_rect.stamp(time=t, opacity=0.15) for t in [1.5, 2.5, 3.5]]
 

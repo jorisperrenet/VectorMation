@@ -8,7 +8,7 @@ VectorMation displays animations in a browser via WebSocket:
 
 .. code-block:: python
 
-   canvas.browser_display(start_time=0, end_time=None, fps=60, port=8765, hot_reload=False)
+   canvas.browser_display(start=0, end=None, fps=60, port=8765, hot_reload=False)
 
 .. list-table::
    :header-rows: 1
@@ -16,9 +16,9 @@ VectorMation displays animations in a browser via WebSocket:
 
    * - Parameter
      - Description
-   * - ``start_time``
+   * - ``start``
      - Animation start time (seconds)
-   * - ``end_time``
+   * - ``end``
      - Animation end time (``None`` = auto-detect, ``0`` = static picture)
    * - ``fps``
      - Frames per second
@@ -97,11 +97,11 @@ Speed can be adjusted during playback with **+** / **-** keys, or via the toolba
 Static Pictures
 ---------------
 
-Pass ``end_time=0`` to display a single static frame with no animation:
+Pass ``end=0`` to display a single static frame with no animation:
 
 .. code-block:: python
 
-   canvas.browser_display(end_time=0)
+   canvas.browser_display(end=0)
 
 ----
 
@@ -141,7 +141,7 @@ Export the animation as an MP4 video (requires ``cairosvg`` and ``ffmpeg``):
 
 .. code-block:: python
 
-   canvas.export_video(filename='animation.mp4', start_time=0, end_time=None, fps=60)
+   canvas.export_video(filename='animation.mp4', start=0, end=None, fps=60)
 
 Animated GIF
 ^^^^^^^^^^^^
@@ -150,7 +150,7 @@ Export the animation as a GIF (requires ``cairosvg`` and ``Pillow``):
 
 .. code-block:: python
 
-   canvas.export_gif(filename='animation.gif', start_time=0, end_time=None, fps=30, scale=1.0, loop=0)
+   canvas.export_gif(filename='animation.gif', start=0, end=None, fps=30, scale=1.0, loop=0)
 
 .. list-table::
    :header-rows: 1

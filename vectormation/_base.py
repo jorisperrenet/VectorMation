@@ -70,17 +70,17 @@ def _make_brect(bbox_func, time, rx, ry, buff, follow, **bbox_kw):
     rect.height.set_onward(time, lambda t: _bbox(t)[3] + 2*buff)
     return rect
 
-def _to_edge_impl(obj, edge, buff, start_time, end_time, easing):
+def _to_edge_impl(obj, edge, buff, start, end, easing):
     """Shared to_edge logic for VObject and VCollection."""
     if isinstance(edge, tuple):
         edge = _EDGE_NAMES.get(edge, 'bottom')
-    x, y, w, h = obj.bbox(start_time)
+    x, y, w, h = obj.bbox(start)
     cx, cy = x + w / 2, y + h / 2
     targets = {'bottom': (cx, 1080 - buff - h / 2), 'top': (cx, buff + h / 2),
                'left': (buff + w / 2, cy), 'right': (1920 - buff - w / 2, cy)}
     tx, ty = targets.get(edge, (cx, cy))
-    return obj.center_to_pos(posx=tx, posy=ty, start_time=start_time,
-                             end_time=end_time, easing=easing)
+    return obj.center_to_pos(posx=tx, posy=ty, start=start,
+                             end=end, easing=easing)
 
 
 _CORNER_MAP = {UL: 'top_left', UR: 'top_right', DL: 'bottom_left', DR: 'bottom_right'}
@@ -102,15 +102,15 @@ def _get_edge_impl(bbox_func, edge, time):
     x, y, w, h = bbox_func(time)
     return _EDGE_POINTS[edge](x, y, w, h)
 
-def _to_corner_impl(obj, corner, buff, start_time, end_time, easing):
+def _to_corner_impl(obj, corner, buff, start, end, easing):
     """Shared to_corner logic for VObject and VCollection."""
     if isinstance(corner, tuple):
         corner = _CORNER_MAP.get(corner, 'bottom_right')
-    _, _, w, h = obj.bbox(start_time)
+    _, _, w, h = obj.bbox(start)
     tx = buff + w / 2 if 'left' in corner else 1920 - buff - w / 2
     ty = buff + h / 2 if 'top' in corner else 1080 - buff - h / 2
-    return obj.center_to_pos(posx=tx, posy=ty, start_time=start_time,
-                             end_time=end_time, easing=easing)
+    return obj.center_to_pos(posx=tx, posy=ty, start=start,
+                             end=end, easing=easing)
 
 
 class VObject(ABC):  # Vector Object
@@ -266,12 +266,12 @@ class VObject(ABC):  # Vector Object
     def set_x(self, x, start: float = 0):
         """Set the x-coordinate of the center (by shifting)."""
         dx = x - self.get_x(start)
-        return self.shift(dx=dx, start_time=start)
+        return self.shift(dx=dx, start=start)
 
     def set_y(self, y, start: float = 0):
         """Set the y-coordinate of the center (by shifting)."""
         dy = y - self.get_y(start)
-        return self.shift(dy=dy, start_time=start)
+        return self.shift(dy=dy, start=start)
 
     def set_width(self, width, start: float = 0, stretch=False):
         """Scale so the bounding box has the given width. If stretch=True, only scale X."""
@@ -300,14 +300,14 @@ class VObject(ABC):  # Vector Object
         return self
 
     def to_edge(self, edge: str | tuple = DOWN, buff=DEFAULT_OBJECT_TO_EDGE_BUFF,
-                start_time: float = 0, end_time: float | None = None, easing=easings.smooth):
+                start: float = 0, end: float | None = None, easing=easings.smooth):
         """Move object to a canvas edge. edge: UP/DOWN/LEFT/RIGHT or string."""
-        return _to_edge_impl(self, edge, buff, start_time, end_time, easing)
+        return _to_edge_impl(self, edge, buff, start, end, easing)
 
     def to_corner(self, corner: str | tuple = DR, buff=DEFAULT_OBJECT_TO_EDGE_BUFF,
-                  start_time: float = 0, end_time: float | None = None, easing=easings.smooth):
+                  start: float = 0, end: float | None = None, easing=easings.smooth):
         """Move object to a canvas corner. corner: UL/UR/DL/DR or string."""
-        return _to_corner_impl(self, corner, buff, start_time, end_time, easing)
+        return _to_corner_impl(self, corner, buff, start, end, easing)
 
     def set_z(self, value, start: float = 0):
         """Set the z-order (draw order) of this object."""
@@ -503,23 +503,23 @@ class VObject(ABC):  # Vector Object
                 ya.add_onward(s, lambda t, _s=s, _e=_e, _vy=_vy: _vy * (min(t, _e) - _s))
         return self
 
-    def shift(self, dx=0, dy=0, start_time: float = 0, end_time: float | None = None, easing=easings.smooth):
-        """Shift the object by (dx, dy), optionally animated over [start_time, end_time]."""
-        if end_time is not None and end_time <= start_time:
+    def shift(self, dx=0, dy=0, start: float = 0, end: float | None = None, easing=easings.smooth):
+        """Shift the object by (dx, dy), optionally animated over [start, end]."""
+        if end is not None and end <= start:
             # Instant shift when duration is zero or negative
-            end_time = None
+            end = None
         for c in self._shift_coors():
-            if end_time is None:
-                c.add_onward(start_time, (dx, dy))
+            if end is None:
+                c.add_onward(start, (dx, dy))
             else:
-                s, e = start_time, end_time
+                s, e = start, end
                 c.add_onward(s, lambda t, _s=s, _e=e: (dx * easing((t-_s)/(_e-_s)), dy * easing((t-_s)/(_e-_s))), last_change=e)
         for xa, ya in self._shift_reals():
-            if end_time is None:
-                xa.add_onward(start_time, dx)
-                ya.add_onward(start_time, dy)
+            if end is None:
+                xa.add_onward(start, dx)
+                ya.add_onward(start, dy)
             else:
-                s, e = start_time, end_time
+                s, e = start, end
                 xa.add_onward(s, lambda t, _s=s, _e=e: dx * easing((t-_s)/(_e-_s)), last_change=e)
                 ya.add_onward(s, lambda t, _s=s, _e=e: dy * easing((t-_s)/(_e-_s)), last_change=e)
         return self
@@ -607,21 +607,21 @@ class VObject(ABC):  # Vector Object
         x, y, w, h = self.bbox(time)
         return x <= px <= x + w and y <= py <= y + h
 
-    def move_to(self, x, y, start_time: float = 0, end_time: float | None = None, easing=easings.smooth):
-        """Move the object's center to (x, y), optionally animated over [start_time, end_time]."""
-        xmin, ymin, w, h = self.bbox(start_time)
+    def move_to(self, x, y, start: float = 0, end: float | None = None, easing=easings.smooth):
+        """Move the object's center to (x, y), optionally animated over [start, end]."""
+        xmin, ymin, w, h = self.bbox(start)
         self.shift(dx=x-(xmin+w/2), dy=y-(ymin+h/2),
-                   start_time=start_time, end_time=end_time, easing=easing)
+                   start=start, end=end, easing=easing)
         return self
 
     def teleport(self, x, y, start: float = 0, time: float | None = None):
         """Instantly move object center to (x, y) at the given time (no animation)."""
         t = time if time is not None else start
-        return self.center_to_pos(posx=x, posy=y, start_time=t)
+        return self.center_to_pos(posx=x, posy=y, start=t)
 
-    def center_to_pos(self, posx: float = 960, posy: float = 540, start_time: float = 0, end_time: float | None = None, easing=easings.smooth):
-        """Shifts the center to pos, animated from start_time to end_time."""
-        return self.move_to(posx, posy, start_time, end_time, easing)
+    def center_to_pos(self, posx: float = 960, posy: float = 540, start: float = 0, end: float | None = None, easing=easings.smooth):
+        """Shifts the center to pos, animated from start to end."""
+        return self.move_to(posx, posy, start, end, easing)
 
     def follow_spline(self, points, start: float = 0, end: float = 1, easing=easings.smooth):
         """Move the object's center smoothly through a sequence of (x, y) points.
@@ -756,8 +756,8 @@ class VObject(ABC):  # Vector Object
         if shift_dir is not None:
             dx = shift_dir[0] * shift_amount
             dy = shift_dir[1] * shift_amount
-            self.shift(dx=-dx, dy=-dy, start_time=start)  # offset to start pos
-            self.shift(dx=dx, dy=dy, start_time=start, end_time=end, easing=easing)
+            self.shift(dx=-dx, dy=-dy, start=start)  # offset to start pos
+            self.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
 
     def fade_shift(self, dx=0, dy=0, start: float = 0, end: float = 1, easing=easings.smooth):
@@ -788,7 +788,7 @@ class VObject(ABC):  # Vector Object
         s, e = start, end
         self.styling.opacity.set(s, e,
             lambda t, _s=s, _d=dur, _sv=start_val: _sv * (1 - easing((t - _s) / _d)))
-        self.shift(dx=dx, dy=dy, start_time=s, end_time=e, easing=easing)
+        self.shift(dx=dx, dy=dy, start=s, end=e, easing=easing)
         self._hide_from(e)
         return self
 
@@ -807,7 +807,7 @@ class VObject(ABC):  # Vector Object
         if shift_dir is not None:
             dx = shift_dir[0] * shift_amount
             dy = shift_dir[1] * shift_amount
-            self.shift(dx=dx, dy=dy, start_time=start, end_time=end, easing=easing)
+            self.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         if change_existence:
             self._hide_from(end)
         return self
@@ -887,10 +887,10 @@ class VObject(ABC):  # Vector Object
         """Fade in while rotating from an offset angle to 0."""
         return self._rotate_fade_anim(start, end, degrees, True, change_existence, easing)
 
-    def rotate_out(self, start: float = 0, end: float = 1, angle=90,
+    def rotate_out(self, start: float = 0, end: float = 1, degrees=90,
                    change_existence=True, easing=easings.smooth):
         """Rotate away while fading out. Reverse of rotate_in."""
-        return self._rotate_fade_anim(start, end, angle, False, change_existence, easing)
+        return self._rotate_fade_anim(start, end, degrees, False, change_existence, easing)
 
     def _pop_anim(self, start, end, duration, overshoot, pop_in, change_existence, easing):
         """Shared helper for pop_in / pop_out."""
@@ -1105,31 +1105,11 @@ class VObject(ABC):  # Vector Object
         self.styling.stroke_width.set(s, e, lambda t, _s=s, _d=dur, _msw=max_stroke_width, _sw=sw: _msw * stroke_easing((t-_s)/_d) + easing((t-_s)/_d) * _sw)
         return self
 
-    def create(self, start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
-        """Animate drawing the path of this object from start to end.
-        Returns a new Path object that must be added to the canvas.
-        The original object becomes visible at `end`."""
-        if change_existence:
+    def _create_path_anim(self, start, end, reverse, change_existence, easing):
+        """Shared helper for create/uncreate path drawing animations."""
+        if not reverse and change_existence:
             self._show_from(end)
-
-        p = morphing.Path(self.path(start))
-        _dur = end - start
-        def f(t): return easing((t-start)/_dur) if _dur > 0 else 1
-
-        from vectormation._shapes import Path
-        res = Path('')
-        res.d.set(start, end, lambda t: _path_prefix(p, f(t)).d())
-        # Inherit styling from the original object
-        res.styling = deepcopy(self.styling)
-        res.styling.fill_opacity.set_onward(0, 0)
-        if change_existence:
-            res._show_from(start)
-        return res
-
-    def uncreate(self, start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
-        """Reverse of create — wipes the path from end to start.
-        The original object is hidden at `end`."""
-        if change_existence:
+        if reverse and change_existence:
             self.show.set_onward(end, False)
 
         p = morphing.Path(self.path(start))
@@ -1138,13 +1118,28 @@ class VObject(ABC):  # Vector Object
 
         from vectormation._shapes import Path
         res = Path('')
-        res.d.set(start, end, lambda t: _path_prefix(p, 1 - f(t)).d())
+        if reverse:
+            res.d.set(start, end, lambda t: _path_prefix(p, 1 - f(t)).d())
+        else:
+            res.d.set(start, end, lambda t: _path_prefix(p, f(t)).d())
         res.styling = deepcopy(self.styling)
         res.styling.fill_opacity.set_onward(0, 0)
         if change_existence:
             res._show_from(start)
-            res.show.set_onward(end, False)
+            if reverse:
+                res.show.set_onward(end, False)
         return res
+
+    def create(self, start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
+        """Animate drawing the path of this object from start to end.
+        Returns a new Path object that must be added to the canvas.
+        The original object becomes visible at `end`."""
+        return self._create_path_anim(start, end, False, change_existence, easing)
+
+    def uncreate(self, start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
+        """Reverse of create — wipes the path from end to start.
+        The original object is hidden at `end`."""
+        return self._create_path_anim(start, end, True, change_existence, easing)
 
     def draw_along(self, start: float = 0, end: float = 1, easing=easings.smooth, change_existence=True):
         """Animate drawing the stroke of this object using stroke-dashoffset.
@@ -1429,14 +1424,14 @@ class VObject(ABC):  # Vector Object
                 stay=(i == n_segs - 1))
         return self
 
-    def next_to(self, other, direction: str | tuple = 'right', buff=SMALL_BUFF, start_time: float = 0, end_time: float | None = None, easing=None):
+    def next_to(self, other, direction: str | tuple = 'right', buff=SMALL_BUFF, start: float = 0, end: float | None = None, easing=None):
         """Position this object next to another.
         direction: 'left', 'right', 'up', 'down' or a direction constant (UP, DOWN, LEFT, RIGHT).
-        When *end_time* is given, animate the movement over [start_time, end_time]."""
+        When *end* is given, animate the movement over [start, end]."""
         if isinstance(direction, tuple):
             direction = _DIR_NAMES.get(direction, 'right')
-        mx, my, mw, mh = self.bbox(start_time)
-        ox, oy, ow, oh = other.bbox(start_time)
+        mx, my, mw, mh = self.bbox(start)
+        ox, oy, ow, oh = other.bbox(start)
         mcx, mcy = mx + mw/2, my + mh/2
         ocx, ocy = ox + ow/2, oy + oh/2
         targets = {
@@ -1446,13 +1441,13 @@ class VObject(ABC):  # Vector Object
             'up':    (ocx, oy - buff - mh/2),
         }
         tx, ty = targets[direction]
-        if end_time is not None:
-            kw = {'start_time': start_time, 'end_time': end_time}
+        if end is not None:
+            kw = {'start': start, 'end': end}
             if easing is not None:
                 kw['easing'] = easing
             self.center_to_pos(tx, ty, **kw)
         else:
-            self.shift(dx=tx - mcx, dy=ty - mcy, start_time=start_time)
+            self.shift(dx=tx - mcx, dy=ty - mcy, start=start)
         return self
 
     def attach_to(self, other, direction=None, buff=None, start=0, end=None):
@@ -1523,7 +1518,7 @@ class VObject(ABC):  # Vector Object
         _dir = direction
         _buff = buff
         def _update(obj, t):
-            obj.next_to(other, _dir, _buff, start_time=t)
+            obj.next_to(other, _dir, _buff, start=t)
         self.add_updater(_update, start=start, end=end)
         return self
 
@@ -1572,7 +1567,7 @@ class VObject(ABC):  # Vector Object
         """
         cx, cy = self.center(time)
         nx, ny = func(cx, cy)
-        self.move_to(nx, ny, start_time=time)
+        self.move_to(nx, ny, start=time)
         return self
 
     def follow(self, other, start=0, end=None):
@@ -2147,11 +2142,11 @@ class VObject(ABC):  # Vector Object
             return sign * amplitude * math.sin(2 * math.pi * n_waves * progress) * easing(progress)
         return self._apply_shift_effect(start, end, dy_func=dy)
 
-    def grow_from_edge(self, edge: str | tuple = 'bottom', start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
-        """Grow the object from a specific edge (bottom, top, left, right) or direction constant."""
+    def _scale_edge_anim(self, edge, start, end, grow, change_existence, easing):
+        """Shared helper for grow_from_edge / shrink_to_edge."""
         if isinstance(edge, tuple):
             edge = _EDGE_NAMES.get(edge, 'bottom')
-        if change_existence:
+        if grow and change_existence:
             self._show_from(start)
         bx, by, bw, bh = self.bbox(start)
         origins = {
@@ -2165,10 +2160,23 @@ class VObject(ABC):  # Vector Object
         dur = e - s
         if dur <= 0:
             return self
-        scale = lambda t, _s=s, _d=dur: easing((t - _s) / _d)
+        if grow:
+            scale = lambda t, _s=s, _d=dur: easing((t - _s) / _d)
+        else:
+            scale = lambda t, _s=s, _d=dur: 1 - easing((t - _s) / _d)
         self.styling.scale_x.set(s, e, scale, stay=True)
         self.styling.scale_y.set(s, e, scale, stay=True)
+        if not grow and change_existence:
+            self._hide_from(end)
         return self
+
+    def grow_from_edge(self, edge: str | tuple = 'bottom', start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
+        """Grow the object from a specific edge (bottom, top, left, right)."""
+        return self._scale_edge_anim(edge, start, end, True, change_existence, easing)
+
+    def shrink_to_edge(self, edge: str | tuple = 'bottom', start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
+        """Shrink the object to zero at a specific edge. Reverse of grow_from_edge."""
+        return self._scale_edge_anim(edge, start, end, False, change_existence, easing)
 
     def _corner_point(self, corner, time):
         """Return the SVG pixel coordinate for a bbox corner direction."""
@@ -2178,62 +2186,32 @@ class VObject(ABC):  # Vector Object
         return (x if corner[0] <= 0 else x + w,
                 y if corner[1] <= 0 else y + h)
 
-    def grow_from_corner(self, start=0, end=1, corner=None, change_existence=True, easing=easings.smooth):
-        """Grow from zero size anchored at a corner.
-
-        Parameters
-        ----------
-        start, end:
-            Time range for the animation.
-        corner:
-            Direction tuple indicating which corner to anchor, e.g. UL, UR,
-            DL, DR from ``_constants``.  Defaults to DL (bottom-left in SVG).
-        change_existence:
-            If True, the object is hidden before *start*.
-        easing:
-            Easing function for the scale interpolation.
-        """
+    def _scale_corner_anim(self, start, end, corner, grow, change_existence, easing):
+        """Shared helper for grow_from_corner / shrink_to_corner."""
         self.styling._scale_origin = self._corner_point(corner, start)
-        if change_existence:
+        if grow and change_existence:
             self._show_from(start)
         s, e = start, end
         dur = e - s
         if dur <= 0:
             return self
-        scale = lambda t, _s=s, _d=dur: easing((t - _s) / _d)
+        if grow:
+            scale = lambda t, _s=s, _d=dur: easing((t - _s) / _d)
+        else:
+            scale = lambda t, _s=s, _d=dur: 1 - easing((t - _s) / _d)
         self.styling.scale_x.set(s, e, scale, stay=True)
         self.styling.scale_y.set(s, e, scale, stay=True)
-        return self
-
-    def shrink_to_corner(self, start=0, end=1, corner=None, change_existence=True, easing=easings.smooth):
-        """Shrink to zero size anchored at a corner.
-
-        The reverse of :meth:`grow_from_corner`.  The object scales from its
-        current size down to zero, with the specified corner remaining fixed.
-
-        Parameters
-        ----------
-        start, end:
-            Time range for the animation.
-        corner:
-            Direction tuple indicating which corner to anchor, e.g. UL, UR,
-            DL, DR from ``_constants``.  Defaults to DL (bottom-left in SVG).
-        change_existence:
-            If True, the object is hidden from *end* onward.
-        easing:
-            Easing function for the scale interpolation.
-        """
-        self.styling._scale_origin = self._corner_point(corner, start)
-        s, e = start, end
-        dur = e - s
-        if dur <= 0:
-            return self
-        scale = lambda t, _s=s, _d=dur: 1 - easing((t - _s) / _d)
-        self.styling.scale_x.set(s, e, scale, stay=True)
-        self.styling.scale_y.set(s, e, scale, stay=True)
-        if change_existence:
+        if not grow and change_existence:
             self._hide_from(end)
         return self
+
+    def grow_from_corner(self, start=0, end=1, corner=None, change_existence=True, easing=easings.smooth):
+        """Grow from zero size anchored at a corner."""
+        return self._scale_corner_anim(start, end, corner, True, change_existence, easing)
+
+    def shrink_to_corner(self, start=0, end=1, corner=None, change_existence=True, easing=easings.smooth):
+        """Shrink to zero size anchored at a corner. Reverse of grow_from_corner."""
+        return self._scale_corner_anim(start, end, corner, False, change_existence, easing)
 
     def _spiral_anim(self, start, end, n_turns, spiral_in, change_existence, easing):
         """Shared helper for spiral_in / spiral_out."""
@@ -2784,16 +2762,16 @@ class VObject(ABC):  # Vector Object
         self.styling.matrix.set_onward(start, f'matrix({a},{c},{b},{d},0,0)')
         return self
 
-    def reflect(self, axis='vertical', start_time: float = 0):
+    def reflect(self, axis='vertical', start: float = 0):
         """Mirror/reflect the object across an axis through its center.
 
         axis: 'vertical' (flip left-right), 'horizontal' (flip top-bottom).
         Applies an instant SVG transform (no animation).
         """
-        bx, by, bw, bh = self.bbox(start_time)
+        bx, by, bw, bh = self.bbox(start)
         self.styling._scale_origin = (bx + bw / 2, by + bh / 2)
         attr = self.styling.scale_x if axis == 'vertical' else self.styling.scale_y
-        attr.set_onward(start_time, -attr.at_time(start_time))
+        attr.set_onward(start, -attr.at_time(start))
         return self
 
     def squish(self, start: float = 0, end: float = 1, axis='x', factor=0.5,
@@ -3236,7 +3214,7 @@ class VObject(ABC):  # Vector Object
         """Restore full opacity (undo dim)."""
         return self.dim(start=start, end=end, opacity=1.0, easing=easing)
 
-    def clone(self, offset_x=0, offset_y=0, *, count=None, dx=0, dy=0, start_time=0):
+    def clone(self, offset_x=0, offset_y=0, *, count=None, dx=0, dy=0, start=0):
         """Create a deep copy of this object, optionally shifted by an offset.
 
         **Single-copy form** (default)::
@@ -3249,7 +3227,7 @@ class VObject(ABC):  # Vector Object
 
         **Multi-copy form** (legacy, for backwards compatibility)::
 
-            clone(count=N, dx=step_x, dy=step_y, start_time=t)
+            clone(count=N, dx=step_x, dy=step_y, start=t)
 
         When *count* is given the method returns a :class:`VCollection` of
         *count* clones where the i-th clone is shifted by *(dx*i, dy*i)*
@@ -3266,7 +3244,7 @@ class VObject(ABC):  # Vector Object
             VCollection of *count* clones.
         dx, dy:
             Per-clone step offset used only in multi-copy mode.
-        start_time:
+        start:
             Animation time at which the positional shift is applied in
             multi-copy mode.
 
@@ -3286,7 +3264,7 @@ class VObject(ABC):  # Vector Object
             clones = []
             for i in range(1, count + 1):
                 c = deepcopy(self)
-                c.shift(dx=dx * i, dy=dy * i, start_time=start_time)
+                c.shift(dx=dx * i, dy=dy * i, start=start)
                 clones.append(c)
             return VCollection(*clones)
         c = deepcopy(self)
@@ -3300,14 +3278,14 @@ class VObject(ABC):  # Vector Object
         cx2, cy2 = other.get_center(time) if hasattr(other, 'get_center') else other
         return math.degrees(math.atan2(cy2 - cy1, cx2 - cx1))
 
-    def align_to(self, other, edge: str | tuple = 'left', start_time: float = 0, end_time: float | None = None, easing=None):
+    def align_to(self, other, edge: str | tuple = 'left', start: float = 0, end: float | None = None, easing=None):
         """Align an edge of this object with the same edge of another.
         edge: 'left', 'right', 'top', 'bottom' or a direction constant (UP, DOWN, LEFT, RIGHT).
-        When *end_time* is given, animate the movement over [start_time, end_time]."""
+        When *end* is given, animate the movement over [start, end]."""
         if isinstance(edge, tuple):
             edge = _EDGE_NAMES.get(edge, 'left')
-        mx, my, mw, mh = self.bbox(start_time)
-        ox, oy, ow, oh = other.bbox(start_time)
+        mx, my, mw, mh = self.bbox(start)
+        ox, oy, ow, oh = other.bbox(start)
         offsets = {
             'left': (ox - mx, 0),
             'right': ((ox + ow) - (mx + mw), 0),
@@ -3315,9 +3293,9 @@ class VObject(ABC):  # Vector Object
             'bottom': (0, (oy + oh) - (my + mh)),
         }
         dx, dy = offsets[edge]
-        kw = {'start_time': start_time}
-        if end_time is not None:
-            kw['end_time'] = end_time
+        kw = {'start': start}
+        if end is not None:
+            kw['end'] = end
         if easing is not None:
             kw['easing'] = easing
         self.shift(dx=dx, dy=dy, **kw)
@@ -3337,8 +3315,8 @@ class VObject(ABC):  # Vector Object
         bx, by, bw, bh = b.bbox(start)
         acx, acy = ax + aw / 2, ay + ah / 2
         bcx, bcy = bx + bw / 2, by + bh / 2
-        a.move_to(bcx, bcy, start_time=start, end_time=end, easing=easing)
-        b.move_to(acx, acy, start_time=start, end_time=end, easing=easing)
+        a.move_to(bcx, bcy, start=start, end=end, easing=easing)
+        b.move_to(acx, acy, start=start, end=end, easing=easing)
 
     def set_style(self, start: float = 0, **kwargs):
         """Set multiple styling attributes at once.
@@ -3615,7 +3593,7 @@ class VObject(ABC):  # Vector Object
 
         Animated over [start, end] if end is given, instant otherwise.
         """
-        return self.move_to(x, y, start_time=start, end_time=end, easing=easing)
+        return self.move_to(x, y, start=start, end=end, easing=easing)
 
     def stretch(self, x_factor: float = 1, y_factor: float = 1, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Non-uniform scale. Instant if end is None, animated otherwise."""
@@ -3684,7 +3662,7 @@ class VObject(ABC):  # Vector Object
     def match_position(self, other, time: float = 0):
         """Move this object so its center matches *other*'s center at *time*."""
         ox, oy = other.center(time) if hasattr(other, 'center') else other
-        return self.move_to(ox, oy, start_time=time)
+        return self.move_to(ox, oy, start=time)
 
     def point_from_proportion(self, t, time=0):
         """Return the (x, y) point at proportion *t* (0-1) along this object's SVG path outline.
@@ -3860,7 +3838,7 @@ class VObject(ABC):  # Vector Object
         """
         if end <= start:
             return self
-        self.center_to_pos(tx, ty, start_time=start, end_time=end, easing=easing)
+        self.center_to_pos(tx, ty, start=start, end=end, easing=easing)
         self.spin(start=start, end=end, degrees=degrees, easing=easing)
         return self
 
@@ -4520,7 +4498,7 @@ class VObject(ABC):  # Vector Object
         full (dx, dy).  This creates a parallax/depth illusion where background
         objects move slower.  Uses shift animation internally.  Returns self."""
         return self.shift(dx=dx * depth_factor, dy=dy * depth_factor,
-                          start_time=start, end_time=end, easing=easing)
+                          start=start, end=end, easing=easing)
 
     _DASH_PRESETS = {
         'solid': '',
@@ -4554,9 +4532,9 @@ class VObject(ABC):  # Vector Object
         return self
 
     @staticmethod
-    def surround(other, buff=SMALL_BUFF, rx=6, ry=6, start_time: float = 0, follow=True):
+    def surround(other, buff=SMALL_BUFF, rx=6, ry=6, start: float = 0, follow=True):
         """Create a rectangle surrounding another object. Returns a Rectangle."""
-        return _make_brect(other.bbox, start_time, rx, ry, buff, follow)
+        return _make_brect(other.bbox, start, rx, ry, buff, follow)
 
     def fade_to_color(self, target_color, start=0, end=1, easing=easings.smooth):
         """Smoothly transition both fill and stroke to target_color over [start, end].
@@ -4798,7 +4776,7 @@ class VObject(ABC):  # Vector Object
         dx = target_x - cx
         dy = target_y - cy
         if dx != 0 or dy != 0:
-            self.shift(dx=dx, dy=dy, start_time=start, end_time=end, easing=easing)
+            self.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
 
     def add_background(self, color='#000000', opacity=0.5, padding=20, creation=0, z=-1):
@@ -4929,7 +4907,7 @@ class VObject(ABC):  # Vector Object
         """Schedule an animation to start after a delay.
 
         Calls ``getattr(self, method_name)(*args, start=<adjusted>, end=<adjusted>, **rest)``
-        where the ``start`` (or ``start_time``) and ``end`` (or ``end_time``)
+        where the ``start`` (or ``start``) and ``end`` (or ``end``)
         keywords are both increased by *delay*.  Convenience for offsetting
         animation timing.
 
@@ -4939,12 +4917,12 @@ class VObject(ABC):  # Vector Object
         method = getattr(self, method_name)
         sig = inspect.signature(method)
         params = sig.parameters
-        if 'start_time' in params:
-            kwargs['start_time'] = kwargs.get('start_time', 0) + delay
+        if 'start' in params:
+            kwargs['start'] = kwargs.get('start', 0) + delay
         elif 'start' in params:
             kwargs['start'] = kwargs.get('start', 0) + delay
-        if 'end_time' in params and 'end_time' in kwargs:
-            kwargs['end_time'] = kwargs['end_time'] + delay
+        if 'end' in params and 'end' in kwargs:
+            kwargs['end'] = kwargs['end'] + delay
         elif 'end' in params and 'end' in kwargs:
             kwargs['end'] = kwargs['end'] + delay
         method(*args, **kwargs)
@@ -5080,7 +5058,7 @@ class VObject(ABC):  # Vector Object
             easing = easings.smooth
         # Move to target center
         tx, ty = target_obj.get_center(start)
-        self.center_to_pos(posx=tx, posy=ty, start_time=start, end_time=end, easing=easing)
+        self.center_to_pos(posx=tx, posy=ty, start=start, end=end, easing=easing)
         # Scale to match target width
         tw = target_obj.get_width(start)
         cur_w = self.get_width(start)
@@ -5228,8 +5206,8 @@ class VObject(ABC):  # Vector Object
             tx, ty = other
         nx = cx + fraction * (tx - cx)
         ny = cy + fraction * (ty - cy)
-        return self.center_to_pos(posx=nx, posy=ny, start_time=start,
-                                  end_time=end, easing=easing or easings.smooth)
+        return self.center_to_pos(posx=nx, posy=ny, start=start,
+                                  end=end, easing=easing or easings.smooth)
 
     def add_label(self, text, direction=UP, buff=20, font_size=None, follow=False, creation=0, **kwargs):
         """Attach a text label next to this object.
@@ -5264,12 +5242,12 @@ class VObject(ABC):  # Vector Object
             label_kwargs['font_size'] = font_size
         label_kwargs.update(kwargs)
         label = _Text(text, **label_kwargs)
-        label.next_to(self, direction, buff, start_time=creation)
+        label.next_to(self, direction, buff, start=creation)
         if follow:
             _dir = direction
             _buff = buff
             def _follow_updater(lbl, t, _parent=self, _d=_dir, _b=_buff):
-                lbl.next_to(_parent, _d, _b, start_time=t)
+                lbl.next_to(_parent, _d, _b, start=t)
             label.add_updater(_follow_updater, start=creation)
         return VCollection(self, label)
 
@@ -5306,8 +5284,8 @@ class VObject(ABC):  # Vector Object
             bx, by = obj_b
         tx = (1 - fraction) * ax + fraction * bx
         ty = (1 - fraction) * ay + fraction * by
-        return self.center_to_pos(posx=tx, posy=ty, start_time=start,
-                                  end_time=end, easing=easing or easings.smooth)
+        return self.center_to_pos(posx=tx, posy=ty, start=start,
+                                  end=end, easing=easing or easings.smooth)
 
 
 class VCollection:
@@ -5534,16 +5512,16 @@ class VCollection:
         return _make_brect(self.bbox, time, rx, ry, buff, follow,
                            start_idx=start_idx, end_idx=end_idx)
 
-    def move_to(self, x, y, start_time: float = 0, end_time: float | None = None, easing=easings.smooth):
+    def move_to(self, x, y, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Move the collection's center to (x, y)."""
-        xmin, ymin, w, h = self.bbox(start_time)
+        xmin, ymin, w, h = self.bbox(start)
         self.shift(dx=x-(xmin+w/2), dy=y-(ymin+h/2),
-                   start_time=start_time, end_time=end_time, easing=easing)
+                   start=start, end=end, easing=easing)
         return self
 
-    def center_to_pos(self, posx: float = 960, posy: float = 540, start_time: float = 0, end_time: float | None = None, easing=easings.smooth):
+    def center_to_pos(self, posx: float = 960, posy: float = 540, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Move the collection's center to (posx, posy)."""
-        return self.move_to(posx, posy, start_time, end_time, easing)
+        return self.move_to(posx, posy, start, end, easing)
 
     def center(self, time: float = 0):
         x, y, w, h = self.bbox(time)
@@ -5654,14 +5632,14 @@ class VCollection:
         return self.get_edge('bottom', time)
 
     def to_edge(self, edge: str | tuple = DOWN, buff=DEFAULT_OBJECT_TO_EDGE_BUFF,
-                start_time: float = 0, end_time: float | None = None, easing=easings.smooth):
+                start: float = 0, end: float | None = None, easing=easings.smooth):
         """Move group to a canvas edge."""
-        return _to_edge_impl(self, edge, buff, start_time, end_time, easing)
+        return _to_edge_impl(self, edge, buff, start, end, easing)
 
     def to_corner(self, corner: str | tuple = DR, buff=DEFAULT_OBJECT_TO_EDGE_BUFF,
-                  start_time: float = 0, end_time: float | None = None, easing=easings.smooth):
+                  start: float = 0, end: float | None = None, easing=easings.smooth):
         """Move group to a canvas corner."""
-        return _to_corner_impl(self, corner, buff, start_time, end_time, easing)
+        return _to_corner_impl(self, corner, buff, start, end, easing)
 
     def filter(self, predicate):
         """Return a new VCollection with only children matching predicate(obj) -> bool."""
@@ -6001,7 +5979,7 @@ class VCollection:
         perm = random.sample(range(n), n)
         for i, obj in enumerate(self.objects):
             tx, ty = centers[perm[i]]
-            obj.center_to_pos(tx, ty, start_time=start, end_time=end, easing=easing)
+            obj.center_to_pos(tx, ty, start=start, end=end, easing=easing)
         return self
 
     def reverse_children(self):
@@ -6167,7 +6145,7 @@ class VCollection:
         cx, cy = self._resolve_center(start, cx, cy)
         return self._delegate('rotate_by', start, end, degrees, cx=cx, cy=cy, easing=easing)
 
-    def arrange(self, direction: str | tuple = 'right', buff=SMALL_BUFF, start_time: float = 0):
+    def arrange(self, direction: str | tuple = 'right', buff=SMALL_BUFF, start: float = 0):
         """Lay out children in a row or column with spacing.
         direction: 'right', 'left', 'down', 'up' or a direction constant."""
         if isinstance(direction, tuple):
@@ -6178,13 +6156,13 @@ class VCollection:
         sign = 1 if direction in ('right', 'down') else -1
         cursor = 0
         for obj in self.objects:
-            x, y, w, h = obj.bbox(start_time)
+            x, y, w, h = obj.bbox(start)
             size = w if horizontal else h
             offset = cursor - (x if horizontal else y)
             if horizontal:
-                obj.shift(dx=sign * offset, start_time=start_time)
+                obj.shift(dx=sign * offset, start=start)
             else:
-                obj.shift(dy=sign * offset, start_time=start_time)
+                obj.shift(dy=sign * offset, start=start)
             cursor += size + buff
         return self
 
@@ -6233,11 +6211,11 @@ class VCollection:
         # Animate each child to its target
         _easing = easing or easings.smooth
         for obj, (tx, ty) in zip(self.objects, targets):
-            obj.center_to_pos(posx=tx, posy=ty, start_time=start,
-                              end_time=end, easing=_easing)
+            obj.center_to_pos(posx=tx, posy=ty, start=start,
+                              end=end, easing=_easing)
         return self
 
-    def distribute(self, direction: str | tuple = 'right', buff=0, start_time: float = 0):
+    def distribute(self, direction: str | tuple = 'right', buff=0, start: float = 0):
         """Distribute children evenly within the group's bounding box.
         Unlike arrange(), this spaces children evenly to fill the available space.
         direction: 'right', 'left', 'down', 'up' or a direction constant."""
@@ -6246,9 +6224,9 @@ class VCollection:
         if len(self.objects) < 2:
             return self
         horizontal = direction in ('right', 'left')
-        boxes = [obj.bbox(start_time) for obj in self.objects]
+        boxes = [obj.bbox(start) for obj in self.objects]
         total_size = sum(b[2] if horizontal else b[3] for b in boxes)
-        group_box = self.bbox(start_time)
+        group_box = self.bbox(start)
         available = (group_box[2] if horizontal else group_box[3]) - total_size
         spacing = available / (len(self.objects) - 1) if len(self.objects) > 1 else 0
         spacing = max(spacing, buff)
@@ -6258,14 +6236,14 @@ class VCollection:
             size = w if horizontal else h
             offset = cursor - (x if horizontal else y)
             if horizontal:
-                obj.shift(dx=offset, start_time=start_time)
+                obj.shift(dx=offset, start=start)
             else:
-                obj.shift(dy=offset, start_time=start_time)
+                obj.shift(dy=offset, start=start)
             cursor += size + spacing
         return self
 
     def space_evenly(self, direction: str | tuple = 'right', total_span=None,
-                     start_pos=None, start_time: float = 0):
+                     start_pos=None, start: float = 0):
         """Distribute children so they fill exactly *total_span* pixels.
 
         Unlike :meth:`arrange` (fixed gap between children) and :meth:`distribute`
@@ -6284,7 +6262,7 @@ class VCollection:
         start_pos:
             Left edge (horizontal) or top edge (vertical) of the first child.
             Defaults to the current leftmost / topmost edge of the group.
-        start_time:
+        start:
             Time at which to read current positions.
 
         Returns
@@ -6296,10 +6274,10 @@ class VCollection:
         if len(self.objects) == 0:
             return self
         horizontal = direction in ('right', 'left')
-        boxes = [obj.bbox(start_time) for obj in self.objects]
+        boxes = [obj.bbox(start) for obj in self.objects]
         sizes = [b[2] if horizontal else b[3] for b in boxes]
         total_child_size = sum(sizes)
-        group_box = self.bbox(start_time)
+        group_box = self.bbox(start)
         if total_span is None:
             total_span = group_box[2] if horizontal else group_box[3]
         if start_pos is None:
@@ -6311,9 +6289,9 @@ class VCollection:
             edge = box[0] if horizontal else box[1]
             offset = cursor - edge
             if horizontal:
-                obj.shift(dx=offset, start_time=start_time)
+                obj.shift(dx=offset, start=start)
             else:
-                obj.shift(dy=offset, start_time=start_time)
+                obj.shift(dy=offset, start=start)
             cursor += size + gap
         return self
 
@@ -6346,14 +6324,14 @@ class VCollection:
         cx, cy = center
         return self.distribute_radial(cx=cx, cy=cy, radius=radius,
                                       start_angle=start_angle,
-                                      start_time=start, end_time=end,
+                                      start=start, end=end,
                                       easing=easing or easings.smooth)
 
     def distribute_radial(self, cx=960, cy=540, radius=200, start_angle=0,
-                           start_time: float = 0, end_time: float | None = None,
+                           start: float = 0, end: float | None = None,
                            easing=easings.smooth):
         """Arrange children in a circle around (cx, cy).
-        With end_time=None, positions instantly. With end_time, animates."""
+        With end=None, positions instantly. With end, animates."""
         n = len(self.objects)
         if n == 0:
             return self
@@ -6361,21 +6339,21 @@ class VCollection:
             angle = start_angle + 2 * math.pi * i / n
             tx = cx + radius * math.cos(angle)
             ty = cy + radius * math.sin(angle)
-            bx, by, bw, bh = obj.bbox(start_time)
+            bx, by, bw, bh = obj.bbox(start)
             obj_cx, obj_cy = bx + bw / 2, by + bh / 2
             dx, dy = tx - obj_cx, ty - obj_cy
-            if end_time is None:
-                obj.shift(dx=dx, dy=dy, start_time=start_time)
+            if end is None:
+                obj.shift(dx=dx, dy=dy, start=start)
             else:
-                obj.shift(dx=dx, dy=dy, start_time=start_time,
-                          end_time=end_time, easing=easing)
+                obj.shift(dx=dx, dy=dy, start=start,
+                          end=end, easing=easing)
         return self
 
     def radial_arrange(self, radius=200, start_angle=0, center=None,
-                       start_time: float = 0):
+                       start: float = 0):
         """Arrange children in a circle with given radius and starting angle.
 
-        Unlike :meth:`distribute_radial` which accepts animated end_time,
+        Unlike :meth:`distribute_radial` which accepts animated end,
         this is a simple instant layout method.  center defaults to the
         collection's bounding-box center.
 
@@ -6389,20 +6367,20 @@ class VCollection:
         if n == 0:
             return self
         if center is None:
-            gx, gy, gw, gh = self.bbox(start_time)
+            gx, gy, gw, gh = self.bbox(start)
             center = (gx + gw / 2, gy + gh / 2)
         cx, cy = center
         for i, obj in enumerate(self.objects):
             angle = start_angle + 2 * math.pi * i / n
             tx = cx + radius * math.cos(angle)
             ty = cy + radius * math.sin(angle)
-            bx, by, bw, bh = obj.bbox(start_time)
+            bx, by, bw, bh = obj.bbox(start)
             obj_cx, obj_cy = bx + bw / 2, by + bh / 2
             dx, dy = tx - obj_cx, ty - obj_cy
-            obj.shift(dx=dx, dy=dy, start_time=start_time)
+            obj.shift(dx=dx, dy=dy, start=start)
         return self
 
-    def arrange_in_grid(self, rows=None, cols=None, buff=SMALL_BUFF, start_time: float = 0):
+    def arrange_in_grid(self, rows=None, cols=None, buff=SMALL_BUFF, start: float = 0):
         """Lay out children in a grid. If rows/cols omitted, picks a square-ish grid."""
         n = len(self.objects)
         if not n:
@@ -6415,7 +6393,7 @@ class VCollection:
         elif cols is None:
             cols = math.ceil(n / rows)
         # Measure max cell size
-        boxes = [obj.bbox(start_time) for obj in self.objects]
+        boxes = [obj.bbox(start) for obj in self.objects]
         max_w = max(b[2] for b in boxes)
         max_h = max(b[3] for b in boxes)
         cell_w, cell_h = max_w + buff, max_h + buff
@@ -6426,7 +6404,7 @@ class VCollection:
             target_cy = r * cell_h + max_h / 2
             cur_cx = box[0] + box[2] / 2
             cur_cy = box[1] + box[3] / 2
-            obj.shift(dx=target_cx - cur_cx, dy=target_cy - cur_cy, start_time=start_time)
+            obj.shift(dx=target_cx - cur_cx, dy=target_cy - cur_cy, start=start)
         return self
 
     def animated_arrange_in_grid(self, rows=None, cols=None, buff=SMALL_BUFF, start: float = 0, end: float = 1, easing=None):
@@ -6455,7 +6433,7 @@ class VCollection:
             r, c = divmod(idx, cols)
             target_cx = c * cell_w + max_w / 2
             target_cy = r * cell_h + max_h / 2
-            kw = {'start_time': start, 'end_time': end}
+            kw = {'start': start, 'end': end}
             if easing is not None:
                 kw['easing'] = easing
             obj.center_to_pos(target_cx, target_cy, **kw)
@@ -6465,7 +6443,7 @@ class VCollection:
         """Call method on each child with staggered timing offsets."""
         for i, obj in enumerate(self.objects):
             kw = dict(kwargs)
-            for key in ('start', 'end', 'start_time', 'end_time'):
+            for key in ('start', 'end', 'start', 'end'):
                 if key in kw:
                     kw[key] = kw[key] + i * delay
             getattr(obj, method_name)(**kw)
@@ -6504,7 +6482,7 @@ class VCollection:
             frac = i / max(n - 1, 1)
             pt = parsed.point(frac)
             px, py = pt.real, pt.imag
-            obj.center_to_pos(posx=px, posy=py, start_time=start)
+            obj.center_to_pos(posx=px, posy=py, start=start)
             # Call the method with staggered timing
             kw = dict(kwargs)
             kw['start'] = start + i * delay
@@ -6584,7 +6562,7 @@ class VCollection:
         """Alias for :meth:`apply_sequentially`."""
         return self.apply_sequentially(method_name, start=start, end=end, **kwargs)
 
-    def spread(self, x1, y1, x2, y2, start_time: float = 0):
+    def spread(self, x1, y1, x2, y2, start: float = 0):
         """Distribute children evenly along a line from (x1, y1) to (x2, y2)."""
         n = len(self.objects)
         if n == 0:
@@ -6593,12 +6571,12 @@ class VCollection:
             t = i / max(n - 1, 1)
             tx = x1 + (x2 - x1) * t
             ty = y1 + (y2 - y1) * t
-            bx, by, bw, bh = obj.bbox(start_time)
+            bx, by, bw, bh = obj.bbox(start)
             cx, cy = bx + bw / 2, by + bh / 2
-            obj.shift(dx=tx - cx, dy=ty - cy, start_time=start_time)
+            obj.shift(dx=tx - cx, dy=ty - cy, start=start)
         return self
 
-    def align_submobjects(self, edge='left', start_time: float = 0):
+    def align_submobjects(self, edge='left', start: float = 0):
         """Align all children to a common edge: 'left', 'right', 'top', 'bottom', 'center_x', 'center_y'.
         Shifts each child so their specified edge aligns with the collection's edge."""
         n = len(self.objects)
@@ -6607,7 +6585,7 @@ class VCollection:
         if isinstance(edge, tuple):
             edge = _EDGE_NAMES.get(edge, 'left')
         # Find the target value from the collection's bbox
-        gx, gy, gw, gh = self.bbox(start_time)
+        gx, gy, gw, gh = self.bbox(start)
         targets = {
             'left': lambda bx, by, bw, bh: (gx - bx, 0),
             'right': lambda bx, by, bw, bh: ((gx + gw) - (bx + bw), 0),
@@ -6620,10 +6598,10 @@ class VCollection:
         if func is None:
             return self
         for obj in self.objects:
-            bx, by, bw, bh = obj.bbox(start_time)
+            bx, by, bw, bh = obj.bbox(start)
             dx, dy = func(bx, by, bw, bh)
             if dx != 0 or dy != 0:
-                obj.shift(dx=dx, dy=dy, start_time=start_time)
+                obj.shift(dx=dx, dy=dy, start=start)
         return self
 
     def cascade(self, method_name, start: float = 0, end: float = 1, overlap=0.5, **kwargs):
@@ -6814,7 +6792,7 @@ class VCollection:
         rng.shuffle(indices)
         for i, obj in enumerate(self.objects):
             target = centers[indices[i]]
-            obj.move_to(target[0], target[1], start_time=start, end_time=end, easing=easing)
+            obj.move_to(target[0], target[1], start=start, end=end, easing=easing)
         return self
 
     def for_each(self, method_name, **kwargs):
@@ -6849,10 +6827,10 @@ class VCollection:
             cx, cy = bx + bw / 2, by + bh / 2
             if axis == 'x':
                 new_cx = 2 * gcx - cx
-                obj.move_to(new_cx, cy, start_time=start, end_time=end, easing=easing)
+                obj.move_to(new_cx, cy, start=start, end=end, easing=easing)
             else:
                 new_cy = 2 * gcy - cy
-                obj.move_to(cx, new_cy, start_time=start, end_time=end, easing=easing)
+                obj.move_to(cx, new_cy, start=start, end=end, easing=easing)
         return self
 
     def stagger_color(self, start: float = 0, end: float = 1, colors=('#FF6B6B', '#58C4DD'),
@@ -6974,7 +6952,7 @@ class VCollection:
                 dist = 1
             tx = ocx + dx / dist * radius
             ty = ocy + dy / dist * radius
-            obj.move_to(tx, ty, start_time=start, end_time=end, easing=easing)
+            obj.move_to(tx, ty, start=start, end=end, easing=easing)
         return self
 
     def gather_to(self, cx=None, cy=None,
@@ -6987,7 +6965,7 @@ class VCollection:
         cx = cx if cx is not None else gx + gw / 2
         cy = cy if cy is not None else gy + gh / 2
         for obj in self.objects:
-            obj.move_to(cx, cy, start_time=start, end_time=end, easing=easing)
+            obj.move_to(cx, cy, start=start, end=end, easing=easing)
         return self
 
     def rotate_children(self, degrees=90, start: float = 0, end: float | None = None,
@@ -7007,7 +6985,7 @@ class VCollection:
             dx, dy = cx - gcx, cy - gcy
             new_cx = gcx + dx * math.cos(rad) - dy * math.sin(rad)
             new_cy = gcy + dx * math.sin(rad) + dy * math.cos(rad)
-            obj.move_to(new_cx, new_cy, start_time=start, end_time=end, easing=easing)
+            obj.move_to(new_cx, new_cy, start=start, end=end, easing=easing)
         return self
 
     def wave_effect(self, start: float = 0, end: float = 1, amplitude=20, axis='y',
@@ -7079,7 +7057,7 @@ class VCollection:
             dx, dy = target[0] - cur[0], target[1] - cur[1]
             if abs(dx) > 0.5 or abs(dy) > 0.5:
                 self.objects[obj_idx].shift(dx=dx, dy=dy,
-                    start_time=start, end_time=end, easing=easing)
+                    start=start, end=end, easing=easing)
         return self
 
     def apply(self, func):
@@ -7106,13 +7084,13 @@ class VCollection:
     def apply_with_delay(self, func, delay=0.1, start=0):
         """Apply *func* to each child with an incremental time delay.
 
-        Calls ``func(child, index, start_time)`` for each child, where
-        ``start_time = start + index * delay``.
+        Calls ``func(child, index, start)`` for each child, where
+        ``start = start + index * delay``.
 
         Parameters
         ----------
         func:
-            A callable receiving ``(child, index, start_time)``.
+            A callable receiving ``(child, index, start)``.
         delay:
             Time delay between successive children.
         start:
@@ -7175,15 +7153,15 @@ class VCollection:
                 method_name_or_func(a, b, time)
         return self
 
-    def align_to(self, target, edge='left', start_time: float = 0, end_time: float | None = None, easing=None):
+    def align_to(self, target, edge='left', start: float = 0, end: float | None = None, easing=None):
         """Align the collection's edge to match *target*'s edge.
         target: another VObject/VCollection.
         edge: 'left', 'right', 'top', 'bottom' or direction constant.
-        When *end_time* is given, animate the movement over [start_time, end_time]."""
+        When *end* is given, animate the movement over [start, end]."""
         if isinstance(edge, tuple):
             edge = _EDGE_NAMES.get(edge, 'left')
-        mx, my, mw, mh = self.bbox(start_time)
-        ox, oy, ow, oh = target.bbox(start_time)
+        mx, my, mw, mh = self.bbox(start)
+        ox, oy, ow, oh = target.bbox(start)
         offsets = {
             'left': (ox - mx, 0),
             'right': ((ox + ow) - (mx + mw), 0),
@@ -7191,9 +7169,9 @@ class VCollection:
             'bottom': (0, (oy + oh) - (my + mh)),
         }
         dx, dy = offsets.get(edge, (0, 0))
-        kw = {'start_time': start_time}
-        if end_time is not None:
-            kw['end_time'] = end_time
+        kw = {'start': start}
+        if end is not None:
+            kw['end'] = end
         if easing is not None:
             kw['easing'] = easing
         for obj in self.objects:
@@ -7211,7 +7189,7 @@ class VCollection:
         return self
 
 
-    def snake_layout(self, cols=None, buff=SMALL_BUFF, start_time: float = 0):
+    def snake_layout(self, cols=None, buff=SMALL_BUFF, start: float = 0):
         """Arrange children in a snake/zigzag grid pattern.
 
         Like :meth:`arrange_in_grid`, but alternates row direction: the first
@@ -7226,7 +7204,7 @@ class VCollection:
             Number of columns per row.  Defaults to ``ceil(sqrt(n))``.
         buff:
             Pixel spacing between cells (default ``SMALL_BUFF``).
-        start_time:
+        start:
             Time at which to read current positions and apply shifts.
 
         Returns
@@ -7238,7 +7216,7 @@ class VCollection:
             return self
         if cols is None:
             cols = math.ceil(math.sqrt(n))
-        boxes = [obj.bbox(start_time) for obj in self.objects]
+        boxes = [obj.bbox(start) for obj in self.objects]
         max_w = max(b[2] for b in boxes)
         max_h = max(b[3] for b in boxes)
         cell_w, cell_h = max_w + buff, max_h + buff
@@ -7252,10 +7230,10 @@ class VCollection:
             cur_cx = box[0] + box[2] / 2
             cur_cy = box[1] + box[3] / 2
             obj.shift(dx=target_cx - cur_cx, dy=target_cy - cur_cy,
-                      start_time=start_time)
+                      start=start)
         return self
 
-    def arrange_along_path(self, path_d, start_time: float = 0,
+    def arrange_along_path(self, path_d, start: float = 0,
                            easing=None):
         """Position children evenly along an arbitrary SVG path.
 
@@ -7268,7 +7246,7 @@ class VCollection:
         path_d:
             An SVG path ``d`` attribute string (e.g.
             ``'M100,500 C300,100 600,100 800,500'``).
-        start_time:
+        start:
             Time at which to read current positions and apply shifts.
         easing:
             Optional easing function to remap the parameter distribution.
@@ -7293,9 +7271,9 @@ class VCollection:
             target_len = t * total_length
             pt = parsed.point(parsed.ilength(target_len))
             tx, ty = pt.real, pt.imag
-            bx, by, bw, bh = obj.bbox(start_time)
+            bx, by, bw, bh = obj.bbox(start)
             cx, cy = bx + bw / 2, by + bh / 2
-            obj.shift(dx=tx - cx, dy=ty - cy, start_time=start_time)
+            obj.shift(dx=tx - cx, dy=ty - cy, start=start)
         return self
 
     def converge(self, x: float = 960, y: float = 540,
@@ -7330,7 +7308,7 @@ class VCollection:
             dx, dy = x - ox, y - oy
             if dx == 0 and dy == 0:
                 continue
-            obj.shift(dx=dx, dy=dy, start_time=start, end_time=end, easing=easing)
+            obj.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
 
     def diverge(self, factor: float = 2.0, cx: float | None = None,
@@ -7376,7 +7354,7 @@ class VCollection:
             dy = (obj_cy - cy) * (factor - 1)
             if dx == 0 and dy == 0:
                 continue
-            obj.shift(dx=dx, dy=dy, start_time=start, end_time=end, easing=easing)
+            obj.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
 
     def all_match(self, predicate):
@@ -7658,8 +7636,8 @@ class VCollection:
 
     def distribute_along_arc(self, cx=960, cy=540, radius=200,
                               start_angle=0, end_angle=None,
-                              start_time: float = 0,
-                              end_time: float | None = None,
+                              start: float = 0,
+                              end: float | None = None,
                               easing=easings.smooth):
         """Arrange children evenly along a circular arc.
 
@@ -7678,11 +7656,11 @@ class VCollection:
         end_angle:
             Ending angle in radians.  Defaults to ``start_angle + pi``
             (a semicircle).
-        start_time:
+        start:
             Time at which to read current positions and apply the layout.
-        end_time:
+        end:
             If given, animate the children into position over
-            [start_time, end_time].  If ``None``, positions are set
+            [start, end].  If ``None``, positions are set
             instantly.
         easing:
             Easing for the animated version.
@@ -7701,14 +7679,14 @@ class VCollection:
                 angle = start_angle + (end_angle - start_angle) * t_frac
             tx = cx + radius * math.cos(angle)
             ty = cy + radius * math.sin(angle)
-            bx, by, bw, bh = obj.bbox(start_time)
+            bx, by, bw, bh = obj.bbox(start)
             obj_cx, obj_cy = bx + bw / 2, by + bh / 2
             dx, dy = tx - obj_cx, ty - obj_cy
-            if end_time is None:
-                obj.shift(dx=dx, dy=dy, start_time=start_time)
+            if end is None:
+                obj.shift(dx=dx, dy=dy, start=start)
             else:
-                obj.shift(dx=dx, dy=dy, start_time=start_time,
-                          end_time=end_time, easing=easing)
+                obj.shift(dx=dx, dy=dy, start=start,
+                          end=end, easing=easing)
         return self
 
     def fan_out(self, cx: float | None = None, cy: float | None = None,
@@ -7739,11 +7717,11 @@ class VCollection:
             bx, by, bw, bh = obj.bbox(start)
             obj_cx, obj_cy = bx + bw / 2, by + bh / 2
             dx, dy = tx - obj_cx, ty - obj_cy
-            obj.shift(dx=dx, dy=dy, start_time=start, end_time=end, easing=easing)
+            obj.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
 
     def align_centers(self, axis='x', value: float | None = None,
-                      start_time: float = 0, end_time: float | None = None,
+                      start: float = 0, end: float | None = None,
                       easing=easings.smooth):
         """Align all children's centers along a common axis line.
 
@@ -7756,10 +7734,10 @@ class VCollection:
         if n == 0:
             return self
         if value is None:
-            gx, gy, gw, gh = self.bbox(start_time)
+            gx, gy, gw, gh = self.bbox(start)
             value = (gx + gw / 2) if axis == 'x' else (gy + gh / 2)
         for obj in self.objects:
-            bx, by, bw, bh = obj.bbox(start_time)
+            bx, by, bw, bh = obj.bbox(start)
             if axis == 'x':
                 dx = value - (bx + bw / 2)
                 dy = 0
@@ -7767,8 +7745,8 @@ class VCollection:
                 dx = 0
                 dy = value - (by + bh / 2)
             if dx != 0 or dy != 0:
-                obj.shift(dx=dx, dy=dy, start_time=start_time,
-                          end_time=end_time, easing=easing)
+                obj.shift(dx=dx, dy=dy, start=start,
+                          end=end, easing=easing)
         return self
 
     def distribute_evenly(self, start_x, start_y, end_x, end_y):
@@ -7864,7 +7842,7 @@ class VCollection:
             if font_size is not None:
                 text_kwargs['font_size'] = font_size
             label = Text(labels[i], **text_kwargs)
-            label.next_to(obj, direction=direction, buff=buff, start_time=creation)
+            label.next_to(obj, direction=direction, buff=buff, start=creation)
             label_objects.append(label)
         return VCollection(*label_objects)
 
@@ -7874,7 +7852,7 @@ class VCollection:
         The *start* and *end* timing parameters are passed to the target
         method using whichever naming convention it expects.  If *kwargs*
         already contains explicit timing keys (``start``, ``end``,
-        ``start_time``, ``end_time``), those take precedence.  Otherwise
+        ``start``, ``end``), those take precedence.  Otherwise
         this method inspects the target to choose the right names.
 
         Parameters
@@ -7907,14 +7885,14 @@ class VCollection:
             method = getattr(obj, method_name)
             kw = dict(kwargs)
             # Add timing parameters if not already provided by caller
-            has_timing = any(k in kw for k in ('start', 'end', 'start_time', 'end_time'))
+            has_timing = any(k in kw for k in ('start', 'end', 'start', 'end'))
             if not has_timing:
                 sig = inspect.signature(method)
                 params = sig.parameters
-                if 'start_time' in params:
-                    kw['start_time'] = start
-                    if 'end_time' in params:
-                        kw['end_time'] = end
+                if 'start' in params:
+                    kw['start'] = start
+                    if 'end' in params:
+                        kw['end'] = end
                 elif 'start' in params:
                     kw['start'] = start
                     if 'end' in params:
@@ -8030,12 +8008,12 @@ class VCollection:
         for obj, val in zip(self.objects, values):
             delta = ref - val
             if axis == 'x':
-                obj.shift(dx=delta, start_time=0)
+                obj.shift(dx=delta, start=0)
             else:
-                obj.shift(dy=delta, start_time=0)
+                obj.shift(dy=delta, start=0)
         return self
 
-    def sort_by_distance(self, point, reverse=False, start_time=0):
+    def sort_by_distance(self, point, reverse=False, start=0):
         """Sort children by distance from a point.
 
         Parameters
@@ -8044,15 +8022,15 @@ class VCollection:
             An (x, y) tuple to measure distance from.
         reverse:
             If True, sort farthest first.
-        start_time:
+        start:
             Time at which to evaluate each child's center.
 
         Returns self.
         """
         px, py = point
         self.objects.sort(
-            key=lambda obj: math.hypot(obj.center(start_time)[0] - px,
-                                       obj.center(start_time)[1] - py),
+            key=lambda obj: math.hypot(obj.center(start)[0] - px,
+                                       obj.center(start)[1] - py),
             reverse=reverse,
         )
         return self

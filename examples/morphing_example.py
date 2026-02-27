@@ -20,6 +20,6 @@ obj = MorphObject(text_from, text_to, start=1, end=3)
 canvas.add_objects(text_from, obj, text_to)
 
 if args.verbose:
-    canvas.export_video('docs/source/_static/videos/morphing_example.mp4', fps=30, end_time=4)
+    canvas.export_video('docs/source/_static/videos/morphing_example.mp4', fps=30, end=4)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

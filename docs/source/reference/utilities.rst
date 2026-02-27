@@ -12,7 +12,7 @@ and returns a value in [0, 1].
 .. code-block:: python
 
    import vectormation.easings as easings
-   circle.shift(dx=2, start_time=0, end_time=1, easing=easings.ease_out_bounce)
+   circle.shift(dx=2, start=0, end=1, easing=easings.ease_out_bounce)
 
 .. rubric:: Basic
 

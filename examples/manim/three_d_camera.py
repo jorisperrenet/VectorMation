@@ -23,5 +23,5 @@ canvas.add_objects(axes)
 if args.verbose:
     canvas.export_video('docs/source/_static/videos/three_d_camera.mp4', fps=30)
 if not args.no_display:
-    canvas.browser_display(start_time=0, end_time=6, fps=args.fps, port=args.port,
+    canvas.browser_display(start=0, end=6, fps=args.fps, port=args.port,
                            hot_reload=True)

@@ -72,7 +72,7 @@ Add to the existing value from ``start`` onwards:
 
    circle.r.add_onward(2, 20)  # radius increases by 20 from t=2
 
-``move_to(start_time, end_time, end_val, easing=smooth)``
+``move_to(start, end, end_val, easing=smooth)``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Smoothly animate from the current value to ``end_val``:
@@ -95,7 +95,7 @@ Coordinate-Specific Methods
 
 The coordinate rotates around the pivot point. ``pivot_point`` can be a tuple or a callable returning ``(x, y)``.
 
-``move_to(start_time, end_time, end_pos, easing=smooth)``
+``move_to(start, end, end_pos, easing=smooth)``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python

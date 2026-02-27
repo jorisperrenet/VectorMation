@@ -3449,7 +3449,7 @@ class Line(VObject):
         _anim(self.p2, start, end, (mx + dx * half, my + dy * half), easing)
         return self
 
-    def extend_to(self, length, anchor='start', start_time=0, end_time=None, easing=easings.smooth):
+    def extend_to(self, length, anchor='start', start=0, end=None, easing=easings.smooth):
         """Extend or shrink the line to *length*, keeping one endpoint fixed.
 
         Unlike :meth:`set_length` (which keeps the midpoint fixed), this method
@@ -3466,15 +3466,15 @@ class Line(VObject):
             Target length in SVG pixels.
         anchor:
             Which endpoint to keep fixed: ``'start'`` (p1) or ``'end'`` (p2).
-        start_time:
+        start:
             Time at which the change begins.
-        end_time:
+        end:
             Time at which the change ends.  ``None`` means instant.
         easing:
             Easing function for the animation.
         """
-        x1, y1 = self.p1.at_time(start_time)
-        x2, y2 = self.p2.at_time(start_time)
+        x1, y1 = self.p1.at_time(start)
+        x2, y2 = self.p2.at_time(start)
         cur = _distance(x1, y1, x2, y2)
         if cur < 1e-9:
             return self
@@ -3482,11 +3482,11 @@ class Line(VObject):
         if anchor == 'start':
             # Keep p1 fixed, move p2
             new_p2 = (x1 + (x2 - x1) * factor, y1 + (y2 - y1) * factor)
-            _anim(self.p2, start_time, end_time, new_p2, easing)
+            _anim(self.p2, start, end, new_p2, easing)
         else:
             # Keep p2 fixed, move p1
             new_p1 = (x2 - (x2 - x1) * factor, y2 - (y2 - y1) * factor)
-            _anim(self.p1, start_time, end_time, new_p1, easing)
+            _anim(self.p1, start, end, new_p1, easing)
         return self
 
     def get_perpendicular_point(self, px, py, time=0):
@@ -3821,7 +3821,7 @@ class Line(VObject):
         """
         return self.distance_to_point(px, py, time) <= tol
 
-    def add_tip(self, end=True, start=False, tip_length=None, tip_width=None, start_time=0):
+    def add_tip(self, end=True, start=False, tip_length=None, tip_width=None, creation=0):
         """Create arrowhead tip polygon(s) at line endpoints.
 
         Parameters
@@ -3836,7 +3836,7 @@ class Line(VObject):
         tip_width:
             Width of the tip perpendicular to the line.  Defaults to
             ``DEFAULT_ARROW_TIP_WIDTH``.
-        start_time:
+        creation:
             Creation time for the tip polygons.
 
         Returns
@@ -3848,9 +3848,9 @@ class Line(VObject):
         tl = tip_length if tip_length is not None else DEFAULT_ARROW_TIP_LENGTH
         tw = tip_width if tip_width is not None else DEFAULT_ARROW_TIP_WIDTH
         hw = tw / 2
-        x1, y1 = self.p1.at_time(start_time)
-        x2, y2 = self.p2.at_time(start_time)
-        stroke_color = self.styling.stroke.time_func(start_time)
+        x1, y1 = self.p1.at_time(creation)
+        x2, y2 = self.p2.at_time(creation)
+        stroke_color = self.styling.stroke.time_func(creation)
         objects = [self]
 
         # Build tip at each requested endpoint: (tip_point, direction toward tip)
@@ -3866,11 +3866,11 @@ class Line(VObject):
             bx, by = tx - ux * tl, ty - uy * tl
             objects.append(Polygon(
                 (tx, ty), (bx + px * hw, by + py * hw), (bx - px * hw, by - py * hw),
-                creation=start_time, z=self.z,
+                creation=creation, z=self.z,
                 fill=stroke_color, fill_opacity=1, stroke_width=0,
             ))
 
-        return VCollection(*objects, creation=start_time, z=self.z)
+        return VCollection(*objects, creation=creation, z=self.z)
 
     def __repr__(self):
         p1, p2 = self.p1.at_time(0), self.p2.at_time(0)
@@ -5195,13 +5195,13 @@ class Trace(VObject):
         pos = self.p.at_time(time)
         return [(float(pos[0]), float(pos[1]))]
 
-    def shift(self, dx=0, dy=0, start_time: float = 0, end_time: float | None = None, easing=easings.smooth):
+    def shift(self, dx=0, dy=0, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Shift via styling transform (Trace points are immutable)."""
-        if end_time is None:
-            self.styling.dx.add_onward(start_time, dx)
-            self.styling.dy.add_onward(start_time, dy)
+        if end is None:
+            self.styling.dx.add_onward(start, dx)
+            self.styling.dy.add_onward(start, dy)
         else:
-            s, e = start_time, end_time
+            s, e = start, end
             d = max(e - s, 1e-9)
             self.styling.dx.add_onward(s, lambda t, _s=s, _d=d: dx * easing((t-_s)/_d), last_change=e)
             self.styling.dy.add_onward(s, lambda t, _s=s, _d=d: dy * easing((t-_s)/_d), last_change=e)
@@ -5265,16 +5265,16 @@ class Path(VObject):
                     (float(xmax), float(ymax)), (float(xmin), float(ymax))]
         return []
 
-    def shift(self, dx=0, dy=0, start_time: float = 0, end_time: float | None = None, easing=easings.smooth):
+    def shift(self, dx=0, dy=0, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Shift via transform styling, accounting for current rotation."""
         rot = self.styling.rotation.at_time(0)
         if rot[0] != 0:
             dx, dy = _rotate_point(dx, dy, rot[1], rot[2], -rot[0] * math.pi / 180)
-        if end_time is None:
-            self.styling.dx.add_onward(start_time, dx)
-            self.styling.dy.add_onward(start_time, dy)
+        if end is None:
+            self.styling.dx.add_onward(start, dx)
+            self.styling.dy.add_onward(start, dy)
         else:
-            s, e = start_time, end_time
+            s, e = start, end
             d = max(e - s, 1e-9)
             self.styling.dx.add_onward(s, lambda t, _s=s, _d=d: dx * easing((t-_s)/_d), last_change=e)
             self.styling.dy.add_onward(s, lambda t, _s=s, _d=d: dy * easing((t-_s)/_d), last_change=e)

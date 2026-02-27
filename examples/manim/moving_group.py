@@ -16,7 +16,7 @@ dest = Dot(cx=1200, cy=300, fill='#FFFF00')
 # Shift the group so d3 (the red dot) ends up at dest
 target_x, target_y = 1200, 300
 ref_x, ref_y = d3.c.at_time(0)
-group.shift(dx=target_x - ref_x, dy=target_y - ref_y, start_time=0.5, end_time=2)
+group.shift(dx=target_x - ref_x, dy=target_y - ref_y, start=0.5, end=2)
 
 canvas.add_objects(group, dest)
 if args.verbose:

@@ -38,6 +38,6 @@ dot.fadein(10, 10.5)
 
 canvas.add_objects(ax, create_anim, dot)
 if args.verbose:
-    canvas.export_video('docs/source/_static/videos/axes_zoom.mp4', fps=30, end_time=14)
+    canvas.export_video('docs/source/_static/videos/axes_zoom.mp4', fps=30, end=14)
 if not args.no_display:
-    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True, end_time=14)
+    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=14)

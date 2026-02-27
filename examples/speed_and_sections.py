@@ -28,6 +28,6 @@ hint = Text(text='Press Space to advance sections, +/- to change speed',
 
 canvas.add_objects(circle, square, tri, hint)
 if args.verbose:
-    canvas.export_video('docs/source/_static/videos/speed_and_sections.mp4', fps=30, end_time=7)
+    canvas.export_video('docs/source/_static/videos/speed_and_sections.mp4', fps=30, end=7)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

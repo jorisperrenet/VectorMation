@@ -23,7 +23,7 @@ class TestCircle:
 
     def test_shift(self):
         c = Circle(r=50, cx=100, cy=200)
-        c.shift(dx=10, dy=20, start_time=0)
+        c.shift(dx=10, dy=20, start=0)
         pos = c.c.at_time(0)
         assert pos[0] == pytest.approx(110)
         assert pos[1] == pytest.approx(220)
@@ -45,7 +45,7 @@ class TestRectangle:
 
     def test_shift(self):
         r = Rectangle(width=100, height=50, x=10, y=20)
-        r.shift(dx=5, dy=10, start_time=0)
+        r.shift(dx=5, dy=10, start=0)
         assert r.x.at_time(0) == pytest.approx(15)
         assert r.y.at_time(0) == pytest.approx(30)
 
@@ -66,7 +66,7 @@ class TestPolygon:
 
     def test_shift(self):
         p = Polygon((0, 0), (100, 0), (50, 100))
-        p.shift(dx=10, dy=20, start_time=0)
+        p.shift(dx=10, dy=20, start=0)
         v0 = p.vertices[0].at_time(0)
         assert v0[0] == pytest.approx(10)
         assert v0[1] == pytest.approx(20)
@@ -154,7 +154,7 @@ class TestLine:
 
     def test_shift(self):
         l = Line(x1=0, y1=0, x2=100, y2=100)
-        l.shift(dx=10, dy=20, start_time=0)
+        l.shift(dx=10, dy=20, start=0)
         p1 = l.p1.at_time(0)
         assert p1[0] == pytest.approx(10)
         assert p1[1] == pytest.approx(20)
@@ -202,7 +202,7 @@ class TestVObjectCopy:
     def test_circle_copy(self):
         c = Circle(r=50, cx=100, cy=200)
         c2 = c.copy()
-        c2.shift(dx=50, start_time=0)
+        c2.shift(dx=50, start=0)
         # Original should be unchanged
         assert c.c.at_time(0)[0] == pytest.approx(100)
         assert c2.c.at_time(0)[0] == pytest.approx(150)
@@ -210,7 +210,7 @@ class TestVObjectCopy:
     def test_rect_copy(self):
         r = Rectangle(width=100, height=50, x=10, y=20)
         r2 = r.copy()
-        r2.shift(dx=100, start_time=0)
+        r2.shift(dx=100, start=0)
         assert r.x.at_time(0) == pytest.approx(10)
         assert r2.x.at_time(0) == pytest.approx(110)
 
@@ -875,7 +875,7 @@ class TestArrange:
         b = Circle(r=20, cx=0, cy=0)
         c = Circle(r=20, cx=0, cy=0)
         coll = VCollection(a, b, c)
-        coll.arrange(direction='right', buff=10, start_time=0)
+        coll.arrange(direction='right', buff=10, start=0)
         # After arranging, b should be to the right of a, c to the right of b
         ax = a.bbox(0)[0]
         bx = b.bbox(0)[0]
@@ -1362,7 +1362,7 @@ class TestArrangeLayout:
         c1 = Circle(r=20, cx=0, cy=0)
         c2 = Circle(r=20, cx=0, cy=0)
         group = VCollection(c1, c2)
-        group.arrange(direction='right', buff=10, start_time=0)
+        group.arrange(direction='right', buff=10, start=0)
         # After arranging, c2's bbox should be to the right of c1's
         x1, _, w1, _ = c1.bbox(0)
         x2, _, _, _ = c2.bbox(0)
@@ -1384,7 +1384,7 @@ class TestCenter:
 
     def test_center_after_shift(self):
         c = Circle(r=50, cx=100, cy=200)
-        c.shift(dx=50, dy=-30, start_time=0)
+        c.shift(dx=50, dy=-30, start=0)
         cx, cy = c.center(0)
         assert cx == pytest.approx(150)
         assert cy == pytest.approx(170)
@@ -2919,9 +2919,9 @@ class TestLineExtendTo:
         assert line.extend_to(150) is line
 
     def test_extend_to_animated(self):
-        """With end_time, the endpoint should animate smoothly."""
+        """With end, the endpoint should animate smoothly."""
         line = Line(x1=0, y1=0, x2=100, y2=0)
-        line.extend_to(200, anchor='start', start_time=0, end_time=1,
+        line.extend_to(200, anchor='start', start=0, end=1,
                        easing=easings.linear)
         # At t=0 still at original length (approximately)
         p2_start = line.p2.at_time(0)
@@ -3133,7 +3133,7 @@ class TestLineSplitAt:
         line = Line(0, 0, 100, 0)
         a, _ = line.split_at()
         # Moving the original should not affect returned lines
-        line.shift(dx=999, start_time=0)
+        line.shift(dx=999, start=0)
         assert a.get_start() == pytest.approx((0.0, 0.0))
 
 
@@ -3303,7 +3303,7 @@ class TestCircleArcBetween:
     def test_arc_between_respects_time(self):
         """arc_between reads position/radius at the specified time."""
         c = Circle(r=50, cx=100, cy=100)
-        c.shift(dx=200, dy=100, start_time=1)
+        c.shift(dx=200, dy=100, start=1)
         arc = c.arc_between(0, 90, time=1)
         assert arc.cx.at_time(0) == pytest.approx(300)
         assert arc.cy.at_time(0) == pytest.approx(200)
@@ -3424,7 +3424,7 @@ class TestSetStrokeDash:
         result = c.set_stroke_dash('5 3')
         assert result is c
 
-    def test_respects_start_time(self):
+    def test_respects_start(self):
         c = Circle(r=50, cx=100, cy=100)
         c.set_stroke_dash('5 3', start=2)
         # Before start time pattern should not be set (default empty)
@@ -9124,7 +9124,7 @@ class TestCircleGetArc:
 
     def test_respects_time(self):
         c = Circle(r=50, cx=100, cy=100)
-        c.shift(dx=200, dy=100, start_time=1)
+        c.shift(dx=200, dy=100, start=1)
         arc = c.get_arc(0, 90, time=1)
         assert arc.cx.at_time(0) == pytest.approx(300)
         assert arc.cy.at_time(0) == pytest.approx(200)
@@ -9180,7 +9180,7 @@ class TestLineDivide:
 
     def test_respects_time(self):
         line = Line(0, 0, 100, 0)
-        line.shift(dx=50, start_time=1)
+        line.shift(dx=50, start=1)
         pts = line.divide(2, time=1)
         assert pts[0] == pytest.approx((50.0, 0.0))
         assert pts[2] == pytest.approx((150.0, 0.0))
@@ -9710,7 +9710,7 @@ class TestNumberLineAddAnimatedPointer:
         svg = nl.to_svg(0)
         assert '<polygon' in svg
 
-    def test_pointer_with_end_time(self):
+    def test_pointer_with_end(self):
         nl = NumberLine(x_range=(-5, 5, 1))
         nl.add_animated_pointer(lambda t: 0, start=0, end=2)
         # The pointer polygon should be hidden after end time
@@ -10279,7 +10279,7 @@ class TestPolygonToPath:
     def test_time_parameter(self):
         """to_path at a different time should use animated vertex positions."""
         poly = Polygon((0, 0), (100, 0), (100, 100))
-        poly.shift(dx=50, dy=0, start_time=0)
+        poly.shift(dx=50, dy=0, start=0)
         p = poly.to_path(time=0)
         d = p.d.at_time(0)
         # After shift, first vertex should be at (50, 0)

@@ -53,8 +53,19 @@ Class Hierarchy
    +-- Graph                    Full plot with axes
    |   +-- Axes                 Standalone axes
    +-- PieChart / BarChart      Charts
+   +-- NeuralNetwork            Neural network diagram
+   +-- Pendulum                 Animated pendulum
+   +-- StandingWave             Standing wave animation
+   +-- Table / Matrix           Data display
+   +-- NetworkGraph             Network/graph diagram
+   +-- FlowChart                Flow chart
+   +-- Tree                     Tree diagram
 
    SplitTexObject               Multi-line LaTeX container
+
+   ThreeDAxes                   3D coordinate axes
+   +-- Surface                  3D surface plot
+   +-- Line3D / Arrow3D / Dot3D 3D primitives
 
 .. toctree::
    :maxdepth: 2
@@ -65,5 +76,6 @@ Class Hierarchy
    reference/text
    reference/collections
    reference/graphing
+   reference/threed
    reference/attributes
    reference/utilities

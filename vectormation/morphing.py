@@ -114,7 +114,7 @@ class Paths:
         self.paths = [arg[0] for arg in args]
         self.stylings = [arg[1] for arg in args]
 
-    def _morph_prepare(self, other, start_time: float = 0, end_time: float = 1, dist_vs_length=True):
+    def _morph_prepare(self, other, start: float = 0, end: float = 1, dist_vs_length=True):
         """Returns the segment pairs in Cubic Bezier form that need be merged.
         Matches whole compound paths first, then handles subpaths within each pair
         to preserve compound path structure (e.g. letters with holes)."""
@@ -128,11 +128,11 @@ class Paths:
         to_centers = {}
         if dist_vs_length:
             for i, (path, st) in enumerate(zip(self.paths, self.stylings)):
-                transforms = st.transform_style(start_time)[1:].split(' ')
+                transforms = st.transform_style(start)[1:].split(' ')
                 xmin, xmax, ymin, ymax = path.adjusted_bbox(*transforms)
                 from_centers[i] = ((xmin+xmax)/2, (ymin+ymax)/2)
             for j, (path, st) in enumerate(zip(other.paths, other.stylings)):
-                transforms = st.transform_style(end_time)[1:].split(' ')
+                transforms = st.transform_style(end)[1:].split(' ')
                 xmin, xmax, ymin, ymax = path.adjusted_bbox(*transforms)
                 to_centers[j] = ((xmin+xmax)/2, (ymin+ymax)/2)
 
@@ -236,13 +236,13 @@ class Paths:
         return subpath_segment_pairs
 
 
-    def morph(self, other, start_time: float = 0, end_time: float = 1, easing=easings.smooth):
+    def morph(self, other, start: float = 0, end: float = 1, easing=easings.smooth):
         """Compute the morph from self to other, returning a list of
         (path_func, style_from, style_to) tuples for each matched subpath pair."""
         if hasattr(self, 'subpath_segment_pairs'):
             subpath_segment_pairs = self.subpath_segment_pairs
         else:
-            subpath_segment_pairs = self._morph_prepare(other, start_time, end_time, dist_vs_length=True)
+            subpath_segment_pairs = self._morph_prepare(other, start, end, dist_vs_length=True)
 
         objects = []
         for segment_pairs, style_from, style_to, is_closed, compound_id in subpath_segment_pairs:

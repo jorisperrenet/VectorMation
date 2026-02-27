@@ -32,14 +32,14 @@ VCollection
       :width: 500
       :align: center
 
-   .. py:method:: arrange(direction='right', buff=12, start_time=0)
+   .. py:method:: arrange(direction='right', buff=12, start=0)
 
       Lay out children in a row or column.
 
       :param str direction: ``'right'``, ``'left'``, ``'up'``, or ``'down'``.
       :param float buff: Spacing between children.
 
-   .. py:method:: distribute(direction='right', buff=0, start_time=0)
+   .. py:method:: distribute(direction='right', buff=0, start=0)
 
       Distribute children evenly across the group's bounding box.
 
@@ -63,11 +63,11 @@ VCollection
 
    .. rubric:: Positioning
 
-   .. py:method:: move_to(x, y, start_time=0, end_time=None, easing=smooth)
+   .. py:method:: move_to(x, y, start=0, end=None, easing=smooth)
 
       Move the group's centre to ``(x, y)``.
 
-   .. py:method:: center_to_pos(posx=960, posy=540, start_time=0, end_time=None, easing=smooth)
+   .. py:method:: center_to_pos(posx=960, posy=540, start=0, end=None, easing=smooth)
 
       Alias for :py:meth:`move_to`.
 

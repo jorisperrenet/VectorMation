@@ -59,15 +59,15 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
    .. rubric:: Movement
 
-   .. py:method:: shift(dx=0, dy=0, start_time=0, end_time=None, easing=smooth)
+   .. py:method:: shift(dx=0, dy=0, start=0, end=None, easing=smooth)
 
-      Translate by ``(dx, dy)``. If *end_time* is given, the shift is animated.
+      Translate by ``(dx, dy)``. If *end* is given, the shift is animated.
 
-   .. py:method:: move_to(x, y, start_time=0, end_time=None, easing=smooth)
+   .. py:method:: move_to(x, y, start=0, end=None, easing=smooth)
 
       Move the object's centre to ``(x, y)``.
 
-   .. py:method:: center_to_pos(posx=960, posy=540, start_time=0, end_time=None, easing=smooth)
+   .. py:method:: center_to_pos(posx=960, posy=540, start=0, end=None, easing=smooth)
 
       Alias for :py:meth:`move_to`.
 
@@ -75,7 +75,7 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Move the object's centre along an SVG path string over ``[start, end]``.
 
-   .. py:method:: next_to(other, direction='right', buff=12, start_time=0)
+   .. py:method:: next_to(other, direction='right', buff=12, start=0)
 
       Position adjacent to *other*. ``direction`` can be ``'right'``, ``'left'``,
       ``'up'``, or ``'down'``.
@@ -84,7 +84,7 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
       :width: 440
       :align: center
 
-   .. py:method:: align_to(other, edge='left', start_time=0)
+   .. py:method:: align_to(other, edge='left', start=0)
 
       Align the given edge with the same edge of *other*.
 
@@ -239,7 +239,7 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Swap positions of two objects.
 
-   .. py:method:: surround(other, buff=12, rx=6, ry=6, start_time=0, follow=True)
+   .. py:method:: surround(other, buff=12, rx=6, ry=6, start=0, follow=True)
       :staticmethod:
 
       Create a surrounding rectangle around *other*.

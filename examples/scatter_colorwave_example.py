@@ -16,7 +16,7 @@ dots = VCollection(
           fill=['#FF6B6B', '#83C167', '#58C4DD', '#FFFF00', '#FF79C6', '#B8BB26'][i])
       for i in range(6)]
 )
-dots.distribute_radial(cx=350, cy=350, radius=80, start_time=0, end_time=0)
+dots.distribute_radial(cx=350, cy=350, radius=80, start=0, end=0)
 dots.fadein(0.5, 1)
 
 scatter_label = Text(text='Scatter', x=350, y=230,

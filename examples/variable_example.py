@@ -8,7 +8,7 @@ canvas.set_background()
 # Create a variable display that tracks a changing value
 var = Variable('x', 0)
 var.fadein(0, 0.5)
-var.to_edge(UP, start_time=0)
+var.to_edge(UP, start=0)
 var.animate_value(10, 0.5, 3)  # animate from 0 to 10
 
 # Show a circle whose radius grows with the value

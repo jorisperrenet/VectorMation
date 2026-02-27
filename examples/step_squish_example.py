@@ -54,7 +54,7 @@ items = VCollection(
     Dot(cx=0, cy=0, r=12, fill='#FF79C6'),
 )
 items.arrange(direction=RIGHT, buff=40)
-items.center_to_pos(960, 750, start_time=0)
+items.center_to_pos(960, 750, start=0)
 items.stagger_fadein(start=5, end=6.5, shift_dir=UP, shift_amount=30, overlap=0.3)
 
 canvas.add_objects(ax, title, circle, rect, items, label2)

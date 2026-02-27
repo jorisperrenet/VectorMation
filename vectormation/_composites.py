@@ -92,7 +92,7 @@ class MorphObject(VCollection):
         obj_from = morphing.Paths(*paths_from)
         obj_to = morphing.Paths(*paths_to)
 
-        mapping = obj_from.morph(obj_to, start_time=start, end_time=end, easing=easing)
+        mapping = obj_from.morph(obj_to, start=start, end=end, easing=easing)
 
         # Compute rotation centre from source/target bounding boxes
         if rotation_degrees != 0:
@@ -850,22 +850,22 @@ class Axes(VCollection):
         self.y_max.set_onward(start, y_max)
         return self
 
-    def animate_x_range(self, start_time, end_time, x_range, **kwargs):
+    def animate_x_range(self, start, end, x_range, **kwargs):
         """Animate the x-axis range to new bounds."""
-        self.x_min.move_to(start_time, end_time, x_range[0], **kwargs)
-        self.x_max.move_to(start_time, end_time, x_range[1], **kwargs)
+        self.x_min.move_to(start, end, x_range[0], **kwargs)
+        self.x_max.move_to(start, end, x_range[1], **kwargs)
         return self
 
-    def animate_y_range(self, start_time, end_time, y_range, **kwargs):
+    def animate_y_range(self, start, end, y_range, **kwargs):
         """Animate the y-axis range to new bounds."""
-        self.y_min.move_to(start_time, end_time, y_range[0], **kwargs)
-        self.y_max.move_to(start_time, end_time, y_range[1], **kwargs)
+        self.y_min.move_to(start, end, y_range[0], **kwargs)
+        self.y_max.move_to(start, end, y_range[1], **kwargs)
         return self
 
-    def set_ranges(self, start_time, end_time, x_range, y_range, **kwargs):
+    def set_ranges(self, start, end, x_range, y_range, **kwargs):
         """Animate both axis ranges to new bounds."""
-        self.animate_x_range(start_time, end_time, x_range, **kwargs)
-        self.animate_y_range(start_time, end_time, y_range, **kwargs)
+        self.animate_x_range(start, end, x_range, **kwargs)
+        self.animate_y_range(start, end, y_range, **kwargs)
         return self
 
     def coords_to_point(self, x, y, time=0):
@@ -5684,7 +5684,7 @@ class NumberPlane(VCollection):
             tsx1, tsy1 = cx + tx1 * unit, cy - ty1 * unit
             seg = Line(x1=sx0, y1=sy0, x2=sx1, y2=sy1,
                        creation=creation_t, z=z_val, **style_kw)
-            seg.shift(dx=0, dy=0, start_time=start, end_time=start)  # anchor
+            seg.shift(dx=0, dy=0, start=start, end=start)  # anchor
             # Animate endpoints
             seg.p1.set(start, end,
                 lambda t, _s=start, _d=dur, _a=(sx0, sy0), _b=(tsx0, tsy0):
@@ -5749,7 +5749,7 @@ class Arrow(VCollection):
         super().__init__(*objects, creation=creation, z=z)
 
 
-    def _update_tip_dynamic(self, start_time):
+    def _update_tip_dynamic(self, start):
         """Set up dynamic arrowhead vertices that follow the shaft endpoints."""
         tl = self._tip_length
         hw = self._tip_width / 2
@@ -5773,34 +5773,34 @@ class Arrow(VCollection):
             _cache[0], _cache[1] = t, result
             return result
 
-        self.tip.vertices[0].set_onward(start_time, lambda t: _cached_geom(t)[0])
-        self.tip.vertices[1].set_onward(start_time, lambda t: _cached_geom(t)[1])
-        self.tip.vertices[2].set_onward(start_time, lambda t: _cached_geom(t)[2])
+        self.tip.vertices[0].set_onward(start, lambda t: _cached_geom(t)[0])
+        self.tip.vertices[1].set_onward(start, lambda t: _cached_geom(t)[1])
+        self.tip.vertices[2].set_onward(start, lambda t: _cached_geom(t)[2])
 
-    def set_start(self, x, y, start_time=0, end_time=None):
+    def set_start(self, x, y, start=0, end=None):
         """Animate the arrow start point.
 
-        If end_time is None, set instantly at start_time.
+        If end is None, set instantly at start.
         Otherwise animate from current position to (x, y).
         """
-        if end_time is None:
-            self.shaft.p1.set_onward(start_time, lambda t: (x, y))
+        if end is None:
+            self.shaft.p1.set_onward(start, lambda t: (x, y))
         else:
-            self.shaft.p1.move_to(start_time, end_time, (x, y))
-        self._update_tip_dynamic(start_time)
+            self.shaft.p1.move_to(start, end, (x, y))
+        self._update_tip_dynamic(start)
         return self
 
-    def set_end(self, x, y, start_time=0, end_time=None):
+    def set_end(self, x, y, start=0, end=None):
         """Animate the arrow end point.
 
-        If end_time is None, set instantly at start_time.
+        If end is None, set instantly at start.
         Otherwise animate from current position to (x, y).
         """
-        if end_time is None:
-            self.shaft.p2.set_onward(start_time, lambda t: (x, y))
+        if end is None:
+            self.shaft.p2.set_onward(start, lambda t: (x, y))
         else:
-            self.shaft.p2.move_to(start_time, end_time, (x, y))
-        self._update_tip_dynamic(start_time)
+            self.shaft.p2.move_to(start, end, (x, y))
+        self._update_tip_dynamic(start)
         return self
 
     def get_start(self, time: float = 0):
@@ -6323,13 +6323,13 @@ class Angle(VCollection):
             self.arc.r.move_to(start, end, new_radius, easing=easing)
         return self
 
-    def shift(self, dx=0, dy=0, start_time: float = 0, end_time: float | None = None, easing=easings.smooth):
+    def shift(self, dx=0, dy=0, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Shift the angle by moving vertex, p1, p2 (label follows automatically)."""
         for c in [self.vertex, self.p1, self.p2]:
-            if end_time is None:
-                c.add_onward(start_time, (dx, dy))
+            if end is None:
+                c.add_onward(start, (dx, dy))
             else:
-                s, e = start_time, end_time
+                s, e = start, end
                 d = max(e - s, 1e-9)
                 c.add_onward(s, lambda t, _s=s, _d=d: (dx * easing((t-_s)/_d), dy * easing((t-_s)/_d)), last_change=e)
         return self
@@ -7096,7 +7096,7 @@ class PieChart(VCollection):
         dur = end - start
         if dur <= 0:
             return self
-        sector.shift(dx=dx, dy=dy, start_time=start, end_time=start + dur / 2, easing=easing)
+        sector.shift(dx=dx, dy=dy, start=start, end=start + dur / 2, easing=easing)
         return self
 
     def explode(self, indices, distance=20, start=0, end=None, easing=None):
@@ -7132,7 +7132,7 @@ class PieChart(VCollection):
             mid_rad = math.radians((sa + ea) / 2)
             dx = distance * math.cos(mid_rad)
             dy = -distance * math.sin(mid_rad)
-            sector.shift(dx=dx, dy=dy, start_time=start, end_time=end, easing=easing or easings.smooth)
+            sector.shift(dx=dx, dy=dy, start=start, end=end, easing=easing or easings.smooth)
         return self
 
     def animate_values(self, new_values, start=0, end=1, easing=easings.smooth):
@@ -7271,7 +7271,7 @@ class DonutChart(VCollection):
         dur = end - start
         if dur <= 0:
             return self
-        sector.shift(dx=dx, dy=dy, start_time=start, end_time=start + dur / 2, easing=easing)
+        sector.shift(dx=dx, dy=dy, start=start, end=start + dur / 2, easing=easing)
         return self
 
     def animate_values(self, new_values, start=0, end=1, easing=easings.smooth):
@@ -7578,11 +7578,11 @@ class BarChart(VCollection):
             target_x = old_xs[new_pos]
             current_x = old_xs[old_idx]
             dx = target_x - current_x
-            bar.shift(dx=dx, dy=0, start_time=start, end_time=end, easing=easing)
+            bar.shift(dx=dx, dy=0, start=start, end=end, easing=easing)
             # Also move the associated label if it exists
             lbl = self._labels[old_idx]
             if lbl is not None:
-                lbl.shift(dx=dx, dy=0, start_time=start, end_time=end, easing=easing)
+                lbl.shift(dx=dx, dy=0, start=start, end=end, easing=easing)
         # Reorder internal lists to match new order
         new_order = [orig_idx for _, orig_idx in indexed]
         self._bars = [self._bars[i] for i in new_order]
@@ -8001,7 +8001,7 @@ class Table(VCollection):
             if new_pos != old_row:
                 dy = ys[new_pos] - ys[old_row]
                 for entry in self.entries[old_row]:
-                    entry.shift(dx=0, dy=dy, start_time=start, end_time=end, easing=easing)
+                    entry.shift(dx=0, dy=dy, start=start, end=end, easing=easing)
         return self
 
     def transpose(self, start=0, end=None, easing=None):
@@ -8046,7 +8046,7 @@ class Table(VCollection):
                 new_cx = x + x_off + r * cw + cw / 2
                 new_cy = y + y_off + c * ch + ch / 2 + fs * TEXT_Y_OFFSET
                 entry.center_to_pos(posx=new_cx, posy=new_cy,
-                                    start_time=start, end_time=end, easing=easing)
+                                    start=start, end=end, easing=easing)
 
         # Rebuild entries grid as transposed
         new_entries = []
@@ -8504,7 +8504,7 @@ def from_svg(element, **styles):
     if tag == 'path':
         obj = Path(element['d'], **_merged_attrs('d', 'transform'))
         if tx or ty:
-            obj.shift(dx=tx, dy=ty, start_time=0)
+            obj.shift(dx=tx, dy=ty, start=0)
         return obj
     elif tag == 'rect':
         rect_x, rect_y = g('x', 0) + tx, g('y', 0) + ty
@@ -9322,7 +9322,7 @@ class ChessBoard(VCollection):
         tc, tr = ord(to_sq[0]) - ord('a'), 8 - int(to_sq[1])
         dx = (tc - fc) * self._cell
         dy = (tr - fr) * self._cell
-        piece.shift(dx=dx, dy=dy, start_time=start, end_time=end, easing=easing)
+        piece.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         # Update piece mapping
         self._pieces[to_sq] = piece
         del self._pieces[from_sq]
@@ -10112,7 +10112,7 @@ class Stamp(VCollection):
             c = deepcopy(template)
             bx, by, bw, bh = c.bbox(creation)
             cx, cy = bx + bw / 2, by + bh / 2
-            c.shift(dx=px - cx, dy=py - cy, start_time=creation)
+            c.shift(dx=px - cx, dy=py - cy, start=creation)
             objects.append(c)
         super().__init__(*objects, creation=creation, z=z)
 
@@ -12122,8 +12122,8 @@ class Array(VCollection):
             bxi = li.bbox(start)[0] + li.bbox(start)[2] / 2
             bxj = lj.bbox(start)[0] + lj.bbox(start)[2] / 2
             dx = bxj - bxi
-            li.shift(dx=dx, start_time=start, end_time=end, easing=easing)
-            lj.shift(dx=-dx, start_time=start, end_time=end, easing=easing)
+            li.shift(dx=dx, start=start, end=end, easing=easing)
+            lj.shift(dx=-dx, start=start, end=end, easing=easing)
             self._labels[i], self._labels[j] = self._labels[j], self._labels[i]
         return self
 
@@ -12184,8 +12184,8 @@ class Stack(VCollection):
                           start_y + self._cell_height / 2,
                           self._font_size, creation=start, z=0.1, fill=self._text_color)
         dy = slot_y - start_y
-        cell.shift(dy=dy, start_time=start, end_time=end, easing=easings.ease_out_back)
-        lbl.shift(dy=dy, start_time=start, end_time=end, easing=easings.ease_out_back)
+        cell.shift(dy=dy, start=start, end=end, easing=easings.ease_out_back)
+        lbl.shift(dy=dy, start=start, end=end, easing=easings.ease_out_back)
         self._items.append((cell, lbl))
         self.objects.extend([cell, lbl])
         return self
@@ -12241,9 +12241,9 @@ class Queue(VCollection):
         lbl = _label_text(str(value), start_cx + self._cell_width / 2,
                           self._y + self._cell_height / 2,
                           self._font_size, creation=start, z=0.1, fill=self._text_color)
-        cell.shift(dx=-self._cell_width, start_time=start, end_time=end,
+        cell.shift(dx=-self._cell_width, start=start, end=end,
                    easing=easings.ease_out_back)
-        lbl.shift(dx=-self._cell_width, start_time=start, end_time=end,
+        lbl.shift(dx=-self._cell_width, start=start, end=end,
                   easing=easings.ease_out_back)
         self._items.append((cell, lbl))
         self.objects.extend([cell, lbl])
@@ -12257,8 +12257,8 @@ class Queue(VCollection):
         cell.fadeout(start=start, end=end, change_existence=True)
         lbl.fadeout(start=start, end=end, change_existence=True)
         for c, l in self._items:
-            c.shift(dx=-self._cell_width, start_time=start, end_time=end, easing=easings.smooth)
-            l.shift(dx=-self._cell_width, start_time=start, end_time=end, easing=easings.smooth)
+            c.shift(dx=-self._cell_width, start=start, end=end, easing=easings.smooth)
+            l.shift(dx=-self._cell_width, start=start, end=end, easing=easings.smooth)
         return self
 
 
@@ -12582,6 +12582,255 @@ class Molecule2D(VCollection):
             self._atom_objects.append(atom_c)
             objects.extend([atom_c, lbl])
         super().__init__(*objects, creation=creation, z=z)
+
+
+class NeuralNetwork(VCollection):
+    """Neural network diagram with layers of neurons connected by edges.
+
+    Parameters
+    ----------
+    layer_sizes : list[int]
+        Number of neurons per layer (e.g. [3, 5, 2]).
+    cx, cy : float
+        Center position.
+    width, height : float
+        Total diagram dimensions.
+    neuron_radius : float
+        Radius of each neuron circle.
+    neuron_fill : str
+        Fill color for neurons.
+    edge_color : str
+        Stroke color for connecting lines.
+    edge_width : float
+        Stroke width for connecting lines.
+    """
+
+    def __init__(self, layer_sizes, cx=960, cy=540, width=800, height=500,
+                 neuron_radius=16, neuron_fill='#58C4DD', edge_color='#888',
+                 edge_width=1, creation=0, z=0, **kwargs):
+        objects = []
+        self._layers = []
+        n_layers = len(layer_sizes)
+        if n_layers < 2:
+            super().__init__(creation=creation, z=z)
+            return
+
+        # Compute neuron positions
+        x_left = cx - width / 2
+        x_spacing = width / (n_layers - 1) if n_layers > 1 else 0
+        layer_positions = []
+        for li, n_neurons in enumerate(layer_sizes):
+            lx = x_left + li * x_spacing
+            y_top = cy - (n_neurons - 1) * (neuron_radius * 3) / 2
+            positions = [(lx, y_top + ni * neuron_radius * 3)
+                         for ni in range(n_neurons)]
+            layer_positions.append(positions)
+
+        # Draw edges first (behind neurons)
+        self._edges = []
+        for li in range(n_layers - 1):
+            for (x1, y1) in layer_positions[li]:
+                for (x2, y2) in layer_positions[li + 1]:
+                    edge = Line(x1, y1, x2, y2, stroke=edge_color,
+                                stroke_width=edge_width, creation=creation, z=z)
+                    objects.append(edge)
+                    self._edges.append(edge)
+
+        # Draw neurons on top
+        for li, positions in enumerate(layer_positions):
+            layer_circles = []
+            for (nx, ny) in positions:
+                neuron = Circle(r=neuron_radius, cx=nx, cy=ny,
+                                fill=neuron_fill, fill_opacity=1,
+                                stroke='#fff', stroke_width=2,
+                                creation=creation, z=z + 0.1)
+                objects.append(neuron)
+                layer_circles.append(neuron)
+            self._layers.append(layer_circles)
+
+        super().__init__(*objects, creation=creation, z=z)
+
+    def label_input(self, labels, font_size=20, buff=30, **kwargs):
+        """Add labels to the left of input neurons."""
+        if not self._layers:
+            return self
+        for neuron, text in zip(self._layers[0], labels):
+            cx, cy = neuron.center(0)
+            lbl = Text(str(text), x=cx - neuron.rx.at_time(0) - buff,
+                       y=cy, font_size=font_size,
+                       text_anchor='end', fill='#fff',
+                       creation=0, **kwargs)
+            self.add(lbl)
+        return self
+
+    def label_output(self, labels, font_size=20, buff=30, **kwargs):
+        """Add labels to the right of output neurons."""
+        if not self._layers:
+            return self
+        for neuron, text in zip(self._layers[-1], labels):
+            cx, cy = neuron.center(0)
+            lbl = Text(str(text), x=cx + neuron.rx.at_time(0) + buff,
+                       y=cy, font_size=font_size,
+                       text_anchor='start', fill='#fff',
+                       creation=0, **kwargs)
+            self.add(lbl)
+        return self
+
+    def activate(self, layer_idx, neuron_idx, start=0, end=1, color='#FFFF00'):
+        """Animate a neuron activation (flash color)."""
+        if 0 <= layer_idx < len(self._layers):
+            layer = self._layers[layer_idx]
+            if 0 <= neuron_idx < len(layer):
+                layer[neuron_idx].flash(start=start, end=end, color=color)
+        return self
+
+    def propagate(self, start=0, duration=2, delay=0.3, color='#FFFF00'):
+        """Animate a forward-propagation signal through the network."""
+        for li, layer in enumerate(self._layers):
+            t = start + li * delay
+            for neuron in layer:
+                neuron.flash(start=t, end=t + duration / len(self._layers),
+                             color=color)
+        return self
+
+
+class Pendulum(VCollection):
+    """Animated pendulum with a pivot, rod, and bob.
+
+    Uses the small-angle approximation or exact solution for animation.
+
+    Parameters
+    ----------
+    pivot_x, pivot_y : float
+        Pivot point position.
+    length : float
+        Rod length in pixels.
+    angle : float
+        Initial angle in degrees from vertical.
+    bob_radius : float
+        Radius of the bob circle.
+    period : float
+        Oscillation period in seconds.
+    damping : float
+        Damping factor (0 = no damping, 1 = fully damped).
+    start, end : float
+        Animation time range.
+    """
+
+    def __init__(self, pivot_x=960, pivot_y=200, length=300, angle=30,
+                 bob_radius=20, period=2.0, damping=0.0,
+                 start=0, end=5, creation=0, z=0, **kwargs):
+        self._pivot_x = pivot_x
+        self._pivot_y = pivot_y
+        self._length = length
+        self._init_angle = math.radians(angle)
+        self._period = period
+        self._damping = damping
+        omega = 2 * math.pi / period
+
+        # Pivot dot
+        pivot = Dot(r=5, cx=pivot_x, cy=pivot_y, fill='#888',
+                    creation=creation, z=z + 0.1)
+
+        # Rod line
+        rod = Line(pivot_x, pivot_y, pivot_x, pivot_y + length,
+                   stroke='#aaa', stroke_width=3, creation=creation, z=z)
+
+        # Bob
+        bob = Circle(r=bob_radius, cx=pivot_x, cy=pivot_y + length,
+                     fill='#58C4DD', fill_opacity=1, stroke='#fff',
+                     stroke_width=2, creation=creation, z=z + 0.2)
+
+        # Animate bob and rod end
+        init_a = self._init_angle
+        damp = damping
+        px, py = pivot_x, pivot_y
+        L = length
+
+        def bob_pos(t):
+            dt = t - start
+            if dt < 0:
+                dt = 0
+            a = init_a * math.exp(-damp * dt) * math.cos(omega * dt)
+            bx = px + L * math.sin(a)
+            by = py + L * math.cos(a)
+            return (bx, by)
+
+        bob.c.set_onward(start, bob_pos)
+        rod.p2.set_onward(start, bob_pos)
+
+        self.pivot = pivot
+        self.rod = rod
+        self.bob = bob
+        super().__init__(rod, pivot, bob, creation=creation, z=z)
+
+
+class StandingWave(VCollection):
+    """Animated standing wave between two fixed points.
+
+    Parameters
+    ----------
+    x1, y1, x2, y2 : float
+        Endpoints of the wave.
+    amplitude : float
+        Maximum displacement in pixels.
+    harmonics : int
+        Number of half-wavelengths (harmonic number).
+    frequency : float
+        Oscillation frequency in Hz.
+    num_points : int
+        Number of sample points along the wave.
+    start, end : float
+        Animation time range.
+    """
+
+    def __init__(self, x1=300, y1=540, x2=1620, y2=540,
+                 amplitude=100, harmonics=3, frequency=1.0, num_points=200,
+                 start=0, end=5, creation=0, z=0, **kwargs):
+        wave_length = math.hypot(x2 - x1, y2 - y1)
+        dx_norm = (x2 - x1) / wave_length if wave_length else 1
+        dy_norm = (y2 - y1) / wave_length if wave_length else 0
+        perp_x, perp_y = -dy_norm, dx_norm
+        omega = 2 * math.pi * frequency
+        k = harmonics * math.pi / wave_length if wave_length else 0
+
+        # Fixed endpoint dots
+        dot1 = Dot(r=6, cx=x1, cy=y1, fill='#888', creation=creation, z=z + 0.1)
+        dot2 = Dot(r=6, cx=x2, cy=y2, fill='#888', creation=creation, z=z + 0.1)
+
+        # Wave path
+        wave = Path('', creation=creation, z=z,
+                    stroke=kwargs.get('stroke', '#58C4DD'),
+                    stroke_width=kwargs.get('stroke_width', 3),
+                    fill_opacity=0)
+
+        _x1, _y1, _a = x1, y1, amplitude
+        _px, _py = perp_x, perp_y
+        _dx, _dy = dx_norm, dy_norm
+        _wl, _np = wave_length, num_points
+        _start = start
+
+        def wave_d(t):
+            dt = t - _start
+            parts = [f'M {_x1:.1f} {_y1:.1f}']
+            for i in range(1, _np):
+                s = i / _np
+                dist = s * _wl
+                bx = _x1 + _dx * dist
+                by = _y1 + _dy * dist
+                disp = _a * math.sin(k * dist) * math.cos(omega * dt)
+                px = bx + _px * disp
+                py = by + _py * disp
+                parts.append(f'L {px:.1f} {py:.1f}')
+            parts.append(f'L {x2:.1f} {y2:.1f}')
+            return ' '.join(parts)
+
+        wave.d.set_onward(start, wave_d)
+
+        self.dot1 = dot1
+        self.dot2 = dot2
+        self.wave = wave
+        super().__init__(wave, dot1, dot2, creation=creation, z=z)
 
 
 def parse_args():

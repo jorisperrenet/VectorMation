@@ -54,7 +54,7 @@ rects = VCollection(
 rects.fadein(4.5, 5)
 
 # Align all rectangles to left edge
-rects.align_submobjects('left', start_time=5.5)
+rects.align_submobjects('left', start=5.5)
 
 canvas.add_objects(ax, title, group, rects)
 

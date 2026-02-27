@@ -33,7 +33,7 @@ for name, cls, color, tx, ty in ops:
     op = cls(ellipse1, ellipse2, fill=color, fill_opacity=0.5, creation=t, stroke_width=10)
     canvas.add_objects(op)
     op.scale(0.4, start=t + 0.5, end=t + 1.3)
-    op.center_to_pos(posx=tx, posy=ty + 100, start_time=t + 0.5, end_time=t + 1.3)
+    op.center_to_pos(posx=tx, posy=ty + 100, start=t + 0.5, end=t + 1.3)
     label = Text(name, x=tx, y=ty - 70, font_size=48, fill='#ddd',
                  stroke_width=0, text_anchor='middle')
     canvas.add_objects(label)
@@ -43,4 +43,4 @@ for name, cls, color, tx, ty in ops:
 if args.verbose:
     canvas.export_video('docs/source/_static/videos/boolean_operations.mp4', fps=30)
 if not args.no_display:
-    canvas.browser_display(start_time=0, end_time=t + 0.5, fps=args.fps, port=args.port, hot_reload=True)
+    canvas.browser_display(start=0, end=t + 0.5, fps=args.fps, port=args.port, hot_reload=True)

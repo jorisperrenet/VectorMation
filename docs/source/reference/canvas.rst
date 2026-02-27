@@ -49,12 +49,12 @@ VectorMathAnim
 
    .. rubric:: Display
 
-   .. py:method:: browser_display(start_time=0, end_time=None, fps=60, port=8765, hot_reload=False)
+   .. py:method:: browser_display(start=0, end=None, fps=60, port=8765, hot_reload=False)
 
       Open a browser-based viewer with real-time playback, zoom, speed control, and keyboard shortcuts.
 
-      :param float start_time: Playback start.
-      :param float end_time: Playback end (``None`` = auto-detect from last animation).
+      :param float start: Playback start.
+      :param float end: Playback end (``None`` = auto-detect from last animation).
       :param int fps: Frames per second.
       :param int port: WebSocket port.
       :param bool hot_reload: Re-run script on file change.
@@ -65,13 +65,13 @@ VectorMathAnim
 
       Export a single PNG frame. Requires ``cairosvg``.
 
-   .. py:method:: export_video(filename='animation.mp4', start_time=0, end_time=None, fps=60, scale=1)
+   .. py:method:: export_video(filename='animation.mp4', start=0, end=None, fps=60, scale=1)
 
       Export an MP4 video. Requires ``cairosvg`` and ``ffmpeg``.
 
       :param int scale: Pixel scale factor (1 = native 1920x1080, 2 = 3840x2160).
 
-   .. py:method:: export_gif(filename='animation.gif', start_time=0, end_time=None, fps=30, scale=1, loop=0)
+   .. py:method:: export_gif(filename='animation.gif', start=0, end=None, fps=30, scale=1, loop=0)
 
       Export an animated GIF. Requires ``cairosvg`` and ``Pillow``.
 

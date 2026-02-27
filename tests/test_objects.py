@@ -1508,7 +1508,7 @@ class TestVCollectionNew:
             Dot(cx=500, cy=500),
             Dot(cx=500, cy=500),
         )
-        dots.distribute_radial(cx=500, cy=500, radius=100, start_time=0)
+        dots.distribute_radial(cx=500, cy=500, radius=100, start=0)
         # After distribution, dots should be at different positions
         positions = [d.c.at_time(0) for d in dots]
         assert positions[0] != positions[1]
@@ -1585,7 +1585,7 @@ class TestVObjectNew:
 
     def test_trail(self):
         d = Dot(cx=100, cy=100)
-        d.shift(dx=200, start_time=0, end_time=1)
+        d.shift(dx=200, start=0, end=1)
         ghosts = d.trail(start=0, end=1, num_copies=3)
         assert len(ghosts) == 3
 
@@ -1760,7 +1760,7 @@ class TestAngle:
 
     def test_shift(self):
         a = Angle(vertex=(100, 100), p1=(200, 100), p2=(100, 0), radius=30)
-        a.shift(dx=50, dy=50, start_time=0)
+        a.shift(dx=50, dy=50, start=0)
         vx, vy = a.vertex.at_time(0)
         assert abs(vx - 150) < 1 and abs(vy - 150) < 1
         p1x, p1y = a.p1.at_time(0)
@@ -2020,7 +2020,7 @@ class TestSurroundingRectangle:
     def test_follow_tracks_target(self):
         c = Circle(r=50, cx=100, cy=100)
         sr = SurroundingRectangle(c, follow=True)
-        c.shift(dx=200, start_time=0, end_time=1, easing=easings.linear)
+        c.shift(dx=200, start=0, end=1, easing=easings.linear)
         # sr should track the shifted position
         x0 = sr.x.at_time(0)
         x1 = sr.x.at_time(1)
@@ -2179,7 +2179,7 @@ class TestAnimationMethods:
 
     def test_move_to_animated(self):
         c = Circle(r=50, cx=100, cy=100)
-        c.move_to(500, 400, start_time=0, end_time=1, easing=easings.linear)
+        c.move_to(500, 400, start=0, end=1, easing=easings.linear)
         cx0, _ = c.center(0)
         cx1, _ = c.center(1)
         assert cx0 == pytest.approx(100, abs=1)
@@ -2504,7 +2504,7 @@ class TestToEdge:
 
     def test_animated(self):
         c = Circle(r=50, cx=500, cy=500)
-        c.to_edge('bottom', start_time=0, end_time=2)
+        c.to_edge('bottom', start=0, end=2)
         assert c.get_y(0) == 500
         assert abs(c.get_y(2) - 962) < 1
 
@@ -2878,7 +2878,7 @@ class TestUnderline:
     def test_follow(self):
         t = Text(text='Move', x=100, y=100)
         u = Underline(t, follow=True)
-        t.move_to(200, 200, start_time=1, end_time=2)
+        t.move_to(200, 200, start=1, end=2)
         svg_at_0 = u.to_svg(0)
         svg_at_2 = u.to_svg(2)
         assert svg_at_0 != svg_at_2
@@ -3777,7 +3777,7 @@ class TestRotateOut:
 
     def test_rotation_increases(self):
         c = Circle(r=50, cx=100, cy=100)
-        c.rotate_out(start=0, end=1, angle=90, easing=easings.linear)
+        c.rotate_out(start=0, end=1, degrees=90, easing=easings.linear)
         rot0 = c.styling.rotation.at_time(0)
         rot_mid = c.styling.rotation.at_time(0.5)
         assert rot0[0] == pytest.approx(0, abs=1)
@@ -5021,19 +5021,19 @@ class TestDiode:
 class TestArrowSetEndpoints:
     def test_set_start(self):
         a = Arrow(100, 100, 500, 500)
-        a.set_start(200, 200, start_time=0)
+        a.set_start(200, 200, start=0)
         svg = a.to_svg(1)
         assert 'line' in svg.lower() or '<path' in svg.lower()
 
     def test_set_end_animated(self):
         a = Arrow(100, 100, 500, 500)
-        a.set_end(600, 600, start_time=0, end_time=1)
+        a.set_end(600, 600, start=0, end=1)
         svg = a.to_svg(0.5)
         assert svg
 
     def test_set_start_animated(self):
         a = Arrow(100, 100, 500, 500)
-        a.set_start(300, 300, start_time=0, end_time=1)
+        a.set_start(300, 300, start=0, end=1)
         svg = a.to_svg(0.5)
         assert svg
         # At t=0.5 the start should be between (100,100) and (300,300)
@@ -5042,14 +5042,14 @@ class TestArrowSetEndpoints:
 
     def test_set_end_instant(self):
         a = Arrow(100, 100, 500, 500)
-        a.set_end(700, 700, start_time=0)
+        a.set_end(700, 700, start=0)
         e = a.get_end(0)
         assert abs(e[0] - 700) < 1
         assert abs(e[1] - 700) < 1
 
     def test_tip_follows_endpoint(self):
         a = Arrow(100, 100, 500, 500)
-        a.set_end(700, 100, start_time=0)
+        a.set_end(700, 100, start=0)
         # Tip vertex 0 should be at the end point
         tip_pt = a.tip.vertices[0].at_time(0)
         assert abs(tip_pt[0] - 700) < 1
@@ -7826,7 +7826,7 @@ class TestFollow:
         follower = Circle(r=20, cx=200, cy=200)
         follower.follow(leader, start=0)
         # Move leader
-        leader.shift(dx=50, dy=60, start_time=0, end_time=1)
+        leader.shift(dx=50, dy=60, start=0, end=1)
         # Trigger the updater at t=1
         follower._run_updaters(1.0)
         fcx, fcy = follower.center(1.0)
@@ -7845,7 +7845,7 @@ class TestFollow:
         leader = Circle(r=30, cx=100, cy=100)
         follower = Circle(r=20, cx=100, cy=100)
         follower.follow(leader, start=0, end=1)
-        leader.shift(dx=100, dy=0, start_time=0, end_time=1)
+        leader.shift(dx=100, dy=0, start=0, end=1)
         # Updater runs at t=0.5 (within range)
         follower._run_updaters(0.5)
         cx_mid, _ = follower.center(0.5)
@@ -9305,14 +9305,14 @@ class TestDissolveOut:
 class TestStampTrail:
     def test_returns_list(self):
         d = Dot(cx=100, cy=100)
-        d.shift(dx=200, start_time=0, end_time=1)
+        d.shift(dx=200, start=0, end=1)
         ghosts = d.stamp_trail(start=0, end=1, count=5)
         assert isinstance(ghosts, list)
         assert len(ghosts) == 5
 
     def test_ghosts_frozen_at_different_positions(self):
         d = Dot(cx=100, cy=100)
-        d.shift(dx=300, start_time=0, end_time=1, easing=easings.linear)
+        d.shift(dx=300, start=0, end=1, easing=easings.linear)
         ghosts = d.stamp_trail(start=0, end=1, count=3)
         # Each ghost should be frozen at a different x position
         xs = [g.c.at_time(1)[0] for g in ghosts]
@@ -9320,14 +9320,14 @@ class TestStampTrail:
 
     def test_ghosts_hidden_before_appearance(self):
         d = Dot(cx=100, cy=100)
-        d.shift(dx=100, start_time=0, end_time=1)
+        d.shift(dx=100, start=0, end=1)
         ghosts = d.stamp_trail(start=0, end=1, count=2)
         # First ghost should be hidden at t=0
         assert ghosts[0].show.at_time(0) == False
 
     def test_ghosts_fade_out(self):
         d = Dot(cx=100, cy=100)
-        d.shift(dx=100, start_time=0, end_time=1)
+        d.shift(dx=100, start=0, end=1)
         ghosts = d.stamp_trail(start=0, end=1, count=2, fade_duration=0.3)
         g = ghosts[0]
         # Ghost should be hidden after fade_duration
@@ -9352,7 +9352,7 @@ class TestStampTrail:
 
     def test_custom_opacity(self):
         d = Dot(cx=100, cy=100)
-        d.shift(dx=100, start_time=0, end_time=1)
+        d.shift(dx=100, start=0, end=1)
         ghosts = d.stamp_trail(start=0, end=1, count=1, opacity=0.8, fade_duration=1.0)
         g = ghosts[0]
         t_appear = 0.5  # (0+1)*(1)/(1+1) = 0.5
@@ -10587,7 +10587,7 @@ class TestDelayAnimation:
         result = c.delay_animation('fadein', delay=1, start=0, end=1)
         assert result is c
 
-    def test_delay_shifts_start_time(self):
+    def test_delay_shifts_start(self):
         c = Circle(r=50, cx=100, cy=100)
         # fadein normally at start=0 makes object visible at t=0
         # with delay=2, the fadein should start at t=2
@@ -10597,11 +10597,11 @@ class TestDelayAnimation:
 
     def test_delay_shift_animation(self):
         c = Circle(r=50, cx=100, cy=100)
-        c.delay_animation('shift', delay=0.5, dx=50, start_time=0, end_time=1)
+        c.delay_animation('shift', delay=0.5, dx=50, start=0, end=1)
         # The shift should start at 0.5, so at t=0 position unchanged
         cx_0 = c.center(0)[0]
         assert cx_0 == pytest.approx(100, abs=1)
-        # Both start_time and end_time shifted by 0.5: [0.5, 1.5]
+        # Both start and end shifted by 0.5: [0.5, 1.5]
         cx_1 = c.center(1.5)[0]
         assert cx_1 == pytest.approx(150, abs=1)
 
@@ -10893,7 +10893,7 @@ class TestConnect:
         r2 = Rectangle(100, 50, x=400, y=100)
         conn = r1.connect(r2, follow=True)
         # Move r1, the connector should follow
-        r1.shift(dx=50, start_time=0)
+        r1.shift(dx=50, start=0)
         p1 = conn.p1.at_time(0)
         r1_right_after = r1.get_edge('right', 0)
         assert abs(p1[0] - r1_right_after[0]) < 1
@@ -11069,7 +11069,7 @@ class TestIsOnScreen:
 
     def test_at_time(self):
         c = Circle(r=50, cx=960, cy=540)
-        c.shift(dx=2000, start_time=0, end_time=1, easing=easings.linear)
+        c.shift(dx=2000, start=0, end=1, easing=easings.linear)
         assert c.is_on_screen(0) is True
         assert c.is_on_screen(1) is False
 
@@ -11449,7 +11449,7 @@ class TestAlwaysNextTo:
         """Self should follow the target when it moves."""
         a = Circle(r=20, cx=100, cy=100)
         b = Circle(r=20, cx=300, cy=300)
-        b.shift(dx=200, dy=0, start_time=0, end_time=1, easing=easings.linear)
+        b.shift(dx=200, dy=0, start=0, end=1, easing=easings.linear)
         a.always_next_to(b, direction=RIGHT, buff=10, start=0)
         a._run_updaters(0)
         pos0 = a.center(0)
@@ -11468,7 +11468,7 @@ class TestAlwaysNextTo:
         bx = b.bbox(0)[0]
         assert ax < bx
 
-    def test_with_end_time(self):
+    def test_with_end(self):
         """Updater should respect end time."""
         a = Circle(r=20, cx=100, cy=100)
         b = Circle(r=20, cx=300, cy=300)
@@ -11524,7 +11524,7 @@ class TestSetColorIf:
         c._run_updaters(0.1)
         assert c.styling.fill.at_time(0.1) == 'rgb(255,0,0)'
 
-    def test_with_end_time(self):
+    def test_with_end(self):
         """Updater should respect end time."""
         c = Circle(r=20, cx=100, cy=100, fill='#ff0000')
         c.set_color_if(lambda t: True, '#00ff00', start=0, end=0.5)
@@ -11866,12 +11866,12 @@ class TestSetClip:
 
 
 class TestAnimatedNextTo:
-    """Tests for VObject.next_to with end_time (animated movement)."""
+    """Tests for VObject.next_to with end (animated movement)."""
 
     def test_next_to_animated_right(self):
         a = Rectangle(100, 50, x=100, y=100)
         b = Rectangle(80, 50, x=0, y=0)
-        b.next_to(a, 'right', start_time=0, end_time=1, easing=easings.linear)
+        b.next_to(a, 'right', start=0, end=1, easing=easings.linear)
         # At time 0, b should still be near its original position
         bx_start, _, _, _ = b.bbox(0)
         # At time 1, b should be to the right of a
@@ -11881,21 +11881,21 @@ class TestAnimatedNextTo:
     def test_next_to_animated_left(self):
         a = Rectangle(100, 50, x=200, y=100)
         b = Rectangle(80, 50, x=500, y=500)
-        b.next_to(a, LEFT, start_time=0, end_time=1, easing=easings.linear)
+        b.next_to(a, LEFT, start=0, end=1, easing=easings.linear)
         bx, _, bw, _ = b.bbox(1)
         assert bx + bw < 200  # b is to the left of a at end
 
     def test_next_to_animated_up(self):
         a = Rectangle(100, 50, x=100, y=200)
         b = Rectangle(100, 30, x=0, y=0)
-        b.next_to(a, UP, start_time=0, end_time=1, easing=easings.linear)
+        b.next_to(a, UP, start=0, end=1, easing=easings.linear)
         _, by, _, bh = b.bbox(1)
         assert by + bh < 200  # b is above a at end
 
     def test_next_to_animated_down(self):
         a = Rectangle(100, 50, x=100, y=100)
         b = Rectangle(100, 30, x=0, y=0)
-        b.next_to(a, DOWN, start_time=0, end_time=1, easing=easings.linear)
+        b.next_to(a, DOWN, start=0, end=1, easing=easings.linear)
         _, by, _, _ = b.bbox(1)
         assert by > 150  # b is below a at end
 
@@ -11903,7 +11903,7 @@ class TestAnimatedNextTo:
         """At time 0.5 with linear easing, position should be halfway."""
         a = Rectangle(100, 50, x=100, y=100)
         b = Rectangle(80, 50, x=0, y=0)
-        b.next_to(a, 'right', start_time=0, end_time=1, easing=easings.linear)
+        b.next_to(a, 'right', start=0, end=1, easing=easings.linear)
         bx_0, _, _, _ = b.bbox(0)
         bx_1, _, _, _ = b.bbox(1)
         bx_mid, _, _, _ = b.bbox(0.5)
@@ -11913,11 +11913,11 @@ class TestAnimatedNextTo:
     def test_next_to_animated_returns_self(self):
         a = Rectangle(100, 50, x=100, y=100)
         b = Rectangle(80, 50, x=0, y=0)
-        result = b.next_to(a, 'right', start_time=0, end_time=1)
+        result = b.next_to(a, 'right', start=0, end=1)
         assert result is b
 
-    def test_next_to_without_end_time_backward_compat(self):
-        """Without end_time, next_to should still work instantly."""
+    def test_next_to_without_end_backward_compat(self):
+        """Without end, next_to should still work instantly."""
         a = Rectangle(100, 50, x=100, y=100)
         b = Rectangle(80, 50, x=0, y=0)
         b.next_to(a, RIGHT)
@@ -11927,7 +11927,7 @@ class TestAnimatedNextTo:
     def test_next_to_animated_with_direction_constant(self):
         a = Rectangle(100, 50, x=100, y=100)
         b = Rectangle(80, 50, x=0, y=0)
-        b.next_to(a, RIGHT, start_time=0, end_time=1, easing=easings.linear)
+        b.next_to(a, RIGHT, start=0, end=1, easing=easings.linear)
         bx, _, _, _ = b.bbox(1)
         assert bx > 200
 
@@ -11935,46 +11935,46 @@ class TestAnimatedNextTo:
         """When easing is not given, center_to_pos uses its default (smooth)."""
         a = Rectangle(100, 50, x=100, y=100)
         b = Rectangle(80, 50, x=0, y=0)
-        b.next_to(a, 'right', start_time=0, end_time=1)
+        b.next_to(a, 'right', start=0, end=1)
         bx, _, _, _ = b.bbox(1)
         assert bx > 200
 
 
 class TestAnimatedAlignTo:
-    """Tests for VObject.align_to with end_time (animated movement)."""
+    """Tests for VObject.align_to with end (animated movement)."""
 
     def test_align_to_animated_left(self):
         a = Rectangle(100, 50, x=200, y=100)
         b = Rectangle(80, 50, x=0, y=0)
-        b.align_to(a, 'left', start_time=0, end_time=1, easing=easings.linear)
+        b.align_to(a, 'left', start=0, end=1, easing=easings.linear)
         bx, _, _, _ = b.bbox(1)
         assert bx == pytest.approx(200)
 
     def test_align_to_animated_right(self):
         a = Rectangle(100, 50, x=200, y=100)
         b = Rectangle(80, 50, x=0, y=0)
-        b.align_to(a, 'right', start_time=0, end_time=1, easing=easings.linear)
+        b.align_to(a, 'right', start=0, end=1, easing=easings.linear)
         bx, _, bw, _ = b.bbox(1)
         assert bx + bw == pytest.approx(300)
 
     def test_align_to_animated_top(self):
         a = Rectangle(100, 50, x=200, y=100)
         b = Rectangle(80, 50, x=0, y=300)
-        b.align_to(a, 'top', start_time=0, end_time=1, easing=easings.linear)
+        b.align_to(a, 'top', start=0, end=1, easing=easings.linear)
         _, by, _, _ = b.bbox(1)
         assert by == pytest.approx(100)
 
     def test_align_to_animated_bottom(self):
         a = Rectangle(100, 50, x=200, y=100)
         b = Rectangle(80, 50, x=0, y=0)
-        b.align_to(a, 'bottom', start_time=0, end_time=1, easing=easings.linear)
+        b.align_to(a, 'bottom', start=0, end=1, easing=easings.linear)
         _, by, _, bh = b.bbox(1)
         assert by + bh == pytest.approx(150)
 
     def test_align_to_animated_midway(self):
         a = Rectangle(100, 50, x=200, y=100)
         b = Rectangle(80, 50, x=0, y=0)
-        b.align_to(a, 'left', start_time=0, end_time=1, easing=easings.linear)
+        b.align_to(a, 'left', start=0, end=1, easing=easings.linear)
         bx_0, _, _, _ = b.bbox(0)
         bx_1, _, _, _ = b.bbox(1)
         bx_mid, _, _, _ = b.bbox(0.5)
@@ -11984,11 +11984,11 @@ class TestAnimatedAlignTo:
     def test_align_to_animated_returns_self(self):
         a = Rectangle(100, 50, x=200, y=100)
         b = Rectangle(80, 50, x=0, y=0)
-        result = b.align_to(a, 'left', start_time=0, end_time=1)
+        result = b.align_to(a, 'left', start=0, end=1)
         assert result is b
 
-    def test_align_to_without_end_time_backward_compat(self):
-        """Without end_time, align_to should still work instantly."""
+    def test_align_to_without_end_backward_compat(self):
+        """Without end, align_to should still work instantly."""
         a = Rectangle(100, 50, x=200, y=100)
         b = Rectangle(80, 50, x=0, y=0)
         b.align_to(a, LEFT)
@@ -11998,6 +11998,6 @@ class TestAnimatedAlignTo:
     def test_align_to_animated_with_direction_constant(self):
         a = Rectangle(100, 50, x=200, y=100)
         b = Rectangle(80, 50, x=0, y=0)
-        b.align_to(a, LEFT, start_time=0, end_time=1, easing=easings.linear)
+        b.align_to(a, LEFT, start=0, end=1, easing=easings.linear)
         bx, _, _, _ = b.bbox(1)
         assert bx == pytest.approx(200)

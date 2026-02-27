@@ -50,4 +50,4 @@ zi.move_source(800, 300, start=2, end=4)
 if args.verbose:
     canvas.export_video('docs/source/_static/videos/zoomed_inset.mp4', fps=30)
 if not args.no_display:
-    canvas.browser_display(start_time=0, end_time=5, fps=args.fps, port=args.port)
+    canvas.browser_display(start=0, end=5, fps=args.fps, port=args.port)

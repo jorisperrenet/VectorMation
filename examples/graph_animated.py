@@ -20,6 +20,6 @@ cos_path = cos_curve.create(start=2.5, end=4.5)
 
 canvas.add_objects(graph, sin_path, cos_path)
 if args.verbose:
-    canvas.export_video('docs/source/_static/videos/graph_animated.mp4', fps=30, end_time=5.5)
+    canvas.export_video('docs/source/_static/videos/graph_animated.mp4', fps=30, end=5.5)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

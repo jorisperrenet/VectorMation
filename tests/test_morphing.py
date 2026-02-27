@@ -106,7 +106,7 @@ class TestPaths:
         p2 = Path(svgpathtools.Line(0+0j, 0+100j))
         paths_from = Paths((p1, s1))
         paths_to = Paths((p2, s2))
-        result = paths_from.morph(paths_to, start_time=0, end_time=1)
+        result = paths_from.morph(paths_to, start=0, end=1)
         assert len(result) >= 1
         # Each element is (path_func, style_from, style_to, group_from)
         for path_func, sf, st, gf in result:

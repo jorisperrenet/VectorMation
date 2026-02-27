@@ -10,7 +10,7 @@ class TestVCollection:
         c1 = Circle(r=50, cx=0, cy=0)
         c2 = Circle(r=50, cx=100, cy=100)
         col = VCollection(c1, c2)
-        col.shift(dx=10, dy=20, start_time=0)
+        col.shift(dx=10, dy=20, start=0)
         p1 = c1.c.at_time(0)
         p2 = c2.c.at_time(0)
         assert p1[0] == pytest.approx(10)
@@ -92,7 +92,7 @@ class TestVCollection:
         c1 = Circle(r=50, cx=0, cy=0)
         col = VCollection(c1)
         col2 = col.copy()
-        col2.shift(dx=100, start_time=0)
+        col2.shift(dx=100, start=0)
         # Original should be unchanged
         assert c1.c.at_time(0)[0] == pytest.approx(0)
 
@@ -434,7 +434,7 @@ class TestApplyFunction:
         c2 = Circle(r=10, cx=0, cy=0)
         col = VCollection(c1, c2)
         # Shift each child by its index * 100
-        col.apply_function(lambda obj, i: obj.shift(dx=i * 100, start_time=0))
+        col.apply_function(lambda obj, i: obj.shift(dx=i * 100, start=0))
         assert c1.c.at_time(0)[0] == pytest.approx(0)
         assert c2.c.at_time(0)[0] == pytest.approx(100)
 
@@ -1145,7 +1145,7 @@ class TestEach:
         c1 = Circle(r=10, cx=0, cy=0)
         c2 = Circle(r=20, cx=100, cy=100)
         col = VCollection(c1, c2)
-        col.each(lambda obj: obj.shift(dx=10, dy=0, start_time=0))
+        col.each(lambda obj: obj.shift(dx=10, dy=0, start=0))
         assert c1.c.at_time(0)[0] == pytest.approx(10)
         assert c2.c.at_time(0)[0] == pytest.approx(110)
 
@@ -1952,13 +1952,13 @@ class TestDistributeAlongArc:
         assert p[1] == pytest.approx(600, abs=5)
 
     def test_animated_version(self):
-        """With end_time, children should animate to their positions."""
+        """With end, children should animate to their positions."""
         c1 = Circle(r=10, cx=500, cy=500)
         c2 = Circle(r=10, cx=500, cy=500)
         col = VCollection(c1, c2)
         col.distribute_along_arc(cx=500, cy=500, radius=200,
                                   start_angle=0, end_angle=math.pi,
-                                  start_time=0, end_time=1, easing=easings.linear)
+                                  start=0, end=1, easing=easings.linear)
         # At t=0, still at original position
         p1_start = c1.c.at_time(0)
         assert p1_start[0] == pytest.approx(500, abs=5)
@@ -2097,7 +2097,7 @@ class TestAlignCenters:
         c1 = Circle(r=10, cx=100, cy=100)
         c2 = Circle(r=10, cx=300, cy=200)
         col = VCollection(c1, c2)
-        col.align_centers(axis='x', value=500, start_time=0, end_time=1, easing=easings.linear)
+        col.align_centers(axis='x', value=500, start=0, end=1, easing=easings.linear)
         # At start, positions should be original
         assert c1.c.at_time(0)[0] == pytest.approx(100, abs=1)
         # At end, positions should be aligned
@@ -3854,14 +3854,14 @@ class TestAnimatedArrangeInGrid:
 
 
 class TestVCollectionAnimatedAlignTo:
-    """Tests for VCollection.align_to with end_time (animated movement)."""
+    """Tests for VCollection.align_to with end (animated movement)."""
 
     def test_align_to_animated_left(self):
         target = Rectangle(100, 50, x=200, y=100)
         c1 = Circle(r=20, cx=0, cy=0)
         c2 = Circle(r=20, cx=50, cy=50)
         col = VCollection(c1, c2)
-        col.align_to(target, 'left', start_time=0, end_time=1, easing=easings.linear)
+        col.align_to(target, 'left', start=0, end=1, easing=easings.linear)
         bx, _, _, _ = col.bbox(1)
         assert bx == pytest.approx(200, abs=1)
 
@@ -3870,17 +3870,17 @@ class TestVCollectionAnimatedAlignTo:
         c1 = Circle(r=20, cx=0, cy=0)
         c2 = Circle(r=20, cx=50, cy=50)
         col = VCollection(c1, c2)
-        col.align_to(target, 'right', start_time=0, end_time=1, easing=easings.linear)
+        col.align_to(target, 'right', start=0, end=1, easing=easings.linear)
         bx, _, bw, _ = col.bbox(1)
         assert bx + bw == pytest.approx(300, abs=1)
 
     def test_align_to_animated_returns_self(self):
         target = Rectangle(100, 50, x=200, y=100)
         col = VCollection(Circle(r=20, cx=0, cy=0))
-        result = col.align_to(target, 'left', start_time=0, end_time=1)
+        result = col.align_to(target, 'left', start=0, end=1)
         assert result is col
 
-    def test_align_to_without_end_time_backward_compat(self):
+    def test_align_to_without_end_backward_compat(self):
         target = Rectangle(100, 50, x=200, y=100)
         c1 = Circle(r=20, cx=0, cy=0)
         col = VCollection(c1)

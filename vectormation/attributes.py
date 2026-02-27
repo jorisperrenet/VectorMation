@@ -166,20 +166,20 @@ class Real:
         self.time_func = lambda t: other.time_func(t)
         self.last_change = other.last_change
 
-    def move_to(self, start_time, end_time, end_val, stay=True, easing=easings.smooth):
+    def move_to(self, start, end, end_val, stay=True, easing=easings.smooth):
         """Animate smoothly from the current value to ``end_val``.
 
         Example: ``real.move_to(0, 1, 10)``
         """
-        start_val = self.time_func(start_time)
+        start_val = self.time_func(start)
         diff = start_val - end_val
-        s, e = start_time, end_time
+        s, e = start, end
         dur = e - s
         if dur <= 0:
             self.set_onward(s, end_val)
         else:
             self.set(s, e, lambda t: diff * (1-easing((t-s)/dur)) + end_val, stay=stay)
-        self.last_change = max(self.last_change, end_time)
+        self.last_change = max(self.last_change, end)
         return self
 
     def apply(self, func):
@@ -281,14 +281,14 @@ class Coor(Real):
         if last_change is not None:
             self.last_change = max(self.last_change, last_change)
 
-    def rotate_around(self, start_time, end_time, pivot_point: tuple | Any, degrees, clockwise=False, stay=True):
+    def rotate_around(self, start, end, pivot_point: tuple | Any, degrees, clockwise=False, stay=True):
         """Rotate the coordinate around a pivot point over time.
 
         Example: ``coor.rotate_around(0, 1, (0, 0), 90)``
         """
         old_func = self.time_func
         sign = -1 if clockwise else 1
-        dur = end_time - start_time
+        dur = end - start
         if dur <= 0:
             return self
         def f(t):
@@ -297,20 +297,20 @@ class Coor(Real):
             dx, dy = now[0] - pp[0], now[1] - pp[1]
             r = math.hypot(dx, dy)
             base_angle = math.atan2(dy, dx)
-            phi = base_angle + sign * math.radians(degrees * (t - start_time) / dur)
+            phi = base_angle + sign * math.radians(degrees * (t - start) / dur)
             return (pp[0] + r * math.cos(phi), pp[1] + r * math.sin(phi))
-        self.set(start_time, end_time, f, stay=stay)
-        self.last_change = end_time
+        self.set(start, end, f, stay=stay)
+        self.last_change = end
         return self
 
-    def move_to(self, start_time, end_time, end_val, stay=True, easing=easings.smooth):
+    def move_to(self, start, end, end_val, stay=True, easing=easings.smooth):
         """Animate smoothly from the current position to ``end_val``.
 
         Example: ``coor.move_to(0, 1, (100, 200))``
         """
-        start_pos = self.time_func(start_time)
+        start_pos = self.time_func(start)
         dx, dy = start_pos[0]-end_val[0], start_pos[1]-end_val[1]
-        s, e = start_time, end_time
+        s, e = start, end
         dur = e - s
         if dur <= 0:
             self.set_onward(s, end_val)
@@ -319,7 +319,7 @@ class Coor(Real):
                 dx * (1-easing((t-s)/dur)) + end_val[0],
                 dy * (1-easing((t-s)/dur)) + end_val[1],
             ), stay=stay)
-        self.last_change = max(self.last_change, end_time)
+        self.last_change = max(self.last_change, end)
         return self
 
     def add(self, start, end, func_inner, lincl=True, rincl=True, stay=False):
@@ -333,7 +333,7 @@ class Coor(Real):
             start, end, lincl, rincl, stay)
         self.last_change = max(self.last_change, end)
 
-    def along_path(self, start_time, end_time, path_d, easing=easings.smooth, stay=True):
+    def along_path(self, start, end, path_d, easing=easings.smooth, stay=True):
         """Move the coordinate along an SVG path string over time.
 
         Example: ``coor.along_path(0, 2, "M 0 0 C 50 0 50 100 100 100")``
@@ -341,7 +341,7 @@ class Coor(Real):
         import svgpathtools
         parsed = svgpathtools.parse_path(path_d)
         total_length = parsed.length()
-        _s, _e = start_time, end_time
+        _s, _e = start, end
         dur = _e - _s
         if dur <= 0:
             return self
@@ -350,7 +350,7 @@ class Coor(Real):
             point = parsed.point(parsed.ilength(progress * total_length))  # type: ignore[operator]
             return (point.real, point.imag)
         self.set(_s, _e, position_at, stay=stay)
-        self.last_change = max(self.last_change, end_time)
+        self.last_change = max(self.last_change, end)
         return self
 
 
