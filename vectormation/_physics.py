@@ -79,6 +79,9 @@ class Body:
         """Accumulate a torque for the current step."""
         self.torque += torque
 
+    def __repr__(self):
+        return f'Body(x={self.x:.0f}, y={self.y:.0f}, mass={self.mass})'
+
 
 class Wall:
     """An axis-aligned infinite wall for collision."""
@@ -89,6 +92,11 @@ class Wall:
         self.x = x  # vertical wall at x
         self.y = y  # horizontal wall at y
         self.restitution = restitution
+
+    def __repr__(self):
+        if self.x is not None:
+            return f'Wall(x={self.x})'
+        return f'Wall(y={self.y})'
 
 
 class Spring:
@@ -116,6 +124,9 @@ class Spring:
         if rest_length is None:
             rest_length = math.hypot(bx - ax, by - ay)
         self.rest_length = rest_length
+
+    def __repr__(self):
+        return f'Spring(k={self.stiffness}, rest={self.rest_length:.0f})'
 
 
 class PhysicsSpace:
@@ -192,6 +203,9 @@ class PhysicsSpace:
         """Add a global force function ``func(body, t) -> (fx, fy)``."""
         self._forces.append(func)
         return self
+
+    def __repr__(self):
+        return f'PhysicsSpace({len(self.bodies)} bodies, {len(self.walls)} walls, {len(self.springs)} springs)'
 
     # ── Simulation ──────────────────────────────────────────────────
 
@@ -406,6 +420,9 @@ class Cloth:
     def objects(self):
         """Return all VObjects for adding to the canvas."""
         return list(self._lines) + [b.obj for row in self._bodies for b in row]
+
+    def __repr__(self):
+        return f'Cloth({self.cols}x{self.rows})'
 
 
 # ── Internal helpers ────────────────────────────────────────────────

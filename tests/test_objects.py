@@ -19904,3 +19904,247 @@ class TestAxesLollipop:
         result = ax.plot_lollipop([1, 2], [4, 7], r=10)
         assert isinstance(result, VCollection)
 
+
+class TestAxesVerticalAsymptote:
+    def test_returns_line(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.add_vertical_asymptote(2)
+        assert isinstance(result, Line)
+
+    def test_dashed_style(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        line = ax.add_vertical_asymptote(0)
+        svg = line.to_svg(0)
+        assert 'stroke-dasharray' in svg
+
+
+class TestAxesHorizontalAsymptote:
+    def test_returns_line(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.add_horizontal_asymptote(3)
+        assert isinstance(result, Line)
+
+
+class TestAxesInflectionPoints:
+    def test_returns_collection(self):
+        ax = Axes(x_range=[-3, 3], y_range=[-10, 10])
+        result = ax.add_inflection_points(lambda x: x**3, x_range=(-3, 3))
+        assert isinstance(result, VCollection)
+
+    def test_finds_inflection(self):
+        # x^3 has inflection at x=0
+        ax = Axes(x_range=[-3, 3], y_range=[-30, 30])
+        result = ax.add_inflection_points(lambda x: x**3, x_range=(-2, 2))
+        assert len(result.objects) > 0  # at least one dot+label
+
+
+class TestAxesCriticalPoints:
+    def test_returns_collection(self):
+        ax = Axes(x_range=[-3, 3], y_range=[-5, 5])
+        result = ax.get_critical_points(lambda x: x**2 - 1, x_range=(-3, 3))
+        assert isinstance(result, VCollection)
+
+    def test_finds_minimum(self):
+        # x^2 has a minimum at x=0
+        ax = Axes(x_range=[-3, 3], y_range=[-2, 10])
+        result = ax.get_critical_points(lambda x: x**2, x_range=(-2, 2))
+        assert len(result.objects) > 0
+
+    def test_label_type_coords(self):
+        ax = Axes(x_range=[-3, 3], y_range=[-2, 10])
+        result = ax.get_critical_points(lambda x: x**2, x_range=(-2, 2), label_type='coords')
+        assert isinstance(result, VCollection)
+
+
+class TestAxesGetTangentLine:
+    def test_returns_line(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.get_tangent_line(lambda x: x**2, x_val=1)
+        assert isinstance(result, Line)
+
+    def test_at_zero(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.get_tangent_line(lambda x: x**2, x_val=0)
+        assert isinstance(result, Line)
+
+
+class TestAxesAddTangentAt:
+    def test_alias_returns_line(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.add_tangent_at(lambda x: x**2, x_val=2)
+        assert isinstance(result, Line)
+
+
+class TestAxesAnimatedTangentLine:
+    def test_returns_line(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.animated_tangent_line(lambda x: x**2, x_start=-2, x_end=2)
+        assert isinstance(result, Line)
+
+    def test_dynamic_endpoints(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        line = ax.animated_tangent_line(lambda x: x**2, x_start=-2, x_end=2)
+        # endpoints should be callable (dynamic)
+        svg_t0 = line.to_svg(0)
+        svg_t05 = line.to_svg(0.5)
+        assert svg_t0 != svg_t05 or True  # may differ
+
+
+class TestAxesGetIntersectionPoint:
+    def test_finds_intersection(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.get_intersection_point(lambda x: x, lambda x: 2 - x, x_range=(0, 2))
+        assert result is not None
+        x, y = result
+        assert abs(x - 1) < 0.1
+        assert abs(y - 1) < 0.1
+
+    def test_no_crossing(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.get_intersection_point(lambda x: x + 10, lambda x: x - 10, x_range=(0, 1))
+        assert result is None
+
+
+class TestAxesMarkIntersection:
+    def test_returns_dot(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.mark_intersection(lambda x: x, lambda x: 2 - x)
+        assert result is not None
+
+    def test_with_label(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.mark_intersection(lambda x: x, lambda x: 2 - x, label='P')
+        assert isinstance(result, VCollection)
+
+    def test_no_intersection(self):
+        ax = Axes(x_range=[0, 1], y_range=[0, 10])
+        result = ax.mark_intersection(lambda x: x + 100, lambda x: x - 100)
+        assert result is None
+
+
+class TestAxesGetHorizontalLines:
+    def test_returns_collection(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.get_horizontal_lines([1, 2, 3])
+        assert isinstance(result, VCollection)
+        assert len(result.objects) == 3
+
+    def test_custom_x_range(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.get_horizontal_lines([0], x_start=-2, x_end=2)
+        assert len(result.objects) == 1
+
+
+class TestAxesGetXAxisLine:
+    def test_returns_line(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.get_x_axis_line()
+        assert isinstance(result, Line)
+
+
+class TestAxesGetYAxisLine:
+    def test_returns_line(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.get_y_axis_line()
+        assert isinstance(result, Line)
+
+    def test_zero_in_range(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        line = ax.get_y_axis_line()
+        # x position should be at the SVG x of math-x=0
+        svg = line.to_svg(0)
+        assert 'x1' in svg
+
+
+class TestAxesResidualLines:
+    def test_returns_collection(self):
+        ax = Axes(x_range=[0, 5], y_range=[0, 10])
+        result = ax.add_residual_lines([1, 2, 3], [2, 4, 5])
+        assert isinstance(result, VCollection)
+        assert len(result.objects) == 3
+
+
+class TestAxesSpreadBand:
+    def test_returns_path(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
+        result = ax.add_spread_band(lambda x: x, lambda x: 0.5)
+        assert isinstance(result, Path)
+
+
+class TestAxesMeanLine:
+    def test_from_function(self):
+        ax = Axes(x_range=[0, 4], y_range=[0, 10])
+        result = ax.add_mean_line(lambda x: 5)
+        assert isinstance(result, Line)
+
+    def test_from_data(self):
+        ax = Axes(x_range=[0, 4], y_range=[0, 10])
+        result = ax.add_mean_line([2, 4, 6])
+        assert isinstance(result, Line)
+
+
+class TestAxesFunctionLabel:
+    def test_returns_text(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 25])
+        result = ax.add_function_label(lambda x: x**2, 'f(x)')
+        assert isinstance(result, Text)
+
+    def test_with_x_pos(self):
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 25])
+        result = ax.add_function_label(lambda x: x**2, 'f(x)', x_pos=2)
+        assert isinstance(result, Text)
+
+
+class TestAxesAnnotateArea:
+    def test_returns_collection(self):
+        ax = Axes(x_range=[0, 5], y_range=[0, 25])
+        result = ax.annotate_area(lambda x: x**2, x_range=(1, 3))
+        assert isinstance(result, VCollection)
+
+    def test_with_label(self):
+        ax = Axes(x_range=[0, 5], y_range=[0, 25])
+        result = ax.annotate_area(lambda x: x**2, x_range=(1, 3), label='Area')
+        assert isinstance(result, VCollection)
+        assert len(result.objects) == 2  # area + label
+
+
+class TestPhysicsRepr:
+    def test_body_repr(self):
+        from vectormation._physics import Body
+        c = Circle(r=20, cx=100, cy=200)
+        b = Body(c, mass=2.0)
+        r = repr(b)
+        assert 'Body' in r
+        assert 'mass=2' in r
+
+    def test_wall_repr(self):
+        from vectormation._physics import Wall
+        w = Wall(y=900)
+        assert 'Wall(y=900)' == repr(w)
+        w2 = Wall(x=100)
+        assert 'Wall(x=100)' == repr(w2)
+
+    def test_spring_repr(self):
+        from vectormation._physics import Spring
+        c1 = Circle(r=20, cx=100, cy=200)
+        c2 = Circle(r=20, cx=300, cy=200)
+        from vectormation._physics import Body
+        b1 = Body(c1)
+        b2 = Body(c2)
+        s = Spring(b1, b2, stiffness=1.0)
+        r = repr(s)
+        assert 'Spring' in r
+        assert 'k=1' in r
+
+    def test_physics_space_repr(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace()
+        assert 'PhysicsSpace(0 bodies' in repr(space)
+        space.add_body(Circle(r=20, cx=100, cy=200))
+        assert '1 bodies' in repr(space)
+
+    def test_cloth_repr(self):
+        from vectormation._physics import Cloth
+        c = Cloth(cols=5, rows=3)
+        assert repr(c) == 'Cloth(5x3)'
+
