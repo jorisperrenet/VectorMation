@@ -182,8 +182,8 @@ class Paths:
             style_from = self.stylings[fi] if fi is not None else other.stylings[ti]
             style_to = other.stylings[ti] if ti is not None else self.stylings[fi]
 
-            subs_from = [Path(*p._segments) for p in path_from.continuous_subpaths()] if len(path_from) > 0 else []  # type: ignore[attr-defined]
-            subs_to = [Path(*p._segments) for p in path_to.continuous_subpaths()] if len(path_to) > 0 else []  # type: ignore[attr-defined]
+            subs_from = [Path(*p._segments) for p in path_from.continuous_subpaths()] if path_from else []  # type: ignore[attr-defined]
+            subs_to = [Path(*p._segments) for p in path_to.continuous_subpaths()] if path_to else []  # type: ignore[attr-defined]
 
             if not subs_from and not subs_to:
                 continue

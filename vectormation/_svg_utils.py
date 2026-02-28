@@ -315,7 +315,7 @@ def from_svg(element, **styles):
         content = element.get_text(strip=True)
         kw = _merged_attrs('x', 'y', 'font-size', 'text-anchor', 'transform')
         fs = float(element.get('font-size', inline.get('font-size', 48)))
-        anchor = element.get('text-anchor', inline.get('text-anchor', None))
+        anchor = element.get('text-anchor', inline.get('text-anchor'))
         return Text(text=content, x=g('x', ORIGIN[0]) + tx,
                     y=g('y', ORIGIN[1]) + ty,
                     font_size=fs, text_anchor=anchor, **kw)

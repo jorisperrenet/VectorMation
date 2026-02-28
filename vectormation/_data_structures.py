@@ -154,7 +154,7 @@ class Stack(VCollection):
 
     def __repr__(self): return f'Stack({len(self._items)} items)'
     def peek(self): return self._items[-1][1].text.at_time(0) if self._items else None
-    def is_empty(self): return len(self._items) == 0
+    def is_empty(self): return not self._items
 
     def push(self, value, start=0, end=0.5):
         """Animate pushing a value onto the stack."""
@@ -199,7 +199,7 @@ class Queue(VCollection):
 
     def __repr__(self): return f'Queue({len(self._items)} items)'
     def peek(self): return self._items[0][1].text.at_time(0) if self._items else None
-    def is_empty(self): return len(self._items) == 0
+    def is_empty(self): return not self._items
 
     def enqueue(self, value, start=0, end=0.5):
         """Animate adding a value to the back of the queue."""

@@ -19224,3 +19224,54 @@ class TestTiltTowardsAnim:
         rot = c.styling.rotation.at_time(0.5)
         assert rot[0] != 0  # some rotation applied
 
+
+class TestScaleInPlaceAnim:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.scale_in_place(2, start=0, end=1) is c
+
+    def test_scale_changes_size(self):
+        c = Circle()
+        w0 = c.get_width(0)
+        c.scale_in_place(2, start=0, end=1)
+        w1 = c.get_width(1)
+        assert w1 > w0
+
+    def test_center_preserved(self):
+        c = Circle().center_to_pos(500, 300)
+        cx0, cy0 = c.get_x(0), c.get_y(0)
+        c.scale_in_place(3, start=0, end=1)
+        cx1, cy1 = c.get_x(1), c.get_y(1)
+        assert abs(cx1 - cx0) < 2
+        assert abs(cy1 - cy0) < 2
+
+
+class TestPassingFlashAnim:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.passing_flash(start=0, end=1) is c
+
+    def test_sets_dasharray(self):
+        c = Circle()
+        c.passing_flash(start=0, end=1)
+        da = c.styling.stroke_dasharray.at_time(0.5)
+        assert da != 'none' and da != ''
+
+    def test_hidden_after_end(self):
+        c = Circle()
+        c.passing_flash(start=0, end=1)
+        assert not c.show.at_time(1.5)
+
+    def test_color_override(self):
+        c = Circle()
+        c.passing_flash(start=0, end=1, color='#ff0000')
+        stroke = c.styling.stroke.at_time(0.5)
+        assert '255' in str(stroke)  # red component present
+
+    def test_zero_duration_noop(self):
+        c = Circle()
+        c.passing_flash(start=1, end=1)
+        # should be a no-op, dasharray unchanged
+        da = c.styling.stroke_dasharray.at_time(0.5)
+        assert da == 'none' or da == ''
+
