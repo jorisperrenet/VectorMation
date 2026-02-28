@@ -281,15 +281,15 @@ class NeuralNetwork(VCollection):
         sizes = [len(l) for l in self._layers]
         return f'NeuralNetwork({sizes})'
 
-    def _label_layer(self, layer_idx, labels, sign, anchor, font_size=20, buff=30, **kwargs):
+    def _label_layer(self, layer_idx, labels, sign, anchor, font_size=20, buff=30, creation=0, **kwargs):
         """Add labels to one side of a neuron layer."""
         if not self._layers:
             return self
         for neuron, text in zip(self._layers[layer_idx], labels):
-            cx, cy = neuron.center(0)
-            self.add(Text(str(text), x=cx + sign * (neuron.rx.at_time(0) + buff),
+            cx, cy = neuron.center(creation)
+            self.add(Text(str(text), x=cx + sign * (neuron.rx.at_time(creation) + buff),
                           y=cy, font_size=font_size, text_anchor=anchor,
-                          fill='#fff', creation=0, **kwargs))
+                          fill='#fff', creation=creation, **kwargs))
         return self
 
     def label_input(self, labels, font_size=20, buff=30, **kwargs):

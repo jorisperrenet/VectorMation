@@ -208,10 +208,8 @@ class Code(VCollection):
     def reveal_lines(self, start=0, end=1, overlap=0.5):
         """Reveal code lines sequentially with staggered fadein."""
         n = self._num_lines
-        if n == 0:
-            return self
         dur = end - start
-        if dur <= 0 or n == 0:
+        if n == 0 or dur <= 0:
             return self
         # Each line gets a slot; with overlap, the effective step between
         # consecutive line starts shrinks.

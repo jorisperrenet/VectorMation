@@ -343,14 +343,18 @@ class VectorMathAnim:
             for t in self.sections:
                 if t > self.time + 1e-9:  # type: ignore[operator]
                     self.time = t
-                    self.frame_count = round((t - self.start_anim) / self.dt)  # type: ignore[operator]
+                    self._sync_frame_count()
                     self.animate = False
                     break
+
+    def _sync_frame_count(self):
+        """Update frame_count from current time."""
+        self.frame_count = round((self.time - self.start_anim) / self.dt)  # type: ignore[operator]
 
     def _handle_step(self, msg, direction=1):
         self.animate = False
         self.time = max(self.start_anim, min(self.time + direction * self.dt, self.end_anim))  # type: ignore[type-var,operator]
-        self.frame_count = round((self.time - self.start_anim) / self.dt)  # type: ignore[operator]
+        self._sync_frame_count()
 
     def _handle_speed(self, msg):
         self.speed_multiplier = max(0.1, msg.get('value', 1.0))
@@ -365,7 +369,7 @@ class VectorMathAnim:
         pct = max(0.0, min(1.0, msg.get('percentage', 0.0)))
         duration = self.end_anim - self.start_anim  # type: ignore[operator]
         self.time = self.start_anim + pct * duration  # type: ignore[operator]
-        self.frame_count = round(pct * duration / self.dt)
+        self._sync_frame_count()
         logger.info('Jumped to %.0f%%', pct * 100)
 
     _control_handlers = {

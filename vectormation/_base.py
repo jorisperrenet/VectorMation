@@ -1340,13 +1340,13 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        self._ensure_scale_origin(start)
+        sx0, sy0 = self._init_scale_anim(start)
         _s, _d, _sf, _p = start, max(dur, 1e-9), scale_factor, pulses
         def _make_pulse(s0):
-            return lambda t, _s=_s, _d=_d, _sf=_sf, _p=_p, _s0=s0, _easing=easing: \
-                _s0 * (1 + (_sf - 1) * abs(math.sin(math.pi * _p * _easing((t - _s) / _d))))
-        self.styling.scale_x.set(start, end, _make_pulse(self.styling.scale_x.at_time(start)))
-        self.styling.scale_y.set(start, end, _make_pulse(self.styling.scale_y.at_time(start)))
+            return lambda t, _s=_s, _d=_d, _sf=_sf, _p=_p, _s0=s0, _e=easing: \
+                _s0 * (1 + (_sf - 1) * abs(math.sin(math.pi * _p * _e((t - _s) / _d))))
+        self.styling.scale_x.set(start, end, _make_pulse(sx0))
+        self.styling.scale_y.set(start, end, _make_pulse(sy0))
         return self
 
     def pulse_scale(self, start: float = 0, end: float = 1, count=2, amplitude=0.15, easing=easings.smooth):
