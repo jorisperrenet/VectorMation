@@ -1836,6 +1836,29 @@ class TestTrace:
         assert r.startswith('Trace(')
         assert 'points' in r
 
+    def test_vertices_returns_sampled_points(self):
+        p = Coor(0, (50, 60))
+        p.move_to(0, 1, (150, 160))
+        t = Trace(p, start=0, end=1, dt=0.25)
+        verts = t.vertices(1.0)
+        assert len(verts) == 4
+        # First vertex at t=0
+        assert verts[0][0] == pytest.approx(50)
+        assert verts[0][1] == pytest.approx(60)
+
+    def test_vertices_empty_before_start(self):
+        p = Coor(0, (0, 0))
+        t = Trace(p, start=1, end=2, dt=0.1)
+        verts = t.vertices(0.5)
+        assert verts == []
+
+    def test_vertices_cached(self):
+        p = Coor(0, (100, 200))
+        t = Trace(p, start=0, end=1, dt=0.25)
+        v1 = t.vertices(0.5)
+        v2 = t.vertices(0.5)
+        assert v1 == v2
+
 
 class TestCountAnimation:
     def test_count_creates(self):

@@ -9,6 +9,7 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
 from vectormation._constants import CANVAS_WIDTH, CANVAS_HEIGHT
+from vectormation._base_helpers import _ramp
 
 logger = logging.getLogger('vectormation')
 
@@ -69,8 +70,8 @@ class VectorMathAnim:
         dur = end - start
         if dur <= 0:
             return self
-        self.vb_x.add_onward(start, lambda t, _s=start, _d=dur: dx * easing((t-_s)/_d), last_change=end)
-        self.vb_y.add_onward(start, lambda t, _s=start, _d=dur: dy * easing((t-_s)/_d), last_change=end)
+        self.vb_x.add_onward(start, _ramp(start, dur, dx, easing), last_change=end)
+        self.vb_y.add_onward(start, _ramp(start, dur, dy, easing), last_change=end)
         return self
 
     def _animate_viewbox(self, start, end, x, y, w, h, easing):
