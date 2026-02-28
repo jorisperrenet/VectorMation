@@ -1301,10 +1301,8 @@ class Axes(_AxesExtMixin, VCollection):
             lbl = Text(text=str(label), x=lx, y=ly, font_size=font_size,
                        fill=dot_color, stroke_width=0, creation=creation, z=z)
             _ox, _oy = label_offset
-            lbl.x.set_onward(creation,
-                lambda t, _x=x, _y=y, _ox=_ox: self.coords_to_point(_x, _y, t)[0] + _ox)
-            lbl.y.set_onward(creation,
-                lambda t, _x=x, _y=y, _oy=_oy: self.coords_to_point(_x, _y, t)[1] + _oy)
+            lbl.x.set_onward(creation, self._xf(x, y, _ox))
+            lbl.y.set_onward(creation, self._yf(y, x, _oy))
             self._add_plot_obj(lbl)
         return dot, lbl
 
@@ -1378,10 +1376,8 @@ class Axes(_AxesExtMixin, VCollection):
             lbl = Text(text=str(label), x=lx, y=ly, font_size=font_size,
                        fill=label_color, stroke_width=0, text_anchor=anchor,
                        creation=creation, z=z)
-            lbl.x.set_onward(creation,
-                lambda t, _x=x, _y=y, _ox=ox: self.coords_to_point(_x, _y, t)[0] + _ox)
-            lbl.y.set_onward(creation,
-                lambda t, _x=x, _y=y, _oy=oy: self.coords_to_point(_x, _y, t)[1] + _oy)
+            lbl.x.set_onward(creation, self._xf(x, y, ox))
+            lbl.y.set_onward(creation, self._yf(y, x, oy))
             self._add_plot_obj(lbl)
             objs.append(lbl)
         return VCollection(*objs, creation=creation, z=z)
@@ -1774,11 +1770,8 @@ class Axes(_AxesExtMixin, VCollection):
         sx, sy = self.coords_to_point(cx_math, cy_math, creation)
         lbl = Text(text=label_text, x=sx, y=sy, font_size=font_size,
                     text_anchor='middle', creation=creation, z=z, **style_kw)
-        _cx, _cy = cx_math, cy_math
-        lbl.x.set_onward(creation,
-            lambda t, _cx=_cx, _cy=_cy: self.coords_to_point(_cx, _cy, t)[0])
-        lbl.y.set_onward(creation,
-            lambda t, _cx=_cx, _cy=_cy: self.coords_to_point(_cx, _cy, t)[1])
+        lbl.x.set_onward(creation, self._xf(cx_math, cy_math))
+        lbl.y.set_onward(creation, self._yf(cy_math, cx_math))
         self._add_plot_obj(lbl)
         return lbl
 

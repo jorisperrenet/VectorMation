@@ -947,9 +947,8 @@ class MindMap(VCollection):
             if grandchildren:
                 gn = len(grandchildren)
                 spread = math.pi * 0.6
-                base_angle = angle - spread / 2
                 for j, (gc_label, _) in enumerate(grandchildren):
-                    ga = base_angle + spread * j / max(gn - 1, 1)
+                    ga = angle if gn == 1 else angle - spread / 2 + spread * j / (gn - 1)
                     gx = bx + radius * 0.5 * math.cos(ga)
                     gy = by + radius * 0.5 * math.sin(ga)
                     gl = Line(x1=bx, y1=by, x2=gx, y2=gy, stroke=color,
