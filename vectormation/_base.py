@@ -1752,11 +1752,11 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             return self
         _s, _d, _a, _freq = start, max(dur, 1e-9), amplitude, frequency
         def _dx(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
-            progress = (t - _s) / _d
-            return _a * math.sin(_freq * math.tau * progress) * _easing(progress)
+            p = (t - _s) / _d
+            return _a * math.sin(math.tau * _freq * p) * _easing(p)
         def _dy(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
-            progress = (t - _s) / _d
-            return _a * math.cos(_freq * 2.7 * math.pi * progress) * _easing(progress)
+            p = (t - _s) / _d
+            return _a * math.cos(2.7 * math.pi * _freq * p) * _easing(p)
         return self._apply_shift_effect(start, end, _dx, _dy)
 
     def undulate(self, start: float = 0, end: float = 1, amplitude=0.15, waves=2, easing=easings.smooth):

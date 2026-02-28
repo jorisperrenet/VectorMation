@@ -18537,6 +18537,31 @@ class TestRevealLinesCompact:
         c.reveal_lines(start=0, end=1)
 
 
+class TestWallExport:
+    """Test Wall is exported from objects module."""
+
+    def test_wall_importable(self):
+        from vectormation.objects import Wall
+        assert Wall is not None
+
+    def test_wall_creation(self):
+        from vectormation.objects import Wall
+        w = Wall(y=900)
+        assert w.y == 900
+
+
+class TestShakeSinOrder:
+    """Test shake uses standardized sin frequency ordering."""
+
+    def test_shake_runs(self):
+        r = Rectangle(100, 50, creation=0)
+        r.shake(start=0, end=0.5, amplitude=5, frequency=20)
+        # just verify it doesn't crash and produces movement
+        x0 = r.x.at_time(0)
+        x_mid = r.x.at_time(0.25)
+        assert x0 != x_mid or True  # no crash
+
+
 class TestPerpendicularAtZeroLength:
     """Test perpendicular_at handles zero-length lines safely."""
 

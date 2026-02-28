@@ -130,4 +130,4 @@ from vectormation._threed import (
     Tetrahedron, Octahedron, Icosahedron, Dodecahedron,
 )
 
-from vectormation._physics import PhysicsSpace, Body, Spring, Cloth
+from vectormation._physics import PhysicsSpace, Body, Spring, Cloth, Wall

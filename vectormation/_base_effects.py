@@ -138,9 +138,9 @@ class _VObjectEffectsMixin:
         _s, _d, _freq, _mo = start, max(end - start, 1e-9), frequency, min_opacity
         def _opacity(t, _s=_s, _d=_d, _freq=_freq, _mo=_mo, _e=easing):
             p = (t - _s) / _d
-            flicker = (math.sin(_freq * math.tau * p) *
-                       math.sin(_freq * 3.7 * math.pi * p) *
-                       math.sin(_freq * 5.3 * math.pi * p))
+            flicker = (math.sin(math.tau * _freq * p) *
+                       math.sin(3.7 * math.pi * _freq * p) *
+                       math.sin(5.3 * math.pi * _freq * p))
             depth = (1 - _mo) * max(0, -flicker) * (1 - _e(p))
             return 1 - depth
         self.styling.opacity.set(start, end, _opacity, stay=True)
