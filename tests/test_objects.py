@@ -16325,3 +16325,295 @@ class TestBoxPlotComprehensive:
         q3 = s[3 * n // 4]
         assert q1 <= med <= q3
 
+
+# ---- Additional chart class tests ----
+
+class TestWaterfallChart:
+    def test_basic_construction(self):
+        wc = WaterfallChart([100, -30, 50, -20], labels=['Q1', 'Q2', 'Q3', 'Q4'])
+        svg = wc.to_svg(0)
+        assert 'rect' in svg
+        assert 'Q1' in svg
+
+    def test_empty_values(self):
+        wc = WaterfallChart([])
+        assert len(wc) == 0
+
+    def test_show_total(self):
+        wc = WaterfallChart([10, 20, -5], show_total=True)
+        svg = wc.to_svg(0)
+        assert 'Total' in svg
+
+    def test_no_total(self):
+        wc = WaterfallChart([10, 20], show_total=False)
+        svg = wc.to_svg(0)
+        assert 'Total' not in svg
+
+
+class TestSparkLine:
+    def test_renders_path(self):
+        sl = SparkLine(data=[1, 3, 2, 5, 4], x=100, y=100, width=200, height=40)
+        svg = sl.to_svg(0)
+        assert '<path' in svg
+        assert 'M' in svg
+
+    def test_single_point(self):
+        sl = SparkLine(data=[5])
+        svg = sl.to_svg(0)
+        assert len(svg) < 20  # empty or minimal wrapper
+
+    def test_endpoint(self):
+        sl = SparkLine(data=[1, 2, 3], show_endpoint=True)
+        svg = sl.to_svg(0)
+        assert '<circle' in svg
+
+    def test_repr(self):
+        sl = SparkLine(data=[1, 2])
+        assert repr(sl) == 'SparkLine()'
+
+
+class TestKPICard:
+    def test_basic(self):
+        kpi = KPICard(title='Revenue', value='$1.2M')
+        svg = kpi.to_svg(0)
+        assert 'Revenue' in svg
+        assert '$1.2M' in svg
+
+    def test_with_subtitle(self):
+        kpi = KPICard(title='Users', value='10K', subtitle='+5% MoM')
+        svg = kpi.to_svg(0)
+        assert '+5% MoM' in svg
+
+    def test_with_trend(self):
+        kpi = KPICard(title='Revenue', value='$1M', trend_data=[1, 3, 2, 5])
+        svg = kpi.to_svg(0)
+        assert '<path' in svg
+
+
+class TestBulletChart:
+    def test_basic(self):
+        bc = BulletChart(actual=75, target=90)
+        svg = bc.to_svg(0)
+        assert 'rect' in svg
+
+    def test_with_label(self):
+        bc = BulletChart(actual=50, target=80, label='Performance')
+        svg = bc.to_svg(0)
+        assert 'Performance' in svg
+
+
+class TestCalendarHeatmap:
+    def test_basic(self):
+        data = list(range(100))
+        ch = CalendarHeatmap(data, rows=7, cols=15)
+        svg = ch.to_svg(0)
+        assert 'rect' in svg
+
+    def test_dict_data(self):
+        data = {(0, 0): 1, (1, 1): 5, (2, 2): 10}
+        ch = CalendarHeatmap(data)
+        svg = ch.to_svg(0)
+        assert 'rect' in svg
+
+    def test_empty_data(self):
+        ch = CalendarHeatmap({})
+        assert len(ch) == 0
+
+
+class TestWaffleChartCategories:
+    def test_basic(self):
+        cats = [('A', 30, '#3498DB'), ('B', 70, '#E74C3C')]
+        wc = WaffleChart(cats)
+        svg = wc.to_svg(0)
+        assert 'rect' in svg
+        assert 'A' in svg
+
+    def test_repr(self):
+        wc = WaffleChart([('X', 50, '#fff')])
+        assert repr(wc) == 'WaffleChart()'
+
+
+class TestCircularProgressBar:
+    def test_basic(self):
+        cp = CircularProgressBar(75)
+        svg = cp.to_svg(0)
+        assert '75%' in svg
+
+    def test_zero(self):
+        cp = CircularProgressBar(0)
+        svg = cp.to_svg(0)
+        assert '0%' in svg
+
+    def test_no_text(self):
+        cp = CircularProgressBar(50, show_text=False)
+        svg = cp.to_svg(0)
+        assert '50%' not in svg
+
+    def test_repr(self):
+        cp = CircularProgressBar(25)
+        assert repr(cp) == 'CircularProgressBar()'
+
+
+class TestScoreboard:
+    def test_basic(self):
+        sb = Scoreboard([('Score', 100), ('Level', 5), ('HP', 80)])
+        svg = sb.to_svg(0)
+        assert 'Score' in svg
+        assert '100' in svg
+
+    def test_empty(self):
+        sb = Scoreboard([])
+        assert len(sb) == 0
+
+    def test_repr(self):
+        sb = Scoreboard([('A', 1)])
+        assert 'Scoreboard(1' in repr(sb)
+
+
+class TestMatrixHeatmap:
+    def test_basic(self):
+        data = [[1, 2, 3], [4, 5, 6]]
+        mh = MatrixHeatmap(data)
+        svg = mh.to_svg(0)
+        assert 'rect' in svg
+
+    def test_with_labels(self):
+        data = [[1, 2], [3, 4]]
+        mh = MatrixHeatmap(data, row_labels=['R1', 'R2'], col_labels=['C1', 'C2'])
+        svg = mh.to_svg(0)
+        assert 'R1' in svg
+        assert 'C1' in svg
+
+    def test_empty_data(self):
+        mh = MatrixHeatmap([])
+        svg = mh.to_svg(0)
+        assert len(svg) < 20  # empty or minimal wrapper
+
+    def test_show_values(self):
+        data = [[1.5]]
+        mh = MatrixHeatmap(data, show_values=True)
+        svg = mh.to_svg(0)
+        assert '1.5' in svg
+
+
+class TestBoxPlot:
+    def test_basic(self):
+        bp = BoxPlot([[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]])
+        svg = bp.to_svg(0)
+        assert 'rect' in svg
+        assert 'line' in svg
+
+    def test_multiple_groups(self):
+        bp = BoxPlot([[1, 2, 3, 4, 5], [10, 20, 30, 40, 50]])
+        svg = bp.to_svg(0)
+        assert svg.count('<rect') >= 2
+
+    def test_empty(self):
+        bp = BoxPlot([])
+        svg = bp.to_svg(0)
+        assert len(svg) < 20  # empty or minimal wrapper
+
+    def test_repr(self):
+        bp = BoxPlot([[1, 2, 3]])
+        assert repr(bp) == 'BoxPlot()'
+
+
+class TestSampleSpaceRendering:
+    def test_basic(self):
+        from vectormation.objects import SampleSpace
+        ss = SampleSpace()
+        svg = ss.to_svg(0)
+        assert 'rect' in svg
+
+    def test_repr(self):
+        from vectormation.objects import SampleSpace
+        ss = SampleSpace()
+        assert 'SampleSpace' in repr(ss)
+
+
+class TestSankeyDiagram:
+    def test_basic(self):
+        flows = [('A', 'X', 30), ('B', 'X', 20), ('A', 'Y', 10)]
+        sd = SankeyDiagram(flows)
+        svg = sd.to_svg(0)
+        assert 'A' in svg
+
+    def test_repr(self):
+        sd = SankeyDiagram([('A', 'B', 10)])
+        assert repr(sd) == 'SankeyDiagram()'
+
+
+class TestTreeMap:
+    def test_basic(self):
+        items = [('A', 40), ('B', 30), ('C', 20), ('D', 10)]
+        tm = TreeMap(items)
+        svg = tm.to_svg(0)
+        assert 'rect' in svg
+        assert 'A' in svg
+
+    def test_empty(self):
+        tm = TreeMap([])
+        svg = tm.to_svg(0)
+        assert len(svg) < 20  # empty or minimal wrapper
+
+    def test_repr(self):
+        tm = TreeMap([('X', 1)])
+        assert repr(tm) == 'TreeMap()'
+
+
+class TestDonutChartComprehensive:
+    def test_center_text(self):
+        dc = DonutChart([30, 70], center_text='Usage')
+        svg = dc.to_svg(0)
+        assert 'Usage' in svg
+
+    def test_animate_values(self):
+        dc = DonutChart([50, 50])
+        dc.animate_values([80, 20], start=0, end=1)
+        svg = dc.to_svg(0.5)
+        assert '<path' in svg
+
+
+class TestGanttChartBasic:
+    def test_renders(self):
+        tasks = [
+            ('Design', 0, 3),
+            ('Build', 2, 6),
+            ('Test', 5, 8),
+        ]
+        gc = GanttChart(tasks)
+        svg = gc.to_svg(0)
+        assert 'Design' in svg
+        assert 'rect' in svg
+
+
+class TestFunnelChartBasic:
+    def test_renders(self):
+        stages = [('Visit', 1000), ('Signup', 400), ('Buy', 100)]
+        fc = FunnelChart(stages)
+        svg = fc.to_svg(0)
+        assert 'Visit' in svg
+
+
+class TestPolarAxesRendering:
+    def test_construction(self):
+        pa = PolarAxes()
+        svg = pa.to_svg(0)
+        assert svg  # non-empty
+
+    def test_repr(self):
+        pa = PolarAxes()
+        assert 'PolarAxes' in repr(pa)
+
+
+class TestLegendRendering:
+    def test_basic(self):
+        items = [('#3498DB', 'Series A'), ('#E74C3C', 'Series B')]
+        leg = Legend(items)
+        svg = leg.to_svg(0)
+        assert 'Series A' in svg
+
+    def test_repr(self):
+        leg = Legend([('#fff', 'X')])
+        assert 'Legend' in repr(leg)
+

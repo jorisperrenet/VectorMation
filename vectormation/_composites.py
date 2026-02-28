@@ -406,10 +406,7 @@ class NumberLine(VCollection):
         """Add a text label at the given value on the number line."""
         px, py = self.number_to_point(value)
         kw = {'fill': '#fff', 'stroke_width': 0, 'text_anchor': 'middle'} | kwargs
-        if side == 'above':
-            ty = py - buff - font_size
-        else:
-            ty = py + buff + font_size
+        ty = py + (-1 if side == 'above' else 1) * (buff + font_size)
         lbl = Text(text=str(text), x=px, y=ty,
                    font_size=font_size, creation=creation, **kw)
         self.objects.append(lbl)
@@ -1047,18 +1044,19 @@ class Matrix(VCollection):
 
     def _flash(self, entries, start, end, color):
         for e in entries: e.flash_color(color, start=start, duration=end - start)
+        return self
 
     def highlight_entry(self, row, col, start=0, end=1, color='#FFD700'):
         """Flash-highlight a single matrix entry."""
-        return self._flash([self.entries[row][col]], start, end, color) or self
+        return self._flash([self.entries[row][col]], start, end, color)
 
     def highlight_row(self, row, start=0, end=1, color='#FFD700'):
         """Flash-highlight all entries in a row."""
-        return self._flash(self.entries[row], start, end, color) or self
+        return self._flash(self.entries[row], start, end, color)
 
     def highlight_column(self, col, start=0, end=1, color='#FFD700'):
         """Flash-highlight all entries in a column."""
-        return self._flash([row[col] for row in self.entries if col < len(row)], start, end, color) or self
+        return self._flash([row[col] for row in self.entries if col < len(row)], start, end, color)
 
     def set_entry_value(self, row, col, new_value, start=0):
         """Change the text of a matrix entry at the given time."""

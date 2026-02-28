@@ -342,11 +342,8 @@ class Polygon(VObject):
         """Return a new Polygon with all vertices rotated by angle_deg degrees."""
         pts = self.get_vertices(time)
         if cx is None or cy is None:
-            centroid = self.get_center(time)
-            if cx is None:
-                cx = centroid[0]
-            if cy is None:
-                cy = centroid[1]
+            c = self.get_center(time)
+            cx, cy = cx if cx is not None else c[0], cy if cy is not None else c[1]
         rad = math.radians(angle_deg)
         cos_a, sin_a = math.cos(rad), math.sin(rad)
         new_pts = []
