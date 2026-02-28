@@ -591,12 +591,11 @@ class Text(VObject):
             return self
         if change_existence:
             self._show_from(start)
-        s, e = start, end
-        dur = e - s
+        dur = end - start
         if dur <= 0:
-            self.text.set_onward(s, full_text)
+            self.text.set_onward(start, full_text)
             return self
-        self.text.set(s, e, lambda t, _s=s, _d=dur, _n=n: full_text[:max(1, int(_n * (t - _s) / _d))], stay=True)
+        self.text.set(start, end, lambda t, _s=start, _d=dur, _n=n: full_text[:max(1, int(_n * (t - _s) / _d))], stay=True)
         return self
 
     def reveal_by_word(self, start=0, end=1, change_existence=True, easing=None):
@@ -993,13 +992,12 @@ class CountAnimation(Text):
         super().__init__(text=fmt.format(start_val), x=x, y=y,
                          font_size=font_size, text_anchor=text_anchor,
                          creation=creation, z=z, **styling_kwargs)
-        s, e = start, end
-        dur = e - s
+        dur = end - start
         if dur <= 0:
-            self.text.set_onward(s, fmt.format(end_val))
+            self.text.set_onward(start, fmt.format(end_val))
         else:
-            self.text.set(s, e,
-                lambda t, _s=s, _d=dur, _sv=start_val, _ev=end_val, _fmt=fmt: _fmt.format(_sv + (_ev - _sv) * easing((t - _s) / _d)),
+            self.text.set(start, end,
+                lambda t, _s=start, _d=dur, _sv=start_val, _ev=end_val, _fmt=fmt: _fmt.format(_sv + (_ev - _sv) * easing((t - _s) / _d)),
                 stay=True)
         self._fmt = fmt
         self._last_val = end_val
@@ -1009,15 +1007,13 @@ class CountAnimation(Text):
 
     def count_to(self, target, start, end, easing=easings.smooth):
         """Animate counting from the current value to a new target."""
-        from_val = self._last_val
-        fmt = self._fmt
+        from_val, fmt = self._last_val, self._fmt
         dur = end - start
         if dur <= 0:
             self.text.set_onward(start, fmt.format(target))
         else:
-            s = start
-            self.text.set(s, end,
-                lambda t, _f=from_val, _t=target, _s=s, _d=dur, _fmt=fmt:
+            self.text.set(start, end,
+                lambda t, _f=from_val, _t=target, _s=start, _d=dur, _fmt=fmt:
                     _fmt.format(_f + (_t - _f) * easing((t - _s) / _d)),
                 stay=True)
         self._last_val = target
@@ -1163,10 +1159,9 @@ class Trace(VObject):
             self.styling.dx.add_onward(start, dx)
             self.styling.dy.add_onward(start, dy)
         else:
-            s, e = start, end
-            d = max(e - s, 1e-9)
-            self.styling.dx.add_onward(s, _ramp(s, d, dx, easing), last_change=e)
-            self.styling.dy.add_onward(s, _ramp(s, d, dy, easing), last_change=e)
+            d = max(end - start, 1e-9)
+            self.styling.dx.add_onward(start, _ramp(start, d, dx, easing), last_change=end)
+            self.styling.dy.add_onward(start, _ramp(start, d, dy, easing), last_change=end)
         return self
 
     def path(self, time):
@@ -1236,10 +1231,9 @@ class Path(VObject):
             self.styling.dx.add_onward(start, dx)
             self.styling.dy.add_onward(start, dy)
         else:
-            s, e = start, end
-            d = max(e - s, 1e-9)
-            self.styling.dx.add_onward(s, _ramp(s, d, dx, easing), last_change=e)
-            self.styling.dy.add_onward(s, _ramp(s, d, dy, easing), last_change=e)
+            d = max(end - start, 1e-9)
+            self.styling.dx.add_onward(start, _ramp(start, d, dx, easing), last_change=end)
+            self.styling.dy.add_onward(start, _ramp(start, d, dy, easing), last_change=end)
         return self
 
     def __repr__(self):
