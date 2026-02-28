@@ -34,10 +34,18 @@ class Body:
         Simple friction coefficient applied during collisions.
     radius : float | None
         Collision radius.  Auto-detected from Circle/Dot objects.
+    angle : float
+        Initial rotation angle in degrees.
+    angular_velocity : float
+        Initial angular velocity in degrees/sec.
+    moment_of_inertia : float | None
+        Rotational inertia.  Auto-computed as ``0.5 * mass * radius**2`` if
+        *None*.
     """
 
     def __init__(self, obj, mass=1.0, restitution=0.8, friction=0.0,
-                 radius=None, vx=0.0, vy=0.0, fixed=False):
+                 radius=None, vx=0.0, vy=0.0, fixed=False,
+                 angle=0.0, angular_velocity=0.0, moment_of_inertia=None):
         self.obj = obj
         self.mass = mass if not fixed else math.inf
         self.restitution = restitution
@@ -49,13 +57,24 @@ class Body:
         self.vx, self.vy = float(vx), float(vy)
         self.fx, self.fy = 0.0, 0.0  # accumulated force
         self.radius = float(radius) if radius is not None else _guess_radius(obj)
-        # Trajectory (filled by simulate)
+        # Rotation / angular dynamics
+        self.angle = float(angle)
+        self.angular_velocity = float(angular_velocity)
+        self.moment_of_inertia = (float(moment_of_inertia) if moment_of_inertia is not None
+                                  else 0.5 * self.mass * self.radius ** 2)
+        self.torque = 0.0  # accumulated torque for current step
+        # Trajectories (filled by simulate)
         self._trajectory: list[tuple[float, float]] = []
+        self._angle_trajectory: list[float] = []
 
     def apply_force(self, fx, fy):
         """Accumulate a force for the current step."""
         self.fx += fx
         self.fy += fy
+
+    def apply_torque(self, torque):
+        """Accumulate a torque for the current step."""
+        self.torque += torque
 
 
 class Wall:
@@ -117,14 +136,19 @@ class PhysicsSpace:
         self.walls: list[Wall] = []
         self.springs: list[Spring] = []
         self._forces: list = []  # (callable(body, t) -> (fx, fy))
+        self._angular_forces: list = []  # (callable(body) -> None, mutates torque)
 
     # ── Adding objects ──────────────────────────────────────────────
 
     def add_body(self, obj, mass=1.0, restitution=0.8, friction=0.0,
-                 radius=None, vx=0.0, vy=0.0, fixed=False) -> Body:
+                 radius=None, vx=0.0, vy=0.0, fixed=False,
+                 angle=0.0, angular_velocity=0.0,
+                 moment_of_inertia=None) -> Body:
         """Register a VObject as a physics body and return the Body handle."""
         b = Body(obj, mass=mass, restitution=restitution, friction=friction,
-                 radius=radius, vx=vx, vy=vy, fixed=fixed)
+                 radius=radius, vx=vx, vy=vy, fixed=fixed,
+                 angle=angle, angular_velocity=angular_velocity,
+                 moment_of_inertia=moment_of_inertia)
         self.bodies.append(b)
         return b
 
@@ -180,15 +204,17 @@ class PhysicsSpace:
         # Initialize trajectories
         for b in self.bodies:
             b._trajectory = [(b.x, b.y)]
+            b._angle_trajectory = [b.angle]
 
         for step in range(steps):
             t = self.start + step * self.dt
 
-            # Reset forces, apply gravity
+            # Reset forces and torques, apply gravity
             for b in self.bodies:
                 if b.fixed:
                     continue
                 b.fx, b.fy = gx * b.mass, gy * b.mass
+                b.torque = 0.0
 
             # Apply spring forces
             for s in self.springs:
@@ -203,10 +229,18 @@ class PhysicsSpace:
                     b.fx += fx
                     b.fy += fy
 
+            # Apply angular drag forces
+            for drag_fn in self._angular_forces:
+                for b in self.bodies:
+                    if b.fixed:
+                        continue
+                    drag_fn(b)
+
             # Integrate (semi-implicit Euler for stability)
             for b in self.bodies:
                 if b.fixed:
                     b._trajectory.append((b.x, b.y))
+                    b._angle_trajectory.append(b.angle)
                     continue
                 ax = b.fx / b.mass
                 ay = b.fy / b.mass
@@ -214,6 +248,11 @@ class PhysicsSpace:
                 b.vy += ay * self.dt
                 b.x += b.vx * self.dt
                 b.y += b.vy * self.dt
+                # Angular integration
+                if b.moment_of_inertia > 0:
+                    angular_acc = b.torque / b.moment_of_inertia
+                    b.angular_velocity += angular_acc * self.dt
+                b.angle += b.angular_velocity * self.dt
 
             # Wall collisions
             for b in self.bodies:
@@ -229,9 +268,10 @@ class PhysicsSpace:
                         continue
                     _collide_bodies(a, b)
 
-            # Record positions
+            # Record positions and angles
             for b in self.bodies:
                 b._trajectory.append((b.x, b.y))
+                b._angle_trajectory.append(b.angle)
 
         # Bake trajectories onto VObjects
         for b in self.bodies:
@@ -275,6 +315,14 @@ class PhysicsSpace:
                 fy += dy / dist * f
             return (fx, fy)
         self._forces.append(_mutual)
+        return self
+
+    def add_angular_drag(self, coefficient=0.01):
+        """Add angular-velocity-proportional drag (resistance to rotation)."""
+        c = coefficient
+        def _drag(b):
+            b.torque -= b.angular_velocity * c * b.moment_of_inertia
+        self._angular_forces.append(_drag)
         return self
 
 
@@ -465,19 +513,41 @@ def _collide_wall(b, w):
         if b.y + b.radius > w.y and b.vy > 0:  # penetrating from above
             b.y = w.y - b.radius
             b.vy *= -e
+            # Friction-induced angular velocity: tangential velocity at contact
+            if b.friction > 0 and b.moment_of_inertia > 0:
+                # Contact point is at bottom of body; surface vel = vx + omega*r
+                omega_rad = math.radians(b.angular_velocity)
+                surface_vx = b.vx + omega_rad * b.radius
+                impulse_t = -b.friction * surface_vx * b.mass
+                b.angular_velocity += math.degrees(impulse_t * b.radius / b.moment_of_inertia)
             b.vx *= fric
         elif b.y - b.radius < w.y and b.vy < 0:  # penetrating from below
             b.y = w.y + b.radius
             b.vy *= -e
+            if b.friction > 0 and b.moment_of_inertia > 0:
+                omega_rad = math.radians(b.angular_velocity)
+                surface_vx = b.vx - omega_rad * b.radius
+                impulse_t = -b.friction * surface_vx * b.mass
+                b.angular_velocity -= math.degrees(impulse_t * b.radius / b.moment_of_inertia)
             b.vx *= fric
     if w.x is not None:  # vertical wall
         if b.x + b.radius > w.x and b.vx > 0:
             b.x = w.x - b.radius
             b.vx *= -e
+            if b.friction > 0 and b.moment_of_inertia > 0:
+                omega_rad = math.radians(b.angular_velocity)
+                surface_vy = b.vy + omega_rad * b.radius
+                impulse_t = -b.friction * surface_vy * b.mass
+                b.angular_velocity += math.degrees(impulse_t * b.radius / b.moment_of_inertia)
             b.vy *= fric
         elif b.x - b.radius < w.x and b.vx < 0:
             b.x = w.x + b.radius
             b.vx *= -e
+            if b.friction > 0 and b.moment_of_inertia > 0:
+                omega_rad = math.radians(b.angular_velocity)
+                surface_vy = b.vy - omega_rad * b.radius
+                impulse_t = -b.friction * surface_vy * b.mass
+                b.angular_velocity -= math.degrees(impulse_t * b.radius / b.moment_of_inertia)
             b.vy *= fric
 
 
@@ -504,6 +574,10 @@ def _collide_bodies(a, b):
         b.x += ux * overlap / 2
         b.y += uy * overlap / 2
 
+    # Normal and tangent unit vectors
+    # ux, uy = normal from a to b (already computed)
+    tx, ty = -uy, ux  # tangent (perpendicular to normal)
+
     # Impulse-based velocity resolution
     e = min(a.restitution, b.restitution)
     dvx, dvy = a.vx - b.vx, a.vy - b.vy
@@ -511,20 +585,38 @@ def _collide_bodies(a, b):
     if dvn > 0:  # already separating
         return
 
+    # Tangential relative velocity (for friction-induced torque)
+    fric = min(a.friction, b.friction)
+    dvt = dvx * tx + dvy * ty
+
     if a.fixed:
         j = -(1 + e) * dvn
         b.vx -= j * ux
         b.vy -= j * uy
+        # Tangential impulse creates torque on b
+        if fric > 0 and b.moment_of_inertia > 0:
+            jt = fric * dvt  # tangential impulse magnitude
+            b.angular_velocity -= math.degrees(jt * b.radius / b.moment_of_inertia)
     elif b.fixed:
         j = -(1 + e) * dvn
         a.vx += j * ux
         a.vy += j * uy
+        if fric > 0 and a.moment_of_inertia > 0:
+            jt = fric * dvt
+            a.angular_velocity += math.degrees(jt * a.radius / a.moment_of_inertia)
     else:
         j = -(1 + e) * dvn / (1 / a.mass + 1 / b.mass)
         a.vx += j / a.mass * ux
         a.vy += j / a.mass * uy
         b.vx -= j / b.mass * ux
         b.vy -= j / b.mass * uy
+        # Tangential impulse creates torque on both bodies
+        if fric > 0:
+            jt = fric * dvt
+            if a.moment_of_inertia > 0:
+                a.angular_velocity += math.degrees(jt * a.radius / a.moment_of_inertia)
+            if b.moment_of_inertia > 0:
+                b.angular_velocity -= math.degrees(jt * b.radius / b.moment_of_inertia)
 
 
 def _traj_at(traj, start, dt, t):
@@ -542,8 +634,21 @@ def _traj_at(traj, start, dt, t):
     return (x1 + (x2 - x1) * frac, y1 + (y2 - y1) * frac)
 
 
+def _scalar_traj_at(traj, start, dt, t):
+    """Interpolate a scalar trajectory at time *t*."""
+    elapsed = t - start
+    if elapsed <= 0:
+        return traj[0]
+    idx = elapsed / dt
+    i = int(idx)
+    if i >= len(traj) - 1:
+        return traj[-1]
+    frac = idx - i
+    return traj[i] + (traj[i + 1] - traj[i]) * frac
+
+
 def _bake_trajectory(body, start, dt):
-    """Set a body's VObject position as a time function from its trajectory."""
+    """Set a body's VObject position and rotation as time functions."""
     traj = body._trajectory
     if not traj or body.fixed:
         return
@@ -559,6 +664,17 @@ def _bake_trajectory(body, start, dt):
     elif hasattr(obj, 'x') and hasattr(obj, 'y'):
         obj.x.set_onward(start, lambda t: pos_at(t)[0])
         obj.y.set_onward(start, lambda t: pos_at(t)[1])
+
+    # Bake rotation if any angular motion was recorded
+    ang_traj = body._angle_trajectory
+    if ang_traj and hasattr(obj, 'styling'):
+        # Check if there is any actual rotation to bake
+        if any(a != ang_traj[0] for a in ang_traj):
+            def _rot_at(t, _atr=ang_traj, _ptr=traj):
+                angle = _scalar_traj_at(_atr, start, dt, t)
+                px, py = _traj_at(_ptr, start, dt, t)
+                return (angle, px, py)
+            obj.styling.rotation.set_onward(start, _rot_at)
 
 
 def _bake_line_to_bodies(line, ba, bb, start, dt):
