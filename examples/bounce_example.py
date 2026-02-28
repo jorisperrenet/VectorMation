@@ -12,12 +12,12 @@ title.write(0, 1)
 # Bouncing ball
 ball = Circle(r=30, cx=300, cy=700, fill='#FFFF00', fill_opacity=0.9)
 ball.fadein(0, 0.5)
-ball.bounce(start=0.5, end=4, height=200, bounces=5)
+ball.bounce(start=0.5, end=4, height=200, n_bounces=5)
 
 # Bouncing text
 txt = Text(text='Boing!', x=700, y=700, font_size=48, fill='#83C167', stroke_width=0)
 txt.fadein(0, 0.5)
-txt.bounce(start=1, end=4, height=100, bounces=3)
+txt.bounce(start=1, end=4, height=100, n_bounces=3)
 
 # Animate style (color transition)
 rect = Rectangle(200, 120, x=1100, y=400, fill='#58C4DD', fill_opacity=0.8, stroke='#fff')

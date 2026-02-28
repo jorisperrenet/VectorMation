@@ -38,12 +38,12 @@ dots.wave_effect(start=3, end=5, amplitude=30, axis='y')
 glitch_text = Text(text='GLITCH', x=1350, y=700,
                    font_size=48, fill='#83C167', stroke_width=0, text_anchor='middle')
 glitch_text.fadein(3.5, 4)
-glitch_text.glitch(start=4, end=5.5, intensity=15, flashes=8)
+glitch_text.glitch(start=4, end=5.5, intensity=15, n_flashes=8)
 
 glitch_rect = Rectangle(120, 80, x=1150, y=660, fill='#FFFF00', fill_opacity=0.5,
                          stroke='#FFFF00', stroke_width=2)
 glitch_rect.fadein(3.5, 4)
-glitch_rect.glitch(start=4.5, end=6, intensity=20, flashes=6)
+glitch_rect.glitch(start=4.5, end=6, intensity=20, n_flashes=6)
 
 canvas.add_objects(ax, title, dots, wave_label, glitch_text, glitch_rect)
 

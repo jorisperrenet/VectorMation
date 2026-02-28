@@ -1592,7 +1592,7 @@ class TestVObjectNew:
     def test_trail(self):
         d = Dot(cx=100, cy=100)
         d.shift(dx=200, start=0, end=1)
-        ghosts = d.trail(start=0, end=1, num_copies=3)
+        ghosts = d.trail(start=0, end=1, n_copies=3)
         assert len(ghosts) == 3
 
     def test_heartbeat_returns_self(self):
@@ -4452,7 +4452,7 @@ class TestShakeAnimation:
 class TestBounceAnimation:
     def test_bounce_produces_displacement(self):
         c = Circle(r=50, cx=100, cy=100)
-        c.bounce(start=0, end=1, height=50, bounces=3)
+        c.bounce(start=0, end=1, height=50, n_bounces=3)
         svg_mid = c.to_svg(0.5)
         assert 'circle' in svg_mid.lower() or 'ellipse' in svg_mid.lower()
 
@@ -4906,14 +4906,14 @@ class TestBroadcast:
     def test_broadcast_returns_collection(self):
         from vectormation.objects import Circle, VCollection
         c = Circle(cx=500, cy=500)
-        copies = c.broadcast(start=0, duration=1, num_copies=3)
+        copies = c.broadcast(start=0, duration=1, n_copies=3)
         assert isinstance(copies, VCollection)
         assert len(copies) == 3
 
     def test_broadcast_copies_fade(self):
         from vectormation.objects import Dot
         d = Dot(cx=500, cy=500)
-        copies = d.broadcast(start=0, duration=1, num_copies=2)
+        copies = d.broadcast(start=0, duration=1, n_copies=2)
         # After the animation window, copies should be hidden
         for obj in copies.objects:
             assert not obj.show.at_time(5)
@@ -8036,7 +8036,7 @@ class TestRippleScale:
     def test_ripple_scale_ends_at_original(self):
         """At end time the scale should return to approximately the original."""
         c = Circle(r=50, cx=100, cy=100)
-        c.ripple_scale(start=0, end=1, num_ripples=3, max_factor=1.3)
+        c.ripple_scale(start=0, end=1, n_ripples=3, max_factor=1.3)
         # At t=1 the easing gives p=1, so decay=0, factor=1 => original scale
         sx = c.styling.scale_x.at_time(1)
         assert sx == pytest.approx(1.0, abs=0.01)
@@ -8044,7 +8044,7 @@ class TestRippleScale:
     def test_ripple_scale_oscillates_midway(self):
         """During the animation the scale should deviate from 1.0."""
         c = Circle(r=50, cx=100, cy=100)
-        c.ripple_scale(start=0, end=1, num_ripples=3, max_factor=1.5)
+        c.ripple_scale(start=0, end=1, n_ripples=3, max_factor=1.5)
         # Sample at a few midpoints — at least one should be != 1.0
         scales = [c.styling.scale_x.at_time(t) for t in [0.1, 0.2, 0.3, 0.4]]
         assert any(abs(s - 1.0) > 0.01 for s in scales)
@@ -8846,7 +8846,7 @@ class TestElasticBounce:
     def test_position_changes_during_animation(self):
         """Object should move vertically during the bounce."""
         c = Circle(r=50, cx=400, cy=400)
-        c.elastic_bounce(start=0, end=2, height=100, bounces=3)
+        c.elastic_bounce(start=0, end=2, height=100, n_bounces=3)
         # At midpoint of first bounce, object should be displaced upward
         bbox_mid = c.bbox(0.3)
         bbox_start = c.bbox(0)
@@ -8858,7 +8858,7 @@ class TestElasticBounce:
     def test_squash_at_impact(self):
         """Scale_x should be wider (squashed) near impact points."""
         c = Circle(r=50, cx=400, cy=400)
-        c.elastic_bounce(start=0, end=2, height=100, bounces=3, squash_factor=1.5)
+        c.elastic_bounce(start=0, end=2, height=100, n_bounces=3, squash_factor=1.5)
         # At t=0 (impact), scale_x should be increased
         sx_impact = c.styling.scale_x.at_time(0.001)
         sx_mid = c.styling.scale_x.at_time(0.3)
@@ -8868,7 +8868,7 @@ class TestElasticBounce:
     def test_returns_to_normal_scale(self):
         """At the end, scale should return to original."""
         c = Circle(r=50, cx=400, cy=400)
-        c.elastic_bounce(start=0, end=2, bounces=3, squash_factor=1.4)
+        c.elastic_bounce(start=0, end=2, n_bounces=3, squash_factor=1.4)
         sx_end = c.styling.scale_x.at_time(2.0)
         sy_end = c.styling.scale_y.at_time(2.0)
         assert sx_end == pytest.approx(1.0, abs=0.1)
@@ -8877,7 +8877,7 @@ class TestElasticBounce:
     def test_multiple_bounces(self):
         """With more bounces, there should be more oscillation cycles."""
         c = Circle(r=50, cx=400, cy=400)
-        c.elastic_bounce(start=0, end=2, height=100, bounces=5)
+        c.elastic_bounce(start=0, end=2, height=100, n_bounces=5)
         # Sample multiple points and count zero crossings in dy
         displacements = []
         for i in range(40):
@@ -8932,24 +8932,24 @@ class TestMorphScale:
 class TestStrobe:
     def test_returns_self(self):
         c = Circle(r=50, cx=400, cy=400)
-        result = c.strobe(start=0, end=1, flashes=3)
+        result = c.strobe(start=0, end=1, n_flashes=3)
         assert result is c
 
     def test_zero_duration_noop(self):
         c = Circle(r=50, cx=400, cy=400)
-        c.strobe(start=1, end=1, flashes=3)
+        c.strobe(start=1, end=1, n_flashes=3)
         # Should not crash and opacity should remain 1
         assert c.styling.opacity.at_time(1) == pytest.approx(1.0)
 
     def test_zero_flashes_noop(self):
         c = Circle(r=50, cx=400, cy=400)
-        c.strobe(start=0, end=1, flashes=0)
+        c.strobe(start=0, end=1, n_flashes=0)
         assert c.styling.opacity.at_time(0.5) == pytest.approx(1.0)
 
     def test_alternates_visibility(self):
         """With duty=0.5, first half of each cycle should be on, second half off."""
         c = Circle(r=50, cx=400, cy=400)
-        c.strobe(start=0, end=1, flashes=4, duty=0.5)
+        c.strobe(start=0, end=1, n_flashes=4, duty=0.5)
         # First quarter of first cycle (cycle = 0.25s): visible
         assert c.styling.opacity.at_time(0.06) == pytest.approx(1.0)
         # Third quarter of first cycle: invisible
@@ -8958,7 +8958,7 @@ class TestStrobe:
     def test_duty_cycle(self):
         """With duty=0.2, object should be visible only 20% of each cycle."""
         c = Circle(r=50, cx=400, cy=400)
-        c.strobe(start=0, end=1, flashes=2, duty=0.2)
+        c.strobe(start=0, end=1, n_flashes=2, duty=0.2)
         # At 5% of first cycle (0.025): visible (0.05 * 2 = 0.1 < 0.2)
         assert c.styling.opacity.at_time(0.025) == pytest.approx(1.0)
         # At 30% of first cycle (0.15): invisible (0.3 > 0.2)
@@ -8967,7 +8967,7 @@ class TestStrobe:
     def test_stays_off_if_clamp(self):
         """duty=0 means always off during strobe period."""
         c = Circle(r=50, cx=400, cy=400)
-        c.strobe(start=0, end=1, flashes=3, duty=0.0)
+        c.strobe(start=0, end=1, n_flashes=3, duty=0.0)
         assert c.styling.opacity.at_time(0.5) == pytest.approx(0.0)
 
 
@@ -12443,7 +12443,7 @@ class TestOrbit:
 class TestPulsate:
     def test_pulsate_returns_self(self):
         c = Circle(r=40)
-        result = c.pulsate(start=0, end=2, pulses=3)
+        result = c.pulsate(start=0, end=2, n_pulses=3)
         assert result is c
 
 
@@ -13476,12 +13476,12 @@ class TestRotateIn:
 class TestPulseColor:
     def test_returns_self(self):
         c = Circle(fill='#ff0000')
-        result = c.pulse_color('#00ff00', start=0, end=1, pulses=2)
+        result = c.pulse_color('#00ff00', start=0, end=1, n_pulses=2)
         assert result is c
 
     def test_no_crash_zero_pulses(self):
         c = Circle(fill='#ff0000')
-        result = c.pulse_color('#00ff00', pulses=0)
+        result = c.pulse_color('#00ff00', n_pulses=0)
         assert result is c
 
 
@@ -15337,6 +15337,92 @@ def test_physics_cloth_lines_track_bodies():
     moved = (abs(p1_start[1] - p1_end[1]) > 0.1 or
              abs(p2_start[1] - p2_end[1]) > 0.1)
     assert moved
+
+
+# ── Physics rotation / angular dynamics ──────────────────────────
+
+def test_physics_body_angle_defaults():
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    b = space.add_body(Dot(cx=500, cy=500), mass=1)
+    assert b.angle == 0.0
+    assert b.angular_velocity == 0.0
+    assert b.moment_of_inertia > 0  # auto-computed
+
+def test_physics_body_custom_angle():
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    b = space.add_body(Dot(cx=500, cy=500), angle=45, angular_velocity=10,
+                        moment_of_inertia=5.0)
+    assert b.angle == 45.0
+    assert b.angular_velocity == 10.0
+    assert b.moment_of_inertia == 5.0
+
+def test_physics_body_apply_torque():
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    b = space.add_body(Dot(cx=500, cy=500))
+    b.apply_torque(100)
+    assert b.torque == 100
+    b.apply_torque(50)
+    assert b.torque == 150
+
+def test_physics_angular_velocity_rotates():
+    """A body with angular velocity should accumulate angle over time."""
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    b = space.add_body(Dot(cx=500, cy=500), angular_velocity=360)
+    space.simulate(duration=1.0)
+    # After 1 second at 360 deg/s, angle should be ~360
+    final_angle = b._angle_trajectory[-1]
+    assert abs(final_angle - 360) < 5  # tolerance for euler integration
+
+def test_physics_angular_drag():
+    """Angular drag should slow rotation."""
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+    b = space.add_body(Dot(cx=500, cy=500), angular_velocity=360)
+    space.add_angular_drag(coefficient=0.1)
+    space.simulate(duration=1.0)
+    # Velocity should decrease from 360
+    assert abs(b.angular_velocity) < 360
+
+def test_physics_rotation_baked():
+    """Rotation should be baked onto the VObject styling."""
+    space = PhysicsSpace(gravity=(0, 0), dt=1/120, start=0.0)
+    dot = Dot(cx=500, cy=500)
+    space.add_body(dot, angular_velocity=180)
+    space.simulate(duration=1.0)
+    # The styling rotation should be set as a time function
+    rot = dot.styling.rotation.at_time(0.5)
+    # Should return (angle, cx, cy) tuple
+    assert isinstance(rot, tuple)
+    assert len(rot) == 3
+    # angle at t=0.5 should be ~90 degrees (180 deg/s * 0.5s)
+    assert abs(rot[0] - 90) < 5
+
+def test_physics_no_rotation_no_bake():
+    """Bodies with no rotation should not get a custom rotation function."""
+    space = PhysicsSpace(gravity=(0, 500), dt=1/120, start=0.0)
+    dot = Dot(cx=500, cy=100)
+    space.add_body(dot, angular_velocity=0)
+    space.simulate(duration=0.5)
+    # rotation should remain at default — angle component should be 0
+    rot = dot.styling.rotation.at_time(0.25)
+    angle = rot[0] if isinstance(rot, tuple) else rot
+    assert angle == 0
+
+def test_physics_wall_friction_spins():
+    """A body hitting a wall with friction should gain angular velocity."""
+    space = PhysicsSpace(gravity=(0, 980), dt=1/120)
+    b = space.add_body(Dot(cx=500, cy=100, r=20), mass=1,
+                        friction=0.5, vx=200, restitution=0.8)
+    space.add_wall(y=900, restitution=0.9)
+    space.simulate(duration=2.0)
+    # Body should have gained angular velocity from friction
+    assert b.angular_velocity != 0
+
+def test_physics_moment_of_inertia_auto():
+    """Auto-computed moment of inertia = 0.5 * m * r^2."""
+    space = PhysicsSpace()
+    b = space.add_body(Dot(cx=500, cy=500, r=20), mass=2.0)
+    expected = 0.5 * 2.0 * 20.0 ** 2
+    assert abs(b.moment_of_inertia - expected) < 0.01
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -18501,7 +18587,7 @@ class TestPulsateInitScaleAnim:
 
     def test_pulsate_runs(self):
         r = Rectangle(100, 50, creation=0)
-        r.pulsate(start=0, end=1, scale_factor=1.3, pulses=2)
+        r.pulsate(start=0, end=1, scale_factor=1.3, n_pulses=2)
         # scale should oscillate
         sx_mid = r.styling.scale_x.at_time(0.25)
         assert sx_mid != 1.0 or True  # just no crash

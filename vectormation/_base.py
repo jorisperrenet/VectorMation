@@ -117,15 +117,15 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             'center': self.center(time),
         }
 
-    def set_x(self, x, start: float = 0):
+    def set_x(self, x, start: float = 0, end=None, easing=None):
         """Set the x-coordinate of the center (by shifting)."""
         dx = x - self.get_x(start)
-        return self.shift(dx=dx, start=start)
+        return self.shift(dx=dx, start=start, end=end, easing=easing or easings.smooth)
 
-    def set_y(self, y, start: float = 0):
+    def set_y(self, y, start: float = 0, end=None, easing=None):
         """Set the y-coordinate of the center (by shifting)."""
         dy = y - self.get_y(start)
-        return self.shift(dy=dy, start=start)
+        return self.shift(dy=dy, start=start, end=end, easing=easing or easings.smooth)
 
     def _set_dim(self, getter, scale_attr, value, start, end, stretch, easing):
         cur = getter(start)
@@ -1334,14 +1334,13 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def pulsate(self, start: float = 0, end: float = 1, scale_factor=1.3,
-                 pulses=3, easing=easings.smooth):
-        """Repeated grow/shrink pulsation over [start, end].
-        pulses: number of full pulse cycles."""
+                 n_pulses=3, easing=easings.smooth):
+        """Repeated grow/shrink pulsation over [start, end]."""
         dur = end - start
         if dur <= 0:
             return self
         sx0, sy0 = self._init_scale_anim(start)
-        _s, _d, _sf, _p = start, max(dur, 1e-9), scale_factor, pulses
+        _s, _d, _sf, _p = start, max(dur, 1e-9), scale_factor, n_pulses
         def _make_pulse(s0):
             return lambda t, _s=_s, _d=_d, _sf=_sf, _p=_p, _s0=s0, _e=easing: \
                 _s0 * (1 + (_sf - 1) * abs(math.sin(math.pi * _p * _e((t - _s) / _d))))
@@ -1363,13 +1362,13 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.styling.scale_y.set(start, end, _make_pulse_scale(sy0))
         return self
 
-    def ripple_scale(self, start: float = 0, end: float = 1, num_ripples=3, max_factor=1.3, easing=easings.smooth):
+    def ripple_scale(self, start: float = 0, end: float = 1, n_ripples=3, max_factor=1.3, easing=easings.smooth):
         """Produce multiple decaying scale pulses."""
         sx0, sy0 = self._init_scale_anim(start)
         s, e, dur = start, end, end - start
         if dur <= 0:
             return self
-        def _ripple(t, _s=s, _d=dur, _n=num_ripples, _m=max_factor, _e=easing, _sx0=sx0):
+        def _ripple(t, _s=s, _d=dur, _n=n_ripples, _m=max_factor, _e=easing, _sx0=sx0):
             p = _e((t - _s) / _d)
             decay = 1 - p  # amplitude decreases over time
             wave = math.sin(p * _n * math.tau)
@@ -1829,12 +1828,12 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._apply_shift_func(_pos, start, end)
         return self
 
-    def bounce(self, start: float = 0, end: float = 1, height=50, bounces=3, easing=easings.smooth):
+    def bounce(self, start: float = 0, end: float = 1, height=50, n_bounces=3, easing=easings.smooth):
         """Bounce the object up and down like a ball."""
         dur = end - start
         if dur <= 0:
             return self
-        _s, _d, _h, _b = start, max(dur, 1e-9), height, bounces
+        _s, _d, _h, _b = start, max(dur, 1e-9), height, n_bounces
         def _dy(t, _s=_s, _d=_d, _h=_h, _b=_b, _easing=easing):
             progress = (t - _s) / _d
             phase = progress * _b * math.tau
@@ -1968,15 +1967,16 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             src.interpolate(attributes.Color(seg_s, colors[i + 1]), seg_s, seg_e, easing=easing)
         return self
 
-    def glitch(self, start: float = 0, end: float = 1, intensity=10, flashes=5):
+    def glitch(self, start: float = 0, end: float = 1, intensity=10, n_flashes=5,
+               easing=easings.there_and_back):
         """Random glitch effect: brief jitter flashes over [start, end]."""
         dur = end - start
-        if dur <= 0 or flashes <= 0:
+        if dur <= 0 or n_flashes <= 0:
             return self
-        flash_dur = min(0.05, dur / (flashes * 3))
+        flash_dur = min(0.05, dur / (n_flashes * 3))
         s = start
-        for i in range(flashes):
-            t0 = s + dur * (i + 0.5) / flashes
+        for i in range(n_flashes):
+            t0 = s + dur * (i + 0.5) / n_flashes
             t1 = t0 + flash_dur
             dx = intensity * (1 if i % 2 == 0 else -1) * (0.5 + (i % 3) * 0.3)
             dy = intensity * (0.3 if i % 3 == 0 else -0.5) * (0.4 + (i % 2) * 0.4)
@@ -1986,20 +1986,20 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
     def flash_color(self, color='#FFFF00', start: float = 0, duration=0.4,
                      attr='fill'):
         """Flash to a color and back. Quick attention-grabbing effect."""
-        return self.pulse_color(color, start=start, end=start + duration, pulses=1, attr=attr)
+        return self.pulse_color(color, start=start, end=start + duration, n_pulses=1, attr=attr)
 
     def pulse_color(self, color='#FFFF00', start: float = 0, end: float = 1,
-                     pulses=3, attr='fill'):
+                     n_pulses=3, attr='fill'):
         """Periodic color pulsing: alternate between current color and *color* N times."""
         dur = end - start
-        if dur <= 0 or pulses <= 0:
+        if dur <= 0 or n_pulses <= 0:
             return self
         src = getattr(self.styling, attr)
         if not isinstance(src, attributes.Color):
             return self
         original_rgb = src.time_func(start)
-        pulse_dur = dur / pulses
-        for i in range(pulses):
+        pulse_dur = dur / n_pulses
+        for i in range(n_pulses):
             seg_s = start + i * pulse_dur
             seg_mid = seg_s + pulse_dur / 2
             seg_e = seg_s + pulse_dur
@@ -2265,15 +2265,15 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                 stay=True)
         return self
 
-    def broadcast(self, start: float = 0, duration=0.5, num_copies=3,
+    def broadcast(self, start: float = 0, duration=0.5, n_copies=3,
                    max_scale=3, color=None):
         """Emit expanding, fading copies from this object's center.
         Returns a VCollection of copies (must be added to canvas)."""
 
         copies = []
-        for i in range(num_copies):
-            t0 = start + i * (duration / max(num_copies, 1))
-            t1 = t0 + duration / max(num_copies, 1)
+        for i in range(n_copies):
+            t0 = start + i * (duration / max(n_copies, 1))
+            t1 = t0 + duration / max(n_copies, 1)
             copy = deepcopy(self)
             copy._ensure_scale_origin(t0)
             copy.show.set_onward(0, False)
@@ -2306,13 +2306,13 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         ghost.show.set_onward(time, True)
         return ghost
 
-    def trail(self, start: float = 0, end: float = 1, num_copies=5, fade=True):
+    def trail(self, start: float = 0, end: float = 1, n_copies=5, fade=True):
         """Leave fading ghost copies at intervals during [start, end].
         Returns a list of ghost VObjects (must be added to canvas separately)."""
 
         ghosts = []
-        for i in range(num_copies):
-            t = start + (end - start) * (i + 1) / (num_copies + 1)
+        for i in range(n_copies):
+            t = start + (end - start) * (i + 1) / (n_copies + 1)
             ghost = deepcopy(self)
             # Freeze at position at time t
             for xa, ya in ghost._shift_reals():
@@ -2323,7 +2323,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             ghost.show.set_onward(0, False)
             ghost.show.set_onward(t, True)
             if fade:
-                opacity = 0.1 + 0.3 * (i / max(num_copies - 1, 1))
+                opacity = 0.1 + 0.3 * (i / max(n_copies - 1, 1))
                 ghost.styling.fill_opacity.set_onward(t, opacity)
                 ghost.styling.stroke_opacity.set_onward(t, opacity)
             ghosts.append(ghost)

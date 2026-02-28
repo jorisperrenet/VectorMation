@@ -505,49 +505,40 @@ def _apply_spring(s):
         s.b.fy -= fy
 
 
+def _wall_friction_impulse(b, tangent_v, sign):
+    """Apply friction-induced angular impulse during wall collision."""
+    if b.friction > 0 and b.moment_of_inertia > 0:
+        omega_rad = math.radians(b.angular_velocity)
+        surface_v = tangent_v + sign * omega_rad * b.radius
+        impulse = -b.friction * surface_v * b.mass
+        b.angular_velocity += sign * math.degrees(impulse * b.radius / b.moment_of_inertia)
+
+
 def _collide_wall(b, w):
     """Resolve wall collision for a body."""
     e = b.restitution * w.restitution
     fric = 1 - b.friction
     if w.y is not None:  # horizontal wall
-        if b.y + b.radius > w.y and b.vy > 0:  # penetrating from above
+        if b.y + b.radius > w.y and b.vy > 0:
             b.y = w.y - b.radius
             b.vy *= -e
-            # Friction-induced angular velocity: tangential velocity at contact
-            if b.friction > 0 and b.moment_of_inertia > 0:
-                # Contact point is at bottom of body; surface vel = vx + omega*r
-                omega_rad = math.radians(b.angular_velocity)
-                surface_vx = b.vx + omega_rad * b.radius
-                impulse_t = -b.friction * surface_vx * b.mass
-                b.angular_velocity += math.degrees(impulse_t * b.radius / b.moment_of_inertia)
+            _wall_friction_impulse(b, b.vx, 1)
             b.vx *= fric
-        elif b.y - b.radius < w.y and b.vy < 0:  # penetrating from below
+        elif b.y - b.radius < w.y and b.vy < 0:
             b.y = w.y + b.radius
             b.vy *= -e
-            if b.friction > 0 and b.moment_of_inertia > 0:
-                omega_rad = math.radians(b.angular_velocity)
-                surface_vx = b.vx - omega_rad * b.radius
-                impulse_t = -b.friction * surface_vx * b.mass
-                b.angular_velocity -= math.degrees(impulse_t * b.radius / b.moment_of_inertia)
+            _wall_friction_impulse(b, b.vx, -1)
             b.vx *= fric
     if w.x is not None:  # vertical wall
         if b.x + b.radius > w.x and b.vx > 0:
             b.x = w.x - b.radius
             b.vx *= -e
-            if b.friction > 0 and b.moment_of_inertia > 0:
-                omega_rad = math.radians(b.angular_velocity)
-                surface_vy = b.vy + omega_rad * b.radius
-                impulse_t = -b.friction * surface_vy * b.mass
-                b.angular_velocity += math.degrees(impulse_t * b.radius / b.moment_of_inertia)
+            _wall_friction_impulse(b, b.vy, 1)
             b.vy *= fric
         elif b.x - b.radius < w.x and b.vx < 0:
             b.x = w.x + b.radius
             b.vx *= -e
-            if b.friction > 0 and b.moment_of_inertia > 0:
-                omega_rad = math.radians(b.angular_velocity)
-                surface_vy = b.vy - omega_rad * b.radius
-                impulse_t = -b.friction * surface_vy * b.mass
-                b.angular_velocity -= math.degrees(impulse_t * b.radius / b.moment_of_inertia)
+            _wall_friction_impulse(b, b.vy, -1)
             b.vy *= fric
 
 
@@ -559,7 +550,7 @@ def _collide_bodies(a, b):
     if dist >= min_dist or dist < 0.001:
         return
 
-    # Separate bodies
+    # Separate bodies along normal
     overlap = min_dist - dist
     ux, uy = dx / dist, dy / dist
     if a.fixed:
@@ -574,10 +565,6 @@ def _collide_bodies(a, b):
         b.x += ux * overlap / 2
         b.y += uy * overlap / 2
 
-    # Normal and tangent unit vectors
-    # ux, uy = normal from a to b (already computed)
-    tx, ty = -uy, ux  # tangent (perpendicular to normal)
-
     # Impulse-based velocity resolution
     e = min(a.restitution, b.restitution)
     dvx, dvy = a.vx - b.vx, a.vy - b.vy
@@ -585,38 +572,26 @@ def _collide_bodies(a, b):
     if dvn > 0:  # already separating
         return
 
-    # Tangential relative velocity (for friction-induced torque)
-    fric = min(a.friction, b.friction)
-    dvt = dvx * tx + dvy * ty
+    # Normal impulse (uses 1/inf = 0 for fixed bodies)
+    inv_ma = 0 if a.fixed else 1 / a.mass
+    inv_mb = 0 if b.fixed else 1 / b.mass
+    j = -(1 + e) * dvn / (inv_ma + inv_mb)
+    if not a.fixed:
+        a.vx += j * inv_ma * ux
+        a.vy += j * inv_ma * uy
+    if not b.fixed:
+        b.vx -= j * inv_mb * ux
+        b.vy -= j * inv_mb * uy
 
-    if a.fixed:
-        j = -(1 + e) * dvn
-        b.vx -= j * ux
-        b.vy -= j * uy
-        # Tangential impulse creates torque on b
-        if fric > 0 and b.moment_of_inertia > 0:
-            jt = fric * dvt  # tangential impulse magnitude
-            b.angular_velocity -= math.degrees(jt * b.radius / b.moment_of_inertia)
-    elif b.fixed:
-        j = -(1 + e) * dvn
-        a.vx += j * ux
-        a.vy += j * uy
-        if fric > 0 and a.moment_of_inertia > 0:
-            jt = fric * dvt
+    # Friction-induced torque
+    fric = min(a.friction, b.friction)
+    if fric > 0:
+        tx, ty = -uy, ux
+        jt = fric * (dvx * tx + dvy * ty)
+        if not a.fixed and a.moment_of_inertia > 0:
             a.angular_velocity += math.degrees(jt * a.radius / a.moment_of_inertia)
-    else:
-        j = -(1 + e) * dvn / (1 / a.mass + 1 / b.mass)
-        a.vx += j / a.mass * ux
-        a.vy += j / a.mass * uy
-        b.vx -= j / b.mass * ux
-        b.vy -= j / b.mass * uy
-        # Tangential impulse creates torque on both bodies
-        if fric > 0:
-            jt = fric * dvt
-            if a.moment_of_inertia > 0:
-                a.angular_velocity += math.degrees(jt * a.radius / a.moment_of_inertia)
-            if b.moment_of_inertia > 0:
-                b.angular_velocity -= math.degrees(jt * b.radius / b.moment_of_inertia)
+        if not b.fixed and b.moment_of_inertia > 0:
+            b.angular_velocity -= math.degrees(jt * b.radius / b.moment_of_inertia)
 
 
 def _traj_at(traj, start, dt, t):

@@ -15,56 +15,41 @@ canvas.set_background()
 n_pendulums = 15
 pivot_y = 150
 base_length = 400  # longest pendulum (pixels)
-base_period = 6.0  # period of longest pendulum (seconds)
 T = 8.0
 
-# Each pendulum completes a different number of oscillations in T seconds
-# Pendulum i completes (n_pendulums + i) oscillations in T
+# Each pendulum i completes (n_pendulums + i) oscillations in T seconds
 colors = color_gradient(['#58C4DD', '#83C167', '#FFFF00', '#FC6255'], n=n_pendulums)
 
 # ── Build pendulums ──────────────────────────────────────────────────
 spacing = 1400 / (n_pendulums + 1)
 x_start = 260
+amplitude = math.radians(30)
 
 for i in range(n_pendulums):
     px = x_start + (i + 1) * spacing
-    # frequency increases with index
     freq = (n_pendulums + i) / T
     omega = 2 * math.pi * freq
-    amplitude = 30  # degrees
     length = base_length - i * 12
 
-    # Pre-compute trajectory
-    dt = 0.01
-    n_steps = int(T / dt)
+    # Position functions using closures
+    def _make_bob_fn(px=px, omega=omega, length=length, amp=amplitude, py=pivot_y):
+        def _fn(t):
+            theta = amp * math.sin(omega * t)
+            return (px + length * math.sin(theta),
+                    py + length * math.cos(theta))
+        return _fn
 
-    # Create the rod (Line) and bob (Dot)
+    bob_fn = _make_bob_fn()
+
     rod = Line(x1=px, y1=pivot_y, x2=px, y2=pivot_y + length,
                stroke='#555', stroke_width=2, creation=0)
     bob = Dot(cx=px, cy=pivot_y + length, r=10,
               fill=colors[i], stroke_width=0, creation=0)
 
-    # Animate using shift
-    prev_bx, prev_by = px, pivot_y + length
-    for step in range(1, n_steps):
-        t = step * dt
-        t_prev = (step - 1) * dt
-        theta = math.radians(amplitude) * math.sin(omega * t)
-        theta_prev = math.radians(amplitude) * math.sin(omega * t_prev)
-
-        bx = px + length * math.sin(theta)
-        by = pivot_y + length * math.cos(theta)
-        bx_prev = px + length * math.sin(theta_prev)
-        by_prev = pivot_y + length * math.cos(theta_prev)
-
-        dx = bx - bx_prev
-        dy = by - by_prev
-        if abs(dx) > 0.05 or abs(dy) > 0.05:
-            bob.shift(dx=dx, dy=dy, start=t_prev, end=t)
-            rod.p2.set(t_prev, t,
-                       lambda tt, _s=t_prev, _e=t, _sp=(bx_prev, by_prev), _ep=(bx, by):
-                       (round(_sp[0] + (_ep[0] - _sp[0]) * min(1, (tt - _s) / max(_e - _s, 1e-9))),
-                        round(_sp[1] + (_ep[1] - _sp[1]) * min(1, (tt - _s) / max(_e - _s, 1e-9)))))
+    # Animate using set_onward with time functions
+    rod.p1.set_onward(0, (px, pivot_y))
+    rod.p2.set_onward(0, bob_fn)
+    bob.c.set_onward(0, bob_fn)
 
     canvas.add(rod, bob)
 

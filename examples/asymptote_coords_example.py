@@ -56,7 +56,7 @@ dots.highlight_child(1, start=4.5, end=6)
 star = Star(outer_radius=40, inner_radius=20, cx=1550, cy=900,
             fill='#FFFF00', fill_opacity=0.6, stroke='#FFFF00', stroke_width=2)
 star.fadein(4, 4.5)
-star.pulsate(start=4.5, end=7, pulses=4, scale_factor=1.4)
+star.pulsate(start=4.5, end=7, n_pulses=4, scale_factor=1.4)
 
 canvas.add_objects(ax, title, dots, star)
 

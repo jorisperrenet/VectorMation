@@ -14,7 +14,7 @@ title.write(0, 1)
 ball = Dot(cx=200, cy=500, r=15, fill='#FF6B6B')
 ball.fadein(1, 1.3)
 ball.path_arc(700, 400, start=1.5, end=3.5, angle=math.pi / 3)
-ghosts = ball.trail(start=1.5, end=3.5, num_copies=6)
+ghosts = ball.trail(start=1.5, end=3.5, n_copies=6)
 
 # Reveal demo — letters appearing
 letters = VCollection(

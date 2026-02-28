@@ -12078,7 +12078,7 @@ class TestEffectBehavior:
 
     def test_strobe_creates_on_off(self):
         c = Circle(r=30, cx=100, cy=100)
-        c.strobe(start=0, end=1, flashes=5, duty=0.5)
+        c.strobe(start=0, end=1, n_flashes=5, duty=0.5)
         # At various points, opacity should be either 0 or 1
         for t in [0.1, 0.2, 0.3, 0.4]:
             op = c.styling.opacity.at_time(t)
@@ -12086,7 +12086,7 @@ class TestEffectBehavior:
 
     def test_elastic_bounce_moves_vertically(self):
         c = Circle(r=30, cx=500, cy=500)
-        c.elastic_bounce(start=0, end=2, height=100, bounces=3)
+        c.elastic_bounce(start=0, end=2, height=100, n_bounces=3)
         # During bounce, dy should shift the object
         svg_mid = c.to_svg(0.5)
         assert svg_mid  # renders

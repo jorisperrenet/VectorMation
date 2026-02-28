@@ -22,7 +22,7 @@ correct.fadein(2.5, 3)
 # Pulse color effect
 circle = Circle(r=50, cx=800, cy=300, fill='#58C4DD', stroke_width=2, stroke='#fff')
 circle.fadein(0.5, 1)
-circle.pulse_color('#FF6B6B', start=1.5, end=4, pulses=4)
+circle.pulse_color('#FF6B6B', start=1.5, end=4, n_pulses=4)
 
 pulse_label = Text(text='Pulsing!', x=800, y=380, font_size=20,
                    fill='#aaa', stroke_width=0, text_anchor='middle')

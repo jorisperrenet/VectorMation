@@ -27,7 +27,7 @@ circle.color_cycle(['#FF6B6B', '#FFFF00', '#83C167', '#58C4DD', '#9B59B6', '#FF6
 txt = Text(text='GLITCH', x=960, y=250, font_size=64,
            fill='#FF6B6B', stroke_width=0, text_anchor='middle')
 txt.fadein(0.5, 1)
-txt.glitch(start=2, end=5, intensity=15, flashes=8)
+txt.glitch(start=2, end=5, intensity=15, n_flashes=8)
 
 canvas.add_objects(nl, circle, txt, title)
 

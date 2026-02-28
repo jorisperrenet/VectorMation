@@ -174,14 +174,14 @@ class _VObjectEffectsMixin:
         return self
 
     def elastic_bounce(self, start: float = 0, end: float = 1, height=100,
-                       bounces=3, squash_factor=1.4, easing=easings.smooth):
+                       n_bounces=3, squash_factor=1.4, easing=easings.smooth):
         """Bounce the object with squash-and-stretch deformation at each impact."""
         dur = end - start
         if dur <= 0:
             return self
         sx0, sy0 = self._init_scale_anim(start)
         _s, _d = start, max(dur, 1e-9)
-        _h, _b, _sf = height, bounces, squash_factor
+        _h, _b, _sf = height, n_bounces, squash_factor
         _sx0, _sy0 = sx0, sy0
 
         def _bounce_progress(t, _s=_s, _d=_d, _b=_b, _easing=easing):
@@ -235,14 +235,14 @@ class _VObjectEffectsMixin:
         self.styling.scale_y.set(start, end, _make_ms(sy0), stay=True)
         return self
 
-    def strobe(self, start: float = 0, end: float = 1, flashes: int = 5,
+    def strobe(self, start: float = 0, end: float = 1, n_flashes: int = 5,
                duty: float = 0.5):
         """Rapid hard on/off blink effect like a strobe light."""
         dur = end - start
-        if dur <= 0 or flashes <= 0:
+        if dur <= 0 or n_flashes <= 0:
             return self
         duty = max(0.0, min(1.0, duty))
-        _s, _d, _fl, _du = start, dur, flashes, duty
+        _s, _d, _fl, _du = start, dur, n_flashes, duty
         self.styling.opacity.set(start, end,
             lambda t, _s=_s, _d=_d, _fl=_fl, _du=_du: (
                 1.0 if ((t - _s) / _d * _fl) % 1.0 < _du else 0.0),
