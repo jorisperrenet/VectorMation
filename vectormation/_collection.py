@@ -913,8 +913,7 @@ class VCollection(_BBoxMethodsMixin):
         _d = max(e - s, 1e-9)
         def _make_pop(base, _s=s, _d=_d, _f=factor, _ea=easing):
             return lambda t, _b=base: _b * (1 + (_f - 1) * math.sin(math.pi * _ea((t - _s) / _d)))
-        obj.styling.scale_x.set(s, e, _make_pop(sx0))
-        obj.styling.scale_y.set(s, e, _make_pop(sy0))
+        obj._set_scale_xy(s, e, _make_pop(sx0), _make_pop(sy0))
 
     def stagger_scale(self, start: float = 0, end: float = 1,
                        scale_factor=1.5, delay=0.2, easing=easings.smooth,

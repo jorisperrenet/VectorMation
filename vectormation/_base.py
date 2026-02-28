@@ -518,8 +518,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if scale is not None:
             self._ensure_scale_origin(start)
             sx0, sy0 = self._get_scale(start)
-            self.styling.scale_x.set(start, end, _lerp(start, dur, sx0 * scale, sx0, easing), stay=True)
-            self.styling.scale_y.set(start, end, _lerp(start, dur, sy0 * scale, sy0, easing), stay=True)
+            self._set_scale_xy(start, end,
+                _lerp(start, dur, sx0 * scale, sx0, easing),
+                _lerp(start, dur, sy0 * scale, sy0, easing), stay=True)
         return self
 
     def fade_shift(self, dx=0, dy=0, start: float = 0, end: float = 1, easing=easings.smooth):
@@ -556,8 +557,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if scale is not None:
             self._ensure_scale_origin(start)
             sx0, sy0 = self._get_scale(start)
-            self.styling.scale_x.set(start, end, _lerp(start, dur, sx0, sx0 * scale, easing), stay=True)
-            self.styling.scale_y.set(start, end, _lerp(start, dur, sy0, sy0 * scale, easing), stay=True)
+            self._set_scale_xy(start, end,
+                _lerp(start, dur, sx0, sx0 * scale, easing),
+                _lerp(start, dur, sy0, sy0 * scale, easing), stay=True)
         if change_existence:
             self._hide_from(end)
         return self
@@ -1340,8 +1342,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         def _make_pulse(s0):
             return lambda t, _s=_s, _d=_d, _sf=_sf, _p=_p, _s0=s0, _e=easing: \
                 _s0 * (1 + (_sf - 1) * abs(math.sin(math.pi * _p * _e((t - _s) / _d))))
-        self.styling.scale_x.set(start, end, _make_pulse(sx0))
-        self.styling.scale_y.set(start, end, _make_pulse(sy0))
+        self._set_scale_xy(start, end, _make_pulse(sx0), _make_pulse(sy0))
         return self
 
     def pulse_scale(self, start: float = 0, end: float = 1, count=2, amplitude=0.15, easing=easings.smooth):
@@ -1354,8 +1355,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         def _make_pulse_scale(base):
             return lambda t, _s=_s, _d=_d, _amp=_amp, _cnt=_cnt, _b=base, _e=easing: \
                 _b * (1 + _amp * math.sin(math.tau * _cnt * _e((t - _s) / _d)))
-        self.styling.scale_x.set(start, end, _make_pulse_scale(sx0))
-        self.styling.scale_y.set(start, end, _make_pulse_scale(sy0))
+        self._set_scale_xy(start, end, _make_pulse_scale(sx0), _make_pulse_scale(sy0))
         return self
 
     def ripple_scale(self, start: float = 0, end: float = 1, n_ripples=3, max_factor=1.3, easing=easings.smooth):
@@ -1384,8 +1384,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         def _make_flash(base):
             return lambda t, _s=_s, _d=_d, _f=_f, _b=base, _e=easing: \
                 _b * (1 + (_f - 1) * math.sin(math.pi * _e((t - _s) / _d)))
-        self.styling.scale_x.set(start, end, _make_flash(sx0))
-        self.styling.scale_y.set(start, end, _make_flash(sy0))
+        self._set_scale_xy(start, end, _make_flash(sx0), _make_flash(sy0))
         return self
 
     def hover_scale(self, factor=1.2, start: float = 0, end: float = 1):
@@ -2103,8 +2102,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             envelope = easings.there_and_back(p)
             peak = 1 + (_f - 1) * envelope
             return _sy0 / peak if peak > 1e-9 else _sy0
-        self.styling.scale_x.set(start, end, _ssx, stay=False)
-        self.styling.scale_y.set(start, end, _ssy, stay=False)
+        self._set_scale_xy(start, end, _ssx, _ssy)
         return self
 
     def warp(self, start: float = 0, end: float = 1, amplitude=0.15, frequency=3,
@@ -2146,8 +2144,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             def _make_scale(s0):
                 return lambda t, _s=_s, _d=_d, _s0=s0, _easing=easing: \
                     _s0 * (1 - 0.5 * math.sin(math.pi * _easing((t - _s) / _d)))
-            self.styling.scale_x.set(start, end, _make_scale(self.styling.scale_x.at_time(start)), stay=False)
-            self.styling.scale_y.set(start, end, _make_scale(self.styling.scale_y.at_time(start)), stay=False)
+            self._set_scale_xy(start, end,
+                _make_scale(self.styling.scale_x.at_time(start)),
+                _make_scale(self.styling.scale_y.at_time(start)))
         return self
 
     def heartbeat(self, start: float = 0, end: float = 1, beats=3,
