@@ -6010,26 +6010,6 @@ class TestNormalize:
         assert _normalize(0, 0) == (0.0, 0.0)
 
 
-class TestLerpPoint:
-    def test_t0(self):
-        from vectormation._constants import _interp_point as _lerp_point
-        x, y = _lerp_point(0, 0, 10, 20, 0)
-        assert x == pytest.approx(0)
-        assert y == pytest.approx(0)
-
-    def test_t1(self):
-        from vectormation._constants import _interp_point as _lerp_point
-        x, y = _lerp_point(0, 0, 10, 20, 1)
-        assert x == pytest.approx(10)
-        assert y == pytest.approx(20)
-
-    def test_t_half(self):
-        from vectormation._constants import _interp_point as _lerp_point
-        x, y = _lerp_point(0, 0, 10, 20, 0.5)
-        assert x == pytest.approx(5)
-        assert y == pytest.approx(10)
-
-
 # ---------------------------------------------------------------------------
 # VObject convenience methods
 # ---------------------------------------------------------------------------

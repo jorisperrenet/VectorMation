@@ -41,7 +41,6 @@ _ATTR_SCHEMA = [
 # Derived lookups
 _STYLE_PAIRS = [(name, svg) for name, svg, _, _, _ in _ATTR_SCHEMA if svg is not None]
 _STYLES = [name for name, svg, _, _, _ in _ATTR_SCHEMA if svg is not None]
-_TRANSFORMS = [name for name, svg, _, _, _ in _ATTR_SCHEMA if svg is None]
 _GLOBAL_DEFAULTS = {name: default for name, _, _, default, _ in _ATTR_SCHEMA}
 _ATTR_NAMES = [name for name, _, _, _, _ in _ATTR_SCHEMA]
 
