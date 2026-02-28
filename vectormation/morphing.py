@@ -140,11 +140,11 @@ class Paths:
         to_centers = {}
         if dist_vs_length:
             for i, (path, st) in enumerate(zip(self.paths, self.stylings)):
-                transforms = st.transform_style(start)[1:].split(' ')
+                transforms = st.transform_style(start).split()
                 xmin, xmax, ymin, ymax = path.adjusted_bbox(*transforms)
                 from_centers[i] = ((xmin+xmax)/2, (ymin+ymax)/2)
             for j, (path, st) in enumerate(zip(other.paths, other.stylings)):
-                transforms = st.transform_style(end)[1:].split(' ')
+                transforms = st.transform_style(end).split()
                 xmin, xmax, ymin, ymax = path.adjusted_bbox(*transforms)
                 to_centers[j] = ((xmin+xmax)/2, (ymin+ymax)/2)
 

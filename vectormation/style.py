@@ -105,42 +105,42 @@ class Styling:
                 string += f" {stylename}='{val}'"
 
         transform = self.transform_style(time)
-        if transform != '':
-            string += f" transform='{transform[1:]}'"
+        if transform:
+            string += f" transform='{transform}'"
 
         return string
 
     def transform_style(self, time):
-        result = ''
+        parts = []
         rot = self.rotation.at_time(time)
         if rot != (0, 0, 0):
-            result += f' rotate({-rot[0]%360},{rot[1]},{rot[2]})'
+            parts.append(f'rotate({-rot[0]%360},{rot[1]},{rot[2]})')
         dx, dy = self.dx.at_time(time), self.dy.at_time(time)
         if dx != 0 or dy != 0:
-            result += f' translate({dx},{dy})'
+            parts.append(f'translate({dx},{dy})')
         sx, sy = self.scale_x.at_time(time), self.scale_y.at_time(time)
         if sx != 1 or sy != 1:
             if self._scale_origin:
                 cx, cy = self._scale_origin
-                result += f' translate({cx},{cy}) scale({sx},{sy}) translate({-cx},{-cy})'
+                parts.append(f'translate({cx},{cy}) scale({sx},{sy}) translate({-cx},{-cy})')
             else:
-                result += f' scale({sx},{sy})'
+                parts.append(f'scale({sx},{sy})')
         skx = self.skew_x.at_time(time)
         if skx != 0:
-            result += f' skewX({skx})'
+            parts.append(f'skewX({skx})')
         sky = self.skew_y.at_time(time)
         if sky != 0:
-            result += f' skewY({sky})'
+            parts.append(f'skewY({sky})')
         skxa = self.skew_x_after.at_time(time)
         if skxa != 0:
-            result += f' skewX({skxa})'
+            parts.append(f'skewX({skxa})')
         skya = self.skew_y_after.at_time(time)
         if skya != 0:
-            result += f' skewY({skya})'
+            parts.append(f'skewY({skya})')
         mat = self.matrix.at_time(time)
         if mat != (0, 0, 0, 0, 0, 0):
-            result += f" matrix({','.join(str(v) for v in mat)})"
-        return result
+            parts.append(f"matrix({','.join(str(v) for v in mat)})")
+        return ' '.join(parts)
 
     def interpolate(self, other, start, end, easing=easings.linear,
                     rotation_degrees=0, rotation_center=None):

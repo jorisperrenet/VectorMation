@@ -479,7 +479,7 @@ class _BooleanOp(VObject):
         if st:
             if parts:
                 parts += ' '
-            parts += st.lstrip()
+            parts += st
         if parts:
             return f"<g transform='{parts}'>{inner}</g>"
         return inner
