@@ -356,7 +356,7 @@ class TestZipWith:
         c2 = Circle(r=20)
         col_a = VCollection(c1)
         col_b = VCollection(c2)
-        col_a.zip_with(col_b, lambda a, b, t: called_with.append((a, b, t)))
+        col_a.zip_with(col_b, lambda a, b, s, e: called_with.append((a, b, s)))
         assert len(called_with) == 1
         assert called_with[0][0] is c1
         assert called_with[0][1] is c2
@@ -364,7 +364,7 @@ class TestZipWith:
     def test_returns_self(self):
         col_a = VCollection(Circle(r=10))
         col_b = VCollection(Circle(r=20))
-        result = col_a.zip_with(col_b, lambda a, b, t: None)
+        result = col_a.zip_with(col_b, lambda a, b, s, e: None)
         assert result is col_a
 
     def test_stops_at_shorter(self):
@@ -372,7 +372,7 @@ class TestZipWith:
         results = []
         col_a = VCollection(Circle(r=10), Circle(r=20), Circle(r=30))
         col_b = VCollection(Circle(r=5))
-        col_a.zip_with(col_b, lambda a, b, t: results.append(1))
+        col_a.zip_with(col_b, lambda a, b, s, e: results.append(1))
         assert len(results) == 1
 
     def test_method_with_kwargs(self):
@@ -394,7 +394,7 @@ class TestZipWith:
         c1 = Circle(r=10)
         c2 = Circle(r=20)
         col = VCollection(c1)
-        col.zip_with([c2], lambda a, b, t: results.append((a is c1, b is c2)))
+        col.zip_with([c2], lambda a, b, s, e: results.append((a is c1, b is c2)))
         assert results == [(True, True)]
 
 
@@ -2936,9 +2936,8 @@ class TestZipWithStartEnd:
         col_b = VCollection(c2)
         # Use callable form to verify start/end are available
         called_with = []
-        col_a.zip_with(col_b, lambda a, b, t: called_with.append(t), start=5, end=10)
-        # The callable form receives time=start when time is not specified
-        assert called_with == [5]
+        col_a.zip_with(col_b, lambda a, b, s, e: called_with.append((s, e)), start=5, end=10)
+        assert called_with == [(5, 10)]
 
     def test_zip_with_method_name_with_kwargs(self):
         """Method-name form passes kwargs through."""
@@ -2953,7 +2952,7 @@ class TestZipWithStartEnd:
     def test_zip_with_returns_self(self):
         col_a = VCollection(Circle(r=10, cx=0, cy=0))
         col_b = VCollection(Circle(r=10, cx=100, cy=100))
-        result = col_a.zip_with(col_b, lambda a, b, t: None, start=0, end=1)
+        result = col_a.zip_with(col_b, lambda a, b, s, e: None, start=0, end=1)
         assert result is col_a
 
 

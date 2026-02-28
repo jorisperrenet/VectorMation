@@ -304,7 +304,7 @@ class PhysicsSpace:
         bodies = self.bodies
         s = strength
         md = max_dist
-        def _mutual(b, t):
+        def _mutual(b, _t):  # noqa: ARG002
             fx, fy = 0.0, 0.0
             for other in bodies:
                 if other is b or other.fixed:
@@ -468,7 +468,7 @@ def _point_force(target, strength, max_dist=None):
     The force magnitude is ``|strength| / dist^2``, directed toward or away
     from *target* depending on the sign of *strength*.
     """
-    def _force(b, t):
+    def _force(b, _t):  # noqa: ARG002
         tx, ty = _spring_pos(target)
         dx, dy = tx - b.x, ty - b.y
         dist = math.hypot(dx, dy)

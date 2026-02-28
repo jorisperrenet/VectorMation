@@ -1068,7 +1068,7 @@ class _AxesExtMixin:
         self._add_plot_obj(dot)
         return dot
 
-    def add_annotation(self, x, y, text, start=0, end=None, **kwargs):
+    def add_annotation(self, x, y, text, start=0, **kwargs):
         """Add a text annotation at graph coordinates (x, y), wrapper around add_point_label."""
         kwargs.setdefault('creation', start)
         return self.add_point_label(x, y, text=text, **kwargs)

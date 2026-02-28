@@ -1094,7 +1094,7 @@ class VCollection(_BBoxMethodsMixin):
                 getattr(a, method_name_or_func)(b, **kwargs)
         else:
             for a, b in zip(self.objects, other_objs):
-                method_name_or_func(a, b, start)
+                method_name_or_func(a, b, start, end)
         return self
 
     def align_to(self, other, edge='left', start: float = 0, end: float | None = None, easing=None):

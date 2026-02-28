@@ -600,7 +600,20 @@ class NumberLine(VCollection):
     def __repr__(self):
         return f'NumberLine([{self.x_start}, {self.x_end}], step={self.x_step})'
 
-class Table(VCollection):
+class _GridAccessMixin:
+    """Shared accessor and highlight helpers for Table and Matrix."""
+    entries: list
+
+    def get_entry(self, row, col): return self.entries[row][col]
+    def get_row(self, row): return VCollection(*self.entries[row])
+    def get_column(self, col): return VCollection(*(row[col] for row in self.entries if col < len(row)))
+
+    def _flash(self, entries, start, end, color, easing=easings.there_and_back):
+        for e in entries: e.flash(start, end, color=color, easing=easing)
+        return self
+
+
+class Table(_GridAccessMixin, VCollection):
     """Table for displaying tabular data with optional row/column labels."""
     def __init__(self, data, row_labels=None, col_labels=None,
                  x=120, y=60, cell_width=160, cell_height=60,
@@ -662,8 +675,7 @@ class Table(VCollection):
         self._line_kw = line_kw
         self._z = z
 
-    def get_entry(self, row, col): return self.entries[row][col]
-    get_cell = get_entry
+    get_cell = _GridAccessMixin.get_entry
 
     def get_cell_rect(self, row, col, padding=2, **kwargs):
         """Return a Rectangle covering the cell at (row, col)."""
@@ -674,26 +686,19 @@ class Table(VCollection):
         kw = _HIGHLIGHT_STYLE | kwargs
         return Rectangle(w, h, x=rx, y=ry, **kw)
 
-    def get_row(self, row): return VCollection(*self.entries[row])
-    def get_column(self, col): return VCollection(*(row[col] for row in self.entries if col < len(row)))
-
-    def _flash(self, entries, start, end, color, easing=easings.there_and_back):
-        for e in entries: e.flash(start, end, color=color, easing=easing)
-        return self
-
-    def highlight_cell(self, row, col, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+    def highlight_cell(self, row, col, start=0, end=1, color='#FFD700', easing=easings.there_and_back):
         """Flash-highlight a single cell's text."""
         return self._flash([self.entries[row][col]], start, end, color, easing)
 
-    def highlight_row(self, row_idx, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+    def highlight_row(self, row_idx, start=0, end=1, color='#FFD700', easing=easings.there_and_back):
         """Flash-highlight all cells in a row."""
         return self._flash(self.entries[row_idx], start, end, color, easing)
 
-    def highlight_column(self, col, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+    def highlight_column(self, col, start=0, end=1, color='#FFD700', easing=easings.there_and_back):
         """Flash-highlight all cells in a column."""
         return self._flash([row[col] for row in self.entries if col < len(row)], start, end, color, easing)
 
-    def highlight_cells(self, cells, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+    def highlight_cells(self, cells, start=0, end=1, color='#FFD700', easing=easings.there_and_back):
         """Flash-highlight multiple cells. cells: list of (row, col) tuples."""
         return self._flash([self.entries[r][c] for r, c in cells], start, end, color, easing)
 
@@ -982,7 +987,7 @@ def _det(m):
         d += ((-1) ** c) * m[0][c] * _det(minor)
     return d
 
-class Matrix(VCollection):
+class Matrix(_GridAccessMixin, VCollection):
     """Display a mathematical matrix with square bracket delimiters."""
     def __init__(self, data, x=ORIGIN[0], y=ORIGIN[1], font_size=36, h_spacing=80, v_spacing=50,
                  creation: float = 0, z: float = 0, **styling_kwargs):
@@ -1024,14 +1029,6 @@ class Matrix(VCollection):
 
     def __repr__(self):
         return f'Matrix({self.rows}x{self.cols})'
-
-    def get_entry(self, row, col): return self.entries[row][col]
-    def get_row(self, row): return VCollection(*self.entries[row])
-    def get_column(self, col): return VCollection(*(row[col] for row in self.entries if col < len(row)))
-
-    def _flash(self, entries, start, end, color, easing=easings.there_and_back):
-        for e in entries: e.flash(start, end, color=color, easing=easing)
-        return self
 
     def highlight_entry(self, row, col, start=0, end=1, color='#FFD700', easing=easings.there_and_back):
         """Flash-highlight a single matrix entry."""
