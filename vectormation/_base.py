@@ -117,12 +117,12 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             'center': self.center(time),
         }
 
-    def set_x(self, x, start: float = 0, end=None, easing=easings.smooth):
+    def set_x(self, x, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Set the x-coordinate of the center (by shifting)."""
         dx = x - self.get_x(start)
         return self.shift(dx=dx, start=start, end=end, easing=easing)
 
-    def set_y(self, y, start: float = 0, end=None, easing=easings.smooth):
+    def set_y(self, y, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Set the y-coordinate of the center (by shifting)."""
         dy = y - self.get_y(start)
         return self.shift(dy=dy, start=start, end=end, easing=easing)

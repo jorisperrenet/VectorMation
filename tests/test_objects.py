@@ -19443,3 +19443,86 @@ class TestMatchHeightMethod:
         a.match_height(b)
         assert abs(a.get_height(0) - b.get_height(0)) < 5
 
+
+class TestTableTranspose:
+    def test_returns_self(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        assert t.transpose() is t
+
+    def test_swaps_rows_cols(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        assert t.rows == 2 and t.cols == 2
+        t.transpose()
+        assert t.rows == 2 and t.cols == 2
+
+    def test_rectangular_transpose(self):
+        t = Table([['a', 'b', 'c'], ['d', 'e', 'f']])
+        assert t.rows == 2 and t.cols == 3
+        t.transpose()
+        assert t.rows == 3 and t.cols == 2
+
+
+class TestTableAddRow:
+    def test_returns_self(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        assert t.add_row(['e', 'f']) is t
+
+    def test_increments_rows(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        t.add_row(['e', 'f'])
+        assert t.rows == 3
+
+
+class TestTableAddColumn:
+    def test_returns_self(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        assert t.add_column(['x', 'y']) is t
+
+    def test_increments_cols(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        t.add_column(['x', 'y'])
+        assert t.cols == 3
+
+
+class TestTableGetCellRectExtra:
+    def test_returns_rectangle(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        rect = t.get_cell_rect(0, 0)
+        assert isinstance(rect, Rectangle)
+
+    def test_has_positive_dimensions(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        rect = t.get_cell_rect(1, 1)
+        assert rect.get_width(0) > 0
+        assert rect.get_height(0) > 0
+
+
+class TestPieChartExplode:
+    def test_returns_self(self):
+        p = PieChart([30, 50, 20])
+        assert p.explode([0]) is p
+
+    def test_shifts_sector(self):
+        p = PieChart([30, 50, 20])
+        x_before = p._sectors[0].get_x(0)
+        p.explode([0], distance=50)
+        x_after = p._sectors[0].get_x(0)
+        # sector should have shifted
+        assert x_before != x_after
+
+    def test_invalid_index_skipped(self):
+        p = PieChart([30, 50, 20])
+        p.explode([99])  # should not error
+
+
+class TestBarChartAddBar:
+    def test_returns_self(self):
+        b = BarChart([10, 20, 30])
+        assert b.add_bar(40) is b
+
+    def test_increases_bar_count(self):
+        b = BarChart([10, 20, 30])
+        b.add_bar(40)
+        assert b.bar_count == 4
+        assert len(b.values) == 4
+
