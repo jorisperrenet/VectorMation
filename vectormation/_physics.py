@@ -586,7 +586,10 @@ def _collide_bodies(a, b):
     # Normal impulse (uses 1/inf = 0 for fixed bodies)
     inv_ma = 0 if a.fixed else 1 / a.mass
     inv_mb = 0 if b.fixed else 1 / b.mass
-    j = -(1 + e) * dvn / (inv_ma + inv_mb)
+    denom = inv_ma + inv_mb
+    if denom == 0:
+        return
+    j = -(1 + e) * dvn / denom
     if not a.fixed:
         a.vx += j * inv_ma * ux
         a.vy += j * inv_ma * uy

@@ -922,8 +922,11 @@ class Ellipse(VObject):
     def get_perimeter(self, time=0):
         """Approximate perimeter using Ramanujan's second formula (more accurate)."""
         _, _, a, b = self._ep(time)
-        h = ((a - b) / (a + b)) ** 2
-        return math.pi * (a + b) * (1 + 3 * h / (10 + math.sqrt(4 - 3 * h)))
+        s = a + b
+        if s == 0:
+            return 0.0
+        h = ((a - b) / s) ** 2
+        return math.pi * s * (1 + 3 * h / (10 + math.sqrt(4 - 3 * h)))
 
     get_circumference = get_perimeter
 

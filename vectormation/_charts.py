@@ -315,7 +315,7 @@ class BarChart(VCollection):
             super().__init__(creation=creation, z=z)
             self.values, self.bar_count, self._bars, self._labels = [], 0, [], []
             return
-        max_val = max(abs(v) for v in values) if values else 1
+        max_val = (max(abs(v) for v in values) if values else 1) or 1
         objects: list[VObject] = []
         bars: list = []
         label_objs: list = []
@@ -365,7 +365,7 @@ class BarChart(VCollection):
 
     def animate_values(self, new_values, start=0, end=1, easing=easings.smooth):
         """Animate bars to new values over [start, end]."""
-        max_val = max(abs(v) for v in new_values) if new_values else 1
+        max_val = (max(abs(v) for v in new_values) if new_values else 1) or 1
         dur = max(end - start, 1e-9)
         for bar, new_val in zip(self._bars, new_values):
             old_h = bar.height.at_time(start)
@@ -467,7 +467,7 @@ class BarChart(VCollection):
         """Add a new bar to the right side of the chart."""
         n = len(self._bars)
         all_vals = list(self.values) + [value]
-        max_val = max(abs(v) for v in all_vals) if all_vals else 1
+        max_val = max(abs(v) for v in all_vals) or 1
         new_n = n + 1
         _, inner_width, bar_h, bx, by = self._bar_geometry(value, n, new_n, max_val)
         color = self._colors[n % len(self._colors)]

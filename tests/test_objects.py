@@ -20773,3 +20773,44 @@ class TestArrowBetween:
         svg = a.to_svg(0)
         assert '<' in svg
 
+
+class TestBarChartAddBarZeroValues:
+    def test_all_zeros(self):
+        """add_bar should not crash with all-zero values."""
+        from vectormation._charts import BarChart
+        bc = BarChart([0, 0, 0])
+        bc.add_bar(0)  # would crash before fix (div by zero)
+        svg = bc.to_svg(0)
+        assert '<' in svg
+
+    def test_add_nonzero_to_zeros(self):
+        from vectormation._charts import BarChart
+        bc = BarChart([0, 0])
+        bc.add_bar(5)
+        svg = bc.to_svg(0)
+        assert '<' in svg
+
+
+class TestEllipseZeroRadiusPerimeter:
+    def test_zero_radii(self):
+        """get_perimeter should return 0 for a degenerate zero-radius ellipse."""
+        from vectormation._shapes import Ellipse
+        e = Ellipse(cx=960, cy=540, rx=0, ry=0)
+        assert e.get_perimeter() == 0.0
+
+    def test_one_zero_radius(self):
+        from vectormation._shapes import Ellipse
+        e = Ellipse(cx=960, cy=540, rx=100, ry=0)
+        assert e.get_perimeter() > 0
+
+
+class TestCollideBodiesBothFixed:
+    def test_both_fixed_no_crash(self):
+        """_collide_bodies should not crash when both bodies are fixed."""
+        from vectormation._physics import Body, _collide_bodies
+        a = Body(100, 100, radius=20, fixed=True)
+        b = Body(110, 100, radius=20, fixed=True)
+        a.vx, b.vx = 5, -5  # approaching
+        # Should not raise ZeroDivisionError
+        _collide_bodies(a, b)
+
