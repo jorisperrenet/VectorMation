@@ -318,7 +318,7 @@ class Callout(VCollection):
         bg, lbl = _text_with_box(text, lx, ly, font_size, padding, corner_radius,
                                  creation, z + 2, z + 1, **style_kw)
         _, _, _, th = lbl.bbox(creation)
-        pointer = _Line(x1=tx, y1=ty, x2=lx, y2=ly - th / 2 if direction == 'up' else ly + th / 2 if direction == 'down' else ly,
+        pointer = _Line(x1=tx, y1=ty, x2=lx, y2=ly + th / 2 if direction == 'up' else ly - th / 2 if direction == 'down' else ly,
                         creation=creation, z=z, stroke='#888', stroke_width=1)
         super().__init__(pointer, bg, lbl, creation=creation, z=z)
 

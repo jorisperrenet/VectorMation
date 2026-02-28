@@ -9,7 +9,7 @@ from vectormation._constants import (
 )
 from vectormation._base import VObject, VCollection, _lerp, _lerp_point
 from vectormation._axes_helpers import (
-    _AREA_STYLE, _HIGHLIGHT_STYLE,
+    _CURVE_STYLE, _AREA_STYLE, _HIGHLIGHT_STYLE,
     _get_arrow, _get_dynamic_object, _get_tex_object,
     _nice_ticks, _build_axes_decoration,
     _TICK_FONT_SIZE, _LABEL_GAP,
@@ -249,7 +249,7 @@ class Axes(_AxesExtMixin, VCollection):
         """Add a function curve to these axes. Returns the Path object."""
         if hasattr(self, '_deferred_axes'):
             self._build_deferred_axes(func, num_points)
-        style_kw = {'stroke': '#58C4DD', 'stroke_width': 5, 'fill_opacity': 0} | styling_kwargs
+        style_kw = _CURVE_STYLE | styling_kwargs
         curve = self._make_curve(func, creation, z, num_points=num_points,
                                  x_range=x_range, lincl=lincl, rincl=rincl, **style_kw)
         self._add_plot_obj(curve)
@@ -308,7 +308,7 @@ class Axes(_AxesExtMixin, VCollection):
             self.y_max = attributes.Real(ax_creation, y_hi)
             self._axis_labels = self._build_label_objects(x_label, y_label, ax_creation, ax_z)
             del self._deferred_axes
-        style_kw = {'stroke': '#58C4DD', 'stroke_width': 5, 'fill_opacity': 0} | styling_kwargs
+        style_kw = _CURVE_STYLE | styling_kwargs
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
         _axes = self
         _fx, _fy = fx, fy
@@ -579,7 +579,7 @@ class Axes(_AxesExtMixin, VCollection):
     def plot_parametric(self, func, t_range=(0, 1), num_points=200,
                         creation=0, z=0, **styling_kwargs):
         """Plot a parametric curve func(t) -> (x, y) in math coordinates. Returns a Path."""
-        style_kw = {'stroke': '#58C4DD', 'stroke_width': 5, 'fill_opacity': 0} | styling_kwargs
+        style_kw = _CURVE_STYLE | styling_kwargs
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
         def _compute_d(time, _func=func, _np=num_points, _tr=t_range):
             t0, t1 = _tr
@@ -650,7 +650,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def plot_line_graph(self, x_values, y_values, creation=0, z=0, **styling_kwargs):
         """Plot a line graph from discrete data points. Returns a VCollection with animate_data()."""
-        style_kw = {'stroke': '#58C4DD', 'stroke_width': 5, 'fill_opacity': 0} | styling_kwargs
+        style_kw = _CURVE_STYLE | styling_kwargs
         # Mutable container so animate_data can update the data reference
         data_ref = [list(zip(x_values, y_values))]
         axes_ref = self
@@ -1834,7 +1834,7 @@ class Graph(Axes):
                          show_grid=show_grid, creation=creation, z=z)
         self.func = func
         self.num_points = num_points
-        curve_style = {'stroke': '#58C4DD', 'stroke_width': 5, 'fill_opacity': 0} | styling_kwargs
+        curve_style = _CURVE_STYLE | styling_kwargs
         self.curve = self._make_curve(func, creation, z, num_points=num_points, **curve_style)
         self._add_plot_obj(self.curve)
         if label is not None:

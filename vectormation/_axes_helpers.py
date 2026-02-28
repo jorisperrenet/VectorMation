@@ -19,6 +19,7 @@ _MARCH_SEGS = {
     13: [('top', 'right')], 14: [('top', 'left')],
 }
 
+_CURVE_STYLE = {'stroke': '#58C4DD', 'stroke_width': 5, 'fill_opacity': 0}
 _AREA_STYLE = {'fill': '#58C4DD', 'fill_opacity': 0.3, 'stroke_width': 0}
 _HIGHLIGHT_STYLE = {'fill': '#FFFF00', 'fill_opacity': 0.15, 'stroke_width': 0}
 
