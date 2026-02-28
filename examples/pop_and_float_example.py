@@ -15,7 +15,7 @@ circles = [
     for i, c in enumerate(['#FF6B6B', '#FFFF00', '#83C167', '#58C4DD', '#9B59B6'])
 ]
 for i, c in enumerate(circles):
-    c.pop_in(start=0.5 + i * 0.2, duration=0.4, overshoot=1.3)
+    c.pop_in(start=0.5 + i * 0.2, end=0.9 + i * 0.2, overshoot=1.3)
     canvas.add_objects(c)
 
 # Floating objects
@@ -24,7 +24,7 @@ for c in circles:
 
 # Pop out at the end
 for i, c in enumerate(circles):
-    c.pop_out(start=6 + i * 0.15, duration=0.3)
+    c.pop_out(start=6 + i * 0.15, end=6.3 + i * 0.15)
 
 # Legend demo
 legend = Legend([

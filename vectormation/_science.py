@@ -308,8 +308,9 @@ class NeuralNetwork(VCollection):
                 layer[neuron_idx].flash(start=start, end=end, color=color)
         return self
 
-    def propagate(self, start=0, duration=2, delay=0.3, color='#FFFF00'):
+    def propagate(self, start=0, end=2, delay=0.3, color='#FFFF00'):
         """Animate a forward-propagation signal through the network."""
+        duration = end - start
         for li, layer in enumerate(self._layers):
             t = start + li * delay
             for neuron in layer:

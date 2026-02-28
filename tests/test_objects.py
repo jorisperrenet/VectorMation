@@ -4906,14 +4906,14 @@ class TestBroadcast:
     def test_broadcast_returns_collection(self):
         from vectormation.objects import Circle, VCollection
         c = Circle(cx=500, cy=500)
-        copies = c.broadcast(start=0, duration=1, n_copies=3)
+        copies = c.broadcast(start=0, end=1, n_copies=3)
         assert isinstance(copies, VCollection)
         assert len(copies) == 3
 
     def test_broadcast_copies_fade(self):
         from vectormation.objects import Dot
         d = Dot(cx=500, cy=500)
-        copies = d.broadcast(start=0, duration=1, n_copies=2)
+        copies = d.broadcast(start=0, end=1, n_copies=2)
         # After the animation window, copies should be hidden
         for obj in copies.objects:
             assert not obj.show.at_time(5)
@@ -8557,33 +8557,33 @@ class TestTelegraph:
     def test_telegraph_scales_at_midpoint(self):
         """At the midpoint the scale should be above 1 (scaled up)."""
         c = Circle(r=50, cx=100, cy=100)
-        c.telegraph(start=0, duration=1, scale_factor=1.5)
+        c.telegraph(start=0, end=1, scale_factor=1.5)
         mid_sx = c.styling.scale_x.at_time(0.5)
         assert mid_sx > 1.0
 
     def test_telegraph_opacity_dips_at_midpoint(self):
         """Opacity should dip below 1 during the effect."""
         c = Circle(r=50, cx=100, cy=100)
-        c.telegraph(start=0, duration=1)
+        c.telegraph(start=0, end=1)
         mid_op = c.styling.opacity.at_time(0.5)
         assert mid_op < 1.0
 
     def test_telegraph_scale_returns_at_end(self):
         """Scale should return to approximately 1 at the end."""
         c = Circle(r=50, cx=100, cy=100)
-        c.telegraph(start=0, duration=1, scale_factor=1.4)
+        c.telegraph(start=0, end=1, scale_factor=1.4)
         end_sx = c.styling.scale_x.at_time(1.0)
         assert end_sx == pytest.approx(1.0, abs=0.05)
 
     def test_telegraph_zero_duration_noop(self):
         c = Circle(r=50, cx=100, cy=100)
-        result = c.telegraph(start=0, duration=0)
+        result = c.telegraph(start=0, end=0)
         assert result is c
 
     def test_telegraph_renders_svg(self):
         """Should render without error during the effect."""
         c = Circle(r=50, cx=100, cy=100)
-        c.telegraph(start=0, duration=0.5)
+        c.telegraph(start=0, end=0.5)
         svg = c.to_svg(0.25)
         assert 'circle' in svg.lower() or 'ellipse' in svg.lower()
 
@@ -12070,7 +12070,7 @@ class TestNeuralNetwork:
 
     def test_propagate(self):
         nn = NeuralNetwork([2, 3, 1])
-        result = nn.propagate(start=0, duration=1)
+        result = nn.propagate(start=0, end=1)
         assert result is nn
 
 
@@ -12215,12 +12215,12 @@ class TestStackViz:
 class TestPopIn:
     def test_pop_in_returns_self(self):
         c = Circle(r=50, cx=100, cy=100)
-        result = c.pop_in(start=0, duration=0.5)
+        result = c.pop_in(start=0, end=0.5)
         assert result is c
 
     def test_pop_out_returns_self(self):
         c = Circle(r=50, cx=100, cy=100)
-        result = c.pop_out(start=0, duration=0.5)
+        result = c.pop_out(start=0, end=0.5)
         assert result is c
 
 
@@ -13400,7 +13400,7 @@ class TestRippleEffect:
 
     def test_with_count(self):
         c = Circle(cx=960, cy=540)
-        c.ripple(start=0, count=2, duration=1)
+        c.ripple(start=0, count=2, end=1)
         assert isinstance(c, Circle)
 
 
@@ -13450,12 +13450,12 @@ class TestAlwaysNextToBuff:
 class TestFlashColor:
     def test_returns_self(self):
         c = Circle(fill='#ff0000')
-        result = c.flash_color('#00ff00', start=0, duration=0.5)
+        result = c.flash_color('#00ff00', start=0, end=0.5)
         assert result is c
 
     def test_color_changes_at_midpoint(self):
         c = Circle(fill='#ff0000')
-        c.flash_color('#00ff00', start=0, duration=1.0)
+        c.flash_color('#00ff00', start=0, end=1.0)
         # At midpoint (t=0.5) should be at the flash color
         mid_color = c.styling.fill.time_func(0.5)
         assert isinstance(mid_color, tuple)
@@ -13570,11 +13570,11 @@ class TestRotateChildren:
 class TestEmphasize:
     def test_returns_self(self):
         c = Circle()
-        assert c.emphasize(start=0, duration=0.8) is c
+        assert c.emphasize(start=0, end=0.8) is c
 
     def test_scale_changes(self):
         c = Circle()
-        c.emphasize(start=0, duration=0.5, scale_factor=1.3)
+        c.emphasize(start=0, end=0.5, scale_factor=1.3)
         mid = c.styling.scale_x.at_time(0.25)
         assert mid > 1.0
 

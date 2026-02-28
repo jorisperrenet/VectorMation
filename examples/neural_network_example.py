@@ -16,7 +16,7 @@ title = Text('Feed-Forward Neural Network', x=960, y=80, font_size=36,
 
 nn.fadein(start=0, end=1)
 title.fadein(start=0.5, end=1.5)
-nn.propagate(start=2, duration=2, delay=0.5, color='#FFFF00')
+nn.propagate(start=2, end=4, delay=0.5, color='#FFFF00')
 
 canvas.add_objects(nn, title)
 args = parse_args()

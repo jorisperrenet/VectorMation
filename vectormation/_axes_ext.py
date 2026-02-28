@@ -3,8 +3,7 @@ import math
 
 import vectormation.easings as easings
 from vectormation._constants import (
-    DEFAULT_FONT_SIZE, DEFAULT_CHART_COLORS, TEXT_Y_OFFSET,
-    _sample_function, _normalize,
+    DEFAULT_CHART_COLORS, TEXT_Y_OFFSET,
 )
 from vectormation._base import VCollection
 from vectormation._shapes import (
@@ -12,8 +11,8 @@ from vectormation._shapes import (
     Text, Path,
 )
 from vectormation._axes_helpers import (
-    _nice_ticks, _format_tick, _AREA_STYLE, _HIGHLIGHT_STYLE, _MARCH_SEGS,
-    _get_arrow, _get_dynamic_object, _get_tex_object,
+    _AREA_STYLE, _HIGHLIGHT_STYLE, _MARCH_SEGS,
+    _get_arrow, _get_dynamic_object,
 )
 
 _LABEL_STYLE = {'fill': '#ddd', 'stroke_width': 0}

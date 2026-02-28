@@ -40,8 +40,8 @@ underline.write(2.5, 3.5)
 # Highlight border demo
 circle = Circle(r=80, cx=1200, cy=550, fill='#9B59B6', fill_opacity=0.7)
 circle.fadein(1, 2)
-circle.highlight_border(start=3, duration=1, color='#FFFF00', width=6)
-circle.highlight_border(start=4.5, duration=0.8, color='#FF6B6B', width=8)
+circle.highlight_border(start=3, end=4, color='#FFFF00', width=6)
+circle.highlight_border(start=4.5, end=5.3, color='#FF6B6B', width=8)
 
 canvas.add_objects(rect1, rect2, rect3, label1, txt, underline, circle, title)
 

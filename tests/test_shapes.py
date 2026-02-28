@@ -12062,7 +12062,7 @@ class TestEffectBehavior:
 
     def test_telegraph_modifies_scale(self):
         c = Circle(r=30, cx=100, cy=100)
-        c.telegraph(start=0, duration=1.0, scale_factor=2.0)
+        c.telegraph(start=0, end=1.0, scale_factor=2.0)
         # Scale should be > 1 during the effect
         sx = c.styling.scale_x.at_time(0.3)
         assert sx > 1.0

@@ -19,9 +19,9 @@ trace = dot.trace_path(start=1, end=5, stroke='#FF6B6B', stroke_width=2, stroke_
 rect = Rectangle(width=150, height=100, x=700, y=250, fill='#83C167',
                  stroke_width=2, stroke='#fff')
 rect.fadein(0.5, 1)
-rect.flash_color('#FFFF00', start=2, duration=0.5)
-rect.flash_color('#FF6B6B', start=3.5, duration=0.6)
-rect.flash_color('#58C4DD', start=5, duration=0.8, attr='stroke')
+rect.flash_color('#FFFF00', start=2, end=2.5)
+rect.flash_color('#FF6B6B', start=3.5, end=4.1)
+rect.flash_color('#58C4DD', start=5, end=5.8, attr='stroke')
 
 # Area between two functions
 ax = Axes(x_range=(-2, 4), y_range=(-1, 8),

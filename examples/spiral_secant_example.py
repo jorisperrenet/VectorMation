@@ -19,8 +19,8 @@ star.spiral_out(start=4, end=5.5, n_turns=2)
 # Emphasize effect
 circle = Circle(r=50, cx=600, cy=350, fill='#FF6B6B', stroke_width=0)
 circle.fadein(0.5, 1)
-circle.emphasize(start=2, duration=1)
-circle.emphasize(start=3.5, duration=0.6, color='#83C167')
+circle.emphasize(start=2, end=3)
+circle.emphasize(start=3.5, end=4.1, color='#83C167')
 
 # Secant line on Axes
 ax = Axes(x_range=(-2, 4), y_range=(-1, 10),

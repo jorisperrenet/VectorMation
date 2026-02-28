@@ -1,5 +1,6 @@
 """Helper functions shared by _base.py and _base_effects.py."""
 import math
+from typing import Any
 
 import vectormation.easings as easings
 import vectormation.morphing as morphing
@@ -51,7 +52,7 @@ def _norm_edge(edge, default='bottom'):
     return _EDGE_NAMES.get(edge, default) if isinstance(edge, tuple) else edge
 
 
-def _coords_of(obj, time=0):
+def _coords_of(obj, time: float = 0):
     """Extract (x, y) from an object's center or a raw (x, y) tuple."""
     if hasattr(obj, 'center'):
         return obj.center(time)
@@ -77,11 +78,11 @@ def _wrap_to_svg(obj, wrapper_fn, start=0):
     obj.to_svg = _wrapped  # type: ignore[assignment]
 
 
-def _parse_path(d):
+def _parse_path(d) -> tuple[Any, float]:
     """Lazy-import svgpathtools and parse an SVG path string, returning (parsed, total_length)."""
     import svgpathtools
     parsed = svgpathtools.parse_path(d)
-    return parsed, parsed.length()
+    return parsed, parsed.length()  # type: ignore[return-value]
 
 
 def _path_prefix(path, t):
@@ -189,12 +190,12 @@ class _BBoxMethodsMixin:
         """Return the bounding box height."""
         return self.bbox(time)[3]
 
-    def get_x(self, time=0):
+    def get_x(self, time: float = 0):
         """Return x-coordinate of the bounding box center."""
         x, _, w, _ = self.bbox(time)
         return x + w / 2
 
-    def get_y(self, time=0):
+    def get_y(self, time: float = 0):
         """Return y-coordinate of the bounding box center."""
         _, y, _, h = self.bbox(time)
         return y + h / 2

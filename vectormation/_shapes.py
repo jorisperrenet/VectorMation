@@ -1,5 +1,7 @@
 """Shape classes: Polygon, Circle, Rectangle, Line, Text, Arc, etc."""
+from __future__ import annotations
 import math
+from typing import Any
 
 import vectormation.easings as easings
 import vectormation.attributes as attributes
@@ -13,8 +15,8 @@ def _cross2d(o, a, b):
 
 def _make_time_cache(func):
     """Return a wrapper that caches func(t) per time value."""
-    _cache = [None, None]
-    def _cached(t):
+    _cache: list[Any] = [None, None]
+    def _cached(t) -> Any:
         if _cache[0] != t:
             _cache[0] = t
             _cache[1] = func(t)
@@ -73,7 +75,7 @@ class Polygon(VObject):
         pts = ' '.join(f'{x},{y}' for x, y in (v.at_time(time) for v in self.vertices))
         return f"<{tag} points='{pts}'{self.styling.svg_style(time)} />"
 
-    def get_vertices(self, time=0):
+    def get_vertices(self, time: float = 0):
         """Return a list of (x, y) tuples for each vertex."""
         return [(float(x), float(y)) for x, y in (v.at_time(time) for v in self.vertices)]
 
@@ -901,7 +903,7 @@ class Ellipse(VObject):
     def _shift_coors(self):
         return [self.c]
 
-    def _ep(self, time=0):
+    def _ep(self, time: float = 0):
         """Return (cx, cy, rx, ry) evaluated at *time*."""
         cx, cy = self.c.at_time(time)
         return cx, cy, self.rx.at_time(time), self.ry.at_time(time)
@@ -1412,7 +1414,7 @@ class AnnotationDot(Dot):
         return f'AnnotationDot(cx={cx:.0f}, cy={cy:.0f})'
 
 class Rectangle(VObject):
-    def __init__(self, width, height, x=960, y=540, rx=0, ry=0, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, width, height, x: float = 960, y: float = 540, rx: float = 0, ry: float = 0, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.x = attributes.Real(creation, x)
         self.y = attributes.Real(creation, y)
@@ -1428,7 +1430,7 @@ class Rectangle(VObject):
     def _shift_reals(self):
         return [(self.x, self.y)]
 
-    def _dims(self, time=0):
+    def _dims(self, time: float = 0):
         """Return (x, y, w, h) as floats at *time*."""
         return (float(self.x.at_time(time)), float(self.y.at_time(time)),
                 float(self.width.at_time(time)), float(self.height.at_time(time)))
@@ -1459,7 +1461,7 @@ class Rectangle(VObject):
                 f" rx='{self.rx.at_time(time)}' ry='{self.ry.at_time(time)}'"
                 f"{self.styling.svg_style(time)} />")
 
-    def get_vertices(self, time=0):
+    def get_vertices(self, time: float = 0):
         """Return the four corners: top-left, top-right, bottom-right, bottom-left."""
         return self.snap_points(time)
 
@@ -1740,7 +1742,7 @@ class Lines(Polygon):
 
 class RegularPolygon(Polygon):
     """Regular n-sided polygon inscribed in a circle of given radius."""
-    def __init__(self, n, radius=120, cx=960, cy=540, angle=0, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, n, radius: float = 120, cx: float = 960, cy: float = 540, angle: float = 0, creation: float = 0, z: float = 0, **styling_kwargs):
         n = max(n, 1)
         self._n = n
         self._radius = radius
@@ -1816,7 +1818,7 @@ class EquilateralTriangle(RegularPolygon):
 
 class RoundedRectangle(Rectangle):
     """Rectangle with rounded corners (default corner_radius=10)."""
-    def __init__(self, width, height, x=960, y=540, corner_radius=12, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, width, height, x: float = 960, y: float = 540, corner_radius: float = 12, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(width, height, x=x, y=y, rx=corner_radius, ry=corner_radius,
                          creation=creation, z=z, **styling_kwargs)
 
@@ -1834,7 +1836,7 @@ class RoundedRectangle(Rectangle):
 
 class Square(Rectangle):
     """Square — a Rectangle with equal side length."""
-    def __init__(self, side=200, x=960, y=540, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, side: float = 200, x: float = 960, y: float = 540, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(side, side, x=x - side / 2, y=y - side / 2,
                          creation=creation, z=z, **styling_kwargs)
 

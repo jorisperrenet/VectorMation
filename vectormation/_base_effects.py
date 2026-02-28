@@ -101,15 +101,14 @@ class _VObjectEffectsMixin:
         self.styling.stroke_width.set_onward(time, other.styling.stroke_width.at_time(time))
         return self
 
-    def telegraph(self, start: float = 0, duration: float = 0.4,
+    def telegraph(self, start: float = 0, end: float = 0.4,
                   scale_factor: float = 1.4, shake_amplitude: float = 8,
                   easing=easings.there_and_back):
         """Quick attention-grabbing burst: scale spike + shake + opacity dip."""
-        if duration <= 0:
+        if end <= start:
             return self
-        end = start + duration
         self._ensure_scale_origin(start)
-        _s, _d = start, max(duration, 1e-9)
+        _s, _d = start, max(end - start, 1e-9)
         scale_fn = _lerp(_s, _d, 1, scale_factor, easing)
         self._set_scale_xy(_s, end, scale_fn)
         self.styling.opacity.set(_s, end, _lerp(_s, _d, 1, 0.7, easing))
@@ -230,8 +229,7 @@ class _VObjectEffectsMixin:
         def _make_ms(s0):
             return lambda t, _s=_s, _d=_d, _s0=s0, _e=easing: _s0 * _spring_curve(_e((t - _s) / _d))
 
-        self.styling.scale_x.set(start, end, _make_ms(sx0), stay=True)
-        self.styling.scale_y.set(start, end, _make_ms(sy0), stay=True)
+        self._set_scale_xy(start, end, _make_ms(sx0), _make_ms(sy0), stay=True)
         return self
 
     def strobe(self, start: float = 0, end: float = 1, n_flashes: int = 5,
@@ -404,8 +402,7 @@ class _VObjectEffectsMixin:
             return lambda t, _s=_s, _d=_d, _s0=s0, _f=f, _e=easing: \
                 _s0 * (1 + (_f - 1) * _e((t - _s) / _d))
         fx, fy = (_f, compensate) if axis == 'x' else (compensate, _f)
-        self.styling.scale_x.set(start, end, _sq(sx0, fx), stay=True)
-        self.styling.scale_y.set(start, end, _sq(sy0, fy), stay=True)
+        self._set_scale_xy(start, end, _sq(sx0, fx), _sq(sy0, fy), stay=True)
         return self
 
     def bind_to(self, other, offset_x=0, offset_y=0, start=0, end=None):
@@ -600,8 +597,7 @@ class _VObjectEffectsMixin:
             return lambda t, _s=_s, _d=_d, _f=_f, _s0=s0, _e=easing: \
                 _s0 * (1 + (_f - 1) * _elastic_envelope(_e((t - _s) / _d)))
 
-        self.styling.scale_x.set(start, end, _make_elastic(sx0), stay=True)
-        self.styling.scale_y.set(start, end, _make_elastic(sy0), stay=True)
+        self._set_scale_xy(start, end, _make_elastic(sx0), _make_elastic(sy0), stay=True)
         return self
 
     def snap_to_grid(self, grid_size=50, start=0, end=1, easing=easings.smooth):
@@ -719,8 +715,7 @@ class _VObjectEffectsMixin:
         def _make_zoom(s0):
             return lambda t, _s=_s, _d=_d, _zf=_zf, _s0=s0, _e=easing: \
                 _s0 * (1 + (_zf - 1) * math.sin(math.pi * _e((t - _s) / _d)))
-        self.styling.scale_x.set(start, end, _make_zoom(sx0))
-        self.styling.scale_y.set(start, end, _make_zoom(sy0))
+        self._set_scale_xy(start, end, _make_zoom(sx0), _make_zoom(sy0))
         return self
 
     def typewriter_effect(self, text, start=0, end=1, easing=easings.linear):

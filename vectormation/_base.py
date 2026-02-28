@@ -23,7 +23,7 @@ style._STYLES.append('mix_blend_mode')
 style._GLOBAL_DEFAULTS['mix_blend_mode'] = ''
 style._ATTR_NAMES.append('mix_blend_mode')
 style._RENDERED_DEFAULTS['mix_blend_mode'] = ''
-style.Styling.mix_blend_mode: attributes.String
+style.Styling.mix_blend_mode: attributes.String  # type: ignore[reportInvalidTypeForm]
 
 from vectormation._base_helpers import (
     _lerp, _ramp, _ramp_down, _lerp_point, _clip_reveal, _clip_hide,
@@ -599,6 +599,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if change_existence and fade_in:
             self._show_from(start)
         self._ensure_scale_origin(start)
+        assert self.styling._scale_origin is not None
         cx, cy = self.styling._scale_origin
         s, op_base = start, self.styling.fill_opacity.at_time(start)
         if fade_in:
@@ -622,9 +623,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         """Rotate away while fading out. Reverse of rotate_in."""
         return self._rotate_fade_anim(start, end, degrees, False, change_existence, easing)
 
-    def _pop_anim(self, start, end, duration, overshoot, pop_in, change_existence, easing):
+    def _pop_anim(self, start, end, overshoot, pop_in, change_existence, easing):
         """Shared helper for pop_in / pop_out."""
-        dur = duration if duration > 0 else end - start
+        dur = end - start
         if dur <= 0:
             return self
         if change_existence and pop_in:
@@ -632,11 +633,11 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._ensure_scale_origin(start)
         s = start
         if pop_in:
-            def scale_fn(t, _s=s, _d=dur, _o=overshoot, _e=easing):
+            def scale_fn(t, _s=s, _d=dur, _v=overshoot, _e=easing):
                 p = _e((t - _s) / _d)
                 if p < 0.7:
-                    return p / 0.7 * _o
-                return _o + (1 - _o) * ((p - 0.7) / 0.3)
+                    return p / 0.7 * _v
+                return _v + (1 - _v) * ((p - 0.7) / 0.3)
         else:
             scale_fn = _ramp_down(s, dur, 1, easing)
         self._set_scale_xy(s, end, scale_fn, stay=True)
@@ -644,15 +645,13 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self._hide_from(end)
         return self
 
-    def pop_in(self, start: float = 0, duration=0.3, overshoot=1.2, change_existence=True, easing=easings.smooth):
+    def pop_in(self, start: float = 0, end: float = 0.3, overshoot=1.2, change_existence=True, easing=easings.smooth):
         """Quick pop-in: scale from 0 to 1 with optional overshoot."""
-        end = start + duration
-        return self._pop_anim(start, end, duration, overshoot, True, change_existence, easing)
+        return self._pop_anim(start, end, overshoot, True, change_existence, easing)
 
-    def pop_out(self, start: float = 0, duration=0.3, change_existence=True, easing=easings.smooth):
+    def pop_out(self, start: float = 0, end: float = 0.3, change_existence=True, easing=easings.smooth):
         """Quick pop-out: scale from 1 to 0."""
-        end = start + duration
-        return self._pop_anim(start, end, duration, 0, False, change_existence, easing)
+        return self._pop_anim(start, end, 0, False, change_existence, easing)
 
     def _spin_anim(self, start, end, degrees, growing, change_existence, easing):
         dur = end - start
@@ -1403,10 +1402,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self._apply_rotation(start, end,
             self.styling.rotation.at_time(start)[0] + degrees, cx, cy, easing)
 
-    def emphasize(self, start: float = 0, duration=0.8, color='#FFFF00',
+    def emphasize(self, start: float = 0, end: float = 0.8, color='#FFFF00',
                     scale_factor=1.15, easing=easings.there_and_back):
         """Combine a brief scale pulse with a color flash for emphasis."""
-        end = start + duration
         self.indicate(start, end, scale_factor=scale_factor, easing=easing)
         self.flash(start, end, color=color, easing=easing)
         return self
@@ -1585,6 +1583,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if change_existence and spiral_in:
             self._show_from(start)
         self._scale_anim(start, end, (lambda p: p) if spiral_in else (lambda p: 1 - p), easing, stay=True)
+        assert self.styling._scale_origin is not None
         cx, cy = self.styling._scale_origin
         s = start
         if spiral_in:
@@ -1850,25 +1849,24 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         dy = _osc if axis in ('y', 'both') else None
         return self._apply_shift_effect(start, end, dx, dy)
 
-    def ripple(self, start: float = 0, count=3, duration=0.5, max_radius=100,
+    def ripple(self, start: float = 0, count=3, end: float = 0.5, max_radius=100,
                color='#58C4DD', stroke_width=2):
         """Emit expanding, fading rings from the object's center.
         Returns a VCollection of Circle objects (must be added to canvas)."""
         from vectormation._shapes import Circle as _Circle
+        dur = end - start
         cx, cy = self.center(start)
         rings = []
         for i in range(count):
-            t0 = start + i * (duration / max(count, 1))
+            t0 = start + i * (dur / max(count, 1))
             ring = _Circle(r=1, cx=cx, cy=cy, creation=t0,
                            fill_opacity=0, stroke=color, stroke_width=stroke_width)
             ring._show_from(t0)
-            dur = duration
             if dur > 0:
-                s = t0
-                ring.rx.set(s, s + dur, _ramp(s, dur, max_radius, easings.linear), stay=True)
-                ring.ry.set(s, s + dur, _ramp(s, dur, max_radius, easings.linear), stay=True)
-                ring.styling.stroke_opacity.set(s, s + dur,
-                    _ramp_down(s, dur, 1, easings.linear), stay=True)
+                ring.rx.set(t0, t0 + dur, _ramp(t0, dur, max_radius, easings.linear), stay=True)
+                ring.ry.set(t0, t0 + dur, _ramp(t0, dur, max_radius, easings.linear), stay=True)
+                ring.styling.stroke_opacity.set(t0, t0 + dur,
+                    _ramp_down(t0, dur, 1, easings.linear), stay=True)
             ring.show.set_onward(t0 + dur, False)
             rings.append(ring)
         return VCollection(*rings)
@@ -1914,11 +1912,10 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self._show_from(start)
         return self
 
-    def highlight_border(self, start: float = 0, duration=0.5, color='#FFFF00',
+    def highlight_border(self, start: float = 0, end: float = 0.5, color='#FFFF00',
                           width=4, easing=easings.there_and_back):
         """Flash the stroke to briefly highlight the object's border."""
-        end = start + duration
-        dur = duration
+        dur = end - start
         if dur <= 0:
             return self
         s = start
@@ -1977,10 +1974,10 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self._apply_shift_func(lambda t, _dx=dx, _dy=dy: (_dx, _dy), t0, t1, stay=False)
         return self
 
-    def flash_color(self, color='#FFFF00', start: float = 0, duration=0.4,
+    def flash_color(self, color='#FFFF00', start: float = 0, end: float = 0.4,
                      attr='fill'):
         """Flash to a color and back. Quick attention-grabbing effect."""
-        return self.pulse_color(color, start=start, end=start + duration, n_pulses=1, attr=attr)
+        return self.pulse_color(color, start=start, end=end, n_pulses=1, attr=attr)
 
     def pulse_color(self, color='#FFFF00', start: float = 0, end: float = 1,
                      n_pulses=3, attr='fill'):
@@ -2259,11 +2256,11 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                 stay=True)
         return self
 
-    def broadcast(self, start: float = 0, duration=0.5, n_copies=3,
+    def broadcast(self, start: float = 0, end: float = 0.5, n_copies=3,
                    max_scale=3, color=None):
         """Emit expanding, fading copies from this object's center.
         Returns a VCollection of copies (must be added to canvas)."""
-
+        duration = end - start
         copies = []
         for i in range(n_copies):
             t0 = start + i * (duration / max(n_copies, 1))

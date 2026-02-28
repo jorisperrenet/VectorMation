@@ -371,11 +371,11 @@ class Automaton(VCollection):
         duration = max(end - start, 0)
         # Arrow is a VCollection (shaft + tip); Arc is a VObject — handle both
         if hasattr(arrow, 'shaft'):
-            arrow.shaft.flash_color(color, start=start, duration=duration, attr='stroke')
-            arrow.tip.flash_color(color, start=start, duration=duration, attr='fill')
+            arrow.shaft.flash_color(color, start=start, end=start + duration, attr='stroke')
+            arrow.tip.flash_color(color, start=start, end=start + duration, attr='fill')
         else:
             # Arc (self-loop): flash the stroke color
-            arrow.flash_color(color, start=start, duration=duration, attr='stroke')
+            arrow.flash_color(color, start=start, end=start + duration, attr='stroke')
         return self
 
     def simulate_input(self, word, start=0, delay=0.5, color='#FFFF00', transitions=None):

@@ -1669,7 +1669,7 @@ class Wedge(Arc):
 
 class Annulus(VObject):
     """Ring/donut shape defined by inner and outer radius."""
-    def __init__(self, inner_radius=60, outer_radius=120, cx=960, cy=540,
+    def __init__(self, inner_radius: float = 60, outer_radius: float = 120, cx: float = 960, cy: float = 540,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.c = attributes.Coor(creation, (cx, cy))
