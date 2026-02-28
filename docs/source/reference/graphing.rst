@@ -382,6 +382,32 @@ FunctionGraph
                             x_range=(0, 20), stroke='#2ECC71', stroke_width=3)
       curve.create(start=0, end=2)
 
+ParametricFunction
+------------------
+
+.. py:class:: ParametricFunction(func, t_range=(0, 1), num_points=200, **styling)
+
+   Bases: :py:class:`Lines`
+
+   Curve defined by a parametric function ``f(t) -> (x, y)``.
+
+   :param callable func: Parametric function returning ``(x, y)`` tuples.
+   :param tuple t_range: ``(t_min, t_max)`` parameter interval.
+   :param int num_points: Number of sample points.
+
+   .. py:method:: get_point(t)
+
+      Return ``(x, y)`` at parameter value *t*.
+
+   .. code-block:: python
+
+      import math
+      spiral = ParametricFunction(
+          lambda t: (960 + 200*t*math.cos(6*t), 540 + 200*t*math.sin(6*t)),
+          t_range=(0, math.pi), num_points=300,
+          stroke='#FC6255', stroke_width=3)
+      spiral.create(start=0, end=2)
+
 ----
 
 NumberLine

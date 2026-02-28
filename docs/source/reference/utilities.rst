@@ -330,6 +330,52 @@ Helper Functions
 
    Load an entire SVG file into a :py:class:`VCollection`.
 
+.. py:function:: succession(*steps, start=0, lag_ratio=0.0)
+
+   Chain multiple animation steps in sequence. Each step is a tuple
+   ``(obj, method_name)`` or ``(obj, method_name, kwargs)``. Steps share the
+   total time equally; ``lag_ratio`` controls overlap between consecutive steps.
+
+   :param tuple steps: ``(vobject, method_name[, kwargs])`` tuples.
+   :param float start: Start time.
+   :param float lag_ratio: Overlap fraction (0 = sequential, 0.5 = 50% overlap).
+
+   .. code-block:: python
+
+      succession(
+          (circle, 'fadein'),
+          (square, 'write'),
+          (text, 'fadein', {'shift_dir': 'up'}),
+          start=0, lag_ratio=0.2,
+      )
+
+.. py:function:: transform_matching_shapes(source, target, start=0, end=1, key=None)
+
+   Animate morphing between two VCollections by matching sub-objects.
+   Unmatched source objects are faded out; unmatched target objects are faded in.
+
+   :param source: Source VCollection or list of VObjects.
+   :param target: Target VCollection or list of VObjects.
+   :param float start: Start time.
+   :param float end: End time.
+   :param key: Optional function ``key(obj) -> hashable`` for matching.
+
+.. py:function:: counterclockwise_morph(source, target, start=0, end=1, z=0, easing=smooth)
+
+   Convenience wrapper: morph with a 180-degree counterclockwise rotation.
+   Equivalent to ``MorphObject(source, target, rotation_degrees=-180, ...)``.
+
+   :param VObject source: Source object.
+   :param VObject target: Target object.
+
+.. py:function:: transform_matching_tex(source, target, start=0, end=1)
+
+   Animate morphing between two TexObjects by matching character content.
+   Matched glyph paths are morphed; unmatched ones are faded out/in.
+
+   :param TexObject source: The TexObject to morph from.
+   :param TexObject target: The TexObject to morph to.
+
 .. py:function:: interpolate_value(a, b, alpha)
 
    Linearly interpolate between two scalar values.
