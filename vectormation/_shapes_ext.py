@@ -1987,6 +1987,17 @@ class _TextBlockMixin:
     def bbox(self, time=0):
         return self._list_bbox(time, getattr(self, 'indent', 0))
 
+    def _render_list_svg(self, time, label_func):
+        """Render a labelled list: *label_func(i)* returns the label string for item *i*."""
+        x, y = self.x.at_time(time), self.y.at_time(time)
+        st = self.styling.svg_style(time)
+        parts = []
+        for i, item in enumerate(self.items):
+            ly = y + i * self.font_size * self.line_spacing
+            parts.append(f"<text x='{x}' y='{ly}' font-size='{self.font_size}'{st}>{label_func(i)}</text>")
+            parts.append(f"<text x='{x + self.indent}' y='{ly}' font-size='{self.font_size}'{st}>{_xml_escape(item)}</text>")
+        return '\n'.join(parts)
+
 class Paragraph(_TextBlockMixin, VObject):
     """Multi-line text with alignment and line spacing."""
     def __init__(self, *lines, x=ORIGIN[0], y=ORIGIN[1], font_size=36, alignment='left',
@@ -2016,11 +2027,12 @@ class Paragraph(_TextBlockMixin, VObject):
     def to_svg(self, time):
         x, y = self.x.at_time(time), self.y.at_time(time)
         anchor = {'left': 'start', 'center': 'middle', 'right': 'end'}[self.alignment]
+        st = self.styling.svg_style(time)
         parts = []
         for i, line in enumerate(self.items):
             ly = y + i * self.font_size * self.line_spacing
             parts.append(f"<text x='{x}' y='{ly}' text-anchor='{anchor}' "
-                         f"font-size='{self.font_size}'{self.styling.svg_style(time)}>{_xml_escape(line)}</text>")
+                         f"font-size='{self.font_size}'{st}>{_xml_escape(line)}</text>")
         return '\n'.join(parts)
 
 class BulletedList(_TextBlockMixin, VObject):
@@ -2035,15 +2047,8 @@ class BulletedList(_TextBlockMixin, VObject):
         return f'BulletedList({len(self.items)} items)'
 
     def to_svg(self, time):
-        x, y = self.x.at_time(time), self.y.at_time(time)
-        parts = []
-        for i, item in enumerate(self.items):
-            ly = y + i * self.font_size * self.line_spacing
-            parts.append(f"<text x='{x}' y='{ly}' font-size='{self.font_size}'"
-                         f"{self.styling.svg_style(time)}>{_xml_escape(self.bullet)}</text>")
-            parts.append(f"<text x='{x + self.indent}' y='{ly}' font-size='{self.font_size}'"
-                         f"{self.styling.svg_style(time)}>{_xml_escape(item)}</text>")
-        return '\n'.join(parts)
+        esc = _xml_escape(self.bullet)
+        return self._render_list_svg(time, lambda i: esc)
 
 class NumberedList(_TextBlockMixin, VObject):
     """List of items with numeric labels (1. 2. 3. ...)."""
@@ -2057,16 +2062,8 @@ class NumberedList(_TextBlockMixin, VObject):
         return f'NumberedList({len(self.items)} items)'
 
     def to_svg(self, time):
-        x, y = self.x.at_time(time), self.y.at_time(time)
-        parts = []
-        for i, item in enumerate(self.items):
-            ly = y + i * self.font_size * self.line_spacing
-            num = f'{self.start_number + i}.'
-            parts.append(f"<text x='{x}' y='{ly}' font-size='{self.font_size}'"
-                         f"{self.styling.svg_style(time)}>{num}</text>")
-            parts.append(f"<text x='{x + self.indent}' y='{ly}' font-size='{self.font_size}'"
-                         f"{self.styling.svg_style(time)}>{_xml_escape(item)}</text>")
-        return '\n'.join(parts)
+        sn = self.start_number
+        return self._render_list_svg(time, lambda i: f'{sn + i}.')
 
 class FunctionGraph(Lines):
     """Plot a mathematical function as a polyline (no axes, ticks, or labels)."""
