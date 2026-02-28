@@ -715,13 +715,13 @@ class _VObjectEffectsMixin:
         dur = end - start
         if dur <= 0:
             return self
-        self._ensure_scale_origin(start)
+        sx0, sy0 = self._init_scale_anim(start)
         _s, _d, _zf = start, max(dur, 1e-9), zoom_factor
         def _make_zoom(s0):
             return lambda t, _s=_s, _d=_d, _zf=_zf, _s0=s0, _e=easing: \
                 _s0 * (1 + (_zf - 1) * math.sin(math.pi * _e((t - _s) / _d)))
-        self.styling.scale_x.set(start, end, _make_zoom(self.styling.scale_x.at_time(start)))
-        self.styling.scale_y.set(start, end, _make_zoom(self.styling.scale_y.at_time(start)))
+        self.styling.scale_x.set(start, end, _make_zoom(sx0))
+        self.styling.scale_y.set(start, end, _make_zoom(sy0))
         return self
 
     def typewriter_effect(self, text, start=0, end=1, easing=easings.linear):

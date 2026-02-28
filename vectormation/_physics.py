@@ -164,6 +164,7 @@ class PhysicsSpace:
     def add_force(self, func):
         """Add a global force function ``func(body, t) -> (fx, fy)``."""
         self._forces.append(func)
+        return self
 
     # ── Simulation ──────────────────────────────────────────────────
 
@@ -243,14 +244,17 @@ class PhysicsSpace:
         c = coefficient
         self._forces.append(
             lambda b, t: (-b.vx * c * b.mass, -b.vy * c * b.mass))
+        return self
 
     def add_attraction(self, target, strength=50000):
         """Add point attraction towards a Body or (x, y) point."""
         self._forces.append(_point_force(target, strength))
+        return self
 
     def add_repulsion(self, target, strength=50000, max_dist=500):
         """Add point repulsion away from a Body or (x, y) point."""
         self._forces.append(_point_force(target, -strength, max_dist))
+        return self
 
     def add_mutual_repulsion(self, strength=5000, max_dist=300):
         """Add pairwise repulsion between all bodies."""
@@ -271,6 +275,7 @@ class PhysicsSpace:
                 fy += dy / dist * f
             return (fx, fy)
         self._forces.append(_mutual)
+        return self
 
 
 # ── Cloth simulation ────────────────────────────────────────────────

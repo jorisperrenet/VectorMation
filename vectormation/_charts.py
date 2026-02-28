@@ -68,6 +68,7 @@ class PieChart(VCollection):
         super().__init__(*objects, creation=creation, z=z)
         self.values = values
         self._cx, self._cy = cx, cy
+        self._start_angle = start_angle
 
     from_dict = classmethod(_from_dict)
 
@@ -80,8 +81,8 @@ class PieChart(VCollection):
     @staticmethod
     def _sector_offset(sector, distance, time=0):
         """Compute (dx, dy) to push a Wedge sector outward by *distance*."""
-        sa = sector.start_angle.at_time(time) if hasattr(sector.start_angle, 'at_time') else 0
-        ea = sector.end_angle.at_time(time) if hasattr(sector.end_angle, 'at_time') else 0
+        sa = sector.start_angle.at_time(time)
+        ea = sector.end_angle.at_time(time)
         mid_rad = math.radians((sa + ea) / 2)
         return distance * math.cos(mid_rad), -distance * math.sin(mid_rad)
 
@@ -117,12 +118,13 @@ class PieChart(VCollection):
         # Update stored values
         self.values = list(new_values)
         # Animate each sector's start/end angles
+        sa0 = self._start_angle
         cum_old, cum_new = 0, 0
         for i, sector in enumerate(self._sectors):
-            old_start_angle = 360 * cum_old / old_total + 90
-            old_end_angle = 360 * (cum_old + old_values[i]) / old_total + 90
-            new_start_angle = 360 * cum_new / new_total + 90
-            new_end_angle = 360 * (cum_new + new_values[i]) / new_total + 90
+            old_start_angle = 360 * cum_old / old_total + sa0
+            old_end_angle = 360 * (cum_old + old_values[i]) / old_total + sa0
+            new_start_angle = 360 * cum_new / new_total + sa0
+            new_end_angle = 360 * (cum_new + new_values[i]) / new_total + sa0
             _d = max(dur, 1e-9)
             sector.start_angle.set(start, end,
                 _lerp(start, _d, old_start_angle, new_start_angle, easing), stay=True)
@@ -150,7 +152,7 @@ class PieChart(VCollection):
     def add_percentage_labels(self, fmt='{:.0f}%', font_size=16, color='#fff', creation=0):
         """Add percentage labels at the center of each sector."""
         total = sum(self.values) or 1
-        angle = 90  # PieChart starts at 90 degrees
+        angle = self._start_angle
         for sector, val in zip(self._sectors, self.values):
             sweep = 360 * val / total
             r = sector.r.at_time(creation) * 0.65
@@ -270,9 +272,8 @@ class DonutChart(VCollection):
         cx, cy = self._cx, self._cy
         r, ir = self._r, self._inner_radius
         sa0 = self._start_angle
+        old_cum, new_cum = 0, 0
         for i, sector in enumerate(self._sectors):
-            old_cum = sum(old_values[:i])
-            new_cum = sum(new_values[:i])
             old_a1 = sa0 + 360 * old_cum / old_total
             old_a2 = sa0 + 360 * (old_cum + old_values[i]) / old_total
             new_a1 = sa0 + 360 * new_cum / new_total
@@ -289,6 +290,8 @@ class DonutChart(VCollection):
                 return _donut_sector_path(cx, cy, a1, a2, r, ir)
 
             sector.d.set(start, end, _make_d, stay=True)
+            old_cum += old_values[i]
+            new_cum += new_values[i]
         return self
 
 class BarChart(VCollection):
@@ -1324,7 +1327,7 @@ class KPICard(VCollection):
         objects.append(bg)
         # Title
         t_lbl = Text(text=str(title), x=x + width / 2, y=y + 30,
-                     font_size=font_size * TEXT_Y_OFFSET, fill=title_color, stroke_width=0,
+                     font_size=font_size * 0.5, fill=title_color, stroke_width=0,
                      text_anchor='middle', creation=creation, z=z + 0.1)
         objects.append(t_lbl)
         # Value
