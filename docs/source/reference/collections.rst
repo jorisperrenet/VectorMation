@@ -391,6 +391,102 @@ Brace
 Data Structures
 ---------------
 
+Array
+~~~~~
+
+.. py:class:: Array(values, x=360, y=440, cell_width=80, cell_height=60, font_size=24, show_indices=True, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Array visualization with cells, index labels, and animation methods.
+
+   .. py:method:: highlight_cell(index, start=0, end=1, color='#58C4DD', easing=there_and_back)
+
+      Flash-highlight a cell by index.
+
+   .. py:method:: swap_cells(i, j, start=0, end=1, easing=smooth)
+
+      Animate swapping the values at indices *i* and *j*.
+
+   .. py:method:: set_value(index, value, start=0, end=0.5)
+
+      Animate changing a cell's displayed value.
+
+   .. py:method:: sort(start=0, end=2, easing=smooth, delay=0.15)
+
+      Animate a bubble sort, staggering swaps over ``[start, end]``.
+
+   .. py:method:: reverse(start=0, end=2, easing=smooth, delay=0.15)
+
+      Animate reversing the array by swapping from outside in.
+
+   .. py:method:: add_pointer(index, label='', color='#FF6B6B', creation=0)
+
+      Add a pointer arrow above a cell.
+
+Stack
+~~~~~
+
+.. py:class:: Stack(values=None, x=860, y=600, cell_width=100, cell_height=50, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Visual stack (LIFO) with push/pop animations.
+
+   .. py:method:: push(value, start=0, end=0.5)
+
+      Animate pushing a value onto the stack.
+
+   .. py:method:: pop(start=0, end=0.5)
+
+      Animate popping the top value.
+
+   .. py:method:: peek()
+
+      Return the top value without removing it.
+
+Queue
+~~~~~
+
+.. py:class:: Queue(values=None, x=660, y=440, cell_width=80, cell_height=50, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Visual queue (FIFO) with enqueue/dequeue animations.
+
+   .. py:method:: enqueue(value, start=0, end=0.5)
+
+      Animate adding a value to the back.
+
+   .. py:method:: dequeue(start=0, end=0.5)
+
+      Animate removing the front value.
+
+LinkedList
+~~~~~~~~~~
+
+.. py:class:: LinkedList(values=None, x=260, y=500, cell_width=80, cell_height=50, **styling)
+
+   Bases: :py:class:`VCollection`
+
+   Visual singly linked list with insert/delete animations.
+
+   .. py:method:: insert(value, index=None, start=0, end=0.5)
+
+      Insert a new node at *index* (default: append).
+
+   .. py:method:: delete(index, start=0, end=0.5)
+
+      Remove the node at *index*.
+
+   .. py:method:: traverse(start=0, delay=0.3, color='#58C4DD')
+
+      Animate traversal through all nodes.
+
+   .. py:method:: get_length()
+
+      Return the number of nodes.
+
 ArrayViz
 ~~~~~~~~
 

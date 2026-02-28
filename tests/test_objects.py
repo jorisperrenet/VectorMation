@@ -17139,6 +17139,35 @@ class TestNumberPlaneGetVector:
         assert len(np.objects) == n_before + 1
 
 
+class TestPhaseAnim:
+    """Test that _phase_anim helper works for create/write/fadein_then_fadeout."""
+
+    def test_create_then_fadeout_visibility(self):
+        c = Circle(r=50)
+        c.create_then_fadeout(start=0, end=3)
+        # Object should be visible during the hold phase
+        assert c.show.at_time(2) is True
+        # Object should be hidden after fadeout ends
+        assert c.show.at_time(3.01) is False
+
+    def test_write_then_fadeout_visibility(self):
+        t = Text(text='hello')
+        t.write_then_fadeout(start=0, end=3)
+        assert t.show.at_time(0.5) is True
+        assert t.show.at_time(3.01) is False
+
+    def test_fadein_then_fadeout_visibility(self):
+        c = Circle(r=50)
+        c.fadein_then_fadeout(start=0, end=2)
+        assert c.show.at_time(0.5) is True
+        assert c.show.at_time(2.01) is False
+
+    def test_create_then_fadeout_zero_dur(self):
+        c = Circle(r=50)
+        result = c.create_then_fadeout(start=1, end=1)
+        assert result is c
+
+
 class TestBarChartAliases:
     """Test that get_tallest_bar/get_shortest_bar are aliases."""
 

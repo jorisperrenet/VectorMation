@@ -1660,53 +1660,35 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self.styling.fill_opacity.set_onward(mid, target_fo)
         return self
 
-    def create_then_fadeout(self, start: float = 0, end: float = 2,
-                            create_ratio: float = 0.4, hold_ratio: float = 0.2,
-                            easing=easings.smooth):
-        """Create the object (stroke draw), hold, then fade out.
-
-        Divides [start, end] into create/hold/fadeout phases by the given ratios.
-        """
+    def _phase_anim(self, start, end, in_method, in_ratio, hold_ratio, easing):
+        """Run in_method then fadeout with a hold phase between."""
         dur = end - start
         if dur <= 0:
             return self
-        cr, hr = create_ratio, hold_ratio
-        total = cr + hr + (1 - cr - hr)
-        t_create = start + dur * (cr / total)
-        t_hold = t_create + dur * (hr / total)
-        self.create(start=start, end=t_create, change_existence=True, easing=easing)
+        total = in_ratio + hold_ratio + (1 - in_ratio - hold_ratio)
+        t_in = start + dur * (in_ratio / total)
+        t_hold = t_in + dur * (hold_ratio / total)
+        in_method(start=start, end=t_in, change_existence=True, easing=easing)
         self.fadeout(start=t_hold, end=end, change_existence=True, easing=easing)
         return self
+
+    def create_then_fadeout(self, start: float = 0, end: float = 2,
+                            create_ratio: float = 0.4, hold_ratio: float = 0.2,
+                            easing=easings.smooth):
+        """Create the object (stroke draw), hold, then fade out."""
+        return self._phase_anim(start, end, self.create, create_ratio, hold_ratio, easing)
 
     def write_then_fadeout(self, start: float = 0, end: float = 2,
                            write_ratio: float = 0.4, hold_ratio: float = 0.2,
                            easing=easings.smooth):
         """Write the object, hold, then fade out."""
-        dur = end - start
-        if dur <= 0:
-            return self
-        wr, hr = write_ratio, hold_ratio
-        total = wr + hr + (1 - wr - hr)
-        t_write = start + dur * (wr / total)
-        t_hold = t_write + dur * (hr / total)
-        self.write(start=start, end=t_write, change_existence=True, easing=easing)
-        self.fadeout(start=t_hold, end=end, change_existence=True, easing=easing)
-        return self
+        return self._phase_anim(start, end, self.write, write_ratio, hold_ratio, easing)
 
     def fadein_then_fadeout(self, start: float = 0, end: float = 2,
                             in_ratio: float = 0.3, hold_ratio: float = 0.4,
                             easing=easings.smooth):
         """Fade in, hold, then fade out."""
-        dur = end - start
-        if dur <= 0:
-            return self
-        ir, hr = in_ratio, hold_ratio
-        total = ir + hr + (1 - ir - hr)
-        t_in = start + dur * (ir / total)
-        t_hold = t_in + dur * (hr / total)
-        self.fadein(start=start, end=t_in, change_existence=True, easing=easing)
-        self.fadeout(start=t_hold, end=end, change_existence=True, easing=easing)
-        return self
+        return self._phase_anim(start, end, self.fadein, in_ratio, hold_ratio, easing)
 
     def blink(self, start: float = 0, end: float | None = None, count: int = 1,
               duration: float = 0.3, easing=easings.smooth, num_blinks: int | None = None):
