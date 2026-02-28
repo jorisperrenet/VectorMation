@@ -151,11 +151,11 @@ class Arrow(VCollection):
         p1 = self.shaft.p1.at_time(start)
         p2 = self.shaft.p2.at_time(start)
         _s, _d = start, max(dur, 1e-9)
-        self.shaft.p2.set(start, end,
-            lambda t, _s=_s, _d=_d, _p1=p1, _p2=p2, _e=easing: (
-                _p1[0] + (_p2[0] - _p1[0]) * _e((t - _s) / _d),
-                _p1[1] + (_p2[1] - _p1[1]) * _e((t - _s) / _d)),
-            stay=True)
+        _dx, _dy = p2[0] - p1[0], p2[1] - p1[1]
+        def _grow_interp(t, _s=_s, _d=_d, _p1=p1, _dx=_dx, _dy=_dy, _e=easing):
+            p = _e((t - _s) / _d)
+            return (_p1[0] + _dx * p, _p1[1] + _dy * p)
+        self.shaft.p2.set(start, end, _grow_interp, stay=True)
         self.shaft.p2.set_onward(end, p2)
         self._update_tip_dynamic(start)
         return self

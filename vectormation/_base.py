@@ -311,7 +311,10 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             if end is None:
                 c.add_onward(start, (dx, dy))
             else:
-                c.add_onward(start, lambda t, _s=start, _e=end: (dx * easing((t-_s)/(_e-_s)), dy * easing((t-_s)/(_e-_s))), last_change=end)
+                def _shift_fn(t, _s=start, _d=end-start, _dx=dx, _dy=dy, _e=easing):
+                    p = _e((t - _s) / _d)
+                    return (_dx * p, _dy * p)
+                c.add_onward(start, _shift_fn, last_change=end)
         for xa, ya in self._shift_reals():
             if end is None:
                 xa.add_onward(start, dx)
@@ -2211,12 +2214,11 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         for xa, ya in self._shift_reals():
             xa.add(start, end, _ramp(start, _d, ddx, easing), stay=True)
             ya.add(start, end, _ramp(start, _d, ddy, easing), stay=True)
-        _s, _dd = start, _d
         for c in self._shift_coors():
-            c.add(start, end,
-                lambda t, _s=_s, _d=_dd, _dx=ddx, _dy=ddy, _easing=easing:
-                    (_dx * _easing((t - _s) / _d), _dy * _easing((t - _s) / _d)),
-                stay=True)
+            def _arc_fn(t, _s=start, _d=_d, _dx=ddx, _dy=ddy, _e=easing):
+                p = _e((t - _s) / _d)
+                return (_dx * p, _dy * p)
+            c.add(start, end, _arc_fn, stay=True)
         return self
 
     def broadcast(self, start: float = 0, end: float = 0.5, n_copies=3,

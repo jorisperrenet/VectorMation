@@ -208,7 +208,10 @@ class Angle(VCollection):
                 c.add_onward(start, (dx, dy))
             else:
                 d = max(end - start, 1e-9)
-                c.add_onward(start, lambda t, _s=start, _d=d: (dx * easing((t-_s)/_d), dy * easing((t-_s)/_d)), last_change=end)
+                def _shift_fn(t, _s=start, _d=d, _dx=dx, _dy=dy, _e=easing):
+                    p = _e((t - _s) / _d)
+                    return (_dx * p, _dy * p)
+                c.add_onward(start, _shift_fn, last_change=end)
         return self
 
 class RightAngle(VCollection):

@@ -795,9 +795,6 @@ class Text(VObject):
                 self.font_size.at_time(time) * CHAR_WIDTH_FACTOR,
                 self.styling.fill.time_func(time))
 
-    def split_words(self, time=0, **kwargs):
-        """Split text into a VCollection of individual word Text objects."""
-        return self.split_into_words(time, **kwargs)
 
     def split_chars(self, time=0):
         """Split text into a VCollection of individual character Text objects."""
@@ -913,6 +910,8 @@ class Text(VObject):
             parts.append(t)
             cursor = idx + len(word)
         return VCollection(*parts)
+
+    split_words = split_into_words
 
     def add_background_rectangle(self, color='#000000', opacity=0.5, padding=10, time=0):
         """Create a Rectangle behind the text, sized from bbox + padding."""
@@ -1633,7 +1632,7 @@ class Wedge(Arc):
     def __init__(self, cx: float = 960, cy: float = 540, r: float = 120, start_angle: float = 0, end_angle: float = 90,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(cx=cx, cy=cy, r=r, start_angle=start_angle, end_angle=end_angle,
-                         creation=creation, z=z, **({'fill_opacity': 0.7, 'stroke': '#fff', 'stroke_width': 5} | styling_kwargs))
+                         creation=creation, z=z, **({'fill_opacity': 0.7, 'stroke': '#fff', 'stroke_width': DEFAULT_STROKE_WIDTH} | styling_kwargs))
 
     def get_area(self, time=0):
         """Return the area of the wedge (0.5 * r^2 * sweep_in_radians)."""

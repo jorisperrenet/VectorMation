@@ -125,7 +125,7 @@ class ThreeDAxes(VCollection):
         self._threed_objects = []  # Line3D, Dot3D, Arrow3D, ParametricCurve3D
 
         # Light direction (normalized, in world space)
-        self._light_dir = (0.5, -0.5, 0.7071)
+        self._light_dir = (0.5, -0.5, 1 / math.sqrt(2))
 
         super().__init__(creation=creation, z=z)
 
@@ -262,13 +262,18 @@ class ThreeDAxes(VCollection):
             x_range = self._x_range
         x0, x1 = x_range
         def _make_curve_func(p, _x0, _x1, _yr, _f):
+            _dx = _x1 - _x0
             if p == 'xz':
-                return lambda t: (_x0 + (_x1 - _x0) * t, 0, _f(_x0 + (_x1 - _x0) * t))
+                return lambda t, _x0=_x0, _dx=_dx, _f=_f: (
+                    _x0 + _dx * t, 0, _f(_x0 + _dx * t))
             elif p == 'xy':
-                return lambda t: (_x0 + (_x1 - _x0) * t, _f(_x0 + (_x1 - _x0) * t), 0)
+                return lambda t, _x0=_x0, _dx=_dx, _f=_f: (
+                    _x0 + _dx * t, _f(_x0 + _dx * t), 0)
             else:
                 _y0, _y1 = _yr
-                return lambda t: (0, _y0 + (_y1 - _y0) * t, _f(_y0 + (_y1 - _y0) * t))
+                _dy = _y1 - _y0
+                return lambda t, _y0=_y0, _dy=_dy, _f=_f: (
+                    0, _y0 + _dy * t, _f(_y0 + _dy * t))
         curve_func = _make_curve_func(plane, x0, x1, self._y_range, func)
         curve = ParametricCurve3D(curve_func, t_range=(0, 1), num_points=num_points,
                                   stroke=stroke, stroke_width=stroke_width,

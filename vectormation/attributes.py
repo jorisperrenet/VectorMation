@@ -270,10 +270,14 @@ class Coor(Real):
         """
         outer = self.time_func
         if callable(func):
-            inner = lambda t: (outer(t)[0] + func(t)[0], outer(t)[1] + func(t)[1])  # type: ignore[index]
+            def _inner(t, _o=outer, _f=func):
+                o = _o(t); f = _f(t)
+                return (o[0] + f[0], o[1] + f[1])  # type: ignore[index]
         else:
-            inner = lambda t: (outer(t)[0] + func[0], outer(t)[1] + func[1])
-        self.time_func = _wrap(outer, inner, start, lincl=lincl)
+            def _inner(t, _o=outer, _fx=func[0], _fy=func[1]):  # type: ignore[index]
+                o = _o(t)
+                return (o[0] + _fx, o[1] + _fy)
+        self.time_func = _wrap(outer, _inner, start, lincl=lincl)
         self.last_change = max(self.last_change, start)
         if last_change is not None:
             self.last_change = max(self.last_change, last_change)
@@ -311,10 +315,10 @@ class Coor(Real):
         if dur <= 0:
             self.set_onward(start, end_val)
         else:
-            self.set(start, end, lambda t, _s=start, _d=dur: (
-                dx * (1-easing((t-_s)/_d)) + end_val[0],
-                dy * (1-easing((t-_s)/_d)) + end_val[1],
-            ), stay=stay)
+            def _interp(t, _s=start, _d=dur, _dx=dx, _dy=dy, _ex=end_val[0], _ey=end_val[1]):
+                p = 1 - easing((t - _s) / _d)
+                return (_dx * p + _ex, _dy * p + _ey)
+            self.set(start, end, _interp, stay=stay)
         self.last_change = max(self.last_change, end)
         return self
 
@@ -324,9 +328,10 @@ class Coor(Real):
         Example: ``coor.add(0, 1, lambda t: (t * 10, t * 20))``
         """
         outer = self.time_func
-        self.time_func = _wrap(outer,
-            lambda t: (float(outer(t)[0]) + func_inner(t)[0], float(outer(t)[1]) + func_inner(t)[1]),
-            start, end, lincl, rincl, stay)
+        def _add(t, _o=outer, _fi=func_inner):
+            o = _o(t); f = _fi(t)
+            return (float(o[0]) + f[0], float(o[1]) + f[1])
+        self.time_func = _wrap(outer, _add, start, end, lincl, rincl, stay)
         self.last_change = max(self.last_change, end)
 
     def along_path(self, start, end, path_d, easing=easings.smooth, stay=True):
