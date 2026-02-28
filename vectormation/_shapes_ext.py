@@ -377,11 +377,13 @@ class Line(VObject):
         dx, dy = -(y2 - y1), x2 - x1  # perpendicular direction
         mag = math.hypot(dx, dy)
         if length is None:
-            length = mag
+            length = mag if mag > 0 else 0
         px = x1 + t * (x2 - x1)
         py = y1 + t * (y2 - y1)
         if mag > 0:
             dx, dy = dx / mag * length / 2, dy / mag * length / 2
+        else:
+            dx, dy = 0, 0
         return Line(x1=px - dx, y1=py - dy, x2=px + dx, y2=py + dy, **kwargs)
 
     def extend(self, factor=1.5, start=0, end=None, easing=easings.smooth):
@@ -459,26 +461,25 @@ class Line(VObject):
         x1, y1, x2, y2 = self._ep(time)
         return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
 
-    def project_point(self, px, py, time=0):
-        """Return the closest point on this line (extended) to point (px, py)."""
+    def _line_param_at(self, px, py, time=0):
+        """Return (t, x1, y1, dx, dy) for projection of (px,py) onto the line."""
         x1, y1, x2, y2 = self._ep(time)
         dx, dy = x2 - x1, y2 - y1
         len_sq = dx * dx + dy * dy
         if len_sq < 1e-20:
-            return (x1, y1)
-        t = ((px - x1) * dx + (py - y1) * dy) / len_sq
+            return (0.0, x1, y1, dx, dy)
+        return (((px - x1) * dx + (py - y1) * dy) / len_sq, x1, y1, dx, dy)
+
+    def project_point(self, px, py, time=0):
+        """Return the closest point on this line (extended) to point (px, py)."""
+        t, x1, y1, dx, dy = self._line_param_at(px, py, time)
         return (x1 + t * dx, y1 + t * dy)
 
     closest_point_on_segment = get_perpendicular_point
 
     def parameter_at(self, px, py, time=0):
         """Return the parameter t for the projection of (px, py) onto the line."""
-        x1, y1, x2, y2 = self._ep(time)
-        dx, dy = x2 - x1, y2 - y1
-        len_sq = dx * dx + dy * dy
-        if len_sq < 1e-20:
-            return 0.0
-        return float(((px - x1) * dx + (py - y1) * dy) / len_sq)
+        return float(self._line_param_at(px, py, time)[0])
 
     def project_onto(self, other, time=0, **kwargs):
         """Project this line segment onto another line and return the projection."""

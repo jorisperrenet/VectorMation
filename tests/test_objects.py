@@ -18536,3 +18536,60 @@ class TestRevealLinesCompact:
         c = Code('print("hello")', creation=0)
         c.reveal_lines(start=0, end=1)
 
+
+class TestPerpendicularAtZeroLength:
+    """Test perpendicular_at handles zero-length lines safely."""
+
+    def test_zero_length_line(self):
+        l = Line(x1=100, y1=100, x2=100, y2=100)
+        perp = l.perpendicular_at(0.5, length=50)
+        # Should return a degenerate point, not crash
+        p1 = perp.p1.at_time(0)
+        p2 = perp.p2.at_time(0)
+        assert p1 == p2  # zero-length result for zero-length input
+
+    def test_normal_line_perpendicular(self):
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        perp = l.perpendicular_at(0.5, length=80)
+        p1 = perp.p1.at_time(0)
+        p2 = perp.p2.at_time(0)
+        # perpendicular to horizontal line should be vertical
+        assert abs(p1[0] - p2[0]) < 1  # same x
+
+
+class TestLineParamAtHelper:
+    """Test _line_param_at shared by project_point and parameter_at."""
+
+    def test_project_point_on_horizontal(self):
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        proj = l.project_point(50, 30)
+        assert abs(proj[0] - 50) < 0.1
+        assert abs(proj[1] - 0) < 0.1
+
+    def test_parameter_at_midpoint(self):
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        t = l.parameter_at(50, 0)
+        assert abs(t - 0.5) < 0.01
+
+    def test_project_and_param_consistent(self):
+        l = Line(x1=10, y1=20, x2=110, y2=120)
+        t = l.parameter_at(60, 70)
+        proj = l.project_point(60, 70)
+        # project_point at parameter_at should give same result
+        x1, y1 = l.get_start(0)
+        x2, y2 = l.get_end(0)
+        expected = (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
+        assert abs(proj[0] - expected[0]) < 0.01
+        assert abs(proj[1] - expected[1]) < 0.01
+
+
+class TestAddLabelCachedCoords:
+    """Test add_label after caching coords_to_point."""
+
+    def test_add_label_renders(self):
+        from vectormation.objects import Axes
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5], creation=0)
+        lbl = ax.add_label(2, 3, 'test')
+        svg = lbl.to_svg(0)
+        assert 'test' in svg
+

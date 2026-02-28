@@ -1055,8 +1055,14 @@ class _AxesExtMixin:
         ox, oy = offset
         lbl = Text(text=str(text), x=0, y=0, font_size=font_size,
                    creation=creation, z=z, **style_kw)
-        lbl.x.set_onward(creation, lambda t: self.coords_to_point(_xc, _yc, t)[0] + ox)
-        lbl.y.set_onward(creation, lambda t: self.coords_to_point(_xc, _yc, t)[1] + oy)
+        _cache = [None, None]
+        def _pt(t, _x=_xc, _y=_yc):
+            if _cache[0] != t:
+                _cache[0] = t
+                _cache[1] = self.coords_to_point(_x, _y, t)
+            return _cache[1]
+        lbl.x.set_onward(creation, lambda t: _pt(t)[0] + ox)
+        lbl.y.set_onward(creation, lambda t: _pt(t)[1] + oy)
         self._add_plot_obj(lbl)
         return lbl
 
@@ -1553,16 +1559,13 @@ class _AxesExtMixin:
         lines = []
         for yv in y_values:
             line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
-            _yv = yv
-            _x_start = x_start
-            _x_end = x_end
-            def _p1(t, _yv=_yv, _x_start=_x_start):
+            def _p1(t, _yv=yv, _xs=x_start):
                 sy = self._math_to_svg_y(_yv, t)
-                sx = self._math_to_svg_x(_x_start, t) if _x_start is not None else self.plot_x
+                sx = self._math_to_svg_x(_xs, t) if _xs is not None else self.plot_x
                 return (sx, sy)
-            def _p2(t, _yv=_yv, _x_end=_x_end):
+            def _p2(t, _yv=yv, _xe=x_end):
                 sy = self._math_to_svg_y(_yv, t)
-                sx = self._math_to_svg_x(_x_end, t) if _x_end is not None else self.plot_x + self.plot_width
+                sx = self._math_to_svg_x(_xe, t) if _xe is not None else self.plot_x + self.plot_width
                 return (sx, sy)
             _dyn_line(line, creation, _p1, _p2)
             self._add_plot_obj(line)
