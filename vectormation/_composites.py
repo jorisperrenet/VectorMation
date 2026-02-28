@@ -311,9 +311,10 @@ class NumberLine(VCollection):
     @staticmethod
     def _set_pointer_verts(ptr, pos_func, size, start):
         """Bind pointer triangle vertices to track *pos_func*."""
-        ptr.vertices[0].set_onward(start, lambda t: (pos_func(t)[0] - size / 2, pos_func(t)[1] - size - 2))
-        ptr.vertices[1].set_onward(start, lambda t: (pos_func(t)[0] + size / 2, pos_func(t)[1] - size - 2))
-        ptr.vertices[2].set_onward(start, lambda t: (pos_func(t)[0], pos_func(t)[1] - 2))
+        hs = size / 2
+        ptr.vertices[0].set_onward(start, lambda t: (p := pos_func(t), (p[0] - hs, p[1] - size - 2))[1])
+        ptr.vertices[1].set_onward(start, lambda t: (p := pos_func(t), (p[0] + hs, p[1] - size - 2))[1])
+        ptr.vertices[2].set_onward(start, lambda t: (p := pos_func(t), (p[0], p[1] - 2))[1])
 
     def add_pointer(self, value, label=None, color='#FF6B6B', size=12,
                      creation=0, z=1):
@@ -1329,152 +1330,55 @@ class ParametricFunction(Lines):
         return self._func(t)
 
 
-def transform_matching_shapes(source, target, start: float = 0, end: float = 1, key=None):
-    """Animate morphing between two VCollections by matching sub-objects.
-
-    Parameters
-    ----------
-    source : VCollection or list of VObject
-        The source objects to morph from.
-    target : VCollection or list of VObject
-        The target objects to morph to.
-    start : float
-        Animation start time.
-    end : float
-        Animation end time.
-    key : callable or None
-        Optional function mapping a VObject to a hashable key used for matching.
-        When None, the rounded bounding-box area at the relevant time is used as
-        an approximation (objects with similar area are treated as matching).
-
-    Returns
-    -------
-    VCollection
-        A VCollection containing all morph and fade animation objects.  Add it
-        to the canvas to make the animations play.
-    """
-    # Normalise inputs to plain lists of VObjects
-    src_objs = list(source.objects) if isinstance(source, VCollection) else list(source)
-    tgt_objs = list(target.objects) if isinstance(target, VCollection) else list(target)
-
-    def _default_key(obj, time):
-        try:
-            _, _, w, h = obj.bbox(time)
-            return round(w * h, -1)  # round to nearest 10 px²
-        except Exception:
-            return None
-
-    def _key_for(obj, time):
-        if key is not None:
-            return key(obj)
-        return _default_key(obj, time)
-
-    # Build key→list maps for source and target
+def _match_and_morph(src_objs, tgt_objs, src_keys, tgt_keys, start, end):
+    """Match source/target objects by key, morph matched pairs, fade unmatched."""
     src_by_key: dict = {}
-    for obj in src_objs:
-        k = _key_for(obj, start)
+    for obj, k in zip(src_objs, src_keys):
         src_by_key.setdefault(k, []).append(obj)
-
     tgt_by_key: dict = {}
-    for obj in tgt_objs:
-        k = _key_for(obj, end)
+    for obj, k in zip(tgt_objs, tgt_keys):
         tgt_by_key.setdefault(k, []).append(obj)
 
-    matched_src: set = set()
-    matched_tgt: set = set()
-    animations = []
-
-    # Match source objects to target objects with the same key
-    all_keys = set(src_by_key) | set(tgt_by_key)
-    for k in all_keys:
-        srcs = src_by_key.get(k, [])
-        tgts = tgt_by_key.get(k, [])
-        for s, t in zip(srcs, tgts):
-            morph = MorphObject(s, t, start=start, end=end)
-            animations.append(morph)
+    matched_src, matched_tgt, animations = set(), set(), []
+    for k in set(src_by_key) | set(tgt_by_key):
+        for s, t in zip(src_by_key.get(k, []), tgt_by_key.get(k, [])):
+            animations.append(MorphObject(s, t, start=start, end=end))
             matched_src.add(id(s))
             matched_tgt.add(id(t))
 
-    # Fade out unmatched source objects
     for obj in src_objs:
         if id(obj) not in matched_src:
             obj.fadeout(start=start, end=end)
-
-    # Fade in unmatched target objects
     for obj in tgt_objs:
         if id(obj) not in matched_tgt:
             obj.fadein(start=start, end=end)
-
     return VCollection(*animations, creation=start)
 
+def transform_matching_shapes(source, target, start: float = 0, end: float = 1, key=None):
+    """Morph between VCollections by matching sub-objects via *key* (default: bbox area)."""
+    src_objs = list(source.objects) if isinstance(source, VCollection) else list(source)
+    tgt_objs = list(target.objects) if isinstance(target, VCollection) else list(target)
+
+    def _area_key(obj, time):
+        try:
+            _, _, w, h = obj.bbox(time)
+            return round(w * h, -1)
+        except Exception:
+            return None
+
+    key_fn = (lambda obj, _t: key(obj)) if key else _area_key  # noqa: ARG005
+    return _match_and_morph(src_objs, tgt_objs,
+                            [key_fn(o, start) for o in src_objs],
+                            [key_fn(o, end) for o in tgt_objs], start, end)
 
 def transform_matching_tex(source, target, start: float = 0, end: float = 1):
-    """Animate morphing between two TexObjects by matching character content.
-
-    Sub-objects (individual glyph paths) within each TexObject are matched by
-    their corresponding visible character.  Matched pairs are morphed with
-    MorphObject; unmatched glyphs are faded out (source) or faded in (target).
-
-    Parameters
-    ----------
-    source : TexObject
-        The TexObject to morph from.
-    target : TexObject
-        The TexObject to morph to.
-    start : float
-        Animation start time.
-    end : float
-        Animation end time.
-
-    Returns
-    -------
-    VCollection
-        A VCollection containing all animation objects.  Add it to the canvas.
-    """
-    # Use character content as matching key when both objects are TexObjects,
-    # falling back to positional area-based matching otherwise.
+    """Morph between TexObjects by matching visible characters."""
     src_vis = getattr(source, '_visible_tex', None)
     tgt_vis = getattr(target, '_visible_tex', None)
-
     if src_vis is not None and tgt_vis is not None:
-        src_objs = list(source.objects)
-        tgt_objs = list(target.objects)
-
-        # Build char→list-of-glyph-objects maps using visible character positions
-        def _char_map(objs, visible):
-            cmap: dict = {}
-            for idx, obj in enumerate(objs):
-                ch = visible[idx] if idx < len(visible) else None
-                cmap.setdefault(ch, []).append(obj)
-            return cmap
-
-        src_map = _char_map(src_objs, src_vis)
-        tgt_map = _char_map(tgt_objs, tgt_vis)
-
-        matched_src: set = set()
-        matched_tgt: set = set()
-        animations = []
-
-        all_chars = set(src_map) | set(tgt_map)
-        for ch in all_chars:
-            srcs = src_map.get(ch, [])
-            tgts = tgt_map.get(ch, [])
-            for s, t in zip(srcs, tgts):
-                morph = MorphObject(s, t, start=start, end=end)
-                animations.append(morph)
-                matched_src.add(id(s))
-                matched_tgt.add(id(t))
-
-        for obj in src_objs:
-            if id(obj) not in matched_src:
-                obj.fadeout(start=start, end=end)
-
-        for obj in tgt_objs:
-            if id(obj) not in matched_tgt:
-                obj.fadein(start=start, end=end)
-
-        return VCollection(*animations, creation=start)
-
-    # Fallback: delegate to transform_matching_shapes
+        src_objs, tgt_objs = list(source.objects), list(target.objects)
+        src_keys = [src_vis[i] if i < len(src_vis) else None for i in range(len(src_objs))]
+        tgt_keys = [tgt_vis[i] if i < len(tgt_vis) else None for i in range(len(tgt_objs))]
+        return _match_and_morph(src_objs, tgt_objs, src_keys, tgt_keys, start, end)
     return transform_matching_shapes(source, target, start=start, end=end)
 

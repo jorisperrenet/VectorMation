@@ -508,15 +508,16 @@ class _VObjectEffectsMixin:
         """Animate the object to reach a specific width and/or height."""
         cur_w = self.get_width(start)
         cur_h = self.get_height(start)
-        if cur_w <= 0 or cur_h <= 0:
-            return self
         if target_width is not None and target_height is not None:
-            self.stretch(target_width / cur_w, target_height / cur_h,
-                         start=start, end=end, easing=easing)
+            if cur_w > 0 and cur_h > 0:
+                self.stretch(target_width / cur_w, target_height / cur_h,
+                             start=start, end=end, easing=easing)
         elif target_width is not None:
-            self.scale(target_width / cur_w, start=start, end=end, easing=easing)
+            if cur_w > 0:
+                self.scale(target_width / cur_w, start=start, end=end, easing=easing)
         elif target_height is not None:
-            self.scale(target_height / cur_h, start=start, end=end, easing=easing)
+            if cur_h > 0:
+                self.scale(target_height / cur_h, start=start, end=end, easing=easing)
         return self
 
     def tilt_towards(self, target_x, target_y, max_angle=15, start=0, end=1, easing=easings.smooth):  # noqa: ARG002
@@ -698,10 +699,7 @@ class _VObjectEffectsMixin:
 
     def focus_zoom(self, start=0, end=1, zoom_factor=1.3, easing=easings.smooth):
         """Zoom in slightly on the object then back to normal, like a camera focus effect."""
-        _zf = zoom_factor
-        def _zoom(p, _zf=_zf):
-            return 1 + (_zf - 1) * math.sin(math.pi * p)
-        return self._apply_scale_envelope(start, end, _zoom, easing, stay=False)
+        return self.flash_scale(factor=zoom_factor, start=start, end=end, easing=easing)
 
     def typewriter_effect(self, text, start=0, end=1, easing=easings.linear):
         """For Text objects only: gradually reveal text character by character."""

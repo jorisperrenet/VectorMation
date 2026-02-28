@@ -404,12 +404,9 @@ class BarChart(VCollection):
 
     def highlight_bar(self, index, color='#FFFF00', start=0, end=None, opacity=None):
         """Highlight a specific bar by changing its fill color."""
-        bar = _check_idx(index, self._bars, 'bar', allow_negative=True)
-        if end is None:
-            bar.styling.fill = attributes.Color(start, color)
-        else:
-            bar.styling.fill.interpolate(attributes.Color(start, color), start, end)
+        self.set_bar_color(index, color, start, end)
         if opacity is not None:
+            bar = _check_idx(index, self._bars, 'bar', allow_negative=True)
             if end is None:
                 bar.styling.fill_opacity.set_onward(start, opacity)
             else:
@@ -1401,7 +1398,7 @@ class BulletChart(VCollection):
 
 class CalendarHeatmap(VCollection):
     """Grid heatmap like a GitHub contribution graph."""
-    def __init__(self, data, rows=7, cols=52, x=100, y=100,
+    def __init__(self, data, rows=7, cols=52, x=100, y=100,  # noqa: ARG002 (cols reserved for layout hints)
                  cell_size=14, gap=2, colormap=None,
                  creation: float = 0, z: float = 0):
         if colormap is None:

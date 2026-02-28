@@ -544,9 +544,10 @@ class _AxesExtMixin:
                 y_math = yhi - ri * cell_h  # top row = highest y
                 _xl, _xr = x_math, x_math + cell_w
                 _yt, _yb = y_math, y_math - cell_h
+                cell_kw = {'fill': color, 'fill_opacity': 0.85, 'stroke': color,
+                           'stroke_width': 0.5} | styling_kwargs
                 rect = Rectangle(width=0, height=0, x=0, y=0,
-                                  fill=color, fill_opacity=0.85, stroke=color,
-                                  stroke_width=0.5, creation=creation, z=z)
+                                  creation=creation, z=z, **cell_kw)
                 rect.x.set_onward(creation, lambda t, _xl=_xl: self._math_to_svg_x(_xl, t))
                 rect.width.set_onward(creation, lambda t, _xl=_xl, _xr=_xr: abs(
                     self._math_to_svg_x(_xr, t) - self._math_to_svg_x(_xl, t)))
@@ -748,7 +749,7 @@ class _AxesExtMixin:
         self._add_plot_obj(group)
         return group
 
-    def plot_stacked_area(self, data, labels=None, colors=None, x_values=None,
+    def plot_stacked_area(self, data, labels=None, colors=None, x_values=None,  # noqa: ARG002 (labels reserved for legend)
                            creation=0, z=-1, **styling_kwargs):
         """Plot a stacked area chart.
         data: list of lists (each inner list is one series, same length).
@@ -808,9 +809,10 @@ class _AxesExtMixin:
                 lambda t, _x=_x, _l=_l: (self._math_to_svg_x(_x, t), self._math_to_svg_y(_l, t)))
             objs.append(wick)
             # Body (open-close rectangle)
+            body_kw = {'fill': color, 'fill_opacity': 0.8, 'stroke': color,
+                       'stroke_width': 1} | styling_kwargs
             rect = Rectangle(width=0, height=0, x=0, y=0,
-                              fill=color, fill_opacity=0.8, stroke=color, stroke_width=1,
-                              creation=creation, z=z + 0.1)
+                              creation=creation, z=z + 0.1, **body_kw)
             _xl, _xr = x - hw, x + hw
             _blo, _bhi = body_lo, body_hi
             rect.x.set_onward(creation, lambda t, _xl=_xl: self._math_to_svg_x(_xl, t))
@@ -2093,30 +2095,18 @@ class _AxesExtMixin:
         lbl = Text(text=str(label_text), x=0, y=0, font_size=font_size,
                    creation=creation, z=z, **style_kw)
 
-        if x_pos is not None:
-            def _lbl_x(t, _xp=x_pos): return self._math_to_svg_x(_xp, t)
-            def _lbl_y(t, _xp=x_pos, _f=func, _s=sign, _b=buff, _fz=font_size):
-                try:
-                    yv = _f(_xp)
-                except Exception:
-                    yv = 0
-                return self._math_to_svg_y(yv, t) + _s * (_fz / 2 + _b)
-            lbl.x.set_onward(creation, _lbl_x)
-            lbl.y.set_onward(creation, _lbl_y)
-        else:
-            # Dynamic: track x_max
-            def _lbl_x(t):
-                xv = self.x_max.at_time(t)
-                return self._math_to_svg_x(xv, t)
-            def _lbl_y(t, _f=func, _s=sign, _b=buff, _fz=font_size):
-                xv = self.x_max.at_time(t)
-                try:
-                    yv = _f(xv)
-                except Exception:
-                    yv = 0
-                return self._math_to_svg_y(yv, t) + _s * (_fz / 2 + _b)
-            lbl.x.set_onward(creation, _lbl_x)
-            lbl.y.set_onward(creation, _lbl_y)
+        _get_xv = ((lambda t, _xp=x_pos: _xp) if x_pos is not None
+                   else lambda t: self.x_max.at_time(t))
+
+        def _lbl_x(t): return self._math_to_svg_x(_get_xv(t), t)
+        def _lbl_y(t, _f=func, _s=sign, _b=buff, _fz=font_size):
+            try:
+                yv = _f(_get_xv(t))
+            except Exception:
+                yv = 0
+            return self._math_to_svg_y(yv, t) + _s * (_fz / 2 + _b)
+        lbl.x.set_onward(creation, _lbl_x)
+        lbl.y.set_onward(creation, _lbl_y)
 
         self._add_plot_obj(lbl)
         return lbl
