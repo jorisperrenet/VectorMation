@@ -230,7 +230,7 @@ class Tup(Real):
         """
         outer = self.time_func
         self.time_func = _wrap(outer,
-            lambda t: tuple(float(i) + func_inner[idx] for idx, i in enumerate(outer(t))),
+            lambda t, _fi=func_inner: tuple(float(i) + _fi[idx] for idx, i in enumerate(outer(t))),
             start, end, lincl, rincl, stay)
         self.last_change = max(self.last_change, end)
 

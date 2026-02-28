@@ -1,4 +1,5 @@
 """Showcase combined animation methods: create_then_fadeout, fadein_then_fadeout, etc."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from vectormation.objects import *
 args = parse_args()
 
@@ -21,7 +22,7 @@ t1.write_then_fadeout(start=4, end=7)
 label2.fadein_then_fadeout(start=4, end=7)
 
 # fadein_then_fadeout
-star = Star(5, outer_r=70, inner_r=30, cx=1600, cy=350,
+star = Star(5, outer_radius=70, inner_radius=30, cx=1600, cy=350,
             fill='#F1C40F', fill_opacity=0.9, stroke='#DAA520', stroke_width=3)
 label3 = Text("fadein_then_fadeout", x=1600, y=480, font_size=20, fill='#888')
 star.fadein_then_fadeout(start=7, end=10)
@@ -30,9 +31,10 @@ label3.fadein_then_fadeout(start=7, end=10)
 # All together at the end
 c2 = Circle(r=60, cx=480, cy=700, fill='#9B59B6', fill_opacity=0.7)
 r2 = Rectangle(120, 80, x=960, y=700, fill='#2ECC71', fill_opacity=0.7)
-s2 = Star(6, outer_r=50, inner_r=25, cx=1440, cy=700, fill='#E67E22', fill_opacity=0.7)
+s2 = Star(6, outer_radius=50, inner_radius=25, cx=1440, cy=700, fill='#E67E22', fill_opacity=0.7)
 for obj in [c2, r2, s2]:
     obj.fadein_then_fadeout(start=10, end=12)
 
 v.add(title, c1, t1, star, c2, r2, s2, label1, label2, label3)
-v.browser_display(end=args.duration or 12, fps=args.fps, port=args.port, hot_reload=args.hot_reload)
+if not args.no_display:
+    v.browser_display(end=args.duration or 12, fps=args.fps, port=args.port, hot_reload=args.hot_reload)

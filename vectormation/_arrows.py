@@ -1,6 +1,7 @@
 """Arrow classes: Arrow, DoubleArrow, CurvedArrow, Brace."""
 import math
 import re
+import vectormation.easings as easings
 from vectormation._constants import (
     DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
     SMALL_BUFF, _normalize,
@@ -136,13 +137,11 @@ class Arrow(VCollection):
                 end = (end[0] - ux * buff, end[1] - uy * buff)
         return cls(x1=start[0], y1=start[1], x2=end[0], y2=end[1], **kwargs)
 
-    def grow(self, start: float = 0, end: float = 1, change_existence=True, easing=None):
+    def grow(self, start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
         """Animate the arrow growing from its start point to its end point.
 
         The shaft extends from zero length and the tip follows the growing end.
         """
-        import vectormation.easings as _easings
-        easing = easing or _easings.smooth
         dur = end - start
         if dur <= 0:
             return self

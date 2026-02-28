@@ -1,4 +1,5 @@
 """Physics engine showcase: bouncing balls, springs, and cloth simulation."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from vectormation.objects import *
 args = parse_args()
 
@@ -30,4 +31,5 @@ space2.add_walls(left=1200, right=1700, bottom=900)
 space2.simulate(duration=8)
 
 v.add(ball1, ball2, ball3, anchor, weight)
-v.browser_display(end=args.duration or 8, fps=args.fps, port=args.port, hot_reload=args.hot_reload)
+if not args.no_display:
+    v.browser_display(end=args.duration or 8, fps=args.fps, port=args.port, hot_reload=args.hot_reload)

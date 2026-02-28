@@ -1,4 +1,5 @@
 """Showcase curve effects: passing_flash, get_subcurve, animated_tangent_line."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import math
 from vectormation.objects import *
 args = parse_args()
@@ -27,7 +28,7 @@ sub_label.fadein(start=2, end=3)
 
 # --- animated_tangent_line ---
 ax = Axes(x_range=(-3, 3), y_range=(-1.5, 1.5),
-          x=1060, y=200, width=500, height=350)
+          x=1060, y=200, plot_width=500, plot_height=350)
 ax.fadein(start=4, end=5)
 curve = ax.plot(math.sin, stroke='#2ECC71', stroke_width=2)
 tangent = ax.animated_tangent_line(math.sin, -2.5, 2.5, start=5, end=8,
@@ -41,4 +42,5 @@ for obj in [title, c, flash_c, flash_label, poly, sub, sub_label, ax, tangent, t
     obj.fadeout(start=9, end=9.8)
 
 v.add(title, c, flash_c, flash_label, poly, sub, sub_label, ax, tangent, tan_label)
-v.browser_display(end=args.duration or 10, fps=args.fps, port=args.port, hot_reload=args.hot_reload)
+if not args.no_display:
+    v.browser_display(end=args.duration or 10, fps=args.fps, port=args.port, hot_reload=args.hot_reload)

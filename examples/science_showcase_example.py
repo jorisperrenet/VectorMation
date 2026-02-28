@@ -1,4 +1,5 @@
 """Showcase of science/electronics classes: Resistor, Capacitor, NeuralNetwork, Pendulum."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from vectormation.objects import *
 args = parse_args()
 
@@ -21,8 +22,8 @@ d = Diode(x1=200, y1=700, x2=500, y2=700, label='D₁', stroke='#F39C12')
 d.fadein(start=2, end=3)
 
 # --- Neural Network (right side) ---
-nn = NeuralNetwork([3, 4, 2], x=1200, y=250, width=400, height=400,
-                   node_radius=18, stroke='#fff', fill='#2C3E50')
+nn = NeuralNetwork([3, 4, 2], cx=1200, cy=450, width=400, height=400,
+                   neuron_radius=18)
 nn.fadein(start=2.5, end=3.5)
 nn_label = Text("Neural Network", x=1200, y=150, font_size=22, fill='#888')
 nn_label.fadein(start=2.5, end=3.5)
@@ -38,4 +39,5 @@ for obj in [title, r, c, ind, d, nn, nn_label]:
     obj.fadeout(start=8, end=9)
 
 v.add(title, r, c, ind, d, nn, nn_label)
-v.browser_display(end=args.duration or 10, fps=args.fps, port=args.port, hot_reload=args.hot_reload)
+if not args.no_display:
+    v.browser_display(end=args.duration or 10, fps=args.fps, port=args.port, hot_reload=args.hot_reload)

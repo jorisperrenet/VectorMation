@@ -68,9 +68,8 @@ class VectorMathAnim:
         dur = end - start
         if dur <= 0:
             return self
-        s = start
-        self.vb_x.add_onward(s, lambda t, _s=s, _d=dur: dx * easing((t-_s)/_d), last_change=end)
-        self.vb_y.add_onward(s, lambda t, _s=s, _d=dur: dy * easing((t-_s)/_d), last_change=end)
+        self.vb_x.add_onward(start, lambda t, _s=start, _d=dur: dx * easing((t-_s)/_d), last_change=end)
+        self.vb_y.add_onward(start, lambda t, _s=start, _d=dur: dy * easing((t-_s)/_d), last_change=end)
         return self
 
     def _animate_viewbox(self, start, end, x, y, w, h, easing):
