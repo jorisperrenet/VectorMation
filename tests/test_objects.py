@@ -19863,3 +19863,44 @@ class TestCapacitorComponent:
         from vectormation.objects import Capacitor
         assert repr(Capacitor()) == 'Capacitor()'
 
+
+class TestAxesCandlestick:
+    def test_returns_collection(self):
+        ax = Axes(x_range=[0, 5], y_range=[0, 100])
+        data = [(1, 50, 80, 40, 70), (2, 70, 90, 60, 55)]
+        result = ax.plot_candlestick(data)
+        assert isinstance(result, VCollection)
+        assert len(result.objects) >= 4  # 2 wicks + 2 bodies
+
+    def test_up_and_down(self):
+        ax = Axes(x_range=[0, 3], y_range=[0, 100])
+        data = [(1, 40, 70, 30, 60), (2, 60, 70, 40, 45)]
+        result = ax.plot_candlestick(data)
+        assert len(result.objects) == 4
+
+
+class TestAxesDumbbell:
+    def test_returns_collection(self):
+        ax = Axes(x_range=[0, 10], y_range=[0, 3])
+        result = ax.plot_dumbbell([1, 2], [2, 3], [7, 8])
+        assert isinstance(result, VCollection)
+        assert len(result.objects) >= 6  # 2 lines + 4 dots
+
+    def test_dynamic_positions(self):
+        ax = Axes(x_range=[0, 10], y_range=[0, 3])
+        result = ax.plot_dumbbell([1], [2], [8])
+        svg = ax.to_svg(0)
+        assert 'circle' in svg.lower() or 'ellipse' in svg.lower() or 'cx' in svg
+
+
+class TestAxesLollipop:
+    def test_returns_collection(self):
+        ax = Axes(x_range=[0, 5], y_range=[0, 10])
+        result = ax.plot_lollipop([1, 2, 3], [4, 7, 3])
+        assert isinstance(result, VCollection)
+
+    def test_custom_radius(self):
+        ax = Axes(x_range=[0, 5], y_range=[0, 10])
+        result = ax.plot_lollipop([1, 2], [4, 7], r=10)
+        assert isinstance(result, VCollection)
+
