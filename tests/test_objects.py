@@ -20662,9 +20662,114 @@ class TestComplexValueTracker:
         ct = ComplexValueTracker(1 + 0j)
         assert 'ComplexValueTracker' in repr(ct)
 
-    def test_traverse(self):
+    def test_traverse_binary_tree(self):
         from vectormation._data_structures import BinaryTree
         bt = BinaryTree((1, 2, 3))
         result = bt.traverse()
         assert result is bt
+
+
+class TestBlurFilter:
+    def test_repr(self):
+        from vectormation._svg_utils import BlurFilter
+        bf = BlurFilter(std_deviation=8)
+        assert repr(bf) == 'BlurFilter(std_deviation=8)'
+
+    def test_default(self):
+        from vectormation._svg_utils import BlurFilter
+        bf = BlurFilter()
+        assert bf.std_deviation == 4
+        svg = bf.to_svg_def()
+        assert 'feGaussianBlur' in svg
+        assert "stdDeviation='4'" in svg
+
+    def test_filter_ref(self):
+        from vectormation._svg_utils import BlurFilter
+        bf = BlurFilter()
+        ref = bf.filter_ref()
+        assert ref.startswith('url(#')
+
+
+class TestDropShadowFilter:
+    def test_repr(self):
+        from vectormation._svg_utils import DropShadowFilter
+        ds = DropShadowFilter(dx=2, dy=3)
+        assert repr(ds) == 'DropShadowFilter(dx=2, dy=3)'
+
+    def test_default(self):
+        from vectormation._svg_utils import DropShadowFilter
+        ds = DropShadowFilter()
+        assert ds.dx == 4
+        assert ds.dy == 4
+        svg = ds.to_svg_def()
+        assert 'feDropShadow' in svg
+
+    def test_custom_color(self):
+        from vectormation._svg_utils import DropShadowFilter
+        ds = DropShadowFilter(color='#ff0000', opacity=0.8)
+        svg = ds.to_svg_def()
+        assert '#ff0000' in svg
+        assert '0.8' in svg
+
+
+class TestNumberLineAddDotAt:
+    def test_adds_dot(self):
+        from vectormation._composites import NumberLine
+        nl = NumberLine(x_range=(-5, 5))
+        dot = nl.add_dot_at(2.5)
+        assert dot is not None
+        svg = nl.to_svg(0)
+        assert '<' in svg
+
+    def test_custom_color(self):
+        from vectormation._composites import NumberLine
+        nl = NumberLine(x_range=(-5, 5))
+        dot = nl.add_dot_at(0, color='#00FF00')
+        svg = dot.to_svg(0)
+        assert '0,255,0' in svg or '#00FF00' in svg
+
+
+class TestNumberLineAnimatedPointer:
+    def test_creates_pointer(self):
+        from vectormation._composites import NumberLine
+        nl = NumberLine(x_range=(0, 10))
+        nl.add_animated_pointer(lambda t: t * 5, start=0, end=2)
+        svg = nl.to_svg(0)
+        assert '<' in svg
+
+    def test_no_label(self):
+        from vectormation._composites import NumberLine
+        nl = NumberLine(x_range=(0, 10))
+        nl.add_animated_pointer(lambda t: t, start=0, end=1, label=False)
+        svg = nl.to_svg(0.5)
+        assert '<' in svg
+
+
+class TestArrowBetween:
+    def test_creates_arrow(self):
+        from vectormation._arrows import Arrow
+        from vectormation._shapes import Circle
+        c1 = Circle(cx=200, cy=540, r=50)
+        c2 = Circle(cx=600, cy=540, r=50)
+        a = Arrow.between(c1, c2)
+        svg = a.to_svg(0)
+        assert '<' in svg
+
+    def test_with_buff(self):
+        from vectormation._arrows import Arrow
+        from vectormation._shapes import Circle
+        c1 = Circle(cx=200, cy=540, r=50)
+        c2 = Circle(cx=600, cy=540, r=50)
+        a = Arrow.between(c1, c2, buff=10)
+        svg = a.to_svg(0)
+        assert '<' in svg
+
+    def test_vertical(self):
+        from vectormation._arrows import Arrow
+        from vectormation._shapes import Circle
+        c1 = Circle(cx=960, cy=200, r=50)
+        c2 = Circle(cx=960, cy=800, r=50)
+        a = Arrow.between(c1, c2)
+        svg = a.to_svg(0)
+        assert '<' in svg
 

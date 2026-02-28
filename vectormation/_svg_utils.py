@@ -63,6 +63,8 @@ class BlurFilter(_SVGFilter):
     def __init__(self, std_deviation=4):
         super().__init__('blur')
         self.std_deviation = std_deviation
+    def __repr__(self):
+        return f'BlurFilter(std_deviation={self.std_deviation})'
     def _filter_content(self):
         return f"<feGaussianBlur stdDeviation='{self.std_deviation}'/>"
 
@@ -73,6 +75,8 @@ class DropShadowFilter(_SVGFilter):
         self.dx, self.dy = dx, dy
         self.std_deviation = std_deviation
         self.color, self.opacity = color, opacity
+    def __repr__(self):
+        return f'DropShadowFilter(dx={self.dx}, dy={self.dy})'
     def _filter_content(self):
         return (f"<feDropShadow dx='{self.dx}' dy='{self.dy}' "
                 f"stdDeviation='{self.std_deviation}' "
