@@ -7,7 +7,7 @@ import vectormation.style as style
 from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
     SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
-    CHAR_WIDTH_FACTOR,
+    CHAR_WIDTH_FACTOR, ORIGIN,
     _rotate_point, _sample_function, _distance, _normalize, _circumcenter,
 )
 from vectormation._base import VObject, VCollection, _ramp, _ramp_down, _set_attr
@@ -523,7 +523,7 @@ class Text(VObject):
     _NARROW = set('iIlj1|!.,;:\'"()[]{}')
     _WIDE = set('mMwWOQD@')
 
-    def __init__(self, text='', x: float = 960, y: float = 540, font_size: float = 48, text_anchor=None, font_family=None, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, text='', x: float = ORIGIN[0], y: float = ORIGIN[1], font_size: float = 48, text_anchor=None, font_family=None, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.text = attributes.String(creation, text)
         self.x = attributes.Real(creation, x)
@@ -1414,7 +1414,7 @@ class Image(VObject):
 
 class Arc(VObject):
     """SVG arc segment defined by center, radius, and start/end angles (degrees)."""
-    def __init__(self, cx: float = 960, cy: float = 540, r: float = 120, start_angle: float = 0, end_angle: float = 90,
+    def __init__(self, cx: float = ORIGIN[0], cy: float = ORIGIN[1], r: float = 120, start_angle: float = 0, end_angle: float = 90,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.cx = attributes.Real(creation, cx)
@@ -1629,7 +1629,7 @@ class Arc(VObject):
 
 class Wedge(Arc):
     """Arc that closes through the center (pie/wedge shape)."""
-    def __init__(self, cx: float = 960, cy: float = 540, r: float = 120, start_angle: float = 0, end_angle: float = 90,
+    def __init__(self, cx: float = ORIGIN[0], cy: float = ORIGIN[1], r: float = 120, start_angle: float = 0, end_angle: float = 90,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(cx=cx, cy=cy, r=r, start_angle=start_angle, end_angle=end_angle,
                          creation=creation, z=z, **({'fill_opacity': 0.7, 'stroke': '#fff', 'stroke_width': DEFAULT_STROKE_WIDTH} | styling_kwargs))
@@ -1817,12 +1817,14 @@ class AnnularSector(Arc):
         ri = self.inner_r.at_time(time)
         sa, ea = self.start_angle.at_time(time), self.end_angle.at_time(time)
         sa_rad, ea_rad = math.radians(sa), math.radians(ea)
+        cos_sa, sin_sa = math.cos(sa_rad), math.sin(sa_rad)
+        cos_ea, sin_ea = math.cos(ea_rad), math.sin(ea_rad)
         # Outer arc
-        ox1, oy1 = cx + ro * math.cos(sa_rad), cy - ro * math.sin(sa_rad)
-        ox2, oy2 = cx + ro * math.cos(ea_rad), cy - ro * math.sin(ea_rad)
+        ox1, oy1 = cx + ro * cos_sa, cy - ro * sin_sa
+        ox2, oy2 = cx + ro * cos_ea, cy - ro * sin_ea
         # Inner arc (reversed)
-        ix1, iy1 = cx + ri * math.cos(ea_rad), cy - ri * math.sin(ea_rad)
-        ix2, iy2 = cx + ri * math.cos(sa_rad), cy - ri * math.sin(sa_rad)
+        ix1, iy1 = cx + ri * cos_ea, cy - ri * sin_ea
+        ix2, iy2 = cx + ri * cos_sa, cy - ri * sin_sa
         large = 1 if abs(ea - sa) % 360 > 180 else 0
         sweep_out = 0 if ea > sa else 1
         sweep_in = 1 - sweep_out
@@ -1836,9 +1838,7 @@ class AnnularSector(Arc):
     def get_area(self, time=0):
         ri = self.inner_r.at_time(time)
         ro = self.r.at_time(time)
-        angle1 = self.start_angle.at_time(time)
-        angle2 = self.end_angle.at_time(time)
-        return 0.5 * abs(angle2 - angle1) * math.pi / 180 * (ro * ro - ri * ri)
+        return 0.5 * math.radians(self.get_sweep(time)) * (ro * ro - ri * ri)
 
     def to_svg(self, time):
         return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"

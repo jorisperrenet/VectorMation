@@ -7,7 +7,7 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
 import vectormation.morphing as morphing
-from vectormation._constants import SMALL_BUFF, TEXT_Y_OFFSET, _label_text
+from vectormation._constants import SMALL_BUFF, TEXT_Y_OFFSET, ORIGIN, _label_text
 from vectormation._base import VObject, VCollection, _norm_dir
 from vectormation._shapes import Polygon, Dot, Rectangle, Line, Lines, Text, Path
 from vectormation._arrows import Arrow, Brace
@@ -108,7 +108,7 @@ def counterclockwise_morph(source, target, start=0, end=1, z=0, easing=easings.s
 
 class LabeledDot(VCollection):
     """Dot with a centered text label."""
-    def __init__(self, label='', r=24, cx=960, cy=540, creation: float = 0, z: float = 0, font_size=None, **styling_kwargs):
+    def __init__(self, label='', r=24, cx=ORIGIN[0], cy=ORIGIN[1], creation: float = 0, z: float = 0, font_size=None, **styling_kwargs):
         dot_kw = {k: v for k, v in styling_kwargs.items() if k != 'fill'}
         dot_fill = styling_kwargs.get('fill', '#83C167')
         dot = Dot(r=r, cx=cx, cy=cy, creation=creation, z=z, fill=dot_fill, **dot_kw)
@@ -990,7 +990,7 @@ def _det(m):
 
 class Matrix(VCollection):
     """Display a mathematical matrix with square bracket delimiters."""
-    def __init__(self, data, x=960, y=540, font_size=36, h_spacing=80, v_spacing=50,
+    def __init__(self, data, x=ORIGIN[0], y=ORIGIN[1], font_size=36, h_spacing=80, v_spacing=50,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         if not data or not data[0]:
             raise ValueError('Matrix requires a non-empty 2D list of data')
@@ -1177,7 +1177,7 @@ class TexCountAnimation(DynamicObject):
 
     def __init__(self, start_val=0, end_val=100, start: float = 0, end: float = 1,
                  fmt='{:.0f}', easing=easings.smooth,
-                 x: float = 960, y: float = 540, font_size=48,
+                 x: float = ORIGIN[0], y: float = ORIGIN[1], font_size=48,
                  creation: float = 0, z: float = 0, **styles):
         from vectormation.tex_file_writing import get_characters
         import vectormation._canvas as _cm

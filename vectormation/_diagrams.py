@@ -51,7 +51,7 @@ class ChessBoard(VCollection):
     }
 
     def __init__(self, fen='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR',
-                 cx=960, cy=540, size=600, show_coordinates=True,
+                 cx=ORIGIN[0], cy=ORIGIN[1], size=600, show_coordinates=True,
                  light_color='#f0d9b5', dark_color='#b58863',
                  creation: float = 0, z: float = 0):
         cell = size / 8
@@ -175,7 +175,7 @@ def _element_category(z):
 
 class PeriodicTable(VCollection):
     """Periodic table of elements (first 36 elements)."""
-    def __init__(self, cx=960, cy=540, cell_size=48, creation: float = 0, z: float = 0):
+    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], cell_size=48, creation: float = 0, z: float = 0):
         objects = []
         total_w = 18 * cell_size
         total_h = 4 * cell_size

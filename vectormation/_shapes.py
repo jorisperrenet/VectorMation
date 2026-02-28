@@ -6,7 +6,7 @@ from typing import Any
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
-from vectormation._constants import SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS, TEXT_Y_OFFSET, _distance, _circumcenter
+from vectormation._constants import SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS, TEXT_Y_OFFSET, ORIGIN, _distance, _circumcenter
 from vectormation._base import VObject, _set_attr
 
 def _cross2d(o, a, b):
@@ -889,7 +889,7 @@ class Polygon(VObject):
         return f'Polygon({len(self.vertices)} vertices)'
 
 class Ellipse(VObject):
-    def __init__(self, rx: float = 120, ry: float = 60, cx: float = 960, cy: float = 540, z: float = 0, creation: float = 0, **styling_kwargs):
+    def __init__(self, rx: float = 120, ry: float = 60, cx: float = ORIGIN[0], cy: float = ORIGIN[1], z: float = 0, creation: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.c = attributes.Coor(creation, (cx, cy))
         self.rx = attributes.Real(creation, rx)
@@ -1021,7 +1021,7 @@ class Ellipse(VObject):
 
 class Circle(Ellipse):
     """Circle: Ellipse with rx == ry."""
-    def __init__(self, r: float = 120, cx: float = 960, cy: float = 540, z: float = 0, creation: float = 0, **styling_kwargs):
+    def __init__(self, r: float = 120, cx: float = ORIGIN[0], cy: float = ORIGIN[1], z: float = 0, creation: float = 0, **styling_kwargs):
         super().__init__(rx=r, ry=r, cx=cx, cy=cy, z=z, creation=creation, **styling_kwargs)
 
     def __repr__(self):
@@ -1394,7 +1394,7 @@ class Circle(Ellipse):
 
 class Dot(Circle):
     """Small filled circle, no stroke."""
-    def __init__(self, r: float = DEFAULT_DOT_RADIUS, cx: float = 960, cy: float = 540, z: float = 0, creation: float = 0, **styling_kwargs):
+    def __init__(self, r: float = DEFAULT_DOT_RADIUS, cx: float = ORIGIN[0], cy: float = ORIGIN[1], z: float = 0, creation: float = 0, **styling_kwargs):
         super().__init__(r=r, cx=cx, cy=cy, z=z, creation=creation,
                          **({'fill': '#fff', 'fill_opacity': 1, 'stroke_width': 0} | styling_kwargs))
 
@@ -1404,7 +1404,7 @@ class Dot(Circle):
 
 class AnnotationDot(Dot):
     """Larger dot with bold stroke for annotation purposes."""
-    def __init__(self, r: float = DEFAULT_DOT_RADIUS * 1.3, cx: float = 960, cy: float = 540,
+    def __init__(self, r: float = DEFAULT_DOT_RADIUS * 1.3, cx: float = ORIGIN[0], cy: float = ORIGIN[1],
                  z: float = 0, creation: float = 0, **styling_kwargs):
         super().__init__(r=r, cx=cx, cy=cy, z=z, creation=creation,
                          **({'stroke_width': 5, 'stroke': '#fff'} | styling_kwargs))
@@ -1414,7 +1414,7 @@ class AnnotationDot(Dot):
         return f'AnnotationDot(cx={cx:.0f}, cy={cy:.0f})'
 
 class Rectangle(VObject):
-    def __init__(self, width, height, x: float = 960, y: float = 540, rx: float = 0, ry: float = 0, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, width, height, x: float = ORIGIN[0], y: float = ORIGIN[1], rx: float = 0, ry: float = 0, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.x = attributes.Real(creation, x)
         self.y = attributes.Real(creation, y)
@@ -1742,7 +1742,7 @@ class Lines(Polygon):
 
 class RegularPolygon(Polygon):
     """Regular n-sided polygon inscribed in a circle of given radius."""
-    def __init__(self, n, radius: float = 120, cx: float = 960, cy: float = 540, angle: float = 0, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, n, radius: float = 120, cx: float = ORIGIN[0], cy: float = ORIGIN[1], angle: float = 0, creation: float = 0, z: float = 0, **styling_kwargs):
         n = max(n, 1)
         self._n = n
         self._radius = radius
@@ -1777,7 +1777,7 @@ class RegularPolygon(Polygon):
 
 class Star(Polygon):
     """Star polygon with n outer points. outer_radius and inner_radius control the shape."""
-    def __init__(self, n=5, outer_radius=120, inner_radius=None, cx=960, cy=540,
+    def __init__(self, n=5, outer_radius=120, inner_radius=None, cx=ORIGIN[0], cy=ORIGIN[1],
                  angle=90, creation: float = 0, z: float = 0, **styling_kwargs):
         n = max(n, 1)
         if inner_radius is None:
@@ -1807,7 +1807,7 @@ class Star(Polygon):
 class EquilateralTriangle(RegularPolygon):
     """Equilateral triangle: RegularPolygon with n=3.
     side_length is converted to the circumscribed radius."""
-    def __init__(self, side_length, angle=0, cx=960, cy=540, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, side_length, angle=0, cx=ORIGIN[0], cy=ORIGIN[1], creation: float = 0, z: float = 0, **styling_kwargs):
         self._side_length = side_length
         radius = side_length / math.sqrt(3)
         super().__init__(3, radius=radius, cx=cx, cy=cy, angle=angle + 90,
@@ -1818,7 +1818,7 @@ class EquilateralTriangle(RegularPolygon):
 
 class RoundedRectangle(Rectangle):
     """Rectangle with rounded corners (default corner_radius=10)."""
-    def __init__(self, width, height, x: float = 960, y: float = 540, corner_radius: float = 12, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, width, height, x: float = ORIGIN[0], y: float = ORIGIN[1], corner_radius: float = 12, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(width, height, x=x, y=y, rx=corner_radius, ry=corner_radius,
                          creation=creation, z=z, **styling_kwargs)
 
@@ -1836,7 +1836,7 @@ class RoundedRectangle(Rectangle):
 
 class Square(Rectangle):
     """Square — a Rectangle with equal side length."""
-    def __init__(self, side: float = 200, x: float = 960, y: float = 540, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, side: float = 200, x: float = ORIGIN[0], y: float = ORIGIN[1], creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(side, side, x=x - side / 2, y=y - side / 2,
                          creation=creation, z=z, **styling_kwargs)
 

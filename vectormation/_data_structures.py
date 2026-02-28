@@ -294,7 +294,7 @@ class LinkedList(VCollection):
 
 class BinaryTree(VCollection):
     """Visual binary tree with automatic layout."""
-    def __init__(self, tree, x=960, y=120, h_spacing=200, v_spacing=100,
+    def __init__(self, tree, x=ORIGIN[0], y=120, h_spacing=200, v_spacing=100,
                  node_radius=25, font_size=20,
                  fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
                  edge_color='#888', creation: float = 0, z: float = 0):

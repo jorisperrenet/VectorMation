@@ -41,7 +41,7 @@ class Title(VCollection):
 
 class Variable(VCollection):
     """Display a variable label with an animated numeric value."""
-    def __init__(self, label='x', value: float = 0, fmt='{:.2f}', x=960, y=540,
+    def __init__(self, label='x', value: float = 0, fmt='{:.2f}', x=ORIGIN[0], y=ORIGIN[1],
                  font_size=48, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = _TEXT_STYLE | styling_kwargs
         label_text = f'{label} = '
@@ -80,8 +80,8 @@ class Underline(VCollection):
                     _cache[0] = t
                     _cache[1] = target.bbox(t)
                 return _cache[1]
-            line.p1.set_onward(creation, lambda t: (_bbox(t)[0], _bbox(t)[1] + _bbox(t)[3] + buff))
-            line.p2.set_onward(creation, lambda t: (_bbox(t)[0] + _bbox(t)[2], _bbox(t)[1] + _bbox(t)[3] + buff))
+            line.p1.set_onward(creation, lambda t: ((b := _bbox(t))[0], b[1] + b[3] + buff))
+            line.p2.set_onward(creation, lambda t: ((b := _bbox(t))[0] + b[2], b[1] + b[3] + buff))
         super().__init__(line, creation=creation, z=z)
         self.line = line
 
@@ -247,7 +247,7 @@ def _text_with_box(text, x, y, font_size, padding, corner_radius, creation, z_tx
 
 class Label(VCollection):
     """Text label with a surrounding box/frame for annotations."""
-    def __init__(self, text, x=960, y=540, font_size=36, padding=10,
+    def __init__(self, text, x=ORIGIN[0], y=ORIGIN[1], font_size=36, padding=10,
                  corner_radius=4, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = _TEXT_STYLE | styling_kwargs
         bg, txt = _text_with_box(text, x, y, font_size, padding, corner_radius,
@@ -850,7 +850,7 @@ class Breadcrumb(VCollection):
 
 class Countdown(VCollection):
     """Animated countdown timer from start_value to end_value."""
-    def __init__(self, start_value=10, end_value=0, x=960, y=540, font_size=120,
+    def __init__(self, start_value=10, end_value=0, x=ORIGIN[0], y=ORIGIN[1], font_size=120,
                  start=0, end=3, creation: float = 0, z: float = 0, **styling_kwargs):
         txt = _label_text(start_value, x, y, font_size, creation=creation, z=z, **styling_kwargs)
         _sv, _ev, _s, _e = start_value, end_value, start, end

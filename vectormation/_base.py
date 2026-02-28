@@ -5,7 +5,7 @@ from copy import deepcopy
 from typing import Any
 from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
-    CANVAS_WIDTH, CANVAS_HEIGHT,
+    CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
     SMALL_BUFF, MED_SMALL_BUFF,
     UP, DOWN, LEFT, RIGHT,
 )
@@ -2203,7 +2203,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         cross.write(start, end)
         return cross
 
-    def focus_on(self, target=(960, 540), start: float = 0, end: float = 1,
+    def focus_on(self, target=ORIGIN, start: float = 0, end: float = 1,
                   easing=easings.smooth):
         """Move this object to a target position (or another object's position).
         target: (x, y) tuple or a VObject whose center to move to."""

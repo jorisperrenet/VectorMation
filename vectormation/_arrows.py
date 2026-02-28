@@ -4,7 +4,7 @@ import re
 import vectormation.easings as easings
 from vectormation._constants import (
     DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
-    SMALL_BUFF, _normalize,
+    SMALL_BUFF, ORIGIN, _normalize,
 )
 from vectormation._base import VObject, VCollection, _norm_dir
 from vectormation._shapes import Polygon, Line, Path, Rectangle
@@ -397,7 +397,7 @@ class Brace(VCollection):
 
 class Vector(Arrow):
     """Arrow originating from a point (default: origin), for use in coordinate systems."""
-    def __init__(self, x=100, y=0, origin_x=960, origin_y=540, creation: float = 0, z: float = 0, **kwargs):
+    def __init__(self, x=100, y=0, origin_x=ORIGIN[0], origin_y=ORIGIN[1], creation: float = 0, z: float = 0, **kwargs):
         super().__init__(x1=origin_x, y1=origin_y, x2=origin_x + x, y2=origin_y + y,
                          creation=creation, z=z, **kwargs)
         self._vx, self._vy = x, y

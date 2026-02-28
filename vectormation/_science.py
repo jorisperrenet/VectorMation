@@ -1,6 +1,6 @@
 """Science and electronics classes: Resistor, NeuralNetwork, Pendulum, etc."""
 import math
-from vectormation._constants import _normalize, _label_text
+from vectormation._constants import _normalize, _label_text, ORIGIN
 from vectormation._base import VCollection
 from vectormation._shapes import Circle, Dot, Line, Lines, Text, Path, Polygon
 
@@ -175,7 +175,7 @@ class Molecule2D(VCollection):
         'Br': '#882200', 'I': '#8800FF',
     }
 
-    def __init__(self, atoms, bonds=None, scale=80, cx=960, cy=540,
+    def __init__(self, atoms, bonds=None, scale=80, cx=ORIGIN[0], cy=ORIGIN[1],
                  atom_radius=20, font_size=16, creation: float = 0, z: float = 0):
         objects = []
         self._atom_objects = []
@@ -230,7 +230,7 @@ class NeuralNetwork(VCollection):
         Stroke width for connecting lines.
     """
 
-    def __init__(self, layer_sizes, cx=960, cy=540, width=800, height=500,
+    def __init__(self, layer_sizes, cx=ORIGIN[0], cy=ORIGIN[1], width=800, height=500,
                  neuron_radius=16, neuron_fill='#58C4DD', edge_color='#888',
                  edge_width=1, creation: float = 0, z: float = 0):
         objects = []
