@@ -787,7 +787,7 @@ class _AxesExtMixin:
             areas.append(area)
         return VCollection(*areas, creation=creation, z=z)
 
-    def plot_candlestick(self, data, bar_width=0.6, creation=0, z=1,
+    def plot_candlestick(self, data, bar_width=0.6, creation: float = 0, z: float = 1,
                           up_color='#83C167', down_color='#FF6B6B', **styling_kwargs):
         """Plot an OHLC candlestick chart.
         data: list of (x, open, high, low, close) tuples.
@@ -825,7 +825,7 @@ class _AxesExtMixin:
         return VCollection(*objs, creation=creation, z=z)
 
     def plot_dumbbell(self, y_positions, start_values, end_values,
-                       creation=0, z=1, **styling_kwargs):
+                       creation: float = 0, z: float = 1, **styling_kwargs):
         """Plot a dumbbell chart: pairs of dots connected by a line at each y position.
         y_positions: list of y-coordinates (categories).
         start_values, end_values: x-coordinate pairs.
@@ -859,7 +859,7 @@ class _AxesExtMixin:
         return VCollection(*objs, creation=creation, z=z)
 
     def add_parametric_area(self, func_x, func_y, t_range=(0, 1),
-                             samples=200, creation=0, z=-1, **styling_kwargs):
+                             samples=200, creation: float = 0, z: float = -1, **styling_kwargs):
         """Fill the area enclosed by a parametric curve (func_x(t), func_y(t)).
         Returns a dynamic Path object."""
         style_kw = _AREA_STYLE | styling_kwargs
@@ -1348,9 +1348,9 @@ class _AxesExtMixin:
             objs.append(contour)
         return VCollection(*objs, creation=creation, z=z)
 
-    def plot_quiver(self, func, x_step=1, y_step=1, scale=0.3,
+    def plot_quiver(self, func, x_step: float = 1, y_step: float = 1, scale=0.3,
                      tip_length=8, tip_width=6,
-                     creation=0, z=0, **styling_kwargs):
+                     creation: float = 0, z: float = 0, **styling_kwargs):
         """2D vector/arrow field: func(x, y) -> (dx, dy).
         Returns a VCollection of small Arrow objects."""
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 1.5} | styling_kwargs
