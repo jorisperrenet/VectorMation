@@ -485,7 +485,7 @@ class BrowserViewer:
         self._server = None
         self._needs_rebroadcast = False
 
-    def _process_request(self, connection, request):
+    def _process_request(self, _connection, request):
         """Serve the HTML page for non-WebSocket HTTP requests."""
         if request.path == '/ws':
             return None  # Let websockets handle the upgrade

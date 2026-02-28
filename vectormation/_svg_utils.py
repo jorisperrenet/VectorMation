@@ -471,17 +471,15 @@ class _BooleanOp(VObject):
 
     def _wrap_group(self, inner, time):
         """Wrap *inner* in ``<g>`` with offset + styling transforms."""
-        parts = ''
+        parts = []
         tx, ty = self._off_x.at_time(time), self._off_y.at_time(time)
         if tx != 0 or ty != 0:
-            parts += f'translate({tx},{ty})'
+            parts.append(f'translate({tx},{ty})')
         st = self.styling.transform_style(time)
         if st:
-            if parts:
-                parts += ' '
-            parts += st
+            parts.append(st)
         if parts:
-            return f"<g transform='{parts}'>{inner}</g>"
+            return f"<g transform='{' '.join(parts)}'>{inner}</g>"
         return inner
 
     def _style_attrs(self, time, *, include=None, prefix=''):
@@ -489,7 +487,7 @@ class _BooleanOp(VObject):
 
         *include*: ``None`` for all, ``'fill'`` for fill-only, ``'stroke'`` for stroke-only.
         """
-        result = prefix
+        parts = [prefix.lstrip()] if prefix else []
         for name, svgname in style._STYLE_PAIRS:
             if include == 'fill' and (name.startswith('stroke') or name == 'clip_path'):
                 continue
@@ -498,8 +496,8 @@ class _BooleanOp(VObject):
             val = getattr(self.styling, name).at_time(time)
             rd = style._RENDERED_DEFAULTS[name]
             if rd is None or val != rd:
-                result += f" {svgname}='{val}'"
-        return result
+                parts.append(f"{svgname}='{val}'")
+        return (' ' + ' '.join(parts)) if parts else ''
 
     def _fill_attrs(self, time):
         """Fill/opacity presentation attributes (no stroke, no transform)."""

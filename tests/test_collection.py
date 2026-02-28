@@ -3876,3 +3876,105 @@ class TestVCollectionAnimatedAlignTo:
         col.align_to(target, LEFT)
         bx, _, _, _ = col.bbox(0)
         assert bx == pytest.approx(200, abs=1)
+
+
+class TestCollectionQueryMethods:
+    """Tests for find, find_by_type, find_index, enumerate_children, skip,
+    all_match, any_match, pair_up, sliding_window, interleave."""
+
+    def test_find_returns_first_match(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=20, cx=200, cy=200)
+        col = VCollection(c1, c2)
+        result = col.find(lambda obj, t: obj.r.at_time(t) > 15)
+        assert result is c2
+
+    def test_find_returns_none(self):
+        col = VCollection(Circle(r=10, cx=0, cy=0))
+        assert col.find(lambda obj, t: False) is None
+
+    def test_find_by_type(self):
+        c = Circle(r=10, cx=0, cy=0)
+        r = Rectangle(50, 30, x=0, y=0)
+        col = VCollection(c, r)
+        circles = col.find_by_type(Circle)
+        assert len(circles) == 1
+        assert circles[0] is c
+
+    def test_find_index(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=20, cx=0, cy=0)
+        col = VCollection(c1, c2)
+        assert col.find_index(lambda obj, t: obj.r.at_time(t) == 20) == 1
+
+    def test_find_index_not_found(self):
+        col = VCollection(Circle(r=10, cx=0, cy=0))
+        assert col.find_index(lambda obj, t: False) == -1
+
+    def test_enumerate_children(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=20, cx=0, cy=0)
+        col = VCollection(c1, c2)
+        pairs = col.enumerate_children()
+        assert pairs == [(0, c1), (1, c2)]
+
+    def test_skip(self):
+        c1 = Circle(r=10, cx=0, cy=0)
+        c2 = Circle(r=20, cx=0, cy=0)
+        c3 = Circle(r=30, cx=0, cy=0)
+        col = VCollection(c1, c2, c3)
+        skipped = col.skip(1)
+        assert len(skipped.objects) == 2
+        assert skipped.objects[0] is c2
+
+    def test_all_match(self):
+        col = VCollection(Circle(r=10, cx=0, cy=0), Circle(r=20, cx=0, cy=0))
+        assert col.all_match(lambda obj: obj.r.at_time(0) > 0)
+        assert not col.all_match(lambda obj: obj.r.at_time(0) > 15)
+
+    def test_any_match(self):
+        col = VCollection(Circle(r=10, cx=0, cy=0), Circle(r=20, cx=0, cy=0))
+        assert col.any_match(lambda obj: obj.r.at_time(0) > 15)
+        assert not col.any_match(lambda obj: obj.r.at_time(0) > 30)
+
+    def test_pair_up(self):
+        c1, c2, c3 = Circle(r=10, cx=0, cy=0), Circle(r=20, cx=0, cy=0), Circle(r=30, cx=0, cy=0)
+        col = VCollection(c1, c2, c3)
+        pairs = col.pair_up()
+        assert len(pairs) == 2
+        assert len(pairs[0].objects) == 2
+        assert pairs[0].objects[0] is c1
+        assert pairs[0].objects[1] is c2
+        assert len(pairs[1].objects) == 1
+
+    def test_pair_up_empty_raises(self):
+        col = VCollection()
+        with pytest.raises(ValueError):
+            col.pair_up()
+
+    def test_sliding_window(self):
+        objs = [Circle(r=i, cx=0, cy=0) for i in range(5)]
+        col = VCollection(*objs)
+        windows = col.sliding_window(3)
+        assert len(windows) == 3
+        assert windows[0].objects[0] is objs[0]
+        assert windows[0].objects[2] is objs[2]
+        assert windows[2].objects[0] is objs[2]
+
+    def test_sliding_window_with_step(self):
+        objs = [Circle(r=i, cx=0, cy=0) for i in range(6)]
+        col = VCollection(*objs)
+        windows = col.sliding_window(2, step=2)
+        assert len(windows) == 3
+        assert windows[1].objects[0] is objs[2]
+
+    def test_interleave(self):
+        a1, a2 = Circle(r=10, cx=0, cy=0), Circle(r=20, cx=0, cy=0)
+        b1, b2 = Circle(r=30, cx=0, cy=0), Circle(r=40, cx=0, cy=0)
+        col_a = VCollection(a1, a2)
+        col_b = VCollection(b1, b2)
+        result = col_a.interleave(col_b)
+        assert result.objects[0] is a1
+        assert result.objects[1] is b1
+        assert result.objects[2] is a2
+        assert result.objects[3] is b2
