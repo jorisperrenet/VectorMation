@@ -307,10 +307,8 @@ class Axes(_AxesExtMixin, VCollection):
             del self._deferred_axes
         style_kw = _CURVE_STYLE | styling_kwargs
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
-        _axes = self
-        _t_min, _t_max = t_range
-
-        def _compute_d(time, _fx=fx, _fy=fy, _np=num_points):
+        def _compute_d(time, _fx=fx, _fy=fy, _np=num_points,
+                       _axes=self, _t_min=t_range[0], _t_max=t_range[1]):
             pts = []
             for i in range(_np + 1):
                 t = _t_min + (_t_max - _t_min) * i / _np
@@ -344,11 +342,7 @@ class Axes(_AxesExtMixin, VCollection):
                                num_points=200, easing=easings.smooth,
                                creation=0, z=0, **styling_kwargs):
         """Draw a function curve progressively from left to right."""
-        _axes = self
-        _x_range = x_range
-        _easing = easing
-
-        def _make_d(time):
+        def _make_d(time, _axes=self, _x_range=x_range, _easing=easing):
             if _x_range:
                 xmin, xmax = _x_range[0], _x_range[1]
             else:
@@ -1396,25 +1390,23 @@ class Axes(_AxesExtMixin, VCollection):
                        tip_length=_tl, tip_width=_tw,
                        creation=creation, z=z, **style_kw)
         # Dynamic arrow endpoints
-        _dx, _dy, _lb = dx, dy, length + buff
-        _bb = buff
         def _base(t, _x=x, _y=y):
             return self.coords_to_point(_x, _y, t)
         arrow.shaft.p1.set_onward(creation,
-            lambda t, _dx=_dx, _dy=_dy, _lb=_lb: (
+            lambda t, _dx=dx, _dy=dy, _lb=length + buff: (
                 (_b := _base(t))[0] + _dx * _lb, _b[1] + _dy * _lb))
         arrow.shaft.p2.set_onward(creation,
-            lambda t, _dx=_dx, _dy=_dy, _bb=_bb: (
+            lambda t, _dx=dx, _dy=dy, _bb=buff: (
                 (_b := _base(t))[0] + _dx * _bb, _b[1] + _dy * _bb))
         # Dynamic arrowhead tip (3 vertices) — precompute constants
         _hw = _tw / 2
-        _ux, _uy = _normalize(_dx, _dy)
+        _ux, _uy = _normalize(dx, dy)
         _px, _py = -_uy, _ux
         # Precompute fixed offsets from the tip base point
         _back_x, _back_y = -_ux * _tl, -_uy * _tl
         _perp_x, _perp_y = _px * _hw, _py * _hw
         _tb_cache = [None, None]  # [time, (bx, by)]
-        def _tip_base(t, _dx=_dx, _dy=_dy, _bb=_bb):
+        def _tip_base(t, _dx=dx, _dy=dy, _bb=buff):
             if _tb_cache[0] == t:
                 return _tb_cache[1]
             b = _base(t)

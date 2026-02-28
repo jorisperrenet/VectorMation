@@ -284,8 +284,7 @@ class ThreeDAxes(VCollection):
                                creation=0, z=0, **styling_kwargs):
         """Plot a z=f(x,y) surface as a wireframe (backward compat)."""
         line_style = {'stroke': '#4488ff', 'stroke_width': 1} | styling_kwargs
-        _f = func
-        wrapped = lambda u, v, _fn=_f: (u, v, _fn(u, v))
+        wrapped = lambda u, v, _fn=func: (u, v, _fn(u, v))
         wireframe = _Wireframe(wrapped, self._x_range, self._y_range,
                                x_steps, y_steps, line_style, creation=creation, z=z)
         self._threed_objects.append(wireframe)

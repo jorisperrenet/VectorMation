@@ -816,8 +816,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self.show.set_onward(end, False)
 
         p = morphing.Path(self.path(start))
-        _dur = end - start
-        def f(t): return easing((t - start) / _dur) if _dur > 0 else 1
+        dur = end - start
+        def f(t, _dur=dur): return easing((t - start) / _dur) if _dur > 0 else 1
 
         from vectormation._shapes import Path
         res = Path('')
@@ -1063,9 +1063,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         _init_cx, _init_cy = self.center(start)
         _init_dx = self.styling.dx.at_time(start)
         _init_dy = self.styling.dy.at_time(start)
-        _dir = dir_name
-        _buff = buff
-        def _update(obj, t):
+        def _update(obj, t, _dir=dir_name, _buff=buff):
             _, _, mw, mh = obj.bbox(t)
             ox, oy, ow, oh = other.bbox(t)
             ocx, ocy = other.center(t)
@@ -1083,9 +1081,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def always_next_to(self, other, direction=RIGHT, buff=SMALL_BUFF, start=0, end=None):
         """Updater-based ``next_to`` that tracks *other* each frame."""
-        _dir = direction
-        _buff = buff
-        def _update(obj, t):
+        def _update(obj, t, _dir=direction, _buff=buff):
             obj.next_to(other, _dir, _buff, start=t)
         self.add_updater(_update, start=start, end=end)
         return self

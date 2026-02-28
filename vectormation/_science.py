@@ -403,9 +403,7 @@ class Pendulum(VCollection):
         px, py = pivot_x, pivot_y
         L = length
 
-        _end = end
-
-        def bob_pos(t):
+        def bob_pos(t, _end=end):
             dt = max(0, min(t, _end) - start)
             a = init_a * math.exp(-damp * dt) * math.cos(omega * dt)
             bx = px + L * math.sin(a)

@@ -410,8 +410,7 @@ class _AxesExtMixin:
         lo_fn = self._resolve_func(func_lo, 'func_lo')
         hi_fn = self._resolve_func(func_hi, 'func_hi')
         band = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
-        _xr = x_range
-        def _band_d(time, _lo=lo_fn, _hi=hi_fn, _xr=_xr, _n=samples):
+        def _band_d(time, _lo=lo_fn, _hi=hi_fn, _xr=x_range, _n=samples):
             xmin, xmax = self.x_min.at_time(time), self.x_max.at_time(time)
             x0 = _xr[0] if _xr else xmin
             x1 = _xr[1] if _xr else xmax
@@ -2029,9 +2028,7 @@ class _AxesExtMixin:
         spread_fn = self._resolve_func(spread_func, 'spread_func')
         band = Path('', x=0, y=0, creation=creation, z=-1,
                     fill=color, fill_opacity=opacity, stroke_width=0)
-        _xr = x_range
-        _n = num_points
-        def _band_d(time, _fn=fn, _sf=spread_fn, _xr=_xr, _n=_n):
+        def _band_d(time, _fn=fn, _sf=spread_fn, _xr=x_range, _n=num_points):
             xmin, xmax = self.x_min.at_time(time), self.x_max.at_time(time)
             x0 = _xr[0] if _xr else xmin
             x1 = _xr[1] if _xr else xmax
