@@ -174,3 +174,15 @@ def smooth_index(lst, real_index):
     if isinstance(a, (tuple, list)):
         return tuple(ai + (bi - ai) * alpha for ai, bi in zip(a, b))
     return a + (b - a) * alpha
+
+
+def _circumcenter(p1, p2, p3):
+    """Return (cx, cy, r) of the circumscribed circle through three points."""
+    ax, ay = p1; bx, by = p2; cx, cy = p3
+    d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
+    if abs(d) < 1e-10:
+        raise ValueError("Points are collinear; no unique circle exists.")
+    a2, b2, c2 = ax*ax + ay*ay, bx*bx + by*by, cx*cx + cy*cy
+    ux = (a2 * (by - cy) + b2 * (cy - ay) + c2 * (ay - by)) / d
+    uy = (a2 * (cx - bx) + b2 * (ax - cx) + c2 * (bx - ax)) / d
+    return ux, uy, math.hypot(ax - ux, ay - uy)

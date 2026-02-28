@@ -4,7 +4,7 @@ import math
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
-from vectormation._constants import SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS, TEXT_Y_OFFSET, _distance
+from vectormation._constants import SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS, TEXT_Y_OFFSET, _distance, _circumcenter
 from vectormation._base import VObject, _set_attr
 
 def _cross2d(o, a, b):
@@ -1194,18 +1194,7 @@ class Circle(Ellipse):
     @classmethod
     def from_three_points(cls, p1, p2, p3, **kwargs):
         """Create a Circle (circumscribed circle) passing through three points."""
-        ax, ay = p1
-        bx, by = p2
-        cx, cy = p3
-        d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
-        if abs(d) < 1e-10:
-            raise ValueError("The three points are collinear; no unique circle exists.")
-        a2 = ax * ax + ay * ay
-        b2 = bx * bx + by * by
-        c2 = cx * cx + cy * cy
-        ux = (a2 * (by - cy) + b2 * (cy - ay) + c2 * (ay - by)) / d
-        uy = (a2 * (cx - bx) + b2 * (ax - cx) + c2 * (bx - ax)) / d
-        r = math.hypot(ax - ux, ay - uy)
+        ux, uy, r = _circumcenter(p1, p2, p3)
         return cls(r=r, cx=ux, cy=uy, **kwargs)
 
     def intersect_line(self, line, time=0):

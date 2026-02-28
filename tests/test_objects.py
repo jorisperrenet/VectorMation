@@ -17217,6 +17217,71 @@ class TestCollectionAliases:
         assert abs(p2[1] - 150) < 1
 
 
+class TestCircumcenterHelper:
+    """Test _circumcenter shared by Circle.from_three_points and Arc.from_three_points."""
+
+    def test_circle_from_three_points(self):
+        c = Circle.from_three_points((0, 0), (100, 0), (50, 50))
+        assert abs(c.r.at_time(0) - 50) < 5  # reasonable radius
+
+    def test_arc_from_three_points(self):
+        from vectormation._shapes_ext import Arc
+        arc = Arc.from_three_points((0, 0), (100, 0), (50, 50))
+        assert arc.r.at_time(0) > 0
+
+    def test_collinear_raises(self):
+        import pytest
+        with pytest.raises(ValueError, match="collinear"):
+            Circle.from_three_points((0, 0), (1, 1), (2, 2))
+
+
+class TestSVGFilterBase:
+    """Test _SVGFilter base class used by BlurFilter and DropShadowFilter."""
+
+    def test_blur_filter_svg(self):
+        from vectormation._svg_utils import BlurFilter
+        f = BlurFilter(std_deviation=5)
+        svg = f.to_svg_def()
+        assert "feGaussianBlur" in svg
+        assert "stdDeviation='5'" in svg
+        assert f.filter_ref().startswith("url(#blur")
+
+    def test_drop_shadow_filter_svg(self):
+        from vectormation._svg_utils import DropShadowFilter
+        f = DropShadowFilter(dx=3, dy=3)
+        svg = f.to_svg_def()
+        assert "feDropShadow" in svg
+        assert f.filter_ref().startswith("url(#shadow")
+
+    def test_filter_repr(self):
+        from vectormation._svg_utils import BlurFilter, DropShadowFilter
+        assert "BlurFilter" in repr(BlurFilter())
+        assert "DropShadowFilter" in repr(DropShadowFilter())
+
+
+class TestValueTrackerOps:
+    """Test ValueTracker arithmetic operators use shared _ov helper."""
+
+    def test_add(self):
+        from vectormation._shapes_ext import ValueTracker
+        a = ValueTracker(10)
+        b = ValueTracker(5)
+        c = a + b
+        assert c.get_value() == 15
+
+    def test_sub_scalar(self):
+        from vectormation._shapes_ext import ValueTracker
+        a = ValueTracker(10)
+        c = a - 3
+        assert c.get_value() == 7
+
+    def test_iadd(self):
+        from vectormation._shapes_ext import ValueTracker
+        a = ValueTracker(10)
+        a += 5
+        assert a.get_value() == 15
+
+
 class TestBarChartAliases:
     """Test that get_tallest_bar/get_shortest_bar are aliases."""
 

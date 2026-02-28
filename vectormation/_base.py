@@ -518,27 +518,19 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         """
         if change_existence:
             self._show_from(start)
-        end_val = self.styling.opacity.at_time(end)
-        s, e = start, end
-        dur = e - s
+        dur = end - start
         if dur <= 0:
             return self
-        self.styling.opacity.set(s, e, _ramp(s, dur, end_val, easing))
+        self.styling.opacity.set(start, end, _ramp(start, dur, self.styling.opacity.at_time(end), easing))
         if shift_dir is not None:
-            dx = shift_dir[0] * shift_amount
-            dy = shift_dir[1] * shift_amount
-            self.shift(dx=-dx, dy=-dy, start=start)  # offset to start pos
+            dx, dy = shift_dir[0] * shift_amount, shift_dir[1] * shift_amount
+            self.shift(dx=-dx, dy=-dy, start=start)
             self.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         if scale is not None:
             self._ensure_scale_origin(start)
             sx0, sy0 = self._get_scale(start)
-            _s, _d = start, max(dur, 1e-9)
-            self.styling.scale_x.set(s, e,
-                lambda t, _s=_s, _d=_d, _from=sx0*scale, _to=sx0, _e=easing:
-                    _from + (_to - _from) * _e((t - _s) / _d), stay=True)
-            self.styling.scale_y.set(s, e,
-                lambda t, _s=_s, _d=_d, _from=sy0*scale, _to=sy0, _e=easing:
-                    _from + (_to - _from) * _e((t - _s) / _d), stay=True)
+            self.styling.scale_x.set(start, end, _lerp(start, dur, sx0 * scale, sx0, easing), stay=True)
+            self.styling.scale_y.set(start, end, _lerp(start, dur, sy0 * scale, sy0, easing), stay=True)
         return self
 
     def fade_shift(self, dx=0, dy=0, start: float = 0, end: float = 1, easing=easings.smooth):
@@ -563,27 +555,20 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             scale: optional target scale factor (e.g. 0.5 to shrink while fading).
         """
         start_val = self.styling.opacity.at_time(start)
-        s, e = start, end
-        dur = e - s
+        dur = end - start
         if dur <= 0:
             if change_existence:
                 self._hide_from(start)
             return self
-        self.styling.opacity.set(s, e, _ramp_down(s, dur, start_val, easing))
+        self.styling.opacity.set(start, end, _ramp_down(start, dur, start_val, easing))
         if shift_dir is not None:
-            dx = shift_dir[0] * shift_amount
-            dy = shift_dir[1] * shift_amount
+            dx, dy = shift_dir[0] * shift_amount, shift_dir[1] * shift_amount
             self.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         if scale is not None:
             self._ensure_scale_origin(start)
             sx0, sy0 = self._get_scale(start)
-            _s, _d = start, max(dur, 1e-9)
-            self.styling.scale_x.set(s, e,
-                lambda t, _s=_s, _d=_d, _from=sx0, _to=sx0*scale, _e=easing:
-                    _from + (_to - _from) * _e((t - _s) / _d), stay=True)
-            self.styling.scale_y.set(s, e,
-                lambda t, _s=_s, _d=_d, _from=sy0, _to=sy0*scale, _e=easing:
-                    _from + (_to - _from) * _e((t - _s) / _d), stay=True)
+            self.styling.scale_x.set(start, end, _lerp(start, dur, sx0, sx0 * scale, easing), stay=True)
+            self.styling.scale_y.set(start, end, _lerp(start, dur, sy0, sy0 * scale, easing), stay=True)
         if change_existence:
             self._hide_from(end)
         return self

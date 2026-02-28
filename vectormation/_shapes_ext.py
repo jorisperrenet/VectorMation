@@ -8,7 +8,7 @@ from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
     SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
     CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
-    _rotate_point, _sample_function, _distance, _normalize,
+    _rotate_point, _sample_function, _distance, _normalize, _circumcenter,
 )
 from vectormation._base import VObject, VCollection, _ramp, _ramp_down, _set_attr
 from vectormation._shapes import Polygon, Circle, Rectangle, Lines
@@ -1056,25 +1056,19 @@ class ValueTracker:
         self.value.set_onward(start, self.value.at_time(start) + delta)
         return self
 
-    def __add__(self, other):
-        return ValueTracker(self.get_value() + (other.get_value() if isinstance(other, ValueTracker) else other))
+    def _ov(self, other):
+        return other.get_value() if isinstance(other, ValueTracker) else other
 
-    def __sub__(self, other):
-        return ValueTracker(self.get_value() - (other.get_value() if isinstance(other, ValueTracker) else other))
-
-    def __mul__(self, other):
-        return ValueTracker(self.get_value() * (other.get_value() if isinstance(other, ValueTracker) else other))
-
-    def __truediv__(self, other):
-        return ValueTracker(self.get_value() / (other.get_value() if isinstance(other, ValueTracker) else other))
+    def __add__(self, other): return ValueTracker(self.get_value() + self._ov(other))
+    def __sub__(self, other): return ValueTracker(self.get_value() - self._ov(other))
+    def __mul__(self, other): return ValueTracker(self.get_value() * self._ov(other))
+    def __truediv__(self, other): return ValueTracker(self.get_value() / self._ov(other))
 
     def __iadd__(self, other):
-        self.increment_value(other.get_value() if isinstance(other, ValueTracker) else other)
-        return self
+        self.increment_value(self._ov(other)); return self
 
     def __isub__(self, other):
-        self.increment_value(-(other.get_value() if isinstance(other, ValueTracker) else other))
-        return self
+        self.increment_value(-self._ov(other)); return self
 
     def __repr__(self):
         return f'ValueTracker({self.value.at_time(0)})'
@@ -1612,18 +1606,8 @@ class Arc(VObject):
     @classmethod
     def from_three_points(cls, p1, p2, p3, **kwargs):
         """Create an Arc through three points (x, y tuples)."""
-        ax, ay = p1
-        bx, by = p2
-        cx, cy = p3
-        D = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
-        if abs(D) < 1e-10:
-            raise ValueError("Points are collinear; cannot define an arc")
-        a2 = ax * ax + ay * ay
-        b2 = bx * bx + by * by
-        c2 = cx * cx + cy * cy
-        ux = (a2 * (by - cy) + b2 * (cy - ay) + c2 * (ay - by)) / D
-        uy = (a2 * (cx - bx) + b2 * (ax - cx) + c2 * (bx - ax)) / D
-        r = math.hypot(ax - ux, ay - uy)
+        ux, uy, r = _circumcenter(p1, p2, p3)
+        ax, ay = p1; bx, by = p2; cx, cy = p3
         # Compute angles (note: SVG y-axis is flipped, so use -(y - uy))
         a1 = math.degrees(math.atan2(-(ay - uy), ax - ux))
         a2_angle = math.degrees(math.atan2(-(by - uy), bx - ux))

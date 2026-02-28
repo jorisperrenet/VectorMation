@@ -101,35 +101,24 @@ class _AxesExtMixin:
 
     def add_horizontal_label(self, y, text, side='right', buff=10, font_size=18,
                               creation=0, z=5, **styling_kwargs):
-        """Add a text label at y-coordinate on the specified side of the plot.
-        side: 'left' or 'right'. Returns the Text object."""
+        """Add a text label at y-coordinate on the specified side of the plot."""
         style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
-        if side == 'left':
-            lx = self.plot_x - buff
-            anchor = 'end'
-        else:
-            lx = self.plot_x + self.plot_width + buff
-            anchor = 'start'
+        lx = (self.plot_x - buff) if side == 'left' else (self.plot_x + self.plot_width + buff)
+        anchor = 'end' if side == 'left' else 'start'
         lbl = Text(text=str(text), x=lx, y=0, font_size=font_size,
                     text_anchor=anchor, creation=creation, z=z, **style_kw)
-        _yv = y
-        lbl.y.set_onward(creation, lambda t, _y=_yv: self._math_to_svg_y(_y, t))
+        lbl.y.set_onward(creation, lambda t, _y=y: self._math_to_svg_y(_y, t))
         self._add_plot_obj(lbl)
         return lbl
 
     def add_vertical_label(self, x, text, side='bottom', buff=10, font_size=18,
                             creation=0, z=5, **styling_kwargs):
-        """Add a text label at x-coordinate above or below the plot.
-        side: 'top' or 'bottom'. Returns the Text object."""
+        """Add a text label at x-coordinate above or below the plot."""
         style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
-        if side == 'top':
-            ly = self.plot_y - buff
-        else:
-            ly = self.plot_y + self.plot_height + buff + font_size
+        ly = (self.plot_y - buff) if side == 'top' else (self.plot_y + self.plot_height + buff + font_size)
         lbl = Text(text=str(text), x=0, y=ly, font_size=font_size,
                     text_anchor='middle', creation=creation, z=z, **style_kw)
-        _xv = x
-        lbl.x.set_onward(creation, lambda t, _x=_xv: self._math_to_svg_x(_x, t))
+        lbl.x.set_onward(creation, lambda t, _x=x: self._math_to_svg_x(_x, t))
         self._add_plot_obj(lbl)
         return lbl
 
@@ -982,31 +971,30 @@ class _AxesExtMixin:
         self._add_plot_obj(lbl)
         return VCollection(dot, lbl, creation=creation, z=z)
 
-    def add_vertical_span(self, x0, x1, creation=0, z=-1, **styling_kwargs):
-        """Shade a vertical band between x0 and x1 (math coords).
-        Returns a Rectangle with dynamic position."""
+    def _add_span(self, v0, v1, vertical, creation, z, styling_kwargs):
+        """Shade a band between two values (vertical=True for x-band, False for y-band)."""
         style_kw = _HIGHLIGHT_STYLE | styling_kwargs
         rect = Rectangle(width=0, height=0, x=0, y=0, creation=creation, z=z, **style_kw)
-        rect.x.set_onward(creation, lambda t, _a=x0: self._math_to_svg_x(_a, t))
-        rect.y.set_onward(creation, lambda t: self.plot_y)
-        rect.width.set_onward(creation,
-            lambda t, _a=x0, _b=x1: self._math_to_svg_x(_b, t) - self._math_to_svg_x(_a, t))
-        rect.height.set_onward(creation, lambda t: self.plot_height)
+        if vertical:
+            rect.x.set_onward(creation, lambda t, _a=v0: self._math_to_svg_x(_a, t))
+            rect.y.set_onward(creation, lambda t: self.plot_y)
+            rect.width.set_onward(creation, lambda t, _a=v0, _b=v1: self._math_to_svg_x(_b, t) - self._math_to_svg_x(_a, t))
+            rect.height.set_onward(creation, lambda t: self.plot_height)
+        else:
+            rect.x.set_onward(creation, lambda t: self.plot_x)
+            rect.y.set_onward(creation, lambda t, _a=v1: self._math_to_svg_y(_a, t))
+            rect.width.set_onward(creation, lambda t: self.plot_width)
+            rect.height.set_onward(creation, lambda t, _a=v0, _b=v1: self._math_to_svg_y(_a, t) - self._math_to_svg_y(_b, t))
         self._add_plot_obj(rect)
         return rect
 
+    def add_vertical_span(self, x0, x1, creation=0, z=-1, **styling_kwargs):
+        """Shade a vertical band between x0 and x1 (math coords)."""
+        return self._add_span(x0, x1, True, creation, z, styling_kwargs)
+
     def add_horizontal_span(self, y0, y1, creation=0, z=-1, **styling_kwargs):
-        """Shade a horizontal band between y0 and y1 (math coords).
-        Returns a Rectangle with dynamic position."""
-        style_kw = _HIGHLIGHT_STYLE | styling_kwargs
-        rect = Rectangle(width=0, height=0, x=0, y=0, creation=creation, z=z, **style_kw)
-        rect.x.set_onward(creation, lambda t: self.plot_x)
-        rect.y.set_onward(creation, lambda t, _a=y1: self._math_to_svg_y(_a, t))
-        rect.width.set_onward(creation, lambda t: self.plot_width)
-        rect.height.set_onward(creation,
-            lambda t, _a=y0, _b=y1: self._math_to_svg_y(_a, t) - self._math_to_svg_y(_b, t))
-        self._add_plot_obj(rect)
-        return rect
+        """Shade a horizontal band between y0 and y1 (math coords)."""
+        return self._add_span(y0, y1, False, creation, z, styling_kwargs)
 
     def plot_density(self, data, bandwidth=None, samples=200, creation=0, z=0, **styling_kwargs):
         """Plot a kernel density estimate (KDE) curve from raw data.

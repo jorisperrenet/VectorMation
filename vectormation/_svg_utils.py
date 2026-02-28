@@ -38,44 +38,38 @@ class ClipPath:
     def clip_ref(self):
         return f'url(#{self.id})'
 
-class BlurFilter:
-    """SVG Gaussian blur filter definition. Register with canvas.add_def().
-    Apply to objects via styling: obj.styling.filter = 'url(#filter_id)'."""
-    def __init__(self, std_deviation=4):
-        self.id = f'blur{id(self)}'
-        self.std_deviation = std_deviation
-
+class _SVGFilter:
+    """Base class for SVG filter definitions. Register with canvas.add_def()."""
+    def __init__(self, prefix):
+        self.id = f'{prefix}{id(self)}'
     def __repr__(self):
-        return 'BlurFilter()'
-
-    def to_svg_def(self, time=None):
-        return (f"<filter id='{self.id}'>"
-                f"<feGaussianBlur stdDeviation='{self.std_deviation}'/>"
-                f"</filter>")
-
+        return f'{type(self).__name__}()'
     def filter_ref(self):
         return f'url(#{self.id})'
+    def to_svg_def(self, time=None):
+        return f"<filter id='{self.id}'>{self._filter_content()}</filter>"
+    def _filter_content(self):
+        raise NotImplementedError
 
-class DropShadowFilter:
-    """SVG drop shadow filter definition. Register with canvas.add_def()."""
+class BlurFilter(_SVGFilter):
+    """SVG Gaussian blur filter. Apply via styling: obj.styling.filter = 'url(#id)'."""
+    def __init__(self, std_deviation=4):
+        super().__init__('blur')
+        self.std_deviation = std_deviation
+    def _filter_content(self):
+        return f"<feGaussianBlur stdDeviation='{self.std_deviation}'/>"
+
+class DropShadowFilter(_SVGFilter):
+    """SVG drop shadow filter definition."""
     def __init__(self, dx=4, dy=4, std_deviation=4, color='#000', opacity=0.5):
-        self.id = f'shadow{id(self)}'
+        super().__init__('shadow')
         self.dx, self.dy = dx, dy
         self.std_deviation = std_deviation
         self.color, self.opacity = color, opacity
-
-    def __repr__(self):
-        return 'DropShadowFilter()'
-
-    def to_svg_def(self, time=None):
-        return (f"<filter id='{self.id}'>"
-                f"<feDropShadow dx='{self.dx}' dy='{self.dy}' "
+    def _filter_content(self):
+        return (f"<feDropShadow dx='{self.dx}' dy='{self.dy}' "
                 f"stdDeviation='{self.std_deviation}' "
-                f"flood-color='{self.color}' flood-opacity='{self.opacity}'/>"
-                f"</filter>")
-
-    def filter_ref(self):
-        return f'url(#{self.id})'
+                f"flood-color='{self.color}' flood-opacity='{self.opacity}'/>")
 
 # ---------------------------------------------------------------------------
 # Geometric annotations
