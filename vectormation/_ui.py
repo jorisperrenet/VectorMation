@@ -647,15 +647,16 @@ class Checklist(VCollection):
 
     def reveal_items(self, start=0, end=1, overlap=0.5):
         """Cascade items into view sequentially."""
-        n = len(self.objects)
+        n = len(self._boxes)
         if n == 0:
             return self
         dur = end - start
-        step = dur / n if n > 0 else dur
-        for i, obj in enumerate(self.objects):
+        step = dur / n
+        for i in range(n):
             obj_start = start + i * step * (1 - overlap)
             obj_end = obj_start + step
-            obj.fadein(obj_start, min(obj_end, end))
+            for obj in (self._boxes[i], self._marks[i], self._labels[i]):
+                obj.fadein(obj_start, min(obj_end, end))
         return self
 
     def __repr__(self):
