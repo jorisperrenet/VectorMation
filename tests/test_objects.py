@@ -18438,3 +18438,60 @@ class TestBarChartDurationFallback:
         # Should not crash with start == end
         bc.animate_values([3, 2, 1], start=0, end=0)
 
+
+class TestSnapPointsDelegation:
+    """Test Polygon.snap_points delegates to get_vertices."""
+
+    def test_snap_points_matches_get_vertices(self):
+        p = Polygon((10, 20), (30, 40), (50, 60))
+        assert p.snap_points(0) == p.get_vertices(0)
+
+
+class TestToPathStringDelegation:
+    """Test Polygon.to_path_string delegates to path."""
+
+    def test_to_path_string_matches_path(self):
+        p = Polygon((10, 20), (30, 40), (50, 60))
+        assert p.to_path_string(0) == p.path(0)
+
+    def test_empty_polygon_path(self):
+        p = Polygon()
+        assert p.to_path_string(0) == ''
+
+
+class TestMakeTimeCacheHelper:
+    """Test _make_time_cache caching helper."""
+
+    def test_caches_result(self):
+        from vectormation._shapes import _make_time_cache
+        call_count = [0]
+        def expensive(t):
+            call_count[0] += 1
+            return t * 2
+        cached = _make_time_cache(expensive)
+        assert cached(1) == 2
+        assert cached(1) == 2  # should not call again
+        assert call_count[0] == 1
+
+    def test_recomputes_on_new_time(self):
+        from vectormation._shapes import _make_time_cache
+        call_count = [0]
+        def expensive(t):
+            call_count[0] += 1
+            return t * 2
+        cached = _make_time_cache(expensive)
+        assert cached(1) == 2
+        assert cached(2) == 4
+        assert call_count[0] == 2
+
+
+class TestAddMarkedRegionTime:
+    """Test add_marked_region passes time=creation to _math_to_svg_x."""
+
+    def test_marked_region_renders(self):
+        from vectormation.objects import Axes
+        ax = Axes(x_range=[-5, 5], y_range=[-5, 5], creation=0)
+        rect = ax.add_marked_region(-2, 2)
+        svg = rect.to_svg(0)
+        assert 'rect' in svg
+

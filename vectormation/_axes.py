@@ -1344,8 +1344,8 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_marked_region(self, x1, x2, color='#FFFF00', opacity=0.2, creation=0, z=0):
         """Highlight a vertical region on the axes between x1 and x2. Returns a Rectangle."""
-        sx1 = self._math_to_svg_x(x1)
-        sx2 = self._math_to_svg_x(x2)
+        sx1 = self._math_to_svg_x(x1, time=creation)
+        sx2 = self._math_to_svg_x(x2, time=creation)
         rect = Rectangle(
             width=abs(sx2 - sx1), height=self.plot_height,
             x=min(sx1, sx2), y=self.plot_y,

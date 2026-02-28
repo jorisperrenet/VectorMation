@@ -11,15 +11,20 @@ def _cross2d(o, a, b):
     """Cross product of vectors OA and OB (positive = CCW)."""
     return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
 
-def _cached_bbox(target):
-    """Return a function that caches target.bbox(t) per time value."""
+def _make_time_cache(func):
+    """Return a wrapper that caches func(t) per time value."""
     _cache = [None, None]
-    def _bbox(t):
+    def _cached(t):
         if _cache[0] != t:
             _cache[0] = t
-            _cache[1] = target.bbox(t)
+            _cache[1] = func(t)
         return _cache[1]
-    return _bbox
+    return _cached
+
+
+def _cached_bbox(target):
+    """Return a function that caches target.bbox(t) per time value."""
+    return _make_time_cache(target.bbox)
 
 class Polygon(VObject):
     def __init__(self, *vertices, closed=True, z: float = 0, creation: float = 0, **styling_kwargs):
@@ -44,7 +49,7 @@ class Polygon(VObject):
         return super().shift(*args, **kwargs)
 
     def snap_points(self, time):
-        return [(float(x), float(y)) for x, y in (v.at_time(time) for v in self.vertices)]
+        return self.get_vertices(time)
 
     def bbox(self, time):
         if self._bbox_cache and self._bbox_cache[0] == time and self._bbox_cache[1] == self._bbox_version:
@@ -56,6 +61,8 @@ class Polygon(VObject):
 
     def path(self, time):
         vert = [v.at_time(time) for v in self.vertices]
+        if not vert:
+            return ''
         parts = [f'M {vert[0][0]},{vert[0][1]}'] + [f'L {x},{y}' for x, y in vert[1:]]
         if self.closed:
             parts.append('Z')
@@ -80,15 +87,7 @@ class Polygon(VObject):
 
     def to_path_string(self, time=0):
         """Return an SVG path d-string representation of the polygon."""
-        verts = self.get_vertices(time)
-        if not verts:
-            return ''
-        parts = [f'M {verts[0][0]},{verts[0][1]}']
-        for x, y in verts[1:]:
-            parts.append(f'L {x},{y}')
-        if self.closed:
-            parts.append('Z')
-        return ' '.join(parts)
+        return self.path(time)
 
     def get_center(self, time=0):
         """Return the centroid (average of vertices)."""
