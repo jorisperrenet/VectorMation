@@ -9,6 +9,7 @@ from vectormation._shapes import Circle, Rectangle, Line, Text
 from vectormation.colors import _rgb_to_hex
 
 _VIZ_TEXT_Y = 0.65  # Y-offset factor for vertically centering text in viz cells
+_VIZ_SMALL_FONT = 0.7  # Small label font relative to main font_size
 
 def _make_cell(x, y, w, h, val, font_size, fill, border_color, text_color,
                creation: float = 0, z: float = 0):
@@ -518,7 +519,7 @@ class StackViz(VCollection):
                                 stroke='#FC6255', fill='#FC6255', fill_opacity=1,
                                 stroke_width=2, creation=creation, z=z)
         self._top_label = Text(text='TOP', x=x - 58, y=top_y + cell_height * _VIZ_TEXT_Y,
-                               font_size=int(font_size * 0.7), fill='#FC6255', stroke_width=0,
+                               font_size=int(font_size * _VIZ_SMALL_FONT), fill='#FC6255', stroke_width=0,
                                text_anchor='end', creation=creation, z=z)
         objects.extend([self._top_arrow, self._top_label])
         super().__init__(*objects, creation=creation, z=z)
@@ -576,7 +577,7 @@ class QueueViz(VCollection):
             objects.extend([cell, lbl])
         # FRONT / BACK labels
         mid_y = y + cell_height * _VIZ_TEXT_Y
-        sm_font = int(font_size * 0.7)
+        sm_font = int(font_size * _VIZ_SMALL_FONT)
         self._front_label = Text(text='FRONT', x=x - 8, y=mid_y,
                                   font_size=sm_font, fill='#50FA7B',
                                   stroke_width=0, text_anchor='end',

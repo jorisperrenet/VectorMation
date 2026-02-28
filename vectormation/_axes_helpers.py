@@ -82,22 +82,34 @@ def _format_tick(val, tick_format):
     return tick_format.format(val)
 
 
+_PI_DENOMS = (1, 2, 3, 4, 6, 8, 12)
+
+
+def _pi_ratio(val):
+    """Return (numer, denom) for *val* as a fraction of pi, or None."""
+    ratio = val / math.pi
+    for denom in _PI_DENOMS:
+        numer = round(ratio * denom)
+        if abs(ratio - numer / denom) < 1e-9:
+            return numer, denom
+    return None
+
+
 def pi_format(val):
     """Format a numeric value as a multiple of pi using Unicode (e.g. 'pi/2', '2pi')."""
     if abs(val) < 1e-9:
         return '0'
-    ratio = val / math.pi
-    for denom in [1, 2, 3, 4, 6, 8, 12]:
-        numer = round(ratio * denom)
-        if abs(ratio - numer / denom) < 1e-9:
-            if denom == 1:
-                if numer == 1: return '\u03c0'
-                if numer == -1: return '-\u03c0'
-                return f'{numer}\u03c0'
-            if numer == 1: return f'\u03c0/{denom}'
-            if numer == -1: return f'-\u03c0/{denom}'
-            return f'{numer}\u03c0/{denom}'
-    return f'{ratio:.2g}\u03c0'
+    nd = _pi_ratio(val)
+    if nd is None:
+        return f'{val / math.pi:.2g}\u03c0'
+    numer, denom = nd
+    if denom == 1:
+        if numer == 1: return '\u03c0'
+        if numer == -1: return '-\u03c0'
+        return f'{numer}\u03c0'
+    if numer == 1: return f'\u03c0/{denom}'
+    if numer == -1: return f'-\u03c0/{denom}'
+    return f'{numer}\u03c0/{denom}'
 
 
 def pi_ticks(vmin, vmax, step=None):
@@ -175,20 +187,19 @@ def pi_tex_format(val):
     """Format a numeric value as a LaTeX multiple of pi (e.g. r'$\\frac{\\pi}{2}$')."""
     if abs(val) < 1e-9:
         return '$0$'
-    ratio = val / math.pi
-    for denom in [1, 2, 3, 4, 6, 8, 12]:
-        numer = round(ratio * denom)
-        if abs(ratio - numer / denom) < 1e-9:
-            sign = '-' if numer < 0 else ''
-            numer = abs(numer)
-            if denom == 1:
-                if numer == 1:
-                    return f'${sign}\\pi$'
-                return f'${sign}{numer}\\pi$'
-            if numer == 1:
-                return f'${sign}\\frac{{\\pi}}{{{denom}}}$'
-            return f'${sign}\\frac{{{numer}\\pi}}{{{denom}}}$'
-    return f'${ratio:.2g}\\pi$'
+    nd = _pi_ratio(val)
+    if nd is None:
+        return f'${val / math.pi:.2g}\\pi$'
+    numer, denom = nd
+    sign = '-' if numer < 0 else ''
+    numer = abs(numer)
+    if denom == 1:
+        if numer == 1:
+            return f'${sign}\\pi$'
+        return f'${sign}{numer}\\pi$'
+    if numer == 1:
+        return f'${sign}\\frac{{\\pi}}{{{denom}}}$'
+    return f'${sign}\\frac{{{numer}\\pi}}{{{denom}}}$'
 
 
 def log_tex_format(val):
