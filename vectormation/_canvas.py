@@ -13,6 +13,8 @@ from vectormation._base_helpers import _clamp01, _ramp
 
 logger = logging.getLogger('vectormation')
 
+_SVG_FLOAT_RE = re.compile(r'-?\d+\.\d{3,}')
+
 class VectorMathAnim:
     """Canvas/video where we can ask a frame at a certain time."""
     def __init__(self, save_dir, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, scale=1, verbose=False):
@@ -259,7 +261,7 @@ class VectorMathAnim:
         """Round floating-point numbers in SVG strings for data compression."""
         def _round_match(m):
             return f'{float(m.group()):.{precision}f}'.rstrip('0').rstrip('.')
-        return re.sub(r'-?\d+\.\d{3,}', _round_match, svg)
+        return _SVG_FLOAT_RE.sub(_round_match, svg)
 
     def generate_frame_svg(self, time=None):
         """Generate the SVG content for a frame as a string."""

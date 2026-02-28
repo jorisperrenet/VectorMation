@@ -20774,6 +20774,29 @@ class TestArrowBetween:
         assert '<' in svg
 
 
+class TestSplitTexObject:
+    def test_len(self):
+        from vectormation._composites import SplitTexObject
+        st = SplitTexObject('$x$', '$y$', '$z$')
+        assert len(st) == 3
+
+    def test_iter(self):
+        from vectormation._composites import SplitTexObject
+        st = SplitTexObject('$a$', '$b$')
+        items = list(st)
+        assert len(items) == 2
+
+    def test_getitem(self):
+        from vectormation._composites import SplitTexObject
+        st = SplitTexObject('$x^2$', '$y^2$')
+        assert st[0] is not st[1]
+
+    def test_repr(self):
+        from vectormation._composites import SplitTexObject
+        st = SplitTexObject('$a$', '$b$', '$c$')
+        assert repr(st) == 'SplitTexObject(3 lines)'
+
+
 class TestBarChartAddBarZeroValues:
     def test_all_zeros(self):
         """add_bar should not crash with all-zero values."""
