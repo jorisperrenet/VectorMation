@@ -376,7 +376,7 @@ class Line(VObject):
         dx, dy = -(y2 - y1), x2 - x1  # perpendicular direction
         mag = math.hypot(dx, dy)
         if length is None:
-            length = mag if mag > 0 else 0
+            length = max(0, mag)
         px = x1 + t * (x2 - x1)
         py = y1 + t * (y2 - y1)
         if mag > 0:

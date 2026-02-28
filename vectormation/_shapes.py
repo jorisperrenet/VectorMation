@@ -621,7 +621,7 @@ class Polygon(VObject):
 
         def _welzl(points, boundary, n):
             if n == 0 or len(boundary) == 3:
-                if len(boundary) == 0:
+                if not boundary:
                     return (0, 0, 0)
                 elif len(boundary) == 1:
                     return _circle_from_1(boundary[0])

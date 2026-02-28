@@ -341,9 +341,9 @@ class BinaryTree(VCollection):
 
     def traverse(self, start=0, delay=0.3, color='#E9C46A'):
         """Animate highlighting each node sequentially (depth-first order)."""
-        for i in range(len(self._node_objects)):
+        for i, obj in enumerate(self._node_objects):
             t = start + i * delay
-            _flash_fill(self._node_objects[i], color, t, t + delay, '#1e1e2e')
+            _flash_fill(obj, color, t, t + delay, '#1e1e2e')
         return self
 
 class ArrayViz(VCollection):
@@ -484,7 +484,7 @@ class LinkedListViz(VCollection):
 
     def traverse(self, start=0, delay=0.5, color='#FFFF00'):
         """Animate traversing each node in sequence."""
-        for i in range(len(self._nodes)):
+        for i, _node in enumerate(self._nodes):
             t = start + i * delay
             self.highlight(i, t, t + delay, color)
         return self

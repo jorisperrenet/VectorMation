@@ -19008,3 +19008,45 @@ class TestPhysicsSimulate:
         # Angular velocity should have decreased
         assert abs(b.angular_velocity) < 360
 
+
+class TestNumberLineExtraMethods:
+    """Smoke tests for untested NumberLine methods."""
+
+    def test_add_tick_labels_range(self):
+        from vectormation.objects import NumberLine
+        nl = NumberLine(x_range=(-5, 5, 1))
+        result = nl.add_tick_labels_range(-2, 2, 1)
+        assert result is nl
+        initial_count = len(nl.objects)
+        assert initial_count > 0
+
+    def test_add_interval_bracket(self):
+        from vectormation.objects import NumberLine
+        nl = NumberLine(x_range=(-5, 5, 1))
+        group = nl.add_interval_bracket(-1, 2, closed_left=True, closed_right=False)
+        assert len(group.objects) == 3  # bar + left bracket + right bracket
+
+    def test_animate_add_tick(self):
+        from vectormation.objects import NumberLine
+        nl = NumberLine(x_range=(-5, 5, 1))
+        before = len(nl.objects)
+        result = nl.animate_add_tick(3, start=0, end=0.5, label='3')
+        assert result is nl
+        assert len(nl.objects) > before
+
+
+class TestTableExtraMethods:
+    """Smoke tests for untested Table methods."""
+
+    def test_animate_cell_values(self):
+        from vectormation.objects import Table
+        t = Table([['1', '2'], ['3', '4']])
+        result = t.animate_cell_values([['10', '20'], ['30', '40']], start=0, end=1)
+        assert result is t
+
+    def test_animate_cells(self):
+        from vectormation.objects import Table
+        t = Table([['a', 'b'], ['c', 'd']])
+        result = t.animate_cells([(0, 0), (1, 1)], method_name='flash', start=0, end=1)
+        assert result is t
+

@@ -629,8 +629,8 @@ class _VObjectEffectsMixin:
         src = self.styling.fill
         def _make_interp(_cf, _ct, _ss, _dd, _easing):
             return lambda t: tuple(
-                _cf[j] + (_ct[j] - _cf[j]) * _easing((t - _ss) / _dd)
-                for j in range(len(_cf)))
+                cf_v + (ct_v - cf_v) * _easing((t - _ss) / _dd)
+                for cf_v, ct_v in zip(_cf, _ct))
         for i in range(n - 1):
             seg_s = start + dur * i / (n - 1)
             seg_e = start + dur * (i + 1) / (n - 1)

@@ -1435,8 +1435,8 @@ class VCollection(_BBoxMethodsMixin):
         else:
             from vectormation._shapes import Line as _Connector
         connectors = []
-        for i in range(len(self.objects) - 1):
-            x1, y1 = self.objects[i].get_edge('right', time=start)
+        for i, obj in enumerate(self.objects[:-1]):
+            x1, y1 = obj.get_edge('right', time=start)
             x2, y2 = self.objects[i + 1].get_edge('left', time=start)
             if buff > 0:
                 length = math.hypot(x2 - x1, y2 - y1)

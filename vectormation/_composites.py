@@ -724,9 +724,9 @@ class Table(_GridAccessMixin, VCollection):
 
     def sort_by_column(self, col, start=0, end=1, reverse=False, easing=easings.smooth):
         """Animate rows sliding to sorted positions based on column values."""
-        values = sorted([(self.entries[r][col].text.at_time(start), r)
-                         for r in range(len(self.entries))], reverse=reverse)
-        ys = [self.entries[r][0].y.at_time(start) for r in range(len(self.entries))]
+        values = sorted([(entry[col].text.at_time(start), r)
+                         for r, entry in enumerate(self.entries)], reverse=reverse)
+        ys = [entry[0].y.at_time(start) for entry in self.entries]
         for new_pos, (_, old_row) in enumerate(values):
             if new_pos != old_row:
                 dy = ys[new_pos] - ys[old_row]
