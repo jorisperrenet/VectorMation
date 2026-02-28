@@ -117,15 +117,15 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             'center': self.center(time),
         }
 
-    def set_x(self, x, start: float = 0, end=None, easing=None):
+    def set_x(self, x, start: float = 0, end=None, easing=easings.smooth):
         """Set the x-coordinate of the center (by shifting)."""
         dx = x - self.get_x(start)
-        return self.shift(dx=dx, start=start, end=end, easing=easing or easings.smooth)
+        return self.shift(dx=dx, start=start, end=end, easing=easing)
 
-    def set_y(self, y, start: float = 0, end=None, easing=None):
+    def set_y(self, y, start: float = 0, end=None, easing=easings.smooth):
         """Set the y-coordinate of the center (by shifting)."""
         dy = y - self.get_y(start)
-        return self.shift(dy=dy, start=start, end=end, easing=easing or easings.smooth)
+        return self.shift(dy=dy, start=start, end=end, easing=easing)
 
     def _set_dim(self, getter, scale_attr, value, start, end, stretch, easing):
         cur = getter(start)
@@ -136,16 +136,16 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self._ensure_scale_origin(start)
             scale_attr.set_onward(start, scale_attr.at_time(start) * factor)
         else:
-            self.scale(factor, start=start, end=end, easing=easing or easings.smooth)
+            self.scale(factor, start=start, end=end, easing=easing)
         return self
 
     def set_width(self, width, start: float = 0, end: float | None = None,
-                  stretch=False, easing=None):
+                  stretch=False, easing=easings.smooth):
         """Scale so the bounding box has the given width. If stretch=True, only scale X."""
         return self._set_dim(self.get_width, self.styling.scale_x, width, start, end, stretch, easing)
 
     def set_height(self, height, start: float = 0, end: float | None = None,
-                   stretch=False, easing=None):
+                   stretch=False, easing=easings.smooth):
         """Scale so the bounding box has the given height. If stretch=True, only scale Y."""
         return self._set_dim(self.get_height, self.styling.scale_y, height, start, end, stretch, easing)
 
@@ -311,16 +311,14 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             if end is None:
                 c.add_onward(start, (dx, dy))
             else:
-                s, e = start, end
-                c.add_onward(s, lambda t, _s=s, _e=e: (dx * easing((t-_s)/(_e-_s)), dy * easing((t-_s)/(_e-_s))), last_change=e)
+                c.add_onward(start, lambda t, _s=start, _e=end: (dx * easing((t-_s)/(_e-_s)), dy * easing((t-_s)/(_e-_s))), last_change=end)
         for xa, ya in self._shift_reals():
             if end is None:
                 xa.add_onward(start, dx)
                 ya.add_onward(start, dy)
             else:
-                s, e = start, end
-                xa.add_onward(s, _ramp(s, e - s, dx, easing), last_change=e)
-                ya.add_onward(s, _ramp(s, e - s, dy, easing), last_change=e)
+                xa.add_onward(start, _ramp(start, end - start, dx, easing), last_change=end)
+                ya.add_onward(start, _ramp(start, end - start, dy, easing), last_change=end)
         return self
 
     def scale_by(self, start, end, factor, easing=easings.smooth):
@@ -335,10 +333,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self.styling.rotation.set_onward(start, (target_deg, cx, cy))
             return self
         start_deg = self.styling.rotation.at_time(start)[0]
-        s, e = start, end
-        dur = e - s
-        self.styling.rotation.set(s, e,
-            lambda t, _s=s, _d=dur, _sd=start_deg, _td=target_deg, _cx=cx, _cy=cy:
+        dur = end - start
+        self.styling.rotation.set(start, end,
+            lambda t, _s=start, _d=dur, _sd=start_deg, _td=target_deg, _cx=cx, _cy=cy:
                 (_sd + (_td - _sd) * easing((t - _s) / _d), _cx, _cy),
             stay=True)
         self.styling.rotation.last_change = max(self.styling.rotation.last_change, end)
@@ -449,10 +446,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._apply_shift_func(pos, s, end)
         return self
 
-    def animate_along_object(self, target, start=0, end=1, easing=None):
+    def animate_along_object(self, target, start=0, end=1, easing=easings.smooth):
         """Move along the boundary/path of another VObject."""
-        if easing is None:
-            easing = easings.smooth
         path_d = target.path(start)
         return self.along_path(start, end, path_d, easing=easing)
 
@@ -530,10 +525,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if dur <= 0:
             self._hide_from(start)
             return self
-        s, e = start, end
-        self.styling.opacity.set(s, e, _ramp_down(s, dur, start_val, easing))
-        self.shift(dx=dx, dy=dy, start=s, end=e, easing=easing)
-        self._hide_from(e)
+        self.styling.opacity.set(start, end, _ramp_down(start, dur, start_val, easing))
+        self.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
+        self._hide_from(end)
         return self
 
     def fadeout(self, start: float = 0, end: float = 1, shift_dir=None, shift_amount=50,
@@ -810,12 +804,11 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self._show_from(start)
         end_val = self.styling.fill_opacity.at_time(end)
         sw = self.styling.stroke_width.at_time(end)
-        s, e = start, end
-        dur = e - s
+        dur = end - start
         if dur <= 0:
             return self
-        self.styling.fill_opacity.set(s, e, _ramp(s, dur, end_val, easing))
-        self.styling.stroke_width.set(s, e, lambda t, _s=s, _d=dur, _msw=max_stroke_width, _sw=sw: _msw * stroke_easing((t-_s)/_d) + easing((t-_s)/_d) * _sw)
+        self.styling.fill_opacity.set(start, end, _ramp(start, dur, end_val, easing))
+        self.styling.stroke_width.set(start, end, lambda t, _s=start, _d=dur, _msw=max_stroke_width, _sw=sw: _msw * stroke_easing((t-_s)/_d) + easing((t-_s)/_d) * _sw)
         return self
 
     def _create_path_anim(self, start, end, reverse, change_existence, easing):
@@ -863,13 +856,12 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.styling.stroke_dasharray.set_onward(start, str(total_length))
         # Animate dashoffset from total_length (hidden) to 0 (fully drawn)
         self.styling.stroke_dashoffset.set_onward(start, total_length)
-        s, e = start, end
-        dur = e - s
+        dur = end - start
         if dur <= 0:
-            self.styling.stroke_dashoffset.set_onward(s, 0)
+            self.styling.stroke_dashoffset.set_onward(start, 0)
             return self
-        self.styling.stroke_dashoffset.set(s, e,
-            _ramp_down(s, dur, total_length, easing), stay=True)
+        self.styling.stroke_dashoffset.set(start, end,
+            _ramp_down(start, dur, total_length, easing), stay=True)
         return self
 
     def show_passing_flash(self, start: float = 0, end: float = 1, flash_width=0.15,
@@ -1136,12 +1128,11 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
     def _scale_anim(self, start, end, scale_func, easing, stay=False):
         """Core helper for scale-based animations around the center."""
         self.styling._scale_origin = self.center(start)
-        s, e = start, end
-        dur = e - s
+        dur = end - start
         if dur <= 0:
             dur = 1
-        f = lambda t, _s=s, _d=dur: scale_func(easing((t - _s) / _d))
-        self._set_scale_xy(s, e, f, stay=stay)
+        f = lambda t, _s=start, _d=dur: scale_func(easing((t - _s) / _d))
+        self._set_scale_xy(start, end, f, stay=stay)
         return self
 
     def _scale_in_out(self, start, end, fade_in, change_existence, easing):
@@ -1310,12 +1301,11 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         _, target_color = attributes.Color(0, color).parse(color)
         if not isinstance(target_color, tuple):
             return self
-        s, e = start, end
-        dur = e - s
+        dur = end - start
         if dur <= 0:
             return self
-        self.styling.fill.set(s, e,
-            lambda t, _s=s, _d=dur, _o=original, _tc=target_color:
+        self.styling.fill.set(start, end,
+            lambda t, _s=start, _d=dur, _o=original, _tc=target_color:
                 tuple(o + (g - o) * easing((t - _s) / _d) for o, g in zip(_o, _tc)))
         return self
 

@@ -210,7 +210,7 @@ class ThreeDAxes(VCollection):
         self._scale_3d.set(start, end, _lerp(start, dur, s0, s0 * factor, easing))
         return self
 
-    def begin_ambient_camera_rotation(self, start=0, end=None, rate=0.1):
+    def begin_ambient_camera_rotation(self, start: float = 0, end=None, rate=0.1):
         """Continuously rotate the camera theta at *rate* radians per second."""
         theta0 = self.theta.at_time(start)
         if end is None:

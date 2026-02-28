@@ -304,21 +304,18 @@ class BarChart(VCollection):
                  creation: float = 0, z: float = 0):
         colors = _default_colors(colors)
         n = len(values)
-        if n == 0:
-            super().__init__(creation=creation, z=z)
-            self.values, self.bar_count, self._bars, self._labels = [], 0, [], []
-            self._height, self._y = height, y
-            self._x, self._width = x, width
-            self._bar_spacing = bar_spacing
-            self._colors = colors
-            self._creation = creation
-            self._z = z
-            return
-        max_val = max(abs(v) for v in values) if values else 1
         # Store instance vars early so _bar_geometry can use them
         self._height, self._y = height, y
         self._x, self._width = x, width
         self._bar_spacing = bar_spacing
+        self._colors = colors
+        self._creation = creation
+        self._z = z
+        if n == 0:
+            super().__init__(creation=creation, z=z)
+            self.values, self.bar_count, self._bars, self._labels = [], 0, [], []
+            return
+        max_val = max(abs(v) for v in values) if values else 1
         objects: list[VObject] = []
         bars: list = []
         label_objs: list = []
@@ -351,9 +348,6 @@ class BarChart(VCollection):
         self.bar_count = n
         self._bars = bars
         self._labels = label_objs
-        self._colors = colors
-        self._creation = creation
-        self._z = z
 
     def _bar_geometry(self, value, index, n_bars, max_val):
         """Compute (bar_width, inner_width, bar_h, bx, by) for a bar."""

@@ -173,12 +173,11 @@ class Real:
         """
         start_val = self.time_func(start)
         diff = start_val - end_val
-        s, e = start, end
-        dur = e - s
+        dur = end - start
         if dur <= 0:
-            self.set_onward(s, end_val)
+            self.set_onward(start, end_val)
         else:
-            self.set(s, e, lambda t: diff * (1-easing((t-s)/dur)) + end_val, stay=stay)
+            self.set(start, end, lambda t, _s=start, _d=dur: diff * (1-easing((t-_s)/_d)) + end_val, stay=stay)
         self.last_change = max(self.last_change, end)
         return self
 
@@ -202,9 +201,8 @@ class Real:
         start_val = self.time_func(start)
         end_val = other.time_func(end)
         d = max(end - start, 1e-9)
-        s = start
         new = Real(0)
-        new.time_func = lambda t, _s=s, _d=d, _sv=start_val, _ev=end_val: _sv + (_ev - _sv) * easing((t - _s) / _d)
+        new.time_func = lambda t, _s=start, _d=d, _sv=start_val, _ev=end_val: _sv + (_ev - _sv) * easing((t - _s) / _d)
         new.last_change = end
         return new
 
@@ -246,10 +244,9 @@ class Tup(Real):
         start_val = self.time_func(start)
         end_val = other.time_func(end)
         d = max(end - start, 1e-9)
-        _s = start
         new = Tup(0, ())
-        new.time_func = lambda t, _st=_s, _d=d, _sv=start_val, _ev=end_val: tuple(
-            sv + (ev - sv) * easing((t - _st) / _d) for sv, ev in zip(_sv, _ev))
+        new.time_func = lambda t, _s=start, _d=d, _sv=start_val, _ev=end_val: tuple(
+            sv + (ev - sv) * easing((t - _s) / _d) for sv, ev in zip(_sv, _ev))
         new.last_change = end
         return new
 
@@ -310,14 +307,13 @@ class Coor(Real):
         """
         start_pos = self.time_func(start)
         dx, dy = start_pos[0]-end_val[0], start_pos[1]-end_val[1]
-        s, e = start, end
-        dur = e - s
+        dur = end - start
         if dur <= 0:
-            self.set_onward(s, end_val)
+            self.set_onward(start, end_val)
         else:
-            self.set(s, e, lambda t: (
-                dx * (1-easing((t-s)/dur)) + end_val[0],
-                dy * (1-easing((t-s)/dur)) + end_val[1],
+            self.set(start, end, lambda t, _s=start, _d=dur: (
+                dx * (1-easing((t-_s)/_d)) + end_val[0],
+                dy * (1-easing((t-_s)/_d)) + end_val[1],
             ), stay=stay)
         self.last_change = max(self.last_change, end)
         return self
@@ -341,15 +337,14 @@ class Coor(Real):
         import svgpathtools
         parsed = svgpathtools.parse_path(path_d)
         total_length = parsed.length()
-        _s, _e = start, end
-        dur = _e - _s
+        dur = end - start
         if dur <= 0:
             return self
-        def position_at(t):
-            progress = max(0, min(1, easing((t - _s) / dur)))
+        def position_at(t, _s=start, _d=dur):
+            progress = max(0, min(1, easing((t - _s) / _d)))
             point = parsed.point(parsed.ilength(progress * total_length))  # type: ignore[operator]
             return (point.real, point.imag)
-        self.set(_s, _e, position_at, stay=stay)
+        self.set(start, end, position_at, stay=stay)
         self.last_change = max(self.last_change, end)
         return self
 
@@ -465,10 +460,9 @@ class Color:
             start_val = self.time_func(start)
             end_val = other.time_func(end)
             d = max(end - start, 1e-9)
-            _s = start
             new = Color(use='rgb')
-            new.time_func = lambda t, _st=_s, _d=d, _sv=start_val, _ev=end_val: tuple(
-                sv + (ev - sv) * easing((t - _st) / _d) for sv, ev in zip(_sv, _ev))
+            new.time_func = lambda t, _s=start, _d=d, _sv=start_val, _ev=end_val: tuple(
+                sv + (ev - sv) * easing((t - _s) / _d) for sv, ev in zip(_sv, _ev))
             new.last_change = end
             return new
         else:
@@ -490,10 +484,9 @@ class Color:
         elif dh < -0.5: dh += 1.0
 
         new = Color(use='rgb')
-        _s = start
         _d = max(end - start, 1e-9)
         _dh, _ds, _dl = dh, s2 - s1, l2 - l1
-        def _interp(t, _st=_s, _dur=_d, _h1=h1, _s1=s1, _l1=l1, _ddh=_dh, _dds=_ds, _ddl=_dl):
+        def _interp(t, _st=start, _dur=_d, _h1=h1, _s1=s1, _l1=l1, _ddh=_dh, _dds=_ds, _ddl=_dl):
             p = easing((t - _st) / _dur)
             return _hsl_to_rgb((_h1 + _ddh * p) % 1.0, _s1 + _dds * p, _l1 + _ddl * p)
         new.time_func = _interp

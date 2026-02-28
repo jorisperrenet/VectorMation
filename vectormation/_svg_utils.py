@@ -206,9 +206,8 @@ class Angle(VCollection):
             if end is None:
                 c.add_onward(start, (dx, dy))
             else:
-                s, e = start, end
-                d = max(e - s, 1e-9)
-                c.add_onward(s, lambda t, _s=s, _d=d: (dx * easing((t-_s)/_d), dy * easing((t-_s)/_d)), last_change=e)
+                d = max(end - start, 1e-9)
+                c.add_onward(start, lambda t, _s=start, _d=d: (dx * easing((t-_s)/_d), dy * easing((t-_s)/_d)), last_change=end)
         return self
 
 class RightAngle(VCollection):

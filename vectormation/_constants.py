@@ -58,7 +58,7 @@ def _normalize(x, y):
         return (0.0, 0.0)
     return (x / mag, y / mag)
 
-def _lerp_point(x1, y1, x2, y2, t):
+def _interp_point(x1, y1, x2, y2, t):
     """Linearly interpolate between (x1,y1) and (x2,y2) at parameter t."""
     return (x1 + (x2 - x1) * t, y1 + (y2 - y1) * t)
 
