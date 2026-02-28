@@ -393,12 +393,18 @@ class VectorMathAnim:
             self.write_frame(time=t, filename=filename)
             logger.info('Exported section %d at t=%.2f to %s', i, t, filename)
 
-    def export_png(self, time=0, filename='frame.png', scale=None):
-        """Export a single frame as PNG using cairosvg."""
+    @staticmethod
+    def _require_cairosvg():
+        """Import and return cairosvg, raising a helpful error if missing."""
         try:
             import cairosvg  # type: ignore[import-not-found]
+            return cairosvg
         except ImportError:
-            raise ImportError('cairosvg is required for PNG export. Install it with: pip install cairosvg')
+            raise ImportError('cairosvg is required for export. Install it with: pip install cairosvg')
+
+    def export_png(self, time=0, filename='frame.png', scale=None):
+        """Export a single frame as PNG using cairosvg."""
+        cairosvg = self._require_cairosvg()
         scale, ow, oh = self._export_dims(scale)
         svg = self.generate_frame_svg(time)
         cairosvg.svg2png(bytestring=svg.encode(), write_to=filename,
@@ -429,10 +435,7 @@ class VectorMathAnim:
     def export_video(self, filename='animation.mp4', start=0, end=None, fps=60, scale=None):
         """Export animation as video using cairosvg + ffmpeg."""
         import subprocess, shutil
-        try:
-            import cairosvg  # type: ignore[import-not-found]
-        except ImportError:
-            raise ImportError('cairosvg is required for video export. Install it with: pip install cairosvg')
+        cairosvg = self._require_cairosvg()
         if shutil.which('ffmpeg') is None:
             raise RuntimeError('ffmpeg is required for video export. Install it from https://ffmpeg.org/')
 
@@ -458,10 +461,7 @@ class VectorMathAnim:
 
     def export_gif(self, filename='animation.gif', start=0, end=None, fps=30, scale=None, loop=0):
         """Export animation as an animated GIF using cairosvg + Pillow."""
-        try:
-            import cairosvg  # type: ignore[import-not-found]
-        except ImportError:
-            raise ImportError('cairosvg is required for GIF export. Install it with: pip install cairosvg')
+        cairosvg = self._require_cairosvg()
         try:
             from PIL import Image as PILImage  # type: ignore[import-not-found]
         except ImportError:

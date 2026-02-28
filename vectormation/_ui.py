@@ -235,19 +235,25 @@ class Code(VCollection):
 # Label / LabeledArrow
 # ---------------------------------------------------------------------------
 
+def _text_with_box(text, x, y, font_size, padding, corner_radius, creation, z_txt, z_bg,
+                   box_fill='#1e1e2e', box_opacity=0.9, box_stroke='#555', **text_kw):
+    """Create a centered Text + RoundedRectangle background pair."""
+    txt = Text(text=text, x=x, y=y, font_size=font_size,
+               text_anchor='middle', creation=creation, z=z_txt, **text_kw)
+    _, _, tw, th = txt.bbox(creation)
+    bg = RoundedRectangle(tw + 2 * padding, th + 2 * padding,
+                          x=x - tw / 2 - padding, y=y - th - padding + 4,
+                          corner_radius=corner_radius, creation=creation, z=z_bg,
+                          fill=box_fill, fill_opacity=box_opacity, stroke=box_stroke, stroke_width=1)
+    return bg, txt
+
 class Label(VCollection):
     """Text label with a surrounding box/frame for annotations."""
     def __init__(self, text, x=960, y=540, font_size=36, padding=10,
                  corner_radius=4, creation: float = 0, z: float = 0, **styling_kwargs):
-        from vectormation._shapes import Text, RoundedRectangle
         style_kw = _TEXT_STYLE | styling_kwargs
-        txt = Text(text=text, x=x, y=y, font_size=font_size,
-                   text_anchor='middle', creation=creation, z=z + 1, **style_kw)
-        _, _, tw, th = txt.bbox(creation)
-        bg = RoundedRectangle(tw + 2 * padding, th + 2 * padding,
-                              x=x - tw / 2 - padding, y=y - th - padding + 4,
-                              corner_radius=corner_radius, creation=creation, z=z,
-                              fill='#1e1e2e', fill_opacity=0.9, stroke='#555', stroke_width=1)
+        bg, txt = _text_with_box(text, x, y, font_size, padding, corner_radius,
+                                 creation, z + 1, z, **style_kw)
         super().__init__(bg, txt, creation=creation, z=z)
 
     def __repr__(self):
@@ -296,7 +302,7 @@ class Callout(VCollection):
     """Text callout with a pointer line to a target position."""
     def __init__(self, text, target, direction='up', distance=80, font_size=24,
                  padding=8, corner_radius=4, creation: float = 0, z: float = 0, **styling_kwargs):
-        from vectormation._shapes import Text as SText, RoundedRectangle, Line as SLine
+        from vectormation._shapes import Line as SLine
         direction = _norm_dir(direction, 'up')
 
         # Resolve target position
@@ -312,13 +318,9 @@ class Callout(VCollection):
         lx, ly = tx + ox, ty + oy
 
         style_kw = _TEXT_STYLE | styling_kwargs
-        lbl = SText(text=text, x=lx, y=ly, font_size=font_size,
-                    text_anchor='middle', creation=creation, z=z + 2, **style_kw)
-        _, _, tw, th = lbl.bbox(creation)
-        bg = RoundedRectangle(tw + 2 * padding, th + 2 * padding,
-                              x=lx - tw / 2 - padding, y=ly - th - padding + 4,
-                              corner_radius=corner_radius, creation=creation, z=z + 1,
-                              fill='#1e1e2e', fill_opacity=0.9, stroke='#555', stroke_width=1)
+        bg, lbl = _text_with_box(text, lx, ly, font_size, padding, corner_radius,
+                                 creation, z + 2, z + 1, **style_kw)
+        _, _, _, th = lbl.bbox(creation)
         pointer = SLine(x1=tx, y1=ty, x2=lx, y2=ly - th / 2 if direction == 'up' else ly + th / 2 if direction == 'down' else ly,
                         creation=creation, z=z, stroke='#888', stroke_width=1)
         super().__init__(pointer, bg, lbl, creation=creation, z=z)
@@ -374,7 +376,6 @@ class Tooltip(VCollection):
     """Small animated tooltip that appears and disappears near a target."""
     def __init__(self, text, target, start=0, duration=1.5, font_size=18,
                  padding=6, creation: float = 0, z=10, **styling_kwargs):
-        from vectormation._shapes import Text as SText, RoundedRectangle
         if hasattr(target, 'bbox'):
             tx = target.center(creation)[0]
             ty = target.bbox(creation)[1]
@@ -382,13 +383,9 @@ class Tooltip(VCollection):
             tx, ty = target
 
         style_kw = _TEXT_STYLE | styling_kwargs
-        lbl = SText(text=text, x=tx, y=ty - 20, font_size=font_size,
-                    text_anchor='middle', creation=creation, z=z + 1, **style_kw)
-        _, _, tw, th = lbl.bbox(creation)
-        bg = RoundedRectangle(tw + 2 * padding, th + 2 * padding,
-                              x=tx - tw / 2 - padding, y=ty - 20 - th - padding + 4,
-                              corner_radius=4, creation=creation, z=z,
-                              fill='#333', fill_opacity=0.9, stroke='#666', stroke_width=1)
+        bg, lbl = _text_with_box(text, tx, ty - 20, font_size, padding, 4,
+                                 creation, z + 1, z,
+                                 box_fill='#333', box_stroke='#666', **style_kw)
         super().__init__(bg, lbl, creation=creation, z=z)
         # Auto-animate: fade in, hold, fade out
         if duration <= 0:

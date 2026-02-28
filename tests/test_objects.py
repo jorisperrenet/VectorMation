@@ -17811,3 +17811,92 @@ class TestPlotAreaPerformance:
         svg = c.generate_frame_svg(0)
         assert '<path' in svg
 
+
+class TestRequireCairosvg:
+    """Test the _require_cairosvg deduplication."""
+    def test_require_cairosvg_is_callable(self):
+        c = VectorMathAnim(save_dir='/tmp/t')
+        assert hasattr(c, '_require_cairosvg')
+
+    def test_export_methods_exist(self):
+        c = VectorMathAnim(save_dir='/tmp/t')
+        for method in ('export_png', 'export_video', 'export_gif'):
+            assert callable(getattr(c, method))
+
+
+class TestWallCollisionFix:
+    """Test horizontal wall collision from both sides."""
+    def test_floor_collision(self):
+        from vectormation._physics import Body, Wall, _collide_wall
+        b = Body.__new__(Body)
+        b.x, b.y, b.vx, b.vy = 100, 492, 0, 50
+        b.radius, b.restitution, b.friction, b.fixed = 10, 1.0, 0.0, False
+        w = Wall(y=500, restitution=1.0)
+        _collide_wall(b, w)
+        assert b.y == 490  # pushed back to wall surface
+        assert b.vy < 0  # velocity reversed
+
+    def test_ceiling_collision(self):
+        from vectormation._physics import Body, Wall, _collide_wall
+        b = Body.__new__(Body)
+        b.x, b.y, b.vx, b.vy = 100, 108, 0, -50
+        b.radius, b.restitution, b.friction, b.fixed = 10, 1.0, 0.0, False
+        w = Wall(y=100, restitution=1.0)
+        _collide_wall(b, w)
+        assert b.y == 110  # pushed back from ceiling
+        assert b.vy > 0  # velocity reversed
+
+    def test_no_collision_when_away(self):
+        from vectormation._physics import Body, Wall, _collide_wall
+        b = Body.__new__(Body)
+        b.x, b.y, b.vx, b.vy = 100, 200, 0, 50
+        b.radius, b.restitution, b.friction, b.fixed = 10, 1.0, 0.0, False
+        w = Wall(y=500, restitution=1.0)
+        _collide_wall(b, w)
+        assert b.y == 200  # unchanged
+        assert b.vy == 50  # unchanged
+
+
+class TestShortenedEndpoints:
+    """Test _shortened_endpoints helper."""
+    def test_horizontal(self):
+        from vectormation._diagrams import _shortened_endpoints
+        sx, sy, ex, ey = _shortened_endpoints(0, 0, 100, 0, 10, 10)
+        assert sx == pytest.approx(10)
+        assert sy == pytest.approx(0)
+        assert ex == pytest.approx(90)
+        assert ey == pytest.approx(0)
+
+    def test_diagonal(self):
+        from vectormation._diagrams import _shortened_endpoints
+        sx, sy, ex, ey = _shortened_endpoints(0, 0, 100, 100, 10, 20)
+        import math
+        d = math.hypot(100, 100)
+        assert math.hypot(sx, sy) == pytest.approx(10, abs=0.1)
+        assert math.hypot(100 - ex, 100 - ey) == pytest.approx(20, abs=0.1)
+
+
+class TestTextWithBox:
+    """Test _text_with_box helper used by Label/Callout/Tooltip."""
+    def test_label_creates(self):
+        lbl = Label('Test', creation=0)
+        c = VectorMathAnim(save_dir='/tmp/t')
+        c.add_objects(lbl)
+        svg = c.generate_frame_svg(0)
+        assert 'Test' in svg
+        assert '<rect' in svg
+
+    def test_callout_creates(self):
+        co = Callout('Hello', target=(500, 300), creation=0)
+        c = VectorMathAnim(save_dir='/tmp/t')
+        c.add_objects(co)
+        svg = c.generate_frame_svg(0)
+        assert 'Hello' in svg
+
+    def test_tooltip_creates(self):
+        tp = Tooltip('Tip', target=(500, 300), creation=0)
+        c = VectorMathAnim(save_dir='/tmp/t')
+        c.add_objects(tp)
+        svg = c.generate_frame_svg(0)
+        assert 'Tip' in svg
+

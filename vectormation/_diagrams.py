@@ -11,6 +11,11 @@ from vectormation._shapes import (
     Text, Path, Arc,
 )
 
+def _shortened_endpoints(x1, y1, x2, y2, r1, r2):
+    """Shorten a line segment by r1 at the start and r2 at the end."""
+    ux, uy = _normalize(x2 - x1, y2 - y1)
+    return (x1 + ux * r1, y1 + uy * r1, x2 - ux * r2, y2 - uy * r2)
+
 def _circular_layout(keys, cx, cy, radius):
     """Return dict mapping each key to (x, y) evenly spaced on a circle."""
     n = max(len(keys), 1)
@@ -320,11 +325,7 @@ class Automaton(VCollection):
                            creation=creation, z=z + 1, fill='#83C167', stroke_width=0)
                 objects.append(lbl)
             else:
-                dx, dy = tx - fx, ty - fy
-                ux, uy = _normalize(dx, dy)
-                # Shorten to circle edges
-                sx, sy = fx + ux * state_r, fy + uy * state_r
-                ex, ey = tx - ux * state_r, ty - uy * state_r
+                sx, sy, ex, ey = _shortened_endpoints(fx, fy, tx, ty, state_r, state_r)
                 arrow = Arrow(x1=sx, y1=sy, x2=ex, y2=ey,
                               tip_length=12, tip_width=10,
                               creation=creation, z=z, stroke='#83C167', stroke_width=2)
@@ -332,6 +333,7 @@ class Automaton(VCollection):
                 self._transition_arrows[(from_s, to_s)] = arrow
                 mx, my = (sx + ex) / 2, (sy + ey) / 2
                 # Offset label perpendicular to arrow
+                ux, uy = _normalize(tx - fx, ty - fy)
                 px, py = -uy * 15, ux * 15
                 lbl = Text(text=label_text, x=mx + px, y=my + py + font_size * TEXT_Y_OFFSET,
                            font_size=font_size * 0.8, text_anchor='middle',
@@ -494,13 +496,7 @@ class NetworkGraph(VCollection):
             ax, ay = self._node_positions[a]
             bx, by = self._node_positions[b]
             if directed:
-                dx, dy = bx - ax, by - ay
-                ux, uy = _normalize(dx, dy)
-                # Shorten to not overlap circles
-                ax2 = ax + ux * node_r
-                ay2 = ay + uy * node_r
-                bx2 = bx - ux * node_r
-                by2 = by - uy * node_r
+                ax2, ay2, bx2, by2 = _shortened_endpoints(ax, ay, bx, by, node_r, node_r)
                 arrow = Arrow(x1=ax2, y1=ay2, x2=bx2, y2=by2,
                               tip_length=12, tip_width=10,
                               creation=creation, z=z, stroke='#888', stroke_width=2)

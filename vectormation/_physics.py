@@ -453,11 +453,14 @@ def _collide_wall(b, w):
     e = b.restitution * w.restitution
     fric = 1 - b.friction
     if w.y is not None:  # horizontal wall
-        if b.y + b.radius > w.y:  # penetrating from above
+        if b.y + b.radius > w.y and b.vy > 0:  # penetrating from above
             b.y = w.y - b.radius
-            if b.vy > 0:
-                b.vy *= -e
-                b.vx *= fric
+            b.vy *= -e
+            b.vx *= fric
+        elif b.y - b.radius < w.y and b.vy < 0:  # penetrating from below
+            b.y = w.y + b.radius
+            b.vy *= -e
+            b.vx *= fric
     if w.x is not None:  # vertical wall
         if b.x + b.radius > w.x and b.vx > 0:
             b.x = w.x - b.radius
