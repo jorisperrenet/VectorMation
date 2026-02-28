@@ -242,9 +242,9 @@ def _arc_bbox(cx_cur, cy_cur, rx, ry, rotation, large_arc, sweep, ex, ey):
                    (-x1p - cxp) / rx, (-y1p - cyp) / ry)
 
     if sweep == 0 and dtheta > 0:
-        dtheta -= 2 * math.pi
+        dtheta -= math.tau
     elif sweep == 1 and dtheta < 0:
-        dtheta += 2 * math.pi
+        dtheta += math.tau
 
     theta2 = theta1 + dtheta
 
@@ -293,10 +293,10 @@ def path_bbox(d):
     if not segments:
         return (0, 0, 0, 0)
 
-    xmin = float('inf')
-    xmax = float('-inf')
-    ymin = float('inf')
-    ymax = float('-inf')
+    xmin = math.inf
+    xmax = -math.inf
+    ymin = math.inf
+    ymax = -math.inf
 
     def update(x, y):
         nonlocal xmin, xmax, ymin, ymax
@@ -335,6 +335,6 @@ def path_bbox(d):
             update(bx1, by1)
             update(bx2, by2)
 
-    if xmin == float('inf'):
+    if xmin == math.inf:
         return (0, 0, 0, 0)
     return (xmin, xmax, ymin, ymax)

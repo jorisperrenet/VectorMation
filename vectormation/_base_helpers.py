@@ -212,7 +212,7 @@ class _BBoxMethodsMixin:
     def get_aspect_ratio(self, time=0):
         """Return width/height ratio of the bounding box."""
         _, _, w, h = self.bbox(time)
-        return w / h if h != 0 else float('inf')
+        return w / h if h != 0 else math.inf
 
     def distance_to(self, other, time=0):
         """Return the distance between centers."""

@@ -1486,7 +1486,7 @@ class Rectangle(VObject):
         """Return width / height ratio."""
         w = self.width.at_time(time)
         h = self.height.at_time(time)
-        return w / h if h != 0 else float('inf')
+        return w / h if h != 0 else math.inf
 
     def sample_border(self, t, time=0):
         """Return a point (x, y) on the rectangle border at parameter *t*."""

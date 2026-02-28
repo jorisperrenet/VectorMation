@@ -1124,7 +1124,7 @@ class TreeMap(VCollection):
 
             def _worst(row_items, side, r_area):
                 if side <= 0 or r_area <= 0:
-                    return float('inf')
+                    return math.inf
                 s2 = side * side
                 return max(max(s2 * r_area / (itm[1][1] / total * area) ** 2,
                                (itm[1][1] / total * area) ** 2 / (s2 * r_area))

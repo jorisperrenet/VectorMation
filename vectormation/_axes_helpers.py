@@ -177,7 +177,7 @@ def percent_format(val):
 
 def degree_format(val):
     """Format as degrees (e.g. '90°', '-45°')."""
-    deg = math.degrees(val) if abs(val) < 2 * math.pi + 0.01 else val
+    deg = math.degrees(val) if abs(val) < math.tau + 0.01 else val
     if abs(deg - round(deg)) < 0.01:
         return f'{round(deg)}°'
     return f'{deg:g}°'

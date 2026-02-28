@@ -109,12 +109,12 @@ class Line(VObject):
         return abs(dot_val) < tol
 
     def get_slope(self, time=0):
-        """Return the slope (dy/dx) of the line, or float('inf') for vertical lines.
+        """Return the slope (dy/dx) of the line, or math.inf for vertical lines.
         Uses SVG coordinates (y increases downward)."""
         x1, y1, x2, y2 = self._ep(time)
         dx = x2 - x1
         if abs(dx) < 1e-10:
-            return float('inf')
+            return math.inf
         return (y2 - y1) / dx
 
     def angle(self, time=0):
