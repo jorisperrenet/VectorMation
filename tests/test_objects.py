@@ -19594,3 +19594,110 @@ class TestRotateByVCollection:
         g = VGroup(Circle(), Rectangle(100, 50))
         assert g.rotate_by(0, 1, 90) is g
 
+
+class TestLineSplitAt:
+    def test_returns_two_lines(self):
+        line = Line(x1=100, y1=100, x2=300, y2=100)
+        a, b = line.split_at(0.5)
+        assert isinstance(a, Line) and isinstance(b, Line)
+
+    def test_midpoint_matches(self):
+        line = Line(x1=100, y1=100, x2=300, y2=100)
+        a, b = line.split_at(0.5)
+        # a ends at midpoint (200, 100)
+        assert abs(a.p2.at_time(0)[0] - 200) < 1
+
+    def test_clamps_parameter(self):
+        line = Line(x1=100, y1=100, x2=300, y2=100)
+        a, b = line.split_at(2.0)  # should clamp to 1.0
+        assert abs(a.p2.at_time(0)[0] - 300) < 1
+
+
+class TestLineIsParallel:
+    def test_parallel_lines(self):
+        a = Line(x1=0, y1=0, x2=100, y2=0)
+        b = Line(x1=0, y1=50, x2=100, y2=50)
+        assert a.is_parallel(b)
+
+    def test_non_parallel_lines(self):
+        a = Line(x1=0, y1=0, x2=100, y2=0)
+        b = Line(x1=0, y1=0, x2=0, y2=100)
+        assert not a.is_parallel(b)
+
+
+class TestLineIsPerpendicular:
+    def test_perpendicular_lines(self):
+        a = Line(x1=0, y1=0, x2=100, y2=0)
+        b = Line(x1=0, y1=0, x2=0, y2=100)
+        assert a.is_perpendicular(b)
+
+    def test_non_perpendicular(self):
+        a = Line(x1=0, y1=0, x2=100, y2=0)
+        b = Line(x1=0, y1=0, x2=100, y2=50)
+        assert not a.is_perpendicular(b)
+
+
+class TestLineFromAngle:
+    def test_horizontal(self):
+        line = Line.from_angle((100, 100), 0, length=200)
+        assert isinstance(line, Line)
+        x2 = line.p2.at_time(0)[0]
+        assert x2 > 100  # extends right
+
+    def test_vertical(self):
+        line = Line.from_angle((100, 100), 90, length=200)
+        y2 = line.p2.at_time(0)[1]
+        assert y2 < 100  # extends up (SVG y inverted)
+
+
+class TestLineFromSlopePoint:
+    def test_creates_line(self):
+        line = Line.from_slope_point(1, (200, 200), length=200)
+        assert isinstance(line, Line)
+
+    def test_infinite_slope(self):
+        line = Line.from_slope_point(float('inf'), (200, 200))
+        x1 = line.p1.at_time(0)[0]
+        x2 = line.p2.at_time(0)[0]
+        assert abs(x1 - x2) < 1  # vertical line
+
+
+class TestTextTyping:
+    def test_returns_self(self):
+        t = Text(text='Hello')
+        assert t.typing(start=0, end=1) is t
+
+    def test_reveals_characters(self):
+        t = Text(text='Hello')
+        t.typing(start=0, end=1)
+        txt_mid = t.text.at_time(0.5)
+        assert len(txt_mid) < 5  # not all characters yet
+
+
+class TestTextSetText:
+    def test_returns_self(self):
+        t = Text(text='Hello')
+        assert t.set_text(0, 1, 'World') is t
+
+    def test_changes_text(self):
+        t = Text(text='Hello')
+        t.set_text(0, 1, 'World')
+        assert t.text.at_time(1) == 'World'
+
+
+class TestTextRevealByWord:
+    def test_returns_self(self):
+        t = Text(text='Hello World')
+        assert t.reveal_by_word(start=0, end=1) is t
+
+
+class TestArcAnimateSweep:
+    def test_returns_self(self):
+        a = Arc(start_angle=0, end_angle=90)
+        assert a.animate_sweep(180, start=0, end=1) is a
+
+    def test_changes_angle(self):
+        a = Arc(start_angle=0, end_angle=90)
+        a.animate_sweep(180, start=0, end=1)
+        assert abs(a.end_angle.at_time(1) - 180) < 1
+

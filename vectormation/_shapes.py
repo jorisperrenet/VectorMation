@@ -1858,7 +1858,7 @@ class SurroundingCircle(Circle):
     def __init__(self, target, buff=SMALL_BUFF, follow=True,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         _bb = _cached_bbox(target)
-        bw, bh = _bb(creation)[2], _bb(creation)[3]
+        _, _, bw, bh = _bb(creation)
         r = math.hypot(bw, bh) / 2 + buff
         cx, cy = target.center(creation)
         style_kw = {'fill_opacity': 0, 'stroke': '#FFFF00'} | styling_kwargs
