@@ -49,14 +49,14 @@ class Arrow(VCollection):
         hw = self._tip_width / 2
         shaft = self.shaft
 
-        def _tip_geom(t):
+        def _tip_geom(t, _tl=tl, _hw=hw):
             p1 = shaft.p1.at_time(t)
             p2 = shaft.p2.at_time(t)
             dx, dy = p2[0] - p1[0], p2[1] - p1[1]
             ux, uy = _normalize(dx, dy)
             px, py = -uy, ux
-            bx, by = p2[0] - ux * tl, p2[1] - uy * tl
-            return (p2, (bx + px * hw, by + py * hw), (bx - px * hw, by - py * hw))
+            bx, by = p2[0] - ux * _tl, p2[1] - uy * _tl
+            return (p2, (bx + px * _hw, by + py * _hw), (bx - px * _hw, by - py * _hw))
 
         _cache = [None, None]
         def _cached_geom(t):
@@ -313,18 +313,13 @@ class Brace(VCollection):
 
         # Affine transform: (x,y) in template -> pixel coords
         # Template: horizontal, tip pointing +Y (down in SVG)
-        if direction == 'down':
-            m00, m01, tx = scale, 0, bx
-            m10, m11, ty = 0, scale, by + bh + buff
-        elif direction == 'up':
-            m00, m01, tx = -scale, 0, bx + bw
-            m10, m11, ty = 0, -scale, by - buff
-        elif direction == 'right':
-            m00, m01, tx = 0, scale, bx + bw + buff
-            m10, m11, ty = scale, 0, by
-        else:  # left
-            m00, m01, tx = 0, -scale, bx - buff
-            m10, m11, ty = scale, 0, by
+        transforms = {
+            'down':  (scale, 0, 0, scale, bx, by + bh + buff),
+            'up':    (-scale, 0, 0, -scale, bx + bw, by - buff),
+            'right': (0, scale, scale, 0, bx + bw + buff, by),
+            'left':  (0, -scale, scale, 0, bx - buff, by),
+        }
+        m00, m01, m10, m11, tx, ty = transforms[direction]
 
         d = _transform_rel_svg_path(raw, m00, m01, m10, m11, tx, ty)
         brace_style = {'fill': '#fff', 'fill_opacity': 1, 'stroke_width': 0} | styling_kwargs
@@ -341,14 +336,13 @@ class Brace(VCollection):
             _, _, lw, lh = label_obj.bbox(creation)
             tcx, tcy = bx + bw / 2, by + bh / 2
             arm = buff + depth + label_gap
-            if direction == 'down':
-                lx, ly = tcx, by + bh + arm + lh / 2
-            elif direction == 'up':
-                lx, ly = tcx, by - arm - lh / 2
-            elif direction == 'right':
-                lx, ly = bx + bw + arm + lw / 2, tcy
-            else:  # left
-                lx, ly = bx - arm - lw / 2, tcy
+            label_pos = {
+                'down':  (tcx, by + bh + arm + lh / 2),
+                'up':    (tcx, by - arm - lh / 2),
+                'right': (bx + bw + arm + lw / 2, tcy),
+                'left':  (bx - arm - lw / 2, tcy),
+            }
+            lx, ly = label_pos[direction]
             label_obj.center_to_pos(posx=lx, posy=ly)
             objects.append(label_obj)
 
