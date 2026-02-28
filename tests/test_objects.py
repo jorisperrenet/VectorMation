@@ -19050,3 +19050,177 @@ class TestTableExtraMethods:
         result = t.animate_cells([(0, 0), (1, 1)], method_name='flash', start=0, end=1)
         assert result is t
 
+
+class TestDissolveOutAnim:
+    def test_dissolve_out_returns_self(self):
+        c = Circle()
+        assert c.dissolve_out(0, 1) is c
+
+    def test_dissolve_out_hides_at_end(self):
+        c = Circle()
+        c.dissolve_out(0, 1)
+        assert not c.show.at_time(1.1)
+
+    def test_dissolve_out_visible_during(self):
+        c = Circle()
+        c.dissolve_out(0, 1)
+        svg = c.to_svg(0.5)
+        assert svg  # still renders mid-animation
+
+    def test_dissolve_out_zero_duration(self):
+        c = Circle()
+        c.dissolve_out(0, 0)
+        assert not c.show.at_time(0.1)
+
+
+class TestShimmerEffect:
+    def test_shimmer_returns_self(self):
+        c = Circle()
+        assert c.shimmer(0, 1) is c
+
+    def test_shimmer_modifies_opacity(self):
+        c = Circle()
+        c.shimmer(0, 1)
+        mid_op = c.styling.opacity.at_time(0.5)
+        assert isinstance(mid_op, (int, float))
+
+    def test_shimmer_zero_duration(self):
+        c = Circle()
+        assert c.shimmer(0, 0) is c
+
+
+class TestUndulateEffect:
+    def test_undulate_returns_self(self):
+        c = Circle()
+        assert c.undulate(0, 1) is c
+
+    def test_undulate_changes_scale(self):
+        c = Circle()
+        c.undulate(0, 1, amplitude=0.3)
+        # At t=0.125, sin(0.125*2*tau) = sin(pi/2) = 1, so scale = 1.3
+        sx = c.styling.scale_x.at_time(0.125)
+        assert sx != 1.0
+
+    def test_undulate_zero_duration(self):
+        c = Circle()
+        assert c.undulate(0, 0) is c
+
+
+class TestAlwaysNextToAnim:
+    def test_always_next_to_returns_self(self):
+        c = Circle()
+        r = Rectangle(200, 100)
+        assert c.always_next_to(r, RIGHT) is c
+
+    def test_always_next_to_positions(self):
+        r = Rectangle(200, 100, x=400, y=400)
+        c = Circle(r=30)
+        c.always_next_to(r, RIGHT, buff=10, start=0)
+        c._run_updaters(0)
+        cx, _ = c.center(0)
+        rx, _, rw, _ = r.bbox(0)
+        assert cx > rx + rw  # circle is to the right of rectangle
+
+
+class TestStampTrailAnim:
+    def test_stamp_trail_returns_list(self):
+        c = Circle()
+        c.shift(dx=200, start=0, end=1)
+        ghosts = c.stamp_trail(0, 1, count=3)
+        assert isinstance(ghosts, list)
+        assert len(ghosts) == 3
+
+    def test_stamp_trail_zero_count(self):
+        c = Circle()
+        assert c.stamp_trail(0, 1, count=0) == []
+
+    def test_stamp_trail_zero_duration(self):
+        c = Circle()
+        assert c.stamp_trail(0, 0, count=5) == []
+
+
+class TestWaveThroughAnim:
+    def test_wave_through_returns_self(self):
+        c = Circle()
+        assert c.wave_through(0, 1) is c
+
+    def test_wave_through_x_axis(self):
+        c = Circle()
+        c.wave_through(0, 1, direction='x')
+        dx = c.styling.dx.at_time(0.25)
+        # Should have some displacement at 25%
+        assert isinstance(dx, (int, float))
+
+    def test_wave_through_y_axis(self):
+        c = Circle()
+        c.wave_through(0, 1, direction='y')
+        dy = c.styling.dy.at_time(0.25)
+        assert isinstance(dy, (int, float))
+
+    def test_wave_through_zero_duration(self):
+        c = Circle()
+        assert c.wave_through(0, 0) is c
+
+
+class TestCycleColorsAnim:
+    def test_cycle_colors_returns_self(self):
+        c = Circle()
+        assert c.cycle_colors(['#ff0000', '#00ff00', '#0000ff'], 0, 1) is c
+
+    def test_cycle_colors_changes_fill(self):
+        c = Circle(fill='#ff0000')
+        c.cycle_colors(['#ff0000', '#00ff00', '#0000ff'], 0, 1)
+        svg_mid = c.to_svg(0.5)
+        # Fill should not still be the original red
+        assert 'fill' in svg_mid
+
+    def test_cycle_colors_single_color(self):
+        c = Circle()
+        assert c.cycle_colors(['#ff0000'], 0, 1) is c  # < 2 colors, no-op
+
+
+class TestTypewriterEffectAnim:
+    def test_typewriter_effect_returns_self(self):
+        t = Text(text='', x=100, y=100)
+        assert t.typewriter_effect('hello', 0, 1) is t
+
+    def test_typewriter_effect_text_at_end(self):
+        t = Text(text='', x=100, y=100)
+        t.typewriter_effect('hello', 0, 1)
+        assert t.text.at_time(1.1) == 'hello'
+
+    def test_typewriter_effect_partial(self):
+        t = Text(text='', x=100, y=100)
+        t.typewriter_effect('abcde', 0, 1)
+        mid_text = t.text.at_time(0.5)
+        assert len(mid_text) < 5
+        assert len(mid_text) > 0
+
+
+class TestApplyWaveAnim:
+    def test_apply_wave_returns_self(self):
+        c = Circle()
+        assert c.apply_wave(0, 1) is c
+
+    def test_apply_wave_displaces(self):
+        c = Circle()
+        c.apply_wave(0, 1, amplitude=50)
+        dy = c.styling.dy.at_time(0.25)
+        assert isinstance(dy, (int, float))
+
+    def test_apply_wave_zero_duration(self):
+        c = Circle()
+        assert c.apply_wave(0, 0) is c
+
+
+class TestTiltTowardsAnim:
+    def test_tilt_towards_returns_self(self):
+        c = Circle()
+        assert c.tilt_towards(500, 500, start=0, end=1) is c
+
+    def test_tilt_towards_changes_rotation(self):
+        c = Circle()
+        c.tilt_towards(2000, 540, max_angle=30, start=0, end=1)
+        rot = c.styling.rotation.at_time(0.5)
+        assert rot[0] != 0  # some rotation applied
+
