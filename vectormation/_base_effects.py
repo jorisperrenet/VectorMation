@@ -111,8 +111,7 @@ class _VObjectEffectsMixin:
         self._ensure_scale_origin(start)
         _s, _d = start, max(duration, 1e-9)
         scale_fn = _lerp(_s, _d, 1, scale_factor, easing)
-        self.styling.scale_x.set(_s, end, scale_fn)
-        self.styling.scale_y.set(_s, end, scale_fn)
+        self._set_scale_xy(_s, end, scale_fn)
         self.styling.opacity.set(_s, end, _lerp(_s, _d, 1, 0.7, easing))
         shake_freq = 12
         def _dx(t, _s=_s, _d=_d, _a=shake_amplitude, _freq=shake_freq, _e=easing):

@@ -2290,6 +2290,14 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             copies.append(copy)
         return VCollection(*copies)
 
+    def _freeze_position(self, time):
+        """Freeze all position attributes at their value at *time*."""
+        for xa, ya in self._shift_reals():
+            xa.set_onward(time, xa.at_time(time))
+            ya.set_onward(time, ya.at_time(time))
+        for c in self._shift_coors():
+            c.set_onward(time, c.at_time(time))
+
     def stamp(self, time: float = 0, opacity=0.3):
         """Leave a faded copy (ghost) at the current position. Returns the copy (add to canvas)."""
 
@@ -2308,12 +2316,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         for i in range(n_copies):
             t = start + (end - start) * (i + 1) / (n_copies + 1)
             ghost = deepcopy(self)
-            # Freeze at position at time t
-            for xa, ya in ghost._shift_reals():
-                xa.set_onward(t, xa.at_time(t))
-                ya.set_onward(t, ya.at_time(t))
-            for c in ghost._shift_coors():
-                c.set_onward(t, c.at_time(t))
+            ghost._freeze_position(t)
             ghost.show.set_onward(0, False)
             ghost.show.set_onward(t, True)
             if fade:
