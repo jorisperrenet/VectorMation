@@ -118,10 +118,10 @@ class Array(VCollection):
         return self
 
     def add_pointer(self, index, label='', color='#FF6B6B', creation=0, z=1):
-        """Add a pointer arrow above a cell."""
+        """Add a pointer arrow above a cell. Returns the Arrow, or self if index is invalid."""
         Arrow = _get_arrow()
         if not (0 <= index < len(self._cells)):
-            return None
+            return self
         cx = self._x + index * self._cell_width + self._cell_width / 2
         arrow = Arrow(x1=cx, y1=self._y - 50, x2=cx, y2=self._y - 8,
                       creation=creation, z=z, stroke=color, fill=color)
