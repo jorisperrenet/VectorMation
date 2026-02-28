@@ -213,46 +213,54 @@ def darken(color, amount=0.3):
     return interpolate_color(color, '#000000', amount)
 
 
+def _rgb_to_hsl(r, g, b):
+    """Convert RGB (0-255) to HSL (h, s, l) all in [0,1]."""
+    r, g, b = r / 255.0, g / 255.0, b / 255.0
+    mx, mn = max(r, g, b), min(r, g, b)
+    l = (mx + mn) / 2.0
+    if mx == mn:
+        return 0.0, 0.0, l
+    d = mx - mn
+    s = d / (2.0 - mx - mn) if l > 0.5 else d / (mx + mn)
+    if mx == r:
+        h = (g - b) / d + (6 if g < b else 0)
+    elif mx == g:
+        h = (b - r) / d + 2
+    else:
+        h = (r - g) / d + 4
+    return h / 6.0, s, l
+
+
+def _hue2rgb(p, q, t):
+    if t < 0: t += 1
+    if t > 1: t -= 1
+    if t < 1/6: return p + (q - p) * 6 * t
+    if t < 1/2: return q
+    if t < 2/3: return p + (q - p) * (2/3 - t) * 6
+    return p
+
+
+def _hsl_to_rgb(h, s, l):
+    """Convert HSL (all in [0,1]) to RGB (0-255) tuple."""
+    if s == 0:
+        v = round(l * 255)
+        return (v, v, v)
+    q = l * (1 + s) if l < 0.5 else l + s - l * s
+    p = 2 * l - q
+    return (round(_hue2rgb(p, q, h + 1/3) * 255),
+            round(_hue2rgb(p, q, h) * 255),
+            round(_hue2rgb(p, q, h - 1/3) * 255))
+
+
 def _hex_to_hsl(hex_color):
     """Convert hex color to (h, s, l) where h in [0,360], s/l in [0,1]."""
-    r, g, b = _hex_to_rgb(hex_color)
-    r, g, b = r / 255, g / 255, b / 255
-    mx, mn = max(r, g, b), min(r, g, b)
-    l = (mx + mn) / 2
-    if mx == mn:
-        h = s = 0.0
-    else:
-        d = mx - mn
-        s = d / (2 - mx - mn) if l > 0.5 else d / (mx + mn)
-        if mx == r:
-            h = ((g - b) / d + (6 if g < b else 0)) / 6
-        elif mx == g:
-            h = ((b - r) / d + 2) / 6
-        else:
-            h = ((r - g) / d + 4) / 6
+    h, s, l = _rgb_to_hsl(*_hex_to_rgb(hex_color))
     return (h * 360, s, l)
 
 
 def _hsl_to_hex(h, s, l):
     """Convert (h, s, l) to hex string. h in [0,360], s/l in [0,1]."""
-    h = (h % 360) / 360
-    if s == 0:
-        v = int(round(l * 255))
-        return _rgb_to_hex(v, v, v)
-
-    def hue_to_rgb(p, q, t):
-        if t < 0: t += 1
-        if t > 1: t -= 1
-        if t < 1/6: return p + (q - p) * 6 * t
-        if t < 1/2: return q
-        if t < 2/3: return p + (q - p) * (2/3 - t) * 6
-        return p
-
-    q = l * (1 + s) if l < 0.5 else l + s - l * s
-    p = 2 * l - q
-    r = int(round(hue_to_rgb(p, q, h + 1/3) * 255))
-    g = int(round(hue_to_rgb(p, q, h) * 255))
-    b = int(round(hue_to_rgb(p, q, h - 1/3) * 255))
+    r, g, b = _hsl_to_rgb((h % 360) / 360, s, l)
     return _rgb_to_hex(r, g, b)
 
 

@@ -7,46 +7,8 @@ from __future__ import annotations
 import math
 from typing import Any
 import vectormation.colors as colors
+from vectormation.colors import _rgb_to_hsl, _hsl_to_rgb
 import vectormation.easings as easings
-
-
-def _rgb_to_hsl(r, g, b):
-    """Convert RGB (0-255) to HSL (0-1)."""
-    r, g, b = r / 255.0, g / 255.0, b / 255.0
-    mx, mn = max(r, g, b), min(r, g, b)
-    l = (mx + mn) / 2.0
-    if mx == mn:
-        return 0.0, 0.0, l
-    d = mx - mn
-    s = d / (2.0 - mx - mn) if l > 0.5 else d / (mx + mn)
-    if mx == r:
-        h = (g - b) / d + (6 if g < b else 0)
-    elif mx == g:
-        h = (b - r) / d + 2
-    else:
-        h = (r - g) / d + 4
-    return h / 6.0, s, l
-
-
-def _hue2rgb(p, q, t):
-    if t < 0: t += 1
-    if t > 1: t -= 1
-    if t < 1/6: return p + (q - p) * 6 * t
-    if t < 1/2: return q
-    if t < 2/3: return p + (q - p) * (2/3 - t) * 6
-    return p
-
-
-def _hsl_to_rgb(h, s, l):
-    """Convert HSL (0-1) to RGB (0-255) tuple."""
-    if s == 0:
-        v = round(l * 255)
-        return (v, v, v)
-    q = l * (1 + s) if l < 0.5 else l + s - l * s
-    p = 2 * l - q
-    return (round(_hue2rgb(p, q, h + 1/3) * 255),
-            round(_hue2rgb(p, q, h) * 255),
-            round(_hue2rgb(p, q, h - 1/3) * 255))
 
 
 def _wrap(outer, inner, start, end=None, lincl=True, rincl=True, stay=False):
