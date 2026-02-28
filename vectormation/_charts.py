@@ -1192,7 +1192,7 @@ class GaugeChart(VCollection):
             objects.append(arc)
         # Tick marks + labels
         for i in range(tick_count + 1):
-            frac = i / tick_count
+            frac = i / max(tick_count, 1)
             angle = sa_rad + total_sweep * frac
             tick_val = min_val + (max_val - min_val) * frac
             ix = x + (radius + 18) * math.cos(angle)

@@ -552,7 +552,7 @@ class NumberLine(VCollection):
                 # It's a Line (tick mark)
                 cur_x = obj.p1.at_time(start)[0]
                 # Determine what value this tick represents using old mapping
-                val = old_start + (cur_x - ox) / length * (old_end - old_start)
+                val = old_start + (cur_x - ox) / (length or 1) * (old_end - old_start)
                 new_x = _new_val_to_x(val)
                 if dur <= 0:
                     obj.p1.set_onward(start, (new_x, obj.p1.at_time(start)[1]))
