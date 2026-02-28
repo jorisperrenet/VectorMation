@@ -953,7 +953,7 @@ class VCollection(_BBoxMethodsMixin):
         max_delay = dur / max(n, 2)
         delay = min(delay, max_delay)
         child_dur = max(dur - (n - 1) * delay, 0.01)
-        items = list(reversed(self.objects)) if reverse else list(self.objects)
+        items = self.objects[::-1] if reverse else self.objects
         for i, obj in enumerate(items):
             obj_start = start + i * delay
             obj_end = obj_start + child_dur

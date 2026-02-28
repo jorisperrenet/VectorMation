@@ -276,29 +276,26 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         """Continuously rotate the object around its center (or given cx, cy)."""
         if cx is None or cy is None:
             cx, cy = self.center(start)
-        s, _cx, _cy, _dps = start, cx, cy, degrees_per_second
-        self.styling.rotation.set_onward(s,
-            lambda t, _s=s, _cx=_cx, _cy=_cy, _dps=_dps: (_dps * (t - _s) % 360, _cx, _cy))
+        self.styling.rotation.set_onward(start,
+            lambda t, _s=start, _cx=cx, _cy=cy, _dps=degrees_per_second: (_dps * (t - _s) % 360, _cx, _cy))
         if end is not None:
             self.styling.rotation.set_onward(end, self.styling.rotation.at_time(end))
         return self
 
     def always_shift(self, vx, vy, start: float = 0, end: float | None = None):
         """Continuously shift the object by (vx, vy) pixels per second."""
-        s, _vx, _vy = start, vx, vy
         if end is None:
             for c in self._shift_coors():
-                c.add_onward(s, lambda t, _s=s, _vx=_vx, _vy=_vy: (_vx * (t - _s), _vy * (t - _s)))
+                c.add_onward(start, lambda t, _s=start, _vx=vx, _vy=vy: (_vx * (t - _s), _vy * (t - _s)))
             for xa, ya in self._shift_reals():
-                xa.add_onward(s, lambda t, _s=s, _vx=_vx: _vx * (t - _s))
-                ya.add_onward(s, lambda t, _s=s, _vy=_vy: _vy * (t - _s))
+                xa.add_onward(start, lambda t, _s=start, _vx=vx: _vx * (t - _s))
+                ya.add_onward(start, lambda t, _s=start, _vy=vy: _vy * (t - _s))
         else:
-            _e = end
             for c in self._shift_coors():
-                c.add_onward(s, lambda t, _s=s, _e=_e, _vx=_vx, _vy=_vy: (_vx * (min(t, _e) - _s), _vy * (min(t, _e) - _s)))
+                c.add_onward(start, lambda t, _s=start, _e=end, _vx=vx, _vy=vy: (_vx * (min(t, _e) - _s), _vy * (min(t, _e) - _s)))
             for xa, ya in self._shift_reals():
-                xa.add_onward(s, lambda t, _s=s, _e=_e, _vx=_vx: _vx * (min(t, _e) - _s))
-                ya.add_onward(s, lambda t, _s=s, _e=_e, _vy=_vy: _vy * (min(t, _e) - _s))
+                xa.add_onward(start, lambda t, _s=start, _e=end, _vx=vx: _vx * (min(t, _e) - _s))
+                ya.add_onward(start, lambda t, _s=start, _e=end, _vy=vy: _vy * (min(t, _e) - _s))
         return self
 
     def shift(self, dx=0, dy=0, start: float = 0, end: float | None = None, easing=easings.smooth):
@@ -598,14 +595,14 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._ensure_scale_origin(start)
         assert self.styling._scale_origin is not None
         cx, cy = self.styling._scale_origin
-        s, op_base = start, self.styling.fill_opacity.at_time(start)
+        op_base = self.styling.fill_opacity.at_time(start)
         if fade_in:
-            rot_fn = lambda t, _s=s, _d=dur, _deg=degrees, _cx=cx, _cy=cy: (_deg * (1 - easing((t - _s) / _d)), _cx, _cy)
+            rot_fn = lambda t, _s=start, _d=dur, _deg=degrees, _cx=cx, _cy=cy: (_deg * (1 - easing((t - _s) / _d)), _cx, _cy)
         else:
-            rot_fn = lambda t, _s=s, _d=dur, _deg=degrees, _cx=cx, _cy=cy: (_deg * easing((t - _s) / _d), _cx, _cy)
-        op_fn = (_ramp if fade_in else _ramp_down)(s, dur, op_base, easing)
-        self.styling.rotation.set(s, end, rot_fn, stay=True)
-        self.styling.fill_opacity.set(s, end, op_fn, stay=True)
+            rot_fn = lambda t, _s=start, _d=dur, _deg=degrees, _cx=cx, _cy=cy: (_deg * easing((t - _s) / _d), _cx, _cy)
+        op_fn = (_ramp if fade_in else _ramp_down)(start, dur, op_base, easing)
+        self.styling.rotation.set(start, end, rot_fn, stay=True)
+        self.styling.fill_opacity.set(start, end, op_fn, stay=True)
         if change_existence and not fade_in:
             self._hide_from(end)
         return self
@@ -659,13 +656,13 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if change_existence and growing:
             self._show_from(start)
         self._ensure_scale_origin(start)
-        s, _d = start, max(dur, 1e-9)
+        _d = max(dur, 1e-9)
         cx, cy = self.center(start)
         ramp = _ramp if growing else _ramp_down
-        self._set_scale_xy(s, end, ramp(s, _d, 1, easing), stay=True)
+        self._set_scale_xy(start, end, ramp(start, _d, 1, easing), stay=True)
         rot_mult = (lambda p: 1 - p) if growing else (lambda p: p)
-        self.styling.rotation.set(s, end,
-            lambda t, _s=s, _d=_d, _deg=degrees, _cx=cx, _cy=cy, _e=easing, _m=rot_mult:
+        self.styling.rotation.set(start, end,
+            lambda t, _s=start, _d=_d, _deg=degrees, _cx=cx, _cy=cy, _e=easing, _m=rot_mult:
                 (_deg * _m(_e((t - _s) / _d)), _cx, _cy), stay=True)
         if change_existence and not growing:
             self._hide_from(end)
@@ -708,8 +705,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        _s, _spd, _a = start, speed, amplitude
-        def _dy(t, _s=_s, _spd=_spd, _a=_a):
+        def _dy(t, _s=start, _spd=speed, _a=amplitude):
             p = (t - _s) * _spd
             return _a * math.sin(p * math.tau)
         return self._apply_shift_effect(start, end, dy_func=_dy)
