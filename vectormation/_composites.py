@@ -351,7 +351,7 @@ class NumberLine(VCollection):
     def animate_pointer(self, pointer_group, target_value, start=0, end=1, easing=easings.smooth):
         """Animate a pointer (from add_pointer) to a new value."""
         dur = end - start
-        if dur <= 0:
+        if dur <= 0 or not pointer_group.objects:
             return self
         # Get the pointer's triangle (first object in group)
         tri = pointer_group.objects[0]

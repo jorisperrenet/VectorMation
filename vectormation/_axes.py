@@ -995,8 +995,14 @@ class Axes(_AxesExtMixin, VCollection):
                 pts = []
                 for i in range(n + 1):
                     xv = lo + i * step
+                    try:
+                        yv = f(xv)
+                    except (ValueError, ZeroDivisionError, OverflowError):
+                        continue
+                    if not math.isfinite(yv):
+                        continue
                     sx = self._math_to_svg_x(xv, time)
-                    sy = self._math_to_svg_y(f(xv), time)
+                    sy = self._math_to_svg_y(yv, time)
                     sy = max(self.plot_y, min(self.plot_y + self.plot_height, sy))
                     pts.append((sx, sy))
                 return pts

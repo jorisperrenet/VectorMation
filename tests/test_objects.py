@@ -20837,3 +20837,24 @@ class TestCollideBodiesBothFixed:
         # Should not raise ZeroDivisionError
         _collide_bodies(a, b)
 
+
+class TestGetAreaExceptionHandling:
+    def test_log_negative_domain(self):
+        """get_area should handle functions that raise on some inputs."""
+        import math
+        from vectormation._axes import Axes
+        ax = Axes(x_range=(-2, 5), y_range=(0, 5))
+        # math.log raises ValueError for negative x
+        area = ax.get_area(math.log, x_range=(0.01, 4))
+        svg = area.to_svg(0)
+        assert '<path' in svg
+
+    def test_division_by_zero(self):
+        """get_area should handle functions that divide by zero."""
+        from vectormation._axes import Axes
+        ax = Axes(x_range=(-2, 2), y_range=(-5, 5))
+        area = ax.get_area(lambda x: 1 / x, x_range=(-1, 1))
+        svg = area.to_svg(0)
+        # Should not crash, even though 1/0 is undefined
+        assert isinstance(svg, str)
+
