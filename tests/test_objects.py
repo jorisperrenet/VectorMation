@@ -17414,3 +17414,125 @@ class TestBooleanOpStyleAttrs:
         svg = inter.to_svg(0)
         assert '<path' in svg
 
+
+class TestScaleEffectHelper:
+    """Tests for the _scale_effect helper used by warp/heartbeat/breathe."""
+
+    def test_warp_returns_to_original(self):
+        c = Circle(r=50)
+        sx_before = c.styling.scale_x.at_time(0)
+        c.warp(start=0, end=1, amplitude=0.3, frequency=2)
+        # At end, transient effect should resolve (stay=False)
+        sx_after = c.styling.scale_x.at_time(1.01)
+        assert abs(sx_after - sx_before) < 0.01
+
+    def test_heartbeat_returns_to_original(self):
+        c = Circle(r=50)
+        c.heartbeat(start=0, end=1, beats=2, scale_factor=1.5)
+        sx_after = c.styling.scale_x.at_time(1.01)
+        assert abs(sx_after - 1.0) < 0.01
+
+    def test_breathe_oscillates(self):
+        c = Circle(r=50)
+        c.breathe(start=0, end=2, amplitude=0.1, speed=1.0)
+        # Mid-animation should differ from base scale
+        sx_mid = c.styling.scale_x.at_time(0.5)
+        assert sx_mid != 1.0  # oscillating
+
+    def test_warp_zero_duration_noop(self):
+        c = Circle(r=50)
+        result = c.warp(start=1, end=1)
+        assert result is c
+
+    def test_heartbeat_zero_duration_noop(self):
+        c = Circle(r=50)
+        result = c.heartbeat(start=1, end=1)
+        assert result is c
+
+
+class TestSetColorProp:
+    """Tests for _set_color_prop helper used by set_fill/set_stroke."""
+
+    def test_set_fill_instant(self):
+        c = Circle(r=50)
+        c.set_fill(color='#ff0000', start=0)
+        assert c.get_fill_color(0) == '#ff0000'
+
+    def test_set_stroke_instant(self):
+        c = Circle(r=50)
+        c.set_stroke(color='#00ff00', start=0)
+        assert c.get_stroke_color(0) == '#00ff00'
+
+    def test_set_fill_animated(self):
+        c = Circle(r=50)
+        c.set_fill(color='#ff0000', start=0, end=1)
+        # Color should be set at end
+        color = c.get_fill_color(1)
+        assert color == '#ff0000'
+
+
+class TestTextBlockMixinBbox:
+    """Tests for default bbox in _TextBlockMixin."""
+
+    def test_bulleted_list_bbox_includes_indent(self):
+        bl = BulletedList('A', 'B', 'C', indent=40)
+        x, y, w, h = bl.bbox(0)
+        assert w >= 40  # indent is included in width
+
+    def test_numbered_list_bbox_includes_indent(self):
+        nl = NumberedList('X', 'Y', indent=50)
+        x, y, w, h = nl.bbox(0)
+        assert w >= 50
+
+    def test_paragraph_bbox_center_alignment(self):
+        p = Paragraph('Hello', x=500, y=300, alignment='center')
+        x, y, w, h = p.bbox(0)
+        # Center alignment shifts x left by w/2
+        assert x < 500
+
+
+class TestAnnulusCompact:
+    """Tests for compacted Annulus getter/setter methods."""
+
+    def test_get_set_inner_radius(self):
+        a = Annulus(inner_radius=30, outer_radius=100)
+        assert a.get_inner_radius() == 30
+        a.set_inner_radius(50)
+        assert a.get_inner_radius() == 50
+
+    def test_get_set_outer_radius(self):
+        a = Annulus(inner_radius=30, outer_radius=100)
+        assert a.get_outer_radius() == 100
+        a.set_outer_radius(150)
+        assert a.get_outer_radius() == 150
+
+    def test_setter_returns_self(self):
+        a = Annulus()
+        assert a.set_inner_radius(40) is a
+        assert a.set_outer_radius(80) is a
+
+
+class TestCircularLayoutHelper:
+    """Tests for _circular_layout used by Automaton, NetworkGraph, MindMap."""
+
+    def test_automaton_state_positions(self):
+        from vectormation.objects import Automaton
+        a = Automaton(['q0', 'q1', 'q2'], [('q0', 'q1', 'a')], cx=500, cy=500, radius=100)
+        # All states should have positions
+        assert 'q0' in a._state_positions
+        assert 'q1' in a._state_positions
+        assert 'q2' in a._state_positions
+
+    def test_network_circular_positions(self):
+        from vectormation.objects import NetworkGraph
+        g = NetworkGraph({'A': 'A', 'B': 'B'}, layout='circular', radius=100, cx=500, cy=500)
+        assert 'A' in g._node_positions
+        assert 'B' in g._node_positions
+
+    def test_mindmap_renders(self):
+        from vectormation.objects import MindMap
+        m = MindMap(('Root', [('A', [('a1', [])]), ('B', [])]))
+        svg = m.to_svg(0)
+        assert 'Root' in svg
+        assert 'A' in svg
+

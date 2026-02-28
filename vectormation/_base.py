@@ -921,6 +921,19 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._ensure_scale_origin(start)
         return self._get_scale(start)
 
+    def _scale_effect(self, start, end, make_fns, *, force_origin=False):
+        """Apply a transient scale effect.  *make_fns(sx0, sy0, s, d)* returns *(fx, fy)*."""
+        dur = end - start
+        if dur <= 0:
+            return self
+        if force_origin:
+            self.styling._scale_origin = self.center(start)
+        sx0, sy0 = self._init_scale_anim(start)
+        fx, fy = make_fns(sx0, sy0, start, max(dur, 1e-9))
+        self.styling.scale_x.set(start, end, fx, stay=False)
+        self.styling.scale_y.set(start, end, fy, stay=False)
+        return self
+
     def scale_to(self, start: float, end: float, factor, easing=easings.smooth):
         """Animate to an absolute scale factor (e.g. factor=2 → double original size)."""
         self._ensure_scale_origin(start)
@@ -2121,27 +2134,18 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
              easing=easings.smooth):
         """Wobbly distortion effect — alternating scale_x/scale_y oscillation.
         Creates a jelly-like warping motion that resolves back to normal."""
-        dur = end - start
-        if dur <= 0:
-            return self
-        cx, cy = self.center(start)
-        self.styling._scale_origin = (cx, cy)
-        sx0, sy0 = self._get_scale(start)
-        _s, _d = start, max(dur, 1e-9)
-        _a, _f, _sx0, _sy0 = amplitude, frequency, sx0, sy0
-        def _wx(t, _s=_s, _d=_d, _a=_a, _f=_f, _sx0=_sx0, _easing=easing):
-            p = _easing((t - _s) / _d)
-            envelope = math.sin(math.pi * p)  # 0→1→0
-            wave = math.sin(math.tau * _f * p)
-            return _sx0 * (1 + _a * envelope * wave)
-        def _wy(t, _s=_s, _d=_d, _a=_a, _f=_f, _sy0=_sy0, _easing=easing):
-            p = _easing((t - _s) / _d)
-            envelope = math.sin(math.pi * p)
-            wave = math.cos(math.tau * _f * p)  # phase-shifted from x
-            return _sy0 * (1 + _a * envelope * wave)
-        self.styling.scale_x.set(start, end, _wx, stay=False)
-        self.styling.scale_y.set(start, end, _wy, stay=False)
-        return self
+        _a, _f = amplitude, frequency
+        def _make(sx0, sy0, _s, _d):
+            def _wx(t, _s=_s, _d=_d, _a=_a, _f=_f, _sx0=sx0, _easing=easing):
+                p = _easing((t - _s) / _d)
+                envelope = math.sin(math.pi * p)
+                return _sx0 * (1 + _a * envelope * math.sin(math.tau * _f * p))
+            def _wy(t, _s=_s, _d=_d, _a=_a, _f=_f, _sy0=sy0, _easing=easing):
+                p = _easing((t - _s) / _d)
+                envelope = math.sin(math.pi * p)
+                return _sy0 * (1 + _a * envelope * math.cos(math.tau * _f * p))
+            return _wx, _wy
+        return self._scale_effect(start, end, _make, force_origin=True)
 
     def swirl(self, start: float = 0, end: float = 1, turns=1, shrink=True,
                easing=easings.smooth):
@@ -2172,51 +2176,32 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
     def heartbeat(self, start: float = 0, end: float = 1, beats=3,
                    scale_factor=1.3, easing=easings.smooth):
         """ECG-style double-pulse heartbeat: lub-dub + rest, repeated *beats* times."""
-        dur = end - start
-        if dur <= 0:
-            return self
-        sx0, sy0 = self._init_scale_anim(start)
-        _s, _d, _sf, _beats = start, max(dur, 1e-9), scale_factor, beats
-
-        def _ecg_scale(t, _s=_s, _d=_d, _sf=_sf, _beats=_beats,
-                       _easing=easing):
-            beat_dur = _d / _beats
-            # Position within the current beat (0 to 1)
-            local = ((t - _s) % beat_dur) / beat_dur
-            # First pulse ("lub"): 0.0 - 0.25
-            if local < 0.25:
-                p = _easing(local / 0.25)
-                return 1 + (_sf - 1) * math.sin(math.pi * p)
-            # Second pulse ("dub"): 0.30 - 0.55, at 75% amplitude
-            elif 0.30 <= local < 0.55:
-                p = _easing((local - 0.30) / 0.25)
-                return 1 + (_sf - 1) * 0.75 * math.sin(math.pi * p)
-            # Rest phase
-            else:
+        _sf, _beats = scale_factor, beats
+        def _make(sx0, sy0, _s, _d):
+            def _ecg(t, _s=_s, _d=_d, _sf=_sf, _beats=_beats, _easing=easing):
+                beat_dur = _d / _beats
+                local = ((t - _s) % beat_dur) / beat_dur
+                if local < 0.25:
+                    p = _easing(local / 0.25)
+                    return 1 + (_sf - 1) * math.sin(math.pi * p)
+                if 0.30 <= local < 0.55:
+                    p = _easing((local - 0.30) / 0.25)
+                    return 1 + (_sf - 1) * 0.75 * math.sin(math.pi * p)
                 return 1.0
-
-        def _make_ecg(base):
-            return lambda t, _base=base, _fn=_ecg_scale: _base * _fn(t)
-
-        self.styling.scale_x.set(start, end, _make_ecg(sx0))
-        self.styling.scale_y.set(start, end, _make_ecg(sy0))
-        return self
+            return (lambda t, _b=sx0, _fn=_ecg: _b * _fn(t),
+                    lambda t, _b=sy0, _fn=_ecg: _b * _fn(t))
+        return self._scale_effect(start, end, _make)
 
     def breathe(self, start: float = 0, end: float = 1, amplitude=0.08,
                 speed=1.0, easing=easings.smooth):
         """Steady scale oscillation simulating natural breathing."""
-        dur = end - start
-        if dur <= 0:
-            return self
-        sx0, sy0 = self._init_scale_anim(start)
-        _s, _d, _amp, _spd = start, max(dur, 1e-9), amplitude, speed
-
-        def _make_breathe(base):
-            return lambda t, _s=_s, _d=_d, _amp=_amp, _spd=_spd, _b=base, _e=easing: \
-                _b * (1 + _amp * math.sin(math.tau * _spd * _e((t - _s) / _d) * _d))
-        self.styling.scale_x.set(start, end, _make_breathe(sx0))
-        self.styling.scale_y.set(start, end, _make_breathe(sy0))
-        return self
+        _amp, _spd = amplitude, speed
+        def _make(sx0, sy0, _s, _d):
+            def _br(base):
+                return lambda t, _s=_s, _d=_d, _amp=_amp, _spd=_spd, _b=base, _e=easing: \
+                    _b * (1 + _amp * math.sin(math.tau * _spd * _e((t - _s) / _d) * _d))
+            return _br(sx0), _br(sy0)
+        return self._scale_effect(start, end, _make)
 
     def pendulum(self, start: float = 0, end: float = 1, amplitude=20,
                  oscillations=4, cx=None, cy=None, easing=easings.smooth):
@@ -2529,13 +2514,17 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.styling._scale_origin = (px, py)
         return self.stretch(factor, factor, start, end, easing)
 
+    def _set_color_prop(self, attr_name, color, start, end, easing, color_space):
+        """Set or animate a color attribute (fill or stroke)."""
+        if end is None:
+            setattr(self.styling, attr_name, attributes.Color(start, color))
+        else:
+            self.set_color(start, end, **{attr_name: color}, easing=easing, color_space=color_space)
+
     def set_fill(self, color=None, opacity=None, start: float = 0, end: float | None = None, easing=easings.smooth, color_space='rgb'):
         """Set fill color and/or opacity. Animated if end is given."""
         if color is not None:
-            if end is None:
-                self.styling.fill = attributes.Color(start, color)
-            else:
-                self.set_color(start, end, fill=color, easing=easing, color_space=color_space)
+            self._set_color_prop('fill', color, start, end, easing, color_space)
         if opacity is not None:
             _set_attr(self.styling.fill_opacity, start, end, opacity, easing)
         return self
@@ -2543,10 +2532,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
     def set_stroke(self, color=None, width=None, opacity=None, start: float = 0, end: float | None = None, easing=easings.smooth, color_space='rgb'):
         """Set stroke color, width, and/or opacity. Animated if end is given."""
         if color is not None:
-            if end is None:
-                self.styling.stroke = attributes.Color(start, color)
-            else:
-                self.set_color(start, end, stroke=color, easing=easing, color_space=color_space)
+            self._set_color_prop('stroke', color, start, end, easing, color_space)
         if width is not None:
             _set_attr(self.styling.stroke_width, start, end, width, easing)
         if opacity is not None:

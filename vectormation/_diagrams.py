@@ -11,6 +11,13 @@ from vectormation._shapes import (
     Text, Path, Arc,
 )
 
+def _circular_layout(keys, cx, cy, radius):
+    """Return dict mapping each key to (x, y) evenly spaced on a circle."""
+    n = max(len(keys), 1)
+    return {k: (cx + radius * math.cos(math.tau * i / n - math.pi / 2),
+                cy + radius * math.sin(math.tau * i / n - math.pi / 2))
+            for i, k in enumerate(keys)}
+
 # ---------------------------------------------------------------------------
 # ChessBoard
 # ---------------------------------------------------------------------------
@@ -268,12 +275,9 @@ class Automaton(VCollection):
             return
 
         # Arrange states in a circle
-        for i, name in enumerate(states):
-            angle = math.tau * i / n - math.pi / 2
-            sx = cx + radius * math.cos(angle)
-            sy = cy + radius * math.sin(angle)
-            self._state_positions[name] = (sx, sy)
-
+        self._state_positions = _circular_layout(states, cx, cy, radius)
+        for name in states:
+            sx, sy = self._state_positions[name]
             circle = Circle(r=state_r, cx=sx, cy=sy, creation=creation, z=z,
                             fill='#1e1e2e', fill_opacity=0.9, stroke='#58C4DD', stroke_width=2)
             objects.append(circle)
@@ -431,11 +435,7 @@ class NetworkGraph(VCollection):
 
         # Layout
         if layout == 'circular':
-            for i, nid in enumerate(node_ids):
-                angle = math.tau * i / max(n, 1) - math.pi / 2
-                nx = cx + radius * math.cos(angle)
-                ny = cy + radius * math.sin(angle)
-                self._node_positions[nid] = (nx, ny)
+            self._node_positions = _circular_layout(node_ids, cx, cy, radius)
         elif layout == 'grid':
             cols = max(1, int(math.ceil(math.sqrt(n))))
             spacing = radius * 2 / max(cols - 1, 1) if cols > 1 else 0
@@ -922,11 +922,11 @@ class MindMap(VCollection):
         if not children:
             super().__init__(*objects, creation=creation, z=z)
             return
-        n = len(children)
+        n_ch = len(children)
+        branch_pos = _circular_layout(range(n_ch), cx, cy, radius)
         for i, (child_label, grandchildren) in enumerate(children):
-            angle = math.tau * i / n - math.pi / 2
-            bx = cx + radius * math.cos(angle)
-            by = cy + radius * math.sin(angle)
+            bx, by = branch_pos[i]
+            angle = math.tau * i / n_ch - math.pi / 2
             color = colors[(i + 1) % len(colors)]
             # Branch line
             line = Line(x1=cx, y1=cy, x2=bx, y2=by, stroke=color,

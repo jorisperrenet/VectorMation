@@ -1708,21 +1708,14 @@ class Annulus(VObject):
     def __repr__(self):
         return f'Annulus(inner={self.inner_r.at_time(0):.0f}, outer={self.outer_r.at_time(0):.0f})'
 
-    def get_inner_radius(self, time=0):
-        return self.inner_r.at_time(time)
-
-    def get_outer_radius(self, time=0):
-        return self.outer_r.at_time(time)
+    def get_inner_radius(self, time=0): return self.inner_r.at_time(time)
+    def get_outer_radius(self, time=0): return self.outer_r.at_time(time)
 
     def set_inner_radius(self, value, start=0, end=None, easing=easings.smooth):
-        """Animate or set the inner radius."""
-        _set_attr(self.inner_r, start, end, value, easing)
-        return self
+        _set_attr(self.inner_r, start, end, value, easing); return self
 
     def set_outer_radius(self, value, start=0, end=None, easing=easings.smooth):
-        """Animate or set the outer radius."""
-        _set_attr(self.outer_r, start, end, value, easing)
-        return self
+        _set_attr(self.outer_r, start, end, value, easing); return self
 
     def get_area(self, time=0):
         """Return the area of the annulus (pi * (outer^2 - inner^2))."""
@@ -2005,6 +1998,9 @@ class _TextBlockMixin:
         h = len(self.items) * self.font_size * self.line_spacing
         return (x, y - self.font_size, w, h)
 
+    def bbox(self, time=0):
+        return self._list_bbox(time, getattr(self, 'indent', 0))
+
 class Paragraph(_TextBlockMixin, VObject):
     """Multi-line text with alignment and line spacing."""
     def __init__(self, *lines, x=960, y=540, font_size=36, alignment='left',
@@ -2052,9 +2048,6 @@ class BulletedList(_TextBlockMixin, VObject):
     def __repr__(self):
         return f'BulletedList({len(self.items)} items)'
 
-    def bbox(self, time=0):
-        return self._list_bbox(time, self.indent)
-
     def to_svg(self, time):
         x, y = self.x.at_time(time), self.y.at_time(time)
         parts = []
@@ -2076,9 +2069,6 @@ class NumberedList(_TextBlockMixin, VObject):
 
     def __repr__(self):
         return f'NumberedList({len(self.items)} items)'
-
-    def bbox(self, time=0):
-        return self._list_bbox(time, self.indent)
 
     def to_svg(self, time):
         x, y = self.x.at_time(time), self.y.at_time(time)
