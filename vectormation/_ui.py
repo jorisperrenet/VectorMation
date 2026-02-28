@@ -9,6 +9,7 @@ from vectormation._constants import (
     CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET, _normalize, _label_text, _get_arrow,
 )
 from vectormation._base import VObject, VCollection, _norm_dir, _ramp
+from vectormation._collection import _stagger_timing
 from vectormation._shapes import (
     Polygon, Circle, Dot, Rectangle, RoundedRectangle, Line, Lines,
     Text, DecimalNumber,
@@ -211,22 +212,11 @@ class Code(VCollection):
         dur = end - start
         if n == 0 or dur <= 0:
             return self
-        # Each line gets a slot; with overlap, the effective step between
-        # consecutive line starts shrinks.
-        # line_dur = duration for one line's fadein
-        # step = time between consecutive line starts
-        # total = step * (n - 1) + line_dur = dur
-        # step = line_dur * (1 - overlap)
-        # => line_dur * (1 - overlap) * (n - 1) + line_dur = dur
-        # => line_dur * ((1 - overlap) * (n - 1) + 1) = dur
-        denom = (1 - overlap) * (n - 1) + 1
-        line_dur = dur / denom
-        step = line_dur * (1 - overlap)
+        line_dur, step = _stagger_timing(n, dur, overlap)
         for i, group in enumerate(self._line_groups):
             t0 = start + i * step
-            t1 = t0 + line_dur
             for obj in group:
-                obj.fadein(start=t0, end=t1)
+                obj.fadein(start=t0, end=t0 + line_dur)
         return self
 
 # ---------------------------------------------------------------------------
