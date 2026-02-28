@@ -18,6 +18,15 @@ def _stagger_timing(n, dur, overlap):
     child_dur = dur / (1 + (1 - overlap) * (n - 1))
     return child_dur, child_dur * (1 - overlap)
 
+def _scale_transform(sx, sy, origin):
+    """Return an SVG transform attribute string for the group scale, or ''."""
+    if sx == 1 and sy == 1:
+        return ''
+    if origin:
+        cx, cy = origin
+        return f' transform="translate({cx},{cy}) scale({sx},{sy}) translate({-cx},{-cy})"'
+    return f' transform="scale({sx},{sy})"'
+
 class VCollection(_BBoxMethodsMixin):
     """Container for a group of VObjects, delegating operations to children."""
 
@@ -135,14 +144,8 @@ class VCollection(_BBoxMethodsMixin):
         visible = [((z.at_time(time) if (z := getattr(o, 'z', None)) is not None else 0), o)
                     for o in self.objects if o.show.at_time(time)]
         inner = '\n'.join(o.to_svg(time) for _, o in sorted(visible, key=lambda x: x[0]))
-        sx, sy = self._scale_x.at_time(time), self._scale_y.at_time(time)
-        transform = ''
-        if sx != 1 or sy != 1:
-            if self._scale_origin:
-                cx, cy = self._scale_origin
-                transform = f' transform="translate({cx},{cy}) scale({sx},{sy}) translate({-cx},{-cy})"'
-            else:
-                transform = f' transform="scale({sx},{sy})"'
+        transform = _scale_transform(self._scale_x.at_time(time),
+                                     self._scale_y.at_time(time), self._scale_origin)
         return f'<g{transform}>\n{inner}\n</g>'
 
     def bbox(self, time, start_idx=0, end_idx=None):

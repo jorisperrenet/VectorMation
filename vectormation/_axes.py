@@ -9,6 +9,7 @@ from vectormation._constants import (
 )
 from vectormation._base import VObject, VCollection, _lerp, _lerp_point
 from vectormation._base_helpers import _clamp01
+from vectormation._collection import _scale_transform
 from vectormation._axes_helpers import (
     _CURVE_STYLE, _AREA_STYLE, _HIGHLIGHT_STYLE,
     _get_arrow, _get_dynamic_object, _get_tex_object,
@@ -218,14 +219,8 @@ class Axes(_AxesExtMixin, VCollection):
             parts.append(obj.to_svg(time))
 
         inner = '\n'.join(parts)
-        sx, sy = self._scale_x.at_time(time), self._scale_y.at_time(time)
-        transform = ''
-        if sx != 1 or sy != 1:
-            if self._scale_origin:
-                cx, cy = self._scale_origin
-                transform = f' transform="translate({cx},{cy}) scale({sx},{sy}) translate({-cx},{-cy})"'
-            else:
-                transform = f' transform="scale({sx},{sy})"'
+        transform = _scale_transform(self._scale_x.at_time(time),
+                                     self._scale_y.at_time(time), self._scale_origin)
         return f'<g{transform}>\n{inner}\n</g>'
 
     def _build_deferred_axes(self, func, num_points):
