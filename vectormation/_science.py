@@ -20,12 +20,14 @@ def _add_label(objects, label, lx, ly, creation, z):
                             fill='#aaa', stroke_width=0, text_anchor='middle',
                             creation=creation, z=z + 0.1))
 
+_COMPONENT_STYLE = {'stroke': '#fff', 'stroke_width': 2}
+
 
 class Resistor(VCollection):
     """Electrical resistor symbol (zigzag line)."""
     def __init__(self, x1=400, y1=540, x2=600, y2=540, label='R',
                  creation: float = 0, z: float = 0, **styling_kwargs):
-        style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
+        style_kw = _COMPONENT_STYLE | styling_kwargs
         length, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
         lead, zag_end = 0.25, 0.75
         n_zags, zag_amp = 6, 12
@@ -47,7 +49,7 @@ class Capacitor(VCollection):
     """Electrical capacitor symbol (two parallel plates)."""
     def __init__(self, x1=400, y1=540, x2=600, y2=540, label='C',
                  creation: float = 0, z: float = 0, **styling_kwargs):
-        style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
+        style_kw = _COMPONENT_STYLE | styling_kwargs
         _, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
         gap, plate_h = 8, 24
         objects = [
@@ -72,7 +74,7 @@ class Inductor(VCollection):
     """Electrical inductor symbol (coil/solenoid)."""
     def __init__(self, x1=400, y1=540, x2=600, y2=540, label='L',
                  n_loops=4, creation: float = 0, z: float = 0, **styling_kwargs):
-        style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
+        style_kw = _COMPONENT_STYLE | styling_kwargs
         length, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
         lead = 0.2
         coil_start = lead
@@ -99,7 +101,7 @@ class Diode(VCollection):
     """Electrical diode symbol (triangle with bar)."""
     def __init__(self, x1=400, y1=540, x2=600, y2=540, label='D',
                  creation: float = 0, z: float = 0, **styling_kwargs):
-        style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
+        style_kw = _COMPONENT_STYLE | styling_kwargs
         length, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
         tri_h, tri_w = length * 0.2, 20
         # Triangle vertices: tip pointing in direction of current flow

@@ -768,7 +768,8 @@ class RadarChart(VCollection):
         if len(values) != self._n:
             return self
         if color is None:
-            color = _default_colors(None)[self._dataset_count % len(_default_colors(None))]
+            cols = _default_colors(None)
+            color = cols[self._dataset_count % len(cols)]
         if fill_opacity is None:
             fill_opacity = self._fill_opacity
         points = []

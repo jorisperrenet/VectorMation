@@ -18197,3 +18197,71 @@ class TestCentroidDelegation:
         assert abs(cx - 100) < 1
         assert abs(cy - 100) < 1
 
+
+class TestSpotlightSetOverlayColor:
+    """Test Spotlight.set_overlay_color animated case uses interpolate."""
+
+    def test_animated_color_change(self):
+        from vectormation.objects import Spotlight
+        s = Spotlight(target=(500, 400), radius=100, creation=0)
+        # Should not raise (previously used .set() with wrong args)
+        s.set_overlay_color('#ff0000', start=0, end=1)
+
+    def test_instant_color_change(self):
+        from vectormation.objects import Spotlight
+        s = Spotlight(target=(500, 400), radius=100, creation=0)
+        s.set_overlay_color('#00ff00', start=0)
+
+
+class TestRadarChartDoubleColors:
+    """Test RadarChart.add_dataset doesn't call _default_colors twice."""
+
+    def test_add_dataset_default_color(self):
+        from vectormation.objects import RadarChart
+        rc = RadarChart([1, 2, 3], labels=['A', 'B', 'C'], creation=0)
+        rc.add_dataset([2, 3, 1])  # Should use default color without error
+
+
+class TestComponentStyleConstant:
+    """Test _COMPONENT_STYLE used in electronics components."""
+
+    def test_resistor_default_style(self):
+        from vectormation.objects import Resistor
+        c = VectorMathAnim(save_dir='/tmp/t')
+        r = Resistor(creation=0)
+        c.add_objects(r)
+        svg = c.generate_frame_svg(0)
+        assert 'rgb(255,255,255)' in svg  # white stroke
+
+    def test_resistor_custom_style(self):
+        from vectormation.objects import Resistor
+        r = Resistor(creation=0, stroke='#ff0000')
+        c = VectorMathAnim(save_dir='/tmp/t')
+        c.add_objects(r)
+        svg = c.generate_frame_svg(0)
+        assert 'rgb(255,0,0)' in svg
+
+
+class TestBooleanOpStrokePath:
+    """Test _stroke_path helper in boolean operations."""
+
+    def test_union_renders(self):
+        from vectormation.objects import Union
+        c1 = Circle(r=50, cx=480, cy=540, creation=0)
+        c2 = Circle(r=50, cx=520, cy=540, creation=0)
+        u = Union(c1, c2, creation=0)
+        canvas = VectorMathAnim(save_dir='/tmp/t')
+        canvas.add_objects(u)
+        svg = canvas.generate_frame_svg(0)
+        assert 'clip-path' in svg
+
+    def test_intersection_renders(self):
+        from vectormation.objects import Intersection
+        c1 = Circle(r=50, cx=480, cy=540, creation=0)
+        c2 = Circle(r=50, cx=520, cy=540, creation=0)
+        inter = Intersection(c1, c2, creation=0)
+        canvas = VectorMathAnim(save_dir='/tmp/t')
+        canvas.add_objects(inter)
+        svg = canvas.generate_frame_svg(0)
+        assert 'clip-path' in svg
+

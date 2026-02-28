@@ -512,6 +512,10 @@ class _BooleanOp(VObject):
         """Stroke presentation attributes with ``fill='none'``."""
         return self._style_attrs(time, include='stroke', prefix=" fill='none'")
 
+    def _stroke_path(self, d, clip_id, time):
+        """Return an SVG path with stroke styling and clip-path."""
+        return f"<path d='{d}'{self._stroke_attrs(time)} clip-path='url(#{clip_id})'/>"
+
     def _all_attrs(self, time):
         """All presentation attributes (no transform)."""
         return self._style_attrs(time)
@@ -550,8 +554,8 @@ class Union(_BooleanOp):
         defs = (f"<defs>{self._clip_inv(pb, f'nb{u}')}"
                 f"{self._clip_inv(pa, f'na{u}')}</defs>")
         fill = f"<path d='{pa}{pb}'{self._fill_attrs(time)}/>"
-        sa = f"<path d='{pa}'{self._stroke_attrs(time)} clip-path='url(#nb{u})'/>"
-        sb = f"<path d='{pb}'{self._stroke_attrs(time)} clip-path='url(#na{u})'/>"
+        sa = self._stroke_path(pa, f'nb{u}', time)
+        sb = self._stroke_path(pb, f'na{u}', time)
         return self._wrap_group(defs + fill + sa + sb, time)
 
 class Difference(_BooleanOp):
@@ -563,8 +567,8 @@ class Difference(_BooleanOp):
                 f"{self._clip_inv(pb, f'nb{u}')}</defs>")
         fill = (f"<path d='{pa}{pb}' fill-rule='evenodd'"
                 f"{self._fill_attrs(time)} clip-path='url(#ca{u})'/>"  )
-        sa = f"<path d='{pa}'{self._stroke_attrs(time)} clip-path='url(#nb{u})'/>"
-        sb = f"<path d='{pb}'{self._stroke_attrs(time)} clip-path='url(#ca{u})'/>"
+        sa = self._stroke_path(pa, f'nb{u}', time)
+        sb = self._stroke_path(pb, f'ca{u}', time)
         return self._wrap_group(defs + fill + sa + sb, time)
 
     def bbox(self, time):
@@ -587,8 +591,8 @@ class Intersection(_BooleanOp):
         defs = (f"<defs>{self._clip_def(pa, f'ca{u}')}"
                 f"{self._clip_def(pb, f'cb{u}')}</defs>")
         fill = f"<path d='{pa}'{self._fill_attrs(time)} clip-path='url(#cb{u})'/>"
-        sa = f"<path d='{pa}'{self._stroke_attrs(time)} clip-path='url(#cb{u})'/>"
-        sb = f"<path d='{pb}'{self._stroke_attrs(time)} clip-path='url(#ca{u})'/>"
+        sa = self._stroke_path(pa, f'cb{u}', time)
+        sb = self._stroke_path(pb, f'ca{u}', time)
         return self._wrap_group(defs + fill + sa + sb, time)
 
     def bbox(self, time):
@@ -891,7 +895,7 @@ class Spotlight(VObject):
         if end is None:
             self._color.set_onward(start, color)
         else:
-            self._color.set(start, end, color, easing=easing)
+            self._color.interpolate(attributes.Color(start, color), start, end, easing=easing)
         return self
 
     def set_overlay_opacity(self, value, start=0, end=None, easing=easings.smooth):
