@@ -30,6 +30,11 @@ from functools import wraps
 from math import cos, exp, pi, sin, sqrt
 
 
+def _clamp01(t):
+    """Clamp *t* to [0, 1]."""
+    return max(0.0, min(1.0, t))
+
+
 def unit_interval(function):
     @wraps(function)
     def wrapper(t, *args, **kwargs):
@@ -327,7 +332,7 @@ def step(num_steps):
     """Return a step easing that quantizes t into num_steps discrete levels."""
     n = max(1, num_steps)
     def _step(t):
-        t = max(0, min(1, t))
+        t = _clamp01(t)
         return min(1.0, int(t * n) / (n - 1)) if n > 1 else 1.0 if t >= 1 else 0.0
     return _step
 
@@ -347,7 +352,7 @@ def compose(*easings_list):
     if n == 1:
         return easings_list[0]
     def _composed(t):
-        t = max(0, min(1, t))
+        t = _clamp01(t)
         idx = min(int(t * n), n - 1)
         local_t = t * n - idx
         start_val = idx / n
@@ -363,7 +368,7 @@ def repeat(easing, count=2):
     """
     count = max(1, count)
     def _repeated(t):
-        t = max(0.0, min(1.0, t))
+        t = _clamp01(t)
         local_t = (t * count) % 1.0
         # Handle t == 1.0 edge case: last repetition should end at easing(1)
         if t >= 1.0:
@@ -380,7 +385,7 @@ def oscillate(easing, count=1):
     count = max(1, count)
     segments = 2 * count  # total half-cycles
     def _oscillated(t):
-        t = max(0.0, min(1.0, t))
+        t = _clamp01(t)
         if t >= 1.0:
             # Even number of segments -> ends at start (0), odd -> ends at end (1)
             return easing(0.0) if segments % 2 == 0 else easing(1.0)

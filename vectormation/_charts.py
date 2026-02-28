@@ -366,9 +366,7 @@ class BarChart(VCollection):
     def animate_values(self, new_values, start=0, end=1, easing=easings.smooth):
         """Animate bars to new values over [start, end]."""
         max_val = max(abs(v) for v in new_values) if new_values else 1
-        dur = end - start
-        if dur <= 0:
-            dur = 1
+        dur = max(end - start, 1e-9)
         for bar, new_val in zip(self._bars, new_values):
             old_h = bar.height.at_time(start)
             new_h = abs(new_val) / max_val * self._height * 0.85

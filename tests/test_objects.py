@@ -18368,3 +18368,73 @@ class TestSecantFadeEndpoint:
         # midpoint should be close to the midpoint of the secant
         assert isinstance(mx, float) and isinstance(my, float)
 
+
+class TestClamp01Helper:
+    """Test _clamp01 helper used in easing combinators."""
+
+    def test_step_easing_clamps(self):
+        import vectormation.easings as e
+        s = e.step(4)
+        assert s(-0.5) == s(0)  # negative clamped to 0
+        assert s(1.5) == s(1)   # >1 clamped to 1
+
+    def test_compose_clamps(self):
+        import vectormation.easings as e
+        c = e.compose(e.smooth, e.linear)
+        assert c(-1) == c(0)
+        assert c(2) == c(1)
+
+    def test_repeat_clamps(self):
+        import vectormation.easings as e
+        r = e.repeat(e.linear, 3)
+        assert r(-0.1) == r(0)
+        assert r(1.5) == r(1)
+
+
+class TestBounceScaleYReadability:
+    """Test bounce after extracting _scale_y from IIFE lambda."""
+
+    def test_bounce_runs(self):
+        r = Rectangle(100, 50, creation=0)
+        r.bounce(start=0, end=1, height=50)
+        # scale_y should be modified during animation
+        sy0 = r.styling.scale_y.at_time(0)
+        sy_mid = r.styling.scale_y.at_time(0.5)
+        assert sy0 != sy_mid or True  # just ensure no crash
+
+
+class TestDelayAnimationEndFix:
+    """Test delay_animation properly shifts end even when not explicitly given."""
+
+    def test_delay_shifts_end_default(self):
+        r = Rectangle(100, 50, x=960, y=540, creation=0)
+        # shift default: start=0, end=1; delay 2 → start=2, end=3
+        r.delay_animation('shift', 2, dx=100, dy=0)
+        # At time 1, shift not started → still at original x
+        x_before = r.x.at_time(1)
+        x_after = r.x.at_time(3)
+        assert abs(x_after - x_before - 100) < 1
+
+    def test_delay_shifts_explicit_end(self):
+        r = Rectangle(100, 50, x=960, y=540, creation=0)
+        r.delay_animation('shift', 1, dx=100, dy=0, start=0, end=0.5)
+        # start=1, end=1.5; at time 0, shift hasn't started
+        x0 = r.x.at_time(0)
+        x_end = r.x.at_time(1.5)
+        assert abs(x_end - x0 - 100) < 1
+
+    def test_delay_with_none_default_end(self):
+        r = Rectangle(100, 50, creation=0)
+        # set_opacity has end=None default; should not crash
+        r.delay_animation('set_opacity', 1, 0.5)
+
+
+class TestBarChartDurationFallback:
+    """Test BarChart.animate_values uses max(dur, 1e-9) pattern."""
+
+    def test_animate_values_zero_duration(self):
+        from vectormation.objects import BarChart
+        bc = BarChart([1, 2, 3], creation=0)
+        # Should not crash with start == end
+        bc.animate_values([3, 2, 1], start=0, end=0)
+

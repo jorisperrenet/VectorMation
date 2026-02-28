@@ -117,7 +117,7 @@ class _VObjectEffectsMixin:
         shake_freq = 12
         def _dx(t, _s=_s, _d=_d, _a=shake_amplitude, _freq=shake_freq, _e=easing):
             p = (t - _s) / _d
-            return _a * math.sin(_freq * math.tau * p) * _e(p)
+            return _a * math.sin(math.tau * _freq * p) * _e(p)
         self._apply_shift_effect(start, end, dx_func=_dx)
         return self
 
@@ -204,11 +204,10 @@ class _VObjectEffectsMixin:
         self.styling.scale_x.set(start, end,
             lambda t, _sf=_sf, _sx0=_sx0: _sx0 * (1 + (_sf - 1) * _bounce_progress(t)[1]),
             stay=False)
-        self.styling.scale_y.set(start, end,
-            lambda t, _sf=_sf, _sy0=_sy0: (
-                lambda peak: _sy0 / peak if peak > 1e-9 else _sy0)(
-                    1 + (_sf - 1) * _bounce_progress(t)[1]),
-            stay=False)
+        def _scale_y(t, _sf=_sf, _sy0=_sy0):
+            peak = 1 + (_sf - 1) * _bounce_progress(t)[1]
+            return _sy0 / peak if peak > 1e-9 else _sy0
+        self.styling.scale_y.set(start, end, _scale_y, stay=False)
         return self
 
     def morph_scale(self, target_scale: float = 2.0, start: float = 0, end: float = 1,
@@ -681,8 +680,10 @@ class _VObjectEffectsMixin:
         params = inspect.signature(method).parameters
         if 'start' in params:
             kwargs['start'] = kwargs.get('start', 0) + delay
-        if 'end' in params and 'end' in kwargs:
-            kwargs['end'] = kwargs['end'] + delay
+        if 'end' in params:
+            end_val = kwargs.get('end', params['end'].default)
+            if end_val is not None and end_val is not inspect.Parameter.empty:
+                kwargs['end'] = end_val + delay
         method(*args, **kwargs)
         return self
 
