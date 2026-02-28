@@ -7,7 +7,7 @@ import vectormation.style as style
 from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
     SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
-    CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
+    CHAR_WIDTH_FACTOR,
     _rotate_point, _sample_function, _distance, _normalize, _circumcenter,
 )
 from vectormation._base import VObject, VCollection, _ramp, _ramp_down, _set_attr

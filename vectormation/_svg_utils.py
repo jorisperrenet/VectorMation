@@ -6,7 +6,7 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
 from vectormation._constants import (
-    CANVAS_WIDTH, CANVAS_HEIGHT, SMALL_BUFF,
+    CANVAS_WIDTH, CANVAS_HEIGHT,
     TEXT_Y_OFFSET, _normalize, _get_arrow,
 )
 from vectormation._base import VObject, VCollection, _norm_dir

@@ -5,7 +5,7 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
 from vectormation._constants import (
-    SMALL_BUFF, DEFAULT_CHART_COLORS,
+    DEFAULT_CHART_COLORS,
     CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET, _label_text,
 )
 from vectormation._base import VObject, VCollection, _lerp

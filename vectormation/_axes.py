@@ -4,21 +4,19 @@ import math
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 from vectormation._constants import (
-    CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
-    UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE,
-    DEFAULT_OBJECT_TO_EDGE_BUFF, DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
-    _sample_function, _normalize,
+    CANVAS_HEIGHT, UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE, TEXT_Y_OFFSET,
+    _sample_function,
 )
 from vectormation._base import VObject, VCollection, _lerp, _lerp_point
 from vectormation._axes_helpers import (
-    _MARCH_SEGS, _AREA_STYLE, _HIGHLIGHT_STYLE,
+    _AREA_STYLE, _HIGHLIGHT_STYLE,
     _get_arrow, _get_dynamic_object, _get_tex_object,
-    _nice_ticks, _log_ticks, _format_tick, _build_axes_decoration,
-    _AXIS_STROKE_WIDTH, _TICK_FONT_SIZE, _LABEL_GAP,
+    _nice_ticks, _build_axes_decoration,
+    _TICK_FONT_SIZE, _LABEL_GAP,
 )
 
 from vectormation._shapes import (
-    Polygon, Circle, Dot, Rectangle, RoundedRectangle, Line,
+    Dot, Rectangle, RoundedRectangle, Line,
     Text, Path,
 )
 from vectormation._axes_ext import _AxesExtMixin
