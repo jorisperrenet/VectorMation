@@ -777,6 +777,8 @@ class RadarChart(VCollection):
         self._dataset_count += 1
         return self
 
+    from_dict = classmethod(_from_dict)
+
     def __repr__(self):
         return 'RadarChart()'
 
@@ -897,6 +899,8 @@ class WaterfallChart(VCollection):
             val_text = f'{total:.1f}' if total != int(total) else f'{int(total)}'
             _add_bar(n, 0, total, total_color, lbl, val_text)
         super().__init__(*objects, creation=creation, z=z)
+
+    from_dict = classmethod(_from_dict)
 
     def __repr__(self):
         return 'WaterfallChart()'

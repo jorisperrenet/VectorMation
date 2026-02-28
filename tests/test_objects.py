@@ -20941,3 +20941,23 @@ class TestVCollectionEdgeCases:
         result = vc.distribute()
         assert result is vc
 
+
+class TestRadarChartFromDict:
+    def test_from_dict(self):
+        from vectormation._charts import RadarChart
+        data = {'A': 3, 'B': 5, 'C': 2, 'D': 4}
+        rc = RadarChart.from_dict(data)
+        svg = rc.to_svg(0)
+        assert 'A' in svg
+        assert isinstance(svg, str)
+
+
+class TestWaterfallChartFromDict:
+    def test_from_dict(self):
+        from vectormation._charts import WaterfallChart
+        data = {'Revenue': 100, 'Cost': -40, 'Tax': -15}
+        wc = WaterfallChart.from_dict(data)
+        svg = wc.to_svg(0)
+        assert 'Revenue' in svg
+        assert isinstance(svg, str)
+
