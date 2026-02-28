@@ -1281,8 +1281,7 @@ class Path(VObject):
         d = self.d.at_time(time)
         if not d:
             return (0.0, 0.0)
-        from svgpathtools import parse_path
-        parsed = parse_path(d)
+        parsed = self._parse_path_lazy(d)
         total = parsed.length()
         if total == 0:
             return (0.0, 0.0)
@@ -1300,8 +1299,7 @@ class Path(VObject):
         d = self.d.at_time(time)
         if not d:
             return Path('')
-        from svgpathtools import parse_path
-        parsed = parse_path(d)
+        parsed = self._parse_path_lazy(d)
         total = parsed.length()
         if total == 0:
             return Path(d)
@@ -1319,8 +1317,7 @@ class Path(VObject):
         d = self.d.at_time(time)
         if not d:
             return Path('')
-        from svgpathtools import parse_path
-        parsed = parse_path(d)
+        parsed = self._parse_path_lazy(d)
         reversed_d = parsed.reversed().d()
         return Path(reversed_d, **self._copy_style(time))
 
