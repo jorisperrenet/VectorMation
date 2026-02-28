@@ -18265,3 +18265,49 @@ class TestBooleanOpStrokePath:
         svg = canvas.generate_frame_svg(0)
         assert 'clip-path' in svg
 
+
+class TestZoomAnimCompact:
+    """Test that _zoom_anim still works correctly after compacting ramp logic."""
+
+    def test_zoom_in(self):
+        c = Circle(r=50, cx=500, cy=500, creation=0)
+        c.zoom_in(start=0, end=1)
+        assert c.styling.fill_opacity.at_time(0) < c.styling.fill_opacity.at_time(0.5)
+
+    def test_zoom_out(self):
+        c = Circle(r=50, cx=500, cy=500, creation=0)
+        c.zoom_out(start=0, end=1)
+        assert c.styling.fill_opacity.at_time(0) > c.styling.fill_opacity.at_time(0.5)
+
+
+class TestMatrixFlashConsistency:
+    """Test that Matrix._flash now uses flash() like Table._flash."""
+
+    def test_matrix_highlight_entry(self):
+        from vectormation.objects import Matrix
+        m = Matrix([[1, 2], [3, 4]], creation=0)
+        m.highlight_entry(0, 0, start=0, end=1)
+        canvas = VectorMathAnim(save_dir='/tmp/t')
+        canvas.add_objects(m)
+        svg = canvas.generate_frame_svg(0.5)
+        assert '<text' in svg
+
+    def test_matrix_highlight_with_easing(self):
+        from vectormation.objects import Matrix
+        m = Matrix([[1, 2], [3, 4]], creation=0)
+        m.highlight_row(0, start=0, end=1, easing=easings.smooth)
+
+
+class TestRotateFadeCompact:
+    """Test rotate_in/out after compacting opacity ramp logic."""
+
+    def test_rotate_in(self):
+        r = Rectangle(100, 50, creation=0)
+        r.rotate_in(start=0, end=1)
+        assert r.styling.fill_opacity.at_time(0) < r.styling.fill_opacity.at_time(0.9)
+
+    def test_rotate_out(self):
+        r = Rectangle(100, 50, creation=0)
+        r.rotate_out(start=0, end=1)
+        assert r.styling.fill_opacity.at_time(0) > r.styling.fill_opacity.at_time(0.9)
+

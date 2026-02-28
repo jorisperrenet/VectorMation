@@ -603,10 +603,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         s, op_base = start, self.styling.fill_opacity.at_time(start)
         if fade_in:
             rot_fn = lambda t, _s=s, _d=dur, _deg=degrees, _cx=cx, _cy=cy: (_deg * (1 - easing((t - _s) / _d)), _cx, _cy)
-            op_fn = _ramp(s, dur, op_base, easing)
         else:
             rot_fn = lambda t, _s=s, _d=dur, _deg=degrees, _cx=cx, _cy=cy: (_deg * easing((t - _s) / _d), _cx, _cy)
-            op_fn = _ramp_down(s, dur, op_base, easing)
+        op_fn = (_ramp if fade_in else _ramp_down)(s, dur, op_base, easing)
         self.styling.rotation.set(s, end, rot_fn, stay=True)
         self.styling.fill_opacity.set(s, end, op_fn, stay=True)
         if change_existence and not fade_in:
@@ -1196,10 +1195,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.styling.scale_x.set(s, end, scale_fn, stay=True)
         self.styling.scale_y.set(s, end, scale_fn, stay=True)
         base_op = self.styling.fill_opacity.at_time(start)
-        if fade_in:
-            self.styling.fill_opacity.set(s, end, _ramp(s, dur, base_op, easing), stay=True)
-        else:
-            self.styling.fill_opacity.set(s, end, _ramp_down(s, dur, base_op, easing), stay=True)
+        ramp_fn = _ramp if fade_in else _ramp_down
+        self.styling.fill_opacity.set(s, end, ramp_fn(s, dur, base_op, easing), stay=True)
         if change_existence and not fade_in:
             self._hide_from(end)
         return self

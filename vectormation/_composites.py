@@ -1033,21 +1033,21 @@ class Matrix(VCollection):
     def get_row(self, row): return VCollection(*self.entries[row])
     def get_column(self, col): return VCollection(*(row[col] for row in self.entries if col < len(row)))
 
-    def _flash(self, entries, start, end, color):
-        for e in entries: e.flash_color(color, start=start, duration=end - start)
+    def _flash(self, entries, start, end, color, easing=easings.there_and_back):
+        for e in entries: e.flash(start, end, color=color, easing=easing)
         return self
 
-    def highlight_entry(self, row, col, start=0, end=1, color='#FFD700'):
+    def highlight_entry(self, row, col, start=0, end=1, color='#FFD700', easing=easings.there_and_back):
         """Flash-highlight a single matrix entry."""
-        return self._flash([self.entries[row][col]], start, end, color)
+        return self._flash([self.entries[row][col]], start, end, color, easing)
 
-    def highlight_row(self, row, start=0, end=1, color='#FFD700'):
+    def highlight_row(self, row, start=0, end=1, color='#FFD700', easing=easings.there_and_back):
         """Flash-highlight all entries in a row."""
-        return self._flash(self.entries[row], start, end, color)
+        return self._flash(self.entries[row], start, end, color, easing)
 
-    def highlight_column(self, col, start=0, end=1, color='#FFD700'):
+    def highlight_column(self, col, start=0, end=1, color='#FFD700', easing=easings.there_and_back):
         """Flash-highlight all entries in a column."""
-        return self._flash([row[col] for row in self.entries if col < len(row)], start, end, color)
+        return self._flash([row[col] for row in self.entries if col < len(row)], start, end, color, easing)
 
     def set_entry_value(self, row, col, new_value, start=0):
         """Change the text of a matrix entry at the given time."""
