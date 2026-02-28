@@ -428,6 +428,9 @@ class BarChart(VCollection):
         """Return the bar Rectangle with the minimum value, or None if no bars."""
         return self._bar_by_extreme(min)
 
+    get_tallest_bar = get_max_bar
+    get_shortest_bar = get_min_bar
+
     def _bar_by_extreme(self, func) -> 'Rectangle | None':
         if not self._bars:
             return None

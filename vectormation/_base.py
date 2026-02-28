@@ -682,43 +682,37 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         end = start + duration
         return self._pop_anim(start, end, duration, 0, False, change_existence, easing)
 
-    def spin_in(self, start: float = 0, end: float = 1, degrees: float = 360,
-                change_existence=True, easing=easings.smooth):
-        """Grow from nothing while spinning. Like manim's SpinInFromNothing."""
+    def _spin_anim(self, start, end, degrees, growing, change_existence, easing):
         dur = end - start
         if dur <= 0:
+            if change_existence and not growing:
+                self._hide_from(start)
             return self
-        if change_existence:
+        if change_existence and growing:
             self._show_from(start)
         self._ensure_scale_origin(start)
         s, _d = start, max(dur, 1e-9)
         cx, cy = self.center(start)
-        self.styling.scale_x.set(s, end, _ramp(s, _d, 1, easing), stay=True)
-        self.styling.scale_y.set(s, end, _ramp(s, _d, 1, easing), stay=True)
+        ramp = _ramp if growing else _ramp_down
+        self.styling.scale_x.set(s, end, ramp(s, _d, 1, easing), stay=True)
+        self.styling.scale_y.set(s, end, ramp(s, _d, 1, easing), stay=True)
+        rot_mult = (lambda p: 1 - p) if growing else (lambda p: p)
         self.styling.rotation.set(s, end,
-            lambda t, _s=s, _d=_d, _deg=degrees, _cx=cx, _cy=cy, _e=easing:
-                (_deg * (1 - _e((t - _s) / _d)), _cx, _cy), stay=True)
+            lambda t, _s=s, _d=_d, _deg=degrees, _cx=cx, _cy=cy, _e=easing, _m=rot_mult:
+                (_deg * _m(_e((t - _s) / _d)), _cx, _cy), stay=True)
+        if change_existence and not growing:
+            self._hide_from(end)
         return self
+
+    def spin_in(self, start: float = 0, end: float = 1, degrees: float = 360,
+                change_existence=True, easing=easings.smooth):
+        """Grow from nothing while spinning."""
+        return self._spin_anim(start, end, degrees, True, change_existence, easing)
 
     def spin_out(self, start: float = 0, end: float = 1, degrees: float = 360,
                  change_existence=True, easing=easings.smooth):
         """Shrink to nothing while spinning. Reverse of spin_in."""
-        dur = end - start
-        if dur <= 0:
-            if change_existence:
-                self._hide_from(start)
-            return self
-        self._ensure_scale_origin(start)
-        s, _d = start, max(dur, 1e-9)
-        cx, cy = self.center(start)
-        self.styling.scale_x.set(s, end, _ramp_down(s, _d, 1, easing), stay=True)
-        self.styling.scale_y.set(s, end, _ramp_down(s, _d, 1, easing), stay=True)
-        self.styling.rotation.set(s, end,
-            lambda t, _s=s, _d=_d, _deg=degrees, _cx=cx, _cy=cy, _e=easing:
-                (_deg * _e((t - _s) / _d), _cx, _cy), stay=True)
-        if change_existence:
-            self._hide_from(end)
-        return self
+        return self._spin_anim(start, end, degrees, False, change_existence, easing)
 
     def _apply_shift_effect(self, start, end, dx_func=None, dy_func=None, stay=False):
         """Apply displacement functions to all shift attributes.

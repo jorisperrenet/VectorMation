@@ -17080,3 +17080,73 @@ class TestBaseHelpersGetCenter:
         r = Rectangle(width=100, height=50, x=300, y=400)
         assert r.get_center() == r.center()
 
+
+class TestSpinInOutShared:
+    """Test that spin_in/spin_out use shared _spin_anim helper."""
+
+    def test_spin_in_shows_object(self):
+        c = Circle(r=50)
+        c.spin_in(start=0, end=1)
+        assert c.show.at_time(0) is True
+
+    def test_spin_in_scale_at_end(self):
+        c = Circle(r=50)
+        c.spin_in(start=0, end=1)
+        assert c.styling.scale_x.at_time(1) == pytest.approx(1.0, abs=0.01)
+
+    def test_spin_out_hides_at_end(self):
+        c = Circle(r=50)
+        c.spin_out(start=0, end=1)
+        assert c.show.at_time(1.01) is False
+
+    def test_spin_out_scale_at_end(self):
+        c = Circle(r=50)
+        c.spin_out(start=0, end=1)
+        assert c.styling.scale_x.at_time(1) == pytest.approx(0.0, abs=0.05)
+
+
+class TestComplexPlaneLabel:
+    """Test ComplexPlane.add_complex_label method."""
+
+    def test_add_complex_label_creates_dot(self):
+        from vectormation.objects import ComplexPlane
+        cp = ComplexPlane(x_range=(-3, 3), y_range=(-3, 3))
+        result = cp.add_complex_label(1 + 2j, 'z₁')
+        assert result is not None
+
+    def test_add_complex_label_real_number(self):
+        from vectormation.objects import ComplexPlane
+        cp = ComplexPlane(x_range=(-3, 3), y_range=(-3, 3))
+        result = cp.add_complex_label(2.0, 'real')
+        assert result is not None
+
+
+class TestNumberPlaneGetVector:
+    """Test NumberPlane.get_vector method."""
+
+    def test_get_vector_returns_arrow(self):
+        from vectormation.objects import NumberPlane
+        np = NumberPlane()
+        arrow = np.get_vector(1, 1)
+        assert arrow is not None
+        assert 'Arrow' in type(arrow).__name__
+
+    def test_get_vector_adds_to_objects(self):
+        from vectormation.objects import NumberPlane
+        np = NumberPlane()
+        n_before = len(np.objects)
+        np.get_vector(2, 3)
+        assert len(np.objects) == n_before + 1
+
+
+class TestBarChartAliases:
+    """Test that get_tallest_bar/get_shortest_bar are aliases."""
+
+    def test_get_tallest_bar(self):
+        bc = BarChart([3, 7, 2], labels=['A', 'B', 'C'])
+        assert bc.get_tallest_bar() is bc.get_max_bar()
+
+    def test_get_shortest_bar(self):
+        bc = BarChart([3, 7, 2], labels=['A', 'B', 'C'])
+        assert bc.get_shortest_bar() is bc.get_min_bar()
+

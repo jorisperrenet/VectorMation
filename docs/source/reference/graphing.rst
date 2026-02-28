@@ -459,9 +459,9 @@ NumberPlane
 
       Convert SVG coordinates to math coordinates.
 
-   .. py:method:: get_vector(x, y, **styling)
+   .. py:method:: get_vector(x, y, creation=0, **kwargs)
 
-      Create a vector arrow from the origin to ``(x, y)``.
+      Create a vector :py:class:`Arrow` from the origin to ``(x, y)`` and add it to the plane.
 
    .. py:method:: apply_complex_function(func, start=0, end=1, easing=smooth)
 

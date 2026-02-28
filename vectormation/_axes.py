@@ -2060,6 +2060,16 @@ class NumberPlane(VCollection):
         """Inverse of coords_to_point. Returns logical coordinates from SVG pixel coordinates."""
         return ((x - self._cx) / self._unit, -(y - self._cy) / self._unit)
 
+    def get_vector(self, x, y, creation=0, **kwargs):
+        """Return an Arrow from the origin to point (x, y) in logical coordinates."""
+        from vectormation._arrows import Arrow
+        sx0, sy0 = self.coords_to_point(0, 0)
+        sx1, sy1 = self.coords_to_point(x, y)
+        kw = {'stroke': '#E74C3C', 'stroke_width': 4} | kwargs
+        arrow = Arrow(x1=sx0, y1=sy0, x2=sx1, y2=sy1, creation=creation, **kw)
+        self.objects.append(arrow)
+        return arrow
+
 class ComplexPlane(Axes):
     """Complex number plane with Re/Im axes."""
     def __init__(self, x_range=(-5, 5), y_range=(-5, 5),
@@ -2085,6 +2095,15 @@ class ComplexPlane(Axes):
         re = xmin + (x - self.plot_x) / self.plot_width * (xmax - xmin)
         im = ymax - (y - self.plot_y) / self.plot_height * (ymax - ymin)
         return complex(re, im)
+
+    def add_complex_label(self, z, text=None, **styling):
+        """Add a labelled dot at the complex number *z*."""
+        if isinstance(z, complex):
+            re_val, im_val = z.real, z.imag
+        else:
+            re_val, im_val = float(z), 0.0
+        label = text if text is not None else f'{re_val:g}+{im_val:g}i'
+        return self.add_dot_label(re_val, im_val, label=label, **styling)
 
     def apply_complex_function(self, func, start=0, end=1, easing=easings.smooth,
                                resolution=20, step=1.0):
