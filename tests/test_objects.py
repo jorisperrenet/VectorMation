@@ -19798,3 +19798,68 @@ class TestStampDiagram:
         s = Stamp(template, [(0, 0)])
         assert '1' in repr(s)
 
+
+class TestTreeDiagram:
+    def test_tuple_data(self):
+        root = ('A', [('B', []), ('C', [('D', [])])])
+        t = Tree(root)
+        assert 'A' in t._positions_by_label
+        assert 'B' in t._positions_by_label
+
+    def test_dict_data(self):
+        t = Tree({'Root': {'Child1': {}, 'Child2': {}}})
+        assert len(t._positions_by_label) >= 2
+
+    def test_get_node_position(self):
+        root = ('X', [('Y', [])])
+        t = Tree(root)
+        pos = t.get_node_position('X')
+        assert len(pos) == 2
+
+    def test_highlight_node(self):
+        root = ('A', [('B', [])])
+        t = Tree(root)
+        assert t.highlight_node('A', start=0, end=1) is t
+
+    def test_repr(self):
+        root = ('R', [('C1', []), ('C2', [])])
+        t = Tree(root)
+        assert 'nodes' in repr(t)
+
+
+class TestMindMapDiagram:
+    def test_creates_objects(self):
+        root = ('Center', [('Branch1', []), ('Branch2', [('Leaf', [])])])
+        m = MindMap(root)
+        assert len(m.objects) > 0
+
+    def test_no_children(self):
+        m = MindMap(('Alone', []))
+        assert len(m.objects) == 2  # dot + label
+
+    def test_repr(self):
+        m = MindMap(('R', [('A', [])]))
+        assert repr(m) == 'MindMap()'
+
+
+class TestResistorComponent:
+    def test_creates_objects(self):
+        from vectormation.objects import Resistor
+        r = Resistor(x1=300, y1=500, x2=500, y2=500)
+        assert len(r.objects) >= 1
+
+    def test_repr(self):
+        from vectormation.objects import Resistor
+        assert repr(Resistor()) == 'Resistor()'
+
+
+class TestCapacitorComponent:
+    def test_creates_objects(self):
+        from vectormation.objects import Capacitor
+        c = Capacitor(x1=300, y1=500, x2=500, y2=500)
+        assert len(c.objects) >= 4  # 4 lines + label
+
+    def test_repr(self):
+        from vectormation.objects import Capacitor
+        assert repr(Capacitor()) == 'Capacitor()'
+
