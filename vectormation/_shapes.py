@@ -944,25 +944,19 @@ class Ellipse(VObject):
             return False
         return ((px - cx) / rx) ** 2 + ((py - cy) / ry) ** 2 <= 1
 
-    def get_rx(self, time=0):
-        return self.rx.at_time(time)
-
-    def get_ry(self, time=0):
-        return self.ry.at_time(time)
+    def get_rx(self, time=0): return self.rx.at_time(time)
+    def get_ry(self, time=0): return self.ry.at_time(time)
 
     def set_center(self, cx, cy, start=0, end=None, easing=easings.smooth):
-        _set_attr(self.c, start, end, (cx, cy), easing)
-        return self
+        _set_attr(self.c, start, end, (cx, cy), easing); return self
 
     def set_rx(self, value, start=0, end=None, easing=easings.smooth):
-        """Animate the x-radius to value."""
-        _set_attr(self.rx, start, end, value, easing)
-        return self
+        """Animate the x-radius."""
+        _set_attr(self.rx, start, end, value, easing); return self
 
     def set_ry(self, value, start=0, end=None, easing=easings.smooth):
-        """Animate the y-radius to value."""
-        _set_attr(self.ry, start, end, value, easing)
-        return self
+        """Animate the y-radius."""
+        _set_attr(self.ry, start, end, value, easing); return self
 
     def tangent_at_angle(self, angle_deg, length=200, time=0, **kwargs):
         """Return a tangent Line at the given angle, centered on the ellipse point."""
@@ -1624,15 +1618,16 @@ class Rectangle(VObject):
         _set_attr(self.height, start, end, height, easing)
         return self
 
+    def _grow_dim(self, attr, amount, start, end, easing):
+        attr.move_to(start, end, attr.at_time(start) + amount, easing=easing); return self
+
     def grow_width(self, amount, start=0, end=1, easing=easings.smooth):
-        """Animate increasing width by amount."""
-        self.width.move_to(start, end, self.width.at_time(start) + amount, easing=easing)
-        return self
+        """Animate increasing width by *amount*."""
+        return self._grow_dim(self.width, amount, start, end, easing)
 
     def grow_height(self, amount, start=0, end=1, easing=easings.smooth):
-        """Animate increasing height by amount."""
-        self.height.move_to(start, end, self.height.at_time(start) + amount, easing=easing)
-        return self
+        """Animate increasing height by *amount*."""
+        return self._grow_dim(self.height, amount, start, end, easing)
 
     def contains_point(self, px, py, time=0):
         """Point-in-rect test."""

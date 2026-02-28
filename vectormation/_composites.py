@@ -99,6 +99,12 @@ class MorphObject(VCollection):
     def __repr__(self):
         return 'MorphObject()'
 
+def counterclockwise_morph(source, target, start=0, end=1, z=0, easing=easings.smooth):
+    """Convenience: morph with a 180-degree counterclockwise rotation."""
+    return MorphObject(source, target, start=start, end=end, z=z,
+                       easing=easing, rotation_degrees=-180)
+
+
 class LabeledDot(VCollection):
     """Dot with a centered text label."""
     def __init__(self, label='', r=24, cx=960, cy=540, creation: float = 0, z: float = 0, font_size=None, **styling_kwargs):
@@ -282,10 +288,9 @@ class NumberLine(VCollection):
         t = (value - self.x_start) / span
         return (self.origin_x + t * self.length, self.origin_y)
 
-    def point_to_number(self, x, y=None):
+    def point_to_number(self, x, y=None):  # noqa: ARG002 (y for API compat)
         """Convert an SVG x coordinate (or (x,y) tuple) back to a value on the line."""
-        if isinstance(x, (tuple, list)):
-            x = x[0]
+        if isinstance(x, (tuple, list)): x = x[0]
         span = self.x_end - self.x_start
         if self.length == 0:
             return self.x_start

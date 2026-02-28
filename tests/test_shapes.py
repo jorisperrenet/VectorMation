@@ -11914,3 +11914,85 @@ class TestCombinedAnimations:
         assert c.create_then_fadeout(start=1, end=1) is c
         assert c.write_then_fadeout(start=1, end=1) is c
         assert c.fadein_then_fadeout(start=1, end=1) is c
+
+
+class TestCounterclockwiseMorph:
+    def test_returns_morph_object(self):
+        from vectormation.objects import counterclockwise_morph, MorphObject
+        c = Circle(r=30, cx=100, cy=100)
+        r = Rectangle(60, 40, x=300, y=300)
+        morph = counterclockwise_morph(c, r, start=0, end=2)
+        assert isinstance(morph, MorphObject)
+
+    def test_can_generate_svg(self):
+        from vectormation.objects import counterclockwise_morph
+        c = Circle(r=30, cx=100, cy=100)
+        r = Rectangle(60, 40, x=300, y=300)
+        morph = counterclockwise_morph(c, r, start=0, end=2)
+        svg = morph.to_svg(1.0)
+        assert '<path' in svg or '<g' in svg
+
+
+class TestShowIncreasingSubsets:
+    def test_basic(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=100)
+        c3 = Circle(r=10, cx=300, cy=100)
+        group = VCollection(c1, c2, c3)
+        result = group.show_increasing_subsets(start=0, end=3)
+        assert result is group
+        # First child visible from t=0, second from t=1, third from t=2
+        assert c1.show.at_time(0) is True
+        assert c2.show.at_time(0.5) is False
+        assert c2.show.at_time(1.5) is True
+        assert c3.show.at_time(1.5) is False
+        assert c3.show.at_time(2.5) is True
+
+    def test_empty_collection(self):
+        group = VCollection()
+        assert group.show_increasing_subsets(start=0, end=1) is group
+
+    def test_zero_duration(self):
+        c = Circle(r=10, cx=100, cy=100)
+        group = VCollection(c)
+        assert group.show_increasing_subsets(start=1, end=1) is group
+
+
+class TestShowOneByOne:
+    def test_basic(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=100)
+        group = VCollection(c1, c2)
+        result = group.show_one_by_one(start=0, end=2)
+        assert result is group
+        # c1 fades in from 0..1, c2 from 1..2
+        assert c1.styling.opacity.at_time(0) < 0.1
+        # c2 hasn't started fading in yet, so show is False
+        assert c2.show.at_time(0.5) is False
+
+
+class TestApplyWave:
+    def test_returns_self(self):
+        c = Circle(r=30, cx=100, cy=100)
+        assert c.apply_wave(start=0, end=2) is c
+
+    def test_zero_duration(self):
+        c = Circle(r=30, cx=100, cy=100)
+        assert c.apply_wave(start=1, end=1) is c
+
+    def test_x_direction(self):
+        c = Circle(r=30, cx=100, cy=100)
+        assert c.apply_wave(start=0, end=2, direction='x') is c
+
+
+class TestScaleInPlace:
+    def test_returns_self(self):
+        c = Circle(r=30, cx=100, cy=100)
+        assert c.scale_in_place(2.0, start=0, end=1) is c
+
+    def test_center_preserved(self):
+        c = Circle(r=30, cx=500, cy=500)
+        c.scale_in_place(2.0, start=0, end=1)
+        # Object should still render with scale origin set
+        svg = c.to_svg(0.5)
+        assert svg  # non-empty

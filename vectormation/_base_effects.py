@@ -51,8 +51,7 @@ class _VObjectEffectsMixin:
 
     def match_position(self, other, time: float = 0):
         """Move this object so its center matches *other*'s center at *time*."""
-        ox, oy = _coords_of(other, time)
-        return self.move_to(ox, oy, start=time)
+        return self.move_to(*_coords_of(other, time), start=time)
 
     def point_from_proportion(self, t, time=0):
         """Return the (x, y) point at proportion *t* (0-1) along this object's SVG path outline."""
@@ -456,10 +455,8 @@ class _VObjectEffectsMixin:
         col.arrange(direction=direction, buff=buff)
         return col
 
-    def arc_to(self, x, y, start=0, end=1, angle=math.pi / 4, easing=easings.smooth):
-        """Animated curved movement to (x, y) following a circular arc.
-        angle controls the arc curvature (default PI/4). Uses parametric interpolation."""
-        return self.path_arc(x, y, start=start, end=end, angle=angle, easing=easing)
+    arc_to = lambda self, *a, **kw: self.path_arc(*a, **kw)
+    arc_to.__doc__ = """Alias for :meth:`path_arc`."""
 
     def typewriter_cursor(self, start=0, end=1, blink_rate=0.5, cursor_char='|'):
         """For Text objects: append a blinking cursor character."""
@@ -507,16 +504,14 @@ class _VObjectEffectsMixin:
         return _make_brect(other.bbox, start, rx, ry, buff, follow)
 
     def fade_to_color(self, target_color, start=0, end=1, easing=easings.smooth):
-        """Smoothly transition both fill and stroke to target_color over [start, end]."""
-        self.set_fill(color=target_color, start=start, end=end, easing=easing)
-        self.set_stroke(color=target_color, start=start, end=end, easing=easing)
-        return self
+        """Smoothly transition both fill and stroke to *target_color*."""
+        return self.set_fill(color=target_color, start=start, end=end, easing=easing) \
+            .set_stroke(color=target_color, start=start, end=end, easing=easing)
 
     def spin_and_fade(self, start=0, end=1, spins=1.5, direction=1, easing=easings.smooth):
-        """Rotate and fade out simultaneously over [start, end]."""
-        self.rotate_by(start, end, spins * 360 * direction, easing=easing)
-        self.set_opacity(0, start=start, end=end, easing=easing)
-        return self
+        """Rotate and fade out simultaneously."""
+        return self.rotate_by(start, end, spins * 360 * direction, easing=easing) \
+            .set_opacity(0, start=start, end=end, easing=easing)
 
     def grow_to_size(self, target_width=None, target_height=None, start=0, end=1, easing=easings.smooth):
         """Animate the object to reach a specific width and/or height."""
@@ -749,22 +744,15 @@ class _VObjectEffectsMixin:
 
     def look_at(self, target, start=0, end=None, easing=None):
         """Rotate so this object points toward *target*."""
-        if easing is None:
-            easing = easings.smooth
-        if isinstance(target, tuple):
-            tx, ty = target
-        else:
-            tx, ty = target.get_center(start)
+        easing = easing or easings.smooth
+        tx, ty = target if isinstance(target, tuple) else target.get_center(start)
         cx, cy = self.get_center(start)
         angle_deg = math.degrees(math.atan2(ty - cy, tx - cx))
-        if end is None:
-            return self.rotate_to(start, start, angle_deg, easing=easing)
-        return self.rotate_to(start, end, angle_deg, easing=easing)
+        return self.rotate_to(start, end or start, angle_deg, easing=easing)
 
     def animate_to(self, target_obj, start=0, end=1, easing=None):
         """Animate position, scale, and colors to match *target_obj*."""
-        if easing is None:
-            easing = easings.smooth
+        easing = easing or easings.smooth
         tx, ty = target_obj.get_center(start)
         self.center_to_pos(posx=tx, posy=ty, start=start, end=end, easing=easing)
         tw = target_obj.get_width(start)
@@ -827,9 +815,7 @@ class _VObjectEffectsMixin:
 
     def set_lifetime(self, start, end):
         """Set bounded visibility: visible only from *start* to *end*."""
-        self.set_visible(False, 0)
-        self.set_visible(True, start)
-        self.set_visible(False, end)
+        self.set_visible(False, 0); self.set_visible(True, start); self.set_visible(False, end)
         return self
 
     def get_style(self, time=0):
@@ -847,10 +833,8 @@ class _VObjectEffectsMixin:
         """Move a fraction of the way toward another object or point."""
         cx, cy = self.get_center(start)
         tx, ty = _coords_of(other, start)
-        return self.center_to_pos(
-            posx=cx + fraction * (tx - cx),
-            posy=cy + fraction * (ty - cy),
-            start=start, end=end, easing=easing or easings.smooth)
+        return self.center_to_pos(posx=cx + fraction * (tx - cx),
+            posy=cy + fraction * (ty - cy), start=start, end=end, easing=easing or easings.smooth)
 
     def add_label(self, text, direction=UP, buff=20, font_size=None, follow=False, creation=0, **kwargs):
         """Attach a text label next to this object. Returns a VCollection(self, label)."""
@@ -904,5 +888,37 @@ class _VObjectEffectsMixin:
             rx.set_onward(end, fx)
             ry.set_onward(end, fy)
         return self
+
+    def apply_wave(self, start: float = 0, end: float = 1, amplitude: float = 30,
+                   wave_func=None, direction='y', easing=easings.smooth):
+        """Apply a sinusoidal wave distortion that travels across the object.
+
+        The wave sweeps from left to right (or top to bottom), displacing
+        each point perpendicular to the sweep direction. At start and end
+        the object returns to its original shape (there-and-back).
+
+        *wave_func* can customize the wave shape; default is ``sin``.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        wf = wave_func or math.sin
+        _s, _d, _a = start, max(dur, 1e-9), amplitude
+
+        def _wave_dy(t, _s=_s, _d=_d, _a=_a, _wf=wf, _e=easing):
+            p = (t - _s) / _d
+            envelope = _e(p) * (1 - _e(p)) * 4  # parabolic envelope: 0→1→0
+            return _a * _wf(math.tau * 2 * p) * envelope
+
+        if direction == 'y':
+            self._apply_shift_effect(start, end, dy_func=_wave_dy)
+        else:
+            self._apply_shift_effect(start, end, dx_func=_wave_dy)
+        return self
+
+    def scale_in_place(self, factor, start: float = 0, end: float = 1, easing=easings.smooth):
+        """Scale the object without moving its center (anchored at current center)."""
+        self._ensure_scale_origin(start)
+        return self.scale(factor, start=start, end=end, easing=easing)
 
 # VCollection moved to _collection.py; re-export for backward compatibility.

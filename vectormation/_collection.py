@@ -1154,81 +1154,52 @@ class VCollection(_BBoxMethodsMixin):
                       easing=easing)
         return self
 
-    def fadein(self, start: float = 0, end: float = 1, **kwargs):
-        """Fade in all children simultaneously."""
-        return self._delegate('fadein', start=start, end=end, **kwargs)
+    # -- Animation delegation: apply to all children simultaneously --
 
-    def fadeout(self, start: float = 0, end: float = 1, **kwargs):
-        """Fade out all children simultaneously."""
-        return self._delegate('fadeout', start=start, end=end, **kwargs)
+    def fadein(self, start=0.0, end=1.0, **kw): return self._delegate('fadein', start=start, end=end, **kw)
+    def fadeout(self, start=0.0, end=1.0, **kw): return self._delegate('fadeout', start=start, end=end, **kw)
+    def create(self, start=0.0, end=1.0, **kw): return self._delegate('create', start=start, end=end, **kw)
+    def draw_along(self, start=0.0, end=1.0, **kw): return self._delegate('draw_along', start=start, end=end, **kw)
+    def slide_in(self, start=0.0, end=1.0, **kw): return self._delegate('slide_in', start=start, end=end, **kw)
+    def slide_out(self, start=0.0, end=1.0, **kw): return self._delegate('slide_out', start=start, end=end, **kw)
+    def zoom_in(self, start=0.0, end=1.0, **kw): return self._delegate('zoom_in', start=start, end=end, **kw)
+    def zoom_out(self, start=0.0, end=1.0, **kw): return self._delegate('zoom_out', start=start, end=end, **kw)
+    def grow_from_center(self, start=0.0, end=1.0, **kw): return self._delegate('grow_from_center', start=start, end=end, **kw)
+    def shrink_to_center(self, start=0.0, end=1.0, **kw): return self._delegate('shrink_to_center', start=start, end=end, **kw)
+    def spin_in(self, start=0.0, end=1.0, **kw): return self._delegate('spin_in', start=start, end=end, **kw)
+    def spin_out(self, start=0.0, end=1.0, **kw): return self._delegate('spin_out', start=start, end=end, **kw)
+    def pop_in(self, start=0.0, **kw): return self._delegate('pop_in', start=start, **kw)
+    def pop_out(self, start=0.0, **kw): return self._delegate('pop_out', start=start, **kw)
+    def draw_border_then_fill(self, start=0.0, end=1.0, **kw): return self._delegate('draw_border_then_fill', start=start, end=end, **kw)
+    def indicate(self, start=0.0, end=1.0, **kw): return self._delegate('indicate', start=start, end=end, **kw)
+    def create_then_fadeout(self, start=0.0, end=2.0, **kw): return self._delegate('create_then_fadeout', start=start, end=end, **kw)
+    def write_then_fadeout(self, start=0.0, end=2.0, **kw): return self._delegate('write_then_fadeout', start=start, end=end, **kw)
+    def fadein_then_fadeout(self, start=0.0, end=2.0, **kw): return self._delegate('fadein_then_fadeout', start=start, end=end, **kw)
 
-    def create(self, start: float = 0, end: float = 1, **kwargs):
-        """Create animation (stroke draw) for all children simultaneously."""
-        return self._delegate('create', start=start, end=end, **kwargs)
+    def show_increasing_subsets(self, start: float = 0, end: float = 1, easing=None):
+        """Progressively reveal children over [start, end] — each child appears and stays visible."""
+        n = len(self.objects)
+        if n == 0: return self
+        easing = easing or easings.linear
+        dur = end - start
+        if dur <= 0: return self
+        for i, obj in enumerate(self.objects):
+            t = start + dur * i / n
+            obj._show_from(t)
+        return self
 
-    def draw_along(self, start: float = 0, end: float = 1, **kwargs):
-        """Draw along for all children simultaneously."""
-        return self._delegate('draw_along', start=start, end=end, **kwargs)
-
-    def slide_in(self, start: float = 0, end: float = 1, **kwargs):
-        """Slide in all children simultaneously."""
-        return self._delegate('slide_in', start=start, end=end, **kwargs)
-
-    def slide_out(self, start: float = 0, end: float = 1, **kwargs):
-        """Slide out all children simultaneously."""
-        return self._delegate('slide_out', start=start, end=end, **kwargs)
-
-    def zoom_in(self, start: float = 0, end: float = 1, **kwargs):
-        """Zoom in all children simultaneously."""
-        return self._delegate('zoom_in', start=start, end=end, **kwargs)
-
-    def zoom_out(self, start: float = 0, end: float = 1, **kwargs):
-        """Zoom out all children simultaneously."""
-        return self._delegate('zoom_out', start=start, end=end, **kwargs)
-
-    def grow_from_center(self, start: float = 0, end: float = 1, **kwargs):
-        """Grow all children from center simultaneously."""
-        return self._delegate('grow_from_center', start=start, end=end, **kwargs)
-
-    def shrink_to_center(self, start: float = 0, end: float = 1, **kwargs):
-        """Shrink all children to center simultaneously."""
-        return self._delegate('shrink_to_center', start=start, end=end, **kwargs)
-
-    def spin_in(self, start: float = 0, end: float = 1, **kwargs):
-        """Spin in all children simultaneously."""
-        return self._delegate('spin_in', start=start, end=end, **kwargs)
-
-    def spin_out(self, start: float = 0, end: float = 1, **kwargs):
-        """Spin out all children simultaneously."""
-        return self._delegate('spin_out', start=start, end=end, **kwargs)
-
-    def pop_in(self, start: float = 0, **kwargs):
-        """Pop in all children simultaneously."""
-        return self._delegate('pop_in', start=start, **kwargs)
-
-    def pop_out(self, start: float = 0, **kwargs):
-        """Pop out all children simultaneously."""
-        return self._delegate('pop_out', start=start, **kwargs)
-
-    def draw_border_then_fill(self, start: float = 0, end: float = 1, **kwargs):
-        """Draw border then fill for all children simultaneously."""
-        return self._delegate('draw_border_then_fill', start=start, end=end, **kwargs)
-
-    def indicate(self, start: float = 0, end: float = 1, **kwargs):
-        """Indicate all children simultaneously."""
-        return self._delegate('indicate', start=start, end=end, **kwargs)
-
-    def create_then_fadeout(self, start: float = 0, end: float = 2, **kwargs):
-        """Create then fade out all children simultaneously."""
-        return self._delegate('create_then_fadeout', start=start, end=end, **kwargs)
-
-    def write_then_fadeout(self, start: float = 0, end: float = 2, **kwargs):
-        """Write then fade out all children simultaneously."""
-        return self._delegate('write_then_fadeout', start=start, end=end, **kwargs)
-
-    def fadein_then_fadeout(self, start: float = 0, end: float = 2, **kwargs):
-        """Fade in then fade out all children simultaneously."""
-        return self._delegate('fadein_then_fadeout', start=start, end=end, **kwargs)
+    def show_one_by_one(self, start: float = 0, end: float = 1, method='fadein', **kwargs):
+        """Show each child sequentially with a brief animation.
+        Each child gets an equal time slice for its entrance animation."""
+        n = len(self.objects)
+        if n == 0: return self
+        dur = end - start
+        if dur <= 0: return self
+        slice_dur = dur / n
+        for i, obj in enumerate(self.objects):
+            s = start + i * slice_dur
+            getattr(obj, method)(start=s, end=s + slice_dur, **kwargs)
+        return self
 
     def snake_layout(self, cols=None, buff=SMALL_BUFF, start: float = 0):
         """Arrange children in a snake/zigzag grid (alternating row direction)."""
