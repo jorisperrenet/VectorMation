@@ -8,12 +8,13 @@ import tempfile
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
+from vectormation._constants import CANVAS_WIDTH, CANVAS_HEIGHT
 
 logger = logging.getLogger('vectormation')
 
 class VectorMathAnim:
     """Canvas/video where we can ask a frame at a certain time."""
-    def __init__(self, save_dir, width=1920, height=1080, scale=1, verbose=False):
+    def __init__(self, save_dir, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, scale=1, verbose=False):
         if verbose:
             logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
         else:
