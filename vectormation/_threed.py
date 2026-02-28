@@ -259,8 +259,10 @@ class ThreeDAxes(VCollection):
                                creation=0, z=0, **styling_kwargs):
         """Plot a z=f(x,y) surface as a wireframe (backward compat)."""
         line_style = {'stroke': '#4488ff', 'stroke_width': 1} | styling_kwargs
-        wireframe = _WireframeSurface(self, func, self._x_range, self._y_range,
-                                      x_steps, y_steps, line_style, creation=creation, z=z)
+        _f = func
+        wrapped = lambda u, v, _fn=_f: (u, v, _fn(u, v))
+        wireframe = _Wireframe(wrapped, self._x_range, self._y_range,
+                               x_steps, y_steps, line_style, creation=creation, z=z)
         self._threed_objects.append(wireframe)
         return wireframe
 
@@ -270,8 +272,8 @@ class ThreeDAxes(VCollection):
                                 creation=0, z=0, **styling_kwargs):
         """Plot a parametric wireframe surface (backward compat)."""
         line_style = {'stroke': '#4488ff', 'stroke_width': 1} | styling_kwargs
-        wireframe = _ParametricWireframe(self, func, u_range, v_range,
-                                         u_steps, v_steps, line_style, creation=creation, z=z)
+        wireframe = _Wireframe(func, u_range, v_range,
+                               u_steps, v_steps, line_style, creation=creation, z=z)
         self._threed_objects.append(wireframe)
         return wireframe
 
@@ -595,61 +597,15 @@ class Surface(VObject):
 # Wireframe helpers (backward compat, rendered as 3D patches)
 # ---------------------------------------------------------------------------
 
-class _WireframeSurface:
-    """Internal: wireframe z=f(x,y) rendered via to_patches."""
+class _Wireframe:
+    """Internal: wireframe rendered via to_patches.  *func(u, v) -> (x, y, z)*."""
 
-    def __init__(self, axes, func, x_range, y_range, x_steps, y_steps, style, creation=0, z=0):
+    def __init__(self, func, u_range, v_range, u_steps, v_steps, style, creation=0, z=0):
         self.show = attributes.Real(creation, True)
         self.z = attributes.Real(creation, z)
-        self._axes = axes
         self._func = func
-        self._x_range = x_range
-        self._y_range = y_range
-        self._x_steps = x_steps
-        self._y_steps = y_steps
-        self._style = style
-
-    @property
-    def last_change(self):
-        return max(self.show.last_change, self.z.last_change)
-
-    def to_patches(self, axes, time):
-        patches = []
-        x0, x1 = self._x_range
-        y0, y1 = self._y_range
-        dx = (x1 - x0) / max(self._x_steps, 1)
-        dy = (y1 - y0) / max(self._y_steps, 1)
-        stroke = self._style.get('stroke', '#4488ff')
-        sw = self._style.get('stroke_width', 1)
-
-        # Lines along x
-        for j in range(self._y_steps + 1):
-            yv = y0 + j * dy
-            pts3d = [(x0 + i * dx, yv, self._func(x0 + i * dx, yv))
-                     for i in range(self._x_steps + 1)]
-            patches.append(_polyline_patch(pts3d, axes, time, stroke, sw))
-
-        # Lines along y
-        for i in range(self._x_steps + 1):
-            xv = x0 + i * dx
-            pts3d = [(xv, y0 + j * dy, self._func(xv, y0 + j * dy))
-                     for j in range(self._y_steps + 1)]
-            patches.append(_polyline_patch(pts3d, axes, time, stroke, sw))
-
-        return patches
-
-class _ParametricWireframe:
-    """Internal: parametric wireframe rendered via to_patches."""
-
-    def __init__(self, axes, func, u_range, v_range, u_steps, v_steps, style, creation=0, z=0):
-        self.show = attributes.Real(creation, True)
-        self.z = attributes.Real(creation, z)
-        self._axes = axes
-        self._func = func
-        self._u_range = u_range
-        self._v_range = v_range
-        self._u_steps = u_steps
-        self._v_steps = v_steps
+        self._u_range, self._v_range = u_range, v_range
+        self._u_steps, self._v_steps = u_steps, v_steps
         self._style = style
 
     @property
@@ -664,26 +620,25 @@ class _ParametricWireframe:
         dv = (v1 - v0) / max(self._v_steps, 1)
         stroke = self._style.get('stroke', '#4488ff')
         sw = self._style.get('stroke_width', 1)
-
-        # Lines along u
         for j in range(self._v_steps + 1):
             vv = v0 + j * dv
-            pts3d = [self._func(u0 + i * du, vv)
-                     for i in range(self._u_steps + 1)]
-            patches.append(_polyline_patch(pts3d, axes, time, stroke, sw))
-
-        # Lines along v
+            patches.append(_polyline_patch(
+                [self._func(u0 + i * du, vv) for i in range(self._u_steps + 1)],
+                axes, time, stroke, sw))
         for i in range(self._u_steps + 1):
             uu = u0 + i * du
-            pts3d = [self._func(uu, v0 + j * dv)
-                     for j in range(self._v_steps + 1)]
-            patches.append(_polyline_patch(pts3d, axes, time, stroke, sw))
-
+            patches.append(_polyline_patch(
+                [self._func(uu, v0 + j * dv) for j in range(self._v_steps + 1)],
+                axes, time, stroke, sw))
         return patches
 
 # ---------------------------------------------------------------------------
 # 3D Primitives
 # ---------------------------------------------------------------------------
+
+def _shift3(pt, dx, dy, dz):
+    """Shift a 3D tuple by (dx, dy, dz)."""
+    return (pt[0] + dx, pt[1] + dy, pt[2] + dz)
 
 class _Primitive3D:
     """Base for 3D primitives with show/z attributes and copy()."""
@@ -705,8 +660,7 @@ class _SegmentPrimitive3D(_Primitive3D):
 
     def shift(self, dx=0, dy=0, dz=0):
         """Shift both endpoints by (dx, dy, dz). Returns self for chaining."""
-        self._start = (self._start[0] + dx, self._start[1] + dy, self._start[2] + dz)
-        self._end = (self._end[0] + dx, self._end[1] + dy, self._end[2] + dz)
+        self._start, self._end = _shift3(self._start, dx, dy, dz), _shift3(self._end, dx, dy, dz)
         return self
 
     def move_to(self, x, y, z):
@@ -736,7 +690,7 @@ class _PointPrimitive3D(_Primitive3D):
 
     def shift(self, dx=0, dy=0, dz=0):
         """Shift the point by (dx, dy, dz). Returns self for chaining."""
-        self._point = (self._point[0] + dx, self._point[1] + dy, self._point[2] + dz)
+        self._point = _shift3(self._point, dx, dy, dz)
         return self
 
     def move_to(self, x, y, z):
@@ -870,26 +824,24 @@ class ParametricCurve3D(_Primitive3D):
 # Factory functions
 # ---------------------------------------------------------------------------
 
+def _make_surface(func, u_range, v_range, resolution, **kw):
+    """Shared factory: create a Surface with common styling kwargs."""
+    return Surface(func, u_range=u_range, v_range=v_range, resolution=resolution, **kw)
+
 def Sphere3D(radius=1.5, center=(0, 0, 0), resolution=(16, 32),
              fill_color='#FC6255', checkerboard_colors=None,
              stroke_color='#333', stroke_width=0.3, fill_opacity=0.9,
              creation=0, z=0):
     """Create a Surface representing a sphere."""
     cx, cy, cz = center
-    def sphere_func(u, v):
+    def f(u, v):
         return (cx + radius * math.cos(u) * math.cos(v),
                 cy + radius * math.cos(u) * math.sin(v),
                 cz + radius * math.sin(u))
-    return Surface(sphere_func,
-                   u_range=(-math.pi / 2, math.pi / 2),
-                   v_range=(0, math.tau),
-                   resolution=resolution,
-                   fill_color=fill_color,
-                   checkerboard_colors=checkerboard_colors,
-                   stroke_color=stroke_color,
-                   stroke_width=stroke_width,
-                   fill_opacity=fill_opacity,
-                   creation=creation, z=z)
+    return _make_surface(f, (-math.pi / 2, math.pi / 2), (0, math.tau), resolution,
+                         fill_color=fill_color, checkerboard_colors=checkerboard_colors,
+                         stroke_color=stroke_color, stroke_width=stroke_width,
+                         fill_opacity=fill_opacity, creation=creation, z=z)
 
 class Text3D(_PointPrimitive3D):
     """A text label placed at a 3D position."""
@@ -955,17 +907,13 @@ def Cylinder3D(radius=1, height=2, center=(0, 0, 0), resolution=(16, 16),
                creation=0, z=0):
     """Create a Surface representing a cylinder (open-ended, side only)."""
     cx, cy, cz = center
-    def cyl_func(u, v):
-        # u: angle 0..tau, v: height 0..1
-        return (cx + radius * math.cos(u),
-                cy + radius * math.sin(u),
+    def f(u, v):
+        return (cx + radius * math.cos(u), cy + radius * math.sin(u),
                 cz - height / 2 + v * height)
-    return Surface(cyl_func,
-                   u_range=(0, math.tau), v_range=(0, 1),
-                   resolution=resolution,
-                   fill_color=fill_color, checkerboard_colors=checkerboard_colors,
-                   stroke_color=stroke_color, stroke_width=stroke_width,
-                   fill_opacity=fill_opacity, creation=creation, z=z)
+    return _make_surface(f, (0, math.tau), (0, 1), resolution,
+                         fill_color=fill_color, checkerboard_colors=checkerboard_colors,
+                         stroke_color=stroke_color, stroke_width=stroke_width,
+                         fill_opacity=fill_opacity, creation=creation, z=z)
 
 def Cone3D(radius=1, height=2, center=(0, 0, 0), resolution=(16, 16),
            fill_color='#58C4DD', checkerboard_colors=None,
@@ -973,18 +921,14 @@ def Cone3D(radius=1, height=2, center=(0, 0, 0), resolution=(16, 16),
            creation=0, z=0):
     """Create a Surface representing a cone (open-ended, side only)."""
     cx, cy, cz = center
-    def cone_func(u, v):
-        # u: angle 0..tau, v: 0 (apex) to 1 (base)
+    def f(u, v):
         r = radius * v
-        return (cx + r * math.cos(u),
-                cy + r * math.sin(u),
+        return (cx + r * math.cos(u), cy + r * math.sin(u),
                 cz + height / 2 - v * height)
-    return Surface(cone_func,
-                   u_range=(0, math.tau), v_range=(0, 1),
-                   resolution=resolution,
-                   fill_color=fill_color, checkerboard_colors=checkerboard_colors,
-                   stroke_color=stroke_color, stroke_width=stroke_width,
-                   fill_opacity=fill_opacity, creation=creation, z=z)
+    return _make_surface(f, (0, math.tau), (0, 1), resolution,
+                         fill_color=fill_color, checkerboard_colors=checkerboard_colors,
+                         stroke_color=stroke_color, stroke_width=stroke_width,
+                         fill_opacity=fill_opacity, creation=creation, z=z)
 
 def Torus3D(major_radius=2, minor_radius=0.5, center=(0, 0, 0),
             resolution=(24, 12),
@@ -994,16 +938,14 @@ def Torus3D(major_radius=2, minor_radius=0.5, center=(0, 0, 0),
     """Create a Surface representing a torus."""
     cx, cy, cz = center
     R, r = major_radius, minor_radius
-    def torus_func(u, v):
+    def f(u, v):
         return (cx + (R + r * math.cos(v)) * math.cos(u),
                 cy + (R + r * math.cos(v)) * math.sin(u),
                 cz + r * math.sin(v))
-    return Surface(torus_func,
-                   u_range=(0, math.tau), v_range=(0, math.tau),
-                   resolution=resolution,
-                   fill_color=fill_color, checkerboard_colors=checkerboard_colors,
-                   stroke_color=stroke_color, stroke_width=stroke_width,
-                   fill_opacity=fill_opacity, creation=creation, z=z)
+    return _make_surface(f, (0, math.tau), (0, math.tau), resolution,
+                         fill_color=fill_color, checkerboard_colors=checkerboard_colors,
+                         stroke_color=stroke_color, stroke_width=stroke_width,
+                         fill_opacity=fill_opacity, creation=creation, z=z)
 
 def Prism3D(n_sides=6, radius=1, height=2, center=(0, 0, 0),
             fill_color='#58C4DD', stroke_color='#333', stroke_width=0.5,
@@ -1101,86 +1043,68 @@ def _polyhedron_faces(vertices, face_indices, *,
     return faces
 
 
+def _platonic(vertices, face_indices, cx, cy, cz, size, **kw):
+    """Shared factory for platonic solid construction."""
+    return _polyhedron_faces(vertices, face_indices,
+                             cx=cx, cy=cy, cz=cz, scale=size, **kw)
+
+_PHI = (1 + 5 ** 0.5) / 2  # golden ratio
+
 def Tetrahedron(cx=0, cy=0, cz=0, size=1.0, *,
                 fill_color='#58C4DD', stroke_color='#FFFFFF',
                 stroke_width=1, fill_opacity=0.8, creation=0, z=0):
     """Regular tetrahedron (4 triangular faces)."""
-    vertices = [
-        ( 1,  1,  1), ( 1, -1, -1),
-        (-1,  1, -1), (-1, -1,  1),
-    ]
-    face_indices = [(0, 1, 2), (0, 1, 3), (0, 2, 3), (1, 2, 3)]
-    return _polyhedron_faces(vertices, face_indices,
-                             fill_color=fill_color, stroke_color=stroke_color,
-                             stroke_width=stroke_width, fill_opacity=fill_opacity,
-                             cx=cx, cy=cy, cz=cz, scale=size,
-                             creation=creation, z=z)
-
+    return _platonic(
+        [(1, 1, 1), (1, -1, -1), (-1, 1, -1), (-1, -1, 1)],
+        [(0, 1, 2), (0, 1, 3), (0, 2, 3), (1, 2, 3)],
+        cx, cy, cz, size, fill_color=fill_color, stroke_color=stroke_color,
+        stroke_width=stroke_width, fill_opacity=fill_opacity,
+        creation=creation, z=z)
 
 def Octahedron(cx=0, cy=0, cz=0, size=1.0, *,
                fill_color='#58C4DD', stroke_color='#FFFFFF',
                stroke_width=1, fill_opacity=0.8, creation=0, z=0):
     """Regular octahedron (8 triangular faces)."""
-    vertices = [
-        ( 1,  0,  0), (-1,  0,  0),
-        ( 0,  1,  0), ( 0, -1,  0),
-        ( 0,  0,  1), ( 0,  0, -1),
-    ]
-    face_indices = [
-        (0, 2, 4), (2, 1, 4), (1, 3, 4), (3, 0, 4),
-        (0, 2, 5), (2, 1, 5), (1, 3, 5), (3, 0, 5),
-    ]
-    return _polyhedron_faces(vertices, face_indices,
-                             fill_color=fill_color, stroke_color=stroke_color,
-                             stroke_width=stroke_width, fill_opacity=fill_opacity,
-                             cx=cx, cy=cy, cz=cz, scale=size,
-                             creation=creation, z=z)
-
+    return _platonic(
+        [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)],
+        [(0, 2, 4), (2, 1, 4), (1, 3, 4), (3, 0, 4),
+         (0, 2, 5), (2, 1, 5), (1, 3, 5), (3, 0, 5)],
+        cx, cy, cz, size, fill_color=fill_color, stroke_color=stroke_color,
+        stroke_width=stroke_width, fill_opacity=fill_opacity,
+        creation=creation, z=z)
 
 def Icosahedron(cx=0, cy=0, cz=0, size=1.0, *,
                 fill_color='#58C4DD', stroke_color='#FFFFFF',
                 stroke_width=1, fill_opacity=0.8, creation=0, z=0):
     """Regular icosahedron (20 triangular faces)."""
-    phi = (1 + 5 ** 0.5) / 2  # golden ratio
-    vertices = [
-        (-1,  phi, 0), ( 1,  phi, 0), (-1, -phi, 0), ( 1, -phi, 0),
-        (0, -1,  phi), (0,  1,  phi), (0, -1, -phi), (0,  1, -phi),
-        ( phi, 0, -1), ( phi, 0,  1), (-phi, 0, -1), (-phi, 0,  1),
-    ]
-    face_indices = [
-        (0, 11, 5), (0, 5, 1), (0, 1, 7), (0, 7, 10), (0, 10, 11),
-        (1, 5, 9), (5, 11, 4), (11, 10, 2), (10, 7, 6), (7, 1, 8),
-        (3, 9, 4), (3, 4, 2), (3, 2, 6), (3, 6, 8), (3, 8, 9),
-        (4, 9, 5), (2, 4, 11), (6, 2, 10), (8, 6, 7), (9, 8, 1),
-    ]
-    return _polyhedron_faces(vertices, face_indices,
-                             fill_color=fill_color, stroke_color=stroke_color,
-                             stroke_width=stroke_width, fill_opacity=fill_opacity,
-                             cx=cx, cy=cy, cz=cz, scale=size,
-                             creation=creation, z=z)
-
+    p = _PHI
+    return _platonic(
+        [(-1, p, 0), (1, p, 0), (-1, -p, 0), (1, -p, 0),
+         (0, -1, p), (0, 1, p), (0, -1, -p), (0, 1, -p),
+         (p, 0, -1), (p, 0, 1), (-p, 0, -1), (-p, 0, 1)],
+        [(0, 11, 5), (0, 5, 1), (0, 1, 7), (0, 7, 10), (0, 10, 11),
+         (1, 5, 9), (5, 11, 4), (11, 10, 2), (10, 7, 6), (7, 1, 8),
+         (3, 9, 4), (3, 4, 2), (3, 2, 6), (3, 6, 8), (3, 8, 9),
+         (4, 9, 5), (2, 4, 11), (6, 2, 10), (8, 6, 7), (9, 8, 1)],
+        cx, cy, cz, size, fill_color=fill_color, stroke_color=stroke_color,
+        stroke_width=stroke_width, fill_opacity=fill_opacity,
+        creation=creation, z=z)
 
 def Dodecahedron(cx=0, cy=0, cz=0, size=1.0, *,
                  fill_color='#58C4DD', stroke_color='#FFFFFF',
                  stroke_width=1, fill_opacity=0.8, creation=0, z=0):
     """Regular dodecahedron (12 pentagonal faces)."""
-    phi = (1 + 5 ** 0.5) / 2
-    ip = 1 / phi
-    vertices = [
-        ( 1,  1,  1), ( 1,  1, -1), ( 1, -1,  1), ( 1, -1, -1),
-        (-1,  1,  1), (-1,  1, -1), (-1, -1,  1), (-1, -1, -1),
-        (0,  ip,  phi), (0,  ip, -phi), (0, -ip,  phi), (0, -ip, -phi),
-        ( ip,  phi, 0), ( ip, -phi, 0), (-ip,  phi, 0), (-ip, -phi, 0),
-        ( phi, 0,  ip), ( phi, 0, -ip), (-phi, 0,  ip), (-phi, 0, -ip),
-    ]
-    face_indices = [
-        (0, 8, 10, 2, 16), (0, 16, 17, 1, 12), (0, 12, 14, 4, 8),
-        (1, 17, 3, 11, 9), (1, 9, 5, 14, 12), (2, 10, 6, 15, 13),
-        (2, 13, 3, 17, 16), (3, 13, 15, 7, 11), (4, 14, 5, 19, 18),
-        (4, 18, 6, 10, 8), (5, 9, 11, 7, 19), (6, 18, 19, 7, 15),
-    ]
-    return _polyhedron_faces(vertices, face_indices,
-                             fill_color=fill_color, stroke_color=stroke_color,
-                             stroke_width=stroke_width, fill_opacity=fill_opacity,
-                             cx=cx, cy=cy, cz=cz, scale=size,
-                             creation=creation, z=z)
+    p, ip = _PHI, 1 / _PHI
+    return _platonic(
+        [(1, 1, 1), (1, 1, -1), (1, -1, 1), (1, -1, -1),
+         (-1, 1, 1), (-1, 1, -1), (-1, -1, 1), (-1, -1, -1),
+         (0, ip, p), (0, ip, -p), (0, -ip, p), (0, -ip, -p),
+         (ip, p, 0), (ip, -p, 0), (-ip, p, 0), (-ip, -p, 0),
+         (p, 0, ip), (p, 0, -ip), (-p, 0, ip), (-p, 0, -ip)],
+        [(0, 8, 10, 2, 16), (0, 16, 17, 1, 12), (0, 12, 14, 4, 8),
+         (1, 17, 3, 11, 9), (1, 9, 5, 14, 12), (2, 10, 6, 15, 13),
+         (2, 13, 3, 17, 16), (3, 13, 15, 7, 11), (4, 14, 5, 19, 18),
+         (4, 18, 6, 10, 8), (5, 9, 11, 7, 19), (6, 18, 19, 7, 15)],
+        cx, cy, cz, size, fill_color=fill_color, stroke_color=stroke_color,
+        stroke_width=stroke_width, fill_opacity=fill_opacity,
+        creation=creation, z=z)

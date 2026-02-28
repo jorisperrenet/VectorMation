@@ -259,7 +259,7 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Draw then remove a tracing rectangle. Returns a :py:class:`Path`.
 
-   .. py:method:: show_passing_flash(start=0, end=1, flash_width=0.15, easing=linear)
+   .. py:method:: show_passing_flash(start=0, end=1, flash_width=0.15, color='#FFFF00', stroke_width=6, easing=linear)
 
       Travelling highlight along stroke.
 

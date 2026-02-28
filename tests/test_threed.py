@@ -6,6 +6,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from vectormation._threed import (
     _project_point, _face_normal, _parse_color_to_rgb, _shade_color, _nice_ticks,
+    _shift3, _Wireframe,
     ThreeDAxes, Surface, Line3D, Dot3D, Arrow3D, ParametricCurve3D, Text3D,
     Sphere3D, Cube, Cylinder3D, Cone3D, Torus3D, Prism3D,
     Tetrahedron, Octahedron, Icosahedron, Dodecahedron,
@@ -807,3 +808,53 @@ class TestDodecahedron:
     def test_all_surfaces(self):
         for f in Dodecahedron(fill_opacity=0.5):
             assert isinstance(f, Surface)
+
+
+class TestShift3:
+    def test_basic(self):
+        assert _shift3((1, 2, 3), 10, 20, 30) == (11, 22, 33)
+
+    def test_zero(self):
+        assert _shift3((5, 6, 7), 0, 0, 0) == (5, 6, 7)
+
+    def test_negative(self):
+        assert _shift3((0, 0, 0), -1, -2, -3) == (-1, -2, -3)
+
+
+class TestUnifiedWireframe:
+    """Test that _Wireframe works for both height-map and parametric usage."""
+
+    def test_heightmap_via_wrapper(self):
+        """z=f(x,y) wrapped as parametric func produces correct patches."""
+        def height_func(x, y):
+            return x + y
+        wrapped = lambda u, v: (u, v, height_func(u, v))
+        wf = _Wireframe(wrapped, (0, 1), (0, 1), 2, 2, {})
+        axes = ThreeDAxes()
+        patches = wf.to_patches(axes, 0)
+        # 2+1=3 u-lines + 2+1=3 v-lines = 6 patches
+        assert len(patches) == 6
+
+    def test_parametric_direct(self):
+        """Parametric func(u, v) -> (x, y, z) used directly."""
+        def param(u, v):
+            return (math.cos(u), math.sin(u), v)
+        wf = _Wireframe(param, (0, math.tau), (0, 1), 4, 2, {'stroke': '#ff0000'})
+        axes = ThreeDAxes()
+        patches = wf.to_patches(axes, 0)
+        assert len(patches) == (2 + 1) + (4 + 1)  # 3 + 5 = 8
+
+
+class TestPrimitive3DShift:
+    """Test _shift3 integration in Line3D and Dot3D."""
+
+    def test_line3d_shift(self):
+        line = Line3D((0, 0, 0), (1, 1, 1))
+        line.shift(dx=5, dy=10, dz=15)
+        assert line._start == (5, 10, 15)
+        assert line._end == (6, 11, 16)
+
+    def test_dot3d_shift(self):
+        dot = Dot3D((0, 0, 0))
+        dot.shift(dx=3, dy=4, dz=5)
+        assert dot._point == (3, 4, 5)

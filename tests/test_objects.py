@@ -17282,6 +17282,18 @@ class TestValueTrackerOps:
         assert a.get_value() == 15
 
 
+class TestHighlightParamOrder:
+    """All highlight methods should have (index, start, end, color) order."""
+
+    def test_queue_highlight_order(self):
+        q = QueueViz([1, 2, 3])
+        q.highlight(0, start=0, end=0.5, color='#FF0000')
+
+    def test_binary_tree_highlight_order(self):
+        bt = BinaryTree([1, 2, 3])
+        bt.highlight_node(0, start=0, end=0.5, color='#FF0000')
+
+
 class TestBarChartAliases:
     """Test that get_tallest_bar/get_shortest_bar are aliases."""
 

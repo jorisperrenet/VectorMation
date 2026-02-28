@@ -331,7 +331,7 @@ class BinaryTree(VCollection):
 
     def __repr__(self): return f'BinaryTree({len(self._node_objects)} nodes)'
 
-    def highlight_node(self, index, color='#E9C46A', start=0, end=0.5):
+    def highlight_node(self, index, start=0, end=0.5, color='#E9C46A'):
         """Temporarily highlight a node by index (depth-first order)."""
         if 0 <= index < len(self._node_objects):
             _flash_fill(self._node_objects[index], color, start, end, '#1e1e2e')
@@ -631,7 +631,7 @@ class QueueViz(VCollection):
         self._back_label.shift(dx=-self._cell_width, start=start, end=end)
         return self
 
-    def highlight(self, index, color='#E9C46A', start=0, end=0.5):
+    def highlight(self, index, start=0, end=0.5, color='#E9C46A'):
         """Temporarily highlight a cell at *index*."""
         if 0 <= index < len(self._queue_cells):
             _flash_fill(self._queue_cells[index], color, start, end, self._fill)
