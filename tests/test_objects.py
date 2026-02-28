@@ -17599,3 +17599,76 @@ class TestCircularLayoutHelper:
         assert 'Root' in svg
         assert 'A' in svg
 
+
+class TestRadarChartAddDataset:
+    def test_add_dataset_returns_self(self):
+        rc = RadarChart([3, 5, 2, 4, 1], labels=['A', 'B', 'C', 'D', 'E'])
+        result = rc.add_dataset([1, 2, 3, 4, 5])
+        assert result is rc
+
+    def test_add_dataset_adds_objects(self):
+        rc = RadarChart([3, 5, 2, 4, 1], labels=['A', 'B', 'C', 'D', 'E'])
+        before = len(rc.objects)
+        rc.add_dataset([1, 2, 3, 4, 5])
+        # Should add a polygon + 5 dots = 6 objects
+        assert len(rc.objects) == before + 6
+
+    def test_add_dataset_wrong_length(self):
+        rc = RadarChart([3, 5, 2], labels=['A', 'B', 'C'])
+        before = len(rc.objects)
+        rc.add_dataset([1, 2])  # wrong length
+        assert len(rc.objects) == before
+
+    def test_add_multiple_datasets(self):
+        rc = RadarChart([3, 5, 2], labels=['A', 'B', 'C'])
+        rc.add_dataset([1, 2, 3])
+        rc.add_dataset([2, 3, 1])
+        assert rc._dataset_count == 3
+
+
+class TestNeuralNetworkLabelLayer:
+    def test_label_input_positions(self):
+        nn = NeuralNetwork([2, 3, 1])
+        nn.label_input(['x1', 'x2'])
+        # Should have added 2 text labels
+        texts = [o for o in nn.objects if hasattr(o, 'text')]
+        assert any(t.text.at_time(0) == 'x1' for t in texts)
+        assert any(t.text.at_time(0) == 'x2' for t in texts)
+
+    def test_label_output_positions(self):
+        nn = NeuralNetwork([2, 3, 1])
+        nn.label_output(['y'])
+        texts = [o for o in nn.objects if hasattr(o, 'text')]
+        assert any(t.text.at_time(0) == 'y' for t in texts)
+
+    def test_label_empty_network(self):
+        nn = NeuralNetwork([])
+        result = nn.label_input(['a'])
+        assert result is nn
+
+
+class TestRectangleDims:
+    def test_dims_returns_tuple(self):
+        r = Rectangle(200, 100, x=50, y=60)
+        dims = r._dims(0)
+        assert dims == (50.0, 60.0, 200.0, 100.0)
+
+    def test_dims_animated(self):
+        r = Rectangle(200, 100)
+        r.width.set(0, 1, lambda t: 200 + 100 * t)
+        x0, y0, w0, h0 = r._dims(0)
+        x1, y1, w1, h1 = r._dims(1)
+        assert w0 == pytest.approx(200, abs=1)
+        assert w1 == pytest.approx(300, abs=1)
+
+    def test_subdivide_uses_dims(self):
+        r = Rectangle(200, 100, x=0, y=0)
+        grid = r.subdivide(2, 2)
+        assert len(grid.objects) == 4
+
+    def test_chamfer_uses_dims(self):
+        r = Rectangle(200, 100, x=0, y=0)
+        p = r.chamfer(10)
+        svg = p.to_svg(0)
+        assert 'path' in svg.lower() or 'M' in svg
+

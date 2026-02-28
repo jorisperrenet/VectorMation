@@ -287,31 +287,24 @@ class NeuralNetwork(VCollection):
         sizes = [len(l) for l in self._layers]
         return f'NeuralNetwork({sizes})'
 
-    def label_input(self, labels, font_size=20, buff=30, **kwargs):
-        """Add labels to the left of input neurons."""
+    def _label_layer(self, layer_idx, labels, sign, anchor, font_size=20, buff=30, **kwargs):
+        """Add labels to one side of a neuron layer."""
         if not self._layers:
             return self
-        for neuron, text in zip(self._layers[0], labels):
+        for neuron, text in zip(self._layers[layer_idx], labels):
             cx, cy = neuron.center(0)
-            lbl = Text(str(text), x=cx - neuron.rx.at_time(0) - buff,
-                       y=cy, font_size=font_size,
-                       text_anchor='end', fill='#fff',
-                       creation=0, **kwargs)
-            self.add(lbl)
+            self.add(Text(str(text), x=cx + sign * (neuron.rx.at_time(0) + buff),
+                          y=cy, font_size=font_size, text_anchor=anchor,
+                          fill='#fff', creation=0, **kwargs))
         return self
+
+    def label_input(self, labels, font_size=20, buff=30, **kwargs):
+        """Add labels to the left of input neurons."""
+        return self._label_layer(0, labels, -1, 'end', font_size, buff, **kwargs)
 
     def label_output(self, labels, font_size=20, buff=30, **kwargs):
         """Add labels to the right of output neurons."""
-        if not self._layers:
-            return self
-        for neuron, text in zip(self._layers[-1], labels):
-            cx, cy = neuron.center(0)
-            lbl = Text(str(text), x=cx + neuron.rx.at_time(0) + buff,
-                       y=cy, font_size=font_size,
-                       text_anchor='start', fill='#fff',
-                       creation=0, **kwargs)
-            self.add(lbl)
-        return self
+        return self._label_layer(-1, labels, 1, 'start', font_size, buff, **kwargs)
 
     def activate(self, layer_idx, neuron_idx, start=0, end=1, color='#FFFF00'):
         """Animate a neuron activation (flash color)."""

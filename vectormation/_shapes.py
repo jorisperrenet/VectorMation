@@ -1437,15 +1437,17 @@ class Rectangle(VObject):
     def _shift_reals(self):
         return [(self.x, self.y)]
 
+    def _dims(self, time=0):
+        """Return (x, y, w, h) as floats at *time*."""
+        return (float(self.x.at_time(time)), float(self.y.at_time(time)),
+                float(self.width.at_time(time)), float(self.height.at_time(time)))
+
     def snap_points(self, time):
-        x, y = self.x.at_time(time), self.y.at_time(time)
-        w, h = self.width.at_time(time), self.height.at_time(time)
-        return [(float(x), float(y)), (float(x+w), float(y)),
-                (float(x+w), float(y+h)), (float(x), float(y+h))]
+        x, y, w, h = self._dims(time)
+        return [(x, y), (x+w, y), (x+w, y+h), (x, y+h)]
 
     def bbox(self, time):
-        x, y = self.x.at_time(time), self.y.at_time(time)
-        w, h = self.width.at_time(time), self.height.at_time(time)
+        x, y, w, h = self._dims(time)
         return self._bbox_from_points([(x,y),(x+w,y),(x+w,y+h),(x,y+h)], time) or super().bbox(time)
 
     def path(self, time):
@@ -1507,10 +1509,7 @@ class Rectangle(VObject):
 
     def sample_border(self, t, time=0):
         """Return a point (x, y) on the rectangle border at parameter *t*."""
-        rx = float(self.x.at_time(time))
-        ry = float(self.y.at_time(time))
-        w = float(self.width.at_time(time))
-        h = float(self.height.at_time(time))
+        rx, ry, w, h = self._dims(time)
         perim = 2 * (w + h)
         if perim < 1e-12:
             return (rx, ry)
@@ -1534,10 +1533,7 @@ class Rectangle(VObject):
     def get_grid_lines(self, rows, cols, time=0, **kwargs):
         """Return a VCollection of Lines forming a grid inside this rectangle."""
         from vectormation._base import VCollection
-        rx = float(self.x.at_time(time))
-        ry = float(self.y.at_time(time))
-        w = float(self.width.at_time(time))
-        h = float(self.height.at_time(time))
+        rx, ry, w, h = self._dims(time)
         lines = []
         # Horizontal lines
         for i in range(1, rows + 1):
@@ -1614,17 +1610,13 @@ class Rectangle(VObject):
 
     def contains_point(self, px, py, time=0):
         """Point-in-rect test."""
-        x, y = self.x.at_time(time), self.y.at_time(time)
-        w, h = self.width.at_time(time), self.height.at_time(time)
+        x, y, w, h = self._dims(time)
         return x <= px <= x + w and y <= py <= y + h
 
     def round_corners(self, radius=10, time=0, **kwargs):
         """Return a RoundedRectangle with the same size/position and the given corner radius."""
         from vectormation.style import _STYLES
-        x = self.x.at_time(time)
-        y = self.y.at_time(time)
-        w = self.width.at_time(time)
-        h = self.height.at_time(time)
+        x, y, w, h = self._dims(time)
         style_kw = {}
         for name in _STYLES:
             attr = getattr(self.styling, name)
@@ -1639,10 +1631,7 @@ class Rectangle(VObject):
         from vectormation._base import VCollection
         if count < 1:
             raise ValueError("split: count must be >= 1")
-        rx = float(self.x.at_time(time))
-        ry = float(self.y.at_time(time))
-        rw = float(self.width.at_time(time))
-        rh = float(self.height.at_time(time))
+        rx, ry, rw, rh = self._dims(time)
         parts = []
         if direction == 'horizontal':
             piece_h = rh / count
@@ -1668,10 +1657,7 @@ class Rectangle(VObject):
 
     def inset(self, amount: float, time: float = 0, **kwargs):
         """Return a new Rectangle inset by *amount* pixels on every side."""
-        rx = float(self.x.at_time(time))
-        ry = float(self.y.at_time(time))
-        rw = float(self.width.at_time(time))
-        rh = float(self.height.at_time(time))
+        rx, ry, rw, rh = self._dims(time)
         new_w = rw - 2 * amount
         new_h = rh - 2 * amount
         if new_w <= 0 or new_h <= 0:
@@ -1720,10 +1706,7 @@ class Rectangle(VObject):
         from vectormation._base import VCollection
         if rows < 1 or cols < 1:
             raise ValueError(f"subdivide: rows and cols must be >= 1, got rows={rows}, cols={cols}")
-        rx = float(self.x.at_time(time))
-        ry = float(self.y.at_time(time))
-        rw = float(self.width.at_time(time))
-        rh = float(self.height.at_time(time))
+        rx, ry, rw, rh = self._dims(time)
         cell_w = rw / cols
         cell_h = rh / rows
         parts = []
@@ -1736,10 +1719,7 @@ class Rectangle(VObject):
 
     def chamfer(self, size=10, time=0, **kwargs):
         """Return a :class:`Path` where each corner is cut at 45 degrees."""
-        x = float(self.x.at_time(time))
-        y = float(self.y.at_time(time))
-        w = float(self.width.at_time(time))
-        h = float(self.height.at_time(time))
+        x, y, w, h = self._dims(time)
         s = min(size, w / 2, h / 2)
         # 8 points clockwise from top-left chamfer:
         # top edge

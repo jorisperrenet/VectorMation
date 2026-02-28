@@ -753,7 +753,36 @@ class RadarChart(VCollection):
                            text_anchor=anchor, creation=creation, z=z + 0.1)
                 objects.append(txt)
         self._data_poly = data_poly
+        self._n = n
+        self._max_val = max_val
+        self._cx, self._cy = cx, cy
+        self._radius = radius
+        self._angles = angles
+        self._colors = colors if colors else ['#58C4DD']
+        self._fill_opacity = fill_opacity
+        self._dataset_count = 1
         super().__init__(*objects, creation=creation, z=z)
+
+    def add_dataset(self, values, color=None, fill_opacity=None, creation=0, z=0.15):
+        """Add an additional data polygon overlay to the radar chart."""
+        if len(values) != self._n:
+            return self
+        if color is None:
+            color = _default_colors(None)[self._dataset_count % len(_default_colors(None))]
+        if fill_opacity is None:
+            fill_opacity = self._fill_opacity
+        points = []
+        for i, val in enumerate(values):
+            r = self._radius * min(val / self._max_val, 1)
+            points.append((self._cx + r * math.cos(self._angles[i]),
+                           self._cy + r * math.sin(self._angles[i])))
+        poly = Polygon(*points, fill=color, fill_opacity=fill_opacity,
+                       stroke=color, stroke_width=2, creation=creation, z=z)
+        self.objects.append(poly)
+        for px, py in points:
+            self.objects.append(Dot(cx=px, cy=py, fill=color, creation=creation, z=z + 0.1))
+        self._dataset_count += 1
+        return self
 
     def __repr__(self):
         return 'RadarChart()'
