@@ -180,8 +180,7 @@ class Axes(_AxesExtMixin, VCollection):
             if curve._domain_min is not None or curve._domain_max is not None:
                 lo = curve._domain_min.at_time(time) if curve._domain_min else xmin
                 hi = curve._domain_max.at_time(time) if curve._domain_max else xmax
-                _li, _ri = lincl, rincl
-                def _in_domain(x, _lo=lo, _hi=hi):
+                def _in_domain(x, _lo=lo, _hi=hi, _li=lincl, _ri=rincl):
                     return (_lo <= x if _li else _lo < x) and (x <= _hi if _ri else x < _hi)
                 f = lambda x, _f=_func: _f(x) if _in_domain(x) else float('nan')
                 # Inject domain boundaries so the curve starts/ends exactly there
@@ -309,11 +308,9 @@ class Axes(_AxesExtMixin, VCollection):
         style_kw = _CURVE_STYLE | styling_kwargs
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
         _axes = self
-        _fx, _fy = fx, fy
         _t_min, _t_max = t_range
-        _np = num_points
 
-        def _compute_d(time):
+        def _compute_d(time, _fx=fx, _fy=fy, _np=num_points):
             pts = []
             for i in range(_np + 1):
                 t = _t_min + (_t_max - _t_min) * i / _np
@@ -741,8 +738,7 @@ class Axes(_AxesExtMixin, VCollection):
         dots = []
         for x, y in data:
             dot = Dot(cx=0, cy=0, r=r, creation=creation, z=z, **style_kw)
-            _x, _y = x, y
-            dot.c.set_onward(creation, lambda t, _xv=_x, _yv=_y: self.coords_to_point(_xv, _yv, t))
+            dot.c.set_onward(creation, lambda t, _xv=x, _yv=y: self.coords_to_point(_xv, _yv, t))
             dots.append(dot)
         group = VCollection(*dots, creation=creation, z=z)
         self._add_plot_obj(group)
@@ -1518,13 +1514,11 @@ class Axes(_AxesExtMixin, VCollection):
             sx, sy = self.coords_to_point(x_start, func(x_start), creation)
             dot.c.set_onward(creation, (sx, sy))
         else:
-            s, d = start, dur
-            xs, xe = x_start, x_end
-            def _pos(t, _s=s, _d=d, _xs=xs, _xe=xe, _easing=easing):
+            def _pos(t, _s=start, _d=dur, _xs=x_start, _xe=x_end, _easing=easing):
                 progress = _easing((t - _s) / _d)
                 xv = _xs + (_xe - _xs) * progress
                 return self.coords_to_point(xv, func(xv), t)
-            dot.c.set(s, end, _pos, stay=True)
+            dot.c.set(start, end, _pos, stay=True)
         dot._show_from(start)
         self._add_plot_obj(dot)
         return dot

@@ -1368,8 +1368,8 @@ def transform_matching_tex(source, target, start: float = 0, end: float = 1):
     tgt_vis = getattr(target, '_visible_tex', None)
     if src_vis is not None and tgt_vis is not None:
         src_objs, tgt_objs = list(source.objects), list(target.objects)
-        src_keys = [src_vis[i] if i < len(src_vis) else None for i in range(len(src_objs))]
-        tgt_keys = [tgt_vis[i] if i < len(tgt_vis) else None for i in range(len(tgt_objs))]
+        src_keys = list(src_vis[:len(src_objs)]) + [None] * max(0, len(src_objs) - len(src_vis))
+        tgt_keys = list(tgt_vis[:len(tgt_objs)]) + [None] * max(0, len(tgt_objs) - len(tgt_vis))
         return _match_and_morph(src_objs, tgt_objs, src_keys, tgt_keys, start, end)
     return transform_matching_shapes(source, target, start=start, end=end)
 

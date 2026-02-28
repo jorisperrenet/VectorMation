@@ -1239,23 +1239,22 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         src_x, src_y = _coords_of(source, start)
         tgt_x, tgt_y = self.center(start)
         off_x, off_y = src_x - tgt_x, src_y - tgt_y
-        s, d = start, max(dur, 1e-9)
+        _d = max(dur, 1e-9)
         # Move all coordinate attrs from source offset back to target
-        _easing = easing
         for coor in self._shift_coors():
             ox, oy = coor.at_time(start)
-            coor.set(s, end, lambda t, _s=s, _d=d, _ox=ox, _oy=oy, _offx=off_x, _offy=off_y, _e=_easing:
+            coor.set(start, end, lambda t, _s=start, _d=_d, _ox=ox, _oy=oy, _offx=off_x, _offy=off_y, _e=easing:
                      (_ox + _offx * (1 - _e((t - _s) / _d)),
                       _oy + _offy * (1 - _e((t - _s) / _d))),
                      stay=True)
         for xa, ya in self._shift_reals():
             ox_val = xa.at_time(start)
             oy_val = ya.at_time(start)
-            xa.set(s, end, _lerp(s, d, ox_val + off_x, ox_val, _easing), stay=True)
-            ya.set(s, end, _lerp(s, d, oy_val + off_y, oy_val, _easing), stay=True)
+            xa.set(start, end, _lerp(start, _d, ox_val + off_x, ox_val, easing), stay=True)
+            ya.set(start, end, _lerp(start, _d, oy_val + off_y, oy_val, easing), stay=True)
         # Fade in opacity
         end_op = self.styling.opacity.at_time(end)
-        self.styling.opacity.set(s, end, _ramp(s, d, end_op, _easing), stay=True)
+        self.styling.opacity.set(start, end, _ramp(start, _d, end_op, easing), stay=True)
         return self
 
     def flip(self, axis='horizontal', start: float = 0, end: float = 0.5, easing=easings.smooth):
@@ -1332,8 +1331,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def pulse_scale(self, start: float = 0, end: float = 1, count=2, amplitude=0.15, easing=easings.smooth):
         """Oscillate scale by *amplitude* for *count* cycles over [start, end]."""
-        _amp, _cnt = amplitude, count
-        def _pulse(p, _amp=_amp, _cnt=_cnt):
+        def _pulse(p, _amp=amplitude, _cnt=count):
             return 1 + _amp * math.sin(math.tau * _cnt * p)
         return self._apply_scale_envelope(start, end, _pulse, easing, stay=False)
 
@@ -1390,15 +1388,15 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        s, d = start, max(dur, 1e-9)
+        _d = max(dur, 1e-9)
         orig_sw = self.styling.stroke_width.at_time(start)
         _, glow_rgb = attributes.Color(0, color).parse(color)
-        self.styling.stroke.set(s, end,
+        self.styling.stroke.set(start, end,
             lambda _, _rgb=glow_rgb: _rgb, stay=False)
-        self.styling.stroke_width.set(s, end,
-            _lerp(s, d, orig_sw, orig_sw + radius, easings.there_and_back), stay=False)
-        self.styling.stroke_opacity.set(s, end,
-            _ramp(s, d, 0.7, easings.there_and_back), stay=False)
+        self.styling.stroke_width.set(start, end,
+            _lerp(start, _d, orig_sw, orig_sw + radius, easings.there_and_back), stay=False)
+        self.styling.stroke_opacity.set(start, end,
+            _ramp(start, _d, 0.7, easings.there_and_back), stay=False)
         return self
 
     def drop_shadow(self, color='#000000', dx=4, dy=4, blur=6, start=0):
@@ -1417,15 +1415,14 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        s, d = start, max(dur, 1e-9)
+        _d = max(dur, 1e-9)
         orig_sw = self.styling.stroke_width.at_time(start)
         _, target_rgb = attributes.Color(0, color).parse(color)
         # Stroke color: target during animation, original after
-        self.styling.stroke.set(s, end, lambda t, _rgb=target_rgb: _rgb, stay=False)
+        self.styling.stroke.set(start, end, lambda t, _rgb=target_rgb: _rgb, stay=False)
         # Stroke width: sinusoidal pulse between orig_sw and max_width
-        _osw, _mw, _c = orig_sw, max_width, cycles
-        self.styling.stroke_width.set(s, end,
-            lambda t, _s=s, _d=d, _osw=_osw, _mw=_mw, _c=_c:
+        self.styling.stroke_width.set(start, end,
+            lambda t, _s=start, _d=_d, _osw=orig_sw, _mw=max_width, _c=cycles:
                 _osw + (_mw - _osw) * abs(math.sin(math.pi * _c * easing((t - _s) / _d))),
             stay=False)
         return self

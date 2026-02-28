@@ -684,9 +684,8 @@ class _AxesExtMixin:
         for xv, yv, sv in zip(x_data, y_data, sizes):
             r = max(3, max_radius * ((sv - smin) / srange) ** 0.5)
             dot = Dot(cx=0, cy=0, r=r, creation=creation, z=z, **style_kw)
-            _xv, _yv = xv, yv
             dot.c.set_onward(creation,
-                lambda t, _x=_xv, _y=_yv: self.coords_to_point(_x, _y, t))
+                lambda t, _x=xv, _y=yv: self.coords_to_point(_x, _y, t))
             self._add_plot_obj(dot)
             dots.append(dot)
         return VCollection(*dots, creation=creation, z=z)

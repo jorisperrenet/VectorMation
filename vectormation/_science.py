@@ -462,13 +462,9 @@ class StandingWave(VCollection):
                     stroke_width=kwargs.get('stroke_width', 3),
                     fill_opacity=0)
 
-        _x1, _y1, _a = x1, y1, amplitude
-        _px, _py = perp_x, perp_y
-        _dx, _dy = dx_norm, dy_norm
-        _wl, _np = wave_length, num_points
-        _start, _end = start, end
-
-        def wave_d(t):
+        def wave_d(t, _x1=x1, _y1=y1, _a=amplitude,
+                   _px=perp_x, _py=perp_y, _dx=dx_norm, _dy=dy_norm,
+                   _wl=wave_length, _np=num_points, _start=start, _end=end):
             dt = max(0, min(t, _end) - _start)
             parts = [f'M {_x1:.1f} {_y1:.1f}']
             for i in range(1, _np):

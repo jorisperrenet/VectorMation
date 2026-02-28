@@ -795,8 +795,7 @@ class _VObjectEffectsMixin:
         label = _Text(text, **label_kwargs)
         label.next_to(self, direction, buff, start=creation)
         if follow:
-            _dir, _buff = direction, buff
-            def _follow_updater(lbl, t, _parent=self, _d=_dir, _b=_buff):
+            def _follow_updater(lbl, t, _parent=self, _d=direction, _b=buff):
                 lbl.next_to(_parent, _d, _b, start=t)
             label.add_updater(_follow_updater, start=creation)
         from vectormation._collection import VCollection
