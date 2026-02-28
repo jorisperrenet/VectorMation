@@ -266,8 +266,9 @@ class NumberLine(VCollection):
                                 creation=creation, z=z, **line_style))
 
         # Ticks and labels
-        val = x_start
-        while val <= x_end + x_step * 0.001:
+        n_ticks = round((x_end - x_start) / x_step)
+        for i in range(n_ticks + 1):
+            val = x_start + i * x_step
             sx = x + (val - x_start) / (x_end - x_start) * length
             objects.append(Line(x1=sx, y1=y - tick_size/2, x2=sx, y2=y + tick_size/2,
                                 creation=creation, z=z, stroke='#fff', stroke_width=3))
@@ -277,7 +278,6 @@ class NumberLine(VCollection):
                                     y=y + tick_size/2 + font_size + 2,
                                     font_size=font_size, creation=creation, z=z,
                                     fill='#aaa', stroke_width=0))
-            val += x_step
 
         super().__init__(*objects, creation=creation, z=z)
 
@@ -420,15 +420,15 @@ class NumberLine(VCollection):
             format_func = str
         if font_size is None:
             font_size = _TICK_FONT_SIZE
-        val = start_val
-        while val <= end_val + step * 0.001:
+        n_ticks = round((end_val - start_val) / step)
+        for i in range(n_ticks + 1):
+            val = start_val + i * step
             px, py = self.number_to_point(val)
             label_text = format_func(val)
             lbl = Text(text=label_text, x=px, y=py + SMALL_BUFF + font_size,
                        font_size=font_size, creation=creation,
                        fill='#fff', stroke_width=0, text_anchor='middle')
             self.objects.append(lbl)
-            val += step
         return self
 
     def add_brace(self, x1, x2, label=None, direction='down', **kwargs):
