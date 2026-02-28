@@ -615,7 +615,7 @@ class VCollection(_BBoxMethodsMixin):
         """Animated version of :meth:`arrange_in_grid` -- smoothly moves children to grid positions."""
         if not self.objects:
             return self
-        cols, cell_w, cell_h, max_w, max_h, _boxes = self._grid_targets(rows, cols, buff, start)
+        cols, cell_w, cell_h, max_w, max_h, _ = self._grid_targets(rows, cols, buff, start)
         kw = {'start': start, 'end': end, **(({'easing': easing}) if easing is not None else {})}
         for idx, obj in enumerate(self.objects):
             r, c = divmod(idx, cols)
@@ -1151,6 +1151,70 @@ class VCollection(_BBoxMethodsMixin):
                       max_stroke_width=max_stroke_width, change_existence=change_existence,
                       easing=easing)
         return self
+
+    def fadein(self, start: float = 0, end: float = 1, **kwargs):
+        """Fade in all children simultaneously."""
+        return self._delegate('fadein', start=start, end=end, **kwargs)
+
+    def fadeout(self, start: float = 0, end: float = 1, **kwargs):
+        """Fade out all children simultaneously."""
+        return self._delegate('fadeout', start=start, end=end, **kwargs)
+
+    def create(self, start: float = 0, end: float = 1, **kwargs):
+        """Create animation (stroke draw) for all children simultaneously."""
+        return self._delegate('create', start=start, end=end, **kwargs)
+
+    def draw_along(self, start: float = 0, end: float = 1, **kwargs):
+        """Draw along for all children simultaneously."""
+        return self._delegate('draw_along', start=start, end=end, **kwargs)
+
+    def slide_in(self, start: float = 0, end: float = 1, **kwargs):
+        """Slide in all children simultaneously."""
+        return self._delegate('slide_in', start=start, end=end, **kwargs)
+
+    def slide_out(self, start: float = 0, end: float = 1, **kwargs):
+        """Slide out all children simultaneously."""
+        return self._delegate('slide_out', start=start, end=end, **kwargs)
+
+    def zoom_in(self, start: float = 0, end: float = 1, **kwargs):
+        """Zoom in all children simultaneously."""
+        return self._delegate('zoom_in', start=start, end=end, **kwargs)
+
+    def zoom_out(self, start: float = 0, end: float = 1, **kwargs):
+        """Zoom out all children simultaneously."""
+        return self._delegate('zoom_out', start=start, end=end, **kwargs)
+
+    def grow_from_center(self, start: float = 0, end: float = 1, **kwargs):
+        """Grow all children from center simultaneously."""
+        return self._delegate('grow_from_center', start=start, end=end, **kwargs)
+
+    def shrink_to_center(self, start: float = 0, end: float = 1, **kwargs):
+        """Shrink all children to center simultaneously."""
+        return self._delegate('shrink_to_center', start=start, end=end, **kwargs)
+
+    def spin_in(self, start: float = 0, end: float = 1, **kwargs):
+        """Spin in all children simultaneously."""
+        return self._delegate('spin_in', start=start, end=end, **kwargs)
+
+    def spin_out(self, start: float = 0, end: float = 1, **kwargs):
+        """Spin out all children simultaneously."""
+        return self._delegate('spin_out', start=start, end=end, **kwargs)
+
+    def pop_in(self, start: float = 0, **kwargs):
+        """Pop in all children simultaneously."""
+        return self._delegate('pop_in', start=start, **kwargs)
+
+    def pop_out(self, start: float = 0, **kwargs):
+        """Pop out all children simultaneously."""
+        return self._delegate('pop_out', start=start, **kwargs)
+
+    def draw_border_then_fill(self, start: float = 0, end: float = 1, **kwargs):
+        """Draw border then fill for all children simultaneously."""
+        return self._delegate('draw_border_then_fill', start=start, end=end, **kwargs)
+
+    def indicate(self, start: float = 0, end: float = 1, **kwargs):
+        """Indicate all children simultaneously."""
+        return self._delegate('indicate', start=start, end=end, **kwargs)
 
     def snake_layout(self, cols=None, buff=SMALL_BUFF, start: float = 0):
         """Arrange children in a snake/zigzag grid (alternating row direction)."""

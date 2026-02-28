@@ -2431,6 +2431,18 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         b.move_to(acx, acy, start=start, end=end, easing=easing)
         return a
 
+    def transform_from_copy(self, target, start: float = 0, end: float = 1, easing=easings.smooth):
+        """Create a ghost copy of this object and morph it into *target*.
+
+        The original remains unchanged; a MorphObject is returned that
+        morphs from a copy of this shape into the target over [start, end].
+        The returned object should be added to the canvas.
+        """
+        from copy import deepcopy
+        from vectormation._composites import MorphObject
+        ghost_src = deepcopy(self)
+        return MorphObject(ghost_src, target, start=start, end=end, easing=easing)
+
     def set_style(self, start: float = 0, **kwargs):
         """Set multiple styling attributes at once.
         Example: obj.set_style(fill='#f00', stroke_width=2, opacity=0.5)"""

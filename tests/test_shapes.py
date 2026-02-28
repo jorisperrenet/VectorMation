@@ -4,7 +4,7 @@ import pytest
 from vectormation.objects import (
     Circle, Rectangle, Polygon, Line, Lines, RegularPolygon, Arc, Ellipse,
     Path, Trace, Text, Dot, AnnotationDot, Wedge, Sector, Star, RoundedRectangle, DashedLine,
-    NumberLine, EquilateralTriangle, Triangle, Arrow, Vector, CurvedArrow, VObject, VCollection,
+    NumberLine, EquilateralTriangle, Triangle, Arrow, Vector, CurvedArrow, VObject, VCollection, VGroup,
     from_svg, CountAnimation, Annulus, FunctionGraph, Square, Integer,
     AnnularSector, ArcPolygon, PieChart, DonutChart, Axes, Brace, Table, BarChart,
 )
@@ -11806,3 +11806,57 @@ class TestLogTexFormat:
     def test_one(self):
         from vectormation._axes_helpers import log_tex_format
         assert log_tex_format(1) == '$10^{0}$'
+
+
+class TestVCollectionAnimations:
+    def test_fadein_delegates(self):
+        c1 = Circle(r=30, cx=100, cy=100)
+        c2 = Circle(r=30, cx=200, cy=100)
+        g = VGroup(c1, c2)
+        assert g.fadein(start=0, end=1) is g
+        # Both children should have opacity ramped
+        assert c1.styling.opacity.at_time(0) < 0.1
+        assert c2.styling.opacity.at_time(0) < 0.1
+
+    def test_fadeout_delegates(self):
+        c1 = Circle(r=30, cx=100, cy=100)
+        c2 = Circle(r=30, cx=200, cy=100)
+        g = VGroup(c1, c2)
+        g.fadeout(start=0, end=1)
+        assert c1.styling.opacity.at_time(1) < 0.1
+        assert c2.styling.opacity.at_time(1) < 0.1
+
+    def test_create_delegates(self):
+        c = Circle(r=30, cx=100, cy=100)
+        g = VGroup(c)
+        assert g.create(start=0, end=1) is g
+
+    def test_grow_from_center_delegates(self):
+        c = Circle(r=30, cx=100, cy=100)
+        g = VGroup(c)
+        assert g.grow_from_center(start=0, end=1) is g
+
+    def test_indicate_delegates(self):
+        c = Circle(r=30, cx=100, cy=100)
+        g = VGroup(c)
+        assert g.indicate(start=0, end=1) is g
+
+    def test_pop_in_delegates(self):
+        c = Circle(r=30, cx=100, cy=100)
+        g = VGroup(c)
+        assert g.pop_in(start=0) is g
+
+    def test_draw_border_then_fill_delegates(self):
+        c = Circle(r=30, cx=100, cy=100, fill='#FF0000')
+        g = VGroup(c)
+        assert g.draw_border_then_fill(start=0, end=1) is g
+
+
+class TestTransformFromCopy:
+    def test_returns_copy(self):
+        c = Circle(r=30, cx=100, cy=100)
+        r = Rectangle(60, 40, x=300, y=300)
+        ghost = c.transform_from_copy(r, start=0, end=2)
+        # Returns a separate object (the ghost copy)
+        assert ghost is not c
+        assert ghost is not r

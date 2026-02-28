@@ -159,3 +159,4 @@ Class Hierarchy
    reference/threed
    reference/attributes
    reference/utilities
+   reference/svg_utils
