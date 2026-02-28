@@ -18618,3 +18618,80 @@ class TestAddLabelCachedCoords:
         svg = lbl.to_svg(0)
         assert 'test' in svg
 
+
+class TestQueueVizUsesVizCell:
+    """QueueViz now delegates to _make_viz_cell for consistency."""
+
+    def test_init_cells_have_white_stroke(self):
+        from vectormation.objects import QueueViz
+        q = QueueViz([10, 20, 30])
+        svg = q.to_svg(0)
+        assert 'rgb(255,255,255)' in svg or '#fff' in svg
+
+    def test_enqueue_uses_viz_cell(self):
+        from vectormation.objects import QueueViz
+        q = QueueViz([1])
+        q.enqueue(2, start=0, end=0.5)
+        svg = q.to_svg(0.5)
+        assert '2' in svg
+
+
+class TestRedundantRandomImports:
+    """_collection.py no longer has redundant import random in methods."""
+
+    def test_shuffle_works(self):
+        from vectormation.objects import VCollection, Circle
+        g = VCollection(Circle(r=10, cx=0, cy=0), Circle(r=20, cx=100, cy=0))
+        g.shuffle()
+        assert len(g.objects) == 2
+
+    def test_shuffle_animate_works(self):
+        from vectormation.objects import VCollection, Circle
+        g = VCollection(Circle(r=10, cx=0, cy=0), Circle(r=20, cx=100, cy=0))
+        g.shuffle_animate(start=0, end=1)
+        assert len(g.objects) == 2
+
+
+class TestMorphDurationClamp:
+    """MorphObject duration clamp uses 1e-9 not 1."""
+
+    def test_short_morph_duration(self):
+        from vectormation.objects import MorphObject, Circle, Rectangle
+        c = Circle(r=50, cx=500, cy=500)
+        r = Rectangle(100, 100, x=450, y=450)
+        m = MorphObject(c, r, start=0, end=0.1)
+        svg = m.to_svg(0.05)
+        assert '<path' in svg
+
+
+class TestDynamicObjectRepr:
+    """DynamicObject.__repr__ has no dead f-prefix."""
+
+    def test_repr_string(self):
+        from vectormation.objects import DynamicObject, Circle
+        d = DynamicObject(lambda t: Circle(r=10, cx=0, cy=0))
+        assert repr(d) == 'DynamicObject()'
+
+
+class TestOrgChartDeque:
+    """OrgChart uses deque for BFS instead of list.pop(0)."""
+
+    def test_orgchart_renders(self):
+        from vectormation.objects import OrgChart
+        tree = ('CEO', [('VP1', []), ('VP2', [('Dir', [])])])
+        oc = OrgChart(tree)
+        svg = oc.to_svg(0)
+        assert 'CEO' in svg
+        assert 'Dir' in svg
+
+
+class TestTickEpsilonConsistency:
+    """NumberLine tick epsilon is consistently 0.001."""
+
+    def test_numberline_creates_ticks(self):
+        from vectormation.objects import NumberLine
+        nl = NumberLine(x_range=[0, 5, 1])
+        svg = nl.to_svg(0)
+        # Should contain tick marks
+        assert 'line' in svg.lower() or '<line' in svg
+

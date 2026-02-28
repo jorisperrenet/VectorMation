@@ -571,11 +571,8 @@ class QueueViz(VCollection):
         objects = []
         for i, val in enumerate(values):
             cx = x + i * cell_width
-            cell = Rectangle(cell_width, cell_height, x=cx, y=y,
-                              fill=fill, fill_opacity=0.9, stroke='#fff',
-                              stroke_width=2, creation=creation, z=z)
-            lbl = _label_text(str(val), cx + cell_width / 2, y + cell_height / 2,
-                              font_size, creation=creation, z=z + 0.1)
+            cell, lbl = _make_viz_cell(cx, y, cell_width, cell_height, val, font_size,
+                                       fill, creation, z)
             self._queue_cells.append(cell)
             self._queue_labels.append(lbl)
             objects.extend([cell, lbl])
@@ -598,13 +595,8 @@ class QueueViz(VCollection):
     def enqueue(self, value, start=0, end=0.5):
         """Animate adding a value to the back of the queue."""
         cx = self._base_x + len(self._queue_cells) * self._cell_width
-        cell = Rectangle(self._cell_width, self._cell_height,
-                         x=cx, y=self._base_y,
-                         fill=self._fill, fill_opacity=0.9, stroke='#fff',
-                         stroke_width=2, creation=start, z=self._z)
-        lbl = _label_text(str(value), cx + self._cell_width / 2,
-                          self._base_y + self._cell_height / 2,
-                          self._font_size, creation=start, z=self._z + 0.1)
+        cell, lbl = _make_viz_cell(cx, self._base_y, self._cell_width, self._cell_height,
+                                   value, self._font_size, self._fill, start, self._z)
         cell.fadein(start, end)
         lbl.fadein(start, end)
         self._queue_cells.append(cell)

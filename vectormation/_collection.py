@@ -327,13 +327,11 @@ class VCollection(_BBoxMethodsMixin):
 
     def shuffle(self):
         """Randomly shuffle the order of children in-place."""
-        import random
         random.shuffle(self.objects)
         return self
 
     def shuffle_animate(self, start=0, end=1, easing=None):
         """Animated random shuffle -- children smoothly slide to randomly reassigned positions."""
-        import random
         n = len(self.objects)
         if n < 2:
             return self
@@ -641,7 +639,6 @@ class VCollection(_BBoxMethodsMixin):
 
     def stagger_random(self, method_name, start=0, end=1, seed=None, **kwargs):
         """Call method_name on each child in random order with equal stagger delay."""
-        import random
         n = len(self.objects)
         if n == 0:
             return self
@@ -857,7 +854,6 @@ class VCollection(_BBoxMethodsMixin):
         """Randomly rearrange children positions with animation (visual shuffle).
         Unlike shuffle() which reorders the list, this animates children to each
         other's positions. seed: optional random seed for reproducibility."""
-        import random
         n = len(self.objects)
         if n <= 1: return self
         centers = [obj.center(start) for obj in self.objects]

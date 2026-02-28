@@ -1,4 +1,5 @@
 """Composite classes: MorphObject, TexObject, NumberLine, Table, Matrix, etc."""
+import math
 import tempfile
 from collections import defaultdict
 
@@ -73,7 +74,7 @@ class MorphObject(VCollection):
             groups[compound_id].append((path_func, styling_from, styling_to))
 
         def _make_d_func(pfs):
-            dur = max(end - start, 1)
+            dur = max(end - start, 1e-9)
             if len(pfs) == 1:
                 pf = pfs[0]
                 return lambda t: pf((t - start) / dur)
@@ -266,7 +267,7 @@ class NumberLine(VCollection):
 
         # Ticks and labels
         val = x_start
-        while val <= x_end + x_step * 0.01:
+        while val <= x_end + x_step * 0.001:
             sx = x + (val - x_start) / (x_end - x_start) * length
             objects.append(Line(x1=sx, y1=y - tick_size/2, x2=sx, y2=y + tick_size/2,
                                 creation=creation, z=z, stroke='#fff', stroke_width=3))
@@ -971,7 +972,7 @@ class DynamicObject(VObject):
     def bbox(self, time): return self._eval(time).bbox(time)
 
     def __repr__(self):
-        return f'DynamicObject()'
+        return 'DynamicObject()'
 
 def _det(m):
     """Recursive determinant of a numeric 2D list."""
@@ -1058,13 +1059,12 @@ class Matrix(VCollection):
         """Animate swapping two rows via arc paths."""
         if i == j or not (0 <= i < self.rows) or not (0 <= j < self.rows):
             return self
-        import math as _math
         for c in range(self.cols):
             a, b = self.entries[i][c], self.entries[j][c]
             ax, ay = a.x.at_time(start), a.y.at_time(start)
             bx, by = b.x.at_time(start), b.y.at_time(start)
-            a.path_arc(bx, by, start=start, end=end, angle=_math.pi / 4, easing=easing)
-            b.path_arc(ax, ay, start=start, end=end, angle=-_math.pi / 4, easing=easing)
+            a.path_arc(bx, by, start=start, end=end, angle=math.pi / 4, easing=easing)
+            b.path_arc(ax, ay, start=start, end=end, angle=-math.pi / 4, easing=easing)
         self.entries[i], self.entries[j] = self.entries[j], self.entries[i]
         return self
 

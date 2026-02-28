@@ -1,5 +1,6 @@
 """Diagram classes: Tree, FlowChart, NetworkGraph, Automaton, etc."""
 import math
+from collections import deque
 import vectormation.easings as easings
 from vectormation._constants import (
     ORIGIN, DEFAULT_CHART_COLORS,
@@ -840,9 +841,9 @@ class OrgChart(VCollection):
             colors = list(DEFAULT_CHART_COLORS)
         # Layout: BFS to compute positions
         levels = []
-        queue = [(root, 0)]
+        queue = deque([(root, 0)])
         while queue:
-            node, depth = queue.pop(0)
+            node, depth = queue.popleft()
             while len(levels) <= depth:
                 levels.append([])
             levels[depth].append(node)
