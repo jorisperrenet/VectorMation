@@ -202,24 +202,23 @@ class VectorMathAnim:
         """Return all objects where predicate(obj) returns True."""
         return [obj for obj in self.get_all_objects() if predicate(obj)]
 
-    def get_object_count(self, time=None):
-        """Return the number of visible objects at the given time."""
+    def _visible_objects(self, time=None):
+        """Yield non-background objects visible at *time*."""
         if time is None:
             time = 0
-        return sum(1 for obj in self.objects.values()
-                   if obj is not self.background and obj.show.at_time(time))
+        for obj in self.objects.values():
+            if obj is not self.background and obj.show.at_time(time):
+                yield obj
+
+    def get_object_count(self, time=None):
+        """Return the number of visible objects at the given time."""
+        return sum(1 for _ in self._visible_objects(time))
 
     def list_objects_by_type(self, time=None):
         """Return a dict mapping class names to lists of objects of that type."""
-        if time is None:
-            time = 0
         result = {}
-        for obj in self.objects.values():
-            if obj is self.background:
-                continue
-            if obj.show.at_time(time):
-                cls_name = type(obj).__name__
-                result.setdefault(cls_name, []).append(obj)
+        for obj in self._visible_objects(time):
+            result.setdefault(type(obj).__name__, []).append(obj)
         return result
 
     @property
@@ -240,11 +239,7 @@ class VectorMathAnim:
         if time is None:
             time = self.time
         points = []
-        for obj in self.objects.values():
-            if obj is self.background:
-                continue
-            if not obj.show.at_time(time):
-                continue
+        for obj in self._visible_objects(time):
             self._collect_snap_points(obj, time, points)
         return points
 
@@ -493,17 +488,8 @@ class VectorMathAnim:
         Returns a list of dicts with 'class' and 'id' keys."""
         if time is None:
             time = self.time
-        result = []
-        for obj in self.objects.values():
-            if obj is self.background:
-                continue
-            if not obj.show.at_time(time):
-                continue
-            result.append({
-                'class': obj.__class__.__name__,
-                'id': id(obj),
-            })
-        return result
+        return [{'class': obj.__class__.__name__, 'id': id(obj)}
+                for obj in self._visible_objects(time)]
 
     def browser_display(self, start=0, end=None, fps=60,
                         port=8765, hot_reload=False):

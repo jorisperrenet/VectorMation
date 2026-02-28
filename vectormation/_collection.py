@@ -806,11 +806,12 @@ class VCollection(_BBoxMethodsMixin):
 
     def _dim_others(self, index, start, end, opacity=0.2, easing=easings.smooth):
         """Dim all children except *index*, restoring near *end*."""
+        dur = end - start
+        dim_end, undim_start = start + dur * 0.3, start + dur * 0.7
         for i, obj in enumerate(self.objects):
             if i != index:
-                obj.dim(start=start, end=start + (end - start) * 0.3,
-                        opacity=opacity, easing=easing)
-                obj.undim(start=start + (end - start) * 0.7, end=end, easing=easing)
+                obj.dim(start=start, end=dim_end, opacity=opacity, easing=easing)
+                obj.undim(start=undim_start, end=end, easing=easing)
 
     def highlight_child(self, index, start: float = 0, end: float = 1,
                          dim_opacity=0.2, easing=easings.smooth):

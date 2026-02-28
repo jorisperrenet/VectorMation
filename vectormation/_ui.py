@@ -647,7 +647,7 @@ class Checklist(VCollection):
         if 0 <= index < len(self._marks):
             self._marks[index].text.set_onward(start, '\u2713')
             self._marks[index].fadein(start, end)
-            self._boxes[index].set_fill(self._check_color, start=start)
+            self._boxes[index].set_fill(self._check_color, start=start, end=end)
         return self
 
     def reveal_items(self, start=0, end=1, overlap=0.5):

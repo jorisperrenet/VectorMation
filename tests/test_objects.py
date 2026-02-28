@@ -18042,3 +18042,80 @@ class TestArrayVizUsesHelper:
         svg = c.generate_frame_svg(0.5)
         assert '<rect' in svg
 
+
+class TestMorphingHelpers:
+    """Tests for _segs_to_bezier and _point_at_bbox_center helpers."""
+
+    def test_segs_to_bezier_line(self):
+        import svgpathtools
+        from vectormation.morphing import _segs_to_bezier, CubicBezier
+        line = svgpathtools.Line(start=0+0j, end=100+100j)
+        path = svgpathtools.Path(line)
+        result = _segs_to_bezier(path)
+        assert len(result) == 1
+        assert isinstance(result[0], CubicBezier)
+
+    def test_segs_to_bezier_arc(self):
+        import svgpathtools
+        from vectormation.morphing import _segs_to_bezier, CubicBezier
+        arc = svgpathtools.Arc(start=0+0j, radius=50+50j, rotation=0,
+                               large_arc=False, sweep=True, end=100+0j)
+        path = svgpathtools.Path(arc)
+        result = _segs_to_bezier(path)
+        assert len(result) >= 1
+        assert all(isinstance(b, CubicBezier) for b in result)
+
+    def test_point_at_bbox_center(self):
+        import svgpathtools
+        from vectormation.morphing import _point_at_bbox_center, Path
+        line = svgpathtools.Line(start=0+0j, end=100+200j)
+        path = Path(line)
+        pt = _point_at_bbox_center(path)
+        # center should be at (50, 100) i.e. 50+100j
+        assert abs(pt.start - (50 + 100j)) < 1e-6
+        assert pt.start == pt.control1 == pt.control2 == pt.end
+
+
+class TestChecklistCheckItemEnd:
+    """Test that Checklist.check_item propagates end parameter to set_fill."""
+
+    def test_check_item_passes_end(self):
+        from vectormation.objects import Checklist
+        cl = Checklist(['A', 'B'], creation=0)
+        # Patch set_fill to record kwargs
+        calls = []
+        orig = cl._boxes[0].set_fill
+        def spy(*a, **kw):
+            calls.append(kw)
+            return orig(*a, **kw)
+        cl._boxes[0].set_fill = spy
+        cl.check_item(0, start=0, end=0.5)
+        assert len(calls) == 1
+        assert calls[0].get('end') == 0.5
+
+
+class TestVisibleObjectsHelper:
+    """Tests for VectorMathAnim._visible_objects."""
+
+    def test_visible_objects_excludes_hidden(self):
+        c = VectorMathAnim(save_dir='/tmp/t')
+        r1 = Rectangle(100, 100, creation=0)
+        r2 = Rectangle(100, 100, creation=5)  # hidden at t=0
+        c.add_objects(r1, r2)
+        visible = list(c._visible_objects(0))
+        assert r1 in visible
+        assert r2 not in visible
+
+    def test_visible_objects_excludes_background(self):
+        c = VectorMathAnim(save_dir='/tmp/t')
+        r = Rectangle(100, 100, creation=0)
+        c.add_objects(r)
+        visible = list(c._visible_objects(0))
+        assert c.background not in visible
+        assert r in visible
+
+    def test_get_object_count_uses_helper(self):
+        c = VectorMathAnim(save_dir='/tmp/t')
+        c.add_objects(Rectangle(50, 50, creation=0), Circle(r=20, creation=0))
+        assert c.get_object_count(0) == 2
+

@@ -99,6 +99,18 @@ class Path(svgpathtools.Path):
                 raise NotImplementedError(f'Transform {command!r} not implemented')
         return Path(*segs)
 
+def _segs_to_bezier(sub):
+    """Flatten a subpath's segments into a list of CubicBezier curves."""
+    return [b for seg in sub for b in convert_to_bezier(seg)]
+
+
+def _point_at_bbox_center(path):
+    """Return a degenerate CubicBezier at the bbox center of *path*."""
+    xmin, xmax, ymin, ymax = path.bbox()
+    c = (xmin + xmax) / 2 + (ymin + ymax) / 2 * 1j
+    return CubicBezier(start=c, control1=c, control2=c, end=c)
+
+
 def _balance_segments(segs, target_len):
     """Split longest segments until segs has target_len entries."""
     while len(segs) < target_len:
@@ -180,12 +192,10 @@ class Paths:
             if not subs_from or not subs_to:
                 filled_subs = subs_to if not subs_from else subs_from
                 src_path = path_to if not subs_from else path_from
-                xmin, xmax, ymin, ymax = src_path.bbox()
-                center = (xmin+xmax)/2 + (ymin+ymax)/2 * 1j
-                point = CubicBezier(start=center, control1=center, control2=center, end=center)
+                point = _point_at_bbox_center(src_path)
                 for sub in filled_subs:
                     is_closed = sub.isclosed()
-                    segs = [b for seg in sub for b in convert_to_bezier(seg)]
+                    segs = _segs_to_bezier(sub)
                     if not subs_from:
                         segment_pairs = [(point, s) for s in segs]
                     else:
@@ -207,26 +217,22 @@ class Paths:
                     # Extra target subpath: grow from source center
                     assert st is not None
                     is_closed = st.isclosed()
-                    xmin, xmax, ymin, ymax = path_from.bbox()
-                    center = (xmin+xmax)/2 + (ymin+ymax)/2 * 1j
-                    point = CubicBezier(start=center, control1=center, control2=center, end=center)
-                    segs = [b for seg in st for b in convert_to_bezier(seg)]
+                    point = _point_at_bbox_center(path_from)
+                    segs = _segs_to_bezier(st)
                     segment_pairs = [(point, s) for s in segs]
                     subpath_segment_pairs.append((segment_pairs, style_from, style_to, is_closed, compound_id))
                 elif st is None:
                     # Extra source subpath: shrink to target center
                     assert sf is not None
                     is_closed = sf.isclosed()
-                    xmin, xmax, ymin, ymax = path_to.bbox()
-                    center = (xmin+xmax)/2 + (ymin+ymax)/2 * 1j
-                    point = CubicBezier(start=center, control1=center, control2=center, end=center)
-                    segs = [b for seg in sf for b in convert_to_bezier(seg)]
+                    point = _point_at_bbox_center(path_to)
+                    segs = _segs_to_bezier(sf)
                     segment_pairs = [(s, point) for s in segs]
                     subpath_segment_pairs.append((segment_pairs, style_from, style_to, is_closed, compound_id))
                 else:
                     is_closed = sf.isclosed() or st.isclosed()
-                    segs_from = [b for seg in sf for b in convert_to_bezier(seg)]
-                    segs_to = [b for seg in st for b in convert_to_bezier(seg)]
+                    segs_from = _segs_to_bezier(sf)
+                    segs_to = _segs_to_bezier(st)
                     segs_from = _balance_segments(segs_from, len(segs_to))
                     segs_to = _balance_segments(segs_to, len(segs_from))
                     segment_pairs = list(zip(segs_from, segs_to))
