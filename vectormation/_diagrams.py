@@ -16,6 +16,21 @@ def _shortened_endpoints(x1, y1, x2, y2, r1, r2):
     ux, uy = _normalize(x2 - x1, y2 - y1)
     return (x1 + ux * r1, y1 + uy * r1, x2 - ux * r2, y2 - uy * r2)
 
+_DIAGRAM_TIP = {'tip_length': 12, 'tip_width': 10}
+
+
+def _make_node_circle(r, cx, cy, creation, z, fill='#1e1e2e', stroke='#58C4DD'):
+    """Create a styled node circle for diagrams."""
+    return Circle(r=r, cx=cx, cy=cy, creation=creation, z=z,
+                  fill=fill, fill_opacity=0.9, stroke=stroke, stroke_width=2)
+
+
+def _highlight_in_dict(obj_dict, key, start, end, color, easing):
+    """Flash-highlight an object looked up by key in a dict."""
+    if key in obj_dict:
+        obj_dict[key].flash(start, end, color=color, easing=easing)
+
+
 def _circular_layout(keys, cx, cy, radius):
     """Return dict mapping each key to (x, y) evenly spaced on a circle."""
     n = max(len(keys), 1)
@@ -283,8 +298,7 @@ class Automaton(VCollection):
         self._state_positions = _circular_layout(states, cx, cy, radius)
         for name in states:
             sx, sy = self._state_positions[name]
-            circle = Circle(r=state_r, cx=sx, cy=sy, creation=creation, z=z,
-                            fill='#1e1e2e', fill_opacity=0.9, stroke='#58C4DD', stroke_width=2)
+            circle = _make_node_circle(state_r, sx, sy, creation, z)
             objects.append(circle)
             self._state_circles[name] = circle
 
@@ -302,8 +316,7 @@ class Automaton(VCollection):
         if initial_state and initial_state in self._state_positions:
             sx, sy = self._state_positions[initial_state]
             objects.append(Arrow(x1=sx - state_r - 50, y1=sy, x2=sx - state_r - 2, y2=sy,
-                                 tip_length=12, tip_width=10,
-                                 creation=creation, z=z, stroke='#fff', stroke_width=2))
+                                 **_DIAGRAM_TIP, creation=creation, z=z, stroke='#fff', stroke_width=2))
 
         # Transitions
         for from_s, to_s, label_text in transitions:
@@ -327,8 +340,7 @@ class Automaton(VCollection):
             else:
                 sx, sy, ex, ey = _shortened_endpoints(fx, fy, tx, ty, state_r, state_r)
                 arrow = Arrow(x1=sx, y1=sy, x2=ex, y2=ey,
-                              tip_length=12, tip_width=10,
-                              creation=creation, z=z, stroke='#83C167', stroke_width=2)
+                              **_DIAGRAM_TIP, creation=creation, z=z, stroke='#83C167', stroke_width=2)
                 objects.append(arrow)
                 self._transition_arrows[(from_s, to_s)] = arrow
                 mx, my = (sx + ex) / 2, (sy + ey) / 2
@@ -347,8 +359,7 @@ class Automaton(VCollection):
 
     def highlight_state(self, state_name, start: float = 0, end: float = 1, color='#FFFF00', easing=easings.there_and_back):
         """Highlight a state by flashing its circle."""
-        if state_name in self._state_circles:
-            self._state_circles[state_name].flash(start, end, color=color, easing=easing)
+        _highlight_in_dict(self._state_circles, state_name, start, end, color, easing)
         return self
 
     def highlight_transition(self, from_state, to_state, start: float = 0, end: float = 1, color='#FFFF00'):
@@ -498,8 +509,7 @@ class NetworkGraph(VCollection):
             if directed:
                 ax2, ay2, bx2, by2 = _shortened_endpoints(ax, ay, bx, by, node_r, node_r)
                 arrow = Arrow(x1=ax2, y1=ay2, x2=bx2, y2=by2,
-                              tip_length=12, tip_width=10,
-                              creation=creation, z=z, stroke='#888', stroke_width=2)
+                              **_DIAGRAM_TIP, creation=creation, z=z, stroke='#888', stroke_width=2)
                 objects.append(arrow)
             else:
                 line = Line(x1=ax, y1=ay, x2=bx, y2=by,
@@ -515,8 +525,7 @@ class NetworkGraph(VCollection):
         # Draw nodes
         for nid in node_ids:
             nx, ny = self._node_positions[nid]
-            circle = Circle(r=node_r, cx=nx, cy=ny, creation=creation, z=z + 1,
-                            fill='#1e1e2e', fill_opacity=0.9, stroke='#58C4DD', stroke_width=2)
+            circle = _make_node_circle(node_r, nx, ny, creation, z + 1)
             objects.append(circle)
             self._node_circles[nid] = circle
             lbl = _label_text(nodes[nid], nx, ny, font_size, creation=creation, z=z + 2)
@@ -529,8 +538,7 @@ class NetworkGraph(VCollection):
 
     def highlight_node(self, node_id, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
         """Flash-highlight a node by its ID."""
-        if node_id in self._node_circles:
-            self._node_circles[node_id].flash(start, end, color=color, easing=easing)
+        _highlight_in_dict(self._node_circles, node_id, start, end, color, easing)
         return self
 
     def get_node_position(self, node_id):
@@ -572,8 +580,7 @@ class Tree(VCollection):
             label = node_tuple[0]
             if not label:
                 continue
-            circle = Circle(r=node_r, cx=nx, cy=ny, creation=creation, z=z + 1,
-                            fill='#1e1e2e', fill_opacity=0.9, stroke='#58C4DD', stroke_width=2)
+            circle = _make_node_circle(node_r, nx, ny, creation, z + 1)
             objects.append(circle)
             nid = id(node_tuple)
             self._node_objects[nid] = circle
@@ -659,8 +666,7 @@ class Tree(VCollection):
 
     def highlight_node(self, label, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
         """Flash-highlight a node by label."""
-        if label in self._node_objects:
-            self._node_objects[label].flash(start, end, color=color, easing=easing)
+        _highlight_in_dict(self._node_objects, label, start, end, color, easing)
         return self
 
 # ---------------------------------------------------------------------------

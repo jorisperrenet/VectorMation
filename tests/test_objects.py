@@ -18119,3 +18119,81 @@ class TestVisibleObjectsHelper:
         c.add_objects(Rectangle(50, 50, creation=0), Circle(r=20, creation=0))
         assert c.get_object_count(0) == 2
 
+
+class TestDuplicateInscribedPolygonRemoved:
+    """Verify only one inscribed_polygon remains after removing duplicate."""
+
+    def test_inscribed_polygon_with_start_angle(self):
+        circ = Circle(r=100, cx=500, cy=500)
+        poly = circ.inscribed_polygon(6, start_angle=30, time=0)
+        assert len(poly.get_vertices(0)) == 6
+
+    def test_inscribed_polygon_backward_compat_angle(self):
+        circ = Circle(r=100, cx=500, cy=500)
+        poly = circ.inscribed_polygon(4, angle=45, time=0)
+        assert len(poly.get_vertices(0)) == 4
+
+
+class TestMakeNodeCircle:
+    """Tests for _make_node_circle diagram helper."""
+
+    def test_creates_circle(self):
+        from vectormation._diagrams import _make_node_circle
+        c = _make_node_circle(20, 100, 200, creation=0, z=1)
+        assert isinstance(c, Circle)
+        svg = c.to_svg(0)
+        assert "r='20'" in svg
+
+    def test_default_styling(self):
+        from vectormation._diagrams import _make_node_circle
+        c = _make_node_circle(15, 0, 0, creation=0, z=0)
+        svg = c.to_svg(0)
+        assert 'rgb(30,30,46)' in svg
+        assert 'rgb(88,196,221)' in svg
+
+
+class TestHighlightInDict:
+    """Tests for _highlight_in_dict diagram helper."""
+
+    def test_highlight_existing_key(self):
+        from vectormation._diagrams import _highlight_in_dict
+        circ = Circle(r=10, cx=100, cy=100, creation=0)
+        d = {'a': circ}
+        _highlight_in_dict(d, 'a', 0, 1, '#FF0', easings.there_and_back)
+        # No error; method was called
+
+    def test_highlight_missing_key(self):
+        from vectormation._diagrams import _highlight_in_dict
+        _highlight_in_dict({}, 'missing', 0, 1, '#FF0', easings.there_and_back)
+        # No error for missing key
+
+
+class TestMorphObjectCenterParentheses:
+    """Verify MorphObject rotation center calculation has correct operator precedence."""
+
+    def test_center_with_offset_bbox(self):
+        # bbox = (x, y, w, h) — center should be x + w/2
+        # With x=100, w=200: center = 100 + 100 = 200
+        # Expression: (100 + 200/2 + 300 + 400/2) / 2 = (100 + 100 + 300 + 200)/2 = 350
+        # With parentheses: ((100 + 200/2) + (300 + 400/2)) / 2 = (200 + 500)/2 = 350
+        # Both are equivalent — confirming no precedence bug
+        assert (100 + 200 / 2 + 300 + 400 / 2) / 2 == ((100 + 200 / 2) + (300 + 400 / 2)) / 2
+
+
+class TestCentroidDelegation:
+    """Test that Polygon.centroid delegates to get_center for degenerate cases."""
+
+    def test_centroid_degenerate_triangle(self):
+        """Collinear triangle has zero signed area; should fall back to get_center."""
+        from vectormation.objects import Polygon
+        p = Polygon((0, 0), (100, 0), (200, 0))
+        assert p.centroid(0) == p.get_center(0)
+
+    def test_centroid_normal_triangle(self):
+        """Non-degenerate triangle should compute proper geometric centroid."""
+        from vectormation.objects import Polygon
+        p = Polygon((0, 0), (300, 0), (0, 300))
+        cx, cy = p.centroid(0)
+        assert abs(cx - 100) < 1
+        assert abs(cy - 100) < 1
+

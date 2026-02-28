@@ -102,10 +102,8 @@ class Polygon(VObject):
         """Return the geometric centroid (cx, cy) using the polygon centroid formula."""
         pts = self.get_vertices(time)
         n = len(pts)
-        if n == 0:
-            return (0, 0)
         if n <= 2:
-            return (sum(p[0] for p in pts) / n, sum(p[1] for p in pts) / n)
+            return self.get_center(time)
         cx = cy = signed_area = 0
         for i in range(n):
             x0, y0 = pts[i]
@@ -116,7 +114,7 @@ class Polygon(VObject):
             cy += (y0 + y1) * cross
         signed_area *= 0.5
         if abs(signed_area) < 1e-10:
-            return (sum(p[0] for p in pts) / n, sum(p[1] for p in pts) / n)
+            return self.get_center(time)
         cx /= (6 * signed_area)
         cy /= (6 * signed_area)
         return (cx, cy)
@@ -1239,12 +1237,6 @@ class Circle(Ellipse):
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
         return _distance(cx, cy, px, py) <= r
-
-    def inscribed_polygon(self, n, angle=0, time=0, **kwargs):
-        """Return a regular *n*-gon whose vertices lie on this circle."""
-        cx, cy = self.c.at_time(time)
-        r = self.rx.at_time(time)
-        return RegularPolygon(n, radius=r, cx=cx, cy=cy, angle=angle, **kwargs)
 
     def circumscribed_polygon(self, n, angle=0, time=0, **kwargs):
         """Return a regular *n*-gon circumscribed around this circle."""

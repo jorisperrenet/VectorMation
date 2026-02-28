@@ -61,8 +61,8 @@ class MorphObject(VCollection):
             bbox_from = morph_from.bbox(start)
             bbox_to = morph_to.bbox(end)
             # Average the centers of both bounding boxes
-            cx = (bbox_from[0] + bbox_from[2] / 2 + bbox_to[0] + bbox_to[2] / 2) / 2
-            cy = (bbox_from[1] + bbox_from[3] / 2 + bbox_to[1] + bbox_to[3] / 2) / 2
+            cx = ((bbox_from[0] + bbox_from[2] / 2) + (bbox_to[0] + bbox_to[2] / 2)) / 2
+            cy = ((bbox_from[1] + bbox_from[3] / 2) + (bbox_to[1] + bbox_to[3] / 2)) / 2
         else:
             cx, cy = 0, 0
 
