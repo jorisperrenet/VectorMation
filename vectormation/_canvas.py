@@ -88,7 +88,7 @@ class VectorMathAnim:
         if cy is None:
             cy = self.height / 2
         cur_w, cur_h = self.vb_w.at_time(start), self.vb_h.at_time(start)
-        new_w, new_h = cur_w / factor, cur_h / factor
+        new_w, new_h = cur_w / (factor or 1), cur_h / (factor or 1)
         new_x = max(0, min(cx - new_w / 2, self.width - new_w))
         new_y = max(0, min(cy - new_h / 2, self.height - new_h))
         self._animate_viewbox(start, end, new_x, new_y, new_w, new_h, easing)
@@ -314,8 +314,8 @@ class VectorMathAnim:
             rel_x = max(0, min(1, msg['rel_x']))
             rel_y = max(0, min(1, msg['rel_y']))
             v = self.viewbox
-            new_w = min(v[2] / factor, self.width * 4)
-            new_h = min(v[3] / factor, self.height * 4)
+            new_w = min(v[2] / (factor or 1), self.width * 4)
+            new_h = min(v[3] / (factor or 1), self.height * 4)
             self.viewbox = (v[0] + rel_x * (v[2] - new_w), v[1] + rel_y * (v[3] - new_h), new_w, new_h)
         elif msg_type == 'control':
             handler = self._control_handlers.get(msg.get('action'))

@@ -118,7 +118,7 @@ def squish_rate_func(
 ) -> Callable[[float], float]:
     def result(t):
         if a == b:
-            return a
+            return func(0)
         if t < a:
             return func(0)
         elif t > b:
