@@ -2,7 +2,7 @@
 import math
 
 from vectormation._constants import (
-    SMALL_BUFF, DEFAULT_FONT_SIZE, _get_arrow,
+    SMALL_BUFF, DEFAULT_FONT_SIZE, TEXT_Y_OFFSET, _get_arrow,
 )
 from vectormation._base import VCollection
 from vectormation._shapes import Line, Text
@@ -289,11 +289,11 @@ def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_widt
                 objects.append(lbl)
             else:
                 if is_x_axis:
-                    objects.append(Text(text=label_str, x=sv, y=y_zero + tick_len + _TICK_GAP + _TICK_FONT_SIZE * 0.35,
+                    objects.append(Text(text=label_str, x=sv, y=y_zero + tick_len + _TICK_GAP + _TICK_FONT_SIZE * TEXT_Y_OFFSET,
                                         font_size=_TICK_FONT_SIZE, text_anchor='middle',
                                         creation=time, fill='#aaa', stroke_width=0))
                 else:
-                    objects.append(Text(text=label_str, x=x_zero - tick_len - _TICK_GAP, y=sv + _TICK_FONT_SIZE * 0.35,
+                    objects.append(Text(text=label_str, x=x_zero - tick_len - _TICK_GAP, y=sv + _TICK_FONT_SIZE * TEXT_Y_OFFSET,
                                         font_size=_TICK_FONT_SIZE, text_anchor='end',
                                         creation=time, fill='#aaa', stroke_width=0))
     _add_ticks(x_ticks, x_scale, _to_svg_x, is_x_axis=True, fmt=_x_fmt)

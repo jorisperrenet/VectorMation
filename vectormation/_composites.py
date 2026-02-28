@@ -457,10 +457,10 @@ class NumberLine(VCollection):
         left_char = '[' if closed_left else '('
         right_char = ']' if closed_right else ')'
         font_size = 24
-        left_text = Text(text=left_char, x=p1x - font_size * 0.3, y=ly + font_size * 0.35,
+        left_text = Text(text=left_char, x=p1x - font_size * 0.3, y=ly + font_size * TEXT_Y_OFFSET,
                          font_size=font_size, creation=creation,
                          fill=style_kw.get('stroke', '#58C4DD'), stroke_width=0)
-        right_text = Text(text=right_char, x=p2x + font_size * 0.05, y=ly + font_size * 0.35,
+        right_text = Text(text=right_char, x=p2x + font_size * 0.05, y=ly + font_size * TEXT_Y_OFFSET,
                           font_size=font_size, creation=creation,
                           fill=style_kw.get('stroke', '#58C4DD'), stroke_width=0)
         group = VCollection(bar, left_text, right_text, creation=creation)

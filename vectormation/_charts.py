@@ -1322,14 +1322,14 @@ class KPICard(VCollection):
                      text_anchor='middle', creation=creation, z=z + 0.1)
         objects.append(t_lbl)
         # Value
-        v_lbl = Text(text=str(value), x=x + width / 2, y=y + height * 0.5 + font_size * 0.3,
+        v_lbl = Text(text=str(value), x=x + width / 2, y=y + height * 0.5 + font_size * TEXT_Y_OFFSET,
                      font_size=font_size, fill=value_color, stroke_width=0,
                      text_anchor='middle', creation=creation, z=z + 0.1)
         objects.append(v_lbl)
         # Subtitle
         if subtitle:
             s_lbl = Text(text=str(subtitle), x=x + width / 2,
-                         y=y + height * 0.5 + font_size * 0.3 + font_size * CHAR_WIDTH_FACTOR,
+                         y=y + height * 0.5 + font_size * TEXT_Y_OFFSET + font_size * CHAR_WIDTH_FACTOR,
                          font_size=font_size * 0.3, fill=title_color, stroke_width=0,
                          text_anchor='middle', creation=creation, z=z + 0.1)
             objects.append(s_lbl)

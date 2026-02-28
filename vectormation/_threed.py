@@ -6,6 +6,7 @@ from xml.sax.saxutils import escape as _xml_escape
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 from vectormation._base import VObject, VCollection, _lerp
+from vectormation._constants import TEXT_Y_OFFSET
 from vectormation._axes import _nice_ticks
 
 # ---------------------------------------------------------------------------
@@ -363,7 +364,7 @@ class ThreeDAxes(VCollection):
         if self._show_labels:
             label = f'{value:g}'
             lx = sp[0] + tdx * 4
-            ly = sp[1] + tdy * 4 + font_size * 0.3
+            ly = sp[1] + tdy * 4 + font_size * TEXT_Y_OFFSET
             parts.append(f'<text x="{lx:.1f}" y="{ly:.1f}" font-size="{font_size}" '
                          f'fill="#aaa" text-anchor="middle" font-family="sans-serif">'
                          f'{_xml_escape(label)}</text>')
