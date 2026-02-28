@@ -12871,8 +12871,8 @@ class TestPieChartHighlightSector:
 
     def test_highlight_sector_out_of_range(self):
         chart = PieChart([30, 40, 30])
-        result = chart.highlight_sector(10, start=0, end=1)
-        assert result is chart
+        with pytest.raises(IndexError):
+            chart.highlight_sector(10, start=0, end=1)
 
     def test_highlight_sector_zero_duration(self):
         chart = PieChart([30, 40, 30])
@@ -12893,8 +12893,71 @@ class TestBarChartSetBarColor:
 
     def test_set_bar_color_out_of_range(self):
         chart = BarChart([3, 5, 2])
-        result = chart.set_bar_color(10, '#FF0000')
+        with pytest.raises(IndexError):
+            chart.set_bar_color(10, '#FF0000')
+
+
+class TestChartsFromDict:
+    def test_pie_from_dict(self):
+        chart = PieChart.from_dict({'A': 30, 'B': 40, 'C': 30})
+        assert len(chart.values) == 3
+        assert chart.values == [30, 40, 30]
+
+    def test_bar_from_dict(self):
+        chart = BarChart.from_dict({'X': 10, 'Y': 20})
+        assert len(chart.values) == 2
+
+    def test_donut_from_dict(self):
+        chart = DonutChart.from_dict({'A': 1, 'B': 2, 'C': 3})
+        assert len(chart.values) == 3
+
+    def test_set_bar_color_negative_index(self):
+        chart = BarChart([3, 5, 2])
+        result = chart.set_bar_color(-1, '#FF0000')
         assert result is chart
+
+    def test_gauge_interp_color_uses_interpolate(self):
+        """GaugeChart._interp_gauge_color uses colors.interpolate_color internally."""
+        stops = [('#ff0000', 0.0), ('#0000ff', 1.0)]
+        mid = GaugeChart._interp_gauge_color(0.5, stops)
+        assert mid.startswith('#')
+        assert len(mid) == 7
+
+
+class TestPieChartSweepIn:
+    def test_sweep_in_returns_self(self):
+        chart = PieChart([30, 40, 30])
+        result = chart.sweep_in(start=0, end=1)
+        assert result is chart
+
+    def test_sweep_in_zero_duration(self):
+        chart = PieChart([30, 40, 30])
+        result = chart.sweep_in(start=1, end=1)
+        assert result is chart
+
+    def test_sweep_in_animates_sectors(self):
+        chart = PieChart([50, 50])
+        chart.sweep_in(start=0, end=1)
+        # At t=0, all sectors should start from the same angle
+        s0 = chart._sectors[0]
+        sa0 = s0.start_angle.at_time(0)
+        ea0 = s0.end_angle.at_time(0)
+        # Both should equal the base angle at t=0
+        assert abs(sa0 - ea0) < 1
+
+
+class TestPieChartAddLegend:
+    def test_add_legend(self):
+        chart = PieChart([30, 40, 30])
+        n_before = len(chart.objects)
+        result = chart.add_legend(['A', 'B', 'C'])
+        assert result is chart
+        assert len(chart.objects) > n_before
+
+    def test_add_legend_custom_position(self):
+        chart = PieChart([50, 50])
+        chart.add_legend(['X', 'Y'], x=100, y=100)
+        assert len(chart.objects) > 2
 
 
 class TestMatrixHighlightRowColumn:

@@ -37,6 +37,11 @@ def _angular_pos(cx, cy, angle_deg, radius):
     rad = math.radians(angle_deg)
     return cx + radius * math.cos(rad), cy - radius * math.sin(rad)
 
+
+def _from_dict(cls, data, **kwargs):
+    """Create a chart from a dict {label: value}."""
+    return cls(list(data.values()), labels=list(data.keys()), **kwargs)
+
 class PieChart(VCollection):
     """Pie chart visualization using Wedge sectors."""
     def __init__(self, values, labels=None, colors=None, cx=960, cy=540, r=240,
@@ -64,12 +69,7 @@ class PieChart(VCollection):
         self.values = values
         self._cx, self._cy = cx, cy
 
-    @classmethod
-    def from_dict(cls, data, **kwargs):
-        """Create a PieChart from a dictionary."""
-        values = list(data.values())
-        labels = list(data.keys())
-        return cls(values, labels=labels, **kwargs)
+    from_dict = classmethod(_from_dict)
 
     def __repr__(self):
         return f'PieChart({len(self.values)} sectors)'
@@ -87,13 +87,12 @@ class PieChart(VCollection):
 
     def highlight_sector(self, index, start=0, end=1, pull_distance=30, easing=easings.there_and_back):
         """Pull out a sector from the pie to highlight it."""
-        if index < 0 or index >= len(self._sectors):
-            return self
+        sector = _check_idx(index, self._sectors, 'sector')
         dur = end - start
         if dur <= 0:
             return self
-        dx, dy = self._sector_offset(self._sectors[index], pull_distance, start)
-        self._sectors[index].shift(dx=dx, dy=dy, start=start, end=start + dur / 2, easing=easing)
+        dx, dy = self._sector_offset(sector, pull_distance, start)
+        sector.shift(dx=dx, dy=dy, start=start, end=start + dur / 2, easing=easing)
         return self
 
     def explode(self, indices, distance=20, start=0, end=None, easing=None):
@@ -133,6 +132,21 @@ class PieChart(VCollection):
             cum_new += new_values[i]
         return self
 
+    def sweep_in(self, start=0, end=1, easing=easings.smooth):
+        """Animate all sectors sweeping from zero to their full angles."""
+        dur = end - start
+        if dur <= 0:
+            return self
+        _d = max(dur, 1e-9)
+        sa0 = self._sectors[0].start_angle.at_time(start) if self._sectors else 90
+        for sector in self._sectors:
+            ea = sector.end_angle.at_time(start)
+            sector.start_angle.set(start, end,
+                _lerp(start, _d, sa0, sector.start_angle.at_time(start), easing), stay=True)
+            sector.end_angle.set(start, end,
+                _lerp(start, _d, sa0, ea, easing), stay=True)
+        return self
+
     def add_percentage_labels(self, fmt='{:.0f}%', font_size=16, color='#fff', creation=0):
         """Add percentage labels at the center of each sector."""
         total = sum(self.values) or 1
@@ -149,6 +163,24 @@ class PieChart(VCollection):
             self.objects.append(label)
             angle += sweep
         return self
+
+    def add_legend(self, labels, x=None, y=None, font_size=16, creation=0):
+        """Add a legend using the sector colors. Position defaults to upper-right."""
+        if x is None:
+            x = self._cx + 280
+        if y is None:
+            y = self._cy - 150
+        items = []
+        for i, label in enumerate(labels[:len(self._sectors)]):
+            sector = self._sectors[i]
+            color = sector.styling.fill.time_func(0)
+            if isinstance(color, tuple):
+                color = '#{:02x}{:02x}{:02x}'.format(*[int(c) for c in color[:3]])
+            items.append((color, str(label)))
+        legend = Legend(items, x=x, y=y, font_size=font_size, creation=creation)
+        self.objects.extend(legend.objects)
+        return self
+
 
 def _donut_sector_path(cx, cy, a1_rad, a2_rad, r, ir):
     """Generate SVG path for a donut sector from angles in radians."""
@@ -201,6 +233,8 @@ class DonutChart(VCollection):
         super().__init__(*objects, creation=creation, z=z)
         self.values = values
 
+    from_dict = classmethod(_from_dict)
+
     def __repr__(self):
         return f'DonutChart({len(self.values)} sectors)'
 
@@ -210,8 +244,7 @@ class DonutChart(VCollection):
 
     def highlight_sector(self, index, start=0, end=1, pull_distance=30, easing=easings.there_and_back):
         """Pull out a donut sector to highlight it by shifting it outward."""
-        if index < 0 or index >= len(self._sectors):
-            return self
+        sector = _check_idx(index, self._sectors, 'sector')
         dur = end - start
         if dur <= 0:
             return self
@@ -220,7 +253,7 @@ class DonutChart(VCollection):
         mid_rad = math.radians(self._start_angle + 360 * cum / total + 180 * self.values[index] / total)
         dx = pull_distance * math.cos(mid_rad)
         dy = -pull_distance * math.sin(mid_rad)
-        self._sectors[index].shift(dx=dx, dy=dy, start=start, end=start + dur / 2, easing=easing)
+        sector.shift(dx=dx, dy=dy, start=start, end=start + dur / 2, easing=easing)
         return self
 
     def animate_values(self, new_values, start=0, end=1, easing=easings.smooth):
@@ -325,12 +358,7 @@ class BarChart(VCollection):
         by = (self._y + self._height - bh) if value >= 0 else (self._y + self._height)
         return bw, iw, bh, bx, by
 
-    @classmethod
-    def from_dict(cls, data, **kwargs):
-        """Create a BarChart from a dictionary."""
-        values = list(data.values())
-        labels = list(data.keys())
-        return cls(values, labels=labels, **kwargs)
+    from_dict = classmethod(_from_dict)
 
     def __repr__(self):
         return f'BarChart({self.bar_count} bars)'
@@ -353,9 +381,7 @@ class BarChart(VCollection):
 
     def set_bar_color(self, index, color, start=0, end=None, easing=easings.smooth):
         """Change the color of a specific bar."""
-        if index < 0 or index >= len(self._bars):
-            return self
-        bar = self._bars[index]
+        bar = _check_idx(index, self._bars, 'bar', allow_negative=True)
         if end is None:
             bar.styling.fill = attributes.Color(start, color)
         else:
@@ -448,7 +474,7 @@ class BarChart(VCollection):
         all_vals = list(self.values) + [value]
         max_val = max(abs(v) for v in all_vals) if all_vals else 1
         new_n = n + 1
-        _bw, inner_width, bar_h, bx, by = self._bar_geometry(value, n, new_n, max_val)
+        _, inner_width, bar_h, bx, by = self._bar_geometry(value, n, new_n, max_val)
         color = self._colors[n % len(self._colors)]
         bar = Rectangle(inner_width, bar_h, x=bx, y=by,
                         creation=start, z=self._z,
@@ -1186,6 +1212,7 @@ class GaugeChart(VCollection):
     @staticmethod
     def _interp_gauge_color(frac, colors):
         """Interpolate gauge color from color stops list [(color, position), ...]."""
+        from vectormation.colors import interpolate_color
         if frac <= colors[0][1]:
             return colors[0][0]
         if frac >= colors[-1][1]:
@@ -1194,13 +1221,7 @@ class GaugeChart(VCollection):
             c0, p0 = colors[i]
             c1, p1 = colors[i + 1]
             if p0 <= frac <= p1:
-                t = (frac - p0) / max(p1 - p0, 1e-9)
-                r0, g0, b0 = int(c0[1:3], 16), int(c0[3:5], 16), int(c0[5:7], 16)
-                r1, g1, b1 = int(c1[1:3], 16), int(c1[3:5], 16), int(c1[5:7], 16)
-                r = int(r0 + (r1 - r0) * t)
-                g = int(g0 + (g1 - g0) * t)
-                b = int(b0 + (b1 - b0) * t)
-                return f'#{r:02x}{g:02x}{b:02x}'
+                return interpolate_color(c0, c1, (frac - p0) / max(p1 - p0, 1e-9))
         return colors[-1][0]
 
 class SparkLine(VObject):

@@ -2279,11 +2279,10 @@ class TestDonutChart:
         result = dc.highlight_sector(0, start=0, end=1)
         assert result is dc
 
-    def test_donutchart_highlight_sector_out_of_range_no_error(self):
+    def test_donutchart_highlight_sector_out_of_range_raises(self):
         dc = DonutChart([1, 2, 3])
-        # Out-of-range index returns self without raising
-        result = dc.highlight_sector(10, start=0, end=1)
-        assert result is dc
+        with pytest.raises(IndexError):
+            dc.highlight_sector(10, start=0, end=1)
 
     def test_donutchart_highlight_sector_shifts_sector(self):
         dc = DonutChart([1, 2, 3])

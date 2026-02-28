@@ -259,8 +259,9 @@ class LinkedList(VCollection):
     def highlight_node(self, index, start=0, end=1, color='#FF6B6B',
                        easing=easings.there_and_back):
         """Flash-highlight a node by index."""
-        if 0 <= index < len(self._nodes):
-            self._nodes[index][0].flash(start, end, color=color, easing=easing)
+        if index < 0 or index >= len(self._nodes):
+            return self
+        self._nodes[index][0].flash(start, end, color=color, easing=easing)
         return self
 
     def append_node(self, value, start=0, end=0.5):
