@@ -16,6 +16,8 @@ from vectormation._axes_helpers import (
     _get_arrow, _get_dynamic_object, _get_tex_object,
 )
 
+_LABEL_STYLE = {'fill': '#ddd', 'stroke_width': 0}
+
 def _dyn_line(line, creation, p1_func, p2_func):
     """Set dynamic endpoint functions on a Line (saves repeated set_onward boilerplate)."""
     line.p1.set_onward(creation, p1_func)
@@ -54,6 +56,22 @@ def _regression(x_data, y_data):
 class _AxesExtMixin:
     """Advanced annotation and analysis methods for Axes, mixed in at definition time."""
 
+    def _cf(self, mx, my):
+        """Lambda returning SVG Coor for math point (mx, my) at time t."""
+        return lambda t, _x=mx, _y=my: self.coords_to_point(_x, _y, t)
+
+    def _xf(self, mx, my=None, offset=0):
+        """Lambda returning SVG x for math point at time t (with optional offset)."""
+        if my is not None:
+            return lambda t, _x=mx, _y=my, _o=offset: self.coords_to_point(_x, _y, t)[0] + _o
+        return lambda t, _x=mx, _o=offset: self._math_to_svg_x(_x, t) + _o
+
+    def _yf(self, my, mx=None, offset=0):
+        """Lambda returning SVG y for math point at time t (with optional offset)."""
+        if mx is not None:
+            return lambda t, _x=mx, _y=my, _o=offset: self.coords_to_point(_x, _y, t)[1] + _o
+        return lambda t, _y=my, _o=offset: self._math_to_svg_y(_y, t) + _o
+
     def get_dashed_line(self, x1, y1, x2, y2, creation=0, z=0, **styling_kwargs):
         """Draw a dashed line between two math coordinate points.
         Returns a Line object."""
@@ -62,7 +80,7 @@ class _AxesExtMixin:
 
     def add_title(self, text, font_size=32, buff=20, creation=0, z=5, **styling_kwargs):
         """Add a title above the axes. Returns the Text object."""
-        style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
+        style_kw = _LABEL_STYLE | styling_kwargs
         cx = self.get_plot_center()[0]
         ty = self.plot_y - buff
         lbl = Text(text=text, x=cx, y=ty, font_size=font_size,
@@ -88,12 +106,8 @@ class _AxesExtMixin:
         label = Text(text=str(text), x=0, y=0, font_size=font_size,
                      fill=color, stroke_width=0, text_anchor='middle',
                      creation=creation, z=z + 0.1)
-        label.x.set_onward(creation,
-            lambda t, _x=x, _y=y, _dx=dx:
-                self.coords_to_point(_x, _y, t)[0] + _dx)
-        label.y.set_onward(creation,
-            lambda t, _x=x, _y=y, _dy=dy, _fs=font_size:
-                self.coords_to_point(_x, _y, t)[1] + _dy - _fs)
+        label.x.set_onward(creation, self._xf(x, y, dx))
+        label.y.set_onward(creation, self._yf(y, x, dy - font_size))
 
         group = VCollection(line, label, creation=creation, z=z)
         self._add_plot_obj(group)
@@ -102,23 +116,23 @@ class _AxesExtMixin:
     def add_horizontal_label(self, y, text, side='right', buff=10, font_size=18,
                               creation=0, z=5, **styling_kwargs):
         """Add a text label at y-coordinate on the specified side of the plot."""
-        style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
+        style_kw = _LABEL_STYLE | styling_kwargs
         lx = (self.plot_x - buff) if side == 'left' else (self.plot_x + self.plot_width + buff)
         anchor = 'end' if side == 'left' else 'start'
         lbl = Text(text=str(text), x=lx, y=0, font_size=font_size,
                     text_anchor=anchor, creation=creation, z=z, **style_kw)
-        lbl.y.set_onward(creation, lambda t, _y=y: self._math_to_svg_y(_y, t))
+        lbl.y.set_onward(creation, self._yf(y))
         self._add_plot_obj(lbl)
         return lbl
 
     def add_vertical_label(self, x, text, side='bottom', buff=10, font_size=18,
                             creation=0, z=5, **styling_kwargs):
         """Add a text label at x-coordinate above or below the plot."""
-        style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
+        style_kw = _LABEL_STYLE | styling_kwargs
         ly = (self.plot_y - buff) if side == 'top' else (self.plot_y + self.plot_height + buff + font_size)
         lbl = Text(text=str(text), x=0, y=ly, font_size=font_size,
                     text_anchor='middle', creation=creation, z=z, **style_kw)
-        lbl.x.set_onward(creation, lambda t, _x=x: self._math_to_svg_x(_x, t))
+        lbl.x.set_onward(creation, self._xf(x))
         self._add_plot_obj(lbl)
         return lbl
 
@@ -269,15 +283,12 @@ class _AxesExtMixin:
         sx, sy = self.coords_to_point(mx, my, creation)
         dot = Dot(cx=sx, cy=sy, r=dot_radius, fill=fill_color,
                   creation=creation, z=z + 1)
-        dot.c.set_onward(creation,
-            lambda t, _cx=mx, _cy=my: self.coords_to_point(_cx, _cy, t))
+        dot.c.set_onward(creation, self._cf(mx, my))
         lbl = Text(text=label_text, x=sx, y=sy + offset_y,
                    font_size=font_size, fill=fill_color, stroke_width=0,
                    text_anchor='middle', creation=creation, z=z + 2)
-        lbl.x.set_onward(creation,
-            lambda t, _cx=mx, _cy=my: self.coords_to_point(_cx, _cy, t)[0])
-        lbl.y.set_onward(creation,
-            lambda t, _cx=mx, _cy=my, _oy=offset_y: self.coords_to_point(_cx, _cy, t)[1] + _oy)
+        lbl.x.set_onward(creation, self._xf(mx, my))
+        lbl.y.set_onward(creation, self._yf(my, mx, offset_y))
         self._add_plot_obj(dot)
         self._add_plot_obj(lbl)
         return dot, lbl
@@ -902,7 +913,7 @@ class _AxesExtMixin:
                          font_size=14, creation=0, z=3, **styling_kwargs):
         """Add value labels above/below data points.
         Returns a VCollection of Text objects."""
-        style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
+        style_kw = _LABEL_STYLE | styling_kwargs
         objs = []
         for xv, yv in zip(x_data, y_data):
             lbl = Text(text=fmt.format(yv), x=0, y=0, font_size=font_size,
@@ -945,7 +956,7 @@ class _AxesExtMixin:
                           font_size=16, offset_y=-15, creation=0, z=3, **styling_kwargs):
         """A text label that follows a curve point from x_start to x_end over [start, end].
         Returns a VCollection with the dot and the label."""
-        style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
+        style_kw = _LABEL_STYLE | styling_kwargs
         f = self._resolve_func(func)
         dot = Dot(cx=0, cy=0, r=4, fill='#fff', stroke_width=0,
                   creation=creation, z=z + 0.1)
@@ -1062,7 +1073,7 @@ class _AxesExtMixin:
         offset: (dx, dy) from the point to the box center.
         Returns a VCollection with arrow, box, and label."""
 
-        style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
+        style_kw = _LABEL_STYLE | styling_kwargs
         ox, oy = offset
         # Point SVG coordinates
         _xc, _yc = x_coord, y_coord

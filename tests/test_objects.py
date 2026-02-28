@@ -17294,6 +17294,41 @@ class TestHighlightParamOrder:
         bt.highlight_node(0, start=0, end=0.5, color='#FF0000')
 
 
+class TestAxesCoordHelpers:
+    """Test the _cf/_xf/_yf lambda helpers on Axes."""
+
+    def test_cf_returns_coord(self):
+        axes = Axes(x_range=(0, 10, 1), y_range=(0, 10, 1))
+        func = axes._cf(5, 5)
+        result = func(0)
+        # Should return a tuple (x, y)
+        assert len(result) == 2
+
+    def test_xf_single_axis(self):
+        axes = Axes(x_range=(0, 10, 1), y_range=(0, 10, 1))
+        func = axes._xf(5)
+        result = func(0)
+        assert isinstance(result, (int, float))
+
+    def test_yf_single_axis(self):
+        axes = Axes(x_range=(0, 10, 1), y_range=(0, 10, 1))
+        func = axes._yf(5)
+        result = func(0)
+        assert isinstance(result, (int, float))
+
+    def test_xf_with_offset(self):
+        axes = Axes(x_range=(0, 10, 1), y_range=(0, 10, 1))
+        func_no_offset = axes._xf(5)
+        func_with_offset = axes._xf(5, offset=10)
+        assert abs(func_with_offset(0) - func_no_offset(0) - 10) < 1e-6
+
+    def test_yf_with_math_point(self):
+        axes = Axes(x_range=(0, 10, 1), y_range=(0, 10, 1))
+        func = axes._yf(5, mx=3, offset=20)
+        result = func(0)
+        assert isinstance(result, (int, float))
+
+
 class TestBarChartAliases:
     """Test that get_tallest_bar/get_shortest_bar are aliases."""
 
