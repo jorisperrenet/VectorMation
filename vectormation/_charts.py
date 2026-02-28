@@ -9,6 +9,7 @@ from vectormation._constants import (
     CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET, _label_text,
 )
 from vectormation._base import VObject, VCollection, _lerp
+from vectormation._base_helpers import _clamp01
 from vectormation._shapes import (
     Polygon, Circle, Dot, Rectangle, RoundedRectangle, Line, Lines,
     Text, Path, Arc, Wedge,
@@ -286,7 +287,7 @@ class DonutChart(VCollection):
 
             def _make_d(t, _s=start, _d=_d, _oa1=old_a1, _oa2=old_a2,
                         _na1=new_a1, _na2=new_a2):
-                prog = easing(max(0.0, min(1.0, (t - _s) / _d)))
+                prog = easing(_clamp01((t - _s) / _d))
                 a1 = math.radians(_oa1 + (_na1 - _oa1) * prog)
                 a2 = math.radians(_oa2 + (_na2 - _oa2) * prog)
                 return _donut_sector_path(cx, cy, a1, a2, r, ir)
@@ -795,7 +796,7 @@ class ProgressBar(VCollection):
 
     def set_progress(self, value, start=0, end=None, easing=easings.smooth):
         """Set progress (0 to 1). Animates if end is given."""
-        target_w = max(0.01, self._bar_width * max(0, min(1, value)))
+        target_w = max(0.01, self._bar_width * _clamp01(value))
         if end is None:
             self._fill.width.set_onward(start, target_w)
         else:
@@ -1203,7 +1204,7 @@ class GaugeChart(VCollection):
                         text_anchor='middle', creation=creation, z=z + 0.1)
             objects.append(tlbl)
         # Needle
-        val_frac = max(0, min(1, (value - min_val) / max(max_val - min_val, 1)))
+        val_frac = _clamp01((value - min_val) / max(max_val - min_val, 1))
         needle_angle = sa_rad + total_sweep * val_frac
         nx = x + (radius - 30) * math.cos(needle_angle)
         ny = y - (radius - 30) * math.sin(needle_angle)

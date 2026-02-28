@@ -11,6 +11,7 @@ from vectormation._constants import (
     _rotate_point, _sample_function, _distance, _normalize, _circumcenter,
 )
 from vectormation._base import VObject, VCollection, _ramp, _ramp_down, _set_attr
+from vectormation._base_helpers import _clamp01
 from vectormation._shapes import Polygon, Circle, Rectangle, Lines
 
 class Line(VObject):
@@ -63,7 +64,7 @@ class Line(VObject):
 
     def split_at(self, t: float = 0.5, time: float = 0):
         """Split the line at parameter *t* and return two new Line objects."""
-        t = max(0.0, min(1.0, t))
+        t = _clamp01(t)
         x1, y1, x2, y2 = self._ep(time)
         mx = x1 + t * (x2 - x1)
         my = y1 + t * (y2 - y1)
@@ -180,7 +181,7 @@ class Line(VObject):
         if seg_len_sq < 1e-18:
             return (float(x1), float(y1))
         t = ((px - x1) * dx + (py - y1) * dy) / seg_len_sq
-        t = max(0.0, min(1.0, t))
+        t = _clamp01(t)
         return (float(x1 + t * dx), float(y1 + t * dy))
 
     get_projection = get_perpendicular_point
@@ -1272,7 +1273,7 @@ class Path(VObject):
         if total == 0:
             pt = parsed.point(0)
             return (pt.real, pt.imag)
-        pt = parsed.point(parsed.ilength(total * max(0, min(1, proportion))))
+        pt = parsed.point(parsed.ilength(total * _clamp01(proportion)))
         return (pt.real, pt.imag)
 
     def tangent_at(self, proportion, time=0):
@@ -1285,7 +1286,7 @@ class Path(VObject):
         total = parsed.length()
         if total == 0:
             return (0.0, 0.0)
-        t_param = parsed.ilength(total * max(0, min(1, proportion)))
+        t_param = parsed.ilength(total * _clamp01(proportion))
         # derivative() returns a complex number (dx + dy*j)
         deriv = parsed.derivative(t_param)
         dx, dy = deriv.real, deriv.imag
@@ -1304,8 +1305,8 @@ class Path(VObject):
         total = parsed.length()
         if total == 0:
             return Path(d)
-        t_start = max(0.0, min(1.0, t_start))
-        t_end = max(0.0, min(1.0, t_end))
+        t_start = _clamp01(t_start)
+        t_end = _clamp01(t_end)
         if t_start >= t_end:
             return Path('')
         T0 = parsed.ilength(total * t_start)

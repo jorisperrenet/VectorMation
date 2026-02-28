@@ -8,6 +8,7 @@ from vectormation._constants import (
     _sample_function, _normalize,
 )
 from vectormation._base import VObject, VCollection, _lerp, _lerp_point
+from vectormation._base_helpers import _clamp01
 from vectormation._axes_helpers import (
     _CURVE_STYLE, _AREA_STYLE, _HIGHLIGHT_STYLE,
     _get_arrow, _get_dynamic_object, _get_tex_object,
@@ -351,7 +352,7 @@ class Axes(_AxesExtMixin, VCollection):
             if dur <= 0:
                 progress = 1.0
             else:
-                progress = _easing(max(0, min(1, (time - start) / dur)))
+                progress = _easing(_clamp01((time - start) / dur))
             if progress <= 0:
                 return ''
             xlo, xhi = min(xmin, xmax), max(xmin, xmax)
@@ -935,7 +936,7 @@ class Axes(_AxesExtMixin, VCollection):
     @staticmethod
     def _lerp_colormap(frac, colormap):
         """Interpolate a color from a colormap: list of (frac, '#rrggbb') stops."""
-        frac = max(0, min(1, frac))
+        frac = _clamp01(frac)
         for (f0, c0), (f1, c1) in zip(colormap, colormap[1:]):
             if f0 <= frac <= f1:
                 from vectormation.colors import interpolate_color
@@ -1530,7 +1531,7 @@ class Axes(_AxesExtMixin, VCollection):
         _d = max(end - start, 1e-9)
         n_pts = 80
         def _compute_trail(t, _s=start, _d=_d, _xs=x_start, _xe=x_end, _n=n_pts, _easing=easing):
-            progress = max(0, min(1, _easing((t - _s) / _d)))
+            progress = _clamp01(_easing((t - _s) / _d))
             x_cur = _xs + (_xe - _xs) * progress
             steps = max(2, int(_n * progress))
             pts = []

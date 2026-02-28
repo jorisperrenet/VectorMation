@@ -27,7 +27,7 @@ style._RENDERED_DEFAULTS['mix_blend_mode'] = ''
 style.Styling.mix_blend_mode: attributes.String  # type: ignore[reportInvalidTypeForm]
 
 from vectormation._base_helpers import (
-    _lerp, _ramp, _ramp_down, _lerp_point, _clip_reveal, _clip_hide,
+    _clamp01, _lerp, _ramp, _ramp_down, _lerp_point, _clip_reveal, _clip_hide,
     _norm_dir, _norm_edge, _coords_of, _set_attr, _parse_path, _path_prefix,
     _DIR_NAMES, _make_brect, _wrap_to_svg, _BBoxMethodsMixin,
 )
@@ -440,7 +440,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         off_x, off_y = cx0 - point0.real, cy0 - point0.imag
         s = start
         def pos(t):
-            progress = max(0, min(1, easing((t - s) / dur)))
+            progress = _clamp01(easing((t - s) / dur))
             pt = parsed.point(parsed.ilength(progress * total_length))  # type: ignore[operator]
             return (pt.real + off_x - cx0, pt.imag + off_y - cy0)
         self._apply_shift_func(pos, s, end)
@@ -1954,7 +1954,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         def _color(t, _h=h, _s=s, _l=l, _shift=hue_shift, _e=easing,
                    _start=start, _end=end):
             dur = _end - _start
-            progress = _e(max(0.0, min(1.0, (t - _start) / dur))) if dur > 0 else 1.0
+            progress = _e(_clamp01((t - _start) / dur)) if dur > 0 else 1.0
             new_h = (_h + _shift / 360.0 * progress) % 1.0
             return _hsl_to_rgb(new_h, _s, _l)
 

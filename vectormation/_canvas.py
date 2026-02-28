@@ -9,7 +9,7 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
 from vectormation._constants import CANVAS_WIDTH, CANVAS_HEIGHT
-from vectormation._base_helpers import _ramp
+from vectormation._base_helpers import _clamp01, _ramp
 
 logger = logging.getLogger('vectormation')
 
@@ -310,8 +310,8 @@ class VectorMathAnim:
         msg_type = msg.get('type')
         if msg_type == 'zoom':
             factor = msg['factor']
-            rel_x = max(0, min(1, msg['rel_x']))
-            rel_y = max(0, min(1, msg['rel_y']))
+            rel_x = _clamp01(msg['rel_x'])
+            rel_y = _clamp01(msg['rel_y'])
             v = self.viewbox
             new_w = min(v[2] / (factor or 1), self.width * 4)
             new_h = min(v[3] / (factor or 1), self.height * 4)
@@ -365,7 +365,7 @@ class VectorMathAnim:
         self.snap_enabled = True
 
     def _handle_jump(self, msg):
-        pct = max(0.0, min(1.0, msg.get('percentage', 0.0)))
+        pct = _clamp01(msg.get('percentage', 0.0))
         duration = self.end_anim - self.start_anim  # type: ignore[operator]
         self.time = self.start_anim + pct * duration  # type: ignore[operator]
         self._sync_frame_count()

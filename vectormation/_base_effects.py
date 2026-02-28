@@ -6,7 +6,7 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
 from vectormation._base_helpers import (
-    _lerp, _ramp, _clip_reveal,
+    _clamp01, _lerp, _ramp, _clip_reveal,
     _coords_of, _parse_path,
     _make_brect, _wrap_to_svg, _EDGE_POINTS,
 )
@@ -62,7 +62,7 @@ class _VObjectEffectsMixin:
         if total_length <= 0:
             pt = parsed.point(0)
             return (pt.real, pt.imag)
-        t = max(0.0, min(1.0, t))
+        t = _clamp01(t)
         pt = parsed.point(parsed.ilength(t * total_length))
         return (pt.real, pt.imag)
 
@@ -237,7 +237,7 @@ class _VObjectEffectsMixin:
         dur = end - start
         if dur <= 0 or n_flashes <= 0:
             return self
-        duty = max(0.0, min(1.0, duty))
+        duty = _clamp01(duty)
         self.styling.opacity.set(start, end,
             lambda t, _s=start, _d=dur, _fl=n_flashes, _du=duty: (
                 1.0 if ((t - _s) / _d * _fl) % 1.0 < _du else 0.0),

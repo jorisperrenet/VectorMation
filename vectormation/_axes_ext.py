@@ -6,6 +6,7 @@ from vectormation._constants import (
     DEFAULT_CHART_COLORS, TEXT_Y_OFFSET, _normalize,
 )
 from vectormation._base import VCollection
+from vectormation._base_helpers import _clamp01
 from vectormation._shapes import (
     Polygon, Dot, Rectangle, RoundedRectangle, Line,
     Text, Path,
@@ -566,7 +567,7 @@ class _AxesExtMixin:
         fn = self._resolve_func(func, 'func')
         _d = max(end - start, 1e-9)
         def _cur_point(t, _fn=fn, _xs=x_start, _xe=x_end, _s=start, _d=_d, _easing=easing):
-            p = max(0, min(1, _easing((t - _s) / _d)))
+            p = _clamp01(_easing((t - _s) / _d))
             xv = _xs + (_xe - _xs) * p
             return xv, _fn(xv)
         _cache = [None, None, None]  # [time, (xv, yv), (sx, sy)]
@@ -965,7 +966,7 @@ class _AxesExtMixin:
         def _pos(t):
             if _cache[0] == t:
                 return _cache[1]
-            frac = max(0, min(1, (t - _s) / dur))
+            frac = _clamp01((t - _s) / dur)
             xv = _xs + (_xe - _xs) * frac
             pt = self.coords_to_point(xv, f(xv), t)
             _cache[0], _cache[1] = t, pt
@@ -1701,7 +1702,7 @@ class _AxesExtMixin:
         h = 1e-6
         def _tangent_ep(sign):
             def _pt(t, _xs=x_start, _xe=x_end, _s=start, _d=_d, _len=length, _sign=sign):
-                alpha = easing(max(0, min(1, (t - _s) / _d)))
+                alpha = easing(_clamp01((t - _s) / _d))
                 xv = _xs + alpha * (_xe - _xs)
                 slope = (func(xv + h) - func(xv - h)) / (2 * h)
                 cx_svg, cy_svg = self.coords_to_point(xv, func(xv), t)
