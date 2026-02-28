@@ -97,18 +97,18 @@ class Styling:
         return max(getattr(self, name).last_change for name in _ATTR_NAMES)
 
     def svg_style(self, time):
-        string = ''
+        parts = []
         for name, stylename in _STYLE_PAIRS:
             val = getattr(self, name).at_time(time)
             rendered_default = _RENDERED_DEFAULTS[name]
             if rendered_default is None or val != rendered_default:
-                string += f" {stylename}='{val}'"
+                parts.append(f"{stylename}='{val}'")
 
         transform = self.transform_style(time)
         if transform:
-            string += f" transform='{transform}'"
+            parts.append(f"transform='{transform}'")
 
-        return string
+        return (' ' + ' '.join(parts)) if parts else ''
 
     def transform_style(self, time):
         parts = []
