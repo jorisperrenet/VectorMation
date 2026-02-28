@@ -701,7 +701,7 @@ class _VObjectEffectsMixin:
             p = (t - _s) / _d
             return _a * 0.7 * math.sin(math.tau * _freq * 1.3 * p) * (1 - _easing(p))
 
-        self._apply_shift_effect(start, end, _dx, _dy)
+        self._apply_shift_effect(start, end, dx_func=_dx, dy_func=_dy)
         cx, cy = self.center(start)
         self.styling.rotation.set(start, end,
             lambda t, _s=_s, _d=_d, _a=_a, _freq=_freq, _cx=cx, _cy=cy, _easing=easing: (

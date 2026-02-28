@@ -810,9 +810,7 @@ class ProgressBar(VCollection):
             self._fill.width.move_to(start, end, target_w, easing=easing)
         return self
 
-    def animate_to(self, value, start=0, end=1, easing=easings.smooth):
-        """Animate progress to a target value (0-1)."""
-        return self.set_progress(value, start, end, easing)
+    animate_to = set_progress  # Alias for backward compat
 
     def get_progress(self, time=0):
         """Return the current progress value (0-1) at the given time."""

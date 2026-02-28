@@ -17900,3 +17900,52 @@ class TestTextWithBox:
         svg = c.generate_frame_svg(0)
         assert 'Tip' in svg
 
+
+class TestWobbleKeywordArgs:
+    """Test wobble() uses keyword args for _apply_shift_effect."""
+    def test_wobble_renders(self):
+        r = Rectangle(100, 100, x=400, y=400, creation=0)
+        r.wobble(start=0, end=1)
+        c = VectorMathAnim(save_dir='/tmp/t')
+        c.add_objects(r)
+        svg = c.generate_frame_svg(0.5)
+        assert '<rect' in svg
+
+
+class TestSurroundingCircleCachedBbox:
+    """Test SurroundingCircle uses cached bbox."""
+    def test_follows_target(self):
+        r = Rectangle(100, 50, x=400, y=400, creation=0)
+        r.shift(dx=200, dy=0, start=0, end=1)
+        sc = SurroundingCircle(r, buff=10, follow=True, creation=0)
+        c = VectorMathAnim(save_dir='/tmp/t')
+        c.add_objects(r, sc)
+        svg0 = c.generate_frame_svg(0)
+        svg1 = c.generate_frame_svg(1)
+        assert '<circle' in svg0
+        assert '<circle' in svg1
+
+
+class TestProgressBarAlias:
+    """Test ProgressBar.animate_to is alias for set_progress."""
+    def test_alias(self):
+        from vectormation.objects import ProgressBar
+        assert ProgressBar.animate_to is ProgressBar.set_progress
+
+    def test_animate_to_works(self):
+        from vectormation.objects import ProgressBar
+        pb = ProgressBar(creation=0)
+        pb.animate_to(0.5, start=0, end=1)
+        assert pb.get_progress(1) > 0
+
+
+class TestLEDCompact:
+    """Test LED with compacted ray creation."""
+    def test_led_renders(self):
+        from vectormation.objects import LED
+        led = LED(creation=0)
+        c = VectorMathAnim(save_dir='/tmp/t')
+        c.add_objects(led)
+        svg = c.generate_frame_svg(0)
+        assert '<line' in svg
+

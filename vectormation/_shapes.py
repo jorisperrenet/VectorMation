@@ -1862,11 +1862,11 @@ class SurroundingRectangle(RoundedRectangle):
         super().__init__(bw + 2*buff, bh + 2*buff, x=bx - buff, y=by - buff,
                          corner_radius=corner_radius, creation=creation, z=z, **style_kw)
         if follow:
-            _bbox = _cached_bbox(target)
-            self.x.set_onward(creation, lambda t: _bbox(t)[0] - buff)
-            self.y.set_onward(creation, lambda t: _bbox(t)[1] - buff)
-            self.width.set_onward(creation, lambda t: _bbox(t)[2] + 2*buff)
-            self.height.set_onward(creation, lambda t: _bbox(t)[3] + 2*buff)
+            _bb = _cached_bbox(target)
+            self.x.set_onward(creation, lambda t: _bb(t)[0] - buff)
+            self.y.set_onward(creation, lambda t: _bb(t)[1] - buff)
+            self.width.set_onward(creation, lambda t: _bb(t)[2] + 2*buff)
+            self.height.set_onward(creation, lambda t: _bb(t)[3] + 2*buff)
 
     def __repr__(self):
         return 'SurroundingRectangle()'
@@ -1876,15 +1876,15 @@ class SurroundingCircle(Circle):
     If follow=True (default), tracks the target as it moves."""
     def __init__(self, target, buff=SMALL_BUFF, follow=True,
                  creation: float = 0, z: float = 0, **styling_kwargs):
-        _, _, bw, bh = target.bbox(creation)
+        _bb = _cached_bbox(target)
+        bw, bh = _bb(creation)[2], _bb(creation)[3]
         r = math.hypot(bw, bh) / 2 + buff
         cx, cy = target.center(creation)
         style_kw = {'fill_opacity': 0, 'stroke': '#FFFF00'} | styling_kwargs
         super().__init__(r=r, cx=cx, cy=cy, creation=creation, z=z, **style_kw)
         if follow:
-            _bbox = _cached_bbox(target)
             self.c.set_onward(creation, lambda t: target.center(t))
-            _r_func = lambda t: math.hypot(_bbox(t)[2], _bbox(t)[3]) / 2 + buff
+            _r_func = lambda t: math.hypot(_bb(t)[2], _bb(t)[3]) / 2 + buff
             self.rx.set_onward(creation, _r_func)
             self.ry.set_onward(creation, _r_func)
 

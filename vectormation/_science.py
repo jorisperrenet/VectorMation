@@ -134,24 +134,16 @@ class LED(VCollection):
         diode = Diode(x1=x1, y1=y1, x2=x2, y2=y2, label='',
                       creation=creation, z=z, **styling_kwargs)
         _, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
-        ray_len = 20
-        ray_offset = 15
-        style_kw = {'stroke': color, 'stroke_width': 1.5}
-        ray1_start = (mx + px * ray_offset, my + py * ray_offset)
-        ray1_end = (ray1_start[0] + px * ray_len + ux * 5,
-                    ray1_start[1] + py * ray_len + uy * 5)
-        ray2_start = (mx + px * (ray_offset + 8), my + py * (ray_offset + 8))
-        ray2_end = (ray2_start[0] + px * ray_len + ux * 5,
-                    ray2_start[1] + py * ray_len + uy * 5)
-        ray1 = Line(x1=ray1_start[0], y1=ray1_start[1],
-                     x2=ray1_end[0], y2=ray1_end[1],
-                     creation=creation, z=z, **style_kw)
-        ray2 = Line(x1=ray2_start[0], y1=ray2_start[1],
-                     x2=ray2_end[0], y2=ray2_end[1],
-                     creation=creation, z=z, **style_kw)
-        objects = list(diode.objects) + [ray1, ray2]
-        _add_label(objects, label, mx + px * (ray_offset + ray_len + 16),
-                   my + py * (ray_offset + ray_len + 16), creation, z)
+        ray_len, ray_off = 20, 15
+        objects = list(diode.objects)
+        for off in (ray_off, ray_off + 8):
+            sx, sy = mx + px * off, my + py * off
+            objects.append(Line(x1=sx, y1=sy,
+                                x2=sx + px * ray_len + ux * 5,
+                                y2=sy + py * ray_len + uy * 5,
+                                creation=creation, z=z, stroke=color, stroke_width=1.5))
+        _add_label(objects, label, mx + px * (ray_off + ray_len + 16),
+                   my + py * (ray_off + ray_len + 16), creation, z)
         super().__init__(*objects, creation=creation, z=z)
 
     def __repr__(self):
