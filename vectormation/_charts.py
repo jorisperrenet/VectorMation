@@ -93,7 +93,7 @@ class PieChart(VCollection):
         if dur <= 0:
             return self
         dx, dy = self._sector_offset(sector, pull_distance, start)
-        sector.shift(dx=dx, dy=dy, start=start, end=start + dur / 2, easing=easing)
+        sector.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
 
     def explode(self, indices, distance=20, start=0, end=None, easing=None):
@@ -258,7 +258,7 @@ class DonutChart(VCollection):
         if dur <= 0:
             return self
         dx, dy = self._sector_offset(index, pull_distance)
-        sector.shift(dx=dx, dy=dy, start=start, end=start + dur / 2, easing=easing)
+        sector.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
 
     def animate_values(self, new_values, start=0, end=1, easing=easings.smooth):

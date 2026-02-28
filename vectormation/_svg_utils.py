@@ -11,6 +11,12 @@ from vectormation._constants import (
 )
 from vectormation._base import VObject, VCollection, _norm_dir
 from vectormation._base_helpers import _set_attr
+
+
+def _inner_angle(a1, a2):
+    """Return the inner angle in degrees between two angles, always in [0, 180]."""
+    deg = (a2 - a1) % 360
+    return 360 - deg if deg > 180 else deg
 from vectormation._shapes import (
     Polygon, Circle, Rectangle, Line, Lines, Text, Path, Arc, Ellipse,
 )
@@ -105,9 +111,7 @@ class Angle(VCollection):
 
             if label is True:
                 # Dynamic degree label using Text (updates every frame)
-                angle_deg = (a2 - a1) % 360
-                if angle_deg > 180:
-                    angle_deg = 360 - angle_deg
+                angle_deg = _inner_angle(a1, a2)
                 mid_a = math.radians((a1 + a2) / 2)
                 init_lx = vx + lr * math.cos(mid_a)
                 init_ly = vy - lr * math.sin(mid_a)
@@ -118,10 +122,7 @@ class Angle(VCollection):
 
                 def _deg_text(t):
                     a1t, a2t = self._compute_angles(t)
-                    deg = (a2t - a1t) % 360
-                    if deg > 180:
-                        deg = 360 - deg
-                    return f'{round(deg)}\u00b0'
+                    return f'{round(_inner_angle(a1t, a2t))}\u00b0'
 
                 self._label_obj.text.set_onward(creation, _deg_text)
                 self._label_obj.x.set_onward(creation, lambda t, _lr=lr: (
@@ -653,7 +654,8 @@ def _sample_grid(x_range, y_range):
 
 class ArrowVectorField(VCollection):
     """Vector field visualization using arrows."""
-    def __init__(self, func, x_range=(60, 1860, 120), y_range=(60, 1020, 120),
+    def __init__(self, func, x_range=(60, CANVAS_WIDTH - 60, 120),
+                 y_range=(60, CANVAS_HEIGHT - 60, 120),
                  max_length=80, creation=0, z=0, **styling_kwargs):
         Arrow = _get_arrow()
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 2} | styling_kwargs
@@ -680,7 +682,8 @@ class ArrowVectorField(VCollection):
 
 class StreamLines(VCollection):
     """Animated flow lines for a vector field."""
-    def __init__(self, func, x_range=(60, 1860, 200), y_range=(60, 1020, 200),
+    def __init__(self, func, x_range=(60, CANVAS_WIDTH - 60, 200),
+                 y_range=(60, CANVAS_HEIGHT - 60, 200),
                  n_steps=40, step_size=5, creation=0, z=0, **styling_kwargs):
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 2, 'fill_opacity': 0} | styling_kwargs
         objects = []

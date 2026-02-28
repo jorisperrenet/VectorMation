@@ -27,9 +27,11 @@ def _ramp_down(start, dur, val, easing):
 
 def _lerp_point(start, dur, a, b, easing):
     """Return a lambda that interpolates 2D points from *a* to *b* over [start, start+dur]."""
-    return lambda t, _s=start, _d=dur, _a=a, _b=b, _e=easing: (
-        _a[0] + (_b[0] - _a[0]) * _e((t - _s) / _d),
-        _a[1] + (_b[1] - _a[1]) * _e((t - _s) / _d))
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    def _fn(t, _s=start, _d=dur, _a=a, _dx=dx, _dy=dy, _e=easing):
+        p = _e((t - _s) / _d)
+        return (_a[0] + _dx * p, _a[1] + _dy * p)
+    return _fn
 
 
 def _clip_reveal(tmpl, start, dur, easing):
@@ -192,13 +194,11 @@ class _BBoxMethodsMixin:
 
     def get_x(self, time: float = 0):
         """Return x-coordinate of the bounding box center."""
-        x, _, w, _ = self.bbox(time)
-        return x + w / 2
+        return self.center(time)[0]
 
     def get_y(self, time: float = 0):
         """Return y-coordinate of the bounding box center."""
-        _, y, _, h = self.bbox(time)
-        return y + h / 2
+        return self.center(time)[1]
 
     def get_diagonal(self, time=0):
         """Return the diagonal length of the bounding box."""
