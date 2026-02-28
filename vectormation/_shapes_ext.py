@@ -12,7 +12,7 @@ from vectormation._constants import (
 )
 from vectormation._base import VObject, VCollection, _ramp, _ramp_down, _set_attr
 from vectormation._base_helpers import _clamp01
-from vectormation._shapes import Polygon, Circle, Rectangle, Lines
+from vectormation._shapes import Polygon, Rectangle, Lines
 
 class Line(VObject):
     def __init__(self, x1: float = 0, y1: float = 0, x2: float = 100, y2: float = 100, creation: float = 0, z: float = 0, **styling_kwargs):
