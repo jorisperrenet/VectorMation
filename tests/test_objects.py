@@ -20148,3 +20148,323 @@ class TestPhysicsRepr:
         c = Cloth(cols=5, rows=3)
         assert repr(c) == 'Cloth(5x3)'
 
+
+# ---------------------------------------------------------------------------
+# UI Component tests
+# ---------------------------------------------------------------------------
+
+class TestTextBox:
+    def test_creates_objects(self):
+        from vectormation._ui import TextBox
+        tb = TextBox('Hello')
+        assert hasattr(tb, 'box')
+        assert hasattr(tb, 'label')
+        svg = tb.to_svg(0)
+        assert 'Hello' in svg
+
+    def test_repr(self):
+        from vectormation._ui import TextBox
+        assert repr(TextBox('Hi')) == 'TextBox()'
+
+
+class TestBracket:
+    def test_down_direction(self):
+        from vectormation._ui import Bracket
+        b = Bracket(direction='down', width=200)
+        svg = b.to_svg(0)
+        assert len(svg) > 0
+
+    def test_with_label(self):
+        from vectormation._ui import Bracket
+        b = Bracket(text='Label', direction='up')
+        svg = b.to_svg(0)
+        assert 'Label' in svg
+
+    def test_repr(self):
+        from vectormation._ui import Bracket
+        assert repr(Bracket()) == 'Bracket()'
+
+
+class TestIconGrid:
+    def test_creates_objects(self):
+        from vectormation._ui import IconGrid
+        g = IconGrid([(5, '#FF0000'), (3, '#00FF00')], cols=4)
+        assert len(g.objects) == 8
+
+    def test_square_shape(self):
+        from vectormation._ui import IconGrid
+        g = IconGrid([(2, '#FF0000')], shape='square')
+        assert len(g.objects) == 2
+
+    def test_repr(self):
+        from vectormation._ui import IconGrid
+        assert repr(IconGrid([(1, '#F00')])) == 'IconGrid()'
+
+
+class TestSpeechBubble:
+    def test_creates_objects(self):
+        from vectormation._ui import SpeechBubble
+        sb = SpeechBubble(text='Hi!')
+        assert hasattr(sb, 'box')
+        assert hasattr(sb, 'tail')
+        assert hasattr(sb, 'label')
+
+    def test_tail_directions(self):
+        from vectormation._ui import SpeechBubble
+        for d in ('down', 'up', 'left', 'right'):
+            sb = SpeechBubble(text='Test', tail_direction=d)
+            svg = sb.to_svg(0)
+            assert len(svg) > 0
+
+    def test_repr(self):
+        from vectormation._ui import SpeechBubble
+        assert repr(SpeechBubble()) == 'SpeechBubble()'
+
+
+class TestBadge:
+    def test_creates_objects(self):
+        from vectormation._ui import Badge
+        b = Badge(text='v1.0')
+        assert hasattr(b, 'box')
+        assert hasattr(b, 'label')
+        svg = b.to_svg(0)
+        assert 'v1.0' in svg
+
+    def test_repr(self):
+        from vectormation._ui import Badge
+        assert repr(Badge()) == 'Badge()'
+
+
+class TestDivider:
+    def test_horizontal(self):
+        from vectormation._ui import Divider
+        d = Divider(direction='horizontal')
+        svg = d.to_svg(0)
+        assert len(svg) > 0
+
+    def test_with_label(self):
+        from vectormation._ui import Divider
+        d = Divider(label='OR')
+        svg = d.to_svg(0)
+        assert 'OR' in svg
+
+    def test_vertical(self):
+        from vectormation._ui import Divider
+        d = Divider(direction='vertical')
+        svg = d.to_svg(0)
+        assert len(svg) > 0
+
+    def test_repr(self):
+        from vectormation._ui import Divider
+        assert repr(Divider()) == 'Divider()'
+
+
+class TestTagCloud:
+    def test_creates_objects(self):
+        from vectormation._ui import TagCloud
+        tc = TagCloud([('python', 10), ('java', 5), ('rust', 8)])
+        assert len(tc.objects) == 3
+
+    def test_empty(self):
+        from vectormation._ui import TagCloud
+        tc = TagCloud([])
+        assert len(tc.objects) == 0
+
+    def test_repr(self):
+        from vectormation._ui import TagCloud
+        assert repr(TagCloud([('a', 1)])) == 'TagCloud()'
+
+
+class TestStatusIndicator:
+    def test_creates_objects(self):
+        from vectormation._ui import StatusIndicator
+        si = StatusIndicator('Server', status='online')
+        assert hasattr(si, 'dot')
+        assert hasattr(si, 'label')
+
+    def test_custom_color(self):
+        from vectormation._ui import StatusIndicator
+        si = StatusIndicator('Custom', status='#FF00FF')
+        svg = si.to_svg(0)
+        assert len(svg) > 0
+
+    def test_repr(self):
+        from vectormation._ui import StatusIndicator
+        assert repr(StatusIndicator('X')) == 'StatusIndicator()'
+
+
+class TestMeter:
+    def test_vertical(self):
+        from vectormation._ui import Meter
+        m = Meter(value=0.7, direction='vertical')
+        assert hasattr(m, 'fill_rect')
+
+    def test_horizontal(self):
+        from vectormation._ui import Meter
+        m = Meter(value=0.3, direction='horizontal')
+        svg = m.to_svg(0)
+        assert len(svg) > 0
+
+    def test_repr(self):
+        from vectormation._ui import Meter
+        assert repr(Meter()) == 'Meter()'
+
+
+class TestBreadcrumb:
+    def test_creates_items(self):
+        from vectormation._ui import Breadcrumb
+        bc = Breadcrumb('Home', 'Products', 'Details')
+        svg = bc.to_svg(0)
+        assert 'Home' in svg
+        assert 'Products' in svg
+
+    def test_repr(self):
+        from vectormation._ui import Breadcrumb
+        assert repr(Breadcrumb('A', 'B')) == 'Breadcrumb()'
+
+
+# ---------------------------------------------------------------------------
+# Data structure tests
+# ---------------------------------------------------------------------------
+
+class TestArrayDataStructure:
+    def test_creates_cells(self):
+        from vectormation._data_structures import Array
+        a = Array([1, 2, 3])
+        assert repr(a) == 'Array(3 cells)'
+
+    def test_highlight_cell(self):
+        from vectormation._data_structures import Array
+        a = Array([10, 20, 30])
+        result = a.highlight_cell(1)
+        assert result is a
+
+    def test_swap_cells(self):
+        from vectormation._data_structures import Array
+        a = Array([10, 20, 30])
+        result = a.swap_cells(0, 2)
+        assert result is a
+
+    def test_set_value(self):
+        from vectormation._data_structures import Array
+        a = Array([10, 20])
+        result = a.set_value(0, 99)
+        assert result is a
+
+    def test_check_index_error(self):
+        from vectormation._data_structures import Array
+        import pytest
+        a = Array([1, 2])
+        with pytest.raises(IndexError):
+            a.highlight_cell(5)
+
+    def test_add_pointer(self):
+        from vectormation._data_structures import Array
+        a = Array([1, 2, 3])
+        result = a.add_pointer(1, label='i')
+        assert result is not a  # returns Arrow
+
+
+class TestStackDataStructure:
+    def test_creates_items(self):
+        from vectormation._data_structures import Stack
+        s = Stack([1, 2, 3])
+        assert repr(s) == 'Stack(3 items)'
+
+    def test_push(self):
+        from vectormation._data_structures import Stack
+        s = Stack()
+        result = s.push(42)
+        assert result is s
+        assert not s.is_empty()
+
+    def test_pop(self):
+        from vectormation._data_structures import Stack
+        s = Stack([1, 2])
+        result = s.pop()
+        assert result is s
+
+    def test_peek(self):
+        from vectormation._data_structures import Stack
+        s = Stack([10, 20])
+        assert s.peek() == '20'
+
+    def test_empty(self):
+        from vectormation._data_structures import Stack
+        s = Stack()
+        assert s.is_empty()
+        assert s.peek() is None
+
+
+class TestQueueDataStructure:
+    def test_creates_items(self):
+        from vectormation._data_structures import Queue
+        q = Queue([1, 2, 3])
+        assert repr(q) == 'Queue(3 items)'
+
+    def test_enqueue(self):
+        from vectormation._data_structures import Queue
+        q = Queue()
+        result = q.enqueue(42)
+        assert result is q
+
+    def test_dequeue(self):
+        from vectormation._data_structures import Queue
+        q = Queue([1, 2])
+        result = q.dequeue()
+        assert result is q
+
+    def test_peek(self):
+        from vectormation._data_structures import Queue
+        q = Queue([10, 20])
+        assert q.peek() == '10'
+
+    def test_empty(self):
+        from vectormation._data_structures import Queue
+        q = Queue()
+        assert q.is_empty()
+
+
+class TestLinkedListDataStructure:
+    def test_creates_nodes(self):
+        from vectormation._data_structures import LinkedList
+        ll = LinkedList([1, 2, 3])
+        assert repr(ll) == 'LinkedList(3 nodes)'
+
+    def test_highlight_node(self):
+        from vectormation._data_structures import LinkedList
+        ll = LinkedList([10, 20])
+        result = ll.highlight_node(0)
+        assert result is ll
+
+    def test_append_node(self):
+        from vectormation._data_structures import LinkedList
+        ll = LinkedList([1])
+        result = ll.append_node(2)
+        assert result is ll
+
+    def test_remove_node(self):
+        from vectormation._data_structures import LinkedList
+        ll = LinkedList([1, 2, 3])
+        result = ll.remove_node(1)
+        assert result is ll
+
+
+class TestBinaryTreeDataStructure:
+    def test_creates_nodes(self):
+        from vectormation._data_structures import BinaryTree
+        bt = BinaryTree((1, (2, None, None), (3, None, None)))
+        assert 'BinaryTree' in repr(bt)
+
+    def test_highlight_node(self):
+        from vectormation._data_structures import BinaryTree
+        bt = BinaryTree((1, 2, 3))
+        result = bt.highlight_node(0)
+        assert result is bt
+
+    def test_traverse(self):
+        from vectormation._data_structures import BinaryTree
+        bt = BinaryTree((1, 2, 3))
+        result = bt.traverse()
+        assert result is bt
+
