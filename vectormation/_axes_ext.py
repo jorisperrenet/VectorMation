@@ -1529,11 +1529,8 @@ class _AxesExtMixin:
         Returns a VCollection of the lines."""
         style_kw = {'stroke': '#aaa', 'stroke_width': 1,
                     'stroke_dasharray': '4 3'} | styling_kwargs
-        lines = []
-        for xv in x_values:
-            yv = func(xv)
-            line = self.get_vertical_line(xv, y_val=yv, creation=creation, z=z, **style_kw)
-            lines.append(line)
+        lines = [self.get_vertical_line(xv, y_val=func(xv), creation=creation, z=z, **style_kw)
+                 for xv in x_values]
         return VCollection(*lines, creation=creation, z=z)
 
     def get_horizontal_lines(self, y_values, x_start=None, x_end=None, creation=0, z=1, **kwargs):
