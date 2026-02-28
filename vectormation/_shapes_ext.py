@@ -2092,8 +2092,10 @@ class FunctionGraph(Lines):
     def get_point_from_x(self, math_x):
         """Return (svg_x, svg_y) for a given math x coordinate."""
         yv = self._func(math_x)
-        sx = self._px + (math_x - self._x_min) / (self._x_max - self._x_min) * self._pw
-        sy = self._py + (1 - (yv - self._y_min) / (self._y_max - self._y_min)) * self._ph
+        x_span = self._x_max - self._x_min or 1
+        y_span = self._y_max - self._y_min or 1
+        sx = self._px + (math_x - self._x_min) / x_span * self._pw
+        sy = self._py + (1 - (yv - self._y_min) / y_span) * self._ph
         return (sx, sy)
 
     def get_slope_at(self, math_x, dx=1e-6):

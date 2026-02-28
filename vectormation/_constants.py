@@ -65,7 +65,8 @@ def _lerp_point(x1, y1, x2, y2, t):
 def _sample_function(func, x_min, x_max, y_range, num_points, px, py, pw, ph,
                      extra_xs=None):
     """Sample func over [x_min, x_max] and map to SVG coordinates in (px, py, pw, ph)."""
-    xs = [x_min + i * (x_max - x_min) / num_points for i in range(num_points + 1)]
+    x_span = x_max - x_min or 1
+    xs = [x_min + i * x_span / num_points for i in range(num_points + 1)]
     if extra_xs:
         xs_set = set(xs)
         xs.extend(v for v in extra_xs if v not in xs_set)
@@ -81,13 +82,14 @@ def _sample_function(func, x_min, x_max, y_range, num_points, px, py, pw, ph,
         y_min -= pad; y_max += pad
     else:
         y_min, y_max = y_range
+    y_span = y_max - y_min or 1
     # Convert to SVG coordinates
     points = []  # (sx, sy) or None for non-finite
     clamped = []
     for xv, yv in zip(xs, ys):
         if math.isfinite(yv):
-            sx = px + (xv - x_min) / (x_max - x_min) * pw
-            sy = py + (1 - (yv - y_min) / (y_max - y_min)) * ph
+            sx = px + (xv - x_min) / (x_span or 1) * pw
+            sy = py + (1 - (yv - y_min) / y_span) * ph
             points.append((sx, sy))
             clamped.append((sx, max(py, min(py + ph, sy))))
         else:

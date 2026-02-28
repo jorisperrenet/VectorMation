@@ -89,7 +89,7 @@ class Axes(_AxesExtMixin, VCollection):
                 def _cx_y(t):
                     xmin = self.x_min.at_time(t)
                     xmax = self.x_max.at_time(t)
-                    return self.plot_x + (0 - xmin) / (xmax - xmin) * self.plot_width if xmin <= 0 <= xmax else self.plot_x
+                    return self.plot_x + (0 - xmin) / (xmax - xmin) * self.plot_width if xmin <= 0 <= xmax and xmax != xmin else self.plot_x
                 def _cy_y(t, _lh=lh):
                     return self.plot_y - _LABEL_GAP - _lh / 2
                 lbl.x.set_onward(creation, lambda t, _lw=lw: _cx_y(t) - _lw / 2)
