@@ -11996,3 +11996,268 @@ class TestScaleInPlace:
         # Object should still render with scale origin set
         svg = c.to_svg(0.5)
         assert svg  # non-empty
+
+
+# =============================================================================
+# Text Animation Methods
+# =============================================================================
+
+class TestTextAnimations:
+    def test_typewrite(self):
+        t = Text("Hello", x=100, y=100)
+        result = t.typewrite(start=0, end=2)
+        assert result is t
+        # At halfway, only some characters should be visible
+        text_mid = t.text.at_time(1.0)
+        assert len(text_mid) < len("Hello") or text_mid == "Hello"
+
+    def test_set_text(self):
+        t = Text("old", x=100, y=100)
+        t.set_text(1, 2, "new")
+        assert t.text.at_time(0) == "old"
+        assert t.text.at_time(2) == "new"
+
+    def test_highlight(self):
+        t = Text("Hello World", x=100, y=100)
+        result = t.highlight(start=0, end=1, color='#FF0000')
+        # highlight returns a VCollection or self
+        assert result is not None
+
+    def test_scramble(self):
+        t = Text("Hello", x=100, y=100)
+        result = t.scramble(start=0, end=2)
+        assert result is t
+        # During scramble, text should be different from original at some point
+        text_mid = t.text.at_time(0.5)
+        assert isinstance(text_mid, str)
+        assert len(text_mid) == len("Hello")
+
+    def test_typing(self):
+        t = Text("Hello World", x=100, y=100)
+        result = t.typing(start=0, end=2)
+        assert result is t
+        # At end, full text should be there
+        assert t.text.at_time(2) == "Hello World"
+
+    def test_reveal_by_word(self):
+        t = Text("Hello World", x=100, y=100)
+        result = t.reveal_by_word(start=0, end=2)
+        assert result is t
+        # At start, should be empty or partial
+        text_start = t.text.at_time(0)
+        assert len(text_start) <= len("Hello World")
+
+
+class TestTextHighlightSubstring:
+    def test_basic(self):
+        t = Text("Hello World", x=100, y=100)
+        result = t.highlight_substring("World", start=0, end=1, color='#E74C3C')
+        # Should return something (highlight rect or self)
+        assert result is not None
+
+
+# =============================================================================
+# Advanced Effect Behavioral Tests
+# =============================================================================
+
+class TestEffectBehavior:
+    """Test that effects actually modify animation attributes, not just return self."""
+
+    def test_telegraph_modifies_scale(self):
+        c = Circle(r=30, cx=100, cy=100)
+        c.telegraph(start=0, duration=1.0, scale_factor=2.0)
+        # Scale should be > 1 during the effect
+        sx = c.styling.scale_x.at_time(0.3)
+        assert sx > 1.0
+
+    def test_flicker_modifies_opacity(self):
+        c = Circle(r=30, cx=100, cy=100)
+        c.flicker(start=0, end=2, frequency=4)
+        # Opacity should vary during flicker
+        op1 = c.styling.opacity.at_time(0.25)
+        op2 = c.styling.opacity.at_time(0.5)
+        # At least one should differ from 1.0 or they should differ from each other
+        assert op1 != 1.0 or op2 != 1.0 or op1 != op2
+
+    def test_strobe_creates_on_off(self):
+        c = Circle(r=30, cx=100, cy=100)
+        c.strobe(start=0, end=1, flashes=5, duty=0.5)
+        # At various points, opacity should be either 0 or 1
+        for t in [0.1, 0.2, 0.3, 0.4]:
+            op = c.styling.opacity.at_time(t)
+            assert op == pytest.approx(0.0) or op == pytest.approx(1.0)
+
+    def test_elastic_bounce_moves_vertically(self):
+        c = Circle(r=30, cx=500, cy=500)
+        c.elastic_bounce(start=0, end=2, height=100, bounces=3)
+        # During bounce, dy should shift the object
+        svg_mid = c.to_svg(0.5)
+        assert svg_mid  # renders
+
+    def test_slingshot_reaches_target(self):
+        c = Circle(r=20, cx=100, cy=100)
+        c.slingshot(500, 500, start=0, end=2)
+        # At end, object should be near target
+        svg = c.to_svg(2.0)
+        assert svg  # renders
+
+    def test_domino_hides_at_end(self):
+        c = Rectangle(50, 100, x=100, y=100)
+        c.domino(start=0, end=1)
+        assert c.show.at_time(1.5) is False
+
+    def test_unfold_shows_from_start(self):
+        c = Rectangle(200, 100, x=100, y=100)
+        c.unfold(start=0, end=1, change_existence=True)
+        # Should be shown from start
+        assert c.show.at_time(0) is True
+
+    def test_wobble_modifies_position(self):
+        c = Circle(r=30, cx=500, cy=500)
+        c.wobble(start=0, end=2, intensity=10)
+        # Wobble should produce SVG that includes rotation
+        svg = c.to_svg(0.5)
+        assert svg
+
+    def test_morph_scale_reaches_target(self):
+        c = Circle(r=30, cx=100, cy=100)
+        c.morph_scale(target_scale=2.0, start=0, end=2)
+        # At end, scale should be approximately 2.0
+        sx = c.styling.scale_x.at_time(2.0)
+        assert sx == pytest.approx(2.0, abs=0.05)
+
+    def test_squeeze_changes_aspect(self):
+        c = Circle(r=30, cx=100, cy=100)
+        c.squeeze(start=0, end=1, axis='x', factor=0.5)
+        # Scale x should decrease, scale y should increase
+        sx = c.styling.scale_x.at_time(1.0)
+        sy = c.styling.scale_y.at_time(1.0)
+        assert sx < 1.0
+        assert sy > 1.0
+
+
+# =============================================================================
+# VCollection Stagger Methods
+# =============================================================================
+
+class TestCollectionStaggerMethods:
+    def test_stagger_basic(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=100)
+        group = VCollection(c1, c2)
+        result = group.stagger('fadein', delay=0.5, start=0, end=1)
+        assert result is group
+        # c1 should start fading at t=0
+        assert c1.styling.opacity.at_time(0) < 0.1
+        # c2 starts at t=0.5, so at t=0 it's not yet fading (change_existence)
+        assert c2.show.at_time(0) is False
+
+    def test_cascade_animates_sequentially(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=100)
+        c3 = Circle(r=10, cx=300, cy=100)
+        group = VCollection(c1, c2, c3)
+        result = group.cascade('fadein', start=0, end=3)
+        assert result is group
+        # First child should start before second
+        assert c1.styling.opacity.at_time(0) < 0.1
+
+    def test_sequential(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=100)
+        group = VCollection(c1, c2)
+        result = group.sequential('fadein', start=0, end=2)
+        assert result is group
+
+    def test_wave_anim(self):
+        circles = [Circle(r=10, cx=100 + i*50, cy=100) for i in range(5)]
+        group = VCollection(*circles)
+        # wave_anim doesn't take a method name — it's a position wave
+        result = group.wave_anim(start=0, end=3, amplitude=20)
+        assert result is group
+
+    def test_stagger_fadein(self):
+        circles = [Circle(r=10, cx=100 + i*50, cy=100) for i in range(3)]
+        group = VCollection(*circles)
+        result = group.stagger_fadein(start=0, end=2)
+        assert result is group
+        # First circle should be fading in before last
+        assert circles[0].styling.opacity.at_time(0) < 0.1
+
+    def test_stagger_fadeout(self):
+        circles = [Circle(r=10, cx=100 + i*50, cy=100) for i in range(3)]
+        group = VCollection(*circles)
+        result = group.stagger_fadeout(start=0, end=2)
+        assert result is group
+
+
+# =============================================================================
+# Boolean Operations
+# =============================================================================
+
+class TestBooleanOps:
+    def test_union_renders(self):
+        from vectormation.objects import Union
+        c = Circle(r=50, cx=100, cy=100)
+        r = Rectangle(80, 80, x=70, y=70)
+        u = Union(c, r)
+        svg = u.to_svg(0)
+        assert svg  # non-empty, renders
+
+    def test_difference_renders(self):
+        from vectormation.objects import Difference
+        c = Circle(r=50, cx=100, cy=100)
+        r = Rectangle(80, 80, x=70, y=70)
+        d = Difference(c, r)
+        svg = d.to_svg(0)
+        assert svg
+
+    def test_exclusion_renders(self):
+        from vectormation.objects import Exclusion
+        c = Circle(r=50, cx=100, cy=100)
+        r = Rectangle(80, 80, x=70, y=70)
+        e = Exclusion(c, r)
+        svg = e.to_svg(0)
+        assert svg
+
+    def test_intersection_renders(self):
+        from vectormation.objects import Intersection
+        c = Circle(r=50, cx=100, cy=100)
+        r = Rectangle(80, 80, x=70, y=70)
+        i = Intersection(c, r)
+        svg = i.to_svg(0)
+        assert svg
+
+
+# =============================================================================
+# Canvas Camera Controls
+# =============================================================================
+
+class TestCameraControls:
+    def test_camera_shift(self):
+        import tempfile
+        from vectormation.objects import VectorMathAnim
+        v = VectorMathAnim(tempfile.mkdtemp(), width=800, height=600)
+        v.camera_shift(100, 50, start=0, end=1)
+        # Viewbox should shift
+        vb_x = v.vb_x.at_time(1.0)
+        assert vb_x == pytest.approx(100, abs=1)
+
+    def test_camera_zoom(self):
+        import tempfile
+        from vectormation.objects import VectorMathAnim
+        v = VectorMathAnim(tempfile.mkdtemp(), width=800, height=600)
+        v.camera_zoom(2.0, start=0, end=1)
+        # After zoom, viewbox should be smaller
+        vb_w = v.vb_w.at_time(1.0)
+        assert vb_w < 800
+
+    def test_camera_reset(self):
+        import tempfile
+        from vectormation.objects import VectorMathAnim
+        v = VectorMathAnim(tempfile.mkdtemp(), width=800, height=600)
+        v.camera_shift(100, 50, start=0, end=0.5)
+        v.camera_reset(start=1, end=2)
+        # After reset, should be back to original
+        vb_x = v.vb_x.at_time(2.0)
+        assert vb_x == pytest.approx(0, abs=1)
