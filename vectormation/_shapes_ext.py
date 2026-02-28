@@ -1341,8 +1341,7 @@ class Path(VObject):
 
         if not smooth:
             parts = [f'M{pts[0][0]},{pts[0][1]}']
-            for x, y in pts[1:]:
-                parts.append(f'L{x},{y}')
+            parts.extend(f'L{x},{y}' for x, y in pts[1:])
             if closed:
                 parts.append('Z')
             return cls(' '.join(parts), **kwargs)

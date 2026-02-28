@@ -6,6 +6,7 @@ from vectormation._constants import (
 )
 from vectormation._base import VCollection
 from vectormation._shapes import Circle, Rectangle, Line, Text
+from vectormation.colors import _rgb_to_hex
 
 _VIZ_TEXT_Y = 0.65  # Y-offset factor for vertically centering text in viz cells
 
@@ -22,7 +23,7 @@ def _make_cell(x, y, w, h, val, font_size, fill, border_color, text_color,
 def _flash_fill(obj, color, start, end, default='#264653'):
     """Temporarily change an object's fill color, reverting at *end*."""
     orig = obj.styling.fill.time_func(0)
-    orig_hex = '#{:02x}{:02x}{:02x}'.format(*orig) if orig else default
+    orig_hex = _rgb_to_hex(*orig) if orig else default
     obj.set_fill(color=color, start=start)
     obj.set_fill(color=orig_hex, start=end)
 

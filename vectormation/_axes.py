@@ -379,10 +379,7 @@ class Axes(_AxesExtMixin, VCollection):
                 pts.append((sx, sy))
             if not pts:
                 return ''
-            d = f'M{pts[0][0]},{pts[0][1]}'
-            for sx, sy in pts[1:]:
-                d += f'L{sx},{sy}'
-            return d
+            return 'M' + 'L'.join(f'{sx},{sy}' for sx, sy in pts)
 
         defaults = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
         path = Path('', creation=creation, z=z, **defaults)
@@ -956,11 +953,9 @@ class Axes(_AxesExtMixin, VCollection):
             f0, c0 = colormap[i]
             f1, c1 = colormap[i + 1]
             if f0 <= frac <= f1:
+                from vectormation.colors import interpolate_color
                 t = (frac - f0) / max(f1 - f0, 1e-9)
-                a = int(c0[1:3], 16), int(c0[3:5], 16), int(c0[5:7], 16)
-                b = int(c1[1:3], 16), int(c1[3:5], 16), int(c1[5:7], 16)
-                return '#{:02x}{:02x}{:02x}'.format(
-                    *(int(a[j] + (b[j] - a[j]) * t) for j in range(3)))
+                return interpolate_color(c0, c1, t)
         return colormap[-1][1]
 
     @staticmethod
@@ -1713,8 +1708,7 @@ class Axes(_AxesExtMixin, VCollection):
                 return ''
             edge_y = (self.plot_y + self.plot_height) if _dir == 'below' else self.plot_y
             parts = [f'M{pts[0][0]:.1f},{pts[0][1]:.1f}']
-            for sx, sy in pts[1:]:
-                parts.append(f'L{sx:.1f},{sy:.1f}')
+            parts.extend(f'L{sx:.1f},{sy:.1f}' for sx, sy in pts[1:])
             parts.extend([f'L{pts[-1][0]:.1f},{edge_y:.1f}',
                           f'L{pts[0][0]:.1f},{edge_y:.1f}', 'Z'])
             return ''.join(parts)

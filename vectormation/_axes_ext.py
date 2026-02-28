@@ -647,10 +647,8 @@ class _AxesExtMixin:
                 if not right_pts:
                     return ''
                 parts = [f'M{right_pts[0][0]:.1f},{right_pts[0][1]:.1f}']
-                for sx, sy in right_pts[1:]:
-                    parts.append(f'L{sx:.1f},{sy:.1f}')
-                for sx, sy in reversed(left_pts):
-                    parts.append(f'L{sx:.1f},{sy:.1f}')
+                parts.extend(f'L{sx:.1f},{sy:.1f}' for sx, sy in right_pts[1:])
+                parts.extend(f'L{sx:.1f},{sy:.1f}' for sx, sy in reversed(left_pts))
                 parts.append('Z')
                 return ''.join(parts)
             violin.d.set_onward(creation, _violin_d)
@@ -875,8 +873,7 @@ class _AxesExtMixin:
             if not pts:
                 return ''
             parts = [f'M{pts[0][0]:.1f},{pts[0][1]:.1f}']
-            for sx, sy in pts[1:]:
-                parts.append(f'L{sx:.1f},{sy:.1f}')
+            parts.extend(f'L{sx:.1f},{sy:.1f}' for sx, sy in pts[1:])
             parts.append('Z')
             return ''.join(parts)
         area.d.set_onward(creation, _param_d)

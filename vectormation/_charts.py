@@ -177,7 +177,8 @@ class PieChart(VCollection):
             sector = self._sectors[i]
             color = sector.styling.fill.time_func(0)
             if isinstance(color, tuple):
-                color = '#{:02x}{:02x}{:02x}'.format(*[int(c) for c in color[:3]])
+                from vectormation.colors import _rgb_to_hex
+                color = _rgb_to_hex(*color[:3])
             items.append((color, str(label)))
         legend = Legend(items, x=x, y=y, font_size=font_size, creation=creation)
         self.objects.extend(legend.objects)

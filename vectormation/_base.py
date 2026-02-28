@@ -2387,10 +2387,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if isinstance(rgb, str):
             return rgb
         if isinstance(rgb, tuple) and len(rgb) == 3:
-            return '#{:02x}{:02x}{:02x}'.format(
-                int(min(255, max(0, rgb[0]))),
-                int(min(255, max(0, rgb[1]))),
-                int(min(255, max(0, rgb[2]))))
+            r, g, b = (int(min(255, max(0, c))) for c in rgb)
+            return f'#{r:02x}{g:02x}{b:02x}'
         return str(rgb)
 
     def get_fill_color(self, time=0):
