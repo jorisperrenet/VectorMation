@@ -238,7 +238,7 @@ class RightAngle(VCollection):
 
 class Cross(VCollection):
     """X mark shape, useful for indicating errors or crossing out."""
-    def __init__(self, size: float = 36, cx: float = 960, cy: float = 540, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, size: float = 36, cx: float = ORIGIN[0], cy: float = ORIGIN[1], creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#FC6255', 'stroke_width': 4} | styling_kwargs
         half = size / 2
         l1 = Line(x1=cx - half, y1=cy - half, x2=cx + half, y2=cy + half,

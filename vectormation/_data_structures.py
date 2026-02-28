@@ -433,7 +433,7 @@ class LinkedListViz(VCollection):
     """Visualise a singly linked list as nodes connected by arrows."""
 
     def __init__(self, values, node_radius=35, spacing=140,
-                 x=None, y=540, node_fill='#264653',
+                 x=None, y=ORIGIN[1], node_fill='#264653',
                  font_size=28, creation: float = 0, z: float = 0):
         Arrow = _get_arrow()
         n = len(values)

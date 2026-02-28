@@ -4,7 +4,7 @@ import math
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 from vectormation._constants import (
-    CANVAS_HEIGHT, UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE, TEXT_Y_OFFSET,
+    CANVAS_HEIGHT, UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE, TEXT_Y_OFFSET, ORIGIN,
     _sample_function,
 )
 from vectormation._base import VObject, VCollection, _lerp, _lerp_point
@@ -1842,7 +1842,7 @@ class Graph(Axes):
 class NumberPlane(VCollection):
     """Cartesian coordinate plane with background grid lines."""
     def __init__(self, x_range=None, y_range=None,
-                 cx=960, cy=540, width=1920, height=1080,
+                 cx=ORIGIN[0], cy=ORIGIN[1], width=1920, height=1080,
                  faded_line_ratio=4,
                  background_line_style=None, faded_line_style=None,
                  axis_style=None, creation: float = 0, z: float = 0):

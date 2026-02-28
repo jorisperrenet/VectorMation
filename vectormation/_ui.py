@@ -270,7 +270,7 @@ def _labeled_line_init(self, line_obj, x1, y1, x2, y2, label, font_size, label_b
 
 class LabeledLine(VCollection):
     """Line with a text label placed at its midpoint."""
-    def __init__(self, x1=860, y1=540, x2=1060, y2=540, label='',
+    def __init__(self, x1=860, y1=ORIGIN[1], x2=1060, y2=ORIGIN[1], label='',
                  font_size=24, label_buff=10, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = _LINE_STYLE | styling_kwargs
         line = Line(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z, **style_kw)
@@ -281,7 +281,7 @@ class LabeledLine(VCollection):
 
 class LabeledArrow(VCollection):
     """Arrow with a text label placed at its midpoint."""
-    def __init__(self, x1=860, y1=540, x2=1060, y2=540, label='',
+    def __init__(self, x1=860, y1=ORIGIN[1], x2=1060, y2=ORIGIN[1], label='',
                  font_size=24, label_buff=10, creation: float = 0, z: float = 0, **styling_kwargs):
         Arrow = _get_arrow()
         style_kw = _LINE_STYLE | styling_kwargs

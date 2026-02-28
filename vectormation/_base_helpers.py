@@ -5,7 +5,7 @@ from typing import Any
 import vectormation.easings as easings
 import vectormation.morphing as morphing
 from vectormation._constants import (
-    CANVAS_WIDTH, CANVAS_HEIGHT,
+    CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
     UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR,
     SMALL_BUFF, MED_SMALL_BUFF, DEFAULT_OBJECT_TO_EDGE_BUFF,
 )
@@ -238,7 +238,7 @@ class _BBoxMethodsMixin:
                    start=start, end=end, easing=easing)
         return self
 
-    def center_to_pos(self, posx: float = 960, posy: float = 540,
+    def center_to_pos(self, posx: float = ORIGIN[0], posy: float = ORIGIN[1],
                       start: float = 0, end: float | None = None, easing=easings.smooth):
         """Shift the center to (posx, posy), animated from start to end."""
         return self.move_to(posx, posy, start, end, easing)

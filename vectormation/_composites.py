@@ -239,7 +239,7 @@ class SplitTexObject:
 
 class NumberLine(VCollection):
     """A number line with ticks and labels, with optional endpoint arrows."""
-    def __init__(self, x_range=(-5, 5, 1), length=720, x=240, y=540,
+    def __init__(self, x_range=(-5, 5, 1), length=720, x=240, y=ORIGIN[1],
                  include_arrows=True, include_numbers=True,
                  tick_size=2*SMALL_BUFF, font_size=_TICK_FONT_SIZE,
                  creation=0, z=0, **styling_kwargs):

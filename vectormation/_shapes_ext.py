@@ -984,7 +984,7 @@ class CountAnimation(Text):
     """Text that animates a number counting from start_val to end_val."""
     def __init__(self, start_val=0, end_val=100, start: float = 0, end: float = 1,
                  fmt='{:.0f}', easing=easings.smooth,
-                 x: float = 960, y: float = 540, font_size: float = 60, text_anchor=None, creation: float = 0, z: float = 0, **styling_kwargs):
+                 x: float = ORIGIN[0], y: float = ORIGIN[1], font_size: float = 60, text_anchor=None, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(text=fmt.format(start_val), x=x, y=y,
                          font_size=font_size, text_anchor=text_anchor,
                          creation=creation, z=z, **styling_kwargs)
@@ -1091,7 +1091,7 @@ class ComplexValueTracker:
 
 class DecimalNumber(Text):
     """Text that dynamically displays a numeric value, updating each frame."""
-    def __init__(self, value: 'float | ValueTracker | attributes.Real' = 0, fmt='{:.2f}', x=960, y=540, font_size=48,
+    def __init__(self, value: 'float | ValueTracker | attributes.Real' = 0, fmt='{:.2f}', x=ORIGIN[0], y=ORIGIN[1], font_size=48,
                  text_anchor=None, creation: float = 0, z: float = 0, **styling_kwargs):
         if isinstance(value, ValueTracker):
             tracker = value.value
@@ -1122,7 +1122,7 @@ class DecimalNumber(Text):
 
 class Integer(DecimalNumber):
     """DecimalNumber that displays as an integer (no decimal places)."""
-    def __init__(self, value=0, x=960, y=540, font_size=48,
+    def __init__(self, value=0, x=ORIGIN[0], y=ORIGIN[1], font_size=48,
                  text_anchor=None, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(value, fmt='{:.0f}', x=x, y=y, font_size=font_size,
                          text_anchor=text_anchor, creation=creation, z=z, **styling_kwargs)
@@ -1661,7 +1661,7 @@ class Wedge(Arc):
 
 class Annulus(VObject):
     """Ring/donut shape defined by inner and outer radius."""
-    def __init__(self, inner_radius: float = 60, outer_radius: float = 120, cx: float = 960, cy: float = 540,
+    def __init__(self, inner_radius: float = 60, outer_radius: float = 120, cx: float = ORIGIN[0], cy: float = ORIGIN[1],
                  creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.c = attributes.Coor(creation, (cx, cy))
@@ -1789,7 +1789,7 @@ class ArcBetweenPoints(Arc):
 
 class Elbow(Lines):
     """Right-angle connector (L-shape) between two directions."""
-    def __init__(self, cx=960, cy=540, width=40, height=40,
+    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], width=40, height=40,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#fff', 'stroke_width': DEFAULT_STROKE_WIDTH, 'fill_opacity': 0} | styling_kwargs
         super().__init__(
@@ -1801,7 +1801,7 @@ class Elbow(Lines):
 
 class AnnularSector(Arc):
     """Sector of an annulus (ring wedge)."""
-    def __init__(self, inner_radius=60, outer_radius=120, cx=960, cy=540,
+    def __init__(self, inner_radius=60, outer_radius=120, cx=ORIGIN[0], cy=ORIGIN[1],
                  start_angle=0, end_angle=90, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(cx=cx, cy=cy, r=outer_radius, start_angle=start_angle,
                          end_angle=end_angle, creation=creation, z=z,
@@ -1990,7 +1990,7 @@ class _TextBlockMixin:
 
 class Paragraph(_TextBlockMixin, VObject):
     """Multi-line text with alignment and line spacing."""
-    def __init__(self, *lines, x=960, y=540, font_size=36, alignment='left',
+    def __init__(self, *lines, x=ORIGIN[0], y=ORIGIN[1], font_size=36, alignment='left',
                  line_spacing=1.4, creation: float = 0, z: float = 0, **styling_kwargs):
         self._init_block(lines, x, y, font_size, line_spacing, creation, z, styling_kwargs)
         self.alignment = alignment
@@ -2135,7 +2135,7 @@ class KochSnowflake(Polygon):
         Recursion depth (0 = triangle, 3 is typical).
     """
 
-    def __init__(self, cx=960, cy=540, size=400, depth=3,
+    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], size=400, depth=3,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         h = size * math.sqrt(3) / 2
         # Equilateral triangle vertices (top, bottom-left, bottom-right)
@@ -2178,7 +2178,7 @@ class SierpinskiTriangle(VCollection):
         Recursion depth (0 = solid triangle, 5 is typical).
     """
 
-    def __init__(self, cx=960, cy=540, size=500, depth=4,
+    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], size=500, depth=4,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         h = size * math.sqrt(3) / 2
         ax, ay = cx, cy - h * 2 / 3
@@ -2213,7 +2213,7 @@ class Spiral(Lines):
         If True, use r = a * exp(b*theta) instead of r = a + b*theta.
     """
 
-    def __init__(self, cx=960, cy=540, a=0, b=15, turns=5, num_points=500,
+    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], a=0, b=15, turns=5, num_points=500,
                  log_spiral=False, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#58C4DD', 'fill_opacity': 0, 'stroke_width': 2} | styling_kwargs
         max_theta = turns * math.tau

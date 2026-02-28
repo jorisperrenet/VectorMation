@@ -1487,7 +1487,7 @@ class WaffleChart(VCollection):
 
 class CircularProgressBar(VCollection):
     """Circular progress indicator with percentage text."""
-    def __init__(self, value, x=960, y=540, radius=80, stroke_width=12,
+    def __init__(self, value, x=ORIGIN[0], y=ORIGIN[1], radius=80, stroke_width=12,
                  track_color='#2a2a3a', bar_color='#58C4DD',
                  font_size=36, show_text=True, creation: float = 0, z: float = 0):
         objects = []

@@ -221,7 +221,7 @@ class PeriodicTable(VCollection):
 
 class BohrAtom(VCollection):
     """Bohr model of an atom with electron shells."""
-    def __init__(self, protons=1, neutrons=0, electrons=None, cx=960, cy=540,
+    def __init__(self, protons=1, neutrons=0, electrons=None, cx=ORIGIN[0], cy=ORIGIN[1],
                  nucleus_r=30, shell_spacing=40, creation: float = 0, z: float = 0):
         objects = []
 
@@ -279,7 +279,7 @@ class BohrAtom(VCollection):
 class Automaton(VCollection):
     """Finite state machine / automaton visualization."""
     def __init__(self, states, transitions, accept_states=None, initial_state=None,
-                 cx=960, cy=540, radius=300, state_r=35, font_size=20,
+                 cx=ORIGIN[0], cy=ORIGIN[1], radius=300, state_r=35, font_size=20,
                  creation: float = 0, z: float = 0):
         Arrow = _get_arrow()
         objects = []
@@ -428,7 +428,7 @@ class Automaton(VCollection):
 
 class NetworkGraph(VCollection):
     """Network/graph visualization with nodes and edges."""
-    def __init__(self, nodes, edges=None, cx=960, cy=540, radius=300,
+    def __init__(self, nodes, edges=None, cx=ORIGIN[0], cy=ORIGIN[1], radius=300,
                  node_r=30, font_size=20, layout='circular', directed=False,
                  creation: float = 0, z: float = 0):
         Arrow = _get_arrow()
@@ -552,7 +552,7 @@ class NetworkGraph(VCollection):
 
 class Tree(VCollection):
     """Hierarchical tree layout visualization."""
-    def __init__(self, data, cx=960, cy=100, h_spacing=120, v_spacing=100,
+    def __init__(self, data, cx=ORIGIN[0], cy=100, h_spacing=120, v_spacing=100,
                  node_r=20, font_size=18, layout='down',
                  creation: float = 0, z: float = 0):
         objects = []
@@ -781,7 +781,7 @@ class FlowChart(VCollection):
 
 class VennDiagram(VCollection):
     """Venn diagram with 2 or 3 overlapping circles."""
-    def __init__(self, labels, sizes=None, x=960, y=540, radius=150,
+    def __init__(self, labels, sizes=None, x=ORIGIN[0], y=ORIGIN[1], radius=150,
                  colors=None, font_size=24, creation: float = 0, z: float = 0):
         n = len(labels)
         if n < 2 or n > 3:
@@ -834,7 +834,7 @@ class VennDiagram(VCollection):
 
 class OrgChart(VCollection):
     """Organization chart from a tree structure."""
-    def __init__(self, root, x=960, y=80, h_spacing=180, v_spacing=100,
+    def __init__(self, root, x=ORIGIN[0], y=80, h_spacing=180, v_spacing=100,
                  box_width=120, box_height=40, font_size=16,
                  colors=None, creation: float = 0, z: float = 0):
         if colors is None:
@@ -908,7 +908,7 @@ class OrgChart(VCollection):
 
 class MindMap(VCollection):
     """Radial mind map diagram."""
-    def __init__(self, root, cx=960, cy=540, radius=250, font_size=18,
+    def __init__(self, root, cx=ORIGIN[0], cy=ORIGIN[1], radius=250, font_size=18,
                  colors=None, creation: float = 0, z: float = 0):
         if colors is None:
             colors = list(DEFAULT_CHART_COLORS)

@@ -25,7 +25,7 @@ _COMPONENT_STYLE = {'stroke': '#fff', 'stroke_width': 2}
 
 class Resistor(VCollection):
     """Electrical resistor symbol (zigzag line)."""
-    def __init__(self, x1=400, y1=540, x2=600, y2=540, label='R',
+    def __init__(self, x1=400, y1=ORIGIN[1], x2=600, y2=ORIGIN[1], label='R',
                  creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = _COMPONENT_STYLE | styling_kwargs
         length, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
@@ -47,7 +47,7 @@ class Resistor(VCollection):
 
 class Capacitor(VCollection):
     """Electrical capacitor symbol (two parallel plates)."""
-    def __init__(self, x1=400, y1=540, x2=600, y2=540, label='C',
+    def __init__(self, x1=400, y1=ORIGIN[1], x2=600, y2=ORIGIN[1], label='C',
                  creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = _COMPONENT_STYLE | styling_kwargs
         _, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
@@ -72,7 +72,7 @@ class Capacitor(VCollection):
 
 class Inductor(VCollection):
     """Electrical inductor symbol (coil/solenoid)."""
-    def __init__(self, x1=400, y1=540, x2=600, y2=540, label='L',
+    def __init__(self, x1=400, y1=ORIGIN[1], x2=600, y2=ORIGIN[1], label='L',
                  n_loops=4, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = _COMPONENT_STYLE | styling_kwargs
         length, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
@@ -99,7 +99,7 @@ class Inductor(VCollection):
 
 class Diode(VCollection):
     """Electrical diode symbol (triangle with bar)."""
-    def __init__(self, x1=400, y1=540, x2=600, y2=540, label='D',
+    def __init__(self, x1=400, y1=ORIGIN[1], x2=600, y2=ORIGIN[1], label='D',
                  creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = _COMPONENT_STYLE | styling_kwargs
         length, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
@@ -131,7 +131,7 @@ class Diode(VCollection):
 
 class LED(VCollection):
     """Light-emitting diode symbol (diode with light rays)."""
-    def __init__(self, x1=400, y1=540, x2=600, y2=540, label='LED',
+    def __init__(self, x1=400, y1=ORIGIN[1], x2=600, y2=ORIGIN[1], label='LED',
                  color='#FF0000', creation: float = 0, z: float = 0, **styling_kwargs):
         diode = Diode(x1=x1, y1=y1, x2=x2, y2=y2, label='',
                       creation=creation, z=z, **styling_kwargs)
@@ -154,7 +154,7 @@ class LED(VCollection):
 class UnitInterval:
     """A NumberLine from 0 to 1 -- commonly used for probabilities and parameters.
     Convenience wrapper with sensible defaults for [0, 1] range."""
-    def __new__(cls, x=360, y=540, length=600, tick_step=0.1,
+    def __new__(cls, x=360, y=ORIGIN[1], length=600, tick_step=0.1,
                 show_labels=True, font_size=18,
                 creation: float = 0, z: float = 0, **styling_kwargs):
         from vectormation._composites import NumberLine
@@ -373,7 +373,7 @@ class Pendulum(VCollection):
         Animation time range.
     """
 
-    def __init__(self, pivot_x=960, pivot_y=200, length=300, angle=30,
+    def __init__(self, pivot_x=ORIGIN[0], pivot_y=200, length=300, angle=30,
                  bob_radius=20, period=2.0, damping=0.0,
                  start=0, end=5, creation: float = 0, z: float = 0):
         self._pivot_x = pivot_x
@@ -442,7 +442,7 @@ class StandingWave(VCollection):
         Animation time range.
     """
 
-    def __init__(self, x1=300, y1=540, x2=1620, y2=540,
+    def __init__(self, x1=300, y1=ORIGIN[1], x2=1620, y2=ORIGIN[1],
                  amplitude=100, harmonics=3, frequency=1.0, num_points=200,
                  start=0, end=5, creation: float = 0, z: float = 0, **kwargs):
         wave_length = math.hypot(x2 - x1, y2 - y1)
