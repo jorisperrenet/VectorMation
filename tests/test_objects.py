@@ -17768,3 +17768,46 @@ class TestTextHighlightHelper:
         # Should return empty rect
         assert isinstance(rect, Rectangle)
 
+
+class TestArrowTipPoints:
+    def test_arrow_tip_points_basic(self):
+        from vectormation._threed import _arrow_tip_points
+        (ax, ay), (bx, by) = _arrow_tip_points(0, 0, 100, 0, 10, 4)
+        assert ax == pytest.approx(90, abs=1)
+        assert bx == pytest.approx(90, abs=1)
+        assert abs(ay) == pytest.approx(4, abs=1)
+        assert abs(by) == pytest.approx(4, abs=1)
+        assert ay != pytest.approx(by, abs=0.1)
+
+    def test_arrow_tip_points_vertical(self):
+        from vectormation._threed import _arrow_tip_points
+        (ax, ay), (bx, by) = _arrow_tip_points(0, 0, 0, 100, 10, 4)
+        assert ay == pytest.approx(90, abs=1)
+        assert by == pytest.approx(90, abs=1)
+
+
+class TestSurfaceColorCache:
+    def test_surface_pre_parses_colors(self):
+        from vectormation._threed import Surface
+        s = Surface(lambda u, v: u + v, checkerboard_colors=['#ff0000', '#00ff00'])
+        assert s._checker_rgb is not None
+        assert len(s._checker_rgb) == 2
+        assert s._checker_rgb[0] == (255, 0, 0)
+        assert s._checker_rgb[1] == (0, 255, 0)
+
+    def test_surface_no_checkerboard(self):
+        from vectormation._threed import Surface
+        s = Surface(lambda u, v: u + v)
+        assert s._checker_rgb is None
+        assert s._fill_rgb == (68, 136, 255)  # #4488ff
+
+
+class TestPlotAreaPerformance:
+    def test_plot_area_renders(self):
+        ax = Axes(x_range=(-5, 5, 1), y_range=(-2, 10, 1))
+        ax.plot_area(lambda x: x ** 2, num_points=10)
+        c = VectorMathAnim(save_dir='/tmp/t')
+        c.add_objects(ax)
+        svg = c.generate_frame_svg(0)
+        assert '<path' in svg
+

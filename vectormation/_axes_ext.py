@@ -1384,9 +1384,10 @@ class _AxesExtMixin:
         def _d(time, _data=data, _bl=baseline):
             if not _data:
                 return ''
-            pts = [f'{"M" if i == 0 else "L"}{self.coords_to_point(x, y, time)[0]:.1f},'
-                   f'{self.coords_to_point(x, y, time)[1]:.1f}'
-                   for i, (x, y) in enumerate(_data)]
+            pts = []
+            for i, (x, y) in enumerate(_data):
+                sx, sy = self.coords_to_point(x, y, time)
+                pts.append(f'{"M" if i == 0 else "L"}{sx:.1f},{sy:.1f}')
             # Close to baseline
             last_x = _data[-1][0]
             first_x = _data[0][0]
@@ -2108,13 +2109,15 @@ class _AxesExtMixin:
                    creation=creation, z=z, **style_kw)
 
         if x_pos is not None:
-            sx = self._math_to_svg_x(x_pos, creation)
-            try:
-                sy = self._math_to_svg_y(func(x_pos), creation)
-            except Exception:
-                sy = self.get_plot_center()[1]
-            lbl.x.set_onward(creation, sx)
-            lbl.y.set_onward(creation, sy + sign * (font_size / 2 + buff))
+            def _lbl_x(t, _xp=x_pos): return self._math_to_svg_x(_xp, t)
+            def _lbl_y(t, _xp=x_pos, _f=func, _s=sign, _b=buff, _fz=font_size):
+                try:
+                    yv = _f(_xp)
+                except Exception:
+                    yv = 0
+                return self._math_to_svg_y(yv, t) + _s * (_fz / 2 + _b)
+            lbl.x.set_onward(creation, _lbl_x)
+            lbl.y.set_onward(creation, _lbl_y)
         else:
             # Dynamic: track x_max
             def _lbl_x(t):

@@ -50,6 +50,17 @@ def _shade_color(base_rgb, normal, light_dir):
     b = min(255, int(base_rgb[2] * intensity))
     return f'rgb({r},{g},{b})'
 
+def _arrow_tip_points(sx0, sy0, sx1, sy1, tip_length, tip_radius):
+    """Compute triangle tip vertices for an arrow from (sx0,sy0) to (sx1,sy1)."""
+    dx, dy = sx1 - sx0, sy1 - sy0
+    length = math.hypot(dx, dy) or 1
+    ux, uy = dx / length, dy / length
+    px, py = -uy, ux
+    return ((sx1 - ux * tip_length + px * tip_radius,
+             sy1 - uy * tip_length + py * tip_radius),
+            (sx1 - ux * tip_length - px * tip_radius,
+             sy1 - uy * tip_length - py * tip_radius))
+
 def _polyline_patch(points_3d, axes, time, stroke, stroke_width):
     """Project 3D points and return a (depth, svg_polyline) patch."""
     pts = []
@@ -327,15 +338,7 @@ class ThreeDAxes(VCollection):
         """Render a small arrowhead at p_tip."""
         sx0, sy0, _ = self.project_point(*p_base, time)
         sx1, sy1, _ = self.project_point(*p_tip, time)
-        dx, dy = sx1 - sx0, sy1 - sy0
-        length = math.hypot(dx, dy) or 1
-        ux, uy = dx / length, dy / length
-        px, py = -uy, ux
-        # Triangle
-        ax = sx1 - ux * size + px * size * 0.4
-        ay = sy1 - uy * size + py * size * 0.4
-        bx = sx1 - ux * size - px * size * 0.4
-        by = sy1 - uy * size - py * size * 0.4
+        (ax, ay), (bx, by) = _arrow_tip_points(sx0, sy0, sx1, sy1, size, size * 0.4)
         stroke = self._axis_style.get('stroke', '#888')
         return (f'<polygon points="{sx1:.1f},{sy1:.1f} {ax:.1f},{ay:.1f} {bx:.1f},{by:.1f}" '
                 f'fill="{stroke}" stroke="none"/>')
@@ -480,6 +483,9 @@ class Surface(VObject):
         self._resolution = resolution
         self._fill_color = fill_color
         self._checkerboard_colors = checkerboard_colors
+        self._fill_rgb = _parse_color_to_rgb(fill_color)
+        self._checker_rgb = (tuple(_parse_color_to_rgb(c) for c in checkerboard_colors)
+                             if checkerboard_colors else None)
         self._stroke_color = stroke_color
         self._stroke_width = stroke_width
         self._fill_opacity = fill_opacity
@@ -523,12 +529,10 @@ class Surface(VObject):
             grid.append(row)
 
         # Parse colors
-        if self._checkerboard_colors:
-            rgb_a = _parse_color_to_rgb(self._checkerboard_colors[0])
-            rgb_b = _parse_color_to_rgb(self._checkerboard_colors[1])
+        if self._checker_rgb:
+            rgb_a, rgb_b = self._checker_rgb
         else:
-            rgb_a = _parse_color_to_rgb(self._fill_color)
-            rgb_b = rgb_a
+            rgb_a = rgb_b = self._fill_rgb
 
         light_dir = axes._light_dir
 
@@ -779,15 +783,8 @@ class Arrow3D(_SegmentPrimitive3D):
         patches.append((depth, svg))
 
         # Arrow tip (2D triangle at the projected tip)
-        dx, dy = sx1 - sx0, sy1 - sy0
-        length = math.hypot(dx, dy) or 1
-        ux, uy = dx / length, dy / length
-        px, py = -uy, ux
-        tl, tr = self._tip_length, self._tip_radius
-        ax = sx1 - ux * tl + px * tr
-        ay = sy1 - uy * tl + py * tr
-        bx = sx1 - ux * tl - px * tr
-        by = sy1 - uy * tl - py * tr
+        (ax, ay), (bx, by) = _arrow_tip_points(sx0, sy0, sx1, sy1,
+                                                 self._tip_length, self._tip_radius)
         tip_svg = (f'<polygon points="{sx1:.1f},{sy1:.1f} {ax:.1f},{ay:.1f} {bx:.1f},{by:.1f}" '
                    f'fill="{self._stroke}" stroke="none"/>')
         patches.append((d1, tip_svg))
