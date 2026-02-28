@@ -6,7 +6,6 @@ Uses RK4 integration and oblique 3D-to-2D projection.
 """
 import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from vectormation.objects import *
-import math
 
 args = parse_args()
 canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/lorenz_attractor')

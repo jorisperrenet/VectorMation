@@ -1752,14 +1752,14 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             return _a * math.cos(2.7 * math.pi * _freq * p) * _easing(p)
         return self._apply_shift_effect(start, end, _dx, _dy)
 
-    def undulate(self, start: float = 0, end: float = 1, amplitude=0.15, waves=2, easing=easings.smooth):
+    def undulate(self, start: float = 0, end: float = 1, amplitude=0.15, n_waves=2, easing=easings.smooth):
         """Wavy pulsing scale effect, like a heartbeat or breathing."""
         dur = end - start
         if dur <= 0:
             return self
         self._ensure_scale_origin(start)
         _s, _d = start, max(dur, 1e-9)
-        def _scale(t, _s=_s, _d=_d, _a=amplitude, _w=waves, _easing=easing):
+        def _scale(t, _s=_s, _d=_d, _a=amplitude, _w=n_waves, _easing=easing):
             p = (t - _s) / _d
             return 1 + _a * math.sin(p * _w * math.tau) * (1 - _easing(p))
         self._set_scale_xy(start, end, _scale)
@@ -1777,12 +1777,12 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             _lerp(start, _d, 1, y_factor, easing), stay=True)
         return self
 
-    def jiggle(self, start: float = 0, end: float = 1, amount=5, easing=easings.smooth):
+    def jiggle(self, start: float = 0, end: float = 1, amplitude=5, easing=easings.smooth):
         """Small random-looking position jitter that decays over time."""
         dur = end - start
         if dur <= 0:
             return self
-        _s, _d, _amt = start, max(dur, 1e-9), amount
+        _s, _d, _amt = start, max(dur, 1e-9), amplitude
         def _dx(t, _s=_s, _d=_d, _amt=_amt, _easing=easing):
             p = (t - _s) / _d
             decay = 1 - _easing(p)

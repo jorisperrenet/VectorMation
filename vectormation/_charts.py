@@ -244,17 +244,20 @@ class DonutChart(VCollection):
         """Return the Path object for the sector at index."""
         return _check_idx(index, self._sectors, 'sector')
 
+    def _sector_offset(self, index, distance):
+        """Compute (dx, dy) to push sector *index* outward by *distance*."""
+        total = sum(self.values) or 1
+        mid_deg = self._start_angle + 360 * sum(self.values[:index]) / total + 180 * self.values[index] / total
+        mid_rad = math.radians(mid_deg)
+        return distance * math.cos(mid_rad), -distance * math.sin(mid_rad)
+
     def highlight_sector(self, index, start=0, end=1, pull_distance=30, easing=easings.there_and_back):
         """Pull out a donut sector to highlight it by shifting it outward."""
         sector = _check_idx(index, self._sectors, 'sector')
         dur = end - start
         if dur <= 0:
             return self
-        total = sum(self.values) or 1
-        cum = sum(self.values[:index])
-        mid_rad = math.radians(self._start_angle + 360 * cum / total + 180 * self.values[index] / total)
-        dx = pull_distance * math.cos(mid_rad)
-        dy = -pull_distance * math.sin(mid_rad)
+        dx, dy = self._sector_offset(index, pull_distance)
         sector.shift(dx=dx, dy=dy, start=start, end=start + dur / 2, easing=easing)
         return self
 
@@ -1255,7 +1258,7 @@ class GaugeChart(VCollection):
 
 class SparkLine(VObject):
     """Minimal inline chart (sparkline) rendered as a single SVG path."""
-    def __init__(self, data, x=100, y=100, width=120, height=30,
+    def __init__(self, data, x: float = 100, y: float = 100, width: float = 120, height: float = 30,
                  stroke='#58C4DD', stroke_width=1.5,
                  show_endpoint=False, creation: float = 0, z: float = 0, **styling_kwargs):
         kw = {'stroke': stroke, 'stroke_width': stroke_width,
@@ -1273,7 +1276,7 @@ class SparkLine(VObject):
     def _extra_attrs(self):
         return []
 
-    def path(self, time):
+    def path(self, time):  # noqa: ARG002
         data = self._data
         if len(data) < 2:
             return ''
@@ -1288,11 +1291,11 @@ class SparkLine(VObject):
             pts.append(f'{px:.1f},{py:.1f}')
         return 'M' + 'L'.join(pts)
 
-    def snap_points(self, time):
+    def snap_points(self, time):  # noqa: ARG002
         return [(self._x, self._y), (self._x + self._width, self._y + self._height)]
 
     def to_svg(self, time):
-        d = self.path(time)
+        d = self.path(time)  # noqa: time passed through
         if not d:
             return ''
         s = self.styling.svg_style(time)
@@ -1701,6 +1704,12 @@ class BoxPlot(VCollection):
             stem_hi = Line(x1=cx, y1=py_q3, x2=cx, y2=py_hi,
                            stroke=whisker_color, stroke_width=1, creation=creation, z=z)
             objects.extend([stem_lo, stem_hi])
+            # Position label
+            _, py_bottom = to_px(0, y_min)
+            lbl = Text(text=str(pos), x=cx, y=py_bottom + font_size + 4,
+                       font_size=font_size, fill='#888', stroke_width=0,
+                       text_anchor='middle', creation=creation, z=z)
+            objects.append(lbl)
         super().__init__(*objects, creation=creation, z=z)
 
     def __repr__(self):

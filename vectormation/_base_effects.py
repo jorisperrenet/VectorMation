@@ -358,9 +358,9 @@ class _VObjectEffectsMixin:
             t1 = t0 + step_dur
             dx = rng.uniform(-intensity, intensity)
             for xa, _ in self._shift_reals():
-                xa.add(t0, t1, lambda t, _dx=dx: _dx, stay=False)
+                xa.add(t0, t1, lambda _t, _dx=dx: _dx, stay=False)
             for c in self._shift_coors():
-                c.add(t0, t1, lambda t, _dx=dx: (_dx, 0), stay=False)
+                c.add(t0, t1, lambda _t, _dx=dx: (_dx, 0), stay=False)
         return self
 
     def wave_through(self, start: float = 0, end: float = 1, amplitude=20,
@@ -517,8 +517,9 @@ class _VObjectEffectsMixin:
             self.scale(target_height / cur_h, start=start, end=end, easing=easing)
         return self
 
-    def tilt_towards(self, target_x, target_y, max_angle=15, start=0, end=1, easing=easings.smooth):
-        """Rotate the object to tilt toward a target point by *max_angle* degrees."""
+    def tilt_towards(self, target_x, target_y, max_angle=15, start=0, end=1, easing=easings.smooth):  # noqa: ARG002
+        """Rotate the object to tilt toward a target point by *max_angle* degrees.
+        Currently only the vertical component (target_y) affects tilt direction."""
         _, cy = self.center(start)
         tilt = max_angle if target_y - cy >= 0 else -max_angle
         self.rotate_by(start, end, tilt, easing=easing)
@@ -660,7 +661,7 @@ class _VObjectEffectsMixin:
                 val = _captured[name]
                 attr = getattr(obj.styling, name)
                 if cls is attributes.Color:
-                    attr.set_onward(t, lambda _t, _v=val: _v)
+                    attr.set_onward(t, lambda _t, _v=val: _v)  # noqa: pyright
                 else:
                     attr.set_onward(t, val)
             obj.z.set_onward(t, _captured['_z'])
@@ -682,12 +683,12 @@ class _VObjectEffectsMixin:
         method(*args, **kwargs)
         return self
 
-    def wobble(self, start=0, end=1, intensity=5, frequency=3, easing=easings.smooth):
+    def wobble(self, start=0, end=1, amplitude=5, frequency=3, easing=easings.smooth):
         """Organic wobbling motion combining small rotations and position shifts."""
         dur = end - start
         if dur <= 0:
             return self
-        _s, _d, _a, _freq = start, max(dur, 1e-9), intensity, frequency
+        _s, _d, _a, _freq = start, max(dur, 1e-9), amplitude, frequency
 
         def _dx(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
             p = (t - _s) / _d
@@ -772,7 +773,7 @@ class _VObjectEffectsMixin:
                 f"<linearGradient id='{gid}' x1='{x1}' y1='{y1}' x2='{x2}' y2='{y2}'>"
                 f"{stops}</linearGradient>"
             )
-        _wrap_to_svg(self, lambda inner, t, _g=gid, _d=grad_def:
+        _wrap_to_svg(self, lambda inner, _t, _g=gid, _d=grad_def:
                      f"<g><defs>{_d}</defs><g fill='url(#{_g})'>{inner}</g></g>", start)
         return self
 

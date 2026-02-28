@@ -50,7 +50,7 @@ dots = VGroup(
           fill='#FF6B6B', stroke_width=0) for i in range(15)]
 )
 dots.cascade('fadein', start=1, end=2.5, overlap=0.6)
-dots.wave_anim(start=3, end=7, amplitude=30, waves=2)
+dots.wave_anim(start=3, end=7, amplitude=30, n_waves=2)
 
 canvas.add_objects(ax, rect, flip_label, star, dots, title)
 

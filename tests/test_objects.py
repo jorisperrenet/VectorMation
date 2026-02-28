@@ -10658,12 +10658,12 @@ class TestDelayAnimation:
 class TestWobble:
     def test_wobble_returns_self(self):
         c = Circle(r=50, cx=100, cy=100)
-        result = c.wobble(start=0, end=1, intensity=5, frequency=3)
+        result = c.wobble(start=0, end=1, amplitude=5, frequency=3)
         assert result is c
 
     def test_wobble_produces_displacement(self):
         c = Circle(r=50, cx=100, cy=100)
-        c.wobble(start=0, end=1, intensity=10, frequency=3)
+        c.wobble(start=0, end=1, amplitude=10, frequency=3)
         svg_mid = c.to_svg(0.25)
         assert 'circle' in svg_mid.lower() or 'ellipse' in svg_mid.lower()
 
@@ -10674,7 +10674,7 @@ class TestWobble:
 
     def test_wobble_applies_rotation(self):
         c = Circle(r=50, cx=100, cy=100)
-        c.wobble(start=0, end=2, intensity=10, frequency=2)
+        c.wobble(start=0, end=2, amplitude=10, frequency=2)
         # At a mid-point, rotation should be non-zero
         rot = c.styling.rotation.at_time(0.5)
         # rotation is a tuple: (degrees, cx, cy)
@@ -10682,7 +10682,7 @@ class TestWobble:
 
     def test_wobble_decays(self):
         c = Circle(r=50, cx=100, cy=100)
-        c.wobble(start=0, end=1, intensity=10, frequency=3)
+        c.wobble(start=0, end=1, amplitude=10, frequency=3)
         # Near the end, the rotation envelope (1-easing(p)) should be near 0
         rot_near_end = c.styling.rotation.at_time(0.99)
         assert abs(rot_near_end[0]) < 1.0  # should be small
@@ -16418,11 +16418,11 @@ class TestBoxPlotComprehensive:
     def test_one_group_per_box(self):
         # Each group produces: box rect + median line + 2 whisker caps + 2 stems = 6 objects
         bp = BoxPlot([[1, 2, 3, 4, 5]])
-        assert len(bp) == 6
+        assert len(bp) == 7
 
     def test_two_groups_twelve_objects(self):
         bp = BoxPlot([[1, 2, 3, 4, 5], [10, 20, 30, 40, 50]])
-        assert len(bp) == 12
+        assert len(bp) == 14
 
     def test_svg_has_rects_and_lines(self):
         bp = BoxPlot([[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]])

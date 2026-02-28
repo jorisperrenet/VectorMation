@@ -12111,7 +12111,7 @@ class TestEffectBehavior:
 
     def test_wobble_modifies_position(self):
         c = Circle(r=30, cx=500, cy=500)
-        c.wobble(start=0, end=2, intensity=10)
+        c.wobble(start=0, end=2, amplitude=10)
         # Wobble should produce SVG that includes rotation
         svg = c.to_svg(0.5)
         assert svg

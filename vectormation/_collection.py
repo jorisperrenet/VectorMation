@@ -654,7 +654,7 @@ class VCollection(_BBoxMethodsMixin):
             getattr(obj, method_name)(**kw)
         return self
 
-    def wave_anim(self, start: float = 0, end: float = 1, amplitude=20, waves=1):
+    def wave_anim(self, start: float = 0, end: float = 1, amplitude=20, n_waves=1):
         """Staggered wave animation: children bob up and down with phase offsets."""
         n = len(self.objects)
         if n == 0 or end <= start:
@@ -662,7 +662,7 @@ class VCollection(_BBoxMethodsMixin):
         dur = end - start
         for i, obj in enumerate(self.objects):
             phase = math.tau * i / max(n, 1)
-            def _dy(t, _s=start, _d=dur, _a=amplitude, _p=phase, _w=waves):
+            def _dy(t, _s=start, _d=dur, _a=amplitude, _p=phase, _w=n_waves):
                 progress = (t - _s) / _d
                 return -_a * math.sin(math.tau * _w * progress + _p) * (1 - progress)
             for _, ya in obj._shift_reals():

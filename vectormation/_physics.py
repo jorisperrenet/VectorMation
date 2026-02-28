@@ -595,7 +595,7 @@ def _collide_bodies(a, b):
 
 
 def _traj_at(traj, start, dt, t):
-    """Interpolate a trajectory at time *t* and return (x, y)."""
+    """Interpolate a trajectory at time *t*. Works for (x,y) tuples and scalars."""
     elapsed = t - start
     if elapsed <= 0:
         return traj[0]
@@ -604,22 +604,10 @@ def _traj_at(traj, start, dt, t):
     if i >= len(traj) - 1:
         return traj[-1]
     frac = idx - i
-    x1, y1 = traj[i]
-    x2, y2 = traj[i + 1]
-    return (x1 + (x2 - x1) * frac, y1 + (y2 - y1) * frac)
-
-
-def _scalar_traj_at(traj, start, dt, t):
-    """Interpolate a scalar trajectory at time *t*."""
-    elapsed = t - start
-    if elapsed <= 0:
-        return traj[0]
-    idx = elapsed / dt
-    i = int(idx)
-    if i >= len(traj) - 1:
-        return traj[-1]
-    frac = idx - i
-    return traj[i] + (traj[i + 1] - traj[i]) * frac
+    a, b = traj[i], traj[i + 1]
+    if isinstance(a, tuple):
+        return (a[0] + (b[0] - a[0]) * frac, a[1] + (b[1] - a[1]) * frac)
+    return a + (b - a) * frac
 
 
 def _bake_trajectory(body, start, dt):
@@ -646,7 +634,7 @@ def _bake_trajectory(body, start, dt):
         # Check if there is any actual rotation to bake
         if any(a != ang_traj[0] for a in ang_traj):
             def _rot_at(t, _atr=ang_traj, _ptr=traj):
-                angle = _scalar_traj_at(_atr, start, dt, t)
+                angle = _traj_at(_atr, start, dt, t)
                 px, py = _traj_at(_ptr, start, dt, t)
                 return (angle, px, py)
             obj.styling.rotation.set_onward(start, _rot_at)
