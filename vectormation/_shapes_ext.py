@@ -47,31 +47,19 @@ class Line(VObject):
         return f"<line x1='{x1}' y1='{y1}' x2='{x2}' y2='{y2}'{self.styling.svg_style(time)} />"
 
     def get_start(self, time=0):
-        """Return the start point (x, y)."""
-        p = self.p1.at_time(time)
-        return (float(p[0]), float(p[1]))
+        p = self.p1.at_time(time); return (float(p[0]), float(p[1]))
 
     def get_end(self, time=0):
-        """Return the end point (x, y)."""
-        p = self.p2.at_time(time)
-        return (float(p[0]), float(p[1]))
+        p = self.p2.at_time(time); return (float(p[0]), float(p[1]))
 
-    def get_length(self, time=0):
-        """Return the Euclidean length of the line."""
-        x1, y1, x2, y2 = self._ep(time)
-        return _distance(x1, y1, x2, y2)
-
+    def get_length(self, time=0): return _distance(*self._ep(time))
     length = get_length
 
     def get_angle(self, time=0):
-        """Return the angle (in degrees) from p1 to p2."""
-        x1, y1, x2, y2 = self._ep(time)
-        return math.degrees(math.atan2(y2 - y1, x2 - x1))
+        x1, y1, x2, y2 = self._ep(time); return math.degrees(math.atan2(y2 - y1, x2 - x1))
 
     def get_midpoint(self, time=0):
-        """Return the midpoint (x, y) of the line."""
-        x1, y1, x2, y2 = self._ep(time)
-        return ((x1 + x2) / 2, (y1 + y2) / 2)
+        x1, y1, x2, y2 = self._ep(time); return ((x1 + x2) / 2, (y1 + y2) / 2)
 
     def split_at(self, t: float = 0.5, time: float = 0):
         """Split the line at parameter *t* and return two new Line objects."""
@@ -90,14 +78,10 @@ class Line(VObject):
     get_unit_vector = get_direction
 
     def get_vector(self, time=0):
-        """Return the unnormalized direction vector ``(dx, dy)`` from p1 to p2."""
-        x1, y1, x2, y2 = self._ep(time)
-        return (x2 - x1, y2 - y1)
+        x1, y1, x2, y2 = self._ep(time); return (x2 - x1, y2 - y1)
 
     def get_normal(self, time=0):
-        """Return the unit normal ``(-dy, dx)`` perpendicular to the line."""
-        dx, dy = self.get_direction(time)
-        return (-dy, dx)
+        dx, dy = self.get_direction(time); return (-dy, dx)
 
     def angle_to(self, other, time=0):
         """Return the angle in degrees [0, 180] between this line and *other*."""
@@ -141,13 +125,8 @@ class Line(VObject):
         """Return True if start and end differ by less than *tol* on *axis* (0=x, 1=y)."""
         return abs(self.get_end(time)[axis] - self.get_start(time)[axis]) < tol
 
-    def is_horizontal(self, time=0, tol=1e-3):
-        """Return True if this line is approximately horizontal."""
-        return self._is_aligned(1, time, tol)
-
-    def is_vertical(self, time=0, tol=1e-3):
-        """Return True if this line is approximately vertical."""
-        return self._is_aligned(0, time, tol)
+    def is_horizontal(self, time=0, tol=1e-3): return self._is_aligned(1, time, tol)
+    def is_vertical(self, time=0, tol=1e-3): return self._is_aligned(0, time, tol)
 
     def set_start(self, point, start=0, end=None, easing=easings.smooth):
         _set_attr(self.p1, start, end, point, easing)
@@ -600,13 +579,8 @@ class Text(VObject):
     def get_font_size(self, time=0):
         return self.font_size.at_time(time)
 
-    def starts_with(self, prefix, time=0):
-        """Return True if the text starts with *prefix* at the given time."""
-        return self.text.at_time(time).startswith(prefix)
-
-    def ends_with(self, suffix, time=0):
-        """Return True if the text ends with *suffix* at the given time."""
-        return self.text.at_time(time).endswith(suffix)
+    def starts_with(self, prefix, time=0): return self.text.at_time(time).startswith(prefix)
+    def ends_with(self, suffix, time=0): return self.text.at_time(time).endswith(suffix)
 
     def __repr__(self):
         t = self.text.at_time(0)

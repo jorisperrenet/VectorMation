@@ -876,17 +876,13 @@ class _VObjectEffectsMixin:
             fx, fy = func(ox, oy, 1.0)
             c.set_onward(end, (fx, fy))
         for rx, ry in self._shift_reals():
-            ox = float(rx.at_time(start))
-            oy = float(ry.at_time(start))
-            def _hx(t, _s=start, _d=dur, _ox=ox, _oy=oy, _f=func):
-                return _f(_ox, _oy, min(1.0, (t - _s) / _d))[0]
-            def _hy(t, _s=start, _d=dur, _ox=ox, _oy=oy, _f=func):
-                return _f(_ox, _oy, min(1.0, (t - _s) / _d))[1]
-            rx.set(start, end, _hx, stay=True)
-            ry.set(start, end, _hy, stay=True)
+            ox, oy = float(rx.at_time(start)), float(ry.at_time(start))
+            def _hi(idx, _s=start, _d=dur, _ox=ox, _oy=oy, _f=func):
+                return lambda t: _f(_ox, _oy, min(1.0, (t - _s) / _d))[idx]
+            rx.set(start, end, _hi(0), stay=True)
+            ry.set(start, end, _hi(1), stay=True)
             fx, fy = func(ox, oy, 1.0)
-            rx.set_onward(end, fx)
-            ry.set_onward(end, fy)
+            rx.set_onward(end, fx); ry.set_onward(end, fy)
         return self
 
     def apply_wave(self, start: float = 0, end: float = 1, amplitude: float = 30,
