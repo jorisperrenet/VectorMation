@@ -192,6 +192,8 @@ class _BBoxMethodsMixin:
         """Return y-coordinate of the bounding box center."""
         return self.center(time)[1]
 
+    get_center = center  # Alias for compatibility
+
     def get_diagonal(self, time=0):
         """Return the diagonal length of the bounding box."""
         _, _, w, h = self.bbox(time)

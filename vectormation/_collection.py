@@ -1218,6 +1218,18 @@ class VCollection(_BBoxMethodsMixin):
         """Indicate all children simultaneously."""
         return self._delegate('indicate', start=start, end=end, **kwargs)
 
+    def create_then_fadeout(self, start: float = 0, end: float = 2, **kwargs):
+        """Create then fade out all children simultaneously."""
+        return self._delegate('create_then_fadeout', start=start, end=end, **kwargs)
+
+    def write_then_fadeout(self, start: float = 0, end: float = 2, **kwargs):
+        """Write then fade out all children simultaneously."""
+        return self._delegate('write_then_fadeout', start=start, end=end, **kwargs)
+
+    def fadein_then_fadeout(self, start: float = 0, end: float = 2, **kwargs):
+        """Fade in then fade out all children simultaneously."""
+        return self._delegate('fadein_then_fadeout', start=start, end=end, **kwargs)
+
     def snake_layout(self, cols=None, buff=SMALL_BUFF, start: float = 0):
         """Arrange children in a snake/zigzag grid (alternating row direction)."""
         n = len(self.objects)

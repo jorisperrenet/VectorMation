@@ -11888,3 +11888,29 @@ class TestSuccession:
     def test_lagged_start_alias(self):
         """VCollection.lagged_start should be an alias for cascade."""
         assert VCollection.lagged_start is VCollection.cascade
+
+
+class TestCombinedAnimations:
+    def test_create_then_fadeout(self):
+        c = Circle(r=30, cx=100, cy=100)
+        assert c.create_then_fadeout(start=0, end=3) is c
+        # Should be visible during hold phase
+        assert c.show.at_time(1.5) is True
+
+    def test_write_then_fadeout(self):
+        c = Circle(r=30, cx=100, cy=100)
+        assert c.write_then_fadeout(start=0, end=3) is c
+
+    def test_fadein_then_fadeout(self):
+        c = Circle(r=30, cx=100, cy=100)
+        assert c.fadein_then_fadeout(start=0, end=3) is c
+        # Opacity should be low at start
+        assert c.styling.opacity.at_time(0) < 0.1
+        # Should fade back out by end
+        assert c.styling.opacity.at_time(3) < 0.1
+
+    def test_zero_duration_returns_self(self):
+        c = Circle(r=30, cx=100, cy=100)
+        assert c.create_then_fadeout(start=1, end=1) is c
+        assert c.write_then_fadeout(start=1, end=1) is c
+        assert c.fadein_then_fadeout(start=1, end=1) is c

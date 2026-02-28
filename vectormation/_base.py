@@ -1666,6 +1666,54 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self.styling.fill_opacity.set_onward(mid, target_fo)
         return self
 
+    def create_then_fadeout(self, start: float = 0, end: float = 2,
+                            create_ratio: float = 0.4, hold_ratio: float = 0.2,
+                            easing=easings.smooth):
+        """Create the object (stroke draw), hold, then fade out.
+
+        Divides [start, end] into create/hold/fadeout phases by the given ratios.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        cr, hr = create_ratio, hold_ratio
+        total = cr + hr + (1 - cr - hr)
+        t_create = start + dur * (cr / total)
+        t_hold = t_create + dur * (hr / total)
+        self.create(start=start, end=t_create, change_existence=True, easing=easing)
+        self.fadeout(start=t_hold, end=end, change_existence=True, easing=easing)
+        return self
+
+    def write_then_fadeout(self, start: float = 0, end: float = 2,
+                           write_ratio: float = 0.4, hold_ratio: float = 0.2,
+                           easing=easings.smooth):
+        """Write the object, hold, then fade out."""
+        dur = end - start
+        if dur <= 0:
+            return self
+        wr, hr = write_ratio, hold_ratio
+        total = wr + hr + (1 - wr - hr)
+        t_write = start + dur * (wr / total)
+        t_hold = t_write + dur * (hr / total)
+        self.write(start=start, end=t_write, change_existence=True, easing=easing)
+        self.fadeout(start=t_hold, end=end, change_existence=True, easing=easing)
+        return self
+
+    def fadein_then_fadeout(self, start: float = 0, end: float = 2,
+                            in_ratio: float = 0.3, hold_ratio: float = 0.4,
+                            easing=easings.smooth):
+        """Fade in, hold, then fade out."""
+        dur = end - start
+        if dur <= 0:
+            return self
+        ir, hr = in_ratio, hold_ratio
+        total = ir + hr + (1 - ir - hr)
+        t_in = start + dur * (ir / total)
+        t_hold = t_in + dur * (hr / total)
+        self.fadein(start=start, end=t_in, change_existence=True, easing=easing)
+        self.fadeout(start=t_hold, end=end, change_existence=True, easing=easing)
+        return self
+
     def blink(self, start: float = 0, end: float | None = None, count: int = 1,
               duration: float = 0.3, easing=easings.smooth, num_blinks: int | None = None):
         """Flash opacity on/off."""
