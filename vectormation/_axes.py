@@ -282,8 +282,7 @@ class Axes(_AxesExtMixin, VCollection):
             curve.draw_along(start, end)
             area.set_opacity(0, start=start)
             area.set_opacity(1, start=start, end=end)
-        result = VCollection(curve, area, creation=start)
-        return result
+        return VCollection(curve, area, creation=start)
 
     def add_parametric_plot(self, fx, fy, t_range=(0, 1), num_points=100,
                             creation=0, z=0, **styling_kwargs):
@@ -1544,8 +1543,7 @@ class Axes(_AxesExtMixin, VCollection):
             return 'M' + 'L'.join(f'{px},{py}' for px, py in pts)
         trail.d.set(start, end, _compute_trail, stay=True)
         self._add_plot_obj(trail)
-        group = VCollection(dot, trail, creation=creation, z=z)
-        return group
+        return VCollection(dot, trail, creation=creation, z=z)
 
     def add_animation_trace(self, func, x_start, x_end, start=0, end=1,
                              dot=True, trail=True, color='#FFFF00', **kwargs):

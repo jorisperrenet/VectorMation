@@ -234,7 +234,7 @@ def _arc_bbox(cx_cur, cy_cur, rx, ry, rotation, large_arc, sweep, ex, ey):
         c = max(-1, min(1, c))
         a = math.acos(c)
         if ux * vy - uy * vx < 0:
-            a = -a
+            return -a
         return a
 
     theta1 = angle(1, 0, (x1p - cxp) / rx, (y1p - cyp) / ry)

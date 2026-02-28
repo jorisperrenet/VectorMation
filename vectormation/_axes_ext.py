@@ -1482,8 +1482,7 @@ class _AxesExtMixin:
                 lines.append(line)
                 y += y_step
             x += x_step
-        group = VCollection(*lines, creation=creation, z=z)
-        return group
+        return VCollection(*lines, creation=creation, z=z)
 
     def add_vector(self, x, y, origin_x=0, origin_y=0, creation=0, z=2,
                     tip_length=20, tip_width=14, **styling_kwargs):
@@ -2018,8 +2017,7 @@ class _AxesExtMixin:
                       lambda t, _x=xi, _p=predicted: self.coords_to_point(_x, _p, t))
             lines.append(line)
             self._add_plot_obj(line)
-        group = VCollection(*lines, creation=creation, z=z)
-        return group
+        return VCollection(*lines, creation=creation, z=z)
 
     def add_spread_band(self, func, spread_func, x_range=None, num_points=100,
                         color='#58C4DD', opacity=0.2, creation=0):

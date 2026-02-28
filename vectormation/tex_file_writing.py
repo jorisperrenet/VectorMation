@@ -143,7 +143,7 @@ def get_characters(tex_dir, to_render, compiler='latex', preamble=''):
 
         # Resolve <use xlink:href="#id"> references by inlining the definition
         uses = [(str(ref_id)[1:], c, idx) for idx, c in enumerate(chars)
-                if (ref_id := c.get('xlink:href', None)) is not None]
+                if (ref_id := c.get('xlink:href')) is not None]
         assert isinstance(svg_contents.defs, Tag)
         defs = {str(i.get('id', '')): i for i in svg_contents.defs if isinstance(i, Tag)}
         for def_id, use, idx in uses:
@@ -151,8 +151,8 @@ def get_characters(tex_dir, to_render, compiler='latex', preamble=''):
             del use['xlink:href']
             del d['id']
             for name, val in use.attrs.items():
-                if d.get(name, None) is not None:
-                    d[name] = str(float(str(d[name])) + float(str(val)))
+                if d.get(name) is not None:
+                    d[name] = str(float(d[name]) + float(val))
                 else:
                     d[name] = val
             chars[idx] = d

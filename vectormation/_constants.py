@@ -39,6 +39,10 @@ DL = (-1, 1)
 DR = (1, 1)
 ORIGIN = (CANVAS_WIDTH // 2, CANVAS_HEIGHT // 2)  # Screen center
 
+# Z-order extremes for to_front / to_back
+Z_FRONT = 999
+Z_BACK = -999
+
 
 def _distance(x1, y1, x2, y2):
     """Euclidean distance between two points."""

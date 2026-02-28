@@ -282,9 +282,8 @@ class PhysicsSpace:
 
     def add_drag(self, coefficient=0.01):
         """Add velocity-proportional drag to all bodies."""
-        c = coefficient
         self._forces.append(
-            lambda b, t: (-b.vx * c * b.mass, -b.vy * c * b.mass))
+            lambda b, t, _c=coefficient: (-b.vx * _c * b.mass, -b.vy * _c * b.mass))
         return self
 
     def add_attraction(self, target, strength=50000):
@@ -300,18 +299,16 @@ class PhysicsSpace:
     def add_mutual_repulsion(self, strength=5000, max_dist=300):
         """Add pairwise repulsion between all bodies."""
         bodies = self.bodies
-        s = strength
-        md = max_dist
-        def _mutual(b, _t):  # noqa: ARG002
+        def _mutual(b, _t, _s=strength, _md=max_dist):  # noqa: ARG002
             fx, fy = 0.0, 0.0
             for other in bodies:
                 if other is b or other.fixed:
                     continue
                 dx, dy = b.x - other.x, b.y - other.y
                 dist = math.hypot(dx, dy)
-                if dist < 1 or dist > md:
+                if dist < 1 or dist > _md:
                     continue
-                f = s / (dist * dist)
+                f = _s / (dist * dist)
                 fx += dx / dist * f
                 fy += dy / dist * f
             return (fx, fy)
@@ -320,9 +317,8 @@ class PhysicsSpace:
 
     def add_angular_drag(self, coefficient=0.01):
         """Add angular-velocity-proportional drag (resistance to rotation)."""
-        c = coefficient
-        def _drag(b):
-            b.torque -= b.angular_velocity * c * b.moment_of_inertia
+        def _drag(b, _c=coefficient):
+            b.torque -= b.angular_velocity * _c * b.moment_of_inertia
         self._angular_forces.append(_drag)
         return self
 

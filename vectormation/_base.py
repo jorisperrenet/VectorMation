@@ -8,6 +8,7 @@ from vectormation._constants import (
     CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
     SMALL_BUFF, MED_SMALL_BUFF,
     UP, DOWN, RIGHT,
+    Z_FRONT, Z_BACK,
 )
 
 import vectormation.easings as easings
@@ -159,11 +160,11 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def to_front(self, start: float = 0):
         """Bring this object to the front (high z-order)."""
-        return self.set_z(999, start)
+        return self.set_z(Z_FRONT, start)
 
     def to_back(self, start: float = 0):
         """Send this object to the back (low z-order)."""
-        return self.set_z(-999, start)
+        return self.set_z(Z_BACK, start)
 
     def save_state(self, time: float = 0):
         """Save the current visual state (position, opacity, scale, color) for later restore."""
