@@ -155,6 +155,7 @@ Class Hierarchy
    reference/ui
    reference/diagrams
    reference/physics
+   reference/science
    reference/threed
    reference/attributes
    reference/utilities

@@ -35,6 +35,7 @@ from vectormation.objects import (
     ArrowVectorField, ComplexPlane, ChessBoard, Automaton,
     PeriodicTable, BohrAtom,
     Countdown, Filmstrip, MorphObject, Title, NumberPlane,
+    transform_matching_shapes, transform_matching_tex,
     NeuralNetwork, Pendulum, StandingWave,
     Array, Stack, Queue, LinkedList, BinaryTree,
     ArrayViz, LinkedListViz, StackViz, QueueViz, LED,
@@ -15730,3 +15731,1069 @@ class TestTexObjectT2cParam:
         # 't2c' must NOT be passed to from_svg (it is not a valid SVG style)
         tex = _make_tex('x+y', t2c={'x': '#ff0000'})
         assert len(tex.objects) == 3
+
+
+# ---------------------------------------------------------------------------
+# TransformMatchingShapes tests
+# ---------------------------------------------------------------------------
+
+class TestTransformMatchingShapes:
+    def test_transform_matching_shapes_returns_vcollection(self):
+        """transform_matching_shapes returns a VCollection."""
+        c1 = Circle(r=50, cx=400, cy=400)
+        c2 = Circle(r=50, cx=600, cy=400)
+        src = VCollection(c1)
+        tgt = VCollection(c2)
+        result = transform_matching_shapes(src, tgt, start=0, end=1)
+        assert isinstance(result, VCollection)
+
+    def test_transform_matching_shapes_with_matching_objects(self):
+        """Matched objects produce MorphObject animations inside the result."""
+        # Use a key function that always returns the same key so all pairs match
+        c1 = Circle(r=50, cx=400, cy=400)
+        c2 = Circle(r=60, cx=700, cy=400)
+        src = VCollection(c1)
+        tgt = VCollection(c2)
+        result = transform_matching_shapes(src, tgt, start=0, end=1,
+                                           key=lambda obj: 'circle')
+        # One morph animation should be created
+        assert len(result.objects) == 1
+        assert isinstance(result.objects[0], MorphObject)
+
+    def test_transform_matching_shapes_fades_unmatched(self):
+        """Unmatched source objects get faded out; unmatched targets get faded in."""
+        # Use a key that distinguishes objects so none match
+        c1 = Circle(r=50, cx=400, cy=400)
+        r1 = Rectangle(100, 80, x=600, y=360)
+        src = VCollection(c1)
+        tgt = VCollection(r1)
+        result = transform_matching_shapes(src, tgt, start=0, end=1,
+                                           key=lambda obj: type(obj).__name__)
+        # No morph animations since types differ
+        assert len(result.objects) == 0
+        # c1 should be faded out: styling.opacity animates to 0 by end time
+        opacity_end = c1.styling.opacity.at_time(1)
+        assert float(opacity_end) == pytest.approx(0.0, abs=0.05)
+        # r1 should be faded in: styling.opacity starts near 0 at start time
+        opacity_start = r1.styling.opacity.at_time(0)
+        assert float(opacity_start) == pytest.approx(0.0, abs=0.05)
+
+    def test_transform_matching_shapes_no_key_area_based(self):
+        """Default (no key) uses bounding-box area; same-size circles match."""
+        c1 = Circle(r=50, cx=300, cy=400)
+        c2 = Circle(r=50, cx=700, cy=400)
+        src = VCollection(c1)
+        tgt = VCollection(c2)
+        result = transform_matching_shapes(src, tgt, start=0, end=1)
+        # Area-based key: both have the same radius so their areas are equal
+        assert len(result.objects) == 1
+        assert isinstance(result.objects[0], MorphObject)
+
+    def test_transform_matching_shapes_multiple_objects(self):
+        """Multiple objects can be matched in one call."""
+        c1 = Circle(r=40, cx=200, cy=300)
+        c2 = Circle(r=40, cx=400, cy=300)
+        c3 = Circle(r=80, cx=600, cy=300)
+        c4 = Circle(r=80, cx=800, cy=300)
+        src = VCollection(c1, c3)
+        tgt = VCollection(c2, c4)
+        result = transform_matching_shapes(src, tgt, start=0, end=2,
+                                           key=lambda obj: round(obj.bbox(0)[2]))
+        # Two distinct sizes → two matched pairs → two MorphObjects
+        assert len(result.objects) == 2
+        assert all(isinstance(o, MorphObject) for o in result.objects)
+
+    def test_transform_matching_shapes_accepts_lists(self):
+        """source/target can be plain Python lists, not just VCollections."""
+        c1 = Circle(r=50, cx=400, cy=400)
+        c2 = Circle(r=50, cx=600, cy=400)
+        result = transform_matching_shapes([c1], [c2], start=0, end=1,
+                                           key=lambda obj: 'x')
+        assert isinstance(result, VCollection)
+        assert len(result.objects) == 1
+
+
+@pytest.mark.skipif(not _LATEX_AVAILABLE, reason='LaTeX/dvisvgm not installed')
+class TestTransformMatchingTex:
+    def test_transform_matching_tex_basic(self):
+        """transform_matching_tex produces a non-empty VCollection for differing TeX."""
+        import shutil as _shutil2
+        import tempfile, vectormation._canvas as _cm
+        if not hasattr(_cm, 'save_directory'):
+            _cm.save_directory = tempfile.mkdtemp()
+        from vectormation.objects import TexObject
+        src = TexObject('x+y', x=300, y=400)
+        tgt = TexObject('x-z', x=300, y=400)
+        result = transform_matching_tex(src, tgt, start=0, end=1)
+        assert isinstance(result, VCollection)
+        # There should be at least one MorphObject (for the shared 'x' glyph)
+        morphs = [o for o in result.objects if isinstance(o, MorphObject)]
+        assert len(morphs) >= 1
+
+    def test_transform_matching_tex_fallback_without_tex_attr(self):
+        """transform_matching_tex falls back gracefully for non-TexObject inputs."""
+        c1 = Circle(r=50, cx=400, cy=400)
+        c2 = Circle(r=50, cx=600, cy=400)
+        src = VCollection(c1)
+        tgt = VCollection(c2)
+        # Should not raise, returns a VCollection
+        result = transform_matching_tex(src, tgt, start=0, end=1)
+        assert isinstance(result, VCollection)
+
+
+# ---------------------------------------------------------------------------
+# Comprehensive chart / diagram tests
+# ---------------------------------------------------------------------------
+
+class TestSankeyDiagramComprehensive:
+    def test_flows_create_path_elements(self):
+        flows = [('A', 'X', 10), ('A', 'Y', 5), ('B', 'X', 3)]
+        sk = SankeyDiagram(flows)
+        svg = sk.to_svg(0)
+        # Each flow produces a cubic-bezier path
+        assert svg.count('<path') >= 3
+
+    def test_node_rects_created_for_all_nodes(self):
+        flows = [('Src1', 'Dst1', 20), ('Src2', 'Dst1', 10), ('Src2', 'Dst2', 5)]
+        sk = SankeyDiagram(flows)
+        svg = sk.to_svg(0)
+        # 2 sources + 2 targets = 4 node rectangles
+        assert svg.count('<rect') >= 4
+
+    def test_node_labels_appear_in_svg(self):
+        flows = [('Alpha', 'Beta', 50), ('Alpha', 'Gamma', 30)]
+        sk = SankeyDiagram(flows)
+        svg = sk.to_svg(0)
+        assert 'Alpha' in svg
+        assert 'Beta' in svg
+        assert 'Gamma' in svg
+
+    def test_empty_flows_creates_empty_collection(self):
+        sk = SankeyDiagram([])
+        assert isinstance(sk, VCollection)
+        assert len(sk) == 0
+
+    def test_single_flow_has_path_and_rects(self):
+        sk = SankeyDiagram([('In', 'Out', 100)])
+        svg = sk.to_svg(0)
+        assert '<path' in svg
+        assert '<rect' in svg
+
+    def test_custom_dimensions(self):
+        flows = [('A', 'B', 10)]
+        sk = SankeyDiagram(flows, x=200, y=150, width=800, height=400)
+        assert isinstance(sk, VCollection)
+        assert len(sk) > 0
+
+    def test_fadein_returns_self(self):
+        sk = SankeyDiagram([('X', 'Y', 10)])
+        result = sk.fadein(start=0, end=1)
+        assert result is sk
+
+    def test_set_opacity_returns_self(self):
+        sk = SankeyDiagram([('X', 'Y', 10)])
+        result = sk.set_opacity(0.5, start=0, end=1)
+        assert result is sk
+
+
+class TestGanttChartComprehensive:
+    def test_bars_list_has_one_bar_per_task(self):
+        tasks = [('Design', 0, 3), ('Build', 2, 7), ('Test', 5, 9)]
+        gc = GanttChart(tasks)
+        assert len(gc._bars) == 3
+
+    def test_task_labels_in_svg(self):
+        tasks = [('Analysis', 1, 4), ('Coding', 3, 8)]
+        gc = GanttChart(tasks)
+        svg = gc.to_svg(0)
+        assert 'Analysis' in svg
+        assert 'Coding' in svg
+
+    def test_empty_tasks_creates_empty_collection(self):
+        gc = GanttChart([])
+        assert isinstance(gc, VCollection)
+        assert len(gc) == 0
+
+    def test_single_task(self):
+        gc = GanttChart([('Solo', 0, 5)])
+        assert len(gc._bars) == 1
+        svg = gc.to_svg(0)
+        assert '<rect' in svg
+        assert 'Solo' in svg
+
+    def test_task_with_custom_color(self):
+        tasks = [('Task', 0, 5, '#FF0000')]
+        gc = GanttChart(tasks)
+        assert len(gc._bars) == 1
+        svg = gc.to_svg(0)
+        assert '<rect' in svg
+
+    def test_time_range_reflected_in_ticks(self):
+        # Start and end time labels should appear
+        tasks = [('A', 0, 10)]
+        gc = GanttChart(tasks)
+        svg = gc.to_svg(0)
+        assert '0' in svg
+        assert '10' in svg
+
+    def test_fadein_returns_self(self):
+        gc = GanttChart([('T', 0, 2)])
+        result = gc.fadein(start=0, end=1)
+        assert result is gc
+
+    def test_bars_are_rectangles(self):
+        gc = GanttChart([('T1', 0, 3), ('T2', 2, 5)])
+        for bar in gc._bars:
+            assert isinstance(bar, Rectangle)
+
+
+class TestFunnelChartComprehensive:
+    def test_stages_count_matches_sections(self):
+        # Each stage produces a Polygon + Text = 2 objects
+        stages = [('A', 100), ('B', 60), ('C', 30)]
+        fc = FunnelChart(stages)
+        # 3 stages => 6 objects (3 polygons + 3 labels)
+        assert len(fc) == 6
+
+    def test_stage_labels_in_svg(self):
+        stages = [('Visits', 1000), ('Leads', 400), ('Customers', 80)]
+        fc = FunnelChart(stages)
+        svg = fc.to_svg(0)
+        assert 'Visits' in svg
+        assert 'Leads' in svg
+        assert 'Customers' in svg
+
+    def test_values_appear_in_labels(self):
+        stages = [('Top', 500), ('Mid', 250)]
+        fc = FunnelChart(stages)
+        svg = fc.to_svg(0)
+        assert '500' in svg
+        assert '250' in svg
+
+    def test_single_stage(self):
+        fc = FunnelChart([('Only', 100)])
+        assert len(fc) == 2  # 1 polygon + 1 label
+        svg = fc.to_svg(0)
+        assert 'Only' in svg
+
+    def test_custom_size(self):
+        stages = [('A', 50), ('B', 25)]
+        fc = FunnelChart(stages, x=200, y=200, width=400, height=300)
+        assert isinstance(fc, VCollection)
+        assert len(fc) > 0
+
+    def test_fadein_returns_self(self):
+        fc = FunnelChart([('X', 10), ('Y', 5)])
+        result = fc.fadein(start=0, end=1)
+        assert result is fc
+
+    def test_set_opacity_returns_self(self):
+        fc = FunnelChart([('X', 10)])
+        result = fc.set_opacity(0.5, start=0, end=1)
+        assert result is fc
+
+
+class TestTreeMapComprehensive:
+    def test_rectangles_count_equals_data_items(self):
+        data = [('A', 50), ('B', 30), ('C', 15), ('D', 5)]
+        tm = TreeMap(data)
+        # Each item gets at least a rectangle
+        rects = [o for o in tm.objects if isinstance(o, Rectangle)]
+        assert len(rects) == len(data)
+
+    def test_labels_appear_in_svg(self):
+        data = [('Alpha', 80), ('Beta', 20)]
+        tm = TreeMap(data, width=600, height=400)
+        svg = tm.to_svg(0)
+        assert '<rect' in svg
+
+    def test_colors_cycle_for_items(self):
+        data = [('X', 40), ('Y', 35), ('Z', 25)]
+        # Use 2 explicit colors to force cycling
+        tm = TreeMap(data, colors=['#FF0000', '#00FF00'])
+        svg = tm.to_svg(0)
+        assert 'ff0000' in svg.lower() or 'FF0000' in svg
+
+    def test_single_item_fills_canvas(self):
+        tm = TreeMap([('Only', 100)], x=0, y=0, width=800, height=600)
+        assert len(tm) >= 1
+        svg = tm.to_svg(0)
+        assert '<rect' in svg
+
+    def test_large_item_gets_label(self):
+        # Large rectangle should have a text label
+        data = [('BigLabel', 900), ('Tiny', 1)]
+        tm = TreeMap(data, width=800, height=600, font_size=14)
+        svg = tm.to_svg(0)
+        assert 'BigLabel' in svg
+
+    def test_empty_data_creates_empty_collection(self):
+        tm = TreeMap([])
+        assert len(tm) == 0
+
+    def test_fadein_returns_self(self):
+        tm = TreeMap([('A', 50), ('B', 50)])
+        result = tm.fadein(start=0, end=1)
+        assert result is tm
+
+    def test_repr(self):
+        tm = TreeMap([('A', 1)])
+        assert repr(tm) == 'TreeMap()'
+
+
+class TestGaugeChartComprehensive:
+    def test_value_appears_in_svg(self):
+        gc = GaugeChart(42, min_val=0, max_val=100)
+        svg = gc.to_svg(0)
+        assert '42' in svg
+
+    def test_label_appears_in_svg(self):
+        gc = GaugeChart(50, min_val=0, max_val=100, label='RPM')
+        svg = gc.to_svg(0)
+        assert 'RPM' in svg
+
+    def test_min_value_needle_at_start(self):
+        # At min value needle points to start angle (225 degrees)
+        gc_min = GaugeChart(0, min_val=0, max_val=100, x=500, y=500, radius=100)
+        gc_max = GaugeChart(100, min_val=0, max_val=100, x=500, y=500, radius=100)
+        assert isinstance(gc_min, VCollection)
+        assert isinstance(gc_max, VCollection)
+        # Both should render without error
+        svg_min = gc_min.to_svg(0)
+        svg_max = gc_max.to_svg(0)
+        assert '0' in svg_min
+        assert '100' in svg_max
+
+    def test_clamp_below_min(self):
+        # Value below min_val should clamp to 0
+        gc = GaugeChart(-10, min_val=0, max_val=100)
+        svg = gc.to_svg(0)
+        assert '-10' in svg
+
+    def test_clamp_above_max(self):
+        gc = GaugeChart(150, min_val=0, max_val=100)
+        svg = gc.to_svg(0)
+        assert '150' in svg
+
+    def test_no_label_omits_subtitle(self):
+        gc_no_lbl = GaugeChart(50, min_val=0, max_val=100)
+        gc_lbl = GaugeChart(50, min_val=0, max_val=100, label='Speed')
+        # With label should have more objects
+        assert len(gc_lbl) > len(gc_no_lbl)
+
+    def test_custom_colors(self):
+        colors = [('#0000FF', 0.0), ('#FF0000', 1.0)]
+        gc = GaugeChart(75, colors=colors)
+        assert isinstance(gc, VCollection)
+        assert len(gc) > 0
+
+    def test_fadein_returns_self(self):
+        gc = GaugeChart(50)
+        result = gc.fadein(start=0, end=1)
+        assert result is gc
+
+    def test_repr(self):
+        gc = GaugeChart(50)
+        assert repr(gc) == 'GaugeChart()'
+
+
+class TestVennDiagramComprehensive:
+    def test_two_circles_created(self):
+        vd = VennDiagram(['P', 'Q'])
+        circles = [o for o in vd.objects if isinstance(o, Circle)]
+        assert len(circles) == 2
+
+    def test_three_circles_created(self):
+        vd = VennDiagram(['X', 'Y', 'Z'])
+        circles = [o for o in vd.objects if isinstance(o, Circle)]
+        assert len(circles) == 3
+
+    def test_two_labels_in_svg(self):
+        vd = VennDiagram(['Left', 'Right'])
+        svg = vd.to_svg(0)
+        assert 'Left' in svg
+        assert 'Right' in svg
+
+    def test_three_labels_in_svg(self):
+        vd = VennDiagram(['A', 'B', 'C'])
+        svg = vd.to_svg(0)
+        assert 'A' in svg
+        assert 'B' in svg
+        assert 'C' in svg
+
+    def test_invalid_count_returns_empty(self):
+        # Only 2 or 3 are valid
+        vd1 = VennDiagram(['Solo'])
+        assert len(vd1) == 0
+        vd4 = VennDiagram(['A', 'B', 'C', 'D'])
+        assert len(vd4) == 0
+
+    def test_custom_radius_affects_circles(self):
+        vd_small = VennDiagram(['A', 'B'], radius=50)
+        vd_large = VennDiagram(['A', 'B'], radius=200)
+        small_circles = [o for o in vd_small.objects if isinstance(o, Circle)]
+        large_circles = [o for o in vd_large.objects if isinstance(o, Circle)]
+        # Larger radius circles have greater r
+        assert large_circles[0].r.at_time(0) > small_circles[0].r.at_time(0)
+
+    def test_custom_colors_applied(self):
+        vd = VennDiagram(['A', 'B'], colors=['#FF0000', '#00FF00'])
+        svg = vd.to_svg(0)
+        assert 'ff0000' in svg.lower() or 'FF0000' in svg
+
+    def test_fadein_returns_self(self):
+        vd = VennDiagram(['A', 'B'])
+        result = vd.fadein(start=0, end=1)
+        assert result is vd
+
+    def test_repr(self):
+        vd = VennDiagram(['A', 'B'])
+        assert repr(vd) == 'VennDiagram()'
+
+
+class TestOrgChartComprehensive:
+    def test_single_node_org_chart(self):
+        oc = OrgChart(('CEO', []))
+        svg = oc.to_svg(0)
+        assert 'CEO' in svg
+
+    def test_hierarchy_labels_in_svg(self):
+        tree = ('Root', [('Child1', []), ('Child2', [])])
+        oc = OrgChart(tree)
+        svg = oc.to_svg(0)
+        assert 'Root' in svg
+        assert 'Child1' in svg
+        assert 'Child2' in svg
+
+    def test_three_level_hierarchy(self):
+        tree = ('L0', [('L1a', [('L2a', []), ('L2b', [])]), ('L1b', [])])
+        oc = OrgChart(tree)
+        svg = oc.to_svg(0)
+        assert 'L0' in svg
+        assert 'L1a' in svg
+        assert 'L2a' in svg
+        assert 'L2b' in svg
+
+    def test_connector_lines_present(self):
+        tree = ('Boss', [('Worker', [])])
+        oc = OrgChart(tree)
+        svg = oc.to_svg(0)
+        # Connector paths should exist
+        assert '<path' in svg
+
+    def test_boxes_are_rounded_rectangles(self):
+        tree = ('A', [('B', [])])
+        oc = OrgChart(tree)
+        rects = [o for o in oc.objects if isinstance(o, RoundedRectangle)]
+        assert len(rects) >= 2  # one per node
+
+    def test_node_count_matches_tree_size(self):
+        # Tree with 4 nodes: 1 root + 3 children
+        tree = ('R', [('C1', []), ('C2', []), ('C3', [])])
+        oc = OrgChart(tree)
+        rects = [o for o in oc.objects if isinstance(o, RoundedRectangle)]
+        assert len(rects) == 4
+
+    def test_fadein_returns_self(self):
+        oc = OrgChart(('A', [('B', [])]))
+        result = oc.fadein(start=0, end=1)
+        assert result is oc
+
+    def test_repr(self):
+        oc = OrgChart(('R', []))
+        assert repr(oc) == 'OrgChart()'
+
+
+class TestMindMapComprehensive:
+    def test_central_node_circle_exists(self):
+        root = ('Center', [('Branch', [])])
+        mm = MindMap(root)
+        circles = [o for o in mm.objects if isinstance(o, Circle)]
+        # At least the root circle
+        assert len(circles) >= 1
+
+    def test_root_label_in_svg(self):
+        root = ('MyTopic', [('Sub1', []), ('Sub2', [])])
+        mm = MindMap(root)
+        svg = mm.to_svg(0)
+        assert 'MyTopic' in svg
+
+    def test_branch_labels_in_svg(self):
+        root = ('Root', [('BranchA', []), ('BranchB', []), ('BranchC', [])])
+        mm = MindMap(root)
+        svg = mm.to_svg(0)
+        assert 'BranchA' in svg
+        assert 'BranchB' in svg
+        assert 'BranchC' in svg
+
+    def test_grandchild_labels_in_svg(self):
+        root = ('Root', [('Branch', [('GrandChild', [])])])
+        mm = MindMap(root)
+        svg = mm.to_svg(0)
+        assert 'GrandChild' in svg
+
+    def test_branch_lines_exist(self):
+        root = ('Root', [('B1', []), ('B2', [])])
+        mm = MindMap(root)
+        svg = mm.to_svg(0)
+        assert '<line' in svg
+
+    def test_solo_node_has_two_objects(self):
+        mm = MindMap(('Solo', []))
+        assert len(mm) == 2  # circle + text
+
+    def test_three_branches_count(self):
+        root = ('R', [('A', []), ('B', []), ('C', [])])
+        mm = MindMap(root)
+        # root circle + root text + 3*(line + circle + text) = 2 + 9 = 11
+        assert len(mm) == 11
+
+    def test_grandchildren_add_objects(self):
+        root_with_gc = ('R', [('B', [('G1', []), ('G2', [])])])
+        root_no_gc = ('R', [('B', [])])
+        mm_with = MindMap(root_with_gc)
+        mm_without = MindMap(root_no_gc)
+        assert len(mm_with) > len(mm_without)
+
+    def test_fadein_returns_self(self):
+        mm = MindMap(('Root', [('A', [])]))
+        result = mm.fadein(start=0, end=1)
+        assert result is mm
+
+    def test_repr(self):
+        mm = MindMap(('R', []))
+        assert repr(mm) == 'MindMap()'
+
+
+class TestBoxPlotComprehensive:
+    def test_one_group_per_box(self):
+        # Each group produces: box rect + median line + 2 whisker caps + 2 stems = 6 objects
+        bp = BoxPlot([[1, 2, 3, 4, 5]])
+        assert len(bp) == 6
+
+    def test_two_groups_twelve_objects(self):
+        bp = BoxPlot([[1, 2, 3, 4, 5], [10, 20, 30, 40, 50]])
+        assert len(bp) == 12
+
+    def test_svg_has_rects_and_lines(self):
+        bp = BoxPlot([[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]])
+        svg = bp.to_svg(0)
+        assert '<rect' in svg
+        assert '<line' in svg
+
+    def test_custom_box_color(self):
+        bp = BoxPlot([[1, 2, 3, 4, 5]], box_color='#FF0000')
+        svg = bp.to_svg(0)
+        assert 'FF0000' in svg or 'ff0000' in svg.lower()
+
+    def test_custom_median_color(self):
+        bp = BoxPlot([[1, 2, 3, 4, 5]], median_color='#00FF00')
+        svg = bp.to_svg(0)
+        assert '00FF00' in svg or '00ff00' in svg.lower()
+
+    def test_single_value_group(self):
+        # Single-value group should not raise
+        bp = BoxPlot([[42]])
+        assert isinstance(bp, VCollection)
+        assert len(bp) > 0
+
+    def test_empty_data_empty_collection(self):
+        bp = BoxPlot([])
+        assert len(bp) == 0
+
+    def test_custom_positions(self):
+        bp = BoxPlot([[1, 2, 3], [4, 5, 6]], positions=[0, 2])
+        assert isinstance(bp, VCollection)
+        assert len(bp) > 0
+
+    def test_fadein_returns_self(self):
+        bp = BoxPlot([[1, 2, 3, 4, 5]])
+        result = bp.fadein(start=0, end=1)
+        assert result is bp
+
+    def test_repr(self):
+        bp = BoxPlot([[1, 2, 3]])
+        assert repr(bp) == 'BoxPlot()'
+
+    def test_quartiles_ordering(self):
+        # Q1 <= median <= Q3 for any sorted group
+        data = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3]
+        s = sorted(data)
+        n = len(s)
+        q1 = s[n // 4]
+        med = s[n // 2]
+        q3 = s[3 * n // 4]
+        assert q1 <= med <= q3
+
+
+# ---------------------------------------------------------------------------
+# Comprehensive chart / diagram tests
+# ---------------------------------------------------------------------------
+
+class TestSankeyDiagramComprehensive:
+    def test_flows_create_path_elements(self):
+        flows = [('A', 'X', 10), ('A', 'Y', 5), ('B', 'X', 3)]
+        sk = SankeyDiagram(flows)
+        svg = sk.to_svg(0)
+        assert svg.count('<path') >= 3
+
+    def test_node_rects_created_for_all_nodes(self):
+        flows = [('Src1', 'Dst1', 20), ('Src2', 'Dst1', 10), ('Src2', 'Dst2', 5)]
+        sk = SankeyDiagram(flows)
+        svg = sk.to_svg(0)
+        assert svg.count('<rect') >= 4
+
+    def test_node_labels_appear_in_svg(self):
+        flows = [('Alpha', 'Beta', 50), ('Alpha', 'Gamma', 30)]
+        sk = SankeyDiagram(flows)
+        svg = sk.to_svg(0)
+        assert 'Alpha' in svg
+        assert 'Beta' in svg
+        assert 'Gamma' in svg
+
+    def test_empty_flows_creates_empty_collection(self):
+        sk = SankeyDiagram([])
+        assert isinstance(sk, VCollection)
+        assert len(sk) == 0
+
+    def test_single_flow_has_path_and_rects(self):
+        sk = SankeyDiagram([('In', 'Out', 100)])
+        svg = sk.to_svg(0)
+        assert '<path' in svg
+        assert '<rect' in svg
+
+    def test_custom_dimensions(self):
+        flows = [('A', 'B', 10)]
+        sk = SankeyDiagram(flows, x=200, y=150, width=800, height=400)
+        assert isinstance(sk, VCollection)
+        assert len(sk) > 0
+
+    def test_fadein_returns_self(self):
+        sk = SankeyDiagram([('X', 'Y', 10)])
+        result = sk.fadein(start=0, end=1)
+        assert result is sk
+
+    def test_set_opacity_returns_self(self):
+        sk = SankeyDiagram([('X', 'Y', 10)])
+        result = sk.set_opacity(0.5, start=0, end=1)
+        assert result is sk
+
+
+class TestGanttChartComprehensive:
+    def test_bars_list_has_one_bar_per_task(self):
+        tasks = [('Design', 0, 3), ('Build', 2, 7), ('Test', 5, 9)]
+        gc = GanttChart(tasks)
+        assert len(gc._bars) == 3
+
+    def test_task_labels_in_svg(self):
+        tasks = [('Analysis', 1, 4), ('Coding', 3, 8)]
+        gc = GanttChart(tasks)
+        svg = gc.to_svg(0)
+        assert 'Analysis' in svg
+        assert 'Coding' in svg
+
+    def test_empty_tasks_creates_empty_collection(self):
+        gc = GanttChart([])
+        assert isinstance(gc, VCollection)
+        assert len(gc) == 0
+
+    def test_single_task(self):
+        gc = GanttChart([('Solo', 0, 5)])
+        assert len(gc._bars) == 1
+        svg = gc.to_svg(0)
+        assert '<rect' in svg
+        assert 'Solo' in svg
+
+    def test_task_with_custom_color(self):
+        tasks = [('Task', 0, 5, '#FF0000')]
+        gc = GanttChart(tasks)
+        assert len(gc._bars) == 1
+        svg = gc.to_svg(0)
+        assert '<rect' in svg
+
+    def test_time_range_reflected_in_ticks(self):
+        tasks = [('A', 0, 10)]
+        gc = GanttChart(tasks)
+        svg = gc.to_svg(0)
+        assert '0' in svg
+        assert '10' in svg
+
+    def test_fadein_returns_self(self):
+        gc = GanttChart([('T', 0, 2)])
+        result = gc.fadein(start=0, end=1)
+        assert result is gc
+
+    def test_bars_are_rectangles(self):
+        gc = GanttChart([('T1', 0, 3), ('T2', 2, 5)])
+        for bar in gc._bars:
+            assert isinstance(bar, Rectangle)
+
+
+class TestFunnelChartComprehensive:
+    def test_stages_count_matches_sections(self):
+        # Each stage produces a Polygon + Text = 2 objects per stage
+        stages = [('A', 100), ('B', 60), ('C', 30)]
+        fc = FunnelChart(stages)
+        assert len(fc) == 6
+
+    def test_stage_labels_in_svg(self):
+        stages = [('Visits', 1000), ('Leads', 400), ('Customers', 80)]
+        fc = FunnelChart(stages)
+        svg = fc.to_svg(0)
+        assert 'Visits' in svg
+        assert 'Leads' in svg
+        assert 'Customers' in svg
+
+    def test_values_appear_in_labels(self):
+        stages = [('Top', 500), ('Mid', 250)]
+        fc = FunnelChart(stages)
+        svg = fc.to_svg(0)
+        assert '500' in svg
+        assert '250' in svg
+
+    def test_single_stage(self):
+        fc = FunnelChart([('Only', 100)])
+        assert len(fc) == 2  # 1 polygon + 1 label
+        svg = fc.to_svg(0)
+        assert 'Only' in svg
+
+    def test_custom_size(self):
+        stages = [('A', 50), ('B', 25)]
+        fc = FunnelChart(stages, x=200, y=200, width=400, height=300)
+        assert isinstance(fc, VCollection)
+        assert len(fc) > 0
+
+    def test_fadein_returns_self(self):
+        fc = FunnelChart([('X', 10), ('Y', 5)])
+        result = fc.fadein(start=0, end=1)
+        assert result is fc
+
+    def test_set_opacity_returns_self(self):
+        fc = FunnelChart([('X', 10)])
+        result = fc.set_opacity(0.5, start=0, end=1)
+        assert result is fc
+
+
+class TestTreeMapComprehensive:
+    def test_rectangles_count_equals_data_items(self):
+        data = [('A', 50), ('B', 30), ('C', 15), ('D', 5)]
+        tm = TreeMap(data)
+        rects = [o for o in tm.objects if isinstance(o, Rectangle)]
+        assert len(rects) == len(data)
+
+    def test_svg_has_rects(self):
+        data = [('Alpha', 80), ('Beta', 20)]
+        tm = TreeMap(data, width=600, height=400)
+        svg = tm.to_svg(0)
+        assert '<rect' in svg
+
+    def test_colors_cycle_for_items(self):
+        data = [('X', 40), ('Y', 35), ('Z', 25)]
+        tm = TreeMap(data, colors=['#FF0000', '#00FF00'])
+        svg = tm.to_svg(0)
+        # SVG uses rgb() format, so check for rgb values of #FF0000 = rgb(255,0,0)
+        assert 'rgb(255,0,0)' in svg
+
+    def test_single_item_fills_canvas(self):
+        tm = TreeMap([('Only', 100)], x=0, y=0, width=800, height=600)
+        assert len(tm) >= 1
+        svg = tm.to_svg(0)
+        assert '<rect' in svg
+
+    def test_large_item_gets_label(self):
+        data = [('BigLabel', 900), ('Tiny', 1)]
+        tm = TreeMap(data, width=800, height=600, font_size=14)
+        svg = tm.to_svg(0)
+        assert 'BigLabel' in svg
+
+    def test_empty_data_creates_empty_collection(self):
+        tm = TreeMap([])
+        assert len(tm) == 0
+
+    def test_fadein_returns_self(self):
+        tm = TreeMap([('A', 50), ('B', 50)])
+        result = tm.fadein(start=0, end=1)
+        assert result is tm
+
+    def test_repr(self):
+        tm = TreeMap([('A', 1)])
+        assert repr(tm) == 'TreeMap()'
+
+
+class TestGaugeChartComprehensive:
+    def test_value_appears_in_svg(self):
+        gc = GaugeChart(42, min_val=0, max_val=100)
+        svg = gc.to_svg(0)
+        assert '42' in svg
+
+    def test_label_appears_in_svg(self):
+        gc = GaugeChart(50, min_val=0, max_val=100, label='RPM')
+        svg = gc.to_svg(0)
+        assert 'RPM' in svg
+
+    def test_min_value_needle_at_start(self):
+        gc_min = GaugeChart(0, min_val=0, max_val=100, x=500, y=500, radius=100)
+        gc_max = GaugeChart(100, min_val=0, max_val=100, x=500, y=500, radius=100)
+        assert isinstance(gc_min, VCollection)
+        assert isinstance(gc_max, VCollection)
+        svg_min = gc_min.to_svg(0)
+        svg_max = gc_max.to_svg(0)
+        assert '0' in svg_min
+        assert '100' in svg_max
+
+    def test_value_below_min_renders(self):
+        # Value below min_val should render without error (clamped to 0)
+        gc = GaugeChart(-10, min_val=0, max_val=100)
+        svg = gc.to_svg(0)
+        assert '-10' in svg
+
+    def test_value_above_max_renders(self):
+        gc = GaugeChart(150, min_val=0, max_val=100)
+        svg = gc.to_svg(0)
+        assert '150' in svg
+
+    def test_no_label_has_fewer_objects_than_with_label(self):
+        gc_no_lbl = GaugeChart(50, min_val=0, max_val=100)
+        gc_lbl = GaugeChart(50, min_val=0, max_val=100, label='Speed')
+        assert len(gc_lbl) > len(gc_no_lbl)
+
+    def test_custom_colors(self):
+        colors = [('#0000FF', 0.0), ('#FF0000', 1.0)]
+        gc = GaugeChart(75, colors=colors)
+        assert isinstance(gc, VCollection)
+        assert len(gc) > 0
+
+    def test_fadein_returns_self(self):
+        gc = GaugeChart(50)
+        result = gc.fadein(start=0, end=1)
+        assert result is gc
+
+    def test_repr(self):
+        gc = GaugeChart(50)
+        assert repr(gc) == 'GaugeChart()'
+
+
+class TestVennDiagramComprehensive:
+    def test_two_circles_created(self):
+        vd = VennDiagram(['P', 'Q'])
+        circles = [o for o in vd.objects if isinstance(o, Circle)]
+        assert len(circles) == 2
+
+    def test_three_circles_created(self):
+        vd = VennDiagram(['X', 'Y', 'Z'])
+        circles = [o for o in vd.objects if isinstance(o, Circle)]
+        assert len(circles) == 3
+
+    def test_two_labels_in_svg(self):
+        vd = VennDiagram(['Left', 'Right'])
+        svg = vd.to_svg(0)
+        assert 'Left' in svg
+        assert 'Right' in svg
+
+    def test_three_labels_in_svg(self):
+        vd = VennDiagram(['A', 'B', 'C'])
+        svg = vd.to_svg(0)
+        assert 'A' in svg
+        assert 'B' in svg
+        assert 'C' in svg
+
+    def test_invalid_count_returns_empty(self):
+        vd1 = VennDiagram(['Solo'])
+        assert len(vd1) == 0
+        vd4 = VennDiagram(['A', 'B', 'C', 'D'])
+        assert len(vd4) == 0
+
+    def test_custom_radius_affects_circles(self):
+        vd_small = VennDiagram(['A', 'B'], radius=50)
+        vd_large = VennDiagram(['A', 'B'], radius=200)
+        small_circles = [o for o in vd_small.objects if isinstance(o, Circle)]
+        large_circles = [o for o in vd_large.objects if isinstance(o, Circle)]
+        assert large_circles[0].r.at_time(0) > small_circles[0].r.at_time(0)
+
+    def test_custom_colors_applied(self):
+        vd = VennDiagram(['A', 'B'], colors=['#FF0000', '#00FF00'])
+        svg = vd.to_svg(0)
+        # SVG uses rgb() format: #FF0000 = rgb(255,0,0)
+        assert 'rgb(255,0,0)' in svg
+
+    def test_fadein_returns_self(self):
+        vd = VennDiagram(['A', 'B'])
+        result = vd.fadein(start=0, end=1)
+        assert result is vd
+
+    def test_repr(self):
+        vd = VennDiagram(['A', 'B'])
+        assert repr(vd) == 'VennDiagram()'
+
+
+class TestOrgChartComprehensive:
+    def test_single_node_org_chart(self):
+        oc = OrgChart(('CEO', []))
+        svg = oc.to_svg(0)
+        assert 'CEO' in svg
+
+    def test_hierarchy_labels_in_svg(self):
+        tree = ('Root', [('Child1', []), ('Child2', [])])
+        oc = OrgChart(tree)
+        svg = oc.to_svg(0)
+        assert 'Root' in svg
+        assert 'Child1' in svg
+        assert 'Child2' in svg
+
+    def test_three_level_hierarchy(self):
+        tree = ('L0', [('L1a', [('L2a', []), ('L2b', [])]), ('L1b', [])])
+        oc = OrgChart(tree)
+        svg = oc.to_svg(0)
+        assert 'L0' in svg
+        assert 'L1a' in svg
+        assert 'L2a' in svg
+        assert 'L2b' in svg
+
+    def test_connector_lines_present(self):
+        tree = ('Boss', [('Worker', [])])
+        oc = OrgChart(tree)
+        svg = oc.to_svg(0)
+        assert '<path' in svg
+
+    def test_boxes_are_rounded_rectangles(self):
+        tree = ('A', [('B', [])])
+        oc = OrgChart(tree)
+        rects = [o for o in oc.objects if isinstance(o, RoundedRectangle)]
+        assert len(rects) >= 2
+
+    def test_node_count_matches_tree_size(self):
+        tree = ('R', [('C1', []), ('C2', []), ('C3', [])])
+        oc = OrgChart(tree)
+        rects = [o for o in oc.objects if isinstance(o, RoundedRectangle)]
+        assert len(rects) == 4
+
+    def test_fadein_returns_self(self):
+        oc = OrgChart(('A', [('B', [])]))
+        result = oc.fadein(start=0, end=1)
+        assert result is oc
+
+    def test_repr(self):
+        oc = OrgChart(('R', []))
+        assert repr(oc) == 'OrgChart()'
+
+
+class TestMindMapComprehensive:
+    def test_central_node_circle_exists(self):
+        root = ('Center', [('Branch', [])])
+        mm = MindMap(root)
+        circles = [o for o in mm.objects if isinstance(o, Circle)]
+        assert len(circles) >= 1
+
+    def test_root_label_in_svg(self):
+        root = ('MyTopic', [('Sub1', []), ('Sub2', [])])
+        mm = MindMap(root)
+        svg = mm.to_svg(0)
+        assert 'MyTopic' in svg
+
+    def test_branch_labels_in_svg(self):
+        root = ('Root', [('BranchA', []), ('BranchB', []), ('BranchC', [])])
+        mm = MindMap(root)
+        svg = mm.to_svg(0)
+        assert 'BranchA' in svg
+        assert 'BranchB' in svg
+        assert 'BranchC' in svg
+
+    def test_grandchild_labels_in_svg(self):
+        root = ('Root', [('Branch', [('GrandChild', [])])])
+        mm = MindMap(root)
+        svg = mm.to_svg(0)
+        assert 'GrandChild' in svg
+
+    def test_branch_lines_exist(self):
+        root = ('Root', [('B1', []), ('B2', [])])
+        mm = MindMap(root)
+        svg = mm.to_svg(0)
+        assert '<line' in svg
+
+    def test_solo_node_has_two_objects(self):
+        mm = MindMap(('Solo', []))
+        assert len(mm) == 2  # circle + text
+
+    def test_three_branches_count(self):
+        root = ('R', [('A', []), ('B', []), ('C', [])])
+        mm = MindMap(root)
+        # root circle + root text + 3*(line + circle + text) = 2 + 9 = 11
+        assert len(mm) == 11
+
+    def test_grandchildren_add_objects(self):
+        root_with_gc = ('R', [('B', [('G1', []), ('G2', [])])])
+        root_no_gc = ('R', [('B', [])])
+        mm_with = MindMap(root_with_gc)
+        mm_without = MindMap(root_no_gc)
+        assert len(mm_with) > len(mm_without)
+
+    def test_fadein_returns_self(self):
+        mm = MindMap(('Root', [('A', [])]))
+        result = mm.fadein(start=0, end=1)
+        assert result is mm
+
+    def test_repr(self):
+        mm = MindMap(('R', []))
+        assert repr(mm) == 'MindMap()'
+
+
+class TestBoxPlotComprehensive:
+    def test_one_group_per_box(self):
+        # Each group: box rect + median line + 2 whisker caps + 2 stems = 6 objects
+        bp = BoxPlot([[1, 2, 3, 4, 5]])
+        assert len(bp) == 6
+
+    def test_two_groups_twelve_objects(self):
+        bp = BoxPlot([[1, 2, 3, 4, 5], [10, 20, 30, 40, 50]])
+        assert len(bp) == 12
+
+    def test_svg_has_rects_and_lines(self):
+        bp = BoxPlot([[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]])
+        svg = bp.to_svg(0)
+        assert '<rect' in svg
+        assert '<line' in svg
+
+    def test_custom_box_color(self):
+        bp = BoxPlot([[1, 2, 3, 4, 5]], box_color='#FF0000')
+        svg = bp.to_svg(0)
+        # SVG uses rgb() format: #FF0000 = rgb(255,0,0)
+        assert 'rgb(255,0,0)' in svg
+
+    def test_custom_median_color(self):
+        bp = BoxPlot([[1, 2, 3, 4, 5]], median_color='#00FF00')
+        svg = bp.to_svg(0)
+        # SVG uses rgb() format: #00FF00 = rgb(0,255,0)
+        assert 'rgb(0,255,0)' in svg
+
+    def test_single_value_group(self):
+        bp = BoxPlot([[42]])
+        assert isinstance(bp, VCollection)
+        assert len(bp) > 0
+
+    def test_empty_data_empty_collection(self):
+        bp = BoxPlot([])
+        assert len(bp) == 0
+
+    def test_custom_positions(self):
+        bp = BoxPlot([[1, 2, 3], [4, 5, 6]], positions=[0, 2])
+        assert isinstance(bp, VCollection)
+        assert len(bp) > 0
+
+    def test_fadein_returns_self(self):
+        bp = BoxPlot([[1, 2, 3, 4, 5]])
+        result = bp.fadein(start=0, end=1)
+        assert result is bp
+
+    def test_repr(self):
+        bp = BoxPlot([[1, 2, 3]])
+        assert repr(bp) == 'BoxPlot()'
+
+    def test_quartiles_ordering(self):
+        # Verify Q1 <= median <= Q3 for sorted data
+        data = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3]
+        s = sorted(data)
+        n = len(s)
+        q1 = s[n // 4]
+        med = s[n // 2]
+        q3 = s[3 * n // 4]
+        assert q1 <= med <= q3

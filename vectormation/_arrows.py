@@ -65,31 +65,24 @@ class Arrow(VCollection):
         self.tip.vertices[1].set_onward(start, lambda t: _cached_geom(t)[1])
         self.tip.vertices[2].set_onward(start, lambda t: _cached_geom(t)[2])
 
-    def set_start(self, x, y, start=0, end=None):
-        """Animate the arrow start point."""
+    def _set_point(self, attr, x, y, start=0, end=None):
         if end is None:
-            self.shaft.p1.set_onward(start, lambda t: (x, y))
+            attr.set_onward(start, lambda t: (x, y))
         else:
-            self.shaft.p1.move_to(start, end, (x, y))
+            attr.move_to(start, end, (x, y))
         self._update_tip_dynamic(start)
         return self
+
+    def set_start(self, x, y, start=0, end=None):
+        """Animate the arrow start point."""
+        return self._set_point(self.shaft.p1, x, y, start, end)
 
     def set_end(self, x, y, start=0, end=None):
         """Animate the arrow end point."""
-        if end is None:
-            self.shaft.p2.set_onward(start, lambda t: (x, y))
-        else:
-            self.shaft.p2.move_to(start, end, (x, y))
-        self._update_tip_dynamic(start)
-        return self
+        return self._set_point(self.shaft.p2, x, y, start, end)
 
-    def get_start(self, time: float = 0):
-        """Return the start point (x1, y1) of the arrow shaft."""
-        return self.shaft.p1.at_time(time)
-
-    def get_end(self, time: float = 0):
-        """Return the end point (x2, y2) of the arrow shaft."""
-        return self.shaft.p2.at_time(time)
+    def get_start(self, time: float = 0): return self.shaft.p1.at_time(time)
+    def get_end(self, time: float = 0): return self.shaft.p2.at_time(time)
 
 
     def get_midpoint(self, time=0):
@@ -138,6 +131,31 @@ class Arrow(VCollection):
                 start = (start[0] + ux * buff, start[1] + uy * buff)
                 end = (end[0] - ux * buff, end[1] - uy * buff)
         return cls(x1=start[0], y1=start[1], x2=end[0], y2=end[1], **kwargs)
+
+    def grow(self, start: float = 0, end: float = 1, change_existence=True, easing=None):
+        """Animate the arrow growing from its start point to its end point.
+
+        The shaft extends from zero length and the tip follows the growing end.
+        """
+        import vectormation.easings as _easings
+        easing = easing or _easings.smooth
+        dur = end - start
+        if dur <= 0:
+            return self
+        if change_existence:
+            self.show.set_onward(0, False)
+            self.show.set_onward(start, True)
+        p1 = self.shaft.p1.at_time(start)
+        p2 = self.shaft.p2.at_time(start)
+        _s, _d = start, max(dur, 1e-9)
+        self.shaft.p2.set(start, end,
+            lambda t, _s=_s, _d=_d, _p1=p1, _p2=p2, _e=easing: (
+                _p1[0] + (_p2[0] - _p1[0]) * _e((t - _s) / _d),
+                _p1[1] + (_p2[1] - _p1[1]) * _e((t - _s) / _d)),
+            stay=True)
+        self.shaft.p2.set_onward(end, p2)
+        self._update_tip_dynamic(start)
+        return self
 
     def __repr__(self):
         s, e = self.get_start(), self.get_end()

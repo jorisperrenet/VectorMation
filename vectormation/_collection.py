@@ -51,23 +51,24 @@ class VCollection(_BBoxMethodsMixin):
             self.objects.insert(index + i, obj)
         return self
 
-    def send_to_back(self, child):
-        """Move a child to the back (rendered first, behind others)."""
+    def _reorder_child(self, child, front):
         if isinstance(child, int):
             child = self.objects[child]
         if child in self.objects:
             self.objects.remove(child)
-            self.objects.insert(0, child)
+            if front:
+                self.objects.append(child)
+            else:
+                self.objects.insert(0, child)
         return self
+
+    def send_to_back(self, child):
+        """Move a child to the back (rendered first, behind others)."""
+        return self._reorder_child(child, front=False)
 
     def bring_to_front(self, child):
         """Move a child to the front (rendered last, on top)."""
-        if isinstance(child, int):
-            child = self.objects[child]
-        if child in self.objects:
-            self.objects.remove(child)
-            self.objects.append(child)
-        return self
+        return self._reorder_child(child, front=True)
 
     def get_child(self, index):
         """Return the child at *index* (supports negative indices)."""
@@ -238,10 +239,8 @@ class VCollection(_BBoxMethodsMixin):
 
     def sort_by_position(self, axis='x', reverse=False):
         """Sort children in-place by their x or y center coordinate."""
-        if axis == 'x':
-            self.objects.sort(key=lambda obj: obj.center(0)[0], reverse=reverse)
-        elif axis == 'y':
-            self.objects.sort(key=lambda obj: obj.center(0)[1], reverse=reverse)
+        axis_idx = 0 if axis == 'x' else 1
+        self.objects.sort(key=lambda obj: obj.center(0)[axis_idx], reverse=reverse)
         return self
 
     def group_into(self, n):
@@ -307,11 +306,11 @@ class VCollection(_BBoxMethodsMixin):
 
     def sort_by_y(self, reverse=False, time=0):
         """Sort children by y position (top to bottom by default)."""
-        return self.sort_objects(key=lambda obj: obj.bbox(time)[1], reverse=reverse, time=time)
+        return self.sort_objects(key=lambda obj: obj.bbox(time)[1], reverse=reverse)
 
     def sort_by_z(self, reverse=False, time=0):
         """Sort children by z-depth."""
-        return self.sort_objects(key=lambda obj: obj.z.at_time(time), reverse=reverse, time=time)
+        return self.sort_objects(key=lambda obj: obj.z.at_time(time), reverse=reverse)
 
     def sort_by(self, key_func, reverse=False):
         """Sort children by key_func(child). Does not animate — instant reorder."""
@@ -320,15 +319,11 @@ class VCollection(_BBoxMethodsMixin):
 
     def max_by(self, key):
         """Return the child with the maximum key value."""
-        if not self.objects:
-            return None
-        return max(self.objects, key=key)
+        return max(self.objects, key=key) if self.objects else None
 
     def min_by(self, key):
         """Return the child with the minimum key value."""
-        if not self.objects:
-            return None
-        return min(self.objects, key=key)
+        return min(self.objects, key=key) if self.objects else None
 
     def sum_by(self, key):
         """Sum the result of key(child) across all children."""
@@ -422,16 +417,12 @@ class VCollection(_BBoxMethodsMixin):
         """Set linearly interpolated opacity across children."""
         n = len(self.objects)
         if n < 2:
-            if n:
-                self.objects[0].set_opacity(start_opacity, start)
+            if n: self.objects[0].set_opacity(start_opacity, start)
             return self
+        opacity_attr = 'fill_opacity' if attr == 'fill' else 'stroke_opacity'
         for i, obj in enumerate(self.objects):
-            t = i / (n - 1)
-            opacity = start_opacity + (end_opacity - start_opacity) * t
-            if attr == 'fill':
-                obj.styling.fill_opacity.set_onward(start, opacity)
-            else:
-                obj.styling.stroke_opacity.set_onward(start, opacity)
+            opacity = start_opacity + (end_opacity - start_opacity) * i / (n - 1)
+            getattr(obj.styling, opacity_attr).set_onward(start, opacity)
         return self
 
     def __getattr__(self, name):
@@ -446,8 +437,8 @@ class VCollection(_BBoxMethodsMixin):
 
     def _resolve_center(self, start: float, cx: float | None = None, cy: float | None = None):
         if cx is None or cy is None:
-            _cx, _cy = self.center(start)
-            return (_cx if cx is None else cx, _cy if cy is None else cy)
+            gcx, gcy = self.center(start)
+            return (gcx if cx is None else cx), (gcy if cy is None else cy)
         return cx, cy
 
     def scale(self, factor, start: float = 0, end: float | None = None, easing=easings.smooth):
@@ -468,12 +459,10 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def rotate_to(self, start: float, end: float, degrees: float, cx: float | None = None, cy: float | None = None, easing=easings.smooth):
-        cx, cy = self._resolve_center(start, cx, cy)
-        return self._delegate('rotate_to', start, end, degrees, cx=cx, cy=cy, easing=easing)
+        cx, cy = self._resolve_center(start, cx, cy); return self._delegate('rotate_to', start, end, degrees, cx=cx, cy=cy, easing=easing)
 
     def rotate_by(self, start: float, end: float, degrees: float, cx: float | None = None, cy: float | None = None, easing=easings.smooth):
-        cx, cy = self._resolve_center(start, cx, cy)
-        return self._delegate('rotate_by', start, end, degrees, cx=cx, cy=cy, easing=easing)
+        cx, cy = self._resolve_center(start, cx, cy); return self._delegate('rotate_by', start, end, degrees, cx=cx, cy=cy, easing=easing)
 
     @staticmethod
     def _hshift(obj, horizontal, offset, start):
@@ -627,21 +616,16 @@ class VCollection(_BBoxMethodsMixin):
         if not self.objects:
             return self
         cols, cell_w, cell_h, max_w, max_h, _boxes = self._grid_targets(rows, cols, buff, start)
+        kw = {'start': start, 'end': end, **(({'easing': easing}) if easing is not None else {})}
         for idx, obj in enumerate(self.objects):
             r, c = divmod(idx, cols)
-            kw = {'start': start, 'end': end}
-            if easing is not None:
-                kw['easing'] = easing
             obj.center_to_pos(c * cell_w + max_w / 2, r * cell_h + max_h / 2, **kw)
         return self
 
     def stagger(self, method_name, delay, **kwargs):
         """Call method on each child with staggered timing offsets."""
         for i, obj in enumerate(self.objects):
-            kw = dict(kwargs)
-            for key in ('start', 'end'):
-                if key in kw:
-                    kw[key] = kw[key] + i * delay
+            kw = {k: (v + i * delay if k in ('start', 'end') else v) for k, v in kwargs.items()}
             getattr(obj, method_name)(**kw)
         return self
 
@@ -654,16 +638,9 @@ class VCollection(_BBoxMethodsMixin):
             return self
         parsed = parse_path(path_d)
         for i, obj in enumerate(self.objects):
-            # Sample evenly along the path
-            frac = i / max(n - 1, 1)
-            pt = parsed.point(frac)
-            px, py = pt.real, pt.imag
-            obj.center_to_pos(posx=px, posy=py, start=start)
-            # Call the method with staggered timing
-            kw = dict(kwargs)
-            kw['start'] = start + i * delay
-            kw['end'] = end + i * delay
-            getattr(obj, method_name)(**kw)
+            pt = parsed.point(i / max(n - 1, 1))
+            obj.center_to_pos(posx=pt.real, posy=pt.imag, start=start)
+            getattr(obj, method_name)(start=start + i * delay, end=end + i * delay, **kwargs)
         return self
 
     def stagger_random(self, method_name, start=0, end=1, seed=None, **kwargs):
@@ -687,16 +664,12 @@ class VCollection(_BBoxMethodsMixin):
     def wave_anim(self, start: float = 0, end: float = 1, amplitude=20, waves=1):
         """Staggered wave animation: children bob up and down with phase offsets."""
         n = len(self.objects)
-        if n == 0:
+        if n == 0 or end <= start:
             return self
         dur = end - start
-        if dur <= 0:
-            return self
         for i, obj in enumerate(self.objects):
             phase = math.tau * i / max(n, 1)
-            s, d, a, p = start, dur, amplitude, phase
-            w = waves
-            def _dy(t, _s=s, _d=d, _a=a, _p=p, _w=w):
+            def _dy(t, _s=start, _d=dur, _a=amplitude, _p=phase, _w=waves):
                 progress = (t - _s) / _d
                 return -_a * math.sin(math.tau * _w * progress + _p) * (1 - progress)
             for _, ya in obj._shift_reals():
@@ -713,8 +686,7 @@ class VCollection(_BBoxMethodsMixin):
     def apply_sequentially(self, method_name, start=0, end=1, **kwargs):
         """Apply method to each child in sequence, dividing [start, end] into equal time slices."""
         n = len(self.objects)
-        if n == 0:
-            return self
+        if n == 0: return self
         dt = (end - start) / n
         for i, obj in enumerate(self.objects):
             getattr(obj, method_name)(start=start + i * dt, end=start + (i + 1) * dt, **kwargs)
@@ -729,10 +701,8 @@ class VCollection(_BBoxMethodsMixin):
             return self
         for i, obj in enumerate(self.objects):
             t = i / max(n - 1, 1)
-            tx = x1 + (x2 - x1) * t
-            ty = y1 + (y2 - y1) * t
             cx, cy = obj.center(start)
-            obj.shift(dx=tx - cx, dy=ty - cy, start=start)
+            obj.shift(dx=x1 + (x2 - x1) * t - cx, dy=y1 + (y2 - y1) * t - cy, start=start)
         return self
 
     def align_submobjects(self, edge='left', start: float = 0):
@@ -804,19 +774,13 @@ class VCollection(_BBoxMethodsMixin):
                             overlap=0.0, easing=easings.smooth):
         """Fade in each child sequentially with optional overlap between windows."""
         n = len(self.objects)
-        if n == 0:
+        if n == 0 or end <= start:
             return self
         dur = end - start
-        if dur <= 0:
-            return self
-        if n == 1:
-            slot = dur
-        else:
-            slot = (dur + overlap * (n - 1)) / n
+        slot = dur if n == 1 else (dur + overlap * (n - 1)) / n
         for i, obj in enumerate(self.objects):
             obj_start = start + i * (slot - overlap)
-            obj_end = obj_start + slot
-            obj.fadein(start=obj_start, end=min(obj_end, end), easing=easing)
+            obj.fadein(start=obj_start, end=min(obj_start + slot, end), easing=easing)
         return self
 
     def reveal(self, start: float = 0, end: float = 1, direction='left',
@@ -825,37 +789,26 @@ class VCollection(_BBoxMethodsMixin):
         direction: 'left' (left-to-right), 'right', 'top', 'bottom'.
         Each child fades in with a small shift from the given direction."""
         n = len(self.objects)
-        if n == 0:
+        if n == 0 or end <= start:
             return self
-        dur = end - start
-        if dur <= 0:
-            return self
-        per_child = dur / n
+        per_child = (end - start) / n
         shift_map = {'left': (-shift_amount, 0), 'right': (shift_amount, 0),
                      'top': (0, -shift_amount), 'bottom': (0, shift_amount)}
         sdx, sdy = shift_map.get(direction, (-shift_amount, 0))
         for i, obj in enumerate(self.objects):
             t0 = start + i * per_child
-            t1 = min(t0 + per_child * 1.5, end)  # slight overlap
+            t1 = min(t0 + per_child * 1.5, end)
             obj.fadein(t0, t1, shift_dir=None)
-            # Temporary shift: offset→0 via .add() (additive, non-persistent)
-            _dur = max(t1 - t0, 1e-9)
-            if sdx != 0:
-                _sdx, _t0, _d = sdx, t0, _dur
-                def _dx(t, _sdx=_sdx, _t0=_t0, _d=_d, _easing=easing):
-                    return _sdx * (1 - _easing((t - _t0) / _d))
+            _d = max(t1 - t0, 1e-9)
+            for s_val, is_x in ((sdx, True), (sdy, False)):
+                if s_val == 0:
+                    continue
+                def _shift(t, _s=s_val, _t0=t0, _d=_d, _ea=easing):
+                    return _s * (1 - _ea((t - _t0) / _d))
                 for xa, ya in obj._shift_reals():
-                    xa.add(t0, t1, _dx)
+                    (xa if is_x else ya).add(t0, t1, _shift)
                 for c in obj._shift_coors():
-                    c.add(t0, t1, lambda t, _f=_dx: (_f(t), 0))
-            if sdy != 0:
-                _sdy, _t0, _d = sdy, t0, _dur
-                def _dy(t, _sdy=_sdy, _t0=_t0, _d=_d, _easing=easing):
-                    return _sdy * (1 - _easing((t - _t0) / _d))
-                for xa, ya in obj._shift_reals():
-                    ya.add(t0, t1, _dy)
-                for c in obj._shift_coors():
-                    c.add(t0, t1, lambda t, _f=_dy: (0, _f(t)))
+                    c.add(t0, t1, lambda t, _f=_shift, _x=is_x: (_f(t), 0) if _x else (0, _f(t)))
         return self
 
     def _dim_others(self, index, start, end, opacity=0.2, easing=easings.smooth):
@@ -912,15 +865,12 @@ class VCollection(_BBoxMethodsMixin):
         other's positions. seed: optional random seed for reproducibility."""
         import random
         n = len(self.objects)
-        if n <= 1:
-            return self
-        rng = random.Random(seed)
+        if n <= 1: return self
         centers = [obj.center(start) for obj in self.objects]
         indices = list(range(n))
-        rng.shuffle(indices)
+        random.Random(seed).shuffle(indices)
         for i, obj in enumerate(self.objects):
-            target = centers[indices[i]]
-            obj.move_to(target[0], target[1], start=start, end=end, easing=easing)
+            obj.move_to(*centers[indices[i]], start=start, end=end, easing=easing)
         return self
 
     def for_each(self, method_name, **kwargs):
@@ -941,18 +891,14 @@ class VCollection(_BBoxMethodsMixin):
         """Flip (mirror) all children along an axis through the group's center.
         axis: 'x' (horizontal flip, reflect about vertical center line)
               'y' (vertical flip, reflect about horizontal center line)."""
-        n = len(self.objects)
-        if n == 0:
+        if not self.objects:
             return self
         gcx, gcy = self.center(start)
         for obj in self.objects:
             cx, cy = obj.center(start)
-            if axis == 'x':
-                new_cx = 2 * gcx - cx
-                obj.move_to(new_cx, cy, start=start, end=end, easing=easing)
-            else:
-                new_cy = 2 * gcy - cy
-                obj.move_to(cx, new_cy, start=start, end=end, easing=easing)
+            ncx = 2 * gcx - cx if axis == 'x' else cx
+            ncy = 2 * gcy - cy if axis != 'x' else cy
+            obj.move_to(ncx, ncy, start=start, end=end, easing=easing)
         return self
 
     def stagger_color(self, start: float = 0, end: float = 1, colors=('#FF6B6B', '#58C4DD'),
@@ -960,17 +906,25 @@ class VCollection(_BBoxMethodsMixin):
         """Propagate a color wave through children — each child transitions
         through the color sequence with a delay."""
         n = len(self.objects)
-        if n == 0 or len(colors) < 2:
+        if n == 0 or len(colors) < 2 or end <= start:
             return self
-        dur = end - start
-        if dur <= 0:
-            return self
-        per_child = dur / n
+        per_child = (end - start) / n
         for i, obj in enumerate(self.objects):
             t0 = start + i * per_child
-            t1 = min(t0 + per_child * 2, end)
-            obj.color_gradient_anim(colors=colors, start=t0, end=t1, attr=attr)
+            obj.color_gradient_anim(colors=colors, start=t0, end=min(t0 + per_child * 2, end), attr=attr)
         return self
+
+    @staticmethod
+    def _apply_scale_pop(obj, s, e, factor, easing):
+        """Apply a scale-up-and-back animation to obj over [s, e]."""
+        obj._ensure_scale_origin(s)
+        sx0 = obj.styling.scale_x.at_time(s)
+        sy0 = obj.styling.scale_y.at_time(s)
+        _d = max(e - s, 1e-9)
+        def _make_pop(base, _s=s, _d=_d, _f=factor, _ea=easing):
+            return lambda t, _b=base: _b * (1 + (_f - 1) * math.sin(math.pi * _ea((t - _s) / _d)))
+        obj.styling.scale_x.set(s, e, _make_pop(sx0))
+        obj.styling.scale_y.set(s, e, _make_pop(sy0))
 
     def stagger_scale(self, start: float = 0, end: float = 1,
                        scale_factor=1.5, delay=0.2, easing=easings.smooth,
@@ -982,37 +936,23 @@ class VCollection(_BBoxMethodsMixin):
         if n == 0 or end <= start:
             return self
         dur = end - start
-        # Each child gets a pop duration: total time minus all delays, but
-        # at least enough for one cycle
         pop_dur = max(dur - (n - 1) * delay, dur / n) if n > 1 else dur
         for i, obj in enumerate(self.objects):
             s = start + i * delay
             e = min(s + pop_dur, end)
             if e <= s:
                 continue
-            obj._ensure_scale_origin(s)
-            _sx0 = obj.styling.scale_x.at_time(s)
-            _sy0 = obj.styling.scale_y.at_time(s)
-            _d = max(e - s, 1e-9)
-            def _make_pop(base, _s=s, _d=_d, _sf=scale_factor, _easing=easing):
-                return lambda t, _b=base: \
-                    _b * (1 + (_sf - 1) * math.sin(math.pi * _easing((t - _s) / _d)))
-            obj.styling.scale_x.set(s, e, _make_pop(_sx0))
-            obj.styling.scale_y.set(s, e, _make_pop(_sy0))
+            self._apply_scale_pop(obj, s, e, scale_factor, easing)
         return self
 
     def stagger_rotate(self, start: float = 0, end: float = 1, degrees=360, easing=easings.smooth):
         """Sequentially rotate each child."""
         n = len(self.objects)
-        if n == 0 or end <= start:
-            return self
-        dur = end - start
-        child_dur = dur / n * 1.5
-        step = dur / n
+        if n == 0 or end <= start: return self
+        step = (end - start) / n
         for i, obj in enumerate(self.objects):
             s = start + i * step
-            e = min(s + child_dur, end)
-            obj.rotate_by(s, e, degrees, easing=easing)
+            obj.rotate_by(s, min(s + step * 1.5, end), degrees, easing=easing)
         return self
 
     def animate_each(self, method, start: float = 0, end: float = 1,
@@ -1062,12 +1002,8 @@ class VCollection(_BBoxMethodsMixin):
     def gather_to(self, cx: float | None = None, cy: float | None = None,
                    start: float = 0, end: float = 1, easing=easings.smooth):
         """Converge children to a center point (reverse of scatter_from)."""
-        n = len(self.objects)
-        if n == 0:
-            return self
-        gx, gy, gw, gh = self.bbox(start)
-        cx = cx if cx is not None else gx + gw / 2
-        cy = cy if cy is not None else gy + gh / 2
+        if not self.objects: return self
+        cx, cy = self._resolve_center(start, cx, cy)
         for obj in self.objects:
             obj.move_to(cx, cy, start=start, end=end, easing=easing)
         return self
@@ -1076,18 +1012,15 @@ class VCollection(_BBoxMethodsMixin):
                          easing=easings.smooth):
         """Rotate all children around the group's center.
         Moves each child to its new angular position around the centroid."""
-        n = len(self.objects)
-        if n == 0:
+        if not self.objects:
             return self
         gcx, gcy = self.center(start)
-        rad = math.radians(degrees)
+        cos_r, sin_r = math.cos(math.radians(degrees)), math.sin(math.radians(degrees))
         for obj in self.objects:
             cx, cy = obj.center(start)
-            # Rotate (cx, cy) around (gcx, gcy)
             dx, dy = cx - gcx, cy - gcy
-            new_cx = gcx + dx * math.cos(rad) - dy * math.sin(rad)
-            new_cy = gcy + dx * math.sin(rad) + dy * math.cos(rad)
-            obj.move_to(new_cx, new_cy, start=start, end=end, easing=easing)
+            obj.move_to(gcx + dx * cos_r - dy * sin_r, gcy + dx * sin_r + dy * cos_r,
+                        start=start, end=end, easing=easing)
         return self
 
     def wave_effect(self, start: float = 0, end: float = 1, amplitude=20, axis='y',
@@ -1222,25 +1155,17 @@ class VCollection(_BBoxMethodsMixin):
     def snake_layout(self, cols=None, buff=SMALL_BUFF, start: float = 0):
         """Arrange children in a snake/zigzag grid (alternating row direction)."""
         n = len(self.objects)
-        if not n:
-            return self
-        if cols is None:
-            cols = math.ceil(math.sqrt(n))
+        if not n: return self
+        if cols is None: cols = math.ceil(math.sqrt(n))
         boxes = [obj.bbox(start) for obj in self.objects]
         max_w = max(b[2] for b in boxes)
         max_h = max(b[3] for b in boxes)
         cell_w, cell_h = max_w + buff, max_h + buff
         for idx, (obj, box) in enumerate(zip(self.objects, boxes)):
             r, c = divmod(idx, cols)
-            # Reverse column order on odd rows (snake pattern)
-            if r % 2 == 1:
-                c = cols - 1 - c
-            target_cx = c * cell_w + max_w / 2
-            target_cy = r * cell_h + max_h / 2
-            cur_cx = box[0] + box[2] / 2
-            cur_cy = box[1] + box[3] / 2
-            obj.shift(dx=target_cx - cur_cx, dy=target_cy - cur_cy,
-                      start=start)
+            if r % 2 == 1: c = cols - 1 - c
+            obj.shift(dx=c * cell_w + max_w / 2 - (box[0] + box[2] / 2),
+                      dy=r * cell_h + max_h / 2 - (box[1] + box[3] / 2), start=start)
         return self
 
     def arrange_along_path(self, path_d, start: float = 0,
@@ -1254,110 +1179,73 @@ class VCollection(_BBoxMethodsMixin):
             return self
         for i, obj in enumerate(self.objects):
             t = i / max(n - 1, 1)
-            if easing is not None:
-                t = easing(t)
-            target_len = t * total_length
-            pt = parsed.point(parsed.ilength(target_len))
-            tx, ty = pt.real, pt.imag
+            if easing is not None: t = easing(t)
+            pt = parsed.point(parsed.ilength(t * total_length))
             cx, cy = obj.center(start)
-            obj.shift(dx=tx - cx, dy=ty - cy, start=start)
+            obj.shift(dx=pt.real - cx, dy=pt.imag - cy, start=start)
         return self
 
     def converge(self, x: float = 960, y: float = 540,
                  start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate all children moving toward a common point (x, y)."""
-        if not self.objects or end <= start:
-            return self
+        if not self.objects or end <= start: return self
         for obj in self.objects:
             ox, oy = obj.center(start)
-            dx, dy = x - ox, y - oy
-            if dx == 0 and dy == 0:
-                continue
-            obj.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
+            if x != ox or y != oy:
+                obj.shift(dx=x - ox, dy=y - oy, start=start, end=end, easing=easing)
         return self
 
     def diverge(self, factor: float = 2.0, cx: float | None = None,
                 cy: float | None = None, start: float = 0, end: float = 1,
                 easing=easings.smooth):
         """Animate all children moving away from a common center by *factor* times their offset."""
-        if not self.objects or end <= start:
-            return self
+        if not self.objects or end <= start: return self
         cx, cy = self._resolve_center(start, cx, cy)
         for obj in self.objects:
-            obj_cx, obj_cy = obj.center(start)
-            dx = (obj_cx - cx) * (factor - 1)
-            dy = (obj_cy - cy) * (factor - 1)
-            if dx == 0 and dy == 0:
-                continue
-            obj.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
+            ocx, ocy = obj.center(start)
+            dx, dy = (ocx - cx) * (factor - 1), (ocy - cy) * (factor - 1)
+            if dx or dy:
+                obj.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
 
-    def all_match(self, predicate):
-        """Return True if all children match the predicate."""
-        return all(predicate(obj) for obj in self.objects)
-
-    def any_match(self, predicate):
-        """Return True if any child matches the predicate."""
-        return any(predicate(obj) for obj in self.objects)
+    def all_match(self, predicate): return all(predicate(obj) for obj in self.objects)
+    def any_match(self, predicate): return any(predicate(obj) for obj in self.objects)
 
     def pair_up(self):
         """Group adjacent children into pairs of VCollections."""
-        if len(self.objects) == 0:
+        if not self.objects:
             raise ValueError("Cannot pair_up an empty collection")
-        result = []
         objs = self.objects
-        for i in range(0, len(objs), 2):
-            group = objs[i:i + 2]
-            result.append(VCollection(*group))
-        return result
+        return [VCollection(*objs[i:i + 2]) for i in range(0, len(objs), 2)]
 
     def sliding_window(self, size: int, step: int = 1):
         """Return overlapping sub-collections using a sliding window of *size* with *step*."""
-        if size < 1:
-            raise ValueError(f"window size must be >= 1, got {size!r}")
-        if step < 1:
-            raise ValueError(f"step must be >= 1, got {step!r}")
+        if size < 1: raise ValueError(f"window size must be >= 1, got {size!r}")
+        if step < 1: raise ValueError(f"step must be >= 1, got {step!r}")
         objs = self.objects
-        result = []
-        i = 0
-        while i + size <= len(objs):
-            result.append(VCollection(*objs[i:i + size]))
-            i += step
-        return result
+        return [VCollection(*objs[i:i + size]) for i in range(0, len(objs) - size + 1, step)]
 
     def waterfall(self, start: float = 0, end: float = 1, height: float = 200,
                   stagger_frac: float = 0.3, easing=easings.smooth):
         """Staggered gravity-like entrance: children drop in from above with cascading delay."""
         n = len(self.objects)
-        if n == 0:
+        if n == 0 or end <= start:
             return self
         dur = end - start
-        if dur <= 0:
-            return self
-        # Compute per-child window with stagger overlap
         if n == 1:
-            child_dur = dur
-            delay = 0
+            child_dur, delay = dur, 0
         else:
-            # Each child gets a window; consecutive windows overlap by stagger_frac
             child_dur = dur / (1 + (1 - stagger_frac) * (n - 1))
             delay = child_dur * (1 - stagger_frac)
-
         for i, obj in enumerate(self.objects):
             cs = start + i * delay
             ce = cs + child_dur
-            # Hide before entrance
             obj.show.set_onward(0, False)
             obj.show.set_onward(cs, True)
-            # Fade in
             _cs, _cd = cs, max(ce - cs, 1e-9)
-            end_opacity = obj.styling.opacity.at_time(cs)
-            obj.styling.opacity.set(cs, ce, _ramp(_cs, _cd, end_opacity, easing))
-            # Drop from above: shift up by height, then animate down
-            _h = height
-            def _dy(t, _s=_cs, _d=_cd, _h=_h, _e=easing):
-                p = _e((t - _s) / _d)
-                return -_h * (1 - p)
+            obj.styling.opacity.set(cs, ce, _ramp(_cs, _cd, obj.styling.opacity.at_time(cs), easing))
+            def _dy(t, _s=_cs, _d=_cd, _h=height, _e=easing):
+                return -_h * (1 - _e((t - _s) / _d))
             for _, ya in obj._shift_reals():
                 ya.add(cs, ce, _dy, stay=True)
             for c in obj._shift_coors():
@@ -1390,53 +1278,32 @@ class VCollection(_BBoxMethodsMixin):
             if radius < 1:
                 radius = 100
         _s, _d = start, max(dur, 1e-9)
-        _cx, _cy, _r, _rev = cx, cy, radius, revolutions
 
         for i, obj in enumerate(self.objects):
             angle0, _, ocx, ocy = child_data[i]
-            _a0, _ocx, _ocy = angle0, ocx, ocy
-            def _dx(t, _s=_s, _d=_d, _cx=_cx, _r=_r, _rev=_rev,
-                    _a0=_a0, _ocx=_ocx, _e=easing):
-                p = _e((t - _s) / _d)
-                angle = _a0 + math.tau * _rev * p
-                return _cx + _r * math.cos(angle) - _ocx
-            def _dy(t, _s=_s, _d=_d, _cy=_cy, _r=_r, _rev=_rev,
-                    _a0=_a0, _ocy=_ocy, _e=easing):
-                p = _e((t - _s) / _d)
-                angle = _a0 + math.tau * _rev * p
-                return _cy + _r * math.sin(angle) - _ocy
+            def _orbit(t, _s=_s, _d=_d, _cx=cx, _cy=cy, _r=radius, _rev=revolutions,
+                       _a0=angle0, _ocx=ocx, _ocy=ocy, _e=easing):
+                angle = _a0 + math.tau * _rev * _e((t - _s) / _d)
+                return _cx + _r * math.cos(angle) - _ocx, _cy + _r * math.sin(angle) - _ocy
             for xa, ya in obj._shift_reals():
-                xa.add(start, end, _dx)
-                ya.add(start, end, _dy)
+                xa.add(start, end, lambda t, _f=_orbit: _f(t)[0])
+                ya.add(start, end, lambda t, _f=_orbit: _f(t)[1])
             for c in obj._shift_coors():
-                c.add(start, end,
-                      lambda t, _fdx=_dx, _fdy=_dy: (_fdx(t), _fdy(t)))
+                c.add(start, end, lambda t, _f=_orbit: _f(t))
         return self
 
     def cascade_scale(self, start: float = 0, end: float = 1, factor=1.5,
                       delay=0.15, easing=easings.smooth):
         """Stagger scale-up-and-back animations across children with a fixed delay."""
         n = len(self.objects)
-        if n == 0:
+        if n == 0 or end <= start:
             return self
-        dur = end - start
-        if dur <= 0:
-            return self
-        # Per-child animation duration
         total_delay = delay * (n - 1) if n > 1 else 0
-        child_dur = max(dur - total_delay, 0.01)
+        child_dur = max((end - start) - total_delay, 0.01)
         for i, obj in enumerate(self.objects):
             s = start + i * delay
             e = min(s + child_dur, end)
-            obj._ensure_scale_origin(s)
-            sx0 = obj.styling.scale_x.at_time(s)
-            sy0 = obj.styling.scale_y.at_time(s)
-            _s, _d, _f = s, max(e - s, 1e-9), factor
-            def _make_there_and_back(base, _s=_s, _d=_d, _f=_f, _easing=easing):
-                return lambda t, _s=_s, _d=_d, _f=_f, _b=base, _easing=_easing: \
-                    _b * (1 + (_f - 1) * math.sin(math.pi * _easing((t - _s) / _d)))
-            obj.styling.scale_x.set(s, e, _make_there_and_back(sx0))
-            obj.styling.scale_y.set(s, e, _make_there_and_back(sy0))
+            self._apply_scale_pop(obj, s, e, factor, easing)
         return self
 
     def distribute_along_arc(self, cx=960, cy=540, radius=200,
@@ -1450,18 +1317,13 @@ class VCollection(_BBoxMethodsMixin):
             return self
         if end_angle is None:
             end_angle = start_angle + math.pi
-        # For a single object, place it at the midpoint of the arc
-        if n == 1:
-            angle = (start_angle + end_angle) / 2
+        arc_span = end_angle - start_angle
         for i, obj in enumerate(self.objects):
-            if n > 1:
-                t_frac = i / (n - 1)
-                angle = start_angle + (end_angle - start_angle) * t_frac
-            tx = cx + radius * math.cos(angle)
-            ty = cy + radius * math.sin(angle)
+            angle = (start_angle + end_angle) / 2 if n == 1 else start_angle + arc_span * i / (n - 1)
             obj_cx, obj_cy = obj.center(start)
-            dx, dy = tx - obj_cx, ty - obj_cy
-            obj.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
+            obj.shift(dx=cx + radius * math.cos(angle) - obj_cx,
+                      dy=cy + radius * math.sin(angle) - obj_cy,
+                      start=start, end=end, easing=easing)
         return self
 
     def fan_out(self, cx: float | None = None, cy: float | None = None,
@@ -1476,72 +1338,47 @@ class VCollection(_BBoxMethodsMixin):
                       start: float = 0, end: float | None = None,
                       easing=easings.smooth):
         """Align all children's centers along a common axis line."""
-        n = len(self.objects)
-        if n == 0:
-            return self
+        if not self.objects: return self
+        ai = 0 if axis == 'x' else 1
         if value is None:
-            gc = self.center(start)
-            value = gc[0] if axis == 'x' else gc[1]
+            value = self.center(start)[ai]
         for obj in self.objects:
             oc = obj.center(start)
-            if axis == 'x':
-                dx = value - oc[0]
-                dy = 0
-            else:
-                dx = 0
-                dy = value - oc[1]
-            if dx != 0 or dy != 0:
-                obj.shift(dx=dx, dy=dy, start=start,
-                          end=end, easing=easing)
+            delta = value - oc[ai]
+            if delta:
+                dx, dy = (delta, 0) if axis == 'x' else (0, delta)
+                obj.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
 
     def distribute_evenly(self, start_x, start_y, end_x, end_y):
         """Distribute children evenly along a line from (start_x, start_y) to (end_x, end_y)."""
         n = len(self.objects)
-        if n == 0:
-            return self
+        if n == 0: return self
         if n == 1:
             self.objects[0].center_to_pos(posx=start_x, posy=start_y)
             return self
         for i, obj in enumerate(self.objects):
             frac = i / (n - 1)
-            px = start_x + frac * (end_x - start_x)
-            py = start_y + frac * (end_y - start_y)
-            obj.center_to_pos(posx=px, posy=py)
+            obj.center_to_pos(posx=start_x + frac * (end_x - start_x),
+                              posy=start_y + frac * (end_y - start_y))
         return self
 
     def cascade_fadein(self, start=0, end=1, direction='left_to_right', easing=easings.smooth):
         """Fade in children with a cascade effect based on spatial ordering."""
         n = len(self.objects)
-        if n == 0:
+        if n == 0 or end <= start:
             return self
-        dur = end - start
-        if dur <= 0:
-            return self
-        # Sort children by spatial criteria
         if direction == 'left_to_right':
             sorted_objs = sorted(self.objects, key=lambda o: o.center(start)[0])
         elif direction == 'top_to_bottom':
             sorted_objs = sorted(self.objects, key=lambda o: o.center(start)[1])
         elif direction == 'center_out':
-            group_cx, group_cy = self.center(start)
-            def _dist(o):
-                ox, oy = o.center(start)
-                return math.hypot(ox - group_cx, oy - group_cy)
-            sorted_objs = sorted(self.objects, key=_dist)
+            gcx, gcy = self.center(start)
+            sorted_objs = sorted(self.objects, key=lambda o: math.hypot(*(oc - gc for oc, gc in zip(o.center(start), (gcx, gcy)))))
         else:
             sorted_objs = list(self.objects)
-        if n == 1:
-            sorted_objs[0].fadein(start=start, end=end, easing=easing)
-            return self
-        # Compute staggered timing with overlap
-        overlap = 0.5
-        child_dur = dur / (1 + (1 - overlap) * (n - 1))
-        step = child_dur * (1 - overlap)
-        for i, obj in enumerate(sorted_objs):
-            s = start + i * step
-            e = s + child_dur
-            obj.fadein(start=s, end=e, easing=easing)
+        tmp = VCollection(*sorted_objs)
+        tmp.cascade('fadein', start=start, end=end, overlap=0.5, easing=easing)
         return self
 
     def label_children(self, labels, direction=UP, buff=20, font_size=None, creation=0):
@@ -1569,19 +1406,12 @@ class VCollection(_BBoxMethodsMixin):
                 break
             method = getattr(obj, method_name)
             kw = dict(kwargs)
-            # Add timing parameters if not already provided by caller
-            has_timing = any(k in kw for k in ('start', 'end', 'start', 'end'))
-            if not has_timing:
-                sig = inspect.signature(method)
-                params = sig.parameters
+            if not any(k in kw for k in ('start', 'end')):
+                params = inspect.signature(method).parameters
                 if 'start' in params:
                     kw['start'] = start
-                    if 'end' in params:
-                        kw['end'] = end
-                elif 'start' in params:
-                    kw['start'] = start
-                    if 'end' in params:
-                        kw['end'] = end
+                if 'end' in params:
+                    kw['end'] = end
             if param_name is not None:
                 kw[param_name] = values[i]
                 method(**kw)
@@ -1591,30 +1421,21 @@ class VCollection(_BBoxMethodsMixin):
 
     def connect_children(self, arrow=False, buff=0, start=0, **kwargs):
         """Draw connecting lines or arrows between consecutive children, adding them to the collection."""
+        if arrow:
+            from vectormation._arrows import Arrow as _Connector
+        else:
+            from vectormation._shapes import Line as _Connector
         connectors = []
         for i in range(len(self.objects) - 1):
-            child_a = self.objects[i]
-            child_b = self.objects[i + 1]
-            x1, y1 = child_a.get_edge('right', time=start)
-            x2, y2 = child_b.get_edge('left', time=start)
-            # Apply buff: move start point right and end point left
-            dx = x2 - x1
-            dy = y2 - y1
-            length = math.sqrt(dx * dx + dy * dy)
-            if length > 0 and buff > 0:
-                ux, uy = dx / length, dy / length
-                x1 += ux * buff
-                y1 += uy * buff
-                x2 -= ux * buff
-                y2 -= uy * buff
-            if arrow:
-                from vectormation._arrows import Arrow as _Arrow
-                connector = _Arrow(x1=x1, y1=y1, x2=x2, y2=y2,
-                                   creation=start, **kwargs)
-            else:
-                from vectormation._shapes import Line as _Line
-                connector = _Line(x1=x1, y1=y1, x2=x2, y2=y2,
-                                  creation=start, **kwargs)
+            x1, y1 = self.objects[i].get_edge('right', time=start)
+            x2, y2 = self.objects[i + 1].get_edge('left', time=start)
+            if buff > 0:
+                length = math.hypot(x2 - x1, y2 - y1)
+                if length > 0:
+                    ux, uy = (x2 - x1) / length, (y2 - y1) / length
+                    x1 += ux * buff; y1 += uy * buff
+                    x2 -= ux * buff; y2 -= uy * buff
+            connector = _Connector(x1=x1, y1=y1, x2=x2, y2=y2, creation=start, **kwargs)
             connectors.append(connector)
             self.objects.append(connector)
         return connectors
@@ -1623,41 +1444,21 @@ class VCollection(_BBoxMethodsMixin):
         """Align children along a shared axis using the mean of their anchor values."""
         if len(self.objects) < 2:
             return self
-        # Compute anchor value for each child
-        values = []
-        for obj in self.objects:
-            x, y, w, h = obj.bbox(0)
-            if axis == 'x':
-                if anchor == 'min':
-                    values.append(x)
-                elif anchor == 'max':
-                    values.append(x + w)
-                else:  # center
-                    values.append(x + w / 2)
-            else:  # axis == 'y'
-                if anchor == 'min':
-                    values.append(y)
-                elif anchor == 'max':
-                    values.append(y + h)
-                else:  # center
-                    values.append(y + h / 2)
+        def _val(x, y, w, h):
+            v, s = (x, w) if axis == 'x' else (y, h)
+            return v if anchor == 'min' else (v + s if anchor == 'max' else v + s / 2)
+        values = [_val(*obj.bbox(0)) for obj in self.objects]
         ref = sum(values) / len(values)
-        # Shift each child to match the reference
         for obj, val in zip(self.objects, values):
             delta = ref - val
-            if axis == 'x':
-                obj.shift(dx=delta, start=0)
-            else:
-                obj.shift(dy=delta, start=0)
+            obj.shift(**({'dx': delta} if axis == 'x' else {'dy': delta}), start=0)
         return self
 
     def sort_by_distance(self, point, reverse=False, start=0):
         """Sort children in-place by distance from a point."""
         px, py = point
-        centers = {id(obj): obj.center(start) for obj in self.objects}
         self.objects.sort(
-            key=lambda obj: math.hypot(centers[id(obj)][0] - px,
-                                       centers[id(obj)][1] - py),
+            key=lambda obj: math.hypot(obj.center(start)[0] - px, obj.center(start)[1] - py),
             reverse=reverse,
         )
         return self

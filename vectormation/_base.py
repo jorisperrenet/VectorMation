@@ -509,9 +509,13 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return _make_brect(self.bbox, time, rx, ry, buff, follow)
 
     def fadein(self, start: float = 0, end: float = 1, shift_dir=None, shift_amount=50,
-               change_existence=True, easing=easings.smooth):
+               scale=None, change_existence=True, easing=easings.smooth):
         """Animate opacity from 0 to current value over [start, end].
-        shift_dir: optional direction tuple (e.g. UP, DOWN) to slide in from."""
+
+        Args:
+            shift_dir: optional direction tuple (e.g. UP, DOWN) to slide in from.
+            scale: optional starting scale factor (e.g. 0.5 to grow from half size).
+        """
         if change_existence:
             self._show_from(start)
         end_val = self.styling.opacity.at_time(end)
@@ -525,6 +529,16 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             dy = shift_dir[1] * shift_amount
             self.shift(dx=-dx, dy=-dy, start=start)  # offset to start pos
             self.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
+        if scale is not None:
+            self._ensure_scale_origin(start)
+            sx0, sy0 = self._get_scale(start)
+            _s, _d = start, max(dur, 1e-9)
+            self.styling.scale_x.set(s, e,
+                lambda t, _s=_s, _d=_d, _from=sx0*scale, _to=sx0, _e=easing:
+                    _from + (_to - _from) * _e((t - _s) / _d), stay=True)
+            self.styling.scale_y.set(s, e,
+                lambda t, _s=_s, _d=_d, _from=sy0*scale, _to=sy0, _e=easing:
+                    _from + (_to - _from) * _e((t - _s) / _d), stay=True)
         return self
 
     def fade_shift(self, dx=0, dy=0, start: float = 0, end: float = 1, easing=easings.smooth):
@@ -541,9 +555,13 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def fadeout(self, start: float = 0, end: float = 1, shift_dir=None, shift_amount=50,
-                change_existence=True, easing=easings.smooth):
+                scale=None, change_existence=True, easing=easings.smooth):
         """Animate opacity from current value to 0 over [start, end].
-        shift_dir: optional direction tuple (e.g. UP, DOWN) to slide out toward."""
+
+        Args:
+            shift_dir: optional direction tuple (e.g. UP, DOWN) to slide out toward.
+            scale: optional target scale factor (e.g. 0.5 to shrink while fading).
+        """
         start_val = self.styling.opacity.at_time(start)
         s, e = start, end
         dur = e - s
@@ -556,6 +574,16 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             dx = shift_dir[0] * shift_amount
             dy = shift_dir[1] * shift_amount
             self.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
+        if scale is not None:
+            self._ensure_scale_origin(start)
+            sx0, sy0 = self._get_scale(start)
+            _s, _d = start, max(dur, 1e-9)
+            self.styling.scale_x.set(s, e,
+                lambda t, _s=_s, _d=_d, _from=sx0, _to=sx0*scale, _e=easing:
+                    _from + (_to - _from) * _e((t - _s) / _d), stay=True)
+            self.styling.scale_y.set(s, e,
+                lambda t, _s=_s, _d=_d, _from=sy0, _to=sy0*scale, _e=easing:
+                    _from + (_to - _from) * _e((t - _s) / _d), stay=True)
         if change_existence:
             self._hide_from(end)
         return self
@@ -653,6 +681,44 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         """Quick pop-out: scale from 1 to 0."""
         end = start + duration
         return self._pop_anim(start, end, duration, 0, False, change_existence, easing)
+
+    def spin_in(self, start: float = 0, end: float = 1, degrees: float = 360,
+                change_existence=True, easing=easings.smooth):
+        """Grow from nothing while spinning. Like manim's SpinInFromNothing."""
+        dur = end - start
+        if dur <= 0:
+            return self
+        if change_existence:
+            self._show_from(start)
+        self._ensure_scale_origin(start)
+        s, _d = start, max(dur, 1e-9)
+        cx, cy = self.center(start)
+        self.styling.scale_x.set(s, end, _ramp(s, _d, 1, easing), stay=True)
+        self.styling.scale_y.set(s, end, _ramp(s, _d, 1, easing), stay=True)
+        self.styling.rotation.set(s, end,
+            lambda t, _s=s, _d=_d, _deg=degrees, _cx=cx, _cy=cy, _e=easing:
+                (_deg * (1 - _e((t - _s) / _d)), _cx, _cy), stay=True)
+        return self
+
+    def spin_out(self, start: float = 0, end: float = 1, degrees: float = 360,
+                 change_existence=True, easing=easings.smooth):
+        """Shrink to nothing while spinning. Reverse of spin_in."""
+        dur = end - start
+        if dur <= 0:
+            if change_existence:
+                self._hide_from(start)
+            return self
+        self._ensure_scale_origin(start)
+        s, _d = start, max(dur, 1e-9)
+        cx, cy = self.center(start)
+        self.styling.scale_x.set(s, end, _ramp_down(s, _d, 1, easing), stay=True)
+        self.styling.scale_y.set(s, end, _ramp_down(s, _d, 1, easing), stay=True)
+        self.styling.rotation.set(s, end,
+            lambda t, _s=s, _d=_d, _deg=degrees, _cx=cx, _cy=cy, _e=easing:
+                (_deg * _e((t - _s) / _d), _cx, _cy), stay=True)
+        if change_existence:
+            self._hide_from(end)
+        return self
 
     def _apply_shift_effect(self, start, end, dx_func=None, dy_func=None, stay=False):
         """Apply displacement functions to all shift attributes.

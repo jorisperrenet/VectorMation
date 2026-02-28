@@ -53,7 +53,7 @@ from vectormation._arrows import Arrow, DoubleArrow, CurvedArrow, Brace, Vector
 
 from vectormation._axes import Axes, Graph, NumberPlane, ComplexPlane
 from vectormation._axes_helpers import (
-    pi_format, pi_ticks,
+    pi_format, pi_ticks, pi_tex_format, log_tex_format,
     scientific_format, engineering_format, percent_format, degree_format,
 )
 
@@ -63,6 +63,7 @@ from vectormation._composites import (
     NumberLine, Table, Matrix, DecimalMatrix, IntegerMatrix,
     DynamicObject,
     always_redraw, parse_args,
+    transform_matching_shapes, transform_matching_tex,
 )
 
 from vectormation._svg_utils import (

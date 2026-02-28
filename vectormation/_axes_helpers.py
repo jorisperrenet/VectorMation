@@ -170,10 +170,41 @@ def degree_format(val):
     return f'{deg:g}°'
 
 
+def pi_tex_format(val):
+    """Format a numeric value as a LaTeX multiple of pi (e.g. r'$\\frac{\\pi}{2}$')."""
+    if abs(val) < 1e-9:
+        return '$0$'
+    ratio = val / math.pi
+    for denom in [1, 2, 3, 4, 6, 8, 12]:
+        numer = round(ratio * denom)
+        if abs(ratio - numer / denom) < 1e-9:
+            sign = '-' if numer < 0 else ''
+            numer = abs(numer)
+            if denom == 1:
+                if numer == 1:
+                    return f'${sign}\\pi$'
+                return f'${sign}{numer}\\pi$'
+            if numer == 1:
+                return f'${sign}\\frac{{\\pi}}{{{denom}}}$'
+            return f'${sign}\\frac{{{numer}\\pi}}{{{denom}}}$'
+    return f'${ratio:.2g}\\pi$'
+
+
+def log_tex_format(val):
+    """Format a numeric value as a LaTeX power of 10 (e.g. '$10^{3}$')."""
+    if val <= 0:
+        return f'${val:g}$'
+    exp = math.log10(val)
+    if abs(exp - round(exp)) < 1e-9:
+        return f'$10^{{{int(round(exp))}}}$'
+    return f'${val:g}$'
+
+
 def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_width, plot_height,
                             show_grid, time, x_scale='linear', y_scale='linear', tick_format=None,
                             x_tick_format=None, y_tick_format=None,
-                            x_ticks=None, y_ticks=None):
+                            x_ticks=None, y_ticks=None,
+                            tex_ticks=False):
     """Build axis lines, ticks, tick labels, and grid as VObjects for a single frame."""
     objects = []
 
@@ -234,6 +265,8 @@ def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_widt
                         creation=time, stroke='#fff', stroke_width=_AXIS_STROKE_WIDTH))
 
     # Ticks and labels for both axes
+    TexObject = _get_tex_object() if tex_ticks else None
+
     def _add_ticks(ticks, scale, to_svg_fn, is_x_axis, fmt):
         for val in ticks:
             sv = to_svg_fn(val)
@@ -245,15 +278,24 @@ def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_widt
                                     creation=time, stroke='#fff', stroke_width=_AXIS_STROKE_WIDTH))
             if scale != 'log' and abs(val) < 1e-9:
                 continue
-            label = _format_tick(val, fmt)
-            if is_x_axis:
-                objects.append(Text(text=label, x=sv, y=y_zero + tick_len + _TICK_GAP + _TICK_FONT_SIZE * 0.35,
-                                    font_size=_TICK_FONT_SIZE, text_anchor='middle',
-                                    creation=time, fill='#aaa', stroke_width=0))
+            label_str = _format_tick(val, fmt)
+            if tex_ticks and TexObject is not None and '$' in label_str:
+                lbl = TexObject(label_str, font_size=_TICK_FONT_SIZE, creation=time, fill='#aaa')
+                if is_x_axis:
+                    lbl.center_to_pos(sv, y_zero + tick_len + _TICK_GAP + _TICK_FONT_SIZE * 0.5, start=time)
+                else:
+                    lbl.center_to_pos(x_zero - tick_len - _TICK_GAP - lbl.get_width(time) / 2,
+                                      sv, start=time)
+                objects.append(lbl)
             else:
-                objects.append(Text(text=label, x=x_zero - tick_len - _TICK_GAP, y=sv + _TICK_FONT_SIZE * 0.35,
-                                    font_size=_TICK_FONT_SIZE, text_anchor='end',
-                                    creation=time, fill='#aaa', stroke_width=0))
+                if is_x_axis:
+                    objects.append(Text(text=label_str, x=sv, y=y_zero + tick_len + _TICK_GAP + _TICK_FONT_SIZE * 0.35,
+                                        font_size=_TICK_FONT_SIZE, text_anchor='middle',
+                                        creation=time, fill='#aaa', stroke_width=0))
+                else:
+                    objects.append(Text(text=label_str, x=x_zero - tick_len - _TICK_GAP, y=sv + _TICK_FONT_SIZE * 0.35,
+                                        font_size=_TICK_FONT_SIZE, text_anchor='end',
+                                        creation=time, fill='#aaa', stroke_width=0))
     _add_ticks(x_ticks, x_scale, _to_svg_x, is_x_axis=True, fmt=_x_fmt)
     _add_ticks(y_ticks, y_scale, _to_svg_y, is_x_axis=False, fmt=_y_fmt)
 

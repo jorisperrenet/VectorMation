@@ -372,6 +372,8 @@ class Automaton(VCollection):
             lookup[(from_s, label)] = to_s
 
         current = self._initial_state
+        if current is None:
+            raise ValueError("simulate_input requires an initial_state")
         t = start
 
         for ch in word:
@@ -839,7 +841,7 @@ class OrgChart(VCollection):
             while len(levels) <= depth:
                 levels.append([])
             levels[depth].append(node)
-            _label, children = node
+            _, children = node
             for child in children:
                 queue.append((child, depth + 1))
         # Assign x positions per level

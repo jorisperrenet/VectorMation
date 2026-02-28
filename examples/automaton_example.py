@@ -22,13 +22,15 @@ fsm = Automaton(
 )
 fsm.fadein(0, 1)
 
-# Animate processing the string "aab"
-fsm.highlight_state('q0', 1, 2, color='#FFFF00')  # start
-fsm.highlight_state('q1', 2, 3, color='#FFFF00')  # read 'a'
-fsm.highlight_state('q1', 3, 4, color='#FFFF00')  # read 'a'
-fsm.highlight_state('q2', 4, 5, color='#58C4DD')  # read 'b' -> accept!
+# Simulate processing the string "aab" (auto-stepping through states)
+fsm.simulate_input('aab', start=1.5, delay=1.0, color='#FFFF00')
 
-canvas.add_objects(fsm)
+title = Text(text='DFA: Accepts strings ending with "ab"', x=960, y=80,
+             font_size=36, fill='#fff', stroke_width=0, text_anchor='middle')
+title.fadein(0, 0.5)
+
+canvas.add_objects(fsm, title)
 
 if not args.no_display:
-    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)
+    canvas.browser_display(start=args.start or 0, end=args.end or 6,
+                           fps=args.fps, port=args.port)

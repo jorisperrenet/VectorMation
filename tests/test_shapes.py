@@ -11657,3 +11657,152 @@ class TestSmoothererstep:
         values = [easings.smoothererstep(i / 10) for i in range(11)]
         for i in range(len(values) - 1):
             assert values[i] <= values[i + 1]
+
+
+# ── New animation tests ──
+
+class TestFadeinWithScale:
+    def test_fadein_scale_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        assert c.fadein(start=0, end=1, scale=0.5) is c
+
+    def test_fadein_scale_starts_small(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.fadein(start=0, end=1, scale=0.5)
+        assert c.styling.scale_x.at_time(0) == pytest.approx(0.5, abs=0.1)
+
+    def test_fadein_scale_ends_normal(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.fadein(start=0, end=1, scale=0.5)
+        assert c.styling.scale_x.at_time(1) == pytest.approx(1.0, abs=0.05)
+
+
+class TestFadeoutWithScale:
+    def test_fadeout_scale_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        assert c.fadeout(start=0, end=1, scale=0.5) is c
+
+    def test_fadeout_scale_starts_normal(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.fadeout(start=0, end=1, scale=0.5)
+        assert c.styling.scale_x.at_time(0) == pytest.approx(1.0, abs=0.05)
+
+    def test_fadeout_scale_ends_small(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.fadeout(start=0, end=1, scale=0.5)
+        assert c.styling.scale_x.at_time(1) == pytest.approx(0.5, abs=0.1)
+
+
+class TestSpinIn:
+    def test_spin_in_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        assert c.spin_in(start=0, end=1) is c
+
+    def test_spin_in_shows_object(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.spin_in(start=0, end=1)
+        assert c.show.at_time(0.5) == True
+
+    def test_spin_in_starts_at_zero_scale(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.spin_in(start=0, end=1)
+        assert c.styling.scale_x.at_time(0) == pytest.approx(0.0, abs=0.05)
+
+
+class TestSpinOut:
+    def test_spin_out_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        assert c.spin_out(start=0, end=1) is c
+
+    def test_spin_out_hides_object(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.spin_out(start=0, end=1)
+        assert not c.show.at_time(1.5)
+
+
+class TestBlinkNew:
+    def test_blink_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        assert c.blink(start=0, end=1, num_blinks=4) is c
+
+    def test_blink_opacity_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        assert c.blink_opacity(start=0, end=1, frequency=4) is c
+
+
+class TestIndicateEnhanced:
+    def test_indicate_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#FF0000')
+        assert c.indicate(start=0, end=1) is c
+
+
+class TestArrowGrow:
+    def test_grow_returns_self(self):
+        from vectormation.objects import Arrow
+        a = Arrow(x1=100, y1=100, x2=300, y2=100)
+        assert a.grow(start=0, end=1) is a
+
+    def test_grow_starts_from_start_point(self):
+        from vectormation.objects import Arrow
+        a = Arrow(x1=100, y1=100, x2=300, y2=100)
+        a.grow(start=0, end=1)
+        p2_at_0 = a.shaft.p2.at_time(0)
+        assert abs(p2_at_0[0] - 100) < 5  # should be near start
+
+    def test_grow_ends_at_end_point(self):
+        from vectormation.objects import Arrow
+        a = Arrow(x1=100, y1=100, x2=300, y2=100)
+        a.grow(start=0, end=1)
+        p2_at_1 = a.shaft.p2.at_time(1)
+        assert abs(p2_at_1[0] - 300) < 5
+
+
+class TestDrawBorderThenFill:
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#FF0000')
+        assert c.draw_border_then_fill(start=0, end=1) is c
+
+    def test_fill_starts_hidden(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#FF0000')
+        c.draw_border_then_fill(start=0, end=1)
+        assert c.styling.fill_opacity.at_time(0) == pytest.approx(0.0, abs=0.01)
+
+    def test_fill_visible_at_end(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#FF0000')
+        c.draw_border_then_fill(start=0, end=2)
+        # Circle default fill_opacity is 0.7; ramp restores to that value
+        assert c.styling.fill_opacity.at_time(2) == pytest.approx(0.7, abs=0.05)
+
+
+class TestPiTexFormat:
+    def test_zero(self):
+        from vectormation._axes_helpers import pi_tex_format
+        assert pi_tex_format(0) == '$0$'
+
+    def test_pi(self):
+        import math
+        from vectormation._axes_helpers import pi_tex_format
+        assert pi_tex_format(math.pi) == '$\\pi$'
+
+    def test_half_pi(self):
+        import math
+        from vectormation._axes_helpers import pi_tex_format
+        result = pi_tex_format(math.pi / 2)
+        assert '\\frac' in result
+        assert '\\pi' in result
+
+    def test_negative_pi(self):
+        import math
+        from vectormation._axes_helpers import pi_tex_format
+        result = pi_tex_format(-math.pi)
+        assert result == '$-\\pi$'
+
+
+class TestLogTexFormat:
+    def test_power_of_10(self):
+        from vectormation._axes_helpers import log_tex_format
+        assert log_tex_format(1000) == '$10^{3}$'
+
+    def test_one(self):
+        from vectormation._axes_helpers import log_tex_format
+        assert log_tex_format(1) == '$10^{0}$'
