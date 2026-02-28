@@ -38,11 +38,9 @@ def _fadeout_pair(cell, lbl, start, end, change_existence=False):
 
 def _make_viz_cell(x, y, w, h, val, font_size, fill, creation: float = 0, z: float = 0):
     """Create a Rectangle + Text pair for Viz-style classes (white stroke, centered text)."""
-    cell = Rectangle(w, h, x=x, y=y, fill=fill, fill_opacity=0.9,
-                     stroke='#fff', stroke_width=2, creation=creation, z=z)
-    lbl = Text(text=str(val), x=x + w / 2, y=y + h * _VIZ_TEXT_Y,
-               font_size=font_size, fill='#fff', stroke_width=0,
-               text_anchor='middle', creation=creation, z=z + 0.1)
+    cell, lbl = _make_cell(x, y, w, h, val, font_size, fill, '#fff', '#fff', creation, z)
+    cell.styling.fill_opacity.set_onward(0, 0.9)
+    lbl.y.set_onward(0, y + h * _VIZ_TEXT_Y)
     return cell, lbl
 
 class Array(VCollection):

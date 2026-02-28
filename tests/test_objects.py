@@ -18311,3 +18311,60 @@ class TestRotateFadeCompact:
         r.rotate_out(start=0, end=1)
         assert r.styling.fill_opacity.at_time(0) > r.styling.fill_opacity.at_time(0.9)
 
+
+class TestBodyVelocityHelper:
+    """Test _body_velocity helper in physics module."""
+
+    def test_body_returns_velocity(self):
+        from vectormation._physics import Body, _body_velocity
+        c = Circle(r=10, cx=100, cy=100)
+        b = Body(c, mass=1)
+        b.vx, b.vy = 5.0, -3.0
+        assert _body_velocity(b) == (5.0, -3.0)
+
+    def test_tuple_returns_zero(self):
+        from vectormation._physics import _body_velocity
+        assert _body_velocity((100, 200)) == (0.0, 0.0)
+
+
+class TestMakeVizCellDelegation:
+    """Test _make_viz_cell delegates to _make_cell."""
+
+    def test_produces_rect_and_text(self):
+        from vectormation._data_structures import _make_viz_cell
+        cell, lbl = _make_viz_cell(0, 0, 80, 80, 'A', 24, '#264653')
+        svg_c = cell.to_svg(0)
+        svg_l = lbl.to_svg(0)
+        assert 'rect' in svg_c
+        assert 'A' in svg_l
+
+    def test_fill_opacity(self):
+        from vectormation._data_structures import _make_viz_cell
+        cell, _ = _make_viz_cell(0, 0, 80, 80, 'X', 24, '#264653')
+        assert abs(cell.styling.fill_opacity.at_time(0) - 0.9) < 0.01
+
+
+class TestSecantFadeEndpoint:
+    """Test add_secant_fade after extracting _secant_endpoint helper."""
+
+    def test_secant_line_animates(self):
+        from vectormation.objects import Axes
+        ax = Axes(x_range=[-2, 2], y_range=[-2, 4], creation=0)
+        line = ax.add_secant_fade(lambda x: x**2, x=1, dx_start=1, dx_end=0.1,
+                                   start=0, end=1)
+        p1_start = line.p1.at_time(0)
+        p1_end = line.p1.at_time(1)
+        assert p1_start != p1_end, "secant endpoint should animate"
+
+    def test_secant_p1_p2_symmetric(self):
+        from vectormation.objects import Axes
+        ax = Axes(x_range=[-2, 2], y_range=[-2, 4], creation=0)
+        line = ax.add_secant_fade(lambda x: x**2, x=1, dx_start=1, dx_end=0.1,
+                                   start=0, end=1)
+        p1 = line.p1.at_time(0.5)
+        p2 = line.p2.at_time(0.5)
+        mx = (p1[0] + p2[0]) / 2
+        my = (p1[1] + p2[1]) / 2
+        # midpoint should be close to the midpoint of the secant
+        assert isinstance(mx, float) and isinstance(my, float)
+

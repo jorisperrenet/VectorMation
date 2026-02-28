@@ -1800,30 +1800,21 @@ class _AxesExtMixin:
         line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
         _x, _dxs, _dxe = x, dx_start, dx_end
         _s, _d, _len = start, max(end - start, 1e-9), length
-        def _p1(t, _x=_x, _dxs=_dxs, _dxe=_dxe, _s=_s, _d=_d, _len=_len, _easing=easing):
-            progress = _easing((t - _s) / _d)
-            dx = _dxs + (_dxe - _dxs) * progress
-            x1, x2 = _x, _x + dx
-            sx1, sy1 = self.coords_to_point(x1, func(x1), t)
-            sx2, sy2 = self.coords_to_point(x2, func(x2), t)
-            ddx, dy = sx2 - sx1, sy2 - sy1
-            mag = max(math.hypot(ddx, dy), 1e-9)
-            half = _len / 2
-            mx, my = (sx1 + sx2) / 2, (sy1 + sy2) / 2
-            return (mx - ddx / mag * half, my - dy / mag * half)
-        def _p2(t, _x=_x, _dxs=_dxs, _dxe=_dxe, _s=_s, _d=_d, _len=_len, _easing=easing):
-            progress = _easing((t - _s) / _d)
-            dx = _dxs + (_dxe - _dxs) * progress
-            x1, x2 = _x, _x + dx
-            sx1, sy1 = self.coords_to_point(x1, func(x1), t)
-            sx2, sy2 = self.coords_to_point(x2, func(x2), t)
-            ddx, dy = sx2 - sx1, sy2 - sy1
-            mag = max(math.hypot(ddx, dy), 1e-9)
-            half = _len / 2
-            mx, my = (sx1 + sx2) / 2, (sy1 + sy2) / 2
-            return (mx + ddx / mag * half, my + dy / mag * half)
-        line.p1.set(start, end, _p1, stay=True)
-        line.p2.set(start, end, _p2, stay=True)
+        def _secant_endpoint(sign):
+            def _ep(t, _x=_x, _dxs=_dxs, _dxe=_dxe, _s=_s, _d=_d, _len=_len, _easing=easing):
+                progress = _easing((t - _s) / _d)
+                dx = _dxs + (_dxe - _dxs) * progress
+                x1, x2 = _x, _x + dx
+                sx1, sy1 = self.coords_to_point(x1, func(x1), t)
+                sx2, sy2 = self.coords_to_point(x2, func(x2), t)
+                ddx, dy = sx2 - sx1, sy2 - sy1
+                mag = max(math.hypot(ddx, dy), 1e-9)
+                half = _len / 2
+                mx, my = (sx1 + sx2) / 2, (sy1 + sy2) / 2
+                return (mx + sign * ddx / mag * half, my + sign * dy / mag * half)
+            return _ep
+        line.p1.set(start, end, _secant_endpoint(-1), stay=True)
+        line.p2.set(start, end, _secant_endpoint(+1), stay=True)
         self._add_plot_obj(line)
         return line
 

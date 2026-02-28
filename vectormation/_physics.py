@@ -194,10 +194,10 @@ class PhysicsSpace:
                 _apply_spring(s)
 
             # Apply custom forces
-            for force_fn in self._forces:
-                for b in self.bodies:
-                    if b.fixed:
-                        continue
+            for b in self.bodies:
+                if b.fixed:
+                    continue
+                for force_fn in self._forces:
                     fx, fy = force_fn(b, t)
                     b.fx += fx
                     b.fy += fy
@@ -399,6 +399,13 @@ def _spring_pos(thing):
     return (float(thing[0]), float(thing[1]))
 
 
+def _body_velocity(thing):
+    """Get (vx, vy) from a Body, or (0, 0) for fixed points."""
+    if isinstance(thing, Body):
+        return (thing.vx, thing.vy)
+    return (0.0, 0.0)
+
+
 def _point_force(target, strength, max_dist=None):
     """Return a force function for attraction (strength>0) or repulsion (<0).
 
@@ -430,12 +437,9 @@ def _apply_spring(s):
     force = s.stiffness * stretch
 
     # Damping: relative velocity along spring axis
-    if isinstance(s.a, Body) and isinstance(s.b, Body):
-        dvx, dvy = s.b.vx - s.a.vx, s.b.vy - s.a.vy
-    elif isinstance(s.a, Body):
-        dvx, dvy = -s.a.vx, -s.a.vy
-    else:
-        dvx, dvy = s.b.vx, s.b.vy
+    va = _body_velocity(s.a)
+    vb = _body_velocity(s.b)
+    dvx, dvy = vb[0] - va[0], vb[1] - va[1]
     rel_v = dvx * ux + dvy * uy
     force += s.damping * rel_v
 
