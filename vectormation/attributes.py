@@ -374,11 +374,12 @@ class Color:
     """
     def __init__(self, creation: float = 0, start_color: 'str | tuple' = '#000', use=None):
         assert isinstance(creation, int | float)
-        if use is not None:
-            assert isinstance(use, str)
-            self.use = use
         if isinstance(start_color, Color):
             self.set_to(start_color)
+        elif use is not None:
+            # Caller will set time_func manually (used by interpolate, apply, etc.)
+            self.use = use
+            self.time_func = lambda t: (0, 0, 0)
         else:
             self.use, col = self.parse(start_color)
             if self.use in ('rgb', 'rgba'):
@@ -491,8 +492,8 @@ class Color:
         new = Color(use='rgb')
         _d = max(end - start, 1e-9)
         _dh, _ds, _dl = dh, s2 - s1, l2 - l1
-        def _interp(t, _st=start, _dur=_d, _h1=h1, _s1=s1, _l1=l1, _ddh=_dh, _dds=_ds, _ddl=_dl):
-            p = easing((t - _st) / _dur)
+        def _interp(t, _s=start, _d=_d, _h1=h1, _s1=s1, _l1=l1, _ddh=_dh, _dds=_ds, _ddl=_dl):
+            p = easing((t - _s) / _d)
             return _hsl_to_rgb((_h1 + _ddh * p) % 1.0, _s1 + _dds * p, _l1 + _ddl * p)
         new.time_func = _interp
         new.last_change = end

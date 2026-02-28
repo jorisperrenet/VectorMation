@@ -610,7 +610,9 @@ class VCollection(_BBoxMethodsMixin):
         if not self.objects:
             return self
         cols, cell_w, cell_h, max_w, max_h, _ = self._grid_targets(rows, cols, buff, start)
-        kw = {'start': start, 'end': end, **(({'easing': easing}) if easing is not None else {})}
+        kw: dict = {'start': start, 'end': end}
+        if easing is not None:
+            kw['easing'] = easing
         for idx, obj in enumerate(self.objects):
             r, c = divmod(idx, cols)
             obj.center_to_pos(c * cell_w + max_w / 2, r * cell_h + max_h / 2, **kw)

@@ -130,9 +130,10 @@ class Arrow(VCollection):
                 end = obj_b.get_edge('bottom', time=0)
         # Apply buff
         if buff > 0:
-            length = math.hypot(end[0] - start[0], end[1] - start[1])
+            dx, dy = end[0] - start[0], end[1] - start[1]
+            length = math.hypot(dx, dy)
             if length > 2 * buff:
-                ux, uy = _normalize(end[0] - start[0], end[1] - start[1])
+                ux, uy = dx / length, dy / length
                 start = (start[0] + ux * buff, start[1] + uy * buff)
                 end = (end[0] - ux * buff, end[1] - uy * buff)
         return cls(x1=start[0], y1=start[1], x2=end[0], y2=end[1], **kwargs)
