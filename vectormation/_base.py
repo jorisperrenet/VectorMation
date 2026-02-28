@@ -28,8 +28,7 @@ style.Styling.mix_blend_mode: attributes.String  # type: ignore[reportInvalidTyp
 from vectormation._base_helpers import (
     _lerp, _ramp, _ramp_down, _lerp_point, _clip_reveal, _clip_hide,
     _norm_dir, _norm_edge, _coords_of, _set_attr, _parse_path, _path_prefix,
-    _DIR_NAMES, _EDGE_NAMES, _EDGE_POINTS,
-    _make_brect, _wrap_to_svg, _BBoxMethodsMixin,
+    _DIR_NAMES, _make_brect, _wrap_to_svg, _BBoxMethodsMixin,
 )
 from vectormation._base_effects import _VObjectEffectsMixin
 

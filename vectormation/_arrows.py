@@ -6,7 +6,7 @@ from vectormation._constants import (
     DEFAULT_ARROW_TIP_LENGTH, DEFAULT_ARROW_TIP_WIDTH,
     SMALL_BUFF, ORIGIN, _normalize,
 )
-from vectormation._base import VObject, VCollection, _norm_dir
+from vectormation._base import VCollection, _norm_dir
 from vectormation._shapes import Polygon, Line, Path, Rectangle
 
 
