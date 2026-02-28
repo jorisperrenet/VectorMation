@@ -565,9 +565,8 @@ class _AxesExtMixin:
                     'stroke_dasharray': '4 3'} | styling_kwargs
         dot_color = style_kw.get('fill', '#FFFF00')
         fn = self._resolve_func(func, 'func')
-        _xs, _xe, _s, _d = x_start, x_end, start, max(end - start, 1e-9)
-        _easing = easing
-        def _cur_point(t, _fn=fn, _xs=_xs, _xe=_xe, _s=_s, _d=_d, _easing=_easing):
+        _d = max(end - start, 1e-9)
+        def _cur_point(t, _fn=fn, _xs=x_start, _xe=x_end, _s=start, _d=_d, _easing=easing):
             p = max(0, min(1, _easing((t - _s) / _d)))
             xv = _xs + (_xe - _xs) * p
             return xv, _fn(xv)
@@ -1701,10 +1700,10 @@ class _AxesExtMixin:
         easing = easing or easings.smooth
         style_kw = {'stroke': '#FFFF00', 'stroke_width': 2} | styling_kwargs
         line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
-        _xs, _xe, _s, _d = x_start, x_end, start, max(end - start, 1e-9)
-        _len, h = length, 1e-6
+        _d = max(end - start, 1e-9)
+        h = 1e-6
         def _tangent_ep(sign):
-            def _pt(t, _xs=_xs, _xe=_xe, _s=_s, _d=_d, _len=_len, _sign=sign):
+            def _pt(t, _xs=x_start, _xe=x_end, _s=start, _d=_d, _len=length, _sign=sign):
                 alpha = easing(max(0, min(1, (t - _s) / _d)))
                 xv = _xs + alpha * (_xe - _xs)
                 slope = (func(xv + h) - func(xv - h)) / (2 * h)
@@ -1793,10 +1792,9 @@ class _AxesExtMixin:
         Returns a Line object with animated endpoints."""
         style_kw = {'stroke': '#83C167', 'stroke_width': 2} | styling_kwargs
         line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
-        _x, _dxs, _dxe = x, dx_start, dx_end
-        _s, _d, _len = start, max(end - start, 1e-9), length
+        _d = max(end - start, 1e-9)
         def _secant_endpoint(sign):
-            def _ep(t, _x=_x, _dxs=_dxs, _dxe=_dxe, _s=_s, _d=_d, _len=_len, _easing=easing):
+            def _ep(t, _x=x, _dxs=dx_start, _dxe=dx_end, _s=start, _d=_d, _len=length, _easing=easing):
                 progress = _easing((t - _s) / _d)
                 dx = _dxs + (_dxe - _dxs) * progress
                 x1, x2 = _x, _x + dx

@@ -133,8 +133,8 @@ class _VObjectEffectsMixin:
         """Random-looking opacity flickering, like a failing light bulb."""
         if end <= start:
             return self
-        _s, _d, _freq, _mo = start, max(end - start, 1e-9), frequency, min_opacity
-        def _opacity(t, _s=_s, _d=_d, _freq=_freq, _mo=_mo, _e=easing):
+        _d = max(end - start, 1e-9)
+        def _opacity(t, _s=start, _d=_d, _freq=frequency, _mo=min_opacity, _e=easing):
             p = (t - _s) / _d
             flicker = (math.sin(math.tau * _freq * p) *
                        math.sin(3.7 * math.pi * _freq * p) *
@@ -238,9 +238,8 @@ class _VObjectEffectsMixin:
         if dur <= 0 or n_flashes <= 0:
             return self
         duty = max(0.0, min(1.0, duty))
-        _s, _d, _fl, _du = start, dur, n_flashes, duty
         self.styling.opacity.set(start, end,
-            lambda t, _s=_s, _d=_d, _fl=_fl, _du=_du: (
+            lambda t, _s=start, _d=dur, _fl=n_flashes, _du=duty: (
                 1.0 if ((t - _s) / _d * _fl) % 1.0 < _du else 0.0),
             stay=False)
         return self
@@ -367,8 +366,8 @@ class _VObjectEffectsMixin:
         dur = end - start
         if dur <= 0:
             return self
-        _s, _d, _a, _freq = start, max(dur, 1e-9), amplitude, frequency
-        def _wave(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
+        _d = max(dur, 1e-9)
+        def _wave(t, _s=start, _d=_d, _a=amplitude, _freq=frequency, _easing=easing):
             progress = (t - _s) / _d
             envelope = _easing(progress) * (1 - _easing(progress)) * 4
             return _a * math.sin(math.tau * _freq * progress) * envelope
@@ -393,13 +392,13 @@ class _VObjectEffectsMixin:
         if dur <= 0:
             return self
         sx0, sy0 = self._init_scale_anim(start)
-        _s, _d, _f = start, max(dur, 1e-9), factor
-        compensate = 1.0 / _f if _f > 1e-9 else 1.0
+        _d = max(dur, 1e-9)
+        compensate = 1.0 / factor if factor > 1e-9 else 1.0
 
         def _sq(s0, f):
-            return lambda t, _s=_s, _d=_d, _s0=s0, _f=f, _e=easing: \
+            return lambda t, _s=start, _d=_d, _s0=s0, _f=f, _e=easing: \
                 _s0 * (1 + (_f - 1) * _e((t - _s) / _d))
-        fx, fy = (_f, compensate) if axis == 'x' else (compensate, _f)
+        fx, fy = (factor, compensate) if axis == 'x' else (compensate, factor)
         self._set_scale_xy(start, end, _sq(sx0, fx), _sq(sy0, fy), stay=True)
         return self
 
@@ -675,19 +674,19 @@ class _VObjectEffectsMixin:
         dur = end - start
         if dur <= 0:
             return self
-        _s, _d, _a, _freq = start, max(dur, 1e-9), amplitude, frequency
+        _d = max(dur, 1e-9)
 
-        def _dx(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
+        def _dx(t, _s=start, _d=_d, _a=amplitude, _freq=frequency, _easing=easing):
             p = (t - _s) / _d
             return _a * math.sin(math.tau * _freq * p) * (1 - _easing(p))
 
-        def _dy(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
+        def _dy(t, _s=start, _d=_d, _a=amplitude, _freq=frequency, _easing=easing):
             p = (t - _s) / _d
             return _a * 0.7 * math.sin(math.tau * _freq * 1.3 * p) * (1 - _easing(p))
 
         self._apply_shift_effect(start, end, dx_func=_dx, dy_func=_dy)
         cx, cy = self.center(start)
-        def _rot(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _cx=cx, _cy=cy, _easing=easing):
+        def _rot(t, _s=start, _d=_d, _a=amplitude, _freq=frequency, _cx=cx, _cy=cy, _easing=easing):
             p = (t - _s) / _d
             return (_a * math.sin(math.tau * _freq * 0.7 * p) * (1 - _easing(p)), _cx, _cy)
         self.styling.rotation.set(start, end, _rot)
@@ -703,8 +702,8 @@ class _VObjectEffectsMixin:
         n = len(text)
         if n == 0 or end <= start:
             return self
-        _s, _d, _txt = start, max(end - start, 1e-9), text
-        def _reveal(t, _s=_s, _d=_d, _txt=_txt, _n=n, _easing=easing):
+        _d = max(end - start, 1e-9)
+        def _reveal(t, _s=start, _d=_d, _txt=text, _n=n, _easing=easing):
             return _txt[:int(min(1.0, _easing((t - _s) / _d)) * _n)]
         self.text.set(start, end, _reveal, stay=True)
         self.text.set_onward(end, text)
@@ -849,9 +848,9 @@ class _VObjectEffectsMixin:
         if dur <= 0:
             return self
         wf = wave_func or math.sin
-        _s, _d, _a = start, max(dur, 1e-9), amplitude
+        _d = max(dur, 1e-9)
 
-        def _wave_dy(t, _s=_s, _d=_d, _a=_a, _wf=wf, _e=easing):
+        def _wave_dy(t, _s=start, _d=_d, _a=amplitude, _wf=wf, _e=easing):
             p = (t - _s) / _d
             envelope = _e(p) * (1 - _e(p)) * 4  # parabolic envelope: 0→1→0
             return _a * _wf(math.tau * 2 * p) * envelope
@@ -886,7 +885,8 @@ class _VObjectEffectsMixin:
         dur = end - start
         if dur <= 0:
             return self
-        _s, _d, _w = start, max(dur, 1e-9), max(0.01, min(width, 0.99))
+        _d = max(dur, 1e-9)
+        _w = max(0.01, min(width, 0.99))
         # Approximate path length for dash array sizing
         _path_len = 4000  # generous upper bound for SVG viewbox
         _dash = _path_len * _w
@@ -895,7 +895,7 @@ class _VObjectEffectsMixin:
         self.styling.stroke_dasharray.set_onward(start, f'{_dash:.0f} {_gap:.0f}')
         # Animate dash offset from +path_len to -path_len
         self.styling.stroke_dashoffset.set_onward(start,
-            lambda t, _s=_s, _d=_d, _e=easing, _pl=_path_len:
+            lambda t, _s=start, _d=_d, _e=easing, _pl=_path_len:
                 _pl * (1 - 2 * _e((t - _s) / _d)) if _s <= t <= _s + _d else 0)
         # Flash visibility
         self._show_from(start)

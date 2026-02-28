@@ -480,9 +480,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         cx, cy = mx + d * px, my + d * py
         # Starting angle from center
         a0 = math.atan2(sy - cy, sx - cx)
-        _s, _d, _a0, _ang = start, max(dur, 1e-9), a0, angle
-        _cx, _cy, _sx, _sy = cx, cy, sx, sy
-        def _pos(t, _s=_s, _d=_d, _a0=_a0, _ang=_ang, _cx=_cx, _cy=_cy, _sx=_sx, _sy=_sy, _easing=easing):
+        _d = max(dur, 1e-9)
+        def _pos(t, _s=start, _d=_d, _a0=a0, _ang=angle, _cx=cx, _cy=cy, _sx=sx, _sy=sy, _easing=easing):
             progress = _easing((t - _s) / _d)
             a = _a0 + _ang * progress
             r = math.hypot(_sx - _cx, _sy - _cy)
@@ -569,9 +568,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                 self._hide_from(start)
             return self
         start_val = self.styling.opacity.at_time(start)
-        _s, _d, _sv, _g, _seed = start, max(dur, 1e-9), start_val, granularity, seed
+        _d = max(dur, 1e-9)
 
-        def _dissolve(t, _s=_s, _d=_d, _sv=_sv, _g=_g, _seed=_seed):
+        def _dissolve(t, _s=start, _d=_d, _sv=start_val, _g=granularity, _seed=seed):
             p = (t - _s) / _d  # overall progress 0->1
             # Base trend: smooth fade to zero
             base = _sv * (1.0 - p)
@@ -982,11 +981,11 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         base_rgb = style_attr.time_func(start)
         from vectormation.colors import _hex_to_rgb
         wave_rgb = _hex_to_rgb(wave_color)
-        _s, _d, _w, _cyc = start, max(dur, 1e-9), max(width, 0.01), cycles
-        _br, _wr = base_rgb, wave_rgb
+        _d = max(dur, 1e-9)
+        _w = max(width, 0.01)
 
-        def _sweep_rgb(t, _s=_s, _d=_d, _w=_w, _cyc=_cyc,
-                       _br=_br, _wr=_wr):
+        def _sweep_rgb(t, _s=start, _d=_d, _w=_w, _cyc=cycles,
+                       _br=base_rgb, _wr=wave_rgb):
             # sweep position in [0, 1], repeating for multiple cycles
             p = (((t - _s) / _d) * _cyc) % 1.0
             # Symmetric distance: 1 at edges of sweep, 0 at center
@@ -1626,9 +1625,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             dur = end - start
             if dur <= 0 or num_blinks <= 0:
                 return self
-            _s, _d, _nb = start, max(dur, 1e-9), num_blinks
+            _d = max(dur, 1e-9)
 
-            def _step(t, _s=_s, _d=_d, _nb=_nb):
+            def _step(t, _s=start, _d=_d, _nb=num_blinks):
                 progress = easing((t - _s) / _d)
                 # Each blink is a full cycle; in the first half of a cycle
                 # the object is off (0), in the second half it's on (1)
@@ -1685,9 +1684,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        _s, _d, _p = start, max(dur, 1e-9), passes
+        _d = max(dur, 1e-9)
 
-        def _shimmer(t, _s=_s, _d=_d, _p=_p):
+        def _shimmer(t, _s=start, _d=_d, _p=passes):
             progress = easing((t - _s) / _d)
             # Raised cosine wave: oscillates between 0.0 and 1.0
             wave = 0.5 * (1 + math.cos(math.tau * _p * progress))
@@ -1702,11 +1701,11 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        _s, _d, _a, _freq = start, max(dur, 1e-9), amplitude, frequency
-        def _dx(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
+        _d = max(dur, 1e-9)
+        def _dx(t, _s=start, _d=_d, _a=amplitude, _freq=frequency, _easing=easing):
             p = (t - _s) / _d
             return _a * math.sin(math.tau * _freq * p) * _easing(p)
-        def _dy(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _easing=easing):
+        def _dy(t, _s=start, _d=_d, _a=amplitude, _freq=frequency, _easing=easing):
             p = (t - _s) / _d
             return _a * math.cos(2.7 * math.pi * _freq * p) * _easing(p)
         return self._apply_shift_effect(start, end, _dx, _dy)
@@ -1740,12 +1739,12 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        _s, _d, _amt = start, max(dur, 1e-9), amplitude
-        def _dx(t, _s=_s, _d=_d, _amt=_amt, _easing=easing):
+        _d = max(dur, 1e-9)
+        def _dx(t, _s=start, _d=_d, _amt=amplitude, _easing=easing):
             p = (t - _s) / _d
             decay = 1 - _easing(p)
             return _amt * math.sin(p * 37.7) * decay
-        def _dy(t, _s=_s, _d=_d, _amt=_amt, _easing=easing):
+        def _dy(t, _s=start, _d=_d, _amt=amplitude, _easing=easing):
             p = (t - _s) / _d
             decay = 1 - _easing(p)
             return _amt * math.cos(p * 29.3) * decay
@@ -1780,8 +1779,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        _s, _d, _h, _b = start, max(dur, 1e-9), height, n_bounces
-        def _dy(t, _s=_s, _d=_d, _h=_h, _b=_b, _easing=easing):
+        _d = max(dur, 1e-9)
+        def _dy(t, _s=start, _d=_d, _h=height, _b=n_bounces, _easing=easing):
             progress = (t - _s) / _d
             phase = progress * _b * math.tau
             decay = 1 - progress
@@ -1795,8 +1794,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        _s, _d, _a, _damp, _freq = start, max(dur, 1e-9), amplitude, damping, frequency
-        def _osc(t, _s=_s, _d=_d, _a=_a, _damp=_damp, _freq=_freq):
+        _d = max(dur, 1e-9)
+        def _osc(t, _s=start, _d=_d, _a=amplitude, _damp=damping, _freq=frequency):
             progress = (t - _s) / _d
             return _a * math.exp(-_damp * progress) * math.sin(math.tau * _freq * progress)
         dx = _osc if axis in ('x', 'both') else None
@@ -2023,8 +2022,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             return self
         self.styling._scale_origin = self.center(start)
         sx0, sy0 = self._get_scale(start)
-        _s, _d, _f = start, max(dur, 1e-9), factor
-        def _squeeze(t, _s=_s, _d=_d, _f=_f, _easing=easing):
+        _d = max(dur, 1e-9)
+        def _squeeze(t, _s=start, _d=_d, _f=factor, _easing=easing):
             return 1 + (_f - 1) * math.sin(math.pi * _easing((t - _s) / _d))
         def _make_squish(base):
             return lambda t, _b=base: _b * _squeeze(t)
@@ -2048,13 +2047,13 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         cx, cy = self.center(start)
         self.styling._scale_origin = (cx, cy)
         sx0, sy0 = self._get_scale(start)
-        _s, _d, _f, _sx0, _sy0 = start, max(dur, 1e-9), factor, sx0, sy0
+        _d = max(dur, 1e-9)
         # there_and_back envelope: 0 → peak → 0
-        def _ssx(t, _s=_s, _d=_d, _f=_f, _sx0=_sx0, _easing=easing):
+        def _ssx(t, _s=start, _d=_d, _f=factor, _sx0=sx0, _easing=easing):
             p = _easing((t - _s) / _d)
             envelope = easings.there_and_back(p)
             return _sx0 * (1 + (_f - 1) * envelope)
-        def _ssy(t, _s=_s, _d=_d, _f=_f, _sy0=_sy0, _easing=easing):
+        def _ssy(t, _s=start, _d=_d, _f=factor, _sy0=sy0, _easing=easing):
             p = _easing((t - _s) / _d)
             envelope = easings.there_and_back(p)
             peak = 1 + (_f - 1) * envelope
@@ -2066,13 +2065,12 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
              easing=easings.smooth):
         """Wobbly distortion effect — alternating scale_x/scale_y oscillation.
         Creates a jelly-like warping motion that resolves back to normal."""
-        _a, _f = amplitude, frequency
         def _make(sx0, sy0, _s, _d):
-            def _wx(t, _s=_s, _d=_d, _a=_a, _f=_f, _sx0=sx0, _easing=easing):
+            def _wx(t, _s=_s, _d=_d, _a=amplitude, _f=frequency, _sx0=sx0, _easing=easing):
                 p = _easing((t - _s) / _d)
                 envelope = math.sin(math.pi * p)
                 return _sx0 * (1 + _a * envelope * math.sin(math.tau * _f * p))
-            def _wy(t, _s=_s, _d=_d, _a=_a, _f=_f, _sy0=sy0, _easing=easing):
+            def _wy(t, _s=_s, _d=_d, _a=amplitude, _f=frequency, _sy0=sy0, _easing=easing):
                 p = _easing((t - _s) / _d)
                 envelope = math.sin(math.pi * p)
                 return _sy0 * (1 + _a * envelope * math.cos(math.tau * _f * p))
@@ -2087,19 +2085,19 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if dur <= 0:
             return self
         self._ensure_scale_origin(start)
-        _s, _d, _turns = start, max(dur, 1e-9), turns
+        _d = max(dur, 1e-9)
         _r0 = self.styling.rotation.at_time(start)  # (degrees, cx, cy)
         _deg0 = _r0[0] if isinstance(_r0, tuple) else _r0
         # Use rotation center from bbox
         _rcx, _rcy = self.center(start)
         # Rotation
         self.styling.rotation.set(start, end,
-            lambda t, _s=_s, _d=_d, _turns=_turns, _deg0=_deg0, _rcx=_rcx, _rcy=_rcy, _easing=easing:
+            lambda t, _s=start, _d=_d, _turns=turns, _deg0=_deg0, _rcx=_rcx, _rcy=_rcy, _easing=easing:
                 (_deg0 + 360 * _turns * _easing((t - _s) / _d), _rcx, _rcy),
             stay=False)
         if shrink:
             def _make_scale(s0):
-                return lambda t, _s=_s, _d=_d, _s0=s0, _easing=easing: \
+                return lambda t, _s=start, _d=_d, _s0=s0, _easing=easing: \
                     _s0 * (1 - 0.5 * math.sin(math.pi * _easing((t - _s) / _d)))
             self._set_scale_xy(start, end,
                 _make_scale(self.styling.scale_x.at_time(start)),
@@ -2109,9 +2107,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
     def heartbeat(self, start: float = 0, end: float = 1, beats=3,
                    scale_factor=1.3, easing=easings.smooth):
         """ECG-style double-pulse heartbeat: lub-dub + rest, repeated *beats* times."""
-        _sf, _beats = scale_factor, beats
         def _make(sx0, sy0, _s, _d):
-            def _ecg(t, _s=_s, _d=_d, _sf=_sf, _beats=_beats, _easing=easing):
+            def _ecg(t, _s=_s, _d=_d, _sf=scale_factor, _beats=beats, _easing=easing):
                 beat_dur = _d / _beats
                 local = ((t - _s) % beat_dur) / beat_dur
                 if local < 0.25:
@@ -2128,10 +2125,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
     def breathe(self, start: float = 0, end: float = 1, amplitude=0.08,
                 speed=1.0, easing=easings.smooth):
         """Steady scale oscillation simulating natural breathing."""
-        _amp, _spd = amplitude, speed
         def _make(sx0, sy0, _s, _d):
             def _br(base):
-                return lambda t, _s=_s, _d=_d, _amp=_amp, _spd=_spd, _b=base, _e=easing: \
+                return lambda t, _s=_s, _d=_d, _amp=amplitude, _spd=speed, _b=base, _e=easing: \
                     _b * (1 + _amp * math.sin(math.tau * _spd * _e((t - _s) / _d) * _d))
             return _br(sx0), _br(sy0)
         return self._scale_effect(start, end, _make)
@@ -2146,10 +2142,10 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             bx, by, bw, _ = self.bbox(start)
             cx = bx + bw / 2 if cx is None else cx
             cy = by if cy is None else cy
-        _s, _d, _a, _n = start, max(dur, 1e-9), amplitude, oscillations
+        _d = max(dur, 1e-9)
         _cx, _cy = cx, cy
 
-        def _rot(t, _s=_s, _d=_d, _a=_a, _n=_n, _cx=_cx, _cy=_cy, _e=easing):
+        def _rot(t, _s=start, _d=_d, _a=amplitude, _n=oscillations, _cx=_cx, _cy=_cy, _e=easing):
             p = _e((t - _s) / _d)
             decay = math.exp(-3 * p)
             angle = _a * math.sin(math.tau * _n * p) * decay

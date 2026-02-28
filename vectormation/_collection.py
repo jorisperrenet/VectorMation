@@ -1014,8 +1014,8 @@ class VCollection(_BBoxMethodsMixin):
             return self
         for i, obj in enumerate(self.objects):
             phase = i / max(n - 1, 1)
-            _s, _d, _a, _ph = start, max(dur, 1e-9), amplitude, phase
-            def _wave(t, _s=_s, _d=_d, _a=_a, _ph=_ph, _easing=easing):
+            _d = max(dur, 1e-9)
+            def _wave(t, _s=start, _d=_d, _a=amplitude, _ph=phase, _easing=easing):
                 p = _easing((t - _s) / _d)
                 envelope = math.sin(math.pi * p)  # 0→1→0
                 return _a * math.sin(math.tau * (p - _ph)) * envelope
