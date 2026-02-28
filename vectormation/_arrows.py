@@ -151,9 +151,8 @@ class Arrow(VCollection):
             self.show.set_onward(start, True)
         p1 = self.shaft.p1.at_time(start)
         p2 = self.shaft.p2.at_time(start)
-        _s, _d = start, max(dur, 1e-9)
-        _dx, _dy = p2[0] - p1[0], p2[1] - p1[1]
-        def _grow_interp(t, _s=_s, _d=_d, _p1=p1, _dx=_dx, _dy=_dy, _e=easing):
+        _d = max(dur, 1e-9)
+        def _grow_interp(t, _s=start, _d=_d, _p1=p1, _dx=p2[0] - p1[0], _dy=p2[1] - p1[1], _e=easing):
             p = _e((t - _s) / _d)
             return (_p1[0] + _dx * p, _p1[1] + _dy * p)
         self.shaft.p2.set(start, end, _grow_interp, stay=True)

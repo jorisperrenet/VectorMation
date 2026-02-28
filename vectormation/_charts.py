@@ -276,18 +276,16 @@ class DonutChart(VCollection):
         cx, cy = self._cx, self._cy
         r, ir = self._r, self._inner_radius
         sa0 = self._start_angle
+        _d = max(dur, 1e-9)
         old_cum, new_cum = 0, 0
         for i, sector in enumerate(self._sectors):
             old_a1 = sa0 + 360 * old_cum / old_total
             old_a2 = sa0 + 360 * (old_cum + old_values[i]) / old_total
             new_a1 = sa0 + 360 * new_cum / new_total
             new_a2 = sa0 + 360 * (new_cum + new_values[i]) / new_total
-            _s, _d = start, max(dur, 1e-9)
-            _oa1, _oa2 = old_a1, old_a2
-            _na1, _na2 = new_a1, new_a2
 
-            def _make_d(t, _s=_s, _d=_d, _oa1=_oa1, _oa2=_oa2,
-                        _na1=_na1, _na2=_na2):
+            def _make_d(t, _s=start, _d=_d, _oa1=old_a1, _oa2=old_a2,
+                        _na1=new_a1, _na2=new_a2):
                 prog = easing(max(0.0, min(1.0, (t - _s) / _d)))
                 a1 = math.radians(_oa1 + (_na1 - _oa1) * prog)
                 a2 = math.radians(_oa2 + (_na2 - _oa2) * prog)

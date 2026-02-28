@@ -1542,10 +1542,9 @@ class Axes(_AxesExtMixin, VCollection):
         trail = Path('', x=0, y=0, creation=creation, z=z,
                      stroke=style_kw.get('stroke', '#FFFF00'),
                      stroke_width=trail_width, fill_opacity=0)
-        _xs, _xe = x_start, x_end
-        _s, _d = start, max(end - start, 1e-9)
+        _d = max(end - start, 1e-9)
         n_pts = 80
-        def _compute_trail(t, _s=_s, _d=_d, _xs=_xs, _xe=_xe, _n=n_pts, _easing=easing):
+        def _compute_trail(t, _s=start, _d=_d, _xs=x_start, _xe=x_end, _n=n_pts, _easing=easing):
             progress = max(0, min(1, _easing((t - _s) / _d)))
             x_cur = _xs + (_xe - _xs) * progress
             steps = max(2, int(_n * progress))

@@ -1299,11 +1299,11 @@ class VCollection(_BBoxMethodsMixin):
             # Use at least a small radius to avoid degenerate orbits
             if radius < 1:
                 radius = 100
-        _s, _d = start, max(dur, 1e-9)
+        _d = max(dur, 1e-9)
 
         for i, obj in enumerate(self.objects):
             angle0, _, ocx, ocy = child_data[i]
-            def _orbit(t, _s=_s, _d=_d, _cx=cx, _cy=cy, _r=radius, _rev=revolutions,
+            def _orbit(t, _s=start, _d=_d, _cx=cx, _cy=cy, _r=radius, _rev=revolutions,
                        _a0=angle0, _ocx=ocx, _ocy=ocy, _e=easing):
                 angle = _a0 + math.tau * _rev * _e((t - _s) / _d)
                 return _cx + _r * math.cos(angle) - _ocx, _cy + _r * math.sin(angle) - _ocy
