@@ -17672,3 +17672,61 @@ class TestRectangleDims:
         svg = p.to_svg(0)
         assert 'path' in svg.lower() or 'M' in svg
 
+
+class TestSpotlightAnimatedAttrs:
+    def test_extra_attrs_includes_radius(self):
+        from vectormation.objects import Spotlight
+        s = Spotlight(radius=100)
+        attrs = s._extra_attrs()
+        assert s._r in attrs
+        assert s._cx in attrs
+        assert s._cy in attrs
+
+    def test_set_overlay_color(self):
+        from vectormation.objects import Spotlight
+        s = Spotlight(color='#000000')
+        result = s.set_overlay_color('#ff0000', start=0)
+        assert result is s
+        assert '255' in s.to_svg(0)  # rgb(255,...)
+
+    def test_set_overlay_opacity(self):
+        from vectormation.objects import Spotlight
+        s = Spotlight(opacity=0.7)
+        s.set_overlay_opacity(0.3, start=0, end=1)
+        svg = s.to_svg(1)
+        assert '0.3' in svg
+
+    def test_animated_opacity(self):
+        from vectormation.objects import Spotlight
+        s = Spotlight(opacity=1.0)
+        s.set_overlay_opacity(0.0, start=0, end=1)
+        svg0 = s.to_svg(0)
+        svg1 = s.to_svg(1)
+        assert svg0 != svg1
+
+
+class TestNumberLineRangeRect:
+    def test_add_segment_returns_rect(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        rect = nl.add_segment(2, 5)
+        assert isinstance(rect, Rectangle)
+
+    def test_highlight_range_returns_rect(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        rect = nl.highlight_range(2, 5)
+        assert isinstance(rect, Rectangle)
+
+    def test_highlight_range_clamps(self):
+        nl = NumberLine(x_range=(0, 10, 1))
+        rect = nl.highlight_range(-5, 15)
+        assert rect is not None
+
+
+class TestSampleGrid:
+    def test_sample_grid_basic(self):
+        from vectormation._svg_utils import _sample_grid
+        pts = list(_sample_grid((0, 10, 5), (0, 10, 5)))
+        assert (0, 0) in pts
+        assert (10, 10) in pts
+        assert len(pts) == 9  # 3x3 grid
+

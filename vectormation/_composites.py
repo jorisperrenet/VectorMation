@@ -307,6 +307,13 @@ class NumberLine(VCollection):
         k = round((value - self.x_start) / self.x_step)
         return max(self.x_start, min(self.x_end, self.x_start + k * self.x_step))
 
+    @staticmethod
+    def _set_pointer_verts(ptr, pos_func, size, start):
+        """Bind pointer triangle vertices to track *pos_func*."""
+        ptr.vertices[0].set_onward(start, lambda t: (pos_func(t)[0] - size / 2, pos_func(t)[1] - size - 2))
+        ptr.vertices[1].set_onward(start, lambda t: (pos_func(t)[0] + size / 2, pos_func(t)[1] - size - 2))
+        ptr.vertices[2].set_onward(start, lambda t: (pos_func(t)[0], pos_func(t)[1] - 2))
+
     def add_pointer(self, value, label=None, color='#FF6B6B', size=12,
                      creation=0, z=1):
         """Add an animated pointer (triangle) above the number line at *value*."""
@@ -324,9 +331,7 @@ class NumberLine(VCollection):
             v = value.at_time(time) if hasattr(value, 'at_time') else value
             return self.number_to_point(v)
 
-        ptr.vertices[0].set_onward(creation, lambda t: (_ptr_pos(t)[0] - size / 2, _ptr_pos(t)[1] - size - 2))
-        ptr.vertices[1].set_onward(creation, lambda t: (_ptr_pos(t)[0] + size / 2, _ptr_pos(t)[1] - size - 2))
-        ptr.vertices[2].set_onward(creation, lambda t: (_ptr_pos(t)[0], _ptr_pos(t)[1] - 2))
+        self._set_pointer_verts(ptr, _ptr_pos, size, creation)
 
         objects = [ptr]
         if label is not None:
@@ -365,16 +370,19 @@ class NumberLine(VCollection):
             lbl.y.move_to(start, end, lbl_y, easing=easing)
         return self
 
-    def add_segment(self, start_val, end_val, color='#58C4DD', height=8, creation=0, z=1):
-        """Highlight a range on the number line with a filled rectangle."""
-        x1, y = self.number_to_point(start_val)
-        x2, _ = self.number_to_point(end_val)
-        w = abs(x2 - x1)
-        rect = Rectangle(w, height, x=min(x1, x2), y=y - height / 2,
+    def _make_range_rect(self, sv, ev, color, height, opacity, creation, z, **kwargs):
+        """Create a range highlight rectangle between two values."""
+        x1, y = self.number_to_point(sv)
+        x2, _ = self.number_to_point(ev)
+        rect = Rectangle(abs(x2 - x1), height, x=min(x1, x2), y=y - height / 2,
                          creation=creation, z=z,
-                         fill=color, fill_opacity=0.7, stroke_width=0)
+                         fill=color, fill_opacity=opacity, stroke_width=0, **kwargs)
         self.objects.append(rect)
         return rect
+
+    def add_segment(self, start_val, end_val, color='#58C4DD', height=8, creation=0, z=1):
+        """Highlight a range on the number line with a filled rectangle."""
+        return self._make_range_rect(start_val, end_val, color, height, 0.7, creation, z)
 
     def add_dot_at(self, value, color='#FF6B6B', radius=8, creation=0, **kwargs):
         """Add a colored dot at a specific value on the number line."""
@@ -387,20 +395,11 @@ class NumberLine(VCollection):
     def highlight_range(self, start_val, end_val, color='#FFFF00',
                         height=16, opacity=0.4, creation=0, z=1, **kwargs):
         """Highlight a numeric range on the number line with a colored rectangle."""
-        # Clamp to valid axis range
         sv = max(self.x_start, min(self.x_end, start_val))
         ev = max(self.x_start, min(self.x_end, end_val))
         if sv > ev:
             sv, ev = ev, sv
-        x1, y = self.number_to_point(sv)
-        x2, _ = self.number_to_point(ev)
-        w = abs(x2 - x1)
-        rect = Rectangle(w, height, x=min(x1, x2), y=y - height / 2,
-                          creation=creation, z=z,
-                          fill=color, fill_opacity=opacity, stroke_width=0,
-                          **kwargs)
-        self.objects.append(rect)
-        return rect
+        return self._make_range_rect(sv, ev, color, height, opacity, creation, z, **kwargs)
 
     def add_label(self, value, text, buff=10, font_size=24, side='below', creation=0, **kwargs):
         """Add a text label at the given value on the number line."""
@@ -506,9 +505,7 @@ class NumberLine(VCollection):
             (px, py - 2),
             creation=start, z=1, fill=color, stroke_width=0,
         )
-        ptr.vertices[0].set_onward(start, lambda t: (_ptr_pos(t)[0] - size / 2, _ptr_pos(t)[1] - size - 2))
-        ptr.vertices[1].set_onward(start, lambda t: (_ptr_pos(t)[0] + size / 2, _ptr_pos(t)[1] - size - 2))
-        ptr.vertices[2].set_onward(start, lambda t: (_ptr_pos(t)[0], _ptr_pos(t)[1] - 2))
+        self._set_pointer_verts(ptr, _ptr_pos, size, start)
         if end is not None:
             ptr._hide_from(end)
         self.objects.append(ptr)

@@ -642,26 +642,31 @@ def brace_between_points(p1, p2, direction=None, label=None, buff=0, depth=18,
 # Vector field visualizations
 # ---------------------------------------------------------------------------
 
+def _sample_grid(x_range, y_range):
+    """Yield (x, y) points on a grid defined by (min, max, step) tuples."""
+    x_min, x_max, x_step = x_range
+    y_min, y_max, y_step = y_range
+    x = x_min
+    while x <= x_max:
+        y = y_min
+        while y <= y_max:
+            yield x, y
+            y += y_step
+        x += x_step
+
 class ArrowVectorField(VCollection):
     """Vector field visualization using arrows."""
     def __init__(self, func, x_range=(60, 1860, 120), y_range=(60, 1020, 120),
                  max_length=80, creation=0, z=0, **styling_kwargs):
         Arrow = _get_arrow()
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 2} | styling_kwargs
-        x_min, x_max, x_step = x_range
-        y_min, y_max, y_step = y_range
         objects = []
         # Sample all vectors to find max magnitude for normalization
         samples = []
-        x = x_min
-        while x <= x_max:
-            y = y_min
-            while y <= y_max:
-                vx, vy = func(x, y)
-                mag = math.hypot(vx, vy)
-                samples.append((x, y, vx, vy, mag))
-                y += y_step
-            x += x_step
+        for x, y in _sample_grid(x_range, y_range):
+            vx, vy = func(x, y)
+            mag = math.hypot(vx, vy)
+            samples.append((x, y, vx, vy, mag))
         max_mag = max((s[4] for s in samples), default=1) or 1
         for sx, sy, vx, vy, mag in samples:
             if mag < 1e-9:
@@ -681,30 +686,22 @@ class StreamLines(VCollection):
     def __init__(self, func, x_range=(60, 1860, 200), y_range=(60, 1020, 200),
                  n_steps=40, step_size=5, creation=0, z=0, **styling_kwargs):
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 2, 'fill_opacity': 0} | styling_kwargs
-        x_min, x_max, x_step = x_range
-        y_min, y_max, y_step = y_range
         objects = []
-        x = x_min
-        while x <= x_max:
-            y = y_min
-            while y <= y_max:
-                pts = [(x, y)]
-                cx, cy = x, y
-                for _ in range(n_steps):
-                    vx, vy = func(cx, cy)
-                    mag = math.hypot(vx, vy)
-                    if mag < 1e-9:
-                        break
-                    cx += vx / mag * step_size
-                    cy += vy / mag * step_size
-                    if cx < 0 or cx > CANVAS_WIDTH or cy < 0 or cy > CANVAS_HEIGHT:
-                        break
-                    pts.append((cx, cy))
-                if len(pts) > 1:
-                    line = Lines(*pts, creation=creation, z=z, **style_kw)
-                    objects.append(line)
-                y += y_step
-            x += x_step
+        for sx, sy in _sample_grid(x_range, y_range):
+            pts = [(sx, sy)]
+            cx, cy = sx, sy
+            for _ in range(n_steps):
+                vx, vy = func(cx, cy)
+                mag = math.hypot(vx, vy)
+                if mag < 1e-9:
+                    break
+                cx += vx / mag * step_size
+                cy += vy / mag * step_size
+                if cx < 0 or cx > CANVAS_WIDTH or cy < 0 or cy > CANVAS_HEIGHT:
+                    break
+                pts.append((cx, cy))
+            if len(pts) > 1:
+                objects.append(Lines(*pts, creation=creation, z=z, **style_kw))
         super().__init__(*objects, creation=creation, z=z)
 
     def __repr__(self):
@@ -765,17 +762,17 @@ class Cutout(VObject):
         hy = self.hole_y.at_time(time)
         hw = self.hole_w.at_time(time)
         hh = self.hole_h.at_time(time)
-        # Outer rect (full canvas) + inner rect (hole), even-odd fill rule
-        d = (f'M0,0 H{CANVAS_WIDTH} V{CANVAS_HEIGHT} H0 Z '
-             f'M{hx},{hy} h{hw} v{hh} h{-hw} Z')
+        outer = f'M0,0 H{CANVAS_WIDTH} V{CANVAS_HEIGHT} H0 Z '
         if self.rx or self.ry:
             rx, ry = self.rx, self.ry
-            d = (f'M0,0 H{CANVAS_WIDTH} V{CANVAS_HEIGHT} H0 Z '
-                 f'M{hx+rx},{hy} h{hw-2*rx} '
+            d = (outer
+                 + f'M{hx+rx},{hy} h{hw-2*rx} '
                  f'a{rx},{ry} 0 0 1 {rx},{ry} v{hh-2*ry} '
                  f'a{rx},{ry} 0 0 1 {-rx},{ry} h{-(hw-2*rx)} '
                  f'a{rx},{ry} 0 0 1 {-rx},{-ry} v{-(hh-2*ry)} '
                  f'a{rx},{ry} 0 0 1 {rx},{-ry} Z')
+        else:
+            d = outer + f'M{hx},{hy} h{hw} v{hh} h{-hw} Z'
         return f"<path d='{d}' fill-rule='evenodd'{self.styling.svg_style(time)} />"
 
     def __repr__(self):
@@ -855,8 +852,11 @@ class Spotlight(VObject):
         self._cx = attributes.Real(creation, tx)
         self._cy = attributes.Real(creation, ty)
         self._r = attributes.Real(creation, radius)
-        self._color = color
-        self._opacity = opacity
+        self._color = attributes.Color(creation, color)
+        self._opacity = attributes.Real(creation, opacity)
+
+    def _extra_attrs(self):
+        return [self._cx, self._cy, self._r, self._color, self._opacity]
 
     def _shift_reals(self):
         return [(self._cx, self._cy)]
@@ -886,6 +886,22 @@ class Spotlight(VObject):
             self._r.move_to(start, end, value, easing=easing)
         return self
 
+    def set_overlay_color(self, color, start=0, end=None, easing=easings.smooth):
+        """Animate the overlay color."""
+        if end is None:
+            self._color.set_onward(start, color)
+        else:
+            self._color.set(start, end, color, easing=easing)
+        return self
+
+    def set_overlay_opacity(self, value, start=0, end=None, easing=easings.smooth):
+        """Animate the overlay opacity."""
+        if end is None:
+            self._opacity.set_onward(start, value)
+        else:
+            self._opacity.move_to(start, end, value, easing=easing)
+        return self
+
     def path(self, time):
         cx, cy = self._cx.at_time(time), self._cy.at_time(time)
         r = self._r.at_time(time)
@@ -898,7 +914,7 @@ class Spotlight(VObject):
 
     def to_svg(self, time):
         return (f"<path d='{self.path(time)}' "
-                f"fill='{self._color}' fill-opacity='{self._opacity}' "
+                f"fill='{self._color.at_time(time)}' fill-opacity='{self._opacity.at_time(time)}' "
                 f"fill-rule='evenodd' stroke='none' />")
 
     def bbox(self, time):
