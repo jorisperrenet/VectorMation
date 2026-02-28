@@ -6,7 +6,7 @@ from typing import Any
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
-from vectormation._constants import SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS, TEXT_Y_OFFSET, ORIGIN, _distance, _circumcenter
+from vectormation._constants import SMALL_BUFF, DEFAULT_STROKE_WIDTH, DEFAULT_DOT_RADIUS, TEXT_Y_OFFSET, ORIGIN, _distance, _circumcenter, _normalize
 from vectormation._base import VObject, _set_attr
 
 def _cross2d(o, a, b):
@@ -726,11 +726,8 @@ class Polygon(VObject):
             mx, my = (ax + bx) / 2, (ay + by) / 2
             # Direction from center to edge midpoint
             dx, dy = mx - cx, my - cy
-            dist = math.hypot(dx, dy)
-            if dist > 0:
-                nx, ny = dx / dist * gap, dy / dist * gap
-            else:
-                nx, ny = 0, 0
+            ux, uy = _normalize(dx, dy)
+            nx, ny = ux * gap, uy * gap
             edges.append(Line(x1=ax + nx, y1=ay + ny,
                               x2=bx + nx, y2=by + ny, **kwargs))
         return VCollection(*edges)
@@ -843,9 +840,9 @@ class Polygon(VObject):
         objects = []
         for i, (vx, vy) in enumerate(pts):
             dx, dy = vx - cx, vy - cy
-            dist = math.hypot(dx, dy) or 1
-            lx = vx + dx / dist * offset
-            ly = vy + dy / dist * offset
+            ux, uy = _normalize(dx, dy)
+            lx = vx + ux * offset
+            ly = vy + uy * offset
             lbl = labels[i] if i < len(labels) else ''
             objects.append(_Text(text=str(lbl), x=lx,
                                  y=ly + font_size * TEXT_Y_OFFSET,
@@ -995,9 +992,7 @@ class Ellipse(VObject):
         py = cy - ry * math.sin(angle)  # SVG y-down
         tx = -rx * math.sin(angle)
         ty = -ry * math.cos(angle)  # SVG y-down
-        mag = math.hypot(tx, ty)
-        if mag > 0:
-            tx, ty = tx / mag, ty / mag
+        tx, ty = _normalize(tx, ty)
         return px, py, tx, ty
 
     def normal_at_angle(self, angle_deg, length=200, time=0, **kwargs):

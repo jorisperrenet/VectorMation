@@ -6,7 +6,7 @@ from xml.sax.saxutils import escape as _xml_escape
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 from vectormation._base import VObject, VCollection, _lerp
-from vectormation._constants import TEXT_Y_OFFSET, ORIGIN
+from vectormation._constants import TEXT_Y_OFFSET, ORIGIN, _normalize
 from vectormation._axes import _nice_ticks
 
 # ---------------------------------------------------------------------------
@@ -54,8 +54,7 @@ def _shade_color(base_rgb, normal, light_dir):
 def _arrow_tip_points(sx0, sy0, sx1, sy1, tip_length, tip_radius):
     """Compute triangle tip vertices for an arrow from (sx0,sy0) to (sx1,sy1)."""
     dx, dy = sx1 - sx0, sy1 - sy0
-    length = math.hypot(dx, dy) or 1
-    ux, uy = dx / length, dy / length
+    ux, uy = _normalize(dx, dy)
     px, py = -uy, ux
     return ((sx1 - ux * tip_length + px * tip_radius,
              sy1 - uy * tip_length + py * tip_radius),
