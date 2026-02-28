@@ -19275,3 +19275,171 @@ class TestPassingFlashAnim:
         da = c.styling.stroke_dasharray.at_time(0.5)
         assert da == 'none' or da == ''
 
+
+class TestSetWidthAnim:
+    def test_returns_self(self):
+        r = Rectangle(width=200, height=100)
+        assert r.set_width(400) is r
+
+    def test_changes_width(self):
+        r = Rectangle(width=200, height=100)
+        r.set_width(400, start=0, end=1)
+        assert abs(r.get_width(1) - 400) < 5
+
+    def test_stretch_mode(self):
+        r = Rectangle(width=200, height=100)
+        h_before = r.get_height(0)
+        r.set_width(400, stretch=True)
+        # stretch=True only scales X, height should stay same
+        h_after = r.get_height(0)
+        assert abs(h_after - h_before) < 5
+
+
+class TestSetHeightAnim:
+    def test_returns_self(self):
+        r = Rectangle(width=200, height=100)
+        assert r.set_height(300) is r
+
+    def test_changes_height(self):
+        r = Rectangle(width=200, height=100)
+        r.set_height(300, start=0, end=1)
+        assert abs(r.get_height(1) - 300) < 5
+
+
+class TestSetVisibleMethod:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.set_visible(False) is c
+
+    def test_hides_object(self):
+        c = Circle()
+        c.set_visible(False, start=0.5)
+        assert c.show.at_time(0.3)
+        assert not c.show.at_time(0.6)
+
+    def test_shows_object(self):
+        c = Circle()
+        c.set_visible(False, start=0)
+        c.set_visible(True, start=0.5)
+        assert not c.show.at_time(0.3)
+        assert c.show.at_time(0.6)
+
+
+class TestRotateByAnim:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.rotate_by(0, 1, 90) is c
+
+    def test_rotates_by_degrees(self):
+        c = Circle()
+        rot_before = c.styling.rotation.at_time(0)[0]
+        c.rotate_by(0, 1, 45)
+        rot_after = c.styling.rotation.at_time(1)[0]
+        assert abs(rot_after - rot_before - 45) < 1
+
+
+class TestFadeShiftAnim:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.fade_shift(dx=100, start=0, end=1) is c
+
+    def test_hidden_after(self):
+        c = Circle()
+        c.fade_shift(dx=100, start=0, end=1)
+        assert not c.show.at_time(1.5)
+
+    def test_shifts_position(self):
+        c = Circle().center_to_pos(500, 500)
+        x0 = c.get_x(0)
+        c.fade_shift(dx=200, start=0, end=1)
+        x1 = c.get_x(1)
+        assert x1 > x0
+
+
+class TestFlashScaleAnim:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.flash_scale(factor=2, start=0, end=1) is c
+
+    def test_scale_peaks_at_midpoint(self):
+        c = Circle()
+        w0 = c.get_width(0)
+        c.flash_scale(factor=2, start=0, end=1)
+        w_mid = c.get_width(0.5)
+        assert w_mid > w0 * 1.5
+
+    def test_returns_to_original(self):
+        c = Circle()
+        w0 = c.get_width(0)
+        c.flash_scale(factor=2, start=0, end=1)
+        w1 = c.get_width(1)
+        assert abs(w1 - w0) < 5
+
+
+class TestSetStrokeDashMethod:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.set_stroke_dash('5 3') is c
+
+    def test_string_pattern(self):
+        c = Circle()
+        c.set_stroke_dash('10 5', start=0)
+        assert c.styling.stroke_dasharray.at_time(0) == '10 5'
+
+    def test_list_pattern(self):
+        c = Circle()
+        c.set_stroke_dash([10, 5, 2], start=0)
+        assert c.styling.stroke_dasharray.at_time(0) == '10 5 2'
+
+    def test_none_clears(self):
+        c = Circle()
+        c.set_stroke_dash('10 5')
+        c.set_stroke_dash(None, start=0.5)
+        assert c.styling.stroke_dasharray.at_time(0.6) == ''
+
+
+class TestStretchMethod:
+    def test_returns_self(self):
+        c = Circle()
+        assert c.stretch(x_factor=2, y_factor=1, start=0) is c
+
+    def test_x_stretch(self):
+        c = Circle()
+        w0 = c.get_width(0)
+        c.stretch(x_factor=2, start=0)
+        w1 = c.get_width(0)
+        assert w1 > w0 * 1.5
+
+    def test_y_stretch(self):
+        c = Circle()
+        h0 = c.get_height(0)
+        c.stretch(y_factor=3, start=0)
+        h1 = c.get_height(0)
+        assert h1 > h0 * 2
+
+
+class TestMatchWidthMethod:
+    def test_returns_self(self):
+        a = Circle()
+        b = Rectangle(width=400, height=100)
+        assert a.match_width(b) is a
+
+    def test_matches_width(self):
+        a = Circle()
+        b = Rectangle(width=400, height=100)
+        a.match_width(b)
+        assert abs(a.get_width(0) - b.get_width(0)) < 5
+
+
+class TestMatchHeightMethod:
+    def test_returns_self(self):
+        a = Circle()
+        b = Rectangle(width=100, height=400)
+        assert a.match_height(b) is a
+
+    def test_matches_height(self):
+        a = Circle()
+        b = Rectangle(width=100, height=400)
+        a.match_height(b)
+        assert abs(a.get_height(0) - b.get_height(0)) < 5
+

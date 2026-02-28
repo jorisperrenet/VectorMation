@@ -246,7 +246,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self.show.set_onward(end, True)
         return self
 
-    def set_visible(self, visible, start=0):
+    def set_visible(self, visible, start: float = 0):
         """Show or hide the object at a given time."""
         self.show.set_onward(start, 1 if visible else 0)
         return self
