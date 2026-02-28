@@ -11,12 +11,13 @@ from vectormation._constants import (
 from vectormation._base import VObject, VCollection, _norm_dir, _ramp
 from vectormation._shapes import (
     Polygon, Circle, Dot, Rectangle, RoundedRectangle, Line, Lines,
-    Text,
+    Text, DecimalNumber,
 )
 
 _TEXT_STYLE = {'fill': '#fff', 'stroke_width': 0}
 _LINE_STYLE = {'stroke': '#fff', 'stroke_width': 3}
 _Text = Text  # module-level alias; avoids shadowing in methods that accept 'text' param
+_Line = Line  # module-level alias; avoids shadowing in methods that accept 'line' param
 
 # ---------------------------------------------------------------------------
 # Title / Variable / Underline
@@ -42,7 +43,6 @@ class Variable(VCollection):
     """Display a variable label with an animated numeric value."""
     def __init__(self, label='x', value: float = 0, fmt='{:.2f}', x=960, y=540,
                  font_size=48, creation: float = 0, z: float = 0, **styling_kwargs):
-        from vectormation._shapes import Text, DecimalNumber
         style_kw = _TEXT_STYLE | styling_kwargs
         label_text = f'{label} = '
         self.label = Text(label_text, x=x, y=y, font_size=font_size,
@@ -300,7 +300,6 @@ class Callout(VCollection):
     """Text callout with a pointer line to a target position."""
     def __init__(self, text, target, direction='up', distance=80, font_size=24,
                  padding=8, corner_radius=4, creation: float = 0, z: float = 0, **styling_kwargs):
-        from vectormation._shapes import Line as SLine
         direction = _norm_dir(direction, 'up')
 
         # Resolve target position
@@ -319,7 +318,7 @@ class Callout(VCollection):
         bg, lbl = _text_with_box(text, lx, ly, font_size, padding, corner_radius,
                                  creation, z + 2, z + 1, **style_kw)
         _, _, _, th = lbl.bbox(creation)
-        pointer = SLine(x1=tx, y1=ty, x2=lx, y2=ly - th / 2 if direction == 'up' else ly + th / 2 if direction == 'down' else ly,
+        pointer = _Line(x1=tx, y1=ty, x2=lx, y2=ly - th / 2 if direction == 'up' else ly + th / 2 if direction == 'down' else ly,
                         creation=creation, z=z, stroke='#888', stroke_width=1)
         super().__init__(pointer, bg, lbl, creation=creation, z=z)
 
@@ -330,7 +329,6 @@ class DimensionLine(VCollection):
     """Technical dimension line between two points with measurement label."""
     def __init__(self, p1, p2, label=None, offset=30, font_size=20,
                  tick_size=10, creation: float = 0, z: float = 0, **styling_kwargs):
-        from vectormation._shapes import Text as SText, Line as SLine
         x1, y1 = p1
         x2, y2 = p2
         dx, dy = x2 - x1, y2 - y1
@@ -345,24 +343,24 @@ class DimensionLine(VCollection):
         style_kw = {'stroke': '#aaa', 'stroke_width': 1} | styling_kwargs
 
         # Main dimension line
-        main = SLine(x1=ox1, y1=oy1, x2=ox2, y2=oy2, creation=creation, z=z, **style_kw)
+        main = _Line(x1=ox1, y1=oy1, x2=ox2, y2=oy2, creation=creation, z=z, **style_kw)
         # Extension lines (ticks from original points to dimension line)
-        ext1 = SLine(x1=x1, y1=y1, x2=ox1 + nx * 0.3, y2=oy1 + ny * 0.3,
+        ext1 = _Line(x1=x1, y1=y1, x2=ox1 + nx * 0.3, y2=oy1 + ny * 0.3,
                      creation=creation, z=z, **style_kw)
-        ext2 = SLine(x1=x2, y1=y2, x2=ox2 + nx * 0.3, y2=oy2 + ny * 0.3,
+        ext2 = _Line(x1=x2, y1=y2, x2=ox2 + nx * 0.3, y2=oy2 + ny * 0.3,
                      creation=creation, z=z, **style_kw)
         # Tick marks at ends of dimension line
         tnx, tny = -uy * tick_size / 2, ux * tick_size / 2
-        tick1 = SLine(x1=ox1 - tnx, y1=oy1 - tny, x2=ox1 + tnx, y2=oy1 + tny,
+        tick1 = _Line(x1=ox1 - tnx, y1=oy1 - tny, x2=ox1 + tnx, y2=oy1 + tny,
                       creation=creation, z=z, **style_kw)
-        tick2 = SLine(x1=ox2 - tnx, y1=oy2 - tny, x2=ox2 + tnx, y2=oy2 + tny,
+        tick2 = _Line(x1=ox2 - tnx, y1=oy2 - tny, x2=ox2 + tnx, y2=oy2 + tny,
                       creation=creation, z=z, **style_kw)
 
         # Label
         if label is None:
             label = f'{length:.0f}'
         mx, my = (ox1 + ox2) / 2, (oy1 + oy2) / 2
-        lbl = SText(text=str(label), x=mx + nx * 0.5, y=my + ny * 0.5,
+        lbl = _Text(text=str(label), x=mx + nx * 0.5, y=my + ny * 0.5,
                     font_size=font_size, text_anchor='middle',
                     creation=creation, z=z + 1, fill='#aaa', stroke_width=0)
         super().__init__(main, ext1, ext2, tick1, tick2, lbl, creation=creation, z=z)
@@ -493,7 +491,7 @@ class SpeechBubble(VCollection):
                  box_fill='#1e1e2e', box_opacity=0.95, text_color='#fff',
                  tail_direction='down', tail_width=20, tail_height=18,
                  creation: float = 0, z: float = 0, **styling_kwargs):
-        SText = _Text
+
         char_w = font_size * CHAR_WIDTH_FACTOR
         if width is None:
             width = max(len(text) * char_w + padding * 2, 60)
@@ -516,7 +514,7 @@ class SpeechBubble(VCollection):
             pts = [(x + width, cy - hw), (x + width, cy + hw), (x + width + hh, cy)]
         tail = Polygon(*pts, fill=box_fill, fill_opacity=box_opacity,
                        stroke=box_fill, stroke_width=1, creation=creation, z=z - 0.1)
-        lbl = SText(text=text, x=cx, y=cy + font_size * TEXT_Y_OFFSET,
+        lbl = _Text(text=text, x=cx, y=cy + font_size * TEXT_Y_OFFSET,
                     font_size=font_size, fill=text_color, stroke_width=0,
                     text_anchor='middle', creation=creation, z=z + 0.1)
         super().__init__(tail, box, lbl, creation=creation, z=z)
@@ -532,7 +530,7 @@ class Badge(VCollection):
     def __init__(self, text='Label', x=100, y=100, font_size=16, padding_x=14,
                  padding_y=6, bg_color='#58C4DD', text_color='#000',
                  creation: float = 0, z: float = 0, **styling_kwargs):
-        SText = _Text
+
         char_w = font_size * CHAR_WIDTH_FACTOR
         width = len(text) * char_w + padding_x * 2
         height = font_size + padding_y * 2
@@ -542,7 +540,7 @@ class Badge(VCollection):
                                fill=bg_color, fill_opacity=1,
                                stroke_width=0, creation=creation, z=z,
                                **styling_kwargs)
-        lbl = SText(text=text, x=x + width / 2, y=y + height / 2 + font_size * TEXT_Y_OFFSET,
+        lbl = _Text(text=text, x=x + width / 2, y=y + height / 2 + font_size * TEXT_Y_OFFSET,
                     font_size=font_size, fill=text_color, stroke_width=0,
                     text_anchor='middle', creation=creation, z=z + 0.1)
         super().__init__(box, lbl, creation=creation, z=z)
@@ -557,7 +555,6 @@ class Divider(VCollection):
     def __init__(self, x=100, y=300, length=400, direction='horizontal',
                  label=None, font_size=16, gap=12,
                  creation: float = 0, z: float = 0, **styling_kwargs):
-        from vectormation._shapes import Text as SText, Line as SLine
         style_kw = {'stroke': '#555', 'stroke_width': 1} | styling_kwargs
         objects = []
         if label:
@@ -565,31 +562,31 @@ class Divider(VCollection):
             label_w = len(label) * char_w + gap * 2
             if direction == 'horizontal':
                 half = (length - label_w) / 2
-                l1 = SLine(x1=x, y1=y, x2=x + half, y2=y,
+                l1 = _Line(x1=x, y1=y, x2=x + half, y2=y,
                            creation=creation, z=z, **style_kw)
-                l2 = SLine(x1=x + half + label_w, y1=y, x2=x + length, y2=y,
+                l2 = _Line(x1=x + half + label_w, y1=y, x2=x + length, y2=y,
                            creation=creation, z=z, **style_kw)
-                lbl = SText(text=label, x=x + length / 2, y=y + font_size * TEXT_Y_OFFSET,
+                lbl = _Text(text=label, x=x + length / 2, y=y + font_size * TEXT_Y_OFFSET,
                             font_size=font_size, fill=style_kw.get('stroke', '#555'),
                             stroke_width=0, text_anchor='middle',
                             creation=creation, z=z + 0.1)
             else:
                 half = (length - label_w) / 2
-                l1 = SLine(x1=x, y1=y, x2=x, y2=y + half,
+                l1 = _Line(x1=x, y1=y, x2=x, y2=y + half,
                            creation=creation, z=z, **style_kw)
-                l2 = SLine(x1=x, y1=y + half + label_w, x2=x, y2=y + length,
+                l2 = _Line(x1=x, y1=y + half + label_w, x2=x, y2=y + length,
                            creation=creation, z=z, **style_kw)
-                lbl = SText(text=label, x=x, y=y + length / 2 + font_size * TEXT_Y_OFFSET,
+                lbl = _Text(text=label, x=x, y=y + length / 2 + font_size * TEXT_Y_OFFSET,
                             font_size=font_size, fill=style_kw.get('stroke', '#555'),
                             stroke_width=0, text_anchor='middle',
                             creation=creation, z=z + 0.1)
             objects = [l1, l2, lbl]
         else:
             if direction == 'horizontal':
-                ln = SLine(x1=x, y1=y, x2=x + length, y2=y,
+                ln = _Line(x1=x, y1=y, x2=x + length, y2=y,
                            creation=creation, z=z, **style_kw)
             else:
-                ln = SLine(x1=x, y1=y, x2=x, y2=y + length,
+                ln = _Line(x1=x, y1=y, x2=x, y2=y + length,
                            creation=creation, z=z, **style_kw)
             objects = [ln]
         super().__init__(*objects, creation=creation, z=z)
@@ -606,7 +603,7 @@ class Checklist(VCollection):
     def __init__(self, *items, x=100, y=100, font_size=24, spacing=1.6,
                  box_size=None, check_color='#83C167', uncheck_color='#555',
                  text_color='#fff', creation: float = 0, z: float = 0):
-        SText = _Text
+
         if box_size is None:
             box_size = font_size * 0.75
         objects = []
@@ -626,11 +623,11 @@ class Checklist(VCollection):
                                    fill=fill, fill_opacity=0.9, stroke_width=0,
                                    creation=creation, z=z)
             # Checkmark or empty
-            mark = SText(text='\u2713' if checked else '',
+            mark = _Text(text='\u2713' if checked else '',
                          x=x + box_size / 2, y=ly + box_size * 0.8,
                          font_size=font_size * 0.7, fill='#fff', stroke_width=0,
                          text_anchor='middle', creation=creation, z=z + 0.1)
-            lbl = SText(text=label_text, x=x + box_size + 10,
+            lbl = _Text(text=label_text, x=x + box_size + 10,
                         y=ly + box_size * 0.75,
                         font_size=font_size, fill=text_color, stroke_width=0,
                         creation=creation, z=z)

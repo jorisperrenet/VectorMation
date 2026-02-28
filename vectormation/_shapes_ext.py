@@ -324,7 +324,7 @@ class Line(VObject):
 
     def add_tip(self, end=True, start=False, tip_length=None, tip_width=None, creation=0):
         """Create arrowhead tip polygon(s) at line endpoints."""
-        from vectormation._base import VCollection
+
         tl = tip_length if tip_length is not None else DEFAULT_ARROW_TIP_LENGTH
         tw = tip_width if tip_width is not None else DEFAULT_ARROW_TIP_WIDTH
         hw = tw / 2
@@ -801,7 +801,7 @@ class Text(VObject):
 
     def split_chars(self, time=0):
         """Split text into a VCollection of individual character Text objects."""
-        from vectormation._base import VCollection
+
         full, x, y, fs, cw, fill = self._text_split_ctx(time)
         if not full:
             return VCollection()
@@ -828,7 +828,7 @@ class Text(VObject):
 
     def split_lines(self, time=0, line_spacing=1.4):
         """Split multi-line text (containing newlines) into separate Text objects."""
-        from vectormation._base import VCollection
+
         full, x, y, fs, _, fill = self._text_split_ctx(time)
         step = fs * line_spacing
         return VCollection(*(Text(text=lt, x=x, y=y + i * step, font_size=fs,
@@ -890,7 +890,7 @@ class Text(VObject):
 
     def split_into_words(self, time=0, **kwargs):
         """Split text into a VCollection of individual word Text objects."""
-        from vectormation._base import VCollection
+
         full = str(self.text.at_time(time))
         words = full.split()
         if not words:
@@ -916,7 +916,7 @@ class Text(VObject):
 
     def add_background_rectangle(self, color='#000000', opacity=0.5, padding=10, time=0):
         """Create a Rectangle behind the text, sized from bbox + padding."""
-        from vectormation._base import VCollection
+
         bx, by, bw, bh = self.bbox(time)
         rect = Rectangle(
             bw + 2 * padding, bh + 2 * padding,
@@ -928,7 +928,7 @@ class Text(VObject):
 
     def wrap(self, max_width, time=0):
         """Word-wrap text to fit within *max_width* pixels."""
-        from vectormation._base import VCollection
+
         full = str(self.text.at_time(time))
         words = full.split()
         if not words:
