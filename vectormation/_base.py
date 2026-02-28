@@ -1324,58 +1324,32 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
     def pulsate(self, start: float = 0, end: float = 1, scale_factor=1.3,
                  n_pulses=3, easing=easings.smooth):
         """Repeated grow/shrink pulsation over [start, end]."""
-        dur = end - start
-        if dur <= 0:
-            return self
-        sx0, sy0 = self._init_scale_anim(start)
-        _s, _d, _sf, _p = start, max(dur, 1e-9), scale_factor, n_pulses
-        def _make_pulse(s0):
-            return lambda t, _s=_s, _d=_d, _sf=_sf, _p=_p, _s0=s0, _e=easing: \
-                _s0 * (1 + (_sf - 1) * abs(math.sin(math.pi * _p * _e((t - _s) / _d))))
-        self._set_scale_xy(start, end, _make_pulse(sx0), _make_pulse(sy0))
-        return self
+        _sf, _p = scale_factor, n_pulses
+        def _pulsate(p, _sf=_sf, _p=_p):
+            return 1 + (_sf - 1) * abs(math.sin(math.pi * _p * p))
+        return self._apply_scale_envelope(start, end, _pulsate, easing, stay=False)
 
     def pulse_scale(self, start: float = 0, end: float = 1, count=2, amplitude=0.15, easing=easings.smooth):
         """Oscillate scale by *amplitude* for *count* cycles over [start, end]."""
-        dur = end - start
-        if dur <= 0:
-            return self
-        sx0, sy0 = self._init_scale_anim(start)
-        _s, _d, _amp, _cnt = start, max(dur, 1e-9), amplitude, count
-        def _make_pulse_scale(base):
-            return lambda t, _s=_s, _d=_d, _amp=_amp, _cnt=_cnt, _b=base, _e=easing: \
-                _b * (1 + _amp * math.sin(math.tau * _cnt * _e((t - _s) / _d)))
-        self._set_scale_xy(start, end, _make_pulse_scale(sx0), _make_pulse_scale(sy0))
-        return self
+        _amp, _cnt = amplitude, count
+        def _pulse(p, _amp=_amp, _cnt=_cnt):
+            return 1 + _amp * math.sin(math.tau * _cnt * p)
+        return self._apply_scale_envelope(start, end, _pulse, easing, stay=False)
 
     def ripple_scale(self, start: float = 0, end: float = 1, n_ripples=3, max_factor=1.3, easing=easings.smooth):
         """Produce multiple decaying scale pulses."""
-        sx0, sy0 = self._init_scale_anim(start)
-        s, e, dur = start, end, end - start
-        if dur <= 0:
-            return self
-        def _ripple(t, _s=s, _d=dur, _n=n_ripples, _m=max_factor, _e=easing, _sx0=sx0):
-            p = _e((t - _s) / _d)
-            decay = 1 - p  # amplitude decreases over time
-            wave = math.sin(p * _n * math.tau)
-            factor = 1 + (_m - 1) * decay * wave
-            return _sx0 * factor
-        self.styling.scale_x.set(s, e, _ripple, stay=True)
-        self.styling.scale_y.set(s, e, lambda t, _f=_ripple, _r=sy0/sx0 if sx0 else 1: _f(t) * _r, stay=True)
-        return self
+        _n, _m = n_ripples, max_factor
+        def _ripple(p, _n=_n, _m=_m):
+            decay = 1 - p
+            return 1 + (_m - 1) * decay * math.sin(p * _n * math.tau)
+        return self._apply_scale_envelope(start, end, _ripple, easing, stay=True)
 
     def flash_scale(self, factor=1.5, start: float = 0, end: float = 1, easing=easings.smooth):
         """Scale up to *factor* at the midpoint, then back to original size."""
-        dur = end - start
-        if dur <= 0:
-            return self
-        sx0, sy0 = self._init_scale_anim(start)
-        _s, _d, _f = start, max(dur, 1e-9), factor
-        def _make_flash(base):
-            return lambda t, _s=_s, _d=_d, _f=_f, _b=base, _e=easing: \
-                _b * (1 + (_f - 1) * math.sin(math.pi * _e((t - _s) / _d)))
-        self._set_scale_xy(start, end, _make_flash(sx0), _make_flash(sy0))
-        return self
+        _f = factor
+        def _flash(p, _f=_f):
+            return 1 + (_f - 1) * math.sin(math.pi * p)
+        return self._apply_scale_envelope(start, end, _flash, easing, stay=False)
 
     def hover_scale(self, factor=1.2, start: float = 0, end: float = 1):
         """Hold scale at *factor* during [start, end], then snap back."""
