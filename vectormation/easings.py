@@ -34,6 +34,8 @@ def _clamp01(t):
     """Clamp *t* to [0, 1]."""
     return max(0.0, min(1.0, t))
 
+_BACK_C1 = 1.70158  # Penner back-ease overshoot constant
+
 
 def unit_interval(function):
     @wraps(function)
@@ -224,20 +226,17 @@ def ease_in_out_circ(t: float) -> float:
 
 @unit_interval
 def ease_in_back(t: float) -> float:
-    c1 = 1.70158
-    c3 = c1 + 1
-    return c3 * t * t * t - c1 * t * t
+    c3 = _BACK_C1 + 1
+    return c3 * t * t * t - _BACK_C1 * t * t
 
 @unit_interval
 def ease_out_back(t: float) -> float:
-    c1 = 1.70158
-    c3 = c1 + 1
-    return 1 + c3 * (t - 1) ** 3 + c1 * (t - 1) ** 2
+    c3 = _BACK_C1 + 1
+    return 1 + c3 * (t - 1) ** 3 + _BACK_C1 * (t - 1) ** 2
 
 @unit_interval
 def ease_in_out_back(t: float) -> float:
-    c1 = 1.70158
-    c2 = c1 * 1.525
+    c2 = _BACK_C1 * 1.525
     return (
         ((2 * t) ** 2 * ((c2 + 1) * 2 * t - c2)) / 2
         if t < 0.5

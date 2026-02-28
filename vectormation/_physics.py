@@ -17,6 +17,9 @@ The body's VObject position attributes are automatically updated so the
 object follows the simulated trajectory.
 """
 import math
+from vectormation._constants import ORIGIN
+
+_MIN_DIST = 0.001  # guard against near-zero distance in collisions/springs
 
 
 class Body:
@@ -425,7 +428,7 @@ def _body_center(obj, time):
         c = obj.c.at_time(time)
         return (c[0], c[1])
     except AttributeError:
-        return (960, 540)  # fallback to center
+        return ORIGIN  # fallback to canvas center
 
 
 def _guess_radius(obj):
@@ -482,7 +485,7 @@ def _apply_spring(s):
     bx, by = _spring_pos(s.b)
     dx, dy = bx - ax, by - ay
     dist = math.hypot(dx, dy)
-    if dist < 0.001:
+    if dist < _MIN_DIST:
         return
     # Spring force: F = -k * (dist - rest) * direction
     stretch = dist - s.rest_length
@@ -514,32 +517,29 @@ def _wall_friction_impulse(b, tangent_v, sign):
         b.angular_velocity += sign * math.degrees(impulse * b.radius / b.moment_of_inertia)
 
 
+def _resolve_wall_axis(b, pos, vel, tangent_vel, wall_pos, e, fric):
+    """Resolve collision on one axis; returns (new_pos, new_vel, new_tangent)."""
+    if pos + b.radius > wall_pos and vel > 0:
+        sign = 1
+    elif pos - b.radius < wall_pos and vel < 0:
+        sign = -1
+    else:
+        return pos, vel, tangent_vel
+    pos = wall_pos - sign * b.radius
+    vel *= -e
+    _wall_friction_impulse(b, tangent_vel, sign)
+    tangent_vel *= fric
+    return pos, vel, tangent_vel
+
+
 def _collide_wall(b, w):
     """Resolve wall collision for a body."""
     e = b.restitution * w.restitution
     fric = 1 - b.friction
     if w.y is not None:  # horizontal wall
-        if b.y + b.radius > w.y and b.vy > 0:
-            b.y = w.y - b.radius
-            b.vy *= -e
-            _wall_friction_impulse(b, b.vx, 1)
-            b.vx *= fric
-        elif b.y - b.radius < w.y and b.vy < 0:
-            b.y = w.y + b.radius
-            b.vy *= -e
-            _wall_friction_impulse(b, b.vx, -1)
-            b.vx *= fric
+        b.y, b.vy, b.vx = _resolve_wall_axis(b, b.y, b.vy, b.vx, w.y, e, fric)
     if w.x is not None:  # vertical wall
-        if b.x + b.radius > w.x and b.vx > 0:
-            b.x = w.x - b.radius
-            b.vx *= -e
-            _wall_friction_impulse(b, b.vy, 1)
-            b.vy *= fric
-        elif b.x - b.radius < w.x and b.vx < 0:
-            b.x = w.x + b.radius
-            b.vx *= -e
-            _wall_friction_impulse(b, b.vy, -1)
-            b.vy *= fric
+        b.x, b.vx, b.vy = _resolve_wall_axis(b, b.x, b.vx, b.vy, w.x, e, fric)
 
 
 def _collide_bodies(a, b):
@@ -547,7 +547,7 @@ def _collide_bodies(a, b):
     dx, dy = b.x - a.x, b.y - a.y
     dist = math.hypot(dx, dy)
     min_dist = a.radius + b.radius
-    if dist >= min_dist or dist < 0.001:
+    if dist >= min_dist or dist < _MIN_DIST:
         return
 
     # Separate bodies along normal

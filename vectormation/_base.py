@@ -1236,7 +1236,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if dur <= 0:
             return self
         src_x, src_y = _coords_of(source, start)
-        tgt_x, tgt_y = self.get_center(start)
+        tgt_x, tgt_y = self.center(start)
         off_x, off_y = src_x - tgt_x, src_y - tgt_y
         s, d = start, max(dur, 1e-9)
         # Move all coordinate attrs from source offset back to target
@@ -2015,7 +2015,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         matrix: a 2x2 list/tuple, e.g. [[1, 0.5], [0, 1]] for shear."""
         a, b = matrix[0]
         c, d = matrix[1]
-        self.styling.matrix.set_onward(start, f'matrix({a},{c},{b},{d},0,0)')
+        self.styling.matrix.set_onward(start, (a, c, b, d, 0, 0))
         return self
 
     def reflect(self, axis='vertical', start: float = 0):
@@ -2205,7 +2205,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if dur <= 0:
             return self
         tx, ty = _coords_of(target, start)
-        cx, cy = self.get_center(start)
+        cx, cy = self.center(start)
         ddx, ddy = tx - cx, ty - cy
         _d = max(dur, 1e-9)
         for xa, ya in self._shift_reals():
