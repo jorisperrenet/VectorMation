@@ -24,6 +24,13 @@ def _dyn_line(line, creation, p1_func, p2_func):
     line.p2.set_onward(creation, p2_func)
     return line
 
+def _dir_endpoints(cx, cy, dx, dy, length):
+    """Return (p1, p2) endpoints centered at (cx, cy) along direction (dx, dy), scaled to *length*."""
+    mag = max(math.hypot(dx, dy), 1e-9)
+    half = length / 2
+    nx, ny = dx / mag * half, dy / mag * half
+    return (cx - nx, cy - ny), (cx + nx, cy + ny)
+
 
 def _band_path(pts_hi, pts_lo):
     """Build a closed SVG path string around *pts_hi* (forward) and *pts_lo* (reversed)."""
@@ -1674,23 +1681,14 @@ class _AxesExtMixin:
         slope = (func(x_val + h) - func(x_val - h)) / (2 * h)
         cx_svg = self._math_to_svg_x(x_val, creation)
         cy_svg = self._math_to_svg_y(func(x_val), creation)
-        # Tangent direction in SVG: dx_svg per unit x = plot_width / (xmax - xmin)
-        # dy_svg per unit y = -plot_height / (ymax - ymin)
         xspan = self.x_max.at_time(creation) - self.x_min.at_time(creation)
         yspan = self.y_max.at_time(creation) - self.y_min.at_time(creation)
         if xspan == 0 or yspan == 0:
             return Line(x1=cx_svg, y1=cy_svg, x2=cx_svg + length, y2=cy_svg,
                         creation=creation, z=z, **style_kw)
         dx_px = self.plot_width / xspan
-        dy_px = -self.plot_height / yspan
-        dir_x = dx_px
-        dir_y = slope * dy_px
-        mag = math.hypot(dir_x, dir_y)
-        if mag == 0:
-            mag = 1
-        half = length / 2
-        nx, ny = dir_x / mag * half, dir_y / mag * half
-        line = Line(x1=cx_svg - nx, y1=cy_svg - ny, x2=cx_svg + nx, y2=cy_svg + ny,
+        (x1, y1), (x2, y2) = _dir_endpoints(cx_svg, cy_svg, dx_px, slope * (-self.plot_height / yspan), length)
+        line = Line(x1=x1, y1=y1, x2=x2, y2=y2,
                     creation=creation, z=z, **style_kw)
         self._add_plot_obj(line)
         return line
@@ -1721,12 +1719,8 @@ class _AxesExtMixin:
                 if xspan == 0 or yspan == 0:
                     return (cx_svg + _sign * _len / 2, cy_svg)
                 dx_px = self.plot_width / xspan
-                dy_px = -self.plot_height / yspan
-                dir_x, dir_y = dx_px, slope * dy_px
-                mag = max(math.hypot(dir_x, dir_y), 1e-9)
-                half = _len / 2
-                return (cx_svg + _sign * dir_x / mag * half,
-                        cy_svg + _sign * dir_y / mag * half)
+                ep = _dir_endpoints(cx_svg, cy_svg, dx_px, slope * (-self.plot_height / yspan), _len)
+                return ep[0] if _sign < 0 else ep[1]
             return _pt
         _dyn_line(line, creation, _tangent_ep(-1), _tangent_ep(+1))
         self._add_plot_obj(line)
@@ -1741,11 +1735,9 @@ class _AxesExtMixin:
             def _pt(t, _x1=_x1, _x2=_x2, _len=_len, _sign=sign):
                 sx1, sy1 = self.coords_to_point(_x1, func(_x1), t)
                 sx2, sy2 = self.coords_to_point(_x2, func(_x2), t)
-                dx, dy = sx2 - sx1, sy2 - sy1
-                mag = max(math.hypot(dx, dy), 1e-9)
-                half = _len / 2
                 mx, my = (sx1 + sx2) / 2, (sy1 + sy2) / 2
-                return (mx + _sign * dx / mag * half, my + _sign * dy / mag * half)
+                ep = _dir_endpoints(mx, my, sx2 - sx1, sy2 - sy1, _len)
+                return ep[0] if _sign < 0 else ep[1]
             return _pt
         _dyn_line(line, creation, _secant_endpoint(-1), _secant_endpoint(+1))
         self._add_plot_obj(line)

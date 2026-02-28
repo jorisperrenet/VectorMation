@@ -406,20 +406,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         x, y, w, h = self.bbox(time)
         return x <= px <= x + w and y <= py <= y + h
 
-    def move_to(self, x, y, start: float = 0, end: float | None = None, easing=easings.smooth):
-        """Move the object's center to (x, y), optionally animated over [start, end]."""
-        xmin, ymin, w, h = self.bbox(start)
-        self.shift(dx=x-(xmin+w/2), dy=y-(ymin+h/2),
-                   start=start, end=end, easing=easing)
-        return self
-
     def teleport(self, x: float, y: float, start: float = 0):
         """Instantly move object center to (x, y) at the given time (no animation)."""
         return self.center_to_pos(posx=x, posy=y, start=start)
-
-    def center_to_pos(self, posx: float = 960, posy: float = 540, start: float = 0, end: float | None = None, easing=easings.smooth):
-        """Shifts the center to pos, animated from start to end."""
-        return self.move_to(posx, posy, start, end, easing)
 
     def follow_spline(self, points, start: float = 0, end: float = 1, easing=easings.smooth):
         """Move the object's center smoothly through a sequence of (x, y) points.

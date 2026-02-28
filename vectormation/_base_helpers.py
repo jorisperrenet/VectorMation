@@ -195,11 +195,13 @@ class _BBoxMethodsMixin:
 
     def get_x(self, time=0):
         """Return x-coordinate of the bounding box center."""
-        return self.center(time)[0]
+        x, _, w, _ = self.bbox(time)
+        return x + w / 2
 
     def get_y(self, time=0):
         """Return y-coordinate of the bounding box center."""
-        return self.center(time)[1]
+        _, y, _, h = self.bbox(time)
+        return y + h / 2
 
     def get_diagonal(self, time=0):
         """Return the diagonal length of the bounding box."""
@@ -231,6 +233,18 @@ class _BBoxMethodsMixin:
     def get_right(self, time=0): return self.get_edge('right', time)
     def get_top(self, time=0): return self.get_edge('top', time)
     def get_bottom(self, time=0): return self.get_edge('bottom', time)
+
+    def move_to(self, x, y, start: float = 0, end: float | None = None, easing=easings.smooth):
+        """Move the object's center to (x, y), optionally animated over [start, end]."""
+        xmin, ymin, w, h = self.bbox(start)
+        self.shift(dx=x - (xmin + w / 2), dy=y - (ymin + h / 2),
+                   start=start, end=end, easing=easing)
+        return self
+
+    def center_to_pos(self, posx: float = 960, posy: float = 540,
+                      start: float = 0, end: float | None = None, easing=easings.smooth):
+        """Shift the center to (posx, posy), animated from start to end."""
+        return self.move_to(posx, posy, start, end, easing)
 
     def to_edge(self, edge=DOWN, buff=DEFAULT_OBJECT_TO_EDGE_BUFF,
                 start: float = 0, end=None, easing=easings.smooth):

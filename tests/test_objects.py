@@ -17949,3 +17949,59 @@ class TestLEDCompact:
         svg = c.generate_frame_svg(0)
         assert '<line' in svg
 
+
+class TestMoveToInMixin:
+    """Test that move_to/center_to_pos work from the mixin for both VObject and VCollection."""
+    def test_vobject_move_to(self):
+        r = Rectangle(100, 50, x=0, y=0, creation=0)
+        r.move_to(960, 540, start=0)
+        c = VectorMathAnim(save_dir='/tmp/t')
+        c.add_objects(r)
+        svg = c.generate_frame_svg(0)
+        assert '<rect' in svg
+
+    def test_vcollection_move_to(self):
+        g = VCollection(Circle(r=20, cx=0, cy=0, creation=0), creation=0)
+        g.move_to(960, 540, start=0)
+        c = VectorMathAnim(save_dir='/tmp/t')
+        c.add_objects(g)
+        svg = c.generate_frame_svg(0)
+        assert '<circle' in svg
+
+    def test_center_to_pos_alias(self):
+        r = Rectangle(100, 50, x=0, y=0, creation=0)
+        r.center_to_pos(posx=500, posy=300, start=0)
+        cx, cy = r.center(0)
+        assert abs(cx - 500) < 1
+        assert abs(cy - 300) < 1
+
+
+class TestDirEndpoints:
+    """Test _dir_endpoints helper in _axes_ext."""
+    def test_horizontal(self):
+        from vectormation._axes_ext import _dir_endpoints
+        (x1, y1), (x2, y2) = _dir_endpoints(100, 200, 10, 0, 50)
+        assert x1 == pytest.approx(75)
+        assert x2 == pytest.approx(125)
+        assert y1 == pytest.approx(200)
+        assert y2 == pytest.approx(200)
+
+    def test_diagonal(self):
+        from vectormation._axes_ext import _dir_endpoints
+        import math
+        (x1, y1), (x2, y2) = _dir_endpoints(0, 0, 3, 4, 100)
+        # Distance from center to each endpoint should be 50
+        assert math.hypot(x1, y1) == pytest.approx(50)
+        assert math.hypot(x2, y2) == pytest.approx(50)
+
+
+class TestGetXYOptimized:
+    """Test that get_x/get_y return correct values after optimization."""
+    def test_get_x(self):
+        r = Rectangle(100, 50, x=400, y=300, creation=0)
+        assert r.get_x(0) == pytest.approx(450)
+
+    def test_get_y(self):
+        r = Rectangle(100, 50, x=400, y=300, creation=0)
+        assert r.get_y(0) == pytest.approx(325)
+

@@ -161,17 +161,6 @@ class VCollection(_BBoxMethodsMixin):
         return _make_brect(self.bbox, time, rx, ry, buff, follow,
                            start_idx=start_idx, end_idx=end_idx)
 
-    def move_to(self, x, y, start: float = 0, end: float | None = None, easing=easings.smooth):
-        """Move the collection's center to (x, y)."""
-        xmin, ymin, w, h = self.bbox(start)
-        self.shift(dx=x-(xmin+w/2), dy=y-(ymin+h/2),
-                   start=start, end=end, easing=easing)
-        return self
-
-    def center_to_pos(self, posx: float = 960, posy: float = 540, start: float = 0, end: float | None = None, easing=easings.smooth):
-        """Move the collection's center to (posx, posy)."""
-        return self.move_to(posx, posy, start, end, easing)
-
     def _scale_to_dim(self, cur, target, start, end, easing):
         """Scale to match a target dimension (width or height)."""
         if cur == 0:
