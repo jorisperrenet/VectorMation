@@ -5,7 +5,7 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 from vectormation._constants import (
     CANVAS_WIDTH, CANVAS_HEIGHT, UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE, TEXT_Y_OFFSET, ORIGIN,
-    _sample_function,
+    _sample_function, _normalize,
 )
 from vectormation._base import VObject, VCollection, _lerp, _lerp_point
 from vectormation._axes_helpers import (
@@ -1421,8 +1421,7 @@ class Axes(_AxesExtMixin, VCollection):
                 (_b := _base(t))[0] + _dx * _bb, _b[1] + _dy * _bb))
         # Dynamic arrowhead tip (3 vertices) — precompute constants
         _hw = _tw / 2
-        _ln = math.hypot(_dx, _dy) or 1
-        _ux, _uy = _dx / _ln, _dy / _ln
+        _ux, _uy = _normalize(_dx, _dy)
         _px, _py = -_uy, _ux
         # Precompute fixed offsets from the tip base point
         _back_x, _back_y = -_ux * _tl, -_uy * _tl

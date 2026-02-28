@@ -220,10 +220,10 @@ class RightAngle(VCollection):
         vx, vy = vertex
         d1x, d1y = p1[0] - vx, p1[1] - vy
         d2x, d2y = p2[0] - vx, p2[1] - vy
-        len1 = math.hypot(d1x, d1y) or 1
-        len2 = math.hypot(d2x, d2y) or 1
-        u1x, u1y = d1x / len1 * size, d1y / len1 * size
-        u2x, u2y = d2x / len2 * size, d2y / len2 * size
+        n1x, n1y = _normalize(d1x, d1y)
+        n2x, n2y = _normalize(d2x, d2y)
+        u1x, u1y = n1x * size, n1y * size
+        u2x, u2y = n2x * size, n2y * size
         style_kw = {'stroke': '#FFFF00', 'stroke_width': 4, 'fill_opacity': 0} | styling_kwargs
         corner = Lines(
             (vx + u1x, vy + u1y),

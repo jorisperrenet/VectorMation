@@ -339,8 +339,7 @@ class Line(VObject):
         if start:
             tips.append(((x1, y1), (x1 - x2, y1 - y2)))
         for (tx, ty), (dx, dy) in tips:
-            length = math.hypot(dx, dy) or 1
-            ux, uy = dx / length, dy / length
+            ux, uy = _normalize(dx, dy)
             px, py = -uy, ux
             bx, by = tx - ux * tl, ty - uy * tl
             objects.append(Polygon(
@@ -751,7 +750,7 @@ class Text(VObject):
         self._font_style = style if style != 'normal' else None
         return self
 
-    def set_font_family(self, family, start=0):
+    def set_font_family(self, family):
         """Set the font family for this text element."""
         self._font_family = family
         return self

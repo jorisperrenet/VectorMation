@@ -359,8 +359,8 @@ class ThreeDAxes(VCollection):
                                 pos_3d[2] + perp_3d[2] * 0.1, time)
         # Tick direction in screen space
         tdx, tdy = pp[0] - sp[0], pp[1] - sp[1]
-        tmag = math.hypot(tdx, tdy) or 1
-        tdx, tdy = tdx / tmag * tick_len, tdy / tmag * tick_len
+        _tux, _tuy = _normalize(tdx, tdy)
+        tdx, tdy = _tux * tick_len, _tuy * tick_len
         stroke = self._axis_style.get('stroke', '#888')
         parts = [f'<line x1="{sp[0] - tdx:.1f}" y1="{sp[1] - tdy:.1f}" '
                  f'x2="{sp[0] + tdx:.1f}" y2="{sp[1] + tdy:.1f}" '

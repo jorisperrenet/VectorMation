@@ -187,8 +187,8 @@ class Molecule2D(VCollection):
                 bond_order = bond[2] if len(bond) > 2 else 1
                 ax, ay = cx + atoms[i][1] * scale, cy + atoms[i][2] * scale
                 bx, by = cx + atoms[j][1] * scale, cy + atoms[j][2] * scale
-                d = math.hypot(bx - ax, by - ay) or 1
-                perpx, perpy = -(by - ay) / d * 4, (bx - ax) / d * 4
+                bux, buy = _normalize(bx - ax, by - ay)
+                perpx, perpy = -buy * 4, bux * 4
                 for k in range(bond_order):
                     offset = (k - (bond_order - 1) / 2) * 1.5
                     objects.append(Line(
