@@ -6,7 +6,7 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
 from vectormation._constants import (
-    CANVAS_WIDTH, CANVAS_HEIGHT,
+    CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
     TEXT_Y_OFFSET, _normalize, _get_arrow,
 )
 from vectormation._base import VObject, VCollection, _norm_dir
@@ -316,8 +316,8 @@ def from_svg(element, **styles):
         kw = _merged_attrs('x', 'y', 'font-size', 'text-anchor', 'transform')
         fs = float(element.get('font-size', inline.get('font-size', 48)))
         anchor = element.get('text-anchor', inline.get('text-anchor', None))
-        return Text(text=content, x=g('x', CANVAS_WIDTH // 2) + tx,
-                    y=g('y', CANVAS_HEIGHT // 2) + ty,
+        return Text(text=content, x=g('x', ORIGIN[0]) + tx,
+                    y=g('y', ORIGIN[1]) + ty,
                     font_size=fs, text_anchor=anchor, **kw)
     elif tag == 'g':
         children = []
@@ -842,7 +842,7 @@ class Spotlight(VObject):
         Overlay opacity (0 = invisible, 1 = fully opaque).
     """
 
-    def __init__(self, target=(960, 540), radius=120, color='#000000', opacity=0.7,
+    def __init__(self, target=ORIGIN, radius=120, color='#000000', opacity=0.7,
                  creation: float = 0, z: float = 10, **kw):
         super().__init__(creation=creation, z=z, **kw)
         if isinstance(target, VObject):
@@ -850,7 +850,7 @@ class Spotlight(VObject):
         elif isinstance(target, (tuple, list)):
             tx, ty = target
         else:
-            tx, ty = 960, 540
+            tx, ty = ORIGIN
         self._cx = attributes.Real(creation, tx)
         self._cy = attributes.Real(creation, ty)
         self._r = attributes.Real(creation, radius)

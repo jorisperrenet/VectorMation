@@ -6,7 +6,7 @@ from xml.sax.saxutils import escape as _xml_escape
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 from vectormation._base import VObject, VCollection, _lerp
-from vectormation._constants import TEXT_Y_OFFSET
+from vectormation._constants import TEXT_Y_OFFSET, ORIGIN
 from vectormation._axes import _nice_ticks
 
 # ---------------------------------------------------------------------------
@@ -101,7 +101,7 @@ class ThreeDAxes(VCollection):
     """3D coordinate axes with camera control, ticks, labels, and depth-sorted rendering."""
 
     def __init__(self, x_range=(-3, 3), y_range=(-3, 3), z_range=(-3, 3),
-                 cx=960, cy=540, scale=160,
+                 cx=ORIGIN[0], cy=ORIGIN[1], scale=160,
                  phi=math.radians(75), theta=math.radians(-30),
                  show_ticks=True, show_labels=True, show_grid=False,
                  x_label: str | None = 'x', y_label: str | None = 'y', z_label: str | None = 'z',
@@ -265,15 +265,15 @@ class ThreeDAxes(VCollection):
             _dx = _x1 - _x0
             if p == 'xz':
                 return lambda t, _x0=_x0, _dx=_dx, _f=_f: (
-                    _x0 + _dx * t, 0, _f(_x0 + _dx * t))
+                    (_v := _x0 + _dx * t), 0, _f(_v))
             elif p == 'xy':
                 return lambda t, _x0=_x0, _dx=_dx, _f=_f: (
-                    _x0 + _dx * t, _f(_x0 + _dx * t), 0)
+                    (_v := _x0 + _dx * t), _f(_v), 0)
             else:
                 _y0, _y1 = _yr
                 _dy = _y1 - _y0
                 return lambda t, _y0=_y0, _dy=_dy, _f=_f: (
-                    0, _y0 + _dy * t, _f(_y0 + _dy * t))
+                    0, (_v := _y0 + _dy * t), _f(_v))
         curve_func = _make_curve_func(plane, x0, x1, self._y_range, func)
         curve = ParametricCurve3D(curve_func, t_range=(0, 1), num_points=num_points,
                                   stroke=stroke, stroke_width=stroke_width,

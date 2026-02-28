@@ -1500,40 +1500,40 @@ class Rectangle(VObject):
 
     def sample_border(self, t, time=0):
         """Return a point (x, y) on the rectangle border at parameter *t*."""
-        rx, ry, w, h = self._dims(time)
+        x, y, w, h = self._dims(time)
         perim = 2 * (w + h)
         if perim < 1e-12:
-            return (rx, ry)
+            return (x, y)
         t = t % 1.0
         dist = t * perim
         # Top edge: left to right
         if dist <= w:
-            return (rx + dist, ry)
+            return (x + dist, y)
         dist -= w
         # Right edge: top to bottom
         if dist <= h:
-            return (rx + w, ry + dist)
+            return (x + w, y + dist)
         dist -= h
         # Bottom edge: right to left
         if dist <= w:
-            return (rx + w - dist, ry + h)
+            return (x + w - dist, y + h)
         dist -= w
         # Left edge: bottom to top
-        return (rx, ry + h - dist)
+        return (x, y + h - dist)
 
     def get_grid_lines(self, rows, cols, time=0, **kwargs):
         """Return a VCollection of Lines forming a grid inside this rectangle."""
         from vectormation._base import VCollection
-        rx, ry, w, h = self._dims(time)
+        x, y, w, h = self._dims(time)
         lines = []
         # Horizontal lines
         for i in range(1, rows + 1):
-            y_pos = ry + h * i / (rows + 1)
-            lines.append(Line(x1=rx, y1=y_pos, x2=rx + w, y2=y_pos, **kwargs))
+            y_pos = y + h * i / (rows + 1)
+            lines.append(Line(x1=x, y1=y_pos, x2=x + w, y2=y_pos, **kwargs))
         # Vertical lines
         for j in range(1, cols + 1):
-            x_pos = rx + w * j / (cols + 1)
-            lines.append(Line(x1=x_pos, y1=ry, x2=x_pos, y2=ry + h, **kwargs))
+            x_pos = x + w * j / (cols + 1)
+            lines.append(Line(x1=x_pos, y1=y, x2=x_pos, y2=y + h, **kwargs))
         return VCollection(*lines)
 
     @classmethod
