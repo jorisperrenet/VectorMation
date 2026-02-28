@@ -673,15 +673,14 @@ class Text(VObject):
         dur = end - start
         if dur <= 0:
             return self
-        s = start
-        def _typed(t):
-            progress = min(1, (t - s) / dur)
+        def _typed(t, _s=start, _d=dur):
+            progress = min(1, (t - _s) / _d)
             chars = int(progress * n)
             shown = full_text[:chars]
             if chars < n:
                 return shown + cursor
             return shown
-        self.text.set(s, end, _typed, stay=True)
+        self.text.set(start, end, _typed, stay=True)
         self.text.set_onward(end, full_text)
         return self
 
@@ -694,12 +693,11 @@ class Text(VObject):
         dur = end - start
         if dur <= 0:
             return self
-        s = start
-        def _untyped(t, _s=s, _d=dur, _n=n, _ft=full_text):
+        def _untyped(t, _s=start, _d=dur, _n=n, _ft=full_text):
             progress = min(1, (t - _s) / _d)
             remaining = _n - int(progress * _n)
             return _ft[:max(0, remaining)]
-        self.text.set(s, end, _untyped, stay=True)
+        self.text.set(start, end, _untyped, stay=True)
         self.text.set_onward(end, '')
         if change_existence:
             self._hide_from(end)
@@ -723,19 +721,18 @@ class Text(VObject):
         import random
         rng = random.Random(42)  # deterministic for reproducibility
         _randoms = [[rng.choice(charset) for _ in range(20)] for _ in range(n)]
-        s = start
-        def _scrambled(t):
-            progress = min(1, (t - s) / dur)
+        def _scrambled(t, _s=start, _d=dur):
+            progress = min(1, (t - _s) / _d)
             settled = int(progress * n)
             result = list(full_text[:settled])
-            frame = int((t - s) * 15) % 20  # cycle through pre-generated randoms
+            frame = int((t - _s) * 15) % 20  # cycle through pre-generated randoms
             for i in range(settled, n):
                 if full_text[i] == ' ':
                     result.append(' ')
                 else:
                     result.append(_randoms[i][frame])
             return ''.join(result)
-        self.text.set(s, end, _scrambled, stay=True)
+        self.text.set(start, end, _scrambled, stay=True)
         self.text.set_onward(end, full_text)
         return self
 
@@ -997,7 +994,7 @@ class CountAnimation(Text):
             self.text.set_onward(start, fmt.format(end_val))
         else:
             self.text.set(start, end,
-                lambda t, _s=start, _d=dur, _sv=start_val, _ev=end_val, _fmt=fmt: _fmt.format(_sv + (_ev - _sv) * easing((t - _s) / _d)),
+                lambda t, _s=start, _d=dur, _sv=start_val, _ev=end_val, _fmt=fmt, _e=easing: _fmt.format(_sv + (_ev - _sv) * _e((t - _s) / _d)),
                 stay=True)
         self._fmt = fmt
         self._last_val = end_val
@@ -1013,8 +1010,8 @@ class CountAnimation(Text):
             self.text.set_onward(start, fmt.format(target))
         else:
             self.text.set(start, end,
-                lambda t, _f=from_val, _t=target, _s=start, _d=dur, _fmt=fmt:
-                    _fmt.format(_f + (_t - _f) * easing((t - _s) / _d)),
+                lambda t, _f=from_val, _t=target, _s=start, _d=dur, _fmt=fmt, _e=easing:
+                    _fmt.format(_f + (_t - _f) * _e((t - _s) / _d)),
                 stay=True)
         self._last_val = target
         return self
@@ -1140,7 +1137,7 @@ class Trace(VObject):
         super().__init__(creation=start, z=z)
         self.start = start
         self.end = end
-        self.dt = dt
+        self.dt = max(dt, 1e-9)
         self.p = point
         self.styling = style.Styling(styling_kwargs, creation=start, stroke='#fff', stroke_width=DEFAULT_STROKE_WIDTH)
         self._vert_cache = []
