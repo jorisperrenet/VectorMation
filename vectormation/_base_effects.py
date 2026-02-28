@@ -691,10 +691,10 @@ class _VObjectEffectsMixin:
 
         self._apply_shift_effect(start, end, dx_func=_dx, dy_func=_dy)
         cx, cy = self.center(start)
-        self.styling.rotation.set(start, end,
-            lambda t, _s=_s, _d=_d, _a=_a, _freq=_freq, _cx=cx, _cy=cy, _easing=easing: (
-                _a * math.sin(math.tau * _freq * 0.7 * ((t - _s) / _d)) * (1 - _easing((t - _s) / _d)),
-                _cx, _cy))
+        def _rot(t, _s=_s, _d=_d, _a=_a, _freq=_freq, _cx=cx, _cy=cy, _easing=easing):
+            p = (t - _s) / _d
+            return (_a * math.sin(math.tau * _freq * 0.7 * p) * (1 - _easing(p)), _cx, _cy)
+        self.styling.rotation.set(start, end, _rot)
         return self
 
     def focus_zoom(self, start=0, end=1, zoom_factor=1.3, easing=easings.smooth):

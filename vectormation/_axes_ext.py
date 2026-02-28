@@ -99,14 +99,11 @@ class _AxesExtMixin:
         """Add a text annotation with a line pointing to (x, y) in math coordinates.
         dx, dy: offset of the text from the point (in pixels).
         Returns a VCollection with the line and text (added to canvas)."""
-        from vectormation._base import VCollection
-
         line = Line(x1=0, y1=0, x2=0, y2=0,
                     creation=creation, z=z, stroke=arrow_color, stroke_width=1)
         _dyn_line(line, creation,
                   lambda t, _x=x, _y=y, _dx=dx, _dy=dy:
-                      (self.coords_to_point(_x, _y, t)[0] + _dx,
-                       self.coords_to_point(_x, _y, t)[1] + _dy),
+                      ((_p := self.coords_to_point(_x, _y, t))[0] + _dx, _p[1] + _dy),
                   lambda t, _x=x, _y=y: self.coords_to_point(_x, _y, t))
 
         label = Text(text=str(text), x=0, y=0, font_size=font_size,
@@ -926,10 +923,8 @@ class _AxesExtMixin:
         for xv, yv in zip(x_data, y_data):
             lbl = Text(text=fmt.format(yv), x=0, y=0, font_size=font_size,
                         text_anchor='middle', creation=creation, z=z, **style_kw)
-            lbl.x.set_onward(creation,
-                lambda t, _x=xv, _y=yv: self.coords_to_point(_x, _y, t)[0])
-            lbl.y.set_onward(creation,
-                lambda t, _x=xv, _y=yv, _oy=offset_y: self.coords_to_point(_x, _y, t)[1] + _oy)
+            lbl.x.set_onward(creation, self._xf(xv, yv))
+            lbl.y.set_onward(creation, self._yf(yv, xv, offset_y))
             self._add_plot_obj(lbl)
             objs.append(lbl)
         return VCollection(*objs, creation=creation, z=z)
@@ -1097,7 +1092,7 @@ class _AxesExtMixin:
         arr = _get_arrow()(x1=0, y1=0, x2=0, y2=0, stroke='#aaa', stroke_width=1.5,
                     creation=creation, z=z)
         arr.shaft.p1.set_onward(creation, lambda t: _pt(t))
-        arr.shaft.p2.set_onward(creation, lambda t, _ox=ox, _oy=oy: (_pt(t)[0] + _ox, _pt(t)[1] + _oy))
+        arr.shaft.p2.set_onward(creation, lambda t, _ox=ox, _oy=oy: ((_p := _pt(t))[0] + _ox, _p[1] + _oy))
         # Box
         box = RoundedRectangle(width=box_width, height=box_height,
                                 x=0, y=0, corner_radius=5,

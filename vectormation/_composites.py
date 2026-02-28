@@ -12,7 +12,7 @@ from vectormation._base import VObject, VCollection, _norm_dir
 from vectormation._shapes import Polygon, Dot, Rectangle, Line, Lines, Text, Path
 from vectormation._arrows import Arrow, Brace
 from vectormation._svg_utils import from_svg
-from vectormation._axes_helpers import _TICK_FONT_SIZE
+from vectormation._axes_helpers import _TICK_FONT_SIZE, _HIGHLIGHT_STYLE
 
 class MorphObject(VCollection):
     """Morphs one object/collection into another over a time range.
@@ -677,7 +677,7 @@ class Table(VCollection):
         ry = self._table_y + self._y_off + row * self._cell_height + padding
         w = self._cell_width - 2 * padding
         h = self._cell_height - 2 * padding
-        kw = {'fill': '#FFFF00', 'fill_opacity': 0.15, 'stroke_width': 0} | kwargs
+        kw = _HIGHLIGHT_STYLE | kwargs
         return Rectangle(w, h, x=rx, y=ry, **kw)
 
     def get_row(self, row): return VCollection(*self.entries[row])

@@ -549,7 +549,7 @@ class VCollection(_BBoxMethodsMixin):
                                       start=start, end=end,
                                       easing=easing or easings.smooth)
 
-    def distribute_radial(self, cx=960, cy=540, radius=200, start_angle=0,
+    def distribute_radial(self, cx=ORIGIN[0], cy=ORIGIN[1], radius=200, start_angle=0,
                            start: float = 0, end: float | None = None,
                            easing=easings.smooth):
         """Arrange children in a circle around (cx, cy).
@@ -1209,7 +1209,7 @@ class VCollection(_BBoxMethodsMixin):
             obj.shift(dx=pt.real - cx, dy=pt.imag - cy, start=start)
         return self
 
-    def converge(self, x: float = 960, y: float = 540,
+    def converge(self, x: float = ORIGIN[0], y: float = ORIGIN[1],
                  start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate all children moving toward a common point (x, y)."""
         if not self.objects or end <= start: return self
@@ -1326,7 +1326,7 @@ class VCollection(_BBoxMethodsMixin):
             self._apply_scale_pop(obj, s, e, factor, easing)
         return self
 
-    def distribute_along_arc(self, cx=960, cy=540, radius=200,
+    def distribute_along_arc(self, cx=ORIGIN[0], cy=ORIGIN[1], radius=200,
                               start_angle=0, end_angle=None,
                               start: float = 0,
                               end: float | None = None,

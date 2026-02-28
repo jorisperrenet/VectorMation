@@ -2042,7 +2042,10 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         def _make_squish(base):
             return lambda t, _b=base: _b * _squeeze(t)
         def _make_compensate(base):
-            return lambda t, _b=base: _b / _squeeze(t) if _squeeze(t) > 1e-9 else _b
+            def _comp(t, _b=base):
+                s = _squeeze(t)
+                return _b / s if s > 1e-9 else _b
+            return _comp
         primary = (self.styling.scale_x, sx0) if axis == 'x' else (self.styling.scale_y, sy0)
         compen = (self.styling.scale_y, sy0) if axis == 'x' else (self.styling.scale_x, sx0)
         primary[0].set(start, end, _make_squish(primary[1]), stay=False)
