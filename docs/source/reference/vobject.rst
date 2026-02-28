@@ -453,3 +453,173 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
    .. py:method:: to_back(start=0)
 
       Send to back (z = -999).
+
+   .. rubric:: Combined Animations
+
+   .. py:method:: create_then_fadeout(start=0, end=2, create_ratio=0.4, hold_ratio=0.2, easing=smooth)
+
+      Create the object, hold, then fade out. Single-call convenience for
+      objects that should appear briefly.
+
+   .. py:method:: write_then_fadeout(start=0, end=2, write_ratio=0.4, hold_ratio=0.2, easing=smooth)
+
+      Write the object (handwriting reveal), hold, then fade out.
+
+   .. py:method:: fadein_then_fadeout(start=0, end=2, in_ratio=0.3, hold_ratio=0.4, easing=smooth)
+
+      Fade in, hold, then fade out. Good for temporary annotations.
+
+   .. py:method:: spin_in(start=0, end=1, degrees=360, change_existence=True, easing=smooth)
+
+      Spin into existence by growing from center while rotating.
+
+   .. py:method:: spin_out(start=0, end=1, degrees=360, change_existence=True, easing=smooth)
+
+      Spin out of existence by shrinking to center while rotating.
+
+   .. py:method:: draw_border_then_fill(start=0, end=1, change_existence=True, easing=smooth)
+
+      First draw the outline, then fill the interior.
+
+   .. py:method:: transform_from_copy(target, start=0, end=1, easing=smooth)
+
+      Create a ghost copy of this object that morphs into *target*.
+      Returns a :py:class:`MorphObject`.
+
+   .. rubric:: Advanced Effects
+
+   .. py:method:: apply_wave(start=0, end=1, amplitude=30, wave_func=None, direction='y', easing=smooth)
+
+      Apply a sinusoidal wave distortion that travels across the object.
+      Returns to original shape at both start and end.
+
+   .. py:method:: scale_in_place(factor, start=0, end=1, easing=smooth)
+
+      Scale the object without moving its center (anchored at current center).
+
+   .. py:method:: telegraph(start=0, duration=0.4, scale_factor=1.4, shake_amplitude=8, easing=there_and_back)
+
+      Quick attention-grabbing burst: scale spike + shake + opacity dip.
+
+   .. py:method:: skate(tx, ty, start=0, end=1, degrees=360, easing=smooth)
+
+      Slide to a target position while spinning.
+
+   .. py:method:: slingshot(tx, ty, start=0, end=1, pullback=0.3, overshoot=0.15, easing=smooth)
+
+      Pull back then launch toward target with overshoot.
+
+   .. py:method:: elastic_bounce(start=0, end=1, height=100, bounces=3, squash_factor=1.4)
+
+      Bounce with squash-and-stretch deformation.
+
+   .. py:method:: morph_scale(target_scale=2.0, start=0, end=1, overshoot=0.3, oscillations=2)
+
+      Scale to target with spring-like overshoot that settles.
+
+   .. py:method:: domino(start=0, end=1, direction='right', angle=90, easing=smooth)
+
+      Tip over like a falling domino.
+
+   .. py:method:: unfold(start=0, end=1, direction='right', change_existence=True, easing=smooth)
+
+      Unfold from zero width to full size along one axis.
+
+   .. py:method:: stamp_trail(start=0, end=1, count=8, fade_duration=0.5, opacity=0.4)
+
+      Leave ghostly fading copies along the path. Returns a list of ghost VObjects.
+
+   .. py:method:: homotopy(func, start=0, end=1)
+
+      Apply a continuous point-wise transformation ``func(x, y, t) -> (x', y')`` over time.
+
+   .. py:method:: freeze(start, end=None)
+
+      Freeze the object's appearance at time *start* until *end*.
+
+   .. py:method:: bind_to(other, offset_x=0, offset_y=0, start=0, end=None)
+
+      Keep this object at a fixed offset relative to another object's center.
+
+   .. py:method:: pin_to(other, edge='center', offset_x=0, offset_y=0, start=0, end=None)
+
+      Anchor this object to a specific edge/corner of *other*.
+
+   .. py:method:: flicker(start=0, end=1, frequency=8, min_opacity=0.1, easing=smooth)
+
+      Random-looking opacity flickering, like a failing light bulb.
+
+   .. py:method:: strobe(start=0, end=1, flashes=5, duty=0.5)
+
+      Rapid hard on/off blink effect like a strobe light.
+
+   .. py:method:: wobble(start=0, end=1, intensity=5, frequency=3, easing=smooth)
+
+      Organic wobbling motion combining small rotations and position shifts.
+
+   .. py:method:: focus_zoom(start=0, end=1, zoom_factor=1.3, easing=smooth)
+
+      Zoom in slightly then back to normal, like a camera focus.
+
+   .. py:method:: match_style(other, time=0)
+
+      Copy fill, stroke, opacity, and stroke_width from *other*.
+
+   .. py:method:: match_position(other, time=0)
+
+      Move so the center matches *other*'s center.
+
+   .. py:method:: animate_to(target_obj, start=0, end=1, easing=smooth)
+
+      Animate position, scale, and colors to match *target_obj*.
+
+   .. py:method:: look_at(target, start=0, end=None, easing=smooth)
+
+      Rotate so this object points toward *target*.
+
+   .. py:method:: zoom_to(canvas, start=0, end=1, padding=100, easing=smooth)
+
+      Animate the camera to zoom in and focus on this object.
+
+   .. py:method:: set_gradient_fill(colors, direction='horizontal', start=0)
+
+      Apply an SVG gradient fill to this object.
+
+   .. py:method:: set_clip(clip_obj, start=0)
+
+      Apply an SVG clip-path from another VObject's outline.
+
+   .. py:method:: set_blend_mode(mode, start=0)
+
+      Set the SVG mix-blend-mode. Supported: ``'normal'``, ``'multiply'``,
+      ``'screen'``, ``'overlay'``, ``'darken'``, ``'lighten'``.
+
+   .. py:method:: set_dash_pattern(pattern='dashes', start=0)
+
+      Set stroke-dasharray. Presets: ``'solid'``, ``'dashes'``, ``'dots'``, ``'dash_dot'``.
+
+   .. py:method:: set_lifetime(start, end)
+
+      Visible only from *start* to *end*.
+
+   .. py:method:: repeat_animation(method_name, count=2, start=0, end=1, **kwargs)
+
+      Repeat an animation method *count* times within [start, end].
+
+   .. py:method:: add_updater(func, start=0, end=None)
+
+      Add a custom updater function ``func(obj, time)`` called each frame.
+
+   .. rubric:: Measurement (continued)
+
+   .. py:method:: get_center(time=0)
+
+      Alias for :py:meth:`center`.
+
+   .. py:method:: distance_to(other, time=0)
+
+      Euclidean distance between centers.
+
+   .. py:method:: point_from_proportion(t, time=0)
+
+      Return the ``(x, y)`` point at proportion *t* (0-1) along this object's path outline.
