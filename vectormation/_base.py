@@ -639,8 +639,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                 return _o + (1 - _o) * ((p - 0.7) / 0.3)
         else:
             scale_fn = _ramp_down(s, dur, 1, easing)
-        self.styling.scale_x.set(s, end, scale_fn, stay=True)
-        self.styling.scale_y.set(s, end, scale_fn, stay=True)
+        self._set_scale_xy(s, end, scale_fn, stay=True)
         if change_existence and not pop_in:
             self._hide_from(end)
         return self
@@ -667,8 +666,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         s, _d = start, max(dur, 1e-9)
         cx, cy = self.center(start)
         ramp = _ramp if growing else _ramp_down
-        self.styling.scale_x.set(s, end, ramp(s, _d, 1, easing), stay=True)
-        self.styling.scale_y.set(s, end, ramp(s, _d, 1, easing), stay=True)
+        self._set_scale_xy(s, end, ramp(s, _d, 1, easing), stay=True)
         rot_mult = (lambda p: 1 - p) if growing else (lambda p: p)
         self.styling.rotation.set(s, end,
             lambda t, _s=s, _d=_d, _deg=degrees, _cx=cx, _cy=cy, _e=easing, _m=rot_mult:
@@ -909,6 +907,11 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._ensure_scale_origin(start)
         return self._get_scale(start)
 
+    def _set_scale_xy(self, s, e, fx, fy=None, stay=False):
+        """Set both scale_x and scale_y.  If *fy* is None, uses *fx* for both."""
+        self.styling.scale_x.set(s, e, fx, stay=stay)
+        self.styling.scale_y.set(s, e, fy if fy is not None else fx, stay=stay)
+
     def _scale_effect(self, start, end, make_fns, *, force_origin=False):
         """Apply a transient scale effect.  *make_fns(sx0, sy0, s, d)* returns *(fx, fy)*."""
         dur = end - start
@@ -918,8 +921,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self.styling._scale_origin = self.center(start)
         sx0, sy0 = self._init_scale_anim(start)
         fx, fy = make_fns(sx0, sy0, start, max(dur, 1e-9))
-        self.styling.scale_x.set(start, end, fx, stay=False)
-        self.styling.scale_y.set(start, end, fy, stay=False)
+        self._set_scale_xy(start, end, fx, fy)
         return self
 
     def scale_to(self, start: float, end: float, factor, easing=easings.smooth):
@@ -1138,8 +1140,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if dur <= 0:
             dur = 1
         f = lambda t, _s=s, _d=dur: scale_func(easing((t - _s) / _d))
-        self.styling.scale_x.set(s, e, f, stay=stay)
-        self.styling.scale_y.set(s, e, f, stay=stay)
+        self._set_scale_xy(s, e, f, stay=stay)
         return self
 
     def _scale_in_out(self, start, end, fade_in, change_existence, easing):
@@ -1192,8 +1193,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._ensure_scale_origin(start)
         s = start
         scale_fn = _lerp(s, dur, from_scale, to_scale, easing)
-        self.styling.scale_x.set(s, end, scale_fn, stay=True)
-        self.styling.scale_y.set(s, end, scale_fn, stay=True)
+        self._set_scale_xy(s, end, scale_fn, stay=True)
         base_op = self.styling.fill_opacity.at_time(start)
         ramp_fn = _ramp if fade_in else _ramp_down
         self.styling.fill_opacity.set(s, end, ramp_fn(s, dur, base_op, easing), stay=True)
@@ -1222,8 +1222,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._ensure_scale_origin(start)
         self.styling._scale_origin = (px, py)
         scale = lambda t, _s=s, _d=dur: scale_func(easing((t - _s) / _d))
-        self.styling.scale_x.set(s, end, scale, stay=True)
-        self.styling.scale_y.set(s, end, scale, stay=True)
+        self._set_scale_xy(s, end, scale, stay=True)
         return self
 
     def grow_from_point(self, px, py, start: float = 0, end: float = 1,
@@ -1299,8 +1298,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             return self
         self._ensure_scale_origin(start)
         scale = _lerp(start, dur, 1, scale_factor, easing)
-        self.styling.scale_x.set(start, end, scale)
-        self.styling.scale_y.set(start, end, scale)
+        self._set_scale_xy(start, end, scale)
         return self
 
     def flash(self, start: float = 0, end: float = 1, color='#FFFF00', easing=easings.there_and_back):
@@ -1328,8 +1326,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._ensure_scale_origin(start)
         scale = _lerp(start, dur, 1, scale_factor, easing)
         opacity_f = _lerp(start, dur, 1, 0.6, easing)
-        self.styling.scale_x.set(start, end, scale)
-        self.styling.scale_y.set(start, end, scale)
+        self._set_scale_xy(start, end, scale)
         self.styling.opacity.set(start, end, opacity_f)
         return self
 
@@ -1538,8 +1535,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if dur <= 0:
             return self
         scale = _ramp(start, dur, 1, easing) if grow else _ramp_down(start, dur, 1, easing)
-        self.styling.scale_x.set(start, end, scale, stay=True)
-        self.styling.scale_y.set(start, end, scale, stay=True)
+        self._set_scale_xy(start, end, scale, stay=True)
         if not grow and change_existence:
             self._hide_from(end)
         return self
@@ -1768,8 +1764,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         def _scale(t, _s=_s, _d=_d, _a=amplitude, _w=waves, _easing=easing):
             p = (t - _s) / _d
             return 1 + _a * math.sin(p * _w * math.tau) * (1 - _easing(p))
-        self.styling.scale_x.set(start, end, _scale)
-        self.styling.scale_y.set(start, end, _scale)
+        self._set_scale_xy(start, end, _scale)
         return self
 
     def rubber_band(self, start: float = 0, end: float = 1, x_factor=1.3, y_factor=0.7, easing=easings.there_and_back):
@@ -1779,9 +1774,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             return self
         self._ensure_scale_origin(start)
         _d = max(dur, 1e-9)
-        self.styling.scale_x.set(start, end,
-            _lerp(start, _d, 1, x_factor, easing), stay=True)
-        self.styling.scale_y.set(start, end,
+        self._set_scale_xy(start, end,
+            _lerp(start, _d, 1, x_factor, easing),
             _lerp(start, _d, 1, y_factor, easing), stay=True)
         return self
 
