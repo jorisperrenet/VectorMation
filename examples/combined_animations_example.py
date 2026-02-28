@@ -1,7 +1,8 @@
 """Showcase combined animation methods: create_then_fadeout, fadein_then_fadeout, etc."""
 from vectormation.objects import *
+args = parse_args()
 
-v = VectorMathAnim(duration=12)
+v = VectorMathAnim(verbose=args.verbose, save_dir='svgs/combined_animations')
 
 # Title
 title = Text("Combined Animations", x=960, y=100, font_size=48, fill='#fff')
@@ -34,4 +35,4 @@ for obj in [c2, r2, s2]:
     obj.fadein_then_fadeout(start=10, end=12)
 
 v.add(title, c1, t1, star, c2, r2, s2, label1, label2, label3)
-v.render()
+v.browser_display(end=args.duration or 12, fps=args.fps, port=args.port, hot_reload=args.hot_reload)

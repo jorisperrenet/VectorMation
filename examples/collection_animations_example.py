@@ -1,7 +1,8 @@
 """Showcase VCollection animation methods: fadein, fadeout, grow, spin, etc."""
 from vectormation.objects import *
+args = parse_args()
 
-v = VectorMathAnim(duration=10)
+v = VectorMathAnim(verbose=args.verbose, save_dir='svgs/collection_animations')
 
 # Create a group of circles
 circles = VGroup(*[
@@ -42,4 +43,4 @@ rects.fadeout(start=8.3, end=9.3)
 stars.spin_out(start=8.6, end=9.6)
 
 v.add(circles, rects, stars)
-v.render()
+v.browser_display(end=args.duration or 10, fps=args.fps, port=args.port, hot_reload=args.hot_reload)

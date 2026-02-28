@@ -86,17 +86,20 @@ class ChessBoard(VCollection):
     def __repr__(self):
         return f'ChessBoard({len(self._pieces)} pieces)'
 
+    @staticmethod
+    def _sq_to_idx(sq):
+        """Convert algebraic notation (e.g. 'e4') to (col, row) indices."""
+        return ord(sq[0]) - ord('a'), 8 - int(sq[1])
+
     def move_piece(self, from_sq, to_sq, start=0, end=1, easing=easings.smooth):
         """Animate moving a piece from one square to another (e.g. 'e2' -> 'e4')."""
         piece = self._pieces.get(from_sq)
         if piece is None:
             return self
-        fc, fr = ord(from_sq[0]) - ord('a'), 8 - int(from_sq[1])
-        tc, tr = ord(to_sq[0]) - ord('a'), 8 - int(to_sq[1])
-        dx = (tc - fc) * self._cell
-        dy = (tr - fr) * self._cell
-        piece.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
-        # Update piece mapping
+        fc, fr = self._sq_to_idx(from_sq)
+        tc, tr = self._sq_to_idx(to_sq)
+        piece.shift(dx=(tc - fc) * self._cell, dy=(tr - fr) * self._cell,
+                    start=start, end=end, easing=easing)
         self._pieces[to_sq] = piece
         del self._pieces[from_sq]
         return self

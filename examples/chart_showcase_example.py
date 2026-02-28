@@ -1,7 +1,8 @@
 """Showcase of chart types: RadarChart, GaugeChart, SparkLine, KPICard, WaffleChart."""
 from vectormation.objects import *
+args = parse_args()
 
-v = VectorMathAnim(duration=10)
+v = VectorMathAnim(verbose=args.verbose, save_dir='svgs/chart_showcase')
 
 title = Text("Chart Showcase", x=960, y=50, font_size=40, fill='#fff')
 title.fadein(start=0, end=0.5)
@@ -42,4 +43,4 @@ for obj in [title, rc, gc, sl, wc, kpi]:
     obj.fadeout(start=8.5, end=9.5)
 
 v.add(title, rc, gc, sl, wc, kpi)
-v.render()
+v.browser_display(end=args.duration or 10, fps=args.fps, port=args.port, hot_reload=args.hot_reload)

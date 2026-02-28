@@ -1,7 +1,8 @@
 """Showcase of science/electronics classes: Resistor, Capacitor, NeuralNetwork, Pendulum."""
 from vectormation.objects import *
+args = parse_args()
 
-v = VectorMathAnim(duration=10)
+v = VectorMathAnim(verbose=args.verbose, save_dir='svgs/science_showcase')
 
 title = Text("Science & Electronics", x=960, y=50, font_size=40, fill='#fff')
 title.fadein(start=0, end=0.5)
@@ -37,4 +38,4 @@ for obj in [title, r, c, ind, d, nn, nn_label]:
     obj.fadeout(start=8, end=9)
 
 v.add(title, r, c, ind, d, nn, nn_label)
-v.render()
+v.browser_display(end=args.duration or 10, fps=args.fps, port=args.port, hot_reload=args.hot_reload)

@@ -1,8 +1,9 @@
 """Showcase curve effects: passing_flash, get_subcurve, animated_tangent_line."""
 import math
 from vectormation.objects import *
+args = parse_args()
 
-v = VectorMathAnim(duration=10)
+v = VectorMathAnim(verbose=args.verbose, save_dir='svgs/curve_effects')
 
 title = Text("Curve Effects", x=960, y=50, font_size=40, fill='#fff')
 title.fadein(start=0, end=0.5)
@@ -40,4 +41,4 @@ for obj in [title, c, flash_c, flash_label, poly, sub, sub_label, ax, tangent, t
     obj.fadeout(start=9, end=9.8)
 
 v.add(title, c, flash_c, flash_label, poly, sub, sub_label, ax, tangent, tan_label)
-v.render()
+v.browser_display(end=args.duration or 10, fps=args.fps, port=args.port, hot_reload=args.hot_reload)

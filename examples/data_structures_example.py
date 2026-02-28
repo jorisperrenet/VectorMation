@@ -1,7 +1,8 @@
 """Showcase data structure visualizations: Array, Stack, Queue, LinkedList."""
 from vectormation.objects import *
+args = parse_args()
 
-v = VectorMathAnim(duration=12)
+v = VectorMathAnim(verbose=args.verbose, save_dir='svgs/data_structures')
 
 # Title
 title = Text("Data Structures", x=960, y=60, font_size=48, fill='#fff')
@@ -45,4 +46,4 @@ for obj in [arr, stack, queue, ll, title]:
     obj.fadeout(start=10, end=11)
 
 v.add(title, arr, stack, queue, ll)
-v.render()
+v.browser_display(end=args.duration or 12, fps=args.fps, port=args.port, hot_reload=args.hot_reload)

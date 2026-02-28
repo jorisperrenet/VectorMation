@@ -502,45 +502,34 @@ class Axes(_AxesExtMixin, VCollection):
 
     def get_origin(self, time=0):
         """Return the SVG pixel coordinates of the axes origin (0, 0)."""
-        return (self._math_to_svg_x(0, time), self._math_to_svg_y(0, time))
+        return self.coords_to_point(0, 0, time)
 
     def coords_to_point(self, x, y, time=0):
         """Convert math coordinates to SVG pixel coordinates."""
         return (self._math_to_svg_x(x, time), self._math_to_svg_y(y, time))
 
-    def coords_to_screen(self, x, y, time=0):
-        """Convert math coordinates to SVG pixel coordinates (alias for :meth:`coords_to_point`)."""
-        return self.coords_to_point(x, y, time)
+    coords_to_screen = coords_to_point
 
     def screen_to_coords(self, sx, sy, time=0):
         """Convert SVG pixel coordinates to math (axis) coordinates (inverse of coords_to_point)."""
-        # --- X axis ---
+        def _invert(sv, vmin, vmax, origin, size, scale, invert=False):
+            frac = (sv - origin) / size
+            if invert:
+                frac = 1 - frac
+            span = vmax - vmin if vmax != vmin else 1
+            if scale == 'log' and vmin > 0 and vmax > 0:
+                lmin, lmax = math.log10(vmin), math.log10(vmax)
+                span = lmax - lmin if lmax != lmin else 1
+                return 10 ** (lmin + frac * span)
+            return vmin + frac * span
         xmin, xmax = self.x_min.at_time(time), self.x_max.at_time(time)
-        span_x = xmax - xmin if xmax != xmin else 1
-        if self._x_scale == 'log' and xmin > 0 and xmax > 0:
-            log_xmin, log_xmax = math.log10(xmin), math.log10(xmax)
-            span_x = log_xmax - log_xmin if log_xmax != log_xmin else 1
-            x = 10 ** (log_xmin + (sx - self.plot_x) / self.plot_width * span_x)
-        else:
-            x = xmin + (sx - self.plot_x) / self.plot_width * span_x
-
-        # --- Y axis ---
         ymin, ymax = self.y_min.at_time(time), self.y_max.at_time(time)
-        span_y = ymax - ymin if ymax != ymin else 1
-        if self._y_scale == 'log' and ymin > 0 and ymax > 0:
-            log_ymin, log_ymax = math.log10(ymin), math.log10(ymax)
-            span_y = log_ymax - log_ymin if log_ymax != log_ymin else 1
-            y = 10 ** (log_ymin + (1 - (sy - self.plot_y) / self.plot_height) * span_y)
-        else:
-            y = ymin + (1 - (sy - self.plot_y) / self.plot_height) * span_y
-
-        return (x, y)
+        return (_invert(sx, xmin, xmax, self.plot_x, self.plot_width, self._x_scale),
+                _invert(sy, ymin, ymax, self.plot_y, self.plot_height, self._y_scale, invert=True))
 
     def get_plot_center(self, time=0):
         """Return the SVG pixel coordinates of the center of the plot rectangle."""
-        cx = self.plot_x + self.plot_width / 2
-        cy = self.plot_y + self.plot_height / 2
-        return (cx, cy)
+        return (self.plot_x + self.plot_width / 2, self.plot_y + self.plot_height / 2)
 
     def input_to_graph_point(self, x, func, time=0):
         """Convert a math x-value and function to SVG pixel coordinates: (x, f(x))."""
@@ -1203,9 +1192,7 @@ class Axes(_AxesExtMixin, VCollection):
         fn = self._resolve_func(func, 'func')
         return (fn(x_val + h) - fn(x_val - h)) / (2 * h)
 
-    def get_slope(self, func, x_val, h=0.001):
-        """Alias for :meth:`get_derivative`."""
-        return self.get_derivative(func, x_val, h=h)
+    get_slope = get_derivative
 
     def get_secant_slope(self, func, x, dx):
         """Return the secant slope ``(f(x + dx) - f(x)) / dx``."""
@@ -1270,28 +1257,15 @@ class Axes(_AxesExtMixin, VCollection):
         """Create a Rectangle from two corners in math coordinates."""
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.3, 'stroke': '#fff', 'stroke_width': 1} | styling_kwargs
         rect = Rectangle(width=0, height=0, creation=creation, z=z, **style_kw)
-        def _val(c, t):
-            return c.at_time(t) if hasattr(c, 'at_time') else c
-        def _x(t):
-            sx1 = self._math_to_svg_x(_val(x1, t), t)
-            sx2 = self._math_to_svg_x(_val(x2, t), t)
-            return min(sx1, sx2)
-        def _y(t):
-            sy1 = self._math_to_svg_y(_val(y1, t), t)
-            sy2 = self._math_to_svg_y(_val(y2, t), t)
-            return min(sy1, sy2)
-        def _w(t):
-            sx1 = self._math_to_svg_x(_val(x1, t), t)
-            sx2 = self._math_to_svg_x(_val(x2, t), t)
-            return abs(sx2 - sx1)
-        def _h(t):
-            sy1 = self._math_to_svg_y(_val(y1, t), t)
-            sy2 = self._math_to_svg_y(_val(y2, t), t)
-            return abs(sy2 - sy1)
-        rect.x.set_onward(creation, _x)
-        rect.y.set_onward(creation, _y)
-        rect.width.set_onward(creation, _w)
-        rect.height.set_onward(creation, _h)
+        _v = lambda c, t: c.at_time(t) if hasattr(c, 'at_time') else c
+        def _corners(t):
+            sx1, sx2 = self._math_to_svg_x(_v(x1, t), t), self._math_to_svg_x(_v(x2, t), t)
+            sy1, sy2 = self._math_to_svg_y(_v(y1, t), t), self._math_to_svg_y(_v(y2, t), t)
+            return min(sx1, sx2), min(sy1, sy2), abs(sx2 - sx1), abs(sy2 - sy1)
+        rect.x.set_onward(creation, lambda t: _corners(t)[0])
+        rect.y.set_onward(creation, lambda t: _corners(t)[1])
+        rect.width.set_onward(creation, lambda t: _corners(t)[2])
+        rect.height.set_onward(creation, lambda t: _corners(t)[3])
         self._add_plot_obj(rect)
         return rect
 
@@ -1744,24 +1718,12 @@ class Axes(_AxesExtMixin, VCollection):
                 pts.append((sx, sy))
             if not pts:
                 return ''
-            # Build path: curve points, then boundary edge
-            if _dir == 'below':
-                # Curve left-to-right, then bottom-right to bottom-left
-                bottom_y = self.plot_y + self.plot_height
-                parts = [f'M{pts[0][0]:.1f},{pts[0][1]:.1f}']
-                for sx, sy in pts[1:]:
-                    parts.append(f'L{sx:.1f},{sy:.1f}')
-                parts.append(f'L{pts[-1][0]:.1f},{bottom_y:.1f}')
-                parts.append(f'L{pts[0][0]:.1f},{bottom_y:.1f}')
-            else:
-                # Curve left-to-right, then top-right to top-left
-                top_y = self.plot_y
-                parts = [f'M{pts[0][0]:.1f},{pts[0][1]:.1f}']
-                for sx, sy in pts[1:]:
-                    parts.append(f'L{sx:.1f},{sy:.1f}')
-                parts.append(f'L{pts[-1][0]:.1f},{top_y:.1f}')
-                parts.append(f'L{pts[0][0]:.1f},{top_y:.1f}')
-            parts.append('Z')
+            edge_y = (self.plot_y + self.plot_height) if _dir == 'below' else self.plot_y
+            parts = [f'M{pts[0][0]:.1f},{pts[0][1]:.1f}']
+            for sx, sy in pts[1:]:
+                parts.append(f'L{sx:.1f},{sy:.1f}')
+            parts.extend([f'L{pts[-1][0]:.1f},{edge_y:.1f}',
+                          f'L{pts[0][0]:.1f},{edge_y:.1f}', 'Z'])
             return ''.join(parts)
         region.d.set_onward(creation, _region_d)
         self._add_plot_obj(region)

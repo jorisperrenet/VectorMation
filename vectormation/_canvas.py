@@ -231,6 +231,10 @@ class VectorMathAnim:
     add_gradient = add_def
     add_clip_path = add_def
 
+    def render(self, **kwargs):
+        """Convenience alias: opens the animation in the browser viewer."""
+        return self.browser_display(**kwargs)
+
     def get_snap_points(self, time=None):
         """Extract snappable points (vertices, endpoints, centers) from all visible objects."""
         if time is None:

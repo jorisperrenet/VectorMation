@@ -1,7 +1,8 @@
 """Showcase of UI components: Badge, TextBox, SpeechBubble, ProgressBar, Divider."""
 from vectormation.objects import *
+args = parse_args()
 
-v = VectorMathAnim(duration=8)
+v = VectorMathAnim(verbose=args.verbose, save_dir='svgs/ui_showcase')
 
 title = Title("UI Components", x=960, y=50)
 title.fadein(start=0, end=0.5)
@@ -45,4 +46,4 @@ for obj in [title, b1, b2, b3, tb, sb, div, cl, pb]:
     obj.fadeout(start=7, end=7.8)
 
 v.add(title, b1, b2, b3, tb, sb, div, cl, pb)
-v.render()
+v.browser_display(end=args.duration or 8, fps=args.fps, port=args.port, hot_reload=args.hot_reload)

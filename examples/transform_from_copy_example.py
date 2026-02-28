@@ -1,7 +1,8 @@
 """Demonstrate transform_from_copy: morph a ghost copy while keeping the original."""
 from vectormation.objects import *
+args = parse_args()
 
-v = VectorMathAnim(duration=6)
+v = VectorMathAnim(verbose=args.verbose, save_dir='svgs/transform_from_copy')
 
 # Source objects
 circle = Circle(r=60, cx=400, cy=540, fill='#3498DB', fill_opacity=0.8, stroke_width=3)
@@ -20,4 +21,4 @@ ghost2 = square.transform_from_copy(star, start=2, end=4)
 ghost3 = star.transform_from_copy(circle, start=3, end=5)
 
 v.add(circle, square, star, ghost1, ghost2, ghost3)
-v.render()
+v.browser_display(end=args.duration or 6, fps=args.fps, port=args.port, hot_reload=args.hot_reload)

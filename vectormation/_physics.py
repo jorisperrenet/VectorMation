@@ -142,6 +142,25 @@ class PhysicsSpace:
         self.springs.append(s)
         return s
 
+    def add(self, *bodies):
+        """Add pre-constructed Body objects to the simulation."""
+        for b in bodies:
+            if isinstance(b, Body):
+                self.bodies.append(b)
+            elif isinstance(b, Spring):
+                self.springs.append(b)
+        return self
+
+    def add_walls(self, left=None, right=None, top=None, bottom=None, restitution=0.9):
+        """Add multiple axis-aligned walls at once."""
+        for x in (left, right):
+            if x is not None:
+                self.add_wall(x=x, restitution=restitution)
+        for y in (top, bottom):
+            if y is not None:
+                self.add_wall(y=y, restitution=restitution)
+        return self
+
     def add_force(self, func):
         """Add a global force function ``func(body, t) -> (fx, fy)``."""
         self._forces.append(func)

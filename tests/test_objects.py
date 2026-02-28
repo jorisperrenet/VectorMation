@@ -16617,3 +16617,327 @@ class TestLegendRendering:
         leg = Legend([('#fff', 'X')])
         assert 'Legend' in repr(leg)
 
+
+# ── PhysicsSpace convenience methods ──────────────────────────────────
+
+class TestPhysicsSpaceConvenience:
+    def test_add_walls(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace()
+        space.add_walls(left=50, right=1900, top=50, bottom=1030)
+        assert len(space.walls) == 4
+
+    def test_add_walls_partial(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace()
+        space.add_walls(bottom=1030)
+        assert len(space.walls) == 1
+
+    def test_add_bodies(self):
+        from vectormation._physics import PhysicsSpace, Body
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=200)
+        space = PhysicsSpace()
+        b1 = Body(c1)
+        b2 = Body(c2)
+        space.add(b1, b2)
+        assert len(space.bodies) == 2
+
+    def test_add_springs(self):
+        from vectormation._physics import PhysicsSpace, Body, Spring
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=200)
+        space = PhysicsSpace()
+        b1 = Body(c1)
+        b2 = Body(c2)
+        s = Spring(b1, b2, stiffness=1.0)
+        space.add(b1, b2, s)
+        assert len(space.bodies) == 2
+        assert len(space.springs) == 1
+
+
+# ── Canvas render alias ──────────────────────────────────────────────
+
+class TestCanvasRenderAlias:
+    def test_render_method_exists(self):
+        import tempfile
+        td = tempfile.mkdtemp()
+        v = VectorMathAnim(save_dir=td)
+        assert hasattr(v, 'render')
+        assert callable(v.render)
+
+
+# ── UI component tests ───────────────────────────────────────────────
+
+class TestTextBoxRender:
+    def test_basic(self):
+        tb = TextBox('Hello', x=100, y=100, width=200, height=50)
+        svg = tb.to_svg(0)
+        assert 'Hello' in svg
+        assert 'rect' in svg.lower()
+
+    def test_repr(self):
+        tb = TextBox('Hi')
+        assert 'TextBox' in repr(tb)
+
+
+class TestSpeechBubbleRender:
+    def test_basic(self):
+        sb = SpeechBubble('Hello!', x=400, y=300)
+        svg = sb.to_svg(0)
+        assert 'Hello!' in svg
+
+    def test_repr(self):
+        sb = SpeechBubble('Test')
+        assert 'SpeechBubble' in repr(sb)
+
+
+class TestBadgeRender:
+    def test_basic(self):
+        b = Badge('NEW', x=100, y=100)
+        svg = b.to_svg(0)
+        assert 'NEW' in svg
+
+    def test_repr(self):
+        b = Badge('v1')
+        assert 'Badge' in repr(b)
+
+
+class TestDividerRender:
+    def test_horizontal(self):
+        d = Divider(x=100, y=200, length=400, direction='horizontal')
+        svg = d.to_svg(0)
+        assert 'line' in svg.lower()
+
+    def test_vertical(self):
+        d = Divider(x=100, y=200, length=400, direction='vertical')
+        svg = d.to_svg(0)
+        assert 'line' in svg.lower()
+
+    def test_with_label(self):
+        d = Divider(x=100, y=200, length=400, label='Section')
+        svg = d.to_svg(0)
+        assert 'Section' in svg
+
+    def test_repr(self):
+        d = Divider()
+        assert 'Divider' in repr(d)
+
+
+class TestStatusIndicatorRender:
+    def test_basic(self):
+        si = StatusIndicator('Server', status='online')
+        svg = si.to_svg(0)
+        assert 'Server' in svg
+
+    def test_offline(self):
+        si = StatusIndicator('DB', status='offline')
+        svg = si.to_svg(0)
+        assert 'DB' in svg
+
+    def test_repr(self):
+        si = StatusIndicator('X')
+        assert 'StatusIndicator' in repr(si)
+
+
+class TestMeterRender:
+    def test_basic(self):
+        m = Meter(value=0.7, x=100, y=100)
+        svg = m.to_svg(0)
+        assert 'rect' in svg.lower()
+
+    def test_repr(self):
+        m = Meter()
+        assert 'Meter' in repr(m)
+
+
+class TestBreadcrumbRender:
+    def test_basic(self):
+        bc = Breadcrumb(['Home', 'Products', 'Widget'], x=100, y=100)
+        svg = bc.to_svg(0)
+        assert 'Home' in svg
+        assert 'Widget' in svg
+
+    def test_repr(self):
+        bc = Breadcrumb(['A', 'B'])
+        assert 'Breadcrumb' in repr(bc)
+
+
+class TestNumberedListRender:
+    def test_basic(self):
+        nl = NumberedList('First', 'Second', 'Third', x=100, y=100)
+        svg = nl.to_svg(0)
+        assert 'First' in svg
+
+    def test_repr(self):
+        nl = NumberedList('A')
+        assert 'NumberedList' in repr(nl)
+
+
+class TestIconGridRender:
+    def test_basic(self):
+        ig = IconGrid([(5, '#f00'), (3, '#0f0')], x=100, y=100)
+        svg = ig.to_svg(0)
+        assert len(ig) > 0
+
+    def test_repr(self):
+        ig = IconGrid([(2, '#fff')])
+        assert 'IconGrid' in repr(ig)
+
+
+class TestBracketRender:
+    def test_basic(self):
+        br = Bracket(x=100, y=200, width=200, height=20)
+        svg = br.to_svg(0)
+        assert len(svg) > 10
+
+    def test_repr(self):
+        br = Bracket(x=0, y=0, width=100, height=20)
+        assert 'Bracket' in repr(br)
+
+
+class TestParagraphRender:
+    def test_basic(self):
+        p = Paragraph('This is a long paragraph that wraps.', x=100, y=100)
+        svg = p.to_svg(0)
+        assert len(svg) > 10
+
+    def test_repr(self):
+        p = Paragraph('Hello')
+        assert 'Paragraph' in repr(p)
+
+
+class TestStepperRender:
+    def test_basic(self):
+        s = Stepper(['Step 1', 'Step 2', 'Step 3'], x=100, y=100)
+        svg = s.to_svg(0)
+        assert len(s) > 0
+
+    def test_advance(self):
+        s = Stepper(['A', 'B', 'C'], x=100, y=100)
+        result = s.advance(0, 1, start=0, end=1)
+        assert result is s
+
+    def test_repr(self):
+        s = Stepper(['A'])
+        assert 'Stepper' in repr(s)
+
+
+class TestChecklistRender:
+    def test_basic(self):
+        cl = Checklist(('Task A', False), ('Task B', True), x=100, y=100)
+        svg = cl.to_svg(0)
+        assert 'Task A' in svg
+
+    def test_repr(self):
+        cl = Checklist(('X', False))
+        assert 'Checklist' in repr(cl)
+
+
+class TestTagCloudRender:
+    def test_basic(self):
+        tc = TagCloud([('python', 3), ('rust', 2), ('go', 1)], x=100, y=100)
+        svg = tc.to_svg(0)
+        assert 'python' in svg
+
+    def test_repr(self):
+        tc = TagCloud([('x', 1)])
+        assert 'TagCloud' in repr(tc)
+
+
+class TestProgressBarRender:
+    def test_basic(self):
+        pb = ProgressBar(x=100, y=100, width=300)
+        svg = pb.to_svg(0)
+        assert 'rect' in svg.lower()
+
+    def test_animate_to(self):
+        pb = ProgressBar(x=100, y=100, width=300)
+        result = pb.animate_to(0.8, start=0, end=1)
+        assert result is pb
+
+    def test_get_progress(self):
+        pb = ProgressBar(x=100, y=100, width=300)
+        val = pb.get_progress(0)
+        assert isinstance(val, float)
+
+
+class TestTooltipRender2:
+    def test_basic(self):
+        target = Dot(cx=400, cy=300)
+        tt = Tooltip('Hint text', target)
+        svg = tt.to_svg(0)
+        assert 'Hint' in svg
+
+    def test_repr(self):
+        target = Dot(cx=100, cy=100)
+        tt = Tooltip('Hi', target)
+        assert 'Tooltip' in repr(tt)
+
+
+class TestCalloutRender2:
+    def test_basic(self):
+        target = Dot(cx=400, cy=300)
+        co = Callout('Note', target)
+        svg = co.to_svg(0)
+        assert 'Note' in svg
+
+    def test_repr(self):
+        target = Dot(cx=100, cy=100)
+        co = Callout('X', target)
+        assert 'Callout' in repr(co)
+
+
+class TestDimensionLineRender2:
+    def test_basic(self):
+        dl = DimensionLine((100, 400), (500, 400))
+        svg = dl.to_svg(0)
+        assert len(svg) > 10
+
+    def test_repr(self):
+        dl = DimensionLine((0, 0), (100, 0))
+        assert 'DimensionLine' in repr(dl)
+
+
+# ── Axes compaction regression tests ─────────────────────────────────
+
+class TestAxesScreenToCoordsRefactored:
+    def test_round_trip(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        sx, sy = ax.coords_to_point(2, -1)
+        rx, ry = ax.screen_to_coords(sx, sy)
+        assert rx == pytest.approx(2, abs=0.01)
+        assert ry == pytest.approx(-1, abs=0.01)
+
+    def test_coords_to_screen_alias(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
+        p1 = ax.coords_to_point(1, 2)
+        p2 = ax.coords_to_screen(1, 2)
+        assert p1 == p2
+
+    def test_get_rect_compacted(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        rect = ax.get_rect(2, 3, 8, 7)
+        svg = rect.to_svg(0)
+        assert 'rect' in svg.lower()
+
+    def test_get_slope_alias(self):
+        import math
+        ax = Axes(x_range=(-5, 5), y_range=(-2, 2))
+        slope = ax.get_slope(math.sin, 0)
+        deriv = ax.get_derivative(math.sin, 0)
+        assert slope == pytest.approx(deriv)
+
+    def test_get_origin_uses_coords(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        o = ax.get_origin()
+        c = ax.coords_to_point(0, 0)
+        assert o == c
+
+    def test_get_plot_center_single_line(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5), x=200, y=100,
+                  plot_width=1000, plot_height=800)
+        cx, cy = ax.get_plot_center()
+        assert cx == pytest.approx(700)
+        assert cy == pytest.approx(500)
+
