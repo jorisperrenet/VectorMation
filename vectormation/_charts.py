@@ -10,7 +10,7 @@ from vectormation._constants import (
 )
 from vectormation._base import VObject, VCollection, _lerp
 from vectormation._shapes import (
-    Polygon, Circle, Dot, Rectangle, RoundedRectangle, Line,
+    Polygon, Circle, Dot, Rectangle, RoundedRectangle, Line, Lines,
     Text, Path, Arc, Wedge,
 )
 
@@ -596,7 +596,6 @@ class PolarAxes(VCollection):
     """Polar coordinate system with radial gridlines and angle markers."""
     def __init__(self, cx=960, cy=540, max_radius=400, r_range=(0, 5),
                  n_rings=5, n_sectors=12, creation=0, z=0):
-        from vectormation._shapes import Circle, Line, Text
         objects = []
         self._cx, self._cy = cx, cy
         self._max_radius = max_radius
@@ -650,7 +649,6 @@ class PolarAxes(VCollection):
     def plot_polar(self, func, theta_range=(0, 360), num_points=200,
                    creation=0, z=0, **styling_kwargs):
         """Plot r = func(theta_deg) on this polar axes."""
-        from vectormation._shapes import Lines
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
         t0, t1 = theta_range
         num_points = max(1, num_points)
@@ -667,7 +665,6 @@ class Legend(VCollection):
     """Chart legend with colored swatches and labels."""
     def __init__(self, items, x=100, y=100, swatch_size=16, spacing=8,
                  font_size=16, direction='down', creation: float = 0, z: float = 0):
-        from vectormation._shapes import Rectangle, Text
         objects = []
         horizontal = direction == 'right'
         cursor_x, cursor_y = x, y
@@ -1289,7 +1286,7 @@ class SparkLine(VObject):
         return [(self._x, self._y), (self._x + self._width, self._y + self._height)]
 
     def to_svg(self, time):
-        d = self.path(time)  # noqa: time passed through
+        d = self.path(time)
         if not d:
             return ''
         s = self.styling.svg_style(time)

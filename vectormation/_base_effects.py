@@ -208,29 +208,31 @@ class _VObjectEffectsMixin:
         self.styling.scale_y.set(start, end, _scale_y, stay=False)
         return self
 
-    def morph_scale(self, target_scale: float = 2.0, start: float = 0, end: float = 1,
-                    overshoot: float = 0.3, oscillations: int = 2,
-                    easing=easings.smooth):
-        """Scale to *target_scale* with a spring-like overshoot that settles."""
+    def _apply_scale_envelope(self, start, end, envelope, easing, stay=True):
+        """Shared helper: animate scale_x/scale_y via *envelope(progress) -> multiplier*."""
         dur = end - start
         if dur <= 0:
             return self
         sx0, sy0 = self._init_scale_anim(start)
         _s, _d = start, max(dur, 1e-9)
+        def _make(s0):
+            return lambda t, _s=_s, _d=_d, _s0=s0, _e=easing, _env=envelope: \
+                _s0 * _env(_e((t - _s) / _d))
+        self._set_scale_xy(start, end, _make(sx0), _make(sy0), stay=stay)
+        return self
+
+    def morph_scale(self, target_scale: float = 2.0, start: float = 0, end: float = 1,
+                    overshoot: float = 0.3, oscillations: int = 2,
+                    easing=easings.smooth):
+        """Scale to *target_scale* with a spring-like overshoot that settles."""
         _ts = target_scale
         _damp = 3.0 / max(overshoot, 0.01)
         _freq = math.tau * (oscillations + 0.25)
-
-        def _spring_curve(p):
+        def _spring(p, _ts=_ts, _damp=_damp, _freq=_freq):
             if p >= 1.0: return _ts
             if p <= 0.0: return 1.0
             return _ts + (1.0 - _ts) * math.exp(-_damp * p) * math.cos(_freq * p)
-
-        def _make_ms(s0):
-            return lambda t, _s=_s, _d=_d, _s0=s0, _e=easing: _s0 * _spring_curve(_e((t - _s) / _d))
-
-        self._set_scale_xy(start, end, _make_ms(sx0), _make_ms(sy0), stay=True)
-        return self
+        return self._apply_scale_envelope(start, end, _spring, easing, stay=True)
 
     def strobe(self, start: float = 0, end: float = 1, n_flashes: int = 5,
                duty: float = 0.5):
@@ -519,7 +521,8 @@ class _VObjectEffectsMixin:
 
     def tilt_towards(self, target_x, target_y, max_angle=15, start=0, end=1, easing=easings.smooth):  # noqa: ARG002
         """Rotate the object to tilt toward a target point by *max_angle* degrees.
-        Currently only the vertical component (target_y) affects tilt direction."""
+        The vertical offset (target_y) determines tilt direction; target_x is accepted
+        for API consistency (pass a point, not just a y-coordinate)."""
         _, cy = self.center(start)
         tilt = max_angle if target_y - cy >= 0 else -max_angle
         self.rotate_by(start, end, tilt, easing=easing)
@@ -581,25 +584,12 @@ class _VObjectEffectsMixin:
 
     def elastic_scale(self, start=0, end=1, factor=1.5, easing=easings.smooth):
         """Scale up elastically then bounce back to original size."""
-        dur = end - start
-        if dur <= 0:
-            return self
-        sx0, sy0 = self._init_scale_anim(start)
-        _s, _d, _f = start, max(dur, 1e-9), factor
-        _damp = 6.0
-        _freq = math.tau * 2.5
-
-        def _elastic_envelope(p):
+        _f, _damp, _freq = factor, 6.0, math.tau * 2.5
+        def _elastic(p, _f=_f, _damp=_damp, _freq=_freq):
             if p <= 0: return 1.0
-            if p >= 1: return 0.0
-            return math.cos(_freq * p) * math.exp(-_damp * p)
-
-        def _make_elastic(s0):
-            return lambda t, _s=_s, _d=_d, _f=_f, _s0=s0, _e=easing: \
-                _s0 * (1 + (_f - 1) * _elastic_envelope(_e((t - _s) / _d)))
-
-        self._set_scale_xy(start, end, _make_elastic(sx0), _make_elastic(sy0), stay=True)
-        return self
+            if p >= 1: return 1.0
+            return 1 + (_f - 1) * math.cos(_freq * p) * math.exp(-_damp * p)
+        return self._apply_scale_envelope(start, end, _elastic, easing, stay=True)
 
     def snap_to_grid(self, grid_size=50, start=0, end=1, easing=easings.smooth):
         """Animate the object's center to the nearest grid point."""
@@ -708,16 +698,10 @@ class _VObjectEffectsMixin:
 
     def focus_zoom(self, start=0, end=1, zoom_factor=1.3, easing=easings.smooth):
         """Zoom in slightly on the object then back to normal, like a camera focus effect."""
-        dur = end - start
-        if dur <= 0:
-            return self
-        sx0, sy0 = self._init_scale_anim(start)
-        _s, _d, _zf = start, max(dur, 1e-9), zoom_factor
-        def _make_zoom(s0):
-            return lambda t, _s=_s, _d=_d, _zf=_zf, _s0=s0, _e=easing: \
-                _s0 * (1 + (_zf - 1) * math.sin(math.pi * _e((t - _s) / _d)))
-        self._set_scale_xy(start, end, _make_zoom(sx0), _make_zoom(sy0))
-        return self
+        _zf = zoom_factor
+        def _zoom(p, _zf=_zf):
+            return 1 + (_zf - 1) * math.sin(math.pi * p)
+        return self._apply_scale_envelope(start, end, _zoom, easing, stay=False)
 
     def typewriter_effect(self, text, start=0, end=1, easing=easings.linear):
         """For Text objects only: gradually reveal text character by character."""
