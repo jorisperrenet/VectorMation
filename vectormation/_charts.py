@@ -20,6 +20,18 @@ def _default_colors(colors):
     return list(DEFAULT_CHART_COLORS) if colors is None else colors
 
 
+def _check_idx(index, collection, name, *, allow_negative=False):
+    """Validate index bounds; return item or raise IndexError."""
+    n = len(collection)
+    if allow_negative:
+        if index < -n or index >= n:
+            raise IndexError(f"{name} index {index} out of range for {n} items")
+    else:
+        if index < 0 or index >= n:
+            raise IndexError(f"{name} index {index} out of range (0..{n - 1})")
+    return collection[index]
+
+
 def _angular_pos(cx, cy, angle_deg, radius):
     """Return (x, y) at *angle_deg* (math convention, CCW from East) on a circle."""
     rad = math.radians(angle_deg)
@@ -63,9 +75,7 @@ class PieChart(VCollection):
         return f'PieChart({len(self.values)} sectors)'
 
     def get_sector(self, index):
-        if index < 0 or index >= len(self._sectors):
-            raise IndexError(f"sector index {index} out of range (0..{len(self._sectors) - 1})")
-        return self._sectors[index]
+        return _check_idx(index, self._sectors, 'sector')
 
     @staticmethod
     def _sector_offset(sector, distance, time=0):
@@ -196,9 +206,7 @@ class DonutChart(VCollection):
 
     def get_sector(self, index):
         """Return the Path object for the sector at index."""
-        if index < 0 or index >= len(self._sectors):
-            raise IndexError(f"sector index {index} out of range (0..{len(self._sectors) - 1})")
-        return self._sectors[index]
+        return _check_idx(index, self._sectors, 'sector')
 
     def highlight_sector(self, index, start=0, end=1, pull_distance=30, easing=easings.there_and_back):
         """Pull out a donut sector to highlight it by shifting it outward."""
@@ -372,10 +380,7 @@ class BarChart(VCollection):
 
     def highlight_bar(self, index, color='#FFFF00', start=0, end=None, opacity=None):
         """Highlight a specific bar by changing its fill color."""
-        n = len(self._bars)
-        if index < -n or index >= n:
-            raise IndexError(f"bar index {index} out of range for chart with {n} bars")
-        bar = self._bars[index]
+        bar = _check_idx(index, self._bars, 'bar', allow_negative=True)
         if end is None:
             bar.styling.fill = attributes.Color(start, color)
         else:
@@ -479,11 +484,9 @@ class BarChart(VCollection):
 
     def remove_bar(self, index, start=0, end=None):
         """Remove a bar by index."""
-        n = len(self._bars)
-        if index < -n or index >= n:
-            raise IndexError(f"bar index {index} out of range for chart with {n} bars")
+        _check_idx(index, self._bars, 'bar', allow_negative=True)
         if index < 0:
-            index += n
+            index += len(self._bars)
         bar = self._bars[index]
         lbl = self._labels[index]
         if end is not None:

@@ -487,39 +487,34 @@ class _BooleanOp(VObject):
             return f"<g transform='{parts}'>{inner}</g>"
         return inner
 
-    def _fill_attrs(self, time):
-        """Fill/opacity presentation attributes (no stroke, no transform)."""
-        result = ''
+    def _style_attrs(self, time, *, include=None, prefix=''):
+        """Build SVG presentation attribute string from styling.
+
+        *include*: ``None`` for all, ``'fill'`` for fill-only, ``'stroke'`` for stroke-only.
+        """
+        result = prefix
         for name, svgname in style._STYLE_PAIRS:
-            if name.startswith('stroke') or name == 'clip_path':
+            if include == 'fill' and (name.startswith('stroke') or name == 'clip_path'):
+                continue
+            if include == 'stroke' and not name.startswith('stroke'):
                 continue
             val = getattr(self.styling, name).at_time(time)
             rd = style._RENDERED_DEFAULTS[name]
             if rd is None or val != rd:
                 result += f" {svgname}='{val}'"
         return result
+
+    def _fill_attrs(self, time):
+        """Fill/opacity presentation attributes (no stroke, no transform)."""
+        return self._style_attrs(time, include='fill')
 
     def _stroke_attrs(self, time):
         """Stroke presentation attributes with ``fill='none'``."""
-        result = " fill='none'"
-        for name, svgname in style._STYLE_PAIRS:
-            if not name.startswith('stroke'):
-                continue
-            val = getattr(self.styling, name).at_time(time)
-            rd = style._RENDERED_DEFAULTS[name]
-            if rd is None or val != rd:
-                result += f" {svgname}='{val}'"
-        return result
+        return self._style_attrs(time, include='stroke', prefix=" fill='none'")
 
     def _all_attrs(self, time):
         """All presentation attributes (no transform)."""
-        result = ''
-        for name, svgname in style._STYLE_PAIRS:
-            val = getattr(self.styling, name).at_time(time)
-            rd = style._RENDERED_DEFAULTS[name]
-            if rd is None or val != rd:
-                result += f" {svgname}='{val}'"
-        return result
+        return self._style_attrs(time)
 
     @staticmethod
     def _clip_def(path_d, cid):

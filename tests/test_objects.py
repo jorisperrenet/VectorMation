@@ -17340,3 +17340,77 @@ class TestBarChartAliases:
         bc = BarChart([3, 7, 2], labels=['A', 'B', 'C'])
         assert bc.get_shortest_bar() is bc.get_min_bar()
 
+
+class TestEllipseEpHelper:
+    """Test that Ellipse._ep returns correct (cx, cy, rx, ry) tuple."""
+
+    def test_ep_returns_four_values(self):
+        e = Ellipse(rx=100, ry=50, cx=200, cy=300)
+        cx, cy, rx, ry = e._ep(0)
+        assert cx == pytest.approx(200)
+        assert cy == pytest.approx(300)
+        assert rx == pytest.approx(100)
+        assert ry == pytest.approx(50)
+
+    def test_ep_used_by_bbox(self):
+        e = Ellipse(rx=100, ry=50, cx=200, cy=300)
+        x, y, w, h = e.bbox(0)
+        assert x == pytest.approx(100)  # cx - rx
+        assert y == pytest.approx(250)  # cy - ry
+        assert w == pytest.approx(200)  # 2 * rx
+        assert h == pytest.approx(100)  # 2 * ry
+
+    def test_ep_used_by_contains_point(self):
+        e = Ellipse(rx=100, ry=50, cx=200, cy=300)
+        assert e.contains_point(200, 300)  # center
+        assert not e.contains_point(0, 0)  # far away
+
+
+class TestCheckIdx:
+    """Test the _check_idx helper in _charts.py."""
+
+    def test_pie_get_sector_valid(self):
+        pc = PieChart([1, 2, 3])
+        sector = pc.get_sector(0)
+        assert sector is not None
+
+    def test_pie_get_sector_out_of_range(self):
+        pc = PieChart([1, 2, 3])
+        with pytest.raises(IndexError):
+            pc.get_sector(10)
+
+    def test_pie_get_sector_negative_rejected(self):
+        pc = PieChart([1, 2, 3])
+        with pytest.raises(IndexError):
+            pc.get_sector(-1)
+
+    def test_bar_highlight_negative_index(self):
+        bc = BarChart([1, 2, 3])
+        # Negative indexing should work for highlight_bar
+        bc.highlight_bar(-1, color='#FF0000', start=0)
+
+    def test_bar_remove_negative_index(self):
+        bc = BarChart([1, 2, 3])
+        bc.remove_bar(-1, start=0)
+        assert bc.bar_count == 2
+
+
+class TestBooleanOpStyleAttrs:
+    """Test that _BooleanOp._style_attrs works correctly."""
+
+    def test_union_to_svg_renders(self):
+        from vectormation.objects import Union
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=130, cy=100)
+        u = Union(c1, c2)
+        svg = u.to_svg(0)
+        assert '<path' in svg
+
+    def test_intersection_to_svg_renders(self):
+        from vectormation.objects import Intersection
+        c1 = Circle(r=50, cx=100, cy=100)
+        c2 = Circle(r=50, cx=130, cy=100)
+        inter = Intersection(c1, c2)
+        svg = inter.to_svg(0)
+        assert '<path' in svg
+

@@ -904,28 +904,31 @@ class Ellipse(VObject):
     def _shift_coors(self):
         return [self.c]
 
-    def snap_points(self, time):
+    def _ep(self, time=0):
+        """Return (cx, cy, rx, ry) evaluated at *time*."""
         cx, cy = self.c.at_time(time)
+        return cx, cy, self.rx.at_time(time), self.ry.at_time(time)
+
+    def snap_points(self, time):
+        cx, cy, _, _ = self._ep(time)
         return [(float(cx), float(cy))]
 
     def bbox(self, time):
-        cx, cy = self.c.at_time(time)
-        rx, ry = self.rx.at_time(time), self.ry.at_time(time)
+        cx, cy, rx, ry = self._ep(time)
         return self._bbox_from_points([(cx-rx, cy), (cx+rx, cy), (cx, cy-ry), (cx, cy+ry)], time) or super().bbox(time)
 
     def path(self, time):
-        rx, ry = self.rx.at_time(time), self.ry.at_time(time)
-        cx, cy = self.c.at_time(time)
+        cx, cy, rx, ry = self._ep(time)
         return f'M{cx-rx},{cy}a{rx},{ry} 0 1,0 {rx*2},0a{rx},{ry} 0 1,0 -{rx*2},0z'
 
     def get_area(self, time=0):
         """Return the area (pi * rx * ry)."""
-        return math.pi * self.rx.at_time(time) * self.ry.at_time(time)
+        _, _, rx, ry = self._ep(time)
+        return math.pi * rx * ry
 
     def get_perimeter(self, time=0):
         """Approximate perimeter using Ramanujan's second formula (more accurate)."""
-        a = self.rx.at_time(time)
-        b = self.ry.at_time(time)
+        _, _, a, b = self._ep(time)
         h = ((a - b) / (a + b)) ** 2
         return math.pi * (a + b) * (1 + 3 * h / (10 + math.sqrt(4 - 3 * h)))
 
@@ -933,16 +936,13 @@ class Ellipse(VObject):
 
     def eccentricity(self, time=0):
         """Return the eccentricity of the ellipse."""
-        a = max(self.rx.at_time(time), self.ry.at_time(time))
-        b = min(self.rx.at_time(time), self.ry.at_time(time))
-        if a == 0:
-            return 0.0
-        return math.sqrt(1 - (b / a) ** 2)
+        _, _, rx, ry = self._ep(time)
+        a, b = max(rx, ry), min(rx, ry)
+        return 0.0 if a == 0 else math.sqrt(1 - (b / a) ** 2)
 
     def get_foci(self, time=0):
         """Return the two foci as ((x1,y1), (x2,y2))."""
-        cx, cy = self.c.at_time(time)
-        rx, ry = self.rx.at_time(time), self.ry.at_time(time)
+        cx, cy, rx, ry = self._ep(time)
         a, b = max(rx, ry), min(rx, ry)
         c = math.sqrt(a * a - b * b)
         if rx >= ry:
@@ -951,24 +951,19 @@ class Ellipse(VObject):
 
     def point_at_angle(self, degrees, time=0):
         """Return (x, y) on the ellipse at the given angle (degrees, CCW from right)."""
-        cx, cy = self.c.at_time(time)
-        rx, ry = self.rx.at_time(time), self.ry.at_time(time)
+        cx, cy, rx, ry = self._ep(time)
         rad = math.radians(degrees)
         return (cx + rx * math.cos(rad), cy - ry * math.sin(rad))
 
     def get_point_at_parameter(self, t, time=0):
         """Return (x, y) on the ellipse at parameter t in [0, 1]."""
-        cx, cy = self.c.at_time(time)
-        rx, ry = self.rx.at_time(time), self.ry.at_time(time)
+        cx, cy, rx, ry = self._ep(time)
         angle = math.tau * t
         return (cx + rx * math.cos(angle), cy + ry * math.sin(angle))
 
     def contains_point(self, px, py, time=0):
         """Return True if point (px, py) is inside the ellipse."""
-        cx = self.c.at_time(time)[0]
-        cy = self.c.at_time(time)[1]
-        rx = self.rx.at_time(time)
-        ry = self.ry.at_time(time)
+        cx, cy, rx, ry = self._ep(time)
         if rx == 0 or ry == 0:
             return False
         return ((px - cx) / rx) ** 2 + ((py - cy) / ry) ** 2 <= 1
@@ -995,9 +990,7 @@ class Ellipse(VObject):
 
     def _tangent_at(self, angle_deg, time=0):
         """Return (px, py, tx, ty): point on ellipse and unit tangent direction."""
-        cx, cy = self.c.at_time(time)
-        rx = self.rx.at_time(time)
-        ry = self.ry.at_time(time)
+        cx, cy, rx, ry = self._ep(time)
         angle = math.radians(angle_deg)
         px = cx + rx * math.cos(angle)
         py = cy - ry * math.sin(angle)  # SVG y-down
@@ -1024,8 +1017,8 @@ class Ellipse(VObject):
         return f'Ellipse(rx={self.rx.at_time(0):.0f}, ry={self.ry.at_time(0):.0f}, cx={cx:.0f}, cy={cy:.0f})'
 
     def to_svg(self, time):
-        cx, cy = self.c.at_time(time)
-        return f"<ellipse cx='{cx}' cy='{cy}' rx='{self.rx.at_time(time)}' ry='{self.ry.at_time(time)}'{self.styling.svg_style(time)} />"
+        cx, cy, rx, ry = self._ep(time)
+        return f"<ellipse cx='{cx}' cy='{cy}' rx='{rx}' ry='{ry}'{self.styling.svg_style(time)} />"
 
 class Circle(Ellipse):
     """Circle: Ellipse with rx == ry."""
