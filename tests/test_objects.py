@@ -19526,3 +19526,71 @@ class TestBarChartAddBar:
         assert b.bar_count == 4
         assert len(b.values) == 4
 
+
+class TestPeriodicTableHighlight:
+    def test_returns_self(self):
+        pt = PeriodicTable()
+        assert pt.highlight('C', start=0, end=1) is pt
+
+    def test_unknown_symbol_noop(self):
+        pt = PeriodicTable()
+        pt.highlight('Xx', start=0, end=1)  # should not error
+
+
+class TestBohrAtomOrbit:
+    def test_returns_self(self):
+        ba = BohrAtom(protons=6)
+        assert ba.orbit(start=0, end=2, speed=90) is ba
+
+    def test_electrons_rotate(self):
+        ba = BohrAtom(protons=2)
+        ba.orbit(start=0, end=1, speed=180)
+        # electrons should have always_rotate applied
+        for dot in ba._electron_dots:
+            rot = dot.styling.rotation.at_time(0.5)
+            assert rot[0] != 0
+
+
+class TestVCollectionCascadeFadein:
+    def test_returns_self(self):
+        g = VGroup(Circle(), Rectangle(100, 50))
+        assert g.cascade_fadein(start=0, end=1) is g
+
+    def test_children_visible_after(self):
+        g = VGroup(Circle(), Rectangle(100, 50))
+        g.cascade_fadein(start=0, end=1)
+        for obj in g.objects:
+            assert obj.show.at_time(1)
+
+
+class TestVCollectionOrbitAround:
+    def test_returns_self(self):
+        g = VGroup(Circle(), Dot())
+        assert g.orbit_around(960, 540, start=0, end=1) is g
+
+
+class TestVCollectionFlattenMethod:
+    def test_returns_vcollection(self):
+        inner = VGroup(Dot(), Dot())
+        outer = VGroup(Circle(), inner)
+        result = outer.flatten()
+        assert isinstance(result, VGroup)
+
+    def test_flattens_nested(self):
+        inner = VGroup(Dot(), Dot())
+        outer = VGroup(Circle(), inner)
+        result = outer.flatten()
+        assert len(result.objects) == 3
+
+
+class TestRotateToVCollection:
+    def test_returns_self(self):
+        g = VGroup(Circle(), Rectangle(100, 50))
+        assert g.rotate_to(0, 1, 45) is g
+
+
+class TestRotateByVCollection:
+    def test_returns_self(self):
+        g = VGroup(Circle(), Rectangle(100, 50))
+        assert g.rotate_by(0, 1, 90) is g
+
