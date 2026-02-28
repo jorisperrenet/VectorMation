@@ -20858,3 +20858,86 @@ class TestGetAreaExceptionHandling:
         # Should not crash, even though 1/0 is undefined
         assert isinstance(svg, str)
 
+
+class TestDegenShapeEdgeCases:
+    """Edge cases for degenerate shapes (zero size, etc.)."""
+    def test_zero_size_rectangle(self):
+        from vectormation._shapes import Rectangle
+        r = Rectangle(0, 0, x=100, y=100)
+        svg = r.to_svg(0)
+        assert isinstance(svg, str)
+        assert r.get_area() == 0
+        assert r.get_perimeter() == 0
+
+    def test_zero_radius_circle(self):
+        from vectormation._shapes import Circle
+        c = Circle(cx=100, cy=100, r=0)
+        svg = c.to_svg(0)
+        assert isinstance(svg, str)
+        assert c.get_area() == 0
+
+    def test_zero_radius_circle_perimeter(self):
+        from vectormation._shapes import Circle
+        c = Circle(cx=100, cy=100, r=0)
+        assert c.get_perimeter() == 0.0
+
+    def test_rectangle_get_area(self):
+        from vectormation._shapes import Rectangle
+        r = Rectangle(100, 50)
+        assert r.get_area() == 5000
+
+    def test_circle_get_area(self):
+        import math
+        from vectormation._shapes import Circle
+        c = Circle(r=100)
+        assert abs(c.get_area() - math.pi * 100 * 100) < 1
+
+
+class TestNumberLineEdgeCases:
+    def test_large_step(self):
+        """Step larger than range should still create the line."""
+        from vectormation._composites import NumberLine
+        nl = NumberLine(x_range=(0, 10, 100))
+        svg = nl.to_svg(0)
+        assert isinstance(svg, str)
+
+    def test_highlight_range_reversed(self):
+        """highlight_range with start > end should swap them."""
+        from vectormation._composites import NumberLine
+        nl = NumberLine(x_range=(0, 10))
+        rect = nl.highlight_range(8, 3)
+        svg = rect.to_svg(0)
+        assert isinstance(svg, str)
+
+
+class TestVCollectionEdgeCases:
+    def test_arrange_single_object(self):
+        from vectormation._base import VCollection
+        from vectormation._shapes import Circle
+        c = Circle(cx=100, cy=100, r=50)
+        vc = VCollection(c)
+        result = vc.arrange('right')
+        assert result is vc
+
+    def test_arrange_empty(self):
+        from vectormation._base import VCollection
+        vc = VCollection()
+        result = vc.arrange('right')
+        assert result is vc
+
+    def test_arrange_in_grid_sparse(self):
+        """Grid with rows*cols > object count."""
+        from vectormation._base import VCollection
+        from vectormation._shapes import Circle
+        objects = [Circle(r=20) for _ in range(3)]
+        vc = VCollection(*objects)
+        result = vc.arrange_in_grid(rows=3, cols=3)
+        assert result is vc
+
+    def test_distribute_single(self):
+        from vectormation._base import VCollection
+        from vectormation._shapes import Circle
+        vc = VCollection(Circle(r=20))
+        result = vc.distribute()
+        assert result is vc
+
