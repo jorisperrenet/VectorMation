@@ -20468,3 +20468,203 @@ class TestBinaryTreeDataStructure:
         result = bt.traverse()
         assert result is bt
 
+
+# ---------------------------------------------------------------------------
+# Shape extension tests
+# ---------------------------------------------------------------------------
+
+class TestAnnulus:
+    def test_creates_ring(self):
+        from vectormation._shapes_ext import Annulus
+        a = Annulus(inner_radius=60, outer_radius=120)
+        svg = a.to_svg(0)
+        assert '<path' in svg
+
+    def test_repr(self):
+        from vectormation._shapes_ext import Annulus
+        a = Annulus(inner_radius=50, outer_radius=100)
+        assert 'Annulus' in repr(a)
+
+    def test_get_area(self):
+        from vectormation._shapes_ext import Annulus
+        import math
+        a = Annulus(inner_radius=0, outer_radius=10)
+        assert abs(a.get_area() - math.pi * 100) < 1
+
+    def test_set_radii(self):
+        from vectormation._shapes_ext import Annulus
+        a = Annulus(inner_radius=30, outer_radius=60)
+        result = a.set_radii(inner=40, outer=80)
+        assert result is a
+
+
+class TestDashedLine:
+    def test_creates_dashed(self):
+        from vectormation._shapes_ext import DashedLine
+        dl = DashedLine(x1=0, y1=0, x2=100, y2=100)
+        svg = dl.to_svg(0)
+        assert 'stroke-dasharray' in svg
+
+    def test_repr(self):
+        from vectormation._shapes_ext import DashedLine
+        assert 'DashedLine' in repr(DashedLine())
+
+    def test_set_dash_pattern(self):
+        from vectormation._shapes_ext import DashedLine
+        dl = DashedLine()
+        result = dl.set_dash_pattern(5, 3)
+        assert result is dl
+
+
+class TestArcBetweenPoints:
+    def test_creates_arc(self):
+        from vectormation._shapes_ext import ArcBetweenPoints
+        a = ArcBetweenPoints((100, 100), (300, 100), angle=60)
+        svg = a.to_svg(0)
+        assert len(svg) > 0
+
+    def test_repr(self):
+        from vectormation._shapes_ext import ArcBetweenPoints
+        assert repr(ArcBetweenPoints((0, 0), (100, 0))) == 'ArcBetweenPoints()'
+
+
+class TestElbow:
+    def test_creates_elbow(self):
+        from vectormation._shapes_ext import Elbow
+        e = Elbow()
+        svg = e.to_svg(0)
+        assert len(svg) > 0
+
+    def test_repr(self):
+        from vectormation._shapes_ext import Elbow
+        assert repr(Elbow()) == 'Elbow()'
+
+
+class TestAnnularSector:
+    def test_creates_sector(self):
+        from vectormation._shapes_ext import AnnularSector
+        s = AnnularSector(inner_radius=60, outer_radius=120, start_angle=0, end_angle=90)
+        svg = s.to_svg(0)
+        assert '<path' in svg
+
+    def test_repr(self):
+        from vectormation._shapes_ext import AnnularSector
+        assert repr(AnnularSector()) == 'AnnularSector()'
+
+    def test_get_area(self):
+        from vectormation._shapes_ext import AnnularSector
+        s = AnnularSector(inner_radius=0, outer_radius=10, start_angle=0, end_angle=360)
+        area = s.get_area()
+        assert area > 0
+
+
+class TestArcPolygon:
+    def test_creates_polygon(self):
+        from vectormation._shapes_ext import ArcPolygon
+        ap = ArcPolygon((100, 100), (200, 100), (150, 50), arc_angles=30)
+        svg = ap.to_svg(0)
+        assert '<path' in svg
+
+    def test_straight_edges(self):
+        from vectormation._shapes_ext import ArcPolygon
+        ap = ArcPolygon((0, 0), (100, 0), (50, 100), arc_angles=0)
+        path = ap.path(0)
+        assert 'L' in path
+
+    def test_repr(self):
+        from vectormation._shapes_ext import ArcPolygon
+        ap = ArcPolygon((0, 0), (100, 0), (50, 100))
+        assert 'ArcPolygon(3' in repr(ap)
+
+    def test_requires_3_vertices(self):
+        from vectormation._shapes_ext import ArcPolygon
+        import pytest
+        with pytest.raises(ValueError):
+            ArcPolygon((0, 0), (1, 1))
+
+
+class TestParagraph:
+    def test_creates_text(self):
+        from vectormation._shapes_ext import Paragraph
+        p = Paragraph('Line 1', 'Line 2', 'Line 3')
+        svg = p.to_svg(0)
+        assert 'Line 1' in svg
+        assert 'Line 2' in svg
+
+    def test_repr(self):
+        from vectormation._shapes_ext import Paragraph
+        assert repr(Paragraph('a', 'b')) == 'Paragraph(2 lines)'
+
+    def test_center_alignment(self):
+        from vectormation._shapes_ext import Paragraph
+        p = Paragraph('Test', alignment='center')
+        svg = p.to_svg(0)
+        assert 'middle' in svg
+
+
+class TestBulletedList:
+    def test_creates_list(self):
+        from vectormation._shapes_ext import BulletedList
+        bl = BulletedList('Item 1', 'Item 2')
+        svg = bl.to_svg(0)
+        assert 'Item 1' in svg
+
+    def test_repr(self):
+        from vectormation._shapes_ext import BulletedList
+        assert repr(BulletedList('a', 'b', 'c')) == 'BulletedList(3 items)'
+
+
+class TestNumberedList:
+    def test_creates_list(self):
+        from vectormation._shapes_ext import NumberedList
+        nl = NumberedList('First', 'Second')
+        svg = nl.to_svg(0)
+        assert '1.' in svg
+        assert 'First' in svg
+
+    def test_repr(self):
+        from vectormation._shapes_ext import NumberedList
+        assert repr(NumberedList('a')) == 'NumberedList(1 items)'
+
+    def test_custom_start(self):
+        from vectormation._shapes_ext import NumberedList
+        nl = NumberedList('A', 'B', start_number=5)
+        svg = nl.to_svg(0)
+        assert '5.' in svg
+
+
+class TestInteger:
+    def test_creates_integer(self):
+        from vectormation._shapes_ext import Integer
+        i = Integer(42)
+        svg = i.to_svg(0)
+        assert '42' in svg
+
+    def test_repr(self):
+        from vectormation._shapes_ext import Integer
+        assert repr(Integer(7)) == 'Integer(7)'
+
+
+class TestComplexValueTracker:
+    def test_creates_tracker(self):
+        from vectormation._shapes_ext import ComplexValueTracker
+        ct = ComplexValueTracker(3 + 4j)
+        assert ct.get_value() == 3 + 4j
+
+    def test_set_value(self):
+        from vectormation._shapes_ext import ComplexValueTracker
+        ct = ComplexValueTracker(0)
+        ct.set_value(1 + 2j, start=0)
+        assert ct.get_value(0) == 1 + 2j
+
+    def test_repr(self):
+        from vectormation._shapes_ext import ComplexValueTracker
+        ct = ComplexValueTracker(1 + 0j)
+        assert 'ComplexValueTracker' in repr(ct)
+
+    def test_traverse(self):
+        from vectormation._data_structures import BinaryTree
+        bt = BinaryTree((1, 2, 3))
+        result = bt.traverse()
+        assert result is bt
+
