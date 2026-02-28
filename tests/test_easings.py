@@ -54,3 +54,42 @@ class TestZeroEasings:
     def test_outside_returns_zero(self, easing):
         assert easing(-1) == pytest.approx(0, abs=0.01)
         assert easing(2) == pytest.approx(0, abs=0.01)
+
+
+class TestSquishRateFunc:
+    def test_returns_callable(self):
+        result = easings.squish_rate_func(easings.linear, 0.2, 0.8)
+        assert callable(result)
+
+    def test_equal_a_b_returns_callable(self):
+        """squish_rate_func with a==b should return a callable, not a number."""
+        result = easings.squish_rate_func(easings.linear, 0.5, 0.5)
+        assert callable(result)
+        assert result(0.5) == pytest.approx(0, abs=0.01)
+
+    def test_before_a(self):
+        f = easings.squish_rate_func(easings.linear, 0.2, 0.8)
+        assert f(0.1) == pytest.approx(0, abs=0.01)
+
+    def test_after_b(self):
+        f = easings.squish_rate_func(easings.linear, 0.2, 0.8)
+        assert f(0.9) == pytest.approx(1, abs=0.01)
+
+    def test_midpoint(self):
+        f = easings.squish_rate_func(easings.linear, 0.0, 1.0)
+        assert f(0.5) == pytest.approx(0.5, abs=0.01)
+
+
+class TestStepEasing:
+    def test_step_3(self):
+        f = easings.step(3)
+        assert f(0.0) == pytest.approx(0, abs=0.01)
+        assert f(0.5) == pytest.approx(0.5, abs=0.01)
+        assert f(1.0) == pytest.approx(1, abs=0.01)
+
+
+class TestComposeEasing:
+    def test_compose_two(self):
+        f = easings.compose(easings.linear, easings.linear)
+        assert f(0.0) == pytest.approx(0, abs=0.01)
+        assert f(1.0) == pytest.approx(1, abs=0.01)
