@@ -1042,7 +1042,6 @@ class Axes(_AxesExtMixin, VCollection):
 
     def get_graph_length(self, func, x_start=None, x_end=None, samples=200):
         """Return approximate arc length of *func*'s graph in SVG pixel coordinates."""
-        import math as _math
         fn = self._resolve_func(func, 'func')
         x0 = x_start if x_start is not None else self.x_min.at_time(0)
         x1 = x_end if x_end is not None else self.x_max.at_time(0)
@@ -1055,12 +1054,12 @@ class Axes(_AxesExtMixin, VCollection):
             except Exception:
                 prev = None
                 continue
-            if not _math.isfinite(y):
+            if not math.isfinite(y):
                 prev = None
                 continue
             sx, sy = self.coords_to_point(x, y)
             if prev is not None:
-                total += _math.hypot(sx - prev[0], sy - prev[1])
+                total += math.hypot(sx - prev[0], sy - prev[1])
             prev = (sx, sy)
         return total
 
