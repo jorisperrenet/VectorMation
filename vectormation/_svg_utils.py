@@ -10,6 +10,7 @@ from vectormation._constants import (
     TEXT_Y_OFFSET, _normalize, _get_arrow,
 )
 from vectormation._base import VObject, VCollection, _norm_dir
+from vectormation._base_helpers import _set_attr
 from vectormation._shapes import (
     Polygon, Circle, Rectangle, Line, Lines, Text, Path, Arc, Ellipse,
 )
@@ -196,10 +197,7 @@ class Angle(VCollection):
 
     def set_radius(self, new_radius, start=0, end=None, easing=easings.smooth):
         """Animate the angle arc radius to new_radius."""
-        if end is None:
-            self.arc.r.set_onward(start, new_radius)
-        else:
-            self.arc.r.move_to(start, end, new_radius, easing=easing)
+        _set_attr(self.arc.r, start, end, new_radius, easing)
         return self
 
     def shift(self, dx=0, dy=0, start: float = 0, end: float | None = None, easing=easings.smooth):
@@ -433,12 +431,8 @@ class ZoomedInset(VObject):
 
     def move_source(self, x, y, start, end=None, easing=easings.smooth):
         """Animate the source region position."""
-        if end is None:
-            self.src_x.set_onward(start, x)
-            self.src_y.set_onward(start, y)
-        else:
-            self.src_x.move_to(start, end, x, easing=easing)
-            self.src_y.move_to(start, end, y, easing=easing)
+        _set_attr(self.src_x, start, end, x, easing)
+        _set_attr(self.src_y, start, end, y, easing)
         return self
 
 # ---------------------------------------------------------------------------
@@ -748,7 +742,6 @@ class Cutout(VObject):
     def set_hole(self, x=None, y=None, w=None, h=None,
                  start=0, end=None, easing=easings.smooth):
         """Animate hole position/size."""
-        from vectormation._base_helpers import _set_attr
         if x is not None: _set_attr(self.hole_x, start, end, x, easing)
         if y is not None: _set_attr(self.hole_y, start, end, y, easing)
         if w is not None: _set_attr(self.hole_w, start, end, w, easing)
@@ -884,10 +877,7 @@ class Spotlight(VObject):
 
     def set_radius(self, value, start=0, end=None, easing=easings.smooth):
         """Animate the spotlight radius."""
-        if end is None:
-            self._r.set_onward(start, value)
-        else:
-            self._r.move_to(start, end, value, easing=easing)
+        _set_attr(self._r, start, end, value, easing)
         return self
 
     def set_overlay_color(self, color, start=0, end=None, easing=easings.smooth):
@@ -900,10 +890,7 @@ class Spotlight(VObject):
 
     def set_overlay_opacity(self, value, start=0, end=None, easing=easings.smooth):
         """Animate the overlay opacity."""
-        if end is None:
-            self._opacity.set_onward(start, value)
-        else:
-            self._opacity.move_to(start, end, value, easing=easing)
+        _set_attr(self._opacity, start, end, value, easing)
         return self
 
     def path(self, time):

@@ -983,8 +983,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if not isinstance(style_attr, attributes.Color):
             return self
         base_rgb = style_attr.time_func(start)
-        wave_rgb = (int(wave_color[1:3], 16), int(wave_color[3:5], 16),
-                    int(wave_color[5:7], 16))
+        from vectormation.colors import _hex_to_rgb
+        wave_rgb = _hex_to_rgb(wave_color)
         _s, _d, _w, _cyc = start, max(dur, 1e-9), max(width, 0.01), cycles
         _br, _wr = base_rgb, wave_rgb
 

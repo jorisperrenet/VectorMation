@@ -18695,3 +18695,88 @@ class TestTickEpsilonConsistency:
         # Should contain tick marks
         assert 'line' in svg.lower() or '<line' in svg
 
+
+class TestColorGradientUsesInterpolate:
+    """color_gradient now delegates to interpolate_color."""
+
+    def test_two_color_gradient(self):
+        from vectormation.colors import color_gradient, interpolate_color
+        result = color_gradient('#000000', '#ffffff', 3)
+        assert len(result) == 3
+        assert result[0] == interpolate_color('#000000', '#ffffff', 0)
+        assert result[2] == interpolate_color('#000000', '#ffffff', 1)
+
+    def test_multi_stop_gradient(self):
+        from vectormation.colors import color_gradient
+        result = color_gradient(['#ff0000', '#00ff00', '#0000ff'], n=5)
+        assert len(result) == 5
+        assert result[0] == '#ff0000'
+        assert result[-1] == '#0000ff'
+
+    def test_single_color(self):
+        from vectormation.colors import color_gradient
+        result = color_gradient('#abcdef', '#000000', 1)
+        assert len(result) == 1
+        assert result[0] == '#abcdef'
+
+
+class TestSetAttrInSvgUtils:
+    """_svg_utils methods use _set_attr instead of manual if/else."""
+
+    def test_angle_set_radius(self):
+        from vectormation.objects import Angle
+        a = Angle((400, 400), (500, 400), (400, 300))
+        a.set_radius(50, start=0, end=1)
+        svg = a.to_svg(0.5)
+        assert svg is not None
+
+    def test_spotlight_set_radius(self):
+        from vectormation.objects import Spotlight
+        s = Spotlight((960, 540), radius=100)
+        s.set_radius(200, start=0, end=1)
+        svg = s.to_svg(0.5)
+        assert 'path' in svg.lower()
+
+    def test_spotlight_set_overlay_opacity(self):
+        from vectormation.objects import Spotlight
+        s = Spotlight((960, 540), radius=100)
+        s.set_overlay_opacity(0.5, start=0)
+        svg = s.to_svg(0)
+        assert svg is not None
+
+
+class TestHighlightRangeUsesFlash:
+    """Table.highlight_range delegates to _flash."""
+
+    def test_highlight_range(self):
+        from vectormation.objects import Table
+        t = Table([['a', 'b'], ['c', 'd']])
+        t.highlight_range(0, 0, 1, 1, start=0, end=1)
+        svg = t.to_svg(0.5)
+        assert svg is not None
+
+
+class TestColorWaveHexParsing:
+    """color_wave uses _hex_to_rgb instead of manual slicing."""
+
+    def test_color_wave_renders(self):
+        from vectormation.objects import Circle
+        c = Circle(r=50, cx=500, cy=500, fill='#ff0000')
+        c.color_wave(start=0, end=2, wave_color='#00ff00')
+        svg = c.to_svg(1)
+        assert '<circle' in svg
+
+
+class TestDiagonalLengthAlias:
+    """Rectangle.diagonal_length is a direct alias."""
+
+    def test_alias_equality(self):
+        from vectormation.objects import Rectangle
+        assert Rectangle.diagonal_length is Rectangle.get_diagonal_length
+
+    def test_computed_value(self):
+        from vectormation.objects import Rectangle
+        r = Rectangle(300, 400, x=0, y=0)
+        import math
+        assert abs(r.diagonal_length() - math.hypot(300, 400)) < 0.1
+

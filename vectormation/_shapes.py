@@ -1479,9 +1479,7 @@ class Rectangle(VObject):
         h = self.height.at_time(time)
         return math.hypot(w, h)
 
-    def diagonal_length(self, time=0):
-        """Return the length of the diagonal (alias for get_diagonal_length)."""
-        return self.get_diagonal_length(time)
+    diagonal_length = get_diagonal_length
 
     def get_size(self, time=0):
         return (self.width.at_time(time), self.height.at_time(time))

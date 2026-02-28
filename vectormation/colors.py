@@ -181,27 +181,18 @@ def color_gradient(color1, color2=None, n=5):
       color stops, producing *k* evenly-spaced samples.
     """
     if isinstance(color1, (list, tuple)):
-        stops = [_hex_to_rgb(c) for c in color1]
+        colors = list(color1)
         if n <= 1:
-            return [_rgb_to_hex(*stops[0])]
+            return [colors[0]]
         result = []
         for i in range(n):
-            t = i / (n - 1) * (len(stops) - 1)
-            idx = min(int(t), len(stops) - 2)
-            frac = t - idx
-            r = stops[idx][0] + (stops[idx + 1][0] - stops[idx][0]) * frac
-            g = stops[idx][1] + (stops[idx + 1][1] - stops[idx][1]) * frac
-            b = stops[idx][2] + (stops[idx + 1][2] - stops[idx][2]) * frac
-            result.append(_rgb_to_hex(r, g, b))
+            t = i / (n - 1) * (len(colors) - 1)
+            idx = min(int(t), len(colors) - 2)
+            result.append(interpolate_color(colors[idx], colors[idx + 1], t - idx))
         return result
-    r1, g1, b1 = _hex_to_rgb(color1)
-    r2, g2, b2 = _hex_to_rgb(color2)
     if n <= 1:
-        return [_rgb_to_hex(r1, g1, b1)]
-    return [_rgb_to_hex(r1 + (r2 - r1) * i / (n - 1),
-                        g1 + (g2 - g1) * i / (n - 1),
-                        b1 + (b2 - b1) * i / (n - 1))
-            for i in range(n)]
+        return [color1]
+    return [interpolate_color(color1, color2, i / (n - 1)) for i in range(n)]
 
 
 def interpolate_color(color1, color2, t):

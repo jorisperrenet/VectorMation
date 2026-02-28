@@ -710,11 +710,11 @@ class Table(VCollection):
     def highlight_range(self, start_row, start_col, end_row, end_col,
                         start=0, end=1, color='#FFD700', easing=easings.there_and_back):
         """Highlight a rectangular range of cells."""
-        for r in range(start_row, end_row + 1):
-            for c in range(start_col, end_col + 1):
-                if r < self.rows and c < self.cols:
-                    self.entries[r][c].flash(start, end, color=color, easing=easing)
-        return self
+        entries = [self.entries[r][c]
+                   for r in range(start_row, end_row + 1)
+                   for c in range(start_col, end_col + 1)
+                   if r < self.rows and c < self.cols]
+        return self._flash(entries, start, end, color, easing)
 
     def set_cell_values(self, updates, start=0):
         """Batch update multiple cell values."""
