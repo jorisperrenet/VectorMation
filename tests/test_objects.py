@@ -19701,3 +19701,100 @@ class TestArcAnimateSweep:
         a.animate_sweep(180, start=0, end=1)
         assert abs(a.end_angle.at_time(1) - 180) < 1
 
+
+class TestChessBoardDiagram:
+    def test_default_creates_pieces(self):
+        b = ChessBoard()
+        assert len(b._pieces) == 32
+
+    def test_move_piece(self):
+        b = ChessBoard()
+        assert b.move_piece('e2', 'e4', start=0, end=1) is b
+        piece = b._pieces.get('e4')
+        assert piece is not None
+
+    def test_move_nonexistent_returns_self(self):
+        b = ChessBoard()
+        assert b.move_piece('z9', 'a1') is b
+
+    def test_repr(self):
+        b = ChessBoard()
+        assert '32' in repr(b)
+
+
+class TestAutomatonDiagram:
+    def test_creates_states(self):
+        a = Automaton(['q0', 'q1'], [('q0', 'q1', 'a')], initial_state='q0')
+        assert 'q0' in a._state_positions
+        assert 'q1' in a._state_positions
+
+    def test_highlight_state(self):
+        a = Automaton(['q0', 'q1'], [('q0', 'q1', 'a')], initial_state='q0')
+        assert a.highlight_state('q0', start=0, end=1) is a
+
+    def test_highlight_transition(self):
+        a = Automaton(['q0', 'q1'], [('q0', 'q1', 'a')], initial_state='q0')
+        assert a.highlight_transition('q0', 'q1', start=0, end=1) is a
+
+    def test_simulate_input(self):
+        a = Automaton(['q0', 'q1'], [('q0', 'q1', 'a')],
+                      accept_states={'q1'}, initial_state='q0')
+        assert a.simulate_input('a', start=0) is a
+
+    def test_empty_automaton(self):
+        a = Automaton([], [])
+        assert repr(a) == 'Automaton(0 states)'
+
+
+class TestNetworkGraphDiagram:
+    def test_circular_layout(self):
+        g = NetworkGraph(['A', 'B', 'C'], [(0, 1), (1, 2)])
+        assert len(g._node_positions) == 3
+
+    def test_grid_layout(self):
+        g = NetworkGraph(['A', 'B', 'C', 'D'], layout='grid')
+        assert len(g._node_positions) == 4
+
+    def test_spring_layout(self):
+        g = NetworkGraph(['A', 'B', 'C'], [(0, 1), (1, 2)], layout='spring')
+        assert len(g._node_positions) == 3
+
+    def test_directed(self):
+        g = NetworkGraph(['A', 'B'], [(0, 1)], directed=True)
+        assert len(g._node_positions) == 2
+
+    def test_highlight_node(self):
+        g = NetworkGraph(['A', 'B'], [(0, 1)])
+        assert g.highlight_node(0, start=0, end=1) is g
+
+    def test_get_node_position(self):
+        g = NetworkGraph(['A', 'B'], [(0, 1)])
+        pos = g.get_node_position(0)
+        assert len(pos) == 2
+
+
+class TestFlowChartDiagram:
+    def test_creates_boxes(self):
+        f = FlowChart(['Start', 'Process', 'End'])
+        assert len(f._boxes) == 3
+
+    def test_vertical(self):
+        f = FlowChart(['A', 'B'], direction='down')
+        assert len(f._boxes) == 2
+
+    def test_repr(self):
+        f = FlowChart(['X', 'Y', 'Z'])
+        assert '3' in repr(f)
+
+
+class TestStampDiagram:
+    def test_creates_copies(self):
+        template = Circle(r=10, cx=0, cy=0)
+        s = Stamp(template, [(100, 100), (200, 200), (300, 300)])
+        assert len(s.objects) == 3
+
+    def test_repr(self):
+        template = Dot()
+        s = Stamp(template, [(0, 0)])
+        assert '1' in repr(s)
+
