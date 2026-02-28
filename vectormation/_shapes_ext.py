@@ -1169,8 +1169,7 @@ class Trace(VObject):
         return ' '.join(parts)
 
     def vertices(self, time):
-        end = min(self.end, time) if self.end is not None else time
-        steps = int((end - self.start) / self.dt)
+        steps = self._steps(time)
         verts = self._vert_cache[:steps]
         t = self.start + len(verts) * self.dt
         prev_len = len(verts)
@@ -1182,10 +1181,13 @@ class Trace(VObject):
             self._str_parts.extend(f'{x},{y}' for x, y in verts[prev_len:])
         return verts
 
+    def _steps(self, time):
+        end = min(self.end, time) if self.end is not None else time
+        return int((end - self.start) / self.dt)
+
     def to_svg(self, time):
         self.vertices(time)
-        end = min(self.end, time) if self.end is not None else time
-        steps = int((end - self.start) / self.dt)
+        steps = self._steps(time)
         if steps == 0:
             return ''
         pts = ' '.join(self._str_parts[:steps])

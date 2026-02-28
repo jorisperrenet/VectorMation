@@ -560,8 +560,8 @@ class Divider(VCollection):
         if label:
             char_w = font_size * CHAR_WIDTH_FACTOR
             label_w = len(label) * char_w + gap * 2
+            half = (length - label_w) / 2
             if direction == 'horizontal':
-                half = (length - label_w) / 2
                 l1 = _Line(x1=x, y1=y, x2=x + half, y2=y,
                            creation=creation, z=z, **style_kw)
                 l2 = _Line(x1=x + half + label_w, y1=y, x2=x + length, y2=y,
@@ -571,7 +571,6 @@ class Divider(VCollection):
                             stroke_width=0, text_anchor='middle',
                             creation=creation, z=z + 0.1)
             else:
-                half = (length - label_w) / 2
                 l1 = _Line(x1=x, y1=y, x2=x, y2=y + half,
                            creation=creation, z=z, **style_kw)
                 l2 = _Line(x1=x, y1=y + half + label_w, x2=x, y2=y + length,
