@@ -5,9 +5,9 @@ from copy import deepcopy
 from typing import Any
 from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
-    CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
+    CANVAS_WIDTH, CANVAS_HEIGHT,
     SMALL_BUFF, MED_SMALL_BUFF,
-    UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR,
+    UP, DOWN, LEFT, RIGHT,
 )
 
 import vectormation.easings as easings

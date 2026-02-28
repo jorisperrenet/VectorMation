@@ -6,12 +6,12 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
 from vectormation._base_helpers import (
-    _lerp, _ramp, _ramp_down, _lerp_point, _clip_reveal,
-    _norm_dir, _norm_edge, _coords_of, _set_attr, _parse_path,
+    _lerp, _ramp, _clip_reveal,
+    _coords_of, _parse_path,
     _make_brect, _wrap_to_svg, _EDGE_POINTS,
 )
 from vectormation._constants import (
-    UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR,
+    UP, RIGHT,
     SMALL_BUFF, MED_SMALL_BUFF,
 )
 
