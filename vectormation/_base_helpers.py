@@ -68,6 +68,15 @@ def _set_attr(attr, start, end, value, easing):
         attr.move_to(start, end, value, easing=easing)
 
 
+def _wrap_to_svg(obj, wrapper_fn, start=0):
+    """Replace *obj.to_svg* with a version that wraps output via *wrapper_fn(inner, time)* from *start* onward."""
+    _orig = obj.to_svg
+    def _wrapped(time, _orig=_orig, _fn=wrapper_fn, _s=start):
+        inner = _orig(time)
+        return _fn(inner, time) if time >= _s else inner
+    obj.to_svg = _wrapped  # type: ignore[assignment]
+
+
 def _parse_path(d):
     """Lazy-import svgpathtools and parse an SVG path string, returning (parsed, total_length)."""
     import svgpathtools

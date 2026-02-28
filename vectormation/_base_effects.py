@@ -8,7 +8,7 @@ import vectormation.style as style
 from vectormation._base_helpers import (
     _lerp, _ramp, _ramp_down, _lerp_point, _clip_reveal,
     _norm_dir, _norm_edge, _coords_of, _set_attr, _parse_path,
-    _make_brect, _EDGE_POINTS,
+    _make_brect, _wrap_to_svg, _EDGE_POINTS,
 )
 from vectormation._constants import (
     UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR,
@@ -378,10 +378,8 @@ class _VObjectEffectsMixin:
             progress = (t - _s) / _d
             envelope = _easing(progress) * (1 - _easing(progress)) * 4
             return _a * math.sin(math.tau * _freq * progress) * envelope
-        if direction == 'y':
-            return self._apply_shift_effect(start, end, dy_func=_wave)
-        else:
-            return self._apply_shift_effect(start, end, dx_func=_wave)
+        kw = {'dy_func': _wave} if direction == 'y' else {'dx_func': _wave}
+        return self._apply_shift_effect(start, end, **kw)
 
     def countdown(self, start: float = 0, end: float = 1, from_val=3):
         """For Text objects: display a countdown from *from_val* to 1."""
@@ -404,16 +402,12 @@ class _VObjectEffectsMixin:
         _s, _d, _f = start, max(dur, 1e-9), factor
         compensate = 1.0 / _f if _f > 1e-9 else 1.0
 
-        def _make_squeeze(s0, f):
+        def _sq(s0, f):
             return lambda t, _s=_s, _d=_d, _s0=s0, _f=f, _e=easing: \
                 _s0 * (1 + (_f - 1) * _e((t - _s) / _d))
-
-        if axis == 'x':
-            self.styling.scale_x.set(start, end, _make_squeeze(sx0, _f), stay=True)
-            self.styling.scale_y.set(start, end, _make_squeeze(sy0, compensate), stay=True)
-        else:
-            self.styling.scale_y.set(start, end, _make_squeeze(sy0, _f), stay=True)
-            self.styling.scale_x.set(start, end, _make_squeeze(sx0, compensate), stay=True)
+        fx, fy = (_f, compensate) if axis == 'x' else (compensate, _f)
+        self.styling.scale_x.set(start, end, _sq(sx0, fx), stay=True)
+        self.styling.scale_y.set(start, end, _sq(sy0, fy), stay=True)
         return self
 
     def bind_to(self, other, offset_x=0, offset_y=0, start=0, end=None):
@@ -783,34 +777,16 @@ class _VObjectEffectsMixin:
                 f"<linearGradient id='{gid}' x1='{x1}' y1='{y1}' x2='{x2}' y2='{y2}'>"
                 f"{stops}</linearGradient>"
             )
-        _orig_to_svg = self.to_svg
-
-        def _gradient_to_svg(time, _orig=_orig_to_svg, _gid=gid, _def=grad_def, _start=start):
-            inner = _orig(time)
-            if time >= _start:
-                return f"<g><defs>{_def}</defs><g fill='url(#{_gid})'>{inner}</g></g>"
-            return inner
-
-        self.to_svg = _gradient_to_svg  # type: ignore[assignment]
+        _wrap_to_svg(self, lambda inner, t, _g=gid, _d=grad_def:
+                     f"<g><defs>{_d}</defs><g fill='url(#{_g})'>{inner}</g></g>", start)
         return self
 
     def set_clip(self, clip_obj, start=0):
         """Apply an SVG clip-path from another VObject's outline."""
         cid = f'clip{id(self)}'
-        _orig_to_svg = self.to_svg
-
-        def _clipped_to_svg(time, _orig=_orig_to_svg, _cid=cid,
-                            _clip=clip_obj, _start=start):
-            inner = _orig(time)
-            if time >= _start:
-                clip_svg = _clip.to_svg(time)
-                return (f"<g clip-path='url(#{_cid})'>"
-                        f"<defs><clipPath id='{_cid}'>"
-                        f"{clip_svg}</clipPath></defs>"
-                        f"{inner}</g>")
-            return inner
-
-        self.to_svg = _clipped_to_svg  # type: ignore[assignment]
+        _wrap_to_svg(self, lambda inner, t, _c=cid, _cl=clip_obj:
+                     f"<g clip-path='url(#{_c})'><defs><clipPath id='{_c}'>"
+                     f"{_cl.to_svg(t)}</clipPath></defs>{inner}</g>", start)
         return self
 
     def set_lifetime(self, start, end):
@@ -905,11 +881,8 @@ class _VObjectEffectsMixin:
             p = (t - _s) / _d
             envelope = _e(p) * (1 - _e(p)) * 4  # parabolic envelope: 0→1→0
             return _a * _wf(math.tau * 2 * p) * envelope
-
-        if direction == 'y':
-            self._apply_shift_effect(start, end, dy_func=_wave_dy)
-        else:
-            self._apply_shift_effect(start, end, dx_func=_wave_dy)
+        kw = {'dy_func': _wave_dy} if direction == 'y' else {'dx_func': _wave_dy}
+        self._apply_shift_effect(start, end, **kw)
         return self
 
     def scale_in_place(self, factor, start: float = 0, end: float = 1, easing=easings.smooth):

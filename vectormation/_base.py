@@ -29,7 +29,7 @@ from vectormation._base_helpers import (
     _lerp, _ramp, _ramp_down, _lerp_point, _clip_reveal, _clip_hide,
     _norm_dir, _norm_edge, _coords_of, _set_attr, _parse_path, _path_prefix,
     _DIR_NAMES, _EDGE_NAMES, _EDGE_POINTS,
-    _make_brect, _BBoxMethodsMixin,
+    _make_brect, _wrap_to_svg, _BBoxMethodsMixin,
 )
 from vectormation._base_effects import _VObjectEffectsMixin
 
@@ -1464,24 +1464,11 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
     def drop_shadow(self, color='#000000', dx=4, dy=4, blur=6, start=0):
         """Apply an SVG feDropShadow filter, visible from *start* onward."""
         fid = f'ds{id(self)}'
-        filter_def = (
-            f"<filter id='{fid}' x='-50%' y='-50%' width='200%' height='200%'>"
-            f"<feDropShadow dx='{dx}' dy='{dy}' stdDeviation='{blur}' "
-            f"flood-color='{color}' flood-opacity='0.5'/>"
-            f"</filter>"
-        )
-        # Wrap the original to_svg to inject the filter
-        _orig_to_svg = self.to_svg
-
-        def _filtered_to_svg(time, _orig=_orig_to_svg, _fid=fid,
-                             _def=filter_def, _start=start):
-            inner = _orig(time)
-            if time >= _start:
-                return (f"<g filter='url(#{_fid})'>"
-                        f"<defs>{_def}</defs>{inner}</g>")
-            return inner
-
-        self.to_svg = _filtered_to_svg  # type: ignore[assignment]
+        fdef = (f"<filter id='{fid}' x='-50%' y='-50%' width='200%' height='200%'>"
+                f"<feDropShadow dx='{dx}' dy='{dy}' stdDeviation='{blur}' "
+                f"flood-color='{color}' flood-opacity='0.5'/></filter>")
+        _wrap_to_svg(self, lambda inner, t, _f=fid, _d=fdef:
+                     f"<g filter='url(#{_f})'><defs>{_d}</defs>{inner}</g>", start)
         return self
 
     def pulse_outline(self, start: float = 0, end: float = 1, color='#FFFF00',
@@ -2595,15 +2582,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
     def set_backstroke(self, color='#000000', width=8, start=0):
         """Add a background stroke (rendered behind fill) for readability."""
         self.set_stroke(color=color, width=width, start=start)
-        _orig_to_svg = self.to_svg
-
-        def _backstroke_to_svg(time, _orig=_orig_to_svg, _start=start):
-            inner = _orig(time)
-            if time >= _start:
-                return f"<g style='paint-order: stroke fill'>{inner}</g>"
-            return inner
-
-        self.to_svg = _backstroke_to_svg  # type: ignore[assignment]
+        _wrap_to_svg(self, lambda inner, t: f"<g style='paint-order: stroke fill'>{inner}</g>", start)
         return self
 
     def set_opacity(self, value, start: float = 0, end: float | None = None, easing=easings.smooth):

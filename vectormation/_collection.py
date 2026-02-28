@@ -1001,14 +1001,10 @@ class VCollection(_BBoxMethodsMixin):
             obj.move_to(tx, ty, start=start, end=end, easing=easing)
         return self
 
-    def gather_to(self, cx: float | None = None, cy: float | None = None,
-                   start: float = 0, end: float = 1, easing=easings.smooth):
+    def gather_to(self, cx=None, cy=None, start=0, end=1, easing=easings.smooth):
         """Converge children to a center point (reverse of scatter_from)."""
-        if not self.objects: return self
         cx, cy = self._resolve_center(start, cx, cy)
-        for obj in self.objects:
-            obj.move_to(cx, cy, start=start, end=end, easing=easing)
-        return self
+        return self.converge(cx, cy, start=start, end=end, easing=easing)
 
     def rotate_children(self, degrees=90, start: float = 0, end: float | None = None,
                          easing=easings.smooth):
@@ -1375,13 +1371,10 @@ class VCollection(_BBoxMethodsMixin):
                       start=start, end=end, easing=easing)
         return self
 
-    def fan_out(self, cx: float | None = None, cy: float | None = None,
-                radius: float = 200, start: float = 0, end: float = 1,
-                easing=easings.smooth):
+    def fan_out(self, cx=None, cy=None, radius=200, start=0, end=1, easing=easings.smooth):
         """Animate children spreading radially from a center point to evenly spaced positions."""
         cx, cy = self._resolve_center(start, cx, cy)
-        return self.distribute_radial(cx=cx, cy=cy, radius=radius,
-                                      start=start, end=end, easing=easing)
+        return self.distribute_radial(cx=cx, cy=cy, radius=radius, start=start, end=end, easing=easing)
 
     def align_centers(self, axis='x', value: float | None = None,
                       start: float = 0, end: float | None = None,
@@ -1399,18 +1392,7 @@ class VCollection(_BBoxMethodsMixin):
                 obj.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
 
-    def distribute_evenly(self, start_x, start_y, end_x, end_y):
-        """Distribute children evenly along a line from (start_x, start_y) to (end_x, end_y)."""
-        n = len(self.objects)
-        if n == 0: return self
-        if n == 1:
-            self.objects[0].center_to_pos(posx=start_x, posy=start_y)
-            return self
-        for i, obj in enumerate(self.objects):
-            frac = i / (n - 1)
-            obj.center_to_pos(posx=start_x + frac * (end_x - start_x),
-                              posy=start_y + frac * (end_y - start_y))
-        return self
+    distribute_evenly = spread
 
     def cascade_fadein(self, start=0, end=1, direction='left_to_right', easing=easings.smooth):
         """Fade in children with a cascade effect based on spatial ordering."""

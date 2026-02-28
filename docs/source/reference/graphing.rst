@@ -151,7 +151,7 @@ Graph
       Vertical line at mathematical *x*. If *y_val* is given, draws from x-axis
       to that value; otherwise draws to the top of the plot. Returns a :py:class:`Line`.
 
-   .. py:method:: get_vertical_lines(func, x_range, dx=1, **styling)
+   .. py:method:: get_vertical_lines(func, x_values, **styling)
 
       Multiple vertical lines from x-axis to curve. Returns a :py:class:`VCollection`.
 
@@ -205,24 +205,24 @@ Graph
 
    .. py:method:: add_legend(entries, **styling)
 
-      Add a legend with colour swatches.
+      Add a legend with color swatches.
 
-      :param list entries: List of ``(color, label)`` pairs.
+      :param list entries: List of ``(label, color)`` pairs.
 
       .. code-block:: python
 
          g = Axes(x_range=(-5, 5), y_range=(-2, 2))
          g.plot(math.sin, stroke='#E74C3C', label='sin(x)')
          g.plot(math.cos, stroke='#3498DB', label='cos(x)')
-         g.add_legend([('#E74C3C', 'sin(x)'), ('#3498DB', 'cos(x)')])
+         g.add_legend([('sin(x)', '#E74C3C'), ('cos(x)', '#3498DB')])
 
-   .. py:method:: add_dot_label(x, func, label, **styling)
+   .. py:method:: add_dot_label(x, y, label=None, **styling)
 
-      Add a labelled dot at ``(x, func(x))``.
+      Add a labelled dot at ``(x, y)`` in logical coordinates.
 
-   .. py:method:: add_arrow_annotation(x, func, text, **styling)
+   .. py:method:: add_arrow_annotation(x, y, text, **styling)
 
-      Add a labelled arrow pointing at a curve.
+      Add a labelled arrow pointing at ``(x, y)``.
 
    .. py:method:: add_asymptote(x=None, y=None, **styling)
 

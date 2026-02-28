@@ -17168,6 +17168,55 @@ class TestPhaseAnim:
         assert result is c
 
 
+class TestWrapToSvg:
+    """Test _wrap_to_svg helper used by drop_shadow, set_backstroke, set_gradient_fill, set_clip."""
+
+    def test_drop_shadow_wraps_svg(self):
+        c = Circle(r=50)
+        c.drop_shadow(start=1)
+        svg = c.to_svg(2)
+        assert "feDropShadow" in svg
+        assert "filter=" in svg
+
+    def test_drop_shadow_not_before_start(self):
+        c = Circle(r=50)
+        c.drop_shadow(start=1)
+        svg = c.to_svg(0)
+        assert "feDropShadow" not in svg
+
+    def test_set_backstroke_wraps_svg(self):
+        c = Circle(r=50)
+        c.set_backstroke(start=1)
+        svg = c.to_svg(2)
+        assert "paint-order" in svg
+
+    def test_set_backstroke_not_before_start(self):
+        c = Circle(r=50)
+        c.set_backstroke(start=1)
+        svg = c.to_svg(0)
+        assert "paint-order" not in svg
+
+
+class TestCollectionAliases:
+    """Test that collection method aliases/delegations work correctly."""
+
+    def test_distribute_evenly_is_spread(self):
+        from vectormation._collection import VCollection
+        assert VCollection.distribute_evenly is VCollection.spread
+
+    def test_gather_to_delegates_to_converge(self):
+        from vectormation._collection import VCollection
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=10, cx=200, cy=200)
+        g = VCollection(c1, c2)
+        g.gather_to(cx=150, cy=150, start=0, end=1)
+        # Both circles should move toward (150, 150)
+        p1 = c1.center(1)
+        p2 = c2.center(1)
+        assert abs(p1[0] - 150) < 1
+        assert abs(p2[1] - 150) < 1
+
+
 class TestBarChartAliases:
     """Test that get_tallest_bar/get_shortest_bar are aliases."""
 
