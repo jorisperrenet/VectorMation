@@ -242,8 +242,8 @@ class PhysicsSpace:
                     b._trajectory.append((b.x, b.y))
                     b._angle_trajectory.append(b.angle)
                     continue
-                ax = b.fx / b.mass
-                ay = b.fy / b.mass
+                ax = b.fx / b.mass if b.mass else 0
+                ay = b.fy / b.mass if b.mass else 0
                 b.vx += ax * self.dt
                 b.vy += ay * self.dt
                 b.x += b.vx * self.dt
