@@ -12,6 +12,20 @@ from vectormation._shapes import (
     Text, Path, Arc,
 )
 
+_SPRING_ITERATIONS = 50
+_REPULSION_STRENGTH = 5000
+_ATTRACTION_STRENGTH = 0.01
+_POSITION_DAMPING = 0.1
+_ELECTRON_SHELL_CAPS = (2, 8, 8, 18, 18, 32)
+_LABEL_OFFSET = 15  # perpendicular offset for edge labels
+
+def _apply_force(forces, a, b, fx, fy):
+    """Apply equal-and-opposite force between nodes *a* and *b*."""
+    forces[a][0] += fx
+    forces[a][1] += fy
+    forces[b][0] -= fx
+    forces[b][1] -= fy
+
 def _shortened_endpoints(x1, y1, x2, y2, r1, r2):
     """Shorten a line segment by r1 at the start and r2 at the end."""
     ux, uy = _normalize(x2 - x1, y2 - y1)
@@ -239,7 +253,7 @@ class BohrAtom(VCollection):
             # Auto-fill shells: 2, 8, 8, 18, ...
             remaining = protons
             electrons = []
-            for cap in [2, 8, 8, 18, 18, 32]:
+            for cap in _ELECTRON_SHELL_CAPS:
                 if remaining <= 0:
                     break
                 electrons.append(min(remaining, cap))
@@ -347,7 +361,7 @@ class Automaton(VCollection):
                 mx, my = (sx + ex) / 2, (sy + ey) / 2
                 # Offset label perpendicular to arrow
                 ux, uy = _normalize(tx - fx, ty - fy)
-                px, py = -uy * 15, ux * 15
+                px, py = -uy * _LABEL_OFFSET, ux * _LABEL_OFFSET
                 lbl = Text(text=label_text, x=mx + px, y=my + py + font_size * TEXT_Y_OFFSET,
                            font_size=font_size * 0.8, text_anchor='middle',
                            creation=creation, z=z + 1, fill='#83C167', stroke_width=0)
@@ -463,7 +477,7 @@ class NetworkGraph(VCollection):
             rng = random.Random(42)
             pos = {nid: (cx + rng.uniform(-radius, radius), cy + rng.uniform(-radius, radius))
                    for nid in node_ids}
-            for _ in range(50):
+            for _ in range(_SPRING_ITERATIONS):
                 forces = {nid: [0.0, 0.0] for nid in node_ids}
                 # Repulsion
                 for i, a in enumerate(node_ids):
@@ -471,11 +485,8 @@ class NetworkGraph(VCollection):
                         dx = pos[a][0] - pos[b][0]
                         dy = pos[a][1] - pos[b][1]
                         d = math.hypot(dx, dy) + 1
-                        f = 5000 / (d * d)
-                        forces[a][0] += f * dx / d
-                        forces[a][1] += f * dy / d
-                        forces[b][0] -= f * dx / d
-                        forces[b][1] -= f * dy / d
+                        f = _REPULSION_STRENGTH / (d * d)
+                        _apply_force(forces, a, b, f * dx / d, f * dy / d)
                 # Attraction (edges)
                 for edge in edges:
                     a, b = edge[0], edge[1]
@@ -484,14 +495,11 @@ class NetworkGraph(VCollection):
                     dx = pos[b][0] - pos[a][0]
                     dy = pos[b][1] - pos[a][1]
                     d = math.hypot(dx, dy) + 1
-                    f = d * 0.01
-                    forces[a][0] += f * dx / d
-                    forces[a][1] += f * dy / d
-                    forces[b][0] -= f * dx / d
-                    forces[b][1] -= f * dy / d
+                    f = d * _ATTRACTION_STRENGTH
+                    _apply_force(forces, a, b, f * dx / d, f * dy / d)
                 for nid in node_ids:
-                    pos[nid] = (pos[nid][0] + forces[nid][0] * 0.1,
-                                pos[nid][1] + forces[nid][1] * 0.1)
+                    pos[nid] = (pos[nid][0] + forces[nid][0] * _POSITION_DAMPING,
+                                pos[nid][1] + forces[nid][1] * _POSITION_DAMPING)
             # Center the layout
             avg_x = sum(p[0] for p in pos.values()) / n if n else cx
             avg_y = sum(p[1] for p in pos.values()) / n if n else cy
