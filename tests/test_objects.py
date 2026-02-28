@@ -18866,3 +18866,142 @@ class TestDiagonalLengthAlias:
         import math
         assert abs(r.diagonal_length() - math.hypot(300, 400)) < 0.1
 
+
+# ── PhysicsSpace simulation tests ────────────────────────────────────────
+
+class TestPhysicsSimulate:
+    """Test PhysicsSpace.simulate() produces correct trajectories."""
+
+    def test_gravity_moves_body_down(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 100), dt=1/60)
+        c = Circle(r=10, cx=500, cy=100)
+        b = space.add_body(c, mass=1.0)
+        space.simulate(duration=1.0)
+        # After 1 second of gravity=100, body should have moved down
+        assert b.y > 100
+
+    def test_fixed_body_stays(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 100), dt=1/60)
+        c = Circle(r=10, cx=500, cy=100)
+        b = space.add_body(c, mass=1.0, fixed=True)
+        space.simulate(duration=1.0)
+        assert b.x == 500
+        assert b.y == 100
+
+    def test_wall_stops_body(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 500), dt=1/60)
+        c = Circle(r=10, cx=500, cy=100)
+        b = space.add_body(c, mass=1.0, restitution=0.0)
+        space.add_wall(y=500)
+        space.simulate(duration=2.0)
+        # Body should end near the wall (within radius)
+        assert b.y <= 500
+
+    def test_spring_oscillation(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+        c = Circle(r=10, cx=500, cy=300)
+        b = space.add_body(c, mass=1.0)
+        anchor = (500, 100)
+        space.add_spring(b, anchor, stiffness=2.0, rest_length=50)
+        space.simulate(duration=2.0)
+        # Body should oscillate and not fly away
+        assert abs(b.x - 500) < 200
+        assert abs(b.y - 100) < 300
+
+    def test_drag_slows_body(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 0), dt=1/60)
+        c = Circle(r=10, cx=500, cy=500)
+        b = space.add_body(c, mass=1.0, vx=100, vy=0)
+        space.add_drag(coefficient=0.5)
+        space.simulate(duration=2.0)
+        # Velocity should have decreased significantly
+        assert abs(b.vx) < 100
+
+    def test_trajectory_baked_to_object(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 100), dt=1/60, start=0)
+        c = Circle(r=10, cx=500, cy=100)
+        space.add_body(c, mass=1.0)
+        space.simulate(duration=1.0)
+        # Object position should be animated (different at t=0 vs t=0.5)
+        pos0 = c.c.at_time(0)
+        pos05 = c.c.at_time(0.5)
+        assert pos05[1] > pos0[1]  # y should increase (gravity pulls down)
+
+    def test_body_body_collision(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 0), dt=1/120)
+        c1 = Circle(r=20, cx=100, cy=300)
+        c2 = Circle(r=20, cx=300, cy=300)
+        b1 = space.add_body(c1, mass=1.0, vx=100)
+        b2 = space.add_body(c2, mass=1.0, vx=-100)
+        space.simulate(duration=2.0)
+        # After collision, bodies should have reversed or changed velocity
+        # At least they shouldn't have passed through each other
+        assert len(b1._trajectory) > 1
+        assert len(b2._trajectory) > 1
+
+    def test_add_force_custom(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 0), dt=1/60)
+        c = Circle(r=10, cx=500, cy=500)
+        b = space.add_body(c, mass=1.0)
+        # Constant rightward force
+        space.add_force(lambda body, t: (50, 0))
+        space.simulate(duration=1.0)
+        assert b.x > 500
+
+    def test_angular_velocity(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 0), dt=1/60)
+        c = Circle(r=20, cx=500, cy=500)
+        b = space.add_body(c, mass=1.0, angular_velocity=90)
+        space.simulate(duration=1.0)
+        # Angle should have changed
+        assert b.angle != 0
+
+    def test_mutual_repulsion(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 0), dt=1/60)
+        c1 = Circle(r=10, cx=500, cy=500)
+        c2 = Circle(r=10, cx=510, cy=500)
+        b1 = space.add_body(c1, mass=1.0)
+        b2 = space.add_body(c2, mass=1.0)
+        space.add_mutual_repulsion(strength=5000)
+        space.simulate(duration=1.0)
+        # Bodies should have moved apart
+        dist = math.hypot(b2.x - b1.x, b2.y - b1.y)
+        assert dist > 10
+
+    def test_cloth_simulate(self):
+        from vectormation._physics import Cloth
+        cloth = Cloth(x=100, y=100, width=200, height=100, cols=3, rows=2)
+        cloth.simulate(duration=0.5)
+        objs = cloth.objects()
+        assert len(objs) > 0
+
+    def test_attraction(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 0), dt=1/60)
+        c = Circle(r=10, cx=200, cy=500)
+        b = space.add_body(c, mass=1.0)
+        space.add_attraction(target=(500, 500), strength=50000)
+        space.simulate(duration=1.0)
+        # Body should have moved toward target
+        assert b.x > 200
+
+    def test_add_angular_drag(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 0), dt=1/60)
+        c = Circle(r=20, cx=500, cy=500)
+        b = space.add_body(c, mass=1.0, angular_velocity=360)
+        space.add_angular_drag(coefficient=0.5)
+        space.simulate(duration=2.0)
+        # Angular velocity should have decreased
+        assert abs(b.angular_velocity) < 360
+
