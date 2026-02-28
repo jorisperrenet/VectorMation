@@ -134,7 +134,7 @@ class Real:
         func_otherwise = self.time_func
         def new_func(t):
             if abs(t - time) < eps: return value
-            else: return func_otherwise(t)
+            return func_otherwise(t)
         self.time_func = new_func
         self.last_change = max(self.last_change, time)
 
@@ -147,7 +147,7 @@ class Real:
         func_otherwise = self.time_func
         def new_func(t):
             if t == time: return old + value
-            else: return func_otherwise(t)
+            return func_otherwise(t)
         self.time_func = new_func
         self.last_change = max(self.last_change, time)
 
@@ -383,7 +383,7 @@ class Color:
         else:
             self.use, col = self.parse(start_color)
             if self.use in ('rgb', 'rgba'):
-                self.time_func = lambda t, _c=creation, _v=col: _v if t >= _c else tuple(0 for _ in _v)
+                self.time_func = lambda t, _c=creation, _v=col, _z=(0,) * len(col): _v if t >= _c else _z
             elif self.use == 'url':
                 self.time_func = lambda t: col
             else:
