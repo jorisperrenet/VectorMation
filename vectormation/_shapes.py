@@ -1323,19 +1323,19 @@ class Circle(Ellipse):
         ri = ro * inner_ratio
         sa_rad = math.radians(start_angle)
         ea_rad = math.radians(end_angle)
+        # Polar-to-SVG helper (y-axis inverted)
+        def _pt(r, a):
+            return cx + r * math.cos(a), cy - r * math.sin(a)
         # Outer arc start/end points
-        ox1 = cx + ro * math.cos(sa_rad)
-        oy1 = cy - ro * math.sin(sa_rad)
-        ox2 = cx + ro * math.cos(ea_rad)
-        oy2 = cy - ro * math.sin(ea_rad)
+        ox1, oy1 = _pt(ro, sa_rad)
+        ox2, oy2 = _pt(ro, ea_rad)
         # Inner arc start/end points (reversed direction)
-        ix1 = cx + ri * math.cos(ea_rad)
-        iy1 = cy - ri * math.sin(ea_rad)
-        ix2 = cx + ri * math.cos(sa_rad)
-        iy2 = cy - ri * math.sin(sa_rad)
+        ix1, iy1 = _pt(ri, ea_rad)
+        ix2, iy2 = _pt(ri, sa_rad)
         # Determine large-arc flag
-        angle_span = abs(end_angle - start_angle) % 360
-        if angle_span == 0 and abs(end_angle - start_angle) >= 360:
+        delta = abs(end_angle - start_angle)
+        angle_span = delta % 360
+        if angle_span == 0 and delta >= 360:
             angle_span = 360
         large = 1 if angle_span > 180 else 0
         # Sweep: for SVG with y-inverted, CCW math angles map to CW SVG sweep=0
@@ -1344,10 +1344,8 @@ class Circle(Ellipse):
         if angle_span >= 360:
             # Full annulus: two half-arcs to avoid degenerate zero-length arc
             mid_rad = sa_rad + math.pi
-            omx = cx + ro * math.cos(mid_rad)
-            omy = cy - ro * math.sin(mid_rad)
-            imx = cx + ri * math.cos(mid_rad)
-            imy = cy - ri * math.sin(mid_rad)
+            omx, omy = _pt(ro, mid_rad)
+            imx, imy = _pt(ri, mid_rad)
             d = (f'M{ox1},{oy1}'
                  f'A{ro},{ro} 0 1,0 {omx},{omy}'
                  f'A{ro},{ro} 0 1,0 {ox1},{oy1}'
@@ -1846,10 +1844,10 @@ class SurroundingRectangle(RoundedRectangle):
                          corner_radius=corner_radius, creation=creation, z=z, **style_kw)
         if follow:
             _bb = _cached_bbox(target)
-            self.x.set_onward(creation, lambda t: _bb(t)[0] - buff)
-            self.y.set_onward(creation, lambda t: _bb(t)[1] - buff)
-            self.width.set_onward(creation, lambda t: _bb(t)[2] + 2*buff)
-            self.height.set_onward(creation, lambda t: _bb(t)[3] + 2*buff)
+            self.x.set_onward(creation, lambda t, _b=buff: _bb(t)[0] - _b)
+            self.y.set_onward(creation, lambda t, _b=buff: _bb(t)[1] - _b)
+            self.width.set_onward(creation, lambda t, _b=buff: _bb(t)[2] + 2*_b)
+            self.height.set_onward(creation, lambda t, _b=buff: _bb(t)[3] + 2*_b)
 
     def __repr__(self):
         return 'SurroundingRectangle()'
