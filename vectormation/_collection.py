@@ -676,16 +676,8 @@ class VCollection(_BBoxMethodsMixin):
         Equivalent to cascade with overlap=0."""
         return self.cascade(method_name, start=start, end=end, overlap=0, **kwargs)
 
-    def apply_sequentially(self, method_name, start=0, end=1, **kwargs):
-        """Apply method to each child in sequence, dividing [start, end] into equal time slices."""
-        n = len(self.objects)
-        if n == 0: return self
-        dt = (end - start) / n
-        for i, obj in enumerate(self.objects):
-            getattr(obj, method_name)(start=start + i * dt, end=start + (i + 1) * dt, **kwargs)
-        return self
-
-    apply_sequential = apply_sequentially
+    apply_sequentially = sequential
+    apply_sequential = sequential
 
     def spread(self, x1, y1, x2, y2, start: float = 0):
         """Distribute children evenly along a line from (x1, y1) to (x2, y2)."""

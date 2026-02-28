@@ -918,9 +918,8 @@ class MindMap(VCollection):
         root_dot = Circle(r=35, cx=cx, cy=cy, fill=colors[0], fill_opacity=0.9,
                           stroke=colors[0], stroke_width=2, creation=creation, z=z + 0.2)
         objects.append(root_dot)
-        root_txt = Text(text=str(root_label), x=cx, y=cy + font_size * TEXT_Y_OFFSET,
-                        font_size=font_size, fill='#fff', stroke_width=0,
-                        text_anchor='middle', creation=creation, z=z + 0.3)
+        root_txt = _label_text(root_label, cx, cy, font_size,
+                               creation=creation, z=z + 0.3)
         objects.append(root_txt)
         if not children:
             super().__init__(*objects, creation=creation, z=z)
@@ -941,9 +940,8 @@ class MindMap(VCollection):
             bdot = Circle(r=br, cx=bx, cy=by, fill=color, fill_opacity=0.85,
                           stroke=color, stroke_width=1.5, creation=creation, z=z + 0.2)
             objects.append(bdot)
-            btxt = Text(text=str(child_label), x=bx, y=by + font_size * 0.3,
-                        font_size=font_size * 0.85, fill='#fff', stroke_width=0,
-                        text_anchor='middle', creation=creation, z=z + 0.3)
+            btxt = _label_text(child_label, bx, by, font_size * 0.85,
+                               creation=creation, z=z + 0.3)
             objects.append(btxt)
             # Grandchildren as smaller nodes
             if grandchildren:
@@ -961,9 +959,8 @@ class MindMap(VCollection):
                     gdot = Dot(cx=gx, cy=gy, r=15, fill=color, fill_opacity=0.7,
                                stroke_width=0, creation=creation, z=z + 0.2)
                     objects.append(gdot)
-                    gtxt = Text(text=str(gc_label), x=gx, y=gy + font_size * 0.25,
-                                font_size=font_size * 0.65, fill='#ddd', stroke_width=0,
-                                text_anchor='middle', creation=creation, z=z + 0.3)
+                    gtxt = _label_text(gc_label, gx, gy, font_size * 0.65,
+                                       creation=creation, z=z + 0.3, fill='#ddd')
                     objects.append(gtxt)
         super().__init__(*objects, creation=creation, z=z)
 

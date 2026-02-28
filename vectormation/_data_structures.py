@@ -448,9 +448,8 @@ class LinkedListViz(VCollection):
                           fill=node_fill, fill_opacity=0.9,
                           stroke='#fff', stroke_width=2,
                           creation=creation, z=z)
-            lbl = Text(text=str(val), x=cx, y=y + font_size * 0.35,
-                       font_size=font_size, fill='#fff', stroke_width=0,
-                       text_anchor='middle', creation=creation, z=z + 0.1)
+            lbl = _label_text(val, cx, y, font_size,
+                              creation=creation, z=z + 0.1)
             self._nodes.append(node)
             self._labels.append(lbl)
             objects.extend([node, lbl])
@@ -464,10 +463,8 @@ class LinkedListViz(VCollection):
                 objects.append(arr)
         # Null terminator
         last_cx = x + (n - 1) * spacing
-        null_lbl = Text(text='\u2205', x=last_cx + spacing * 0.6,
-                        y=y + font_size * 0.35,
-                        font_size=font_size, fill='#888', stroke_width=0,
-                        text_anchor='middle', creation=creation, z=z)
+        null_lbl = _label_text('\u2205', last_cx + spacing * 0.6, y, font_size,
+                               creation=creation, z=z, fill='#888')
         null_arr = Arrow(x1=last_cx + node_radius + 4, y1=y,
                          x2=last_cx + spacing * 0.6 - 15, y2=y,
                          stroke='#888', fill='#888', fill_opacity=1,
