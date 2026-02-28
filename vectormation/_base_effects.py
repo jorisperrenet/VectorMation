@@ -921,4 +921,44 @@ class _VObjectEffectsMixin:
         self._ensure_scale_origin(start)
         return self.scale(factor, start=start, end=end, easing=easing)
 
+    def passing_flash(self, start: float = 0, end: float = 1, width: float = 0.15,
+                      color=None, easing=easings.linear):
+        """Flash a bright swoosh along the object's stroke (ShowPassingFlash equivalent).
+
+        A short glowing segment travels along the stroke path, creating a
+        swoosh/sparkle effect. Uses animated stroke-dashoffset to sweep
+        a bright dash along the outline.
+
+        Parameters
+        ----------
+        start, end : float
+            Time interval for the animation.
+        width : float
+            Fraction of the path that is illuminated (0 < width < 1).
+        color : str or None
+            Override stroke color during the flash.
+        easing : callable
+            Easing function.
+        """
+        dur = end - start
+        if dur <= 0:
+            return self
+        _s, _d, _w = start, max(dur, 1e-9), max(0.01, min(width, 0.99))
+        # Approximate path length for dash array sizing
+        _path_len = 4000  # generous upper bound for SVG viewbox
+        _dash = _path_len * _w
+        _gap = _path_len * (1 - _w)
+        # Set dash array: one short visible dash + one long gap
+        self.styling.stroke_dasharray.set_onward(start, f'{_dash:.0f} {_gap:.0f}')
+        # Animate dash offset from +path_len to -path_len
+        self.styling.stroke_dashoffset.set_onward(start,
+            lambda t, _s=_s, _d=_d, _e=easing, _pl=_path_len:
+                _pl * (1 - 2 * _e((t - _s) / _d)) if _s <= t <= _s + _d else 0)
+        # Flash visibility
+        self._show_from(start)
+        self._hide_from(end)
+        if color:
+            self.styling.stroke.set_onward(start, color)
+        return self
+
 # VCollection moved to _collection.py; re-export for backward compatibility.

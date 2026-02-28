@@ -1699,6 +1699,39 @@ class _AxesExtMixin:
         """Alias for :meth:`get_tangent_line` that adds the line to the axes."""
         return self.get_tangent_line(func, x_val, length=length, creation=creation, **kwargs)
 
+    def animated_tangent_line(self, func, x_start, x_end, start=0, end=1,
+                               length=200, creation=0, z=0, easing=None, **styling_kwargs):
+        """Tangent line that slides along func from x_start to x_end over [start, end].
+
+        Returns a Line that is dynamically positioned as a tangent.
+        """
+        easing = easing or easings.smooth
+        style_kw = {'stroke': '#FFFF00', 'stroke_width': 2} | styling_kwargs
+        line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
+        _xs, _xe, _s, _d = x_start, x_end, start, max(end - start, 1e-9)
+        _len, h = length, 1e-6
+        def _tangent_ep(sign):
+            def _pt(t, _xs=_xs, _xe=_xe, _s=_s, _d=_d, _len=_len, _sign=sign):
+                alpha = easing(max(0, min(1, (t - _s) / _d)))
+                xv = _xs + alpha * (_xe - _xs)
+                slope = (func(xv + h) - func(xv - h)) / (2 * h)
+                cx_svg, cy_svg = self.coords_to_point(xv, func(xv), t)
+                xspan = self.x_max.at_time(t) - self.x_min.at_time(t)
+                yspan = self.y_max.at_time(t) - self.y_min.at_time(t)
+                if xspan == 0 or yspan == 0:
+                    return (cx_svg + _sign * _len / 2, cy_svg)
+                dx_px = self.plot_width / xspan
+                dy_px = -self.plot_height / yspan
+                dir_x, dir_y = dx_px, slope * dy_px
+                mag = max(math.hypot(dir_x, dir_y), 1e-9)
+                half = _len / 2
+                return (cx_svg + _sign * dir_x / mag * half,
+                        cy_svg + _sign * dir_y / mag * half)
+            return _pt
+        _dyn_line(line, creation, _tangent_ep(-1), _tangent_ep(+1))
+        self._add_plot_obj(line)
+        return line
+
     def get_secant_line(self, func, x1, x2, length=300, creation=0, z=0, **styling_kwargs):
         """Draw a secant line through func at x1 and x2. Returns a Line."""
         style_kw = {'stroke': '#83C167', 'stroke_width': 2} | styling_kwargs

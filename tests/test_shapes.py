@@ -12261,3 +12261,73 @@ class TestCameraControls:
         # After reset, should be back to original
         vb_x = v.vb_x.at_time(2.0)
         assert vb_x == pytest.approx(0, abs=1)
+
+
+# ---- New feature tests: get_subcurve, passing_flash, animated_tangent ----
+
+class TestGetSubcurve:
+    def test_full_curve(self):
+        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100), closed=False)
+        sub = p.get_subcurve(0, 1)
+        verts = sub.get_vertices()
+        assert len(verts) >= 2
+
+    def test_first_half(self):
+        p = Lines((0, 0), (100, 0), (200, 0))
+        sub = p.get_subcurve(0, 0.5)
+        verts = sub.get_vertices()
+        # Total length is 200, so first half ends at (100, 0)
+        assert verts[-1] == pytest.approx((100, 0), abs=1)
+
+    def test_middle_section(self):
+        p = Lines((0, 0), (100, 0), (200, 0), (300, 0))
+        sub = p.get_subcurve(1/3, 2/3)
+        verts = sub.get_vertices()
+        assert len(verts) >= 2
+        assert verts[0][0] == pytest.approx(100, abs=1)
+        assert verts[-1][0] == pytest.approx(200, abs=1)
+
+    def test_empty_range(self):
+        p = Lines((0, 0), (100, 0))
+        sub = p.get_subcurve(0.5, 0.5)
+        # Should return something (degenerate) but not crash
+        assert sub is not None
+
+
+class TestPassingFlash:
+    def test_basic(self):
+        c = Circle(r=100, stroke='#fff')
+        c.passing_flash(start=0, end=2)
+        svg = c.to_svg(1)
+        # During the flash, object should have dash styling
+        assert 'stroke-dasharray' in svg or 'stroke-dashoffset' in svg
+
+    def test_with_color(self):
+        l = Line(0, 0, 200, 0, stroke='#fff')
+        l.passing_flash(start=0, end=1, color='#FF0000')
+        svg = l.to_svg(0.5)
+        assert svg  # renders something
+
+    def test_visibility(self):
+        c = Circle(r=50)
+        c.passing_flash(start=1, end=2)
+        # Before start, hidden
+        assert c.show.at_time(0) is False
+        # After end, hidden
+        assert c.show.at_time(3) is False
+
+
+class TestAnimatedTangentLine:
+    def test_basic(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-2, 2))
+        import math
+        tl = ax.animated_tangent_line(math.sin, -3, 3, start=0, end=2)
+        svg = tl.to_svg(1)
+        assert 'line' in svg
+
+    def test_returns_line(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        tl = ax.animated_tangent_line(lambda x: x**2, -2, 2, start=0, end=1)
+        # Should be a Line object
+        assert hasattr(tl, 'p1')
+        assert hasattr(tl, 'p2')

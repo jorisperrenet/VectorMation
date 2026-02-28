@@ -854,6 +854,38 @@ class Polygon(VObject):
                                  creation=creation, z=z, **style_kw))
         return VCollection(*objects, creation=creation, z=z)
 
+    def get_subcurve(self, a: float, b: float, time: float = 0, **kwargs):
+        """Extract the portion of the polyline between parameters *a* and *b*.
+
+        *a* and *b* are floats in [0, 1] representing fraction of the total
+        path length. Returns a new Lines object.
+        """
+        pts = self.get_vertices(time)
+        if len(pts) < 2 or a >= b:
+            return Lines(*(pts[:1] or [(0, 0)]), **kwargs)
+        # Compute cumulative edge lengths
+        cum = [0.0]
+        for i in range(len(pts) - 1):
+            cum.append(cum[-1] + math.hypot(pts[i+1][0] - pts[i][0], pts[i+1][1] - pts[i][1]))
+        total = cum[-1] if cum[-1] > 0 else 1
+        # Convert a, b to absolute lengths
+        la, lb = a * total, b * total
+        result = []
+        for i in range(len(pts) - 1):
+            s0, s1 = cum[i], cum[i+1]
+            seg_len = s1 - s0
+            if s1 <= la or s0 >= lb or seg_len == 0:
+                continue
+            # Clip segment to [la, lb]
+            ta = max(0, (la - s0) / seg_len)
+            tb = min(1, (lb - s0) / seg_len)
+            x0, y0 = pts[i]
+            x1, y1 = pts[i+1]
+            if not result:
+                result.append((x0 + ta * (x1 - x0), y0 + ta * (y1 - y0)))
+            result.append((x0 + tb * (x1 - x0), y0 + tb * (y1 - y0)))
+        return Lines(*(result or pts[:1]), **kwargs)
+
     def __repr__(self):
         return f'Polygon({len(self.vertices)} vertices)'
 
