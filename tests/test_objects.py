@@ -18005,3 +18005,40 @@ class TestGetXYOptimized:
         r = Rectangle(100, 50, x=400, y=300, creation=0)
         assert r.get_y(0) == pytest.approx(325)
 
+
+class TestArrowStylingHelper:
+    """Test _arrow_styling helper in _arrows.py."""
+    def test_default_style(self):
+        from vectormation._arrows import _arrow_styling
+        style, tip = _arrow_styling({'stroke': '#fff', 'stroke_width': 5}, {})
+        assert style['stroke'] == '#fff'
+        assert tip == '#fff'
+
+    def test_user_override(self):
+        from vectormation._arrows import _arrow_styling
+        style, tip = _arrow_styling({'stroke': '#fff'}, {'stroke': '#f00'})
+        assert style['stroke'] == '#f00'
+        assert tip == '#f00'
+
+
+class TestArrayVizUsesHelper:
+    """Test ArrayViz uses _make_viz_cell helper."""
+    def test_arrayviz_renders(self):
+        from vectormation.objects import ArrayViz
+        av = ArrayViz([1, 2, 3], creation=0)
+        c = VectorMathAnim(save_dir='/tmp/t')
+        c.add_objects(av)
+        svg = c.generate_frame_svg(0)
+        assert '1' in svg
+        assert '2' in svg
+        assert '3' in svg
+
+    def test_arrayviz_highlight(self):
+        from vectormation.objects import ArrayViz
+        av = ArrayViz([10, 20, 30], creation=0)
+        av.highlight(0, start=0, end=1)
+        c = VectorMathAnim(save_dir='/tmp/t')
+        c.add_objects(av)
+        svg = c.generate_frame_svg(0.5)
+        assert '<rect' in svg
+

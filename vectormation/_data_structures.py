@@ -7,6 +7,8 @@ from vectormation._constants import (
 from vectormation._base import VCollection
 from vectormation._shapes import Circle, Rectangle, Line, Text
 
+_VIZ_TEXT_Y = 0.65  # Y-offset factor for vertically centering text in viz cells
+
 def _make_cell(x, y, w, h, val, font_size, fill, border_color, text_color,
                creation: float = 0, z: float = 0):
     """Create a rectangle cell + centered label text pair."""
@@ -38,7 +40,7 @@ def _make_viz_cell(x, y, w, h, val, font_size, fill, creation: float = 0, z: flo
     """Create a Rectangle + Text pair for Viz-style classes (white stroke, centered text)."""
     cell = Rectangle(w, h, x=x, y=y, fill=fill, fill_opacity=0.9,
                      stroke='#fff', stroke_width=2, creation=creation, z=z)
-    lbl = Text(text=str(val), x=x + w / 2, y=y + h * 0.65,
+    lbl = Text(text=str(val), x=x + w / 2, y=y + h * _VIZ_TEXT_Y,
                font_size=font_size, fill='#fff', stroke_width=0,
                text_anchor='middle', creation=creation, z=z + 0.1)
     return cell, lbl
@@ -361,13 +363,7 @@ class ArrayViz(VCollection):
         for i, val in enumerate(values):
             cx = x + i * cell_size
             fill = colors[i] if colors and i < len(colors) else default_fill
-            cell = Rectangle(cell_size, cell_size, x=cx, y=y,
-                             fill=fill, fill_opacity=0.9, stroke='#fff',
-                             stroke_width=2, creation=creation, z=z)
-            lbl = Text(text=str(val), x=cx + cell_size / 2,
-                       y=y + cell_size * 0.65,
-                       font_size=font_size, fill='#fff', stroke_width=0,
-                       text_anchor='middle', creation=creation, z=z + 0.1)
+            cell, lbl = _make_viz_cell(cx, y, cell_size, cell_size, val, font_size, fill, creation, z)
             self._cells.append(cell)
             self._labels.append(lbl)
             objects.extend([cell, lbl])
@@ -525,7 +521,7 @@ class StackViz(VCollection):
                                 x2=x - 8, y2=top_y + cell_height / 2,
                                 stroke='#FC6255', fill='#FC6255', fill_opacity=1,
                                 stroke_width=2, creation=creation, z=z)
-        self._top_label = Text(text='TOP', x=x - 58, y=top_y + cell_height * 0.65,
+        self._top_label = Text(text='TOP', x=x - 58, y=top_y + cell_height * _VIZ_TEXT_Y,
                                font_size=int(font_size * 0.7), fill='#FC6255', stroke_width=0,
                                text_anchor='end', creation=creation, z=z)
         objects.extend([self._top_arrow, self._top_label])
@@ -586,7 +582,7 @@ class QueueViz(VCollection):
             self._queue_labels.append(lbl)
             objects.extend([cell, lbl])
         # FRONT / BACK labels
-        mid_y = y + cell_height * 0.65
+        mid_y = y + cell_height * _VIZ_TEXT_Y
         sm_font = int(font_size * 0.7)
         self._front_label = Text(text='FRONT', x=x - 8, y=mid_y,
                                   font_size=sm_font, fill='#50FA7B',
