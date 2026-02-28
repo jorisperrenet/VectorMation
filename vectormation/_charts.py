@@ -5,7 +5,7 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
 from vectormation._constants import (
-    DEFAULT_CHART_COLORS,
+    DEFAULT_CHART_COLORS, ORIGIN,
     CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET, _label_text,
 )
 from vectormation._base import VObject, VCollection, _lerp
@@ -44,7 +44,7 @@ def _from_dict(cls, data, **kwargs):
 
 class PieChart(VCollection):
     """Pie chart visualization using Wedge sectors."""
-    def __init__(self, values, labels=None, colors=None, cx=960, cy=540, r=240,
+    def __init__(self, values, labels=None, colors=None, cx=ORIGIN[0], cy=ORIGIN[1], r=240,
                  start_angle=90, creation: float = 0, z: float = 0):
         colors = _default_colors(colors)
         total = sum(values)
@@ -197,7 +197,7 @@ def _donut_sector_path(cx, cy, a1_rad, a2_rad, r, ir):
 
 class DonutChart(VCollection):
     """Donut (ring) chart — PieChart with a hollow center."""
-    def __init__(self, values, labels=None, colors=None, cx=960, cy=540,
+    def __init__(self, values, labels=None, colors=None, cx=ORIGIN[0], cy=ORIGIN[1],
                  r=240, inner_radius=120, start_angle=90,
                  center_text=None, font_size=17, creation: float = 0, z: float = 0):
         colors = _default_colors(colors)
@@ -591,7 +591,7 @@ class BarChart(VCollection):
 
 class PolarAxes(VCollection):
     """Polar coordinate system with radial gridlines and angle markers."""
-    def __init__(self, cx=960, cy=540, max_radius=400, r_range=(0, 5),
+    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], max_radius=400, r_range=(0, 5),
                  n_rings=5, n_sectors=12, creation=0, z=0):
         objects = []
         self._cx, self._cy = cx, cy
@@ -688,7 +688,7 @@ class Legend(VCollection):
 class RadarChart(VCollection):
     """Radar/spider chart visualization."""
     def __init__(self, values, labels=None, max_val=None, colors=None,
-                 cx=960, cy=540, radius=250, font_size=16,
+                 cx=ORIGIN[0], cy=ORIGIN[1], radius=250, font_size=16,
                  fill_opacity=0.3, creation: float = 0, z: float = 0):
         n = len(values)
         if n < 3:
@@ -1160,7 +1160,7 @@ class TreeMap(VCollection):
 
 class GaugeChart(VCollection):
     """Speedometer / gauge chart."""
-    def __init__(self, value, min_val=0, max_val=100, x=960, y=540,
+    def __init__(self, value, min_val=0, max_val=100, x=ORIGIN[0], y=ORIGIN[1],
                  radius=200, start_angle=225, end_angle=-45,
                  colors=None, label=None, font_size=36,
                  tick_count=5, creation: float = 0, z: float = 0):

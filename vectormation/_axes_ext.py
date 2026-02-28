@@ -3,7 +3,7 @@ import math
 
 import vectormation.easings as easings
 from vectormation._constants import (
-    DEFAULT_CHART_COLORS, TEXT_Y_OFFSET,
+    DEFAULT_CHART_COLORS, TEXT_Y_OFFSET, _normalize,
 )
 from vectormation._base import VCollection
 from vectormation._shapes import (
@@ -25,9 +25,9 @@ def _dyn_line(line, creation, p1_func, p2_func):
 
 def _dir_endpoints(cx, cy, dx, dy, length):
     """Return (p1, p2) endpoints centered at (cx, cy) along direction (dx, dy), scaled to *length*."""
-    mag = max(math.hypot(dx, dy), 1e-9)
+    ux, uy = _normalize(dx, dy)
     half = length / 2
-    nx, ny = dx / mag * half, dy / mag * half
+    nx, ny = ux * half, uy * half
     return (cx - nx, cy - ny), (cx + nx, cy + ny)
 
 
@@ -1518,8 +1518,7 @@ class _AxesExtMixin:
                 return _tip_cache[1]
             p1, p2 = _tip_base(t)
             ddx, ddy = p2[0] - p1[0], p2[1] - p1[1]
-            ln = math.hypot(ddx, ddy) or 1
-            ux, uy = ddx / ln, ddy / ln
+            ux, uy = _normalize(ddx, ddy)
             px, py = -uy, ux
             bx, by = p2[0] - ux * _tl, p2[1] - uy * _tl
             result = (p2[0], p2[1]), (bx + px * _tw2, by + py * _tw2), (bx - px * _tw2, by - py * _tw2)

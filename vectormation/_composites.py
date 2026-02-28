@@ -479,7 +479,8 @@ class NumberLine(VCollection):
 
         if label is not None:
             font_size = _TICK_FONT_SIZE
-            lbl = Text(text=str(label), x=px - len(str(label)) * font_size * 0.15,
+            label_str = str(label)
+            lbl = Text(text=label_str, x=px - len(label_str) * font_size * 0.15,
                         y=py + tick_size / 2 + font_size + 2,
                         font_size=font_size, creation=start,
                         fill='#aaa', stroke_width=0)
@@ -591,15 +592,8 @@ class NumberLine(VCollection):
                     obj.x.move_to(start, end, target_x, easing=_easing)
             i += 1
 
-        # Update range properties at the end of the animation
-        if dur <= 0:
-            self.x_start, self.x_end = new_start, new_end
-        else:
-            # Schedule the update -- since Python closures capture self,
-            # we use a post-animation updater-style approach.
-            # We set them immediately so number_to_point uses new values
-            # for any subsequent calls.
-            self.x_start, self.x_end = new_start, new_end
+        # Update range properties so number_to_point uses new values
+        self.x_start, self.x_end = new_start, new_end
 
         return self
 
