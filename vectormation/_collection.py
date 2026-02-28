@@ -1376,13 +1376,14 @@ class VCollection(_BBoxMethodsMixin):
         n = len(self.objects)
         if n == 0 or end <= start:
             return self
+        centers = {id(o): o.center(start) for o in self.objects}
         if direction == 'left_to_right':
-            sorted_objs = sorted(self.objects, key=lambda o: o.center(start)[0])
+            sorted_objs = sorted(self.objects, key=lambda o: centers[id(o)][0])
         elif direction == 'top_to_bottom':
-            sorted_objs = sorted(self.objects, key=lambda o: o.center(start)[1])
+            sorted_objs = sorted(self.objects, key=lambda o: centers[id(o)][1])
         elif direction == 'center_out':
             gcx, gcy = self.center(start)
-            sorted_objs = sorted(self.objects, key=lambda o: math.hypot(*(oc - gc for oc, gc in zip(o.center(start), (gcx, gcy)))))
+            sorted_objs = sorted(self.objects, key=lambda o: math.hypot(centers[id(o)][0] - gcx, centers[id(o)][1] - gcy))
         else:
             sorted_objs = list(self.objects)
         tmp = VCollection(*sorted_objs)
@@ -1466,7 +1467,7 @@ class VCollection(_BBoxMethodsMixin):
         """Sort children in-place by distance from a point."""
         px, py = point
         self.objects.sort(
-            key=lambda obj: math.hypot(obj.center(start)[0] - px, obj.center(start)[1] - py),
+            key=lambda obj: math.hypot((c := obj.center(start))[0] - px, c[1] - py),
             reverse=reverse,
         )
         return self

@@ -7,7 +7,7 @@ import vectormation.morphing as morphing
 from vectormation._constants import (
     CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
     UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR,
-    SMALL_BUFF, MED_SMALL_BUFF, DEFAULT_OBJECT_TO_EDGE_BUFF,
+    SMALL_BUFF, DEFAULT_OBJECT_TO_EDGE_BUFF,
 )
 
 def _lerp(start, dur, a, b, easing):
