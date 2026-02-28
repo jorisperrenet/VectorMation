@@ -15,6 +15,7 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
 import vectormation.morphing as morphing
+from vectormation.colors import _hex_to_rgb, color_from_name
 
 # Register mix-blend-mode as a styling attribute so it flows through svg_style().
 _BLEND_ENTRY = ('mix_blend_mode', 'mix-blend-mode', attributes.String, '', '')
@@ -976,7 +977,6 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if not isinstance(style_attr, attributes.Color):
             return self
         base_rgb = style_attr.time_func(start)
-        from vectormation.colors import _hex_to_rgb
         wave_rgb = _hex_to_rgb(wave_color)
         _d = max(dur, 1e-9)
         _w = max(width, 0.01)
@@ -1006,7 +1006,6 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if dur <= 0:
             return self
         # Parse all colors to (r, g, b) tuples up front
-        from vectormation.colors import _hex_to_rgb, color_from_name
         def _to_rgb(c):
             if not c.startswith('#'):
                 c = color_from_name(c.upper())
