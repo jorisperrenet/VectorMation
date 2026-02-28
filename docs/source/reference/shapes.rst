@@ -1022,10 +1022,6 @@ Arc
 
       Animate the arc angles.
 
-   .. py:method:: to_arc(time=0, **kwargs)
-
-      Convert to a separate :py:class:`Arc` (useful for Wedge → Arc).
-
 ----
 
 Wedge / Sector
@@ -1040,6 +1036,10 @@ Wedge / Sector
    Bases: :py:class:`Arc`
 
    Pie-wedge shape (arc closing through the centre). ``Sector`` is an alias.
+
+   .. py:method:: to_arc(time=0, **kwargs)
+
+      Convert to a separate :py:class:`Arc`.
 
 ----
 

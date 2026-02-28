@@ -16941,3 +16941,142 @@ class TestAxesScreenToCoordsRefactored:
         assert cx == pytest.approx(700)
         assert cy == pytest.approx(500)
 
+
+# --- Cycle 14: Compaction regression tests ---
+
+class TestTableFlashHelper:
+    """Test that Table._flash helper works correctly for all highlight methods."""
+
+    def test_highlight_cell_flashes(self):
+        t = Table([[1, 2], [3, 4]])
+        t.highlight_cell(0, 0, start=0, end=2, color='#FF0000')
+        fill = t.entries[0][0].styling.fill.time_func(1)
+        assert fill[0] > 200  # R channel near 255
+
+    def test_highlight_column_all_rows(self):
+        t = Table([[1, 2], [3, 4], [5, 6]])
+        t.highlight_column(1, start=0, end=2, color='#0000FF')
+        for r in range(3):
+            fill = t.entries[r][1].styling.fill.time_func(1)
+            assert fill[2] > 200  # B channel near 255
+
+    def test_highlight_cells_multiple(self):
+        t = Table([[1, 2, 3], [4, 5, 6]])
+        t.highlight_cells([(0, 0), (1, 2)], start=0, end=2, color='#00FF00')
+        for r, c in [(0, 0), (1, 2)]:
+            fill = t.entries[r][c].styling.fill.time_func(1)
+            assert fill[1] > 200  # G channel near 255
+
+    def test_highlight_row_via_flash(self):
+        t = Table([[1, 2], [3, 4]])
+        t.highlight_row(0, start=0, end=2, color='#FF0000')
+        # Both cells in row 0 should flash
+        for c in range(2):
+            fill = t.entries[0][c].styling.fill.time_func(1)
+            assert fill[0] > 200
+        # Row 1 should be unaffected at midpoint — white
+        fill1 = t.entries[1][0].styling.fill.time_func(1)
+        assert fill1 == (255, 255, 255) or fill1[0] == 255
+
+
+class TestTableSwapDim:
+    """Test the unified _swap_dim helper for swap_rows/swap_columns."""
+
+    def test_swap_rows_positions(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        y0 = t.entries[0][0].y.at_time(0)
+        y1 = t.entries[1][0].y.at_time(0)
+        t.swap_rows(0, 1, start=0, end=1)
+        # entries[0] is now old row 1, animating to old row 0 position
+        assert t.entries[0][0].y.at_time(1) == pytest.approx(y0)
+        assert t.entries[1][0].y.at_time(1) == pytest.approx(y1)
+
+    def test_swap_columns_positions(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        x0 = t.entries[0][0].x.at_time(0)
+        x1 = t.entries[0][1].x.at_time(0)
+        t.swap_columns(0, 1, start=0, end=1)
+        # entries[0][0] is now old col 1, animating to old col 0 position
+        assert t.entries[0][0].x.at_time(1) == pytest.approx(x0)
+        assert t.entries[0][1].x.at_time(1) == pytest.approx(x1)
+
+    def test_swap_rows_no_op_same(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        y0 = t.entries[0][0].y.at_time(0)
+        t.swap_rows(0, 0, start=0, end=1)
+        # No change when swapping same row
+        assert t.entries[0][0].y.at_time(1) == pytest.approx(y0)
+
+    def test_swap_columns_out_of_range(self):
+        t = Table([['a', 'b']])
+        x0 = t.entries[0][0].x.at_time(0)
+        t.swap_columns(0, 5, start=0, end=1)
+        assert t.entries[0][0].x.at_time(1) == pytest.approx(x0)
+
+    def test_swap_rows_entries_swapped(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        text00 = t.entries[0][0].text.at_time(0)
+        text10 = t.entries[1][0].text.at_time(0)
+        t.swap_rows(0, 1, start=0, end=1)
+        # entries list should be swapped
+        assert t.entries[0][0].text.at_time(0) == text10
+        assert t.entries[1][0].text.at_time(0) == text00
+
+
+class TestCircleTangentAlias:
+    """Test that tangent_line_from_point is an alias for get_tangent_lines."""
+
+    def test_alias_same_result(self):
+        c = Circle(r=100, cx=400, cy=400)
+        lines1 = c.get_tangent_lines(600, 400)
+        lines2 = c.tangent_line_from_point(600, 400)
+        assert len(lines1) == len(lines2) == 2
+
+    def test_inside_point_empty(self):
+        c = Circle(r=100, cx=400, cy=400)
+        assert c.tangent_line_from_point(400, 400) == []
+
+
+class TestLineClosestPointAlias:
+    """Test that closest_point_on_segment is an alias for get_perpendicular_point."""
+
+    def test_alias_same_result(self):
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        p1 = line.get_perpendicular_point(50, 50)
+        p2 = line.closest_point_on_segment(50, 50)
+        assert p1[0] == pytest.approx(p2[0])
+        assert p1[1] == pytest.approx(p2[1])
+
+    def test_clamped_to_segment(self):
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        p = line.closest_point_on_segment(200, 0)
+        assert p[0] == pytest.approx(100)
+        assert p[1] == pytest.approx(0)
+
+
+class TestTextSplitWordsAlias:
+    """Test that split_words delegates to split_into_words."""
+
+    def test_split_words_returns_vcollection(self):
+        t = Text(text='hello world')
+        result = t.split_words()
+        assert len(result.objects) == 2
+
+    def test_split_words_text_content(self):
+        t = Text(text='foo bar baz')
+        result = t.split_words()
+        texts = [obj.text.at_time(0) for obj in result.objects]
+        assert texts == ['foo', 'bar', 'baz']
+
+
+class TestBaseHelpersGetCenter:
+    """Test that get_center alias still works after removing duplicate."""
+
+    def test_circle_get_center(self):
+        c = Circle(r=50, cx=100, cy=200)
+        assert c.get_center() == c.center()
+
+    def test_rectangle_get_center(self):
+        r = Rectangle(width=100, height=50, x=300, y=400)
+        assert r.get_center() == r.center()
+

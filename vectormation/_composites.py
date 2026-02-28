@@ -7,7 +7,7 @@ import vectormation.attributes as attributes
 import vectormation.style as style
 import vectormation.morphing as morphing
 from vectormation._constants import SMALL_BUFF, TEXT_Y_OFFSET, _label_text
-from vectormation._base import VObject, VCollection, _norm_dir, _ramp
+from vectormation._base import VObject, VCollection, _norm_dir
 from vectormation._shapes import Polygon, Dot, Rectangle, Line, Lines, Text, Path
 from vectormation._arrows import Arrow, Brace
 from vectormation._svg_utils import from_svg
@@ -684,33 +684,25 @@ class Table(VCollection):
     def get_row(self, row): return VCollection(*self.entries[row])
     def get_column(self, col): return VCollection(*(row[col] for row in self.entries if col < len(row)))
 
-    def highlight_cell(self, row, col, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
-        """Flash-highlight a single cell's text."""
-        self.entries[row][col].flash(start, end, color=color, easing=easing)
+    def _flash(self, entries, start, end, color, easing=easings.there_and_back):
+        for e in entries: e.flash(start, end, color=color, easing=easing)
         return self
 
-    def highlight_row(self, row_idx, start=0, end=1, color='#FFFF00', opacity=0.3, easing=None):
-        """Highlight all cells in a row by setting their fill color."""
-        easing = easing or easings.there_and_back
-        dur = end - start
-        for entry in self.entries[row_idx]:
-            entry.set_fill(color=color, start=start)
-            if dur > 0:
-                entry.styling.fill_opacity.set(start, end, _ramp(start, dur, opacity, easing))
-        return self
+    def highlight_cell(self, row, col, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+        """Flash-highlight a single cell's text."""
+        return self._flash([self.entries[row][col]], start, end, color, easing)
+
+    def highlight_row(self, row_idx, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+        """Flash-highlight all cells in a row."""
+        return self._flash(self.entries[row_idx], start, end, color, easing)
 
     def highlight_column(self, col, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
         """Flash-highlight all cells in a column."""
-        for row in self.entries:
-            if col < len(row):
-                row[col].flash(start, end, color=color, easing=easing)
-        return self
+        return self._flash([row[col] for row in self.entries if col < len(row)], start, end, color, easing)
 
     def highlight_cells(self, cells, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
         """Flash-highlight multiple cells. cells: list of (row, col) tuples."""
-        for r, c in cells:
-            self.entries[r][c].flash(start, end, color=color, easing=easing)
-        return self
+        return self._flash([self.entries[r][c] for r, c in cells], start, end, color, easing)
 
     def set_cell_value(self, row, col, new_value, start: float = 0):
         """Change the text of a cell at the given time."""
@@ -887,30 +879,32 @@ class Table(VCollection):
         self.objects.extend(new_objects)
         return self
 
+    def _swap_dim(self, i, j, is_row, start=0, end=1, easing=easings.smooth):
+        dim = self.rows if is_row else self.cols
+        if i == j or not (0 <= i < dim) or not (0 <= j < dim):
+            return self
+        attr = 'y' if is_row else 'x'
+        shift_kw = 'dy' if is_row else 'dx'
+        for idx in range(self.cols if is_row else self.rows):
+            a = self.entries[i][idx] if is_row else self.entries[idx][i]
+            b = self.entries[j][idx] if is_row else self.entries[idx][j]
+            av, bv = getattr(a, attr).at_time(start), getattr(b, attr).at_time(start)
+            a.shift(**{shift_kw: bv - av}, start=start, end=end, easing=easing)
+            b.shift(**{shift_kw: av - bv}, start=start, end=end, easing=easing)
+        if is_row:
+            self.entries[i], self.entries[j] = self.entries[j], self.entries[i]
+        else:
+            for r in range(self.rows):
+                self.entries[r][i], self.entries[r][j] = self.entries[r][j], self.entries[r][i]
+        return self
+
     def swap_rows(self, i, j, start=0, end=1, easing=easings.smooth):
         """Animate swapping two table rows."""
-        if i == j or not (0 <= i < self.rows) or not (0 <= j < self.rows):
-            return self
-        for c in range(self.cols):
-            a, b = self.entries[i][c], self.entries[j][c]
-            ay = a.y.at_time(start)
-            by = b.y.at_time(start)
-            a.shift(dy=by - ay, start=start, end=end, easing=easing)
-            b.shift(dy=ay - by, start=start, end=end, easing=easing)
-        self.entries[i], self.entries[j] = self.entries[j], self.entries[i]
-        return self
+        return self._swap_dim(i, j, True, start, end, easing)
 
     def swap_columns(self, i, j, start=0, end=1, easing=easings.smooth):
         """Animate swapping two table columns."""
-        if i == j or not (0 <= i < self.cols) or not (0 <= j < self.cols):
-            return self
-        for r in range(self.rows):
-            a, b = self.entries[r][i], self.entries[r][j]
-            ax, bx = a.x.at_time(start), b.x.at_time(start)
-            a.shift(dx=bx - ax, start=start, end=end, easing=easing)
-            b.shift(dx=ax - bx, start=start, end=end, easing=easing)
-            self.entries[r][i], self.entries[r][j] = self.entries[r][j], self.entries[r][i]
-        return self
+        return self._swap_dim(i, j, False, start, end, easing)
 
     def highlight_where(self, predicate, start=0, end=1, color='#FFFF00',
                         easing=easings.there_and_back):

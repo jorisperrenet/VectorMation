@@ -7458,40 +7458,39 @@ class TestTableHighlightRow:
         assert result is t
 
     def test_changes_fill_color(self):
-        """Highlighting should change the fill color of row cells."""
+        """Highlighting should change the fill color of row cells at midpoint."""
         t = Table([[1, 2], [3, 4]])
-        t.highlight_row(0, start=0, end=1, color='#FF0000')
-        # At start time, fill should be the highlight color
+        t.highlight_row(0, start=0, end=2, color='#FF0000')
+        # At midpoint of there_and_back, fill should be near the highlight color
         entry = t.entries[0][0]
-        fill = entry.styling.fill.time_func(0)
-        assert fill == (255, 0, 0)
+        fill = entry.styling.fill.time_func(1)
+        assert fill[0] > 200  # R channel near 255
 
-    def test_opacity_at_midpoint(self):
-        """With there_and_back easing, opacity should peak at midpoint."""
+    def test_flash_at_midpoint(self):
+        """With there_and_back easing, flash fill should appear at midpoint."""
         t = Table([[1, 2], [3, 4]])
-        t.highlight_row(0, start=0, end=2, opacity=0.6)
+        t.highlight_row(0, start=0, end=2, color='#FFFF00')
         entry = t.entries[0][0]
-        mid_opacity = entry.styling.fill_opacity.at_time(1)
-        # At midpoint of there_and_back, should be near peak
-        assert mid_opacity > 0.3
+        fill_mid = entry.styling.fill.time_func(1)
+        # At midpoint of there_and_back, should be near yellow
+        assert fill_mid[0] > 200  # R channel near 255
 
-    def test_opacity_at_boundaries(self):
-        """Opacity should be near zero at start and end."""
+    def test_flash_at_boundaries(self):
+        """Flash fill should return to original at boundaries."""
         t = Table([[1, 2], [3, 4]])
-        t.highlight_row(0, start=0, end=2, opacity=0.6)
-        entry = t.entries[0][0]
-        start_opacity = entry.styling.fill_opacity.at_time(0)
-        end_opacity = entry.styling.fill_opacity.at_time(2)
-        assert start_opacity == pytest.approx(0.0, abs=0.05)
-        assert end_opacity == pytest.approx(0.0, abs=0.05)
+        original_fill = t.entries[0][0].styling.fill.time_func(0)
+        t.highlight_row(0, start=0, end=2, color='#FFFF00')
+        # After the flash ends, fill should revert
+        end_fill = t.entries[0][0].styling.fill.time_func(2)
+        assert end_fill == original_fill
 
     def test_all_cells_in_row_highlighted(self):
         """All cells in the row should be affected."""
         t = Table([[1, 2, 3], [4, 5, 6]])
-        t.highlight_row(0, start=0, end=1, color='#00FF00')
+        t.highlight_row(0, start=0, end=2, color='#00FF00')
         for entry in t.entries[0]:
-            fill = entry.styling.fill.time_func(0)
-            assert fill == (0, 255, 0)
+            fill = entry.styling.fill.time_func(1)
+            assert fill[1] > 200  # G channel near 255
 
     def test_other_row_unaffected(self):
         """Cells in other rows should not be affected."""

@@ -257,13 +257,14 @@ VCollection
 
       Spread children in a fan pattern.
 
-   .. py:method:: cascade_fadein(start=0, delay=0.15, duration=0.5, easing=smooth)
+   .. py:method:: cascade_fadein(start=0, end=1, direction='left_to_right', easing=smooth)
 
-      Staggered fade-in of children with delay.
+      Fade in children with a cascade effect based on spatial ordering.
+      Directions: ``'left_to_right'``, ``'top_to_bottom'``, ``'center_out'``.
 
-   .. py:method:: connect_children(start=0, stroke='#fff', stroke_width=2)
+   .. py:method:: connect_children(arrow=False, buff=0, start=0, **kwargs)
 
-      Draw lines connecting consecutive children.
+      Draw connecting lines (or arrows) between consecutive children.
 
    .. py:method:: batch_animate(method_name, args_list, start=0, delay=0.1)
 

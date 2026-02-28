@@ -469,11 +469,7 @@ class Line(VObject):
         t = ((px - x1) * dx + (py - y1) * dy) / len_sq
         return (x1 + t * dx, y1 + t * dy)
 
-    def closest_point_on_segment(self, px, py, time=0):
-        """Return the closest point on this line **segment** to point (px, py)."""
-        t = max(0.0, min(1.0, self.parameter_at(px, py, time)))
-        x1, y1, x2, y2 = self._ep(time)
-        return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
+    closest_point_on_segment = get_perpendicular_point
 
     def parameter_at(self, px, py, time=0):
         """Return the parameter t for the projection of (px, py) onto the line."""
@@ -808,20 +804,9 @@ class Text(VObject):
                 self.font_size.at_time(time) * CHAR_WIDTH_FACTOR,
                 self.styling.fill.time_func(time))
 
-    def split_words(self, time=0):
+    def split_words(self, time=0, **kwargs):
         """Split text into a VCollection of individual word Text objects."""
-        from vectormation._base import VCollection
-        full, x, y, fs, cw, fill = self._text_split_ctx(time)
-        words = full.split()
-        if not words:
-            return VCollection()
-        parts, cursor = [], 0
-        for word in words:
-            idx = full.index(word, cursor)
-            parts.append(Text(text=word, x=x + idx * cw, y=y, font_size=fs,
-                              creation=time, stroke_width=0, fill=fill))
-            cursor = idx + len(word)
-        return VCollection(*parts)
+        return self.split_into_words(time, **kwargs)
 
     def split_chars(self, time=0):
         """Split text into a VCollection of individual character Text objects."""

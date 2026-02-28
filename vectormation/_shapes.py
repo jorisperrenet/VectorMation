@@ -1411,35 +1411,7 @@ class Circle(Ellipse):
         return Annulus(inner_radius=r * inner_ratio, outer_radius=r,
                        cx=cx, cy=cy, **kwargs)
 
-    def tangent_line_from_point(self, px, py, time=0, length=200, **kwargs):
-        """Return tangent line(s) from an external point to this circle."""
-        cx, cy = self.c.at_time(time)
-        r = self.rx.at_time(time)
-        d = _distance(cx, cy, px, py)
-        if d < r - 1e-9:
-            return []
-        if abs(d) < 1e-12:
-            return []
-        ux, uy = (px - cx) / d, (py - cy) / d
-        if d <= r + 1e-9:
-            tx, ty = -uy, ux
-            half = length / 2
-            return [Line(x1=px - tx * half, y1=py - ty * half,
-                         x2=px + tx * half, y2=py + ty * half, **kwargs)]
-        half_angle = math.acos(max(-1.0, min(1.0, r / d)))
-        base_angle = math.atan2(py - cy, px - cx)
-        lines = []
-        for sign in (1, -1):
-            touch_angle = base_angle + sign * half_angle
-            tx_touch = cx + r * math.cos(touch_angle)
-            ty_touch = cy + r * math.sin(touch_angle)
-            td_x = -math.sin(touch_angle)
-            td_y = math.cos(touch_angle)
-            half = length / 2
-            lines.append(Line(x1=tx_touch - td_x * half, y1=ty_touch - td_y * half,
-                               x2=tx_touch + td_x * half, y2=ty_touch + td_y * half,
-                               **kwargs))
-        return lines
+    tangent_line_from_point = get_tangent_lines
 
     def to_svg(self, time):
         cx, cy = self.c.at_time(time)
