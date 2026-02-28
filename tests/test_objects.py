@@ -17730,3 +17730,41 @@ class TestSampleGrid:
         assert (10, 10) in pts
         assert len(pts) == 9  # 3x3 grid
 
+
+class TestStaggerTiming:
+    def test_single_item(self):
+        from vectormation._collection import _stagger_timing
+        child_dur, step = _stagger_timing(1, 2.0, 0.5)
+        assert child_dur == 2.0
+        assert step == 0
+
+    def test_sequential(self):
+        from vectormation._collection import _stagger_timing
+        child_dur, step = _stagger_timing(3, 3.0, 0.0)
+        assert child_dur == pytest.approx(1.0)
+        assert step == pytest.approx(1.0)
+
+    def test_full_overlap(self):
+        from vectormation._collection import _stagger_timing
+        child_dur, step = _stagger_timing(5, 2.0, 1.0)
+        assert child_dur == pytest.approx(2.0)
+        assert step == pytest.approx(0.0)
+
+
+class TestTextHighlightHelper:
+    def test_highlight_returns_rect(self):
+        t = Text(text='Hello World', x=500, y=300, font_size=48)
+        rect = t.highlight(start=0, end=1)
+        assert isinstance(rect, Rectangle)
+
+    def test_highlight_substring_returns_rect(self):
+        t = Text(text='Hello World', x=500, y=300, font_size=48)
+        rect = t.highlight_substring('World', start=0, end=1)
+        assert isinstance(rect, Rectangle)
+
+    def test_highlight_substring_not_found(self):
+        t = Text(text='Hello', x=500, y=300, font_size=48)
+        rect = t.highlight_substring('xyz')
+        # Should return empty rect
+        assert isinstance(rect, Rectangle)
+

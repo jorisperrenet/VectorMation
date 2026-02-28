@@ -11,6 +11,13 @@ from vectormation._base import (
     _make_brect, _set_attr, _parse_path,
     _BBoxMethodsMixin,
 )
+def _stagger_timing(n, dur, overlap):
+    """Compute (child_dur, step) for *n* items over *dur* with *overlap* fraction."""
+    if n <= 1:
+        return dur, 0
+    child_dur = dur / (1 + (1 - overlap) * (n - 1))
+    return child_dur, child_dur * (1 - overlap)
+
 class VCollection(_BBoxMethodsMixin):
     """Container for a group of VObjects, delegating operations to children."""
 
@@ -742,12 +749,7 @@ class VCollection(_BBoxMethodsMixin):
         if dur <= 0:
             return self
         overlap = max(0.0, min(1.0, overlap))
-        if n == 1:
-            child_dur = dur
-            step = 0
-        else:
-            child_dur = dur / (1 + (1 - overlap) * (n - 1))
-            step = child_dur * (1 - overlap)
+        child_dur, step = _stagger_timing(n, dur, overlap)
         for i, obj in enumerate(self.objects):
             s = start + i * step
             e = s + child_dur
@@ -1277,11 +1279,7 @@ class VCollection(_BBoxMethodsMixin):
         if n == 0 or end <= start:
             return self
         dur = end - start
-        if n == 1:
-            child_dur, delay = dur, 0
-        else:
-            child_dur = dur / (1 + (1 - stagger_frac) * (n - 1))
-            delay = child_dur * (1 - stagger_frac)
+        child_dur, delay = _stagger_timing(n, dur, stagger_frac)
         for i, obj in enumerate(self.objects):
             cs = start + i * delay
             ce = cs + child_dur

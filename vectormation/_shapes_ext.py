@@ -625,6 +625,15 @@ class Text(VObject):
         self.text.set(start, end, _text_at, stay=True)
         return self
 
+    @staticmethod
+    def _highlight_rect(rect, start, end, opacity, easing):
+        """Apply fade-in/out opacity animation to a highlight rectangle."""
+        dur = end - start
+        if dur > 0:
+            rect.styling.fill_opacity.set(start, end,
+                _ramp(start, dur, opacity, easing), stay=True)
+        return rect
+
     def highlight(self, start=0, end=1, color='#FFFF00', opacity=0.3, padding=4, easing=easings.there_and_back):
         """Highlight the text with a colored background rectangle that fades in/out.
         Returns the highlight Rectangle (must be added to canvas separately)."""
@@ -632,12 +641,7 @@ class Text(VObject):
         rect = Rectangle(bw + 2 * padding, bh + 2 * padding,
                          x=bx - padding, y=by - padding,
                          creation=start, fill=color, fill_opacity=0, stroke_width=0)
-        dur = end - start
-        if dur <= 0:
-            return rect
-        rect.styling.fill_opacity.set(start, end,
-            _ramp(start, dur, opacity, easing), stay=True)
-        return rect
+        return self._highlight_rect(rect, start, end, opacity, easing)
 
     def highlight_substring(self, substring, color='#FFFF00', start=0, end=1,
                             opacity=0.3, easing=easings.there_and_back):
@@ -646,26 +650,16 @@ class Text(VObject):
         text_val = str(self.text.at_time(start))
         idx = text_val.find(substring)
         if idx < 0:
-            return Rectangle(0, 0, x=0, y=0)  # empty rect
+            return Rectangle(0, 0, x=0, y=0)
         fs = self.font_size.at_time(start)
-        x = self.x.at_time(start)
-        y = self.y.at_time(start)
-        # Adjust for text anchor
+        x, y = self.x.at_time(start), self.y.at_time(start)
         total_w = self._estimate_width(text_val, fs)
         xl = self._text_left(x, total_w)
-        # Approximate x offset to the substring
         prefix_w = self._estimate_width(text_val[:idx], fs)
         sub_w = self._estimate_width(substring, fs)
-        rx = xl + prefix_w
-        ry = y - fs * 0.8
-        rh = fs * 1.2
-        rect = Rectangle(sub_w, rh, x=rx, y=ry, creation=start,
-                         fill=color, fill_opacity=0, stroke_width=0)
-        dur = end - start
-        if dur > 0:
-            rect.styling.fill_opacity.set(start, end,
-                _ramp(start, dur, opacity, easing), stay=True)
-        return rect
+        rect = Rectangle(sub_w, fs * 1.2, x=xl + prefix_w, y=y - fs * 0.8,
+                         creation=start, fill=color, fill_opacity=0, stroke_width=0)
+        return self._highlight_rect(rect, start, end, opacity, easing)
 
     def typewrite(self, start=0, end=1, cursor='|', change_existence=True):
         """Reveal text character by character like a typewriter.
