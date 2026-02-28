@@ -2095,7 +2095,7 @@ class _AxesExtMixin:
         lbl = Text(text=str(label_text), x=0, y=0, font_size=font_size,
                    creation=creation, z=z, **style_kw)
 
-        _get_xv = ((lambda t, _xp=x_pos: _xp) if x_pos is not None
+        _get_xv = ((lambda _t, _xp=x_pos: _xp) if x_pos is not None
                    else lambda t: self.x_max.at_time(t))
 
         def _lbl_x(t): return self._math_to_svg_x(_get_xv(t), t)

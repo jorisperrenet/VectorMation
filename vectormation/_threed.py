@@ -61,6 +61,15 @@ def _arrow_tip_points(sx0, sy0, sx1, sy1, tip_length, tip_radius):
             (sx1 - ux * tip_length - px * tip_radius,
              sy1 - uy * tip_length - py * tip_radius))
 
+def _flat_quad_func(corner, u_dir, v_dir):
+    """Return parametric (u,v)->3D point for a flat quad: corner + u*u_dir + v*v_dir."""
+    cx, cy, cz = corner
+    ux, uy, uz = u_dir
+    vx, vy, vz = v_dir
+    def f(u, v):
+        return (cx + u * ux + v * vx, cy + u * uy + v * vy, cz + u * uz + v * vz)
+    return f
+
 def _polyline_patch(points_3d, axes, time, stroke, stroke_width):
     """Project 3D points and return a (depth, svg_polyline) patch."""
     pts = []
@@ -326,21 +335,14 @@ class ThreeDAxes(VCollection):
 
     # -- Rendering --
 
-    def _render_axis_line(self, p0, p1, time):
-        """Render a single axis line as SVG."""
-        sx0, sy0, _ = self.project_point(*p0, time)
-        sx1, sy1, _ = self.project_point(*p1, time)
+    def _render_axis_svg(self, sx0, sy0, sx1, sy1, tip_size=8):
+        """Render axis line + arrowhead from pre-projected screen coords."""
         stroke = self._axis_style.get('stroke', '#888')
         sw = self._axis_style.get('stroke_width', 2)
-        return f'<line x1="{sx0:.1f}" y1="{sy0:.1f}" x2="{sx1:.1f}" y2="{sy1:.1f}" stroke="{stroke}" stroke-width="{sw}"/>'
-
-    def _render_arrow_tip(self, p_base, p_tip, time, size=8):
-        """Render a small arrowhead at p_tip."""
-        sx0, sy0, _ = self.project_point(*p_base, time)
-        sx1, sy1, _ = self.project_point(*p_tip, time)
-        (ax, ay), (bx, by) = _arrow_tip_points(sx0, sy0, sx1, sy1, size, size * 0.4)
-        stroke = self._axis_style.get('stroke', '#888')
-        return (f'<polygon points="{sx1:.1f},{sy1:.1f} {ax:.1f},{ay:.1f} {bx:.1f},{by:.1f}" '
+        (ax, ay), (bx, by) = _arrow_tip_points(sx0, sy0, sx1, sy1, tip_size, tip_size * 0.4)
+        return (f'<line x1="{sx0:.1f}" y1="{sy0:.1f}" x2="{sx1:.1f}" y2="{sy1:.1f}" '
+                f'stroke="{stroke}" stroke-width="{sw}"/>\n'
+                f'<polygon points="{sx1:.1f},{sy1:.1f} {ax:.1f},{ay:.1f} {bx:.1f},{by:.1f}" '
                 f'fill="{stroke}" stroke="none"/>')
 
     def _render_tick_3d(self, pos_3d, perp_3d, value, time, font_size=18):
@@ -386,11 +388,10 @@ class ThreeDAxes(VCollection):
             ((0, yr[0], 0), (0, yr[1], 0)),
             ((0, 0, zr[0]), (0, 0, zr[1])),
         ]:
-            _, _, d0 = self.project_point(*axis_start, time)
-            _, _, d1 = self.project_point(*axis_end, time)
+            sx0, sy0, d0 = self.project_point(*axis_start, time)
+            sx1, sy1, d1 = self.project_point(*axis_end, time)
             depth = (d0 + d1) / 2
-            svg = self._render_axis_line(axis_start, axis_end, time)
-            svg += '\n' + self._render_arrow_tip(axis_start, axis_end, time)
+            svg = self._render_axis_svg(sx0, sy0, sx1, sy1)
             patches.append((depth, svg))
 
         # Ticks
@@ -884,14 +885,8 @@ def Cube(side_length=2, center=(0, 0, 0), fill_color='#58C4DD',
         ((cx + h, cy - h, cz - h), (0, side_length, 0), (0, 0, side_length)),  # right (x+)
     ]
     for corner, u_dir, v_dir in face_defs:
-        def _make_func(c, ud, vd):
-            def f(u, v):
-                return (c[0] + u * ud[0] + v * vd[0],
-                        c[1] + u * ud[1] + v * vd[1],
-                        c[2] + u * ud[2] + v * vd[2])
-            return f
-        func = _make_func(corner, u_dir, v_dir)
-        faces.append(Surface(func, u_range=(0, 1), v_range=(0, 1),
+        faces.append(Surface(_flat_quad_func(corner, u_dir, v_dir),
+                             u_range=(0, 1), v_range=(0, 1),
                              resolution=(1, 1),
                              fill_color=fill_color, stroke_color=stroke_color,
                              stroke_width=stroke_width, fill_opacity=fill_opacity,
@@ -959,14 +954,10 @@ def Prism3D(n_sides=6, radius=1, height=2, center=(0, 0, 0),
         c0 = (cx + radius * math.cos(a0), cy + radius * math.sin(a0))
         c1 = (cx + radius * math.cos(a1), cy + radius * math.sin(a1))
 
-        def _make_side(p0, p1, _cz=cz, _h=h):
-            def f(u, v):
-                x = p0[0] + u * (p1[0] - p0[0])
-                y = p0[1] + u * (p1[1] - p0[1])
-                return (x, y, _cz - _h + v * 2 * _h)
-            return f
-
-        faces.append(Surface(_make_side(c0, c1), u_range=(0, 1), v_range=(0, 1),
+        faces.append(Surface(_flat_quad_func(
+            (c0[0], c0[1], cz - h),
+            (c1[0] - c0[0], c1[1] - c0[1], 0),
+            (0, 0, 2 * h)), u_range=(0, 1), v_range=(0, 1),
                              resolution=(1, 1),
                              fill_color=fill_color, stroke_color=stroke_color,
                              stroke_width=stroke_width, fill_opacity=fill_opacity,
@@ -1016,6 +1007,8 @@ def _polyhedron_faces(vertices, face_indices, *,
     faces = []
     for idxs in face_indices:
         pts = [verts[i] for i in idxs]
+        if len(pts) < 3:
+            continue
 
         def _make_face(_pts=pts):
             n = len(_pts)
