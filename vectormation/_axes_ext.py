@@ -773,10 +773,10 @@ class _AxesExtMixin:
             _upper = cumulative[si + 1]
             _xv = x_values
             def _area_d(time, _lo=_lower, _hi=_upper, _xs=_xv):
-                pts_hi = [self.coords_to_point(_xs[j], _hi[j], time)
-                          for j in range(len(_xs))]
-                pts_lo = [self.coords_to_point(_xs[j], _lo[j], time)
-                          for j in range(len(_xs))]
+                pts_hi = [self.coords_to_point(x, hi, time)
+                          for x, hi in zip(_xs, _hi)]
+                pts_lo = [self.coords_to_point(x, lo, time)
+                          for x, lo in zip(_xs, _lo)]
                 return _band_path(pts_hi, pts_lo)
             area.d.set_onward(creation, _area_d)
             self._add_plot_obj(area)

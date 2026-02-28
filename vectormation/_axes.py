@@ -947,9 +947,7 @@ class Axes(_AxesExtMixin, VCollection):
     def _lerp_colormap(frac, colormap):
         """Interpolate a color from a colormap: list of (frac, '#rrggbb') stops."""
         frac = max(0, min(1, frac))
-        for i in range(len(colormap) - 1):
-            f0, c0 = colormap[i]
-            f1, c1 = colormap[i + 1]
+        for (f0, c0), (f1, c1) in zip(colormap, colormap[1:]):
             if f0 <= frac <= f1:
                 from vectormation.colors import interpolate_color
                 t = (frac - f0) / max(f1 - f0, 1e-9)

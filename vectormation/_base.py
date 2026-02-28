@@ -1348,8 +1348,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def flash_scale(self, factor=1.5, start: float = 0, end: float = 1, easing=easings.smooth):
         """Scale up to *factor* at the midpoint, then back to original size."""
-        _f = factor
-        def _flash(p, _f=_f):
+        def _flash(p, _f=factor):
             return 1 + (_f - 1) * math.sin(math.pi * p)
         return self._apply_scale_envelope(start, end, _flash, easing, stay=False)
 
@@ -1384,8 +1383,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         s = start
         for attr in (self.styling.scale_x, self.styling.scale_y):
             base = attr.at_time(start)
-            _sf = scale_factor
-            attr.set(s, end, _lerp(s, dur, base, base * _sf, easing))
+            attr.set(s, end, _lerp(s, dur, base, base * scale_factor, easing))
         return self
 
     def glow(self, start: float = 0, end: float = 1, color='#FFD700', radius=10):
@@ -1650,11 +1648,10 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                 t0 = start + i * cycle
                 t_mid = t0 + half
                 t1 = t0 + cycle
-                _t0, _t_mid, _h = t0, t_mid, half
                 self.styling.opacity.set(
-                    _t0, _t_mid, _ramp_down(_t0, _h, 1, easing))
+                    t0, t_mid, _ramp_down(t0, half, 1, easing))
                 self.styling.opacity.set(
-                    _t_mid, t1, _ramp(_t_mid, _h, 1, easing),
+                    t_mid, t1, _ramp(t_mid, half, 1, easing),
                     stay=True)
             return self
         # Legacy single-blink mode: flash to 0 and back over *duration*
@@ -1674,11 +1671,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         dur = end - start
         if dur <= 0 or frequency <= 0:
             return self
-        _s, _d = start, dur
-        _min, _max = min_opacity, max_opacity
-        _freq, _e = frequency, easing
-
-        def _opacity(t, _s=_s, _d=_d, _min=_min, _max=_max, _freq=_freq, _e=_e):
+        def _opacity(t, _s=start, _d=dur, _min=min_opacity, _max=max_opacity, _freq=frequency, _e=easing):
             progress = _e((t - _s) / _d)
             # sine wave: 0..1..0..-1..0 per cycle; we map to 0..1 range
             wave = 0.5 * (1 - math.cos(math.tau * _freq * progress))
@@ -1724,8 +1717,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if dur <= 0:
             return self
         self._ensure_scale_origin(start)
-        _s, _d = start, max(dur, 1e-9)
-        def _scale(t, _s=_s, _d=_d, _a=amplitude, _w=n_waves, _easing=easing):
+        def _scale(t, _s=start, _d=max(dur, 1e-9), _a=amplitude, _w=n_waves, _easing=easing):
             p = (t - _s) / _d
             return 1 + _a * math.sin(p * _w * math.tau) * (1 - _easing(p))
         self._set_scale_xy(start, end, _scale)
@@ -1772,12 +1764,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        _s, _d = start, max(dur, 1e-9)
-        _rad = math.radians(degrees)
-        _sa, _cx, _cy, _r = start_angle, cx, cy, radius
-        _ocx, _ocy = obj_cx, obj_cy
-        def _pos(t, _s=_s, _d=_d, _rad=_rad, _sa=_sa, _cx=_cx, _cy=_cy,
-                 _r=_r, _ocx=_ocx, _ocy=_ocy, _easing=easing):
+        def _pos(t, _s=start, _d=max(dur, 1e-9), _rad=math.radians(degrees),
+                 _sa=start_angle, _cx=cx, _cy=cy,
+                 _r=radius, _ocx=obj_cx, _ocy=obj_cy, _easing=easing):
             progress = _easing((t - _s) / _d)
             angle = _sa + progress * _rad
             target_x = _cx + _r * math.cos(angle)

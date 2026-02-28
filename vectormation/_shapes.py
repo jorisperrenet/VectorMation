@@ -125,8 +125,8 @@ class Polygon(VObject):
         pts = self.get_vertices(time)
         if len(pts) < 2:
             return 0.0
-        total = sum(_distance(pts[i][0], pts[i][1], pts[i+1][0], pts[i+1][1])
-                    for i in range(len(pts) - 1))
+        total = sum(_distance(a[0], a[1], b[0], b[1])
+                    for a, b in zip(pts, pts[1:]))
         if self.closed and len(pts) > 2:
             total += _distance(pts[0][0], pts[0][1], pts[-1][0], pts[-1][1])
         return total
@@ -861,22 +861,19 @@ class Polygon(VObject):
             return Lines(*(pts[:1] or [(0, 0)]), **kwargs)
         # Compute cumulative edge lengths
         cum = [0.0]
-        for i in range(len(pts) - 1):
-            cum.append(cum[-1] + math.hypot(pts[i+1][0] - pts[i][0], pts[i+1][1] - pts[i][1]))
+        for p0, p1 in zip(pts, pts[1:]):
+            cum.append(cum[-1] + math.hypot(p1[0] - p0[0], p1[1] - p0[1]))
         total = cum[-1] if cum[-1] > 0 else 1
         # Convert a, b to absolute lengths
         la, lb = a * total, b * total
         result = []
-        for i in range(len(pts) - 1):
-            s0, s1 = cum[i], cum[i+1]
+        for (x0, y0), (x1, y1), s0, s1 in zip(pts, pts[1:], cum, cum[1:]):
             seg_len = s1 - s0
             if s1 <= la or s0 >= lb or seg_len == 0:
                 continue
             # Clip segment to [la, lb]
             ta = max(0, (la - s0) / seg_len)
             tb = min(1, (lb - s0) / seg_len)
-            x0, y0 = pts[i]
-            x1, y1 = pts[i+1]
             if not result:
                 result.append((x0 + ta * (x1 - x0), y0 + ta * (y1 - y0)))
             result.append((x0 + tb * (x1 - x0), y0 + tb * (y1 - y0)))

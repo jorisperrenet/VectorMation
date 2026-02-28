@@ -108,12 +108,12 @@ class _VObjectEffectsMixin:
         if end <= start:
             return self
         self._ensure_scale_origin(start)
-        _s, _d = start, max(end - start, 1e-9)
-        scale_fn = _lerp(_s, _d, 1, scale_factor, easing)
-        self._set_scale_xy(_s, end, scale_fn)
-        self.styling.opacity.set(_s, end, _lerp(_s, _d, 1, 0.7, easing))
+        _d = max(end - start, 1e-9)
+        scale_fn = _lerp(start, _d, 1, scale_factor, easing)
+        self._set_scale_xy(start, end, scale_fn)
+        self.styling.opacity.set(start, end, _lerp(start, _d, 1, 0.7, easing))
         shake_freq = 12
-        def _dx(t, _s=_s, _d=_d, _a=shake_amplitude, _freq=shake_freq, _e=easing):
+        def _dx(t, _s=start, _d=_d, _a=shake_amplitude, _freq=shake_freq, _e=easing):
             p = (t - _s) / _d
             return _a * math.sin(math.tau * _freq * p) * _e(p)
         self._apply_shift_effect(start, end, dx_func=_dx)
@@ -152,9 +152,8 @@ class _VObjectEffectsMixin:
             return self
         ox, oy = self.center(start)
         total_dx, total_dy = tx - ox, ty - oy
-        _s, _d = start, max(end - start, 1e-9)
-        _pb, _os = pullback, overshoot
-        def _progress(t, _s=_s, _d=_d, _pb=_pb, _os=_os, _e=easing):
+        _d = max(end - start, 1e-9)
+        def _progress(t, _s=start, _d=_d, _pb=pullback, _os=overshoot, _e=easing):
             p = _e((t - _s) / _d)
             if p < 0.2:
                 return -_pb * math.sin(p / 0.2 * math.pi / 2)
@@ -178,11 +177,9 @@ class _VObjectEffectsMixin:
         if dur <= 0:
             return self
         sx0, sy0 = self._init_scale_anim(start)
-        _s, _d = start, max(dur, 1e-9)
-        _h, _b, _sf = height, n_bounces, squash_factor
-        _sx0, _sy0 = sx0, sy0
+        _d = max(dur, 1e-9)
 
-        def _bounce_progress(t, _s=_s, _d=_d, _b=_b, _easing=easing):
+        def _bounce_progress(t, _s=start, _d=_d, _b=n_bounces, _easing=easing):
             """Return (vertical_offset, squash_envelope) at time t."""
             p = _easing((t - _s) / _d)
             if p >= 1.0:
@@ -198,11 +195,11 @@ class _VObjectEffectsMixin:
             return (vert, impact * decay)
 
         self._apply_shift_effect(start, end,
-            dy_func=lambda t, _h=_h: _bounce_progress(t)[0] * _h)
+            dy_func=lambda t, _h=height: _bounce_progress(t)[0] * _h)
         self.styling.scale_x.set(start, end,
-            lambda t, _sf=_sf, _sx0=_sx0: _sx0 * (1 + (_sf - 1) * _bounce_progress(t)[1]),
+            lambda t, _sf=squash_factor, _sx0=sx0: _sx0 * (1 + (_sf - 1) * _bounce_progress(t)[1]),
             stay=False)
-        def _scale_y(t, _sf=_sf, _sy0=_sy0):
+        def _scale_y(t, _sf=squash_factor, _sy0=sy0):
             peak = 1 + (_sf - 1) * _bounce_progress(t)[1]
             return _sy0 / peak if peak > 1e-9 else _sy0
         self.styling.scale_y.set(start, end, _scale_y, stay=False)
@@ -214,9 +211,9 @@ class _VObjectEffectsMixin:
         if dur <= 0:
             return self
         sx0, sy0 = self._init_scale_anim(start)
-        _s, _d = start, max(dur, 1e-9)
+        _d = max(dur, 1e-9)
         def _make(s0):
-            return lambda t, _s=_s, _d=_d, _s0=s0, _e=easing, _env=envelope: \
+            return lambda t, _s=start, _d=_d, _s0=s0, _e=easing, _env=envelope: \
                 _s0 * _env(_e((t - _s) / _d))
         self._set_scale_xy(start, end, _make(sx0), _make(sy0), stay=stay)
         return self
@@ -290,10 +287,9 @@ class _VObjectEffectsMixin:
             pivot_x, pivot_y, target_angle = bx, by + bh, -angle
         else:
             pivot_x, pivot_y, target_angle = bx + bw, by + bh, angle
-        _s, _d = start, max(dur, 1e-9)
-        _px, _py, _ta = pivot_x, pivot_y, target_angle
+        _d = max(dur, 1e-9)
         self.styling.rotation.set(start, end,
-            lambda t, _s=_s, _d=_d, _ta=_ta, _px=_px, _py=_py, _e=easing: (
+            lambda t, _s=start, _d=_d, _ta=target_angle, _px=pivot_x, _py=pivot_y, _e=easing: (
                 _ta * _e((t - _s) / _d), _px, _py),
             stay=True)
         return self
