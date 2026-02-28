@@ -150,14 +150,12 @@ class VectorMathAnim:
         self.add_objects(self.background)
         if grid:
             kw = dict(creation=creation, z=z, stroke=grid_color, stroke_width=1)
-            gx = 0.0
-            while gx <= self.width:
+            for i in range(int(self.width // grid_spacing) + 1):
+                gx = i * grid_spacing
                 self.add_objects(Line(x1=gx, y1=0, x2=gx, y2=self.height, **kw))
-                gx += grid_spacing
-            gy = 0.0
-            while gy <= self.height:
+            for i in range(int(self.height // grid_spacing) + 1):
+                gy = i * grid_spacing
                 self.add_objects(Line(x1=0, y1=gy, x2=self.width, y2=gy, **kw))
-                gy += grid_spacing
         return self
 
     def add_section(self, time):
@@ -512,10 +510,7 @@ class VectorMathAnim:
             end = self._resolve_end(None)
             logger.info('Found that the ending time is %s', end)
         self.end_anim = end
-        if start < 0:
-            self.start_anim = end + start
-        else:
-            self.start_anim = start
+        self.start_anim = end + start if start < 0 else start
         self.animate = not self.single_picture
         self.time = start
         self.frame_count = 0

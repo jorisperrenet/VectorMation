@@ -1238,9 +1238,7 @@ class GaugeChart(VCollection):
             return colors[0][0]
         if frac >= colors[-1][1]:
             return colors[-1][0]
-        for i in range(len(colors) - 1):
-            c0, p0 = colors[i]
-            c1, p1 = colors[i + 1]
+        for (c0, p0), (c1, p1) in zip(colors, colors[1:]):
             if p0 <= frac <= p1:
                 return interpolate_color(c0, c1, (frac - p0) / max(p1 - p0, 1e-9))
         return colors[-1][0]

@@ -223,16 +223,15 @@ def ease_in_out_circ(t: float) -> float:
     )
 
 # -- Back easings --
+_BACK_C3 = _BACK_C1 + 1
 
 @unit_interval
 def ease_in_back(t: float) -> float:
-    c3 = _BACK_C1 + 1
-    return c3 * t * t * t - _BACK_C1 * t * t
+    return _BACK_C3 * t * t * t - _BACK_C1 * t * t
 
 @unit_interval
 def ease_out_back(t: float) -> float:
-    c3 = _BACK_C1 + 1
-    return 1 + c3 * (t - 1) ** 3 + _BACK_C1 * (t - 1) ** 2
+    return 1 + _BACK_C3 * (t - 1) ** 3 + _BACK_C1 * (t - 1) ** 2
 
 @unit_interval
 def ease_in_out_back(t: float) -> float:
@@ -244,31 +243,32 @@ def ease_in_out_back(t: float) -> float:
     )
 
 # -- Elastic easings --
+_ELASTIC_C4 = (2 * pi) / 3
+_ELASTIC_C5 = (2 * pi) / 4.5
 
 @unit_interval
 def ease_in_elastic(t: float) -> float:
-    c4 = (2 * pi) / 3
     if t == 0: return 0
     if t == 1: return 1
-    return -pow(2, 10 * t - 10) * sin((t * 10 - 10.75) * c4)
+    return -pow(2, 10 * t - 10) * sin((t * 10 - 10.75) * _ELASTIC_C4)
 
 @unit_interval
 def ease_out_elastic(t: float) -> float:
-    c4 = (2 * pi) / 3
     if t == 0: return 0
     if t == 1: return 1
-    return pow(2, -10 * t) * sin((t * 10 - 0.75) * c4) + 1
+    return pow(2, -10 * t) * sin((t * 10 - 0.75) * _ELASTIC_C4) + 1
 
 @unit_interval
 def ease_in_out_elastic(t: float) -> float:
-    c5 = (2 * pi) / 4.5
     if t == 0: return 0
     if t == 1: return 1
     if t < 0.5:
-        return -(pow(2, 20 * t - 10) * sin((20 * t - 11.125) * c5)) / 2
-    return (pow(2, -20 * t + 10) * sin((20 * t - 11.125) * c5)) / 2 + 1
+        return -(pow(2, 20 * t - 10) * sin((20 * t - 11.125) * _ELASTIC_C5)) / 2
+    return (pow(2, -20 * t + 10) * sin((20 * t - 11.125) * _ELASTIC_C5)) / 2 + 1
 
 # -- Bounce easings --
+_BOUNCE_N = 7.5625
+_BOUNCE_D = 2.75
 
 @unit_interval
 def ease_in_bounce(t: float) -> float:
@@ -276,8 +276,8 @@ def ease_in_bounce(t: float) -> float:
 
 @unit_interval
 def ease_out_bounce(t: float) -> float:
-    n1 = 7.5625
-    d1 = 2.75
+    n1 = _BOUNCE_N
+    d1 = _BOUNCE_D
     if t < 1 / d1:
         return n1 * t * t
     elif t < 2 / d1:

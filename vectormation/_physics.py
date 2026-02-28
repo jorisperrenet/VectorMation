@@ -242,8 +242,6 @@ class PhysicsSpace:
             # Integrate (semi-implicit Euler for stability)
             for b in self.bodies:
                 if b.fixed:
-                    b._trajectory.append((b.x, b.y))
-                    b._angle_trajectory.append(b.angle)
                     continue
                 ax = b.fx / b.mass if b.mass else 0
                 ay = b.fy / b.mass if b.mass else 0
