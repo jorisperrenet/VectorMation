@@ -1845,10 +1845,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         dur = end - start
         if dur <= 0:
             return self
-        s = start
-        self.styling.stroke_dasharray.set_onward(s, f'{dash_length} {gap}')
-        self.styling.stroke_dashoffset.set(s, end,
-            _ramp_down(s, dur, total, easing), stay=True)
+        self.styling.stroke_dasharray.set_onward(start, f'{dash_length} {gap}')
+        self.styling.stroke_dashoffset.set(start, end,
+            _ramp_down(start, dur, total, easing), stay=True)
         return self
 
     # Shared inset clip-path templates: direction = which side gets clipped.
@@ -1930,12 +1929,12 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if dur <= 0 or n_flashes <= 0:
             return self
         flash_dur = min(0.05, dur / (n_flashes * 3))
-        s = start
         for i in range(n_flashes):
-            t0 = s + dur * (i + 0.5) / n_flashes
+            t0 = start + dur * (i + 0.5) / n_flashes
             t1 = t0 + flash_dur
-            dx = intensity * (1 if i % 2 == 0 else -1) * (0.5 + (i % 3) * 0.3)
-            dy = intensity * (0.3 if i % 3 == 0 else -0.5) * (0.4 + (i % 2) * 0.4)
+            envelope = easing((i + 0.5) / n_flashes)
+            dx = intensity * envelope * (1 if i % 2 == 0 else -1) * (0.5 + (i % 3) * 0.3)
+            dy = intensity * envelope * (0.3 if i % 3 == 0 else -0.5) * (0.4 + (i % 2) * 0.4)
             self._apply_shift_func(lambda t, _dx=dx, _dy=dy: (_dx, _dy), t0, t1, stay=False)
         return self
 
