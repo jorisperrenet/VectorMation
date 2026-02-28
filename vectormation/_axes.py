@@ -211,7 +211,7 @@ class Axes(_AxesExtMixin, VCollection):
             parts.append(self.axes.to_svg(time))
 
         # Render child objects (curves, areas, labels, etc.)
-        visible = [(getattr(o, 'z', attributes.Real(0, 0)).at_time(time), o)
+        visible = [((z.at_time(time) if (z := getattr(o, 'z', None)) is not None else 0), o)
                     for o in self.objects if o.show.at_time(time)]
         for _, obj in sorted(visible, key=lambda x: x[0]):
             parts.append(obj.to_svg(time))

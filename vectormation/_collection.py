@@ -132,7 +132,7 @@ class VCollection(_BBoxMethodsMixin):
         return deepcopy(self)
 
     def to_svg(self, time):
-        visible = [(getattr(o, 'z', attributes.Real(0, 0)).at_time(time), o)
+        visible = [((z.at_time(time) if (z := getattr(o, 'z', None)) is not None else 0), o)
                     for o in self.objects if o.show.at_time(time)]
         inner = '\n'.join(o.to_svg(time) for _, o in sorted(visible, key=lambda x: x[0]))
         sx, sy = self._scale_x.at_time(time), self._scale_y.at_time(time)

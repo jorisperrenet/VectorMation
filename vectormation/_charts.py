@@ -1107,8 +1107,9 @@ class TreeMap(VCollection):
             idx, (label, val) = items[0]
             return [(idx, (label, val), (x, y, w, h))]
         area = w * h
+        from collections import deque
         result = []
-        remaining = list(items)
+        remaining = deque(items)
         cx, cy, cw, ch = x, y, w, h
         while remaining:
             if len(remaining) == 1:
@@ -1117,7 +1118,7 @@ class TreeMap(VCollection):
                 break
             # Lay out along shorter side
             short = min(cw, ch)
-            row = [remaining.pop(0)]
+            row = [remaining.popleft()]
             row_area = row[0][1][1] / total * area
 
             def _worst(row_items, side, r_area):
@@ -1132,7 +1133,7 @@ class TreeMap(VCollection):
                 candidate = remaining[0]
                 new_area = row_area + candidate[1][1] / total * area
                 if _worst(row + [candidate], short, new_area) <= _worst(row, short, row_area):
-                    row.append(remaining.pop(0))
+                    row.append(remaining.popleft())
                     row_area = new_area
                 else:
                     break
