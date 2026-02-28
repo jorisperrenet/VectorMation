@@ -754,6 +754,8 @@ class VCollection(_BBoxMethodsMixin):
             getattr(obj, method_name)(start=s, end=e, **kwargs)
         return self
 
+    lagged_start = cascade  # Manim-compatible alias
+
     def _stagger_fade(self, method, start, end, shift_dir, shift_amount, overlap, easing):
         return self.cascade(method, start=start, end=end, overlap=overlap,
                             shift_dir=shift_dir, shift_amount=shift_amount, easing=easing)

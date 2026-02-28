@@ -11860,3 +11860,31 @@ class TestTransformFromCopy:
         # Returns a separate object (the ghost copy)
         assert ghost is not c
         assert ghost is not r
+
+
+class TestSuccession:
+    def test_basic_chain(self):
+        from vectormation.objects import succession
+        c1 = Circle(r=30, cx=100, cy=100)
+        c2 = Circle(r=30, cx=200, cy=200)
+        succession(
+            (c1, 'fadein'),
+            (c2, 'fadein'),
+            start=0,
+        )
+        # c1 should animate first (t=0..1), c2 second (t=1..2)
+        assert c1.styling.opacity.at_time(0) < 0.1
+        assert c2.styling.opacity.at_time(1) < 0.1
+
+    def test_with_kwargs(self):
+        from vectormation.objects import succession, UP
+        c = Circle(r=30, cx=100, cy=100)
+        succession(
+            (c, 'fadein', {'shift_dir': UP}),
+            start=0,
+        )
+        assert c.styling.opacity.at_time(0) < 0.1
+
+    def test_lagged_start_alias(self):
+        """VCollection.lagged_start should be an alias for cascade."""
+        assert VCollection.lagged_start is VCollection.cascade

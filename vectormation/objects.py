@@ -62,7 +62,7 @@ from vectormation._composites import (
     TexCountAnimation, ParametricFunction,
     NumberLine, Table, Matrix, DecimalMatrix, IntegerMatrix,
     DynamicObject,
-    always_redraw, parse_args,
+    always_redraw, parse_args, succession,
     transform_matching_shapes, transform_matching_tex,
 )
 

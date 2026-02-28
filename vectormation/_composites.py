@@ -1264,6 +1264,42 @@ def always_redraw(func, creation=0, z=0):
     func(time) should return a VObject."""
     return DynamicObject(func, creation=creation, z=z)
 
+
+def succession(*animation_steps, start: float = 0, lag_ratio: float = 0.0):
+    """Chain multiple animation steps in sequence.
+
+    Each step is a tuple ``(obj, method_name, kwargs)`` or ``(obj, method_name)``.
+    Steps are run in order; each step gets an equal portion of the total time.
+    ``lag_ratio`` controls overlap: 0 = no overlap, 0.5 = 50% overlap.
+
+    Example::
+
+        succession(
+            (circle, 'fadein'),
+            (square, 'write'),
+            (text, 'fadein', {'shift_dir': 'up'}),
+            start=0, lag_ratio=0.2,
+        )
+    """
+    n = len(animation_steps)
+    if n == 0:
+        return
+    # Determine total end time: each step nominally takes 1 second
+    total_dur = n  # 1s per step by default
+    if n == 1:
+        step_dur = total_dur
+        step_offset = 0
+    else:
+        step_dur = total_dur / (1 + (1 - lag_ratio) * (n - 1))
+        step_offset = step_dur * (1 - lag_ratio)
+    for i, step in enumerate(animation_steps):
+        obj = step[0]
+        method_name = step[1]
+        kwargs = step[2] if len(step) > 2 else {}
+        s = start + i * step_offset
+        e = s + step_dur
+        getattr(obj, method_name)(start=s, end=e, **kwargs)
+
 def parse_args():
     """Parse common CLI arguments for VectorMation scripts."""
     import argparse
@@ -1329,7 +1365,7 @@ def transform_matching_shapes(source, target, start: float = 0, end: float = 1, 
 
     def _default_key(obj, time):
         try:
-            x, y, w, h = obj.bbox(time)
+            _, _, w, h = obj.bbox(time)
             return round(w * h, -1)  # round to nearest 10 px²
         except Exception:
             return None

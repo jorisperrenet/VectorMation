@@ -1722,10 +1722,10 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             return self
         _s, _d = start, dur
         _min, _max = min_opacity, max_opacity
-        _freq = frequency
+        _freq, _e = frequency, easing
 
-        def _opacity(t, _s=_s, _d=_d, _min=_min, _max=_max, _freq=_freq):
-            progress = (t - _s) / _d
+        def _opacity(t, _s=_s, _d=_d, _min=_min, _max=_max, _freq=_freq, _e=_e):
+            progress = _e((t - _s) / _d)
             # sine wave: 0..1..0..-1..0 per cycle; we map to 0..1 range
             wave = 0.5 * (1 - math.cos(math.tau * _freq * progress))
             return _min + (_max - _min) * wave
