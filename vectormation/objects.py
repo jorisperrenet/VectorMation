@@ -49,7 +49,7 @@ from vectormation._shapes import (
 Sector = Wedge
 Triangle = EquilateralTriangle
 
-from vectormation._arrows import Arrow, DoubleArrow, CurvedArrow, Brace, Vector
+from vectormation._arrows import Arrow, DoubleArrow, CurvedArrow, Brace, BraceBetweenPoints, Vector
 
 from vectormation._axes import Axes, Graph, NumberPlane, ComplexPlane
 from vectormation._axes_helpers import (
@@ -115,6 +115,7 @@ from vectormation._data_structures import (
 from vectormation._science import (
     Resistor, Capacitor, Inductor, Diode, LED, UnitInterval, Molecule2D,
     NeuralNetwork, Pendulum, StandingWave,
+    Charge, ElectricField, Lens, Ray,
 )
 
 from vectormation.colors import (LinearGradient, RadialGradient,
@@ -124,7 +125,7 @@ from vectormation.colors import (LinearGradient, RadialGradient,
     triadic, analogous, split_complementary)
 
 from vectormation._threed import (
-    ThreeDAxes, Surface, Sphere3D, Cube,
+    ThreeDAxes, Surface, SurfaceMesh, Sphere3D, Cube,
     Line3D, Arrow3D, Dot3D, ParametricCurve3D, Text3D,
     Cylinder3D, Cone3D, Torus3D, Prism3D,
     Tetrahedron, Octahedron, Icosahedron, Dodecahedron,

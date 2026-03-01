@@ -80,7 +80,7 @@ class PieChart(VCollection):
         return _check_idx(index, self._sectors, 'sector')
 
     @staticmethod
-    def _sector_offset(sector, distance, time=0):
+    def _sector_offset(sector, distance, time: float = 0):
         """Compute (dx, dy) to push a Wedge sector outward by *distance*."""
         sa = sector.start_angle.at_time(time)
         ea = sector.end_angle.at_time(time)
@@ -807,7 +807,7 @@ class ProgressBar(VCollection):
 
     animate_to = set_progress  # Alias for backward compat
 
-    def get_progress(self, time=0):
+    def get_progress(self, time: float = 0):
         """Return the current progress value (0-1) at the given time."""
         fill_w = self._fill.width.at_time(time)
         return fill_w / self._bar_width if self._bar_width else 0

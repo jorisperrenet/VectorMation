@@ -107,7 +107,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         """Return the time of the last attribute change on this object."""
         return max(a.last_change for a in [*self._extra_attrs(), self.styling, self.z, self.show])
 
-    def is_on_screen(self, time=0):
+    def is_on_screen(self, time: float = 0):
         """Return True if the object's bounding box overlaps the visible canvas."""
         x, y, w, h = self.bbox(time)
         if w <= 0 or h <= 0:
@@ -227,7 +227,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         """Hide from time onward."""
         self.show.set_onward(time, False)
 
-    def is_visible(self, time=0):
+    def is_visible(self, time: float = 0):
         """Return True if this object is shown at the given time."""
         return bool(self.show.at_time(time))
 
@@ -401,7 +401,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         pts = [(xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax)]
         return self._bbox_from_points(pts, time) or (xmin, ymin, xmax - xmin, ymax - ymin)
 
-    def contains_point(self, px, py, time=0):
+    def contains_point(self, px, py, time: float = 0):
         """Return True if (px, py) lies inside this object's bounding box at *time*."""
         x, y, w, h = self.bbox(time)
         return x <= px <= x + w and y <= py <= y + h
@@ -1098,7 +1098,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.add_updater(_update, start=start, end=end)
         return self
 
-    def apply_pointwise(self, func, time=0):
+    def apply_pointwise(self, func, time: float = 0):
         """Apply ``func(x, y) -> (x', y')`` to the object's center position."""
         cx, cy = self.center(time)
         nx, ny = func(cx, cy)

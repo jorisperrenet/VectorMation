@@ -164,7 +164,7 @@ class Axes(_AxesExtMixin, VCollection):
             coll.objects.append(lbl)
         return coll
 
-    def _get_bounds(self, time=0):
+    def _get_bounds(self, time: float = 0):
         """Return (xmin, xmax, ymin, ymax) at the given time."""
         return (self.x_min.at_time(time), self.x_max.at_time(time),
                 self.y_min.at_time(time), self.y_max.at_time(time))
@@ -173,7 +173,7 @@ class Axes(_AxesExtMixin, VCollection):
         """Return (plot_x, plot_y, plot_width, plot_height) for the SVG plot region."""
         return (self.plot_x, self.plot_y, self.plot_width, self.plot_height)
 
-    def _math_to_svg_x(self, val, time=0):
+    def _math_to_svg_x(self, val, time: float = 0):
         xmin, xmax = self.x_min.at_time(time), self.x_max.at_time(time)
         if self._x_scale == 'log':
             if val <= 0 or xmin <= 0 or xmax <= 0:
@@ -184,7 +184,7 @@ class Axes(_AxesExtMixin, VCollection):
             span = 1
         return self.plot_x + (val - xmin) / span * self.plot_width
 
-    def _math_to_svg_y(self, val, time=0):
+    def _math_to_svg_y(self, val, time: float = 0):
         ymin, ymax = self.y_min.at_time(time), self.y_max.at_time(time)
         if self._y_scale == 'log':
             if val <= 0 or ymin <= 0 or ymax <= 0:
@@ -195,7 +195,7 @@ class Axes(_AxesExtMixin, VCollection):
             span = 1
         return self.plot_y + (1 - (val - ymin) / span) * self.plot_height
 
-    def _baseline_y(self, time=0):
+    def _baseline_y(self, time: float = 0):
         """SVG y-coordinate of y=0 (or bottom edge if 0 is out of range)."""
         ymin, ymax = self.y_min.at_time(time), self.y_max.at_time(time)
         if ymin <= 0 <= ymax and ymax != ymin:
@@ -522,17 +522,17 @@ class Axes(_AxesExtMixin, VCollection):
         self.animate_y_range(start, end, (ylo, yhi), **kwargs)
         return self
 
-    def get_origin(self, time=0):
+    def get_origin(self, time: float = 0):
         """Return the SVG pixel coordinates of the axes origin (0, 0)."""
         return self.coords_to_point(0, 0, time)
 
-    def coords_to_point(self, x, y, time=0):
+    def coords_to_point(self, x, y, time: float = 0):
         """Convert math coordinates to SVG pixel coordinates."""
         return (self._math_to_svg_x(x, time), self._math_to_svg_y(y, time))
 
     coords_to_screen = coords_to_point
 
-    def screen_to_coords(self, sx, sy, time=0):
+    def screen_to_coords(self, sx, sy, time: float = 0):
         """Convert SVG pixel coordinates to math (axis) coordinates (inverse of coords_to_point)."""
         def _invert(sv, vmin, vmax, origin, size, scale, invert=False):
             frac = (sv - origin) / size
@@ -549,19 +549,19 @@ class Axes(_AxesExtMixin, VCollection):
         return (_invert(sx, xmin, xmax, self.plot_x, self.plot_width, self._x_scale),
                 _invert(sy, ymin, ymax, self.plot_y, self.plot_height, self._y_scale, invert=True))
 
-    def get_plot_center(self, time=0):
+    def get_plot_center(self, time: float = 0):
         """Return the SVG pixel coordinates of the center of the plot rectangle."""
         return (self.plot_x + self.plot_width / 2, self.plot_y + self.plot_height / 2)
 
-    def input_to_graph_point(self, x, func, time=0):
+    def input_to_graph_point(self, x, func, time: float = 0):
         """Convert a math x-value and function to SVG pixel coordinates: (x, f(x))."""
         return self.coords_to_point(x, func(x), time)
 
-    def get_graph_value(self, func, x, time=0):
+    def get_graph_value(self, func, x, time: float = 0):
         """Evaluate *func* at *x* and return the y-value."""
         return func(x)
 
-    def get_point_on_graph(self, func, x, time=0):
+    def get_point_on_graph(self, func, x, time: float = 0):
         """Like :meth:`input_to_graph_point` but returns ``None`` on error."""
         try:
             y = func(x)
@@ -2068,13 +2068,13 @@ class ComplexPlane(Axes):
         xn, xx = self.x_min.at_time(0), self.x_max.at_time(0)
         return f'ComplexPlane(Re=[{xn:.1f}, {xx:.1f}])'
 
-    def number_to_point(self, z_val, time=0):
+    def number_to_point(self, z_val, time: float = 0):
         """Convert a complex number to SVG coordinates."""
         if isinstance(z_val, complex):
             return self.coords_to_point(z_val.real, z_val.imag, time)
         return self.coords_to_point(float(z_val), 0, time)
 
-    def point_to_number(self, x, y, time=0):
+    def point_to_number(self, x, y, time: float = 0):
         """Convert SVG coordinates to a complex number."""
         xmin, xmax, ymin, ymax = self._get_bounds(time)
         re = xmin + (x - self.plot_x) / self.plot_width * (xmax - xmin)

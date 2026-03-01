@@ -87,11 +87,11 @@ class Polygon(VObject):
         _set_attr(self.vertices[index], start, end, (x, y), easing)
         return self
 
-    def to_path_string(self, time=0):
+    def to_path_string(self, time: float = 0):
         """Return an SVG path d-string representation of the polygon."""
         return self.path(time)
 
-    def get_center(self, time=0):
+    def get_center(self, time: float = 0):
         """Return the centroid (average of vertices)."""
         pts = self.get_vertices(time)
         if not pts:
@@ -99,7 +99,7 @@ class Polygon(VObject):
         n = len(pts)
         return (sum(p[0] for p in pts) / n, sum(p[1] for p in pts) / n)
 
-    def centroid(self, time=0):
+    def centroid(self, time: float = 0):
         """Return the geometric centroid (cx, cy) using the polygon centroid formula."""
         pts = self.get_vertices(time)
         n = len(pts)
@@ -120,7 +120,7 @@ class Polygon(VObject):
         cy /= (6 * signed_area)
         return (cx, cy)
 
-    def perimeter(self, time=0):
+    def perimeter(self, time: float = 0):
         """Return the perimeter (sum of edge lengths)."""
         pts = self.get_vertices(time)
         if len(pts) < 2:
@@ -133,7 +133,7 @@ class Polygon(VObject):
 
     get_perimeter = perimeter
 
-    def edge_lengths(self, time=0):
+    def edge_lengths(self, time: float = 0):
         """Return list of edge lengths."""
         pts = self.get_vertices(time)
         n = len(pts)
@@ -144,7 +144,7 @@ class Polygon(VObject):
             pairs.append((pts[-1], pts[0]))
         return [math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in pairs]
 
-    def to_path(self, time=0):
+    def to_path(self, time: float = 0):
         """Convert the polygon to a :class:`Path` object."""
         d = self.path(time)
         # Snapshot styling values at the given time.
@@ -162,17 +162,17 @@ class Polygon(VObject):
             style_kwargs[name] = attr.time_func(time)
         return Path(d, **style_kwargs)
 
-    def get_longest_edge(self, time=0):
+    def get_longest_edge(self, time: float = 0):
         """Return the length of the longest edge."""
         lengths = self.edge_lengths(time)
         return max(lengths) if lengths else 0
 
-    def get_shortest_edge(self, time=0):
+    def get_shortest_edge(self, time: float = 0):
         """Return the length of the shortest edge."""
         lengths = self.edge_lengths(time)
         return min(lengths) if lengths else 0
 
-    def signed_area(self, time=0):
+    def signed_area(self, time: float = 0):
         """Return the signed area using the shoelace formula."""
         pts = self.get_vertices(time)
         n = len(pts)
@@ -181,7 +181,7 @@ class Polygon(VObject):
         return sum(pts[i][0] * pts[(i+1) % n][1] - pts[(i+1) % n][0] * pts[i][1]
                    for i in range(n)) / 2
 
-    def area(self, time=0):
+    def area(self, time: float = 0):
         """Return the area using the shoelace formula (0 for open polylines)."""
         if not self.closed:
             return 0.0
@@ -189,7 +189,7 @@ class Polygon(VObject):
 
     get_area = area
 
-    def winding_number(self, px, py, time=0):
+    def winding_number(self, px, py, time: float = 0):
         """Return the winding number of point (px, py) relative to this polygon."""
         pts = self.get_vertices(time)
         n = len(pts)
@@ -209,7 +209,7 @@ class Polygon(VObject):
                         wn -= 1
         return wn
 
-    def is_regular(self, tol=1e-3, time=0):
+    def is_regular(self, tol=1e-3, time: float = 0):
         """Return True if all edges have the same length (within tolerance)."""
         if not self.closed:
             return False
@@ -224,7 +224,7 @@ class Polygon(VObject):
             return False
         return all(abs(l - mean) <= tol * mean for l in lengths)
 
-    def offset(self, distance, time=0):
+    def offset(self, distance, time: float = 0):
         """Return a new Polygon with vertices moved along averaged edge normals."""
         pts = [v.at_time(time) for v in self.vertices]
         n = len(pts)
@@ -268,7 +268,7 @@ class Polygon(VObject):
             new_pts.append((new_x, new_y))
         return Polygon(*new_pts, closed=self.closed)
 
-    def buffer(self, distance, time=0):
+    def buffer(self, distance, time: float = 0):
         """Alias for :meth:`offset`."""
         return self.offset(distance, time=time)
 
@@ -337,7 +337,7 @@ class Polygon(VObject):
             )
         return result
 
-    def rotate_vertices(self, angle_deg, cx=None, cy=None, time=0):
+    def rotate_vertices(self, angle_deg, cx=None, cy=None, time: float = 0):
         """Return a new Polygon with all vertices rotated by angle_deg degrees."""
         pts = self.get_vertices(time)
         if cx is None or cy is None:
@@ -430,7 +430,7 @@ class Polygon(VObject):
         pts = self.get_vertices(time)
         return Polygon.convex_hull(*pts, **kwargs)
 
-    def contains_point(self, px, py, time=0):
+    def contains_point(self, px, py, time: float = 0):
         """Point-in-polygon test using ray-casting algorithm."""
         pts = self.get_vertices(time)
         n = len(pts)
@@ -444,7 +444,7 @@ class Polygon(VObject):
             j = i
         return inside
 
-    def is_convex(self, time=0):
+    def is_convex(self, time: float = 0):
         """Return True if this polygon is convex."""
         pts = self.get_vertices(time)
         n = len(pts)
@@ -464,7 +464,7 @@ class Polygon(VObject):
                 return False
         return True
 
-    def get_edges(self, time=0):
+    def get_edges(self, time: float = 0):
         """Return a list of Line objects for each edge of the polygon."""
         pts = self.get_vertices(time)
         n = len(pts)
@@ -481,7 +481,7 @@ class Polygon(VObject):
             edges.append(Line(x1=x1, y1=y1, x2=x2, y2=y2))
         return edges
 
-    def get_edge_midpoints(self, time=0):
+    def get_edge_midpoints(self, time: float = 0):
         """Return a list of midpoint (x, y) tuples for each edge."""
         pts = self.get_vertices(time)
         n = len(pts)
@@ -505,7 +505,7 @@ class Polygon(VObject):
         self._bbox_version += 1
         return self
 
-    def scale_vertices(self, factor, time=0):
+    def scale_vertices(self, factor, time: float = 0):
         """Scale all vertices relative to the centroid by factor."""
         cx, cy = self.centroid(time)
         for v in self.vertices:
@@ -514,7 +514,7 @@ class Polygon(VObject):
         self._bbox_version += 1
         return self
 
-    def _mirror(self, axis, center=None, time=0):
+    def _mirror(self, axis, center=None, time: float = 0):
         """Mirror vertices across an axis line."""
         pts = self.get_vertices(time)
         if center is None:
@@ -526,15 +526,15 @@ class Polygon(VObject):
         self._bbox_version += 1
         return self
 
-    def mirror_x(self, cx=None, time=0):
+    def mirror_x(self, cx=None, time: float = 0):
         """Mirror vertices across vertical line x=cx."""
         return self._mirror(0, cx, time)
 
-    def mirror_y(self, cy=None, time=0):
+    def mirror_y(self, cy=None, time: float = 0):
         """Mirror vertices across horizontal line y=cy."""
         return self._mirror(1, cy, time)
 
-    def interior_angles(self, time=0):
+    def interior_angles(self, time: float = 0):
         """Return the interior angles of the polygon in degrees."""
         if not self.closed:
             return []
@@ -561,7 +561,7 @@ class Polygon(VObject):
                 angles[i] = 360 - angles[i]
         return angles
 
-    def is_clockwise(self, time=0):
+    def is_clockwise(self, time: float = 0):
         """Return True if vertices are in clockwise order (positive signed area in SVG coords)."""
         return self.signed_area(time) > 0
 
@@ -811,7 +811,7 @@ class Polygon(VObject):
         d = ' '.join(parts)
         return Path(d, **kwargs)
 
-    def apply_pointwise(self, func, time=0):
+    def apply_pointwise(self, func, time: float = 0):
         """Apply an arbitrary function to all vertices."""
         for v in self.vertices:
             x, y = v.at_time(time)
@@ -914,12 +914,12 @@ class Ellipse(VObject):
         cx, cy, rx, ry = self._ep(time)
         return f'M{cx-rx},{cy}a{rx},{ry} 0 1,0 {rx*2},0a{rx},{ry} 0 1,0 -{rx*2},0z'
 
-    def get_area(self, time=0):
+    def get_area(self, time: float = 0):
         """Return the area (pi * rx * ry)."""
         _, _, rx, ry = self._ep(time)
         return math.pi * rx * ry
 
-    def get_perimeter(self, time=0):
+    def get_perimeter(self, time: float = 0):
         """Approximate perimeter using Ramanujan's second formula (more accurate)."""
         _, _, a, b = self._ep(time)
         s = a + b
@@ -930,13 +930,13 @@ class Ellipse(VObject):
 
     get_circumference = get_perimeter
 
-    def eccentricity(self, time=0):
+    def eccentricity(self, time: float = 0):
         """Return the eccentricity of the ellipse."""
         _, _, rx, ry = self._ep(time)
         a, b = max(rx, ry), min(rx, ry)
         return 0.0 if a == 0 else math.sqrt(1 - (b / a) ** 2)
 
-    def get_foci(self, time=0):
+    def get_foci(self, time: float = 0):
         """Return the two foci as ((x1,y1), (x2,y2))."""
         cx, cy, rx, ry = self._ep(time)
         a, b = max(rx, ry), min(rx, ry)
@@ -945,27 +945,27 @@ class Ellipse(VObject):
             return ((cx - c, cy), (cx + c, cy))
         return ((cx, cy - c), (cx, cy + c))
 
-    def point_at_angle(self, degrees, time=0):
+    def point_at_angle(self, degrees, time: float = 0):
         """Return (x, y) on the ellipse at the given angle (degrees, CCW from right)."""
         cx, cy, rx, ry = self._ep(time)
         rad = math.radians(degrees)
         return (cx + rx * math.cos(rad), cy - ry * math.sin(rad))
 
-    def get_point_at_parameter(self, t, time=0):
+    def get_point_at_parameter(self, t, time: float = 0):
         """Return (x, y) on the ellipse at parameter t in [0, 1]."""
         cx, cy, rx, ry = self._ep(time)
         angle = math.tau * t
         return (cx + rx * math.cos(angle), cy + ry * math.sin(angle))
 
-    def contains_point(self, px, py, time=0):
+    def contains_point(self, px, py, time: float = 0):
         """Return True if point (px, py) is inside the ellipse."""
         cx, cy, rx, ry = self._ep(time)
         if rx == 0 or ry == 0:
             return False
         return ((px - cx) / rx) ** 2 + ((py - cy) / ry) ** 2 <= 1
 
-    def get_rx(self, time=0): return self.rx.at_time(time)
-    def get_ry(self, time=0): return self.ry.at_time(time)
+    def get_rx(self, time: float = 0): return self.rx.at_time(time)
+    def get_ry(self, time: float = 0): return self.ry.at_time(time)
 
     def set_center(self, cx, cy, start=0, end=None, easing=easings.smooth):
         _set_attr(self.c, start, end, (cx, cy), easing); return self
@@ -984,7 +984,7 @@ class Ellipse(VObject):
         dx, dy = tx * length / 2, ty * length / 2
         return Line(x1=px - dx, y1=py - dy, x2=px + dx, y2=py + dy, **kwargs)
 
-    def _tangent_at(self, angle_deg, time=0):
+    def _tangent_at(self, angle_deg, time: float = 0):
         """Return (px, py, tx, ty): point on ellipse and unit tangent direction."""
         cx, cy, rx, ry = self._ep(time)
         angle = math.radians(angle_deg)
@@ -1032,19 +1032,19 @@ class Circle(Ellipse):
         self.rx = value
         self.ry = value
 
-    def point_at_angle(self, degrees, time=0):
+    def point_at_angle(self, degrees, time: float = 0):
         """Return (x, y) on the circle at the given angle (degrees, CCW from right)."""
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
         rad = math.radians(degrees)
         return (cx + r * math.cos(rad), cy - r * math.sin(rad))
 
-    def get_area(self, time=0):
+    def get_area(self, time: float = 0):
         """Return the area (pi * r^2)."""
         r = self.rx.at_time(time)
         return math.pi * r * r
 
-    def get_perimeter(self, time=0):
+    def get_perimeter(self, time: float = 0):
         """Return the exact perimeter (2 * pi * r)."""
         return math.tau * self.rx.at_time(time)
 
@@ -1137,7 +1137,7 @@ class Circle(Ellipse):
                                **kwargs))
         return lines
 
-    def tangent_points(self, px, py, time=0):
+    def tangent_points(self, px, py, time: float = 0):
         """Return the tangent touch-points from an external point to the circle."""
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
@@ -1163,10 +1163,10 @@ class Circle(Ellipse):
         x2, y2 = self.point_at_angle(angle2, time)
         return Line(x1=x1, y1=y1, x2=x2, y2=y2, **kwargs)
 
-    def get_radius(self, time=0):
+    def get_radius(self, time: float = 0):
         return self.rx.at_time(time)
 
-    def sector_area(self, start_angle, end_angle, time=0):
+    def sector_area(self, start_angle, end_angle, time: float = 0):
         """Return the area of a circular sector between two angles (degrees)."""
         r = self.get_radius(time)
         sweep = abs(end_angle - start_angle)
@@ -1184,7 +1184,7 @@ class Circle(Ellipse):
         ux, uy, r = _circumcenter(p1, p2, p3)
         return cls(r=r, cx=ux, cy=uy, **kwargs)
 
-    def intersect_line(self, line, time=0):
+    def intersect_line(self, line, time: float = 0):
         """Return list of intersection points [(x,y), ...] with a Line (0, 1, or 2 points)."""
         cx, cy = self.c.at_time(time)
         r = self.r.at_time(time)
@@ -1206,7 +1206,7 @@ class Circle(Ellipse):
             return [points[0]]  # tangent: single point
         return points
 
-    def intersect_circle(self, other, time=0):
+    def intersect_circle(self, other, time: float = 0):
         """Return intersection points with another Circle as list of (x, y) tuples."""
         cx1, cy1 = self.c.at_time(time)
         cx2, cy2 = other.c.at_time(time)
@@ -1228,7 +1228,7 @@ class Circle(Ellipse):
         dy = h * (cx2 - cx1) / d
         return [(mx + dx, my - dy), (mx - dx, my + dy)]
 
-    def contains_point(self, px, py, time=0):
+    def contains_point(self, px, py, time: float = 0):
         """Point-in-circle test."""
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
@@ -1265,7 +1265,7 @@ class Circle(Ellipse):
         dy = -r * math.sin(rad)   # negate: SVG y-axis points down
         return Line(x1=cx - dx, y1=cy - dy, x2=cx + dx, y2=cy + dy, **kwargs)
 
-    def segment_area(self, start_angle, end_angle, time=0):
+    def segment_area(self, start_angle, end_angle, time: float = 0):
         """Return the area of a circular segment between two angles."""
         r = self.get_radius(time)
         sweep_deg = abs(end_angle - start_angle) % 360
@@ -1276,14 +1276,14 @@ class Circle(Ellipse):
         # Triangle area = 0.5 * r^2 * sin(theta)
         return abs(0.5 * r * r * (theta - math.sin(theta)))
 
-    def power_of_point(self, px, py, time=0):
+    def power_of_point(self, px, py, time: float = 0):
         """Return the power of point (px, py) with respect to this circle."""
         cx, cy = self.c.at_time(time)
         r = self.get_radius(time)
         d_sq = (px - cx) ** 2 + (py - cy) ** 2
         return d_sq - r * r
 
-    def chord_length(self, distance, time=0):
+    def chord_length(self, distance, time: float = 0):
         """Return the length of a chord at the given distance from the center."""
         r = self.get_radius(time)
         d = float(distance)
@@ -1295,7 +1295,7 @@ class Circle(Ellipse):
             return 0.0
         return 2 * math.sqrt(r * r - d * d)
 
-    def arc_length(self, start_angle, end_angle, time=0):
+    def arc_length(self, start_angle, end_angle, time: float = 0):
         """Return the arc length between two angles on the circle."""
         r = self.get_radius(time)
         sweep_deg = abs(end_angle - start_angle) % 360
@@ -1460,15 +1460,15 @@ class Rectangle(VObject):
 
     get_corners = get_vertices
 
-    def get_area(self, time=0):
+    def get_area(self, time: float = 0):
         """Return the area (width * height)."""
         return self.width.at_time(time) * self.height.at_time(time)
 
-    def get_perimeter(self, time=0):
+    def get_perimeter(self, time: float = 0):
         """Return the perimeter (2 * (width + height))."""
         return 2 * (self.width.at_time(time) + self.height.at_time(time))
 
-    def get_diagonal_length(self, time=0):
+    def get_diagonal_length(self, time: float = 0):
         """Return the diagonal length: ``sqrt(width^2 + height^2)``."""
         w = self.width.at_time(time)
         h = self.height.at_time(time)
@@ -1476,7 +1476,7 @@ class Rectangle(VObject):
 
     diagonal_length = get_diagonal_length
 
-    def get_size(self, time=0):
+    def get_size(self, time: float = 0):
         return (self.width.at_time(time), self.height.at_time(time))
 
     def is_square(self, time=0, tol=1e-3):
@@ -1485,13 +1485,13 @@ class Rectangle(VObject):
         h = self.height.at_time(time)
         return abs(w - h) < tol
 
-    def aspect_ratio(self, time=0):
+    def aspect_ratio(self, time: float = 0):
         """Return width / height ratio."""
         w = self.width.at_time(time)
         h = self.height.at_time(time)
         return w / h if h != 0 else math.inf
 
-    def sample_border(self, t, time=0):
+    def sample_border(self, t, time: float = 0):
         """Return a point (x, y) on the rectangle border at parameter *t*."""
         x, y, w, h = self._dims(time)
         perim = 2 * (w + h)
@@ -1592,7 +1592,7 @@ class Rectangle(VObject):
         """Animate increasing height by *amount*."""
         return self._grow_dim(self.height, amount, start, end, easing)
 
-    def contains_point(self, px, py, time=0):
+    def contains_point(self, px, py, time: float = 0):
         """Point-in-rect test."""
         x, y, w, h = self._dims(time)
         return x <= px <= x + w and y <= py <= y + h
@@ -1747,21 +1747,21 @@ class RegularPolygon(Polygon):
         ]
         super().__init__(*vertices, creation=creation, z=z, **styling_kwargs)
 
-    def get_side_length(self, time=0):
+    def get_side_length(self, time: float = 0):
         """Return the side length of the regular polygon.
         Computed from the circumradius: side = 2 * r * sin(pi / n)."""
         return 2 * self._radius * math.sin(math.pi / self._n)
 
-    def get_inradius(self, time=0):
+    def get_inradius(self, time: float = 0):
         """Return the inradius (apothem) of the regular polygon.
         Computed from the circumradius: inradius = r * cos(pi / n)."""
         return self._radius * math.cos(math.pi / self._n)
 
-    def get_apothem(self, time=0):
+    def get_apothem(self, time: float = 0):
         """Return the apothem of the regular polygon (alias for :meth:`get_inradius`)."""
         return self.get_inradius(time)
 
-    def get_circumradius(self, time=0):
+    def get_circumradius(self, time: float = 0):
         """Return the circumscribed circle radius."""
         return self._radius
 
@@ -1818,7 +1818,7 @@ class RoundedRectangle(Rectangle):
     def __repr__(self):
         return f'RoundedRectangle({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f}, r={self.rx.at_time(0):.0f})'
 
-    def get_corner_radius(self, time=0):
+    def get_corner_radius(self, time: float = 0):
         return self.rx.at_time(time)
 
     def set_corner_radius(self, value, start=0, end=None, easing=easings.smooth):

@@ -1988,14 +1988,14 @@ class TestGridAccessMixin:
         t.set_cell_value(0, 1, 'X', start=0)
         assert t.get_entry(0, 1).text.at_time(0) == 'X'
 
-    def test_table_set_entry_value(self):
+    def test_table_set_cell_value_2(self):
         t = Table([[1, 2], [3, 4]])
-        t.set_entry_value(1, 0, 'Y', start=0)
+        t.set_cell_value(1, 0, 'Y', start=0)
         assert t.get_entry(1, 0).text.at_time(0) == 'Y'
 
-    def test_matrix_set_cell_value(self):
+    def test_matrix_set_entry_value_2(self):
         m = Matrix([[1, 2], [3, 4]])
-        m.set_cell_value(0, 0, '99', start=0)
+        m.set_entry_value(0, 0, '99', start=0)
         assert m.get_entry(0, 0).text.at_time(0) == '99'
 
     def test_matrix_set_entry_value(self):
@@ -2007,10 +2007,9 @@ class TestGridAccessMixin:
         t = Table([['a', 'b'], ['c', 'd']])
         assert t.get_cell(0, 0) is t.get_entry(0, 0)
 
-    def test_highlight_cell_alias(self):
+    def test_highlight_entry_matrix(self):
         m = Matrix([[1, 2], [3, 4]])
-        # highlight_cell should produce the same result as highlight_entry
-        result = m.highlight_cell(0, 0, start=0, end=1)
+        result = m.highlight_entry(0, 0, start=0, end=1)
         assert result is m
 
     def test_get_row(self):
@@ -2034,9 +2033,9 @@ class TestGridAccessMixin:
         assert result is t
 
     def test_highlight_cells(self):
-        m = Matrix([[1, 2], [3, 4]])
-        result = m.highlight_cells([(0, 0), (1, 1)], start=0, end=1)
-        assert result is m
+        t = Table([['a', 'b'], ['c', 'd']])
+        result = t.highlight_cells([(0, 0), (1, 1)], start=0, end=1)
+        assert result is t
 
 
 class TestDecimalIntegerMatrix:

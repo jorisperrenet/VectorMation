@@ -51,24 +51,24 @@ class Line(VObject):
         x1, y1, x2, y2 = self._ep(time)
         return f"<line x1='{x1}' y1='{y1}' x2='{x2}' y2='{y2}'{self.styling.svg_style(time)} />"
 
-    def get_start(self, time=0):
+    def get_start(self, time: float = 0):
         """Return the start point (x, y) of the line."""
         p = self.p1.at_time(time); return (float(p[0]), float(p[1]))
 
-    def get_end(self, time=0):
+    def get_end(self, time: float = 0):
         """Return the end point (x, y) of the line."""
         p = self.p2.at_time(time); return (float(p[0]), float(p[1]))
 
-    def get_length(self, time=0):
+    def get_length(self, time: float = 0):
         """Return the length of the line in pixels."""
         return _distance(*self._ep(time))
     length = get_length
 
-    def get_angle(self, time=0):
+    def get_angle(self, time: float = 0):
         """Return the angle of the line in degrees (atan2 of dy, dx)."""
         x1, y1, x2, y2 = self._ep(time); return math.degrees(math.atan2(y2 - y1, x2 - x1))
 
-    def get_midpoint(self, time=0):
+    def get_midpoint(self, time: float = 0):
         """Return the midpoint (x, y) of the line."""
         x1, y1, x2, y2 = self._ep(time); return ((x1 + x2) / 2, (y1 + y2) / 2)
 
@@ -81,22 +81,22 @@ class Line(VObject):
         return Line(float(x1), float(y1), float(mx), float(my)), \
                Line(float(mx), float(my), float(x2), float(y2))
 
-    def get_direction(self, time=0):
+    def get_direction(self, time: float = 0):
         """Return the normalized unit vector ``(dx, dy)`` from p1 to p2."""
         x1, y1, x2, y2 = self._ep(time)
         return _normalize(x2 - x1, y2 - y1)
 
     get_unit_vector = get_direction
 
-    def get_vector(self, time=0):
+    def get_vector(self, time: float = 0):
         """Return the direction vector (dx, dy) from start to end."""
         x1, y1, x2, y2 = self._ep(time); return (x2 - x1, y2 - y1)
 
-    def get_normal(self, time=0):
+    def get_normal(self, time: float = 0):
         """Return the unit normal vector perpendicular to the line."""
         dx, dy = self.get_direction(time); return (-dy, dx)
 
-    def angle_to(self, other, time=0):
+    def angle_to(self, other, time: float = 0):
         """Return the angle in degrees [0, 180] between this line and *other*."""
         d1 = self.get_direction(time)
         d2 = other.get_direction(time)
@@ -120,7 +120,7 @@ class Line(VObject):
         dot_val = d1[0] * d2[0] + d1[1] * d2[1]
         return abs(dot_val) < tol
 
-    def get_slope(self, time=0):
+    def get_slope(self, time: float = 0):
         """Return the slope (dy/dx) of the line, or math.inf for vertical lines.
         Uses SVG coordinates (y increases downward)."""
         x1, y1, x2, y2 = self._ep(time)
@@ -129,7 +129,7 @@ class Line(VObject):
             return math.inf
         return (y2 - y1) / dx
 
-    def angle(self, time=0):
+    def angle(self, time: float = 0):
         """Return the angle of this line in degrees (0 = right, CCW positive)."""
         x1, y1, x2, y2 = self._ep(time)
         return math.degrees(math.atan2(-(y2 - y1), x2 - x1))
@@ -192,7 +192,7 @@ class Line(VObject):
             _set_attr(self.p1, start, end, new_p1, easing)
         return self
 
-    def get_perpendicular_point(self, px, py, time=0):
+    def get_perpendicular_point(self, px, py, time: float = 0):
         """Find the point on the line closest to ``(px, py)``."""
         x1, y1, x2, y2 = self._ep(time)
         dx, dy = x2 - x1, y2 - y1
@@ -310,7 +310,7 @@ class Line(VObject):
                 p2 = (p2[0] - ux * buff, p2[1] - uy * buff)
         return cls(p1[0], p1[1], p2[0], p2[1], **kwargs)
 
-    def lerp(self, t, time=0):
+    def lerp(self, t, time: float = 0):
         """Return point (x, y) at parameter t (0=start, 1=end) along the line."""
         x1, y1, x2, y2 = self._ep(time)
         return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
@@ -325,7 +325,7 @@ class Line(VObject):
                      x2=x1 + (i + 1) * dx, y2=y1 + (i + 1) * dy, **kwargs)
                 for i in range(n)]
 
-    def divide(self, n=2, time=0):
+    def divide(self, n=2, time: float = 0):
         """Return *n* + 1 points that divide the line into *n* equal segments."""
         if n < 1:
             n = 1
@@ -333,7 +333,7 @@ class Line(VObject):
         return [(x1 + i * (x2 - x1) / n, y1 + i * (y2 - y1) / n)
                 for i in range(n + 1)]
 
-    def distance_to_point(self, px, py, time=0):
+    def distance_to_point(self, px, py, time: float = 0):
         """Return the shortest distance from point ``(px, py)`` to this line segment."""
         cp = self.get_perpendicular_point(px, py, time)
         return math.hypot(px - cp[0], py - cp[1])
@@ -414,7 +414,7 @@ class Line(VObject):
         _set_attr(self.p2, start, end, (mx + dx, my + dy), easing)
         return self
 
-    def scale_length(self, factor=2.0, time=0):
+    def scale_length(self, factor=2.0, time: float = 0):
         """Scale line length by *factor* in place, keeping the midpoint fixed."""
         return self.extend(factor=factor, start=time)
 
@@ -439,7 +439,7 @@ class Line(VObject):
         return Line(x1=px - dx / 2, y1=py - dy / 2,
                     x2=px + dx / 2, y2=py + dy / 2, **kwargs)
 
-    def rotate_around_midpoint(self, angle_deg, time=0):
+    def rotate_around_midpoint(self, angle_deg, time: float = 0):
         """Rotate line endpoints around the midpoint by angle_deg degrees."""
         x1, y1, x2, y2 = self._ep(time)
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
@@ -449,7 +449,7 @@ class Line(VObject):
             p.set_onward(time, (mx + dx * c - dy * s, my + dx * s + dy * c))
         return self
 
-    def _intersect_params(self, other, time=0):
+    def _intersect_params(self, other, time: float = 0):
         """Return (t, u) line-line intersection parameters, or None if parallel."""
         x1, y1, x2, y2 = self._ep(time)
         x3, y3, x4, y4 = other._ep(time)
@@ -460,7 +460,7 @@ class Line(VObject):
         u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom
         return (t, u)
 
-    def intersect_line(self, other, time=0):
+    def intersect_line(self, other, time: float = 0):
         """Return intersection point (x, y) of this line with another, or None if parallel."""
         params = self._intersect_params(other, time)
         if params is None:
@@ -469,7 +469,7 @@ class Line(VObject):
         x1, y1, x2, y2 = self._ep(time)
         return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
 
-    def intersect_segment(self, other, time=0):
+    def intersect_segment(self, other, time: float = 0):
         """Return the intersection point only if it lies within both segments."""
         params = self._intersect_params(other, time)
         if params is None:
@@ -480,7 +480,7 @@ class Line(VObject):
         x1, y1, x2, y2 = self._ep(time)
         return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
 
-    def _line_param_at(self, px, py, time=0):
+    def _line_param_at(self, px, py, time: float = 0):
         """Return (t, x1, y1, dx, dy) for projection of (px,py) onto the line."""
         x1, y1, x2, y2 = self._ep(time)
         dx, dy = x2 - x1, y2 - y1
@@ -489,14 +489,14 @@ class Line(VObject):
             return (0.0, x1, y1, dx, dy)
         return (((px - x1) * dx + (py - y1) * dy) / len_sq, x1, y1, dx, dy)
 
-    def project_point(self, px, py, time=0):
+    def project_point(self, px, py, time: float = 0):
         """Return the closest point on this line (extended) to point (px, py)."""
         t, x1, y1, dx, dy = self._line_param_at(px, py, time)
         return (x1 + t * dx, y1 + t * dy)
 
     closest_point_on_segment = get_perpendicular_point
 
-    def parameter_at(self, px, py, time=0):
+    def parameter_at(self, px, py, time: float = 0):
         """Return the parameter t for the projection of (px, py) onto the line."""
         return float(self._line_param_at(px, py, time)[0])
 
@@ -508,7 +508,7 @@ class Line(VObject):
 
     get_normal_line = perpendicular_at
 
-    def intersection(self, other, time=0):
+    def intersection(self, other, time: float = 0):
         """Return the intersection of this line with *other*."""
         if isinstance(other, Line):
             return self.intersect_segment(other, time)
@@ -591,19 +591,19 @@ class Text(VObject):
         w = self._estimate_width(self.text.at_time(time), fs)
         return (self._text_left(x, w), y - fs, w, fs)
 
-    def get_text(self, time=0):
+    def get_text(self, time: float = 0):
         """Return the text string at the given time."""
         return self.text.at_time(time)
 
-    def get_font_size(self, time=0):
+    def get_font_size(self, time: float = 0):
         """Return the font size at the given time."""
         return self.font_size.at_time(time)
 
-    def starts_with(self, prefix, time=0):
+    def starts_with(self, prefix, time: float = 0):
         """Return True if the text starts with the given prefix."""
         return self.text.at_time(time).startswith(prefix)
 
-    def ends_with(self, suffix, time=0):
+    def ends_with(self, suffix, time: float = 0):
         """Return True if the text ends with the given suffix."""
         return self.text.at_time(time).endswith(suffix)
 
@@ -801,14 +801,14 @@ class Text(VObject):
         self.text.set_onward(start, new_text)
         return self
 
-    def reverse_text(self, time=0):
+    def reverse_text(self, time: float = 0):
         """Reverse the text at the given time."""
         text = self.text.at_time(time)
         if isinstance(text, str):
             self.text.set_onward(time, text[::-1])
         return self
 
-    def reverse(self, time=0):
+    def reverse(self, time: float = 0):
         """Return the text content reversed (does not modify the object)."""
         return self.text.at_time(time)[::-1]
 
@@ -821,7 +821,7 @@ class Text(VObject):
                 self.styling.fill.time_func(time))
 
 
-    def split_chars(self, time=0):
+    def split_chars(self, time: float = 0):
         """Split text into a VCollection of individual character Text objects."""
 
         full, x, y, fs, cw, fill = self._text_split_ctx(time)
@@ -831,15 +831,15 @@ class Text(VObject):
                                   creation=time, stroke_width=0, fill=fill)
                              for i, ch in enumerate(full) if ch != ' '))
 
-    def char_count(self, time=0):
+    def char_count(self, time: float = 0):
         """Return the number of characters in the text content at the given time."""
         return len(self.text.at_time(time))
 
-    def word_count(self, time=0):
+    def word_count(self, time: float = 0):
         """Return the number of whitespace-separated words."""
         return len(self.text.at_time(time).split())
 
-    def word_at(self, index, time=0):
+    def word_at(self, index, time: float = 0):
         """Return the word at the given index."""
         text = self.text.at_time(time)
         if isinstance(text, str):
@@ -858,7 +858,7 @@ class Text(VObject):
                                   stroke_width=0, fill=fill)
                              for i, lt in enumerate(full.split('\n'))))
 
-    def fit_to_box(self, max_width, max_height=None, time=0):
+    def fit_to_box(self, max_width, max_height=None, time: float = 0):
         """Adjust font_size so the text fits within the given box dimensions."""
         text = self.text.at_time(time)
         if not text:
@@ -875,11 +875,11 @@ class Text(VObject):
             self.font_size.set_onward(time, new_fs)
         return self
 
-    def to_upper(self, time=0):
+    def to_upper(self, time: float = 0):
         """Change text to uppercase at given time."""
         return self._case_transform('upper', time)
 
-    def to_lower(self, time=0):
+    def to_lower(self, time: float = 0):
         """Change text to lowercase at given time."""
         return self._case_transform('lower', time)
 
@@ -889,14 +889,14 @@ class Text(VObject):
             self.text.set_onward(time, getattr(full, method)())
         return self
 
-    def char_at(self, index, time=0):
+    def char_at(self, index, time: float = 0):
         """Return the character at the given index."""
         text = self.text.at_time(time)
         if isinstance(text, str) and 0 <= index < len(text):
             return text[index]
         return ''
 
-    def truncate(self, n, ellipsis='...', time=0):
+    def truncate(self, n, ellipsis='...', time: float = 0):
         """Truncate the text to at most *n* characters, appending *ellipsis* if trimmed."""
         elen = len(ellipsis)
         if n < elen:
@@ -938,7 +938,7 @@ class Text(VObject):
 
     split_words = split_into_words
 
-    def add_background_rectangle(self, color='#000000', opacity=0.5, padding=10, time=0):
+    def add_background_rectangle(self, color='#000000', opacity=0.5, padding=10, time: float = 0):
         """Create a Rectangle behind the text, sized from bbox + padding."""
 
         bx, by, bw, bh = self.bbox(time)
@@ -950,7 +950,7 @@ class Text(VObject):
         )
         return VCollection(rect, self, creation=time)
 
-    def wrap(self, max_width, time=0):
+    def wrap(self, max_width, time: float = 0):
         """Word-wrap text to fit within *max_width* pixels."""
 
         full = str(self.text.at_time(time))
@@ -1050,7 +1050,7 @@ class ValueTracker:
         """Return the time of the last change to the tracked value."""
         return self.value.last_change
 
-    def get_value(self, time=0):
+    def get_value(self, time: float = 0):
         """Return the tracked value at the given time."""
         return self.value.at_time(time)
 
@@ -1097,7 +1097,7 @@ class ComplexValueTracker:
         self.imag = attributes.Real(creation, value.imag)
         self.show = attributes.Real(creation, True)
 
-    def get_value(self, time=0):
+    def get_value(self, time: float = 0):
         """Return the complex value at the given time."""
         return complex(self.real.at_time(time), self.imag.at_time(time))
 
@@ -1283,7 +1283,7 @@ class Path(VObject):
                      'stroke_dasharray', 'stroke_dashoffset', 'stroke_linecap',
                      'stroke_linejoin', 'fill_rule')
 
-    def _copy_style(self, time=0):
+    def _copy_style(self, time: float = 0):
         """Return a dict of styling kwargs capturing this path's style at *time*."""
         kw = {n: getattr(self.styling, n).at_time(time) for n in self._STYLE_NAMES}
         for n in ('fill', 'stroke'):
@@ -1298,12 +1298,12 @@ class Path(VObject):
             raise ImportError("svgpathtools is required for path operations")
         return parse_path(d)
 
-    def get_length(self, time=0):
+    def get_length(self, time: float = 0):
         """Return the total length of the path."""
         d = self.d.at_time(time)
         return self._parse_path_lazy(d).length() if d else 0.0
 
-    def point_from_proportion(self, proportion, time=0):
+    def point_from_proportion(self, proportion, time: float = 0):
         """Return (x, y) at a proportional distance along the path (0-1)."""
         d = self.d.at_time(time)
         if not d:
@@ -1316,7 +1316,7 @@ class Path(VObject):
         pt = parsed.point(parsed.ilength(total * _clamp01(proportion)))
         return (pt.real, pt.imag)
 
-    def tangent_at(self, proportion, time=0):
+    def tangent_at(self, proportion, time: float = 0):
         """Return the unit tangent direction (dx, dy) at a proportional distance along the path."""
         d = self.d.at_time(time)
         if not d:
@@ -1334,7 +1334,7 @@ class Path(VObject):
             return (0.0, 0.0)
         return (dx / mag, dy / mag)
 
-    def trim(self, t_start=0.0, t_end=1.0, time=0):
+    def trim(self, t_start=0.0, t_end=1.0, time: float = 0):
         """Return a new Path representing the sub-path between proportions."""
         d = self.d.at_time(time)
         if not d:
@@ -1352,7 +1352,7 @@ class Path(VObject):
         sub = parsed.cropped(T0, T1)
         return Path(sub.d(), **self._copy_style(time))
 
-    def reverse(self, time=0):
+    def reverse(self, time: float = 0):
         """Return a new Path with the segments reversed."""
         d = self.d.at_time(time)
         if not d:
@@ -1504,29 +1504,29 @@ class Arc(VObject):
         sweep = 0 if ea > sa else 1
         return f'M{x1},{y1}A{r},{r} 0 {large},{sweep} {x2},{y2}'
 
-    def get_start_point(self, time=0):
+    def get_start_point(self, time: float = 0):
         """Return the (x, y) position at the start of the arc."""
         return self.point_at_angle(self.start_angle.at_time(time), time)
 
-    def get_end_point(self, time=0):
+    def get_end_point(self, time: float = 0):
         """Return the (x, y) position at the end of the arc."""
         return self.point_at_angle(self.end_angle.at_time(time), time)
 
-    def get_sweep(self, time=0):
+    def get_sweep(self, time: float = 0):
         """Return the total sweep angle in degrees."""
         return abs(self.end_angle.at_time(time) - self.start_angle.at_time(time))
 
-    def get_arc_length(self, time=0):
+    def get_arc_length(self, time: float = 0):
         """Return the arc length (r * angle_in_radians)."""
         return self.r.at_time(time) * math.radians(self.get_sweep(time))
 
-    def get_chord_length(self, time=0):
+    def get_chord_length(self, time: float = 0):
         """Return the length of the chord from start point to end point."""
         p1 = self.get_start_point(time)
         p2 = self.get_end_point(time)
         return math.hypot(p2[0] - p1[0], p2[1] - p1[1])
 
-    def get_sagitta(self, time=0):
+    def get_sagitta(self, time: float = 0):
         """Return the sagitta (height of the arc segment from chord to arc)."""
         r = self.r.at_time(time)
         half_angle = math.radians(self.get_sweep(time) / 2)
@@ -1542,7 +1542,7 @@ class Arc(VObject):
         return Line(x1=px - tx * half, y1=py + ty * half,
                     x2=px + tx * half, y2=py - ty * half, **kwargs)
 
-    def point_at_angle(self, degrees, time=0):
+    def point_at_angle(self, degrees, time: float = 0):
         """Return (x, y) on the arc at the given angle (degrees, CCW from right)."""
         cx, cy = self.cx.at_time(time), self.cy.at_time(time)
         r = self.r.at_time(time)
@@ -1569,7 +1569,7 @@ class Arc(VObject):
         _set_attr(self.end_angle, start, end, target_angle, easing)
         return self
 
-    def get_midpoint(self, time=0):
+    def get_midpoint(self, time: float = 0):
         """Return the point at the midpoint angle of the arc."""
         mid = (self.start_angle.at_time(time) + self.end_angle.at_time(time)) / 2
         return self.point_at_angle(mid, time)
@@ -1679,7 +1679,7 @@ class Wedge(Arc):
         super().__init__(cx=cx, cy=cy, r=r, start_angle=start_angle, end_angle=end_angle,
                          creation=creation, z=z, **({'fill_opacity': 0.7, 'stroke': '#fff', 'stroke_width': DEFAULT_STROKE_WIDTH} | styling_kwargs))
 
-    def get_area(self, time=0):
+    def get_area(self, time: float = 0):
         """Return the area of the wedge (0.5 * r^2 * sweep_in_radians)."""
         r = self.r.at_time(time)
         sweep = abs(self.end_angle.at_time(time) - self.start_angle.at_time(time))
@@ -1742,11 +1742,11 @@ class Annulus(VObject):
     def __repr__(self):
         return f'Annulus(inner={self.inner_r.at_time(0):.0f}, outer={self.outer_r.at_time(0):.0f})'
 
-    def get_inner_radius(self, time=0):
+    def get_inner_radius(self, time: float = 0):
         """Return the inner radius at the given time."""
         return self.inner_r.at_time(time)
 
-    def get_outer_radius(self, time=0):
+    def get_outer_radius(self, time: float = 0):
         """Return the outer radius at the given time."""
         return self.outer_r.at_time(time)
 
@@ -1758,7 +1758,7 @@ class Annulus(VObject):
         """Animate or set the outer radius."""
         _set_attr(self.outer_r, start, end, value, easing); return self
 
-    def get_area(self, time=0):
+    def get_area(self, time: float = 0):
         """Return the area of the annulus (pi * (outer^2 - inner^2))."""
         ri, ro = self.inner_r.at_time(time), self.outer_r.at_time(time)
         return math.pi * (ro * ro - ri * ri)
@@ -1894,7 +1894,7 @@ class AnnularSector(Arc):
         _set_attr(self.inner_r, start, end, value, easing)
         return self
 
-    def get_area(self, time=0):
+    def get_area(self, time: float = 0):
         """Return the area of the annular sector."""
         ri = self.inner_r.at_time(time)
         ro = self.r.at_time(time)
@@ -1999,14 +1999,14 @@ class CubicBezier(VObject):
         x0, y0, x1, y1, x2, y2, x3, y3 = self._cps(time)
         return f'M{x0},{y0}C{x1},{y1} {x2},{y2} {x3},{y3}'
 
-    def point_at(self, t, time=0):
+    def point_at(self, t, time: float = 0):
         """Evaluate point on curve at parameter t (0 to 1)."""
         x0, y0, x1, y1, x2, y2, x3, y3 = self._cps(time)
         u = 1 - t
         return (u**3*x0 + 3*u**2*t*x1 + 3*u*t**2*x2 + t**3*x3,
                 u**3*y0 + 3*u**2*t*y1 + 3*u*t**2*y2 + t**3*y3)
 
-    def tangent_at(self, t, time=0):
+    def tangent_at(self, t, time: float = 0):
         """Return the unit tangent direction (dx, dy) at parameter t."""
         x0, y0, x1, y1, x2, y2, x3, y3 = self._cps(time)
         u = 1 - t
@@ -2052,7 +2052,7 @@ class _TextBlockMixin:
         h = len(self.items) * self.font_size * self.line_spacing
         return (x, y - self.font_size, w, h)
 
-    def bbox(self, time=0):
+    def bbox(self, time: float = 0):
         """Return the bounding box of the text block."""
         return self._list_bbox(time, getattr(self, 'indent', 0))
 
@@ -2087,7 +2087,7 @@ class Paragraph(_TextBlockMixin, VObject):
         """Set the list of text lines."""
         self.items = val
 
-    def bbox(self, time=0):
+    def bbox(self, time: float = 0):
         """Return the bounding box adjusted for text alignment."""
         x, y, w, h = self._list_bbox(time)
         if self.alignment == 'center':

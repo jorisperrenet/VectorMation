@@ -180,11 +180,11 @@ class VCollection(_BBoxMethodsMixin):
         """Scale the entire group so its bounding box has the given *height*."""
         return self._scale_to_dim(self.get_height(start), height, start, end, easing)
 
-    def total_width(self, time=0):
+    def total_width(self, time: float = 0):
         """Return sum of children's widths (not overall bbox width)."""
         return sum(obj.bbox(time)[2] for obj in self.objects)
 
-    def total_height(self, time=0):
+    def total_height(self, time: float = 0):
         """Return sum of children's heights (not overall bbox height)."""
         return sum(obj.bbox(time)[3] for obj in self.objects)
 
@@ -196,7 +196,7 @@ class VCollection(_BBoxMethodsMixin):
         """Return a new VCollection with only children of the given type."""
         return self.filter(lambda obj: isinstance(obj, cls))
 
-    def find(self, predicate, time=0):
+    def find(self, predicate, time: float = 0):
         """Return the first child satisfying predicate(obj, time), or None."""
         for obj in self.objects:
             if predicate(obj, time):
@@ -207,7 +207,7 @@ class VCollection(_BBoxMethodsMixin):
         """Return a list of all children that are instances of cls."""
         return [obj for obj in self.objects if isinstance(obj, cls)]
 
-    def find_index(self, predicate, time=0):
+    def find_index(self, predicate, time: float = 0):
         """Return the index of the first child satisfying predicate, or -1."""
         for i, obj in enumerate(self.objects):
             if predicate(obj, time):
@@ -296,18 +296,18 @@ class VCollection(_BBoxMethodsMixin):
             self.objects = new_objects
         return self
 
-    def sort_objects(self, key=None, reverse=False, time=0):
+    def sort_objects(self, key=None, reverse=False, time: float = 0):
         """Sort children in-place. Default key: x position at given time."""
         if key is None:
             key = lambda obj: obj.bbox(time)[0]
         self.objects.sort(key=key, reverse=reverse)
         return self
 
-    def sort_by_y(self, reverse=False, time=0):
+    def sort_by_y(self, reverse=False, time: float = 0):
         """Sort children by y position (top to bottom by default)."""
         return self.sort_objects(key=lambda obj: obj.bbox(time)[1], reverse=reverse)
 
-    def sort_by_z(self, reverse=False, time=0):
+    def sort_by_z(self, reverse=False, time: float = 0):
         """Sort children by z-depth."""
         return self.sort_objects(key=lambda obj: obj.z.at_time(time), reverse=reverse)
 

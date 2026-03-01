@@ -281,7 +281,7 @@ class NumberLine(VCollection):
 
         super().__init__(*objects, creation=creation, z=z)
 
-    def number_to_point(self, value, time=0):
+    def number_to_point(self, value, time: float = 0):
         """Convert a number on the line to an SVG (x, y) coordinate."""
         span = self.x_end - self.x_start
         if span == 0:
@@ -1088,18 +1088,18 @@ class Matrix(_GridAccessMixin, VCollection):
                     stay=True)
         return self
 
-    def get_values(self, time=0):
+    def get_values(self, time: float = 0):
         """Return a 2D list of numeric values from the matrix entries at *time*."""
         return [[float(self.entries[r][c].text.at_time(time))
                  for c in range(self.cols)] for r in range(self.rows)]
 
-    def trace(self, time=0):
+    def trace(self, time: float = 0):
         """Return the trace (sum of diagonal elements) of a square matrix."""
         if self.rows != self.cols:
             raise ValueError(f'trace requires a square matrix, got {self.rows}x{self.cols}')
         return sum(float(self.entries[i][i].text.at_time(time)) for i in range(self.rows))
 
-    def determinant(self, time=0):
+    def determinant(self, time: float = 0):
         """Compute the determinant of a square matrix (up to ~10x10)."""
         if self.rows != self.cols:
             raise ValueError(f'determinant requires a square matrix, got {self.rows}x{self.cols}')

@@ -53,7 +53,7 @@ class _VObjectEffectsMixin:
         """Move this object so its center matches *other*'s center at *time*."""
         return self.move_to(*_coords_of(other, time), start=time)
 
-    def point_from_proportion(self, t, time=0):
+    def point_from_proportion(self, t, time: float = 0):
         """Return the (x, y) point at proportion *t* (0-1) along this object's SVG path outline."""
         path_d = self.path(time)
         if not path_d:
@@ -92,7 +92,7 @@ class _VObjectEffectsMixin:
                     lambda t, _o=other, _e=end_edge: _o.get_edge(_e, time=t))
         return connector
 
-    def match_style(self, other, time=0):
+    def match_style(self, other, time: float = 0):
         """Copy fill, stroke, opacity, and stroke_width from *other* at *time*."""
         self.styling.fill.set_onward(time, other.styling.fill.time_func(time))
         self.styling.stroke.set_onward(time, other.styling.stroke.time_func(time))
@@ -767,7 +767,7 @@ class _VObjectEffectsMixin:
         self.set_visible(False, 0); self.set_visible(True, start); self.set_visible(False, end)
         return self
 
-    def get_style(self, time=0):
+    def get_style(self, time: float = 0):
         """Return the current styling as a dict at the given time."""
         return {
             'fill': self.styling.fill.at_time(time),

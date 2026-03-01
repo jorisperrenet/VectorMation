@@ -154,14 +154,14 @@ class ThreeDAxes(VCollection):
             lc = max(lc, o.last_change)
         return lc
 
-    def project_point(self, x, y, z, time=0):
+    def project_point(self, x, y, z, time: float = 0):
         """Project 3D math coords to (svg_x, svg_y, depth)."""
         p = self.phi.at_time(time)
         t = self.theta.at_time(time)
         s = self._scale_3d.at_time(time)
         return _project_point(x, y, z, p, t, s, self._cx, self._cy)
 
-    def coords_to_point(self, x, y, z=0, time=0):
+    def coords_to_point(self, x, y, z=0, time: float = 0):
         """Project 3D coordinates to 2D SVG pixel coordinates (backward compat)."""
         sx, sy, _ = self.project_point(x, y, z, time)
         return (sx, sy)
@@ -590,7 +590,7 @@ class Surface(VObject):
     def path(self, time):
         return ''
 
-    def bbox(self, time=0):
+    def bbox(self, time: float = 0):
         return (0, 0, 0, 0)
 
     def _extra_attrs(self):
@@ -601,6 +601,87 @@ class Surface(VObject):
 
     def _shift_reals(self):
         return []
+
+# ---------------------------------------------------------------------------
+# SurfaceMesh — wireframe overlay on a Surface
+# ---------------------------------------------------------------------------
+
+class SurfaceMesh(Surface):
+    """Wireframe mesh that follows the geometry of an existing Surface.
+
+    Renders as grid lines (no filled polygons).  The *resolution* can differ
+    from the underlying surface — use a coarser value for a cleaner wireframe.
+    """
+
+    def __init__(self, surface, resolution=None,
+                 stroke_color='#ffffff', stroke_width=1, stroke_opacity=0.4,
+                 creation=0, z=0):
+        res = resolution or surface._resolution
+        super().__init__(
+            surface._func,
+            u_range=surface._u_range,
+            v_range=surface._v_range,
+            resolution=res,
+            fill_color=surface._fill_color,
+            stroke_color=stroke_color,
+            stroke_width=stroke_width,
+            fill_opacity=0,
+            creation=creation,
+            z=z,
+        )
+        self._stroke_opacity = stroke_opacity
+
+    def to_patches(self, axes, time):
+        """Generate (depth, svg_str) for each grid edge as a <line>."""
+        u_steps, v_steps = max(self._resolution[0], 1), max(self._resolution[1], 1)
+        u0, u1 = self._u_range
+        v0, v1 = self._v_range
+        du = (u1 - u0) / u_steps
+        dv = (v1 - v0) / v_steps
+
+        # Build vertex grid
+        grid = []
+        for i in range(u_steps + 1):
+            row = []
+            for j in range(v_steps + 1):
+                u = u0 + i * du
+                v = v0 + j * dv
+                row.append(self._eval(u, v))
+            grid.append(row)
+
+        sc = self._stroke_color
+        sw = self._stroke_width
+        so = self._stroke_opacity
+        patches = []
+
+        # U-direction lines (fixed u, varying v)
+        for i in range(u_steps + 1):
+            for j in range(v_steps):
+                p0 = grid[i][j]
+                p1 = grid[i][j + 1]
+                s0 = axes.project_point(*p0, time)
+                s1 = axes.project_point(*p1, time)
+                depth = (s0[2] + s1[2]) / 2
+                svg = (f'<line x1="{s0[0]:.1f}" y1="{s0[1]:.1f}" '
+                       f'x2="{s1[0]:.1f}" y2="{s1[1]:.1f}" '
+                       f'stroke="{sc}" stroke-width="{sw}" opacity="{so}"/>')
+                patches.append((depth, svg))
+
+        # V-direction lines (fixed v, varying u)
+        for j in range(v_steps + 1):
+            for i in range(u_steps):
+                p0 = grid[i][j]
+                p1 = grid[i + 1][j]
+                s0 = axes.project_point(*p0, time)
+                s1 = axes.project_point(*p1, time)
+                depth = (s0[2] + s1[2]) / 2
+                svg = (f'<line x1="{s0[0]:.1f}" y1="{s0[1]:.1f}" '
+                       f'x2="{s1[0]:.1f}" y2="{s1[1]:.1f}" '
+                       f'stroke="{sc}" stroke-width="{sw}" opacity="{so}"/>')
+                patches.append((depth, svg))
+
+        return patches
+
 
 # ---------------------------------------------------------------------------
 # Wireframe helpers (backward compat, rendered as 3D patches)

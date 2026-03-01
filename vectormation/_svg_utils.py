@@ -740,7 +740,7 @@ class Cutout(VObject):
         hy = self.hole_y.at_time(time)
         return [(hx, hy)]
 
-    def bbox(self, time=0):
+    def bbox(self, time: float = 0):
         return (0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
     def path(self, time):

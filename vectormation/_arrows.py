@@ -438,7 +438,7 @@ class Vector(Arrow):
     def __repr__(self):
         return f'Vector({self._vx:.0f}, {self._vy:.0f})'
 
-    def get_vector(self, time=0):
+    def get_vector(self, time: float = 0):
         """Return the vector components (dx, dy) from start to end."""
         s = self.get_start(time)
         e = self.get_end(time)

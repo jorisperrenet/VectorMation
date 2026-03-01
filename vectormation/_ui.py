@@ -936,7 +936,7 @@ class RoundedCornerPolygon(VObject):
         segs.append('Z')
         return ''.join(segs)
 
-    def path(self, time=0):
+    def path(self, time: float = 0):
         return self._compute_path()
 
     def to_svg(self, time):
