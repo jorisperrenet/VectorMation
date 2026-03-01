@@ -2060,7 +2060,7 @@ class NumberPlane(VCollection):
                 continue
             px, py = self.coords_to_point(x, 0)
             lbl = Text(
-                str(int(x) if x == int(x) else x),
+                str(int(round(x))) if abs(x - round(x)) < 1e-9 else str(x),
                 x=px, y=py + font_size * 1.2,
                 font_size=font_size, creation=creation,
             )
@@ -2071,7 +2071,7 @@ class NumberPlane(VCollection):
                 continue
             px, py = self.coords_to_point(0, y)
             lbl = Text(
-                str(int(y) if y == int(y) else y),
+                str(int(round(y))) if abs(y - round(y)) < 1e-9 else str(y),
                 x=px - font_size * 1.2, y=py,
                 font_size=font_size, creation=creation,
             )

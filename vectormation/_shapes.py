@@ -444,7 +444,7 @@ class Polygon(VObject):
         for i in range(n):
             xi, yi = pts[i]
             xj, yj = pts[j]
-            if ((yi > py) != (yj > py)) and (px < (xj - xi) * (py - yi) / (yj - yi + 1e-20) + xi):
+            if ((yi > py) != (yj > py)) and (px < (xj - xi) * (py - yi) / (yj - yi + 1e-9) + xi):
                 inside = not inside
             j = i
         return inside
@@ -791,7 +791,7 @@ class Polygon(VObject):
             r = min(radius, len_in / 2 if len_in > 0 else radius,
                     len_out / 2 if len_out > 0 else radius)
 
-            if len_in == 0 or len_out == 0:
+            if len_in < 1e-12 or len_out < 1e-12:
                 # Degenerate edge — just use the vertex
                 parts.append(f'L {curr[0]},{curr[1]}')
                 continue
@@ -1209,7 +1209,7 @@ class Circle(Ellipse):
         b = 2 * (fx * dx + fy * dy)
         c = fx * fx + fy * fy - r * r
         disc = b * b - 4 * a * c
-        if a < 1e-20 or disc < 0:
+        if a < 1e-12 or disc < 0:
             return []
         sq = math.sqrt(disc)
         points = []

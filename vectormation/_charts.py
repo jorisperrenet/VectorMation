@@ -963,7 +963,7 @@ class GanttChart(VCollection):
             tick = Line(x1=tx, y1=y - 5, x2=tx, y2=y + 5,
                         stroke='#666', stroke_width=1, creation=creation, z=z)
             objects.append(tick)
-            label = f'{tv:.0f}' if tv == int(tv) else f'{tv:.1f}'
+            label = f'{tv:.0f}' if abs(tv - round(tv)) < 1e-9 else f'{tv:.1f}'
             lbl = Text(text=label, x=tx, y=y - 10,
                        font_size=font_size - 2, fill='#aaa', stroke_width=0,
                        text_anchor='middle', creation=creation, z=z + 0.1)
