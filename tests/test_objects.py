@@ -23781,3 +23781,106 @@ class TestArcGeometryMethods:
             assert part.cx.at_time(0) == pytest.approx(300)
             assert part.cy.at_time(0) == pytest.approx(400)
             assert part.r.at_time(0) == pytest.approx(150)
+
+
+# ---------------------------------------------------------------------------
+# Cloth simulation
+# ---------------------------------------------------------------------------
+
+class TestCloth:
+    def test_init(self):
+        from vectormation._physics import Cloth
+        c = Cloth(cols=5, rows=3)
+        assert c.cols == 5
+        assert c.rows == 3
+
+    def test_objects_returns_vobjects(self):
+        from vectormation._physics import Cloth
+        c = Cloth(cols=4, rows=3)
+        objs = c.objects()
+        assert len(objs) > 0
+
+    def test_simulate(self):
+        from vectormation._physics import Cloth
+        c = Cloth(cols=3, rows=2)
+        c.simulate(duration=0.5)
+        # Bodies should have trajectories baked
+        body = c._bodies[1][1]
+        assert len(body._trajectory) > 0
+
+    def test_objects_count(self):
+        from vectormation._physics import Cloth
+        c = Cloth(cols=3, rows=2)
+        objs = c.objects()
+        # 3*2=6 dots, plus lines connecting them
+        n_dots = 3 * 2
+        assert len(objs) >= n_dots
+
+    def test_single_row(self):
+        from vectormation._physics import Cloth
+        c = Cloth(cols=3, rows=1)
+        assert repr(c) == 'Cloth(3x1)'
+
+    def test_single_col(self):
+        from vectormation._physics import Cloth
+        c = Cloth(cols=1, rows=3)
+        assert repr(c) == 'Cloth(1x3)'
+
+
+class TestPhysicsEdgeCases:
+    def test_wall_needs_x_or_y(self):
+        from vectormation._physics import Wall
+        with pytest.raises(ValueError):
+            Wall()
+
+    def test_fixed_body_doesnt_move(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 980))
+        c = Circle(r=20, cx=500, cy=500)
+        b = space.add_body(c, fixed=True)
+        space.simulate(duration=0.5)
+        # Fixed body should stay at its original position
+        assert b.x == pytest.approx(500, abs=1)
+        assert b.y == pytest.approx(500, abs=1)
+
+    def test_spring_with_fixed_anchor(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 0))
+        c = Circle(r=20, cx=500, cy=300)
+        b = space.add_body(c, mass=1.0)
+        space.add_spring(b, (500, 500), stiffness=1.0, rest_length=0)
+        space.simulate(duration=1.0)
+        # Body should move toward anchor
+        assert isinstance(b.y, float)
+
+    def test_add_walls_multiple(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace()
+        result = space.add_walls(left=0, right=1920, top=0, bottom=1080)
+        assert result is space
+        assert len(space.walls) == 4
+
+    def test_add_force(self):
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 0))
+        c = Circle(r=20, cx=500, cy=500)
+        b = space.add_body(c, mass=1.0)
+        space.add_force(lambda body, t: (100, 0))
+        space.simulate(duration=0.5)
+        # Body should have moved right
+        assert b.x > 500
+
+    def test_add_mixed_objects(self):
+        from vectormation._physics import PhysicsSpace, Body, Wall, Spring
+        space = PhysicsSpace()
+        c1 = Circle(r=20, cx=100, cy=200)
+        c2 = Circle(r=20, cx=300, cy=200)
+        b1 = Body(c1)
+        b2 = Body(c2)
+        w = Wall(y=900)
+        s = Spring(b1, b2)
+        result = space.add(b1, b2, w, s)
+        assert result is space
+        assert len(space.bodies) == 2
+        assert len(space.walls) == 1
+        assert len(space.springs) == 1

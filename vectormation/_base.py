@@ -7,7 +7,7 @@ from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
     CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
     SMALL_BUFF, MED_SMALL_BUFF,
-    UP, DOWN, RIGHT,
+    DOWN, RIGHT,
     Z_FRONT, Z_BACK,
 )
 
