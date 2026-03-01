@@ -1345,6 +1345,7 @@ class _AxesExtMixin:
                      creation: float = 0, z: float = 0, **styling_kwargs):
         """2D vector/arrow field: func(x, y) -> (dx, dy).
         Returns a VCollection of small Arrow objects."""
+        x_step, y_step = max(abs(x_step), 1e-6), max(abs(y_step), 1e-6)
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 1.5} | styling_kwargs
         x_lo = self.x_min.at_time(creation)
         x_hi = self.x_max.at_time(creation)
@@ -1630,6 +1631,7 @@ class _AxesExtMixin:
         """Draw a vector field F(x,y) = (u,v) on the axes using arrows.
         func: callable(x, y) -> (u, v).
         Returns a VCollection of Arrow objects."""
+        x_step, y_step = max(abs(x_step), 1e-6), max(abs(y_step), 1e-6)
         style_kw = {'stroke': '#83C167', 'stroke_width': 1.5, 'fill': '#83C167'} | styling_kwargs
         xmin, xmax = self.x_min.at_time(creation), self.x_max.at_time(creation)
         ymin, ymax = self.y_min.at_time(creation), self.y_max.at_time(creation)

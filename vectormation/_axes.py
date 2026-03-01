@@ -505,6 +505,8 @@ class Axes(_AxesExtMixin, VCollection):
         """
         xmin = x_range[0] if x_range else self.x_min.at_time(start)
         xmax = x_range[1] if x_range else self.x_max.at_time(start)
+        if xmax <= xmin:
+            return self
         n = 200
         step = (xmax - xmin) / n
         ys = []
