@@ -202,7 +202,7 @@ class Angle(VCollection):
         p2x, p2y = self.p2.at_time(t)
         return self._angles_from_points(vx, vy, p1x, p1y, p2x, p2y)
 
-    def set_radius(self, new_radius, start=0, end=None, easing=easings.smooth):
+    def set_radius(self, new_radius, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate the angle arc radius to new_radius."""
         _set_attr(self.arc.r, start, end, new_radius, easing)
         return self
@@ -438,7 +438,7 @@ class ZoomedInset(VObject):
         dw, dh = self.dst_w.at_time(time), self.dst_h.at_time(time)
         return (dx, dy, dw, dh)
 
-    def move_source(self, x, y, start, end=None, easing=easings.smooth):
+    def move_source(self, x, y, start, end: float | None = None, easing=easings.smooth):
         """Animate the source region position."""
         _set_attr(self.src_x, start, end, x, easing)
         _set_attr(self.src_y, start, end, y, easing)
@@ -757,7 +757,7 @@ class Cutout(VObject):
         if h is not None: _set_attr(self.hole_h, start, end, h, easing)
         return self
 
-    def surround(self, obj, buff=20, start=0, end=None, easing=easings.smooth):
+    def surround(self, obj, buff=20, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Move the cutout hole to surround a VObject's bounding box."""
         bx, by, bw, bh = obj.bbox(start)
         return self.set_hole(bx - buff, by - buff, bw + 2*buff, bh + 2*buff,
@@ -870,7 +870,7 @@ class Spotlight(VObject):
     def _shift_coors(self):
         return []
 
-    def set_target(self, target, start=0, end=None, easing=easings.smooth):
+    def set_target(self, target, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Move the spotlight to a new target (point or VObject)."""
         if isinstance(target, VObject):
             tx, ty = target.center(start)
@@ -884,12 +884,12 @@ class Spotlight(VObject):
             self._cy.move_to(start, end, ty, easing=easing)
         return self
 
-    def set_radius(self, value, start=0, end=None, easing=easings.smooth):
+    def set_radius(self, value, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate the spotlight radius."""
         _set_attr(self._r, start, end, value, easing)
         return self
 
-    def set_overlay_color(self, color, start=0, end=None, easing=easings.smooth):
+    def set_overlay_color(self, color, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate the overlay color."""
         if end is None:
             self._color.set_onward(start, color)
@@ -897,7 +897,7 @@ class Spotlight(VObject):
             self._color.interpolate(attributes.Color(start, color), start, end, easing=easing)
         return self
 
-    def set_overlay_opacity(self, value, start=0, end=None, easing=easings.smooth):
+    def set_overlay_opacity(self, value, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate the overlay opacity."""
         _set_attr(self._opacity, start, end, value, easing)
         return self

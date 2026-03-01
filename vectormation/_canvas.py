@@ -97,7 +97,7 @@ class VectorMathAnim:
         self._animate_viewbox(start, end, new_x, new_y, new_w, new_h, easing)
         return self
 
-    def camera_follow(self, obj, start, end=None):
+    def camera_follow(self, obj, start, end: float | None = None):
         """Make the camera center on an object over [start, end]."""
         w, h = self.width, self.height
         def _vb_x(t):
@@ -432,7 +432,7 @@ class VectorMathAnim:
             yield t
             t += dt
 
-    def export_video(self, filename='animation.mp4', start=0, end=None, fps=60, scale=None):
+    def export_video(self, filename='animation.mp4', start: float = 0, end: float | None = None, fps=60, scale=None):
         """Export animation as video using cairosvg + ffmpeg."""
         import subprocess, shutil
         cairosvg = self._require_cairosvg()
@@ -459,7 +459,7 @@ class VectorMathAnim:
         finally:
             shutil.rmtree(tmpdir, ignore_errors=True)
 
-    def export_gif(self, filename='animation.gif', start=0, end=None, fps=30, scale=None, loop=0):
+    def export_gif(self, filename='animation.gif', start: float = 0, end: float | None = None, fps=30, scale=None, loop=0):
         """Export animation as an animated GIF using cairosvg + Pillow."""
         cairosvg = self._require_cairosvg()
         try:
@@ -496,7 +496,7 @@ class VectorMathAnim:
         return [{'class': obj.__class__.__name__, 'id': id(obj)}
                 for obj in self._visible_objects(time)]
 
-    def browser_display(self, start=0, end=None, fps=60,
+    def browser_display(self, start: float = 0, end: float | None = None, fps=60,
                         port=8765, hot_reload=False):
         """View the animation in a browser via WebSocket.
         If end == 0, displays a single static picture (no animation)."""

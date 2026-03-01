@@ -76,7 +76,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             xa.add(start, end, lambda t, _f=func: _f(t)[0], stay=stay)
             ya.add(start, end, lambda t, _f=func: _f(t)[1], stay=stay)
 
-    def add_updater(self, func, start: float = 0, end=None):
+    def add_updater(self, func, start: float = 0, end: float | None = None):
         """Add an updater function called before each frame's to_svg.
         func(obj, time) should modify obj in-place. Active on [start, end]."""
         self._updaters.append((func, start, end))
@@ -1060,7 +1060,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self.shift(dx=tx - mcx, dy=ty - mcy, start=start)
         return self
 
-    def attach_to(self, other, direction=None, buff=None, start: float = 0, end=None):
+    def attach_to(self, other, direction=None, buff=None, start: float = 0, end: float | None = None):
         """Continuously position self next to *other* via an updater."""
         direction = direction or RIGHT
         buff = buff if buff is not None else MED_SMALL_BUFF
@@ -1078,14 +1078,14 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.add_updater(_update, start=start, end=end)
         return self
 
-    def always_next_to(self, other, direction=RIGHT, buff=SMALL_BUFF, start: float = 0, end=None):
+    def always_next_to(self, other, direction=RIGHT, buff=SMALL_BUFF, start: float = 0, end: float | None = None):
         """Updater-based ``next_to`` that tracks *other* each frame."""
         def _update(obj, t, _dir=direction, _buff=buff):
             obj.next_to(other, _dir, _buff, start=t)
         self.add_updater(_update, start=start, end=end)
         return self
 
-    def set_color_if(self, predicate, color, start: float = 0, end=None):
+    def set_color_if(self, predicate, color, start: float = 0, end: float | None = None):
         """Set fill to *color* when ``predicate(t)`` is True, revert otherwise."""
         _orig_rgb = self.styling.fill.time_func(start)
         _new_color = attributes.Color(0, color)
@@ -1105,7 +1105,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.move_to(nx, ny, start=time)
         return self
 
-    def follow(self, other, start: float = 0, end=None):
+    def follow(self, other, start: float = 0, end: float | None = None):
         """Continuously track *other*'s center via an updater."""
         _init_cx, _init_cy = self.center(start)
         _init_dx = self.styling.dx.at_time(start)

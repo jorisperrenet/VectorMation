@@ -100,7 +100,7 @@ class MorphObject(VCollection):
     def __repr__(self):
         return 'MorphObject()'
 
-def counterclockwise_morph(source, target, start=0, end=1, z=0, easing=easings.smooth):
+def counterclockwise_morph(source, target, start: float = 0, end: float = 1, z=0, easing=easings.smooth):
     """Convenience: morph with a 180-degree counterclockwise rotation."""
     return MorphObject(source, target, start=start, end=end, z=z,
                        easing=easing, rotation_degrees=-180)
@@ -348,7 +348,7 @@ class NumberLine(VCollection):
         self.objects.append(group)
         return group
 
-    def animate_pointer(self, pointer_group, target_value, start=0, end=1, easing=easings.smooth):
+    def animate_pointer(self, pointer_group, target_value, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate a pointer (from add_pointer) to a new value."""
         dur = end - start
         if dur <= 0 or not pointer_group.objects:
@@ -467,7 +467,7 @@ class NumberLine(VCollection):
         self.objects.append(group)
         return group
 
-    def animate_add_tick(self, value, start=0, end=1, label=None, easing=None):
+    def animate_add_tick(self, value, start: float = 0, end: float = 1, label=None, easing=None):
         """Dynamically add a tick mark at *value* with a pop-in animation."""
         easing = easing or easings.smooth
         px, py = self.number_to_point(value)
@@ -489,7 +489,7 @@ class NumberLine(VCollection):
 
         return self
 
-    def add_animated_pointer(self, value_func, start=0, end=None, color='#FFFF00',
+    def add_animated_pointer(self, value_func, start: float = 0, end: float | None = None, color='#FFFF00',
                              label=True):
         """Add a pointer (triangle) that tracks a dynamic value function over time."""
         size = 12
@@ -526,7 +526,7 @@ class NumberLine(VCollection):
 
         return self
 
-    def animate_range(self, new_start, new_end, start=0, end=1, easing=None):
+    def animate_range(self, new_start, new_end, start: float = 0, end: float = 1, easing=None):
         """Animate the number line's visible range to ``[new_start, new_end]``."""
         _easing = easing or easings.smooth
         old_start, old_end = self.x_start, self.x_end
@@ -716,13 +716,13 @@ class Table(_GridAccessMixin, VCollection):
                    if r < self.rows and c < self.cols]
         return self._flash(entries, start, end, color, easing)
 
-    def set_cell_values(self, updates, start=0):
+    def set_cell_values(self, updates, start: float = 0):
         """Batch update multiple cell values."""
         for (r, c), value in updates.items():
             self.set_cell_value(r, c, str(value), start=start)
         return self
 
-    def sort_by_column(self, col, start=0, end=1, reverse=False, easing=easings.smooth):
+    def sort_by_column(self, col, start: float = 0, end: float = 1, reverse=False, easing=easings.smooth):
         """Animate rows sliding to sorted positions based on column values."""
         values = sorted([(entry[col].text.at_time(start), r)
                          for r, entry in enumerate(self.entries)], reverse=reverse)
@@ -734,7 +734,7 @@ class Table(_GridAccessMixin, VCollection):
                     entry.shift(dx=0, dy=dy, start=start, end=end, easing=easing)
         return self
 
-    def transpose(self, start=0, end=None, easing=None):
+    def transpose(self, start: float = 0, end: float | None = None, easing=None):
         """Transpose the table so rows become columns and vice versa."""
         easing = easing or easings.smooth
         x, y_off, cw, ch, x_off, fs, _ = self._tp()
@@ -749,7 +749,7 @@ class Table(_GridAccessMixin, VCollection):
         self.rows, self.cols = self.cols, self.rows
         return self
 
-    def animate_cell_values(self, data, start=0, end=1, easing=None):
+    def animate_cell_values(self, data, start: float = 0, end: float = 1, easing=None):
         """Animate table cells changing to new values with numeric interpolation."""
         easing = easing or easings.smooth
         dur = end - start
@@ -787,7 +787,7 @@ class Table(_GridAccessMixin, VCollection):
                         entry.text.set_onward(start + dur / 2, new_text)
         return self
 
-    def animate_cells(self, cells, method_name='flash', start=0, delay=0.15, **kwargs):
+    def animate_cells(self, cells, method_name='flash', start: float = 0, delay=0.15, **kwargs):
         """Apply an animation method to specific cells with a stagger delay."""
         for i, (r, c) in enumerate(cells):
             getattr(self.entries[r][c], method_name)(start=start + i * delay, **kwargs)
@@ -811,7 +811,7 @@ class Table(_GridAccessMixin, VCollection):
         return Text(text=str(val), x=cx, y=cy, font_size=fs, text_anchor='middle',
                     creation=start, z=z, fill='#fff', stroke_width=0)
 
-    def add_row(self, values, start=0, animate=True):
+    def add_row(self, values, start: float = 0, animate=True):
         """Append a new row to the bottom of the table."""
         x, y_off, cw, ch, x_off, fs, z = self._tp()
         row_y = self._table_y + y_off + self.rows * ch
@@ -844,7 +844,7 @@ class Table(_GridAccessMixin, VCollection):
         self.objects.extend(new_objects)
         return self
 
-    def add_column(self, values, start=0, animate=True):
+    def add_column(self, values, start: float = 0, animate=True):
         """Append a new column to the right of the table."""
         x, y_off, cw, ch, x_off, fs, z = self._tp()
         col_x = x + x_off + self.cols * cw
@@ -877,7 +877,7 @@ class Table(_GridAccessMixin, VCollection):
         self.objects.extend(new_objects)
         return self
 
-    def _swap_dim(self, i, j, is_row, start=0, end=1, easing=easings.smooth):
+    def _swap_dim(self, i, j, is_row, start: float = 0, end: float = 1, easing=easings.smooth):
         dim = self.rows if is_row else self.cols
         if i == j or not (0 <= i < dim) or not (0 <= j < dim):
             return self
@@ -896,15 +896,15 @@ class Table(_GridAccessMixin, VCollection):
                 self.entries[r][i], self.entries[r][j] = self.entries[r][j], self.entries[r][i]
         return self
 
-    def swap_rows(self, i, j, start=0, end=1, easing=easings.smooth):
+    def swap_rows(self, i, j, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate swapping two table rows."""
         return self._swap_dim(i, j, True, start, end, easing)
 
-    def swap_columns(self, i, j, start=0, end=1, easing=easings.smooth):
+    def swap_columns(self, i, j, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate swapping two table columns."""
         return self._swap_dim(i, j, False, start, end, easing)
 
-    def highlight_where(self, predicate, start=0, end=1, color='#FFFF00',
+    def highlight_where(self, predicate, start: float = 0, end: float = 1, color='#FFFF00',
                         easing=easings.there_and_back):
         """Highlight cells whose text satisfies *predicate(text) -> bool*."""
         for r in range(self.rows):
@@ -918,7 +918,7 @@ class Table(_GridAccessMixin, VCollection):
         if animate: cell.fadeout(start=start, end=start + 0.3)
         else: self.objects.remove(cell)
 
-    def remove_row(self, index, start=0, animate=True):
+    def remove_row(self, index, start: float = 0, animate=True):
         """Remove a row by index, fading out its cells."""
         if index < 0 or index >= self.rows:
             raise IndexError(f"row index {index} out of range (0..{self.rows - 1})")
@@ -931,7 +931,7 @@ class Table(_GridAccessMixin, VCollection):
         self.rows -= 1
         return self
 
-    def remove_column(self, index, start=0, animate=True):
+    def remove_column(self, index, start: float = 0, animate=True):
         """Remove a column by index, fading out its cells."""
         if index < 0 or index >= self.cols:
             raise IndexError(f"column index {index} out of range (0..{self.cols - 1})")
@@ -1042,12 +1042,12 @@ class Matrix(_GridAccessMixin, VCollection):
         """Flash-highlight all entries in a column."""
         return self._flash([row[col] for row in self.entries if col < len(row)], start, end, color, easing)
 
-    def set_entry_value(self, row, col, new_value, start=0):
+    def set_entry_value(self, row, col, new_value, start: float = 0):
         """Change the text of a matrix entry at the given time."""
         self.entries[row][col].text.set_onward(start, str(new_value))
         return self
 
-    def swap_rows(self, i, j, start=0, end=1, easing=easings.smooth):
+    def swap_rows(self, i, j, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate swapping two rows via arc paths."""
         if i == j or not (0 <= i < self.rows) or not (0 <= j < self.rows):
             return self
@@ -1060,7 +1060,7 @@ class Matrix(_GridAccessMixin, VCollection):
         self.entries[i], self.entries[j] = self.entries[j], self.entries[i]
         return self
 
-    def row_operation(self, target_row, source_row, scalar=1, start=0, end=1,
+    def row_operation(self, target_row, source_row, scalar=1, start: float = 0, end: float = 1,
                       easing=easings.smooth):
         """Animate an elementary row operation: R_target += scalar * R_source.
 
@@ -1105,14 +1105,14 @@ class Matrix(_GridAccessMixin, VCollection):
             raise ValueError(f'determinant requires a square matrix, got {self.rows}x{self.cols}')
         return _det(self.get_values(time))
 
-    def set_row_colors(self, *colors, start=0):
+    def set_row_colors(self, *colors, start: float = 0):
         """Set colors for each row. Cycles if fewer colors than rows."""
         for r in range(self.rows):
             for entry in self.entries[r]:
                 entry.styling.fill.set_onward(start, colors[r % len(colors)])
         return self
 
-    def set_column_colors(self, *colors, start=0):
+    def set_column_colors(self, *colors, start: float = 0):
         """Set colors for each column. Cycles if fewer colors than columns."""
         for ci in range(self.cols):
             for row in self.entries:

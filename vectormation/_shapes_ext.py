@@ -146,12 +146,12 @@ class Line(VObject):
         """Return True if the line is vertical within tolerance."""
         return self._is_aligned(0, time, tol)
 
-    def set_start(self, point, start: float = 0, end=None, easing=easings.smooth):
+    def set_start(self, point, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate or set the start point of the line."""
         _set_attr(self.p1, start, end, point, easing)
         return self
 
-    def set_end(self, point, start: float = 0, end=None, easing=easings.smooth):
+    def set_end(self, point, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate or set the end point of the line."""
         _set_attr(self.p2, start, end, point, easing)
         return self
@@ -162,7 +162,7 @@ class Line(VObject):
         self.p2.set_onward(start, p2)
         return self
 
-    def set_length(self, length, start: float = 0, end=None, easing=easings.smooth):
+    def set_length(self, length, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Set absolute length while keeping the midpoint fixed."""
         x1, y1, x2, y2 = self._ep(start)
         cur = _distance(x1, y1, x2, y2)
@@ -175,7 +175,7 @@ class Line(VObject):
         _set_attr(self.p2, start, end, (mx + dx * half, my + dy * half), easing)
         return self
 
-    def extend_to(self, length, anchor='start', start: float = 0, end=None, easing=easings.smooth):
+    def extend_to(self, length, anchor='start', start: float = 0, end: float | None = None, easing=easings.smooth):
         """Extend or shrink the line to *length*, keeping one endpoint fixed."""
         x1, y1, x2, y2 = self._ep(start)
         cur = _distance(x1, y1, x2, y2)
@@ -205,7 +205,7 @@ class Line(VObject):
 
     get_projection = get_perpendicular_point
 
-    def set_angle(self, angle_deg, about='midpoint', start: float = 0, end=None, easing=easings.smooth):
+    def set_angle(self, angle_deg, about='midpoint', start: float = 0, end: float | None = None, easing=easings.smooth):
         """Rotate the line to the given angle (degrees) about its midpoint or start."""
         x1, y1, x2, y2 = self._ep(start)
         target = math.radians(angle_deg)
@@ -220,7 +220,7 @@ class Line(VObject):
             _set_attr(self.p2, start, end, (mx + half * math.cos(target), my + half * math.sin(target)), easing)
         return self
 
-    def put_start_and_end_on(self, p1, p2, start: float = 0, end=None, easing=easings.smooth):
+    def put_start_and_end_on(self, p1, p2, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Position the line between two points."""
         _set_attr(self.p1, start, end, p1, easing)
         _set_attr(self.p2, start, end, p2, easing)
@@ -405,7 +405,7 @@ class Line(VObject):
             dx, dy = 0, 0
         return Line(x1=px - dx, y1=py - dy, x2=px + dx, y2=py + dy, **kwargs)
 
-    def extend(self, factor=1.5, start: float = 0, end=None, easing=easings.smooth):
+    def extend(self, factor=1.5, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Scale the line length by *factor* while keeping the midpoint fixed."""
         x1, y1, x2, y2 = self._ep(start)
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
@@ -761,7 +761,7 @@ class Text(VObject):
         self.text.set_onward(end, full_text)
         return self
 
-    def set_font_size(self, size, start: float = 0, end=None, easing=easings.smooth):
+    def set_font_size(self, size, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate font size to new value."""
         _set_attr(self.font_size, start, end, size, easing)
         return self
@@ -1166,7 +1166,7 @@ class Integer(DecimalNumber):
 
 class Trace(VObject):
     """Follows a point every dt and renders as a polyline."""
-    def __init__(self, point, start=0, end=None, dt=1/60, z: float = 0, **styling_kwargs):
+    def __init__(self, point, start: float = 0, end: float | None = None, dt=1/60, z: float = 0, **styling_kwargs):
         super().__init__(creation=start, z=z)
         self.start = start
         self.end = end
@@ -1549,12 +1549,12 @@ class Arc(VObject):
         rad = math.radians(degrees)
         return (cx + r * math.cos(rad), cy - r * math.sin(rad))
 
-    def set_radius(self, value, start: float = 0, end=None, easing=easings.smooth):
+    def set_radius(self, value, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate or set the arc radius."""
         _set_attr(self.r, start, end, value, easing)
         return self
 
-    def set_angles(self, start_angle=None, end_angle=None, start: float = 0, end=None, easing=easings.smooth):
+    def set_angles(self, start_angle=None, end_angle=None, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate or set the arc start/end angles (degrees)."""
         if start_angle is not None:
             _set_attr(self.start_angle, start, end, start_angle, easing)
@@ -1562,7 +1562,7 @@ class Arc(VObject):
             _set_attr(self.end_angle, start, end, end_angle, easing)
         return self
 
-    def animate_sweep(self, target_angle, start: float = 0, end=None, easing=None):
+    def animate_sweep(self, target_angle, start: float = 0, end: float | None = None, easing=None):
         """Animate the end angle of this arc to *target_angle* (degrees)."""
         if easing is None:
             easing = easings.smooth
@@ -1750,11 +1750,11 @@ class Annulus(VObject):
         """Return the outer radius at the given time."""
         return self.outer_r.at_time(time)
 
-    def set_inner_radius(self, value, start: float = 0, end=None, easing=easings.smooth):
+    def set_inner_radius(self, value, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate or set the inner radius."""
         _set_attr(self.inner_r, start, end, value, easing); return self
 
-    def set_outer_radius(self, value, start: float = 0, end=None, easing=easings.smooth):
+    def set_outer_radius(self, value, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate or set the outer radius."""
         _set_attr(self.outer_r, start, end, value, easing); return self
 
@@ -1763,7 +1763,7 @@ class Annulus(VObject):
         ri, ro = self.inner_r.at_time(time), self.outer_r.at_time(time)
         return math.pi * (ro * ro - ri * ri)
 
-    def set_radii(self, inner=None, outer=None, start: float = 0, end=None, easing=easings.smooth):
+    def set_radii(self, inner=None, outer=None, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Set inner and/or outer radius."""
         if inner is not None:
             self.set_inner_radius(inner, start, end, easing)
@@ -1889,7 +1889,7 @@ class AnnularSector(Arc):
         return (f'M{ox1},{oy1}A{ro},{ro} 0 {large},{sweep_out} {ox2},{oy2}'
                 f'L{ix1},{iy1}A{ri},{ri} 0 {large},{sweep_in} {ix2},{iy2}Z')
 
-    def set_inner_radius(self, value, start: float = 0, end=None, easing=easings.smooth):
+    def set_inner_radius(self, value, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate or set the inner radius of the annular sector."""
         _set_attr(self.inner_r, start, end, value, easing)
         return self

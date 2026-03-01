@@ -34,7 +34,7 @@ def _ensure_text(obj, method):
 
 class _VObjectEffectsMixin:
     """Advanced animation and effect methods, mixed into VObject."""
-    def scale_to_fit(self, width=None, height=None, start=0, end=None, easing=easings.smooth):
+    def scale_to_fit(self, width=None, height=None, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Scale to fit within the given *width*/*height*, preserving aspect ratio."""
         cur_w = self.get_width(start)
         cur_h = self.get_height(start)
@@ -408,7 +408,7 @@ class _VObjectEffectsMixin:
         self._set_scale_xy(start, end, _sq(sx0, fx), _sq(sy0, fy), stay=True)
         return self
 
-    def bind_to(self, other, offset_x=0, offset_y=0, start=0, end=None):
+    def bind_to(self, other, offset_x=0, offset_y=0, start: float = 0, end: float | None = None):
         """Keep this object at a fixed offset relative to another object's center."""
         def _bind(obj, time, _other=other, _ox=offset_x, _oy=offset_y):
             ocx, ocy = _other.center(time)
@@ -420,7 +420,7 @@ class _VObjectEffectsMixin:
         self.add_updater(_bind, start, end)
         return self
 
-    def pin_to(self, other, edge='center', offset_x=0, offset_y=0, start=0, end=None):
+    def pin_to(self, other, edge='center', offset_x=0, offset_y=0, start: float = 0, end: float | None = None):
         """Anchor this object to a specific edge/corner of *other* via an updater."""
         edge_fn = _EDGE_POINTS.get(edge, _EDGE_POINTS['center'])
 
@@ -450,7 +450,7 @@ class _VObjectEffectsMixin:
     arc_to = lambda self, *a, **kw: self.path_arc(*a, **kw)
     arc_to.__doc__ = """Alias for :meth:`path_arc`."""
 
-    def typewriter_cursor(self, start=0, end=1, blink_rate=0.5, cursor_char='|'):
+    def typewriter_cursor(self, start: float = 0, end: float = 1, blink_rate=0.5, cursor_char='|'):
         """For Text objects: append a blinking cursor character."""
         _ensure_text(self, 'typewriter_cursor')
         _base_text_func = self.text.time_func
@@ -462,7 +462,7 @@ class _VObjectEffectsMixin:
         self.text.set(start, end, _blink, stay=False)
         return self
 
-    def parallax(self, dx, dy, start=0, end=1, depth_factor=0.5, easing=easings.smooth):
+    def parallax(self, dx, dy, start: float = 0, end: float = 1, depth_factor=0.5, easing=easings.smooth):
         """Shift by a fraction of (dx, dy) to create a parallax depth illusion."""
         return self.shift(dx=dx * depth_factor, dy=dy * depth_factor,
                           start=start, end=end, easing=easing)
@@ -474,12 +474,12 @@ class _VObjectEffectsMixin:
         'dash_dot': '10 5 2 5',
     }
 
-    def set_dash_pattern(self, pattern='dashes', start=0):
+    def set_dash_pattern(self, pattern='dashes', start: float = 0):
         """Set the stroke-dasharray at a given time. Accepts preset names or a custom string."""
         self.styling.stroke_dasharray.set_onward(start, self._DASH_PRESETS.get(pattern, pattern))
         return self
 
-    def show_if(self, condition_func, start=0, end=None):
+    def show_if(self, condition_func, start: float = 0, end: float | None = None):
         """Show the object only when *condition_func(time)* returns True."""
         def _opacity(t):
             return 1 if condition_func(t) else 0
@@ -495,17 +495,17 @@ class _VObjectEffectsMixin:
         """Create a rectangle surrounding another object. Returns a Rectangle."""
         return _make_brect(other.bbox, start, rx, ry, buff, follow)
 
-    def fade_to_color(self, target_color, start=0, end=1, easing=easings.smooth):
+    def fade_to_color(self, target_color, start: float = 0, end: float = 1, easing=easings.smooth):
         """Smoothly transition both fill and stroke to *target_color*."""
         return self.set_fill(color=target_color, start=start, end=end, easing=easing) \
             .set_stroke(color=target_color, start=start, end=end, easing=easing)
 
-    def spin_and_fade(self, start=0, end=1, spins=1.5, direction=1, easing=easings.smooth):
+    def spin_and_fade(self, start: float = 0, end: float = 1, spins=1.5, direction=1, easing=easings.smooth):
         """Rotate and fade out simultaneously."""
         return self.rotate_by(start, end, spins * 360 * direction, easing=easing) \
             .set_opacity(0, start=start, end=end, easing=easing)
 
-    def grow_to_size(self, target_width=None, target_height=None, start=0, end=1, easing=easings.smooth):
+    def grow_to_size(self, target_width=None, target_height=None, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate the object to reach a specific width and/or height."""
         cur_w = self.get_width(start)
         cur_h = self.get_height(start)
@@ -521,7 +521,7 @@ class _VObjectEffectsMixin:
                 self.scale(target_height / cur_h, start=start, end=end, easing=easing)
         return self
 
-    def tilt_towards(self, target_x, target_y, max_angle=15, start=0, end=1, easing=easings.smooth):  # noqa: ARG002
+    def tilt_towards(self, target_x, target_y, max_angle=15, start: float = 0, end: float = 1, easing=easings.smooth):  # noqa: ARG002
         """Rotate the object to tilt toward a target point by *max_angle* degrees.
         The vertical offset (target_y) determines tilt direction; target_x is accepted
         for API consistency (pass a point, not just a y-coordinate)."""
@@ -537,7 +537,7 @@ class _VObjectEffectsMixin:
         'color-dodge', 'color-burn',
     })
 
-    def set_blend_mode(self, mode, start=0):
+    def set_blend_mode(self, mode, start: float = 0):
         """Set the SVG mix-blend-mode on this object."""
         if mode not in self._VALID_BLEND_MODES:
             raise ValueError(
@@ -553,7 +553,7 @@ class _VObjectEffectsMixin:
     # 'left' (reveal left→right) clips the right side, etc.
     _REVEAL_DIR = {'left': 'right', 'right': 'left', 'top': 'down', 'bottom': 'up'}
 
-    def reveal_clip(self, start=0, end=1, direction='left', easing=easings.smooth):
+    def reveal_clip(self, start: float = 0, end: float = 1, direction='left', easing=easings.smooth):
         """Progressive reveal using SVG clip-path in the given direction."""
         dur = end - start
         if dur <= 0:
@@ -571,7 +571,7 @@ class _VObjectEffectsMixin:
 
     # -- Repeat animation --
 
-    def repeat_animation(self, method_name, count=2, start=0, end=1, **kwargs):
+    def repeat_animation(self, method_name, count=2, start: float = 0, end: float = 1, **kwargs):
         """Repeat an animation method *count* times within [start, end]."""
         if count <= 0 or end <= start:
             return self
@@ -584,7 +584,7 @@ class _VObjectEffectsMixin:
 
     # -- Elastic scale --
 
-    def elastic_scale(self, start=0, end=1, factor=1.5, easing=easings.smooth):
+    def elastic_scale(self, start: float = 0, end: float = 1, factor=1.5, easing=easings.smooth):
         """Scale up elastically then bounce back to original size."""
         _f, _damp, _freq = factor, 6.0, math.tau * 2.5
         def _elastic(p, _f=_f, _damp=_damp, _freq=_freq):
@@ -593,7 +593,7 @@ class _VObjectEffectsMixin:
             return 1 + (_f - 1) * math.cos(_freq * p) * math.exp(-_damp * p)
         return self._apply_scale_envelope(start, end, _elastic, easing, stay=True)
 
-    def snap_to_grid(self, grid_size=50, start=0, end=1, easing=easings.smooth):
+    def snap_to_grid(self, grid_size=50, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate the object's center to the nearest grid point."""
         cx, cy = self.center(start)
         target_x = round(cx / grid_size) * grid_size
@@ -619,7 +619,7 @@ class _VObjectEffectsMixin:
             stroke_width=0,
         )
 
-    def cycle_colors(self, colors, start=0, end=1, easing=easings.linear):
+    def cycle_colors(self, colors, start: float = 0, end: float = 1, easing=easings.linear):
         """Cycle the fill color through a list of colors over [start, end]."""
         dur = end - start
         if dur <= 0 or len(colors) < 2:
@@ -640,7 +640,7 @@ class _VObjectEffectsMixin:
                     stay=(i == n - 2))
         return self
 
-    def freeze(self, start, end=None):
+    def freeze(self, start, end: float | None = None):
         """Freeze the object's appearance at time *start* until *end*."""
         _captured = {}
 
@@ -675,7 +675,7 @@ class _VObjectEffectsMixin:
         method(*args, **kwargs)
         return self
 
-    def wobble(self, start=0, end=1, amplitude=5, frequency=3, easing=easings.smooth):
+    def wobble(self, start: float = 0, end: float = 1, amplitude=5, frequency=3, easing=easings.smooth):
         """Organic wobbling motion combining small rotations and position shifts."""
         dur = end - start
         if dur <= 0:
@@ -698,11 +698,11 @@ class _VObjectEffectsMixin:
         self.styling.rotation.set(start, end, _rot)
         return self
 
-    def focus_zoom(self, start=0, end=1, zoom_factor=1.3, easing=easings.smooth):
+    def focus_zoom(self, start: float = 0, end: float = 1, zoom_factor=1.3, easing=easings.smooth):
         """Zoom in slightly on the object then back to normal, like a camera focus effect."""
         return self.flash_scale(factor=zoom_factor, start=start, end=end, easing=easing)
 
-    def typewriter_effect(self, text, start=0, end=1, easing=easings.linear):
+    def typewriter_effect(self, text, start: float = 0, end: float = 1, easing=easings.linear):
         """For Text objects only: gradually reveal text character by character."""
         _ensure_text(self, 'typewriter_effect')
         n = len(text)
@@ -715,7 +715,7 @@ class _VObjectEffectsMixin:
         self.text.set_onward(end, text)
         return self
 
-    def look_at(self, target, start=0, end=None, easing=None):
+    def look_at(self, target, start: float = 0, end: float | None = None, easing=None):
         """Rotate so this object points toward *target*."""
         easing = easing or easings.smooth
         tx, ty = target if isinstance(target, tuple) else target.get_center(start)
@@ -723,7 +723,7 @@ class _VObjectEffectsMixin:
         angle_deg = math.degrees(math.atan2(ty - cy, tx - cx))
         return self.rotate_to(start, end or start, angle_deg, easing=easing)
 
-    def animate_to(self, target_obj, start=0, end=1, easing=None):
+    def animate_to(self, target_obj, start: float = 0, end: float = 1, easing=None):
         """Animate position, scale, and colors to match *target_obj*."""
         easing = easing or easings.smooth
         tx, ty = target_obj.get_center(start)
@@ -740,7 +740,7 @@ class _VObjectEffectsMixin:
             self.set_color(start, end, stroke=self._rgb_to_hex(target_stroke), easing=easing)
         return self
 
-    def set_gradient_fill(self, colors, direction='horizontal', start=0):
+    def set_gradient_fill(self, colors, direction='horizontal', start: float = 0):
         """Apply an SVG gradient fill to this object."""
         gid = f'grad{id(self)}'
         n = len(colors)
@@ -760,7 +760,7 @@ class _VObjectEffectsMixin:
                      f"<g><defs>{_d}</defs><g fill='url(#{_g})'>{inner}</g></g>", start)
         return self
 
-    def set_clip(self, clip_obj, start=0):
+    def set_clip(self, clip_obj, start: float = 0):
         """Apply an SVG clip-path from another VObject's outline."""
         cid = f'clip{id(self)}'
         _wrap_to_svg(self, lambda inner, t, _c=cid, _cl=clip_obj:
@@ -784,7 +784,7 @@ class _VObjectEffectsMixin:
             'opacity': self.styling.opacity.at_time(time),
         }
 
-    def move_towards(self, other, fraction=0.5, start=0, end=None, easing=None):
+    def move_towards(self, other, fraction=0.5, start: float = 0, end: float | None = None, easing=None):
         """Move a fraction of the way toward another object or point."""
         cx, cy = self.get_center(start)
         tx, ty = _coords_of(other, start)
@@ -807,7 +807,7 @@ class _VObjectEffectsMixin:
         from vectormation._collection import VCollection
         return VCollection(self, label)
 
-    def place_between(self, obj_a, obj_b, fraction=0.5, start=0, end=None, easing=None):
+    def place_between(self, obj_a, obj_b, fraction=0.5, start: float = 0, end: float | None = None, easing=None):
         """Position this object between two other objects or points."""
         ax, ay = _coords_of(obj_a, start)
         bx, by = _coords_of(obj_b, start)

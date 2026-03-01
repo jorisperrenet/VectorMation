@@ -75,7 +75,7 @@ def _set_attr(attr, start, end, value, easing):
         attr.move_to(start, end, value, easing=easing)
 
 
-def _wrap_to_svg(obj, wrapper_fn, start=0):
+def _wrap_to_svg(obj, wrapper_fn, start: float = 0):
     """Replace *obj.to_svg* with a version that wraps output via *wrapper_fn(inner, time)* from *start* onward."""
     _orig = obj.to_svg
     def _wrapped(time, _orig=_orig, _fn=wrapper_fn, _s=start):

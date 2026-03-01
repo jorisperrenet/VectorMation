@@ -22410,3 +22410,212 @@ class TestElasticBounce:
         c = Circle(r=50, cx=100, cy=100)
         result = c.elastic_bounce(start=0, end=0)
         assert result is c
+
+
+class TestAnimatedBoundaryNoStyling:
+    """AnimatedBoundary and Spotlight lack self.styling; verify show works."""
+    def test_animated_boundary_show_toggle(self):
+        from vectormation.objects import AnimatedBoundary, Rectangle
+        r = Rectangle(100, 50, x=100, y=100)
+        ab = AnimatedBoundary(r, creation=0)
+        ab.show.set_onward(0, False)
+        ab.show.set_onward(1, True)
+        assert ab.show.at_time(0.5) == False
+        assert ab.show.at_time(1.5) == True
+
+    def test_animated_boundary_renders_with_canvas(self):
+        from vectormation.objects import AnimatedBoundary, Rectangle
+        r = Rectangle(100, 50, x=100, y=100)
+        ab = AnimatedBoundary(r, creation=0)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(r, ab)
+        svg = canvas.generate_frame_svg(time=0.5)
+        assert '<svg' in svg
+
+    def test_spotlight_show_toggle(self):
+        from vectormation.objects import Spotlight
+        s = Spotlight(target=(500, 300), radius=100)
+        s.show.set_onward(0, False)
+        s.show.set_onward(1, True)
+        assert s.show.at_time(0.5) == False
+        assert s.show.at_time(1.5) == True
+
+    def test_spotlight_hidden_not_in_svg(self):
+        from vectormation.objects import Spotlight
+        s = Spotlight(target=(500, 300), radius=100)
+        s.show.set_onward(0, False)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(s)
+        svg = canvas.generate_frame_svg(time=0.5)
+        assert 'fill-rule' not in svg  # spotlight path uses fill-rule='evenodd'
+
+
+class TestSetGradientFill:
+    """Test set_gradient_fill method."""
+    def test_horizontal(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.set_gradient_fill(['#ff0000', '#0000ff'], direction='horizontal')
+        assert result is c
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(c)
+        svg = canvas.generate_frame_svg(time=0)
+        assert 'linearGradient' in svg
+
+    def test_vertical(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_gradient_fill(['#ff0000', '#0000ff'], direction='vertical')
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(c)
+        svg = canvas.generate_frame_svg(time=0)
+        assert 'linearGradient' in svg
+
+    def test_radial(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_gradient_fill(['#ff0000', '#0000ff'], direction='radial')
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(c)
+        svg = canvas.generate_frame_svg(time=0)
+        assert 'radialGradient' in svg
+
+    def test_three_colors(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_gradient_fill(['#ff0000', '#00ff00', '#0000ff'])
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(c)
+        svg = canvas.generate_frame_svg(time=0)
+        assert svg.count('stop-color') == 3
+
+
+class TestSetClip:
+    """Test set_clip method."""
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        mask = Rectangle(200, 200, x=0, y=0)
+        result = c.set_clip(mask)
+        assert result is c
+
+    def test_renders_clippath(self):
+        c = Circle(r=50, cx=100, cy=100)
+        mask = Rectangle(200, 200, x=0, y=0)
+        c.set_clip(mask)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(c)
+        svg = canvas.generate_frame_svg(time=0)
+        assert 'clipPath' in svg
+
+
+class TestSetLifetime:
+    """Test set_lifetime method."""
+    def test_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.set_lifetime(1, 3)
+        assert result is c
+
+    def test_hidden_before_start(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_lifetime(1, 3)
+        assert c.show.at_time(0.5) == False
+
+    def test_visible_during(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_lifetime(1, 3)
+        assert c.show.at_time(2) == True
+
+    def test_hidden_after_end(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.set_lifetime(1, 3)
+        assert c.show.at_time(4) == False
+
+
+class TestGetStyle:
+    """Test get_style method."""
+    def test_returns_dict(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#ff0000')
+        result = c.get_style()
+        assert isinstance(result, dict)
+        assert 'fill' in result
+
+    def test_captures_fill(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#ff0000')
+        style = c.get_style()
+        # fill may be returned as 'rgb(255,0,0)' or '#ff0000'
+        assert '255' in str(style['fill']) or 'ff0000' in str(style['fill']).lower()
+
+
+class TestDuplicateMethod:
+    """Test the duplicate() method on VObject."""
+    def test_returns_vcollection(self):
+        c = Circle(r=50, cx=100, cy=100)
+        copies = c.duplicate(count=3)
+        assert len(copies.objects) == 3
+
+    def test_copies_are_independent(self):
+        c = Circle(r=50, cx=100, cy=100, fill='#ff0000')
+        copies = c.duplicate(count=2)
+        for obj in copies.objects:
+            assert obj is not c
+
+
+class TestScienceComponentsGeometry:
+    """Test that science components produce valid geometry for non-horizontal orientations."""
+    def test_resistor_diagonal(self):
+        from vectormation.objects import Resistor
+        r = Resistor(x1=300, y1=300, x2=600, y2=600)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(r)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+
+    def test_capacitor_vertical(self):
+        from vectormation.objects import Capacitor
+        c = Capacitor(x1=500, y1=200, x2=500, y2=600)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(c)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+
+    def test_inductor_vertical(self):
+        from vectormation.objects import Inductor
+        ind = Inductor(x1=500, y1=200, x2=500, y2=600, n_loops=6)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(ind)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+
+    def test_diode_diagonal(self):
+        from vectormation.objects import Diode
+        d = Diode(x1=200, y1=200, x2=600, y2=600)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(d)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+
+    def test_led_custom_color(self):
+        from vectormation.objects import LED
+        led = LED(x1=300, y1=400, x2=700, y2=400, color='#00FF00')
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(led)
+        svg = canvas.generate_frame_svg(time=0)
+        # color may be rendered as rgb(0,255,0) or #00FF00
+        assert 'rgb(0,255,0)' in svg or '#00FF00' in svg
+
+    def test_component_no_label(self):
+        from vectormation.objects import Resistor
+        r = Resistor(label='')
+        assert len(r.objects) == 1  # Just the zigzag, no label text
+
+
+class TestUnitInterval:
+    """Test UnitInterval convenience wrapper."""
+    def test_creates(self):
+        from vectormation.objects import UnitInterval
+        ui = UnitInterval()
+        assert ui is not None
+
+    def test_custom_position(self):
+        from vectormation.objects import UnitInterval
+        ui = UnitInterval(x=100, y=300, length=400)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(ui)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg

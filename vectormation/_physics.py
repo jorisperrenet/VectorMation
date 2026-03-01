@@ -142,7 +142,7 @@ class PhysicsSpace:
         Animation start time.
     """
 
-    def __init__(self, gravity=(0, 980), dt=1 / 120, start=0.0):
+    def __init__(self, gravity=(0, 980), dt=1 / 120, start: float = 0.0):
         self.gravity = gravity
         self.dt = dt
         self.start = start

@@ -70,7 +70,7 @@ class Arrow(VCollection):
         self.tip.vertices[1].set_onward(start, lambda t: _cached_geom(t)[1])
         self.tip.vertices[2].set_onward(start, lambda t: _cached_geom(t)[2])
 
-    def _set_point(self, attr, x, y, start: float = 0, end=None):
+    def _set_point(self, attr, x, y, start: float = 0, end: float | None = None):
         if end is None:
             attr.set_onward(start, lambda t: (x, y))
         else:
@@ -78,11 +78,11 @@ class Arrow(VCollection):
         self._update_tip_dynamic(start)
         return self
 
-    def set_start(self, x, y, start: float = 0, end=None):
+    def set_start(self, x, y, start: float = 0, end: float | None = None):
         """Animate the arrow start point."""
         return self._set_point(self.shaft.p1, x, y, start, end)
 
-    def set_end(self, x, y, start: float = 0, end=None):
+    def set_end(self, x, y, start: float = 0, end: float | None = None):
         """Animate the arrow end point."""
         return self._set_point(self.shaft.p2, x, y, start, end)
 

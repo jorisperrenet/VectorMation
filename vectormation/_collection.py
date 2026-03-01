@@ -261,7 +261,7 @@ class VCollection(_BBoxMethodsMixin):
         """Return a list of ``(index, child)`` tuples."""
         return list(enumerate(self.objects))
 
-    def select(self, start=0, end=None):
+    def select(self, start: float = 0, end: float | None = None):
         """Return a new VCollection with children at indices [start:end]."""
         return VCollection(*self.objects[start:end])
 
@@ -333,7 +333,7 @@ class VCollection(_BBoxMethodsMixin):
         random.shuffle(self.objects)
         return self
 
-    def shuffle_animate(self, start=0, end=1, easing=None):
+    def shuffle_animate(self, start: float = 0, end: float = 1, easing=None):
         """Animated random shuffle -- children smoothly slide to randomly reassigned positions."""
         n = len(self.objects)
         if n < 2:
@@ -384,13 +384,13 @@ class VCollection(_BBoxMethodsMixin):
         """Apply *func* to each child and return a new VCollection."""
         return VCollection(*(func(obj) for obj in self.objects))
 
-    def set_z_values(self, start=0):
+    def set_z_values(self, start: float = 0):
         """Assign ascending z-order values starting from *start*."""
         for i, obj in enumerate(self.objects):
             obj.z.set_onward(start, i)
         return self
 
-    def set_color_by_gradient(self, *colors, attr='fill', start=0):
+    def set_color_by_gradient(self, *colors, attr='fill', start: float = 0):
         """Assign interpolated colors across children.
         colors: two or more hex color strings to interpolate between."""
         setter = 'set_fill' if attr == 'fill' else 'set_stroke'
@@ -410,7 +410,7 @@ class VCollection(_BBoxMethodsMixin):
             getattr(obj, setter)(color, start=start)
         return self
 
-    def set_opacity_by_gradient(self, start_opacity, end_opacity, attr='fill', start=0):
+    def set_opacity_by_gradient(self, start_opacity, end_opacity, attr='fill', start: float = 0):
         """Set linearly interpolated opacity across children."""
         n = len(self.objects)
         if n < 2:
@@ -481,7 +481,7 @@ class VCollection(_BBoxMethodsMixin):
             cursor += size + buff
         return self
 
-    def animated_arrange(self, direction=RIGHT, buff=SMALL_BUFF, start=0, end=1, easing=None):
+    def animated_arrange(self, direction=RIGHT, buff=SMALL_BUFF, start: float = 0, end: float = 1, easing=None):
         """Animated version of :meth:`arrange` -- smoothly moves children to arranged positions."""
         dir_name = _norm_dir(direction)
         if not self.objects:
@@ -628,7 +628,7 @@ class VCollection(_BBoxMethodsMixin):
             getattr(obj, method_name)(**kw)
         return self
 
-    def stagger_along_path(self, method_name, path_d, start=0, end=1,
+    def stagger_along_path(self, method_name, path_d, start: float = 0, end: float = 1,
                            delay=0.1, **kwargs):
         """Position children along an SVG path, then call *method_name* with staggered timing."""
         from svgpathtools import parse_path
@@ -642,7 +642,7 @@ class VCollection(_BBoxMethodsMixin):
             getattr(obj, method_name)(start=start + i * delay, end=end + i * delay, **kwargs)
         return self
 
-    def stagger_random(self, method_name, start=0, end=1, seed=None, **kwargs):
+    def stagger_random(self, method_name, start: float = 0, end: float = 1, seed=None, **kwargs):
         """Call method_name on each child in random order with equal stagger delay."""
         n = len(self.objects)
         if n == 0:
@@ -831,7 +831,7 @@ class VCollection(_BBoxMethodsMixin):
 
     swap_animated = swap_children  # backward compat alias
 
-    def highlight_nth(self, n, start=0, end=1, color='#FFFF00', easing=easings.smooth):
+    def highlight_nth(self, n, start: float = 0, end: float = 1, color='#FFFF00', easing=easings.smooth):
         """Highlight the nth child by temporarily changing its fill color while
         dimming others.  At end, restore all original colors.  Returns self."""
         if n < 0 or n >= len(self.objects):
@@ -985,7 +985,7 @@ class VCollection(_BBoxMethodsMixin):
             obj.move_to(tx, ty, start=start, end=end, easing=easing)
         return self
 
-    def gather_to(self, cx=None, cy=None, start=0, end=1, easing=easings.smooth):
+    def gather_to(self, cx=None, cy=None, start: float = 0, end: float = 1, easing=easings.smooth):
         """Converge children to a center point (reverse of scatter_from)."""
         cx, cy = self._resolve_center(start, cx, cy)
         return self.converge(cx, cy, start=start, end=end, easing=easing)
@@ -1077,13 +1077,13 @@ class VCollection(_BBoxMethodsMixin):
 
     apply_function = apply
 
-    def apply_with_delay(self, func, delay=0.1, start=0):
+    def apply_with_delay(self, func, delay=0.1, start: float = 0):
         """Apply ``func(child, index, start)`` to each child with incremental time delay."""
         for i, obj in enumerate(self.objects):
             func(obj, i, start + i * delay)
         return self
 
-    def zip_with(self, other, method_name_or_func, start=0, end=1, **kwargs):
+    def zip_with(self, other, method_name_or_func, start: float = 0, end: float = 1, **kwargs):
         """Apply a method or function pairwise to children of this and another collection."""
         other_objs = other.objects if hasattr(other, 'objects') else list(other)
         if isinstance(method_name_or_func, str):
@@ -1131,8 +1131,8 @@ class VCollection(_BBoxMethodsMixin):
     # -- Animation delegation: apply to all children simultaneously --
 
     # pop_in / pop_out have no end parameter
-    def pop_in(self, start=0.0, **kw): return self._delegate('pop_in', start=start, **kw)
-    def pop_out(self, start=0.0, **kw): return self._delegate('pop_out', start=start, **kw)
+    def pop_in(self, start: float = 0.0, **kw): return self._delegate('pop_in', start=start, **kw)
+    def pop_out(self, start: float = 0.0, **kw): return self._delegate('pop_out', start=start, **kw)
 
     def show_increasing_subsets(self, start: float = 0, end: float = 1, easing=None):
         """Progressively reveal children over [start, end] — each child appears and stays visible."""
@@ -1324,7 +1324,7 @@ class VCollection(_BBoxMethodsMixin):
                       start=start, end=end, easing=easing)
         return self
 
-    def fan_out(self, cx=None, cy=None, radius=200, start=0, end=1, easing=easings.smooth):
+    def fan_out(self, cx=None, cy=None, radius=200, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate children spreading radially from a center point to evenly spaced positions."""
         cx, cy = self._resolve_center(start, cx, cy)
         return self.distribute_radial(cx=cx, cy=cy, radius=radius, start=start, end=end, easing=easing)
@@ -1347,7 +1347,7 @@ class VCollection(_BBoxMethodsMixin):
 
     distribute_evenly = spread
 
-    def cascade_fadein(self, start=0, end=1, direction='left_to_right', easing=easings.smooth):
+    def cascade_fadein(self, start: float = 0, end: float = 1, direction='left_to_right', easing=easings.smooth):
         """Fade in children with a cascade effect based on spatial ordering."""
         n = len(self.objects)
         if n == 0 or end <= start:
@@ -1381,7 +1381,7 @@ class VCollection(_BBoxMethodsMixin):
             label_objects.append(label)
         return VCollection(*label_objects)
 
-    def batch_animate(self, method_name, start=0, end=1, param_name=None, values=None, **kwargs):
+    def batch_animate(self, method_name, start: float = 0, end: float = 1, param_name=None, values=None, **kwargs):
         """Call a method on each child with a different parameter value from *values*."""
         import inspect
         if values is None:
@@ -1404,7 +1404,7 @@ class VCollection(_BBoxMethodsMixin):
                 method(values[i], **kw)
         return self
 
-    def connect_children(self, arrow=False, buff=0, start=0, **kwargs):
+    def connect_children(self, arrow=False, buff=0, start: float = 0, **kwargs):
         """Draw connecting lines or arrows between consecutive children, adding them to the collection."""
         if arrow:
             from vectormation._arrows import Arrow as _Connector
@@ -1439,7 +1439,7 @@ class VCollection(_BBoxMethodsMixin):
             obj.shift(**({'dx': delta} if axis == 'x' else {'dy': delta}), start=0)
         return self
 
-    def sort_by_distance(self, point, reverse=False, start=0):
+    def sort_by_distance(self, point, reverse=False, start: float = 0):
         """Sort children in-place by distance from a point."""
         px, py = point
         self.objects.sort(
