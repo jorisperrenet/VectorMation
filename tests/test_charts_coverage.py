@@ -3,7 +3,7 @@ import math
 from vectormation.objects import (
     BarChart, PolarAxes, PieChart,
 )
-from vectormation._charts import Legend
+from vectormation.objects import Legend
 
 
 # ── PolarAxes ───────────────────────────────────────────────────────────

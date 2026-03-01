@@ -264,18 +264,18 @@ class TestBohrAtom:
 
 class TestUnitInterval:
     def test_basic_creation(self):
-        from vectormation._science import UnitInterval
+        from vectormation.objects import UnitInterval
         ui = UnitInterval()
         assert ui is not None
 
     def test_renders(self):
-        from vectormation._science import UnitInterval
+        from vectormation.objects import UnitInterval
         ui = UnitInterval()
         svg = ui.to_svg(0)
         assert svg is not None
 
     def test_custom_tick_step(self):
-        from vectormation._science import UnitInterval
+        from vectormation.objects import UnitInterval
         ui = UnitInterval(tick_step=0.25)
         assert ui is not None
 

@@ -1,6 +1,6 @@
 """Edge case tests for the physics module."""
 import math
-from vectormation._shapes import Dot
+from vectormation.objects import Dot
 from vectormation._physics import Body, Wall, PhysicsSpace, Cloth
 
 

@@ -1,14 +1,13 @@
 """Edge case tests for _composites.py and _data_structures.py."""
 import pytest
-from vectormation._shapes import Circle, Rectangle
-from vectormation._base import VCollection
-from vectormation._composites import (
+from vectormation.objects import (
+    Circle, Rectangle, VCollection,
     MorphObject, NumberLine, Table, Matrix, DecimalMatrix, IntegerMatrix,
     DynamicObject, always_redraw, succession,
+    Array, Stack, Queue, LinkedList, BinaryTree,
 )
 from vectormation._data_structures import (
     _make_cell, _flash_fill, _shift_pair, _fadeout_pair, _make_viz_cell,
-    Array, Stack, Queue, LinkedList, BinaryTree,
 )
 
 

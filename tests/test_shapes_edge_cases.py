@@ -1,10 +1,8 @@
 """Edge case tests for shapes in _shapes.py and _shapes_ext.py."""
 import math
 import pytest
-from vectormation._shapes import (
+from vectormation.objects import (
     Polygon, Circle, Ellipse, Rectangle, Dot,
-)
-from vectormation._shapes_ext import (
     Line, FunctionGraph, Arc, Annulus, CubicBezier, Path,
     ArcBetweenPoints, Wedge, Spiral,
 )

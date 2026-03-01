@@ -1,7 +1,6 @@
 """Edge case tests for _axes.py and _axes_ext.py."""
 import math
-from vectormation._composites import NumberLine
-from vectormation.objects import Axes
+from vectormation.objects import NumberLine, Axes
 
 
 # ── Axes construction edge cases ──────────────────────────────────────────

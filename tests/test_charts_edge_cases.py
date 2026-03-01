@@ -1,5 +1,5 @@
 """Edge case tests for chart classes in _charts.py."""
-from vectormation._charts import (
+from vectormation.objects import (
     PieChart, DonutChart, BarChart, WaterfallChart, FunnelChart,
     TreeMap, GaugeChart, SparkLine, ProgressBar, RadarChart,
     SankeyDiagram, GanttChart, BulletChart, CalendarHeatmap,

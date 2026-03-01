@@ -1,5 +1,5 @@
 """Edge case tests for animation effects in _base_effects.py."""
-from vectormation._shapes import Circle, Rectangle, Dot
+from vectormation.objects import Circle, Rectangle, Dot
 
 
 # ── wobble ────────────────────────────────────────────────────────────────
