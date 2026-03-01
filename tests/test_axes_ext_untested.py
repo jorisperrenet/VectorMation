@@ -507,6 +507,12 @@ class TestPlotContour:
         svg = ax.to_svg(0)
         assert svg is not None
 
+    def test_zero_samples(self):
+        """plot_contour with zero samples should not crash."""
+        ax = Axes(x_range=(-3, 3, 1), y_range=(-3, 3, 1))
+        result = ax.plot_contour(lambda x, y: x**2, x_samples=0, y_samples=10)
+        assert result is not None
+
 
 # ── plot_quiver ─────────────────────────────────────────────────────────
 

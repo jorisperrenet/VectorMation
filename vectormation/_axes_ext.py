@@ -1295,6 +1295,8 @@ class _AxesExtMixin:
         grid = [[func(x_lo + c * dx, y_lo + r * dy) for c in range(x_samples)]
                 for r in range(y_samples)]
         flat = [v for row in grid for v in row]
+        if not flat:
+            return VCollection(creation=creation, z=z)
         zmin, zmax = min(flat), max(flat)
         if isinstance(levels, int):
             n_levels = levels
