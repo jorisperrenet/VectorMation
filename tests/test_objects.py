@@ -23512,3 +23512,186 @@ class TestVCollectionQueryMethods:
         col = VCollection(r1, r2)
         col.sort_by_position(axis='x')
         assert col.objects[0] is r2  # x=100 first
+
+
+class TestLineGeometryMethods:
+    """Tests for Line geometry methods: get_slope, set_angle, parallel_through,
+    rotate_around_midpoint, intersect_segment."""
+
+    def test_get_slope_horizontal(self):
+        line = Line(x1=100, y1=200, x2=300, y2=200)
+        assert line.get_slope() == pytest.approx(0.0)
+
+    def test_get_slope_diagonal(self):
+        line = Line(x1=0, y1=0, x2=100, y2=100)
+        assert line.get_slope() == pytest.approx(1.0)
+
+    def test_get_slope_vertical(self):
+        line = Line(x1=100, y1=0, x2=100, y2=200)
+        assert line.get_slope() == math.inf
+
+    def test_get_slope_negative(self):
+        line = Line(x1=0, y1=100, x2=100, y2=0)
+        assert line.get_slope() == pytest.approx(-1.0)
+
+    def test_set_angle_about_midpoint(self):
+        line = Line(x1=100, y1=200, x2=300, y2=200)
+        line.set_angle(90, about='midpoint')
+        # Midpoint stays at (200, 200), line rotated to 90 degrees
+        x1, y1 = line.p1.at_time(0)
+        x2, y2 = line.p2.at_time(0)
+        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+        assert mx == pytest.approx(200, abs=1)
+        assert my == pytest.approx(200, abs=1)
+
+    def test_set_angle_about_start(self):
+        line = Line(x1=100, y1=200, x2=300, y2=200)
+        line.set_angle(0, about='start')
+        # Start stays at (100, 200), end should be at (300, 200) for angle 0
+        x1, y1 = line.p1.at_time(0)
+        x2, _ = line.p2.at_time(0)
+        assert x1 == pytest.approx(100)
+        assert y1 == pytest.approx(200)
+        assert x2 == pytest.approx(300, abs=1)
+
+    def test_parallel_through(self):
+        line = Line(x1=0, y1=0, x2=200, y2=0)
+        parallel = line.parallel_through((100, 300))
+        # Parallel line should pass through (100, 300) and be horizontal
+        x1, y1 = parallel.p1.at_time(0)
+        x2, y2 = parallel.p2.at_time(0)
+        assert y1 == pytest.approx(300)
+        assert y2 == pytest.approx(300)
+        # Length should be same as original
+        assert abs(x2 - x1) == pytest.approx(200)
+
+    def test_parallel_through_diagonal(self):
+        line = Line(x1=0, y1=0, x2=100, y2=100)
+        parallel = line.parallel_through((200, 200))
+        x1, y1 = parallel.p1.at_time(0)
+        x2, y2 = parallel.p2.at_time(0)
+        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+        assert mx == pytest.approx(200)
+        assert my == pytest.approx(200)
+
+    def test_rotate_around_midpoint(self):
+        line = Line(x1=100, y1=200, x2=300, y2=200)
+        line.rotate_around_midpoint(90)
+        x1, y1 = line.p1.at_time(0)
+        x2, y2 = line.p2.at_time(0)
+        mx, my = (x1 + x2) / 2, (y1 + y2) / 2
+        assert mx == pytest.approx(200, abs=1)
+        assert my == pytest.approx(200, abs=1)
+        # After 90 degree rotation, the line should be vertical
+        assert abs(x2 - x1) == pytest.approx(0, abs=1)
+        assert abs(y2 - y1) == pytest.approx(200, abs=1)
+
+    def test_rotate_around_midpoint_returns_self(self):
+        line = Line(x1=0, y1=0, x2=100, y2=0)
+        result = line.rotate_around_midpoint(45)
+        assert result is line
+
+    def test_intersect_segment_crossing(self):
+        line1 = Line(x1=0, y1=0, x2=200, y2=200)
+        line2 = Line(x1=0, y1=200, x2=200, y2=0)
+        pt = line1.intersect_segment(line2)
+        assert pt is not None
+        assert pt[0] == pytest.approx(100)
+        assert pt[1] == pytest.approx(100)
+
+    def test_intersect_segment_no_crossing(self):
+        line1 = Line(x1=0, y1=0, x2=50, y2=50)
+        line2 = Line(x1=100, y1=0, x2=200, y2=0)
+        pt = line1.intersect_segment(line2)
+        assert pt is None
+
+    def test_intersect_segment_parallel(self):
+        line1 = Line(x1=0, y1=0, x2=200, y2=0)
+        line2 = Line(x1=0, y1=100, x2=200, y2=100)
+        pt = line1.intersect_segment(line2)
+        assert pt is None
+
+    def test_intersect_segment_t_junction(self):
+        line1 = Line(x1=0, y1=100, x2=200, y2=100)
+        line2 = Line(x1=100, y1=0, x2=100, y2=100)
+        pt = line1.intersect_segment(line2)
+        assert pt is not None
+        assert pt[0] == pytest.approx(100)
+        assert pt[1] == pytest.approx(100)
+
+
+class TestArcGeometryMethods:
+    """Tests for Arc geometry methods: get_chord_length, point_at_angle, split_into."""
+
+    def test_get_chord_length_semicircle(self):
+        arc = Arc(cx=500, cy=500, r=100, start_angle=0, end_angle=180)
+        chord = arc.get_chord_length()
+        # Semicircle chord = 2r
+        assert chord == pytest.approx(200, abs=1)
+
+    def test_get_chord_length_quarter(self):
+        arc = Arc(cx=500, cy=500, r=100, start_angle=0, end_angle=90)
+        chord = arc.get_chord_length()
+        # Quarter circle chord = r * sqrt(2)
+        assert chord == pytest.approx(100 * math.sqrt(2), abs=1)
+
+    def test_get_chord_length_full_circle(self):
+        arc = Arc(cx=500, cy=500, r=100, start_angle=0, end_angle=360)
+        chord = arc.get_chord_length()
+        # Full circle: start and end at same point
+        assert chord == pytest.approx(0, abs=1)
+
+    def test_point_at_angle_0(self):
+        arc = Arc(cx=500, cy=500, r=100, start_angle=0, end_angle=360)
+        pt = arc.point_at_angle(0)
+        assert pt[0] == pytest.approx(600)  # cx + r
+        assert pt[1] == pytest.approx(500)  # cy
+
+    def test_point_at_angle_90(self):
+        arc = Arc(cx=500, cy=500, r=100, start_angle=0, end_angle=360)
+        pt = arc.point_at_angle(90)
+        assert pt[0] == pytest.approx(500, abs=1)
+        assert pt[1] == pytest.approx(400, abs=1)  # cy - r (SVG y-axis inverted)
+
+    def test_point_at_angle_180(self):
+        arc = Arc(cx=500, cy=500, r=100, start_angle=0, end_angle=360)
+        pt = arc.point_at_angle(180)
+        assert pt[0] == pytest.approx(400, abs=1)  # cx - r
+        assert pt[1] == pytest.approx(500, abs=1)
+
+    def test_split_into_count(self):
+        arc = Arc(cx=500, cy=500, r=100, start_angle=0, end_angle=180)
+        parts = arc.split_into(4)
+        assert len(parts) == 4
+
+    def test_split_into_angles(self):
+        arc = Arc(cx=500, cy=500, r=100, start_angle=0, end_angle=180)
+        parts = arc.split_into(4)
+        # Each sub-arc should span 45 degrees
+        for part in parts:
+            sweep = part.end_angle.at_time(0) - part.start_angle.at_time(0)
+            assert sweep == pytest.approx(45)
+
+    def test_split_into_continuity(self):
+        arc = Arc(cx=500, cy=500, r=100, start_angle=30, end_angle=270)
+        parts = arc.split_into(3)
+        # End of each part should match start of next
+        for i in range(len(parts) - 1):
+            end_angle = parts[i].end_angle.at_time(0)
+            next_start = parts[i + 1].start_angle.at_time(0)
+            assert end_angle == pytest.approx(next_start)
+
+    def test_split_into_one(self):
+        arc = Arc(cx=500, cy=500, r=100, start_angle=0, end_angle=180)
+        parts = arc.split_into(1)
+        assert len(parts) == 1
+        assert parts[0].start_angle.at_time(0) == pytest.approx(0)
+        assert parts[0].end_angle.at_time(0) == pytest.approx(180)
+
+    def test_split_into_preserves_center_radius(self):
+        arc = Arc(cx=300, cy=400, r=150, start_angle=0, end_angle=270)
+        parts = arc.split_into(3)
+        for part in parts:
+            assert part.cx.at_time(0) == pytest.approx(300)
+            assert part.cy.at_time(0) == pytest.approx(400)
+            assert part.r.at_time(0) == pytest.approx(150)

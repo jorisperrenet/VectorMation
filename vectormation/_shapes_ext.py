@@ -1594,7 +1594,7 @@ class Arc(VObject):
             **kwargs,
         )
 
-    def split_into(self, n: float = 2, time: float = 0, **kwargs):
+    def split_into(self, n: int = 2, time: float = 0, **kwargs):
         """Split this arc into *n* equal sub-arcs."""
         if n < 1:
             n = 1
