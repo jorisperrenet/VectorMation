@@ -223,3 +223,16 @@ def rotate_vector(v, angle_deg):
 def midpoint(p1, p2):
     """Return the midpoint of two 2D points."""
     return ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)
+
+
+def distance(p1, p2):
+    """Return the Euclidean distance between two 2D points."""
+    return math.hypot(p2[0] - p1[0], p2[1] - p1[1])
+
+
+def normalize_vector(v):
+    """Return the unit vector of v. Returns (0, 0) for zero-length vectors."""
+    mag = math.hypot(v[0], v[1])
+    if mag == 0:
+        return (0.0, 0.0)
+    return (v[0] / mag, v[1] / mag)

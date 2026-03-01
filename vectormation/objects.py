@@ -28,6 +28,7 @@ from vectormation._constants import (
     UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR, ORIGIN,
     interpolate_value, smooth_index,
     dot_product, cross_product_2d, angle_between_vectors, rotate_vector, midpoint,
+    distance, normalize_vector,
 )
 
 from vectormation._base import VObject, VCollection, VGroup

@@ -3,6 +3,7 @@ import pytest
 from vectormation.objects import (
     dot_product, cross_product_2d, angle_between_vectors,
     rotate_vector, midpoint, interpolate_value, smooth_index,
+    distance, normalize_vector,
 )
 
 
@@ -99,6 +100,45 @@ class TestMidpoint:
 
     def test_negative_coords(self):
         assert midpoint((-2, -4), (2, 4)) == (0, 0)
+
+
+class TestDistance:
+    def test_same_point(self):
+        assert distance((0, 0), (0, 0)) == 0
+
+    def test_horizontal(self):
+        assert distance((0, 0), (3, 0)) == 3
+
+    def test_vertical(self):
+        assert distance((0, 0), (0, 4)) == 4
+
+    def test_diagonal(self):
+        assert distance((0, 0), (3, 4)) == pytest.approx(5)
+
+    def test_negative_coords(self):
+        assert distance((-1, -1), (2, 3)) == pytest.approx(5)
+
+
+class TestNormalizeVector:
+    def test_unit_x(self):
+        assert normalize_vector((5, 0)) == pytest.approx((1, 0))
+
+    def test_unit_y(self):
+        assert normalize_vector((0, 3)) == pytest.approx((0, 1))
+
+    def test_diagonal(self):
+        import math
+        r = normalize_vector((1, 1))
+        assert r[0] == pytest.approx(1 / math.sqrt(2))
+        assert r[1] == pytest.approx(1 / math.sqrt(2))
+
+    def test_zero_vector(self):
+        assert normalize_vector((0, 0)) == (0.0, 0.0)
+
+    def test_negative(self):
+        r = normalize_vector((-3, 4))
+        assert r[0] == pytest.approx(-0.6)
+        assert r[1] == pytest.approx(0.8)
 
 
 class TestInterpolateValue:
