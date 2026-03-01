@@ -644,7 +644,7 @@ class Axes(_AxesExtMixin, VCollection):
             styling_kwargs.setdefault('stroke', styling_kwargs.pop('color'))
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
-        def _compute_d(time, _func=func, _n=num_points):
+        def _compute_d(time, _func=func, _n=max(1, num_points)):
             xmin, xmax, ymin, ymax = self._get_bounds(time)
             dx = (xmax - xmin) / _n
             dy = (ymax - ymin) / _n

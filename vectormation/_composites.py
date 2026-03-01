@@ -268,7 +268,7 @@ class NumberLine(VCollection):
                                 creation=creation, z=z, **line_style))
 
         # Ticks and labels
-        n_ticks = round((x_end - x_start) / x_step)
+        n_ticks = min(round((x_end - x_start) / x_step), 1000)
         for i in range(n_ticks + 1):
             val = round(x_start + i * x_step, 10)
             sx = x + (val - x_start) / (x_end - x_start) * length

@@ -238,3 +238,11 @@ class TestCanvas:
         files = [f for f in os.listdir(self.canvas.save_dir) if f.startswith('frame_')]
         assert len(files) >= 1
         assert files[0].endswith('.svg')
+
+
+class TestFocusOnEdgeCases:
+    def test_no_objects(self):
+        """focus_on with no objects should return self without error."""
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        result = canvas.focus_on()
+        assert result is canvas

@@ -59,10 +59,17 @@ class PieChart(VCollection):
     def __init__(self, values, labels=None, colors=None, cx=ORIGIN[0], cy=ORIGIN[1], r: float = 240,
                  start_angle: float = 90, creation: float = 0, z: float = 0):
         colors = _default_colors(colors)
+        if not values:
+            super().__init__(creation=creation, z=z)
+            self._sectors = []
+            self.values = []
+            self._cx, self._cy = cx, cy
+            self._start_angle = start_angle
+            return
         total = sum(values)
         if total == 0:
             total = len(values) or 1
-            values = [1] * len(values) if values else values
+            values = [1] * len(values)
         objects: list[VObject] = []
         angle = start_angle
         for i, val in enumerate(values):
@@ -211,10 +218,15 @@ class DonutChart(VCollection):
                  r: float = 240, inner_radius: float = 120, start_angle: float = 90,
                  center_text=None, font_size: float = 17, creation: float = 0, z: float = 0):
         colors = _default_colors(colors)
+        if not values:
+            super().__init__(creation=creation, z=z)
+            self._sectors = []
+            self._cx, self._cy = cx, cy
+            return
         total = sum(values)
         if total == 0:
             total = len(values) or 1
-            values = [1] * len(values) if values else values
+            values = [1] * len(values)
         objects: list[VObject] = []
         angle = start_angle
         sectors = []

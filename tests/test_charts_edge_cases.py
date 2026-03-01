@@ -409,3 +409,25 @@ class TestGanttChartEdgeCases:
         gc = GanttChart(tasks=[('A', 0, 5), ('B', 2, 7), ('C', 4, 6)])
         svg = gc.to_svg(0)
         assert svg is not None
+
+
+# ── PieChart/DonutChart empty values ──────────────────────────────────
+
+class TestPieChartEmptyValues:
+    def test_empty_values(self):
+        pc = PieChart(values=[])
+        assert pc._sectors == []
+        svg = pc.to_svg(0)
+        assert svg is not None
+
+    def test_empty_values_with_labels(self):
+        pc = PieChart(values=[], labels=['A', 'B'])
+        assert len(pc._sectors) == 0
+
+
+class TestDonutChartEmptyValues:
+    def test_empty_values(self):
+        dc = DonutChart(values=[])
+        assert dc._sectors == []
+        svg = dc.to_svg(0)
+        assert svg is not None

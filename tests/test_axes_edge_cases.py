@@ -242,3 +242,13 @@ class TestNumberLineRoundtrip:
         nl = NumberLine(x_range=(-3, 3))
         svg = nl.to_svg(0)
         assert svg is not None
+
+
+class TestPlotImplicitEdgeCases:
+    def test_num_points_zero(self):
+        """plot_implicit with num_points=0 should not crash (clamped to 1)."""
+        from vectormation.objects import Axes
+        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        curve = ax.plot_implicit(lambda x, y: x**2 + y**2 - 1, num_points=0)
+        svg = ax.to_svg(0)
+        assert svg is not None

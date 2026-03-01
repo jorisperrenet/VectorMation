@@ -408,3 +408,29 @@ class TestSuccessionEdgeCases:
             (r, 'fadein'),
             start=0, lag_ratio=0.3,
         )
+
+
+# ── NumberLine tick cap ──────────────────────────────────────────────
+
+class TestNumberLineTickCap:
+    def test_extreme_step_does_not_hang(self):
+        """NumberLine with extreme step/range ratio should not create excessive ticks."""
+        nl = NumberLine(x_range=(0, 1, 0.0001))  # Would be 10000 ticks without cap
+        svg = nl.to_svg(0)
+        assert svg is not None
+
+
+# ── VCollection grid with zero rows/cols ─────────────────────────────
+
+class TestGridZeroDims:
+    def test_zero_rows(self):
+        vc = VCollection(Circle(r=10), Circle(r=10))
+        vc.arrange_in_grid(rows=0, cols=2)
+
+    def test_zero_cols(self):
+        vc = VCollection(Circle(r=10), Circle(r=10))
+        vc.arrange_in_grid(rows=2, cols=0)
+
+    def test_empty_collection_grid(self):
+        vc = VCollection()
+        vc.arrange_in_grid(rows=2, cols=2)

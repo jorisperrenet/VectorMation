@@ -598,12 +598,12 @@ class VCollection(_BBoxMethodsMixin):
     def _grid_dims(n, rows, cols):
         """Resolve rows/cols for a grid with *n* items."""
         if rows is None and cols is None:
-            cols = math.ceil(math.sqrt(n))
+            cols = max(1, math.ceil(math.sqrt(n)))
         if rows is None:
-            rows = math.ceil(n / cols)
+            rows = max(1, math.ceil(n / max(1, cols)))
         elif cols is None:
-            cols = math.ceil(n / rows)
-        return rows, cols
+            cols = max(1, math.ceil(n / max(1, rows)))
+        return max(1, rows), max(1, cols)
 
     def _grid_targets(self, rows, cols, buff, start):
         """Return (cols, cell_w, cell_h, max_w, max_h, boxes) for grid layout."""
