@@ -239,3 +239,83 @@ class TestReflectOver:
         r = l.reflect_over(axis)
         assert r.get_start() == pytest.approx((10, 30))
         assert r.get_end() == pytest.approx((90, 30))
+
+
+class TestDivide:
+    def test_two_segments(self):
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        pts = l.divide(2)
+        assert len(pts) == 3
+        assert pts[0] == pytest.approx((0, 0))
+        assert pts[1] == pytest.approx((50, 0))
+        assert pts[2] == pytest.approx((100, 0))
+
+    def test_three_segments(self):
+        l = Line(x1=0, y1=0, x2=90, y2=0)
+        pts = l.divide(3)
+        assert len(pts) == 4
+        assert pts[1] == pytest.approx((30, 0))
+        assert pts[2] == pytest.approx((60, 0))
+
+    def test_diagonal(self):
+        l = Line(x1=0, y1=0, x2=100, y2=100)
+        pts = l.divide(2)
+        assert pts[1] == pytest.approx((50, 50))
+
+    def test_n_less_than_one(self):
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        pts = l.divide(0)
+        assert len(pts) == 2  # n clamped to 1
+
+
+class TestSubdivideInto:
+    def test_two_segments(self):
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        segs = l.subdivide_into(2)
+        assert len(segs) == 2
+        assert segs[0].get_start() == pytest.approx((0, 0))
+        assert segs[0].get_end() == pytest.approx((50, 0))
+        assert segs[1].get_start() == pytest.approx((50, 0))
+        assert segs[1].get_end() == pytest.approx((100, 0))
+
+    def test_three_segments(self):
+        l = Line(x1=0, y1=0, x2=90, y2=0)
+        segs = l.subdivide_into(3)
+        assert len(segs) == 3
+        assert segs[0].get_end() == pytest.approx((30, 0))
+        assert segs[2].get_start() == pytest.approx((60, 0))
+
+    def test_n_less_than_one(self):
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        segs = l.subdivide_into(0)
+        assert len(segs) == 1  # n clamped to 1
+
+    def test_returns_line_instances(self):
+        l = Line(x1=0, y1=0, x2=100, y2=100)
+        segs = l.subdivide_into(4)
+        assert all(isinstance(s, Line) for s in segs)
+
+
+class TestProjectOnto:
+    def test_horizontal_onto_diagonal(self):
+        h = Line(x1=0, y1=50, x2=100, y2=50)
+        diag = Line(x1=0, y1=0, x2=100, y2=100)
+        proj = h.project_onto(diag)
+        assert isinstance(proj, Line)
+        # Projection onto y=x: (0,50)->(25,25), (100,50)->(75,75)
+        assert proj.get_start() == pytest.approx((25, 25))
+        assert proj.get_end() == pytest.approx((75, 75))
+
+    def test_onto_self(self):
+        l = Line(x1=0, y1=0, x2=100, y2=0)
+        proj = l.project_onto(l)
+        assert proj.get_start() == pytest.approx((0, 0))
+        assert proj.get_end() == pytest.approx((100, 0))
+
+    def test_perpendicular_projection(self):
+        v = Line(x1=50, y1=0, x2=50, y2=100)
+        h = Line(x1=0, y1=0, x2=200, y2=0)
+        proj = v.project_onto(h)
+        # Vertical line projected onto horizontal collapses to a point
+        assert proj.get_start() == pytest.approx((50, 0))
+        assert proj.get_end() == pytest.approx((50, 0))
