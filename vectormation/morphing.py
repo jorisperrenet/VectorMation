@@ -113,6 +113,8 @@ def _point_at_bbox_center(path):
 
 def _balance_segments(segs, target_len):
     """Split longest segments until segs has target_len entries."""
+    if not segs or target_len <= 0:
+        return segs
     while len(segs) < target_len:
         max_idx = max(enumerate(segs), key=lambda x: x[1].length())[0]
         new1, new2 = segs[max_idx].split(0.5)

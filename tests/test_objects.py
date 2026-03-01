@@ -6129,6 +6129,92 @@ class TestNormalize:
         assert _normalize(0, 0) == (0.0, 0.0)
 
 
+class TestRotatePoint:
+    def test_no_rotation(self):
+        from vectormation._constants import _rotate_point
+        x, y = _rotate_point(10, 0, 0, 0, 0)
+        assert x == pytest.approx(10)
+        assert y == pytest.approx(0)
+
+    def test_90_degrees(self):
+        import math
+        from vectormation._constants import _rotate_point
+        x, y = _rotate_point(1, 0, 0, 0, math.pi / 2)
+        assert x == pytest.approx(0, abs=1e-10)
+        assert y == pytest.approx(1)
+
+    def test_180_degrees(self):
+        import math
+        from vectormation._constants import _rotate_point
+        x, y = _rotate_point(1, 0, 0, 0, math.pi)
+        assert x == pytest.approx(-1)
+        assert y == pytest.approx(0, abs=1e-10)
+
+    def test_around_custom_origin(self):
+        import math
+        from vectormation._constants import _rotate_point
+        # Rotate (10, 5) around (5, 5) by 90 degrees
+        x, y = _rotate_point(10, 5, 5, 5, math.pi / 2)
+        assert x == pytest.approx(5, abs=1e-10)
+        assert y == pytest.approx(10)
+
+    def test_full_rotation(self):
+        import math
+        from vectormation._constants import _rotate_point
+        x, y = _rotate_point(3, 4, 0, 0, 2 * math.pi)
+        assert x == pytest.approx(3)
+        assert y == pytest.approx(4)
+
+
+class TestSampleFunction:
+    def test_linear_function(self):
+        from vectormation._constants import _sample_function
+        y_min, y_max, segments, clamped = _sample_function(
+            lambda x: x, 0, 1, (0, 1), 10, 0, 0, 100, 100)
+        assert y_min == 0
+        assert y_max == 1
+        assert len(segments) >= 1
+        # All points should be within the SVG bounds
+        for seg in segments:
+            for sx, sy in seg:
+                assert 0 <= sx <= 100
+                assert 0 <= sy <= 100
+
+    def test_auto_y_range(self):
+        from vectormation._constants import _sample_function
+        y_min, y_max, segments, _ = _sample_function(
+            lambda x: x * 2, 0, 1, None, 10, 0, 0, 100, 100)
+        # Auto-detected y_range should span the function output
+        assert y_min < 0.1  # with padding
+        assert y_max > 1.9  # with padding
+
+    def test_constant_function_auto_range(self):
+        from vectormation._constants import _sample_function
+        y_min, y_max, segments, _ = _sample_function(
+            lambda x: 5, 0, 1, None, 10, 0, 0, 100, 100)
+        # Constant function: y_min == y_max case → should add ±1 padding
+        assert y_min < 5
+        assert y_max > 5
+
+    def test_extra_xs(self):
+        from vectormation._constants import _sample_function
+        _, _, segments, _ = _sample_function(
+            lambda x: x, 0, 1, (0, 1), 4, 0, 0, 100, 100,
+            extra_xs=[0.33, 0.66])
+        # Should have more points than just 5 (num_points+1)
+        total_points = sum(len(s) for s in segments)
+        assert total_points >= 6
+
+    def test_non_finite_values(self):
+        import math
+        from vectormation._constants import _sample_function
+        def f(x):
+            return math.inf if abs(x - 0.5) < 0.01 else x
+        _, _, segments, _ = _sample_function(f, 0, 1, (0, 1), 100, 0, 0, 100, 100)
+        # Should split into segments around the non-finite value
+        assert len(segments) >= 1
+
+
 # ---------------------------------------------------------------------------
 # VObject convenience methods
 # ---------------------------------------------------------------------------
