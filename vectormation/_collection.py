@@ -2,6 +2,7 @@
 import math
 import random
 from copy import deepcopy
+from itertools import zip_longest
 
 import vectormation.easings as easings
 import vectormation.attributes as attributes
@@ -287,7 +288,6 @@ class VCollection(_BBoxMethodsMixin):
 
     def interleave(self, other):
         """Return a new VCollection with children alternated: [a1, b1, a2, b2, ...]."""
-        from itertools import zip_longest
         sentinel = object()
         result = [x for pair in zip_longest(self.objects, other.objects, fillvalue=sentinel)
                   for x in pair if x is not sentinel]

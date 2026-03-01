@@ -1,5 +1,6 @@
 """Extended shape classes: Line, Text, Arc, Path, and derivatives."""
 import math
+import random as _random
 from xml.sax.saxutils import escape as _xml_escape
 import vectormation.easings as easings
 import vectormation.attributes as attributes
@@ -743,8 +744,7 @@ class Text(VObject):
         n = len(full_text)
         if charset is None:
             charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*'
-        import random
-        rng = random.Random(42)  # deterministic for reproducibility
+        rng = _random.Random(42)  # deterministic for reproducibility
         _randoms = [[rng.choice(charset) for _ in range(20)] for _ in range(n)]
         def _scrambled(t, _s=start, _d=dur):
             progress = min(1, (t - _s) / _d)
@@ -900,7 +900,7 @@ class Text(VObject):
         """Truncate the text to at most *n* characters, appending *ellipsis* if trimmed."""
         elen = len(ellipsis)
         if n < elen:
-            raise ValueError(f"n ({n}) must be >= length of ellipsis ({elen})")
+            raise ValueError(f"n ({n}) must be >= length of suffix string ({elen})")
         full = self.text.at_time(time)
         if not isinstance(full, str):
             full = str(full)

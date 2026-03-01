@@ -1,5 +1,6 @@
 """Chart and visualization classes."""
 import math
+from collections import deque
 
 import vectormation.easings as easings
 import vectormation.attributes as attributes
@@ -1129,7 +1130,6 @@ class TreeMap(VCollection):
             idx, (label, val) = items[0]
             return [(idx, (label, val), (x, y, w, h))]
         area = w * h
-        from collections import deque
         result = []
         remaining = deque(items)
         cx, cy, cw, ch = x, y, w, h

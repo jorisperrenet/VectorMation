@@ -1,5 +1,7 @@
 """Advanced Axes methods — annotations, statistics, visualization extras."""
 import math
+import random as _random
+from collections import Counter
 
 import vectormation.easings as easings
 from vectormation._constants import (
@@ -1195,8 +1197,7 @@ class _AxesExtMixin:
         data_groups: list of lists, each containing y-values.
         Returns a VCollection of Dots."""
         style_kw = {'fill': '#58C4DD', 'stroke_width': 0} | styling_kwargs
-        import random as _rng
-        rng = _rng.Random(42)
+        rng = _random.Random(42)
         objs = []
         for xp, values in zip(x_positions, data_groups):
             for yv in sorted(values):
@@ -1406,7 +1407,6 @@ class _AxesExtMixin:
         values: list of x-values (can have duplicates).
         Returns a VCollection of Dots."""
         style_kw = {'fill': '#58C4DD', 'stroke_width': 0} | styling_kwargs
-        from collections import Counter
         counts = Counter(values)
         objs = []
         for xv, cnt in sorted(counts.items()):

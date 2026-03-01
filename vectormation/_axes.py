@@ -1151,7 +1151,7 @@ class Axes(_AxesExtMixin, VCollection):
             if best_y is None or (y > best_y if is_max else y < best_y):
                 best_x, best_y = x, y
         if best_x is None:
-            raise ValueError('No finite function values found in the given range.')
+            raise ValueError(f'No finite function values found in x=[{x_start}, {x_end}] ({samples} samples).')
         return (best_x, best_y)
 
     def get_function_max(self, func, x_start, x_end, samples: int = 200):
@@ -1244,7 +1244,7 @@ class Axes(_AxesExtMixin, VCollection):
     def get_secant_slope(self, func, x, dx):
         """Return the secant slope ``(f(x + dx) - f(x)) / dx``."""
         if dx == 0:
-            raise ValueError("dx must not be zero")
+            raise ValueError("get_secant_slope: dx must not be zero")
         fn = self._resolve_func(func, 'func')
         return (fn(x + dx) - fn(x)) / dx
 

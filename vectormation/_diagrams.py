@@ -2,6 +2,7 @@
 import math
 import random
 from collections import deque
+from copy import deepcopy
 import vectormation.easings as easings
 from vectormation._constants import (
     ORIGIN, DEFAULT_CHART_COLORS,
@@ -410,7 +411,7 @@ class Automaton(VCollection):
 
         current = self._initial_state
         if current is None:
-            raise ValueError("simulate_input requires an initial_state")
+            raise ValueError("simulate_input: set initial_state on the Automaton before calling this method")
         t = start
 
         for ch in word:
@@ -698,7 +699,6 @@ class Tree(VCollection):
 class Stamp(VCollection):
     """Place copies of a template object at specified positions."""
     def __init__(self, template, points, creation: float = 0, z: float = 0):
-        from copy import deepcopy
         objects = []
         for px, py in points:
             c = deepcopy(template)

@@ -1,5 +1,6 @@
 """Advanced animation methods for VObject (mixed in as a base class)."""
 import math
+import random as _random
 from copy import deepcopy
 
 import vectormation.easings as easings
@@ -344,11 +345,10 @@ class _VObjectEffectsMixin:
     def glitch_shift(self, start: float = 0, end: float = 1, intensity: float = 20,
                      steps=8, seed=None):
         """Random discrete horizontal displacement jumps simulating a digital glitch."""
-        import random
         dur = end - start
         if dur <= 0 or steps <= 0:
             return self
-        rng = random.Random(seed)
+        rng = _random.Random(seed)
         step_dur = dur / steps
         for i in range(steps):
             t0 = start + i * step_dur

@@ -264,3 +264,61 @@ class TestColorEdgeCases:
         assert c.at_time(0) == 'rgb(255,0,0)'
         mid = c.time_func(1.5)
         assert mid == (0, 255, 0)
+
+
+class TestRepr:
+    """Test __repr__ for all attribute types."""
+    def test_real_repr(self):
+        r = Real(0, 42)
+        s = repr(r)
+        assert 'Real' in s
+        assert '42' in s
+
+    def test_real_repr_float(self):
+        r = Real(0, 3.14)
+        s = repr(r)
+        assert 'Real' in s
+        assert '3.14' in s
+
+    def test_tup_repr(self):
+        t = Tup(0, (1, 2, 3))
+        s = repr(t)
+        assert 'Tup' in s
+        assert '(1, 2, 3)' in s
+
+    def test_coor_repr(self):
+        c = Coor(0, (100.0, 200.0))
+        s = repr(c)
+        assert 'Coor' in s
+        assert '100.0' in s
+        assert '200.0' in s
+
+    def test_string_repr(self):
+        s = String(0, 'hello')
+        r = repr(s)
+        assert 'String' in r
+        assert 'hello' in r
+
+    def test_string_repr_empty(self):
+        s = String(0, '')
+        r = repr(s)
+        assert 'String' in r
+
+    def test_color_repr_hex(self):
+        c = Color(0, '#ff0000')
+        r = repr(c)
+        assert 'Color' in r
+        assert '255' in r
+
+    def test_color_repr_tuple(self):
+        c = Color(0, (0, 128, 255))
+        r = repr(c)
+        assert 'Color' in r
+        assert '128' in r
+
+    def test_real_repr_after_change(self):
+        """Repr should reflect the latest value."""
+        r = Real(0, 10)
+        r.set_onward(1, 99)
+        s = repr(r)
+        assert '99' in s

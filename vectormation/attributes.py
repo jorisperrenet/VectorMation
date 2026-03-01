@@ -120,6 +120,9 @@ class Real:
         """
         return self.time_func(time)
 
+    def __repr__(self):
+        return f'Real(val={self.at_time(self.last_change):g})'
+
     def set_to(self, other):
         """Copy another attribute's time function and last_change.
 
@@ -185,6 +188,9 @@ class Tup(Real):
     def at_time(self, time) -> tuple:
         return self.time_func(time)
 
+    def __repr__(self):
+        return f'Tup(val={self.at_time(self.last_change)})'
+
     def add(self, start, end, func_inner, lincl=True, rincl=True, stay=False):
         """Add a tuple element-wise to the current value on [start, end].
 
@@ -224,6 +230,10 @@ class Coor(Real):
 
     def at_time(self, time) -> tuple[float, float]:
         return self.time_func(time)
+
+    def __repr__(self):
+        x, y = self.at_time(self.last_change)
+        return f'Coor(x={x:.1f}, y={y:.1f})'
 
     def add_onward(self, start, func: tuple | Any, lincl=True, last_change=None):
         """Add a (dx, dy) offset to the current position from ``start`` onward.
@@ -328,6 +338,9 @@ class String(Real):
             self.time_func = lambda t, _c=creation, _v=start_val: _v if t >= _c else ''
             self.last_change = creation
 
+    def __repr__(self):
+        return f'String({self.at_time(self.last_change)!r})'
+
 
 class Color:
     """Time-varying color attribute. Accepts hex, named colors, RGB/RGBA tuples, or gradients.
@@ -360,6 +373,14 @@ class Color:
         """
         self.time_func = _wrap(self.time_func, func_inner, start, end, lincl, rincl, stay)
         self.last_change = max(self.last_change, end)
+
+    def __repr__(self):
+        val = self.time_func(self.last_change)
+        if isinstance(val, str):
+            return f'Color({val!r})'
+        if isinstance(val, tuple) and len(val) >= 3:
+            return f'Color(rgb=({val[0]}, {val[1]}, {val[2]}))'
+        return f'Color({val!r})'
 
     def set_to(self, other):
         """Copy another Color's time function, use type, and last_change.

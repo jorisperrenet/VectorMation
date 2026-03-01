@@ -1201,8 +1201,7 @@ class TexCountAnimation(DynamicObject):
                  creation: float = 0, z: float = 0, **styles):
         from vectormation.tex_file_writing import get_characters
         import vectormation._canvas as _cm
-        import tempfile as _tmpmod
-        tex_dir = f'{_cm.save_directory}/tex' if hasattr(_cm, 'save_directory') else _tmpmod.mkdtemp()
+        tex_dir = f'{_cm.save_directory}/tex' if hasattr(_cm, 'save_directory') else tempfile.mkdtemp()
 
         cache_key = (tex_dir, font_size)
         if cache_key not in TexCountAnimation._glyph_cache:
