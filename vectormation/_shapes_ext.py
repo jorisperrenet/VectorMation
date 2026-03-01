@@ -2056,7 +2056,7 @@ class _TextBlockMixin:
         parts = []
         for i, item in enumerate(self.items):
             ly = y + i * self.font_size * self.line_spacing
-            parts.append(f"<text x='{x}' y='{ly}' font-size='{self.font_size}'{st}>{label_func(i)}</text>")
+            parts.append(f"<text x='{x}' y='{ly}' font-size='{self.font_size}'{st}>{_xml_escape(str(label_func(i)))}</text>")
             parts.append(f"<text x='{x + self.indent}' y='{ly}' font-size='{self.font_size}'{st}>{_xml_escape(item)}</text>")
         return '\n'.join(parts)
 
