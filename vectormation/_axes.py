@@ -997,7 +997,7 @@ class Axes(_AxesExtMixin, VCollection):
         x1 = float(self.x_max.at_time(0)) if x_end is None else float(x_end)
         return x0, x1
 
-    def get_graph_intersection(self, f1, f2, x_range=None, n: float = 1000):
+    def get_graph_intersection(self, f1, f2, x_range=None, n: int = 1000):
         """Find approximate intersection points between two functions/curves."""
         func1 = self._resolve_func(f1, 'f1')
         func2 = self._resolve_func(f2, 'f2')

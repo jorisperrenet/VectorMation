@@ -1272,7 +1272,7 @@ class _AxesExtMixin:
             objs.append(bar)
         return VCollection(*objs, creation=creation, z=z)
 
-    def plot_contour(self, func, levels: int = 8, x_samples: int = 40, y_samples: int = 40,
+    def plot_contour(self, func, levels: int | list = 8, x_samples: int = 40, y_samples: int = 40,
                       creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot contour (level) curves for z = func(x, y).
         levels: int (auto) or list of explicit z-values.
@@ -1290,8 +1290,8 @@ class _AxesExtMixin:
         flat = [v for row in grid for v in row]
         zmin, zmax = min(flat), max(flat)
         if isinstance(levels, int):
-            n = levels
-            levels = [zmin + (i + 1) * (zmax - zmin) / (n + 1) for i in range(n)]
+            n_levels = levels
+            levels = [zmin + (i + 1) * (zmax - zmin) / (n_levels + 1) for i in range(n_levels)]
         # Use _lerp_colormap if available, else generate colors
         colors = ['#313695', '#4575b4', '#74add1', '#abd9e9',
                   '#fee090', '#fdae61', '#f46d43', '#d73027']

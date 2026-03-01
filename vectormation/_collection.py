@@ -354,7 +354,7 @@ class VCollection(_BBoxMethodsMixin):
     reverse = reverse_children
     reverse_order = reverse_children
 
-    def rotate_order(self, n: float = 1):
+    def rotate_order(self, n: int = 1):
         """Rotate children order by *n* positions (first *n* move to end)."""
         if not self.objects:
             return self
