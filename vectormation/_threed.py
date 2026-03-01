@@ -631,6 +631,9 @@ class SurfaceMesh(Surface):
         )
         self._stroke_opacity = stroke_opacity
 
+    def __repr__(self):
+        return 'SurfaceMesh()'
+
     def to_patches(self, axes, time):
         """Generate (depth, svg_str) for each grid edge as a <line>."""
         u_steps, v_steps = max(self._resolution[0], 1), max(self._resolution[1], 1)

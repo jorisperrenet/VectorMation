@@ -549,6 +549,9 @@ class _BooleanOp(VObject):
 
 class Union(_BooleanOp):
     """Boolean union — combined area of both shapes."""
+    def __repr__(self):
+        return 'Union()'
+
     def to_svg(self, time):
         pa, pb = self._a.path(time), self._b.path(time)
         u = self._uid
@@ -561,6 +564,9 @@ class Union(_BooleanOp):
 
 class Difference(_BooleanOp):
     """Boolean difference: shape_a minus shape_b."""
+    def __repr__(self):
+        return 'Difference()'
+
     def to_svg(self, time):
         pa, pb = self._a.path(time), self._b.path(time)
         u = self._uid
@@ -581,8 +587,14 @@ class Exclusion(_BooleanOp):
     """Boolean exclusion (XOR) — non-overlapping areas."""
     _fill_rule = 'evenodd'
 
+    def __repr__(self):
+        return 'Exclusion()'
+
 class Intersection(_BooleanOp):
     """Boolean intersection — only where both shapes overlap."""
+    def __repr__(self):
+        return 'Intersection()'
+
     def path(self, time):
         return self._a.path(time)
 
