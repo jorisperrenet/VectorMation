@@ -588,6 +588,16 @@ class TestAddGridPlane:
         ax.add_grid_plane()
         assert len(ax.objects) == initial_count + 1
 
+    def test_zero_step_raises(self):
+        ax = ThreeDAxes()
+        with pytest.raises(ValueError, match='step must be > 0'):
+            ax.add_grid_plane(step=0)
+
+    def test_negative_step_raises(self):
+        ax = ThreeDAxes()
+        with pytest.raises(ValueError, match='step must be > 0'):
+            ax.add_grid_plane(step=-1)
+
 
 # ---------------------------------------------------------------------------
 # 3D primitive movement and convenience methods

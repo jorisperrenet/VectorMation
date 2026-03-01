@@ -306,6 +306,8 @@ class ThreeDAxes(VCollection):
     def add_grid_plane(self, plane='xz', step: float = 1, color='#444444', opacity: float = 0.3,
                         stroke_width: float = 0.5, creation: float = 0):
         """Add a grid plane to the 3D axes."""
+        if step <= 0:
+            raise ValueError(f'step must be > 0, got {step}')
         from vectormation._shapes import Line
         lines = []
         x_min, x_max = self._x_range[0], self._x_range[1]
@@ -498,7 +500,7 @@ class Surface(VObject):
         self._fill_opacity = fill_opacity
         self._is_parametric = None  # auto-detect
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return 'Surface()'
 
     @property
