@@ -1,8 +1,5 @@
 """Advanced animation methods for VObject (mixed in as a base class)."""
-import inspect
 import math
-import random as _random
-from copy import deepcopy
 
 import vectormation.easings as easings
 import vectormation.attributes as attributes
@@ -305,6 +302,7 @@ class _VObjectEffectsMixin:
             return ghosts
         for i in range(count):
             t_appear = start + dur * (i + 1) / (count + 1)
+            from copy import deepcopy
             ghost = deepcopy(self)
             _apply_pos_offset(ghost, t_appear, 0, 0)
             ghost.show.set_onward(0, False)
@@ -351,6 +349,7 @@ class _VObjectEffectsMixin:
         dur = end - start
         if dur <= 0 or steps <= 0:
             return self
+        import random as _random
         rng = _random.Random(seed)
         step_dur = dur / steps
         for i in range(steps):
@@ -448,6 +447,7 @@ class _VObjectEffectsMixin:
         Returns a VCollection containing the copies (not including self)."""
         direction = _norm_dir(direction)
         from vectormation._collection import VCollection
+        from copy import deepcopy
         col = VCollection(*[deepcopy(self) for _ in range(count)])
         col.arrange(direction=direction, buff=buff)
         return col
@@ -670,6 +670,7 @@ class _VObjectEffectsMixin:
 
     def delay_animation(self, method_name, delay, *args, **kwargs):
         """Schedule an animation to start after a delay."""
+        import inspect
         method = getattr(self, method_name)
         params = inspect.signature(method).parameters
         if 'start' in params:

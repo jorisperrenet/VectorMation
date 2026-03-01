@@ -1,8 +1,6 @@
 """VCollection — container for multiple VObjects with collective operations."""
-import inspect
 import math
 import random
-from copy import deepcopy
 from itertools import zip_longest
 
 import vectormation.easings as easings
@@ -153,6 +151,7 @@ class VCollection(_BBoxMethodsMixin):
 
     def copy(self):
         """Return a deep copy of this collection."""
+        from copy import deepcopy
         return deepcopy(self)
 
     def to_svg(self, time):
@@ -1422,6 +1421,7 @@ class VCollection(_BBoxMethodsMixin):
             method = getattr(obj, method_name)
             kw = dict(kwargs)
             if not any(k in kw for k in ('start', 'end')):
+                import inspect
                 params = inspect.signature(method).parameters
                 if 'start' in params:
                     kw['start'] = start

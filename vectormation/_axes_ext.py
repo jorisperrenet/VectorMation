@@ -1,6 +1,5 @@
 """Advanced Axes methods — annotations, statistics, visualization extras."""
 import math
-import random as _random
 from collections import Counter
 
 import vectormation.easings as easings
@@ -1200,6 +1199,7 @@ class _AxesExtMixin:
         data_groups: list of lists, each containing y-values.
         Returns a VCollection of Dots."""
         style_kw = {'fill': '#58C4DD', 'stroke_width': 0} | styling_kwargs
+        import random as _random
         rng = _random.Random(42)
         objs = []
         for xp, values in zip(x_positions, data_groups):
