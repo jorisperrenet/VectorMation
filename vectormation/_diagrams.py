@@ -931,7 +931,7 @@ class MindMap(VCollection):
     """Radial mind map diagram."""
     def __init__(self, root, cx=ORIGIN[0], cy=ORIGIN[1], radius: float = 250, font_size: float = 18,
                  colors=None, creation: float = 0, z: float = 0):
-        if colors is None:
+        if not colors:
             colors = list(DEFAULT_CHART_COLORS)
         objects = []
         root_label, children = root

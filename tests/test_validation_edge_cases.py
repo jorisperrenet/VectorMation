@@ -394,6 +394,12 @@ class TestMindMapEdgeCases:
         svg = mm.to_svg(0)
         assert svg is not None
 
+    def test_empty_colors(self):
+        """Passing colors=[] should fall back to defaults, not crash."""
+        mm = MindMap(('Root', [('A', [])]), colors=[])
+        svg = mm.to_svg(0)
+        assert svg is not None
+
 
 class TestTreeEdgeCases:
     def test_basic(self):
