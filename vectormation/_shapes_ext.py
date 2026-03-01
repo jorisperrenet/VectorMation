@@ -315,7 +315,7 @@ class Line(VObject):
         x1, y1, x2, y2 = self._ep(time)
         return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
 
-    def subdivide_into(self, n: float = 2, time: float = 0, **kwargs):
+    def subdivide_into(self, n: int = 2, time: float = 0, **kwargs):
         """Divide this line into *n* equal segments."""
         if n < 1:
             n = 1
@@ -325,7 +325,7 @@ class Line(VObject):
                      x2=x1 + (i + 1) * dx, y2=y1 + (i + 1) * dy, **kwargs)
                 for i in range(n)]
 
-    def divide(self, n: float = 2, time: float = 0):
+    def divide(self, n: int = 2, time: float = 0):
         """Return *n* + 1 points that divide the line into *n* equal segments."""
         if n < 1:
             n = 1
@@ -1303,7 +1303,7 @@ class Path(VObject):
         d = self.d.at_time(time)
         return self._parse_path_lazy(d).length() if d else 0.0
 
-    def point_from_proportion(self, proportion, time: float = 0):
+    def point_from_proportion(self, t, time: float = 0):
         """Return (x, y) at a proportional distance along the path (0-1)."""
         d = self.d.at_time(time)
         if not d:
@@ -1313,7 +1313,7 @@ class Path(VObject):
         if total == 0:
             pt = parsed.point(0)
             return (pt.real, pt.imag)
-        pt = parsed.point(parsed.ilength(total * _clamp01(proportion)))
+        pt = parsed.point(parsed.ilength(total * _clamp01(t)))
         return (pt.real, pt.imag)
 
     def tangent_at(self, proportion, time: float = 0):
@@ -2206,7 +2206,7 @@ class KochSnowflake(Polygon):
         Recursion depth (0 = triangle, 3 is typical).
     """
 
-    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], size: float = 400, depth: float = 3,
+    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], size: float = 400, depth: int = 3,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         h = size * math.sqrt(3) / 2
         # Equilateral triangle vertices (top, bottom-left, bottom-right)
@@ -2249,7 +2249,7 @@ class SierpinskiTriangle(VCollection):
         Recursion depth (0 = solid triangle, 5 is typical).
     """
 
-    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], size: float = 500, depth: float = 4,
+    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], size: float = 500, depth: int = 4,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         h = size * math.sqrt(3) / 2
         ax, ay = cx, cy - h * 2 / 3

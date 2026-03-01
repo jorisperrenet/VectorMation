@@ -1761,7 +1761,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._apply_shift_func(_pos, start, end)
         return self
 
-    def bounce(self, start: float = 0, end: float = 1, height: float = 50, n_bounces: float = 3, easing=easings.smooth):
+    def bounce(self, start: float = 0, end: float = 1, height: float = 50, n_bounces: int = 3, easing=easings.smooth):
         """Bounce the object up and down like a ball."""
         dur = end - start
         if dur <= 0:
@@ -1961,7 +1961,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def trace_path(self, start: float = 0, end: float = 1, stroke='#58C4DD',
-                    stroke_width: float = 2, stroke_opacity: float = 0.6, samples: float = 60):
+                    stroke_width: float = 2, stroke_opacity: float = 0.6, samples: int = 60):
         """Return a Path that traces this object's center over [start, end].
         The path draws itself progressively. Must be added to the canvas."""
         from vectormation._shapes import Path

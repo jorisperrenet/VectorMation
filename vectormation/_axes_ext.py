@@ -201,7 +201,7 @@ class _AxesExtMixin:
         """Draw a vertical dashed guide line at *x*."""
         return self._add_guide_line(x, 'vertical', start, end, creation, z, styling_kwargs)
 
-    def add_min_max_labels(self, func, x_range=None, samples: float = 200, creation: float = 0, z: float = 3,
+    def add_min_max_labels(self, func, x_range=None, samples: int = 200, creation: float = 0, z: float = 3,
                             dot_radius: float = 5, font_size: float = 18, **styling_kwargs):
         """Find and label local min/max of func within x_range.
         Returns a VCollection of (dot, label) pairs."""
@@ -297,7 +297,7 @@ class _AxesExtMixin:
         self._add_plot_obj(lbl)
         return dot, lbl
 
-    def add_inflection_points(self, func, x_range=None, samples: float = 200, h=1e-5,
+    def add_inflection_points(self, func, x_range=None, samples: int = 200, h=1e-5,
                               creation: float = 0, z: float = 3, dot_radius: float = 5, font_size: float = 18,
                               color='#FFA726', **styling_kwargs):
         """Find and label inflection points of *func* within *x_range*."""
@@ -314,7 +314,7 @@ class _AxesExtMixin:
             objs.extend([dot, lbl])
         return VCollection(*objs, creation=creation, z=z)
 
-    def get_critical_points(self, func, x_range=None, samples: float = 200, h=1e-5,
+    def get_critical_points(self, func, x_range=None, samples: int = 200, h=1e-5,
                             creation: float = 0, z: float = 3, dot_radius: float = 5, font_size: float = 18,
                             color='#E040FB', label_type='both',
                             **styling_kwargs):
@@ -422,7 +422,7 @@ class _AxesExtMixin:
         self._add_plot_obj(band)
         return band
 
-    def add_confidence_band(self, func_lo, func_hi, x_range=None, samples: float = 100,
+    def add_confidence_band(self, func_lo, func_hi, x_range=None, samples: int = 100,
                              creation: float = 0, z: float = -1, **styling_kwargs):
         """Shade a band between two functions (e.g. confidence interval).
         func_lo/func_hi: callables (or curves with ._func).
@@ -593,7 +593,7 @@ class _AxesExtMixin:
         return VCollection(v_line, h_line, dot, creation=creation, z=z)
 
     def add_violin_plot(self, data_groups, x_positions=None, width: float = 0.8,
-                         samples: float = 50, creation: float = 0, z: float = 1, **styling_kwargs):
+                         samples: int = 50, creation: float = 0, z: float = 1, **styling_kwargs):
         """Draw violin plots for one or more data groups.
         data_groups: list of lists of numbers.
         x_positions: x-coordinates for each violin (defaults to 1, 2, ...).
@@ -849,7 +849,7 @@ class _AxesExtMixin:
         return VCollection(*objs, creation=creation, z=z)
 
     def add_parametric_area(self, func_x, func_y, t_range=(0, 1),
-                             samples: float = 200, creation: float = 0, z: float = -1, **styling_kwargs):
+                             samples: int = 200, creation: float = 0, z: float = -1, **styling_kwargs):
         """Fill the area enclosed by a parametric curve (func_x(t), func_y(t)).
         Returns a dynamic Path object."""
         style_kw = _AREA_STYLE | styling_kwargs
@@ -1000,7 +1000,7 @@ class _AxesExtMixin:
         """Shade a horizontal band between y0 and y1 (math coords)."""
         return self._add_span(y0, y1, False, creation, z, styling_kwargs)
 
-    def plot_density(self, data, bandwidth=None, samples: float = 200, creation: float = 0, z: float = 0, **styling_kwargs):
+    def plot_density(self, data, bandwidth=None, samples: int = 200, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a kernel density estimate (KDE) curve from raw data.
         Uses Gaussian kernel. Returns a Path object."""
         style_kw = {'stroke': '#FF79C6', 'stroke_width': 2, 'fill_opacity': 0} | styling_kwargs

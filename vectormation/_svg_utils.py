@@ -609,7 +609,7 @@ class Intersection(_BooleanOp):
 # Standalone helper functions
 # ---------------------------------------------------------------------------
 
-def brace_between_points(p1, p2, direction=None, label=None, buff: float = 0, depth: float = 18,
+def brace_between_points(p1, p2, direction=None, label=None, buff: float = 0, depth: int = 18,
                          creation: float = 0, z: float = 0, **styling_kwargs):
     """Create a Brace between two arbitrary points."""
     x1, y1 = p1

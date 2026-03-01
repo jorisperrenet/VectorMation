@@ -300,7 +300,7 @@ _BRACE_HEIGHT = 0.167
 class Brace(VCollection):
     """Curly brace annotation pointing at a target object."""
     def __init__(self, target, direction='down', label=None, buff=SMALL_BUFF,
-                 depth: float = 18, creation: float = 0, z: float = 0, **styling_kwargs):
+                 depth: int = 18, creation: float = 0, z: float = 0, **styling_kwargs):
         direction = _norm_dir(direction, 'down')
         bx, by, bw, bh = target.bbox(creation)
 
@@ -400,7 +400,7 @@ class BraceBetweenPoints(Brace):
     tip pointing in the perpendicular direction.
     """
     def __init__(self, x1, y1, x2, y2, label=None, buff=SMALL_BUFF,
-                 depth: float = 18, creation: float = 0, z: float = 0, **styling_kwargs):
+                 depth: int = 18, creation: float = 0, z: float = 0, **styling_kwargs):
         # Create a thin rectangle aligned along the two points as target
         from vectormation._shapes import Rectangle as _Rect
         dx, dy = x2 - x1, y2 - y1

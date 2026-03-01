@@ -1438,7 +1438,7 @@ class CalendarHeatmap(VCollection):
 
 class WaffleChart(VCollection):
     """Waffle chart: grid of colored squares showing category proportions."""
-    def __init__(self, categories, x: float = 100, y: float = 100, grid_size: float = 10,
+    def __init__(self, categories, x: float = 100, y: float = 100, grid_size: int = 10,
                  cell_size: float = 20, gap: float = 3, font_size: float = 14, creation: float = 0, z: float = 0):
         total = sum(v for _, v, _ in categories) or 1
         n_cells = grid_size * grid_size

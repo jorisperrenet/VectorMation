@@ -1068,7 +1068,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(area)
         return area
 
-    def get_area_value(self, func, x_start, x_end, samples: float = 100):
+    def get_area_value(self, func, x_start, x_end, samples: int = 100):
         """Return the numerical integral of *func* over [x_start, x_end] using the trapezoidal rule."""
         fn = self._resolve_func(func, 'func')
         n = max(int(samples), 2)
@@ -1079,7 +1079,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     get_integral = get_area_value
 
-    def get_average(self, func, x_start=None, x_end=None, samples: float = 200):
+    def get_average(self, func, x_start=None, x_end=None, samples: int = 200):
         """Return the average value of *func* over [x_start, x_end]."""
         x0, x1 = self._resolve_x_range(x_start, x_end)
         if x0 == x1:
@@ -1088,7 +1088,7 @@ class Axes(_AxesExtMixin, VCollection):
         integral = self.get_area_value(func, x0, x1, samples)
         return integral / (x1 - x0)
 
-    def get_graph_length(self, func, x_start=None, x_end=None, samples: float = 200):
+    def get_graph_length(self, func, x_start=None, x_end=None, samples: int = 200):
         """Return approximate arc length of *func*'s graph in SVG pixel coordinates."""
         fn = self._resolve_func(func, 'func')
         x0, x1 = self._resolve_x_range(x_start, x_end)
@@ -1130,15 +1130,15 @@ class Axes(_AxesExtMixin, VCollection):
             raise ValueError('No finite function values found in the given range.')
         return (best_x, best_y)
 
-    def get_function_max(self, func, x_start, x_end, samples: float = 200):
+    def get_function_max(self, func, x_start, x_end, samples: int = 200):
         """Return ``(x, y)`` where *func* achieves its maximum over [x_start, x_end]."""
         return self._find_extremum(func, x_start, x_end, samples, is_max=True)
 
-    def get_function_min(self, func, x_start, x_end, samples: float = 200):
+    def get_function_min(self, func, x_start, x_end, samples: int = 200):
         """Return ``(x, y)`` where *func* achieves its minimum over [x_start, x_end]."""
         return self._find_extremum(func, x_start, x_end, samples, is_max=False)
 
-    def get_zeros(self, func, x_start, x_end, samples: float = 200):
+    def get_zeros(self, func, x_start, x_end, samples: int = 200):
         """Return list of ``(x, 0.0)`` tuples where *func* crosses zero, using bisection."""
         fn = self._resolve_func(func, 'func')
         n = max(int(samples), 2)
@@ -1689,7 +1689,7 @@ class Axes(_AxesExtMixin, VCollection):
         return self
 
     def add_shaded_inequality(self, func, direction='below', x_range=None,
-                               samples: float = 100, creation: float = 0, z: float = -1, **styling_kwargs):
+                               samples: int = 100, creation: float = 0, z: float = -1, **styling_kwargs):
         """Shade the region above or below a curve. Returns a dynamic Path."""
         style_kw = {'fill': '#FFFF00', 'fill_opacity': 0.1, 'stroke_width': 0} | styling_kwargs
         fn = self._resolve_func(func, 'func')
@@ -1719,7 +1719,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_area_label(self, func, x_start=None, x_end=None, x_range=None,
                         text=None, font_size: float = 20,
-                        creation: float = 0, z: float = 3, samples: float = 100, **styling_kwargs):
+                        creation: float = 0, z: float = 3, samples: int = 100, **styling_kwargs):
         """Add a label showing the numerical area under the curve, positioned at the centroid."""
         style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
         fn = self._resolve_func(func, 'func')

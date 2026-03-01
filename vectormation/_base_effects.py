@@ -171,7 +171,7 @@ class _VObjectEffectsMixin:
         return self
 
     def elastic_bounce(self, start: float = 0, end: float = 1, height: float = 100,
-                       n_bounces: float = 3, squash_factor: float = 1.4, easing=easings.smooth):
+                       n_bounces: int = 3, squash_factor: float = 1.4, easing=easings.smooth):
         """Bounce the object with squash-and-stretch deformation at each impact."""
         dur = end - start
         if dur <= 0:
@@ -593,7 +593,7 @@ class _VObjectEffectsMixin:
             return 1 + (_f - 1) * math.cos(_freq * p) * math.exp(-_damp * p)
         return self._apply_scale_envelope(start, end, _elastic, easing, stay=True)
 
-    def snap_to_grid(self, grid_size: float = 50, start: float = 0, end: float = 1, easing=easings.smooth):
+    def snap_to_grid(self, grid_size: int = 50, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate the object's center to the nearest grid point."""
         cx, cy = self.center(start)
         target_x = round(cx / grid_size) * grid_size
