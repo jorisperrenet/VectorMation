@@ -560,6 +560,29 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self._hide_from(end)
         return self
 
+    def dissolve_in(self, start: float = 0, end: float = 1,
+                    granularity=8, change_existence=True, seed=42):
+        """Noisy/flickering opacity fade-in (dissolve effect)."""
+        dur = end - start
+        if change_existence:
+            self._show_from(start)
+        if dur <= 0:
+            return self
+        end_val = self.styling.opacity.at_time(end)
+        _d = max(dur, 1e-9)
+
+        def _dissolve(t, _s=start, _d=_d, _ev=end_val, _g=granularity, _seed=seed):
+            p = (t - _s) / _d
+            base = _ev * p
+            n = _seed + p * _g
+            noise = (math.sin(n * 127.1 + 311.7) * 43758.5453) % 1.0
+            noise = noise * 2 - 1
+            jitter = noise * _ev * 0.4 * p * (1.0 - p)
+            return max(0.0, min(_ev, base + jitter))
+
+        self.styling.opacity.set(start, end, _dissolve)
+        return self
+
     def dissolve_out(self, start: float = 0, end: float = 1,
                      granularity=8, change_existence=True, seed=42):
         """Noisy/flickering opacity fade-out (dissolve effect)."""
