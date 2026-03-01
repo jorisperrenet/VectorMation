@@ -3,6 +3,7 @@ from vectormation.objects import (
     DonutChart, SparkLine, KPICard, BulletChart,
     CalendarHeatmap, WaffleChart, CircularProgressBar,
     Scoreboard, MatrixHeatmap, BoxPlot,
+    FunnelChart, TreeMap, SankeyDiagram, GanttChart,
 )
 
 
@@ -340,4 +341,91 @@ class TestBoxPlot:
     def test_custom_colors(self):
         bp = BoxPlot([[1, 2, 3, 4, 5]], box_color='#ff0000', median_color='#00ff00')
         svg = bp.to_svg(0)
+        assert svg is not None
+
+
+class TestFunnelChartFromDict:
+    def test_basic(self):
+        fc = FunnelChart.from_dict({'Visits': 1000, 'Signups': 400, 'Purchases': 100})
+        svg = fc.to_svg(0)
+        assert 'Visits' in svg
+        assert 'Signups' in svg
+        assert 'Purchases' in svg
+
+    def test_empty(self):
+        fc = FunnelChart.from_dict({})
+        svg = fc.to_svg(0)
+        assert svg is not None
+
+    def test_single_entry(self):
+        fc = FunnelChart.from_dict({'Only': 50})
+        svg = fc.to_svg(0)
+        assert 'Only' in svg
+
+    def test_kwargs_forwarded(self):
+        fc = FunnelChart.from_dict({'A': 10, 'B': 5}, width=400, gap=8)
+        svg = fc.to_svg(0)
+        assert svg is not None
+
+
+class TestTreeMapFromDict:
+    def test_basic(self):
+        tm = TreeMap.from_dict({'Cats': 40, 'Dogs': 30, 'Birds': 20, 'Fish': 10})
+        svg = tm.to_svg(0)
+        assert svg is not None
+
+    def test_empty(self):
+        tm = TreeMap.from_dict({})
+        svg = tm.to_svg(0)
+        assert svg is not None
+
+    def test_single_entry(self):
+        tm = TreeMap.from_dict({'Only': 100})
+        svg = tm.to_svg(0)
+        assert svg is not None
+
+    def test_kwargs_forwarded(self):
+        tm = TreeMap.from_dict({'A': 50, 'B': 30}, width=600, height=400)
+        svg = tm.to_svg(0)
+        assert svg is not None
+
+    def test_labels_visible(self):
+        tm = TreeMap.from_dict({'BigItem': 90, 'SmallItem': 10})
+        svg = tm.to_svg(0)
+        # The big item should get a label if it has enough space
+        assert 'BigItem' in svg
+
+
+class TestGanttChartExtended:
+    def test_empty_tasks(self):
+        gc = GanttChart([])
+        svg = gc.to_svg(0)
+        assert svg is not None
+
+    def test_single_task(self):
+        gc = GanttChart([('Task A', 0, 5)])
+        svg = gc.to_svg(0)
+        assert 'Task A' in svg
+
+    def test_overlapping_tasks(self):
+        gc = GanttChart([('Task A', 0, 5), ('Task B', 3, 8)])
+        svg = gc.to_svg(0)
+        assert 'Task A' in svg
+        assert 'Task B' in svg
+
+
+class TestSankeyDiagramExtended:
+    def test_empty_flows(self):
+        sd = SankeyDiagram([])
+        svg = sd.to_svg(0)
+        assert svg is not None
+
+    def test_single_flow(self):
+        sd = SankeyDiagram([('A', 'B', 100)])
+        svg = sd.to_svg(0)
+        assert svg is not None
+
+    def test_multiple_flows(self):
+        sd = SankeyDiagram([('A', 'B', 50), ('A', 'C', 30), ('B', 'D', 40)])
+        svg = sd.to_svg(0)
         assert svg is not None
