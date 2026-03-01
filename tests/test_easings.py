@@ -17,6 +17,8 @@ UNIT_INTERVAL_EASINGS = [
     easings.ease_in_back, easings.ease_out_back, easings.ease_in_out_back,
     easings.ease_in_elastic, easings.ease_out_elastic, easings.ease_in_out_elastic,
     easings.ease_in_bounce, easings.ease_out_bounce, easings.ease_in_out_bounce,
+    easings.smoothstep, easings.smootherstep, easings.smoothererstep,
+    easings.running_start, easings.exponential_decay,
 ]
 
 
