@@ -9,7 +9,7 @@ import vectormation.attributes as attributes
 import vectormation.style as style
 from vectormation._base_helpers import (
     _clamp01, _lerp, _ramp, _clip_reveal,
-    _coords_of, _parse_path, _norm_dir,
+    _coords_of, _parse_path, _norm_dir, _norm_edge,
     _make_brect, _wrap_to_svg, _EDGE_POINTS,
 )
 from vectormation._constants import (
@@ -425,6 +425,7 @@ class _VObjectEffectsMixin:
 
     def pin_to(self, other, edge='center', offset_x: float = 0, offset_y: float = 0, start: float = 0, end: float | None = None):
         """Anchor this object to a specific edge/corner of *other* via an updater."""
+        edge = _norm_edge(edge, 'center')
         edge_fn = _EDGE_POINTS.get(edge, _EDGE_POINTS['center'])
 
         def _pin(obj, time, _other=other, _edge_fn=edge_fn,
