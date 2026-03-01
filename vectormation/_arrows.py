@@ -312,6 +312,8 @@ class Brace(VCollection):
             raise ValueError(f"direction must be 'down', 'up', 'left', or 'right', got '{direction}'")
 
         # Compute linear section length so curved parts have the right depth
+        if depth <= 0:
+            raise ValueError(f"Brace depth must be positive, got {depth}")
         scale = depth / _BRACE_HEIGHT
         linear_section = max(0, (span / scale - _BRACE_MIN_WIDTH) / 2)
         raw = _BRACE_PATH_TEMPLATE.format(linear_section, -linear_section)

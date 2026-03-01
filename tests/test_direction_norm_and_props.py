@@ -181,3 +181,55 @@ def test_line3d_last_change():
     from vectormation._threed import Line3D
     ln = Line3D(start=(0, 0, 0), end=(1, 1, 1))
     assert ln.last_change == 0
+
+
+# ── FlowChart direction normalization ──────────────────────────────
+
+def test_flowchart_with_tuple_direction():
+    """FlowChart should accept tuple direction constants."""
+    from vectormation.objects import FlowChart
+    fc = FlowChart(steps=['A', 'B', 'C'], direction=RIGHT)
+    assert fc is not None
+
+def test_flowchart_direction_down():
+    from vectormation.objects import FlowChart
+    fc = FlowChart(steps=['A', 'B'], direction=DOWN)
+    assert fc is not None
+
+
+# ── VCollection.reveal direction normalization ─────────────────────
+
+def test_reveal_with_tuple_direction():
+    """VCollection.reveal should accept tuple direction constants."""
+    from vectormation.objects import VCollection
+    c1 = Circle(r=20, cx=100, cy=100)
+    c2 = Circle(r=20, cx=200, cy=200)
+    col = VCollection(c1, c2)
+    col.reveal(start=0, end=1, direction=LEFT)
+    assert col is not None
+
+def test_reveal_with_down_direction():
+    from vectormation.objects import VCollection
+    c1 = Circle(r=20, cx=100, cy=100)
+    c2 = Circle(r=20, cx=200, cy=200)
+    col = VCollection(c1, c2)
+    col.reveal(start=0, end=1, direction=DOWN)
+    assert col is not None
+
+
+# ── Brace depth validation ─────────────────────────────────────────
+
+def test_brace_zero_depth_raises():
+    """Brace(depth=0) should raise ValueError, not ZeroDivisionError."""
+    from vectormation.objects import Brace
+    import pytest
+    r = Rectangle(100, 50, x=100, y=100)
+    with pytest.raises(ValueError, match='depth must be positive'):
+        Brace(r, depth=0)
+
+def test_brace_negative_depth_raises():
+    from vectormation.objects import Brace
+    import pytest
+    r = Rectangle(100, 50, x=100, y=100)
+    with pytest.raises(ValueError, match='depth must be positive'):
+        Brace(r, depth=-5)
