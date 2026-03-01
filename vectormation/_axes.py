@@ -513,7 +513,7 @@ class Axes(_AxesExtMixin, VCollection):
                 y = func(xmin + i * step)
                 if isinstance(y, (int, float)) and math.isfinite(y):
                     ys.append(y)
-            except Exception:
+            except (TypeError, ValueError, ZeroDivisionError, OverflowError):
                 continue
         if not ys:
             return self
@@ -569,7 +569,7 @@ class Axes(_AxesExtMixin, VCollection):
         """Like :meth:`input_to_graph_point` but returns ``None`` on error."""
         try:
             y = func(x)
-        except Exception:
+        except (TypeError, ValueError, ZeroDivisionError, OverflowError):
             return None
         return self.coords_to_point(x, y, time=time)
 
@@ -1121,7 +1121,7 @@ class Axes(_AxesExtMixin, VCollection):
             x = x0 + (x1 - x0) * i / samples
             try:
                 y = fn(x)
-            except Exception:
+            except (TypeError, ValueError, ZeroDivisionError, OverflowError):
                 prev = None
                 continue
             if not math.isfinite(y):
@@ -1143,7 +1143,7 @@ class Axes(_AxesExtMixin, VCollection):
             x = x_start + i * step
             try:
                 y = fn(x)
-            except Exception:
+            except (TypeError, ValueError, ZeroDivisionError, OverflowError):
                 continue
             if not math.isfinite(y):
                 continue
@@ -1173,7 +1173,7 @@ class Axes(_AxesExtMixin, VCollection):
             try:
                 y = fn(x)
                 ys.append(y if math.isfinite(y) else None)
-            except Exception:
+            except (TypeError, ValueError, ZeroDivisionError, OverflowError):
                 ys.append(None)
         zeros = []
         for i in range(n):
@@ -1197,7 +1197,7 @@ class Axes(_AxesExtMixin, VCollection):
                     break
                 try:
                     fmid = fn(mid)
-                except Exception:
+                except (TypeError, ValueError, ZeroDivisionError, OverflowError):
                     break
                 if not math.isfinite(fmid):
                     break
@@ -1230,7 +1230,7 @@ class Axes(_AxesExtMixin, VCollection):
         fn = self._resolve_func(func, 'func')
         try:
             return fn(0)
-        except Exception:
+        except (TypeError, ValueError, ZeroDivisionError, OverflowError):
             return None
 
     def get_derivative(self, func, x_val, h: float = 0.001):

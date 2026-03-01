@@ -1380,7 +1380,7 @@ def transform_matching_shapes(source, target, start: float = 0, end: float = 1, 
         try:
             _, _, w, h = obj.bbox(time)
             return round(w * h, -1)
-        except Exception:
+        except (TypeError, ValueError, AttributeError):
             return None
 
     key_fn = (lambda obj, _t: key(obj)) if key else _area_key

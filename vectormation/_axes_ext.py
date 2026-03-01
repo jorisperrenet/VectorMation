@@ -247,7 +247,7 @@ class _AxesExtMixin:
             try:
                 d = deriv_func(x)
                 ds.append(d if math.isfinite(d) else None)
-            except Exception:
+            except (TypeError, ValueError, ZeroDivisionError, OverflowError):
                 ds.append(None)
 
         results = []
@@ -268,7 +268,7 @@ class _AxesExtMixin:
             if cx is not None:
                 try:
                     cy = eval_func(cx)
-                except Exception:
+                except (TypeError, ValueError, ZeroDivisionError, OverflowError):
                     continue
                 if not math.isfinite(cy):
                     continue
@@ -2125,7 +2125,7 @@ class _AxesExtMixin:
         def _lbl_y(t, _f=func, _s=sign, _b=buff, _fz=font_size):
             try:
                 yv = _f(_get_xv(t))
-            except Exception:
+            except (TypeError, ValueError, ZeroDivisionError, OverflowError):
                 yv = 0
             return self._math_to_svg_y(yv, t) + _s * (_fz / 2 + _b)
         lbl.x.set_onward(creation, _lbl_x)
