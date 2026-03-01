@@ -402,7 +402,7 @@ class VectorMathAnim:
         except ImportError:
             raise ImportError('cairosvg is required for export. Install it with: pip install cairosvg')
 
-    def export_png(self, time=0, filename='frame.png', scale=None):
+    def export_png(self, time: float = 0, filename='frame.png', scale=None):
         """Export a single frame as PNG using cairosvg."""
         cairosvg = self._require_cairosvg()
         scale, ow, oh = self._export_dims(scale)

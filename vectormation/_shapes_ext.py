@@ -106,14 +106,14 @@ class Line(VObject):
 
     angle_with = angle_to
 
-    def is_parallel(self, other, time=0, tol=1e-6):
+    def is_parallel(self, other, time: float = 0, tol=1e-6):
         """Return True if cross product of directions is within *tol* of zero."""
         d1 = self.get_direction(time)
         d2 = other.get_direction(time)
         cross = d1[0] * d2[1] - d1[1] * d2[0]
         return abs(cross) < tol
 
-    def is_perpendicular(self, other, time=0, tol=1e-6):
+    def is_perpendicular(self, other, time: float = 0, tol=1e-6):
         """Return True if dot product of directions is within *tol* of zero."""
         d1 = self.get_direction(time)
         d2 = other.get_direction(time)
@@ -138,11 +138,11 @@ class Line(VObject):
         """Return True if start and end differ by less than *tol* on *axis* (0=x, 1=y)."""
         return abs(self.get_end(time)[axis] - self.get_start(time)[axis]) < tol
 
-    def is_horizontal(self, time=0, tol=1e-3):
+    def is_horizontal(self, time: float = 0, tol=1e-3):
         """Return True if the line is horizontal within tolerance."""
         return self._is_aligned(1, time, tol)
 
-    def is_vertical(self, time=0, tol=1e-3):
+    def is_vertical(self, time: float = 0, tol=1e-3):
         """Return True if the line is vertical within tolerance."""
         return self._is_aligned(0, time, tol)
 
@@ -315,7 +315,7 @@ class Line(VObject):
         x1, y1, x2, y2 = self._ep(time)
         return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
 
-    def subdivide_into(self, n=2, time=0, **kwargs):
+    def subdivide_into(self, n=2, time: float = 0, **kwargs):
         """Divide this line into *n* equal segments."""
         if n < 1:
             n = 1
@@ -338,7 +338,7 @@ class Line(VObject):
         cp = self.get_perpendicular_point(px, py, time)
         return math.hypot(px - cp[0], py - cp[1])
 
-    def contains_point(self, px, py, time=0, tol=2):
+    def contains_point(self, px, py, time: float = 0, tol=2):
         """Return True if ``(px, py)`` is within *tol* pixels of this segment."""
         return self.distance_to_point(px, py, time) <= tol
 
@@ -374,7 +374,7 @@ class Line(VObject):
         x1, y1, x2, y2 = self._ep(0)
         return f'Line(({x1:.0f},{y1:.0f})->({x2:.0f},{y2:.0f}))'
 
-    def perpendicular(self, at_proportion=0.5, length=None, time=0, **kwargs):
+    def perpendicular(self, at_proportion=0.5, length=None, time: float = 0, **kwargs):
         """Return a new Line perpendicular to this line at the given proportion."""
         x1, y1, x2, y2 = self._ep(time)
         dx, dy = x2 - x1, y2 - y1
@@ -390,7 +390,7 @@ class Line(VObject):
         return Line(px - nx * half, py - ny * half,
                     px + nx * half, py + ny * half, **kwargs)
 
-    def perpendicular_at(self, t=0.5, length=None, time=0, **kwargs):
+    def perpendicular_at(self, t=0.5, length=None, time: float = 0, **kwargs):
         """Return a Line perpendicular to this line at parameter t (0=start, 1=end)."""
         x1, y1, x2, y2 = self._ep(time)
         dx, dy = -(y2 - y1), x2 - x1  # perpendicular direction
@@ -418,7 +418,7 @@ class Line(VObject):
         """Scale line length by *factor* in place, keeping the midpoint fixed."""
         return self.extend(factor=factor, start=time)
 
-    def parallel(self, offset=50, time=0, **kwargs):
+    def parallel(self, offset=50, time: float = 0, **kwargs):
         """Return a new Line parallel to this one, offset perpendicular by offset pixels.
         Extra kwargs are forwarded to the new Line constructor."""
         x1, y1, x2, y2 = self._ep(time)
@@ -430,7 +430,7 @@ class Line(VObject):
         return Line(x1 + nx * offset, y1 + ny * offset,
                     x2 + nx * offset, y2 + ny * offset, **kwargs)
 
-    def parallel_through(self, point, time=0, **kwargs):
+    def parallel_through(self, point, time: float = 0, **kwargs):
         """Return a new Line parallel to this one, passing through the given point."""
         x1, y1, x2, y2 = self._ep(time)
         dx, dy = x2 - x1, y2 - y1
@@ -500,7 +500,7 @@ class Line(VObject):
         """Return the parameter t for the projection of (px, py) onto the line."""
         return float(self._line_param_at(px, py, time)[0])
 
-    def project_onto(self, other, time=0, **kwargs):
+    def project_onto(self, other, time: float = 0, **kwargs):
         """Project this line segment onto another line and return the projection."""
         p1 = other.project_point(*self.get_start(time), time=time)
         p2 = other.project_point(*self.get_end(time), time=time)
@@ -517,7 +517,7 @@ class Line(VObject):
             return other.intersect_line(self, time)
         raise TypeError(f"intersection not supported between Line and {type(other).__name__}")
 
-    def reflect_over(self, other, time=0, **kwargs):
+    def reflect_over(self, other, time: float = 0, **kwargs):
         """Reflect this line's endpoints over another line and return the result."""
         s1 = self.get_start(time)
         s2 = self.get_end(time)
@@ -527,7 +527,7 @@ class Line(VObject):
         r2 = (2 * proj2[0] - s2[0], 2 * proj2[1] - s2[1])
         return Line(x1=r1[0], y1=r1[1], x2=r2[0], y2=r2[1], **kwargs)
 
-    def bisector(self, time=0, length=None, **kwargs):
+    def bisector(self, time: float = 0, length=None, **kwargs):
         """Return the perpendicular bisector of this line."""
         mx, my = self.get_midpoint(time)
         nx, ny = self.get_normal(time)
@@ -848,7 +848,7 @@ class Text(VObject):
                 return words[index]
         return ''
 
-    def split_lines(self, time=0, line_spacing=1.4):
+    def split_lines(self, time: float = 0, line_spacing=1.4):
         """Split multi-line text (containing newlines) into separate Text objects."""
 
         full, x, y, fs, _, fill = self._text_split_ctx(time)
@@ -910,7 +910,7 @@ class Text(VObject):
         self.text.set_onward(time, truncated)
         return self
 
-    def split_into_words(self, time=0, **kwargs):
+    def split_into_words(self, time: float = 0, **kwargs):
         """Split text into a VCollection of individual word Text objects."""
 
         full = str(self.text.at_time(time))
@@ -1532,7 +1532,7 @@ class Arc(VObject):
         half_angle = math.radians(self.get_sweep(time) / 2)
         return r * (1 - math.cos(half_angle))
 
-    def tangent_at(self, degrees, length=100, time=0, **kwargs):
+    def tangent_at(self, degrees, length=100, time: float = 0, **kwargs):
         """Return a Line tangent to the arc at the given angle (degrees)."""
         px, py = self.point_at_angle(degrees, time)
         rad = math.radians(degrees)
@@ -1576,14 +1576,14 @@ class Arc(VObject):
 
     get_midpoint_on_arc = get_midpoint
 
-    def complement(self, time=0, **kwargs):
+    def complement(self, time: float = 0, **kwargs):
         """Return an Arc spanning the complementary angle (remaining portion of the circle)."""
         ea = self.end_angle.at_time(time)
         sa = self.start_angle.at_time(time)
         return Arc(cx=self.cx.at_time(time), cy=self.cy.at_time(time),
                    r=self.r.at_time(time), start_angle=ea, end_angle=sa + 360, **kwargs)
 
-    def to_wedge(self, time=0, **kwargs):
+    def to_wedge(self, time: float = 0, **kwargs):
         """Return a :class:`Wedge` with the same geometry as this arc at *time*."""
         return Wedge(
             cx=self.cx.at_time(time),
@@ -1594,7 +1594,7 @@ class Arc(VObject):
             **kwargs,
         )
 
-    def split_into(self, n=2, time=0, **kwargs):
+    def split_into(self, n=2, time: float = 0, **kwargs):
         """Split this arc into *n* equal sub-arcs."""
         if n < 1:
             n = 1
@@ -1611,7 +1611,7 @@ class Arc(VObject):
             arcs.append(Arc(cx=cx, cy=cy, r=r, start_angle=a1, end_angle=a2, **kwargs))
         return arcs
 
-    def contains_point(self, px, py, time=0, tol=2):
+    def contains_point(self, px, py, time: float = 0, tol=2):
         """Return True if (px, py) lies on the arc within tolerance."""
         cx = self.cx.at_time(time)
         cy = self.cy.at_time(time)
@@ -1659,7 +1659,7 @@ class Arc(VObject):
             cw_13 = 360 - ccw_13
             return cls(r=r, start_angle=a1, end_angle=a1 - cw_13, cx=ux, cy=uy, **kwargs)
 
-    def get_chord(self, time=0, **kwargs):
+    def get_chord(self, time: float = 0, **kwargs):
         """Return a Line connecting the start and end points of the arc."""
         x1, y1 = self.get_start_point(time)
         x2, y2 = self.get_end_point(time)
@@ -1685,7 +1685,7 @@ class Wedge(Arc):
         sweep = abs(self.end_angle.at_time(time) - self.start_angle.at_time(time))
         return 0.5 * r * r * math.radians(sweep)
 
-    def to_arc(self, time=0, **kwargs):
+    def to_arc(self, time: float = 0, **kwargs):
         """Return an :class:`Arc` with the same geometry as this wedge at *time*."""
         return Arc(
             cx=self.cx.at_time(time),

@@ -1351,8 +1351,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def spin(self, start: float = 0, end: float = 1, degrees: float = 360, cx: float | None = None, cy: float | None = None, easing=easings.linear):
         """Continuous rotation by degrees over [start, end]."""
-        return self._apply_rotation(start, end,
-            self.styling.rotation.at_time(start)[0] + degrees, cx, cy, easing)
+        return self.rotate_by(start, end, degrees, cx, cy, easing)
 
     def emphasize(self, start: float = 0, end: float = 0.8, color='#FFFF00',
                     scale_factor=1.15, easing=easings.there_and_back):
@@ -1363,15 +1362,15 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def emphasize_scale(self, start: float = 0, end: float = 1,
                         scale_factor: float = 1.2, easing=easings.there_and_back):
-        """Single symmetric scale pulse for emphasis (both axes, returns to normal)."""
+        """Single symmetric scale pulse for emphasis (both axes, returns to normal).
+        Unlike ``indicate``, this respects and multiplies the existing scale."""
         dur = end - start
         if dur <= 0:
             return self
         self._ensure_scale_origin(start)
-        s = start
         for attr in (self.styling.scale_x, self.styling.scale_y):
             base = attr.at_time(start)
-            attr.set(s, end, _lerp(s, dur, base, base * scale_factor, easing))
+            attr.set(start, end, _lerp(start, dur, base, base * scale_factor, easing))
         return self
 
     def glow(self, start: float = 0, end: float = 1, color='#FFD700', radius=10):

@@ -272,7 +272,7 @@ class Polygon(VObject):
         """Alias for :meth:`offset`."""
         return self.offset(distance, time=time)
 
-    def inset(self, distance, time=0, **kwargs):
+    def inset(self, distance, time: float = 0, **kwargs):
         """Return a new Polygon inset by *distance* pixels."""
         pts = self.get_vertices(time)
         n = len(pts)
@@ -425,7 +425,7 @@ class Polygon(VObject):
             return cls((0, 0), **kwargs)
         return cls(*points, **kwargs)
 
-    def get_convex_hull(self, time=0, **kwargs):
+    def get_convex_hull(self, time: float = 0, **kwargs):
         """Return a new Polygon that is the convex hull of this polygon's vertices."""
         pts = self.get_vertices(time)
         return Polygon.convex_hull(*pts, **kwargs)
@@ -565,7 +565,7 @@ class Polygon(VObject):
         """Return True if vertices are in clockwise order (positive signed area in SVG coords)."""
         return self.signed_area(time) > 0
 
-    def get_diagonals(self, time=0, **kwargs):
+    def get_diagonals(self, time: float = 0, **kwargs):
         """Return all diagonals of a closed polygon as Line objects."""
         pts = self.get_vertices(time)
         n = len(pts)
@@ -580,7 +580,7 @@ class Polygon(VObject):
                                   x2=pts[j][0], y2=pts[j][1], **kwargs))
         return diags
 
-    def bounding_circle(self, time=0, **kwargs):
+    def bounding_circle(self, time: float = 0, **kwargs):
         """Return the smallest enclosing circle of the polygon's vertices."""
         pts = self.get_vertices(time)
         if not pts:
@@ -640,7 +640,7 @@ class Polygon(VObject):
         cx, cy, r = _welzl(shuffled, [], len(shuffled))
         return Circle(r=r, cx=cx, cy=cy, **kwargs)
 
-    def triangulate(self, time=0, **kwargs):
+    def triangulate(self, time: float = 0, **kwargs):
         """Decompose this polygon into triangles using ear-clipping."""
         pts = self.get_vertices(time)
         n = len(pts)
@@ -732,7 +732,7 @@ class Polygon(VObject):
                               x2=bx + nx, y2=by + ny, **kwargs))
         return VCollection(*edges)
 
-    def subdivide_edges(self, iterations=1, time=0, **kwargs):
+    def subdivide_edges(self, iterations=1, time: float = 0, **kwargs):
         """Split each edge at its midpoint, creating a polygon with 2x vertices per iteration."""
         pts = self.get_vertices(time)
         for _ in range(iterations):
@@ -749,7 +749,7 @@ class Polygon(VObject):
             pts = new_pts
         return Polygon(*pts, closed=self.closed, **kwargs)
 
-    def smooth_corners(self, radius=10, time=0, **kwargs):
+    def smooth_corners(self, radius=10, time: float = 0, **kwargs):
         """Return a Path with Bezier-smoothed corners."""
         pts = self.get_vertices(time)
         n = len(pts)
@@ -819,7 +819,7 @@ class Polygon(VObject):
             v.set_onward(time, (nx, ny))
         return self
 
-    def label_vertices(self, labels=None, offset=20, font_size=24, time=0,
+    def label_vertices(self, labels=None, offset=20, font_size=24, time: float = 0,
                        creation=0, z=None, **styling_kwargs):
         """Create labeled dots at each vertex.
 
@@ -978,7 +978,7 @@ class Ellipse(VObject):
         """Animate the y-radius."""
         _set_attr(self.ry, start, end, value, easing); return self
 
-    def tangent_at_angle(self, angle_deg, length=200, time=0, **kwargs):
+    def tangent_at_angle(self, angle_deg, length=200, time: float = 0, **kwargs):
         """Return a tangent Line at the given angle, centered on the ellipse point."""
         px, py, tx, ty = self._tangent_at(angle_deg, time)
         dx, dy = tx * length / 2, ty * length / 2
@@ -995,14 +995,14 @@ class Ellipse(VObject):
         tx, ty = _normalize(tx, ty)
         return px, py, tx, ty
 
-    def normal_at_angle(self, angle_deg, length=200, time=0, **kwargs):
+    def normal_at_angle(self, angle_deg, length=200, time: float = 0, **kwargs):
         """Return a normal (perpendicular) Line at the given angle on the ellipse."""
         px, py, tx, ty = self._tangent_at(angle_deg, time)
         # Normal is perpendicular to tangent: rotate 90 degrees
         nx, ny = -ty * length / 2, tx * length / 2
         return Line(x1=px - nx, y1=py - ny, x2=px + nx, y2=py + ny, **kwargs)
 
-    def get_tangent_line(self, angle_deg, length=100, time=0, **kwargs):
+    def get_tangent_line(self, angle_deg, length=100, time: float = 0, **kwargs):
         """Alias for :meth:`tangent_at_angle` with default length=100."""
         return self.tangent_at_angle(angle_deg, length=length, time=time, **kwargs)
 
@@ -1067,14 +1067,14 @@ class Circle(Ellipse):
         return cls(r=r, cx=center[0], cy=center[1], **kwargs)
 
     @classmethod
-    def from_bounding_box(cls, vobject, padding=0, time=0, **kwargs):
+    def from_bounding_box(cls, vobject, padding=0, time: float = 0, **kwargs):
         """Create a Circle that circumscribes another object's bounding box."""
         _, _, bw, bh = vobject.bbox(time)
         cx, cy = vobject.center(time)
         r = math.hypot(bw / 2, bh / 2) + padding
         return cls(r=r, cx=cx, cy=cy, **kwargs)
 
-    def tangent_line(self, angle_degrees, length=100, time=0, creation=0, **line_kwargs):
+    def tangent_line(self, angle_degrees, length=100, time: float = 0, creation=0, **line_kwargs):
         """Return a Line tangent to the circle at the given angle.
         Angle 0 = right, 90 = down (SVG coordinates)."""
         px, py = self.point_on_circle(angle_degrees, time)
@@ -1086,7 +1086,7 @@ class Circle(Ellipse):
                     x2=px + tx * half, y2=py + ty * half,
                     creation=creation, **line_kwargs)
 
-    def tangent_at_point(self, px, py, length=200, time=0, creation=0, **line_kwargs):
+    def tangent_at_point(self, px, py, length=200, time: float = 0, creation=0, **line_kwargs):
         """Return a Line tangent to the circle at the point closest to (px, py)."""
         cx, cy = self.c.at_time(time)
         # Angle from circle center to the given point
@@ -1095,7 +1095,7 @@ class Circle(Ellipse):
         return self.tangent_line(angle_deg, length=length, time=time,
                                  creation=creation, **line_kwargs)
 
-    def get_tangent_lines(self, px, py, time=0, length=200, **kwargs):
+    def get_tangent_lines(self, px, py, time: float = 0, length=200, **kwargs):
         """Return the two tangent lines from external point (px, py) to the circle."""
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
@@ -1157,7 +1157,7 @@ class Circle(Ellipse):
                  cy + r * math.sin(base_angle + s * half_angle))
                 for s in (1, -1)]
 
-    def chord(self, angle1, angle2, time=0, **kwargs):
+    def chord(self, angle1, angle2, time: float = 0, **kwargs):
         """Return a Line connecting two points on the circle at the given angles."""
         x1, y1 = self.point_at_angle(angle1, time)
         x2, y2 = self.point_at_angle(angle2, time)
@@ -1234,7 +1234,7 @@ class Circle(Ellipse):
         r = self.rx.at_time(time)
         return _distance(cx, cy, px, py) <= r
 
-    def circumscribed_polygon(self, n, angle=0, time=0, **kwargs):
+    def circumscribed_polygon(self, n, angle=0, time: float = 0, **kwargs):
         """Return a regular *n*-gon circumscribed around this circle."""
         if n < 3:
             raise ValueError(f"circumscribed_polygon requires n >= 3, got {n}")
@@ -1245,14 +1245,14 @@ class Circle(Ellipse):
         circum_r = r / math.cos(math.pi / n)
         return RegularPolygon(n, radius=circum_r, cx=cx, cy=cy, angle=angle, **kwargs)
 
-    def arc_between(self, start_angle, end_angle, time=0, **kwargs):
+    def arc_between(self, start_angle, end_angle, time: float = 0, **kwargs):
         """Return an Arc with the same center and radius as this circle."""
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
         return Arc(cx=cx, cy=cy, r=r,
                    start_angle=start_angle, end_angle=end_angle, **kwargs)
 
-    def get_arc(self, start_angle=0, end_angle=180, time=0, **kwargs):
+    def get_arc(self, start_angle=0, end_angle=180, time: float = 0, **kwargs):
         """Create an Arc from this circle's center and radius."""
         return self.arc_between(start_angle, end_angle, time=time, **kwargs)
 
@@ -1364,7 +1364,7 @@ class Circle(Ellipse):
                      'stroke_width': DEFAULT_STROKE_WIDTH} | kwargs
         return Path(d, **style_kw)
 
-    def inscribed_polygon(self, n, start_angle=0, angle=None, time=0, **kwargs):
+    def inscribed_polygon(self, n, start_angle=0, angle=None, time: float = 0, **kwargs):
         """Return a regular *n*-sided polygon inscribed in this circle."""
         if angle is not None:
             start_angle = angle
@@ -1372,7 +1372,7 @@ class Circle(Ellipse):
         r = self.rx.at_time(time)
         return RegularPolygon(n, radius=r, cx=cx, cy=cy, angle=start_angle, **kwargs)
 
-    def get_annulus(self, inner_ratio=0.5, time=0, **kwargs):
+    def get_annulus(self, inner_ratio=0.5, time: float = 0, **kwargs):
         """Create an Annulus (ring) using this circle's center and radius."""
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
@@ -1479,7 +1479,7 @@ class Rectangle(VObject):
     def get_size(self, time: float = 0):
         return (self.width.at_time(time), self.height.at_time(time))
 
-    def is_square(self, time=0, tol=1e-3):
+    def is_square(self, time: float = 0, tol=1e-3):
         """Return True if width equals height (within tolerance)."""
         w = self.width.at_time(time)
         h = self.height.at_time(time)
@@ -1514,7 +1514,7 @@ class Rectangle(VObject):
         # Left edge: bottom to top
         return (x, y + h - dist)
 
-    def get_grid_lines(self, rows, cols, time=0, **kwargs):
+    def get_grid_lines(self, rows, cols, time: float = 0, **kwargs):
         """Return a VCollection of Lines forming a grid inside this rectangle."""
         from vectormation._base import VCollection
         x, y, w, h = self._dims(time)
@@ -1547,7 +1547,7 @@ class Rectangle(VObject):
         return cls(rx_ - lx, by - ty, x=lx, y=ty, **kwargs)
 
     @classmethod
-    def from_bounding_box(cls, vobject, padding=0, time=0, **kwargs):
+    def from_bounding_box(cls, vobject, padding=0, time: float = 0, **kwargs):
         """Create a Rectangle that encloses another object's bounding box."""
         bx, by, bw, bh = vobject.bbox(time)
         return cls(
@@ -1597,7 +1597,7 @@ class Rectangle(VObject):
         x, y, w, h = self._dims(time)
         return x <= px <= x + w and y <= py <= y + h
 
-    def round_corners(self, radius=10, time=0, **kwargs):
+    def round_corners(self, radius=10, time: float = 0, **kwargs):
         """Return a RoundedRectangle with the same size/position and the given corner radius."""
         from vectormation.style import _STYLES
         x, y, w, h = self._dims(time)
@@ -1610,7 +1610,7 @@ class Rectangle(VObject):
         style_kw.update(kwargs)
         return RoundedRectangle(w, h, x=x, y=y, corner_radius=radius, **style_kw)
 
-    def split(self, direction='horizontal', count=2, time=0, **kwargs):
+    def split(self, direction='horizontal', count=2, time: float = 0, **kwargs):
         """Split this rectangle into *count* equal sub-rectangles."""
         from vectormation._base import VCollection
         if count < 1:
@@ -1627,15 +1627,15 @@ class Rectangle(VObject):
                 parts.append(Rectangle(piece_w, rh, x=rx + i * piece_w, y=ry, **kwargs))
         return VCollection(*parts)
 
-    def split_horizontal(self, n=2, time=0, **kwargs):
+    def split_horizontal(self, n=2, time: float = 0, **kwargs):
         """Split into *n* equal horizontal strips."""
         return self.split('horizontal', n, time, **kwargs)
 
-    def split_vertical(self, n=2, time=0, **kwargs):
+    def split_vertical(self, n=2, time: float = 0, **kwargs):
         """Split into *n* equal vertical strips. Alias for ``split('vertical', ...)``."""
         return self.split('vertical', n, time, **kwargs)
 
-    def quadrants(self, time=0, **kwargs):
+    def quadrants(self, time: float = 0, **kwargs):
         """Split this rectangle into 4 equal quadrants (2x2 grid)."""
         return self.subdivide(2, 2, time, **kwargs)
 
@@ -1663,12 +1663,12 @@ class Rectangle(VObject):
         self.y.move_to(start, end, y0 - amount, easing=easing)
         return self
 
-    def to_polygon(self, time=0, **kwargs):
+    def to_polygon(self, time: float = 0, **kwargs):
         """Convert to a Polygon snapshot with 4 vertices at *time*."""
         corners = self.get_corners(time)
         return Polygon(*corners, **kwargs)
 
-    def to_lines(self, time=0, **kwargs):
+    def to_lines(self, time: float = 0, **kwargs):
         """Return ``[top, right, bottom, left]`` as 4 Line objects."""
         tl, tr, br, bl = self.get_corners(time)
         return [
@@ -1678,14 +1678,14 @@ class Rectangle(VObject):
             Line(x1=bl[0], y1=bl[1], x2=tl[0], y2=tl[1], **kwargs),  # left
         ]
 
-    def diagonal_lines(self, time=0, **kwargs):
+    def diagonal_lines(self, time: float = 0, **kwargs):
         """Return ``(tl-to-br, tr-to-bl)`` as two Line objects."""
         tl, tr, br, bl = self.get_corners(time)
         d1 = Line(x1=tl[0], y1=tl[1], x2=br[0], y2=br[1], **kwargs)
         d2 = Line(x1=tr[0], y1=tr[1], x2=bl[0], y2=bl[1], **kwargs)
         return (d1, d2)
 
-    def subdivide(self, rows=2, cols=2, time=0, **kwargs):
+    def subdivide(self, rows=2, cols=2, time: float = 0, **kwargs):
         """Subdivide this rectangle into a grid of *rows* x *cols* sub-rectangles."""
         from vectormation._base import VCollection
         if rows < 1 or cols < 1:
@@ -1701,7 +1701,7 @@ class Rectangle(VObject):
                                        y=ry + r * cell_h, **kwargs))
         return VCollection(*parts)
 
-    def chamfer(self, size=10, time=0, **kwargs):
+    def chamfer(self, size=10, time: float = 0, **kwargs):
         """Return a :class:`Path` where each corner is cut at 45 degrees."""
         x, y, w, h = self._dims(time)
         s = min(size, w / 2, h / 2)

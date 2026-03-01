@@ -452,7 +452,7 @@ class ThreeDAxes(VCollection):
         inner = '\n'.join(svg for _, svg in patches)
         return f'<g>\n{inner}\n</g>'
 
-    def bbox(self, time=0, start_idx=0, end_idx=None):  # noqa: ARG002 (start_idx, end_idx unused; overrides VCollection.bbox signature)
+    def bbox(self, time: float = 0, start_idx=0, end_idx=None):  # noqa: ARG002 (start_idx, end_idx unused; overrides VCollection.bbox signature)
         """Bounding box based on projected axis endpoints."""
         xr, yr, zr = self._x_range, self._y_range, self._z_range
         corners = [
