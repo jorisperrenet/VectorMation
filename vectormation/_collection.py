@@ -1,4 +1,5 @@
 """VCollection — container for multiple VObjects with collective operations."""
+import inspect
 import math
 import random
 from copy import deepcopy
@@ -6,6 +7,7 @@ from itertools import zip_longest
 
 import vectormation.easings as easings
 import vectormation.attributes as attributes
+from vectormation.colors import interpolate_color
 from vectormation._constants import ORIGIN, SMALL_BUFF, UP, RIGHT
 from vectormation._base import (
     _norm_dir, _norm_edge, _ramp,
@@ -412,7 +414,6 @@ class VCollection(_BBoxMethodsMixin):
                 for obj in self.objects:
                     getattr(obj, setter)(colors[0], start=start)
             return self
-        from vectormation.colors import interpolate_color
         for i, obj in enumerate(self.objects):
             t = i / (n - 1)
             seg = t * (len(colors) - 1)
@@ -1410,7 +1411,6 @@ class VCollection(_BBoxMethodsMixin):
 
     def batch_animate(self, method_name, start: float = 0, end: float = 1, param_name=None, values=None, **kwargs):
         """Call a method on each child with a different parameter value from *values*."""
-        import inspect
         if values is None:
             values = [None] * len(self.objects)
         for i, obj in enumerate(self.objects):

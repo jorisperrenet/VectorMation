@@ -1,7 +1,8 @@
 """Tests for diagram classes with minimal test coverage."""
 from vectormation.objects import (
     FlowChart, VennDiagram, ChessBoard, TimelineBar, Stamp,
-    PeriodicTable, Circle, Dot, VectorMathAnim,
+    PeriodicTable, Automaton, NetworkGraph, Tree, MindMap, OrgChart,
+    Circle, Dot, VectorMathAnim,
 )
 
 
@@ -128,5 +129,147 @@ class TestPeriodicTable:
         pt = PeriodicTable(creation=0)
         v = VectorMathAnim(save_dir='/tmp/test_diagrams')
         v.add(pt)
+        svg = v.generate_frame_svg(time=0)
+        assert svg
+
+
+class TestAutomaton:
+    def test_creates(self):
+        a = Automaton(
+            states=['q0', 'q1', 'q2'],
+            transitions=[('q0', 'q1', 'a'), ('q1', 'q2', 'b')],
+            accept_states={'q2'},
+            initial_state='q0',
+            creation=0,
+        )
+        assert len(a.objects) > 0
+
+    def test_repr(self):
+        a = Automaton(states=['q0', 'q1'], transitions=[], creation=0)
+        r = repr(a)
+        assert 'Automaton' in r
+
+    def test_empty_states(self):
+        a = Automaton(states=[], transitions=[], creation=0)
+        assert len(a.objects) == 0
+
+    def test_renders(self):
+        a = Automaton(
+            states=['A', 'B'],
+            transitions=[('A', 'B', 'x')],
+            creation=0,
+        )
+        v = VectorMathAnim(save_dir='/tmp/test_diagrams')
+        v.add(a)
+        svg = v.generate_frame_svg(time=0)
+        assert svg
+
+
+class TestNetworkGraph:
+    def test_creates_from_list(self):
+        ng = NetworkGraph(
+            nodes=['A', 'B', 'C'],
+            edges=[(0, 1), (1, 2)],
+            creation=0,
+        )
+        assert len(ng.objects) > 0
+
+    def test_creates_directed(self):
+        ng = NetworkGraph(
+            nodes=['A', 'B'],
+            edges=[(0, 1)],
+            directed=True,
+            creation=0,
+        )
+        assert len(ng.objects) > 0
+
+    def test_repr(self):
+        ng = NetworkGraph(nodes=['A', 'B'], creation=0)
+        r = repr(ng)
+        assert 'NetworkGraph' in r or 'Network' in r
+
+    def test_renders(self):
+        ng = NetworkGraph(
+            nodes=['A', 'B', 'C'],
+            edges=[(0, 1), (1, 2), (0, 2)],
+            creation=0,
+        )
+        v = VectorMathAnim(save_dir='/tmp/test_diagrams')
+        v.add(ng)
+        svg = v.generate_frame_svg(time=0)
+        assert svg
+
+
+class TestTree:
+    def test_creates_from_tuple(self):
+        tree_data = ('root', [('child1', []), ('child2', [('grandchild', [])])])
+        t = Tree(tree_data, creation=0)
+        assert len(t.objects) > 0
+
+    def test_creates_from_dict(self):
+        tree_data = {'root': {'child1': {}, 'child2': {'grandchild': {}}}}
+        t = Tree(tree_data, creation=0)
+        assert len(t.objects) > 0
+
+    def test_repr(self):
+        t = Tree(('A', [('B', [])]), creation=0)
+        r = repr(t)
+        assert 'Tree' in r
+
+    def test_renders(self):
+        t = Tree(('A', [('B', []), ('C', [])]), creation=0)
+        v = VectorMathAnim(save_dir='/tmp/test_diagrams')
+        v.add(t)
+        svg = v.generate_frame_svg(time=0)
+        assert svg
+
+    def test_single_node(self):
+        t = Tree(('root', []), creation=0)
+        assert len(t.objects) > 0
+
+
+class TestOrgChart:
+    def test_creates(self):
+        root = ('CEO', [('CTO', [('Dev1', []), ('Dev2', [])]), ('CFO', [])])
+        oc = OrgChart(root, creation=0)
+        assert len(oc.objects) > 0
+
+    def test_repr(self):
+        root = ('Boss', [('Worker', [])])
+        oc = OrgChart(root, creation=0)
+        r = repr(oc)
+        assert 'OrgChart' in r
+
+    def test_renders(self):
+        root = ('CEO', [('CTO', []), ('CFO', [])])
+        oc = OrgChart(root, creation=0)
+        v = VectorMathAnim(save_dir='/tmp/test_diagrams')
+        v.add(oc)
+        svg = v.generate_frame_svg(time=0)
+        assert svg
+
+
+class TestMindMap:
+    def test_creates(self):
+        root = ('Central', [('Branch1', []), ('Branch2', [('Leaf', [])])])
+        mm = MindMap(root, creation=0)
+        assert len(mm.objects) > 0
+
+    def test_repr(self):
+        root = ('Main', [('Sub', [])])
+        mm = MindMap(root, creation=0)
+        r = repr(mm)
+        assert 'MindMap' in r
+
+    def test_no_children(self):
+        root = ('Alone', [])
+        mm = MindMap(root, creation=0)
+        assert len(mm.objects) > 0
+
+    def test_renders(self):
+        root = ('Main', [('A', []), ('B', []), ('C', [])])
+        mm = MindMap(root, creation=0)
+        v = VectorMathAnim(save_dir='/tmp/test_diagrams')
+        v.add(mm)
         svg = v.generate_frame_svg(time=0)
         assert svg

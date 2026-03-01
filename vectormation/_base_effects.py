@@ -1,4 +1,5 @@
 """Advanced animation methods for VObject (mixed in as a base class)."""
+import inspect
 import math
 import random as _random
 from copy import deepcopy
@@ -667,7 +668,6 @@ class _VObjectEffectsMixin:
 
     def delay_animation(self, method_name, delay, *args, **kwargs):
         """Schedule an animation to start after a delay."""
-        import inspect
         method = getattr(self, method_name)
         params = inspect.signature(method).parameters
         if 'start' in params:
