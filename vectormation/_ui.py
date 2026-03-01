@@ -206,7 +206,7 @@ class Code(VCollection):
             rects.append(rect)
         return VCollection(*rects) if rects else VCollection()
 
-    def reveal_lines(self, start: float = 0, end: float = 1, overlap=0.5):
+    def reveal_lines(self, start: float = 0, end: float = 1, overlap: float = 0.5):
         """Reveal code lines sequentially with staggered fadein."""
         n = self._num_lines
         dur = end - start
@@ -260,7 +260,7 @@ def _labeled_line_init(self, line_obj, x1, y1, x2, y2, label, font_size, label_b
 
 class LabeledLine(VCollection):
     """Line with a text label placed at its midpoint."""
-    def __init__(self, x1=860, y1=ORIGIN[1], x2=1060, y2=ORIGIN[1], label='',
+    def __init__(self, x1: float = 860, y1=ORIGIN[1], x2: float = 1060, y2=ORIGIN[1], label='',
                  font_size: float = 24, label_buff=10, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = _LINE_STYLE | styling_kwargs
         line = Line(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z, **style_kw)
@@ -271,7 +271,7 @@ class LabeledLine(VCollection):
 
 class LabeledArrow(VCollection):
     """Arrow with a text label placed at its midpoint."""
-    def __init__(self, x1=860, y1=ORIGIN[1], x2=1060, y2=ORIGIN[1], label='',
+    def __init__(self, x1: float = 860, y1=ORIGIN[1], x2: float = 1060, y2=ORIGIN[1], label='',
                  font_size: float = 24, label_buff=10, creation: float = 0, z: float = 0, **styling_kwargs):
         Arrow = _get_arrow()
         style_kw = _LINE_STYLE | styling_kwargs
@@ -288,7 +288,7 @@ class LabeledArrow(VCollection):
 
 class Callout(VCollection):
     """Text callout with a pointer line to a target position."""
-    def __init__(self, text, target, direction='up', distance=80, font_size: float = 24,
+    def __init__(self, text, target, direction='up', distance: float = 80, font_size: float = 24,
                  padding: float = 8, corner_radius=4, creation: float = 0, z: float = 0, **styling_kwargs):
         direction = _norm_dir(direction, 'up')
 
@@ -450,7 +450,7 @@ class Bracket(VCollection):
 
 class IconGrid(VCollection):
     """Grid of colored shapes (circles, squares) for infographic-style visualizations."""
-    def __init__(self, data, x: float = 100, y: float = 100, cols=10, size: float = 15, gap: float = 3,
+    def __init__(self, data, x: float = 100, y: float = 100, cols: int = 10, size: float = 15, gap: float = 3,
                  shape='circle', creation: float = 0, z: float = 0):
         objects = []
         # Flatten data into a list of colors
@@ -634,7 +634,7 @@ class Checklist(VCollection):
             self._boxes[index].set_fill(self._check_color, start=start, end=end)
         return self
 
-    def reveal_items(self, start: float = 0, end: float = 1, overlap=0.5):
+    def reveal_items(self, start: float = 0, end: float = 1, overlap: float = 0.5):
         """Cascade items into view sequentially."""
         n = len(self._boxes)
         if n == 0:
@@ -777,7 +777,7 @@ class StatusIndicator(VCollection):
 
 class Meter(VCollection):
     """Vertical or horizontal bar meter (like a battery level or VU meter)."""
-    def __init__(self, value=0.5, x: float = 100, y: float = 100, width: float = 30, height: float = 150,
+    def __init__(self, value: float = 0.5, x: float = 100, y: float = 100, width: float = 30, height: float = 150,
                  direction='vertical', fill_color='#58C4DD',
                  bg_color='#333', border_color='#888',
                  creation: float = 0, z: float = 0):
@@ -839,7 +839,7 @@ class Breadcrumb(VCollection):
 
 class Countdown(VCollection):
     """Animated countdown timer from start_value to end_value."""
-    def __init__(self, start_value=10, end_value=0, x=ORIGIN[0], y=ORIGIN[1], font_size: float = 120,
+    def __init__(self, start_value: int = 10, end_value: int = 0, x=ORIGIN[0], y=ORIGIN[1], font_size: float = 120,
                  start=0, end=3, creation: float = 0, z: float = 0, **styling_kwargs):
         txt = _label_text(start_value, x, y, font_size, creation=creation, z=z, **styling_kwargs)
         _sv, _ev, _s, _e = start_value, end_value, start, end

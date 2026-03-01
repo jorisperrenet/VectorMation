@@ -338,7 +338,7 @@ class Line(VObject):
         cp = self.get_perpendicular_point(px, py, time)
         return math.hypot(px - cp[0], py - cp[1])
 
-    def contains_point(self, px, py, time: float = 0, tol=2):
+    def contains_point(self, px, py, time: float = 0, tol: float = 2):
         """Return True if ``(px, py)`` is within *tol* pixels of this segment."""
         return self.distance_to_point(px, py, time) <= tol
 
@@ -374,7 +374,7 @@ class Line(VObject):
         x1, y1, x2, y2 = self._ep(0)
         return f'Line(({x1:.0f},{y1:.0f})->({x2:.0f},{y2:.0f}))'
 
-    def perpendicular(self, at_proportion=0.5, length=None, time: float = 0, **kwargs):
+    def perpendicular(self, at_proportion: float = 0.5, length=None, time: float = 0, **kwargs):
         """Return a new Line perpendicular to this line at the given proportion."""
         x1, y1, x2, y2 = self._ep(time)
         dx, dy = x2 - x1, y2 - y1
@@ -390,7 +390,7 @@ class Line(VObject):
         return Line(px - nx * half, py - ny * half,
                     px + nx * half, py + ny * half, **kwargs)
 
-    def perpendicular_at(self, t=0.5, length=None, time: float = 0, **kwargs):
+    def perpendicular_at(self, t: float = 0.5, length=None, time: float = 0, **kwargs):
         """Return a Line perpendicular to this line at parameter t (0=start, 1=end)."""
         x1, y1, x2, y2 = self._ep(time)
         dx, dy = -(y2 - y1), x2 - x1  # perpendicular direction
@@ -405,7 +405,7 @@ class Line(VObject):
             dx, dy = 0, 0
         return Line(x1=px - dx, y1=py - dy, x2=px + dx, y2=py + dy, **kwargs)
 
-    def extend(self, factor=1.5, start: float = 0, end: float | None = None, easing=easings.smooth):
+    def extend(self, factor: float = 1.5, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Scale the line length by *factor* while keeping the midpoint fixed."""
         x1, y1, x2, y2 = self._ep(start)
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
@@ -414,7 +414,7 @@ class Line(VObject):
         _set_attr(self.p2, start, end, (mx + dx, my + dy), easing)
         return self
 
-    def scale_length(self, factor=2.0, time: float = 0):
+    def scale_length(self, factor: float = 2.0, time: float = 0):
         """Scale line length by *factor* in place, keeping the midpoint fixed."""
         return self.extend(factor=factor, start=time)
 
@@ -1041,7 +1041,7 @@ class CountAnimation(Text):
 
 class ValueTracker:
     """Convenience wrapper around a time-varying Real attribute."""
-    def __init__(self, value=0, creation: float = 0):
+    def __init__(self, value: float = 0, creation: float = 0):
         self.value = attributes.Real(creation, value)
         self.show = attributes.Real(creation, True)
 
@@ -1156,7 +1156,7 @@ class DecimalNumber(Text):
 
 class Integer(DecimalNumber):
     """DecimalNumber that displays as an integer (no decimal places)."""
-    def __init__(self, value=0, x=ORIGIN[0], y=ORIGIN[1], font_size: float = 48,
+    def __init__(self, value: float = 0, x=ORIGIN[0], y=ORIGIN[1], font_size: float = 48,
                  text_anchor=None, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(value, fmt='{:.0f}', x=x, y=y, font_size=font_size,
                          text_anchor=text_anchor, creation=creation, z=z, **styling_kwargs)
@@ -1184,7 +1184,7 @@ class Trace(VObject):
         pos = self.p.at_time(time)
         return [(float(pos[0]), float(pos[1]))]
 
-    def shift(self, dx=0, dy=0, start: float = 0, end: float | None = None, easing=easings.smooth):
+    def shift(self, dx: float = 0, dy: float = 0, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Shift via styling transform (Trace points are immutable)."""
         if end is None:
             self.styling.dx.add_onward(start, dx)
@@ -1260,7 +1260,7 @@ class Path(VObject):
                     (float(xmax), float(ymax)), (float(xmin), float(ymax))]
         return []
 
-    def shift(self, dx=0, dy=0, start: float = 0, end: float | None = None, easing=easings.smooth):
+    def shift(self, dx: float = 0, dy: float = 0, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Shift via transform styling, accounting for current rotation."""
         rot = self.styling.rotation.at_time(0)
         if rot[0] != 0:
@@ -1611,7 +1611,7 @@ class Arc(VObject):
             arcs.append(Arc(cx=cx, cy=cy, r=r, start_angle=a1, end_angle=a2, **kwargs))
         return arcs
 
-    def contains_point(self, px, py, time: float = 0, tol=2):
+    def contains_point(self, px, py, time: float = 0, tol: float = 2):
         """Return True if (px, py) lies on the arc within tolerance."""
         cx = self.cx.at_time(time)
         cy = self.cy.at_time(time)
@@ -1856,7 +1856,7 @@ class Elbow(Lines):
 
 class AnnularSector(Arc):
     """Sector of an annulus (ring wedge)."""
-    def __init__(self, inner_radius: float = 60, outer_radius=120, cx=ORIGIN[0], cy=ORIGIN[1],
+    def __init__(self, inner_radius: float = 60, outer_radius: float = 120, cx=ORIGIN[0], cy=ORIGIN[1],
                  start_angle: float = 0, end_angle: float = 90, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(cx=cx, cy=cy, r=outer_radius, start_angle=start_angle,
                          end_angle=end_angle, creation=creation, z=z,
@@ -1912,7 +1912,7 @@ class ArcPolygon(VObject):
       Positive → bulge left of travel direction, negative → right.
       0 = straight line segment.
     """
-    def __init__(self, *vertices, arc_angles=30, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, *vertices, arc_angles: float = 30, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         if len(vertices) < 3:
             raise ValueError("ArcPolygon requires at least 3 vertices")
@@ -2142,7 +2142,7 @@ class NumberedList(_TextBlockMixin, VObject):
 
 class FunctionGraph(Lines):
     """Plot a mathematical function as a polyline (no axes, ticks, or labels)."""
-    def __init__(self, func, x_range=(-5, 5), y_range=None, num_points=200,
+    def __init__(self, func, x_range=(-5, 5), y_range=None, num_points: int = 200,
                  x: float = 120, y: float = 60, width: float = 1440, height: float = 840,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         x_min, x_max = x_range
@@ -2284,7 +2284,7 @@ class Spiral(Lines):
         If True, use r = a * exp(b*theta) instead of r = a + b*theta.
     """
 
-    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], a=0, b=15, turns=5, num_points=500,
+    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], a: float = 0, b: float = 15, turns: float = 5, num_points: int = 500,
                  log_spiral=False, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#58C4DD', 'fill_opacity': 0, 'stroke_width': 2} | styling_kwargs
         max_theta = turns * math.tau

@@ -736,7 +736,7 @@ class Polygon(VObject):
                               x2=bx + nx, y2=by + ny, **kwargs))
         return VCollection(*edges)
 
-    def subdivide_edges(self, iterations=1, time: float = 0, **kwargs):
+    def subdivide_edges(self, iterations: int = 1, time: float = 0, **kwargs):
         """Split each edge at its midpoint, creating a polygon with 2x vertices per iteration."""
         pts = self.get_vertices(time)
         for _ in range(iterations):
@@ -1660,7 +1660,7 @@ class Rectangle(VObject):
             )
         return Rectangle(new_w, new_h, x=rx + amount, y=ry + amount, **kwargs)
 
-    def expand(self, amount=20, start: float = 0, end: float = 1, easing=easings.smooth):
+    def expand(self, amount: float = 20, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate expanding by *amount* pixels on each side (center stays in place)."""
         w0 = self.width.at_time(start)
         h0 = self.height.at_time(start)
@@ -1779,7 +1779,7 @@ class RegularPolygon(Polygon):
 
 class Star(Polygon):
     """Star polygon with n outer points. outer_radius and inner_radius control the shape."""
-    def __init__(self, n: int = 5, outer_radius=120, inner_radius=None, cx=ORIGIN[0], cy=ORIGIN[1],
+    def __init__(self, n: int = 5, outer_radius: float = 120, inner_radius=None, cx=ORIGIN[0], cy=ORIGIN[1],
                  angle: float = 90, creation: float = 0, z: float = 0, **styling_kwargs):
         n = max(n, 1)
         if inner_radius is None:
@@ -1848,7 +1848,7 @@ class Square(Rectangle):
 class SurroundingRectangle(RoundedRectangle):
     """Rectangle that surrounds a target object with padding.
     If follow=True (default), tracks the target as it moves."""
-    def __init__(self, target, buff=SMALL_BUFF, corner_radius=6, follow=True,
+    def __init__(self, target, buff=SMALL_BUFF, corner_radius: float = 6, follow=True,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         bx, by, bw, bh = target.bbox(creation)
         style_kw = {'fill_opacity': 0, 'stroke': '#FFFF00'} | styling_kwargs

@@ -382,7 +382,7 @@ class _AxesExtMixin:
             lines.append(bot)
         return VCollection(*lines, creation=creation, z=z)
 
-    def add_regression_line(self, x_data, y_data, creation: float = 0, z: float = 1, extend=0.5,
+    def add_regression_line(self, x_data, y_data, creation: float = 0, z: float = 1, extend: float = 0.5,
                              **styling_kwargs):
         """Add a least-squares regression line through data points.
         extend: how far to extend beyond data range (in math units).
@@ -664,7 +664,7 @@ class _AxesExtMixin:
             self._add_plot_obj(obj)
         return VCollection(*objs, creation=creation, z=z)
 
-    def plot_bubble(self, x_data, y_data, sizes, max_radius=20, creation: float = 0, z: float = 1,
+    def plot_bubble(self, x_data, y_data, sizes, max_radius: float = 20, creation: float = 0, z: float = 1,
                      **styling_kwargs):
         """Plot a bubble chart: scatter plot where dot size encodes a third variable.
         x_data, y_data: coordinates.  sizes: list of numeric values controlling bubble radius.
@@ -685,7 +685,7 @@ class _AxesExtMixin:
             dots.append(dot)
         return VCollection(*dots, creation=creation, z=z)
 
-    def add_color_bar(self, colormap=None, vmin=0, vmax=1, label='', n_stops=50,
+    def add_color_bar(self, colormap=None, vmin: float = 0, vmax: float = 1, label='', n_stops: int = 50,
                        width: float = 20, height=None, side='right', buff: float = 20,
                        font_size: float = 14, creation: float = 0, z: float = 5, **styling_kwargs):
         """Add a vertical color bar legend (e.g. for heatmaps).
@@ -1133,7 +1133,7 @@ class _AxesExtMixin:
                 objs.append(bar)
         return VCollection(*objs, creation=creation, z=z)
 
-    def add_data_table(self, headers, rows, x_offset=0, y_offset=30,
+    def add_data_table(self, headers, rows, x_offset: float = 0, y_offset: float = 30,
                         font_size: float = 12, cell_width: float = 80, cell_height: float = 22,
                         creation: float = 0, z: float = 5):
         """Add a simple data table below the axes.
@@ -1272,7 +1272,7 @@ class _AxesExtMixin:
             objs.append(bar)
         return VCollection(*objs, creation=creation, z=z)
 
-    def plot_contour(self, func, levels=8, x_samples=40, y_samples=40,
+    def plot_contour(self, func, levels: int = 8, x_samples: int = 40, y_samples: int = 40,
                       creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot contour (level) curves for z = func(x, y).
         levels: int (auto) or list of explicit z-values.
@@ -1368,7 +1368,7 @@ class _AxesExtMixin:
             x += x_step
         return VCollection(*objs, creation=creation, z=z)
 
-    def plot_area(self, func, x_range=None, baseline: float = 0, num_points=100,
+    def plot_area(self, func, x_range=None, baseline: float = 0, num_points: int = 100,
                    creation: float = 0, z: float = 0, **styling_kwargs):
         """Filled area chart between func(x) and a baseline value.
         Returns a dynamic Path."""
@@ -1442,7 +1442,7 @@ class _AxesExtMixin:
         self._add_plot_obj(rect)
         return rect
 
-    def add_slope_field(self, func, x_step=1, y_step=1, seg_length=0.4,
+    def add_slope_field(self, func, x_step: float = 1, y_step: float = 1, seg_length: float = 0.4,
                          creation: float = 0, z: float = -1, **styling_kwargs):
         """Draw a direction/slope field for dy/dx = func(x, y).
         func: callable(x, y) -> slope (dy/dx).
@@ -1553,7 +1553,7 @@ class _AxesExtMixin:
             lines.append(line)
         return VCollection(*lines, creation=creation, z=z)
 
-    def add_interval(self, x_lo, x_hi, y=None, creation: float = 0, z: float = 2, bracket_height=10,
+    def add_interval(self, x_lo, x_hi, y=None, creation: float = 0, z: float = 2, bracket_height: float = 10,
                       **styling_kwargs):
         """Draw an interval bracket [x_lo, x_hi] on the x-axis (or at y).
         Returns a VCollection with the bracket shape and optional label."""
@@ -1621,7 +1621,7 @@ class _AxesExtMixin:
         self._add_plot_obj(group)
         return group
 
-    def plot_vector_field(self, func, x_step=1, y_step=1, max_length=80,
+    def plot_vector_field(self, func, x_step: float = 1, y_step: float = 1, max_length: float = 80,
                            creation: float = 0, z: float = 0, **styling_kwargs):
         """Draw a vector field F(x,y) = (u,v) on the axes using arrows.
         func: callable(x, y) -> (u, v).
@@ -1727,7 +1727,7 @@ class _AxesExtMixin:
         self._add_plot_obj(line)
         return line
 
-    def get_intersection_point(self, func1, func2, x_range, tol=0.01):
+    def get_intersection_point(self, func1, func2, x_range, tol: float = 0.01):
         """Find the x-value where two functions intersect using bisection on *x_range*."""
         a, b = float(x_range[0]), float(x_range[1])
         fa = func1(a) - func2(a)
@@ -1774,7 +1774,7 @@ class _AxesExtMixin:
             return VCollection(dot, lbl, creation=creation)
         return dot
 
-    def add_secant_fade(self, func, x, dx_start=2, dx_end=0.01,
+    def add_secant_fade(self, func, x, dx_start: float = 2, dx_end: float = 0.01,
                          start: float = 0, end: float = 1, length: float = 300,
                          creation: float = 0, z: float = 0, easing=easings.smooth, **styling_kwargs):
         """Animate a secant line approaching a tangent line at x.
@@ -1801,7 +1801,7 @@ class _AxesExtMixin:
         self._add_plot_obj(line)
         return line
 
-    def get_slope_field(self, func, x_step=1, y_step=1, length: float = 0.6, creation: float = 0, z: float = 0, **styling_kwargs):
+    def get_slope_field(self, func, x_step: float = 1, y_step: float = 1, length: float = 0.6, creation: float = 0, z: float = 0, **styling_kwargs):
         """Draw a slope field for dy/dx = func(x, y).
         func: callable(x, y) -> slope.
         length: arrow length in math units.
@@ -1832,7 +1832,7 @@ class _AxesExtMixin:
         self._add_plot_obj(group)
         return group
 
-    def get_riemann_rectangles(self, func, x_range, dx=0.1, creation: float = 0, z: float = 0, **styling_kwargs):
+    def get_riemann_rectangles(self, func, x_range, dx: float = 0.1, creation: float = 0, z: float = 0, **styling_kwargs):
         """Create rectangles approximating the area under func.
 
         Returns a DynamicObject that rebuilds each frame."""
@@ -1861,7 +1861,7 @@ class _AxesExtMixin:
         self._add_plot_obj(dyn)
         return dyn
 
-    def plot_derivative(self, func, h=0.001, num_points=200,
+    def plot_derivative(self, func, h: float = 0.001, num_points: int = 200,
                         creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot the numerical derivative of a function using central differences."""
         fn = self._resolve_func(func, 'func')
@@ -1881,7 +1881,7 @@ class _AxesExtMixin:
         self._add_plot_obj(curve)
         return curve
 
-    def plot_antiderivative(self, func, x0=None, num_points=200,
+    def plot_antiderivative(self, func, x0=None, num_points: int = 200,
                             creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot the numerical antiderivative (cumulative integral) of a function.
 
@@ -1942,7 +1942,7 @@ class _AxesExtMixin:
         self._add_plot_obj(curve)
         return curve
 
-    def get_trapezoidal_rule(self, func, x_range, dx=0.5, creation: float = 0, z: float = 0,
+    def get_trapezoidal_rule(self, func, x_range, dx: float = 0.5, creation: float = 0, z: float = 0,
                              **styling_kwargs):
         """Visualize the trapezoidal rule approximation of the area under *func*."""
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.4,
@@ -2016,7 +2016,7 @@ class _AxesExtMixin:
             x = self.plot_x
         return Line(x1=x, y1=y1, x2=x, y2=y2, creation=creation, **style_kw)
 
-    def plot_normal(self, mean=0, std=1, color='#4FC3F7', num_points=100,
+    def plot_normal(self, mean: float = 0, std: float = 1, color='#4FC3F7', num_points: int = 100,
                     creation: float = 0, fill=True, fill_opacity=0.3, **kwargs):
         """Plot a normal (Gaussian) distribution curve.
 
@@ -2033,7 +2033,7 @@ class _AxesExtMixin:
             self.get_area(func, creation=creation, fill=color, fill_opacity=fill_opacity)
         return curve
 
-    def plot_exponential(self, rate=1, color='#FF8A65', num_points=100,
+    def plot_exponential(self, rate: float = 1, color='#FF8A65', num_points: int = 100,
                          creation: float = 0, **kwargs):
         """Plot an exponential distribution: f(x) = rate * exp(-rate * x) for x >= 0.
 
@@ -2044,7 +2044,7 @@ class _AxesExtMixin:
         kwargs.setdefault('stroke', color)
         return self.plot(func, num_points=num_points, creation=creation, **kwargs)
 
-    def plot_uniform(self, a=0, b=1, color='#81C784', creation: float = 0, **kwargs):
+    def plot_uniform(self, a: float = 0, b: float = 1, color='#81C784', creation: float = 0, **kwargs):
         """Plot a uniform distribution: f(x) = 1/(b-a) for a <= x <= b, 0 otherwise.
 
         Returns the curve Path.
@@ -2073,7 +2073,7 @@ class _AxesExtMixin:
             self._add_plot_obj(line)
         return VCollection(*lines, creation=creation, z=z)
 
-    def add_spread_band(self, func, spread_func, x_range=None, num_points=100,
+    def add_spread_band(self, func, spread_func, x_range=None, num_points: int = 100,
                         color='#58C4DD', opacity: float = 0.2, creation: float = 0):
         """Draw a shaded band from func(x)-spread_func(x) to func(x)+spread_func(x)."""
         fn = self._resolve_func(func, 'func')

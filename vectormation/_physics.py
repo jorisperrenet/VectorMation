@@ -46,7 +46,7 @@ class Body:
         *None*.
     """
 
-    def __init__(self, obj, mass=1.0, restitution=0.8, friction=0.0,
+    def __init__(self, obj, mass: float = 1.0, restitution: float = 0.8, friction: float = 0.0,
                  radius=None, vx=0.0, vy=0.0, fixed=False,
                  angle: float = 0.0, angular_velocity=0.0, moment_of_inertia=None):
         self.obj = obj
@@ -86,7 +86,7 @@ class Body:
 class Wall:
     """An axis-aligned infinite wall for collision."""
 
-    def __init__(self, x=None, y=None, restitution=0.9):
+    def __init__(self, x=None, y=None, restitution: float = 0.9):
         if x is None and y is None:
             raise ValueError("Wall needs at least x or y")
         self.x = x  # vertical wall at x
@@ -114,7 +114,7 @@ class Spring:
         Damping coefficient.
     """
 
-    def __init__(self, a, b, stiffness=0.5, rest_length=None, damping=0.02):
+    def __init__(self, a, b, stiffness: float = 0.5, rest_length=None, damping: float = 0.02):
         self.a = a
         self.b = b
         self.stiffness = stiffness
@@ -154,7 +154,7 @@ class PhysicsSpace:
 
     # ── Adding objects ──────────────────────────────────────────────
 
-    def add_body(self, obj, mass=1.0, restitution=0.8, friction=0.0,
+    def add_body(self, obj, mass: float = 1.0, restitution: float = 0.8, friction: float = 0.0,
                  radius=None, vx=0.0, vy=0.0, fixed=False,
                  angle: float = 0.0, angular_velocity=0.0,
                  moment_of_inertia=None) -> Body:
@@ -166,13 +166,13 @@ class PhysicsSpace:
         self.bodies.append(b)
         return b
 
-    def add_wall(self, x=None, y=None, restitution=0.9) -> Wall:
+    def add_wall(self, x=None, y=None, restitution: float = 0.9) -> Wall:
         """Add an infinite axis-aligned wall."""
         w = Wall(x=x, y=y, restitution=restitution)
         self.walls.append(w)
         return w
 
-    def add_spring(self, a, b, stiffness=0.5, rest_length=None,
+    def add_spring(self, a, b, stiffness: float = 0.5, rest_length=None,
                    damping=0.02) -> Spring:
         """Add a spring constraint between two bodies or a body and point."""
         s = Spring(a, b, stiffness=stiffness, rest_length=rest_length,
@@ -191,7 +191,7 @@ class PhysicsSpace:
                 self.walls.append(b)
         return self
 
-    def add_walls(self, left=None, right=None, top=None, bottom=None, restitution=0.9):
+    def add_walls(self, left=None, right=None, top=None, bottom=None, restitution: float = 0.9):
         """Add multiple axis-aligned walls at once."""
         for x in (left, right):
             if x is not None:
@@ -296,23 +296,23 @@ class PhysicsSpace:
 
     # ── Convenience forces ──────────────────────────────────────────
 
-    def add_drag(self, coefficient=0.01):
+    def add_drag(self, coefficient: float = 0.01):
         """Add velocity-proportional drag to all bodies."""
         self._forces.append(
             lambda b, t, _c=coefficient: (-b.vx * _c * b.mass, -b.vy * _c * b.mass))
         return self
 
-    def add_attraction(self, target, strength=50000):
+    def add_attraction(self, target, strength: float = 50000):
         """Add point attraction towards a Body or (x, y) point."""
         self._forces.append(_point_force(target, strength))
         return self
 
-    def add_repulsion(self, target, strength=50000, max_dist=500):
+    def add_repulsion(self, target, strength: float = 50000, max_dist: float = 500):
         """Add point repulsion away from a Body or (x, y) point."""
         self._forces.append(_point_force(target, -strength, max_dist))
         return self
 
-    def add_mutual_repulsion(self, strength=5000, max_dist=300):
+    def add_mutual_repulsion(self, strength: float = 5000, max_dist: float = 300):
         """Add pairwise repulsion between all bodies."""
         bodies = self.bodies
         def _mutual(b, _t, _s=strength, _md=max_dist):  # noqa: ARG002
@@ -331,7 +331,7 @@ class PhysicsSpace:
         self._forces.append(_mutual)
         return self
 
-    def add_angular_drag(self, coefficient=0.01):
+    def add_angular_drag(self, coefficient: float = 0.01):
         """Add angular-velocity-proportional drag (resistance to rotation)."""
         def _drag(b, _c=coefficient):
             b.torque -= b.angular_velocity * _c * b.moment_of_inertia

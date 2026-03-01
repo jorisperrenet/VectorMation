@@ -97,11 +97,11 @@ class PieChart(VCollection):
         mid_rad = math.radians((sa + ea) / 2)
         return distance * math.cos(mid_rad), -distance * math.sin(mid_rad)
 
-    def highlight_sector(self, index, start: float = 0, end: float = 1, pull_distance=30, easing=easings.there_and_back):
+    def highlight_sector(self, index, start: float = 0, end: float = 1, pull_distance: float = 30, easing=easings.there_and_back):
         """Pull out a sector from the pie to highlight it."""
         return _highlight_sector_impl(self, index, start, end, pull_distance, easing)
 
-    def explode(self, indices, distance=20, start: float = 0, end: float | None = None, easing=None):
+    def explode(self, indices, distance: float = 20, start: float = 0, end: float | None = None, easing=None):
         """Permanently shift specified sectors outward from the pie center."""
         for idx in indices:
             if idx < 0 or idx >= len(self._sectors):
@@ -257,7 +257,7 @@ class DonutChart(VCollection):
         mid_rad = math.radians(mid_deg)
         return distance * math.cos(mid_rad), -distance * math.sin(mid_rad)
 
-    def highlight_sector(self, index, start: float = 0, end: float = 1, pull_distance=30, easing=easings.there_and_back):
+    def highlight_sector(self, index, start: float = 0, end: float = 1, pull_distance: float = 30, easing=easings.there_and_back):
         """Pull out a donut sector to highlight it by shifting it outward."""
         return _highlight_sector_impl(self, index, start, end, pull_distance, easing)
 
@@ -589,7 +589,7 @@ class BarChart(VCollection):
 
 class PolarAxes(VCollection):
     """Polar coordinate system with radial gridlines and angle markers."""
-    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], max_radius=400, r_range=(0, 5),
+    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], max_radius: float = 400, r_range=(0, 5),
                  n_rings=5, n_sectors=12, creation: float = 0, z: float = 0):
         objects = []
         self._cx, self._cy = cx, cy
@@ -641,7 +641,7 @@ class PolarAxes(VCollection):
         return (self._cx + px * math.cos(theta),
                 self._cy - px * math.sin(theta))
 
-    def plot_polar(self, func, theta_range=(0, 360), num_points=200,
+    def plot_polar(self, func, theta_range=(0, 360), num_points: int = 200,
                    creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot r = func(theta_deg) on this polar axes."""
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
@@ -753,7 +753,7 @@ class RadarChart(VCollection):
         self._dataset_count = 1
         super().__init__(*objects, creation=creation, z=z)
 
-    def add_dataset(self, values, color=None, fill_opacity=None, creation: float = 0, z=0.15):
+    def add_dataset(self, values, color=None, fill_opacity=None, creation: float = 0, z: float = 0.15):
         """Add an additional data polygon overlay to the radar chart."""
         if len(values) != self._n:
             return self
@@ -1163,7 +1163,7 @@ class TreeMap(VCollection):
 
 class GaugeChart(VCollection):
     """Speedometer / gauge chart."""
-    def __init__(self, value, min_val=0, max_val=100, x=ORIGIN[0], y=ORIGIN[1],
+    def __init__(self, value, min_val: float = 0, max_val: float = 100, x=ORIGIN[0], y=ORIGIN[1],
                  radius: float = 200, start_angle: float = 225, end_angle=-45,
                  colors=None, label=None, font_size: float = 36,
                  tick_count=5, creation: float = 0, z: float = 0):
@@ -1399,7 +1399,7 @@ class BulletChart(VCollection):
 
 class CalendarHeatmap(VCollection):
     """Grid heatmap like a GitHub contribution graph."""
-    def __init__(self, data, rows=7, cols=52, x: float = 100, y: float = 100,  # noqa: ARG002 (cols reserved for layout hints)
+    def __init__(self, data, rows: int = 7, cols: int = 52, x: float = 100, y: float = 100,  # noqa: ARG002 (cols reserved for layout hints)
                  cell_size: float = 14, gap: float = 2, colormap=None,
                  creation: float = 0, z: float = 0):
         if colormap is None:

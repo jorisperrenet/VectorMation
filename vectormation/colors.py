@@ -203,12 +203,12 @@ def interpolate_color(color1, color2, t):
     return _rgb_to_hex(r1 + (r2 - r1) * t, g1 + (g2 - g1) * t, b1 + (b2 - b1) * t)
 
 
-def lighten(color, amount=0.3):
+def lighten(color, amount: float = 0.3):
     """Lighten a color by mixing with white."""
     return interpolate_color(color, '#FFFFFF', amount)
 
 
-def darken(color, amount=0.3):
+def darken(color, amount: float = 0.3):
     """Darken a color by mixing with black."""
     return interpolate_color(color, '#000000', amount)
 
@@ -270,13 +270,13 @@ def adjust_hue(color, degrees):
     return _hsl_to_hex(h + degrees, s, l)
 
 
-def saturate(color, amount=0.2):
+def saturate(color, amount: float = 0.2):
     """Increase saturation by amount (0-1). Clamps to [0,1]."""
     h, s, l = _hex_to_hsl(color)
     return _hsl_to_hex(h, min(1, s + amount), l)
 
 
-def desaturate(color, amount=0.2):
+def desaturate(color, amount: float = 0.2):
     """Decrease saturation by amount (0-1). Clamps to [0,1]."""
     h, s, l = _hex_to_hsl(color)
     return _hsl_to_hex(h, max(0, s - amount), l)

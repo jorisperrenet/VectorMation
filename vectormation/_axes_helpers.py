@@ -31,7 +31,7 @@ def _get_tex_object():
     from vectormation._composites import TexObject
     return TexObject
 
-def _nice_ticks(vmin, vmax, target_count=7):
+def _nice_ticks(vmin, vmax, target_count: int = 7):
     """Generate nicely spaced tick values between vmin and vmax."""
     span = vmax - vmin
     if span <= 0:

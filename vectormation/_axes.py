@@ -323,7 +323,7 @@ class Axes(_AxesExtMixin, VCollection):
             area.set_opacity(1, start=start, end=end)
         return VCollection(curve, area, creation=start)
 
-    def add_parametric_plot(self, fx, fy, t_range=(0, 1), num_points=100,
+    def add_parametric_plot(self, fx, fy, t_range=(0, 1), num_points: int = 100,
                             creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a parametric curve x=fx(t), y=fy(t). Returns a Path object."""
         if hasattr(self, '_deferred_axes'):
@@ -600,7 +600,7 @@ class Axes(_AxesExtMixin, VCollection):
         self.objects.append(label_obj)
         return label_obj
 
-    def plot_parametric(self, func, t_range=(0, 1), num_points=200,
+    def plot_parametric(self, func, t_range=(0, 1), num_points: int = 200,
                         creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a parametric curve func(t) -> (x, y) in math coordinates. Returns a Path."""
         style_kw = _CURVE_STYLE | styling_kwargs
@@ -619,7 +619,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(curve)
         return curve
 
-    def plot_polar(self, func, theta_range=(0, math.tau), num_points=200,
+    def plot_polar(self, func, theta_range=(0, math.tau), num_points: int = 200,
                     creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a polar curve r=func(theta) on these axes. Returns a Path."""
         def _parametric(theta):
@@ -629,7 +629,7 @@ class Axes(_AxesExtMixin, VCollection):
                                     num_points=num_points, creation=creation,
                                     z=z, **styling_kwargs)
 
-    def plot_implicit(self, func, num_points=100, creation: float = 0, z: float = 0, **styling_kwargs):
+    def plot_implicit(self, func, num_points: int = 100, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot an implicit curve f(x, y) = 0 using marching squares. Returns a Path."""
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
@@ -827,7 +827,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(curve)
         return curve
 
-    def plot_histogram(self, data, bins=10, creation: float = 0, z: float = 0, **styling_kwargs):
+    def plot_histogram(self, data, bins: int = 10, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a histogram from raw data values. Returns a VCollection of Rectangles."""
         if not data:
             return VCollection()
@@ -1210,7 +1210,7 @@ class Axes(_AxesExtMixin, VCollection):
         except Exception:
             return None
 
-    def get_derivative(self, func, x_val, h=0.001):
+    def get_derivative(self, func, x_val, h: float = 0.001):
         """Return the numerical derivative of *func* at *x_val* using central differences."""
         fn = self._resolve_func(func, 'func')
         return (fn(x_val + h) - fn(x_val - h)) / (2 * h)
@@ -1480,7 +1480,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(group)
         return group
 
-    def add_callout(self, x, y, text, offset_x=60, offset_y=-60,
+    def add_callout(self, x, y, text, offset_x: float = 60, offset_y=-60,
                     font_size: float = 18, box_padding=8, corner_radius=4,
                     creation: float = 0, z: float = 5, **styling_kwargs):
         """Add a floating text callout box with a leader line to a data point. Returns a VCollection."""
@@ -1806,7 +1806,7 @@ class Axes(_AxesExtMixin, VCollection):
 
 class Graph(Axes):
     """Axes with an initial function curve plotted."""
-    def __init__(self, func, x_range=(-5, 5), y_range=None, num_points=200,
+    def __init__(self, func, x_range=(-5, 5), y_range=None, num_points: int = 200,
                  x: float = 260, y: float = 100, plot_width: float = 1400, plot_height: float = 880,
                  x_label='x', y_label='y', label=None, label_direction='up',
                  label_x_val=None, show_grid=False,
@@ -1933,7 +1933,7 @@ class NumberPlane(VCollection):
         """Convert logical coordinates to SVG pixel coordinates."""
         return (self._cx + x * self._unit, self._cy - y * self._unit)
 
-    def apply_function(self, func, start: float = 0, end: float = 1, easing=easings.smooth, resolution=20):
+    def apply_function(self, func, start: float = 0, end: float = 1, easing=easings.smooth, resolution: int = 20):
         """Animate a non-linear transformation of the grid."""
         # Rebuild grid as individual short line segments so they warp smoothly
         unit = self._unit
@@ -2031,7 +2031,7 @@ class NumberPlane(VCollection):
         self.objects.extend(labels)
         return self
 
-    def apply_matrix(self, matrix, start: float = 0, end: float = 1, easing=easings.smooth, resolution=20):
+    def apply_matrix(self, matrix, start: float = 0, end: float = 1, easing=easings.smooth, resolution: int = 20):
         """Apply a 2x2 linear transformation matrix as an animated grid transformation."""
         return self.apply_function(
             lambda x, y: (

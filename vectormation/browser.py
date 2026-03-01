@@ -472,7 +472,7 @@ class BrowserViewer:
     speed control, and FPS tracking.
     """
 
-    def __init__(self, canvas, fps=60, port=8765, hot_reload=False, script_path=None):
+    def __init__(self, canvas, fps: int = 60, port: int = 8765, hot_reload=False, script_path=None):
         self.canvas = canvas
         self.fps = fps
         self.port = port

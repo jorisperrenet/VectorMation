@@ -219,7 +219,7 @@ class ThreeDAxes(VCollection):
         self._scale_3d.set(start, end, _lerp(start, dur, s0, s0 * factor, easing))
         return self
 
-    def begin_ambient_camera_rotation(self, start: float = 0, end: float | None = None, rate=0.1):
+    def begin_ambient_camera_rotation(self, start: float = 0, end: float | None = None, rate: float = 0.1):
         """Continuously rotate the camera theta at *rate* radians per second."""
         theta0 = self.theta.at_time(start)
         if end is None:
@@ -254,7 +254,7 @@ class ThreeDAxes(VCollection):
         self.add_surface(surface)
         return surface
 
-    def get_graph_3d(self, func, x_range=None, plane='xz', num_points=100,
+    def get_graph_3d(self, func, x_range=None, plane='xz', num_points: int = 100,
                      stroke='#FFFF00', stroke_width: float = 2, creation: float = 0, z: float = 0):
         """Plot a 2D function as a curve in 3D space."""
         if x_range is None:
@@ -280,7 +280,7 @@ class ThreeDAxes(VCollection):
         self.add_3d(curve)
         return curve
 
-    def plot_surface_wireframe(self, func, x_steps=20, y_steps=20,
+    def plot_surface_wireframe(self, func, x_steps: int = 20, y_steps: int = 20,
                                creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a z=f(x,y) surface as a wireframe (backward compat)."""
         line_style = {'stroke': '#4488ff', 'stroke_width': 1} | styling_kwargs
@@ -339,7 +339,7 @@ class ThreeDAxes(VCollection):
 
     # -- Rendering --
 
-    def _render_axis_svg(self, sx0, sy0, sx1, sy1, tip_size=8):
+    def _render_axis_svg(self, sx0, sy0, sx1, sy1, tip_size: float = 8):
         """Render axis line + arrowhead from pre-projected screen coords."""
         stroke = self._axis_style.get('stroke', '#888')
         sw = self._axis_style.get('stroke_width', 2)
@@ -452,7 +452,7 @@ class ThreeDAxes(VCollection):
         inner = '\n'.join(svg for _, svg in patches)
         return f'<g>\n{inner}\n</g>'
 
-    def bbox(self, time: float = 0, start_idx=0, end_idx=None):  # noqa: ARG002 (start_idx, end_idx unused; overrides VCollection.bbox signature)
+    def bbox(self, time: float = 0, start_idx: int = 0, end_idx=None):  # noqa: ARG002 (start_idx, end_idx unused; overrides VCollection.bbox signature)
         """Bounding box based on projected axis endpoints."""
         xr, yr, zr = self._x_range, self._y_range, self._z_range
         corners = [
@@ -751,7 +751,7 @@ class _Primitive3D:
 class _SegmentPrimitive3D(_Primitive3D):
     """Base for 3D primitives defined by _start/_end endpoints."""
 
-    def shift(self, dx=0, dy=0, dz=0):
+    def shift(self, dx: float = 0, dy: float = 0, dz: float = 0):
         """Shift both endpoints by (dx, dy, dz). Returns self for chaining."""
         self._start, self._end = _shift3(self._start, dx, dy, dz), _shift3(self._end, dx, dy, dz)
         return self
@@ -781,7 +781,7 @@ class _SegmentPrimitive3D(_Primitive3D):
 class _PointPrimitive3D(_Primitive3D):
     """Base for 3D primitives located at a single point."""
 
-    def shift(self, dx=0, dy=0, dz=0):
+    def shift(self, dx: float = 0, dy: float = 0, dz: float = 0):
         """Shift the point by (dx, dy, dz). Returns self for chaining."""
         self._point = _shift3(self._point, dx, dy, dz)
         return self
@@ -883,7 +883,7 @@ class Arrow3D(_SegmentPrimitive3D):
 class ParametricCurve3D(_Primitive3D):
     """A parametric curve in 3D space."""
 
-    def __init__(self, func, t_range=(0, 1), num_points=100,
+    def __init__(self, func, t_range=(0, 1), num_points: int = 100,
                  stroke='#fff', stroke_width: float = 2, creation: float = 0, z: float = 0):
         super().__init__(creation, z)
         self._func = func
@@ -1027,7 +1027,7 @@ def Torus3D(major_radius: float = 2, minor_radius: float = 0.5, center=(0, 0, 0)
                          stroke_color=stroke_color, stroke_width=stroke_width,
                          fill_opacity=fill_opacity, creation=creation, z=z)
 
-def Prism3D(n_sides=6, radius: float = 1, height: float = 2, center=(0, 0, 0),
+def Prism3D(n_sides: int = 6, radius: float = 1, height: float = 2, center=(0, 0, 0),
             fill_color='#58C4DD', stroke_color='#333', stroke_width: float = 0.5,
             fill_opacity=0.8, creation: float = 0, z: float = 0):
     """Create a list of Surfaces representing an n-sided prism."""

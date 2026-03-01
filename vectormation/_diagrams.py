@@ -236,7 +236,7 @@ class PeriodicTable(VCollection):
 
 class BohrAtom(VCollection):
     """Bohr model of an atom with electron shells."""
-    def __init__(self, protons=1, neutrons=0, electrons=None, cx=ORIGIN[0], cy=ORIGIN[1],
+    def __init__(self, protons: int = 1, neutrons: int = 0, electrons=None, cx=ORIGIN[0], cy=ORIGIN[1],
                  nucleus_r=30, shell_spacing=40, creation: float = 0, z: float = 0):
         objects = []
 
@@ -281,7 +281,7 @@ class BohrAtom(VCollection):
     def __repr__(self):
         return f'BohrAtom({len(self._electron_dots)} electrons)'
 
-    def orbit(self, start: float = 0, end: float | None = None, speed=45):
+    def orbit(self, start: float = 0, end: float | None = None, speed: float = 45):
         """Animate all electrons orbiting around the nucleus."""
         for dot in self._electron_dots:
             dot.always_rotate(start=start, end=end, degrees_per_second=speed)

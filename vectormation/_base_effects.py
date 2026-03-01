@@ -293,7 +293,7 @@ class _VObjectEffectsMixin:
             stay=True)
         return self
 
-    def stamp_trail(self, start: float = 0, end: float = 1, count=8,
+    def stamp_trail(self, start: float = 0, end: float = 1, count: int = 8,
                     fade_duration=0.5, opacity: float = 0.4):
         """Leave ghostly fading copies along the path. Returns a list of ghost VObjects."""
         ghosts = []
@@ -341,7 +341,7 @@ class _VObjectEffectsMixin:
             self.styling.scale_y.set(start, end, scale_fn, stay=True)
         return self
 
-    def glitch_shift(self, start: float = 0, end: float = 1, intensity=20,
+    def glitch_shift(self, start: float = 0, end: float = 1, intensity: float = 20,
                      steps=8, seed=None):
         """Random discrete horizontal displacement jumps simulating a digital glitch."""
         import random
@@ -370,7 +370,7 @@ class _VObjectEffectsMixin:
             return _a * _wf(math.tau * _freq * p) * envelope
         return _wave
 
-    def wave_through(self, start: float = 0, end: float = 1, amplitude=20,
+    def wave_through(self, start: float = 0, end: float = 1, amplitude: float = 20,
                      frequency=2, direction='y', easing=easings.smooth):
         """Sinusoidal oscillation along the given axis with a fading envelope."""
         dur = end - start
@@ -380,7 +380,7 @@ class _VObjectEffectsMixin:
         kw = {'dy_func': _wave} if direction == 'y' else {'dx_func': _wave}
         return self._apply_shift_effect(start, end, **kw)
 
-    def countdown(self, start: float = 0, end: float = 1, from_val=3):
+    def countdown(self, start: float = 0, end: float = 1, from_val: int = 3):
         """For Text objects: display a countdown from *from_val* to 1."""
         _ensure_text(self, 'countdown')
         dur = end - start
@@ -408,7 +408,7 @@ class _VObjectEffectsMixin:
         self._set_scale_xy(start, end, _sq(sx0, fx), _sq(sy0, fy), stay=True)
         return self
 
-    def bind_to(self, other, offset_x=0, offset_y=0, start: float = 0, end: float | None = None):
+    def bind_to(self, other, offset_x: float = 0, offset_y: float = 0, start: float = 0, end: float | None = None):
         """Keep this object at a fixed offset relative to another object's center."""
         def _bind(obj, time, _other=other, _ox=offset_x, _oy=offset_y):
             ocx, ocy = _other.center(time)
@@ -420,7 +420,7 @@ class _VObjectEffectsMixin:
         self.add_updater(_bind, start, end)
         return self
 
-    def pin_to(self, other, edge='center', offset_x=0, offset_y=0, start: float = 0, end: float | None = None):
+    def pin_to(self, other, edge='center', offset_x: float = 0, offset_y: float = 0, start: float = 0, end: float | None = None):
         """Anchor this object to a specific edge/corner of *other* via an updater."""
         edge_fn = _EDGE_POINTS.get(edge, _EDGE_POINTS['center'])
 
@@ -439,7 +439,7 @@ class _VObjectEffectsMixin:
         self.add_updater(_pin, start, end)
         return self
 
-    def duplicate(self, count=2, direction=RIGHT, buff=MED_SMALL_BUFF):
+    def duplicate(self, count: int = 2, direction=RIGHT, buff=MED_SMALL_BUFF):
         """Create count copies of the object arranged in the given direction.
         Returns a VCollection containing the copies (not including self)."""
         from vectormation._collection import VCollection
@@ -450,7 +450,7 @@ class _VObjectEffectsMixin:
     arc_to = lambda self, *a, **kw: self.path_arc(*a, **kw)
     arc_to.__doc__ = """Alias for :meth:`path_arc`."""
 
-    def typewriter_cursor(self, start: float = 0, end: float = 1, blink_rate=0.5, cursor_char='|'):
+    def typewriter_cursor(self, start: float = 0, end: float = 1, blink_rate: float = 0.5, cursor_char='|'):
         """For Text objects: append a blinking cursor character."""
         _ensure_text(self, 'typewriter_cursor')
         _base_text_func = self.text.time_func
@@ -462,7 +462,7 @@ class _VObjectEffectsMixin:
         self.text.set(start, end, _blink, stay=False)
         return self
 
-    def parallax(self, dx, dy, start: float = 0, end: float = 1, depth_factor=0.5, easing=easings.smooth):
+    def parallax(self, dx, dy, start: float = 0, end: float = 1, depth_factor: float = 0.5, easing=easings.smooth):
         """Shift by a fraction of (dx, dy) to create a parallax depth illusion."""
         return self.shift(dx=dx * depth_factor, dy=dy * depth_factor,
                           start=start, end=end, easing=easing)
@@ -491,7 +491,7 @@ class _VObjectEffectsMixin:
         return self
 
     @staticmethod
-    def surround(other, buff=SMALL_BUFF, rx=6, ry=6, start: float = 0, follow=True):
+    def surround(other, buff=SMALL_BUFF, rx: float = 6, ry: float = 6, start: float = 0, follow=True):
         """Create a rectangle surrounding another object. Returns a Rectangle."""
         return _make_brect(other.bbox, start, rx, ry, buff, follow)
 
@@ -500,7 +500,7 @@ class _VObjectEffectsMixin:
         return self.set_fill(color=target_color, start=start, end=end, easing=easing) \
             .set_stroke(color=target_color, start=start, end=end, easing=easing)
 
-    def spin_and_fade(self, start: float = 0, end: float = 1, spins=1.5, direction=1, easing=easings.smooth):
+    def spin_and_fade(self, start: float = 0, end: float = 1, spins: float = 1.5, direction: int = 1, easing=easings.smooth):
         """Rotate and fade out simultaneously."""
         return self.rotate_by(start, end, spins * 360 * direction, easing=easing) \
             .set_opacity(0, start=start, end=end, easing=easing)
@@ -521,7 +521,7 @@ class _VObjectEffectsMixin:
                 self.scale(target_height / cur_h, start=start, end=end, easing=easing)
         return self
 
-    def tilt_towards(self, target_x, target_y, max_angle=15, start: float = 0, end: float = 1, easing=easings.smooth):  # noqa: ARG002
+    def tilt_towards(self, target_x, target_y, max_angle: float = 15, start: float = 0, end: float = 1, easing=easings.smooth):  # noqa: ARG002
         """Rotate the object to tilt toward a target point by *max_angle* degrees.
         The vertical offset (target_y) determines tilt direction; target_x is accepted
         for API consistency (pass a point, not just a y-coordinate)."""
@@ -571,7 +571,7 @@ class _VObjectEffectsMixin:
 
     # -- Repeat animation --
 
-    def repeat_animation(self, method_name, count=2, start: float = 0, end: float = 1, **kwargs):
+    def repeat_animation(self, method_name, count: int = 2, start: float = 0, end: float = 1, **kwargs):
         """Repeat an animation method *count* times within [start, end]."""
         if count <= 0 or end <= start:
             return self
@@ -584,7 +584,7 @@ class _VObjectEffectsMixin:
 
     # -- Elastic scale --
 
-    def elastic_scale(self, start: float = 0, end: float = 1, factor=1.5, easing=easings.smooth):
+    def elastic_scale(self, start: float = 0, end: float = 1, factor: float = 1.5, easing=easings.smooth):
         """Scale up elastically then bounce back to original size."""
         _f, _damp, _freq = factor, 6.0, math.tau * 2.5
         def _elastic(p, _f=_f, _damp=_damp, _freq=_freq):
@@ -675,7 +675,7 @@ class _VObjectEffectsMixin:
         method(*args, **kwargs)
         return self
 
-    def wobble(self, start: float = 0, end: float = 1, amplitude=5, frequency=3, easing=easings.smooth):
+    def wobble(self, start: float = 0, end: float = 1, amplitude: float = 5, frequency: float = 3, easing=easings.smooth):
         """Organic wobbling motion combining small rotations and position shifts."""
         dur = end - start
         if dur <= 0:
@@ -698,7 +698,7 @@ class _VObjectEffectsMixin:
         self.styling.rotation.set(start, end, _rot)
         return self
 
-    def focus_zoom(self, start: float = 0, end: float = 1, zoom_factor=1.3, easing=easings.smooth):
+    def focus_zoom(self, start: float = 0, end: float = 1, zoom_factor: float = 1.3, easing=easings.smooth):
         """Zoom in slightly on the object then back to normal, like a camera focus effect."""
         return self.flash_scale(factor=zoom_factor, start=start, end=end, easing=easing)
 
@@ -784,7 +784,7 @@ class _VObjectEffectsMixin:
             'opacity': self.styling.opacity.at_time(time),
         }
 
-    def move_towards(self, other, fraction=0.5, start: float = 0, end: float | None = None, easing=None):
+    def move_towards(self, other, fraction: float = 0.5, start: float = 0, end: float | None = None, easing=None):
         """Move a fraction of the way toward another object or point."""
         cx, cy = self.get_center(start)
         tx, ty = _coords_of(other, start)
@@ -807,7 +807,7 @@ class _VObjectEffectsMixin:
         from vectormation._collection import VCollection
         return VCollection(self, label)
 
-    def place_between(self, obj_a, obj_b, fraction=0.5, start: float = 0, end: float | None = None, easing=None):
+    def place_between(self, obj_a, obj_b, fraction: float = 0.5, start: float = 0, end: float | None = None, easing=None):
         """Position this object between two other objects or points."""
         ax, ay = _coords_of(obj_a, start)
         bx, by = _coords_of(obj_b, start)

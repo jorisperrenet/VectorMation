@@ -302,7 +302,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                 ya.add_onward(start, lambda t, _s=start, _e=end, _vy=vy: _vy * (min(t, _e) - _s))
         return self
 
-    def shift(self, dx=0, dy=0, start: float = 0, end: float | None = None, easing=easings.smooth):
+    def shift(self, dx: float = 0, dy: float = 0, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Shift the object by (dx, dy), optionally animated over [start, end]."""
         if end is not None and end <= start:
             # Instant shift when duration is zero or negative
@@ -490,11 +490,11 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._apply_shift_func(_pos, start, end)
         return self
 
-    def brect(self, time: float = 0, rx=0, ry=0, buff=SMALL_BUFF, follow=True):
+    def brect(self, time: float = 0, rx: float = 0, ry: float = 0, buff=SMALL_BUFF, follow=True):
         """Bounding rectangle with buff outward padding."""
         return _make_brect(self.bbox, time, rx, ry, buff, follow)
 
-    def fadein(self, start: float = 0, end: float = 1, shift_dir=None, shift_amount=50,
+    def fadein(self, start: float = 0, end: float = 1, shift_dir=None, shift_amount: float = 50,
                scale=None, change_existence=True, easing=easings.smooth):
         """Animate opacity from 0 to current value over [start, end].
 
@@ -520,7 +520,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                 _lerp(start, dur, sy0 * scale, sy0, easing), stay=True)
         return self
 
-    def fade_shift(self, dx=0, dy=0, start: float = 0, end: float = 1, easing=easings.smooth):
+    def fade_shift(self, dx: float = 0, dy: float = 0, start: float = 0, end: float = 1, easing=easings.smooth):
         """Fade out while shifting by (dx, dy) over [start, end]."""
         start_val = self.styling.opacity.at_time(start)
         dur = end - start
@@ -532,7 +532,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._hide_from(end)
         return self
 
-    def fadeout(self, start: float = 0, end: float = 1, shift_dir=None, shift_amount=50,
+    def fadeout(self, start: float = 0, end: float = 1, shift_dir=None, shift_amount: float = 50,
                 scale=None, change_existence=True, easing=easings.smooth):
         """Animate opacity from current value to 0 over [start, end].
 
@@ -611,12 +611,12 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self._hide_from(end)
         return self
 
-    def rotate_in(self, start: float = 0, end: float = 1, degrees=90,
+    def rotate_in(self, start: float = 0, end: float = 1, degrees: float = 90,
                     change_existence=True, easing=easings.smooth):
         """Fade in while rotating from an offset angle to 0."""
         return self._rotate_fade_anim(start, end, degrees, True, change_existence, easing)
 
-    def rotate_out(self, start: float = 0, end: float = 1, degrees=90,
+    def rotate_out(self, start: float = 0, end: float = 1, degrees: float = 90,
                    change_existence=True, easing=easings.smooth):
         """Rotate away while fading out. Reverse of rotate_in."""
         return self._rotate_fade_anim(start, end, degrees, False, change_existence, easing)
@@ -643,7 +643,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self._hide_from(end)
         return self
 
-    def pop_in(self, start: float = 0, end: float = 0.3, overshoot=1.2, change_existence=True, easing=easings.smooth):
+    def pop_in(self, start: float = 0, end: float = 0.3, overshoot: float = 1.2, change_existence=True, easing=easings.smooth):
         """Quick pop-in: scale from 0 to 1 with optional overshoot."""
         return self._pop_anim(start, end, overshoot, True, change_existence, easing)
 
@@ -704,7 +704,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                 c.add(start, end, lambda t, _f=dy_func: (0, _f(t)), **kw)
         return self
 
-    def float_anim(self, start: float = 0, end: float = 1, amplitude=10, speed=1.0):
+    def float_anim(self, start: float = 0, end: float = 1, amplitude: float = 10, speed: float = 1.0):
         """Gentle floating up/down animation."""
         dur = end - start
         if dur <= 0:
@@ -789,17 +789,17 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                 self._hide_from(end)
         return self
 
-    def fade_slide_in(self, direction=None, distance=200, start: float = 0, end: float = 1,
+    def fade_slide_in(self, direction=None, distance: float = 200, start: float = 0, end: float = 1,
                       change_existence=True, easing=easings.smooth):
         """Slide in from *direction* while fading in. Default direction: DOWN."""
         return self._fade_slide_anim(direction, distance, start, end, True, change_existence, easing)
 
-    def fade_slide_out(self, direction=None, distance=200, start: float = 0, end: float = 1,
+    def fade_slide_out(self, direction=None, distance: float = 200, start: float = 0, end: float = 1,
                        change_existence=True, easing=easings.smooth):
         """Slide away in *direction* while fading out. Reverse of fade_slide_in."""
         return self._fade_slide_anim(direction, distance, start, end, False, change_existence, easing)
 
-    def write(self, start: float = 0, end: float = 1, max_stroke_width=2, change_existence=True, easing=easings.smooth, stroke_easing=easings.there_and_back):
+    def write(self, start: float = 0, end: float = 1, max_stroke_width: float = 2, change_existence=True, easing=easings.smooth, stroke_easing=easings.there_and_back):
         """Animate fill_opacity from 0 to current with a stroke pulse effect."""
         if change_existence:
             self._show_from(start)
@@ -865,7 +865,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             _ramp_down(start, dur, total_length, easing), stay=True)
         return self
 
-    def show_passing_flash(self, start: float = 0, end: float = 1, flash_width=0.15,
+    def show_passing_flash(self, start: float = 0, end: float = 1, flash_width: float = 0.15,
                            color='#FFFF00', stroke_width: float = 6, easing=easings.linear):
         """A bright flash that travels along this object's path."""
         _, total = _parse_path(self.path(start))
@@ -1185,12 +1185,12 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self._hide_from(end)
         return self
 
-    def zoom_in(self, start: float = 0, end: float = 1, start_scale=3,
+    def zoom_in(self, start: float = 0, end: float = 1, start_scale: float = 3,
                  change_existence=True, easing=easings.smooth):
         """Zoom in: start large and transparent, end at normal size and opacity."""
         return self._zoom_anim(start, end, start_scale, 1, True, change_existence, easing)
 
-    def zoom_out(self, start: float = 0, end: float = 1, end_scale=3,
+    def zoom_out(self, start: float = 0, end: float = 1, end_scale: float = 3,
                   change_existence=True, easing=easings.smooth):
         """Zoom out: grow large while fading out."""
         return self._zoom_anim(start, end, 1, end_scale, False, change_existence, easing)
@@ -1274,7 +1274,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self.styling.skew_y.set(s, end, _ramp(s, dur, y_degrees, easing), stay=True)
         return self
 
-    def indicate(self, start: float = 0, end: float = 1, scale_factor=1.2, easing=easings.there_and_back):
+    def indicate(self, start: float = 0, end: float = 1, scale_factor: float = 1.2, easing=easings.there_and_back):
         """Briefly scale up and back to draw attention."""
         dur = end - start
         if dur <= 0:
@@ -1300,7 +1300,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                 tuple(o + (g - o) * easing((t - _s) / _d) for o, g in zip(_o, _tc)))
         return self
 
-    def pulse(self, start: float = 0, end: float = 1, scale_factor=1.5, easing=easings.there_and_back):
+    def pulse(self, start: float = 0, end: float = 1, scale_factor: float = 1.5, easing=easings.there_and_back):
         """Scale up with a fade, then back. Useful for drawing attention to dots/points."""
         dur = end - start
         if dur <= 0:
@@ -1312,7 +1312,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.styling.opacity.set(start, end, opacity_f)
         return self
 
-    def pulsate(self, start: float = 0, end: float = 1, scale_factor=1.3,
+    def pulsate(self, start: float = 0, end: float = 1, scale_factor: float = 1.3,
                  n_pulses=3, easing=easings.smooth):
         """Repeated grow/shrink pulsation over [start, end]."""
         _sf, _p = scale_factor, n_pulses
@@ -1320,13 +1320,13 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             return 1 + (_sf - 1) * abs(math.sin(math.pi * _p * p))
         return self._apply_scale_envelope(start, end, _pulsate, easing, stay=False)
 
-    def pulse_scale(self, start: float = 0, end: float = 1, count=2, amplitude=0.15, easing=easings.smooth):
+    def pulse_scale(self, start: float = 0, end: float = 1, count: int = 2, amplitude: float = 0.15, easing=easings.smooth):
         """Oscillate scale by *amplitude* for *count* cycles over [start, end]."""
         def _pulse(p, _amp=amplitude, _cnt=count):
             return 1 + _amp * math.sin(math.tau * _cnt * p)
         return self._apply_scale_envelope(start, end, _pulse, easing, stay=False)
 
-    def ripple_scale(self, start: float = 0, end: float = 1, n_ripples=3, max_factor=1.3, easing=easings.smooth):
+    def ripple_scale(self, start: float = 0, end: float = 1, n_ripples: int = 3, max_factor: float = 1.3, easing=easings.smooth):
         """Produce multiple decaying scale pulses."""
         _n, _m = n_ripples, max_factor
         def _ripple(p, _n=_n, _m=_m):
@@ -1334,13 +1334,13 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             return 1 + (_m - 1) * decay * math.sin(p * _n * math.tau)
         return self._apply_scale_envelope(start, end, _ripple, easing, stay=True)
 
-    def flash_scale(self, factor=1.5, start: float = 0, end: float = 1, easing=easings.smooth):
+    def flash_scale(self, factor: float = 1.5, start: float = 0, end: float = 1, easing=easings.smooth):
         """Scale up to *factor* at the midpoint, then back to original size."""
         def _flash(p, _f=factor):
             return 1 + (_f - 1) * math.sin(math.pi * p)
         return self._apply_scale_envelope(start, end, _flash, easing, stay=False)
 
-    def hover_scale(self, factor=1.2, start: float = 0, end: float = 1):
+    def hover_scale(self, factor: float = 1.2, start: float = 0, end: float = 1):
         """Hold scale at *factor* during [start, end], then snap back."""
         sx0, sy0 = self._init_scale_anim(start)
         self.styling.scale_x.set_onward(start, sx0 * factor)
@@ -1389,7 +1389,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             _ramp(start, _d, 0.7, easings.there_and_back), stay=False)
         return self
 
-    def drop_shadow(self, color='#000000', dx=4, dy=4, blur=6, start: float = 0):
+    def drop_shadow(self, color='#000000', dx: float = 4, dy: float = 4, blur: float = 6, start: float = 0):
         """Apply an SVG feDropShadow filter, visible from *start* onward."""
         fid = f'ds{id(self)}'
         fdef = (f"<filter id='{fid}' x='-50%' y='-50%' width='200%' height='200%'>"
@@ -1431,7 +1431,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         rect.fadeout(start=(start + end) / 2, end=end, change_existence=True)
         return rect
 
-    def wiggle(self, start: float = 0, end: float = 1, amplitude=12, n_wiggles=4, easing=easings.there_and_back):
+    def wiggle(self, start: float = 0, end: float = 1, amplitude: float = 12, n_wiggles: int = 4, easing=easings.there_and_back):
         """Shake the object horizontally. amplitude is max displacement in pixels."""
         dur = end - start
         if dur <= 0:
@@ -1442,7 +1442,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             return amplitude * math.sin(math.tau * n_wiggles * progress) * easing(progress)
         return self._apply_shift_effect(start, end, dx_func=dx)
 
-    def swing(self, start: float = 0, end: float = 1, amplitude=15,
+    def swing(self, start: float = 0, end: float = 1, amplitude: float = 15,
               cx=None, cy=None, easing=easings.smooth):
         """Pendulum-like rotation oscillation that decays to rest."""
         dur = end - start
@@ -1459,7 +1459,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                 _cx, _cy))
         return self
 
-    def wave(self, start: float = 0, end: float = 1, amplitude=20, n_waves=2, direction: str | tuple = 'up', easing=easings.there_and_back):
+    def wave(self, start: float = 0, end: float = 1, amplitude: float = 20, n_waves: int = 2, direction: str | tuple = 'up', easing=easings.there_and_back):
         """Apply a wave distortion (vertical shift that travels across the object).
         direction: 'up' or 'down' or UP/DOWN constant."""
         dur = end - start
@@ -1544,11 +1544,11 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self._hide_from(end)
         return self
 
-    def spiral_in(self, start: float = 0, end: float = 1, n_turns=1, change_existence=True, easing=easings.smooth):
+    def spiral_in(self, start: float = 0, end: float = 1, n_turns: int = 1, change_existence=True, easing=easings.smooth):
         """Spiral the object inward from a distance to its current position."""
         return self._spiral_anim(start, end, n_turns, True, change_existence, easing)
 
-    def spiral_out(self, start: float = 0, end: float = 1, n_turns=1, change_existence=True, easing=easings.smooth):
+    def spiral_out(self, start: float = 0, end: float = 1, n_turns: int = 1, change_existence=True, easing=easings.smooth):
         """Spiral the object outward while shrinking to nothing."""
         return self._spiral_anim(start, end, n_turns, False, change_existence, easing)
 
@@ -1666,7 +1666,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.styling.opacity.set(start, end, _opacity, stay=True)
         return self
 
-    def shimmer(self, start: float = 0, end: float = 1, passes=2, easing=easings.smooth):
+    def shimmer(self, start: float = 0, end: float = 1, passes: int = 2, easing=easings.smooth):
         """Create a sweep highlight effect by oscillating opacity."""
         dur = end - start
         if dur <= 0:
@@ -1683,7 +1683,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.styling.opacity.set(start, end, _shimmer, stay=False)
         return self
 
-    def shake(self, start: float = 0, end: float = 0.5, amplitude=5, frequency=20, easing=easings.there_and_back):
+    def shake(self, start: float = 0, end: float = 0.5, amplitude: float = 5, frequency: float = 20, easing=easings.there_and_back):
         """Rapid random-looking jitter effect for emphasis or error states."""
         dur = end - start
         if dur <= 0:
@@ -1697,7 +1697,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             return _a * math.cos(2.7 * math.pi * _freq * p) * _easing(p)
         return self._apply_shift_effect(start, end, _dx, _dy)
 
-    def undulate(self, start: float = 0, end: float = 1, amplitude=0.15, n_waves=2, easing=easings.smooth):
+    def undulate(self, start: float = 0, end: float = 1, amplitude: float = 0.15, n_waves: int = 2, easing=easings.smooth):
         """Wavy pulsing scale effect, like a heartbeat or breathing."""
         dur = end - start
         if dur <= 0:
@@ -1709,7 +1709,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._set_scale_xy(start, end, _scale)
         return self
 
-    def rubber_band(self, start: float = 0, end: float = 1, x_factor=1.3, y_factor=0.7, easing=easings.there_and_back):
+    def rubber_band(self, start: float = 0, end: float = 1, x_factor: float = 1.3, y_factor: float = 0.7, easing=easings.there_and_back):
         """Elastic stretch: squash and stretch the object, then snap back."""
         dur = end - start
         if dur <= 0:
@@ -1721,7 +1721,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             _lerp(start, _d, 1, y_factor, easing), stay=True)
         return self
 
-    def jiggle(self, start: float = 0, end: float = 1, amplitude=5, easing=easings.smooth):
+    def jiggle(self, start: float = 0, end: float = 1, amplitude: float = 5, easing=easings.smooth):
         """Small random-looking position jitter that decays over time."""
         dur = end - start
         if dur <= 0:
@@ -1774,7 +1774,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             return -abs(math.sin(phase)) * _h * decay * _easing(min(1, progress * 3))
         return self._apply_shift_effect(start, end, dy_func=_dy)
 
-    def spring(self, start: float = 0, end: float = 1, amplitude=30,
+    def spring(self, start: float = 0, end: float = 1, amplitude: float = 30,
                 damping=5, frequency=4, axis='y'):
         """Damped spring oscillation: object oscillates with exponential decay.
         axis: 'x', 'y', or 'both'."""
@@ -1789,7 +1789,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         dy = _osc if axis in ('y', 'both') else None
         return self._apply_shift_effect(start, end, dx, dy)
 
-    def ripple(self, start: float = 0, end: float = 0.5, count: int = 3, max_radius=100,
+    def ripple(self, start: float = 0, end: float = 0.5, count: int = 3, max_radius: float = 100,
                color='#58C4DD', stroke_width: float = 2):
         """Emit expanding, fading rings from the object's center.
         Returns a VCollection of Circle objects (must be added to canvas)."""
@@ -1811,7 +1811,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             rings.append(ring)
         return VCollection(*rings)
 
-    def animate_dash(self, start: float = 0, end: float = 1, dash_length=10, gap=None, easing=easings.linear):
+    def animate_dash(self, start: float = 0, end: float = 1, dash_length: float = 10, gap=None, easing=easings.linear):
         """Animate dashes moving along the stroke (marching ants effect).
         Works on any stroked shape (Line, Path, Circle, Rectangle, etc.)."""
         if gap is None:
@@ -1899,7 +1899,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             src.interpolate(attributes.Color(seg_s, colors[i + 1]), seg_s, seg_e, easing=easing)
         return self
 
-    def glitch(self, start: float = 0, end: float = 1, intensity=10, n_flashes=5,
+    def glitch(self, start: float = 0, end: float = 1, intensity: float = 10, n_flashes: int = 5,
                easing=easings.there_and_back):
         """Random glitch effect: brief jitter flashes over [start, end]."""
         dur = end - start
@@ -1939,7 +1939,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             src.interpolate(attributes.Color(seg_s, original_rgb), seg_mid, seg_e, easing=easings.linear)
         return self
 
-    def color_shift(self, hue_shift=30, start: float = 0, end: float = 1, easing=easings.smooth):
+    def color_shift(self, hue_shift: float = 30, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate shifting the fill color's hue by *hue_shift* degrees over [start, end]."""
         from vectormation.attributes import _rgb_to_hsl, _hsl_to_rgb
         src = self.styling.fill
@@ -2003,7 +2003,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         attr.set_onward(start, -attr.at_time(start))
         return self
 
-    def squish(self, start: float = 0, end: float = 1, axis='x', factor=0.5,
+    def squish(self, start: float = 0, end: float = 1, axis='x', factor: float = 0.5,
                 easing=easings.smooth):
         """Squish the object along an axis and bounce back."""
         dur = end - start
@@ -2050,7 +2050,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._set_scale_xy(start, end, _ssx, _ssy)
         return self
 
-    def warp(self, start: float = 0, end: float = 1, amplitude=0.15, frequency=3,
+    def warp(self, start: float = 0, end: float = 1, amplitude: float = 0.15, frequency: float = 3,
              easing=easings.smooth):
         """Wobbly distortion effect — alternating scale_x/scale_y oscillation.
         Creates a jelly-like warping motion that resolves back to normal."""
@@ -2066,7 +2066,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             return _wx, _wy
         return self._scale_effect(start, end, _make, force_origin=True)
 
-    def swirl(self, start: float = 0, end: float = 1, turns=1, shrink=True,
+    def swirl(self, start: float = 0, end: float = 1, turns: float = 1, shrink=True,
                easing=easings.smooth):
         """Swirling rotation with optional shrink and grow back.
         Creates a vortex-like effect."""
@@ -2093,7 +2093,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                 _make_scale(self.styling.scale_y.at_time(start)))
         return self
 
-    def heartbeat(self, start: float = 0, end: float = 1, beats=3,
+    def heartbeat(self, start: float = 0, end: float = 1, beats: int = 3,
                    scale_factor=1.3, easing=easings.smooth):
         """ECG-style double-pulse heartbeat: lub-dub + rest, repeated *beats* times."""
         def _make(sx0, sy0, _s, _d):
@@ -2111,7 +2111,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                     lambda t, _b=sy0, _fn=_ecg: _b * _fn(t))
         return self._scale_effect(start, end, _make)
 
-    def breathe(self, start: float = 0, end: float = 1, amplitude=0.08,
+    def breathe(self, start: float = 0, end: float = 1, amplitude: float = 0.08,
                 speed=1.0, easing=easings.smooth):
         """Steady scale oscillation simulating natural breathing."""
         def _make(sx0, sy0, _s, _d):
@@ -2121,7 +2121,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             return _br(sx0), _br(sy0)
         return self._scale_effect(start, end, _make)
 
-    def pendulum(self, start: float = 0, end: float = 1, amplitude=20,
+    def pendulum(self, start: float = 0, end: float = 1, amplitude: float = 20,
                  oscillations=4, cx=None, cy=None, easing=easings.smooth):
         """Damped pendulum oscillation — rotates back and forth with exponential decay."""
         dur = end - start
@@ -2196,7 +2196,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             c.add(start, end, _arc_fn, stay=True)
         return self
 
-    def broadcast(self, start: float = 0, end: float = 0.5, n_copies=3,
+    def broadcast(self, start: float = 0, end: float = 0.5, n_copies: int = 3,
                    max_scale=3, color=None):
         """Emit expanding, fading copies from this object's center.
         Returns a VCollection of copies (must be added to canvas)."""
@@ -2245,7 +2245,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         ghost.show.set_onward(time, True)
         return ghost
 
-    def trail(self, start: float = 0, end: float = 1, n_copies=5, fade=True):
+    def trail(self, start: float = 0, end: float = 1, n_copies: int = 5, fade=True):
         """Leave fading ghost copies at intervals during [start, end].
         Returns a list of ghost VObjects (must be added to canvas separately)."""
 
@@ -2281,7 +2281,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         """Restore full opacity (undo dim)."""
         return self.dim(start=start, end=end, opacity=1.0, easing=easing)
 
-    def clone(self, offset_x=0, offset_y=0, *, count=None, dx=0, dy=0, start: float = 0):
+    def clone(self, offset_x: float = 0, offset_y: float = 0, *, count=None, dx: float = 0, dy: float = 0, start: float = 0):
         """Deep copy, optionally shifted. With count=N returns VCollection of N shifted clones."""
         if count is not None:
             clones = []

@@ -360,7 +360,7 @@ def compose(*easings_list):
     return _composed
 
 
-def repeat(easing, count=2):
+def repeat(easing, count: int = 2):
     """Repeat an easing count times within [0,1].
 
     Each repetition plays the full easing in 1/count of the time.
@@ -376,7 +376,7 @@ def repeat(easing, count=2):
     return _repeated
 
 
-def oscillate(easing, count=1):
+def oscillate(easing, count: int = 1):
     """Play the easing forward then backward count times within [0,1].
 
     oscillate(smooth, 2) plays smooth forward, backward, forward, backward.
@@ -399,7 +399,7 @@ def oscillate(easing, count=1):
     return _oscillated
 
 
-def clamp(easing, start_t=0.0, end_t=1.0):
+def clamp(easing, start_t: float = 0.0, end_t: float = 1.0):
     """Apply the easing only between start_t and end_t.
 
     Before start_t returns easing(0), after end_t returns easing(1).
@@ -417,7 +417,7 @@ def clamp(easing, start_t=0.0, end_t=1.0):
     return _clamped
 
 
-def blend(easing_a, easing_b, weight=0.5):
+def blend(easing_a, easing_b, weight: float = 0.5):
     """Return easing that blends two easings: (1-weight)*a(t) + weight*b(t)."""
     def _blended(t):
         return (1 - weight) * easing_a(t) + weight * easing_b(t)

@@ -25,7 +25,7 @@ _COMPONENT_STYLE = {'stroke': '#fff', 'stroke_width': 2}
 
 class Resistor(VCollection):
     """Electrical resistor symbol (zigzag line)."""
-    def __init__(self, x1=400, y1=ORIGIN[1], x2=600, y2=ORIGIN[1], label='R',
+    def __init__(self, x1: float = 400, y1=ORIGIN[1], x2: float = 600, y2=ORIGIN[1], label='R',
                  creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = _COMPONENT_STYLE | styling_kwargs
         length, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
@@ -47,7 +47,7 @@ class Resistor(VCollection):
 
 class Capacitor(VCollection):
     """Electrical capacitor symbol (two parallel plates)."""
-    def __init__(self, x1=400, y1=ORIGIN[1], x2=600, y2=ORIGIN[1], label='C',
+    def __init__(self, x1: float = 400, y1=ORIGIN[1], x2: float = 600, y2=ORIGIN[1], label='C',
                  creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = _COMPONENT_STYLE | styling_kwargs
         _, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
@@ -72,7 +72,7 @@ class Capacitor(VCollection):
 
 class Inductor(VCollection):
     """Electrical inductor symbol (coil/solenoid)."""
-    def __init__(self, x1=400, y1=ORIGIN[1], x2=600, y2=ORIGIN[1], label='L',
+    def __init__(self, x1: float = 400, y1=ORIGIN[1], x2: float = 600, y2=ORIGIN[1], label='L',
                  n_loops=4, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = _COMPONENT_STYLE | styling_kwargs
         length, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
@@ -99,7 +99,7 @@ class Inductor(VCollection):
 
 class Diode(VCollection):
     """Electrical diode symbol (triangle with bar)."""
-    def __init__(self, x1=400, y1=ORIGIN[1], x2=600, y2=ORIGIN[1], label='D',
+    def __init__(self, x1: float = 400, y1=ORIGIN[1], x2: float = 600, y2=ORIGIN[1], label='D',
                  creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = _COMPONENT_STYLE | styling_kwargs
         length, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
@@ -131,7 +131,7 @@ class Diode(VCollection):
 
 class LED(VCollection):
     """Light-emitting diode symbol (diode with light rays)."""
-    def __init__(self, x1=400, y1=ORIGIN[1], x2=600, y2=ORIGIN[1], label='LED',
+    def __init__(self, x1: float = 400, y1=ORIGIN[1], x2: float = 600, y2=ORIGIN[1], label='LED',
                  color='#FF0000', creation: float = 0, z: float = 0, **styling_kwargs):
         diode = Diode(x1=x1, y1=y1, x2=x2, y2=y2, label='',
                       creation=creation, z=z, **styling_kwargs)
@@ -440,7 +440,7 @@ class StandingWave(VCollection):
         Animation time range.
     """
 
-    def __init__(self, x1=300, y1=ORIGIN[1], x2=1620, y2=ORIGIN[1],
+    def __init__(self, x1: float = 300, y1=ORIGIN[1], x2: float = 1620, y2=ORIGIN[1],
                  amplitude=100, harmonics=3, frequency=1.0, num_points=200,
                  start=0, end=5, creation: float = 0, z: float = 0, **kwargs):
         wave_length = math.hypot(x2 - x1, y2 - y1)
@@ -512,7 +512,7 @@ class Charge(VCollection):
         Number of glow rings (more = smoother but heavier).
     """
 
-    def __init__(self, magnitude=1, cx=ORIGIN[0], cy=ORIGIN[1], radius=None,
+    def __init__(self, magnitude: float = 1, cx=ORIGIN[0], cy=ORIGIN[1], radius=None,
                  color=None, add_glow=True, glow_layers=12,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         self.magnitude = magnitude
@@ -786,7 +786,7 @@ class Ray(VCollection):
         Draw a small arrowhead at the ray tip.
     """
 
-    def __init__(self, x1=200, y1=ORIGIN[1], angle: float = 0, length: float = 1600,
+    def __init__(self, x1: float = 200, y1=ORIGIN[1], angle: float = 0, length: float = 1600,
                  lenses=None, color='#FFFF00', stroke_width: float = 2,
                  show_arrow=False,
                  creation: float = 0, z: float = 0, **styling_kwargs):

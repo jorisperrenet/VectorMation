@@ -1078,7 +1078,7 @@ class Matrix(_GridAccessMixin, VCollection):
         self.entries[i], self.entries[j] = self.entries[j], self.entries[i]
         return self
 
-    def row_operation(self, target_row, source_row, scalar=1, start: float = 0, end: float = 1,
+    def row_operation(self, target_row, source_row, scalar: float = 1, start: float = 0, end: float = 1,
                       easing=easings.smooth):
         """Animate an elementary row operation: R_target += scalar * R_source.
 
@@ -1163,7 +1163,7 @@ class Matrix(_GridAccessMixin, VCollection):
 
 class DecimalMatrix(Matrix):
     """Matrix that formats entries as decimals with a fixed number of places."""
-    def __init__(self, data, decimals=1, **kwargs):
+    def __init__(self, data, decimals: int = 1, **kwargs):
         formatted = [[f'{float(v):.{decimals}f}' for v in row] for row in data]
         super().__init__(formatted, **kwargs)
 
@@ -1321,7 +1321,7 @@ def parse_args():
 
 class ParametricFunction(Lines):
     """A curve defined by a parametric function f(t) -> (x, y)."""
-    def __init__(self, func, t_range=(0, 1), num_points=200,
+    def __init__(self, func, t_range=(0, 1), num_points: int = 200,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         t_min, t_max = t_range
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 4, 'fill_opacity': 0} | styling_kwargs

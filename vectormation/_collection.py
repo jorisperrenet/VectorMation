@@ -149,7 +149,7 @@ class VCollection(_BBoxMethodsMixin):
                                      self._scale_y.at_time(time), self._scale_origin)
         return f'<g{transform}>\n{inner}\n</g>'
 
-    def bbox(self, time, start_idx=0, end_idx=None):
+    def bbox(self, time, start_idx: int = 0, end_idx=None):
         objs = self.objects[start_idx:end_idx]
         if not objs:
             return (0, 0, 0, 0)
@@ -160,7 +160,7 @@ class VCollection(_BBoxMethodsMixin):
         ymax = max(b[1] + b[3] for b in boxes)
         return (xmin, ymin, xmax - xmin, ymax - ymin)
 
-    def brect(self, time, start_idx=0, end_idx=None, rx=0, ry=0, buff=SMALL_BUFF, follow=True):
+    def brect(self, time, start_idx: int = 0, end_idx=None, rx: float = 0, ry: float = 0, buff=SMALL_BUFF, follow=True):
         """Bounding rectangle with buff outward padding."""
         return _make_brect(self.bbox, time, rx, ry, buff, follow,
                            start_idx=start_idx, end_idx=end_idx)
@@ -662,7 +662,7 @@ class VCollection(_BBoxMethodsMixin):
             getattr(obj, method_name)(**kw)
         return self
 
-    def wave_anim(self, start: float = 0, end: float = 1, amplitude=20, n_waves=1):
+    def wave_anim(self, start: float = 0, end: float = 1, amplitude: float = 20, n_waves: int = 1):
         """Staggered wave animation: children bob up and down with phase offsets."""
         n = len(self.objects)
         if n == 0 or end <= start:
@@ -722,7 +722,7 @@ class VCollection(_BBoxMethodsMixin):
                 obj.shift(dx=dx, dy=dy, start=start)
         return self
 
-    def cascade(self, method_name, start: float = 0, end: float = 1, overlap=0.5, **kwargs):
+    def cascade(self, method_name, start: float = 0, end: float = 1, overlap: float = 0.5, **kwargs):
         """Call an animation method on children with overlapping timing.
         overlap: 0 = sequential, 1 = all simultaneous. 0.5 = half overlap."""
         n = len(self.objects)
@@ -934,7 +934,7 @@ class VCollection(_BBoxMethodsMixin):
             self._apply_scale_pop(obj, s, e, scale_factor, easing)
         return self
 
-    def stagger_rotate(self, start: float = 0, end: float = 1, degrees=360, easing=easings.smooth):
+    def stagger_rotate(self, start: float = 0, end: float = 1, degrees: float = 360, easing=easings.smooth):
         """Sequentially rotate each child."""
         n = len(self.objects)
         if n == 0 or end <= start: return self
@@ -993,7 +993,7 @@ class VCollection(_BBoxMethodsMixin):
         cx, cy = self._resolve_center(start, cx, cy)
         return self.converge(cx, cy, start=start, end=end, easing=easing)
 
-    def rotate_children(self, degrees=90, start: float = 0, end: float | None = None,
+    def rotate_children(self, degrees: float = 90, start: float = 0, end: float | None = None,
                          easing=easings.smooth):
         """Rotate all children around the group's center.
         Moves each child to its new angular position around the centroid."""
@@ -1008,7 +1008,7 @@ class VCollection(_BBoxMethodsMixin):
                         start=start, end=end, easing=easing)
         return self
 
-    def wave_effect(self, start: float = 0, end: float = 1, amplitude=20, axis='y',
+    def wave_effect(self, start: float = 0, end: float = 1, amplitude: float = 20, axis='y',
                     easing=easings.smooth):
         """Propagate a wave through children — each child shifts up/down (or left/right)
         with a phase offset creating a traveling wave effect."""
@@ -1080,7 +1080,7 @@ class VCollection(_BBoxMethodsMixin):
 
     apply_function = apply
 
-    def apply_with_delay(self, func, delay=0.1, start: float = 0):
+    def apply_with_delay(self, func, delay: float = 0.1, start: float = 0):
         """Apply ``func(child, index, start)`` to each child with incremental time delay."""
         for i, obj in enumerate(self.objects):
             func(obj, i, start + i * delay)
@@ -1121,7 +1121,7 @@ class VCollection(_BBoxMethodsMixin):
             obj.shift(dx=dx, dy=dy, **kw)
         return self
 
-    def write(self, start: float = 0, end: float = 1, processing=10, max_stroke_width=2, change_existence=True, easing=easings.smooth):
+    def write(self, start: float = 0, end: float = 1, processing: int = 10, max_stroke_width: float = 2, change_existence=True, easing=easings.smooth):
         """Stagger ``write()`` animations across all children."""
         if not self.objects:
             return self
@@ -1304,7 +1304,7 @@ class VCollection(_BBoxMethodsMixin):
                 dy_func=lambda t, _f=_orbit: _f(t)[1])
         return self
 
-    def cascade_scale(self, start: float = 0, end: float = 1, factor=1.5,
+    def cascade_scale(self, start: float = 0, end: float = 1, factor: float = 1.5,
                       delay: float = 0.15, easing=easings.smooth):
         """Stagger scale-up-and-back animations across children with a fixed delay."""
         n = len(self.objects)

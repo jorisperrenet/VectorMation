@@ -142,7 +142,7 @@ class VectorMathAnim:
         self._animate_viewbox(start, end, target_x, target_y, target_w, target_h, easing)
         return self
 
-    def set_background(self, creation: float = 0, z: float = -1, grid=False, grid_spacing=60, grid_color='#333', **styling):
+    def set_background(self, creation: float = 0, z: float = -1, grid=False, grid_spacing: float = 60, grid_color='#333', **styling):
         """Sets the background of the animation (otherwise no background is added)."""
         if self.background is not None:
             del self.objects[id(self.background)]
@@ -257,7 +257,7 @@ class VectorMathAnim:
             points.extend(obj.snap_points(time))
 
     @staticmethod
-    def _round_svg_values(svg, precision=2):
+    def _round_svg_values(svg, precision: int = 2):
         """Round floating-point numbers in SVG strings for data compression."""
         def _round_match(m):
             return f'{float(m.group()):.{precision}f}'.rstrip('0').rstrip('.')
@@ -352,7 +352,7 @@ class VectorMathAnim:
         """Update frame_count from current time."""
         self.frame_count = round((self.time - self.start_anim) / self.dt)  # type: ignore[operator]
 
-    def _handle_step(self, msg, direction=1):
+    def _handle_step(self, msg, direction: int = 1):
         self.animate = False
         self.time = max(self.start_anim, min(self.time + direction * self.dt, self.end_anim))  # type: ignore[type-var,operator]
         self._sync_frame_count()
@@ -432,7 +432,7 @@ class VectorMathAnim:
             yield t
             t += dt
 
-    def export_video(self, filename='animation.mp4', start: float = 0, end: float | None = None, fps=60, scale=None):
+    def export_video(self, filename='animation.mp4', start: float = 0, end: float | None = None, fps: int = 60, scale=None):
         """Export animation as video using cairosvg + ffmpeg."""
         import subprocess, shutil
         cairosvg = self._require_cairosvg()
@@ -459,7 +459,7 @@ class VectorMathAnim:
         finally:
             shutil.rmtree(tmpdir, ignore_errors=True)
 
-    def export_gif(self, filename='animation.gif', start: float = 0, end: float | None = None, fps=30, scale=None, loop=0):
+    def export_gif(self, filename='animation.gif', start: float = 0, end: float | None = None, fps: int = 30, scale=None, loop: int = 0):
         """Export animation as an animated GIF using cairosvg + Pillow."""
         cairosvg = self._require_cairosvg()
         try:
@@ -496,7 +496,7 @@ class VectorMathAnim:
         return [{'class': obj.__class__.__name__, 'id': id(obj)}
                 for obj in self._visible_objects(time)]
 
-    def browser_display(self, start: float = 0, end: float | None = None, fps=60,
+    def browser_display(self, start: float = 0, end: float | None = None, fps: int = 60,
                         port=8765, hot_reload=False):
         """View the animation in a browser via WebSocket.
         If end == 0, displays a single static picture (no animation)."""

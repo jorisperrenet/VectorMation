@@ -38,7 +38,7 @@ import svgpathtools
 import numpy as np
 import vectormation.easings as easings
 
-def convert_to_bezier(seg, n_curves=10):
+def convert_to_bezier(seg, n_curves: int = 10):
     """Convert svgpathtools segment to CubicBezier, approximate arcs by n_curves splines."""
     if isinstance(seg, svgpathtools.Line):
         return [CubicBezier(start=seg.start, control1=seg.start, control2=seg.end, end=seg.end)]

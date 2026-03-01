@@ -62,7 +62,7 @@ class _SVGFilter:
 
 class BlurFilter(_SVGFilter):
     """SVG Gaussian blur filter. Apply via styling: obj.styling.filter = 'url(#id)'."""
-    def __init__(self, std_deviation=4):
+    def __init__(self, std_deviation: float = 4):
         super().__init__('blur')
         self.std_deviation = std_deviation
     def __repr__(self):
@@ -207,7 +207,7 @@ class Angle(VCollection):
         _set_attr(self.arc.r, start, end, new_radius, easing)
         return self
 
-    def shift(self, dx=0, dy=0, start: float = 0, end: float | None = None, easing=easings.smooth):
+    def shift(self, dx: float = 0, dy: float = 0, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Shift the angle by moving vertex, p1, p2 (label follows automatically)."""
         for c in [self.vertex, self.p1, self.p2]:
             if end is None:
@@ -728,7 +728,7 @@ class StreamLines(VCollection):
 
 class Cutout(VObject):
     """Full-screen overlay with a rectangular cutout (spotlight effect)."""
-    def __init__(self, hole_x=660, hole_y=340, hole_w=600, hole_h=400,
+    def __init__(self, hole_x: float = 660, hole_y: float = 340, hole_w: float = 600, hole_h: float = 400,
                  color='#000', opacity: float = 0.7, rx=0, ry=0,
                  creation: float = 0, z: float = 99, **styling_kwargs):
         super().__init__(creation=creation, z=z)
@@ -952,7 +952,7 @@ class AnimatedBoundary(VObject):
         Border stroke width.
     """
 
-    def __init__(self, target, colors=None, cycle_rate=1.0, buff: float = 8,
+    def __init__(self, target, colors=None, cycle_rate: float = 1.0, buff: float = 8,
                  stroke_width: float = 3, creation: float = 0, z: float = 0):
         super().__init__(creation=creation, z=z)
         self._target = target
