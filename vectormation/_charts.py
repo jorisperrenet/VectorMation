@@ -411,7 +411,7 @@ class BarChart(VCollection):
         bars = self._bars[start_idx:end_idx]
         return VCollection(*bars)
 
-    def highlight_bar(self, index, color='#FFFF00', start: float = 0, end: float | None = None, opacity=None):
+    def highlight_bar(self, index, start: float = 0, end: float | None = None, color='#FFFF00', opacity=None):
         """Highlight a specific bar by changing its fill color."""
         self.set_bar_color(index, color, start, end)
         if opacity is not None:
