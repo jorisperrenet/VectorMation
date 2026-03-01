@@ -43,6 +43,16 @@ def _from_dict(cls, data, **kwargs):
     """Create a chart from a dict {label: value}."""
     return cls(list(data.values()), labels=list(data.keys()), **kwargs)
 
+
+def _highlight_sector_impl(self, index, start, end, pull_distance, easing):
+    """Shared highlight_sector logic for PieChart and DonutChart."""
+    sector = _check_idx(index, self._sectors, 'sector')
+    if end - start <= 0:
+        return self
+    dx, dy = self._sector_offset(index, pull_distance)
+    sector.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
+    return self
+
 class PieChart(VCollection):
     """Pie chart visualization using Wedge sectors."""
     def __init__(self, values, labels=None, colors=None, cx=ORIGIN[0], cy=ORIGIN[1], r=240,
@@ -79,9 +89,9 @@ class PieChart(VCollection):
     def get_sector(self, index):
         return _check_idx(index, self._sectors, 'sector')
 
-    @staticmethod
-    def _sector_offset(sector, distance, time: float = 0):
-        """Compute (dx, dy) to push a Wedge sector outward by *distance*."""
+    def _sector_offset(self, index, distance, time: float = 0):
+        """Compute (dx, dy) to push sector *index* outward by *distance*."""
+        sector = self._sectors[index]
         sa = sector.start_angle.at_time(time)
         ea = sector.end_angle.at_time(time)
         mid_rad = math.radians((sa + ea) / 2)
@@ -89,20 +99,14 @@ class PieChart(VCollection):
 
     def highlight_sector(self, index, start=0, end=1, pull_distance=30, easing=easings.there_and_back):
         """Pull out a sector from the pie to highlight it."""
-        sector = _check_idx(index, self._sectors, 'sector')
-        dur = end - start
-        if dur <= 0:
-            return self
-        dx, dy = self._sector_offset(sector, pull_distance, start)
-        sector.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
-        return self
+        return _highlight_sector_impl(self, index, start, end, pull_distance, easing)
 
     def explode(self, indices, distance=20, start=0, end=None, easing=None):
         """Permanently shift specified sectors outward from the pie center."""
         for idx in indices:
             if idx < 0 or idx >= len(self._sectors):
                 continue
-            dx, dy = self._sector_offset(self._sectors[idx], distance, start)
+            dx, dy = self._sector_offset(idx, distance, start)
             self._sectors[idx].shift(dx=dx, dy=dy, start=start, end=end, easing=easing or easings.smooth)
         return self
 
@@ -255,13 +259,7 @@ class DonutChart(VCollection):
 
     def highlight_sector(self, index, start=0, end=1, pull_distance=30, easing=easings.there_and_back):
         """Pull out a donut sector to highlight it by shifting it outward."""
-        sector = _check_idx(index, self._sectors, 'sector')
-        dur = end - start
-        if dur <= 0:
-            return self
-        dx, dy = self._sector_offset(index, pull_distance)
-        sector.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
-        return self
+        return _highlight_sector_impl(self, index, start, end, pull_distance, easing)
 
     def animate_values(self, new_values, start=0, end=1, easing=easings.smooth):
         """Animate donut chart to new values by morphing sector path shapes."""

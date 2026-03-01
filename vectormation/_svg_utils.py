@@ -12,6 +12,8 @@ from vectormation._constants import (
 from vectormation._base import VObject, VCollection, _norm_dir
 from vectormation._base_helpers import _set_attr
 
+_CANVAS_OUTER_PATH = f'M0,0 H{CANVAS_WIDTH} V{CANVAS_HEIGHT} H0 Z '
+
 
 def _inner_angle(a1, a2):
     """Return the inner angle in degrees between two angles, always in [0, 180]."""
@@ -766,7 +768,7 @@ class Cutout(VObject):
         hy = self.hole_y.at_time(time)
         hw = self.hole_w.at_time(time)
         hh = self.hole_h.at_time(time)
-        outer = f'M0,0 H{CANVAS_WIDTH} V{CANVAS_HEIGHT} H0 Z '
+        outer = _CANVAS_OUTER_PATH
         if self.rx or self.ry:
             rx, ry = self.rx, self.ry
             d = (outer
@@ -904,9 +906,8 @@ class Spotlight(VObject):
         cx, cy = self._cx.at_time(time), self._cy.at_time(time)
         r = self._r.at_time(time)
         # Outer rect (full canvas) + inner circle cutout (even-odd fill)
-        w, h = CANVAS_WIDTH, CANVAS_HEIGHT
-        return (f'M0,0 H{w} V{h} H0 Z '
-                f'M{cx + r},{cy} '
+        return (_CANVAS_OUTER_PATH
+                + f'M{cx + r},{cy} '
                 f'A{r},{r} 0 1,0 {cx - r},{cy} '
                 f'A{r},{r} 0 1,0 {cx + r},{cy} Z')
 

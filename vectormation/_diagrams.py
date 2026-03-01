@@ -619,13 +619,25 @@ class Tree(VCollection):
 
     @staticmethod
     def _dict_to_tree(d):
-        """Convert dict tree to tuple tree."""
+        """Convert dict tree to tuple tree.
+
+        Supports ``{'A': ['B', 'C']}`` (list children) and
+        ``{'A': {'B': ..., 'C': ...}}`` (nested dict) formats.
+        """
         if not d:
             return ('', [])
         key = next(iter(d))
         children = d[key]
         if isinstance(children, dict):
             return (key, [Tree._dict_to_tree({k: v}) for k, v in children.items()])
+        if isinstance(children, (list, tuple)):
+            result = []
+            for child in children:
+                if isinstance(child, dict):
+                    result.append(Tree._dict_to_tree(child))
+                else:
+                    result.append((str(child), []))
+            return (key, result)
         return (key, [])
 
     @staticmethod

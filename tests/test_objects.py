@@ -22311,3 +22311,102 @@ class TestApplyShiftEffectInCollection:
         canvas.add(items)
         svg = canvas.generate_frame_svg(time=1.0)
         assert '<svg' in svg
+
+
+class TestTreeDictToTree:
+    """Test Tree._dict_to_tree handles list children."""
+    def test_dict_with_list_children(self):
+        t = Tree({'A': ['B', 'C', 'D']})
+        assert len(t.objects) > 0
+
+    def test_dict_with_nested_dict(self):
+        t = Tree({'root': {'left': {}, 'right': {}}})
+        assert len(t.objects) > 0
+
+    def test_dict_with_mixed_children(self):
+        t = Tree({'root': [{'child1': ['a', 'b']}, 'child2']})
+        assert len(t.objects) > 0
+
+    def test_empty_dict(self):
+        t = Tree({'root': []})
+        assert len(t.objects) > 0
+
+
+class TestHighlightSectorShared:
+    """Test PieChart and DonutChart highlight_sector after refactor."""
+    def test_pie_highlight_sector(self):
+        pie = PieChart([30, 20, 50])
+        result = pie.highlight_sector(0, start=0, end=1)
+        assert result is pie
+
+    def test_donut_highlight_sector(self):
+        donut = DonutChart([30, 20, 50])
+        result = donut.highlight_sector(1, start=0, end=1)
+        assert result is donut
+
+    def test_pie_explode(self):
+        pie = PieChart([25, 25, 25, 25])
+        result = pie.explode([0, 2], distance=30, start=0)
+        assert result is pie
+
+    def test_pie_highlight_zero_duration(self):
+        pie = PieChart([10, 20, 30])
+        result = pie.highlight_sector(0, start=0, end=0)
+        assert result is pie
+
+
+class TestWaveThroughApplyWave:
+    """Test wave_through and apply_wave use shared helper."""
+    def test_wave_through_y(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.wave_through(start=0, end=1, amplitude=20, direction='y')
+        assert result is c
+
+    def test_wave_through_x(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.wave_through(start=0, end=1, amplitude=20, direction='x')
+        assert result is c
+
+    def test_apply_wave_y(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.apply_wave(start=0, end=1, amplitude=30)
+        assert result is c
+
+    def test_apply_wave_custom_func(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.apply_wave(start=0, end=1, amplitude=20, wave_func=math.cos)
+        assert result is c
+
+    def test_wave_through_zero_duration(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.wave_through(start=0, end=0)
+        assert result is c
+
+    def test_apply_wave_renders(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.apply_wave(start=0, end=2, amplitude=30)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(c)
+        svg = canvas.generate_frame_svg(time=1.0)
+        assert '<svg' in svg
+
+
+class TestElasticBounce:
+    """Test elastic_bounce effect."""
+    def test_basic(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.elastic_bounce(start=0, end=2, height=100)
+        assert result is c
+
+    def test_renders(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.elastic_bounce(start=0, end=2, height=100, n_bounces=3)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(c)
+        svg = canvas.generate_frame_svg(time=1.0)
+        assert '<svg' in svg
+
+    def test_zero_duration(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.elastic_bounce(start=0, end=0)
+        assert result is c

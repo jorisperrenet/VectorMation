@@ -360,17 +360,23 @@ class _VObjectEffectsMixin:
                 c.add(t0, t1, lambda _t, _dx=dx: (_dx, 0), stay=False)
         return self
 
+    @staticmethod
+    def _make_parabolic_wave(start, _d, amplitude, frequency, easing, wave_func=None):
+        """Build a closure for parabolic-envelope sinusoidal displacement."""
+        wf = wave_func or math.sin
+        def _wave(t, _s=start, _d=_d, _a=amplitude, _freq=frequency, _e=easing, _wf=wf):
+            p = (t - _s) / _d
+            envelope = _e(p) * (1 - _e(p)) * 4
+            return _a * _wf(math.tau * _freq * p) * envelope
+        return _wave
+
     def wave_through(self, start: float = 0, end: float = 1, amplitude=20,
                      frequency=2, direction='y', easing=easings.smooth):
         """Sinusoidal oscillation along the given axis with a fading envelope."""
         dur = end - start
         if dur <= 0:
             return self
-        _d = max(dur, 1e-9)
-        def _wave(t, _s=start, _d=_d, _a=amplitude, _freq=frequency, _easing=easing):
-            progress = (t - _s) / _d
-            envelope = _easing(progress) * (1 - _easing(progress)) * 4
-            return _a * math.sin(math.tau * _freq * progress) * envelope
+        _wave = self._make_parabolic_wave(start, max(dur, 1e-9), amplitude, frequency, easing)
         kw = {'dy_func': _wave} if direction == 'y' else {'dx_func': _wave}
         return self._apply_shift_effect(start, end, **kw)
 
@@ -846,14 +852,8 @@ class _VObjectEffectsMixin:
         dur = end - start
         if dur <= 0:
             return self
-        wf = wave_func or math.sin
-        _d = max(dur, 1e-9)
-
-        def _wave_dy(t, _s=start, _d=_d, _a=amplitude, _wf=wf, _e=easing):
-            p = (t - _s) / _d
-            envelope = _e(p) * (1 - _e(p)) * 4  # parabolic envelope: 0→1→0
-            return _a * _wf(math.tau * 2 * p) * envelope
-        kw = {'dy_func': _wave_dy} if direction == 'y' else {'dx_func': _wave_dy}
+        _wave = self._make_parabolic_wave(start, max(dur, 1e-9), amplitude, 2, easing, wave_func)
+        kw = {'dy_func': _wave} if direction == 'y' else {'dx_func': _wave}
         self._apply_shift_effect(start, end, **kw)
         return self
 
