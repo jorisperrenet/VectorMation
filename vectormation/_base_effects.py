@@ -603,7 +603,7 @@ class _VObjectEffectsMixin:
             self.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
 
-    def add_background(self, color='#000000', opacity=0.5, padding=20, creation=0, z=-1):
+    def add_background(self, color='#000000', opacity=0.5, padding=20, creation: float = 0, z=-1):
         """Create a semi-transparent Rectangle behind the object as a readability backdrop."""
         from vectormation._shapes import Rectangle
         x, y, w, h = self.bbox(creation)
@@ -791,7 +791,7 @@ class _VObjectEffectsMixin:
         return self.center_to_pos(posx=cx + fraction * (tx - cx),
             posy=cy + fraction * (ty - cy), start=start, end=end, easing=easing or easings.smooth)
 
-    def add_label(self, text, direction=UP, buff=20, font_size=None, follow=False, creation=0, **kwargs):
+    def add_label(self, text, direction=UP, buff=20, font_size=None, follow=False, creation: float = 0, **kwargs):
         """Attach a text label next to this object. Returns a VCollection(self, label)."""
         from vectormation._shapes import Text as _Text
         label_kwargs = dict(creation=creation)

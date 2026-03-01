@@ -444,7 +444,7 @@ class Vector(Arrow):
         e = self.get_end(time)
         return (e[0] - s[0], e[1] - s[1])
 
-    def coordinate_label(self, integer_labels=True, creation=0, **kwargs):
+    def coordinate_label(self, integer_labels=True, creation: float = 0, **kwargs):
         """Create a column-matrix label showing the vector's endpoint coordinates."""
         from vectormation._composites import Matrix
         vx, vy = self.get_vector(creation)

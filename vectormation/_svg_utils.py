@@ -340,7 +340,7 @@ def from_svg(element, **styles):
 
 _SVG_SHAPE_TAGS = frozenset({'path', 'rect', 'circle', 'ellipse', 'line', 'polygon', 'polyline', 'text', 'g'})
 
-def from_svg_file(filepath, creation=0, z=0, **styles):
+def from_svg_file(filepath, creation: float = 0, z=0, **styles):
     """Load an SVG file and return a VCollection of all parseable elements."""
     from bs4 import BeautifulSoup
     with open(filepath, 'r') as f:
@@ -610,7 +610,7 @@ class Intersection(_BooleanOp):
 # ---------------------------------------------------------------------------
 
 def brace_between_points(p1, p2, direction=None, label=None, buff=0, depth=18,
-                         creation=0, z=0, **styling_kwargs):
+                         creation: float = 0, z=0, **styling_kwargs):
     """Create a Brace between two arbitrary points."""
     x1, y1 = p1
     x2, y2 = p2
@@ -663,7 +663,7 @@ class ArrowVectorField(VCollection):
     """Vector field visualization using arrows."""
     def __init__(self, func, x_range=(60, CANVAS_WIDTH - 60, 120),
                  y_range=(60, CANVAS_HEIGHT - 60, 120),
-                 max_length=80, creation=0, z=0, **styling_kwargs):
+                 max_length=80, creation: float = 0, z=0, **styling_kwargs):
         Arrow = _get_arrow()
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 2} | styling_kwargs
         objects = []
@@ -691,7 +691,7 @@ class StreamLines(VCollection):
     """Animated flow lines for a vector field."""
     def __init__(self, func, x_range=(60, CANVAS_WIDTH - 60, 200),
                  y_range=(60, CANVAS_HEIGHT - 60, 200),
-                 n_steps=40, step_size=5, creation=0, z=0, **styling_kwargs):
+                 n_steps=40, step_size=5, creation: float = 0, z=0, **styling_kwargs):
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 2, 'fill_opacity': 0} | styling_kwargs
         objects = []
         for sx, sy in _sample_grid(x_range, y_range):
@@ -814,7 +814,7 @@ class ConvexHull(Polygon):
 
     *items* can be (x, y) tuples or VObject instances (their centers are used).
     """
-    def __init__(self, *items, creation=0, z=0, **styling_kwargs):
+    def __init__(self, *items, creation: float = 0, z=0, **styling_kwargs):
         points = []
         for item in items:
             if isinstance(item, (tuple, list)) and len(item) == 2:

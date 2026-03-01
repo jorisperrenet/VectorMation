@@ -342,7 +342,7 @@ class Line(VObject):
         """Return True if ``(px, py)`` is within *tol* pixels of this segment."""
         return self.distance_to_point(px, py, time) <= tol
 
-    def add_tip(self, end=True, start=False, tip_length=None, tip_width=None, creation=0):
+    def add_tip(self, end=True, start=False, tip_length=None, tip_width=None, creation: float = 0):
         """Create arrowhead tip polygon(s) at line endpoints."""
 
         tl = tip_length if tip_length is not None else DEFAULT_ARROW_TIP_LENGTH
@@ -1912,7 +1912,7 @@ class ArcPolygon(VObject):
       Positive → bulge left of travel direction, negative → right.
       0 = straight line segment.
     """
-    def __init__(self, *vertices, arc_angles=30, creation=0, z=0, **styling_kwargs):
+    def __init__(self, *vertices, arc_angles=30, creation: float = 0, z=0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         if len(vertices) < 3:
             raise ValueError("ArcPolygon requires at least 3 vertices")
@@ -1955,7 +1955,7 @@ class ArcPolygon(VObject):
 class CubicBezier(VObject):
     """Cubic Bezier curve from four control points."""
     def __init__(self, p0=(860, 540), p1=(910, 440), p2=(1010, 440), p3=(1060, 540),
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z=0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.p0 = attributes.Coor(creation, p0)
         self.p1 = attributes.Coor(creation, p1)
@@ -2144,7 +2144,7 @@ class FunctionGraph(Lines):
     """Plot a mathematical function as a polyline (no axes, ticks, or labels)."""
     def __init__(self, func, x_range=(-5, 5), y_range=None, num_points=200,
                  x=120, y=60, width=1440, height=840,
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z=0, **styling_kwargs):
         x_min, x_max = x_range
         y_lo, y_hi, _, clamped = _sample_function(
             func, x_min, x_max, y_range, num_points, x, y, width, height)

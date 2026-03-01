@@ -242,7 +242,7 @@ class NumberLine(VCollection):
     def __init__(self, x_range=(-5, 5, 1), length=720, x=240, y=ORIGIN[1],
                  include_arrows=True, include_numbers=True,
                  tick_size=2*SMALL_BUFF, font_size=_TICK_FONT_SIZE,
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z=0, **styling_kwargs):
         if len(x_range) == 2:
             x_range = (*x_range, 1)
         x_start, x_end, x_step = x_range
@@ -322,7 +322,7 @@ class NumberLine(VCollection):
         ptr.vertices[2].set_onward(start, lambda t: (p := pos_func(t), (p[0], p[1] - 2))[1])
 
     def add_pointer(self, value, label=None, color='#FF6B6B', size=12,
-                     creation=0, z=1):
+                     creation: float = 0, z=1):
         """Add an animated pointer (triangle) above the number line at *value*."""
         px, py = self.number_to_point(
             value.at_time(creation) if hasattr(value, 'at_time') else value
@@ -387,11 +387,11 @@ class NumberLine(VCollection):
         self.objects.append(rect)
         return rect
 
-    def add_segment(self, start_val, end_val, color='#58C4DD', height=8, creation=0, z=1):
+    def add_segment(self, start_val, end_val, color='#58C4DD', height=8, creation: float = 0, z=1):
         """Highlight a range on the number line with a filled rectangle."""
         return self._make_range_rect(start_val, end_val, color, height, 0.7, creation, z)
 
-    def add_dot_at(self, value, color='#FF6B6B', radius=8, creation=0, **kwargs):
+    def add_dot_at(self, value, color='#FF6B6B', radius=8, creation: float = 0, **kwargs):
         """Add a colored dot at a specific value on the number line."""
         px, py = self.number_to_point(value)
         kw = {'fill': color, 'stroke_width': 0} | kwargs
@@ -400,7 +400,7 @@ class NumberLine(VCollection):
         return dot
 
     def highlight_range(self, start_val, end_val, color='#FFFF00',
-                        height=16, opacity=0.4, creation=0, z=1, **kwargs):
+                        height=16, opacity=0.4, creation: float = 0, z=1, **kwargs):
         """Highlight a numeric range on the number line with a colored rectangle."""
         sv = max(self.x_start, min(self.x_end, start_val))
         ev = max(self.x_start, min(self.x_end, end_val))
@@ -408,7 +408,7 @@ class NumberLine(VCollection):
             sv, ev = ev, sv
         return self._make_range_rect(sv, ev, color, height, opacity, creation, z, **kwargs)
 
-    def add_label(self, value, text, buff=10, font_size=24, side='below', creation=0, **kwargs):
+    def add_label(self, value, text, buff=10, font_size=24, side='below', creation: float = 0, **kwargs):
         """Add a text label at the given value on the number line."""
         px, py = self.number_to_point(value)
         kw = {'fill': '#fff', 'stroke_width': 0, 'text_anchor': 'middle'} | kwargs
@@ -419,7 +419,7 @@ class NumberLine(VCollection):
         return self
 
     def add_tick_labels_range(self, start_val, end_val, step, format_func=None,
-                              font_size=None, creation=0):
+                              font_size=None, creation: float = 0):
         """Batch-add tick labels for values from *start_val* to *end_val*."""
         if format_func is None:
             format_func = str
@@ -450,7 +450,7 @@ class NumberLine(VCollection):
         return brace
 
     def add_interval_bracket(self, x1, x2, closed_left=True, closed_right=True,
-                              creation=0, **kwargs):
+                              creation: float = 0, **kwargs):
         """Show an interval on the number line with bracket notation."""
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 3} | kwargs
         p1x, p1y = self.number_to_point(x1)
@@ -1230,7 +1230,7 @@ class TexCountAnimation(DynamicObject):
         alpha = self._easing((t - self._anim_start) / self._anim_dur)
         return self._start_val + (self._end_val - self._start_val) * alpha
 
-    def _build_number(self, val, creation=0):
+    def _build_number(self, val, creation: float = 0):
         """Assemble digit glyphs into a VCollection for the given numeric value."""
         text = self._fmt.format(val)
         objects = []
@@ -1263,7 +1263,7 @@ class TexCountAnimation(DynamicObject):
         self._last_val = target
         return self
 
-def always_redraw(func, creation=0, z=0):
+def always_redraw(func, creation: float = 0, z=0):
     """Convenience wrapper: create a DynamicObject from a callable.
     func(time) should return a VObject."""
     return DynamicObject(func, creation=creation, z=z)
@@ -1322,7 +1322,7 @@ def parse_args():
 class ParametricFunction(Lines):
     """A curve defined by a parametric function f(t) -> (x, y)."""
     def __init__(self, func, t_range=(0, 1), num_points=200,
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z=0, **styling_kwargs):
         t_min, t_max = t_range
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 4, 'fill_opacity': 0} | styling_kwargs
         pts = [func(t_min + (t_max - t_min) * i / max(num_points - 1, 1))

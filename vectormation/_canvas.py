@@ -142,7 +142,7 @@ class VectorMathAnim:
         self._animate_viewbox(start, end, target_x, target_y, target_w, target_h, easing)
         return self
 
-    def set_background(self, creation=0, z=-1, grid=False, grid_spacing=60, grid_color='#333', **styling):
+    def set_background(self, creation: float = 0, z=-1, grid=False, grid_spacing=60, grid_color='#333', **styling):
         """Sets the background of the animation (otherwise no background is added)."""
         if self.background is not None:
             del self.objects[id(self.background)]

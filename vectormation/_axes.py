@@ -52,7 +52,7 @@ class Axes(_AxesExtMixin, VCollection):
                  x_ticks=None, y_ticks=None,
                  tex_ticks=False,
                  x_tick_type=None, y_tick_type=None,
-                 creation=0, z=0):
+                 creation: float = 0, z=0):
         """
         Args:
             x_tick_type: Shorthand tick preset for the x-axis.  One of
@@ -281,7 +281,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_function(self, func, label=None, label_direction='up', label_x_val=None,
                      num_points=200, x_range=None, lincl=True, rincl=True,
-                     creation=0, z=0, **styling_kwargs):
+                     creation: float = 0, z=0, **styling_kwargs):
         """Add a function curve to these axes. Returns the Path object."""
         if hasattr(self, '_deferred_axes'):
             self._build_deferred_axes(func, num_points)
@@ -324,7 +324,7 @@ class Axes(_AxesExtMixin, VCollection):
         return VCollection(curve, area, creation=start)
 
     def add_parametric_plot(self, fx, fy, t_range=(0, 1), num_points=100,
-                            creation=0, z=0, **styling_kwargs):
+                            creation: float = 0, z=0, **styling_kwargs):
         """Plot a parametric curve x=fx(t), y=fy(t). Returns a Path object."""
         if hasattr(self, '_deferred_axes'):
             # Sample fy over t_range (not x_range) to auto-detect y bounds
@@ -366,7 +366,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(curve)
         return curve
 
-    def plot_piecewise(self, pieces, creation=0, **kwargs):
+    def plot_piecewise(self, pieces, creation: float = 0, **kwargs):
         """Plot a piecewise function defined by ``[(func, x_min, x_max), ...]``. Returns a VGroup."""
         from vectormation._base import VGroup
         curves = []
@@ -378,7 +378,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def animate_draw_function(self, func, start: float = 0, end: float = 1, x_range=None,
                                num_points=200, easing=easings.smooth,
-                               creation=0, z=0, **styling_kwargs):
+                               creation: float = 0, z=0, **styling_kwargs):
         """Draw a function curve progressively from left to right."""
         def _make_d(time, _axes=self, _x_range=x_range, _easing=easing):
             if _x_range:
@@ -414,7 +414,7 @@ class Axes(_AxesExtMixin, VCollection):
         self.objects.append(path)
         return path
 
-    def add_coordinates(self, creation=0, font_size=None, color='#aaa'):
+    def add_coordinates(self, creation: float = 0, font_size=None, color='#aaa'):
         """Add coordinate labels at each tick mark on both axes."""
         if font_size is None:
             font_size = _TICK_FONT_SIZE
@@ -440,7 +440,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._show_grid = True
         return self
 
-    def add_zero_line(self, axis='x', creation=0, z=-1, **styling_kwargs):
+    def add_zero_line(self, axis='x', creation: float = 0, z=-1, **styling_kwargs):
         """Add a prominent zero line (y=0 for axis='x', x=0 for axis='y').
         Useful to visually separate positive/negative regions."""
         styling_kwargs.setdefault('stroke', '#888')
@@ -578,7 +578,7 @@ class Axes(_AxesExtMixin, VCollection):
         return _pos
 
     def get_graph_label(self, func, label, x_val=None, direction='up', buff=SMALL_BUFF,
-                         font_size=48, creation=0, z=0, **styling_kwargs):
+                         font_size=48, creation: float = 0, z=0, **styling_kwargs):
         """Create a TeX label positioned near a plotted function curve."""
         style_kw = {'fill': '#fff', 'stroke_width': 0} | styling_kwargs
         label_obj = _get_tex_object()(label, font_size=font_size, creation=creation, z=z, **style_kw)
@@ -601,7 +601,7 @@ class Axes(_AxesExtMixin, VCollection):
         return label_obj
 
     def plot_parametric(self, func, t_range=(0, 1), num_points=200,
-                        creation=0, z=0, **styling_kwargs):
+                        creation: float = 0, z=0, **styling_kwargs):
         """Plot a parametric curve func(t) -> (x, y) in math coordinates. Returns a Path."""
         style_kw = _CURVE_STYLE | styling_kwargs
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
@@ -620,7 +620,7 @@ class Axes(_AxesExtMixin, VCollection):
         return curve
 
     def plot_polar(self, func, theta_range=(0, math.tau), num_points=200,
-                    creation=0, z=0, **styling_kwargs):
+                    creation: float = 0, z=0, **styling_kwargs):
         """Plot a polar curve r=func(theta) on these axes. Returns a Path."""
         def _parametric(theta):
             r = func(theta)
@@ -629,7 +629,7 @@ class Axes(_AxesExtMixin, VCollection):
                                     num_points=num_points, creation=creation,
                                     z=z, **styling_kwargs)
 
-    def plot_implicit(self, func, num_points=100, creation=0, z=0, **styling_kwargs):
+    def plot_implicit(self, func, num_points=100, creation: float = 0, z=0, **styling_kwargs):
         """Plot an implicit curve f(x, y) = 0 using marching squares. Returns a Path."""
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
@@ -672,7 +672,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(curve)
         return curve
 
-    def plot_line_graph(self, x_values, y_values, creation=0, z=0, **styling_kwargs):
+    def plot_line_graph(self, x_values, y_values, creation: float = 0, z=0, **styling_kwargs):
         """Plot a line graph from discrete data points. Returns a VCollection with animate_data()."""
         style_kw = _CURVE_STYLE | styling_kwargs
         # Mutable container so animate_data can update the data reference
@@ -763,7 +763,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(group)
         return group
 
-    def plot_scatter(self, x_values, y_values, r=5, creation=0, z=0, **styling_kwargs):
+    def plot_scatter(self, x_values, y_values, r=5, creation: float = 0, z=0, **styling_kwargs):
         """Plot a scatter plot (dots only, no connecting lines). Returns a VCollection."""
         style_kw = {'fill': '#58C4DD', 'stroke_width': 0} | styling_kwargs
         data = list(zip(x_values, y_values))
@@ -776,7 +776,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(group)
         return group
 
-    def plot_step(self, x_values, y_values, creation=0, z=0, **styling_kwargs):
+    def plot_step(self, x_values, y_values, creation: float = 0, z=0, **styling_kwargs):
         """Plot a step function (horizontal then vertical segments).
         Returns a Path object."""
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
@@ -800,7 +800,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(curve)
         return curve
 
-    def plot_filled_step(self, x_values, y_values, baseline=0, creation=0, z=0, **styling_kwargs):
+    def plot_filled_step(self, x_values, y_values, baseline=0, creation: float = 0, z=0, **styling_kwargs):
         """Plot a step function with shaded area down to baseline.
         Returns a Path object."""
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.3,
@@ -827,7 +827,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(curve)
         return curve
 
-    def plot_histogram(self, data, bins=10, creation=0, z=0, **styling_kwargs):
+    def plot_histogram(self, data, bins=10, creation: float = 0, z=0, **styling_kwargs):
         """Plot a histogram from raw data values. Returns a VCollection of Rectangles."""
         if not data:
             return VCollection()
@@ -865,7 +865,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(group)
         return group
 
-    def plot_bar(self, x_values, y_values, bar_width=0.6, creation=0, z=0, **styling_kwargs):
+    def plot_bar(self, x_values, y_values, bar_width=0.6, creation: float = 0, z=0, **styling_kwargs):
         """Plot a bar chart inside the axes coordinate system. Returns a VCollection."""
         # Pop 'width'/'height' from kwargs — they conflict with Rectangle positional args
         styling_kwargs.pop('width', None)
@@ -893,7 +893,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(group)
         return group
 
-    def plot_stem(self, x_values, y_values, baseline=0, r=4, creation=0, z=0,
+    def plot_stem(self, x_values, y_values, baseline=0, r=4, creation: float = 0, z=0,
                    **styling_kwargs):
         """Plot a stem chart with vertical lines and dot markers. Returns a VCollection."""
         line_kw = {'stroke': '#58C4DD', 'stroke_width': 1.5}
@@ -923,7 +923,7 @@ class Axes(_AxesExtMixin, VCollection):
         return VCollection(*objs, creation=creation, z=z)
 
     def plot_grouped_bar(self, data, group_labels=None, bar_width=0.25,
-                          group_spacing=1.0, colors=None, creation=0, z=0,
+                          group_spacing=1.0, colors=None, creation: float = 0, z=0,
                           **styling_kwargs):
         """Plot a grouped bar chart. Returns a VCollection of all bars."""
         n_series = len(data)
@@ -1027,7 +1027,7 @@ class Axes(_AxesExtMixin, VCollection):
             prev_x = x
         return points
 
-    def get_area(self, curve_or_func, x_range=None, bounded_graph=None, creation=0, z=0, **styling_kwargs):
+    def get_area(self, curve_or_func, x_range=None, bounded_graph=None, creation: float = 0, z=0, **styling_kwargs):
         """Create a shaded area under a curve/function (or between two curves)."""
         style_kw = _AREA_STYLE | styling_kwargs
         func = self._resolve_func(curve_or_func, 'curve_or_func')
@@ -1225,7 +1225,7 @@ class Axes(_AxesExtMixin, VCollection):
         return (fn(x + dx) - fn(x)) / dx
 
     def add_legend(self, entries, position='upper right', font_size=18,
-                    bg_color='#1a1a2e', bg_opacity=0.8, creation=0, z=10):
+                    bg_color='#1a1a2e', bg_opacity=0.8, creation: float = 0, z=10):
         """Add a legend box with colored swatches and labels. Returns a VCollection."""
         if not entries:
             return VCollection(creation=creation, z=z)
@@ -1263,20 +1263,20 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(group)
         return group
 
-    def get_area_between(self, func1, func2, x_range=None, creation=0, z=0, **styling_kwargs):
+    def get_area_between(self, func1, func2, x_range=None, creation: float = 0, z=0, **styling_kwargs):
         """Shade the area between two functions. Returns a Path."""
         style_kw = _AREA_STYLE | styling_kwargs
         return self.get_area(func1, bounded_graph=func2, x_range=x_range,
                              creation=creation, z=z, **style_kw)
 
     def shade_between(self, func1, func2, x_range=None, color='#58C4DD',
-                      opacity=0.2, creation=0, z=0, **styling_kwargs):
+                      opacity=0.2, creation: float = 0, z=0, **styling_kwargs):
         """Shade the region between two functions with given color and opacity."""
         kw = {'fill': color, 'fill_opacity': opacity} | styling_kwargs
         return self.get_area_between(func1, func2, x_range=x_range,
                                      creation=creation, z=z, **kw)
 
-    def get_rect(self, x1, y1, x2, y2, creation=0, z=0, **styling_kwargs):
+    def get_rect(self, x1, y1, x2, y2, creation: float = 0, z=0, **styling_kwargs):
         """Create a Rectangle from two corners in math coordinates."""
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.3, 'stroke': '#fff', 'stroke_width': 1} | styling_kwargs
         rect = Rectangle(width=0, height=0, creation=creation, z=z, **style_kw)
@@ -1292,7 +1292,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(rect)
         return rect
 
-    def get_vertical_line(self, x, y_val=None, creation=0, z=0, **styling_kwargs):
+    def get_vertical_line(self, x, y_val=None, creation: float = 0, z=0, **styling_kwargs):
         """Draw a vertical line at math x-coordinate."""
         style_kw = {'stroke': '#FFFF00', 'stroke_width': 2} | styling_kwargs
         line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
@@ -1312,7 +1312,7 @@ class Axes(_AxesExtMixin, VCollection):
         return line
 
     def add_dot_label(self, x, y, label=None, dot_color='#FF6B6B', dot_radius=6,
-                       label_offset=(10, -10), font_size=20, creation=0, z=0):
+                       label_offset=(10, -10), font_size=20, creation: float = 0, z=0):
         """Add a labeled dot at math coordinates (x, y). Returns (dot, label_text)."""
         sx, sy = self.coords_to_point(x, y, time=creation)
         dot = Dot(cx=sx, cy=sy, r=dot_radius, fill=dot_color,
@@ -1332,7 +1332,7 @@ class Axes(_AxesExtMixin, VCollection):
         return dot, lbl
 
     def add_point_label(self, x, y, text=None, dot_radius=6, font_size=20, buff=10,
-                        creation=0, **kwargs) -> 'tuple[Dot, Text]':
+                        creation: float = 0, **kwargs) -> 'tuple[Dot, Text]':
         """Add a dot at math coordinates (x, y) with an optional text label. Returns (dot, label)."""
         if text is None:
             text = f'({x:g}, {y:g})'
@@ -1344,7 +1344,7 @@ class Axes(_AxesExtMixin, VCollection):
                                   z=kwargs.pop('z', 0))
 
     def add_labeled_points(self, points, dot_color='#FF6B6B', dot_radius=6,
-                            font_size=14, creation=0, z=1):
+                            font_size=14, creation: float = 0, z=1):
         """Add multiple labeled dots to the axes. Returns a VCollection."""
         objs = []
         for item in points:
@@ -1363,7 +1363,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(group)
         return group
 
-    def add_marked_region(self, x1, x2, color='#FFFF00', opacity=0.2, creation=0, z=0):
+    def add_marked_region(self, x1, x2, color='#FFFF00', opacity=0.2, creation: float = 0, z=0):
         """Highlight a vertical region on the axes between x1 and x2. Returns a Rectangle."""
         sx1 = self._math_to_svg_x(x1, time=creation)
         sx2 = self._math_to_svg_x(x2, time=creation)
@@ -1376,7 +1376,7 @@ class Axes(_AxesExtMixin, VCollection):
         return rect
 
     def add_labeled_point(self, x, y, label=None, dot_radius=5, direction='above',
-                          creation=0, **kwargs):
+                          creation: float = 0, **kwargs):
         """Add a Dot at (*x*, *y*) with an optional directional Text label."""
         z = kwargs.pop('z', 0)
         font_size = kwargs.pop('font_size', 20)
@@ -1408,7 +1408,7 @@ class Axes(_AxesExtMixin, VCollection):
         return VCollection(*objs, creation=creation, z=z)
 
     def add_function_region(self, func, x_range=None, label=None,
-                            color='#58C4DD', opacity=0.2, creation=0):
+                            color='#58C4DD', opacity=0.2, creation: float = 0):
         """Plot a function and shade the area under it in one call. Returns the area Path."""
         self.add_function(func, label=label, x_range=x_range,
                           creation=creation, stroke=color)
@@ -1417,7 +1417,7 @@ class Axes(_AxesExtMixin, VCollection):
         return area
 
     def add_arrow_annotation(self, x, y, text, direction='up', length=80, buff=10,
-                              font_size=20, creation=0, z=5, **styling_kwargs):
+                              font_size=20, creation: float = 0, z=5, **styling_kwargs):
         """Add a labeled arrow pointing to a math coordinate. Returns a VCollection."""
         style_kw = {'stroke': '#FFFF00', 'fill': '#FFFF00'} | styling_kwargs
         sx, sy = self.coords_to_point(x, y, creation)
@@ -1482,7 +1482,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_callout(self, x, y, text, offset_x=60, offset_y=-60,
                     font_size=18, box_padding=8, corner_radius=4,
-                    creation=0, z=5, **styling_kwargs):
+                    creation: float = 0, z=5, **styling_kwargs):
         """Add a floating text callout box with a leader line to a data point. Returns a VCollection."""
         text_color = styling_kwargs.pop('text_color', '#fff')
         box_fill = styling_kwargs.pop('box_fill', '#333')
@@ -1541,7 +1541,7 @@ class Axes(_AxesExtMixin, VCollection):
         return group
 
     def add_cursor(self, func, x_start, x_end, start: float = 0, end: float = 1,
-                    r=6, creation=0, z=5, easing=easings.smooth, **styling_kwargs):
+                    r=6, creation: float = 0, z=5, easing=easings.smooth, **styling_kwargs):
         """Add an animated dot that travels along func from x_start to x_end. Returns a Dot."""
         style_kw = {'fill': '#FFFF00', 'stroke_width': 0} | styling_kwargs
         dot = Dot(cx=0, cy=0, r=r, creation=creation, z=z, **style_kw)
@@ -1560,7 +1560,7 @@ class Axes(_AxesExtMixin, VCollection):
         return dot
 
     def add_trace(self, func, x_start, x_end, start: float = 0, end: float = 1,
-                   r=5, trail_width=2, creation=0, z=5, easing=easings.smooth,
+                   r=5, trail_width=2, creation: float = 0, z=5, easing=easings.smooth,
                    **styling_kwargs):
         """Animated dot that traces along func, leaving a growing trail. Returns a VCollection."""
         style_kw = {'fill': '#FFFF00', 'stroke': '#FFFF00', 'stroke_width': 0} | styling_kwargs
@@ -1613,7 +1613,7 @@ class Axes(_AxesExtMixin, VCollection):
                            r=0, fill=color, stroke=color, **kw)
         return self
 
-    def get_line_from_to(self, x1, y1, x2, y2, creation=0, z=0, **styling_kwargs):
+    def get_line_from_to(self, x1, y1, x2, y2, creation: float = 0, z=0, **styling_kwargs):
         """Draw a line between two math coordinate points. Returns a Line."""
         style_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
         line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
@@ -1642,21 +1642,21 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(rect)
         return rect
 
-    def highlight_x_range(self, x_lo, x_hi, creation=0, z=-1, **styling_kwargs):
+    def highlight_x_range(self, x_lo, x_hi, creation: float = 0, z=-1, **styling_kwargs):
         """Shade a vertical strip between x_lo and x_hi. Returns a Rectangle."""
         return self._highlight_range(x_lo, x_hi, 'x', creation, z, styling_kwargs)
 
-    def highlight_y_range(self, y_lo, y_hi, creation=0, z=-1, **styling_kwargs):
+    def highlight_y_range(self, y_lo, y_hi, creation: float = 0, z=-1, **styling_kwargs):
         """Shade a horizontal strip between y_lo and y_hi. Returns a Rectangle."""
         return self._highlight_range(y_lo, y_hi, 'y', creation, z, styling_kwargs)
 
-    def add_horizontal_band(self, y1, y2, color='#FFFF00', opacity=0.2, creation=0):
+    def add_horizontal_band(self, y1, y2, color='#FFFF00', opacity=0.2, creation: float = 0):
         """Add a shaded horizontal band between y-values y1 and y2. Returns a Rectangle."""
         return self.highlight_y_range(y1, y2, creation=creation, z=-1,
                                       fill=color, fill_opacity=opacity, stroke_width=0)
 
     def shade_region(self, x_start, x_end, y_start=None, y_end=None,
-                     creation=0, z=-1, **styling_kwargs):
+                     creation: float = 0, z=-1, **styling_kwargs):
         """Shade an axis-aligned rectangular region in math coordinates. Returns a Rectangle."""
         style_kw = _HIGHLIGHT_STYLE | styling_kwargs
         rect = Rectangle(width=0, height=0, x=0, y=0, creation=creation, z=z, **style_kw)
@@ -1689,7 +1689,7 @@ class Axes(_AxesExtMixin, VCollection):
         return self
 
     def add_shaded_inequality(self, func, direction='below', x_range=None,
-                               samples=100, creation=0, z=-1, **styling_kwargs):
+                               samples=100, creation: float = 0, z=-1, **styling_kwargs):
         """Shade the region above or below a curve. Returns a dynamic Path."""
         style_kw = {'fill': '#FFFF00', 'fill_opacity': 0.1, 'stroke_width': 0} | styling_kwargs
         fn = self._resolve_func(func, 'func')
@@ -1719,7 +1719,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_area_label(self, func, x_start=None, x_end=None, x_range=None,
                         text=None, font_size=20,
-                        creation=0, z=3, samples=100, **styling_kwargs):
+                        creation: float = 0, z=3, samples=100, **styling_kwargs):
         """Add a label showing the numerical area under the curve, positioned at the centroid."""
         style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
         fn = self._resolve_func(func, 'func')
@@ -1770,7 +1770,7 @@ class Axes(_AxesExtMixin, VCollection):
         return lbl
 
     def add_moving_tangent(self, func, x_start, x_end, start: float = 0, end: float = 1,
-                            length=200, creation=0, z=2, easing=easings.smooth,
+                            length=200, creation: float = 0, z=2, easing=easings.smooth,
                             **styling_kwargs):
         """Draw a tangent line that slides along func from x_start to x_end. Returns a Line."""
         style_kw = {'stroke': '#FFFF00', 'stroke_width': 2} | styling_kwargs
@@ -1810,7 +1810,7 @@ class Graph(Axes):
                  x=260, y=100, plot_width=1400, plot_height=880,
                  x_label='x', y_label='y', label=None, label_direction='up',
                  label_x_val=None, show_grid=False,
-                 creation=0, z=0, **styling_kwargs):
+                 creation: float = 0, z=0, **styling_kwargs):
         # Determine y_range from function if not given
         x_min, x_max = x_range
         y_min, y_max, _, _ = _sample_function(
@@ -1986,7 +1986,7 @@ class NumberPlane(VCollection):
         self.objects = new_objects
         return self
 
-    def add_coordinate_labels(self, font_size=18, x_values=None, y_values=None, creation=0):
+    def add_coordinate_labels(self, font_size=18, x_values=None, y_values=None, creation: float = 0):
         """Create Text labels at tick positions on both axes. Skips 0."""
         x_min, x_max, x_step = self._x_range
         y_min, y_max, y_step = self._y_range
@@ -2045,7 +2045,7 @@ class NumberPlane(VCollection):
         """Inverse of coords_to_point. Returns logical coordinates from SVG pixel coordinates."""
         return ((x - self._cx) / self._unit, -(y - self._cy) / self._unit)
 
-    def get_vector(self, x, y, creation=0, **kwargs):
+    def get_vector(self, x, y, creation: float = 0, **kwargs):
         """Return an Arrow from the origin to point (x, y) in logical coordinates."""
         from vectormation._arrows import Arrow
         sx0, sy0 = self.coords_to_point(0, 0)
@@ -2059,7 +2059,7 @@ class ComplexPlane(Axes):
     """Complex number plane with Re/Im axes."""
     def __init__(self, x_range=(-5, 5), y_range=(-5, 5),
                  x_label='Re', y_label='Im', show_grid=True,
-                 creation=0, z=0, **kwargs):
+                 creation: float = 0, z=0, **kwargs):
         super().__init__(x_range=x_range, y_range=y_range,
                          x_label=x_label, y_label=y_label,
                          show_grid=show_grid, creation=creation, z=z, **kwargs)
@@ -2161,7 +2161,7 @@ class ComplexPlane(Axes):
     n2p = number_to_point
     p2n = point_to_number
 
-    def add_coordinate_labels(self, font_size=18, creation=0):
+    def add_coordinate_labels(self, font_size=18, creation: float = 0):
         """Create Text labels on real and imaginary axes (e.g. '2', '-3i')."""
         xmin, xmax, ymin, ymax = self._get_bounds(0)
         x_step = max(1, round((xmax - xmin) / 10))

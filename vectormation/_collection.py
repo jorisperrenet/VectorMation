@@ -1380,7 +1380,7 @@ class VCollection(_BBoxMethodsMixin):
         tmp.cascade('fadein', start=start, end=end, overlap=0.5, easing=easing)
         return self
 
-    def label_children(self, labels, direction=UP, buff=20, font_size=None, creation=0):
+    def label_children(self, labels, direction=UP, buff=20, font_size=None, creation: float = 0):
         """Create Text labels positioned relative to each child and return them as a VCollection."""
         from vectormation._shapes import Text  # lazy to avoid circular import
         label_objects = []

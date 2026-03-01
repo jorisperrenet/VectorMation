@@ -820,7 +820,7 @@ class Polygon(VObject):
         return self
 
     def label_vertices(self, labels=None, offset=20, font_size=24, time: float = 0,
-                       creation=0, z=None, **styling_kwargs):
+                       creation: float = 0, z=None, **styling_kwargs):
         """Create labeled dots at each vertex.
 
         Returns a VCollection of (Dot, Text) pairs positioned at each vertex,
@@ -1074,7 +1074,7 @@ class Circle(Ellipse):
         r = math.hypot(bw / 2, bh / 2) + padding
         return cls(r=r, cx=cx, cy=cy, **kwargs)
 
-    def tangent_line(self, angle_degrees, length=100, time: float = 0, creation=0, **line_kwargs):
+    def tangent_line(self, angle_degrees, length=100, time: float = 0, creation: float = 0, **line_kwargs):
         """Return a Line tangent to the circle at the given angle.
         Angle 0 = right, 90 = down (SVG coordinates)."""
         px, py = self.point_on_circle(angle_degrees, time)
@@ -1086,7 +1086,7 @@ class Circle(Ellipse):
                     x2=px + tx * half, y2=py + ty * half,
                     creation=creation, **line_kwargs)
 
-    def tangent_at_point(self, px, py, length=200, time: float = 0, creation=0, **line_kwargs):
+    def tangent_at_point(self, px, py, length=200, time: float = 0, creation: float = 0, **line_kwargs):
         """Return a Line tangent to the circle at the point closest to (px, py)."""
         cx, cy = self.c.at_time(time)
         # Angle from circle center to the given point
