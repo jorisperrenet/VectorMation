@@ -33,6 +33,8 @@ def _get_tex_object():
 
 def _nice_ticks(vmin, vmax, target_count: int = 7):
     """Generate nicely spaced tick values between vmin and vmax."""
+    if target_count <= 0:
+        return []
     span = vmax - vmin
     if span <= 0:
         return []
@@ -122,6 +124,8 @@ def pi_ticks(vmin, vmax, step=None):
         elif pi_span <= 4: step = pi / 2
         elif pi_span <= 8: step = pi
         else: step = 2 * pi
+    elif step <= 0:
+        return []
     start = math.ceil(vmin / step - 0.01) * step
     ticks = []
     val = start

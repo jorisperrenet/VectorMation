@@ -45,6 +45,11 @@ def _from_dict(cls, data, **kwargs):
     return cls(list(data.values()), labels=list(data.keys()), **kwargs)
 
 
+def _from_dict_items(cls, data, **kwargs):
+    """Create a chart from a dict {label: value}, passing items as tuples."""
+    return cls(list(data.items()), **kwargs)
+
+
 def _highlight_sector_impl(self, index, start, end, pull_distance, easing):
     """Shared highlight_sector logic for PieChart and DonutChart."""
     sector = _check_idx(index, self._sectors, 'sector')
@@ -1090,10 +1095,7 @@ class FunnelChart(VCollection):
             objects.append(lbl)
         super().__init__(*objects, creation=creation, z=z)
 
-    @classmethod
-    def from_dict(cls, data, **kwargs):
-        """Create from dict {label: value}."""
-        return cls(list(data.items()), **kwargs)
+    from_dict = classmethod(_from_dict_items)
 
     def __repr__(self):
         return 'FunnelChart()'
@@ -1126,10 +1128,7 @@ class TreeMap(VCollection):
                 objects.append(lbl)
         super().__init__(*objects, creation=creation, z=z)
 
-    @classmethod
-    def from_dict(cls, data, **kwargs):
-        """Create from dict {label: value}."""
-        return cls(list(data.items()), **kwargs)
+    from_dict = classmethod(_from_dict_items)
 
     def __repr__(self):
         return 'TreeMap()'
@@ -1596,10 +1595,7 @@ class Scoreboard(VCollection):
                 objects.append(div)
         super().__init__(*objects, creation=creation, z=z)
 
-    @classmethod
-    def from_dict(cls, data, **kwargs):
-        """Create from dict {label: value}."""
-        return cls(list(data.items()), **kwargs)
+    from_dict = classmethod(_from_dict_items)
 
     def __repr__(self):
         return f'Scoreboard({self._n_entries} rows)'

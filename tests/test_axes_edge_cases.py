@@ -285,3 +285,21 @@ class TestPlotLengthValidation:
         ax = Axes(x_range=(0, 5), y_range=(0, 5))
         with pytest.raises(ValueError, match='equal length'):
             ax.plot_grouped_bar([[1, 2, 3], [4, 5]])
+
+
+class TestTickHelpers:
+    def test_nice_ticks_zero_count(self):
+        from vectormation._axes_helpers import _nice_ticks
+        assert _nice_ticks(0, 10, target_count=0) == []
+
+    def test_nice_ticks_negative_count(self):
+        from vectormation._axes_helpers import _nice_ticks
+        assert _nice_ticks(0, 10, target_count=-5) == []
+
+    def test_pi_ticks_zero_step(self):
+        from vectormation._axes_helpers import pi_ticks
+        assert pi_ticks(0, 10, step=0) == []
+
+    def test_pi_ticks_negative_step(self):
+        from vectormation._axes_helpers import pi_ticks
+        assert pi_ticks(0, 10, step=-1) == []

@@ -110,6 +110,11 @@ class TestFunnelChartEdgeCases:
         svg = fc.to_svg(0)
         assert svg is not None
 
+    def test_from_dict(self):
+        fc = FunnelChart.from_dict({'A': 100, 'B': 50, 'C': 25})
+        svg = fc.to_svg(0)
+        assert svg is not None
+
 
 # ── TreeMap edge cases ──────────────────────────────────────────────────
 
@@ -122,6 +127,11 @@ class TestTreeMapEdgeCases:
 
     def test_unequal_values(self):
         tm = TreeMap([('Big', 1000), ('Tiny', 1)])
+        svg = tm.to_svg(0)
+        assert svg is not None
+
+    def test_from_dict(self):
+        tm = TreeMap.from_dict({'Big': 1000, 'Med': 500, 'Small': 100})
         svg = tm.to_svg(0)
         assert svg is not None
 
@@ -360,6 +370,11 @@ class TestScoreboardEdgeCases:
 
     def test_tied_scores(self):
         sb = Scoreboard(entries=[('A', 50), ('B', 50), ('C', 50)])
+        svg = sb.to_svg(0)
+        assert svg is not None
+
+    def test_from_dict(self):
+        sb = Scoreboard.from_dict({'Alice': 100, 'Bob': 80})
         svg = sb.to_svg(0)
         assert svg is not None
 

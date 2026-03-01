@@ -432,7 +432,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         path_d = ' '.join(parts)
         return self.along_path(start, end, path_d, easing)
 
-    def along_path(self, start: float, end: float, path_d, easing=easings.smooth):
+    def along_path(self, start: float = 0, end: float = 1, path_d='', easing=easings.smooth):
         """Move the object's center along an SVG path string over [start, end]."""
         dur = end - start
         if dur <= 0:
@@ -943,7 +943,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._set_scale_xy(start, end, fx, fy)
         return self
 
-    def scale_to(self, start: float, end: float, factor, easing=easings.smooth):
+    def scale_to(self, start: float = 0, end: float = 1, factor=1, easing=easings.smooth):
         """Animate to an absolute scale factor (e.g. factor=2 → double original size)."""
         self._ensure_scale_origin(start)
         self.styling.scale_x.move_to(start, end, factor, easing=easing)

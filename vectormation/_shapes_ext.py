@@ -781,7 +781,7 @@ class Text(VObject):
         self._font_family = family
         return self
 
-    def set_text(self, start: float, end: float, new_text, easing=easings.smooth):
+    def set_text(self, start: float = 0, end: float = 1, new_text='', easing=easings.smooth):
         """Fade out old text and fade in new text over [start, end].
         Opacity goes to 0 at midpoint, text changes, opacity returns."""
         if start >= end:

@@ -26,6 +26,13 @@ from vectormation._shapes import (
 )
 from vectormation._axes_ext import _AxesExtMixin
 
+
+def _color_to_stroke(kw):
+    """Normalize 'color' kwarg to 'stroke' for plot methods."""
+    if 'color' in kw:
+        kw.setdefault('stroke', kw.pop('color'))
+
+
 class Axes(_AxesExtMixin, VCollection):
     """Coordinate axes with ticks and labels."""
     x_min: attributes.Real
@@ -283,8 +290,7 @@ class Axes(_AxesExtMixin, VCollection):
                      num_points=200, x_range=None, lincl=True, rincl=True,
                      creation: float = 0, z: float = 0, **styling_kwargs):
         """Add a function curve to these axes. Returns the Path object."""
-        if 'color' in styling_kwargs:
-            styling_kwargs.setdefault('stroke', styling_kwargs.pop('color'))
+        _color_to_stroke(styling_kwargs)
         if hasattr(self, '_deferred_axes'):
             self._build_deferred_axes(func, num_points)
         style_kw = _CURVE_STYLE | styling_kwargs
@@ -610,8 +616,7 @@ class Axes(_AxesExtMixin, VCollection):
     def plot_parametric(self, func, t_range=(0, 1), num_points: int = 200,
                         creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a parametric curve func(t) -> (x, y) in math coordinates. Returns a Path."""
-        if 'color' in styling_kwargs:
-            styling_kwargs.setdefault('stroke', styling_kwargs.pop('color'))
+        _color_to_stroke(styling_kwargs)
         style_kw = _CURVE_STYLE | styling_kwargs
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
         def _compute_d(time, _func=func, _np=num_points, _tr=t_range):
@@ -640,8 +645,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def plot_implicit(self, func, num_points: int = 100, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot an implicit curve f(x, y) = 0 using marching squares. Returns a Path."""
-        if 'color' in styling_kwargs:
-            styling_kwargs.setdefault('stroke', styling_kwargs.pop('color'))
+        _color_to_stroke(styling_kwargs)
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
         def _compute_d(time, _func=func, _n=max(1, num_points)):
@@ -687,8 +691,7 @@ class Axes(_AxesExtMixin, VCollection):
         """Plot a line graph from discrete data points. Returns a VCollection with animate_data()."""
         if len(x_values) != len(y_values):
             raise ValueError(f'plot_line_graph: x_values ({len(x_values)}) and y_values ({len(y_values)}) must have equal length')
-        if 'color' in styling_kwargs:
-            styling_kwargs.setdefault('stroke', styling_kwargs.pop('color'))
+        _color_to_stroke(styling_kwargs)
         style_kw = _CURVE_STYLE | styling_kwargs
         # Mutable container so animate_data can update the data reference
         data_ref = [list(zip(x_values, y_values))]
@@ -800,8 +803,7 @@ class Axes(_AxesExtMixin, VCollection):
         Returns a Path object."""
         if len(x_values) != len(y_values):
             raise ValueError(f'plot_step: x_values ({len(x_values)}) and y_values ({len(y_values)}) must have equal length')
-        if 'color' in styling_kwargs:
-            styling_kwargs.setdefault('stroke', styling_kwargs.pop('color'))
+        _color_to_stroke(styling_kwargs)
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
         data = list(zip(x_values, y_values))
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)

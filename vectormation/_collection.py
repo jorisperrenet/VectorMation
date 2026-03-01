@@ -1,6 +1,7 @@
 """VCollection — container for multiple VObjects with collective operations."""
 import math
 import random
+from copy import deepcopy
 from itertools import zip_longest
 
 import vectormation.easings as easings
@@ -151,7 +152,6 @@ class VCollection(_BBoxMethodsMixin):
 
     def copy(self):
         """Return a deep copy of this collection."""
-        from copy import deepcopy
         return deepcopy(self)
 
     def to_svg(self, time):
@@ -469,11 +469,11 @@ class VCollection(_BBoxMethodsMixin):
             _set_attr(attr, start, end, attr.at_time(start) * factor, easing)
         return self
 
-    def rotate_to(self, start: float, end: float, degrees: float, cx: float | None = None, cy: float | None = None, easing=easings.smooth):
+    def rotate_to(self, start: float = 0, end: float = 1, degrees: float = 0, cx: float | None = None, cy: float | None = None, easing=easings.smooth):
         """Rotate all children to *degrees* around a shared center."""
         cx, cy = self._resolve_center(start, cx, cy); return self._delegate('rotate_to', start, end, degrees, cx=cx, cy=cy, easing=easing)
 
-    def rotate_by(self, start: float, end: float, degrees: float, cx: float | None = None, cy: float | None = None, easing=easings.smooth):
+    def rotate_by(self, start: float = 0, end: float = 1, degrees: float = 0, cx: float | None = None, cy: float | None = None, easing=easings.smooth):
         """Rotate all children by *degrees* around a shared center."""
         cx, cy = self._resolve_center(start, cx, cy); return self._delegate('rotate_by', start, end, degrees, cx=cx, cy=cy, easing=easing)
 
