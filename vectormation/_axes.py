@@ -958,7 +958,6 @@ class Axes(_AxesExtMixin, VCollection):
                         self._math_to_svg_y(_yv, t) - self._math_to_svg_y(0, t)))
                 rects.append(rect)
         if group_labels:
-            from vectormation._shapes import Text
             for gi, label in enumerate(group_labels):
                 x_center = (gi + 1) * group_spacing
                 sx = self._math_to_svg_x(x_center, creation)

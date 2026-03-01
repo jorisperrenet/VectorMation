@@ -2339,7 +2339,6 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         morphs from a copy of this shape into the target over [start, end].
         The returned object should be added to the canvas.
         """
-        from copy import deepcopy
         from vectormation._composites import MorphObject
         ghost_src = deepcopy(self)
         return MorphObject(ghost_src, target, start=start, end=end, easing=easing)
