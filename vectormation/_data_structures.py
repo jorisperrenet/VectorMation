@@ -96,7 +96,7 @@ class Array(VCollection):
         self._labels[index].set_text(start, end, str(value))
         return self
 
-    def sort(self, start: float = 0, end: float = 2, easing=easings.smooth, delay=0.15):
+    def sort(self, start: float = 0, end: float = 2, easing=easings.smooth, delay: float = 0.15):
         """Animate a bubble sort, staggering swaps over [start, end]."""
         n = len(self._labels)
         swaps, values = [], [self._labels[i].text.at_time(start) for i in range(n)]
@@ -111,7 +111,7 @@ class Array(VCollection):
             t += delay
         return self
 
-    def reverse(self, start: float = 0, end: float = 2, easing=easings.smooth, delay=0.15):
+    def reverse(self, start: float = 0, end: float = 2, easing=easings.smooth, delay: float = 0.15):
         """Animate reversing the array by swapping from outside in."""
         n, t = len(self._labels), start
         for i in range(n // 2):
@@ -340,7 +340,7 @@ class BinaryTree(VCollection):
             _flash_fill(self._node_objects[index], color, start, end, '#1e1e2e')
         return self
 
-    def traverse(self, start: float = 0, delay=0.3, color='#E9C46A'):
+    def traverse(self, start: float = 0, delay: float = 0.3, color='#E9C46A'):
         """Animate highlighting each node sequentially (depth-first order)."""
         for i, obj in enumerate(self._node_objects):
             t = start + i * delay
@@ -483,7 +483,7 @@ class LinkedListViz(VCollection):
             _flash_fill(self._nodes[index], color, start, end)
         return self
 
-    def traverse(self, start: float = 0, delay=0.5, color='#FFFF00'):
+    def traverse(self, start: float = 0, delay: float = 0.5, color='#FFFF00'):
         """Animate traversing each node in sequence."""
         for i, _node in enumerate(self._nodes):
             t = start + i * delay

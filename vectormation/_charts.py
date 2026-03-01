@@ -431,7 +431,7 @@ class BarChart(VCollection):
             self.objects.append(label)
         return self
 
-    def grow_from_zero(self, start: float = 0, end: float = 1, easing=easings.smooth, stagger=True, delay=0.1):
+    def grow_from_zero(self, start: float = 0, end: float = 1, easing=easings.smooth, stagger=True, delay: float = 0.1):
         """Animate bars growing up from zero height at the baseline."""
         n = len(self._bars)
         for i, bar in enumerate(self._bars):

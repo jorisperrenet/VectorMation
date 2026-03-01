@@ -632,7 +632,7 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def stagger_along_path(self, method_name, path_d, start: float = 0, end: float = 1,
-                           delay=0.1, **kwargs):
+                           delay: float = 0.1, **kwargs):
         """Position children along an SVG path, then call *method_name* with staggered timing."""
         from svgpathtools import parse_path
         n = len(self.objects)
@@ -916,7 +916,7 @@ class VCollection(_BBoxMethodsMixin):
         obj._set_scale_xy(s, e, _make_pop(sx0), _make_pop(sy0))
 
     def stagger_scale(self, start: float = 0, end: float = 1,
-                       scale_factor=1.5, delay=0.2, easing=easings.smooth,
+                       scale_factor=1.5, delay: float = 0.2, easing=easings.smooth,
                        target_scale=None):
         """Scale each child up then back down with a stagger delay, creating a popping wave."""
         if target_scale is not None:
@@ -1305,7 +1305,7 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def cascade_scale(self, start: float = 0, end: float = 1, factor=1.5,
-                      delay=0.15, easing=easings.smooth):
+                      delay: float = 0.15, easing=easings.smooth):
         """Stagger scale-up-and-back animations across children with a fixed delay."""
         n = len(self.objects)
         if n == 0 or end <= start:

@@ -318,7 +318,7 @@ class NeuralNetwork(VCollection):
                              color=color)
         return self
 
-    def highlight_path(self, path, start: float = 0, delay=0.3, color='#FF6B6B',
+    def highlight_path(self, path, start: float = 0, delay: float = 0.3, color='#FF6B6B',
                        edge_color='#FF6B6B'):
         """Highlight a specific path through the network.
 

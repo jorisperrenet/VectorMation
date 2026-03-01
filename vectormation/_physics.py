@@ -211,7 +211,7 @@ class PhysicsSpace:
 
     # ── Simulation ──────────────────────────────────────────────────
 
-    def simulate(self, duration=5.0):
+    def simulate(self, duration: float = 5.0):
         """Run the simulation for *duration* seconds and bake trajectories.
 
         After calling this, each body's VObject will have its position
@@ -412,7 +412,7 @@ class Cloth:
                     self._lines.append(ln)
                     self._line_pairs.append((ln, ba, bb))
 
-    def simulate(self, duration=5.0):
+    def simulate(self, duration: float = 5.0):
         """Run the cloth simulation and bake all trajectories."""
         self.space.simulate(duration)
         start, dt = self.space.start, self.space.dt

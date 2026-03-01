@@ -800,7 +800,7 @@ class Table(_GridAccessMixin, VCollection):
                         entry.text.set_onward(start + dur / 2, new_text)
         return self
 
-    def animate_cells(self, cells, method_name='flash', start: float = 0, delay=0.15, **kwargs):
+    def animate_cells(self, cells, method_name='flash', start: float = 0, delay: float = 0.15, **kwargs):
         """Apply an animation method to specific cells with a stagger delay."""
         for i, (r, c) in enumerate(cells):
             getattr(self.entries[r][c], method_name)(start=start + i * delay, **kwargs)

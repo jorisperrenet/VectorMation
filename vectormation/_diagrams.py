@@ -392,7 +392,7 @@ class Automaton(VCollection):
             arrow.flash_color(color, start=start, end=start + duration, attr='stroke')
         return self
 
-    def simulate_input(self, word, start: float = 0, delay=0.5, color='#FFFF00', transitions=None):
+    def simulate_input(self, word, start: float = 0, delay: float = 0.5, color='#FFFF00', transitions=None):
         """Animate stepping through the automaton one character at a time.
 
         For each character in *word*, highlights the current state, then the

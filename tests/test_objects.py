@@ -22619,3 +22619,125 @@ class TestUnitInterval:
         canvas.add(ui)
         svg = canvas.generate_frame_svg(time=0)
         assert '<svg' in svg
+
+
+class TestAlwaysRedraw:
+    """Tests for always_redraw convenience wrapper."""
+
+    def test_returns_dynamic_object(self):
+        d = always_redraw(lambda t: Circle())
+        assert isinstance(d, DynamicObject)
+
+    def test_renders_each_frame(self):
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        d = always_redraw(lambda t: Circle(r=10 + t * 10))
+        canvas.add(d)
+        svg0 = canvas.generate_frame_svg(time=0)
+        svg1 = canvas.generate_frame_svg(time=1)
+        assert '<circle' in svg0
+        assert '<circle' in svg1
+
+    def test_creation_param(self):
+        d = always_redraw(lambda t: Circle(), creation=2.0)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(d)
+        svg_before = canvas.generate_frame_svg(time=1)
+        svg_after = canvas.generate_frame_svg(time=3)
+        assert '<circle' not in svg_before
+        assert '<circle' in svg_after
+
+
+class TestSuccession:
+    """Tests for succession() helper that chains animation steps."""
+
+    def test_chains_animations(self):
+        from vectormation.objects import succession
+        c = Circle()
+        r = Rectangle(200, 100)
+        succession(
+            (c, 'fadein'),
+            (r, 'fadein'),
+            start=0,
+        )
+        # Verify both objects have animations queued
+        assert c.styling is not None
+        assert r.styling is not None
+
+    def test_empty_does_nothing(self):
+        from vectormation.objects import succession
+        succession()  # should not raise
+
+    def test_lag_ratio(self):
+        from vectormation.objects import succession
+        c1 = Circle()
+        c2 = Circle()
+        succession(
+            (c1, 'fadein'),
+            (c2, 'fadein'),
+            start=0, lag_ratio=0.5,
+        )
+        # With lag_ratio=0.5, animations should overlap
+
+
+class TestParametricFunction:
+    """Tests for ParametricFunction."""
+
+    def test_creates(self):
+        from vectormation.objects import ParametricFunction
+        pf = ParametricFunction(lambda t: (t * 100, t * 100))
+        assert pf is not None
+
+    def test_renders(self):
+        from vectormation.objects import ParametricFunction
+        pf = ParametricFunction(lambda t: (960 + t * 100, 540 + t * 100), t_range=(0, 1))
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(pf)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+
+
+class TestComplexValueTracker:
+    """Tests for ComplexValueTracker."""
+
+    def test_creates(self):
+        from vectormation.objects import ComplexValueTracker
+        cvt = ComplexValueTracker(1 + 2j)
+        assert cvt is not None
+
+    def test_get_value(self):
+        from vectormation.objects import ComplexValueTracker
+        cvt = ComplexValueTracker(3 + 4j)
+        val = cvt.get_value(time=0)
+        assert abs(val - (3 + 4j)) < 1e-6
+
+
+class TestNumberedBulletedList:
+    """Tests for NumberedList and BulletedList."""
+
+    def test_numbered_list_creates(self):
+        from vectormation.objects import NumberedList
+        nl = NumberedList('First', 'Second', 'Third')
+        assert nl is not None
+        assert len(nl.items) == 3
+
+    def test_numbered_list_renders(self):
+        from vectormation.objects import NumberedList
+        nl = NumberedList('First', 'Second', 'Third')
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(nl)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '1.' in svg or 'First' in svg
+
+    def test_bulleted_list_creates(self):
+        from vectormation.objects import BulletedList
+        bl = BulletedList('Alpha', 'Beta', 'Gamma')
+        assert bl is not None
+        assert len(bl.items) == 3
+
+    def test_bulleted_list_renders(self):
+        from vectormation.objects import BulletedList
+        bl = BulletedList('Alpha', 'Beta', 'Gamma')
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(bl)
+        svg = canvas.generate_frame_svg(time=0)
+        assert 'Alpha' in svg

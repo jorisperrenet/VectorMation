@@ -1334,7 +1334,7 @@ class Path(VObject):
             return (0.0, 0.0)
         return (dx / mag, dy / mag)
 
-    def trim(self, t_start=0.0, t_end=1.0, time: float = 0):
+    def trim(self, t_start: float = 0.0, t_end: float = 1.0, time: float = 0):
         """Return a new Path representing the sub-path between proportions."""
         d = self.d.at_time(time)
         if not d:
