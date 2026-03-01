@@ -1,5 +1,6 @@
 """Edge case tests for _axes.py and _axes_ext.py."""
 import math
+import pytest
 from vectormation.objects import NumberLine, Axes
 
 
@@ -249,6 +250,38 @@ class TestPlotImplicitEdgeCases:
         """plot_implicit with num_points=0 should not crash (clamped to 1)."""
         from vectormation.objects import Axes
         ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
-        curve = ax.plot_implicit(lambda x, y: x**2 + y**2 - 1, num_points=0)
+        ax.plot_implicit(lambda x, y: x**2 + y**2 - 1, num_points=0)
         svg = ax.to_svg(0)
         assert svg is not None
+
+
+class TestPlotLengthValidation:
+    def test_scatter_mismatched_lengths(self):
+        from vectormation.objects import Axes
+        ax = Axes(x_range=(0, 5), y_range=(0, 5))
+        with pytest.raises(ValueError, match='equal length'):
+            ax.plot_scatter([1, 2, 3], [1, 2])
+
+    def test_step_mismatched_lengths(self):
+        from vectormation.objects import Axes
+        ax = Axes(x_range=(0, 5), y_range=(0, 5))
+        with pytest.raises(ValueError, match='equal length'):
+            ax.plot_step([1, 2], [1])
+
+    def test_bar_mismatched_lengths(self):
+        from vectormation.objects import Axes
+        ax = Axes(x_range=(0, 5), y_range=(0, 5))
+        with pytest.raises(ValueError, match='equal length'):
+            ax.plot_bar([1, 2, 3], [1])
+
+    def test_filled_step_mismatched_lengths(self):
+        from vectormation.objects import Axes
+        ax = Axes(x_range=(0, 5), y_range=(0, 5))
+        with pytest.raises(ValueError, match='equal length'):
+            ax.plot_filled_step([1], [1, 2])
+
+    def test_grouped_bar_jagged(self):
+        from vectormation.objects import Axes
+        ax = Axes(x_range=(0, 5), y_range=(0, 5))
+        with pytest.raises(ValueError, match='equal length'):
+            ax.plot_grouped_bar([[1, 2, 3], [4, 5]])

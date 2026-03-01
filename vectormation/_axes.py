@@ -778,6 +778,8 @@ class Axes(_AxesExtMixin, VCollection):
 
     def plot_scatter(self, x_values, y_values, r: float = 5, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a scatter plot (dots only, no connecting lines). Returns a VCollection."""
+        if len(x_values) != len(y_values):
+            raise ValueError(f'plot_scatter: x_values ({len(x_values)}) and y_values ({len(y_values)}) must have equal length')
         if 'color' in styling_kwargs:
             styling_kwargs.setdefault('fill', styling_kwargs.pop('color'))
         style_kw = {'fill': '#58C4DD', 'stroke_width': 0} | styling_kwargs
@@ -794,6 +796,8 @@ class Axes(_AxesExtMixin, VCollection):
     def plot_step(self, x_values, y_values, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a step function (horizontal then vertical segments).
         Returns a Path object."""
+        if len(x_values) != len(y_values):
+            raise ValueError(f'plot_step: x_values ({len(x_values)}) and y_values ({len(y_values)}) must have equal length')
         if 'color' in styling_kwargs:
             styling_kwargs.setdefault('stroke', styling_kwargs.pop('color'))
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
@@ -820,6 +824,8 @@ class Axes(_AxesExtMixin, VCollection):
     def plot_filled_step(self, x_values, y_values, baseline: float = 0, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a step function with shaded area down to baseline.
         Returns a Path object."""
+        if len(x_values) != len(y_values):
+            raise ValueError(f'plot_filled_step: x_values ({len(x_values)}) and y_values ({len(y_values)}) must have equal length')
         if 'color' in styling_kwargs:
             c = styling_kwargs.pop('color')
             styling_kwargs.setdefault('stroke', c)
@@ -894,6 +900,8 @@ class Axes(_AxesExtMixin, VCollection):
 
     def plot_bar(self, x_values, y_values, bar_width: float = 0.6, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a bar chart inside the axes coordinate system. Returns a VCollection."""
+        if len(x_values) != len(y_values):
+            raise ValueError(f'plot_bar: x_values ({len(x_values)}) and y_values ({len(y_values)}) must have equal length')
         # Pop 'width'/'height' from kwargs — they conflict with Rectangle positional args
         styling_kwargs.pop('width', None)
         styling_kwargs.pop('height', None)
@@ -956,6 +964,8 @@ class Axes(_AxesExtMixin, VCollection):
         n_series = len(data)
         if n_series == 0:
             return VCollection(creation=creation, z=z)
+        if n_series > 1 and any(len(s) != len(data[0]) for s in data[1:]):
+            raise ValueError('plot_grouped_bar: all series must have equal length')
         if colors is None:
             colors = ['#FF6B6B', '#58C4DD', '#83C167', '#FFFF00',
                       '#FF79C6', '#B8BB26', '#BD93F9', '#FFB86C']
