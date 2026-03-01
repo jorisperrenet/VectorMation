@@ -995,7 +995,8 @@ class Text(VObject):
         for attr, name in ((self._text_anchor, 'text-anchor'), (self._font_weight, 'font-weight'),
                            (self._font_style, 'font-style'), (self._font_family, 'font-family')):
             if attr:
-                parts.append(f" {name}='{attr}'")
+                val = _xml_escape(str(attr)).replace("'", '&apos;')
+                parts.append(f" {name}='{val}'")
         return ''.join(parts)
 
     def to_svg(self, time):
@@ -1443,7 +1444,8 @@ class Image(VObject):
 
     def to_svg(self, time):
         """Return the SVG <image> element string."""
-        return (f"<image href='{self.href}' x='{self.x.at_time(time)}' y='{self.y.at_time(time)}'"
+        href = _xml_escape(str(self.href)).replace("'", '&apos;')
+        return (f"<image href='{href}' x='{self.x.at_time(time)}' y='{self.y.at_time(time)}'"
                 f" width='{self.width.at_time(time)}' height='{self.height.at_time(time)}'"
                 f"{self.styling.svg_style(time)} />")
 

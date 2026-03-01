@@ -3,7 +3,7 @@ LinearGradient, RadialGradient, DynamicObject."""
 import math
 from vectormation.objects import (
     ArrowVectorField, StreamLines, Image, LinearGradient, RadialGradient,
-    DynamicObject, Circle, Square, VectorMathAnim,
+    DynamicObject, Circle, Square, Text, VectorMathAnim,
 )
 
 
@@ -106,6 +106,19 @@ class TestImage:
         img = Image('myfile.png')
         r = repr(img)
         assert 'Image' in r or 'VObject' in r
+
+    def test_href_xml_escape(self):
+        """Image href with special chars should be properly escaped."""
+        img = Image("file.png?a=1&b=2", x=0, y=0, width=100, height=100)
+        svg = img.to_svg(0)
+        assert '&amp;' in svg
+        assert '&b=2' not in svg  # raw & should be escaped
+
+    def test_font_family_escape(self):
+        """Text with special chars in font-family should be escaped."""
+        t = Text(text='hi', font_family="O'Reilly")
+        svg = t.to_svg(0)
+        assert '&apos;' in svg
 
 
 class TestLinearGradient:
