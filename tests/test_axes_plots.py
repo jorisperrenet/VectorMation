@@ -111,3 +111,22 @@ class TestPlotHistogram:
         ax.plot_histogram([1, 2, 3, 4, 5, 6, 7, 8, 9], bins=3)
         svg = ax.to_svg(0)
         assert 'rect' in svg.lower()
+
+
+class TestPlotColorShorthand:
+    def test_color_maps_to_stroke(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-1, 1))
+        import math
+        curve = ax.plot(math.sin, color='#FF0000')
+        assert isinstance(curve, Path)
+        svg = ax.to_svg(0)
+        # Color is rendered as rgb(255,0,0) by the styling system
+        assert 'rgb(255,0,0)' in svg or 'rgb(255, 0, 0)' in svg
+
+    def test_stroke_takes_precedence(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-1, 1))
+        import math
+        ax.plot(math.sin, color='#FF0000', stroke='#00FF00')
+        svg = ax.to_svg(0)
+        # stroke= should win over color=
+        assert 'rgb(0,255,0)' in svg or 'rgb(0, 255, 0)' in svg

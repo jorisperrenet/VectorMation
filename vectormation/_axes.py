@@ -283,6 +283,8 @@ class Axes(_AxesExtMixin, VCollection):
                      num_points=200, x_range=None, lincl=True, rincl=True,
                      creation: float = 0, z: float = 0, **styling_kwargs):
         """Add a function curve to these axes. Returns the Path object."""
+        if 'color' in styling_kwargs:
+            styling_kwargs.setdefault('stroke', styling_kwargs.pop('color'))
         if hasattr(self, '_deferred_axes'):
             self._build_deferred_axes(func, num_points)
         style_kw = _CURVE_STYLE | styling_kwargs
