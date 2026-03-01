@@ -1068,3 +1068,26 @@ class TestTableSortEdgeCases:
         from vectormation.objects import Table
         t = Table([['A', 'B'], ['C', 'D']], ['H1', 'H2'])
         t.sort_by_column(999)  # out of bounds
+
+
+class TestNumberLineEdgeCases:
+    def test_add_tick_labels_range_zero_step(self):
+        from vectormation.objects import NumberLine
+        nl = NumberLine(x_range=(0, 10, 1))
+        with pytest.raises(ValueError, match='step cannot be zero'):
+            nl.add_tick_labels_range(0, 10, 0)
+
+    def test_zero_step_raises(self):
+        from vectormation.objects import NumberLine
+        with pytest.raises(ValueError, match='positive step'):
+            NumberLine(x_range=(0, 10, 0))
+
+    def test_negative_step_raises(self):
+        from vectormation.objects import NumberLine
+        with pytest.raises(ValueError, match='positive step'):
+            NumberLine(x_range=(0, 10, -1))
+
+    def test_reversed_range_raises(self):
+        from vectormation.objects import NumberLine
+        with pytest.raises(ValueError, match='x_end > x_start'):
+            NumberLine(x_range=(10, 0, 1))

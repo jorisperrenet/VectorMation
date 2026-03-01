@@ -421,6 +421,8 @@ class NumberLine(VCollection):
     def add_tick_labels_range(self, start_val, end_val, step, format_func=None,
                               font_size=None, creation: float = 0):
         """Batch-add tick labels for values from *start_val* to *end_val*."""
+        if step == 0:
+            raise ValueError('step cannot be zero')
         if format_func is None:
             format_func = str
         if font_size is None:

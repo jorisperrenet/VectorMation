@@ -655,3 +655,18 @@ class TestArcTo:
     def test_is_alias(self):
         c = Circle(r=50)
         assert hasattr(c, 'arc_to')
+
+
+class TestSetColorIf:
+    def test_basic(self):
+        c = Circle(r=50, fill='#00FF00')
+        c.set_color_if(lambda t: t > 1, '#FF0000', start=0)
+        svg = c.to_svg(0.5)
+        assert svg is not None
+        svg2 = c.to_svg(1.5)
+        assert svg2 is not None
+
+    def test_returns_self(self):
+        c = Circle(r=50)
+        result = c.set_color_if(lambda t: True, '#FF0000')
+        assert result is not None
