@@ -55,6 +55,8 @@ class Body:
             raise ValueError("Body friction must be >= 0")
         if restitution < 0:
             raise ValueError("Body restitution must be >= 0")
+        if radius is not None and radius < 0:
+            raise ValueError(f"Body radius must be >= 0, got {radius}")
         self.obj = obj
         self.mass = mass if not fixed else math.inf
         self.restitution = restitution

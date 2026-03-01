@@ -961,6 +961,21 @@ class TestBodyValidation:
         b = Body(Circle(), friction=1.5)
         assert b.friction == 1.5
 
+    def test_negative_radius_raises(self):
+        from vectormation.objects import Body
+        with pytest.raises(ValueError, match="radius must be >= 0"):
+            Body(Circle(), radius=-5)
+
+    def test_zero_radius_allowed(self):
+        from vectormation.objects import Body
+        b = Body(Circle(), radius=0)
+        assert b.radius == 0.0
+
+    def test_explicit_radius(self):
+        from vectormation.objects import Body
+        b = Body(Circle(), radius=25)
+        assert b.radius == 25.0
+
 
 # ── Spring validation ─────────────────────────────────────────────────
 
