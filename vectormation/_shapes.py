@@ -79,7 +79,7 @@ class Polygon(VObject):
         """Return a list of (x, y) tuples for each vertex."""
         return [(float(x), float(y)) for x, y in (v.at_time(time) for v in self.vertices)]
 
-    def move_vertex(self, index, x, y, start=0, end=None, easing=easings.smooth):
+    def move_vertex(self, index, x, y, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate a single vertex to a new position."""
         n = len(self.vertices)
         if index < -n or index >= n:
@@ -967,14 +967,14 @@ class Ellipse(VObject):
     def get_rx(self, time: float = 0): return self.rx.at_time(time)
     def get_ry(self, time: float = 0): return self.ry.at_time(time)
 
-    def set_center(self, cx, cy, start=0, end=None, easing=easings.smooth):
+    def set_center(self, cx, cy, start: float = 0, end: float | None = None, easing=easings.smooth):
         _set_attr(self.c, start, end, (cx, cy), easing); return self
 
-    def set_rx(self, value, start=0, end=None, easing=easings.smooth):
+    def set_rx(self, value, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate the x-radius."""
         _set_attr(self.rx, start, end, value, easing); return self
 
-    def set_ry(self, value, start=0, end=None, easing=easings.smooth):
+    def set_ry(self, value, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate the y-radius."""
         _set_attr(self.ry, start, end, value, easing); return self
 
@@ -1172,7 +1172,7 @@ class Circle(Ellipse):
         sweep = abs(end_angle - start_angle)
         return 0.5 * r * r * math.radians(sweep)
 
-    def set_radius(self, value, start=0, end=None, easing=easings.smooth):
+    def set_radius(self, value, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate the radius to value."""
         _set_attr(self.rx, start, end, value, easing)
         _set_attr(self.ry, start, end, value, easing)
@@ -1575,7 +1575,7 @@ class Rectangle(VObject):
             **kwargs,
         )
 
-    def set_size(self, width, height, start=0, end=None, easing=easings.smooth):
+    def set_size(self, width, height, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Set both dimensions."""
         _set_attr(self.width, start, end, width, easing)
         _set_attr(self.height, start, end, height, easing)
@@ -1584,11 +1584,11 @@ class Rectangle(VObject):
     def _grow_dim(self, attr, amount, start, end, easing):
         attr.move_to(start, end, attr.at_time(start) + amount, easing=easing); return self
 
-    def grow_width(self, amount, start=0, end=1, easing=easings.smooth):
+    def grow_width(self, amount, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate increasing width by *amount*."""
         return self._grow_dim(self.width, amount, start, end, easing)
 
-    def grow_height(self, amount, start=0, end=1, easing=easings.smooth):
+    def grow_height(self, amount, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate increasing height by *amount*."""
         return self._grow_dim(self.height, amount, start, end, easing)
 
@@ -1651,7 +1651,7 @@ class Rectangle(VObject):
             )
         return Rectangle(new_w, new_h, x=rx + amount, y=ry + amount, **kwargs)
 
-    def expand(self, amount=20, start=0, end=1, easing=easings.smooth):
+    def expand(self, amount=20, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate expanding by *amount* pixels on each side (center stays in place)."""
         w0 = self.width.at_time(start)
         h0 = self.height.at_time(start)
@@ -1821,7 +1821,7 @@ class RoundedRectangle(Rectangle):
     def get_corner_radius(self, time: float = 0):
         return self.rx.at_time(time)
 
-    def set_corner_radius(self, value, start=0, end=None, easing=easings.smooth):
+    def set_corner_radius(self, value, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate corner radius to value."""
         _set_attr(self.rx, start, end, value, easing)
         _set_attr(self.ry, start, end, value, easing)

@@ -438,7 +438,7 @@ class ZoomedInset(VObject):
         dw, dh = self.dst_w.at_time(time), self.dst_h.at_time(time)
         return (dx, dy, dw, dh)
 
-    def move_source(self, x, y, start, end: float | None = None, easing=easings.smooth):
+    def move_source(self, x, y, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate the source region position."""
         _set_attr(self.src_x, start, end, x, easing)
         _set_attr(self.src_y, start, end, y, easing)
@@ -749,7 +749,7 @@ class Cutout(VObject):
         return ''
 
     def set_hole(self, x=None, y=None, w=None, h=None,
-                 start=0, end=None, easing=easings.smooth):
+                 start: float = 0, end: float | None = None, easing=easings.smooth):
         """Animate hole position/size."""
         if x is not None: _set_attr(self.hole_x, start, end, x, easing)
         if y is not None: _set_attr(self.hole_y, start, end, y, easing)

@@ -1,5 +1,5 @@
-"""Text Animation Features — typewrite, scramble, reveal_by_word, CountAnimation,
-BulletedList, and highlight_substring."""
+"""Text Animations Demo — write, typewrite, reveal_by_word, highlight_substring,
+set_text, scramble, Code, Paragraph, Variable, DecimalNumber, CountAnimation."""
 import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from vectormation.objects import *
 
@@ -7,157 +7,294 @@ args = parse_args()
 canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/text_animations')
 canvas.set_background()
 
-# -- Colors -------------------------------------------------------------------
-ACCENT = '#58C4DD'
-HIGHLIGHT = '#FFFF00'
-GREEN = '#2ECC71'
-ORANGE = '#F5A623'
-PINK = '#E84D60'
+T = 12.0
 
 # =============================================================================
-# Phase 1: Typewrite effect (0 – 2s)
+# Phase 1 (0-3s): Basic Text Animations
 # =============================================================================
-section_label_1 = Text(
-    text='typewrite()', x=960, y=100, font_size=28,
-    fill='#888', stroke_width=0, text_anchor='middle',
-)
-section_label_1.fadein(0.0, 0.3)
-section_label_1.fadeout(1.7, 2.0)
-canvas.add(section_label_1)
 
-typewrite_text = Text(
-    text='Hello, World! Welcome to VectorMation.', x=960, y=480,
-    font_size=52, fill=ACCENT, stroke_width=0, text_anchor='middle',
+# --- write() animation ---
+phase1_label = Text(
+    text='Phase 1: Basic Text', x=960, y=80, font_size=28,
+    fill='#888888', stroke_width=0, text_anchor='middle',
 )
-typewrite_text.typewrite(start=0.2, end=1.6)
-typewrite_text.fadeout(1.8, 2.1)
-canvas.add(typewrite_text)
+phase1_label.fadein(0.0, 0.3)
+phase1_label.fadeout(2.5, 3.0)
+canvas.add(phase1_label)
 
-# =============================================================================
-# Phase 2: Scramble effect (2 – 4s)
-# =============================================================================
-section_label_2 = Text(
-    text='scramble()', x=960, y=100, font_size=28,
-    fill='#888', stroke_width=0, text_anchor='middle',
+write_label = Text(
+    text='write()', x=300, y=230, font_size=22,
+    fill='#666666', stroke_width=0, text_anchor='middle',
 )
-section_label_2.fadein(2.0, 2.3)
-section_label_2.fadeout(3.7, 4.0)
-canvas.add(section_label_2)
+write_label.fadein(0.0, 0.3)
+write_label.fadeout(2.5, 3.0)
+canvas.add(write_label)
 
-scramble_text = Text(
-    text='DECRYPTING SECRET MESSAGE', x=960, y=480,
-    font_size=52, fill=GREEN, stroke_width=0, text_anchor='middle',
+write_text = Text(
+    text='Animated Write', x=300, y=300, font_size=44,
+    fill='#58C4DD', stroke_width=0, text_anchor='middle',
 )
-scramble_text.scramble(start=2.2, end=3.6)
-scramble_text.fadeout(3.8, 4.1)
-canvas.add(scramble_text)
+write_text.write(0.2, 1.2)
+write_text.fadeout(2.5, 3.0)
+canvas.add(write_text)
 
-# =============================================================================
-# Phase 3: Reveal by word (4 – 6s)
-# =============================================================================
-section_label_3 = Text(
-    text='reveal_by_word()', x=960, y=100, font_size=28,
-    fill='#888', stroke_width=0, text_anchor='middle',
+# --- typewrite() animation ---
+tw_label = Text(
+    text='typewrite()', x=960, y=230, font_size=22,
+    fill='#666666', stroke_width=0, text_anchor='middle',
 )
-section_label_3.fadein(4.0, 4.3)
-section_label_3.fadeout(5.7, 6.0)
-canvas.add(section_label_3)
+tw_label.fadein(0.0, 0.3)
+tw_label.fadeout(2.5, 3.0)
+canvas.add(tw_label)
 
-word_text = Text(
-    text='Each word appears one at a time like subtitles', x=960, y=480,
-    font_size=46, fill=ORANGE, stroke_width=0, text_anchor='middle',
+tw_text = Text(
+    text='Character by character...', x=960, y=300, font_size=44,
+    fill='#FC6255', stroke_width=0, text_anchor='middle',
 )
-word_text.reveal_by_word(start=4.2, end=5.6)
-word_text.fadeout(5.8, 6.1)
-canvas.add(word_text)
+tw_text.typewrite(start=0.3, end=1.8)
+tw_text.fadeout(2.5, 3.0)
+canvas.add(tw_text)
 
-# =============================================================================
-# Phase 4: CountAnimation (6 – 8s)
-# =============================================================================
-section_label_4 = Text(
-    text='CountAnimation', x=960, y=100, font_size=28,
-    fill='#888', stroke_width=0, text_anchor='middle',
+# --- reveal_by_word() animation ---
+rbw_label = Text(
+    text='reveal_by_word()', x=960, y=500, font_size=22,
+    fill='#666666', stroke_width=0, text_anchor='middle',
 )
-section_label_4.fadein(6.0, 6.3)
-section_label_4.fadeout(7.7, 8.0)
-canvas.add(section_label_4)
+rbw_label.fadein(0.5, 0.8)
+rbw_label.fadeout(2.5, 3.0)
+canvas.add(rbw_label)
 
-count_label = Text(
-    text='Downloads:', x=760, y=460, font_size=42,
-    fill='#ccc', stroke_width=0, text_anchor='end',
+rbw_text = Text(
+    text='Each word appears one by one like subtitles', x=960, y=570, font_size=42,
+    fill='#83C167', stroke_width=0, text_anchor='middle',
 )
-count_label.fadein(6.1, 6.4)
-count_label.fadeout(7.8, 8.1)
-canvas.add(count_label)
-
-counter = CountAnimation(
-    start_val=0, end_val=10000, start=6.3, end=7.5,
-    fmt='{:,.0f}', x=790, y=460, font_size=60,
-    fill=ACCENT, stroke_width=0, creation=6.1,
-)
-counter.fadein(6.1, 6.3)
-counter.fadeout(7.8, 8.1)
-canvas.add(counter)
+rbw_text.reveal_by_word(start=0.8, end=2.3)
+rbw_text.fadeout(2.5, 3.0)
+canvas.add(rbw_text)
 
 # =============================================================================
-# Phase 5: BulletedList (8 – 10s)
+# Phase 2 (3-6s): Text Effects
 # =============================================================================
-section_label_5 = Text(
-    text='BulletedList', x=960, y=100, font_size=28,
-    fill='#888', stroke_width=0, text_anchor='middle',
-)
-section_label_5.fadein(8.0, 8.3)
-section_label_5.fadeout(9.7, 10.0)
-canvas.add(section_label_5)
 
-bullets = BulletedList(
-    'Shapes & Paths',
-    'Animations & Easings',
-    'Mathematical Graphs',
-    '3D Surfaces & Camera',
-    'SVG Export & Browser Preview',
-    x=520, y=300, font_size=38, creation=8.0,
-    fill='#fff', stroke_width=0,
+phase2_label = Text(
+    text='Phase 2: Text Effects', x=960, y=80, font_size=28,
+    fill='#888888', stroke_width=0, text_anchor='middle',
 )
-bullets.fadein(8.1, 8.5)
-bullets.fadeout(9.8, 10.1)
-canvas.add(bullets)
+phase2_label.fadein(3.0, 3.3)
+phase2_label.fadeout(5.5, 6.0)
+canvas.add(phase2_label)
 
-# =============================================================================
-# Phase 6: highlight_substring (10 – 12s)
-# =============================================================================
-section_label_6 = Text(
-    text='highlight_substring()', x=960, y=100, font_size=28,
-    fill='#888', stroke_width=0, text_anchor='middle',
+# --- highlight_substring() ---
+hl_label = Text(
+    text='highlight_substring()', x=960, y=200, font_size=22,
+    fill='#666666', stroke_width=0, text_anchor='middle', creation=3.0,
 )
-section_label_6.fadein(10.0, 10.3)
-section_label_6.fadeout(11.7, 12.0)
-canvas.add(section_label_6)
+hl_label.fadein(3.0, 3.3)
+hl_label.fadeout(5.5, 6.0)
+canvas.add(hl_label)
 
 hl_text = Text(
-    text='Highlight any keyword in a sentence easily', x=960, y=440,
-    font_size=44, fill='#fff', stroke_width=0, text_anchor='middle',
-    creation=10.0,
+    text='Highlight any important keyword in text', x=960, y=270, font_size=42,
+    fill='#FFFFFF', stroke_width=0, text_anchor='middle', creation=3.0,
 )
-hl_text.fadein(10.1, 10.4)
-hl_text.fadeout(11.8, 12.0)
+hl_text.fadein(3.1, 3.4)
+hl_text.fadeout(5.5, 6.0)
 canvas.add(hl_text)
 
-# Highlight "keyword" in yellow
 hl_rect1 = hl_text.highlight_substring(
-    'keyword', color=HIGHLIGHT, start=10.5, end=11.2, opacity=0.35,
+    'important', color='#FFFF00', start=3.5, end=4.5, opacity=0.35,
 )
 canvas.add(hl_rect1)
 
-# Highlight "easily" in pink
 hl_rect2 = hl_text.highlight_substring(
-    'easily', color=PINK, start=10.8, end=11.5, opacity=0.35,
+    'keyword', color='#E84D60', start=3.8, end=4.8, opacity=0.35,
 )
 canvas.add(hl_rect2)
 
-# -- Render -------------------------------------------------------------------
+# --- set_text() ---
+st_label = Text(
+    text='set_text()', x=480, y=420, font_size=22,
+    fill='#666666', stroke_width=0, text_anchor='middle', creation=3.0,
+)
+st_label.fadein(3.0, 3.3)
+st_label.fadeout(5.5, 6.0)
+canvas.add(st_label)
+
+st_text = Text(
+    text='Original text here', x=480, y=490, font_size=38,
+    fill='#58C4DD', stroke_width=0, text_anchor='middle', creation=3.0,
+)
+st_text.fadein(3.1, 3.4)
+st_text.set_text(3.8, 4.6, 'Text has changed!')
+st_text.set_text(4.8, 5.4, 'And again!')
+st_text.fadeout(5.5, 6.0)
+canvas.add(st_text)
+
+# --- scramble() ---
+sc_label = Text(
+    text='scramble()', x=1440, y=420, font_size=22,
+    fill='#666666', stroke_width=0, text_anchor='middle', creation=3.0,
+)
+sc_label.fadein(3.0, 3.3)
+sc_label.fadeout(5.5, 6.0)
+canvas.add(sc_label)
+
+sc_text = Text(
+    text='DECODING MESSAGE', x=1440, y=490, font_size=38,
+    fill='#F5A623', stroke_width=0, text_anchor='middle',
+)
+sc_text.scramble(start=3.5, end=5.2)
+sc_text.fadeout(5.5, 6.0)
+canvas.add(sc_text)
+
+# =============================================================================
+# Phase 3 (6-9s): Code, Paragraph, Variable
+# =============================================================================
+
+phase3_label = Text(
+    text='Phase 3: Code, Paragraph, Variable', x=960, y=80, font_size=28,
+    fill='#888888', stroke_width=0, text_anchor='middle',
+)
+phase3_label.fadein(6.0, 6.3)
+phase3_label.fadeout(8.5, 9.0)
+canvas.add(phase3_label)
+
+# --- Code object ---
+code_snippet = Code(
+    text="""def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+print(fibonacci(10))""",
+    language='python', x=120, y=180, font_size=20,
+    line_height=1.4, creation=6.0,
+)
+code_snippet.fadein(6.1, 6.5)
+code_snippet.fadeout(8.5, 9.0)
+canvas.add(code_snippet)
+
+# --- Paragraph object ---
+para = Paragraph(
+    'VectorMation is a Python library',
+    'for creating animated SVG videos.',
+    'It supports text, shapes, charts,',
+    'and even 3D surfaces.',
+    x=1050, y=220, font_size=30, alignment='left',
+    creation=6.0, fill='#CCCCCC', stroke_width=0,
+)
+para.fadein(6.3, 6.7)
+para.fadeout(8.5, 9.0)
+canvas.add(para)
+
+# --- Variable object ---
+var_label_text = Text(
+    text='Variable tracker:', x=960, y=600, font_size=22,
+    fill='#666666', stroke_width=0, text_anchor='middle', creation=6.0,
+)
+var_label_text.fadein(6.5, 6.8)
+var_label_text.fadeout(8.5, 9.0)
+canvas.add(var_label_text)
+
+var = Variable(
+    label='x', value=0, fmt='{:.1f}', x=960, y=680,
+    font_size=52, creation=6.0, fill='#58C4DD', stroke_width=0,
+)
+var.fadein(6.5, 6.8)
+var.animate_value(3.14, start=7.0, end=8.0)
+var.fadeout(8.5, 9.0)
+canvas.add(var)
+
+# =============================================================================
+# Phase 4 (9-12s): DecimalNumber and CountAnimation
+# =============================================================================
+
+phase4_label = Text(
+    text='Phase 4: DecimalNumber & CountAnimation', x=960, y=80, font_size=28,
+    fill='#888888', stroke_width=0, text_anchor='middle',
+)
+phase4_label.fadein(9.0, 9.3)
+phase4_label.fadeout(11.5, 12.0)
+canvas.add(phase4_label)
+
+# --- DecimalNumber ---
+dn_label = Text(
+    text='DecimalNumber', x=480, y=250, font_size=22,
+    fill='#666666', stroke_width=0, text_anchor='middle', creation=9.0,
+)
+dn_label.fadein(9.0, 9.3)
+dn_label.fadeout(11.5, 12.0)
+canvas.add(dn_label)
+
+decimal_num = DecimalNumber(
+    value=0.0, fmt='{:.2f}', x=480, y=350, font_size=64,
+    text_anchor='middle', creation=9.0, fill='#83C167', stroke_width=0,
+)
+decimal_num.fadein(9.1, 9.4)
+decimal_num.animate_value(99.99, start=9.5, end=11.0)
+decimal_num.fadeout(11.5, 12.0)
+canvas.add(decimal_num)
+
+dn_unit = Text(
+    text='smoothly counting up', x=480, y=420, font_size=20,
+    fill='#666666', stroke_width=0, text_anchor='middle', creation=9.0,
+)
+dn_unit.fadein(9.1, 9.4)
+dn_unit.fadeout(11.5, 12.0)
+canvas.add(dn_unit)
+
+# --- CountAnimation ---
+ca_label = Text(
+    text='CountAnimation', x=1440, y=250, font_size=22,
+    fill='#666666', stroke_width=0, text_anchor='middle', creation=9.0,
+)
+ca_label.fadein(9.0, 9.3)
+ca_label.fadeout(11.5, 12.0)
+canvas.add(ca_label)
+
+counter = CountAnimation(
+    start_val=0, end_val=10000, start=9.5, end=11.0,
+    fmt='{:,.0f}', x=1440, y=350, font_size=64,
+    text_anchor='middle', creation=9.0, fill='#FC6255', stroke_width=0,
+)
+counter.fadein(9.1, 9.4)
+counter.fadeout(11.5, 12.0)
+canvas.add(counter)
+
+ca_desc = Text(
+    text='integer counting animation', x=1440, y=420, font_size=20,
+    fill='#666666', stroke_width=0, text_anchor='middle', creation=9.0,
+)
+ca_desc.fadein(9.1, 9.4)
+ca_desc.fadeout(11.5, 12.0)
+canvas.add(ca_desc)
+
+# Center bottom: a second counter that counts to a different target
+counter2_label = Text(
+    text='count_to() chained:', x=960, y=600, font_size=22,
+    fill='#666666', stroke_width=0, text_anchor='middle', creation=9.0,
+)
+counter2_label.fadein(9.3, 9.6)
+counter2_label.fadeout(11.5, 12.0)
+canvas.add(counter2_label)
+
+counter2 = CountAnimation(
+    start_val=0, end_val=50, start=9.5, end=10.2,
+    fmt='{:.0f}%', x=960, y=700, font_size=56,
+    text_anchor='middle', creation=9.0, fill='#9A72AC', stroke_width=0,
+)
+counter2.count_to(100, start=10.2, end=11.0)
+counter2.fadein(9.3, 9.6)
+counter2.fadeout(11.5, 12.0)
+canvas.add(counter2)
+
+# =============================================================================
+# Display
+# =============================================================================
 if not args.no_display:
     canvas.browser_display(
-        start=args.start or 0, end=args.end or 12,
-        fps=args.fps, port=args.port,
+        start=args.start or 0,
+        end=args.end or T,
+        fps=args.fps,
+        port=args.port,
     )
