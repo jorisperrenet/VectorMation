@@ -10,7 +10,7 @@ from vectormation._constants import (
     CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET, _label_text,
 )
 from vectormation._base import VObject, VCollection, _lerp
-from vectormation._base_helpers import _clamp01
+from vectormation._base_helpers import _clamp01, _norm_dir
 from vectormation._shapes import (
     Polygon, Circle, Dot, Rectangle, RoundedRectangle, Line, Lines,
     Text, Path, Arc, Wedge,
@@ -671,6 +671,7 @@ class Legend(VCollection):
     """Chart legend with colored swatches and labels."""
     def __init__(self, items, x: float = 100, y: float = 100, swatch_size: float = 16, spacing: float = 8,
                  font_size: float = 16, direction='down', creation: float = 0, z: float = 0):
+        direction = _norm_dir(direction, 'down')
         objects = []
         horizontal = direction == 'right'
         cursor_x, cursor_y = x, y

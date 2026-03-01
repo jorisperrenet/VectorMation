@@ -10,6 +10,7 @@ import vectormation.style as style
 import vectormation.morphing as morphing
 from vectormation._constants import SMALL_BUFF, TEXT_Y_OFFSET, ORIGIN, _label_text
 from vectormation._base import VObject, VCollection, _norm_dir
+from vectormation._base_helpers import _norm_above_below
 from vectormation._shapes import Polygon, Dot, Rectangle, Line, Lines, Text, Path
 from vectormation._arrows import Arrow, Brace
 from vectormation._svg_utils import from_svg
@@ -415,6 +416,7 @@ class NumberLine(VCollection):
 
     def add_label(self, value, text, buff: float = 10, font_size: float = 24, side='below', creation: float = 0, **kwargs):
         """Add a text label at the given value on the number line."""
+        side = _norm_above_below(side, 'below')
         px, py = self.number_to_point(value)
         kw = {'fill': '#fff', 'stroke_width': 0, 'text_anchor': 'middle'} | kwargs
         ty = py + (-1 if side == 'above' else 1) * (buff + font_size)

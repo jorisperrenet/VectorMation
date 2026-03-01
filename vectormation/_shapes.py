@@ -1626,6 +1626,8 @@ class Rectangle(VObject):
     def split(self, direction='horizontal', count: int = 2, time: float = 0, **kwargs):
         """Split this rectangle into *count* equal sub-rectangles."""
         from vectormation._base import VCollection
+        from vectormation._base_helpers import _norm_orient
+        direction = _norm_orient(direction, 'horizontal')
         if count < 1:
             raise ValueError("split: count must be >= 1")
         rx, ry, rw, rh = self._dims(time)

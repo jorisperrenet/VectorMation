@@ -248,3 +248,101 @@ def test_graph_accepts_3tuple_x_range():
     from vectormation.objects import Graph
     g = Graph(lambda x: x**2, x_range=(0, 5, 1))
     assert g is not None
+
+
+# ── Rectangle.split direction normalization ──────────────────────
+
+def test_rectangle_split_with_tuple_direction_up():
+    """Rectangle.split should accept UP as 'vertical'."""
+    r = Rectangle(200, 100, x=100, y=100)
+    parts = r.split(direction=UP, count=2)
+    assert len(parts.objects) == 2
+
+def test_rectangle_split_with_tuple_direction_left():
+    """Rectangle.split should accept LEFT as 'horizontal'."""
+    r = Rectangle(200, 100, x=100, y=100)
+    parts = r.split(direction=LEFT, count=3)
+    assert len(parts.objects) == 3
+
+
+# ── Axes direction normalization (extended) ──────────────────────
+
+def test_add_shaded_inequality_with_tuple_direction():
+    """add_shaded_inequality should accept UP/DOWN tuple direction."""
+    ax = Axes(x_range=(0, 5, 1), y_range=(0, 5, 1))
+    region = ax.add_shaded_inequality(lambda x: x, direction=DOWN)
+    assert region is not None
+
+def test_add_asymptote_with_tuple_direction():
+    """add_asymptote should accept tuple direction for vertical/horizontal."""
+    ax = Axes(x_range=(0, 10, 1), y_range=(0, 10, 1))
+    line = ax.add_asymptote(5, direction=UP)
+    assert line is not None
+
+def test_add_threshold_line_with_tuple_direction():
+    """add_threshold_line should accept tuple direction."""
+    ax = Axes(x_range=(0, 10, 1), y_range=(0, 10, 1))
+    line = ax.add_threshold_line(5, direction=LEFT)
+    assert line is not None
+
+def test_add_horizontal_label_with_tuple_side():
+    """add_horizontal_label should accept LEFT/RIGHT tuple."""
+    ax = Axes(x_range=(0, 10, 1), y_range=(0, 10, 1))
+    lbl = ax.add_horizontal_label(5, 'label', side=LEFT)
+    assert lbl is not None
+
+def test_add_vertical_label_with_tuple_side():
+    """add_vertical_label should accept UP/DOWN tuple."""
+    ax = Axes(x_range=(0, 10, 1), y_range=(0, 10, 1))
+    lbl = ax.add_vertical_label(5, 'label', side=UP)
+    assert lbl is not None
+
+
+# ── NumberLine.add_label with tuple side ─────────────────────────
+
+def test_numberline_add_label_with_tuple_side():
+    """NumberLine.add_label should accept UP tuple for 'above'."""
+    from vectormation.objects import NumberLine
+    nl = NumberLine(x_range=(-5, 5, 1))
+    nl.add_label(0, 'zero', side=UP)
+    assert nl is not None
+
+
+# ── Legend with tuple direction ──────────────────────────────────
+
+def test_legend_with_tuple_direction():
+    """Legend should accept tuple direction constants."""
+    from vectormation.objects import Legend
+    lg = Legend([('#f00', 'Red'), ('#0f0', 'Green')], direction=RIGHT)
+    assert lg is not None
+
+def test_legend_with_tuple_direction_down():
+    from vectormation.objects import Legend
+    lg = Legend([('#f00', 'Red'), ('#0f0', 'Green')], direction=DOWN)
+    assert lg is not None
+
+
+# ── UI direction normalization ───────────────────────────────────
+
+def test_bracket_with_tuple_direction():
+    """Bracket should accept tuple direction constants."""
+    from vectormation.objects import Bracket
+    b = Bracket(direction=DOWN)
+    assert b is not None
+
+def test_bracket_with_tuple_direction_left():
+    from vectormation.objects import Bracket
+    b = Bracket(direction=LEFT)
+    assert b is not None
+
+def test_divider_with_tuple_direction():
+    """Divider should accept tuple direction constants."""
+    from vectormation.objects import Divider
+    d = Divider(direction=UP)
+    assert d is not None
+
+def test_meter_with_tuple_direction():
+    """Meter should accept tuple direction constants."""
+    from vectormation.objects import Meter
+    m = Meter(direction=LEFT)
+    assert m is not None

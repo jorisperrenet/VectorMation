@@ -8,7 +8,7 @@ from vectormation._constants import (
     _sample_function, _normalize,
 )
 from vectormation._base import VObject, VCollection, _lerp
-from vectormation._base_helpers import _clamp01, _lerp_point, _norm_dir
+from vectormation._base_helpers import _clamp01, _lerp_point, _norm_dir, _norm_above_below
 from vectormation._collection import _scale_transform
 from vectormation._axes_helpers import (
     _CURVE_STYLE, _AREA_STYLE, _HIGHLIGHT_STYLE,
@@ -1723,6 +1723,7 @@ class Axes(_AxesExtMixin, VCollection):
     def add_shaded_inequality(self, func, direction='below', x_range=None,
                                samples: int = 100, creation: float = 0, z: float = -1, **styling_kwargs):
         """Shade the region above or below a curve. Returns a dynamic Path."""
+        direction = _norm_above_below(direction, 'below')
         style_kw = {'fill': '#FFFF00', 'fill_opacity': 0.1, 'stroke_width': 0} | styling_kwargs
         fn = self._resolve_func(func, 'func')
         region = Path('', x=0, y=0, creation=creation, z=z, **style_kw)

@@ -111,6 +111,19 @@ _DIR_NAMES = {RIGHT: 'right', LEFT: 'left', DOWN: 'down', UP: 'up',
               UR: 'right', UL: 'left', DR: 'down', DL: 'down'}
 _EDGE_NAMES = {LEFT: 'left', RIGHT: 'right', UP: 'top', DOWN: 'bottom',
                UL: 'left', DL: 'left', UR: 'right', DR: 'right'}
+_ORIENT_NAMES = {UP: 'vertical', DOWN: 'vertical', LEFT: 'horizontal', RIGHT: 'horizontal',
+                 UL: 'vertical', UR: 'vertical', DL: 'vertical', DR: 'vertical'}
+_ABOVE_BELOW = {UP: 'above', DOWN: 'below'}
+
+
+def _norm_orient(direction, default='horizontal'):
+    """Convert a tuple direction constant to 'horizontal' or 'vertical'."""
+    return _ORIENT_NAMES.get(direction, default) if isinstance(direction, tuple) else direction
+
+
+def _norm_above_below(direction, default='below'):
+    """Convert UP/DOWN tuple to 'above'/'below'."""
+    return _ABOVE_BELOW.get(direction, default) if isinstance(direction, tuple) else direction
 
 
 def _make_brect(bbox_func, time, rx, ry, buff, follow, **bbox_kw):

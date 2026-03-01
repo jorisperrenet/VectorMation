@@ -420,6 +420,7 @@ class Bracket(VCollection):
                  direction='down', stroke='#fff', stroke_width: float = 2,
                  text='', font_size: float = 16, text_color='#aaa',
                  creation: float = 0, z: float = 0):
+        direction = _norm_dir(direction, 'down')
         tip = height
         if direction in ('down', 'up'):
             sign = 1 if direction == 'down' else -1
@@ -545,6 +546,8 @@ class Divider(VCollection):
     def __init__(self, x: float = 100, y: float = 300, length: float = 400, direction='horizontal',
                  label=None, font_size: float = 16, gap: float = 12,
                  creation: float = 0, z: float = 0, **styling_kwargs):
+        from vectormation._base_helpers import _norm_orient
+        direction = _norm_orient(direction, 'horizontal')
         style_kw = {'stroke': '#555', 'stroke_width': 1} | styling_kwargs
         objects = []
         if label:
@@ -781,6 +784,8 @@ class Meter(VCollection):
                  direction='vertical', fill_color='#58C4DD',
                  bg_color='#333', border_color='#888',
                  creation: float = 0, z: float = 0):
+        from vectormation._base_helpers import _norm_orient
+        direction = _norm_orient(direction, 'vertical')
 
         bg = RoundedRectangle(width=width, height=height, x=x, y=y,
                               corner_radius=3, fill=bg_color, fill_opacity=0.8,

@@ -8,7 +8,7 @@ from vectormation._constants import (
     DEFAULT_CHART_COLORS, TEXT_Y_OFFSET, _normalize,
 )
 from vectormation._base import VCollection
-from vectormation._base_helpers import _clamp01
+from vectormation._base_helpers import _clamp01, _norm_orient, _norm_edge
 from vectormation._shapes import (
     Polygon, Dot, Rectangle, RoundedRectangle, Line,
     Text, Path,
@@ -122,6 +122,7 @@ class _AxesExtMixin:
     def add_horizontal_label(self, y, text, side='right', buff: float = 10, font_size: float = 18,
                               creation: float = 0, z: float = 5, **styling_kwargs):
         """Add a text label at y-coordinate on the specified side of the plot."""
+        side = _norm_edge(side, 'right')
         style_kw = _LABEL_STYLE | styling_kwargs
         lx = (self.plot_x - buff) if side == 'left' else (self.plot_x + self.plot_width + buff)
         anchor = 'end' if side == 'left' else 'start'
@@ -134,6 +135,7 @@ class _AxesExtMixin:
     def add_vertical_label(self, x, text, side='bottom', buff: float = 10, font_size: float = 18,
                             creation: float = 0, z: float = 5, **styling_kwargs):
         """Add a text label at x-coordinate above or below the plot."""
+        side = _norm_edge(side, 'bottom')
         style_kw = _LABEL_STYLE | styling_kwargs
         ly = (self.plot_y - buff) if side == 'top' else (self.plot_y + self.plot_height + buff + font_size)
         lbl = Text(text=str(text), x=0, y=ly, font_size=font_size,
@@ -155,6 +157,7 @@ class _AxesExtMixin:
     def _make_span_line(self, value, direction, creation, z, style_kw):
         """Create a Line spanning the full plot along one axis at a given math value.
         direction: 'vertical' (x=value) or 'horizontal' (y=value)."""
+        direction = _norm_orient(direction, 'vertical')
         line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
         _v = value
         if direction == 'vertical':
