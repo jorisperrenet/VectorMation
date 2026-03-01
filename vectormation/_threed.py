@@ -301,7 +301,7 @@ class ThreeDAxes(VCollection):
         self._threed_objects.append(wireframe)
         return wireframe
 
-    def add_grid_plane(self, plane='xz', step=1, color='#444444', opacity=0.3,
+    def add_grid_plane(self, plane='xz', step=1, color='#444444', opacity: float = 0.3,
                         stroke_width=0.5, creation: float = 0):
         """Add a grid plane to the 3D axes."""
         from vectormation._shapes import Line

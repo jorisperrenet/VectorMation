@@ -85,7 +85,7 @@ class _AxesExtMixin:
         style_kw = {'stroke': '#aaa', 'stroke_width': 2, 'stroke_dasharray': '6 4'} | styling_kwargs
         return self.get_line_from_to(x1, y1, x2, y2, creation=creation, z=z, **style_kw)
 
-    def add_title(self, text, font_size=32, buff=20, creation: float = 0, z: float = 5, **styling_kwargs):
+    def add_title(self, text, font_size=32, buff: float = 20, creation: float = 0, z: float = 5, **styling_kwargs):
         """Add a title above the axes. Returns the Text object."""
         style_kw = _LABEL_STYLE | styling_kwargs
         cx = self.get_plot_center()[0]
@@ -117,7 +117,7 @@ class _AxesExtMixin:
         self._add_plot_obj(group)
         return group
 
-    def add_horizontal_label(self, y, text, side='right', buff=10, font_size=18,
+    def add_horizontal_label(self, y, text, side='right', buff: float = 10, font_size=18,
                               creation: float = 0, z: float = 5, **styling_kwargs):
         """Add a text label at y-coordinate on the specified side of the plot."""
         style_kw = _LABEL_STYLE | styling_kwargs
@@ -129,7 +129,7 @@ class _AxesExtMixin:
         self._add_plot_obj(lbl)
         return lbl
 
-    def add_vertical_label(self, x, text, side='bottom', buff=10, font_size=18,
+    def add_vertical_label(self, x, text, side='bottom', buff: float = 10, font_size=18,
                             creation: float = 0, z: float = 5, **styling_kwargs):
         """Add a text label at x-coordinate above or below the plot."""
         style_kw = _LABEL_STYLE | styling_kwargs
@@ -696,7 +696,7 @@ class _AxesExtMixin:
         return VCollection(*dots, creation=creation, z=z)
 
     def add_color_bar(self, colormap=None, vmin=0, vmax=1, label='', n_stops=50,
-                       width=20, height=None, side='right', buff=20,
+                       width=20, height=None, side='right', buff: float = 20,
                        font_size=14, creation: float = 0, z: float = 5, **styling_kwargs):
         """Add a vertical color bar legend (e.g. for heatmaps).
         colormap: list of (frac, '#hex') stops.
@@ -2084,7 +2084,7 @@ class _AxesExtMixin:
         return VCollection(*lines, creation=creation, z=z)
 
     def add_spread_band(self, func, spread_func, x_range=None, num_points=100,
-                        color='#58C4DD', opacity=0.2, creation: float = 0):
+                        color='#58C4DD', opacity: float = 0.2, creation: float = 0):
         """Draw a shaded band from func(x)-spread_func(x) to func(x)+spread_func(x)."""
         fn = self._resolve_func(func, 'func')
         sf = self._resolve_func(spread_func, 'spread_func')
@@ -2144,7 +2144,7 @@ class _AxesExtMixin:
         return lbl
 
     def annotate_area(self, func_or_curve, x_range, label=None, color='#58C4DD',
-                       opacity=0.3, start=0, **kwargs):
+                       opacity: float = 0.3, start=0, **kwargs):
         """Create a shaded area under a curve with an optional centered label."""
         area = self.get_area(func_or_curve, x_range=x_range, creation=start,
                              fill=color, fill_opacity=opacity, **kwargs)

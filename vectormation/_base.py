@@ -2164,7 +2164,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self._typewriter_clip(start, end, direction, easing, reveal=True)
 
     def cross_out(self, start: float = 0, end: float = 0.5, color='#FC6255',
-                   stroke_width=4, buff=5):
+                   stroke_width=4, buff: float = 5):
         """Draw an X across this object. Returns the Cross VCollection (add to canvas)."""
         from vectormation._svg_utils import Cross
         _, _, bw, bh = self.bbox(start)

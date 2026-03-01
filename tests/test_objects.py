@@ -22391,7 +22391,7 @@ class TestWaveThroughApplyWave:
         assert '<svg' in svg
 
 
-class TestElasticBounce:
+class TestElasticBounceAnimations:
     """Test elastic_bounce effect."""
     def test_basic(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -22450,7 +22450,7 @@ class TestAnimatedBoundaryNoStyling:
         assert 'fill-rule' not in svg  # spotlight path uses fill-rule='evenodd'
 
 
-class TestSetGradientFill:
+class TestSetGradientFillDirections:
     """Test set_gradient_fill method."""
     def test_horizontal(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -22486,7 +22486,7 @@ class TestSetGradientFill:
         assert svg.count('stop-color') == 3
 
 
-class TestSetClip:
+class TestSetClipBasic:
     """Test set_clip method."""
     def test_returns_self(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -22504,7 +22504,7 @@ class TestSetClip:
         assert 'clipPath' in svg
 
 
-class TestSetLifetime:
+class TestSetLifetimeVisibility:
     """Test set_lifetime method."""
     def test_returns_self(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -22527,7 +22527,7 @@ class TestSetLifetime:
         assert c.show.at_time(4) == False
 
 
-class TestGetStyle:
+class TestGetStyleDict:
     """Test get_style method."""
     def test_returns_dict(self):
         c = Circle(r=50, cx=100, cy=100, fill='#ff0000')
@@ -22605,7 +22605,7 @@ class TestScienceComponentsGeometry:
         assert len(r.objects) == 1  # Just the zigzag, no label text
 
 
-class TestUnitInterval:
+class TestUnitIntervalBasic:
     """Test UnitInterval convenience wrapper."""
     def test_creates(self):
         from vectormation.objects import UnitInterval
@@ -22621,7 +22621,7 @@ class TestUnitInterval:
         assert '<svg' in svg
 
 
-class TestAlwaysRedraw:
+class TestAlwaysRedrawConvenience:
     """Tests for always_redraw convenience wrapper."""
 
     def test_returns_dynamic_object(self):
@@ -22679,7 +22679,7 @@ class TestSuccession:
         # With lag_ratio=0.5, animations should overlap
 
 
-class TestParametricFunction:
+class TestParametricFunctionBasic:
     """Tests for ParametricFunction."""
 
     def test_creates(self):
@@ -22696,7 +22696,7 @@ class TestParametricFunction:
         assert '<svg' in svg
 
 
-class TestComplexValueTracker:
+class TestComplexValueTrackerBasic:
     """Tests for ComplexValueTracker."""
 
     def test_creates(self):

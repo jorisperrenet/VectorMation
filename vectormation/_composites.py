@@ -400,7 +400,7 @@ class NumberLine(VCollection):
         return dot
 
     def highlight_range(self, start_val, end_val, color='#FFFF00',
-                        height=16, opacity=0.4, creation: float = 0, z: float = 1, **kwargs):
+                        height=16, opacity: float = 0.4, creation: float = 0, z: float = 1, **kwargs):
         """Highlight a numeric range on the number line with a colored rectangle."""
         sv = max(self.x_start, min(self.x_end, start_val))
         ev = max(self.x_start, min(self.x_end, end_val))
@@ -408,7 +408,7 @@ class NumberLine(VCollection):
             sv, ev = ev, sv
         return self._make_range_rect(sv, ev, color, height, opacity, creation, z, **kwargs)
 
-    def add_label(self, value, text, buff=10, font_size=24, side='below', creation: float = 0, **kwargs):
+    def add_label(self, value, text, buff: float = 10, font_size=24, side='below', creation: float = 0, **kwargs):
         """Add a text label at the given value on the number line."""
         px, py = self.number_to_point(value)
         kw = {'fill': '#fff', 'stroke_width': 0, 'text_anchor': 'middle'} | kwargs

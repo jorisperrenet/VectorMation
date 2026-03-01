@@ -309,7 +309,7 @@ class Axes(_AxesExtMixin, VCollection):
     plot = add_function
 
     def add_filled_curve(self, func, x_range=None, color='#58C4DD',
-                         opacity=0.3, start=0, end=None, reveal=True, **kwargs):
+                         opacity: float = 0.3, start=0, end=None, reveal=True, **kwargs):
         """Plot a curve and its filled area underneath in one call."""
         curve_kwargs = {k: v for k, v in kwargs.items()
                         if k not in ('fill', 'fill_opacity')}
@@ -1270,7 +1270,7 @@ class Axes(_AxesExtMixin, VCollection):
                              creation=creation, z=z, **style_kw)
 
     def shade_between(self, func1, func2, x_range=None, color='#58C4DD',
-                      opacity=0.2, creation: float = 0, z: float = 0, **styling_kwargs):
+                      opacity: float = 0.2, creation: float = 0, z: float = 0, **styling_kwargs):
         """Shade the region between two functions with given color and opacity."""
         kw = {'fill': color, 'fill_opacity': opacity} | styling_kwargs
         return self.get_area_between(func1, func2, x_range=x_range,
@@ -1331,7 +1331,7 @@ class Axes(_AxesExtMixin, VCollection):
             self._add_plot_obj(lbl)
         return dot, lbl
 
-    def add_point_label(self, x, y, text=None, dot_radius=6, font_size=20, buff=10,
+    def add_point_label(self, x, y, text=None, dot_radius=6, font_size=20, buff: float = 10,
                         creation: float = 0, **kwargs) -> 'tuple[Dot, Text]':
         """Add a dot at math coordinates (x, y) with an optional text label. Returns (dot, label)."""
         if text is None:
@@ -1363,7 +1363,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(group)
         return group
 
-    def add_marked_region(self, x1, x2, color='#FFFF00', opacity=0.2, creation: float = 0, z: float = 0):
+    def add_marked_region(self, x1, x2, color='#FFFF00', opacity: float = 0.2, creation: float = 0, z: float = 0):
         """Highlight a vertical region on the axes between x1 and x2. Returns a Rectangle."""
         sx1 = self._math_to_svg_x(x1, time=creation)
         sx2 = self._math_to_svg_x(x2, time=creation)
@@ -1408,7 +1408,7 @@ class Axes(_AxesExtMixin, VCollection):
         return VCollection(*objs, creation=creation, z=z)
 
     def add_function_region(self, func, x_range=None, label=None,
-                            color='#58C4DD', opacity=0.2, creation: float = 0):
+                            color='#58C4DD', opacity: float = 0.2, creation: float = 0):
         """Plot a function and shade the area under it in one call. Returns the area Path."""
         self.add_function(func, label=label, x_range=x_range,
                           creation=creation, stroke=color)
@@ -1416,7 +1416,7 @@ class Axes(_AxesExtMixin, VCollection):
                              fill=color, fill_opacity=opacity, stroke_width=0)
         return area
 
-    def add_arrow_annotation(self, x, y, text, direction='up', length=80, buff=10,
+    def add_arrow_annotation(self, x, y, text, direction='up', length=80, buff: float = 10,
                               font_size=20, creation: float = 0, z: float = 5, **styling_kwargs):
         """Add a labeled arrow pointing to a math coordinate. Returns a VCollection."""
         style_kw = {'stroke': '#FFFF00', 'fill': '#FFFF00'} | styling_kwargs
@@ -1650,7 +1650,7 @@ class Axes(_AxesExtMixin, VCollection):
         """Shade a horizontal strip between y_lo and y_hi. Returns a Rectangle."""
         return self._highlight_range(y_lo, y_hi, 'y', creation, z, styling_kwargs)
 
-    def add_horizontal_band(self, y1, y2, color='#FFFF00', opacity=0.2, creation: float = 0):
+    def add_horizontal_band(self, y1, y2, color='#FFFF00', opacity: float = 0.2, creation: float = 0):
         """Add a shaded horizontal band between y-values y1 and y2. Returns a Rectangle."""
         return self.highlight_y_range(y1, y2, creation=creation, z=-1,
                                       fill=color, fill_opacity=opacity, stroke_width=0)

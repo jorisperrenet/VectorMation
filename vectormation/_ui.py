@@ -69,7 +69,7 @@ class Variable(VCollection):
 
 class Underline(VCollection):
     """Underline beneath a target object."""
-    def __init__(self, target, buff=4, follow=True, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, target, buff: float = 4, follow=True, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = _LINE_STYLE | styling_kwargs
         bx, by, bw, bh = target.bbox(creation)
         line = Line(x1=bx, y1=by + bh + buff, x2=bx + bw, y2=by + bh + buff,
@@ -186,7 +186,7 @@ class Code(VCollection):
     def __repr__(self):
         return f'Code({self._num_lines} lines, lang={self._language!r})'
 
-    def highlight_lines(self, line_nums, start: float = 0, end: float = 1, color='#FFFF00', opacity=0.2,
+    def highlight_lines(self, line_nums, start: float = 0, end: float = 1, color='#FFFF00', opacity: float = 0.2,
                         easing=easings.there_and_back):
         """Highlight specific code lines with a colored overlay."""
         if isinstance(line_nums, int):

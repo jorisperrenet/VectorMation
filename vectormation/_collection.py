@@ -504,7 +504,7 @@ class VCollection(_BBoxMethodsMixin):
             obj.center_to_pos(posx=tx, posy=ty, start=start, end=end, easing=_easing)
         return self
 
-    def distribute(self, direction: str | tuple = 'right', buff=0, start: float = 0):
+    def distribute(self, direction: str | tuple = 'right', buff: float = 0, start: float = 0):
         """Distribute children evenly within the group's bounding box."""
         direction = _norm_dir(direction)
         if len(self.objects) < 2:
@@ -1380,7 +1380,7 @@ class VCollection(_BBoxMethodsMixin):
         tmp.cascade('fadein', start=start, end=end, overlap=0.5, easing=easing)
         return self
 
-    def label_children(self, labels, direction=UP, buff=20, font_size=None, creation: float = 0):
+    def label_children(self, labels, direction=UP, buff: float = 20, font_size=None, creation: float = 0):
         """Create Text labels positioned relative to each child and return them as a VCollection."""
         from vectormation._shapes import Text  # lazy to avoid circular import
         label_objects = []
@@ -1418,7 +1418,7 @@ class VCollection(_BBoxMethodsMixin):
                 method(values[i], **kw)
         return self
 
-    def connect_children(self, arrow=False, buff=0, start: float = 0, **kwargs):
+    def connect_children(self, arrow=False, buff: float = 0, start: float = 0, **kwargs):
         """Draw connecting lines or arrows between consecutive children, adding them to the collection."""
         if arrow:
             from vectormation._arrows import Arrow as _Connector

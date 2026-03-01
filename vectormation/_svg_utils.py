@@ -609,7 +609,7 @@ class Intersection(_BooleanOp):
 # Standalone helper functions
 # ---------------------------------------------------------------------------
 
-def brace_between_points(p1, p2, direction=None, label=None, buff=0, depth=18,
+def brace_between_points(p1, p2, direction=None, label=None, buff: float = 0, depth=18,
                          creation: float = 0, z: float = 0, **styling_kwargs):
     """Create a Brace between two arbitrary points."""
     x1, y1 = p1
@@ -717,7 +717,7 @@ class StreamLines(VCollection):
 class Cutout(VObject):
     """Full-screen overlay with a rectangular cutout (spotlight effect)."""
     def __init__(self, hole_x=660, hole_y=340, hole_w=600, hole_h=400,
-                 color='#000', opacity=0.7, rx=0, ry=0,
+                 color='#000', opacity: float = 0.7, rx=0, ry=0,
                  creation: float = 0, z: float = 99, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.hole_x = attributes.Real(creation, hole_x)
@@ -757,7 +757,7 @@ class Cutout(VObject):
         if h is not None: _set_attr(self.hole_h, start, end, h, easing)
         return self
 
-    def surround(self, obj, buff=20, start: float = 0, end: float | None = None, easing=easings.smooth):
+    def surround(self, obj, buff: float = 20, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Move the cutout hole to surround a VObject's bounding box."""
         bx, by, bw, bh = obj.bbox(start)
         return self.set_hole(bx - buff, by - buff, bw + 2*buff, bh + 2*buff,
@@ -846,7 +846,7 @@ class Spotlight(VObject):
         Overlay opacity (0 = invisible, 1 = fully opaque).
     """
 
-    def __init__(self, target=ORIGIN, radius=120, color='#000000', opacity=0.7,
+    def __init__(self, target=ORIGIN, radius=120, color='#000000', opacity: float = 0.7,
                  creation: float = 0, z: float = 10, **kw):
         super().__init__(creation=creation, z=z, **kw)
         if isinstance(target, VObject):
@@ -940,7 +940,7 @@ class AnimatedBoundary(VObject):
         Border stroke width.
     """
 
-    def __init__(self, target, colors=None, cycle_rate=1.0, buff=8,
+    def __init__(self, target, colors=None, cycle_rate=1.0, buff: float = 8,
                  stroke_width=3, creation: float = 0, z: float = 0):
         super().__init__(creation=creation, z=z)
         self._target = target

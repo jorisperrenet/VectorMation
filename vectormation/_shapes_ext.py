@@ -677,7 +677,7 @@ class Text(VObject):
         return self._highlight_rect(rect, start, end, opacity, easing)
 
     def highlight_substring(self, substring, color='#FFFF00', start: float = 0, end: float = 1,
-                            opacity=0.3, easing=easings.there_and_back):
+                            opacity: float = 0.3, easing=easings.there_and_back):
         """Highlight a substring with a colored background rectangle.
         Returns the highlight Rectangle (must be added to canvas)."""
         text_val = str(self.text.at_time(start))
@@ -938,7 +938,7 @@ class Text(VObject):
 
     split_words = split_into_words
 
-    def add_background_rectangle(self, color='#000000', opacity=0.5, padding=10, time: float = 0):
+    def add_background_rectangle(self, color='#000000', opacity: float = 0.5, padding=10, time: float = 0):
         """Create a Rectangle behind the text, sized from bbox + padding."""
 
         bx, by, bw, bh = self.bbox(time)
