@@ -60,7 +60,8 @@ class PieChart(VCollection):
         colors = _default_colors(colors)
         total = sum(values)
         if total == 0:
-            total = 1
+            total = len(values) or 1
+            values = [1] * len(values) if values else values
         objects: list[VObject] = []
         angle = start_angle
         for i, val in enumerate(values):
@@ -209,7 +210,8 @@ class DonutChart(VCollection):
         colors = _default_colors(colors)
         total = sum(values)
         if total == 0:
-            total = 1
+            total = len(values) or 1
+            values = [1] * len(values) if values else values
         objects: list[VObject] = []
         angle = start_angle
         sectors = []
@@ -690,8 +692,7 @@ class RadarChart(VCollection):
                  fill_opacity=0.3, creation: float = 0, z: float = 0):
         n = len(values)
         if n < 3:
-            super().__init__(creation=creation, z=z)
-            return
+            raise ValueError(f"RadarChart requires at least 3 values, got {n}")
         if max_val is None:
             max_val = max(values) if values else 1
         if max_val == 0:

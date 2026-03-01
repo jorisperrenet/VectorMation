@@ -1719,6 +1719,20 @@ class TestPieChart:
         svg = pc.to_svg(0)
         assert '<path' in svg
 
+    def test_all_zeros_creates_equal_sectors(self):
+        pc = PieChart([0, 0, 0])
+        assert len(pc._sectors) == 3
+        # Each sector should have 120° sweep
+        for s in pc._sectors:
+            sa = s.start_angle.at_time(0)
+            ea = s.end_angle.at_time(0)
+            assert abs((ea - sa) - 120) < 0.01
+
+    def test_all_zeros_with_labels(self):
+        pc = PieChart([0, 0], labels=['A', 'B'])
+        svg = pc.to_svg(0)
+        assert '<text' in svg
+
 
 class TestFilters:
     def test_blur_filter_svg(self):
@@ -2995,9 +3009,8 @@ class TestRadarChart:
         assert 'A' in svg
 
     def test_too_few_values(self):
-        rc = RadarChart([1, 2])
-        svg = rc.to_svg(0)
-        assert svg is not None
+        with pytest.raises(ValueError, match="at least 3 values"):
+            RadarChart([1, 2])
 
 
 class TestDefaultChartColors:
@@ -19036,6 +19049,31 @@ class TestColorWaveHexParsing:
         c.color_wave(start=0, end=2, wave_color='#00ff00')
         svg = c.to_svg(1)
         assert '<circle' in svg
+
+
+class TestHexToRgbShorthand:
+    """3-character hex color shorthand is expanded correctly."""
+
+    def test_three_char_white(self):
+        from vectormation.colors import _hex_to_rgb
+        assert _hex_to_rgb('#FFF') == (255, 255, 255)
+
+    def test_three_char_black(self):
+        from vectormation.colors import _hex_to_rgb
+        assert _hex_to_rgb('#000') == (0, 0, 0)
+
+    def test_three_char_color(self):
+        from vectormation.colors import _hex_to_rgb
+        assert _hex_to_rgb('#F80') == (255, 136, 0)
+
+    def test_six_char_still_works(self):
+        from vectormation.colors import _hex_to_rgb
+        assert _hex_to_rgb('#FF8800') == (255, 136, 0)
+
+    def test_interpolate_with_shorthand(self):
+        from vectormation.colors import interpolate_color
+        result = interpolate_color('#FFF', '#000', 0.5)
+        assert result == '#7f7f7f'
 
 
 class TestDiagonalLengthAlias:

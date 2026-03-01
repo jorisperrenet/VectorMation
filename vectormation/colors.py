@@ -164,6 +164,8 @@ def _hex_to_rgb(hex_color):
     if hex_color in colors:
         hex_color = colors[hex_color]
     h = hex_color.lstrip('#')
+    if len(h) == 3:
+        h = h[0]*2 + h[1]*2 + h[2]*2
     return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
 
 

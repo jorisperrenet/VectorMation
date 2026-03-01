@@ -268,7 +268,7 @@ class NumberLine(VCollection):
         # Ticks and labels
         n_ticks = round((x_end - x_start) / x_step)
         for i in range(n_ticks + 1):
-            val = x_start + i * x_step
+            val = round(x_start + i * x_step, 10)
             sx = x + (val - x_start) / (x_end - x_start) * length
             objects.append(Line(x1=sx, y1=y - tick_size/2, x2=sx, y2=y + tick_size/2,
                                 creation=creation, z=z, stroke='#fff', stroke_width=3))
