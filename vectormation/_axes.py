@@ -328,6 +328,8 @@ class Axes(_AxesExtMixin, VCollection):
     def add_parametric_plot(self, fx, fy, t_range=(0, 1), num_points: int = 100,
                             creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a parametric curve x=fx(t), y=fy(t). Returns a Path object."""
+        if num_points < 1:
+            num_points = 1
         if hasattr(self, '_deferred_axes'):
             # Sample fy over t_range (not x_range) to auto-detect y bounds
             t_min, t_max = t_range
@@ -854,6 +856,8 @@ class Axes(_AxesExtMixin, VCollection):
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.5,
                     'stroke': '#58C4DD', 'stroke_width': 1} | styling_kwargs
         if isinstance(bins, int):
+            if bins < 1:
+                bins = 1
             lo, hi = min(data), max(data)
             if lo == hi:
                 lo, hi = lo - 1, hi + 1

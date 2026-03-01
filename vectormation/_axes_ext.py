@@ -1016,7 +1016,8 @@ class _AxesExtMixin:
         h = bandwidth
         xmin, xmax = min(data), max(data)
         margin = 3 * h
-        xs = [xmin - margin + i * (xmax - xmin + 2 * margin) / (samples - 1) for i in range(samples)]
+        denom = max(samples - 1, 1)
+        xs = [xmin - margin + i * (xmax - xmin + 2 * margin) / denom for i in range(samples)]
         def _kde(xv):
             return sum(math.exp(-0.5 * ((xv - d) / h) ** 2) for d in data) / (n * h * math.sqrt(math.tau))
         ys = [_kde(xv) for xv in xs]

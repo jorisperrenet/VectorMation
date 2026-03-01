@@ -984,16 +984,18 @@ class DynamicObject(VObject):
 
     def to_svg(self, time):
         """Render the dynamically-generated object at *time*."""
-        return self._eval(time).to_svg(time)
+        obj = self._eval(time)
+        return obj.to_svg(time) if obj is not None else ''
 
     def path(self, time):
         """Return the path of the dynamically-generated object at *time*."""
         obj = self._eval(time)
-        return obj.path(time) if hasattr(obj, 'path') else ''
+        return obj.path(time) if obj is not None and hasattr(obj, 'path') else ''
 
     def bbox(self, time: float = 0):
         """Return the bounding box of the dynamically-generated object at *time*."""
-        return self._eval(time).bbox(time)
+        obj = self._eval(time)
+        return obj.bbox(time) if obj is not None else (0, 0, 0, 0)
 
     def __repr__(self) -> str:
         return 'DynamicObject()'

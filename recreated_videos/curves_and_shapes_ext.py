@@ -2,7 +2,7 @@
 AnnularSector, ArcPolygon, Wedge, Spiral, and DashedLine."""
 from vectormation.objects import (
     VectorMathAnim, Text, ORIGIN, parse_args,
-    Circle, Dot, Line, Rectangle, VCollection,
+    Dot, VCollection,
     CubicBezier, ArcBetweenPoints, Elbow, AnnularSector, ArcPolygon,
     Wedge, Spiral, DashedLine, Annulus,
 )
