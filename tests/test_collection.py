@@ -3978,3 +3978,29 @@ class TestCollectionQueryMethods:
         assert result.objects[1] is b1
         assert result.objects[2] is a2
         assert result.objects[3] is b2
+
+
+class TestRemoveSafe:
+    """Tests for VCollection.remove() safety (no-op when object not present)."""
+
+    def test_remove_existing_object(self):
+        c1, c2 = Circle(r=10), Circle(r=20)
+        col = VCollection(c1, c2)
+        col.remove(c1)
+        assert len(col.objects) == 1
+        assert col.objects[0] is c2
+
+    def test_remove_nonexistent_object(self):
+        """remove() with unknown object should not raise."""
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        col = VCollection(c1)
+        col.remove(c2)  # should be no-op
+        assert len(col.objects) == 1
+        assert col.objects[0] is c1
+
+    def test_remove_returns_self(self):
+        c1 = Circle(r=10)
+        col = VCollection(c1)
+        result = col.remove(c1)
+        assert result is col

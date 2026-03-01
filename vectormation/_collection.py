@@ -44,8 +44,11 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def remove(self, obj):
-        """Remove an object from this collection."""
-        self.objects.remove(obj)
+        """Remove an object from this collection (no-op if not present)."""
+        try:
+            self.objects.remove(obj)
+        except ValueError:
+            pass
         return self
 
     def remove_at(self, index):
@@ -596,6 +599,8 @@ class VCollection(_BBoxMethodsMixin):
         """Return (cols, cell_w, cell_h, max_w, max_h, boxes) for grid layout."""
         _, cols = self._grid_dims(len(self.objects), rows, cols)
         boxes = [obj.bbox(start) for obj in self.objects]
+        if not boxes:
+            return cols, 0, 0, 0, 0, boxes
         max_w = max(b[2] for b in boxes)
         max_h = max(b[3] for b in boxes)
         return cols, max_w + buff, max_h + buff, max_w, max_h, boxes
