@@ -80,8 +80,10 @@ class Styling:
     matrix: attributes.Tup
 
     def __init__(self, kwargs, creation: float = 0, **defaults):
-        assert all(arg in self.global_defaults for arg in kwargs)
-        assert all(arg in self.global_defaults for arg in defaults)
+        bad = [a for a in kwargs if a not in self.global_defaults]
+        assert not bad, f"Unknown styling attributes: {bad}"
+        bad = [a for a in defaults if a not in self.global_defaults]
+        assert not bad, f"Unknown default attributes: {bad}"
         self.set_values(creation=creation, **(self.global_defaults | defaults | kwargs))
         self._scale_origin: tuple[float, float] | None = None
 
