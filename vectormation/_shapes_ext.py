@@ -1953,7 +1953,8 @@ class ArcPolygon(VObject):
 
 class CubicBezier(VObject):
     """Cubic Bezier curve from four control points."""
-    def __init__(self, p0=(860, 540), p1=(910, 440), p2=(1010, 440), p3=(1060, 540),
+    def __init__(self, p0=(ORIGIN[0] - 100, ORIGIN[1]), p1=(ORIGIN[0] - 50, ORIGIN[1] - 100),
+                 p2=(ORIGIN[0] + 50, ORIGIN[1] - 100), p3=(ORIGIN[0] + 100, ORIGIN[1]),
                  creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.p0 = attributes.Coor(creation, p0)

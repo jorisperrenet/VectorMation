@@ -644,7 +644,6 @@ class BrowserViewer:
                 process_request=self._process_request,
             )
             logger.info('VectorMation browser viewer at http://localhost:%d', self.port)
-            print(f'VectorMation browser viewer at http://localhost:{self.port}')
             # Wait briefly for existing tab reconnection
             await asyncio.sleep(1.5)
             if not self.clients:
@@ -657,7 +656,7 @@ class BrowserViewer:
         try:
             self._loop.run_until_complete(_run())
         except KeyboardInterrupt:
-            print('\nShutting down...')
+            logger.info('Shutting down...')
         finally:
             for task in asyncio.all_tasks(self._loop):
                 task.cancel()

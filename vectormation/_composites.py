@@ -620,6 +620,10 @@ class _GridAccessMixin:
 
     def get_entry(self, row, col):
         """Return the VObject at *row*, *col*."""
+        if not (0 <= row < len(self.entries)):
+            raise IndexError(f"row index {row} out of range (0..{len(self.entries) - 1})")
+        if not (0 <= col < len(self.entries[row])):
+            raise IndexError(f"column index {col} out of range (0..{len(self.entries[row]) - 1})")
         return self.entries[row][col]
 
     def get_row(self, row):

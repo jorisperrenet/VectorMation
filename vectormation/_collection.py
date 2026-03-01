@@ -253,6 +253,8 @@ class VCollection(_BBoxMethodsMixin):
 
     def sort_by_position(self, axis='x', reverse=False):
         """Sort children in-place by their x or y center coordinate."""
+        if axis not in ('x', 'y'):
+            raise ValueError(f"axis must be 'x' or 'y', got {axis!r}")
         axis_idx = 0 if axis == 'x' else 1
         self.objects.sort(key=lambda obj: obj.center(0)[axis_idx], reverse=reverse)
         return self

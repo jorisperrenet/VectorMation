@@ -135,7 +135,7 @@ class Array(VCollection):
 
 class Stack(VCollection):
     """Visual stack data structure (LIFO) with push/pop animations."""
-    def __init__(self, values=None, x: float = 860, y: float = 600, cell_width: float = 100, cell_height: float = 50,
+    def __init__(self, values=None, x: float = ORIGIN[0] - 100, y: float = ORIGIN[1] + 60, cell_width: float = 100, cell_height: float = 50,
                  font_size: float = 22, fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
                  creation: float = 0, z: float = 0):
         self._cell_width, self._cell_height = cell_width, cell_height
