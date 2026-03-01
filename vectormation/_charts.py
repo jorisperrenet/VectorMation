@@ -1255,6 +1255,8 @@ class GaugeChart(VCollection):
     def _interp_gauge_color(frac, colors):
         """Interpolate gauge color from color stops list [(color, position), ...]."""
         from vectormation.colors import interpolate_color
+        if not colors:
+            return '#888'
         if frac <= colors[0][1]:
             return colors[0][0]
         if frac >= colors[-1][1]:
@@ -1603,12 +1605,15 @@ class MatrixHeatmap(VCollection):
         n_cols = len(data[0])
         # Flatten to find min/max
         flat = [v for row in data for v in row]
+        if not flat:
+            super().__init__(creation=creation, z=z)
+            return
         mn, mx = min(flat), max(flat)
         rng = mx - mn if mx != mn else 1
         objects = []
         label_offset = 0
-        if row_labels:
-            label_offset = max(len(str(l)) for l in row_labels) * font_size * 0.5 + 10
+        if row_labels and len(row_labels) > 0:
+            label_offset = max((len(str(l)) for l in row_labels), default=0) * font_size * 0.5 + 10
         col_offset = font_size + 10 if col_labels else 0
         for r in range(n_rows):
             for c in range(n_cols):

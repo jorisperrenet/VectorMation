@@ -1032,3 +1032,39 @@ class TestFrictionClamping:
         # After collision with high friction, tangential velocity (vx) should
         # NOT be reversed (which would happen without clamping)
         assert b.vx >= 0  # should stay non-negative (was +100)
+
+
+class TestMatrixHeatmapEdgeCases:
+    def test_empty_inner_rows(self):
+        """MatrixHeatmap with empty inner rows should not crash."""
+        from vectormation._charts import MatrixHeatmap
+        hm = MatrixHeatmap([[]])
+        assert isinstance(hm, VCollection)
+
+    def test_empty_row_labels(self):
+        """MatrixHeatmap with empty row_labels list should not crash."""
+        from vectormation._charts import MatrixHeatmap
+        hm = MatrixHeatmap([[1, 2], [3, 4]], row_labels=[])
+        assert isinstance(hm, VCollection)
+
+
+class TestGaugeChartEdgeCases:
+    def test_empty_colors_static(self):
+        """GaugeChart._interp_gauge_color with empty colors should return default."""
+        from vectormation._charts import GaugeChart
+        result = GaugeChart._interp_gauge_color(0.5, [])
+        assert result == '#888'
+
+
+class TestTableSortEdgeCases:
+    def test_sort_empty_table(self):
+        """Sorting an empty table should not crash."""
+        from vectormation.objects import Table
+        t = Table([], [])
+        t.sort_by_column(0)
+
+    def test_sort_out_of_bounds(self):
+        """Sorting by non-existent column should not crash."""
+        from vectormation.objects import Table
+        t = Table([['A', 'B'], ['C', 'D']], ['H1', 'H2'])
+        t.sort_by_column(999)  # out of bounds
