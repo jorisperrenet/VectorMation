@@ -233,3 +233,18 @@ def test_brace_negative_depth_raises():
     r = Rectangle(100, 50, x=100, y=100)
     with pytest.raises(ValueError, match='depth must be positive'):
         Brace(r, depth=-5)
+
+
+# ── Graph x_range format ──────────────────────────────────────────
+
+def test_graph_accepts_2tuple_x_range():
+    """Graph should accept x_range as (min, max)."""
+    from vectormation.objects import Graph
+    g = Graph(lambda x: x**2, x_range=(0, 5))
+    assert g is not None
+
+def test_graph_accepts_3tuple_x_range():
+    """Graph should accept x_range as (min, max, step) like Axes."""
+    from vectormation.objects import Graph
+    g = Graph(lambda x: x**2, x_range=(0, 5, 1))
+    assert g is not None

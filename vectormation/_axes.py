@@ -1844,7 +1844,7 @@ class Graph(Axes):
                  label_x_val=None, show_grid=False,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         # Determine y_range from function if not given
-        x_min, x_max = x_range
+        x_min, x_max = x_range[0], x_range[1]
         y_min, y_max, _, _ = _sample_function(
             func, x_min, x_max, y_range, num_points, x, y, plot_width, plot_height)
         super().__init__(x_range=x_range, y_range=(y_min, y_max),
