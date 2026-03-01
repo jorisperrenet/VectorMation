@@ -340,7 +340,7 @@ def from_svg(element, **styles):
 
 _SVG_SHAPE_TAGS = frozenset({'path', 'rect', 'circle', 'ellipse', 'line', 'polygon', 'polyline', 'text', 'g'})
 
-def from_svg_file(filepath, creation: float = 0, z=0, **styles):
+def from_svg_file(filepath, creation: float = 0, z: float = 0, **styles):
     """Load an SVG file and return a VCollection of all parseable elements."""
     from bs4 import BeautifulSoup
     with open(filepath, 'r') as f:
@@ -371,7 +371,7 @@ def from_svg_file(filepath, creation: float = 0, z=0, **styles):
 
 class ZoomedInset(VObject):
     """Magnified inset view of a region on the canvas."""
-    def __init__(self, canvas, source, display, creation: float = 0, z=999,
+    def __init__(self, canvas, source, display, creation: float = 0, z: float = 999,
                  frame_color='#FFFF00', display_color='#FFFF00', frame_width=2):
         super().__init__(creation=creation, z=z)
         self.canvas = canvas
@@ -433,7 +433,7 @@ class ZoomedInset(VObject):
     def path(self, time):
         return ''
 
-    def bbox(self, time):
+    def bbox(self, time: float = 0):
         dx, dy = self.dst_x.at_time(time), self.dst_y.at_time(time)
         dw, dh = self.dst_w.at_time(time), self.dst_h.at_time(time)
         return (dx, dy, dw, dh)
@@ -540,7 +540,7 @@ class _BooleanOp(VObject):
         inner = f"<path d='{self.path(time)}'{fr}{self._all_attrs(time)}/>"
         return self._wrap_group(inner, time)
 
-    def bbox(self, time):
+    def bbox(self, time: float = 0):
         ax, ay, aw, ah = self._a.bbox(time)
         bx, by, bw, bh = self._b.bbox(time)
         x, y = min(ax, bx), min(ay, by)
@@ -572,7 +572,7 @@ class Difference(_BooleanOp):
         sb = self._stroke_path(pb, f'ca{u}', time)
         return self._wrap_group(defs + fill + sa + sb, time)
 
-    def bbox(self, time):
+    def bbox(self, time: float = 0):
         ax, ay, aw, ah = self._a.bbox(time)
         tx, ty = self._off_x.at_time(time), self._off_y.at_time(time)
         return (ax + tx, ay + ty, aw, ah)
@@ -596,7 +596,7 @@ class Intersection(_BooleanOp):
         sb = self._stroke_path(pb, f'ca{u}', time)
         return self._wrap_group(defs + fill + sa + sb, time)
 
-    def bbox(self, time):
+    def bbox(self, time: float = 0):
         ax, ay, aw, ah = self._a.bbox(time)
         bx, by, bw, bh = self._b.bbox(time)
         x, y = max(ax, bx), max(ay, by)
@@ -610,7 +610,7 @@ class Intersection(_BooleanOp):
 # ---------------------------------------------------------------------------
 
 def brace_between_points(p1, p2, direction=None, label=None, buff=0, depth=18,
-                         creation: float = 0, z=0, **styling_kwargs):
+                         creation: float = 0, z: float = 0, **styling_kwargs):
     """Create a Brace between two arbitrary points."""
     x1, y1 = p1
     x2, y2 = p2
@@ -663,7 +663,7 @@ class ArrowVectorField(VCollection):
     """Vector field visualization using arrows."""
     def __init__(self, func, x_range=(60, CANVAS_WIDTH - 60, 120),
                  y_range=(60, CANVAS_HEIGHT - 60, 120),
-                 max_length=80, creation: float = 0, z=0, **styling_kwargs):
+                 max_length=80, creation: float = 0, z: float = 0, **styling_kwargs):
         Arrow = _get_arrow()
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 2} | styling_kwargs
         objects = []
@@ -691,7 +691,7 @@ class StreamLines(VCollection):
     """Animated flow lines for a vector field."""
     def __init__(self, func, x_range=(60, CANVAS_WIDTH - 60, 200),
                  y_range=(60, CANVAS_HEIGHT - 60, 200),
-                 n_steps=40, step_size=5, creation: float = 0, z=0, **styling_kwargs):
+                 n_steps=40, step_size=5, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 2, 'fill_opacity': 0} | styling_kwargs
         objects = []
         for sx, sy in _sample_grid(x_range, y_range):
@@ -814,7 +814,7 @@ class ConvexHull(Polygon):
 
     *items* can be (x, y) tuples or VObject instances (their centers are used).
     """
-    def __init__(self, *items, creation: float = 0, z=0, **styling_kwargs):
+    def __init__(self, *items, creation: float = 0, z: float = 0, **styling_kwargs):
         points = []
         for item in items:
             if isinstance(item, (tuple, list)) and len(item) == 2:
@@ -916,7 +916,7 @@ class Spotlight(VObject):
                 f"fill='{self._color.at_time(time)}' fill-opacity='{self._opacity.at_time(time)}' "
                 f"fill-rule='evenodd' stroke='none' />")
 
-    def bbox(self, time):
+    def bbox(self, time: float = 0):
         return (0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 
     def __repr__(self):
@@ -990,7 +990,7 @@ class AnimatedBoundary(VObject):
                 f"stroke-dasharray='{dash:.1f}' stroke-dashoffset='{offset:.1f}' "
                 f"stroke-linecap='round' />")
 
-    def bbox(self, time):
+    def bbox(self, time: float = 0):
         x, y, w, h = self._target.bbox(time)
         b = self._buff + self._stroke_width
         return (x - b, y - b, w + 2 * b, h + 2 * b)

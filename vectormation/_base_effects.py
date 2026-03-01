@@ -603,7 +603,7 @@ class _VObjectEffectsMixin:
             self.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
 
-    def add_background(self, color='#000000', opacity=0.5, padding=20, creation: float = 0, z=-1):
+    def add_background(self, color='#000000', opacity=0.5, padding=20, creation: float = 0, z: float = -1):
         """Create a semi-transparent Rectangle behind the object as a readability backdrop."""
         from vectormation._shapes import Rectangle
         x, y, w, h = self.bbox(creation)

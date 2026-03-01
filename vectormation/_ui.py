@@ -361,7 +361,7 @@ class DimensionLine(VCollection):
 class Tooltip(VCollection):
     """Small animated tooltip that appears and disappears near a target."""
     def __init__(self, text, target, start: float = 0, duration: float = 1.5, font_size=18,
-                 padding=6, creation: float = 0, z=10, **styling_kwargs):
+                 padding=6, creation: float = 0, z: float = 10, **styling_kwargs):
         if hasattr(target, 'bbox'):
             tx = target.center(creation)[0]
             ty = target.bbox(creation)[1]

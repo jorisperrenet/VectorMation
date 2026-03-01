@@ -32,7 +32,7 @@ class Line(VObject):
         p1, p2 = self.p1.at_time(time), self.p2.at_time(time)
         return [(float(p1[0]), float(p1[1])), (float(p2[0]), float(p2[1]))]
 
-    def bbox(self, time):
+    def bbox(self, time: float = 0):
         """Return the bounding box enclosing both endpoints."""
         return self._bbox_from_points([self.p1.at_time(time), self.p2.at_time(time)], time) or super().bbox(time)
 
@@ -585,7 +585,7 @@ class Text(VObject):
         xl = self._text_left(x, w)
         return f'M{xl},{y-fs}L{xl+w},{y-fs}L{xl+w},{y}L{xl},{y}Z'
 
-    def bbox(self, time):
+    def bbox(self, time: float = 0):
         """Return the estimated bounding box of the text."""
         x, y, fs = self.x.at_time(time), self.y.at_time(time), self.font_size.at_time(time)
         w = self._estimate_width(self.text.at_time(time), fs)
@@ -1440,7 +1440,7 @@ class Image(VObject):
         w, h = self.width.at_time(time), self.height.at_time(time)
         return f'M{x},{y}L{x+w},{y}L{x+w},{y+h}L{x},{y+h}Z'
 
-    def bbox(self, time):
+    def bbox(self, time: float = 0):
         """Return the bounding box of the image."""
         x, y = self.x.at_time(time), self.y.at_time(time)
         w, h = self.width.at_time(time), self.height.at_time(time)
@@ -1478,7 +1478,7 @@ class Arc(VObject):
         """Return the arc center position as a snap point."""
         return [(float(self.cx.at_time(time)), float(self.cy.at_time(time)))]
 
-    def bbox(self, time):
+    def bbox(self, time: float = 0):
         """Return the bounding box of the arc including cardinal extremes."""
         cx, cy, r = self.cx.at_time(time), self.cy.at_time(time), self.r.at_time(time)
         sa, ea = self.start_angle.at_time(time), self.end_angle.at_time(time)
@@ -1725,7 +1725,7 @@ class Annulus(VObject):
         cx, cy = self.c.at_time(time)
         return [(float(cx), float(cy))]
 
-    def bbox(self, time):
+    def bbox(self, time: float = 0):
         """Return the bounding box based on the outer radius."""
         cx, cy = self.c.at_time(time)
         r = self.outer_r.at_time(time)
@@ -1794,7 +1794,7 @@ class DashedLine(Line):
 
 class BackgroundRectangle(Rectangle):
     """Semi-transparent rectangle behind a target object (useful for text backgrounds)."""
-    def __init__(self, target, buff=SMALL_BUFF, creation: float = 0, z=-1, **styling_kwargs):
+    def __init__(self, target, buff=SMALL_BUFF, creation: float = 0, z: float = -1, **styling_kwargs):
         bx, by, bw, bh = target.bbox(creation)
         style_kw = {'fill': '#000', 'fill_opacity': 0.75, 'stroke_width': 0} | styling_kwargs
         super().__init__(bw + 2*buff, bh + 2*buff, x=bx - buff, y=by - buff,
@@ -1912,7 +1912,7 @@ class ArcPolygon(VObject):
       Positive → bulge left of travel direction, negative → right.
       0 = straight line segment.
     """
-    def __init__(self, *vertices, arc_angles=30, creation: float = 0, z=0, **styling_kwargs):
+    def __init__(self, *vertices, arc_angles=30, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         if len(vertices) < 3:
             raise ValueError("ArcPolygon requires at least 3 vertices")
@@ -1955,7 +1955,7 @@ class ArcPolygon(VObject):
 class CubicBezier(VObject):
     """Cubic Bezier curve from four control points."""
     def __init__(self, p0=(860, 540), p1=(910, 440), p2=(1010, 440), p3=(1060, 540),
-                 creation: float = 0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.p0 = attributes.Coor(creation, p0)
         self.p1 = attributes.Coor(creation, p1)
@@ -1979,7 +1979,7 @@ class CubicBezier(VObject):
         """Return the start and end control points as snap points."""
         return [self.p0.at_time(time), self.p3.at_time(time)]
 
-    def bbox(self, time):
+    def bbox(self, time: float = 0):
         """Return the bounding box enclosing all four control points."""
         pts = [self.p0.at_time(time), self.p1.at_time(time),
                self.p2.at_time(time), self.p3.at_time(time)]
@@ -2144,7 +2144,7 @@ class FunctionGraph(Lines):
     """Plot a mathematical function as a polyline (no axes, ticks, or labels)."""
     def __init__(self, func, x_range=(-5, 5), y_range=None, num_points=200,
                  x=120, y=60, width=1440, height=840,
-                 creation: float = 0, z=0, **styling_kwargs):
+                 creation: float = 0, z: float = 0, **styling_kwargs):
         x_min, x_max = x_range
         y_lo, y_hi, _, clamped = _sample_function(
             func, x_min, x_max, y_range, num_points, x, y, width, height)

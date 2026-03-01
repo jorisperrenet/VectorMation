@@ -590,7 +590,7 @@ class BarChart(VCollection):
 class PolarAxes(VCollection):
     """Polar coordinate system with radial gridlines and angle markers."""
     def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], max_radius=400, r_range=(0, 5),
-                 n_rings=5, n_sectors=12, creation: float = 0, z=0):
+                 n_rings=5, n_sectors=12, creation: float = 0, z: float = 0):
         objects = []
         self._cx, self._cy = cx, cy
         self._max_radius = max_radius
@@ -642,7 +642,7 @@ class PolarAxes(VCollection):
                 self._cy - px * math.sin(theta))
 
     def plot_polar(self, func, theta_range=(0, 360), num_points=200,
-                   creation: float = 0, z=0, **styling_kwargs):
+                   creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot r = func(theta_deg) on this polar axes."""
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
         t0, t1 = theta_range
@@ -1747,12 +1747,12 @@ class SampleSpace(VCollection):
         return self
 
     def divide_horizontally(self, proportion, colors=('#58C4DD', '#FC6255'), labels=None,
-                            creation: float = 0, z=0):
+                            creation: float = 0, z: float = 0):
         """Split the space horizontally by proportion (0-1). Left gets first color."""
         return self._divide(True, proportion, colors, labels, creation, z)
 
     def divide_vertically(self, proportion, colors=('#58C4DD', '#FC6255'), labels=None,
-                          creation: float = 0, z=0):
+                          creation: float = 0, z: float = 0):
         """Split the space vertically by proportion (0-1). Top gets first color."""
         return self._divide(False, proportion, colors, labels, creation, z)
 

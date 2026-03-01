@@ -53,7 +53,7 @@ class Polygon(VObject):
     def snap_points(self, time):
         return self.get_vertices(time)
 
-    def bbox(self, time):
+    def bbox(self, time: float = 0):
         if self._bbox_cache and self._bbox_cache[0] == time and self._bbox_cache[1] == self._bbox_version:
             return self._bbox_cache[2]
         points = [v.at_time(time) for v in self.vertices]
@@ -906,7 +906,7 @@ class Ellipse(VObject):
         cx, cy, _, _ = self._ep(time)
         return [(float(cx), float(cy))]
 
-    def bbox(self, time):
+    def bbox(self, time: float = 0):
         cx, cy, rx, ry = self._ep(time)
         return self._bbox_from_points([(cx-rx, cy), (cx+rx, cy), (cx, cy-ry), (cx, cy+ry)], time) or super().bbox(time)
 
@@ -1432,7 +1432,7 @@ class Rectangle(VObject):
         x, y, w, h = self._dims(time)
         return [(x, y), (x+w, y), (x+w, y+h), (x, y+h)]
 
-    def bbox(self, time):
+    def bbox(self, time: float = 0):
         x, y, w, h = self._dims(time)
         return self._bbox_from_points([(x,y),(x+w,y),(x+w,y+h),(x,y+h)], time) or super().bbox(time)
 

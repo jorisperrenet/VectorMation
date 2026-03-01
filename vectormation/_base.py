@@ -395,7 +395,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         ymin, ymax = min(ys), max(ys)
         return (xmin, ymin, xmax - xmin, ymax - ymin)
 
-    def bbox(self, time):
+    def bbox(self, time: float = 0):
         """Get the bounding rectangle in (xmin, ymin, width, height) at a certain time."""
         xmin, xmax, ymin, ymax = path_bbox(self.path(time))
         pts = [(xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax)]
