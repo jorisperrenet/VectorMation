@@ -280,7 +280,7 @@ class BohrAtom(VCollection):
     def __repr__(self):
         return f'BohrAtom({len(self._electron_dots)} electrons)'
 
-    def orbit(self, start: float = 0, end=None, speed=45):
+    def orbit(self, start: float = 0, end: float | None = None, speed=45):
         """Animate all electrons orbiting around the nucleus."""
         for dot in self._electron_dots:
             dot.always_rotate(start=start, end=end, degrees_per_second=speed)

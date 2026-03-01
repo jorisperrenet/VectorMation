@@ -74,7 +74,7 @@ class Array(VCollection):
         if index < 0 or index >= n:
             raise IndexError(f"Array index {index} out of range (0..{n - 1})")
 
-    def highlight_cell(self, index, start=0, end=1, color='#58C4DD', easing=easings.there_and_back):
+    def highlight_cell(self, index, start: float = 0, end: float = 1, color='#58C4DD', easing=easings.there_and_back):
         """Flash-highlight a cell by index."""
         self._check_index(index)
         self._cells[index].flash(start, end, color=color, easing=easing)
@@ -90,13 +90,13 @@ class Array(VCollection):
         self._labels[i], self._labels[j] = self._labels[j], self._labels[i]
         return self
 
-    def set_value(self, index, value, start=0, end=0.5):
+    def set_value(self, index, value, start: float = 0, end: float = 0.5):
         """Animate changing a cell's displayed value."""
         self._check_index(index)
         self._labels[index].set_text(start, end, str(value))
         return self
 
-    def sort(self, start=0, end=2, easing=easings.smooth, delay=0.15):
+    def sort(self, start: float = 0, end: float = 2, easing=easings.smooth, delay=0.15):
         """Animate a bubble sort, staggering swaps over [start, end]."""
         n = len(self._labels)
         swaps, values = [], [self._labels[i].text.at_time(start) for i in range(n)]
@@ -111,7 +111,7 @@ class Array(VCollection):
             t += delay
         return self
 
-    def reverse(self, start=0, end=2, easing=easings.smooth, delay=0.15):
+    def reverse(self, start: float = 0, end: float = 2, easing=easings.smooth, delay=0.15):
         """Animate reversing the array by swapping from outside in."""
         n, t = len(self._labels), start
         for i in range(n // 2):
@@ -156,7 +156,7 @@ class Stack(VCollection):
     def peek(self): return self._items[-1][1].text.at_time(0) if self._items else None
     def is_empty(self): return not self._items
 
-    def push(self, value, start=0, end=0.5):
+    def push(self, value, start: float = 0, end: float = 0.5):
         """Animate pushing a value onto the stack."""
         n = len(self._items)
         slot_y = self._y_base - n * self._cell_height
@@ -170,7 +170,7 @@ class Stack(VCollection):
         self.objects.extend([cell, lbl])
         return self
 
-    def pop(self, start=0, end=0.5):
+    def pop(self, start: float = 0, end: float = 0.5):
         """Animate popping the top value from the stack."""
         if not self._items:
             return self
@@ -201,7 +201,7 @@ class Queue(VCollection):
     def peek(self): return self._items[0][1].text.at_time(0) if self._items else None
     def is_empty(self): return not self._items
 
-    def enqueue(self, value, start=0, end=0.5):
+    def enqueue(self, value, start: float = 0, end: float = 0.5):
         """Animate adding a value to the back of the queue."""
         n = len(self._items)
         start_cx = self._x + (n + 1) * self._cell_width
@@ -214,7 +214,7 @@ class Queue(VCollection):
         self.objects.extend([cell, lbl])
         return self
 
-    def dequeue(self, start=0, end=0.5):
+    def dequeue(self, start: float = 0, end: float = 0.5):
         """Animate removing the front value from the queue."""
         if not self._items:
             return self
@@ -258,7 +258,7 @@ class LinkedList(VCollection):
 
     def __repr__(self): return f'LinkedList({len(self._nodes)} nodes)'
 
-    def highlight_node(self, index, start=0, end=1, color='#FF6B6B',
+    def highlight_node(self, index, start: float = 0, end: float = 1, color='#FF6B6B',
                        easing=easings.there_and_back):
         """Flash-highlight a node by index."""
         if index < 0 or index >= len(self._nodes):
@@ -266,7 +266,7 @@ class LinkedList(VCollection):
         self._nodes[index][0].flash(start, end, color=color, easing=easing)
         return self
 
-    def append_node(self, value, start=0, end=0.5):
+    def append_node(self, value, start: float = 0, end: float = 0.5):
         """Animate appending a new node at the end of the list."""
         Arrow = _get_arrow()
         n = len(self._nodes)
@@ -286,7 +286,7 @@ class LinkedList(VCollection):
         self.objects.extend([node, lbl])
         return self
 
-    def remove_node(self, index, start=0, end=0.5):
+    def remove_node(self, index, start: float = 0, end: float = 0.5):
         """Animate removing a node by index (fades it out)."""
         if index < 0 or index >= len(self._nodes):
             return self
@@ -334,13 +334,13 @@ class BinaryTree(VCollection):
 
     def __repr__(self): return f'BinaryTree({len(self._node_objects)} nodes)'
 
-    def highlight_node(self, index, start=0, end=0.5, color='#E9C46A'):
+    def highlight_node(self, index, start: float = 0, end: float = 0.5, color='#E9C46A'):
         """Temporarily highlight a node by index (depth-first order)."""
         if 0 <= index < len(self._node_objects):
             _flash_fill(self._node_objects[index], color, start, end, '#1e1e2e')
         return self
 
-    def traverse(self, start=0, delay=0.3, color='#E9C46A'):
+    def traverse(self, start: float = 0, delay=0.3, color='#E9C46A'):
         """Animate highlighting each node sequentially (depth-first order)."""
         for i, obj in enumerate(self._node_objects):
             t = start + i * delay
@@ -379,13 +379,13 @@ class ArrayViz(VCollection):
 
     def __repr__(self): return f'ArrayViz({self.values})'
 
-    def highlight(self, index, start=0, end=1, color='#FFFF00'):
+    def highlight(self, index, start: float = 0, end: float = 1, color='#FFFF00'):
         """Temporarily highlight a cell by changing its fill color."""
         if 0 <= index < len(self._cells):
             _flash_fill(self._cells[index], color, start, end)
         return self
 
-    def swap(self, i, j, start=0, end=1, easing=easings.smooth):
+    def swap(self, i, j, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate swapping the values at indices *i* and *j*."""
         if i == j or not (0 <= i < len(self._labels)) or not (0 <= j < len(self._labels)):
             return self
@@ -398,7 +398,7 @@ class ArrayViz(VCollection):
         self.values[i], self.values[j] = self.values[j], self.values[i]
         return self
 
-    def set_value(self, index, new_val, start=0, end=None):
+    def set_value(self, index, new_val, start: float = 0, end: float | None = None):
         """Change the displayed value of a cell."""
         if 0 <= index < len(self._labels):
             lbl = self._labels[index]
@@ -409,7 +409,7 @@ class ArrayViz(VCollection):
             self.values[index] = new_val
         return self
 
-    def pointer(self, index, label='', start=0, end=None, color='#FC6255'):
+    def pointer(self, index, label='', start: float = 0, end: float | None = None, color='#FC6255'):
         """Add an arrow pointer above a cell."""
         Arrow = _get_arrow()
         if not (0 <= index < len(self._cells)):
@@ -483,7 +483,7 @@ class LinkedListViz(VCollection):
             _flash_fill(self._nodes[index], color, start, end)
         return self
 
-    def traverse(self, start=0, delay=0.5, color='#FFFF00'):
+    def traverse(self, start: float = 0, delay=0.5, color='#FFFF00'):
         """Animate traversing each node in sequence."""
         for i, _node in enumerate(self._nodes):
             t = start + i * delay
@@ -526,7 +526,7 @@ class StackViz(VCollection):
 
     def __repr__(self): return f'StackViz({self.values})'
 
-    def push(self, value, start=0, end=0.5):
+    def push(self, value, start: float = 0, end: float = 0.5):
         """Animate pushing a value onto the stack."""
         cy = self._base_y - len(self._stack_cells) * self._cell_height
         cell, lbl = _make_viz_cell(self._base_x, cy, self._cell_width, self._cell_height,
@@ -541,7 +541,7 @@ class StackViz(VCollection):
                     dy=-self._cell_height, start=start, end=end)
         return self
 
-    def pop(self, start=0, end=0.5):
+    def pop(self, start: float = 0, end: float = 0.5):
         """Animate popping the top value from the stack."""
         if not self._stack_cells:
             return self
@@ -591,7 +591,7 @@ class QueueViz(VCollection):
 
     def __repr__(self): return f'QueueViz({self.values})'
 
-    def enqueue(self, value, start=0, end=0.5):
+    def enqueue(self, value, start: float = 0, end: float = 0.5):
         """Animate adding a value to the back of the queue."""
         cx = self._base_x + len(self._queue_cells) * self._cell_width
         cell, lbl = _make_viz_cell(cx, self._base_y, self._cell_width, self._cell_height,
@@ -605,7 +605,7 @@ class QueueViz(VCollection):
         self._back_label.shift(dx=self._cell_width, start=start, end=end)
         return self
 
-    def dequeue(self, start=0, end=0.5):
+    def dequeue(self, start: float = 0, end: float = 0.5):
         """Animate removing the front value from the queue."""
         if not self._queue_cells:
             return self
@@ -617,7 +617,7 @@ class QueueViz(VCollection):
         self._back_label.shift(dx=-self._cell_width, start=start, end=end)
         return self
 
-    def highlight(self, index, start=0, end=0.5, color='#E9C46A'):
+    def highlight(self, index, start: float = 0, end: float = 0.5, color='#E9C46A'):
         """Temporarily highlight a cell at *index*."""
         if 0 <= index < len(self._queue_cells):
             _flash_fill(self._queue_cells[index], color, start, end, self._fill)

@@ -97,11 +97,11 @@ class PieChart(VCollection):
         mid_rad = math.radians((sa + ea) / 2)
         return distance * math.cos(mid_rad), -distance * math.sin(mid_rad)
 
-    def highlight_sector(self, index, start=0, end=1, pull_distance=30, easing=easings.there_and_back):
+    def highlight_sector(self, index, start: float = 0, end: float = 1, pull_distance=30, easing=easings.there_and_back):
         """Pull out a sector from the pie to highlight it."""
         return _highlight_sector_impl(self, index, start, end, pull_distance, easing)
 
-    def explode(self, indices, distance=20, start=0, end=None, easing=None):
+    def explode(self, indices, distance=20, start: float = 0, end: float | None = None, easing=None):
         """Permanently shift specified sectors outward from the pie center."""
         for idx in indices:
             if idx < 0 or idx >= len(self._sectors):
@@ -110,7 +110,7 @@ class PieChart(VCollection):
             self._sectors[idx].shift(dx=dx, dy=dy, start=start, end=end, easing=easing or easings.smooth)
         return self
 
-    def animate_values(self, new_values, start=0, end=1, easing=easings.smooth):
+    def animate_values(self, new_values, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate pie chart to new values by morphing sector angles."""
         if len(new_values) != len(self.values):
             return self
@@ -139,7 +139,7 @@ class PieChart(VCollection):
             cum_new += new_values[i]
         return self
 
-    def sweep_in(self, start=0, end=1, easing=easings.smooth):
+    def sweep_in(self, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate all sectors sweeping from zero to their full angles."""
         dur = end - start
         if dur <= 0:
@@ -257,11 +257,11 @@ class DonutChart(VCollection):
         mid_rad = math.radians(mid_deg)
         return distance * math.cos(mid_rad), -distance * math.sin(mid_rad)
 
-    def highlight_sector(self, index, start=0, end=1, pull_distance=30, easing=easings.there_and_back):
+    def highlight_sector(self, index, start: float = 0, end: float = 1, pull_distance=30, easing=easings.there_and_back):
         """Pull out a donut sector to highlight it by shifting it outward."""
         return _highlight_sector_impl(self, index, start, end, pull_distance, easing)
 
-    def animate_values(self, new_values, start=0, end=1, easing=easings.smooth):
+    def animate_values(self, new_values, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate donut chart to new values by morphing sector path shapes."""
         if len(new_values) != len(self.values):
             return self
@@ -361,7 +361,7 @@ class BarChart(VCollection):
     def __repr__(self):
         return f'BarChart({self.bar_count} bars)'
 
-    def animate_values(self, new_values, start=0, end=1, easing=easings.smooth):
+    def animate_values(self, new_values, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate bars to new values over [start, end]."""
         max_val = (max(abs(v) for v in new_values) if new_values else 1) or 1
         dur = max(end - start, 1e-9)
@@ -375,7 +375,7 @@ class BarChart(VCollection):
         self.values = new_values
         return self
 
-    def set_bar_color(self, index, color, start=0, end=None, easing=easings.smooth):
+    def set_bar_color(self, index, color, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Change the color of a specific bar."""
         bar = _check_idx(index, self._bars, 'bar', allow_negative=True)
         if end is None:
@@ -384,7 +384,7 @@ class BarChart(VCollection):
             bar.styling.fill.interpolate(attributes.Color(start, color), start, end, easing=easing)
         return self
 
-    def set_bar_colors(self, colors, start=0):
+    def set_bar_colors(self, colors, start: float = 0):
         """Change all bar colors at once."""
         for i, color in enumerate(colors):
             if i < len(self._bars):
@@ -400,7 +400,7 @@ class BarChart(VCollection):
         bars = self._bars[start_idx:end_idx]
         return VCollection(*bars)
 
-    def highlight_bar(self, index, color='#FFFF00', start=0, end=None, opacity=None):
+    def highlight_bar(self, index, color='#FFFF00', start: float = 0, end: float | None = None, opacity=None):
         """Highlight a specific bar by changing its fill color."""
         self.set_bar_color(index, color, start, end)
         if opacity is not None:
@@ -431,7 +431,7 @@ class BarChart(VCollection):
             self.objects.append(label)
         return self
 
-    def grow_from_zero(self, start=0, end=1, easing=easings.smooth, stagger=True, delay=0.1):
+    def grow_from_zero(self, start: float = 0, end: float = 1, easing=easings.smooth, stagger=True, delay=0.1):
         """Animate bars growing up from zero height at the baseline."""
         n = len(self._bars)
         for i, bar in enumerate(self._bars):
@@ -461,7 +461,7 @@ class BarChart(VCollection):
         idx = func(range(len(self.values)), key=lambda i: self.values[i])
         return self._bars[idx]
 
-    def add_bar(self, value, label=None, start=0, end=None):
+    def add_bar(self, value, label=None, start: float = 0, end: float | None = None):
         """Add a new bar to the right side of the chart."""
         n = len(self._bars)
         all_vals = list(self.values) + [value]
@@ -501,7 +501,7 @@ class BarChart(VCollection):
             self._labels.append(None)
         return self
 
-    def remove_bar(self, index, start=0, end=None):
+    def remove_bar(self, index, start: float = 0, end: float | None = None):
         """Remove a bar by index."""
         _check_idx(index, self._bars, 'bar', allow_negative=True)
         if index < 0:
@@ -547,7 +547,7 @@ class BarChart(VCollection):
                         self._labels[i].x.set_onward(shift_time, target_x + inner_width / 2)
         return self
 
-    def animate_sort(self, key=None, reverse=False, start=0, end=1, easing=None):
+    def animate_sort(self, key=None, reverse=False, start: float = 0, end: float = 1, easing=None):
         """Smoothly animate bars sliding into sorted order."""
         if easing is None:
             easing = easings.smooth
@@ -794,7 +794,7 @@ class ProgressBar(VCollection):
         self._fill = fill
         super().__init__(bg, fill, creation=creation, z=z)
 
-    def set_progress(self, value, start=0, end=None, easing=easings.smooth):
+    def set_progress(self, value, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Set progress (0 to 1). Animates if end is given."""
         target_w = max(0.01, self._bar_width * _clamp01(value))
         if end is None:

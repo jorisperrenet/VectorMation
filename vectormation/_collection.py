@@ -552,7 +552,7 @@ class VCollection(_BBoxMethodsMixin):
                                       start=start, end=end,
                                       easing=easing or easings.smooth)
 
-    def distribute_radial(self, cx=ORIGIN[0], cy=ORIGIN[1], radius=200, start_angle=0,
+    def distribute_radial(self, cx: float = ORIGIN[0], cy: float = ORIGIN[1], radius=200, start_angle=0,
                            start: float = 0, end: float | None = None,
                            easing=easings.smooth):
         """Arrange children in a circle around (cx, cy).
