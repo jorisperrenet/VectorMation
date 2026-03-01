@@ -187,11 +187,11 @@ class VCollection(_BBoxMethodsMixin):
         self.scale(factor, start=start, end=end, easing=easing or easings.smooth)
         return self
 
-    def set_width(self, width, start: float = 0, end: float | None = None, easing=None):
+    def set_width(self, width, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Scale the entire group so its bounding box has the given *width*."""
         return self._scale_to_dim(self.get_width(start), width, start, end, easing)
 
-    def set_height(self, height, start: float = 0, end: float | None = None, easing=None):
+    def set_height(self, height, start: float = 0, end: float | None = None, easing=easings.smooth):
         """Scale the entire group so its bounding box has the given *height*."""
         return self._scale_to_dim(self.get_height(start), height, start, end, easing)
 

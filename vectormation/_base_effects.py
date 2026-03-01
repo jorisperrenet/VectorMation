@@ -445,6 +445,7 @@ class _VObjectEffectsMixin:
     def duplicate(self, count: int = 2, direction=RIGHT, buff=MED_SMALL_BUFF):
         """Create count copies of the object arranged in the given direction.
         Returns a VCollection containing the copies (not including self)."""
+        direction = _norm_dir(direction)
         from vectormation._collection import VCollection
         col = VCollection(*[deepcopy(self) for _ in range(count)])
         col.arrange(direction=direction, buff=buff)
