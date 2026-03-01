@@ -1087,10 +1087,11 @@ class TestGaugeChartEdgeCases:
 
 class TestTableSortEdgeCases:
     def test_sort_empty_table(self):
-        """Sorting an empty table should not crash."""
+        """Creating an empty Table should raise ValueError."""
         from vectormation.objects import Table
-        t = Table([], [])
-        t.sort_by_column(0)
+        import pytest
+        with pytest.raises(ValueError, match="non-empty data"):
+            Table([], [])
 
     def test_sort_out_of_bounds(self):
         """Sorting by non-existent column should not crash."""

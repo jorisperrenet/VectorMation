@@ -640,8 +640,12 @@ class Table(_GridAccessMixin, VCollection):
     def __init__(self, data, row_labels=None, col_labels=None,
                  x: float = 120, y: float = 60, cell_width: float = 160, cell_height: float = 60,
                  font_size: float = 24, creation: float = 0, z: float = 0, **styling_kwargs):
+        if not data:
+            raise ValueError("Table requires non-empty data")
         rows = len(data)
-        cols = len(data[0]) if data else 0
+        cols = len(data[0])
+        if any(len(row) != cols for row in data):
+            raise ValueError("Table: all rows must have the same number of columns")
         x_off = cell_width if row_labels else 0
         y_off = cell_height if col_labels else 0
         total_w = cols * cell_width + x_off

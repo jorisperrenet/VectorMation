@@ -346,3 +346,47 @@ def test_meter_with_tuple_direction():
     from vectormation.objects import Meter
     m = Meter(direction=LEFT)
     assert m is not None
+
+
+# ── Input validation ─────────────────────────────────────────────
+
+def test_table_empty_data_raises():
+    """Table with empty data should raise ValueError."""
+    from vectormation.objects import Table
+    import pytest
+    with pytest.raises(ValueError, match="non-empty data"):
+        Table([])
+
+def test_table_ragged_rows_raises():
+    """Table with ragged rows should raise ValueError."""
+    from vectormation.objects import Table
+    import pytest
+    with pytest.raises(ValueError, match="same number of columns"):
+        Table([['a', 'b'], ['c']])
+
+def test_annulus_inner_ge_outer_raises():
+    """Annulus with inner_radius >= outer_radius should raise ValueError."""
+    from vectormation.objects import Annulus
+    import pytest
+    with pytest.raises(ValueError, match="inner_radius.*outer_radius"):
+        Annulus(inner_radius=100, outer_radius=50)
+
+def test_annulus_negative_inner_raises():
+    """Annulus with negative inner_radius should raise ValueError."""
+    from vectormation.objects import Annulus
+    import pytest
+    with pytest.raises(ValueError, match="inner_radius must be >= 0"):
+        Annulus(inner_radius=-10, outer_radius=50)
+
+def test_annulus_zero_outer_raises():
+    """Annulus with outer_radius=0 should raise ValueError."""
+    from vectormation.objects import Annulus
+    import pytest
+    with pytest.raises(ValueError, match="outer_radius must be > 0"):
+        Annulus(inner_radius=0, outer_radius=0)
+
+def test_annulus_valid_creation():
+    """Valid Annulus should create successfully."""
+    from vectormation.objects import Annulus
+    a = Annulus(inner_radius=30, outer_radius=60)
+    assert a is not None

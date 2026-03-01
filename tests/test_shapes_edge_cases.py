@@ -57,9 +57,9 @@ class TestZeroSizeShapes:
 
 class TestAnnulusEdgeCases:
     def test_equal_radii(self):
-        """Annulus with inner == outer radius should have zero area."""
-        a = Annulus(inner_radius=100, outer_radius=100, cx=500, cy=500)
-        assert a.get_area() == 0
+        """Annulus with inner == outer radius should raise ValueError."""
+        with pytest.raises(ValueError, match="inner_radius.*outer_radius"):
+            Annulus(inner_radius=100, outer_radius=100, cx=500, cy=500)
 
     def test_zero_inner_radius(self):
         """Annulus with inner=0 is a full circle."""

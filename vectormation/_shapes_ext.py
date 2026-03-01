@@ -1699,6 +1699,12 @@ class Annulus(VObject):
     """Ring/donut shape defined by inner and outer radius."""
     def __init__(self, inner_radius: float = 60, outer_radius: float = 120, cx: float = ORIGIN[0], cy: float = ORIGIN[1],
                  creation: float = 0, z: float = 0, **styling_kwargs):
+        if inner_radius < 0:
+            raise ValueError(f"Annulus inner_radius must be >= 0, got {inner_radius}")
+        if outer_radius <= 0:
+            raise ValueError(f"Annulus outer_radius must be > 0, got {outer_radius}")
+        if inner_radius >= outer_radius:
+            raise ValueError(f"Annulus inner_radius ({inner_radius}) must be < outer_radius ({outer_radius})")
         super().__init__(creation=creation, z=z)
         self.c = attributes.Coor(creation, (cx, cy))
         self.inner_r = attributes.Real(creation, inner_radius)
