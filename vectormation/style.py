@@ -81,9 +81,11 @@ class Styling:
 
     def __init__(self, kwargs, creation: float = 0, **defaults):
         bad = [a for a in kwargs if a not in self.global_defaults]
-        assert not bad, f"Unknown styling attributes: {bad}"
+        if bad:
+            raise ValueError(f"Unknown styling attributes: {bad}")
         bad = [a for a in defaults if a not in self.global_defaults]
-        assert not bad, f"Unknown default attributes: {bad}"
+        if bad:
+            raise ValueError(f"Unknown default attributes: {bad}")
         self.set_values(creation=creation, **(self.global_defaults | defaults | kwargs))
         self._scale_origin: tuple[float, float] | None = None
 

@@ -84,7 +84,8 @@ class Path(svgpathtools.Path):
         segs = self._segments  # type: ignore[attr-defined]
         for transform in reversed(transforms):
             match = re.match(r'(\w+)\(([^)]+)\)', transform)
-            assert match is not None, f"Invalid SVG transform: {transform!r}"
+            if match is None:
+                raise ValueError(f"Invalid SVG transform: {transform!r}")
             command, raw = match.groups()
             vals = [float(v) for v in re.split(r'[\s,]+', raw)]
             if command == 'scale':

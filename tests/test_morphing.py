@@ -116,7 +116,7 @@ class TestPath:
 
     def test_invalid_transform_raises(self):
         p = Path(svgpathtools.Line(0+0j, 100+0j))
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError):
             p.adjusted_path('invalid')
 
 
