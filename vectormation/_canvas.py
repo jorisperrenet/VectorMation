@@ -1,6 +1,8 @@
 """VectorMathAnim: the main canvas/video object."""
 import os
 import re
+import shutil
+import subprocess
 import sys
 import logging
 import tempfile
@@ -434,7 +436,6 @@ class VectorMathAnim:
 
     def export_video(self, filename='animation.mp4', start: float = 0, end: float | None = None, fps: int = 60, scale=None):
         """Export animation as video using cairosvg + ffmpeg."""
-        import subprocess, shutil
         cairosvg = self._require_cairosvg()
         if shutil.which('ffmpeg') is None:
             raise RuntimeError('ffmpeg is required for video export. Install it from https://ffmpeg.org/')
