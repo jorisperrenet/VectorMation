@@ -1232,3 +1232,36 @@ class TestCollectionEdgeCases:
         assert 'NumberLine' in r
         assert '-3' in r
         assert '3' in r
+
+
+class TestAlongPathEdgeCases:
+    def test_empty_path_string(self):
+        """along_path with empty path_d should be a no-op."""
+        c = Circle(r=50, cx=100, cy=200)
+        c.along_path(path_d='')
+        assert c.center(0) == pytest.approx((100, 200))
+
+    def test_zero_duration(self):
+        """along_path with start >= end should be a no-op."""
+        c = Circle(r=50, cx=100, cy=200)
+        c.along_path(start=1, end=0, path_d='M0,0 L100,100')
+        assert c.center(0) == pytest.approx((100, 200))
+
+
+class TestApplyMatrixValidation:
+    def test_valid_matrix(self):
+        """apply_matrix with a valid 2x2 matrix should succeed."""
+        c = Circle(r=50)
+        c.apply_matrix([[1, 0.5], [0, 1]])
+
+    def test_invalid_matrix_too_short(self):
+        """apply_matrix with a 1-element list should raise ValueError."""
+        c = Circle(r=50)
+        with pytest.raises(ValueError, match='2x2 matrix'):
+            c.apply_matrix([[1, 0]])
+
+    def test_invalid_matrix_row_too_short(self):
+        """apply_matrix with a short row should raise ValueError."""
+        c = Circle(r=50)
+        with pytest.raises(ValueError, match='2x2 matrix'):
+            c.apply_matrix([[1, 0], [1]])

@@ -435,7 +435,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
     def along_path(self, start: float = 0, end: float = 1, path_d='', easing=easings.smooth):
         """Move the object's center along an SVG path string over [start, end]."""
         dur = end - start
-        if dur <= 0:
+        if dur <= 0 or not path_d:
             return self
         parsed, total_length = _parse_path(path_d)
         cx0, cy0 = self.center(start)
@@ -2017,6 +2017,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
     def apply_matrix(self, matrix, start: float = 0):
         """Apply a 2x2 transformation matrix [[a, b], [c, d]] via SVG matrix transform.
         matrix: a 2x2 list/tuple, e.g. [[1, 0.5], [0, 1]] for shear."""
+        if len(matrix) < 2 or len(matrix[0]) < 2 or len(matrix[1]) < 2:
+            raise ValueError("apply_matrix requires a 2x2 matrix [[a,b],[c,d]]")
         a, b = matrix[0]
         c, d = matrix[1]
         self.styling.matrix.set_onward(start, (a, c, b, d, 0, 0))
