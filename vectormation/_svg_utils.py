@@ -202,9 +202,9 @@ class Angle(VCollection):
         p2x, p2y = self.p2.at_time(t)
         return self._angles_from_points(vx, vy, p1x, p1y, p2x, p2y)
 
-    def set_radius(self, new_radius, start: float = 0, end: float | None = None, easing=easings.smooth):
-        """Animate the angle arc radius to new_radius."""
-        _set_attr(self.arc.r, start, end, new_radius, easing)
+    def set_radius(self, value, start: float = 0, end: float | None = None, easing=easings.smooth):
+        """Animate the angle arc radius to *value*."""
+        _set_attr(self.arc.r, start, end, value, easing)
         return self
 
     def shift(self, dx: float = 0, dy: float = 0, start: float = 0, end: float | None = None, easing=easings.smooth):

@@ -168,7 +168,7 @@ class ThreeDAxes(VCollection):
         sx, sy, _ = self.project_point(x, y, z, time)
         return (sx, sy)
 
-    def set_camera_orientation(self, start, end, phi=None, theta=None, easing=easings.smooth):
+    def set_camera_orientation(self, start: float = 0, end: float = 1, phi=None, theta=None, easing=easings.smooth):
         """Animate camera angles over [start, end]."""
         dur = max(end - start, 1e-9)
         if phi is not None:
@@ -214,7 +214,7 @@ class ThreeDAxes(VCollection):
         phi, theta = self._CAMERA_PRESETS[name]
         return self.set_camera_orientation(start, end, phi=phi, theta=theta, easing=easing)
 
-    def set_camera_zoom(self, start, end, factor, easing=easings.smooth):
+    def set_camera_zoom(self, factor, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate the 3D camera zoom (scale) over [start, end]."""
         dur = max(end - start, 1e-9)
         s0 = self._scale_3d.at_time(start)

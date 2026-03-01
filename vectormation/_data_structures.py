@@ -334,7 +334,7 @@ class BinaryTree(VCollection):
 
     def __repr__(self): return f'BinaryTree({len(self._node_objects)} nodes)'
 
-    def highlight_node(self, index, start: float = 0, end: float = 0.5, color='#E9C46A'):
+    def highlight_node(self, index, start: float = 0, end: float = 1, color='#E9C46A'):
         """Temporarily highlight a node by index (depth-first order)."""
         if 0 <= index < len(self._node_objects):
             _flash_fill(self._node_objects[index], color, start, end, '#1e1e2e')

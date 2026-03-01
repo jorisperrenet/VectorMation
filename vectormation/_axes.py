@@ -478,22 +478,22 @@ class Axes(_AxesExtMixin, VCollection):
         self.y_max.set_onward(start, y_max)
         return self
 
-    def animate_x_range(self, start, end, x_range, **kwargs):
+    def animate_x_range(self, x_range, start: float = 0, end: float = 1, **kwargs):
         """Animate the x-axis range to new bounds."""
         self.x_min.move_to(start, end, x_range[0], **kwargs)
         self.x_max.move_to(start, end, x_range[1], **kwargs)
         return self
 
-    def animate_y_range(self, start, end, y_range, **kwargs):
+    def animate_y_range(self, y_range, start: float = 0, end: float = 1, **kwargs):
         """Animate the y-axis range to new bounds."""
         self.y_min.move_to(start, end, y_range[0], **kwargs)
         self.y_max.move_to(start, end, y_range[1], **kwargs)
         return self
 
-    def set_ranges(self, start, end, x_range, y_range, **kwargs):
+    def set_ranges(self, x_range, y_range, start: float = 0, end: float = 1, **kwargs):
         """Animate both axis ranges to new bounds."""
-        self.animate_x_range(start, end, x_range, **kwargs)
-        self.animate_y_range(start, end, y_range, **kwargs)
+        self.animate_x_range(x_range, start=start, end=end, **kwargs)
+        self.animate_y_range(y_range, start=start, end=end, **kwargs)
         return self
 
     def zoom_to_fit(self, func, x_range=None, padding: float = 0.1, start: float = 0, end: float = 1, **kwargs):
@@ -524,8 +524,8 @@ class Axes(_AxesExtMixin, VCollection):
         ylo -= span * padding
         yhi += span * padding
         if x_range:
-            self.animate_x_range(start, end, x_range, **kwargs)
-        self.animate_y_range(start, end, (ylo, yhi), **kwargs)
+            self.animate_x_range(x_range, start=start, end=end, **kwargs)
+        self.animate_y_range((ylo, yhi), start=start, end=end, **kwargs)
         return self
 
     def get_origin(self, time: float = 0):

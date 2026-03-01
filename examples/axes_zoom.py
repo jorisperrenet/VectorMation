@@ -17,17 +17,17 @@ curve = ax.plot(f, label='$f(x)=x^2$', stroke='#58C4DD', stroke_width=4)
 create_anim = curve.create(start=0, end=2)
 
 # Zoom into x=[1, 4], y=[0, 18] to inspect the curve more closely
-ax.set_ranges(3, 5, x_range=(1, 4), y_range=(0, 18))
+ax.set_ranges((1, 4), (0, 18), start=3, end=5)
 
 # Add a shaded area that appears after zooming in
 area = ax.get_area(f, x_range=(1.5, 3.5), fill='#58C4DD', fill_opacity=0.3)
 area.fadein(5.5, 6.5)
 
 # Zoom back out to full view
-ax.set_ranges(7, 9, x_range=(-5, 5), y_range=(-2, 26))
+ax.set_ranges((-5, 5), (-2, 26), start=7, end=9)
 
 # Pan to the right: shift window to x=[0, 10], y=[0, 100]
-ax.set_ranges(10, 12, x_range=(0, 10), y_range=(0, 100))
+ax.set_ranges((0, 10), (0, 100), start=10, end=12)
 
 # Add a dot tracking along the curve during the pan
 dot = Dot(fill='#FFFF00')

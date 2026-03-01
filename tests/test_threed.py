@@ -1026,26 +1026,26 @@ class TestCameraPreset:
 class TestCameraZoom:
     def test_basic_zoom(self):
         ax = ThreeDAxes()
-        result = ax.set_camera_zoom(0, 1, factor=2.0)
+        result = ax.set_camera_zoom(2.0, start=0, end=1)
         assert result is ax
 
     def test_zoom_changes_scale(self):
         ax = ThreeDAxes()
         initial_scale = ax._scale_3d.at_time(0)
-        ax.set_camera_zoom(0, 1, factor=2.0)
+        ax.set_camera_zoom(2.0, start=0, end=1)
         final_scale = ax._scale_3d.at_time(1)
         assert final_scale == pytest.approx(initial_scale * 2.0, rel=0.05)
 
     def test_zoom_factor_one(self):
         ax = ThreeDAxes()
         initial = ax._scale_3d.at_time(0)
-        ax.set_camera_zoom(0, 1, factor=1.0)
+        ax.set_camera_zoom(1.0, start=0, end=1)
         assert ax._scale_3d.at_time(1) == pytest.approx(initial, rel=0.01)
 
     def test_zoom_half(self):
         ax = ThreeDAxes()
         initial = ax._scale_3d.at_time(0)
-        ax.set_camera_zoom(0, 1, factor=0.5)
+        ax.set_camera_zoom(0.5, start=0, end=1)
         assert ax._scale_3d.at_time(1) == pytest.approx(initial * 0.5, rel=0.05)
 
 

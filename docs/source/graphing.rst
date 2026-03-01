@@ -128,7 +128,7 @@ animated like any other property. Use the convenience methods to animate both en
 
    ax.set_x_range(0, 2, (1, 4))           # animate x-axis bounds
    ax.set_y_range(0, 2, (0, 18))          # animate y-axis bounds
-   ax.set_ranges(0, 2, (1, 4), (0, 18))   # animate both at once
+   ax.set_ranges((1, 4), (0, 18), start=0, end=2)   # animate both at once
 
 You can also animate individual bounds directly:
 
@@ -149,7 +149,7 @@ Full example:
    curve = ax.plot(lambda x: x ** 2, stroke='#58C4DD')
 
    # Zoom into x=[1, 4], y=[0, 18]
-   ax.set_ranges(0, 2, x_range=(1, 4), y_range=(0, 18))
+   ax.set_ranges((1, 4), (0, 18), start=0, end=2)
 
    canvas.add_objects(ax)
    canvas.browser_display(fps=60)

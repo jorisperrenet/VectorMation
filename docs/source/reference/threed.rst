@@ -103,7 +103,7 @@ ThreeDAxes
       ``side``     90 deg       -90 deg
       ============ ============ ==============
 
-   .. py:method:: set_camera_zoom(start, end, factor, easing=smooth)
+   .. py:method:: set_camera_zoom(factor, start=0, end=1, easing=smooth)
 
       Animate the 3D camera zoom (scale multiplier) over ``[start, end]``.
 
@@ -112,7 +112,7 @@ ThreeDAxes
       .. code-block:: python
 
          # Zoom in 2x over 2 seconds
-         axes.set_camera_zoom(0, 2, factor=2.0)
+         axes.set_camera_zoom(2.0, start=0, end=2)
 
    .. rubric:: Projection
 

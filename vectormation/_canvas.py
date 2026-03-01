@@ -117,12 +117,12 @@ class VectorMathAnim:
             self.vb_y.set_onward(end, self.vb_y.at_time(end))
         return self
 
-    def camera_reset(self, start, end, easing=easings.smooth):
+    def camera_reset(self, start: float = 0, end: float = 1, easing=easings.smooth):
         """Reset camera to default (full canvas) viewbox over [start, end]."""
         self._animate_viewbox(start, end, 0, 0, self.width, self.height, easing)
         return self
 
-    def focus_on(self, *objects, start, end, padding: float = 100, easing=easings.smooth):
+    def focus_on(self, *objects, start: float = 0, end: float = 1, padding: float = 100, easing=easings.smooth):
         """Pan and zoom the camera to fit the given objects with padding."""
         from vectormation._base import VCollection
         group = VCollection(*objects) if len(objects) > 1 else objects[0]

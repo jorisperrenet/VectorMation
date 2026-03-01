@@ -4846,7 +4846,7 @@ class TestThreeDCameraZoom:
     def test_set_camera_zoom(self):
         ax = ThreeDAxes()
         s0 = ax._scale_3d.at_time(0)
-        ax.set_camera_zoom(start=0, end=1, factor=2.0)
+        ax.set_camera_zoom(2.0, start=0, end=1)
         s1 = ax._scale_3d.at_time(1)
         assert s1 == pytest.approx(s0 * 2, abs=1)
 
@@ -13389,12 +13389,12 @@ class TestAxesAddTitle:
 class TestAxesAnimateRange:
     def test_animate_x_range(self):
         ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
-        result = ax.animate_x_range(0, 1, (-5, 5))
+        result = ax.animate_x_range((-5, 5), start=0, end=1)
         assert result is ax
 
     def test_animate_y_range(self):
         ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
-        result = ax.animate_y_range(0, 1, (-5, 5))
+        result = ax.animate_y_range((-5, 5), start=0, end=1)
         assert result is ax
 
 
@@ -13909,18 +13909,18 @@ class TestSplitWords:
 class TestAxesSetRanges:
     def test_set_ranges_animates_both_axes(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        result = ax.set_ranges(0, 1, x_range=(-10, 10), y_range=(-10, 10))
+        result = ax.set_ranges((-10, 10), (-10, 10), start=0, end=1)
         assert result is ax
 
     def test_animate_x_range(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        ax.animate_x_range(0, 1, (-10, 10))
+        ax.animate_x_range((-10, 10), start=0, end=1)
         assert ax.x_min.at_time(1) == pytest.approx(-10, abs=0.5)
         assert ax.x_max.at_time(1) == pytest.approx(10, abs=0.5)
 
     def test_animate_y_range(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        ax.animate_y_range(0, 1, (-10, 10))
+        ax.animate_y_range((-10, 10), start=0, end=1)
         assert ax.y_min.at_time(1) == pytest.approx(-10, abs=0.5)
         assert ax.y_max.at_time(1) == pytest.approx(10, abs=0.5)
 
