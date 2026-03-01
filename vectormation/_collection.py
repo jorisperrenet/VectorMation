@@ -138,6 +138,7 @@ class VCollection(_BBoxMethodsMixin):
         return obj in self.objects
 
     def copy(self):
+        """Return a deep copy of this collection."""
         return deepcopy(self)
 
     def to_svg(self, time):
@@ -456,9 +457,11 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def rotate_to(self, start: float, end: float, degrees: float, cx: float | None = None, cy: float | None = None, easing=easings.smooth):
+        """Rotate all children to *degrees* around a shared center."""
         cx, cy = self._resolve_center(start, cx, cy); return self._delegate('rotate_to', start, end, degrees, cx=cx, cy=cy, easing=easing)
 
     def rotate_by(self, start: float, end: float, degrees: float, cx: float | None = None, cy: float | None = None, easing=easings.smooth):
+        """Rotate all children by *degrees* around a shared center."""
         cx, cy = self._resolve_center(start, cx, cy); return self._delegate('rotate_by', start, end, degrees, cx=cx, cy=cy, easing=easing)
 
     @staticmethod
@@ -1119,6 +1122,7 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def write(self, start: float = 0, end: float = 1, processing=10, max_stroke_width=2, change_existence=True, easing=easings.smooth):
+        """Stagger ``write()`` animations across all children."""
         if not self.objects:
             return self
         spc = (end - start) / (len(self.objects) + processing)
@@ -1131,8 +1135,13 @@ class VCollection(_BBoxMethodsMixin):
     # -- Animation delegation: apply to all children simultaneously --
 
     # pop_in / pop_out have no end parameter
-    def pop_in(self, start: float = 0.0, **kw): return self._delegate('pop_in', start=start, **kw)
-    def pop_out(self, start: float = 0.0, **kw): return self._delegate('pop_out', start=start, **kw)
+    def pop_in(self, start: float = 0.0, **kw):
+        """Pop-in animation for all children."""
+        return self._delegate('pop_in', start=start, **kw)
+
+    def pop_out(self, start: float = 0.0, **kw):
+        """Pop-out animation for all children."""
+        return self._delegate('pop_out', start=start, **kw)
 
     def show_increasing_subsets(self, start: float = 0, end: float = 1, easing=None):
         """Progressively reveal children over [start, end] — each child appears and stays visible."""
@@ -1215,8 +1224,13 @@ class VCollection(_BBoxMethodsMixin):
                 obj.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
 
-    def all_match(self, predicate): return all(predicate(obj) for obj in self.objects)
-    def any_match(self, predicate): return any(predicate(obj) for obj in self.objects)
+    def all_match(self, predicate):
+        """Return True if *predicate(obj)* is True for every child."""
+        return all(predicate(obj) for obj in self.objects)
+
+    def any_match(self, predicate):
+        """Return True if *predicate(obj)* is True for at least one child."""
+        return any(predicate(obj) for obj in self.objects)
 
     def pair_up(self):
         """Group adjacent children into pairs of VCollections."""
@@ -1481,5 +1495,5 @@ for _name, _s, _e in [
         _method.__qualname__ = f'VCollection.{n}'
         return _method
     setattr(VCollection, _name, _make_delegate(_name, _s, _e))
-del _name, _s, _e
+del _name, _s, _e  # pyright: ignore[reportPossiblyUnboundVariable]
 

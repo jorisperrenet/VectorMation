@@ -298,8 +298,13 @@ class NumberLine(VCollection):
         t = (x - self.origin_x) / self.length
         return self.x_start + t * span
 
-    def get_range(self): return (self.x_start, self.x_end)
-    def get_range_length(self): return self.x_end - self.x_start
+    def get_range(self):
+        """Return ``(x_start, x_end)`` tuple."""
+        return (self.x_start, self.x_end)
+
+    def get_range_length(self):
+        """Return the span of the number line (``x_end - x_start``)."""
+        return self.x_end - self.x_start
 
     def snap_to_tick(self, value):
         """Return the nearest tick mark value, clamped to ``[x_start, x_end]``."""
@@ -604,9 +609,17 @@ class _GridAccessMixin:
     """Shared accessor and highlight helpers for Table and Matrix."""
     entries: list
 
-    def get_entry(self, row, col): return self.entries[row][col]
-    def get_row(self, row): return VCollection(*self.entries[row])
-    def get_column(self, col): return VCollection(*(row[col] for row in self.entries if col < len(row)))
+    def get_entry(self, row, col):
+        """Return the VObject at *row*, *col*."""
+        return self.entries[row][col]
+
+    def get_row(self, row):
+        """Return a VCollection of all entries in *row*."""
+        return VCollection(*self.entries[row])
+
+    def get_column(self, col):
+        """Return a VCollection of all entries in column *col*."""
+        return VCollection(*(row[col] for row in self.entries if col < len(row)))
 
     def _flash(self, entries, start, end, color, easing=easings.there_and_back):
         for e in entries: e.flash(start, end, color=color, easing=easing)
@@ -963,15 +976,20 @@ class DynamicObject(VObject):
             self._cache[1] = self._func(time)
         return self._cache[1]
 
-    def to_svg(self, time): return self._eval(time).to_svg(time)
+    def to_svg(self, time):
+        """Render the dynamically-generated object at *time*."""
+        return self._eval(time).to_svg(time)
 
     def path(self, time):
+        """Return the path of the dynamically-generated object at *time*."""
         obj = self._eval(time)
         return obj.path(time) if hasattr(obj, 'path') else ''
 
-    def bbox(self, time): return self._eval(time).bbox(time)
+    def bbox(self, time):
+        """Return the bounding box of the dynamically-generated object at *time*."""
+        return self._eval(time).bbox(time)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return 'DynamicObject()'
 
 def _det(m):
