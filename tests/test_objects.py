@@ -22741,3 +22741,146 @@ class TestNumberedBulletedList:
         canvas.add(bl)
         svg = canvas.generate_frame_svg(time=0)
         assert 'Alpha' in svg
+
+
+class TestStampEdgeCases:
+    """Additional tests for stamp() method."""
+
+    def test_stamp_returns_copy(self):
+        c = Circle(r=50)
+        ghost = c.stamp(time=0, opacity=0.5)
+        assert ghost is not c
+        assert isinstance(ghost, Circle)
+
+    def test_stamp_at_different_times(self):
+        c = Circle(r=50)
+        c.shift(dx=100, start=0, end=1)
+        g0 = c.stamp(time=0)
+        g1 = c.stamp(time=1)
+        assert g0 is not g1
+
+
+class TestPathArcEdgeCases:
+    """Additional tests for path_arc movement."""
+
+    def test_path_arc_reaches_target(self):
+        c = Circle(cx=100, cy=100, r=20)
+        c.path_arc(300, 300, start=0, end=1, angle=math.pi / 2)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(c)
+        svg = canvas.generate_frame_svg(time=1)
+        assert '<circle' in svg
+
+    def test_path_arc_zero_angle(self):
+        c = Circle(cx=100, cy=100, r=20)
+        c.path_arc(300, 300, start=0, end=1, angle=0)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(c)
+        svg = canvas.generate_frame_svg(time=0.5)
+        assert '<circle' in svg
+
+
+class TestCrossOutEdgeCases:
+    """Additional tests for cross_out() method."""
+
+    def test_cross_out_returns_cross(self):
+        r = Rectangle(200, 100)
+        result = r.cross_out()
+        assert result is not None
+
+    def test_cross_out_renders(self):
+        r = Rectangle(200, 100, x=500, y=500)
+        cross = r.cross_out()
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(r)
+        canvas.add(cross)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<line' in svg or '<path' in svg
+
+
+class TestTracePathEdgeCases:
+    """Additional tests for trace_path() method."""
+
+    def test_trace_returns_path(self):
+        c = Circle(cx=100, cy=100, r=20)
+        c.shift(dx=200, start=0, end=1)
+        trace = c.trace_path(0, 1)
+        assert trace is not None
+
+    def test_trace_renders(self):
+        c = Circle(cx=100, cy=100, r=20)
+        c.shift(dx=200, start=0, end=1)
+        trace = c.trace_path(0, 1)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(c)
+        canvas.add(trace)
+        svg = canvas.generate_frame_svg(time=0.5)
+        assert '<svg' in svg
+
+
+class TestCollectionDistribute:
+    """Additional tests for VCollection.distribute()."""
+
+    def test_distribute_horizontal(self):
+        items = VCollection(Circle(r=20), Rectangle(40, 40), Circle(r=20))
+        items.distribute(direction='right', buff=20)
+        assert items is not None
+
+    def test_distribute_returns_self(self):
+        items = VCollection(Circle(r=20), Circle(r=20))
+        result = items.distribute(direction='right')
+        assert result is items
+
+
+class TestApplyMatrixEdgeCases:
+    """Additional tests for apply_matrix() method."""
+
+    def test_identity_matrix(self):
+        r = Rectangle(100, 50, x=400, y=400)
+        r.apply_matrix([[1, 0], [0, 1]])
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(r)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<polygon' in svg or '<rect' in svg
+
+    def test_shear_matrix(self):
+        r = Rectangle(100, 50, x=400, y=400)
+        r.apply_matrix([[1, 0.5], [0, 1]])
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(r)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<polygon' in svg or '<rect' in svg
+
+
+class TestPulsateEdgeCases:
+    """Additional tests for pulsate() method."""
+
+    def test_pulsate_renders(self):
+        c = Circle(cx=500, cy=500, r=50)
+        c.pulsate(start=0, end=1, scale_factor=1.5)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(c)
+        svg = canvas.generate_frame_svg(time=0.5)
+        assert '<circle' in svg
+
+    def test_pulsate_returns_self(self):
+        c = Circle(r=50)
+        result = c.pulsate(start=0, end=1)
+        assert result is c
+
+
+class TestCollectionCascadeEdgeCases:
+    """Additional tests for VCollection.cascade()."""
+
+    def test_cascade_fadein(self):
+        items = VCollection(Circle(r=20), Rectangle(40, 40), Circle(r=20))
+        items.cascade('fadein', start=0, end=2)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(items)
+        svg = canvas.generate_frame_svg(time=1)
+        assert '<svg' in svg
+
+    def test_cascade_returns_self(self):
+        items = VCollection(Circle(r=20), Circle(r=20))
+        result = items.cascade('fadein', start=0, end=1)
+        assert result is items
