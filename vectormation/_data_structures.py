@@ -47,7 +47,7 @@ def _make_viz_cell(x, y, w, h, val, font_size, fill, creation: float = 0, z: flo
 
 class Array(VCollection):
     """Visual array data structure with cells, indices, and animation methods."""
-    def __init__(self, values, x=360, y=440, cell_width=80, cell_height=60,
+    def __init__(self, values, x: float = 360, y: float = 440, cell_width: float = 80, cell_height: float = 60,
                  font_size: float = 24, index_font_size=16,
                  fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
                  show_indices=True, creation: float = 0, z: float = 0):
@@ -135,7 +135,7 @@ class Array(VCollection):
 
 class Stack(VCollection):
     """Visual stack data structure (LIFO) with push/pop animations."""
-    def __init__(self, values=None, x=860, y=600, cell_width=100, cell_height=50,
+    def __init__(self, values=None, x: float = 860, y: float = 600, cell_width: float = 100, cell_height: float = 50,
                  font_size: float = 22, fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
                  creation: float = 0, z: float = 0):
         self._cell_width, self._cell_height = cell_width, cell_height
@@ -180,7 +180,7 @@ class Stack(VCollection):
 
 class Queue(VCollection):
     """Visual queue data structure (FIFO) with enqueue/dequeue animations."""
-    def __init__(self, values=None, x=360, y=440, cell_width=80, cell_height=60,
+    def __init__(self, values=None, x: float = 360, y: float = 440, cell_width: float = 80, cell_height: float = 60,
                  font_size: float = 22, fill='#1e1e2e', text_color='#fff', border_color='#83C167',
                  creation: float = 0, z: float = 0):
         self._cell_width, self._cell_height = cell_width, cell_height
@@ -227,7 +227,7 @@ class Queue(VCollection):
 
 class LinkedList(VCollection):
     """Visual linked list with nodes and arrow pointers."""
-    def __init__(self, values, x=200, y=440, node_width=80, node_height=50,
+    def __init__(self, values, x: float = 200, y: float = 440, node_width: float = 80, node_height: float = 50,
                  gap: float = 40, font_size: float = 22,
                  fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
                  arrow_color='#fff', creation: float = 0, z: float = 0):
@@ -296,7 +296,7 @@ class LinkedList(VCollection):
 
 class BinaryTree(VCollection):
     """Visual binary tree with automatic layout."""
-    def __init__(self, tree, x=ORIGIN[0], y=120, h_spacing: float = 200, v_spacing: float = 100,
+    def __init__(self, tree, x=ORIGIN[0], y: float = 120, h_spacing: float = 200, v_spacing: float = 100,
                  node_radius: float = 25, font_size: float = 20,
                  fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
                  edge_color='#888', creation: float = 0, z: float = 0):
@@ -350,7 +350,7 @@ class BinaryTree(VCollection):
 class ArrayViz(VCollection):
     """Visualise an array as a row of labeled cells."""
 
-    def __init__(self, values, cell_size=80, x=None, y=None,
+    def __init__(self, values, cell_size: float = 80, x=None, y=None,
                  colors=None, default_fill='#264653', show_indices=True,
                  font_size: float = 32, creation: float = 0, z: float = 0):
         n = len(values)
@@ -493,7 +493,7 @@ class LinkedListViz(VCollection):
 class StackViz(VCollection):
     """Visualise a stack (LIFO) as vertically stacked cells."""
 
-    def __init__(self, values, cell_width=120, cell_height=50,
+    def __init__(self, values, cell_width: float = 120, cell_height: float = 50,
                  x=None, y=None, fill='#264653',
                  font_size: float = 28, creation: float = 0, z: float = 0):
         Arrow = _get_arrow()
@@ -556,7 +556,7 @@ class StackViz(VCollection):
 class QueueViz(VCollection):
     """Visualise a queue (FIFO) as a horizontal row of cells."""
 
-    def __init__(self, values, cell_width=80, cell_height=60,
+    def __init__(self, values, cell_width: float = 80, cell_height: float = 60,
                  x=None, y=None, fill='#264653',
                  font_size: float = 28, creation: float = 0, z: float = 0):
         n = len(values)

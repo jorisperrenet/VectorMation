@@ -127,7 +127,7 @@ class Code(VCollection):
                'make', 'append', 'len', 'cap'},
     }
 
-    def __init__(self, text, language='python', x=120, y=120, font_size: float = 24,
+    def __init__(self, text, language='python', x: float = 120, y: float = 120, font_size: float = 24,
                  line_height=1.5, tab_width=4, creation: float = 0, z: float = 0, **styling_kwargs):
         lines = text.strip('\n').split('\n')
         objects = []
@@ -237,7 +237,7 @@ def _text_with_box(text, x, y, font_size, padding, corner_radius, creation, z_tx
 
 class Label(VCollection):
     """Text label with a surrounding box/frame for annotations."""
-    def __init__(self, text, x=ORIGIN[0], y=ORIGIN[1], font_size: float = 36, padding=10,
+    def __init__(self, text, x=ORIGIN[0], y=ORIGIN[1], font_size: float = 36, padding: float = 10,
                  corner_radius=4, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = _TEXT_STYLE | styling_kwargs
         bg, txt = _text_with_box(text, x, y, font_size, padding, corner_radius,
@@ -289,7 +289,7 @@ class LabeledArrow(VCollection):
 class Callout(VCollection):
     """Text callout with a pointer line to a target position."""
     def __init__(self, text, target, direction='up', distance=80, font_size: float = 24,
-                 padding=8, corner_radius=4, creation: float = 0, z: float = 0, **styling_kwargs):
+                 padding: float = 8, corner_radius=4, creation: float = 0, z: float = 0, **styling_kwargs):
         direction = _norm_dir(direction, 'up')
 
         # Resolve target position
@@ -361,7 +361,7 @@ class DimensionLine(VCollection):
 class Tooltip(VCollection):
     """Small animated tooltip that appears and disappears near a target."""
     def __init__(self, text, target, start: float = 0, duration: float = 1.5, font_size: float = 18,
-                 padding=6, creation: float = 0, z: float = 10, **styling_kwargs):
+                 padding: float = 6, creation: float = 0, z: float = 10, **styling_kwargs):
         if hasattr(target, 'bbox'):
             tx = target.center(creation)[0]
             ty = target.bbox(creation)[1]
@@ -389,7 +389,7 @@ class Tooltip(VCollection):
 
 class TextBox(VCollection):
     """Text with a surrounding rectangle. Useful for labels and callouts."""
-    def __init__(self, text, x=100, y=100, font_size: float = 20, padding=12,
+    def __init__(self, text, x: float = 100, y: float = 100, font_size: float = 20, padding: float = 12,
                  width=None, height=None, corner_radius=6,
                  box_fill='#333', box_opacity=0.9, text_color='#fff',
                  creation: float = 0, z: float = 0, **styling_kwargs):
@@ -416,8 +416,8 @@ class TextBox(VCollection):
 
 class Bracket(VCollection):
     """Square bracket decoration pointing at a range."""
-    def __init__(self, x=100, y=100, width=100, height=20,
-                 direction='down', stroke='#fff', stroke_width=2,
+    def __init__(self, x: float = 100, y: float = 100, width: float = 100, height: float = 20,
+                 direction='down', stroke='#fff', stroke_width: float = 2,
                  text='', font_size: float = 16, text_color='#aaa',
                  creation: float = 0, z: float = 0):
         tip = height
@@ -450,7 +450,7 @@ class Bracket(VCollection):
 
 class IconGrid(VCollection):
     """Grid of colored shapes (circles, squares) for infographic-style visualizations."""
-    def __init__(self, data, x=100, y=100, cols=10, size=15, gap: float = 3,
+    def __init__(self, data, x: float = 100, y: float = 100, cols=10, size: float = 15, gap: float = 3,
                  shape='circle', creation: float = 0, z: float = 0):
         objects = []
         # Flatten data into a list of colors
@@ -476,7 +476,7 @@ class IconGrid(VCollection):
 
 class SpeechBubble(VCollection):
     """Rounded rectangle with a triangular tail, useful for dialogue/annotations."""
-    def __init__(self, text='', x=100, y=100, font_size: float = 20, padding=14,
+    def __init__(self, text='', x: float = 100, y: float = 100, font_size: float = 20, padding: float = 14,
                  width=None, height=None, corner_radius=10,
                  box_fill='#1e1e2e', box_opacity=0.95, text_color='#fff',
                  tail_direction='down', tail_width=20, tail_height=18,
@@ -517,8 +517,8 @@ class SpeechBubble(VCollection):
 
 class Badge(VCollection):
     """Pill-shaped label (fully rounded corners), like GitHub badges/tags."""
-    def __init__(self, text='Label', x=100, y=100, font_size: float = 16, padding_x=14,
-                 padding_y=6, bg_color='#58C4DD', text_color='#000',
+    def __init__(self, text='Label', x: float = 100, y: float = 100, font_size: float = 16, padding_x: float = 14,
+                 padding_y: float = 6, bg_color='#58C4DD', text_color='#000',
                  creation: float = 0, z: float = 0, **styling_kwargs):
 
         char_w = font_size * CHAR_WIDTH_FACTOR
@@ -542,7 +542,7 @@ class Badge(VCollection):
 
 class Divider(VCollection):
     """Horizontal or vertical line with an optional centered text label."""
-    def __init__(self, x=100, y=300, length: float = 400, direction='horizontal',
+    def __init__(self, x: float = 100, y: float = 300, length: float = 400, direction='horizontal',
                  label=None, font_size: float = 16, gap: float = 12,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#555', 'stroke_width': 1} | styling_kwargs
@@ -589,7 +589,7 @@ class Divider(VCollection):
 
 class Checklist(VCollection):
     """List of items with checkbox indicators (checked or unchecked)."""
-    def __init__(self, *items, x=100, y=100, font_size: float = 24, spacing: float = 1.6,
+    def __init__(self, *items, x: float = 100, y: float = 100, font_size: float = 24, spacing: float = 1.6,
                  box_size=None, check_color='#83C167', uncheck_color='#555',
                  text_color='#fff', creation: float = 0, z: float = 0):
 
@@ -653,7 +653,7 @@ class Checklist(VCollection):
 
 class Stepper(VCollection):
     """Step indicator: numbered circles connected by a line, with active step highlight."""
-    def __init__(self, steps, x=100, y=300, spacing: float = 150, radius: float = 20,
+    def __init__(self, steps, x: float = 100, y: float = 300, spacing: float = 150, radius: float = 20,
                  active=0, direction='horizontal', font_size: float = 16,
                  active_color='#58C4DD', inactive_color='#555',
                  text_color='#fff', creation: float = 0, z: float = 0):
@@ -716,7 +716,7 @@ class Stepper(VCollection):
 
 class TagCloud(VCollection):
     """Word/tag cloud with varying font sizes based on weights."""
-    def __init__(self, data, x=100, y=100, width=500, min_font=14, max_font=48,
+    def __init__(self, data, x: float = 100, y: float = 100, width: float = 500, min_font: float = 14, max_font: float = 48,
                  colors=None, creation: float = 0, z: float = 0):
         if colors is None:
             colors = list(DEFAULT_CHART_COLORS)
@@ -760,7 +760,7 @@ class StatusIndicator(VCollection):
         'pending': '#888', 'unknown': '#888',
     }
 
-    def __init__(self, label, status='online', x=100, y=100, font_size: float = 18,
+    def __init__(self, label, status='online', x: float = 100, y: float = 100, font_size: float = 18,
                  dot_radius: float = 6, gap: float = 10, creation: float = 0, z: float = 0):
         color = self._STATUS_COLORS.get(status, status)
         dot = Dot(cx=x + dot_radius, cy=y, r=dot_radius,
@@ -777,7 +777,7 @@ class StatusIndicator(VCollection):
 
 class Meter(VCollection):
     """Vertical or horizontal bar meter (like a battery level or VU meter)."""
-    def __init__(self, value=0.5, x=100, y=100, width=30, height=150,
+    def __init__(self, value=0.5, x: float = 100, y: float = 100, width: float = 30, height: float = 150,
                  direction='vertical', fill_color='#58C4DD',
                  bg_color='#333', border_color='#888',
                  creation: float = 0, z: float = 0):
@@ -808,7 +808,7 @@ class Meter(VCollection):
 
 class Breadcrumb(VCollection):
     """Navigation breadcrumb trail (e.g., Home > Products > Details)."""
-    def __init__(self, *items, x=100, y=100, font_size: float = 18, separator='\u203a',
+    def __init__(self, *items, x: float = 100, y: float = 100, font_size: float = 18, separator='\u203a',
                  gap: float = 8, active_index=None, active_color='#58C4DD',
                  inactive_color='#888', creation: float = 0, z: float = 0):
         objects = []
@@ -855,7 +855,7 @@ class Countdown(VCollection):
 
 class Filmstrip(VCollection):
     """Horizontal row of labeled thumbnail boxes (like a storyboard/filmstrip)."""
-    def __init__(self, labels, x=100, y=400, frame_width=200, frame_height=130,
+    def __init__(self, labels, x: float = 100, y: float = 400, frame_width: float = 200, frame_height: float = 130,
                  spacing: float = 20, font_size: float = 16, creation: float = 0, z: float = 0, **styling_kwargs):
 
         objects = []

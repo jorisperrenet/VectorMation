@@ -108,7 +108,7 @@ def counterclockwise_morph(source, target, start: float = 0, end: float = 1, z: 
 
 class LabeledDot(VCollection):
     """Dot with a centered text label."""
-    def __init__(self, label='', r=24, cx=ORIGIN[0], cy=ORIGIN[1], creation: float = 0, z: float = 0, font_size=None, **styling_kwargs):
+    def __init__(self, label='', r: float = 24, cx=ORIGIN[0], cy=ORIGIN[1], creation: float = 0, z: float = 0, font_size=None, **styling_kwargs):
         dot_kw = {k: v for k, v in styling_kwargs.items() if k != 'fill'}
         dot_fill = styling_kwargs.get('fill', '#83C167')
         dot = Dot(r=r, cx=cx, cy=cy, creation=creation, z=z, fill=dot_fill, **dot_kw)
@@ -138,7 +138,7 @@ def _strip_tex_commands(tex: str) -> str:
 
 class TexObject(VCollection):
     """Renders LaTeX content as SVG paths via dvisvgm."""
-    def __init__(self, to_render, x=0, y=0, font_size: float = 48, creation: float = 0, z: float = 0, **styles):
+    def __init__(self, to_render, x: float = 0, y: float = 0, font_size: float = 48, creation: float = 0, z: float = 0, **styles):
         from vectormation.tex_file_writing import get_characters
         import vectormation._canvas as _cm
         tex_dir = f'{_cm.save_directory}/tex' if hasattr(_cm, 'save_directory') else tempfile.mkdtemp()
@@ -227,7 +227,7 @@ class TexObject(VCollection):
 class SplitTexObject:
     """Renders multiple lines of LaTeX, each as a separate TexObject.
     Supports indexing, iteration, and conversion to a single VCollection."""
-    def __init__(self, *lines, x=0, y=0, line_spacing=60, creation: float = 0, **styles):
+    def __init__(self, *lines, x: float = 0, y: float = 0, line_spacing: float = 60, creation: float = 0, **styles):
         self.lines = [TexObject(line, x=x, y=y + i * line_spacing, creation=creation, **styles)
                       for i, line in enumerate(lines)]
 
@@ -239,7 +239,7 @@ class SplitTexObject:
 
 class NumberLine(VCollection):
     """A number line with ticks and labels, with optional endpoint arrows."""
-    def __init__(self, x_range=(-5, 5, 1), length: float = 720, x=240, y=ORIGIN[1],
+    def __init__(self, x_range=(-5, 5, 1), length: float = 720, x: float = 240, y=ORIGIN[1],
                  include_arrows=True, include_numbers=True,
                  tick_size=2*SMALL_BUFF, font_size=_TICK_FONT_SIZE,
                  creation: float = 0, z: float = 0, **styling_kwargs):
@@ -321,7 +321,7 @@ class NumberLine(VCollection):
         ptr.vertices[1].set_onward(start, lambda t: (p := pos_func(t), (p[0] + hs, p[1] - size - 2))[1])
         ptr.vertices[2].set_onward(start, lambda t: (p := pos_func(t), (p[0], p[1] - 2))[1])
 
-    def add_pointer(self, value, label=None, color='#FF6B6B', size=12,
+    def add_pointer(self, value, label=None, color='#FF6B6B', size: float = 12,
                      creation: float = 0, z: float = 1):
         """Add an animated pointer (triangle) above the number line at *value*."""
         px, py = self.number_to_point(
@@ -387,7 +387,7 @@ class NumberLine(VCollection):
         self.objects.append(rect)
         return rect
 
-    def add_segment(self, start_val, end_val, color='#58C4DD', height=8, creation: float = 0, z: float = 1):
+    def add_segment(self, start_val, end_val, color='#58C4DD', height: float = 8, creation: float = 0, z: float = 1):
         """Highlight a range on the number line with a filled rectangle."""
         return self._make_range_rect(start_val, end_val, color, height, 0.7, creation, z)
 
@@ -400,7 +400,7 @@ class NumberLine(VCollection):
         return dot
 
     def highlight_range(self, start_val, end_val, color='#FFFF00',
-                        height=16, opacity: float = 0.4, creation: float = 0, z: float = 1, **kwargs):
+                        height: float = 16, opacity: float = 0.4, creation: float = 0, z: float = 1, **kwargs):
         """Highlight a numeric range on the number line with a colored rectangle."""
         sv = max(self.x_start, min(self.x_end, start_val))
         ev = max(self.x_start, min(self.x_end, end_val))
@@ -629,7 +629,7 @@ class _GridAccessMixin:
 class Table(_GridAccessMixin, VCollection):
     """Table for displaying tabular data with optional row/column labels."""
     def __init__(self, data, row_labels=None, col_labels=None,
-                 x=120, y=60, cell_width=160, cell_height=60,
+                 x: float = 120, y: float = 60, cell_width: float = 160, cell_height: float = 60,
                  font_size: float = 24, creation: float = 0, z: float = 0, **styling_kwargs):
         rows = len(data)
         cols = len(data[0]) if data else 0

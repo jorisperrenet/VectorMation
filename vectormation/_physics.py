@@ -358,7 +358,7 @@ class Cloth:
         Spring constant for structural springs.
     """
 
-    def __init__(self, x=560, y=200, width=800, height=500,
+    def __init__(self, x: float = 560, y: float = 200, width: float = 800, height: float = 500,
                  cols=15, rows=10, pin_top=True, stiffness=2.0,
                  color='#58C4DD', creation: float = 0):
         from vectormation._shapes import Line, Dot  # lazy import (circular dep)

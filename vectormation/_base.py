@@ -866,7 +866,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def show_passing_flash(self, start: float = 0, end: float = 1, flash_width=0.15,
-                           color='#FFFF00', stroke_width=6, easing=easings.linear):
+                           color='#FFFF00', stroke_width: float = 6, easing=easings.linear):
         """A bright flash that travels along this object's path."""
         _, total = _parse_path(self.path(start))
         if total <= 0:
@@ -970,7 +970,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def color_wave(self, start: float = 0, end: float = 1,
-                    wave_color='#58C4DD', attr='fill', width=0.3, cycles=1):
+                    wave_color='#58C4DD', attr='fill', width: float = 0.3, cycles: float = 1):
         """Sweep *wave_color* across the current base color over [start, end]."""
         dur = end - start
         if dur <= 0:
@@ -1400,7 +1400,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def pulse_outline(self, start: float = 0, end: float = 1, color='#FFFF00',
-                      max_width=8, cycles=2, easing=easings.smooth):
+                      max_width=8, cycles: float = 2, easing=easings.smooth):
         """Animate the stroke pulsing between current width and *max_width*."""
         dur = end - start
         if dur <= 0:
@@ -1761,7 +1761,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._apply_shift_func(_pos, start, end)
         return self
 
-    def bounce(self, start: float = 0, end: float = 1, height: float = 50, n_bounces=3, easing=easings.smooth):
+    def bounce(self, start: float = 0, end: float = 1, height: float = 50, n_bounces: float = 3, easing=easings.smooth):
         """Bounce the object up and down like a ball."""
         dur = end - start
         if dur <= 0:
@@ -1790,7 +1790,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self._apply_shift_effect(start, end, dx, dy)
 
     def ripple(self, start: float = 0, end: float = 0.5, count=3, max_radius=100,
-               color='#58C4DD', stroke_width=2):
+               color='#58C4DD', stroke_width: float = 2):
         """Emit expanding, fading rings from the object's center.
         Returns a VCollection of Circle objects (must be added to canvas)."""
         from vectormation._shapes import Circle as _Circle
@@ -1854,7 +1854,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def highlight_border(self, start: float = 0, end: float = 0.5, color='#FFFF00',
-                          width=4, easing=easings.there_and_back):
+                          width: float = 4, easing=easings.there_and_back):
         """Flash the stroke to briefly highlight the object's border."""
         dur = end - start
         if dur <= 0:
@@ -1867,7 +1867,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def flash_highlight(self, start: float = 0, end: float = 1, color='#FFFF00',
-                        width=3, easing=easings.there_and_back):
+                        width: float = 3, easing=easings.there_and_back):
         """Briefly highlight the object with a colored border flash using a surrounding rectangle."""
         from vectormation._shapes import Rectangle  # lazy to avoid circular import
         bx, by, bw, bh = self.bbox(start)
@@ -1961,7 +1961,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def trace_path(self, start: float = 0, end: float = 1, stroke='#58C4DD',
-                    stroke_width=2, stroke_opacity=0.6, samples=60):
+                    stroke_width: float = 2, stroke_opacity: float = 0.6, samples: float = 60):
         """Return a Path that traces this object's center over [start, end].
         The path draws itself progressively. Must be added to the canvas."""
         from vectormation._shapes import Path
@@ -2164,7 +2164,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self._typewriter_clip(start, end, direction, easing, reveal=True)
 
     def cross_out(self, start: float = 0, end: float = 0.5, color='#FC6255',
-                   stroke_width=4, buff: float = 5):
+                   stroke_width: float = 4, buff: float = 5):
         """Draw an X across this object. Returns the Cross VCollection (add to canvas)."""
         from vectormation._svg_utils import Cross
         _, _, bw, bh = self.bbox(start)
@@ -2468,7 +2468,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.styling.stroke_dasharray.set_onward(start, pattern_str)
         return self
 
-    def set_backstroke(self, color='#000000', width=8, start: float = 0):
+    def set_backstroke(self, color='#000000', width: float = 8, start: float = 0):
         """Add a background stroke (rendered behind fill) for readability."""
         self.set_stroke(color=color, width=width, start=start)
         _wrap_to_svg(self, lambda inner, t: f"<g style='paint-order: stroke fill'>{inner}</g>", start)

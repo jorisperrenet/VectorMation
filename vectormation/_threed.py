@@ -100,7 +100,7 @@ class ThreeDAxes(VCollection):
     """3D coordinate axes with camera control, ticks, labels, and depth-sorted rendering."""
 
     def __init__(self, x_range=(-3, 3), y_range=(-3, 3), z_range=(-3, 3),
-                 cx=ORIGIN[0], cy=ORIGIN[1], scale=160,
+                 cx=ORIGIN[0], cy=ORIGIN[1], scale: float = 160,
                  phi=math.radians(75), theta=math.radians(-30),
                  show_ticks=True, show_labels=True, show_grid=False,
                  x_label: str | None = 'x', y_label: str | None = 'y', z_label: str | None = 'z',
@@ -240,7 +240,7 @@ class ThreeDAxes(VCollection):
 
     def plot_surface(self, func, u_range=None, v_range=None, resolution=(20, 20),
                      fill_color='#4488ff', checkerboard_colors=None,
-                     stroke_color='#333', stroke_width=0.5, fill_opacity=0.8,
+                     stroke_color='#333', stroke_width: float = 0.5, fill_opacity=0.8,
                      creation: float = 0, z: float = 0):
         """Create and register a Surface for z = func(x, y)."""
         if u_range is None:
@@ -255,7 +255,7 @@ class ThreeDAxes(VCollection):
         return surface
 
     def get_graph_3d(self, func, x_range=None, plane='xz', num_points=100,
-                     stroke='#FFFF00', stroke_width=2, creation: float = 0, z: float = 0):
+                     stroke='#FFFF00', stroke_width: float = 2, creation: float = 0, z: float = 0):
         """Plot a 2D function as a curve in 3D space."""
         if x_range is None:
             x_range = self._x_range
@@ -302,7 +302,7 @@ class ThreeDAxes(VCollection):
         return wireframe
 
     def add_grid_plane(self, plane='xz', step: float = 1, color='#444444', opacity: float = 0.3,
-                        stroke_width=0.5, creation: float = 0):
+                        stroke_width: float = 0.5, creation: float = 0):
         """Add a grid plane to the 3D axes."""
         from vectormation._shapes import Line
         lines = []
@@ -478,7 +478,7 @@ class Surface(VObject):
     def __init__(self, func, u_range=(-3, 3), v_range=(-3, 3),
                  resolution=(20, 20),
                  fill_color='#4488ff', checkerboard_colors=None,
-                 stroke_color='#333', stroke_width=0.5, fill_opacity=0.8,
+                 stroke_color='#333', stroke_width: float = 0.5, fill_opacity=0.8,
                  creation: float = 0, z: float = 0):
         self.show = attributes.Real(creation, True)
         self.z = attributes.Real(creation, z)
@@ -614,7 +614,7 @@ class SurfaceMesh(Surface):
     """
 
     def __init__(self, surface, resolution=None,
-                 stroke_color='#ffffff', stroke_width=1, stroke_opacity=0.4,
+                 stroke_color='#ffffff', stroke_width: float = 1, stroke_opacity: float = 0.4,
                  creation: float = 0, z: float = 0):
         res = resolution or surface._resolution
         super().__init__(
@@ -800,7 +800,7 @@ class _PointPrimitive3D(_Primitive3D):
 class Line3D(_SegmentPrimitive3D):
     """A line segment in 3D space."""
 
-    def __init__(self, start, end, stroke='#fff', stroke_width=2, creation: float = 0, z: float = 0):
+    def __init__(self, start, end, stroke='#fff', stroke_width: float = 2, creation: float = 0, z: float = 0):
         super().__init__(creation, z)
         self._start = tuple(start)
         self._end = tuple(end)
@@ -844,8 +844,8 @@ class Dot3D(_PointPrimitive3D):
 class Arrow3D(_SegmentPrimitive3D):
     """An arrow in 3D space with a cone tip."""
 
-    def __init__(self, start, end, stroke='#fff', stroke_width=2,
-                 tip_length: float = 12, tip_radius=4, creation: float = 0, z: float = 0):
+    def __init__(self, start, end, stroke='#fff', stroke_width: float = 2,
+                 tip_length: float = 12, tip_radius: float = 4, creation: float = 0, z: float = 0):
         super().__init__(creation, z)
         self._start = tuple(start)
         self._end = tuple(end)
@@ -881,7 +881,7 @@ class ParametricCurve3D(_Primitive3D):
     """A parametric curve in 3D space."""
 
     def __init__(self, func, t_range=(0, 1), num_points=100,
-                 stroke='#fff', stroke_width=2, creation: float = 0, z: float = 0):
+                 stroke='#fff', stroke_width: float = 2, creation: float = 0, z: float = 0):
         super().__init__(creation, z)
         self._func = func
         self._t_range = t_range
@@ -913,7 +913,7 @@ def _make_surface(func, u_range, v_range, resolution, **kw):
 
 def Sphere3D(radius: float = 1.5, center=(0, 0, 0), resolution=(16, 32),
              fill_color='#FC6255', checkerboard_colors=None,
-             stroke_color='#333', stroke_width=0.3, fill_opacity=0.9,
+             stroke_color='#333', stroke_width: float = 0.3, fill_opacity=0.9,
              creation: float = 0, z: float = 0):
     """Create a Surface representing a sphere."""
     cx, cy, cz = center
@@ -980,7 +980,7 @@ def Cube(side_length: float = 2, center=(0, 0, 0), fill_color='#58C4DD',
 
 def Cylinder3D(radius: float = 1, height: float = 2, center=(0, 0, 0), resolution=(16, 16),
                fill_color='#58C4DD', checkerboard_colors=None,
-               stroke_color='#333', stroke_width=0.3, fill_opacity=0.9,
+               stroke_color='#333', stroke_width: float = 0.3, fill_opacity=0.9,
                creation: float = 0, z: float = 0):
     """Create a Surface representing a cylinder (open-ended, side only)."""
     cx, cy, cz = center
@@ -994,7 +994,7 @@ def Cylinder3D(radius: float = 1, height: float = 2, center=(0, 0, 0), resolutio
 
 def Cone3D(radius: float = 1, height: float = 2, center=(0, 0, 0), resolution=(16, 16),
            fill_color='#58C4DD', checkerboard_colors=None,
-           stroke_color='#333', stroke_width=0.3, fill_opacity=0.9,
+           stroke_color='#333', stroke_width: float = 0.3, fill_opacity=0.9,
            creation: float = 0, z: float = 0):
     """Create a Surface representing a cone (open-ended, side only)."""
     cx, cy, cz = center
@@ -1010,7 +1010,7 @@ def Cone3D(radius: float = 1, height: float = 2, center=(0, 0, 0), resolution=(1
 def Torus3D(major_radius: float = 2, minor_radius: float = 0.5, center=(0, 0, 0),
             resolution=(24, 12),
             fill_color='#58C4DD', checkerboard_colors=None,
-            stroke_color='#333', stroke_width=0.3, fill_opacity=0.9,
+            stroke_color='#333', stroke_width: float = 0.3, fill_opacity=0.9,
             creation: float = 0, z: float = 0):
     """Create a Surface representing a torus."""
     cx, cy, cz = center
@@ -1084,8 +1084,8 @@ def Prism3D(n_sides=6, radius: float = 1, height: float = 2, center=(0, 0, 0),
 
 def _polyhedron_faces(vertices, face_indices, *,
                       fill_color='#58C4DD', stroke_color='#FFFFFF',
-                      stroke_width=1, fill_opacity=0.8,
-                      cx=0, cy=0, cz=0, scale=1.0,
+                      stroke_width: float = 1, fill_opacity=0.8,
+                      cx: float = 0, cy: float = 0, cz: float = 0, scale: float = 1.0,
                       creation: float = 0, z: float = 0):
     """Build a list of Surface patches from vertex coords and face index lists."""
     verts = [(cx + x * scale, cy + y * scale, cz + zz * scale) for x, y, zz in vertices]
@@ -1125,7 +1125,7 @@ def _platonic(vertices, face_indices, cx, cy, cz, size, **kw):
 
 _PHI = (1 + 5 ** 0.5) / 2  # golden ratio
 
-def Tetrahedron(cx=0, cy=0, cz=0, size=1.0, *,
+def Tetrahedron(cx: float = 0, cy: float = 0, cz: float = 0, size: float = 1.0, *,
                 fill_color='#58C4DD', stroke_color='#FFFFFF',
                 stroke_width: float = 1, fill_opacity=0.8, creation: float = 0, z: float = 0):
     """Regular tetrahedron (4 triangular faces)."""
@@ -1136,7 +1136,7 @@ def Tetrahedron(cx=0, cy=0, cz=0, size=1.0, *,
         stroke_width=stroke_width, fill_opacity=fill_opacity,
         creation=creation, z=z)
 
-def Octahedron(cx=0, cy=0, cz=0, size=1.0, *,
+def Octahedron(cx: float = 0, cy: float = 0, cz: float = 0, size: float = 1.0, *,
                fill_color='#58C4DD', stroke_color='#FFFFFF',
                stroke_width: float = 1, fill_opacity=0.8, creation: float = 0, z: float = 0):
     """Regular octahedron (8 triangular faces)."""
@@ -1148,7 +1148,7 @@ def Octahedron(cx=0, cy=0, cz=0, size=1.0, *,
         stroke_width=stroke_width, fill_opacity=fill_opacity,
         creation=creation, z=z)
 
-def Icosahedron(cx=0, cy=0, cz=0, size=1.0, *,
+def Icosahedron(cx: float = 0, cy: float = 0, cz: float = 0, size: float = 1.0, *,
                 fill_color='#58C4DD', stroke_color='#FFFFFF',
                 stroke_width: float = 1, fill_opacity=0.8, creation: float = 0, z: float = 0):
     """Regular icosahedron (20 triangular faces)."""
@@ -1165,7 +1165,7 @@ def Icosahedron(cx=0, cy=0, cz=0, size=1.0, *,
         stroke_width=stroke_width, fill_opacity=fill_opacity,
         creation=creation, z=z)
 
-def Dodecahedron(cx=0, cy=0, cz=0, size=1.0, *,
+def Dodecahedron(cx: float = 0, cy: float = 0, cz: float = 0, size: float = 1.0, *,
                  fill_color='#58C4DD', stroke_color='#FFFFFF',
                  stroke_width: float = 1, fill_opacity=0.8, creation: float = 0, z: float = 0):
     """Regular dodecahedron (12 pentagonal faces)."""

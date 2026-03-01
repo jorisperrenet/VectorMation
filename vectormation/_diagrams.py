@@ -66,7 +66,7 @@ class ChessBoard(VCollection):
     }
 
     def __init__(self, fen='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR',
-                 cx=ORIGIN[0], cy=ORIGIN[1], size=600, show_coordinates=True,
+                 cx=ORIGIN[0], cy=ORIGIN[1], size: float = 600, show_coordinates=True,
                  light_color='#f0d9b5', dark_color='#b58863',
                  creation: float = 0, z: float = 0):
         cell = size / 8
@@ -190,7 +190,7 @@ def _element_category(z):
 
 class PeriodicTable(VCollection):
     """Periodic table of elements (first 36 elements)."""
-    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], cell_size=48, creation: float = 0, z: float = 0):
+    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], cell_size: float = 48, creation: float = 0, z: float = 0):
         objects = []
         total_w = 18 * cell_size
         total_h = 4 * cell_size
@@ -561,7 +561,7 @@ class NetworkGraph(VCollection):
 
 class Tree(VCollection):
     """Hierarchical tree layout visualization."""
-    def __init__(self, data, cx=ORIGIN[0], cy=100, h_spacing: float = 120, v_spacing: float = 100,
+    def __init__(self, data, cx=ORIGIN[0], cy: float = 100, h_spacing: float = 120, v_spacing: float = 100,
                  node_r: float = 20, font_size: float = 18, layout='down',
                  creation: float = 0, z: float = 0):
         objects = []
@@ -716,8 +716,8 @@ class Stamp(VCollection):
 
 class TimelineBar(VCollection):
     """Visual timeline bar with labeled markers."""
-    def __init__(self, markers, total_duration=10, x=200, y=900,
-                 width=1520, height=6, marker_color='#FFFF00',
+    def __init__(self, markers, total_duration: float = 10, x: float = 200, y: float = 900,
+                 width: float = 1520, height: float = 6, marker_color='#FFFF00',
                  font_size: float = 14, creation: float = 0, z: float = 0):
         objects = []
         # Track bar
@@ -752,8 +752,8 @@ class TimelineBar(VCollection):
 
 class FlowChart(VCollection):
     """Simple flow chart with labeled boxes connected by arrows."""
-    def __init__(self, steps, direction='right', x=200, y=400,
-                 box_width=200, box_height=60, spacing: float = 80,
+    def __init__(self, steps, direction='right', x: float = 200, y: float = 400,
+                 box_width: float = 200, box_height: float = 60, spacing: float = 80,
                  box_color='#58C4DD', text_color='#fff', arrow_color='#999',
                  font_size: float = 20, corner_radius=8, creation: float = 0, z: float = 0):
         Arrow = _get_arrow()
@@ -855,8 +855,8 @@ class VennDiagram(VCollection):
 
 class OrgChart(VCollection):
     """Organization chart from a tree structure."""
-    def __init__(self, root, x=ORIGIN[0], y=80, h_spacing: float = 180, v_spacing: float = 100,
-                 box_width=120, box_height=40, font_size: float = 16,
+    def __init__(self, root, x=ORIGIN[0], y: float = 80, h_spacing: float = 180, v_spacing: float = 100,
+                 box_width: float = 120, box_height: float = 40, font_size: float = 16,
                  colors=None, creation: float = 0, z: float = 0):
         if colors is None:
             colors = list(DEFAULT_CHART_COLORS)

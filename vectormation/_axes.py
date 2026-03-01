@@ -44,7 +44,7 @@ class Axes(_AxesExtMixin, VCollection):
     }
 
     def __init__(self, x_range=(-5, 5), y_range=None,
-                 x=260, y=100, plot_width=1400, plot_height=880,
+                 x: float = 260, y: float = 100, plot_width: float = 1400, plot_height: float = 880,
                  x_label=None, y_label=None,
                  show_grid=False, equal_aspect=False,
                  x_scale='linear', y_scale='linear',
@@ -492,7 +492,7 @@ class Axes(_AxesExtMixin, VCollection):
         self.animate_y_range(start, end, y_range, **kwargs)
         return self
 
-    def zoom_to_fit(self, func, x_range=None, padding=0.1, start: float = 0, end: float = 1, **kwargs):
+    def zoom_to_fit(self, func, x_range=None, padding: float = 0.1, start: float = 0, end: float = 1, **kwargs):
         """Animate axes ranges to fit a function's output with optional padding.
 
         *func*: a callable f(x) -> y.
@@ -763,7 +763,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(group)
         return group
 
-    def plot_scatter(self, x_values, y_values, r=5, creation: float = 0, z: float = 0, **styling_kwargs):
+    def plot_scatter(self, x_values, y_values, r: float = 5, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a scatter plot (dots only, no connecting lines). Returns a VCollection."""
         style_kw = {'fill': '#58C4DD', 'stroke_width': 0} | styling_kwargs
         data = list(zip(x_values, y_values))
@@ -800,7 +800,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(curve)
         return curve
 
-    def plot_filled_step(self, x_values, y_values, baseline=0, creation: float = 0, z: float = 0, **styling_kwargs):
+    def plot_filled_step(self, x_values, y_values, baseline: float = 0, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a step function with shaded area down to baseline.
         Returns a Path object."""
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.3,
@@ -865,7 +865,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(group)
         return group
 
-    def plot_bar(self, x_values, y_values, bar_width=0.6, creation: float = 0, z: float = 0, **styling_kwargs):
+    def plot_bar(self, x_values, y_values, bar_width: float = 0.6, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a bar chart inside the axes coordinate system. Returns a VCollection."""
         # Pop 'width'/'height' from kwargs — they conflict with Rectangle positional args
         styling_kwargs.pop('width', None)
@@ -893,7 +893,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(group)
         return group
 
-    def plot_stem(self, x_values, y_values, baseline=0, r=4, creation: float = 0, z: float = 0,
+    def plot_stem(self, x_values, y_values, baseline: float = 0, r: float = 4, creation: float = 0, z: float = 0,
                    **styling_kwargs):
         """Plot a stem chart with vertical lines and dot markers. Returns a VCollection."""
         line_kw = {'stroke': '#58C4DD', 'stroke_width': 1.5}
@@ -922,7 +922,7 @@ class Axes(_AxesExtMixin, VCollection):
             objs.append(dot)
         return VCollection(*objs, creation=creation, z=z)
 
-    def plot_grouped_bar(self, data, group_labels=None, bar_width=0.25,
+    def plot_grouped_bar(self, data, group_labels=None, bar_width: float = 0.25,
                           group_spacing=1.0, colors=None, creation: float = 0, z: float = 0,
                           **styling_kwargs):
         """Plot a grouped bar chart. Returns a VCollection of all bars."""
@@ -997,7 +997,7 @@ class Axes(_AxesExtMixin, VCollection):
         x1 = float(self.x_max.at_time(0)) if x_end is None else float(x_end)
         return x0, x1
 
-    def get_graph_intersection(self, f1, f2, x_range=None, n=1000):
+    def get_graph_intersection(self, f1, f2, x_range=None, n: float = 1000):
         """Find approximate intersection points between two functions/curves."""
         func1 = self._resolve_func(f1, 'f1')
         func2 = self._resolve_func(f2, 'f2')
@@ -1068,7 +1068,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(area)
         return area
 
-    def get_area_value(self, func, x_start, x_end, samples=100):
+    def get_area_value(self, func, x_start, x_end, samples: float = 100):
         """Return the numerical integral of *func* over [x_start, x_end] using the trapezoidal rule."""
         fn = self._resolve_func(func, 'func')
         n = max(int(samples), 2)
@@ -1079,7 +1079,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     get_integral = get_area_value
 
-    def get_average(self, func, x_start=None, x_end=None, samples=200):
+    def get_average(self, func, x_start=None, x_end=None, samples: float = 200):
         """Return the average value of *func* over [x_start, x_end]."""
         x0, x1 = self._resolve_x_range(x_start, x_end)
         if x0 == x1:
@@ -1088,7 +1088,7 @@ class Axes(_AxesExtMixin, VCollection):
         integral = self.get_area_value(func, x0, x1, samples)
         return integral / (x1 - x0)
 
-    def get_graph_length(self, func, x_start=None, x_end=None, samples=200):
+    def get_graph_length(self, func, x_start=None, x_end=None, samples: float = 200):
         """Return approximate arc length of *func*'s graph in SVG pixel coordinates."""
         fn = self._resolve_func(func, 'func')
         x0, x1 = self._resolve_x_range(x_start, x_end)
@@ -1130,15 +1130,15 @@ class Axes(_AxesExtMixin, VCollection):
             raise ValueError('No finite function values found in the given range.')
         return (best_x, best_y)
 
-    def get_function_max(self, func, x_start, x_end, samples=200):
+    def get_function_max(self, func, x_start, x_end, samples: float = 200):
         """Return ``(x, y)`` where *func* achieves its maximum over [x_start, x_end]."""
         return self._find_extremum(func, x_start, x_end, samples, is_max=True)
 
-    def get_function_min(self, func, x_start, x_end, samples=200):
+    def get_function_min(self, func, x_start, x_end, samples: float = 200):
         """Return ``(x, y)`` where *func* achieves its minimum over [x_start, x_end]."""
         return self._find_extremum(func, x_start, x_end, samples, is_max=False)
 
-    def get_zeros(self, func, x_start, x_end, samples=200):
+    def get_zeros(self, func, x_start, x_end, samples: float = 200):
         """Return list of ``(x, 0.0)`` tuples where *func* crosses zero, using bisection."""
         fn = self._resolve_func(func, 'func')
         n = max(int(samples), 2)
@@ -1541,7 +1541,7 @@ class Axes(_AxesExtMixin, VCollection):
         return group
 
     def add_cursor(self, func, x_start, x_end, start: float = 0, end: float = 1,
-                    r=6, creation: float = 0, z: float = 5, easing=easings.smooth, **styling_kwargs):
+                    r: float = 6, creation: float = 0, z: float = 5, easing=easings.smooth, **styling_kwargs):
         """Add an animated dot that travels along func from x_start to x_end. Returns a Dot."""
         style_kw = {'fill': '#FFFF00', 'stroke_width': 0} | styling_kwargs
         dot = Dot(cx=0, cy=0, r=r, creation=creation, z=z, **style_kw)
@@ -1560,7 +1560,7 @@ class Axes(_AxesExtMixin, VCollection):
         return dot
 
     def add_trace(self, func, x_start, x_end, start: float = 0, end: float = 1,
-                   r=5, trail_width=2, creation: float = 0, z: float = 5, easing=easings.smooth,
+                   r: float = 5, trail_width: float = 2, creation: float = 0, z: float = 5, easing=easings.smooth,
                    **styling_kwargs):
         """Animated dot that traces along func, leaving a growing trail. Returns a VCollection."""
         style_kw = {'fill': '#FFFF00', 'stroke': '#FFFF00', 'stroke_width': 0} | styling_kwargs
@@ -1689,7 +1689,7 @@ class Axes(_AxesExtMixin, VCollection):
         return self
 
     def add_shaded_inequality(self, func, direction='below', x_range=None,
-                               samples=100, creation: float = 0, z: float = -1, **styling_kwargs):
+                               samples: float = 100, creation: float = 0, z: float = -1, **styling_kwargs):
         """Shade the region above or below a curve. Returns a dynamic Path."""
         style_kw = {'fill': '#FFFF00', 'fill_opacity': 0.1, 'stroke_width': 0} | styling_kwargs
         fn = self._resolve_func(func, 'func')
@@ -1719,7 +1719,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_area_label(self, func, x_start=None, x_end=None, x_range=None,
                         text=None, font_size: float = 20,
-                        creation: float = 0, z: float = 3, samples=100, **styling_kwargs):
+                        creation: float = 0, z: float = 3, samples: float = 100, **styling_kwargs):
         """Add a label showing the numerical area under the curve, positioned at the centroid."""
         style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
         fn = self._resolve_func(func, 'func')
@@ -1807,7 +1807,7 @@ class Axes(_AxesExtMixin, VCollection):
 class Graph(Axes):
     """Axes with an initial function curve plotted."""
     def __init__(self, func, x_range=(-5, 5), y_range=None, num_points=200,
-                 x=260, y=100, plot_width=1400, plot_height=880,
+                 x: float = 260, y: float = 100, plot_width: float = 1400, plot_height: float = 880,
                  x_label='x', y_label='y', label=None, label_direction='up',
                  label_x_val=None, show_grid=False,
                  creation: float = 0, z: float = 0, **styling_kwargs):

@@ -172,7 +172,7 @@ def _rgb_to_hex(r, g, b):
     return f'#{int(r):02x}{int(g):02x}{int(b):02x}'
 
 
-def color_gradient(color1, color2=None, n=5):
+def color_gradient(color1, color2=None, n: float = 5):
     """Generate a list of *n* hex colors.
 
     Accepts two forms:

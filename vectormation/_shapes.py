@@ -1075,7 +1075,7 @@ class Circle(Ellipse):
         return cls(r=r, cx=center[0], cy=center[1], **kwargs)
 
     @classmethod
-    def from_bounding_box(cls, vobject, padding=0, time: float = 0, **kwargs):
+    def from_bounding_box(cls, vobject, padding: float = 0, time: float = 0, **kwargs):
         """Create a Circle that circumscribes another object's bounding box."""
         _, _, bw, bh = vobject.bbox(time)
         cx, cy = vobject.center(time)
@@ -1260,7 +1260,7 @@ class Circle(Ellipse):
         return Arc(cx=cx, cy=cy, r=r,
                    start_angle=start_angle, end_angle=end_angle, **kwargs)
 
-    def get_arc(self, start_angle=0, end_angle=180, time: float = 0, **kwargs):
+    def get_arc(self, start_angle: float = 0, end_angle: float = 180, time: float = 0, **kwargs):
         """Create an Arc from this circle's center and radius."""
         return self.arc_between(start_angle, end_angle, time=time, **kwargs)
 
@@ -1327,7 +1327,7 @@ class Circle(Ellipse):
                                  start_angle=sa, end_angle=ea, **kwargs))
         return VCollection(*sectors)
 
-    def annular_sector(self, inner_ratio=0.5, start_angle=0, end_angle=360, **kwargs):
+    def annular_sector(self, inner_ratio: float = 0.5, start_angle: float = 0, end_angle: float = 360, **kwargs):
         """Create an annular sector (donut slice) as a Path."""
         cx, cy = self.c.at_time(0)
         ro = self.rx.at_time(0)
@@ -1372,7 +1372,7 @@ class Circle(Ellipse):
                      'stroke_width': DEFAULT_STROKE_WIDTH} | kwargs
         return Path(d, **style_kw)
 
-    def inscribed_polygon(self, n, start_angle=0, angle=None, time: float = 0, **kwargs):
+    def inscribed_polygon(self, n, start_angle: float = 0, angle=None, time: float = 0, **kwargs):
         """Return a regular *n*-sided polygon inscribed in this circle."""
         if angle is not None:
             start_angle = angle
@@ -1380,7 +1380,7 @@ class Circle(Ellipse):
         r = self.rx.at_time(time)
         return RegularPolygon(n, radius=r, cx=cx, cy=cy, angle=start_angle, **kwargs)
 
-    def get_annulus(self, inner_ratio=0.5, time: float = 0, **kwargs):
+    def get_annulus(self, inner_ratio: float = 0.5, time: float = 0, **kwargs):
         """Create an Annulus (ring) using this circle's center and radius."""
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
@@ -1555,7 +1555,7 @@ class Rectangle(VObject):
         return cls(rx_ - lx, by - ty, x=lx, y=ty, **kwargs)
 
     @classmethod
-    def from_bounding_box(cls, vobject, padding=0, time: float = 0, **kwargs):
+    def from_bounding_box(cls, vobject, padding: float = 0, time: float = 0, **kwargs):
         """Create a Rectangle that encloses another object's bounding box."""
         bx, by, bw, bh = vobject.bbox(time)
         return cls(
@@ -1635,11 +1635,11 @@ class Rectangle(VObject):
                 parts.append(Rectangle(piece_w, rh, x=rx + i * piece_w, y=ry, **kwargs))
         return VCollection(*parts)
 
-    def split_horizontal(self, n=2, time: float = 0, **kwargs):
+    def split_horizontal(self, n: float = 2, time: float = 0, **kwargs):
         """Split into *n* equal horizontal strips."""
         return self.split('horizontal', n, time, **kwargs)
 
-    def split_vertical(self, n=2, time: float = 0, **kwargs):
+    def split_vertical(self, n: float = 2, time: float = 0, **kwargs):
         """Split into *n* equal vertical strips. Alias for ``split('vertical', ...)``."""
         return self.split('vertical', n, time, **kwargs)
 
@@ -1709,7 +1709,7 @@ class Rectangle(VObject):
                                        y=ry + r * cell_h, **kwargs))
         return VCollection(*parts)
 
-    def chamfer(self, size=10, time: float = 0, **kwargs):
+    def chamfer(self, size: float = 10, time: float = 0, **kwargs):
         """Return a :class:`Path` where each corner is cut at 45 degrees."""
         x, y, w, h = self._dims(time)
         s = min(size, w / 2, h / 2)
@@ -1778,7 +1778,7 @@ class RegularPolygon(Polygon):
 
 class Star(Polygon):
     """Star polygon with n outer points. outer_radius and inner_radius control the shape."""
-    def __init__(self, n=5, outer_radius=120, inner_radius=None, cx=ORIGIN[0], cy=ORIGIN[1],
+    def __init__(self, n: float = 5, outer_radius=120, inner_radius=None, cx=ORIGIN[0], cy=ORIGIN[1],
                  angle: float = 90, creation: float = 0, z: float = 0, **styling_kwargs):
         n = max(n, 1)
         if inner_radius is None:

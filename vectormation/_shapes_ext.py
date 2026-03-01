@@ -315,7 +315,7 @@ class Line(VObject):
         x1, y1, x2, y2 = self._ep(time)
         return (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
 
-    def subdivide_into(self, n=2, time: float = 0, **kwargs):
+    def subdivide_into(self, n: float = 2, time: float = 0, **kwargs):
         """Divide this line into *n* equal segments."""
         if n < 1:
             n = 1
@@ -325,7 +325,7 @@ class Line(VObject):
                      x2=x1 + (i + 1) * dx, y2=y1 + (i + 1) * dy, **kwargs)
                 for i in range(n)]
 
-    def divide(self, n=2, time: float = 0):
+    def divide(self, n: float = 2, time: float = 0):
         """Return *n* + 1 points that divide the line into *n* equal segments."""
         if n < 1:
             n = 1
@@ -848,7 +848,7 @@ class Text(VObject):
                 return words[index]
         return ''
 
-    def split_lines(self, time: float = 0, line_spacing=1.4):
+    def split_lines(self, time: float = 0, line_spacing: float = 1.4):
         """Split multi-line text (containing newlines) into separate Text objects."""
 
         full, x, y, fs, _, fill = self._text_split_ctx(time)
@@ -938,7 +938,7 @@ class Text(VObject):
 
     split_words = split_into_words
 
-    def add_background_rectangle(self, color='#000000', opacity: float = 0.5, padding=10, time: float = 0):
+    def add_background_rectangle(self, color='#000000', opacity: float = 0.5, padding: float = 10, time: float = 0):
         """Create a Rectangle behind the text, sized from bbox + padding."""
 
         bx, by, bw, bh = self.bbox(time)
@@ -1241,7 +1241,7 @@ class Trace(VObject):
 
 class Path(VObject):
     """SVG path element with a 'd' attribute."""
-    def __init__(self, path, x=0, y=0, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, path, x: float = 0, y: float = 0, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.d = attributes.String(creation, path)
         self.styling = style.Styling(styling_kwargs, creation=creation, stroke='#fff')
@@ -1419,7 +1419,7 @@ class Path(VObject):
 
 class Image(VObject):
     """SVG <image> element."""
-    def __init__(self, href, x=0, y=0, width=1, height=1, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, href, x: float = 0, y: float = 0, width: float = 1, height: float = 1, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(creation=creation, z=z)
         self.href = href
         self.x = attributes.Real(creation, x)
@@ -1594,7 +1594,7 @@ class Arc(VObject):
             **kwargs,
         )
 
-    def split_into(self, n=2, time: float = 0, **kwargs):
+    def split_into(self, n: float = 2, time: float = 0, **kwargs):
         """Split this arc into *n* equal sub-arcs."""
         if n < 1:
             n = 1
@@ -1806,7 +1806,7 @@ class BackgroundRectangle(Rectangle):
 class ScreenRectangle(Rectangle):
     """A rectangle with the canvas aspect ratio (16:9).
     height is derived from width automatically."""
-    def __init__(self, width=480, creation: float = 0, z: float = 0, **kwargs):
+    def __init__(self, width: float = 480, creation: float = 0, z: float = 0, **kwargs):
         height = width * 9 / 16
         super().__init__(width=width, height=height, creation=creation, z=z, **kwargs)
 
@@ -1844,7 +1844,7 @@ class ArcBetweenPoints(Arc):
 
 class Elbow(Lines):
     """Right-angle connector (L-shape) between two directions."""
-    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], width=40, height=40,
+    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], width: float = 40, height: float = 40,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#fff', 'stroke_width': DEFAULT_STROKE_WIDTH, 'fill_opacity': 0} | styling_kwargs
         super().__init__(
@@ -1856,8 +1856,8 @@ class Elbow(Lines):
 
 class AnnularSector(Arc):
     """Sector of an annulus (ring wedge)."""
-    def __init__(self, inner_radius=60, outer_radius=120, cx=ORIGIN[0], cy=ORIGIN[1],
-                 start_angle=0, end_angle=90, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, inner_radius: float = 60, outer_radius=120, cx=ORIGIN[0], cy=ORIGIN[1],
+                 start_angle: float = 0, end_angle: float = 90, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(cx=cx, cy=cy, r=outer_radius, start_angle=start_angle,
                          end_angle=end_angle, creation=creation, z=z,
                          **({'fill_opacity': 0.7, 'stroke': '#fff', 'stroke_width': DEFAULT_STROKE_WIDTH} | styling_kwargs))
@@ -2070,7 +2070,7 @@ class _TextBlockMixin:
 class Paragraph(_TextBlockMixin, VObject):
     """Multi-line text with alignment and line spacing."""
     def __init__(self, *lines, x=ORIGIN[0], y=ORIGIN[1], font_size: float = 36, alignment='left',
-                 line_spacing=1.4, creation: float = 0, z: float = 0, **styling_kwargs):
+                 line_spacing: float = 1.4, creation: float = 0, z: float = 0, **styling_kwargs):
         self._init_block(lines, x, y, font_size, line_spacing, creation, z, styling_kwargs)
         self.alignment = alignment
 
@@ -2110,8 +2110,8 @@ class Paragraph(_TextBlockMixin, VObject):
 
 class BulletedList(_TextBlockMixin, VObject):
     """List of items with bullet points."""
-    def __init__(self, *items, x=200, y=200, font_size: float = 36, bullet='\u2022',
-                 indent: float = 40, line_spacing=1.6, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, *items, x: float = 200, y: float = 200, font_size: float = 36, bullet='\u2022',
+                 indent: float = 40, line_spacing: float = 1.6, creation: float = 0, z: float = 0, **styling_kwargs):
         self._init_block(items, x, y, font_size, line_spacing, creation, z, styling_kwargs)
         self.bullet = bullet
         self.indent = indent
@@ -2126,8 +2126,8 @@ class BulletedList(_TextBlockMixin, VObject):
 
 class NumberedList(_TextBlockMixin, VObject):
     """List of items with numeric labels (1. 2. 3. ...)."""
-    def __init__(self, *items, x=200, y=200, font_size: float = 36, indent: float = 50,
-                 line_spacing=1.6, start_number=1, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, *items, x: float = 200, y: float = 200, font_size: float = 36, indent: float = 50,
+                 line_spacing: float = 1.6, start_number=1, creation: float = 0, z: float = 0, **styling_kwargs):
         self._init_block(items, x, y, font_size, line_spacing, creation, z, styling_kwargs)
         self.indent = indent
         self.start_number = start_number
@@ -2143,7 +2143,7 @@ class NumberedList(_TextBlockMixin, VObject):
 class FunctionGraph(Lines):
     """Plot a mathematical function as a polyline (no axes, ticks, or labels)."""
     def __init__(self, func, x_range=(-5, 5), y_range=None, num_points=200,
-                 x=120, y=60, width=1440, height=840,
+                 x: float = 120, y: float = 60, width: float = 1440, height: float = 840,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         x_min, x_max = x_range
         y_lo, y_hi, _, clamped = _sample_function(
@@ -2206,7 +2206,7 @@ class KochSnowflake(Polygon):
         Recursion depth (0 = triangle, 3 is typical).
     """
 
-    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], size=400, depth=3,
+    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], size: float = 400, depth: float = 3,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         h = size * math.sqrt(3) / 2
         # Equilateral triangle vertices (top, bottom-left, bottom-right)
@@ -2249,7 +2249,7 @@ class SierpinskiTriangle(VCollection):
         Recursion depth (0 = solid triangle, 5 is typical).
     """
 
-    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], size=500, depth=4,
+    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], size: float = 500, depth: float = 4,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         h = size * math.sqrt(3) / 2
         ax, ay = cx, cy - h * 2 / 3

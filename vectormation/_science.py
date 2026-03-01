@@ -154,7 +154,7 @@ class LED(VCollection):
 class UnitInterval:
     """A NumberLine from 0 to 1 -- commonly used for probabilities and parameters.
     Convenience wrapper with sensible defaults for [0, 1] range."""
-    def __new__(cls, x=360, y=ORIGIN[1], length: float = 600, tick_step=0.1,
+    def __new__(cls, x: float = 360, y=ORIGIN[1], length: float = 600, tick_step: float = 0.1,
                 show_labels=True, font_size: float = 18,
                 creation: float = 0, z: float = 0, **styling_kwargs):
         from vectormation._composites import NumberLine
@@ -175,8 +175,8 @@ class Molecule2D(VCollection):
         'Br': '#882200', 'I': '#8800FF',
     }
 
-    def __init__(self, atoms, bonds=None, scale=80, cx=ORIGIN[0], cy=ORIGIN[1],
-                 atom_radius=20, font_size: float = 16, creation: float = 0, z: float = 0):
+    def __init__(self, atoms, bonds=None, scale: float = 80, cx=ORIGIN[0], cy=ORIGIN[1],
+                 atom_radius: float = 20, font_size: float = 16, creation: float = 0, z: float = 0):
         objects = []
         self._atom_objects = []
         if bonds:
@@ -230,9 +230,9 @@ class NeuralNetwork(VCollection):
         Stroke width for connecting lines.
     """
 
-    def __init__(self, layer_sizes, cx=ORIGIN[0], cy=ORIGIN[1], width=800, height=500,
-                 neuron_radius=16, neuron_fill='#58C4DD', edge_color='#888',
-                 edge_width=1, creation: float = 0, z: float = 0):
+    def __init__(self, layer_sizes, cx=ORIGIN[0], cy=ORIGIN[1], width: float = 800, height: float = 500,
+                 neuron_radius: float = 16, neuron_fill='#58C4DD', edge_color='#888',
+                 edge_width: float = 1, creation: float = 0, z: float = 0):
         objects = []
         self._layers = []
         n_layers = len(layer_sizes)
@@ -656,8 +656,8 @@ class Lens(VCollection):
         Draw the principal (optical) axis as a dashed line.
     """
 
-    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], height=300,
-                 focal_length=200, thickness=30, n=1.52,
+    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], height: float = 300,
+                 focal_length: float = 200, thickness: float = 30, n: float = 1.52,
                  color='#58C4DD', show_focal_points=True, show_axis=True,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         self._cx = cx
@@ -787,7 +787,7 @@ class Ray(VCollection):
     """
 
     def __init__(self, x1=200, y1=ORIGIN[1], angle: float = 0, length: float = 1600,
-                 lenses=None, color='#FFFF00', stroke_width=2,
+                 lenses=None, color='#FFFF00', stroke_width: float = 2,
                  show_arrow=False,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         self._x1 = x1

@@ -17,7 +17,7 @@ _SVG_FLOAT_RE = re.compile(r'-?\d+\.\d{3,}')
 
 class VectorMathAnim:
     """Canvas/video where we can ask a frame at a certain time."""
-    def __init__(self, save_dir, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, scale=1, verbose=False):
+    def __init__(self, save_dir, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, scale: float = 1, verbose=False):
         if verbose:
             logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
         else:

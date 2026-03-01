@@ -201,7 +201,7 @@ class _AxesExtMixin:
         """Draw a vertical dashed guide line at *x*."""
         return self._add_guide_line(x, 'vertical', start, end, creation, z, styling_kwargs)
 
-    def add_min_max_labels(self, func, x_range=None, samples=200, creation: float = 0, z: float = 3,
+    def add_min_max_labels(self, func, x_range=None, samples: float = 200, creation: float = 0, z: float = 3,
                             dot_radius: float = 5, font_size: float = 18, **styling_kwargs):
         """Find and label local min/max of func within x_range.
         Returns a VCollection of (dot, label) pairs."""
@@ -297,7 +297,7 @@ class _AxesExtMixin:
         self._add_plot_obj(lbl)
         return dot, lbl
 
-    def add_inflection_points(self, func, x_range=None, samples=200, h=1e-5,
+    def add_inflection_points(self, func, x_range=None, samples: float = 200, h=1e-5,
                               creation: float = 0, z: float = 3, dot_radius: float = 5, font_size: float = 18,
                               color='#FFA726', **styling_kwargs):
         """Find and label inflection points of *func* within *x_range*."""
@@ -314,7 +314,7 @@ class _AxesExtMixin:
             objs.extend([dot, lbl])
         return VCollection(*objs, creation=creation, z=z)
 
-    def get_critical_points(self, func, x_range=None, samples=200, h=1e-5,
+    def get_critical_points(self, func, x_range=None, samples: float = 200, h=1e-5,
                             creation: float = 0, z: float = 3, dot_radius: float = 5, font_size: float = 18,
                             color='#E040FB', label_type='both',
                             **styling_kwargs):
@@ -422,7 +422,7 @@ class _AxesExtMixin:
         self._add_plot_obj(band)
         return band
 
-    def add_confidence_band(self, func_lo, func_hi, x_range=None, samples=100,
+    def add_confidence_band(self, func_lo, func_hi, x_range=None, samples: float = 100,
                              creation: float = 0, z: float = -1, **styling_kwargs):
         """Shade a band between two functions (e.g. confidence interval).
         func_lo/func_hi: callables (or curves with ._func).
@@ -433,7 +433,7 @@ class _AxesExtMixin:
             self._resolve_func(func_hi, 'func_hi'),
             x_range, samples, creation, z, style_kw)
 
-    def add_boxplot(self, data_groups, x_positions=None, width=0.6,
+    def add_boxplot(self, data_groups, x_positions=None, width: float = 0.6,
                      creation: float = 0, z: float = 1, **styling_kwargs):
         """Draw box-and-whisker plots for one or more data groups.
         data_groups: list of lists of numbers.
@@ -472,43 +472,33 @@ class _AxesExtMixin:
             box.height.set_onward(creation, lambda t, _q1=q1, _q3=q3: abs(
                 self._math_to_svg_y(_q1, t) - self._math_to_svg_y(_q3, t)))
             objs.append(box)
+
+            def _hline(x_lo, x_hi, yv, kw, zz=z):
+                """Create a horizontal line at math y=yv spanning x_lo to x_hi."""
+                ln = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=zz, **kw)
+                _dyn_line(ln, creation,
+                    lambda t, _xl=x_lo, _yv=yv: (self._math_to_svg_x(_xl, t), self._math_to_svg_y(_yv, t)),
+                    lambda t, _xh=x_hi, _yv=yv: (self._math_to_svg_x(_xh, t), self._math_to_svg_y(_yv, t)))
+                return ln
+
+            def _vline(xv, y_lo, y_hi, kw):
+                """Create a vertical line at math x=xv spanning y_lo to y_hi."""
+                ln = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **kw)
+                _dyn_line(ln, creation,
+                    lambda t, _xv=xv, _yl=y_lo: (self._math_to_svg_x(_xv, t), self._math_to_svg_y(_yl, t)),
+                    lambda t, _xv=xv, _yh=y_hi: (self._math_to_svg_x(_xv, t), self._math_to_svg_y(_yh, t)))
+                return ln
+
             # Median line
-            med = Line(x1=0, y1=0, x2=0, y2=0, stroke=style_kw.get('stroke', '#58C4DD'),
-                        stroke_width=style_kw.get('stroke_width', 2) + 1, creation=creation, z=z + 1)
-            med.p1.set_onward(creation,
-                lambda t, _xp=xp, _hw=hw, _q2=q2: (self._math_to_svg_x(_xp - _hw, t),
-                                                      self._math_to_svg_y(_q2, t)))
-            med.p2.set_onward(creation,
-                lambda t, _xp=xp, _hw=hw, _q2=q2: (self._math_to_svg_x(_xp + _hw, t),
-                                                      self._math_to_svg_y(_q2, t)))
-            objs.append(med)
-            # Whiskers (vertical lines from whisker_lo to q1 and q3 to whisker_hi)
-            lo_whisk = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z,
-                             **line_kw)
-            lo_whisk.p1.set_onward(creation,
-                lambda t, _xp=xp, _wlo=whisker_lo: (self._math_to_svg_x(_xp, t), self._math_to_svg_y(_wlo, t)))
-            lo_whisk.p2.set_onward(creation,
-                lambda t, _xp=xp, _q1=q1: (self._math_to_svg_x(_xp, t), self._math_to_svg_y(_q1, t)))
-            objs.append(lo_whisk)
-            hi_whisk = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z,
-                             **line_kw)
-            hi_whisk.p1.set_onward(creation,
-                lambda t, _xp=xp, _q3=q3: (self._math_to_svg_x(_xp, t), self._math_to_svg_y(_q3, t)))
-            hi_whisk.p2.set_onward(creation,
-                lambda t, _xp=xp, _whi=whisker_hi: (self._math_to_svg_x(_xp, t), self._math_to_svg_y(_whi, t)))
-            objs.append(hi_whisk)
+            med_kw = {**line_kw, 'stroke_width': line_kw.get('stroke_width', 2) + 1}
+            objs.append(_hline(xp - hw, xp + hw, q2, med_kw, z + 1))
+            # Whiskers
+            objs.append(_vline(xp, whisker_lo, q1, line_kw))
+            objs.append(_vline(xp, q3, whisker_hi, line_kw))
             # Whisker caps
             cap_w = hw * 0.5
             for wval in (whisker_lo, whisker_hi):
-                cap = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z,
-                            **line_kw)
-                cap.p1.set_onward(creation,
-                    lambda t, _xp=xp, _cw=cap_w, _wv=wval: (
-                        self._math_to_svg_x(_xp - _cw, t), self._math_to_svg_y(_wv, t)))
-                cap.p2.set_onward(creation,
-                    lambda t, _xp=xp, _cw=cap_w, _wv=wval: (
-                        self._math_to_svg_x(_xp + _cw, t), self._math_to_svg_y(_wv, t)))
-                objs.append(cap)
+                objs.append(_hline(xp - cap_w, xp + cap_w, wval, line_kw))
         for obj in objs:
             self._add_plot_obj(obj)
         return VCollection(*objs, creation=creation, z=z)
@@ -602,8 +592,8 @@ class _AxesExtMixin:
             self._add_plot_obj(obj)
         return VCollection(v_line, h_line, dot, creation=creation, z=z)
 
-    def add_violin_plot(self, data_groups, x_positions=None, width=0.8,
-                         samples=50, creation: float = 0, z: float = 1, **styling_kwargs):
+    def add_violin_plot(self, data_groups, x_positions=None, width: float = 0.8,
+                         samples: float = 50, creation: float = 0, z: float = 1, **styling_kwargs):
         """Draw violin plots for one or more data groups.
         data_groups: list of lists of numbers.
         x_positions: x-coordinates for each violin (defaults to 1, 2, ...).
@@ -696,7 +686,7 @@ class _AxesExtMixin:
         return VCollection(*dots, creation=creation, z=z)
 
     def add_color_bar(self, colormap=None, vmin=0, vmax=1, label='', n_stops=50,
-                       width=20, height=None, side='right', buff: float = 20,
+                       width: float = 20, height=None, side='right', buff: float = 20,
                        font_size: float = 14, creation: float = 0, z: float = 5, **styling_kwargs):
         """Add a vertical color bar legend (e.g. for heatmaps).
         colormap: list of (frac, '#hex') stops.
@@ -786,7 +776,7 @@ class _AxesExtMixin:
             areas.append(area)
         return VCollection(*areas, creation=creation, z=z)
 
-    def plot_candlestick(self, data, bar_width=0.6, creation: float = 0, z: float = 1,
+    def plot_candlestick(self, data, bar_width: float = 0.6, creation: float = 0, z: float = 1,
                           up_color='#83C167', down_color='#FF6B6B', **styling_kwargs):
         """Plot an OHLC candlestick chart.
         data: list of (x, open, high, low, close) tuples.
@@ -859,7 +849,7 @@ class _AxesExtMixin:
         return VCollection(*objs, creation=creation, z=z)
 
     def add_parametric_area(self, func_x, func_y, t_range=(0, 1),
-                             samples=200, creation: float = 0, z: float = -1, **styling_kwargs):
+                             samples: float = 200, creation: float = 0, z: float = -1, **styling_kwargs):
         """Fill the area enclosed by a parametric curve (func_x(t), func_y(t)).
         Returns a dynamic Path object."""
         style_kw = _AREA_STYLE | styling_kwargs
@@ -929,7 +919,7 @@ class _AxesExtMixin:
             objs.append(lbl)
         return VCollection(*objs, creation=creation, z=z)
 
-    def plot_lollipop(self, y_positions, values, baseline=0, r=6,
+    def plot_lollipop(self, y_positions, values, baseline: float = 0, r: float = 6,
                        creation: float = 0, z: float = 1, **styling_kwargs):
         """Plot a horizontal lollipop chart: horizontal lines from baseline to value with dot.
         y_positions: category y-coordinates.  values: x-values.
@@ -1010,7 +1000,7 @@ class _AxesExtMixin:
         """Shade a horizontal band between y0 and y1 (math coords)."""
         return self._add_span(y0, y1, False, creation, z, styling_kwargs)
 
-    def plot_density(self, data, bandwidth=None, samples=200, creation: float = 0, z: float = 0, **styling_kwargs):
+    def plot_density(self, data, bandwidth=None, samples: float = 200, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a kernel density estimate (KDE) curve from raw data.
         Uses Gaussian kernel. Returns a Path object."""
         style_kw = {'stroke': '#FF79C6', 'stroke_width': 2, 'fill_opacity': 0} | styling_kwargs
@@ -1062,7 +1052,7 @@ class _AxesExtMixin:
         self._add_plot_obj(lbl)
         return lbl
 
-    def add_dot(self, x_coord, y_coord, r=6, creation: float = 0, z: float = 5, **styling_kwargs):
+    def add_dot(self, x_coord, y_coord, r: float = 6, creation: float = 0, z: float = 5, **styling_kwargs):
         """Add a dot at data coordinates (x_coord, y_coord). Returns the Dot."""
         style_kw = {'fill': '#FFFF00', 'fill_opacity': 1, 'stroke_width': 0} | styling_kwargs
         _xc, _yc = x_coord, y_coord
@@ -1076,7 +1066,7 @@ class _AxesExtMixin:
         kwargs.setdefault('creation', start)
         return self.add_point_label(x, y, text=text, **kwargs)
 
-    def add_annotation_box(self, x_coord, y_coord, text, box_width=120, box_height=40,
+    def add_annotation_box(self, x_coord, y_coord, text, box_width: float = 120, box_height: float = 40,
                             offset=(60, -60), font_size: float = 14, creation: float = 0, z: float = 5, **styling_kwargs):
         """Add a text box with an arrow pointing to (x_coord, y_coord).
         offset: (dx, dy) from the point to the box center.
@@ -1112,7 +1102,7 @@ class _AxesExtMixin:
         return VCollection(arr, box, lbl, creation=creation, z=z)
 
     def plot_population_pyramid(self, categories, left_values, right_values,
-                                 bar_height=0.6, creation: float = 0, z: float = 0,
+                                 bar_height: float = 0.6, creation: float = 0, z: float = 0,
                                  left_color='#58C4DD', right_color='#FF79C6'):
         """Plot a back-to-back horizontal bar chart (population pyramid).
         categories: y-positions (e.g. [1,2,3,...]).
@@ -1144,7 +1134,7 @@ class _AxesExtMixin:
         return VCollection(*objs, creation=creation, z=z)
 
     def add_data_table(self, headers, rows, x_offset=0, y_offset=30,
-                        font_size: float = 12, cell_width=80, cell_height=22,
+                        font_size: float = 12, cell_width: float = 80, cell_height: float = 22,
                         creation: float = 0, z: float = 5):
         """Add a simple data table below the axes.
         headers: list of column header strings.
@@ -1197,7 +1187,7 @@ class _AxesExtMixin:
         self._add_plot_obj(curve)
         return curve
 
-    def plot_swarm(self, x_positions, data_groups, r=4, jitter_width=0.3,
+    def plot_swarm(self, x_positions, data_groups, r: float = 4, jitter_width: float = 0.3,
                     creation: float = 0, z: float = 1, **styling_kwargs):
         """Plot a beeswarm (jittered dot plot).
         x_positions: list of x values for each group.
@@ -1217,7 +1207,7 @@ class _AxesExtMixin:
                 objs.append(dot)
         return VCollection(*objs, creation=creation, z=z)
 
-    def add_axis_break(self, value, axis='y', size=15, creation: float = 0, z: float = 3):
+    def add_axis_break(self, value, axis='y', size: float = 15, creation: float = 0, z: float = 3):
         """Add a zigzag break indicator on an axis.
         value: position in math coords where the break appears.
         axis: 'x' or 'y'."""
@@ -1250,7 +1240,7 @@ class _AxesExtMixin:
         self._add_plot_obj(brk)
         return brk
 
-    def plot_error_bar(self, x_values, y_values, y_errors, r=4,
+    def plot_error_bar(self, x_values, y_values, y_errors, r: float = 4,
                         creation: float = 0, z: float = 1, **styling_kwargs):
         """Scatter plot with vertical error bars.
         y_errors: list of (err_low, err_high) tuples, or list of symmetric errors."""
@@ -1345,7 +1335,7 @@ class _AxesExtMixin:
             objs.append(contour)
         return VCollection(*objs, creation=creation, z=z)
 
-    def plot_quiver(self, func, x_step: float = 1, y_step: float = 1, scale=0.3,
+    def plot_quiver(self, func, x_step: float = 1, y_step: float = 1, scale: float = 0.3,
                      tip_length: float = 8, tip_width: float = 6,
                      creation: float = 0, z: float = 0, **styling_kwargs):
         """2D vector/arrow field: func(x, y) -> (dx, dy).
@@ -1378,7 +1368,7 @@ class _AxesExtMixin:
             x += x_step
         return VCollection(*objs, creation=creation, z=z)
 
-    def plot_area(self, func, x_range=None, baseline=0, num_points=100,
+    def plot_area(self, func, x_range=None, baseline: float = 0, num_points=100,
                    creation: float = 0, z: float = 0, **styling_kwargs):
         """Filled area chart between func(x) and a baseline value.
         Returns a dynamic Path."""
@@ -1409,7 +1399,7 @@ class _AxesExtMixin:
         self._add_plot_obj(area)
         return area
 
-    def plot_dot_plot(self, values, stack_spacing=0.3, r=4,
+    def plot_dot_plot(self, values, stack_spacing: float = 0.3, r: float = 4,
                        creation: float = 0, z: float = 0, **styling_kwargs):
         """Dot plot: stack of dots at each value along the x-axis.
         values: list of x-values (can have duplicates).
@@ -1490,7 +1480,7 @@ class _AxesExtMixin:
             x += x_step
         return VCollection(*lines, creation=creation, z=z)
 
-    def add_vector(self, x, y, origin_x=0, origin_y=0, creation: float = 0, z: float = 2,
+    def add_vector(self, x, y, origin_x: float = 0, origin_y: float = 0, creation: float = 0, z: float = 2,
                     tip_length: float = 20, tip_width: float = 14, **styling_kwargs):
         """Draw a vector arrow from (origin_x, origin_y) to (x, y) in math coordinates.
         Returns the Arrow object."""

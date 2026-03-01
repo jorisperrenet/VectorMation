@@ -222,7 +222,7 @@ class Angle(VCollection):
 
 class RightAngle(VCollection):
     """Right angle indicator (small square) at a vertex between two perpendicular lines."""
-    def __init__(self, vertex, p1, p2, size=18, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, vertex, p1, p2, size: float = 18, creation: float = 0, z: float = 0, **styling_kwargs):
         vx, vy = vertex
         d1x, d1y = p1[0] - vx, p1[1] - vy
         d2x, d2y = p2[0] - vx, p2[1] - vy
@@ -372,7 +372,7 @@ def from_svg_file(filepath, creation: float = 0, z: float = 0, **styles):
 class ZoomedInset(VObject):
     """Magnified inset view of a region on the canvas."""
     def __init__(self, canvas, source, display, creation: float = 0, z: float = 999,
-                 frame_color='#FFFF00', display_color='#FFFF00', frame_width=2):
+                 frame_color='#FFFF00', display_color='#FFFF00', frame_width: float = 2):
         super().__init__(creation=creation, z=z)
         self.canvas = canvas
         self.src_x = attributes.Real(creation, source[0])
@@ -609,7 +609,7 @@ class Intersection(_BooleanOp):
 # Standalone helper functions
 # ---------------------------------------------------------------------------
 
-def brace_between_points(p1, p2, direction=None, label=None, buff: float = 0, depth=18,
+def brace_between_points(p1, p2, direction=None, label=None, buff: float = 0, depth: float = 18,
                          creation: float = 0, z: float = 0, **styling_kwargs):
     """Create a Brace between two arbitrary points."""
     x1, y1 = p1
@@ -941,7 +941,7 @@ class AnimatedBoundary(VObject):
     """
 
     def __init__(self, target, colors=None, cycle_rate=1.0, buff: float = 8,
-                 stroke_width=3, creation: float = 0, z: float = 0):
+                 stroke_width: float = 3, creation: float = 0, z: float = 0):
         super().__init__(creation=creation, z=z)
         self._target = target
         self._buff = buff
