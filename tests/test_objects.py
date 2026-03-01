@@ -22884,3 +22884,138 @@ class TestCollectionCascadeEdgeCases:
         items = VCollection(Circle(r=20), Circle(r=20))
         result = items.cascade('fadein', start=0, end=1)
         assert result is items
+
+
+class TestArrangeInCircle:
+    """Tests for VCollection.arrange_in_circle()."""
+
+    def test_arranges_children(self):
+        items = VCollection(Circle(r=10), Circle(r=10), Circle(r=10))
+        result = items.arrange_in_circle(radius=100)
+        assert result is items
+
+    def test_children_spread_apart(self):
+        c1, c2, c3 = Circle(r=10), Circle(r=10), Circle(r=10)
+        items = VCollection(c1, c2, c3)
+        items.arrange_in_circle(radius=100, center=(500, 500))
+        p1 = c1.center(0)
+        p2 = c2.center(0)
+        dist = ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**0.5
+        assert dist > 50
+
+    def test_single_child(self):
+        items = VCollection(Circle(r=10))
+        items.arrange_in_circle(radius=100)
+
+
+class TestLabelChildren:
+    """Tests for VCollection.label_children()."""
+
+    def test_returns_vcollection(self):
+        items = VCollection(Circle(r=20, cx=200, cy=300), Circle(r=20, cx=400, cy=300))
+        labels = items.label_children(['A', 'B'])
+        assert isinstance(labels, VCollection)
+        assert len(labels.objects) == 2
+
+    def test_fewer_labels_than_children(self):
+        items = VCollection(Circle(r=20), Circle(r=20), Circle(r=20))
+        labels = items.label_children(['X'])
+        assert len(labels.objects) == 1
+
+    def test_labels_render(self):
+        items = VCollection(Circle(r=20, cx=200, cy=300), Circle(r=20, cx=400, cy=300))
+        labels = items.label_children(['Hello', 'World'])
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(items, labels)
+        svg = canvas.generate_frame_svg(time=0)
+        assert 'Hello' in svg
+        assert 'World' in svg
+
+
+class TestBatchAnimate:
+    """Tests for VCollection.batch_animate()."""
+
+    def test_basic_set_color(self):
+        c1, c2 = Circle(r=20), Circle(r=20)
+        items = VCollection(c1, c2)
+        items.batch_animate('set_color', param_name='fill', values=['#ff0000', '#00ff00'])
+
+    def test_returns_self(self):
+        items = VCollection(Circle(r=20), Circle(r=20))
+        result = items.batch_animate('set_opacity', start=0, end=1,
+                                      param_name='value', values=[0.5, 0.8])
+        assert result is items
+
+
+class TestSortChildrenExtended:
+    """Tests for VCollection.sort_children()."""
+
+    def test_sort_by_x(self):
+        c1 = Circle(r=10, cx=500, cy=300)
+        c2 = Circle(r=10, cx=200, cy=300)
+        c3 = Circle(r=10, cx=800, cy=300)
+        items = VCollection(c1, c2, c3)
+        items.sort_children(key='x')
+        assert items.objects[0] is c2
+        assert items.objects[2] is c3
+
+    def test_sort_by_y(self):
+        c1 = Circle(r=10, cx=300, cy=100)
+        c2 = Circle(r=10, cx=300, cy=500)
+        c3 = Circle(r=10, cx=300, cy=300)
+        items = VCollection(c1, c2, c3)
+        items.sort_children(key='y')
+        assert items.objects[0] is c1
+
+    def test_sort_single_child(self):
+        items = VCollection(Circle(r=10))
+        result = items.sort_children(key='x')
+        assert result is items
+
+
+class TestSpiralOutExtended:
+    """Tests for VObject.spiral_out()."""
+
+    def test_renders_at_midpoint(self):
+        c = Circle(r=30, cx=500, cy=500)
+        c.spiral_out(start=0, end=1)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(c)
+        svg = canvas.generate_frame_svg(time=0.5)
+        assert '<svg' in svg
+
+
+class TestAlwaysRotateShiftExtended:
+    """Tests for always_rotate and always_shift with end param."""
+
+    def test_always_rotate_with_end(self):
+        c = Circle(r=20, cx=500, cy=500)
+        c.always_rotate(degrees_per_second=360, start=0, end=2)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(c)
+        svg = canvas.generate_frame_svg(time=1)
+        assert '<svg' in svg
+
+    def test_always_shift_with_end(self):
+        c = Circle(r=20, cx=500, cy=500)
+        c.always_shift(100, 0, start=0, end=2)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(c)
+        svg = canvas.generate_frame_svg(time=1)
+        assert '<svg' in svg
+
+
+class TestTimelineBarExtended:
+    """Additional tests for TimelineBar."""
+
+    def test_single_event(self):
+        tb = TimelineBar({0: 'Only'})
+        svg = tb.to_svg(0)
+        assert 'Only' in svg
+
+    def test_many_events(self):
+        events = {i: f'E{i}' for i in range(10)}
+        tb = TimelineBar(events)
+        svg = tb.to_svg(0)
+        assert 'E0' in svg
+        assert 'E9' in svg

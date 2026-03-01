@@ -28,8 +28,8 @@ def _arrowhead(from_x, from_y, to_x, to_y, tip_length, tip_width, fill, creation
 
 class Arrow(VCollection):
     """Arrow as a line (shaft) with a triangular arrowhead (and optional second head)."""
-    def __init__(self, x1=0, y1=0, x2=100, y2=100, tip_length=DEFAULT_ARROW_TIP_LENGTH, tip_width=DEFAULT_ARROW_TIP_WIDTH,
-                 double_ended=False, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, x1: float = 0, y1: float = 0, x2: float = 100, y2: float = 100, tip_length: float = DEFAULT_ARROW_TIP_LENGTH, tip_width: float = DEFAULT_ARROW_TIP_WIDTH,
+                 double_ended: bool = False, creation: float = 0, z: float = 0, **styling_kwargs):
         shaft_style, tip_fill = _arrow_styling({'stroke': '#fff', 'stroke_width': 5}, styling_kwargs)
         self.shaft = Line(x1=x1, y1=y1, x2=x2, y2=y2, creation=creation, z=z, **shaft_style)
         self.tip = _arrowhead(x1, y1, x2, y2, tip_length, tip_width, tip_fill, creation, z)
@@ -58,7 +58,7 @@ class Arrow(VCollection):
             bx, by = p2[0] - ux * _tl, p2[1] - uy * _tl
             return (p2, (bx + px * _hw, by + py * _hw), (bx - px * _hw, by - py * _hw))
 
-        _cache = [None, None]
+        _cache: list = [None, None]
         def _cached_geom(t):
             if _cache[0] == t:
                 return _cache[1]
@@ -172,7 +172,7 @@ class Arrow(VCollection):
 
 class DoubleArrow(Arrow):
     """Double-ended arrow (shorthand for Arrow with double_ended=True)."""
-    def __init__(self, x1=0, y1=0, x2=100, y2=100, tip_length=DEFAULT_ARROW_TIP_LENGTH, tip_width=DEFAULT_ARROW_TIP_WIDTH,
+    def __init__(self, x1: float = 0, y1: float = 0, x2: float = 100, y2: float = 100, tip_length: float = DEFAULT_ARROW_TIP_LENGTH, tip_width: float = DEFAULT_ARROW_TIP_WIDTH,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(x1=x1, y1=y1, x2=x2, y2=y2, tip_length=tip_length,
                          tip_width=tip_width, double_ended=True,
@@ -184,8 +184,8 @@ class DoubleArrow(Arrow):
 
 class CurvedArrow(VCollection):
     """Arrow with a curved (quadratic bezier) shaft and a triangular tip."""
-    def __init__(self, x1=0, y1=0, x2=100, y2=100, angle=0.4,
-                 tip_length=DEFAULT_ARROW_TIP_LENGTH, tip_width=DEFAULT_ARROW_TIP_WIDTH, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, x1: float = 0, y1: float = 0, x2: float = 100, y2: float = 100, angle: float = 0.4,
+                 tip_length: float = DEFAULT_ARROW_TIP_LENGTH, tip_width: float = DEFAULT_ARROW_TIP_WIDTH, creation: float = 0, z: float = 0, **styling_kwargs):
         shaft_style, tip_fill = _arrow_styling({'stroke': '#fff', 'stroke_width': 5, 'fill_opacity': 0}, styling_kwargs)
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
         dx, dy = x2 - x1, y2 - y1

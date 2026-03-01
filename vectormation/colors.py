@@ -310,7 +310,7 @@ def triadic(color):
     return [adjust_hue(color, 120), adjust_hue(color, 240)]
 
 
-def analogous(color, angle=30):
+def analogous(color, angle: float = 30):
     """Return two analogous colors (hue +/- angle degrees, default 30)."""
     return [adjust_hue(color, -angle), adjust_hue(color, angle)]
 

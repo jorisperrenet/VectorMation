@@ -154,8 +154,8 @@ class LED(VCollection):
 class UnitInterval:
     """A NumberLine from 0 to 1 -- commonly used for probabilities and parameters.
     Convenience wrapper with sensible defaults for [0, 1] range."""
-    def __new__(cls, x=360, y=ORIGIN[1], length=600, tick_step=0.1,
-                show_labels=True, font_size=18,
+    def __new__(cls, x=360, y=ORIGIN[1], length: float = 600, tick_step=0.1,
+                show_labels=True, font_size: float = 18,
                 creation: float = 0, z: float = 0, **styling_kwargs):
         from vectormation._composites import NumberLine
         return NumberLine(x_range=(0, 1, tick_step), length=length,
@@ -176,7 +176,7 @@ class Molecule2D(VCollection):
     }
 
     def __init__(self, atoms, bonds=None, scale=80, cx=ORIGIN[0], cy=ORIGIN[1],
-                 atom_radius=20, font_size=16, creation: float = 0, z: float = 0):
+                 atom_radius=20, font_size: float = 16, creation: float = 0, z: float = 0):
         objects = []
         self._atom_objects = []
         if bonds:
@@ -373,7 +373,7 @@ class Pendulum(VCollection):
         Animation time range.
     """
 
-    def __init__(self, pivot_x=ORIGIN[0], pivot_y=200, length=300, angle=30,
+    def __init__(self, pivot_x=ORIGIN[0], pivot_y: float = 200, length: float = 300, angle: float = 30,
                  bob_radius=20, period=2.0, damping=0.0,
                  start=0, end=5, creation: float = 0, z: float = 0):
         self._pivot_x = pivot_x
@@ -786,7 +786,7 @@ class Ray(VCollection):
         Draw a small arrowhead at the ray tip.
     """
 
-    def __init__(self, x1=200, y1=ORIGIN[1], angle=0, length=1600,
+    def __init__(self, x1=200, y1=ORIGIN[1], angle: float = 0, length: float = 1600,
                  lenses=None, color='#FFFF00', stroke_width=2,
                  show_arrow=False,
                  creation: float = 0, z: float = 0, **styling_kwargs):

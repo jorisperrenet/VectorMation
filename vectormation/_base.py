@@ -1043,7 +1043,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             'up':    (ocx, oy - buff - mh / 2),
         }[dir_name]
 
-    def next_to(self, other, direction: str | tuple = 'right', buff=SMALL_BUFF, start: float = 0, end: float | None = None, easing=None):
+    def next_to(self, other, direction: str | tuple = 'right', buff: float = SMALL_BUFF, start: float = 0, end: float | None = None, easing=None):
         """Position this object next to another."""
         direction = _norm_dir(direction)
         mx, my, mw, mh = self.bbox(start)

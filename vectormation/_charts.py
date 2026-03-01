@@ -154,7 +154,7 @@ class PieChart(VCollection):
                 _lerp(start, _d, sa0, ea, easing), stay=True)
         return self
 
-    def add_percentage_labels(self, fmt='{:.0f}%', font_size=16, color='#fff', creation: float = 0):
+    def add_percentage_labels(self, fmt='{:.0f}%', font_size: float = 16, color='#fff', creation: float = 0):
         """Add percentage labels at the center of each sector."""
         total = sum(self.values) or 1
         angle = self._start_angle
@@ -171,7 +171,7 @@ class PieChart(VCollection):
             angle += sweep
         return self
 
-    def add_legend(self, labels, x=None, y=None, font_size=16, creation: float = 0):
+    def add_legend(self, labels, x=None, y=None, font_size: float = 16, creation: float = 0):
         """Add a legend using the sector colors. Position defaults to upper-right."""
         if x is None:
             x = self._cx + 280
@@ -205,7 +205,7 @@ class DonutChart(VCollection):
     """Donut (ring) chart — PieChart with a hollow center."""
     def __init__(self, values, labels=None, colors=None, cx=ORIGIN[0], cy=ORIGIN[1],
                  r=240, inner_radius=120, start_angle=90,
-                 center_text=None, font_size=17, creation: float = 0, z: float = 0):
+                 center_text=None, font_size: float = 17, creation: float = 0, z: float = 0):
         colors = _default_colors(colors)
         total = sum(values)
         if total == 0:
@@ -418,7 +418,7 @@ class BarChart(VCollection):
                 return self._bars[i]
         return None
 
-    def add_value_labels(self, fmt='{:.0f}', offset=10, font_size=20, creation: float = 0):
+    def add_value_labels(self, fmt='{:.0f}', offset: float = 10, font_size: float = 20, creation: float = 0):
         """Add text labels showing each bar's value above (or below) the bar."""
         for bar, val in zip(self._bars, self.values):
             _, by, _, bh = bar.bbox(creation)
@@ -658,8 +658,8 @@ class PolarAxes(VCollection):
 
 class Legend(VCollection):
     """Chart legend with colored swatches and labels."""
-    def __init__(self, items, x=100, y=100, swatch_size=16, spacing=8,
-                 font_size=16, direction='down', creation: float = 0, z: float = 0):
+    def __init__(self, items, x=100, y=100, swatch_size: float = 16, spacing: float = 8,
+                 font_size: float = 16, direction='down', creation: float = 0, z: float = 0):
         objects = []
         horizontal = direction == 'right'
         cursor_x, cursor_y = x, y
@@ -686,7 +686,7 @@ class Legend(VCollection):
 class RadarChart(VCollection):
     """Radar/spider chart visualization."""
     def __init__(self, values, labels=None, max_val=None, colors=None,
-                 cx=ORIGIN[0], cy=ORIGIN[1], radius=250, font_size=16,
+                 cx=ORIGIN[0], cy=ORIGIN[1], radius: float = 250, font_size: float = 16,
                  fill_opacity=0.3, creation: float = 0, z: float = 0):
         n = len(values)
         if n < 3:
@@ -818,7 +818,7 @@ class WaterfallChart(VCollection):
     def __init__(self, values, labels=None, x=200, y=100,
                  width=800, height=400, bar_width=0.7,
                  pos_color='#83C167', neg_color='#FF6B6B', total_color='#58C4DD',
-                 connector_color='#666', font_size=16,
+                 connector_color='#666', font_size: float = 16,
                  show_total=True, creation: float = 0, z: float = 0):
         n = len(values)
         if n == 0:
@@ -907,7 +907,7 @@ class GanttChart(VCollection):
     """Gantt chart for project timelines."""
     def __init__(self, tasks, x=100, y=80, width=1200,
                  bar_height=30, bar_spacing=10, colors=None,
-                 font_size=16, creation: float = 0, z: float = 0):
+                 font_size: float = 16, creation: float = 0, z: float = 0):
         n = len(tasks)
         if n == 0:
             super().__init__(creation=creation, z=z)
@@ -974,7 +974,7 @@ class SankeyDiagram(VCollection):
     """Sankey flow diagram showing flows between nodes."""
     def __init__(self, flows, x=100, y=100, width=1200, height=600,
                  node_width=30, node_spacing=20, colors=None,
-                 font_size=16, creation: float = 0, z: float = 0):
+                 font_size: float = 16, creation: float = 0, z: float = 0):
         if not flows:
             super().__init__(creation=creation, z=z)
             return
@@ -1040,7 +1040,7 @@ class SankeyDiagram(VCollection):
 class FunnelChart(VCollection):
     """Funnel chart showing progressive narrowing stages."""
     def __init__(self, stages, x=100, y=100, width=600, height=500,
-                 colors=None, font_size=18, gap=4, creation: float = 0, z: float = 0):
+                 colors=None, font_size: float = 18, gap: float = 4, creation: float = 0, z: float = 0):
         if not stages:
             super().__init__(creation=creation, z=z)
             return
@@ -1073,7 +1073,7 @@ class FunnelChart(VCollection):
 class TreeMap(VCollection):
     """Treemap visualization using squarified layout."""
     def __init__(self, data, x=100, y=100, width=800, height=600,
-                 colors=None, font_size=14, padding=2, creation: float = 0, z: float = 0):
+                 colors=None, font_size: float = 14, padding=2, creation: float = 0, z: float = 0):
         if not data:
             super().__init__(creation=creation, z=z)
             return
@@ -1164,8 +1164,8 @@ class TreeMap(VCollection):
 class GaugeChart(VCollection):
     """Speedometer / gauge chart."""
     def __init__(self, value, min_val=0, max_val=100, x=ORIGIN[0], y=ORIGIN[1],
-                 radius=200, start_angle=225, end_angle=-45,
-                 colors=None, label=None, font_size=36,
+                 radius: float = 200, start_angle=225, end_angle=-45,
+                 colors=None, label=None, font_size: float = 36,
                  tick_count=5, creation: float = 0, z: float = 0):
         if colors is None:
             colors = [('#83C167', 0.0), ('#FFFF00', 0.5), ('#FF6B6B', 1.0)]
@@ -1308,7 +1308,7 @@ class KPICard(VCollection):
     def __init__(self, title, value, subtitle=None, trend_data=None,
                  x=100, y=100, width=280, height=160,
                  bg_color='#1a1a2e', title_color='#aaa', value_color='#fff',
-                 font_size=48, creation: float = 0, z: float = 0):
+                 font_size: float = 48, creation: float = 0, z: float = 0):
         objects = []
         # Background card
 
@@ -1354,7 +1354,7 @@ class BulletChart(VCollection):
     def __init__(self, actual, target, ranges=None, label=None,
                  x=100, y=100, width=500, height=40,
                  bar_color='#333', target_color='#fff',
-                 font_size=16, max_val=None, creation: float = 0, z: float = 0):
+                 font_size: float = 16, max_val=None, creation: float = 0, z: float = 0):
         if ranges is None:
             ranges = [(0.5, '#2a2a3a'), (0.75, '#3a3a4a'), (1.0, '#4a4a5a')]
         if max_val is None:
@@ -1400,7 +1400,7 @@ class BulletChart(VCollection):
 class CalendarHeatmap(VCollection):
     """Grid heatmap like a GitHub contribution graph."""
     def __init__(self, data, rows=7, cols=52, x=100, y=100,  # noqa: ARG002 (cols reserved for layout hints)
-                 cell_size=14, gap=2, colormap=None,
+                 cell_size=14, gap: float = 2, colormap=None,
                  creation: float = 0, z: float = 0):
         if colormap is None:
             colormap = ['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353']
@@ -1439,7 +1439,7 @@ class CalendarHeatmap(VCollection):
 class WaffleChart(VCollection):
     """Waffle chart: grid of colored squares showing category proportions."""
     def __init__(self, categories, x=100, y=100, grid_size=10,
-                 cell_size=20, gap=3, font_size=14, creation: float = 0, z: float = 0):
+                 cell_size=20, gap: float = 3, font_size: float = 14, creation: float = 0, z: float = 0):
         total = sum(v for _, v, _ in categories) or 1
         n_cells = grid_size * grid_size
         objects = []
@@ -1488,9 +1488,9 @@ class WaffleChart(VCollection):
 
 class CircularProgressBar(VCollection):
     """Circular progress indicator with percentage text."""
-    def __init__(self, value, x=ORIGIN[0], y=ORIGIN[1], radius=80, stroke_width=12,
+    def __init__(self, value, x=ORIGIN[0], y=ORIGIN[1], radius: float = 80, stroke_width=12,
                  track_color='#2a2a3a', bar_color='#58C4DD',
-                 font_size=36, show_text=True, creation: float = 0, z: float = 0):
+                 font_size: float = 36, show_text=True, creation: float = 0, z: float = 0):
         objects = []
         # Background track (full circle arc)
         track = Arc(cx=x, cy=y, r=radius, start_angle=90, end_angle=90 - 359.99,
@@ -1521,7 +1521,7 @@ class Scoreboard(VCollection):
     """Score/metric display panel."""
     def __init__(self, entries, x=100, y=100, col_width=200, row_height=60,
                  bg_color='#1a1a2e', label_color='#aaa', value_color='#fff',
-                 font_size=28, cols=None, creation: float = 0, z: float = 0):
+                 font_size: float = 28, cols=None, creation: float = 0, z: float = 0):
         self._n_entries = len(entries) if entries else 0
         if not entries:
             super().__init__(creation=creation, z=z)
@@ -1571,8 +1571,8 @@ class Scoreboard(VCollection):
 class MatrixHeatmap(VCollection):
     """Labeled matrix heatmap with colored cells."""
     def __init__(self, data, row_labels=None, col_labels=None,
-                 x=100, y=100, cell_size=50, gap=2,
-                 colormap=None, font_size=14, show_values=True,
+                 x=100, y=100, cell_size=50, gap: float = 2,
+                 colormap=None, font_size: float = 14, show_values=True,
                  creation: float = 0, z: float = 0):
         if not data or not data[0]:
             super().__init__(creation=creation, z=z)
@@ -1636,7 +1636,7 @@ class BoxPlot(VCollection):
     def __init__(self, data_groups, positions=None, x=100, y=100,
                  plot_width=400, plot_height=300, box_width=30,
                  box_color='#58C4DD', whisker_color='#aaa', median_color='#FF6B6B',
-                 font_size=12, creation: float = 0, z: float = 0):
+                 font_size: float = 12, creation: float = 0, z: float = 0):
         if not data_groups:
             super().__init__(creation=creation, z=z)
             return

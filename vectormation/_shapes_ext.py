@@ -244,7 +244,7 @@ class Line(VObject):
         return cls(x1, y, x2, y, **kwargs)
 
     @classmethod
-    def from_direction(cls, origin, direction, length=100, **kwargs):
+    def from_direction(cls, origin, direction, length: float = 100, **kwargs):
         """Create a Line from *origin* along *direction* for *length* pixels."""
         ox, oy = origin
         dx, dy = direction
@@ -255,7 +255,7 @@ class Line(VObject):
         return cls(ox, oy, ox + nx * length, oy + ny * length, **kwargs)
 
     @classmethod
-    def from_angle(cls, origin, angle_deg, length=100, **kwargs):
+    def from_angle(cls, origin, angle_deg, length: float = 100, **kwargs):
         """Create a Line from *origin* at *angle_deg* degrees for *length* pixels."""
         ox, oy = origin
         rad = math.radians(angle_deg)
@@ -264,7 +264,7 @@ class Line(VObject):
         return cls(ox, oy, ox + dx * length, oy + dy * length, **kwargs)
 
     @classmethod
-    def from_slope_point(cls, slope, point, length=200, **kwargs):
+    def from_slope_point(cls, slope, point, length: float = 200, **kwargs):
         """Create a Line passing through *point* with the given *slope*."""
         px, py = point
         half = length / 2
@@ -418,7 +418,7 @@ class Line(VObject):
         """Scale line length by *factor* in place, keeping the midpoint fixed."""
         return self.extend(factor=factor, start=time)
 
-    def parallel(self, offset=50, time: float = 0, **kwargs):
+    def parallel(self, offset: float = 50, time: float = 0, **kwargs):
         """Return a new Line parallel to this one, offset perpendicular by offset pixels.
         Extra kwargs are forwarded to the new Line constructor."""
         x1, y1, x2, y2 = self._ep(time)
@@ -1122,7 +1122,7 @@ class ComplexValueTracker:
 
 class DecimalNumber(Text):
     """Text that dynamically displays a numeric value, updating each frame."""
-    def __init__(self, value: 'float | ValueTracker | attributes.Real' = 0, fmt='{:.2f}', x=ORIGIN[0], y=ORIGIN[1], font_size=48,
+    def __init__(self, value: 'float | ValueTracker | attributes.Real' = 0, fmt='{:.2f}', x=ORIGIN[0], y=ORIGIN[1], font_size: float = 48,
                  text_anchor=None, creation: float = 0, z: float = 0, **styling_kwargs):
         if isinstance(value, ValueTracker):
             tracker = value.value
@@ -1156,7 +1156,7 @@ class DecimalNumber(Text):
 
 class Integer(DecimalNumber):
     """DecimalNumber that displays as an integer (no decimal places)."""
-    def __init__(self, value=0, x=ORIGIN[0], y=ORIGIN[1], font_size=48,
+    def __init__(self, value=0, x=ORIGIN[0], y=ORIGIN[1], font_size: float = 48,
                  text_anchor=None, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(value, fmt='{:.0f}', x=x, y=y, font_size=font_size,
                          text_anchor=text_anchor, creation=creation, z=z, **styling_kwargs)
@@ -1532,7 +1532,7 @@ class Arc(VObject):
         half_angle = math.radians(self.get_sweep(time) / 2)
         return r * (1 - math.cos(half_angle))
 
-    def tangent_at(self, degrees, length=100, time: float = 0, **kwargs):
+    def tangent_at(self, degrees, length: float = 100, time: float = 0, **kwargs):
         """Return a Line tangent to the arc at the given angle (degrees)."""
         px, py = self.point_at_angle(degrees, time)
         rad = math.radians(degrees)
@@ -1815,7 +1815,7 @@ class ScreenRectangle(Rectangle):
 
 class ArcBetweenPoints(Arc):
     """Arc connecting two points, bulging by a given angle."""
-    def __init__(self, start, end, angle=60, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, start, end, angle: float = 60, creation: float = 0, z: float = 0, **styling_kwargs):
         x1, y1 = start
         x2, y2 = end
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
@@ -2045,7 +2045,7 @@ class _TextBlockMixin:
         """Return an empty path (text blocks have no geometric path)."""
         return ''
 
-    def _list_bbox(self, time, indent=0):
+    def _list_bbox(self, time, indent: float = 0):
         x, y = self.x.at_time(time), self.y.at_time(time)
         max_chars = max((len(item) for item in self.items), default=0)
         w = indent + max_chars * self.font_size * CHAR_WIDTH_FACTOR
@@ -2069,7 +2069,7 @@ class _TextBlockMixin:
 
 class Paragraph(_TextBlockMixin, VObject):
     """Multi-line text with alignment and line spacing."""
-    def __init__(self, *lines, x=ORIGIN[0], y=ORIGIN[1], font_size=36, alignment='left',
+    def __init__(self, *lines, x=ORIGIN[0], y=ORIGIN[1], font_size: float = 36, alignment='left',
                  line_spacing=1.4, creation: float = 0, z: float = 0, **styling_kwargs):
         self._init_block(lines, x, y, font_size, line_spacing, creation, z, styling_kwargs)
         self.alignment = alignment
@@ -2110,8 +2110,8 @@ class Paragraph(_TextBlockMixin, VObject):
 
 class BulletedList(_TextBlockMixin, VObject):
     """List of items with bullet points."""
-    def __init__(self, *items, x=200, y=200, font_size=36, bullet='\u2022',
-                 indent=40, line_spacing=1.6, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, *items, x=200, y=200, font_size: float = 36, bullet='\u2022',
+                 indent: float = 40, line_spacing=1.6, creation: float = 0, z: float = 0, **styling_kwargs):
         self._init_block(items, x, y, font_size, line_spacing, creation, z, styling_kwargs)
         self.bullet = bullet
         self.indent = indent
@@ -2126,7 +2126,7 @@ class BulletedList(_TextBlockMixin, VObject):
 
 class NumberedList(_TextBlockMixin, VObject):
     """List of items with numeric labels (1. 2. 3. ...)."""
-    def __init__(self, *items, x=200, y=200, font_size=36, indent=50,
+    def __init__(self, *items, x=200, y=200, font_size: float = 36, indent: float = 50,
                  line_spacing=1.6, start_number=1, creation: float = 0, z: float = 0, **styling_kwargs):
         self._init_block(items, x, y, font_size, line_spacing, creation, z, styling_kwargs)
         self.indent = indent

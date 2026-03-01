@@ -138,7 +138,7 @@ def _strip_tex_commands(tex: str) -> str:
 
 class TexObject(VCollection):
     """Renders LaTeX content as SVG paths via dvisvgm."""
-    def __init__(self, to_render, x=0, y=0, font_size=48, creation: float = 0, z: float = 0, **styles):
+    def __init__(self, to_render, x=0, y=0, font_size: float = 48, creation: float = 0, z: float = 0, **styles):
         from vectormation.tex_file_writing import get_characters
         import vectormation._canvas as _cm
         tex_dir = f'{_cm.save_directory}/tex' if hasattr(_cm, 'save_directory') else tempfile.mkdtemp()
@@ -239,7 +239,7 @@ class SplitTexObject:
 
 class NumberLine(VCollection):
     """A number line with ticks and labels, with optional endpoint arrows."""
-    def __init__(self, x_range=(-5, 5, 1), length=720, x=240, y=ORIGIN[1],
+    def __init__(self, x_range=(-5, 5, 1), length: float = 720, x=240, y=ORIGIN[1],
                  include_arrows=True, include_numbers=True,
                  tick_size=2*SMALL_BUFF, font_size=_TICK_FONT_SIZE,
                  creation: float = 0, z: float = 0, **styling_kwargs):
@@ -391,7 +391,7 @@ class NumberLine(VCollection):
         """Highlight a range on the number line with a filled rectangle."""
         return self._make_range_rect(start_val, end_val, color, height, 0.7, creation, z)
 
-    def add_dot_at(self, value, color='#FF6B6B', radius=8, creation: float = 0, **kwargs):
+    def add_dot_at(self, value, color='#FF6B6B', radius: float = 8, creation: float = 0, **kwargs):
         """Add a colored dot at a specific value on the number line."""
         px, py = self.number_to_point(value)
         kw = {'fill': color, 'stroke_width': 0} | kwargs
@@ -408,7 +408,7 @@ class NumberLine(VCollection):
             sv, ev = ev, sv
         return self._make_range_rect(sv, ev, color, height, opacity, creation, z, **kwargs)
 
-    def add_label(self, value, text, buff: float = 10, font_size=24, side='below', creation: float = 0, **kwargs):
+    def add_label(self, value, text, buff: float = 10, font_size: float = 24, side='below', creation: float = 0, **kwargs):
         """Add a text label at the given value on the number line."""
         px, py = self.number_to_point(value)
         kw = {'fill': '#fff', 'stroke_width': 0, 'text_anchor': 'middle'} | kwargs
@@ -630,7 +630,7 @@ class Table(_GridAccessMixin, VCollection):
     """Table for displaying tabular data with optional row/column labels."""
     def __init__(self, data, row_labels=None, col_labels=None,
                  x=120, y=60, cell_width=160, cell_height=60,
-                 font_size=24, creation: float = 0, z: float = 0, **styling_kwargs):
+                 font_size: float = 24, creation: float = 0, z: float = 0, **styling_kwargs):
         rows = len(data)
         cols = len(data[0]) if data else 0
         x_off = cell_width if row_labels else 0
@@ -1007,7 +1007,7 @@ def _det(m):
 
 class Matrix(_GridAccessMixin, VCollection):
     """Display a mathematical matrix with square bracket delimiters."""
-    def __init__(self, data, x=ORIGIN[0], y=ORIGIN[1], font_size=36, h_spacing=80, v_spacing=50,
+    def __init__(self, data, x=ORIGIN[0], y=ORIGIN[1], font_size: float = 36, h_spacing: float = 80, v_spacing: float = 50,
                  creation: float = 0, z: float = 0, **styling_kwargs):
         if not data or not data[0]:
             raise ValueError('Matrix requires a non-empty 2D list of data')
@@ -1186,7 +1186,7 @@ class TexCountAnimation(DynamicObject):
 
     def __init__(self, start_val=0, end_val=100, start: float = 0, end: float = 1,
                  fmt='{:.0f}', easing=easings.smooth,
-                 x: float = ORIGIN[0], y: float = ORIGIN[1], font_size=48,
+                 x: float = ORIGIN[0], y: float = ORIGIN[1], font_size: float = 48,
                  creation: float = 0, z: float = 0, **styles):
         from vectormation.tex_file_writing import get_characters
         import vectormation._canvas as _cm

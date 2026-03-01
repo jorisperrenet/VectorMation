@@ -31,7 +31,8 @@ def _shortened_endpoints(x1, y1, x2, y2, r1, r2):
     ux, uy = _normalize(x2 - x1, y2 - y1)
     return (x1 + ux * r1, y1 + uy * r1, x2 - ux * r2, y2 - uy * r2)
 
-_DIAGRAM_TIP = {'tip_length': 12, 'tip_width': 10}
+_DIAGRAM_TIP_LENGTH = 12
+_DIAGRAM_TIP_WIDTH = 10
 
 
 def _make_node_circle(r, cx, cy, creation, z, fill='#1e1e2e', stroke='#58C4DD'):
@@ -293,7 +294,7 @@ class BohrAtom(VCollection):
 class Automaton(VCollection):
     """Finite state machine / automaton visualization."""
     def __init__(self, states, transitions, accept_states=None, initial_state=None,
-                 cx=ORIGIN[0], cy=ORIGIN[1], radius=300, state_r=35, font_size=20,
+                 cx=ORIGIN[0], cy=ORIGIN[1], radius: float = 300, state_r: float = 35, font_size: float = 20,
                  creation: float = 0, z: float = 0):
         Arrow = _get_arrow()
         objects = []
@@ -331,7 +332,7 @@ class Automaton(VCollection):
         if initial_state and initial_state in self._state_positions:
             sx, sy = self._state_positions[initial_state]
             objects.append(Arrow(x1=sx - state_r - 50, y1=sy, x2=sx - state_r - 2, y2=sy,
-                                 **_DIAGRAM_TIP, creation=creation, z=z, stroke='#fff', stroke_width=2))
+                                 tip_length=_DIAGRAM_TIP_LENGTH, tip_width=_DIAGRAM_TIP_WIDTH, creation=creation, z=z, stroke='#fff', stroke_width=2))
 
         # Transitions
         for from_s, to_s, label_text in transitions:
@@ -355,7 +356,7 @@ class Automaton(VCollection):
             else:
                 sx, sy, ex, ey = _shortened_endpoints(fx, fy, tx, ty, state_r, state_r)
                 arrow = Arrow(x1=sx, y1=sy, x2=ex, y2=ey,
-                              **_DIAGRAM_TIP, creation=creation, z=z, stroke='#83C167', stroke_width=2)
+                              tip_length=_DIAGRAM_TIP_LENGTH, tip_width=_DIAGRAM_TIP_WIDTH, creation=creation, z=z, stroke='#83C167', stroke_width=2)
                 objects.append(arrow)
                 self._transition_arrows[(from_s, to_s)] = arrow
                 mx, my = (sx + ex) / 2, (sy + ey) / 2
@@ -442,8 +443,8 @@ class Automaton(VCollection):
 
 class NetworkGraph(VCollection):
     """Network/graph visualization with nodes and edges."""
-    def __init__(self, nodes, edges=None, cx=ORIGIN[0], cy=ORIGIN[1], radius=300,
-                 node_r=30, font_size=20, layout='circular', directed=False,
+    def __init__(self, nodes, edges=None, cx=ORIGIN[0], cy=ORIGIN[1], radius: float = 300,
+                 node_r: float = 30, font_size: float = 20, layout='circular', directed=False,
                  creation: float = 0, z: float = 0):
         Arrow = _get_arrow()
         objects = []
@@ -518,7 +519,7 @@ class NetworkGraph(VCollection):
             if directed:
                 ax2, ay2, bx2, by2 = _shortened_endpoints(ax, ay, bx, by, node_r, node_r)
                 arrow = Arrow(x1=ax2, y1=ay2, x2=bx2, y2=by2,
-                              **_DIAGRAM_TIP, creation=creation, z=z, stroke='#888', stroke_width=2)
+                              tip_length=_DIAGRAM_TIP_LENGTH, tip_width=_DIAGRAM_TIP_WIDTH, creation=creation, z=z, stroke='#888', stroke_width=2)
                 objects.append(arrow)
             else:
                 line = Line(x1=ax, y1=ay, x2=bx, y2=by,
@@ -560,8 +561,8 @@ class NetworkGraph(VCollection):
 
 class Tree(VCollection):
     """Hierarchical tree layout visualization."""
-    def __init__(self, data, cx=ORIGIN[0], cy=100, h_spacing=120, v_spacing=100,
-                 node_r=20, font_size=18, layout='down',
+    def __init__(self, data, cx=ORIGIN[0], cy=100, h_spacing: float = 120, v_spacing: float = 100,
+                 node_r: float = 20, font_size: float = 18, layout='down',
                  creation: float = 0, z: float = 0):
         objects = []
 
@@ -717,7 +718,7 @@ class TimelineBar(VCollection):
     """Visual timeline bar with labeled markers."""
     def __init__(self, markers, total_duration=10, x=200, y=900,
                  width=1520, height=6, marker_color='#FFFF00',
-                 font_size=14, creation: float = 0, z: float = 0):
+                 font_size: float = 14, creation: float = 0, z: float = 0):
         objects = []
         # Track bar
         track = Rectangle(width, height, x=x, y=y - height / 2,
@@ -752,9 +753,9 @@ class TimelineBar(VCollection):
 class FlowChart(VCollection):
     """Simple flow chart with labeled boxes connected by arrows."""
     def __init__(self, steps, direction='right', x=200, y=400,
-                 box_width=200, box_height=60, spacing=80,
+                 box_width=200, box_height=60, spacing: float = 80,
                  box_color='#58C4DD', text_color='#fff', arrow_color='#999',
-                 font_size=20, corner_radius=8, creation: float = 0, z: float = 0):
+                 font_size: float = 20, corner_radius=8, creation: float = 0, z: float = 0):
         Arrow = _get_arrow()
         objects = []
         self._boxes = []
@@ -801,8 +802,8 @@ class FlowChart(VCollection):
 
 class VennDiagram(VCollection):
     """Venn diagram with 2 or 3 overlapping circles."""
-    def __init__(self, labels, sizes=None, x=ORIGIN[0], y=ORIGIN[1], radius=150,
-                 colors=None, font_size=24, creation: float = 0, z: float = 0):
+    def __init__(self, labels, sizes=None, x=ORIGIN[0], y=ORIGIN[1], radius: float = 150,
+                 colors=None, font_size: float = 24, creation: float = 0, z: float = 0):
         n = len(labels)
         if n < 2 or n > 3:
             super().__init__(creation=creation, z=z)
@@ -854,8 +855,8 @@ class VennDiagram(VCollection):
 
 class OrgChart(VCollection):
     """Organization chart from a tree structure."""
-    def __init__(self, root, x=ORIGIN[0], y=80, h_spacing=180, v_spacing=100,
-                 box_width=120, box_height=40, font_size=16,
+    def __init__(self, root, x=ORIGIN[0], y=80, h_spacing: float = 180, v_spacing: float = 100,
+                 box_width=120, box_height=40, font_size: float = 16,
                  colors=None, creation: float = 0, z: float = 0):
         if colors is None:
             colors = list(DEFAULT_CHART_COLORS)
@@ -928,7 +929,7 @@ class OrgChart(VCollection):
 
 class MindMap(VCollection):
     """Radial mind map diagram."""
-    def __init__(self, root, cx=ORIGIN[0], cy=ORIGIN[1], radius=250, font_size=18,
+    def __init__(self, root, cx=ORIGIN[0], cy=ORIGIN[1], radius: float = 250, font_size: float = 18,
                  colors=None, creation: float = 0, z: float = 0):
         if colors is None:
             colors = list(DEFAULT_CHART_COLORS)

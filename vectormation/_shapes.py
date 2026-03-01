@@ -55,6 +55,7 @@ class Polygon(VObject):
         return self.get_vertices(time)
 
     def bbox(self, time: float = 0):
+        """Return (x, y, width, height) bounding box from vertex positions."""
         if self._bbox_cache and self._bbox_cache[0] == time and self._bbox_cache[1] == self._bbox_version:
             return self._bbox_cache[2]
         points = [v.at_time(time) for v in self.vertices]
@@ -63,6 +64,7 @@ class Polygon(VObject):
         return result
 
     def path(self, time):
+        """Return SVG path data (M/L/Z) from vertex positions at *time*."""
         vert = [v.at_time(time) for v in self.vertices]
         if not vert:
             return ''
@@ -710,7 +712,7 @@ class Polygon(VObject):
                 pts[remaining[0]], pts[remaining[1]], pts[remaining[2]], **kwargs))
         return triangles
 
-    def explode_edges(self, gap=10, **kwargs):
+    def explode_edges(self, gap: float = 10, **kwargs):
         """Return a VCollection of Line objects, one per edge, offset outward."""
         from vectormation._base import VCollection
         pts = self.get_vertices(0)
@@ -750,7 +752,7 @@ class Polygon(VObject):
             pts = new_pts
         return Polygon(*pts, closed=self.closed, **kwargs)
 
-    def smooth_corners(self, radius=10, time: float = 0, **kwargs):
+    def smooth_corners(self, radius: float = 10, time: float = 0, **kwargs):
         """Return a Path with Bezier-smoothed corners."""
         pts = self.get_vertices(time)
         n = len(pts)
@@ -820,7 +822,7 @@ class Polygon(VObject):
             v.set_onward(time, (nx, ny))
         return self
 
-    def label_vertices(self, labels=None, offset=20, font_size=24, time: float = 0,
+    def label_vertices(self, labels=None, offset: float = 20, font_size: float = 24, time: float = 0,
                        creation: float = 0, z=None, **styling_kwargs):
         """Create labeled dots at each vertex.
 
@@ -984,7 +986,7 @@ class Ellipse(VObject):
         """Animate the y-radius."""
         _set_attr(self.ry, start, end, value, easing); return self
 
-    def tangent_at_angle(self, angle_deg, length=200, time: float = 0, **kwargs):
+    def tangent_at_angle(self, angle_deg, length: float = 200, time: float = 0, **kwargs):
         """Return a tangent Line at the given angle, centered on the ellipse point."""
         px, py, tx, ty = self._tangent_at(angle_deg, time)
         dx, dy = tx * length / 2, ty * length / 2
@@ -1001,14 +1003,14 @@ class Ellipse(VObject):
         tx, ty = _normalize(tx, ty)
         return px, py, tx, ty
 
-    def normal_at_angle(self, angle_deg, length=200, time: float = 0, **kwargs):
+    def normal_at_angle(self, angle_deg, length: float = 200, time: float = 0, **kwargs):
         """Return a normal (perpendicular) Line at the given angle on the ellipse."""
         px, py, tx, ty = self._tangent_at(angle_deg, time)
         # Normal is perpendicular to tangent: rotate 90 degrees
         nx, ny = -ty * length / 2, tx * length / 2
         return Line(x1=px - nx, y1=py - ny, x2=px + nx, y2=py + ny, **kwargs)
 
-    def get_tangent_line(self, angle_deg, length=100, time: float = 0, **kwargs):
+    def get_tangent_line(self, angle_deg, length: float = 100, time: float = 0, **kwargs):
         """Alias for :meth:`tangent_at_angle` with default length=100."""
         return self.tangent_at_angle(angle_deg, length=length, time=time, **kwargs)
 
@@ -1080,7 +1082,7 @@ class Circle(Ellipse):
         r = math.hypot(bw / 2, bh / 2) + padding
         return cls(r=r, cx=cx, cy=cy, **kwargs)
 
-    def tangent_line(self, angle_degrees, length=100, time: float = 0, creation: float = 0, **line_kwargs):
+    def tangent_line(self, angle_degrees, length: float = 100, time: float = 0, creation: float = 0, **line_kwargs):
         """Return a Line tangent to the circle at the given angle.
         Angle 0 = right, 90 = down (SVG coordinates)."""
         px, py = self.point_on_circle(angle_degrees, time)
@@ -1092,7 +1094,7 @@ class Circle(Ellipse):
                     x2=px + tx * half, y2=py + ty * half,
                     creation=creation, **line_kwargs)
 
-    def tangent_at_point(self, px, py, length=200, time: float = 0, creation: float = 0, **line_kwargs):
+    def tangent_at_point(self, px, py, length: float = 200, time: float = 0, creation: float = 0, **line_kwargs):
         """Return a Line tangent to the circle at the point closest to (px, py)."""
         cx, cy = self.c.at_time(time)
         # Angle from circle center to the given point
@@ -1101,7 +1103,7 @@ class Circle(Ellipse):
         return self.tangent_line(angle_deg, length=length, time=time,
                                  creation=creation, **line_kwargs)
 
-    def get_tangent_lines(self, px, py, time: float = 0, length=200, **kwargs):
+    def get_tangent_lines(self, px, py, time: float = 0, length: float = 200, **kwargs):
         """Return the two tangent lines from external point (px, py) to the circle."""
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
@@ -1240,7 +1242,7 @@ class Circle(Ellipse):
         r = self.rx.at_time(time)
         return _distance(cx, cy, px, py) <= r
 
-    def circumscribed_polygon(self, n, angle=0, time: float = 0, **kwargs):
+    def circumscribed_polygon(self, n, angle: float = 0, time: float = 0, **kwargs):
         """Return a regular *n*-gon circumscribed around this circle."""
         if n < 3:
             raise ValueError(f"circumscribed_polygon requires n >= 3, got {n}")
@@ -1603,7 +1605,7 @@ class Rectangle(VObject):
         x, y, w, h = self._dims(time)
         return x <= px <= x + w and y <= py <= y + h
 
-    def round_corners(self, radius=10, time: float = 0, **kwargs):
+    def round_corners(self, radius: float = 10, time: float = 0, **kwargs):
         """Return a RoundedRectangle with the same size/position and the given corner radius."""
         from vectormation.style import _STYLES
         x, y, w, h = self._dims(time)
@@ -1777,7 +1779,7 @@ class RegularPolygon(Polygon):
 class Star(Polygon):
     """Star polygon with n outer points. outer_radius and inner_radius control the shape."""
     def __init__(self, n=5, outer_radius=120, inner_radius=None, cx=ORIGIN[0], cy=ORIGIN[1],
-                 angle=90, creation: float = 0, z: float = 0, **styling_kwargs):
+                 angle: float = 90, creation: float = 0, z: float = 0, **styling_kwargs):
         n = max(n, 1)
         if inner_radius is None:
             inner_radius = outer_radius * 0.4
@@ -1806,7 +1808,7 @@ class Star(Polygon):
 class EquilateralTriangle(RegularPolygon):
     """Equilateral triangle: RegularPolygon with n=3.
     side_length is converted to the circumscribed radius."""
-    def __init__(self, side_length, angle=0, cx=ORIGIN[0], cy=ORIGIN[1], creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, side_length, angle: float = 0, cx=ORIGIN[0], cy=ORIGIN[1], creation: float = 0, z: float = 0, **styling_kwargs):
         self._side_length = side_length
         radius = side_length / math.sqrt(3)
         super().__init__(3, radius=radius, cx=cx, cy=cy, angle=angle + 90,

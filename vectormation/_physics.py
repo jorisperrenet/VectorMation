@@ -48,7 +48,7 @@ class Body:
 
     def __init__(self, obj, mass=1.0, restitution=0.8, friction=0.0,
                  radius=None, vx=0.0, vy=0.0, fixed=False,
-                 angle=0.0, angular_velocity=0.0, moment_of_inertia=None):
+                 angle: float = 0.0, angular_velocity=0.0, moment_of_inertia=None):
         self.obj = obj
         self.mass = mass if not fixed else math.inf
         self.restitution = restitution
@@ -156,7 +156,7 @@ class PhysicsSpace:
 
     def add_body(self, obj, mass=1.0, restitution=0.8, friction=0.0,
                  radius=None, vx=0.0, vy=0.0, fixed=False,
-                 angle=0.0, angular_velocity=0.0,
+                 angle: float = 0.0, angular_velocity=0.0,
                  moment_of_inertia=None) -> Body:
         """Register a VObject as a physics body and return the Body handle."""
         b = Body(obj, mass=mass, restitution=restitution, friction=friction,

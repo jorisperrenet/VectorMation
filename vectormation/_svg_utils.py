@@ -90,7 +90,7 @@ class DropShadowFilter(_SVGFilter):
 
 class Angle(VCollection):
     """Draw an angle arc between two lines meeting at a vertex, with optional label."""
-    def __init__(self, vertex, p1, p2, radius=36, label=None, label_radius=None,
+    def __init__(self, vertex, p1, p2, radius: float = 36, label=None, label_radius=None,
                  label_font_size=36, creation: float = 0, z: float = 0, **styling_kwargs):
         self.vertex = vertex if isinstance(vertex, attributes.Coor) else attributes.Coor(creation, vertex)
         self.p1 = p1 if isinstance(p1, attributes.Coor) else attributes.Coor(creation, p1)
@@ -846,7 +846,7 @@ class Spotlight(VObject):
         Overlay opacity (0 = invisible, 1 = fully opaque).
     """
 
-    def __init__(self, target=ORIGIN, radius=120, color='#000000', opacity: float = 0.7,
+    def __init__(self, target=ORIGIN, radius: float = 120, color='#000000', opacity: float = 0.7,
                  creation: float = 0, z: float = 10, **kw):
         super().__init__(creation=creation, z=z, **kw)
         if isinstance(target, VObject):

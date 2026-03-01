@@ -48,7 +48,7 @@ def _make_viz_cell(x, y, w, h, val, font_size, fill, creation: float = 0, z: flo
 class Array(VCollection):
     """Visual array data structure with cells, indices, and animation methods."""
     def __init__(self, values, x=360, y=440, cell_width=80, cell_height=60,
-                 font_size=24, index_font_size=16,
+                 font_size: float = 24, index_font_size=16,
                  fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
                  show_indices=True, creation: float = 0, z: float = 0):
         self._cell_width, self._cell_height = cell_width, cell_height
@@ -136,7 +136,7 @@ class Array(VCollection):
 class Stack(VCollection):
     """Visual stack data structure (LIFO) with push/pop animations."""
     def __init__(self, values=None, x=860, y=600, cell_width=100, cell_height=50,
-                 font_size=22, fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
+                 font_size: float = 22, fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
                  creation: float = 0, z: float = 0):
         self._cell_width, self._cell_height = cell_width, cell_height
         self._x, self._y_base = x, y
@@ -181,7 +181,7 @@ class Stack(VCollection):
 class Queue(VCollection):
     """Visual queue data structure (FIFO) with enqueue/dequeue animations."""
     def __init__(self, values=None, x=360, y=440, cell_width=80, cell_height=60,
-                 font_size=22, fill='#1e1e2e', text_color='#fff', border_color='#83C167',
+                 font_size: float = 22, fill='#1e1e2e', text_color='#fff', border_color='#83C167',
                  creation: float = 0, z: float = 0):
         self._cell_width, self._cell_height = cell_width, cell_height
         self._x, self._y = x, y
@@ -228,7 +228,7 @@ class Queue(VCollection):
 class LinkedList(VCollection):
     """Visual linked list with nodes and arrow pointers."""
     def __init__(self, values, x=200, y=440, node_width=80, node_height=50,
-                 gap=40, font_size=22,
+                 gap: float = 40, font_size: float = 22,
                  fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
                  arrow_color='#fff', creation: float = 0, z: float = 0):
         Arrow = _get_arrow()
@@ -296,8 +296,8 @@ class LinkedList(VCollection):
 
 class BinaryTree(VCollection):
     """Visual binary tree with automatic layout."""
-    def __init__(self, tree, x=ORIGIN[0], y=120, h_spacing=200, v_spacing=100,
-                 node_radius=25, font_size=20,
+    def __init__(self, tree, x=ORIGIN[0], y=120, h_spacing: float = 200, v_spacing: float = 100,
+                 node_radius: float = 25, font_size: float = 20,
                  fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
                  edge_color='#888', creation: float = 0, z: float = 0):
         objects = []
@@ -352,7 +352,7 @@ class ArrayViz(VCollection):
 
     def __init__(self, values, cell_size=80, x=None, y=None,
                  colors=None, default_fill='#264653', show_indices=True,
-                 font_size=32, creation: float = 0, z: float = 0):
+                 font_size: float = 32, creation: float = 0, z: float = 0):
         n = len(values)
         if x is None: x = ORIGIN[0] - n * cell_size / 2
         if y is None: y = ORIGIN[1] - cell_size / 2
@@ -434,9 +434,9 @@ class ArrayViz(VCollection):
 class LinkedListViz(VCollection):
     """Visualise a singly linked list as nodes connected by arrows."""
 
-    def __init__(self, values, node_radius=35, spacing=140,
+    def __init__(self, values, node_radius: float = 35, spacing: float = 140,
                  x=None, y=ORIGIN[1], node_fill='#264653',
-                 font_size=28, creation: float = 0, z: float = 0):
+                 font_size: float = 28, creation: float = 0, z: float = 0):
         Arrow = _get_arrow()
         n = len(values)
         if x is None: x = ORIGIN[0] - (n - 1) * spacing / 2
@@ -495,7 +495,7 @@ class StackViz(VCollection):
 
     def __init__(self, values, cell_width=120, cell_height=50,
                  x=None, y=None, fill='#264653',
-                 font_size=28, creation: float = 0, z: float = 0):
+                 font_size: float = 28, creation: float = 0, z: float = 0):
         Arrow = _get_arrow()
         n = len(values)
         if x is None: x = ORIGIN[0] - cell_width / 2
@@ -558,7 +558,7 @@ class QueueViz(VCollection):
 
     def __init__(self, values, cell_width=80, cell_height=60,
                  x=None, y=None, fill='#264653',
-                 font_size=28, creation: float = 0, z: float = 0):
+                 font_size: float = 28, creation: float = 0, z: float = 0):
         n = len(values)
         if x is None: x = ORIGIN[0] - n * cell_width / 2
         if y is None: y = ORIGIN[1] - cell_height / 2

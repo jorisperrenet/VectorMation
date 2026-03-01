@@ -301,7 +301,7 @@ class ThreeDAxes(VCollection):
         self._threed_objects.append(wireframe)
         return wireframe
 
-    def add_grid_plane(self, plane='xz', step=1, color='#444444', opacity: float = 0.3,
+    def add_grid_plane(self, plane='xz', step: float = 1, color='#444444', opacity: float = 0.3,
                         stroke_width=0.5, creation: float = 0):
         """Add a grid plane to the 3D axes."""
         from vectormation._shapes import Line
@@ -821,7 +821,7 @@ class Line3D(_SegmentPrimitive3D):
 class Dot3D(_PointPrimitive3D):
     """A dot in 3D space."""
 
-    def __init__(self, point=(0, 0, 0), radius=5, fill='#fff', creation: float = 0, z: float = 0):
+    def __init__(self, point=(0, 0, 0), radius: float = 5, fill='#fff', creation: float = 0, z: float = 0):
         super().__init__(creation, z)
         self._point = tuple(point)
         self._radius = radius
@@ -845,7 +845,7 @@ class Arrow3D(_SegmentPrimitive3D):
     """An arrow in 3D space with a cone tip."""
 
     def __init__(self, start, end, stroke='#fff', stroke_width=2,
-                 tip_length=12, tip_radius=4, creation: float = 0, z: float = 0):
+                 tip_length: float = 12, tip_radius=4, creation: float = 0, z: float = 0):
         super().__init__(creation, z)
         self._start = tuple(start)
         self._end = tuple(end)
@@ -929,7 +929,7 @@ def Sphere3D(radius: float = 1.5, center=(0, 0, 0), resolution=(16, 32),
 class Text3D(_PointPrimitive3D):
     """A text label placed at a 3D position."""
 
-    def __init__(self, text, point=(0, 0, 0), font_size=20, fill='#fff',
+    def __init__(self, text, point=(0, 0, 0), font_size: float = 20, fill='#fff',
                  creation: float = 0, z: float = 0):
         super().__init__(creation, z)
         self._text = text

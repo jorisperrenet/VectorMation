@@ -578,7 +578,7 @@ class Axes(_AxesExtMixin, VCollection):
         return _pos
 
     def get_graph_label(self, func, label, x_val=None, direction='up', buff=SMALL_BUFF,
-                         font_size=48, creation: float = 0, z: float = 0, **styling_kwargs):
+                         font_size: float = 48, creation: float = 0, z: float = 0, **styling_kwargs):
         """Create a TeX label positioned near a plotted function curve."""
         style_kw = {'fill': '#fff', 'stroke_width': 0} | styling_kwargs
         label_obj = _get_tex_object()(label, font_size=font_size, creation=creation, z=z, **style_kw)
@@ -1224,7 +1224,7 @@ class Axes(_AxesExtMixin, VCollection):
         fn = self._resolve_func(func, 'func')
         return (fn(x + dx) - fn(x)) / dx
 
-    def add_legend(self, entries, position='upper right', font_size=18,
+    def add_legend(self, entries, position='upper right', font_size: float = 18,
                     bg_color='#1a1a2e', bg_opacity=0.8, creation: float = 0, z: float = 10):
         """Add a legend box with colored swatches and labels. Returns a VCollection."""
         if not entries:
@@ -1311,8 +1311,8 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(line)
         return line
 
-    def add_dot_label(self, x, y, label=None, dot_color='#FF6B6B', dot_radius=6,
-                       label_offset=(10, -10), font_size=20, creation: float = 0, z: float = 0):
+    def add_dot_label(self, x, y, label=None, dot_color='#FF6B6B', dot_radius: float = 6,
+                       label_offset=(10, -10), font_size: float = 20, creation: float = 0, z: float = 0):
         """Add a labeled dot at math coordinates (x, y). Returns (dot, label_text)."""
         sx, sy = self.coords_to_point(x, y, time=creation)
         dot = Dot(cx=sx, cy=sy, r=dot_radius, fill=dot_color,
@@ -1331,7 +1331,7 @@ class Axes(_AxesExtMixin, VCollection):
             self._add_plot_obj(lbl)
         return dot, lbl
 
-    def add_point_label(self, x, y, text=None, dot_radius=6, font_size=20, buff: float = 10,
+    def add_point_label(self, x, y, text=None, dot_radius: float = 6, font_size: float = 20, buff: float = 10,
                         creation: float = 0, **kwargs) -> 'tuple[Dot, Text]':
         """Add a dot at math coordinates (x, y) with an optional text label. Returns (dot, label)."""
         if text is None:
@@ -1343,8 +1343,8 @@ class Axes(_AxesExtMixin, VCollection):
                                   font_size=font_size, creation=creation,
                                   z=kwargs.pop('z', 0))
 
-    def add_labeled_points(self, points, dot_color='#FF6B6B', dot_radius=6,
-                            font_size=14, creation: float = 0, z: float = 1):
+    def add_labeled_points(self, points, dot_color='#FF6B6B', dot_radius: float = 6,
+                            font_size: float = 14, creation: float = 0, z: float = 1):
         """Add multiple labeled dots to the axes. Returns a VCollection."""
         objs = []
         for item in points:
@@ -1375,7 +1375,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(rect)
         return rect
 
-    def add_labeled_point(self, x, y, label=None, dot_radius=5, direction='above',
+    def add_labeled_point(self, x, y, label=None, dot_radius: float = 5, direction='above',
                           creation: float = 0, **kwargs):
         """Add a Dot at (*x*, *y*) with an optional directional Text label."""
         z = kwargs.pop('z', 0)
@@ -1416,8 +1416,8 @@ class Axes(_AxesExtMixin, VCollection):
                              fill=color, fill_opacity=opacity, stroke_width=0)
         return area
 
-    def add_arrow_annotation(self, x, y, text, direction='up', length=80, buff: float = 10,
-                              font_size=20, creation: float = 0, z: float = 5, **styling_kwargs):
+    def add_arrow_annotation(self, x, y, text, direction='up', length: float = 80, buff: float = 10,
+                              font_size: float = 20, creation: float = 0, z: float = 5, **styling_kwargs):
         """Add a labeled arrow pointing to a math coordinate. Returns a VCollection."""
         style_kw = {'stroke': '#FFFF00', 'fill': '#FFFF00'} | styling_kwargs
         sx, sy = self.coords_to_point(x, y, creation)
@@ -1481,7 +1481,7 @@ class Axes(_AxesExtMixin, VCollection):
         return group
 
     def add_callout(self, x, y, text, offset_x=60, offset_y=-60,
-                    font_size=18, box_padding=8, corner_radius=4,
+                    font_size: float = 18, box_padding=8, corner_radius=4,
                     creation: float = 0, z: float = 5, **styling_kwargs):
         """Add a floating text callout box with a leader line to a data point. Returns a VCollection."""
         text_color = styling_kwargs.pop('text_color', '#fff')
@@ -1718,7 +1718,7 @@ class Axes(_AxesExtMixin, VCollection):
         return region
 
     def add_area_label(self, func, x_start=None, x_end=None, x_range=None,
-                        text=None, font_size=20,
+                        text=None, font_size: float = 20,
                         creation: float = 0, z: float = 3, samples=100, **styling_kwargs):
         """Add a label showing the numerical area under the curve, positioned at the centroid."""
         style_kw = {'fill': '#ddd', 'stroke_width': 0} | styling_kwargs
@@ -1770,7 +1770,7 @@ class Axes(_AxesExtMixin, VCollection):
         return lbl
 
     def add_moving_tangent(self, func, x_start, x_end, start: float = 0, end: float = 1,
-                            length=200, creation: float = 0, z: float = 2, easing=easings.smooth,
+                            length: float = 200, creation: float = 0, z: float = 2, easing=easings.smooth,
                             **styling_kwargs):
         """Draw a tangent line that slides along func from x_start to x_end. Returns a Line."""
         style_kw = {'stroke': '#FFFF00', 'stroke_width': 2} | styling_kwargs
@@ -1986,7 +1986,7 @@ class NumberPlane(VCollection):
         self.objects = new_objects
         return self
 
-    def add_coordinate_labels(self, font_size=18, x_values=None, y_values=None, creation: float = 0):
+    def add_coordinate_labels(self, font_size: float = 18, x_values=None, y_values=None, creation: float = 0):
         """Create Text labels at tick positions on both axes. Skips 0."""
         x_min, x_max, x_step = self._x_range
         y_min, y_max, y_step = self._y_range
@@ -2091,7 +2091,7 @@ class ComplexPlane(Axes):
         return self.add_dot_label(re_val, im_val, label=label, **styling)
 
     def apply_complex_function(self, func, start: float = 0, end: float = 1, easing=easings.smooth,
-                               resolution=20, step=1.0):
+                               resolution=20, step: float = 1.0):
         """Animate a complex function transformation of the plane."""
         xmin = self.x_min.at_time(0)
         xmax = self.x_max.at_time(0)
@@ -2161,7 +2161,7 @@ class ComplexPlane(Axes):
     n2p = number_to_point
     p2n = point_to_number
 
-    def add_coordinate_labels(self, font_size=18, creation: float = 0):
+    def add_coordinate_labels(self, font_size: float = 18, creation: float = 0):
         """Create Text labels on real and imaginary axes (e.g. '2', '-3i')."""
         xmin, xmax, ymin, ymax = self._get_bounds(0)
         x_step = max(1, round((xmax - xmin) / 10))

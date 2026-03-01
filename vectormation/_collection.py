@@ -544,7 +544,7 @@ class VCollection(_BBoxMethodsMixin):
             cursor += size + gap
         return self
 
-    def arrange_in_circle(self, radius=150, center=None, start_angle=0,
+    def arrange_in_circle(self, radius: float = 150, center=None, start_angle=0,
                           start=0, end=None, easing=None):
         """Arrange children in a circle (delegates to :meth:`distribute_radial`)."""
         if center is None:
@@ -555,7 +555,7 @@ class VCollection(_BBoxMethodsMixin):
                                       start=start, end=end,
                                       easing=easing or easings.smooth)
 
-    def distribute_radial(self, cx: float = ORIGIN[0], cy: float = ORIGIN[1], radius=200, start_angle=0,
+    def distribute_radial(self, cx: float = ORIGIN[0], cy: float = ORIGIN[1], radius: float = 200, start_angle=0,
                            start: float = 0, end: float | None = None,
                            easing=easings.smooth):
         """Arrange children in a circle around (cx, cy).
@@ -572,7 +572,7 @@ class VCollection(_BBoxMethodsMixin):
             obj.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
 
-    def radial_arrange(self, radius=200, start_angle=0, center=None,
+    def radial_arrange(self, radius: float = 200, start_angle=0, center=None,
                        start: float = 0):
         """Arrange children in a circle instantly (defaults center to collection bbox center)."""
         if center is None:
@@ -1048,7 +1048,7 @@ class VCollection(_BBoxMethodsMixin):
         elif key == 'y':
             val_key = lambda i: centers[i][1]
         else:
-            val_key = lambda i: key(self.objects[i], start)
+            val_key = lambda i: key(self.objects[i], start)  # type: ignore[operator]
         # value_order: indices sorted by value (value_order[0] has smallest value)
         value_order = sorted(range(n), key=val_key)
         if end is None:
@@ -1318,7 +1318,7 @@ class VCollection(_BBoxMethodsMixin):
             self._apply_scale_pop(obj, s, e, factor, easing)
         return self
 
-    def distribute_along_arc(self, cx=ORIGIN[0], cy=ORIGIN[1], radius=200,
+    def distribute_along_arc(self, cx=ORIGIN[0], cy=ORIGIN[1], radius: float = 200,
                               start_angle=0, end_angle=None,
                               start: float = 0,
                               end: float | None = None,
@@ -1338,7 +1338,7 @@ class VCollection(_BBoxMethodsMixin):
                       start=start, end=end, easing=easing)
         return self
 
-    def fan_out(self, cx=None, cy=None, radius=200, start: float = 0, end: float = 1, easing=easings.smooth):
+    def fan_out(self, cx=None, cy=None, radius: float = 200, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate children spreading radially from a center point to evenly spaced positions."""
         cx, cy = self._resolve_center(start, cx, cy)
         return self.distribute_radial(cx=cx, cy=cy, radius=radius, start=start, end=end, easing=easing)
