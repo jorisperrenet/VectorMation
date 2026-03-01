@@ -158,6 +158,7 @@ _EDGE_POINTS = {
 
 def _get_edge_impl(bbox_func, edge, time):
     """Shared get_edge for VObject and VCollection."""
+    edge = _norm_edge(edge, 'center')
     x, y, w, h = bbox_func(time)
     return _EDGE_POINTS[edge](x, y, w, h)
 

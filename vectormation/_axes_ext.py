@@ -2137,6 +2137,7 @@ class _AxesExtMixin:
     def annotate_area(self, func_or_curve, x_range, label=None, color='#58C4DD',
                        opacity: float = 0.3, start=0, **kwargs):
         """Create a shaded area under a curve with an optional centered label."""
+        kwargs.pop('creation', None)  # prevent duplicate kwarg
         area = self.get_area(func_or_curve, x_range=x_range, creation=start,
                              fill=color, fill_opacity=opacity, **kwargs)
         objects = [area]
