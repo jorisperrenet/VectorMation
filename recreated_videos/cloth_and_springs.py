@@ -1,4 +1,5 @@
 """Cloth simulation and spring-connected physics bodies demo."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from vectormation.objects import (
     VectorMathAnim, Circle, Text, ORIGIN, parse_args,
     PhysicsSpace, Cloth,

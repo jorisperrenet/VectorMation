@@ -1,5 +1,6 @@
 """Advanced data visualization demo: candlestick, dumbbell, lollipop, swarm,
 population pyramid, error bars, stacked area, contour, quiver, and dot plot."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 import random
 from vectormation.objects import (
     VectorMathAnim, Axes, Text, parse_args,

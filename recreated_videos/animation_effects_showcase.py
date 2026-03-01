@@ -1,4 +1,5 @@
 """Showcase of advanced animation effects: telegraph, slingshot, elastic_bounce, etc."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from vectormation.objects import (
     VectorMathAnim, Circle, Rectangle, Text, Dot, Square,
     ORIGIN, parse_args,

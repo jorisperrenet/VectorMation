@@ -1,4 +1,5 @@
 """VCollection animation methods: arrange, stagger, cascade, fan_out, etc."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from vectormation.objects import (
     VectorMathAnim, Circle, Rectangle, Text, Square, Dot, VCollection,
     ORIGIN, parse_args,
@@ -67,7 +68,7 @@ wave_circles = VCollection(*[Circle(r=25, fill=c, creation=3) for c in colors])
 wave_circles.arrange(direction=(1, 0), buff=20)
 wave_circles.center_to_pos(960, 460, start=3)
 wave_circles.stagger('fadein', delay=0.1, start=3.2, end=4)
-wave_circles.wave_anim(start=4.5, end=6.5, amplitude=40, speed=2)
+wave_circles.wave_anim(start=4.5, end=6.5, amplitude=40, n_waves=2)
 canvas.add(wave_circles)
 
 # ── Set Color by Gradient ───────────────────────────────────────
@@ -99,8 +100,9 @@ label8 = Text(text='distribute', x=960, y=580, font_size=20,
 canvas.add(label8)
 
 dist_items = VCollection(*[Circle(r=20, fill=c, creation=6) for c in colors])
+dist_items.arrange(direction=(1, 0), buff=30)
 dist_items.center_to_pos(960, 700, start=6)
-dist_items.distribute(direction=(1, 0), start=6.5, end=7.5)
+dist_items.stagger('fadein', delay=0.15, start=6.5, end=7.5)
 canvas.add(dist_items)
 
 # ── Sequential ──────────────────────────────────────────────────

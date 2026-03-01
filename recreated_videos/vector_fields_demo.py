@@ -1,4 +1,5 @@
 """Vector fields, slope fields, and tangent lines demo."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 import math
 from vectormation.objects import (
     VectorMathAnim, Axes, Text, ORIGIN, parse_args,

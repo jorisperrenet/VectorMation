@@ -1,4 +1,5 @@
 """Showcase of add_updater, ValueTracker, and dynamic behaviors."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 import math
 from vectormation.objects import (
     VectorMathAnim, Text, ORIGIN, parse_args,
@@ -44,9 +45,9 @@ label2 = Text(text='ValueTracker Progress', x=1440, y=110,
 canvas.add(label2)
 
 tracker = ValueTracker(0)
-tracker.move_to(0, 4, 100)
-tracker.move_to(4, 5, 100)
-tracker.move_to(5, 8, 0)
+tracker.animate_value(100, start=0, end=4)
+tracker.set_value(100, start=4)
+tracker.animate_value(0, start=5, end=8)
 
 # Progress bar driven by tracker
 bar_bg = Rectangle(width=400, height=30, x=1240, y=250,

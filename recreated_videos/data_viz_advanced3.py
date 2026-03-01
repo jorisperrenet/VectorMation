@@ -1,5 +1,6 @@
 """Advanced data visualization demo part 3: quiver (vector field), dot plot,
 density plot, and ribbon chart."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from vectormation.objects import (
     VectorMathAnim, Axes, Text, parse_args,
 )

@@ -1,5 +1,6 @@
 """Showcase of SVG effects: Spotlight, AnimatedBoundary, Cutout,
 ConvexHull, and drop shadows."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from vectormation.objects import (
     VectorMathAnim, Text, ORIGIN, parse_args,
     Circle, Dot, Rectangle,

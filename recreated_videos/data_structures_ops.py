@@ -1,4 +1,5 @@
 """Data structure operations demo: push, pop, enqueue, dequeue, sort, traverse."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from vectormation.objects import (
     VectorMathAnim, Text, ORIGIN,
     Array, Stack, Queue, LinkedList,

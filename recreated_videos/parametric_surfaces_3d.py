@@ -1,4 +1,5 @@
 """Parametric 3D surfaces and advanced 3D features demo."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 import math
 from vectormation.objects import (
     VectorMathAnim, Text, ORIGIN, parse_args,

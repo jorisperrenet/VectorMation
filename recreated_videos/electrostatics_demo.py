@@ -1,4 +1,5 @@
 """Electrostatics demo: charges, electric fields, and interactions."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from vectormation.objects import (
     VectorMathAnim, Text, ORIGIN, parse_args,
     Charge, ElectricField,
@@ -22,7 +23,7 @@ q1 = Charge(magnitude=3, cx=480, cy=340, creation=0.5)
 q1.fadein(0.5, 1.0)
 canvas.add(q1)
 
-field1 = ElectricField([q1], x_range=(200, 760, 80), y_range=(160, 520, 80),
+field1 = ElectricField(q1, x_range=(200, 760, 80), y_range=(160, 520, 80),
                        creation=1.0)
 field1.fadein(1.0, 2.0)
 canvas.add(field1)
@@ -39,7 +40,7 @@ q_neg.fadein(0.5, 1.0)
 canvas.add(q_pos)
 canvas.add(q_neg)
 
-field2 = ElectricField([q_pos, q_neg],
+field2 = ElectricField(q_pos, q_neg,
                        x_range=(1160, 1720, 80), y_range=(160, 520, 80),
                        creation=2.0)
 field2.fadein(2.0, 3.0)
@@ -60,7 +61,7 @@ for ch in charges:
     ch.fadein(3.5, 4.0)
     canvas.add(ch)
 
-field3 = ElectricField(charges,
+field3 = ElectricField(*charges,
                        x_range=(700, 1220, 60), y_range=(640, 1000, 60),
                        creation=4.0)
 field3.fadein(4.0, 5.0)

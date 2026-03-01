@@ -1,4 +1,5 @@
 """Sankey diagrams, funnel charts, and flow visualizations demo."""
+import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from vectormation.objects import (
     VectorMathAnim, Text, ORIGIN, parse_args,
     SankeyDiagram, FunnelChart, WaterfallChart,
@@ -62,8 +63,8 @@ label3 = Text(text='Waterfall — Quarterly Budget', x=1440, y=620,
 canvas.add(label3)
 
 waterfall = WaterfallChart(
-    categories=['Revenue', 'COGS', 'Gross', 'OpEx', 'Tax', 'Net'],
     values=[500, -200, 300, -120, -45, 135],
+    labels=['Revenue', 'COGS', 'Gross', 'OpEx', 'Tax', 'Net'],
     x=1090, y=660, width=700, height=380,
     creation=4
 )
