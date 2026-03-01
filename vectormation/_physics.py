@@ -181,7 +181,13 @@ class PhysicsSpace:
         return b
 
     def add_wall(self, x=None, y=None, restitution: float = 0.9) -> Wall:
-        """Add an infinite axis-aligned wall."""
+        """Add an infinite axis-aligned wall.
+
+        Can also accept a pre-built Wall object as the first argument.
+        """
+        if isinstance(x, Wall):
+            self.walls.append(x)
+            return x
         w = Wall(x=x, y=y, restitution=restitution)
         self.walls.append(w)
         return w
