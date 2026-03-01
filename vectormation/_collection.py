@@ -800,7 +800,7 @@ class VCollection(_BBoxMethodsMixin):
         for i, obj in enumerate(self.objects):
             t0 = start + i * per_child
             t1 = min(t0 + per_child * 1.5, end)
-            obj.fadein(t0, t1, shift_dir=None)
+            obj.fadein(t0, t1, shift_dir=None, easing=easing)
             _d = max(t1 - t0, 1e-9)
             dx_fn = dy_fn = None
             for s_val, is_x in ((sdx, True), (sdy, False)):
