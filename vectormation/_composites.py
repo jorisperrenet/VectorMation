@@ -1,7 +1,4 @@
 """Composite classes: MorphObject, TexObject, NumberLine, Table, Matrix, etc."""
-import math
-import re
-import tempfile
 from collections import defaultdict
 
 import vectormation.easings as easings
@@ -132,6 +129,7 @@ def _strip_tex_commands(tex: str) -> str:
     Removes backslash-commands (e.g. \\frac, \\alpha), curly braces, dollar signs,
     and whitespace, leaving only the characters that dvisvgm renders as glyphs.
     """
+    import re
     # Remove LaTeX commands like \frac, \alpha, \text, etc.
     result = re.sub(r'\\[a-zA-Z]+\*?', '', tex)
     # Remove remaining braces, dollar signs, carets, underscores, spaces
@@ -144,6 +142,7 @@ class TexObject(VCollection):
     def __init__(self, to_render, x: float = 0, y: float = 0, font_size: float = 48, creation: float = 0, z: float = 0, **styles):
         from vectormation.tex_file_writing import get_characters
         import vectormation._canvas as _cm
+        import tempfile
         tex_dir = f'{_cm.save_directory}/tex' if hasattr(_cm, 'save_directory') else tempfile.mkdtemp()
         self._tex = to_render
         t2c = styles.pop('t2c', None)
@@ -1076,6 +1075,7 @@ class Matrix(_GridAccessMixin, VCollection):
         """Animate swapping two rows via arc paths."""
         if i == j or not (0 <= i < self.rows) or not (0 <= j < self.rows):
             return self
+        import math
         for c in range(self.cols):
             a, b = self.entries[i][c], self.entries[j][c]
             ax, ay = a.x.at_time(start), a.y.at_time(start)
@@ -1197,6 +1197,7 @@ class TexCountAnimation(DynamicObject):
                  creation: float = 0, z: float = 0, **styles):
         from vectormation.tex_file_writing import get_characters
         import vectormation._canvas as _cm
+        import tempfile
         tex_dir = f'{_cm.save_directory}/tex' if hasattr(_cm, 'save_directory') else tempfile.mkdtemp()
 
         cache_key = (tex_dir, font_size)
