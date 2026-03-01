@@ -789,6 +789,7 @@ class VCollection(_BBoxMethodsMixin):
         """Reveal children one by one from a direction (curtain effect).
         direction: 'left' (left-to-right), 'right', 'top', 'bottom'.
         Each child fades in with a small shift from the given direction."""
+        direction = _norm_edge(direction, 'left')
         n = len(self.objects)
         if n == 0 or end <= start:
             return self

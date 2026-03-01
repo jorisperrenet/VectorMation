@@ -8,6 +8,7 @@ from vectormation._constants import (
     ORIGIN, DEFAULT_CHART_COLORS,
     TEXT_Y_OFFSET, _normalize, _label_text, _get_arrow,
 )
+from vectormation._base_helpers import _norm_dir
 from vectormation._base import VCollection
 from vectormation._shapes import (
     Circle, Dot, Rectangle, RoundedRectangle, Line,
@@ -756,6 +757,7 @@ class FlowChart(VCollection):
                  box_width: float = 200, box_height: float = 60, spacing: float = 80,
                  box_color='#58C4DD', text_color='#fff', arrow_color='#999',
                  font_size: float = 20, corner_radius=8, creation: float = 0, z: float = 0):
+        direction = _norm_dir(direction, 'right')
         Arrow = _get_arrow()
         objects = []
         self._boxes = []
