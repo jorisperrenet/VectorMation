@@ -204,7 +204,7 @@ class _AxesExtMixin:
     def add_min_max_labels(self, func, x_range=None, samples: int = 200, creation: float = 0, z: float = 3,
                             dot_radius: float = 5, font_size: float = 18, **styling_kwargs):
         """Find and label local min/max of func within x_range.
-        Returns a VCollection of (dot, label) pairs."""
+        Returns a VCollection of dots and labels (interleaved)."""
         xlo = x_range[0] if x_range else self.x_min.at_time(creation)
         xhi = x_range[1] if x_range else self.x_max.at_time(creation)
         step = (xhi - xlo) / samples

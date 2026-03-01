@@ -1154,3 +1154,53 @@ class TestUnitIntervalBasic:
         from vectormation.objects import UnitInterval, NumberLine
         ui = UnitInterval()
         assert isinstance(ui, NumberLine)
+
+
+class TestCollectionEdgeCases:
+    """Tests for VCollection edge-case fixes."""
+
+    def test_bring_to_front_empty(self):
+        col = VCollection()
+        result = col.bring_to_front(0)
+        assert result is col  # should not crash
+
+    def test_send_to_back_empty(self):
+        col = VCollection()
+        result = col.send_to_back(0)
+        assert result is col
+
+    def test_reorder_out_of_range(self):
+        c = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c)
+        result = col.bring_to_front(5)
+        assert result is col  # out-of-range index, no-op
+
+    def test_reorder_negative_out_of_range(self):
+        c = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c)
+        result = col.send_to_back(-5)
+        assert result is col
+
+    def test_remove_at_out_of_range(self):
+        c = Circle(r=10, cx=0, cy=0)
+        col = VCollection(c)
+        with pytest.raises(IndexError, match='out of range'):
+            col.remove_at(5)
+
+    def test_remove_at_empty(self):
+        col = VCollection()
+        with pytest.raises(IndexError, match='out of range'):
+            col.remove_at(0)
+
+    def test_pair_up_empty(self):
+        col = VCollection()
+        result = col.pair_up()
+        assert result == []
+
+    def test_numberline_repr(self):
+        from vectormation.objects import NumberLine
+        nl = NumberLine(x_range=(-3, 3, 1))
+        r = repr(nl)
+        assert 'NumberLine' in r
+        assert '-3' in r
+        assert '3' in r

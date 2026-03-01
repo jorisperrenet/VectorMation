@@ -1051,7 +1051,8 @@ class Axes(_AxesExtMixin, VCollection):
         return points
 
     def get_area(self, curve_or_func, x_range=None, bounded_graph=None, creation: float = 0, z: float = 0, **styling_kwargs):
-        """Create a shaded area under a curve/function (or between two curves)."""
+        """Create a shaded area under a curve/function (or between two curves).
+        Returns a dynamic Path object."""
         style_kw = _AREA_STYLE | styling_kwargs
         func = self._resolve_func(curve_or_func, 'curve_or_func')
         bound_func = self._resolve_func(bounded_graph, 'bounded_graph') if bounded_graph is not None else None
@@ -1316,7 +1317,9 @@ class Axes(_AxesExtMixin, VCollection):
         return rect
 
     def get_vertical_line(self, x, y_val=None, creation: float = 0, z: float = 0, **styling_kwargs):
-        """Draw a vertical line at math x-coordinate."""
+        """Draw a vertical line at math x-coordinate. If *y_val* is given, the line
+        extends from the baseline to that y-value; otherwise it spans the full plot height.
+        Returns a Line object."""
         style_kw = {'stroke': '#FFFF00', 'stroke_width': 2} | styling_kwargs
         line = Line(x1=0, y1=0, x2=0, y2=0, creation=creation, z=z, **style_kw)
         def _p1(t):
@@ -1336,7 +1339,8 @@ class Axes(_AxesExtMixin, VCollection):
 
     def add_dot_label(self, x, y, label=None, dot_color='#FF6B6B', dot_radius: float = 6,
                        label_offset=(10, -10), font_size: float = 20, creation: float = 0, z: float = 0):
-        """Add a labeled dot at math coordinates (x, y). Returns (dot, label_text)."""
+        """Add a labeled dot at math coordinates (x, y). Returns (dot, label) where
+        label is None if no *label* text was provided."""
         sx, sy = self.coords_to_point(x, y, time=creation)
         dot = Dot(cx=sx, cy=sy, r=dot_radius, fill=dot_color,
                   creation=creation, z=z)

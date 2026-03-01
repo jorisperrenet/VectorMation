@@ -1573,11 +1573,10 @@ class TestPairUp:
         assert len(pairs[0].objects) == 1
         assert pairs[0].objects[0] is c1
 
-    def test_empty_raises(self):
-        """Empty collection should raise ValueError."""
+    def test_empty_returns_empty_list(self):
+        """Empty collection should return empty list."""
         col = VCollection()
-        with pytest.raises(ValueError):
-            col.pair_up()
+        assert col.pair_up() == []
 
     def test_returns_vcollections(self):
         """Each pair should be a VCollection."""
@@ -3947,10 +3946,9 @@ class TestCollectionQueryMethods:
         assert pairs[0].objects[1] is c2
         assert len(pairs[1].objects) == 1
 
-    def test_pair_up_empty_raises(self):
+    def test_pair_up_empty_returns_empty(self):
         col = VCollection()
-        with pytest.raises(ValueError):
-            col.pair_up()
+        assert col.pair_up() == []
 
     def test_sliding_window(self):
         objs = [Circle(r=i, cx=0, cy=0) for i in range(5)]

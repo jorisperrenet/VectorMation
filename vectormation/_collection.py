@@ -53,6 +53,11 @@ class VCollection(_BBoxMethodsMixin):
 
     def remove_at(self, index):
         """Remove and return the child at the given index."""
+        n = len(self.objects)
+        if index < -n or index >= n:
+            raise IndexError(
+                f"child index {index} out of range for collection with {n} object(s)"
+            )
         return self.objects.pop(index)
 
     def clear(self):
@@ -72,6 +77,9 @@ class VCollection(_BBoxMethodsMixin):
 
     def _reorder_child(self, child, front):
         if isinstance(child, int):
+            n = len(self.objects)
+            if not n or child < -n or child >= n:
+                return self
             child = self.objects[child]
         if child in self.objects:
             self.objects.remove(child)
@@ -1240,7 +1248,7 @@ class VCollection(_BBoxMethodsMixin):
     def pair_up(self):
         """Group adjacent children into pairs of VCollections."""
         if not self.objects:
-            raise ValueError("Cannot pair_up an empty collection")
+            return []
         objs = self.objects
         return [VCollection(*objs[i:i + 2]) for i in range(0, len(objs), 2)]
 
