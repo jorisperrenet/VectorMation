@@ -1184,7 +1184,7 @@ class TexCountAnimation(DynamicObject):
 
     _glyph_cache = {}  # class-level: {(tex_dir, font_size): {char: (vb, chars)}}
 
-    def __init__(self, start_val=0, end_val=100, start: float = 0, end: float = 1,
+    def __init__(self, start_val: float = 0, end_val: float = 100, start: float = 0, end: float = 1,
                  fmt='{:.0f}', easing=easings.smooth,
                  x: float = ORIGIN[0], y: float = ORIGIN[1], font_size: float = 48,
                  creation: float = 0, z: float = 0, **styles):
@@ -1256,7 +1256,7 @@ class TexCountAnimation(DynamicObject):
 
         return VCollection(*objects, creation=creation)
 
-    def count_to(self, target, start, end, easing=easings.smooth):
+    def count_to(self, target: float, start: float, end: float, easing=easings.smooth):
         """Animate counting from the current value to a new target."""
         dur = max(end - start, 1e-9)
         self._extra_segments.append((self._last_val, target, start, dur, easing))

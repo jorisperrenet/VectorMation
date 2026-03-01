@@ -243,7 +243,7 @@ class VCollection(_BBoxMethodsMixin):
         self.objects.sort(key=lambda obj: obj.center(0)[axis_idx], reverse=reverse)
         return self
 
-    def group_into(self, n):
+    def group_into(self, n: int):
         """Split into *n* roughly equal sub-collections. Returns a VCollection of VCollections."""
         if n < 1:
             raise ValueError(f"n must be >= 1, got {n!r}")
@@ -266,11 +266,11 @@ class VCollection(_BBoxMethodsMixin):
         """Return a new VCollection with children at indices [start:end]."""
         return VCollection(*self.objects[start:end])
 
-    def take(self, n):
+    def take(self, n: int):
         """Return a new VCollection with the first *n* children."""
         return VCollection(*self.objects[:n])
 
-    def skip(self, n):
+    def skip(self, n: int):
         """Return a new VCollection skipping the first *n* children."""
         return VCollection(*self.objects[n:])
 
@@ -834,7 +834,7 @@ class VCollection(_BBoxMethodsMixin):
 
     swap_animated = swap_children  # backward compat alias
 
-    def highlight_nth(self, n, start: float = 0, end: float = 1, color='#FFFF00', easing=easings.smooth):
+    def highlight_nth(self, n: int, start: float = 0, end: float = 1, color='#FFFF00', easing=easings.smooth):
         """Highlight the nth child by temporarily changing its fill color while
         dimming others.  At end, restore all original colors.  Returns self."""
         if n < 0 or n >= len(self.objects):

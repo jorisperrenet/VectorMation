@@ -896,7 +896,7 @@ class Text(VObject):
             return text[index]
         return ''
 
-    def truncate(self, n, ellipsis='...', time: float = 0):
+    def truncate(self, n: int, ellipsis='...', time: float = 0):
         """Truncate the text to at most *n* characters, appending *ellipsis* if trimmed."""
         elen = len(ellipsis)
         if n < elen:
@@ -1008,7 +1008,7 @@ class Text(VObject):
 
 class CountAnimation(Text):
     """Text that animates a number counting from start_val to end_val."""
-    def __init__(self, start_val=0, end_val=100, start: float = 0, end: float = 1,
+    def __init__(self, start_val: float = 0, end_val: float = 100, start: float = 0, end: float = 1,
                  fmt='{:.0f}', easing=easings.smooth,
                  x: float = ORIGIN[0], y: float = ORIGIN[1], font_size: float = 60, text_anchor=None, creation: float = 0, z: float = 0, **styling_kwargs):
         super().__init__(text=fmt.format(start_val), x=x, y=y,
@@ -1033,7 +1033,7 @@ class CountAnimation(Text):
                     _fmt.format(_f + (_t - _f) * _e((t - _s) / _d)),
                 stay=True)
 
-    def count_to(self, target, start, end, easing=easings.smooth):
+    def count_to(self, target: float, start: float, end: float, easing=easings.smooth):
         """Animate counting from the current value to a new target."""
         self._count_anim(self._last_val, target, start, end, easing)
         self._last_val = target

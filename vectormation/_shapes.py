@@ -47,6 +47,7 @@ class Polygon(VObject):
         return self.vertices
 
     def shift(self, *args, **kwargs):
+        """Shift all vertices and invalidate the bounding box cache."""
         self._bbox_version += 1
         return super().shift(*args, **kwargs)
 
@@ -1242,7 +1243,7 @@ class Circle(Ellipse):
         r = self.rx.at_time(time)
         return _distance(cx, cy, px, py) <= r
 
-    def circumscribed_polygon(self, n, angle: float = 0, time: float = 0, **kwargs):
+    def circumscribed_polygon(self, n: int, angle: float = 0, time: float = 0, **kwargs):
         """Return a regular *n*-gon circumscribed around this circle."""
         if n < 3:
             raise ValueError(f"circumscribed_polygon requires n >= 3, got {n}")
@@ -1311,7 +1312,7 @@ class Circle(Ellipse):
             sweep_deg = 360  # full circle
         return r * math.radians(sweep_deg)
 
-    def get_sectors(self, n, **kwargs):
+    def get_sectors(self, n: int, **kwargs):
         """Divide the circle into *n* equal sectors (Wedge objects)."""
         from vectormation._base import VCollection
         if n < 1:
@@ -1372,7 +1373,7 @@ class Circle(Ellipse):
                      'stroke_width': DEFAULT_STROKE_WIDTH} | kwargs
         return Path(d, **style_kw)
 
-    def inscribed_polygon(self, n, start_angle: float = 0, angle=None, time: float = 0, **kwargs):
+    def inscribed_polygon(self, n: int, start_angle: float = 0, angle=None, time: float = 0, **kwargs):
         """Return a regular *n*-sided polygon inscribed in this circle."""
         if angle is not None:
             start_angle = angle
@@ -1522,7 +1523,7 @@ class Rectangle(VObject):
         # Left edge: bottom to top
         return (x, y + h - dist)
 
-    def get_grid_lines(self, rows, cols, time: float = 0, **kwargs):
+    def get_grid_lines(self, rows: int, cols: int, time: float = 0, **kwargs):
         """Return a VCollection of Lines forming a grid inside this rectangle."""
         from vectormation._base import VCollection
         x, y, w, h = self._dims(time)
@@ -1618,7 +1619,7 @@ class Rectangle(VObject):
         style_kw.update(kwargs)
         return RoundedRectangle(w, h, x=x, y=y, corner_radius=radius, **style_kw)
 
-    def split(self, direction='horizontal', count=2, time: float = 0, **kwargs):
+    def split(self, direction='horizontal', count: int = 2, time: float = 0, **kwargs):
         """Split this rectangle into *count* equal sub-rectangles."""
         from vectormation._base import VCollection
         if count < 1:
@@ -1635,11 +1636,11 @@ class Rectangle(VObject):
                 parts.append(Rectangle(piece_w, rh, x=rx + i * piece_w, y=ry, **kwargs))
         return VCollection(*parts)
 
-    def split_horizontal(self, n: float = 2, time: float = 0, **kwargs):
+    def split_horizontal(self, n: int = 2, time: float = 0, **kwargs):
         """Split into *n* equal horizontal strips."""
         return self.split('horizontal', n, time, **kwargs)
 
-    def split_vertical(self, n: float = 2, time: float = 0, **kwargs):
+    def split_vertical(self, n: int = 2, time: float = 0, **kwargs):
         """Split into *n* equal vertical strips. Alias for ``split('vertical', ...)``."""
         return self.split('vertical', n, time, **kwargs)
 
@@ -1693,7 +1694,7 @@ class Rectangle(VObject):
         d2 = Line(x1=tr[0], y1=tr[1], x2=bl[0], y2=bl[1], **kwargs)
         return (d1, d2)
 
-    def subdivide(self, rows=2, cols=2, time: float = 0, **kwargs):
+    def subdivide(self, rows: int = 2, cols: int = 2, time: float = 0, **kwargs):
         """Subdivide this rectangle into a grid of *rows* x *cols* sub-rectangles."""
         from vectormation._base import VCollection
         if rows < 1 or cols < 1:
@@ -1743,7 +1744,7 @@ class Lines(Polygon):
 
 class RegularPolygon(Polygon):
     """Regular n-sided polygon inscribed in a circle of given radius."""
-    def __init__(self, n, radius: float = 120, cx: float = ORIGIN[0], cy: float = ORIGIN[1], angle: float = 0, creation: float = 0, z: float = 0, **styling_kwargs):
+    def __init__(self, n: int, radius: float = 120, cx: float = ORIGIN[0], cy: float = ORIGIN[1], angle: float = 0, creation: float = 0, z: float = 0, **styling_kwargs):
         n = max(n, 1)
         self._n = n
         self._radius = radius
@@ -1778,7 +1779,7 @@ class RegularPolygon(Polygon):
 
 class Star(Polygon):
     """Star polygon with n outer points. outer_radius and inner_radius control the shape."""
-    def __init__(self, n: float = 5, outer_radius=120, inner_radius=None, cx=ORIGIN[0], cy=ORIGIN[1],
+    def __init__(self, n: int = 5, outer_radius=120, inner_radius=None, cx=ORIGIN[0], cy=ORIGIN[1],
                  angle: float = 90, creation: float = 0, z: float = 0, **styling_kwargs):
         n = max(n, 1)
         if inner_radius is None:
