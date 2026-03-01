@@ -27,6 +27,7 @@ from vectormation._constants import (
     DEFAULT_CHART_COLORS, CHAR_WIDTH_FACTOR, TEXT_Y_OFFSET,
     UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR, ORIGIN,
     interpolate_value, smooth_index,
+    dot_product, cross_product_2d, angle_between_vectors, rotate_vector, midpoint,
 )
 
 from vectormation._base import VObject, VCollection, VGroup

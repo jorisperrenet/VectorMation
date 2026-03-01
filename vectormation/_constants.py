@@ -188,3 +188,38 @@ def _circumcenter(p1, p2, p3):
     ux = (a2 * (by - cy) + b2 * (cy - ay) + c2 * (ay - by)) / d
     uy = (a2 * (cx - bx) + b2 * (ax - cx) + c2 * (bx - ax)) / d
     return ux, uy, math.hypot(ax - ux, ay - uy)
+
+
+# ── Vector math utilities ─────────────────────────────────────────────
+
+def dot_product(v1, v2):
+    """Return the scalar dot product of two 2D vectors."""
+    return v1[0] * v2[0] + v1[1] * v2[1]
+
+
+def cross_product_2d(v1, v2):
+    """Return the z-component of the 3D cross product of two 2D vectors (determinant)."""
+    return v1[0] * v2[1] - v1[1] * v2[0]
+
+
+def angle_between_vectors(v1, v2):
+    """Return the angle in degrees between two 2D vectors."""
+    dot = v1[0] * v2[0] + v1[1] * v2[1]
+    m1 = math.hypot(v1[0], v1[1])
+    m2 = math.hypot(v2[0], v2[1])
+    if m1 == 0 or m2 == 0:
+        return 0.0
+    cos_a = max(-1.0, min(1.0, dot / (m1 * m2)))
+    return math.degrees(math.acos(cos_a))
+
+
+def rotate_vector(v, angle_deg):
+    """Rotate a 2D vector by *angle_deg* degrees (counter-clockwise)."""
+    rad = math.radians(angle_deg)
+    cos_a, sin_a = math.cos(rad), math.sin(rad)
+    return (v[0] * cos_a - v[1] * sin_a, v[0] * sin_a + v[1] * cos_a)
+
+
+def midpoint(p1, p2):
+    """Return the midpoint of two 2D points."""
+    return ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)
