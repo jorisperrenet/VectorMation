@@ -1812,6 +1812,7 @@ class _AxesExtMixin:
         func: callable(x, y) -> slope.
         length: arrow length in math units.
         Returns a VCollection of Line segments."""
+        x_step, y_step = max(abs(x_step), 1e-6), max(abs(y_step), 1e-6)
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 1.5, 'stroke_opacity': 0.7} | styling_kwargs
         xmin, xmax = self.x_min.at_time(creation), self.x_max.at_time(creation)
         ymin, ymax = self.y_min.at_time(creation), self.y_max.at_time(creation)
