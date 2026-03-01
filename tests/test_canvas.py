@@ -117,3 +117,78 @@ class TestCanvas:
         self.canvas.viewbox = (100, 100, 400, 300)
         self.canvas.handle_browser_event({'type': 'control', 'action': 'fit'})
         assert self.canvas.viewbox == (0, 0, 800, 600)
+
+    def test_camera_shift(self):
+        self.canvas.camera_shift(100, 50, start=0, end=1)
+        # At time 1, viewbox x should have shifted by ~100
+        vbx = self.canvas.vb_x.at_time(1)
+        assert vbx > 50  # Should be close to 100
+
+    def test_camera_shift_returns_self(self):
+        result = self.canvas.camera_shift(10, 10, start=0, end=1)
+        assert result is self.canvas
+
+    def test_camera_shift_zero_duration(self):
+        result = self.canvas.camera_shift(100, 50, start=1, end=1)
+        assert result is self.canvas
+
+    def test_camera_zoom_in(self):
+        self.canvas.camera_zoom(2, start=0, end=1)
+        # After zooming in 2x, width should be half
+        vbw = self.canvas.vb_w.at_time(1)
+        assert vbw < 800
+
+    def test_camera_zoom_returns_self(self):
+        result = self.canvas.camera_zoom(2, start=0, end=1)
+        assert result is self.canvas
+
+    def test_camera_follow(self):
+        c = Circle(r=50, cx=600, cy=400)
+        self.canvas.add_objects(c)
+        self.canvas.camera_follow(c, start=0, end=1)
+        # Camera should be centered on the circle
+        vbx = self.canvas.vb_x.at_time(0.5)
+        assert isinstance(vbx, (int, float))
+
+    def test_camera_follow_returns_self(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = self.canvas.camera_follow(c, start=0)
+        assert result is self.canvas
+
+    def test_camera_reset(self):
+        self.canvas.camera_zoom(2, start=0, end=0.5)
+        self.canvas.camera_reset(start=0.5, end=1)
+        vbw = self.canvas.vb_w.at_time(1)
+        assert vbw == 800
+
+    def test_camera_reset_returns_self(self):
+        result = self.canvas.camera_reset(start=0, end=1)
+        assert result is self.canvas
+
+    def test_remove_and_readd(self):
+        c = Circle(r=50)
+        self.canvas.add_objects(c)
+        assert id(c) in self.canvas.objects
+        self.canvas.remove(c)
+        assert id(c) not in self.canvas.objects
+
+    def test_default_dimensions(self):
+        canvas = VectorMathAnim(self.tmpdir)
+        assert canvas.width == 1920
+        assert canvas.height == 1080
+
+    def test_multiple_objects_rendering(self):
+        c = Circle(r=50, cx=100, cy=100)
+        r = Rectangle(50, 50, x=200, y=200)
+        self.canvas.add_objects(c, r)
+        svg = self.canvas.generate_frame_svg(0)
+        assert '<circle' in svg
+        assert '<rect' in svg
+
+    def test_z_ordering(self):
+        c1 = Circle(r=50, cx=100, cy=100, z=1)
+        c2 = Circle(r=50, cx=100, cy=100, z=0)
+        self.canvas.add_objects(c1, c2)
+        svg = self.canvas.generate_frame_svg(0)
+        # Both circles should be in SVG
+        assert svg.count('<circle') == 2
