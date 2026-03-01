@@ -23019,3 +23019,153 @@ class TestTimelineBarExtended:
         svg = tb.to_svg(0)
         assert 'E0' in svg
         assert 'E9' in svg
+
+
+class TestDistributeAlongArc:
+    """Tests for VCollection.distribute_along_arc()."""
+
+    def test_returns_self(self):
+        items = VCollection(Circle(r=10), Circle(r=10), Circle(r=10))
+        result = items.distribute_along_arc(cx=500, cy=500, radius=150)
+        assert result is items
+
+    def test_children_spread_on_arc(self):
+        c1, c2, c3 = Circle(r=10), Circle(r=10), Circle(r=10)
+        items = VCollection(c1, c2, c3)
+        items.distribute_along_arc(cx=500, cy=500, radius=150, start_angle=0, end_angle=math.pi)
+        p1 = c1.center(0)
+        p2 = c3.center(0)
+        dist = ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**0.5
+        assert dist > 100  # Should be well separated across arc
+
+    def test_empty_collection(self):
+        items = VCollection()
+        result = items.distribute_along_arc()
+        assert result is items
+
+    def test_single_child(self):
+        items = VCollection(Circle(r=10))
+        items.distribute_along_arc(cx=500, cy=500, radius=150, start_angle=0, end_angle=math.pi)
+
+
+class TestFanOut:
+    """Tests for VCollection.fan_out()."""
+
+    def test_returns_self(self):
+        items = VCollection(Circle(r=10, cx=500, cy=500), Circle(r=10, cx=510, cy=500))
+        result = items.fan_out(radius=200, start=0, end=1)
+        assert result is items
+
+    def test_renders(self):
+        items = VCollection(Circle(r=10, cx=500, cy=500), Circle(r=10, cx=510, cy=500))
+        items.fan_out(radius=200, start=0, end=1)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(items)
+        svg = canvas.generate_frame_svg(time=0.5)
+        assert '<svg' in svg
+
+
+class TestAlignCenters:
+    """Tests for VCollection.align_centers()."""
+
+    def test_align_x(self):
+        c1 = Circle(r=10, cx=200, cy=300)
+        c2 = Circle(r=10, cx=500, cy=400)
+        items = VCollection(c1, c2)
+        items.align_centers(axis='x', value=350)
+        # Both circles should now be at x=350
+        assert abs(c1.center(0)[0] - 350) < 1
+        assert abs(c2.center(0)[0] - 350) < 1
+
+    def test_align_y(self):
+        c1 = Circle(r=10, cx=200, cy=300)
+        c2 = Circle(r=10, cx=500, cy=400)
+        items = VCollection(c1, c2)
+        items.align_centers(axis='y', value=350)
+        assert abs(c1.center(0)[1] - 350) < 1
+        assert abs(c2.center(0)[1] - 350) < 1
+
+    def test_returns_self(self):
+        items = VCollection(Circle(r=10), Circle(r=10))
+        result = items.align_centers(axis='x')
+        assert result is items
+
+    def test_empty_collection(self):
+        items = VCollection()
+        items.align_centers(axis='x')
+
+
+class TestSlidingWindow:
+    """Tests for VCollection.sliding_window()."""
+
+    def test_basic_window(self):
+        items = VCollection(Circle(r=10), Circle(r=10), Circle(r=10), Circle(r=10))
+        windows = items.sliding_window(2)
+        assert len(windows) == 3
+
+    def test_window_with_step(self):
+        items = VCollection(Circle(r=10), Circle(r=10), Circle(r=10), Circle(r=10))
+        windows = items.sliding_window(2, step=2)
+        assert len(windows) == 2
+
+    def test_window_returns_vcollections(self):
+        items = VCollection(Circle(r=10), Circle(r=10), Circle(r=10))
+        windows = items.sliding_window(2)
+        assert isinstance(windows[0], VCollection)
+        assert len(windows[0].objects) == 2
+
+    def test_invalid_size_raises(self):
+        items = VCollection(Circle(r=10))
+        import pytest
+        with pytest.raises(ValueError):
+            items.sliding_window(0)
+
+
+class TestForEachExtended:
+    """Extended tests for VCollection.for_each()."""
+
+    def test_calls_method_on_all(self):
+        c1 = Circle(r=10, cx=500, cy=500)
+        c2 = Circle(r=10, cx=600, cy=500)
+        items = VCollection(c1, c2)
+        items.for_each('fadein', start=0, end=1)
+        # Both should have animations applied
+
+    def test_returns_self(self):
+        items = VCollection(Circle(r=10), Circle(r=10))
+        result = items.for_each('fadein', start=0, end=1)
+        assert result is items
+
+
+class TestBecomeExtended:
+    """Tests for VObject.become()."""
+
+    def test_become_copies_fill(self):
+        c1 = Circle(r=20, cx=500, cy=500, fill='#ff0000')
+        c2 = Circle(r=20, cx=600, cy=600, fill='#00ff00')
+        c1.become(c2, time=0)
+        # c1's fill should now be c2's fill (as RGB tuple)
+        fill = c1.styling.fill.time_func(0)
+        assert fill[1] == 255 or fill[1] > 200  # Green channel should be high
+
+    def test_become_returns_self(self):
+        c1 = Circle(r=20)
+        c2 = Circle(r=20, fill='#ff0000')
+        result = c1.become(c2, time=0)
+        assert result is c1
+
+
+class TestSaveRestore:
+    """Tests for VObject.save_state() and restore()."""
+
+    def test_save_and_restore(self):
+        c = Circle(r=20, cx=500, cy=500, fill='#ff0000')
+        c.save_state(time=0)
+        c.set_color(start=1, end=2, fill='#00ff00')
+        c.restore(start=3, end=4)
+        # After restore, fill should return to red
+
+    def test_save_state_returns_self(self):
+        c = Circle(r=20)
+        result = c.save_state(time=0)
+        assert result is c
