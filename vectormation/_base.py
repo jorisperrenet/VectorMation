@@ -1373,7 +1373,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             attr.set(start, end, _lerp(start, dur, base, base * scale_factor, easing))
         return self
 
-    def glow(self, start: float = 0, end: float = 1, color='#FFD700', radius=10):
+    def glow(self, start: float = 0, end: float = 1, color='#FFD700', radius: float = 10):
         """Add an animated glow effect (stroke pulses outward then fades)."""
         dur = end - start
         if dur <= 0:
@@ -1761,7 +1761,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._apply_shift_func(_pos, start, end)
         return self
 
-    def bounce(self, start: float = 0, end: float = 1, height=50, n_bounces=3, easing=easings.smooth):
+    def bounce(self, start: float = 0, end: float = 1, height: float = 50, n_bounces=3, easing=easings.smooth):
         """Bounce the object up and down like a ball."""
         dur = end - start
         if dur <= 0:
@@ -2235,7 +2235,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         for c in self._shift_coors():
             c.set_onward(time, c.at_time(time))
 
-    def stamp(self, time: float = 0, opacity=0.3):
+    def stamp(self, time: float = 0, opacity: float = 0.3):
         """Leave a faded copy (ghost) at the current position. Returns the copy (add to canvas)."""
 
         ghost = deepcopy(self)
@@ -2263,7 +2263,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             ghosts.append(ghost)
         return ghosts
 
-    def dim(self, start: float = 0, end: float | None = None, opacity=0.3, easing=easings.smooth):
+    def dim(self, start: float = 0, end: float | None = None, opacity: float = 0.3, easing=easings.smooth):
         """Reduce fill and stroke opacity (to de-emphasize). Use undim() to restore."""
         for attr in (self.styling.fill_opacity, self.styling.stroke_opacity):
             if end is None:

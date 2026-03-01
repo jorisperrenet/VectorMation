@@ -72,7 +72,7 @@ class BlurFilter(_SVGFilter):
 
 class DropShadowFilter(_SVGFilter):
     """SVG drop shadow filter definition."""
-    def __init__(self, dx=4, dy=4, std_deviation=4, color='#000', opacity=0.5):
+    def __init__(self, dx: float = 4, dy: float = 4, std_deviation: float = 4, color='#000', opacity: float = 0.5):
         super().__init__('shadow')
         self.dx, self.dy = dx, dy
         self.std_deviation = std_deviation

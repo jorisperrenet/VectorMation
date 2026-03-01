@@ -801,7 +801,7 @@ class VCollection(_BBoxMethodsMixin):
                 obj._apply_shift_effect(t0, t1, dx_func=dx_fn, dy_func=dy_fn)
         return self
 
-    def _dim_others(self, index, start, end, opacity=0.2, easing=easings.smooth):
+    def _dim_others(self, index, start, end, opacity: float = 0.2, easing=easings.smooth):
         """Dim all children except *index*, restoring near *end*."""
         dur = end - start
         dim_end, undim_start = start + dur * 0.3, start + dur * 0.7

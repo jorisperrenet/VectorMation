@@ -690,7 +690,7 @@ class Table(_GridAccessMixin, VCollection):
 
     get_cell = _GridAccessMixin.get_entry
 
-    def get_cell_rect(self, row, col, padding=2, **kwargs):
+    def get_cell_rect(self, row, col, padding: float = 2, **kwargs):
         """Return a Rectangle covering the cell at (row, col)."""
         rx = self._table_x + self._x_off + col * self._cell_width + padding
         ry = self._table_y + self._y_off + row * self._cell_height + padding

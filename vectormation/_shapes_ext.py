@@ -277,7 +277,7 @@ class Line(VObject):
                    px + dx * half, py + dy * half, **kwargs)
 
     @classmethod
-    def from_objects(cls, obj_a, obj_b, buff=0, **kwargs):
+    def from_objects(cls, obj_a, obj_b, buff: float = 0, **kwargs):
         """Create a Line connecting the nearest edges of two objects."""
         ca = obj_a.center(0)
         cb = obj_b.center(0)
@@ -667,7 +667,7 @@ class Text(VObject):
                 _ramp(start, dur, opacity, easing), stay=True)
         return rect
 
-    def highlight(self, start: float = 0, end: float = 1, color='#FFFF00', opacity=0.3, padding=4, easing=easings.there_and_back):
+    def highlight(self, start: float = 0, end: float = 1, color='#FFFF00', opacity: float = 0.3, padding: float = 4, easing=easings.there_and_back):
         """Highlight the text with a colored background rectangle that fades in/out.
         Returns the highlight Rectangle (must be added to canvas separately)."""
         bx, by, bw, bh = self.bbox(start)

@@ -51,6 +51,7 @@ class Polygon(VObject):
         return super().shift(*args, **kwargs)
 
     def snap_points(self, time):
+        """Return vertex positions as snap targets."""
         return self.get_vertices(time)
 
     def bbox(self, time: float = 0):
@@ -964,8 +965,13 @@ class Ellipse(VObject):
             return False
         return ((px - cx) / rx) ** 2 + ((py - cy) / ry) ** 2 <= 1
 
-    def get_rx(self, time: float = 0): return self.rx.at_time(time)
-    def get_ry(self, time: float = 0): return self.ry.at_time(time)
+    def get_rx(self, time: float = 0):
+        """Return the x-radius at *time*."""
+        return self.rx.at_time(time)
+
+    def get_ry(self, time: float = 0):
+        """Return the y-radius at *time*."""
+        return self.ry.at_time(time)
 
     def set_center(self, cx, cy, start: float = 0, end: float | None = None, easing=easings.smooth):
         _set_attr(self.c, start, end, (cx, cy), easing); return self
@@ -1559,7 +1565,7 @@ class Rectangle(VObject):
         )
 
     @classmethod
-    def from_two_objects(cls, obj_a, obj_b, padding=0, **kwargs):
+    def from_two_objects(cls, obj_a, obj_b, padding: float = 0, **kwargs):
         """Create a Rectangle that encloses two objects' bounding boxes."""
         ax, ay, aw, ah = obj_a.bbox(0)
         bx, by, bw, bh = obj_b.bbox(0)

@@ -349,7 +349,7 @@ class ThreeDAxes(VCollection):
                 f'<polygon points="{sx1:.1f},{sy1:.1f} {ax:.1f},{ay:.1f} {bx:.1f},{by:.1f}" '
                 f'fill="{stroke}" stroke="none"/>')
 
-    def _render_tick_3d(self, pos_3d, perp_3d, value, time, font_size=18):
+    def _render_tick_3d(self, pos_3d, perp_3d, value, time, font_size: float = 18):
         """Render a tick mark and optional label at a 3D position."""
         sp = self.project_point(*pos_3d, time)
         tick_len = 4

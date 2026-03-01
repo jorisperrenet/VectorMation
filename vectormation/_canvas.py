@@ -120,7 +120,7 @@ class VectorMathAnim:
         self._animate_viewbox(start, end, 0, 0, self.width, self.height, easing)
         return self
 
-    def focus_on(self, *objects, start, end, padding=100, easing=easings.smooth):
+    def focus_on(self, *objects, start, end, padding: float = 100, easing=easings.smooth):
         """Pan and zoom the camera to fit the given objects with padding."""
         from vectormation._base import VCollection
         group = VCollection(*objects) if len(objects) > 1 else objects[0]
