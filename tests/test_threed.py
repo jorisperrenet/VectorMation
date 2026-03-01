@@ -496,6 +496,22 @@ class TestSetLightDirection:
         # (may not always differ for all faces, but overall SVG differs)
         assert svg1 != svg2 or True  # at minimum, light dir is different
 
+    def test_basic(self):
+        ax = ThreeDAxes()
+        result = ax.set_light_direction(1, 0, 0)
+        assert result is ax  # returns self
+
+    def test_zero_vector_fallback(self):
+        ax = ThreeDAxes()
+        ax.set_light_direction(0, 0, 0)
+        # Should not crash; normalizes to default
+
+    def test_normalization(self):
+        ax = ThreeDAxes()
+        ax.set_light_direction(3, 4, 0)
+        lx, ly, lz = ax._light_dir
+        assert pytest.approx(math.hypot(lx, ly, lz)) == 1.0
+
 
 class TestBeginAmbientCameraRotation:
     def test_rotates_theta(self):
@@ -556,6 +572,35 @@ class TestAddGridPlane:
         grid = ax.add_grid_plane(plane='yz', step=1)
         assert isinstance(grid, VCollection)
         assert len(grid) > 0
+
+    def test_xz_plane(self):
+        ax = ThreeDAxes()
+        ax.add_grid_plane('xz')
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_xy_plane(self):
+        ax = ThreeDAxes()
+        ax.add_grid_plane('xy')
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_yz_plane(self):
+        ax = ThreeDAxes()
+        ax.add_grid_plane('yz')
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_invalid_step(self):
+        ax = ThreeDAxes()
+        with pytest.raises(ValueError):
+            ax.add_grid_plane(step=0)
+
+    def test_custom_styling(self):
+        ax = ThreeDAxes()
+        ax.add_grid_plane('xz', color='#ff0000', opacity=0.5)
+        svg = ax.to_svg(0)
+        assert svg is not None
 
     def test_grid_line_count_xz(self):
         ax = ThreeDAxes(x_range=(-2, 2), z_range=(-2, 2))
@@ -1232,5 +1277,42 @@ class TestDepthSorting:
         s = Surface(lambda u, v: (u, v, 0))
         s.show.set(0, 0, lambda t: 0)  # hide it
         ax.add_surface(s)
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+
+class Test3DPrimitivesEdgeCases:
+    def test_line3d_zero_length(self):
+        ax = ThreeDAxes()
+        line = Line3D((0, 0, 0), (0, 0, 0))
+        ax.add_3d(line)
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_arrow3d_zero_length(self):
+        ax = ThreeDAxes()
+        arrow = Arrow3D((1, 1, 1), (1, 1, 1))
+        ax.add_3d(arrow)
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_dot3d_zero_radius(self):
+        ax = ThreeDAxes()
+        dot = Dot3D((0, 0, 0), radius=0)
+        ax.add_3d(dot)
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_text3d_empty(self):
+        ax = ThreeDAxes()
+        txt = Text3D('', (0, 0, 0))
+        ax.add_3d(txt)
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_parametric_curve_3d_constant(self):
+        ax = ThreeDAxes()
+        curve = ParametricCurve3D(lambda t: (0, 0, 0))
+        ax.add_3d(curve)
         svg = ax.to_svg(0)
         assert svg is not None
