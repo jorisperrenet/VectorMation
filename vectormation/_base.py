@@ -620,7 +620,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if change_existence and fade_in:
             self._show_from(start)
         self._ensure_scale_origin(start)
-        assert self.styling._scale_origin is not None
+        if self.styling._scale_origin is None:
+            raise RuntimeError('Scale origin failed to initialize')
         cx, cy = self.styling._scale_origin
         op_base = self.styling.fill_opacity.at_time(start)
         if fade_in:
@@ -1555,7 +1556,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if change_existence and spiral_in:
             self._show_from(start)
         self._scale_anim(start, end, (lambda p: p) if spiral_in else (lambda p: 1 - p), easing, stay=True)
-        assert self.styling._scale_origin is not None
+        if self.styling._scale_origin is None:
+            raise RuntimeError('Scale origin failed to initialize')
         cx, cy = self.styling._scale_origin
         s = start
         if spiral_in:

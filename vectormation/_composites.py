@@ -24,8 +24,10 @@ class MorphObject(VCollection):
             morph_from = VCollection(morph_from)
         if isinstance(morph_to, VObject):
             morph_to = VCollection(morph_to)
-        assert isinstance(morph_from, VCollection)
-        assert isinstance(morph_to, VCollection)
+        if not isinstance(morph_from, VCollection):
+            raise TypeError(f'morph_from must be a VObject or VCollection, got {type(morph_from).__name__}')
+        if not isinstance(morph_to, VCollection):
+            raise TypeError(f'morph_to must be a VObject or VCollection, got {type(morph_to).__name__}')
 
         def _flatten(collection, time=None):
             """Flatten nested VCollections. When *time* is set, snapshot DynamicObjects."""

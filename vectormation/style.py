@@ -148,7 +148,8 @@ class Styling:
 
     def interpolate(self, other, start, end, easing=easings.linear,
                     rotation_degrees=0, rotation_center=None):
-        assert isinstance(other, Styling)
+        if not isinstance(other, Styling):
+            raise TypeError(f'other must be a Styling instance, got {type(other).__name__}')
         if self == other and rotation_degrees == 0:
             return self
 

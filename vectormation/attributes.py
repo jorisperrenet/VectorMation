@@ -158,8 +158,8 @@ class Real:
 
         Example: ``real_a.interpolate(real_b, 0, 1)``
         """
-        assert self.__class__ == Real
-        assert other.__class__ == Real
+        if self.__class__ != Real or other.__class__ != Real:
+            raise TypeError('interpolate requires both values to be Real instances')
         start_val = self.time_func(start)
         end_val = other.time_func(end)
         d = max(end - start, 1e-9)
@@ -201,8 +201,8 @@ class Tup(Real):
 
         Example: ``tup_a.interpolate(tup_b, 0, 1)``
         """
-        assert self.__class__ == Tup
-        assert other.__class__ == Tup
+        if self.__class__ != Tup or other.__class__ != Tup:
+            raise TypeError('interpolate requires both values to be Tup instances')
         start_val = self.time_func(start)
         end_val = other.time_func(end)
         d = max(end - start, 1e-9)
@@ -366,7 +366,8 @@ class Color:
 
         Example: ``color_b.set_to(color_a)``
         """
-        assert isinstance(other, Color)
+        if not isinstance(other, Color):
+            raise TypeError(f'other must be a Color instance, got {type(other).__name__}')
         self.use = other.use
         self.time_func = lambda t: other.time_func(t)
         self.last_change = other.last_change
@@ -421,8 +422,8 @@ class Color:
 
         Example: ``Color(0, '#f00').interpolate(Color(0, '#00f'), 0, 1)``
         """
-        assert self.__class__ == Color
-        assert other.__class__ == Color
+        if self.__class__ != Color or other.__class__ != Color:
+            raise TypeError('interpolate requires both values to be Color instances')
         if color_space == 'hsl':
             return self.interpolate_hsl(other, start, end, easing=easing)
         if self.use == other.use == 'rgb':
@@ -442,8 +443,8 @@ class Color:
 
         Example: ``Color(0, '#f00').interpolate(Color(0, '#00f'), 0, 1, color_space='hsl')``
         """
-        assert self.__class__ == Color
-        assert other.__class__ == Color
+        if self.__class__ != Color or other.__class__ != Color:
+            raise TypeError('interpolate_hsl requires both values to be Color instances')
 
         h1, s1, l1 = _rgb_to_hsl(*self.time_func(start)[:3])
         h2, s2, l2 = _rgb_to_hsl(*other.time_func(end)[:3])
@@ -481,7 +482,8 @@ class Color:
             inner = value
         else:
             use, color = self.parse(value)
-            assert use == self.use, f'Color type mismatch: {use} vs {self.use}'
+            if use != self.use:
+                raise ValueError(f'Color type mismatch: {use} vs {self.use}')
             inner = lambda t: color
         self.time_func = _wrap(self.time_func, inner, start, lincl=lincl)
         self.last_change = max(self.last_change, start)

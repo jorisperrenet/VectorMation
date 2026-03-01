@@ -617,7 +617,8 @@ class BrowserViewer:
         """Restart the animation loop (used after hot-reload)."""
         if self._anim_task:
             self._anim_task.cancel()
-        assert self._loop is not None
+        if self._loop is None:
+            raise RuntimeError('Event loop not initialized')
         self._anim_task = self._loop.create_task(self._animation_loop())
 
     def start(self):

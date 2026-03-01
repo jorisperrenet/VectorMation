@@ -262,8 +262,8 @@ class TestCustomForces:
         space = PhysicsSpace(gravity=(0, 0))
         d = Dot(cx=500, cy=500)
         b = space.add_body(d)
-        space.add_force(lambda body, t: (100, 0))
-        space.add_force(lambda body, t: (0, 100))
+        space.add_force(lambda _body, _t: (100, 0))
+        space.add_force(lambda _body, _t: (0, 100))
         space.simulate(duration=0.5)
         assert b.x > 500
         assert b.y > 500

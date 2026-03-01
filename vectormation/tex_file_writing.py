@@ -136,15 +136,18 @@ def get_characters(tex_dir, to_render, compiler='latex', preamble=''):
 
     with open(filename, 'r') as f:
         svg_contents = BeautifulSoup(f.read(), features='xml').svg
-        assert isinstance(svg_contents, Tag)
+        if not isinstance(svg_contents, Tag):
+            raise ValueError('Failed to parse SVG: root <svg> element not found')
         viewbox = [float(i) for i in str(svg_contents['viewBox']).split(' ')]
-        assert isinstance(svg_contents.g, Tag)
+        if not isinstance(svg_contents.g, Tag):
+            raise ValueError('Failed to parse SVG: missing <g> element')
         chars: list[Tag] = [c for c in svg_contents.g if isinstance(c, Tag)]
 
         # Resolve <use xlink:href="#id"> references by inlining the definition
         uses = [(str(ref_id)[1:], c, idx) for idx, c in enumerate(chars)
                 if (ref_id := c.get('xlink:href')) is not None]
-        assert isinstance(svg_contents.defs, Tag)
+        if not isinstance(svg_contents.defs, Tag):
+            raise ValueError('Failed to parse SVG: missing <defs> element')
         defs = {str(i.get('id', '')): i for i in svg_contents.defs if isinstance(i, Tag)}
         for def_id, use, idx in uses:
             d = copy(defs[def_id])

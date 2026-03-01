@@ -133,7 +133,8 @@ class Paths:
         """Returns the segment pairs in Cubic Bezier form that need be merged.
         Matches whole compound paths first, then handles subpaths within each pair
         to preserve compound path structure (e.g. letters with holes)."""
-        assert isinstance(other, Paths)
+        if not isinstance(other, Paths):
+            raise TypeError(f'other must be a Paths instance, got {type(other).__name__}')
 
         # Step 1: Match whole paths (compound paths) by distance
         n_from, n_to = len(self.paths), len(other.paths)
@@ -218,7 +219,8 @@ class Paths:
             for sf, st in zip(paired_from, paired_to):
                 if sf is None:
                     # Extra target subpath: grow from source center
-                    assert st is not None
+                    if st is None:
+                        continue
                     is_closed = st.isclosed()
                     point = _point_at_bbox_center(path_from)
                     segs = _segs_to_bezier(st)
@@ -226,7 +228,8 @@ class Paths:
                     subpath_segment_pairs.append((segment_pairs, style_from, style_to, is_closed, compound_id))
                 elif st is None:
                     # Extra source subpath: shrink to target center
-                    assert sf is not None
+                    if sf is None:
+                        continue
                     is_closed = sf.isclosed()
                     point = _point_at_bbox_center(path_to)
                     segs = _segs_to_bezier(sf)
