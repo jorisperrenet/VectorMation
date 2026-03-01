@@ -4,7 +4,7 @@ import pytest
 from vectormation.objects import (
     Circle, Rectangle, Text, VCollection,
     Pendulum, StandingWave, NeuralNetwork, Resistor, Capacitor, Inductor,
-    Diode, Molecule2D, Charge, ElectricField, Lens, Ray,
+    Diode, LED, Molecule2D, Charge, ElectricField, Lens, Ray,
     RadarChart, DonutChart,
     ChessBoard, Automaton, NetworkGraph, Tree, FlowChart, VennDiagram,
     OrgChart, MindMap, BohrAtom, PeriodicTable,
@@ -224,6 +224,14 @@ class TestStandingWaveEdgeCases:
         sw = StandingWave(x1=500, y1=100, x2=500, y2=900)
         svg = sw.to_svg(0)
         assert svg is not None
+
+    def test_zero_num_points_raises(self):
+        with pytest.raises(ValueError, match='num_points must be > 0'):
+            StandingWave(num_points=0)
+
+    def test_negative_num_points_raises(self):
+        with pytest.raises(ValueError, match='num_points must be > 0'):
+            StandingWave(num_points=-1)
 
 
 # ── Charge & ElectricField ──────────────────────────────────────────────
@@ -1091,3 +1099,37 @@ class TestNumberLineEdgeCases:
         from vectormation.objects import NumberLine
         with pytest.raises(ValueError, match='x_end > x_start'):
             NumberLine(x_range=(10, 0, 1))
+
+
+class TestInductorEdgeCases:
+    def test_zero_loops_raises(self):
+        with pytest.raises(ValueError, match='n_loops must be > 0'):
+            Inductor(n_loops=0)
+
+    def test_negative_loops_raises(self):
+        with pytest.raises(ValueError, match='n_loops must be > 0'):
+            Inductor(n_loops=-1)
+
+    def test_valid_loops(self):
+        ind = Inductor(n_loops=2)
+        svg = ind.to_svg(0)
+        assert svg is not None
+
+
+class TestLEDBasic:
+    def test_renders(self):
+        led = LED()
+        svg = led.to_svg(0)
+        assert svg is not None
+
+    def test_custom_color(self):
+        led = LED(color='#FF0000')
+        svg = led.to_svg(0)
+        assert svg is not None
+
+
+class TestUnitIntervalBasic:
+    def test_creates_number_line(self):
+        from vectormation.objects import UnitInterval, NumberLine
+        ui = UnitInterval()
+        assert isinstance(ui, NumberLine)

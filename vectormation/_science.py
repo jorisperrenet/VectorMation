@@ -74,6 +74,8 @@ class Inductor(VCollection):
     """Electrical inductor symbol (coil/solenoid)."""
     def __init__(self, x1: float = 400, y1=ORIGIN[1], x2: float = 600, y2=ORIGIN[1], label='L',
                  n_loops=4, creation: float = 0, z: float = 0, **styling_kwargs):
+        if n_loops <= 0:
+            raise ValueError(f'n_loops must be > 0, got {n_loops}')
         style_kw = _COMPONENT_STYLE | styling_kwargs
         length, ux, uy, px, py, mx, my = _component_geom(x1, y1, x2, y2)
         lead = 0.2
@@ -445,6 +447,8 @@ class StandingWave(VCollection):
     def __init__(self, x1: float = 300, y1=ORIGIN[1], x2: float = 1620, y2=ORIGIN[1],
                  amplitude=100, harmonics=3, frequency=1.0, num_points=200,
                  start=0, end=5, creation: float = 0, z: float = 0, **kwargs):
+        if num_points <= 0:
+            raise ValueError(f'num_points must be > 0, got {num_points}')
         wave_length = math.hypot(x2 - x1, y2 - y1)
         dx_norm = (x2 - x1) / wave_length if wave_length else 1
         dy_norm = (y2 - y1) / wave_length if wave_length else 0
