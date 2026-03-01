@@ -85,6 +85,8 @@ def _polyline_patch(points_3d, axes, time, stroke, stroke_width):
 
 def _frange(start, stop, step):
     """Generate float range values."""
+    if step <= 0:
+        return [start] if start <= stop + 1e-9 else []
     vals = []
     v = start
     while v <= stop + 1e-9:

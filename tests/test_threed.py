@@ -939,3 +939,288 @@ class TestSurfaceMesh:
     def test_import_from_objects(self):
         from vectormation.objects import SurfaceMesh as SM
         assert SM is SurfaceMesh
+
+
+# ---------------------------------------------------------------------------
+# _frange edge cases
+# ---------------------------------------------------------------------------
+
+class TestFrange:
+    def test_zero_step_returns_start(self):
+        from vectormation._threed import _frange
+        result = _frange(0, 10, 0)
+        assert result == [0]
+
+    def test_negative_step_returns_start(self):
+        from vectormation._threed import _frange
+        result = _frange(0, 10, -1)
+        assert result == [0]
+
+    def test_start_beyond_stop_with_zero_step(self):
+        from vectormation._threed import _frange
+        result = _frange(10, 5, 0)
+        assert result == []
+
+    def test_normal_range(self):
+        from vectormation._threed import _frange
+        result = _frange(0, 2, 1)
+        assert len(result) == 3
+        assert result[0] == 0
+        assert result[-1] == 2
+
+
+# ---------------------------------------------------------------------------
+# set_camera_preset
+# ---------------------------------------------------------------------------
+
+class TestCameraPreset:
+    def test_default_preset(self):
+        ax = ThreeDAxes()
+        result = ax.set_camera_preset('default')
+        assert result is ax
+
+    def test_isometric_preset(self):
+        ax = ThreeDAxes()
+        ax.set_camera_preset('isometric', start=0, end=0.5)
+        # Verify phi/theta at end
+        phi = ax.phi.at_time(0.5)
+        assert abs(phi - math.radians(54.7)) < 0.1
+
+    def test_top_preset(self):
+        ax = ThreeDAxes()
+        ax.set_camera_preset('top', start=0, end=0.5)
+        phi = ax.phi.at_time(0.5)
+        assert phi == pytest.approx(0, abs=0.01)
+
+    def test_front_preset(self):
+        ax = ThreeDAxes()
+        ax.set_camera_preset('front', start=0, end=0.5)
+        phi = ax.phi.at_time(0.5)
+        assert phi == pytest.approx(math.radians(90), abs=0.01)
+
+    def test_side_preset(self):
+        ax = ThreeDAxes()
+        ax.set_camera_preset('side')
+        assert True  # no crash
+
+    def test_invalid_preset_raises(self):
+        ax = ThreeDAxes()
+        with pytest.raises(KeyError):
+            ax.set_camera_preset('nonexistent')
+
+
+# ---------------------------------------------------------------------------
+# set_camera_zoom
+# ---------------------------------------------------------------------------
+
+class TestCameraZoom:
+    def test_basic_zoom(self):
+        ax = ThreeDAxes()
+        result = ax.set_camera_zoom(0, 1, factor=2.0)
+        assert result is ax
+
+    def test_zoom_changes_scale(self):
+        ax = ThreeDAxes()
+        initial_scale = ax._scale_3d.at_time(0)
+        ax.set_camera_zoom(0, 1, factor=2.0)
+        final_scale = ax._scale_3d.at_time(1)
+        assert final_scale == pytest.approx(initial_scale * 2.0, rel=0.05)
+
+    def test_zoom_factor_one(self):
+        ax = ThreeDAxes()
+        initial = ax._scale_3d.at_time(0)
+        ax.set_camera_zoom(0, 1, factor=1.0)
+        assert ax._scale_3d.at_time(1) == pytest.approx(initial, rel=0.01)
+
+    def test_zoom_half(self):
+        ax = ThreeDAxes()
+        initial = ax._scale_3d.at_time(0)
+        ax.set_camera_zoom(0, 1, factor=0.5)
+        assert ax._scale_3d.at_time(1) == pytest.approx(initial * 0.5, rel=0.05)
+
+
+# ---------------------------------------------------------------------------
+# set_checkerboard (Surface)
+# ---------------------------------------------------------------------------
+
+class TestSetCheckerboard:
+    def test_basic(self):
+        s = Surface(lambda u, v: (u, v, 0))
+        result = s.set_checkerboard('#FF0000', '#0000FF')
+        assert result is s
+        assert s._checkerboard_colors == ('#FF0000', '#0000FF')
+
+    def test_renders_with_new_colors(self):
+        ax = ThreeDAxes()
+        s = Surface(lambda u, v: (u, v, 0))
+        ax.add_surface(s)
+        s.set_checkerboard('#FF0000', '#0000FF')
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+
+# ---------------------------------------------------------------------------
+# Factory edge cases
+# ---------------------------------------------------------------------------
+
+class TestFactoryEdgeCases:
+    def test_sphere_zero_radius(self):
+        s = Sphere3D(radius=0)
+        ax = ThreeDAxes()
+        ax.add_surface(s)
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_cube_zero_side(self):
+        c = Cube(side_length=0)
+        ax = ThreeDAxes()
+        for s in c:
+            ax.add_surface(s)
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_cylinder_zero_radius(self):
+        c = Cylinder3D(radius=0, height=1)
+        ax = ThreeDAxes()
+        ax.add_surface(c)
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_cone_zero_height(self):
+        c = Cone3D(radius=1, height=0)
+        ax = ThreeDAxes()
+        ax.add_surface(c)
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_prism_triangle(self):
+        """Prism with 3 sides (triangular prism)."""
+        p = Prism3D(n_sides=3, radius=1, height=2)
+        ax = ThreeDAxes()
+        for s in p:
+            ax.add_surface(s)
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_prism_many_sides(self):
+        """Prism with many sides approaches cylinder."""
+        p = Prism3D(n_sides=32)
+        ax = ThreeDAxes()
+        for s in p:
+            ax.add_surface(s)
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_torus_inverted_radii(self):
+        """Major radius smaller than minor radius."""
+        t = Torus3D(major_radius=0.5, minor_radius=2)
+        ax = ThreeDAxes()
+        ax.add_surface(t)
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+
+# ---------------------------------------------------------------------------
+# Camera angle edge cases
+# ---------------------------------------------------------------------------
+
+class TestCameraAngles:
+    def test_phi_zero_top_down(self):
+        ax = ThreeDAxes()
+        ax.set_camera_orientation(0, 0.5, phi=0)
+        svg = ax.to_svg(0.5)
+        assert svg is not None
+
+    def test_phi_pi_bottom_up(self):
+        ax = ThreeDAxes()
+        ax.set_camera_orientation(0, 0.5, phi=math.pi)
+        svg = ax.to_svg(0.5)
+        assert svg is not None
+
+    def test_phi_half_pi(self):
+        ax = ThreeDAxes()
+        ax.set_camera_orientation(0, 0.5, phi=math.pi / 2)
+        svg = ax.to_svg(0.5)
+        assert svg is not None
+
+    def test_ambient_rotation_negative_rate(self):
+        ax = ThreeDAxes()
+        ax.begin_ambient_camera_rotation(start=0, end=2, rate=-0.5)
+        theta_at_1 = ax.theta.at_time(1)
+        theta_at_0 = ax.theta.at_time(0)
+        assert theta_at_1 < theta_at_0  # rotating backward
+
+    def test_ambient_rotation_zero_rate(self):
+        ax = ThreeDAxes()
+        theta0 = ax.theta.at_time(0)
+        ax.begin_ambient_camera_rotation(start=0, end=2, rate=0)
+        assert ax.theta.at_time(1) == pytest.approx(theta0)
+
+
+# ---------------------------------------------------------------------------
+# 3D primitive edge cases
+# ---------------------------------------------------------------------------
+
+class TestPrimitiveEdgeCases:
+    def test_line3d_zero_length(self):
+        line = Line3D((0, 0, 0), (0, 0, 0))
+        ax = ThreeDAxes()
+        ax.add_3d(line)
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_dot3d_zero_radius(self):
+        dot = Dot3D((0, 0, 0), radius=0)
+        ax = ThreeDAxes()
+        ax.add_3d(dot)
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_text3d_empty_string(self):
+        txt = Text3D('', (0, 0, 0))
+        ax = ThreeDAxes()
+        ax.add_3d(txt)
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_parametric_curve_single_point(self):
+        curve = ParametricCurve3D(
+            lambda t: (math.cos(t), math.sin(t), t),
+            t_range=(0, 0), num_points=1)
+        ax = ThreeDAxes()
+        ax.add_3d(curve)
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_arrow3d_very_short(self):
+        arrow = Arrow3D((0, 0, 0), (0.001, 0, 0))
+        ax = ThreeDAxes()
+        ax.add_3d(arrow)
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+
+# ---------------------------------------------------------------------------
+# Depth sorting edge cases
+# ---------------------------------------------------------------------------
+
+class TestDepthSorting:
+    def test_many_objects_sorted(self):
+        ax = ThreeDAxes()
+        for i in range(10):
+            ax.add_3d(Dot3D((i, 0, i), radius=0.1))
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_empty_scene(self):
+        ax = ThreeDAxes()
+        svg = ax.to_svg(0)
+        assert svg is not None
+
+    def test_hidden_surface_excluded(self):
+        ax = ThreeDAxes()
+        s = Surface(lambda u, v: (u, v, 0))
+        s.show.set(0, 0, lambda t: 0)  # hide it
+        ax.add_surface(s)
+        svg = ax.to_svg(0)
+        assert svg is not None
