@@ -1263,7 +1263,7 @@ class TexCountAnimation(DynamicObject):
 
         return VCollection(*objects, creation=creation)
 
-    def count_to(self, target: float, start: float, end: float, easing=easings.smooth):
+    def count_to(self, target: float, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate counting from the current value to a new target."""
         dur = max(end - start, 1e-9)
         self._extra_segments.append((self._last_val, target, start, dur, easing))

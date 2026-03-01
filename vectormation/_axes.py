@@ -1707,7 +1707,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(rect)
         return rect
 
-    def animate_range(self, start, end, x_range=None, y_range=None, easing=easings.smooth):
+    def animate_range(self, start: float = 0, end: float = 1, x_range=None, y_range=None, easing=easings.smooth):
         """Animate the axis ranges to new bounds."""
         dur = end - start
         if dur <= 0:

@@ -60,7 +60,7 @@ class Variable(VCollection):
         self.number.set_value(val, start)
         return self
 
-    def animate_value(self, target, start: float, end: float, easing=easings.smooth):
+    def animate_value(self, target, start: float = 0, end: float = 1, easing=easings.smooth):
         self.number.animate_value(target, start, end, easing)
         return self
 

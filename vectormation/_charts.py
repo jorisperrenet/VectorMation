@@ -1596,6 +1596,11 @@ class Scoreboard(VCollection):
                 objects.append(div)
         super().__init__(*objects, creation=creation, z=z)
 
+    @classmethod
+    def from_dict(cls, data, **kwargs):
+        """Create from dict {label: value}."""
+        return cls(list(data.items()), **kwargs)
+
     def __repr__(self):
         return f'Scoreboard({self._n_entries} rows)'
 

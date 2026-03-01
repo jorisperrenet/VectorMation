@@ -2410,7 +2410,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         """Return the stroke opacity at the given time."""
         return self.styling.stroke_opacity.at_time(time)
 
-    def animate_style(self, start: float, end: float, easing=easings.smooth, **kwargs):
+    def animate_style(self, start: float = 0, end: float = 1, easing=easings.smooth, **kwargs):
         """Animate style changes over [start, end].
         Example: obj.animate_style(1, 2, fill='#f00', fill_opacity=0.5, stroke_width=6)"""
         dur = end - start

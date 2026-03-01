@@ -1033,7 +1033,7 @@ class CountAnimation(Text):
                     _fmt.format(_f + (_t - _f) * _e((t - _s) / _d)),
                 stay=True)
 
-    def count_to(self, target: float, start: float, end: float, easing=easings.smooth):
+    def count_to(self, target: float, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate counting from the current value to a new target."""
         self._count_anim(self._last_val, target, start, end, easing)
         self._last_val = target
@@ -1061,7 +1061,7 @@ class ValueTracker:
         self.value.set_onward(start, val)
         return self
 
-    def animate_value(self, target, start, end, easing=easings.smooth):
+    def animate_value(self, target, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate the tracked value to a target over [start, end]."""
         self.value.move_to(start, end, target, easing=easing)
         return self
@@ -1109,7 +1109,7 @@ class ComplexValueTracker:
         self.imag.set_onward(start, val.imag)
         return self
 
-    def animate_value(self, target, start, end, easing=easings.smooth):
+    def animate_value(self, target, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate the complex value to a target over [start, end]."""
         if isinstance(target, (int, float)):
             target = complex(target)
@@ -1146,7 +1146,7 @@ class DecimalNumber(Text):
         self._tracker.set_onward(start, val)
         return self
 
-    def animate_value(self, target, start, end, easing=easings.smooth):
+    def animate_value(self, target, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate the displayed numeric value to a target over [start, end]."""
         self._tracker.move_to(start, end, target, easing=easing)
         return self
