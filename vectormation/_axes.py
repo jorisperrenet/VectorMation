@@ -8,7 +8,7 @@ from vectormation._constants import (
     _sample_function, _normalize,
 )
 from vectormation._base import VObject, VCollection, _lerp
-from vectormation._base_helpers import _clamp01, _lerp_point
+from vectormation._base_helpers import _clamp01, _lerp_point, _norm_dir
 from vectormation._collection import _scale_transform
 from vectormation._axes_helpers import (
     _CURVE_STYLE, _AREA_STYLE, _HIGHLIGHT_STYLE,
@@ -584,6 +584,7 @@ class Axes(_AxesExtMixin, VCollection):
     def get_graph_label(self, func, label, x_val=None, direction='up', buff=SMALL_BUFF,
                          font_size: float = 48, creation: float = 0, z: float = 0, **styling_kwargs):
         """Create a TeX label positioned near a plotted function curve."""
+        direction = _norm_dir(direction, 'up')
         style_kw = {'fill': '#fff', 'stroke_width': 0} | styling_kwargs
         label_obj = _get_tex_object()(label, font_size=font_size, creation=creation, z=z, **style_kw)
         _, _, lw, lh = label_obj.bbox(creation)
@@ -1405,6 +1406,9 @@ class Axes(_AxesExtMixin, VCollection):
     def add_labeled_point(self, x, y, label=None, dot_radius: float = 5, direction='above',
                           creation: float = 0, **kwargs):
         """Add a Dot at (*x*, *y*) with an optional directional Text label."""
+        _LP_DIR = {(0, -1): 'above', (0, 1): 'below', (-1, 0): 'left', (1, 0): 'right'}
+        if isinstance(direction, tuple):
+            direction = _LP_DIR.get(direction, 'above')
         z = kwargs.pop('z', 0)
         font_size = kwargs.pop('font_size', 20)
         label_color = kwargs.pop('label_color', '#fff')
@@ -1446,6 +1450,7 @@ class Axes(_AxesExtMixin, VCollection):
     def add_arrow_annotation(self, x, y, text, direction='up', length: float = 80, buff: float = 10,
                               font_size: float = 20, creation: float = 0, z: float = 5, **styling_kwargs):
         """Add a labeled arrow pointing to a math coordinate. Returns a VCollection."""
+        direction = _norm_dir(direction, 'up')
         style_kw = {'stroke': '#FFFF00', 'fill': '#FFFF00'} | styling_kwargs
         sx, sy = self.coords_to_point(x, y, creation)
         offsets = {
