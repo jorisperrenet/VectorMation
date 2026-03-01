@@ -69,7 +69,7 @@ class VectorMathAnim:
         for attr, val in zip((self.vb_x, self.vb_y, self.vb_w, self.vb_h), value):
             attr.set_onward(t, val)
 
-    def camera_shift(self, dx, dy, start, end, easing=easings.smooth):
+    def camera_shift(self, dx, dy, start: float = 0, end: float = 1, easing=easings.smooth):
         """Pan the camera by (dx, dy) pixels over [start, end]."""
         dur = end - start
         if dur <= 0:
@@ -85,7 +85,7 @@ class VectorMathAnim:
         self.vb_w.move_to(start, end, w, easing=easing)
         self.vb_h.move_to(start, end, h, easing=easing)
 
-    def camera_zoom(self, factor, start, end, cx=None, cy=None, easing=easings.smooth):
+    def camera_zoom(self, factor, start: float = 0, end: float = 1, cx=None, cy=None, easing=easings.smooth):
         """Zoom the camera by factor around (cx, cy) over [start, end].
         factor > 1 zooms in, factor < 1 zooms out."""
         if cx is None:
@@ -99,7 +99,7 @@ class VectorMathAnim:
         self._animate_viewbox(start, end, new_x, new_y, new_w, new_h, easing)
         return self
 
-    def camera_follow(self, obj, start, end: float | None = None):
+    def camera_follow(self, obj, start: float = 0, end: float | None = None):
         """Make the camera center on an object over [start, end]."""
         w, h = self.width, self.height
         def _vb_x(t):

@@ -324,7 +324,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                 ya.add_onward(start, _ramp(start, end - start, dy, easing), last_change=end)
         return self
 
-    def scale_by(self, start, end, factor, easing=easings.smooth):
+    def scale_by(self, start: float = 0, end: float = 1, factor: float = 1, easing=easings.smooth):
         """Alias for :meth:`scale` with (start, end, factor) parameter order."""
         return self.scale(factor, start, end, easing=easing)
 
@@ -344,7 +344,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.styling.rotation.last_change = max(self.styling.rotation.last_change, end)
         return self
 
-    def rotate_by(self, start: float, end: float, degrees: float, cx: float | None = None, cy: float | None = None, easing=easings.smooth):
+    def rotate_by(self, start: float = 0, end: float = 1, degrees: float = 0, cx: float | None = None, cy: float | None = None, easing=easings.smooth):
         """Animate rotating by degrees from current rotation."""
         start_deg = self.styling.rotation.at_time(start)[0]
         return self._apply_rotation(start, end, start_deg + degrees, cx, cy, easing)
@@ -969,11 +969,11 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             _set_attr(attr, start, end, attr.at_time(start) * f, easing)
         return self
 
-    def rotate_to(self, start: float, end: float, degrees: float, cx: float | None = None, cy: float | None = None, easing=easings.smooth):
+    def rotate_to(self, start: float = 0, end: float = 1, degrees: float = 0, cx: float | None = None, cy: float | None = None, easing=easings.smooth):
         """Animate rotating this object to the given angle in degrees."""
         return self._apply_rotation(start, end, degrees, cx, cy, easing)
 
-    def set_color(self, start: float, end: float, fill=None, stroke=None, easing=easings.smooth, color_space='rgb'):
+    def set_color(self, start: float = 0, end: float = 1, fill=None, stroke=None, easing=easings.smooth, color_space='rgb'):
         """Animate fill and/or stroke color change over [start, end].
         color_space: 'rgb' or 'hsl' (smoother for hue transitions)."""
         for attr_name, target in [('fill', fill), ('stroke', stroke)]:
@@ -2425,7 +2425,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                 attr.move_to(start, end, target, easing=easing)
         return self
 
-    def morph_style(self, target_style, start: float, end: float, easing=easings.smooth):
+    def morph_style(self, target_style, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate styling (fill, stroke, opacity, etc.) to match another object's style."""
         morph_attrs = ['fill', 'stroke', 'stroke_width', 'fill_opacity', 'stroke_opacity']
         for attr_name in morph_attrs:

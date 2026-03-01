@@ -281,3 +281,40 @@ class TestSpiralEdgeCases:
         s = Spiral(a=5, b=0.1, turns=2, log_spiral=True, cx=500, cy=500)
         svg = s.to_svg(0)
         assert svg is not None
+
+
+# ── ValueTracker / DecimalNumber / Paragraph edge cases ──────────────
+
+class TestValueTrackerProperties:
+    def test_last_change(self):
+        from vectormation.objects import ValueTracker
+        vt = ValueTracker(10)
+        vt.set_value(20, start=0.5)
+        assert vt.last_change == 0.5
+
+    def test_at_time_alias(self):
+        from vectormation.objects import ValueTracker
+        vt = ValueTracker(42)
+        assert vt.at_time(0) == 42
+        assert vt.get_value(0) == 42
+
+
+class TestDecimalNumberTracker:
+    def test_tracker_property(self):
+        from vectormation.objects import DecimalNumber
+        dn = DecimalNumber(3.14, x=100, y=100)
+        assert dn.tracker is not None
+        assert dn.tracker.at_time(0) == pytest.approx(3.14)
+
+
+class TestParagraphLines:
+    def test_lines_getter(self):
+        from vectormation.objects import Paragraph
+        p = Paragraph('Hello', 'World')
+        assert len(p.lines) == 2
+
+    def test_lines_setter(self):
+        from vectormation.objects import Paragraph
+        p = Paragraph('A', 'B')
+        p.lines = ['X', 'Y', 'Z']
+        assert len(p.lines) == 3

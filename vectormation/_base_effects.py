@@ -647,7 +647,7 @@ class _VObjectEffectsMixin:
                     stay=(i == n - 2))
         return self
 
-    def freeze(self, start, end: float | None = None):
+    def freeze(self, start: float = 0, end: float | None = None):
         """Freeze the object's appearance at time *start* until *end*."""
         _captured = {}
 
@@ -775,7 +775,7 @@ class _VObjectEffectsMixin:
                      f"{_cl.to_svg(t)}</clipPath></defs>{inner}</g>", start)
         return self
 
-    def set_lifetime(self, start, end):
+    def set_lifetime(self, start: float = 0, end: float = 1):
         """Set bounded visibility: visible only from *start* to *end*."""
         self.set_visible(False, 0); self.set_visible(True, start); self.set_visible(False, end)
         return self

@@ -16716,7 +16716,7 @@ class TestSparkLine:
 
     def test_repr(self):
         sl = SparkLine(data=[1, 2])
-        assert repr(sl) == 'SparkLine()'
+        assert repr(sl) == 'SparkLine(2 points)'
 
 
 class TestKPICard:
@@ -16777,7 +16777,7 @@ class TestWaffleChartCategories:
 
     def test_repr(self):
         wc = WaffleChart([('X', 50, '#fff')])
-        assert repr(wc) == 'WaffleChart()'
+        assert repr(wc) == 'WaffleChart(1 categories)'
 
 
 class TestCircularProgressBar:

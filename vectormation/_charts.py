@@ -801,7 +801,7 @@ class RadarChart(VCollection):
     from_dict = classmethod(_from_dict)
 
     def __repr__(self):
-        return 'RadarChart()'
+        return f'RadarChart({self._n} axes, {self._dataset_count} datasets)'
 
 class ProgressBar(VCollection):
     """Animated progress bar that fills from left to right."""
@@ -924,7 +924,7 @@ class WaterfallChart(VCollection):
     from_dict = classmethod(_from_dict)
 
     def __repr__(self):
-        return 'WaterfallChart()'
+        return f'WaterfallChart({len(self._bars)} bars)'
 
 class GanttChart(VCollection):
     """Gantt chart for project timelines."""
@@ -1335,7 +1335,7 @@ class SparkLine(VObject):
         return svg
 
     def __repr__(self):
-        return 'SparkLine()'
+        return f'SparkLine({len(self._data)} points)'
 
 class KPICard(VCollection):
     """Metric card showing a title, large value, optional subtitle and trend sparkline."""
@@ -1464,7 +1464,7 @@ class CalendarHeatmap(VCollection):
         super().__init__(*objects, creation=creation, z=z)
 
     def __repr__(self):
-        return 'CalendarHeatmap()'
+        return f'CalendarHeatmap({len(self.objects)} cells)'
 
 class WaffleChart(VCollection):
     """Waffle chart: grid of colored squares showing category proportions."""
@@ -1511,10 +1511,11 @@ class WaffleChart(VCollection):
                               creation=creation, z=z)
             objects.append(rect)
             cell_idx += 1
+        self._n_categories = len(categories)
         super().__init__(*(objects + legend_objs), creation=creation, z=z)
 
     def __repr__(self):
-        return 'WaffleChart()'
+        return f'WaffleChart({self._n_categories} categories)'
 
 class CircularProgressBar(VCollection):
     """Circular progress indicator with percentage text."""
