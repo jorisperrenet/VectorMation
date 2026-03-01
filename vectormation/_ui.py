@@ -454,6 +454,9 @@ class IconGrid(VCollection):
     def __init__(self, data, x: float = 100, y: float = 100, cols: int = 10, size: float = 15, gap: float = 3,
                  shape='circle', creation: float = 0, z: float = 0):
         objects = []
+        if not data:
+            super().__init__(creation=creation, z=z)
+            return
         # Flatten data into a list of colors
         colors = []
         for count, color in data:

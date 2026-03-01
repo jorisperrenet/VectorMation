@@ -243,12 +243,17 @@ class ThreeDAxes(VCollection):
     def plot_surface(self, func, u_range=None, v_range=None, resolution=(20, 20),
                      fill_color='#4488ff', checkerboard_colors=None,
                      stroke_color='#333', stroke_width: float = 0.5, fill_opacity=0.8,
-                     creation: float = 0, z: float = 0):
+                     creation: float = 0, z: float = 0,
+                     fill=None, stroke=None):
         """Create and register a Surface for z = func(x, y)."""
         if u_range is None:
             u_range = self._x_range
         if v_range is None:
             v_range = self._y_range
+        if fill is not None:
+            fill_color = fill
+        if stroke is not None:
+            stroke_color = stroke
         surface = Surface(func, u_range, v_range, resolution=resolution,
                           fill_color=fill_color, checkerboard_colors=checkerboard_colors,
                           stroke_color=stroke_color, stroke_width=stroke_width,
@@ -483,13 +488,18 @@ class Surface(VObject):
                  resolution=(20, 20),
                  fill_color='#4488ff', checkerboard_colors=None,
                  stroke_color='#333', stroke_width: float = 0.5, fill_opacity=0.8,
-                 creation: float = 0, z: float = 0):
+                 creation: float = 0, z: float = 0,
+                 fill=None, stroke=None):
         self.show = attributes.Real(creation, True)
         self.z = attributes.Real(creation, z)
         self._func = func
         self._u_range = u_range
         self._v_range = v_range
         self._resolution = resolution
+        if fill is not None:
+            fill_color = fill
+        if stroke is not None:
+            stroke_color = stroke
         self._fill_color = fill_color
         self._checkerboard_colors = checkerboard_colors
         self._fill_rgb = _parse_color_to_rgb(fill_color)
