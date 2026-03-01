@@ -149,12 +149,18 @@ class TestStandingWave:
 
 class TestCharge:
     def test_creates_positive(self):
-        c = Charge(cx=500, cy=500, sign=1, creation=0)
+        c = Charge(magnitude=1, cx=500, cy=500, creation=0)
         assert len(c.objects) > 0
+        assert c.magnitude == 1
 
     def test_creates_negative(self):
-        c = Charge(cx=500, cy=500, sign=-1, creation=0)
+        c = Charge(magnitude=-1, cx=500, cy=500, creation=0)
         assert len(c.objects) > 0
+        assert c.magnitude == -1
+
+    def test_default_magnitude(self):
+        c = Charge(creation=0)
+        assert c.magnitude == 1
 
     def test_repr(self):
         c = Charge(creation=0)
@@ -163,25 +169,27 @@ class TestCharge:
 
 class TestElectricField:
     def test_creates(self):
-        c1 = Charge(cx=500, cy=400, sign=1, creation=0)
-        c2 = Charge(cx=500, cy=600, sign=-1, creation=0)
+        c1 = Charge(magnitude=1, cx=500, cy=400, creation=0)
+        c2 = Charge(magnitude=-1, cx=500, cy=600, creation=0)
         ef = ElectricField(c1, c2, creation=0)
         assert len(ef.objects) > 0
 
     def test_repr(self):
-        c = Charge(cx=500, cy=500, sign=1, creation=0)
+        c = Charge(magnitude=1, cx=500, cy=500, creation=0)
         ef = ElectricField(c, creation=0)
         assert 'ElectricField' in repr(ef)
 
 
 class TestLens:
     def test_creates_converging(self):
-        lens = Lens(cx=500, cy=500, lens_type='converging', creation=0)
+        lens = Lens(cx=500, cy=500, focal_length=200, creation=0)
         assert len(lens.objects) > 0
+        assert lens.focal_length > 0
 
     def test_creates_diverging(self):
-        lens = Lens(cx=500, cy=500, lens_type='diverging', creation=0)
+        lens = Lens(cx=500, cy=500, focal_length=-200, creation=0)
         assert len(lens.objects) > 0
+        assert lens.focal_length < 0
 
     def test_repr(self):
         lens = Lens(creation=0)

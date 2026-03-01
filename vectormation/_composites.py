@@ -638,6 +638,23 @@ class _GridAccessMixin:
         for e in entries: e.flash(start, end, color=color, easing=easing)
         return self
 
+    def highlight_entry(self, row, col, start: float = 0, end: float = 1, color='#FFD700', easing=easings.there_and_back):
+        """Flash-highlight a single entry."""
+        return self._flash([self.entries[row][col]], start, end, color, easing)
+
+    def highlight_row(self, row, start: float = 0, end: float = 1, color='#FFD700', easing=easings.there_and_back):
+        """Flash-highlight all entries in a row."""
+        return self._flash(self.entries[row], start, end, color, easing)
+
+    def highlight_column(self, col, start: float = 0, end: float = 1, color='#FFD700', easing=easings.there_and_back):
+        """Flash-highlight all entries in a column."""
+        return self._flash([row[col] for row in self.entries if col < len(row)], start, end, color, easing)
+
+    def set_entry_value(self, row, col, new_value, start: float = 0):
+        """Change the text of an entry at the given time."""
+        self.entries[row][col].text.set_onward(start, str(new_value))
+        return self
+
 
 class Table(_GridAccessMixin, VCollection):
     """Table for displaying tabular data with optional row/column labels."""
@@ -716,26 +733,12 @@ class Table(_GridAccessMixin, VCollection):
         kw = _HIGHLIGHT_STYLE | kwargs
         return Rectangle(w, h, x=rx, y=ry, **kw)
 
-    def highlight_cell(self, row, col, start: float = 0, end: float = 1, color='#FFD700', easing=easings.there_and_back):
-        """Flash-highlight a single cell's text."""
-        return self._flash([self.entries[row][col]], start, end, color, easing)
-
-    def highlight_row(self, row_idx, start: float = 0, end: float = 1, color='#FFD700', easing=easings.there_and_back):
-        """Flash-highlight all cells in a row."""
-        return self._flash(self.entries[row_idx], start, end, color, easing)
-
-    def highlight_column(self, col, start: float = 0, end: float = 1, color='#FFD700', easing=easings.there_and_back):
-        """Flash-highlight all cells in a column."""
-        return self._flash([row[col] for row in self.entries if col < len(row)], start, end, color, easing)
+    highlight_cell = _GridAccessMixin.highlight_entry  # Table alias
+    set_cell_value = _GridAccessMixin.set_entry_value  # Table alias
 
     def highlight_cells(self, cells, start: float = 0, end: float = 1, color='#FFD700', easing=easings.there_and_back):
         """Flash-highlight multiple cells. cells: list of (row, col) tuples."""
         return self._flash([self.entries[r][c] for r, c in cells], start, end, color, easing)
-
-    def set_cell_value(self, row, col, new_value, start: float = 0):
-        """Change the text of a cell at the given time."""
-        self.entries[row][col].text.set_onward(start, str(new_value))
-        return self
 
     def highlight_range(self, start_row, start_col, end_row, end_col,
                         start=0, end=1, color='#FFD700', easing=easings.there_and_back):
@@ -1068,23 +1071,6 @@ class Matrix(_GridAccessMixin, VCollection):
 
     def __repr__(self):
         return f'Matrix({self.rows}x{self.cols})'
-
-    def highlight_entry(self, row, col, start: float = 0, end: float = 1, color='#FFD700', easing=easings.there_and_back):
-        """Flash-highlight a single matrix entry."""
-        return self._flash([self.entries[row][col]], start, end, color, easing)
-
-    def highlight_row(self, row, start: float = 0, end: float = 1, color='#FFD700', easing=easings.there_and_back):
-        """Flash-highlight all entries in a row."""
-        return self._flash(self.entries[row], start, end, color, easing)
-
-    def highlight_column(self, col, start: float = 0, end: float = 1, color='#FFD700', easing=easings.there_and_back):
-        """Flash-highlight all entries in a column."""
-        return self._flash([row[col] for row in self.entries if col < len(row)], start, end, color, easing)
-
-    def set_entry_value(self, row, col, new_value, start: float = 0):
-        """Change the text of a matrix entry at the given time."""
-        self.entries[row][col].text.set_onward(start, str(new_value))
-        return self
 
     def swap_rows(self, i, j, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate swapping two rows via arc paths."""
