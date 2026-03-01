@@ -605,6 +605,8 @@ class Axes(_AxesExtMixin, VCollection):
     def plot_parametric(self, func, t_range=(0, 1), num_points: int = 200,
                         creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a parametric curve func(t) -> (x, y) in math coordinates. Returns a Path."""
+        if 'color' in styling_kwargs:
+            styling_kwargs.setdefault('stroke', styling_kwargs.pop('color'))
         style_kw = _CURVE_STYLE | styling_kwargs
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
         def _compute_d(time, _func=func, _np=num_points, _tr=t_range):
@@ -633,6 +635,8 @@ class Axes(_AxesExtMixin, VCollection):
 
     def plot_implicit(self, func, num_points: int = 100, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot an implicit curve f(x, y) = 0 using marching squares. Returns a Path."""
+        if 'color' in styling_kwargs:
+            styling_kwargs.setdefault('stroke', styling_kwargs.pop('color'))
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
         def _compute_d(time, _func=func, _n=num_points):
@@ -676,6 +680,8 @@ class Axes(_AxesExtMixin, VCollection):
 
     def plot_line_graph(self, x_values, y_values, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a line graph from discrete data points. Returns a VCollection with animate_data()."""
+        if 'color' in styling_kwargs:
+            styling_kwargs.setdefault('stroke', styling_kwargs.pop('color'))
         style_kw = _CURVE_STYLE | styling_kwargs
         # Mutable container so animate_data can update the data reference
         data_ref = [list(zip(x_values, y_values))]
@@ -767,6 +773,8 @@ class Axes(_AxesExtMixin, VCollection):
 
     def plot_scatter(self, x_values, y_values, r: float = 5, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a scatter plot (dots only, no connecting lines). Returns a VCollection."""
+        if 'color' in styling_kwargs:
+            styling_kwargs.setdefault('fill', styling_kwargs.pop('color'))
         style_kw = {'fill': '#58C4DD', 'stroke_width': 0} | styling_kwargs
         data = list(zip(x_values, y_values))
         dots = []
@@ -781,6 +789,8 @@ class Axes(_AxesExtMixin, VCollection):
     def plot_step(self, x_values, y_values, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a step function (horizontal then vertical segments).
         Returns a Path object."""
+        if 'color' in styling_kwargs:
+            styling_kwargs.setdefault('stroke', styling_kwargs.pop('color'))
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 3, 'fill_opacity': 0} | styling_kwargs
         data = list(zip(x_values, y_values))
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
@@ -805,6 +815,10 @@ class Axes(_AxesExtMixin, VCollection):
     def plot_filled_step(self, x_values, y_values, baseline: float = 0, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a step function with shaded area down to baseline.
         Returns a Path object."""
+        if 'color' in styling_kwargs:
+            c = styling_kwargs.pop('color')
+            styling_kwargs.setdefault('stroke', c)
+            styling_kwargs.setdefault('fill', c)
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.3,
                     'stroke': '#58C4DD', 'stroke_width': 2} | styling_kwargs
         data = list(zip(x_values, y_values))
@@ -833,6 +847,10 @@ class Axes(_AxesExtMixin, VCollection):
         """Plot a histogram from raw data values. Returns a VCollection of Rectangles."""
         if not data:
             return VCollection()
+        if 'color' in styling_kwargs:
+            c = styling_kwargs.pop('color')
+            styling_kwargs.setdefault('fill', c)
+            styling_kwargs.setdefault('stroke', c)
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.5,
                     'stroke': '#58C4DD', 'stroke_width': 1} | styling_kwargs
         if isinstance(bins, int):

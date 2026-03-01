@@ -130,3 +130,53 @@ class TestPlotColorShorthand:
         svg = ax.to_svg(0)
         # stroke= should win over color=
         assert 'rgb(0,255,0)' in svg or 'rgb(0, 255, 0)' in svg
+
+    def test_parametric_color(self):
+        ax = Axes(x_range=(-3, 3), y_range=(-3, 3))
+        import math
+        ax.plot_parametric(lambda t: (math.cos(t), math.sin(t)),
+                           t_range=(0, math.tau), color='#FF0000')
+        svg = ax.to_svg(0)
+        assert 'rgb(255,0,0)' in svg or 'rgb(255, 0, 0)' in svg
+
+    def test_polar_color(self):
+        ax = Axes(x_range=(-3, 3), y_range=(-3, 3))
+        ax.plot_polar(lambda theta: 2, color='#FF0000')
+        svg = ax.to_svg(0)
+        assert 'rgb(255,0,0)' in svg or 'rgb(255, 0, 0)' in svg
+
+    def test_implicit_color(self):
+        ax = Axes(x_range=(-3, 3), y_range=(-3, 3))
+        ax.plot_implicit(lambda x, y: x**2 + y**2 - 1, color='#FF0000')
+        svg = ax.to_svg(0)
+        assert 'rgb(255,0,0)' in svg or 'rgb(255, 0, 0)' in svg
+
+    def test_step_color(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 10))
+        ax.plot_step([0, 1, 2], [1, 3, 2], color='#FF0000')
+        svg = ax.to_svg(0)
+        assert 'rgb(255,0,0)' in svg or 'rgb(255, 0, 0)' in svg
+
+    def test_scatter_color_maps_to_fill(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        ax.plot_scatter([1, 2], [3, 4], color='#FF0000')
+        svg = ax.to_svg(0)
+        assert 'rgb(255,0,0)' in svg or 'rgb(255, 0, 0)' in svg
+
+    def test_histogram_color(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 10))
+        ax.plot_histogram([1, 2, 3, 4, 5], bins=3, color='#FF0000')
+        svg = ax.to_svg(0)
+        assert 'rgb(255,0,0)' in svg or 'rgb(255, 0, 0)' in svg
+
+    def test_line_graph_color(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 10))
+        ax.plot_line_graph([0, 1, 2], [1, 3, 2], color='#FF0000')
+        svg = ax.to_svg(0)
+        assert 'rgb(255,0,0)' in svg or 'rgb(255, 0, 0)' in svg
+
+    def test_filled_step_color(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 10))
+        ax.plot_filled_step([0, 1, 2], [1, 3, 2], color='#FF0000')
+        svg = ax.to_svg(0)
+        assert 'rgb(255,0,0)' in svg or 'rgb(255, 0, 0)' in svg
