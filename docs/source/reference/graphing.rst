@@ -284,6 +284,24 @@ Graph
 
       Vector field overlay on axes. *func* takes ``(x, y)`` and returns ``(dx, dy)``.
 
+   .. rubric:: Calculus Visualizations
+
+   .. py:method:: plot_derivative(func, h=0.001, num_points=200, **styling)
+
+      Plot the numerical derivative of *func* using central differences.
+      Default style: dashed green line.
+
+   .. py:method:: plot_antiderivative(func, x0=None, num_points=200, **styling)
+
+      Plot the numerical antiderivative (cumulative integral) of *func*
+      using the trapezoidal rule.  *x0* defaults to x_min.
+      Default style: dashed red line.
+
+   .. py:method:: get_trapezoidal_rule(func, x_range, dx=0.5, **styling)
+
+      Visualize the trapezoidal rule approximation of the area under *func*
+      as a series of shaded trapezoids.
+
    .. rubric:: Vectors, Intervals, and Regression
 
    .. py:method:: add_vector(x, y, **styling)

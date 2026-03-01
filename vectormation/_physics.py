@@ -181,12 +181,14 @@ class PhysicsSpace:
         return s
 
     def add(self, *bodies):
-        """Add pre-constructed Body objects to the simulation."""
+        """Add pre-constructed Body, Spring, or Wall objects to the simulation."""
         for b in bodies:
             if isinstance(b, Body):
                 self.bodies.append(b)
             elif isinstance(b, Spring):
                 self.springs.append(b)
+            elif isinstance(b, Wall):
+                self.walls.append(b)
         return self
 
     def add_walls(self, left=None, right=None, top=None, bottom=None, restitution=0.9):
@@ -359,7 +361,7 @@ class Cloth:
     def __init__(self, x=560, y=200, width=800, height=500,
                  cols=15, rows=10, pin_top=True, stiffness=2.0,
                  color='#58C4DD', creation=0):
-        from vectormation._shapes import Line, Dot  # noqa: F811
+        from vectormation._shapes import Line, Dot  # lazy import (circular dep)
         self.cols = cols
         self.rows = rows
         self.space = PhysicsSpace(gravity=(0, 400), dt=1 / 120, start=creation)

@@ -670,10 +670,7 @@ class VCollection(_BBoxMethodsMixin):
             def _dy(t, _s=start, _d=dur, _a=amplitude, _p=phase, _w=n_waves):
                 progress = (t - _s) / _d
                 return -_a * math.sin(math.tau * _w * progress + _p) * (1 - progress)
-            for _, ya in obj._shift_reals():
-                ya.add(start, end, _dy)
-            for c in obj._shift_coors():
-                c.add(start, end, lambda t, _f=_dy: (0, _f(t)))
+            obj._apply_shift_effect(start, end, dy_func=_dy)
         return self
 
     def sequential(self, method_name, start: float = 0, end: float = 1, **kwargs):
@@ -787,15 +784,18 @@ class VCollection(_BBoxMethodsMixin):
             t1 = min(t0 + per_child * 1.5, end)
             obj.fadein(t0, t1, shift_dir=None)
             _d = max(t1 - t0, 1e-9)
+            dx_fn = dy_fn = None
             for s_val, is_x in ((sdx, True), (sdy, False)):
                 if s_val == 0:
                     continue
                 def _shift(t, _s=s_val, _t0=t0, _d=_d, _ea=easing):
                     return _s * (1 - _ea((t - _t0) / _d))
-                for xa, ya in obj._shift_reals():
-                    (xa if is_x else ya).add(t0, t1, _shift)
-                for c in obj._shift_coors():
-                    c.add(t0, t1, lambda t, _f=_shift, _x=is_x: (_f(t), 0) if _x else (0, _f(t)))
+                if is_x:
+                    dx_fn = _shift
+                else:
+                    dy_fn = _shift
+            if dx_fn or dy_fn:
+                obj._apply_shift_effect(t0, t1, dx_func=dx_fn, dy_func=dy_fn)
         return self
 
     def _dim_others(self, index, start, end, opacity=0.2, easing=easings.smooth):
@@ -1023,15 +1023,9 @@ class VCollection(_BBoxMethodsMixin):
                 envelope = math.sin(math.pi * p)  # 0→1→0
                 return _a * math.sin(math.tau * (p - _ph)) * envelope
             if axis == 'y':
-                for xa, ya in obj._shift_reals():
-                    ya.add(start, end, _wave)
-                for c in obj._shift_coors():
-                    c.add(start, end, lambda t, _w=_wave: (0, _w(t)))
+                obj._apply_shift_effect(start, end, dy_func=_wave)
             else:
-                for xa, ya in obj._shift_reals():
-                    xa.add(start, end, _wave)
-                for c in obj._shift_coors():
-                    c.add(start, end, lambda t, _w=_wave: (_w(t), 0))
+                obj._apply_shift_effect(start, end, dx_func=_wave)
         return self
 
     def sort_children(self, key='x', start: float = 0, end: float | None = None,
@@ -1136,25 +1130,9 @@ class VCollection(_BBoxMethodsMixin):
 
     # -- Animation delegation: apply to all children simultaneously --
 
-    def fadein(self, start=0.0, end=1.0, **kw): return self._delegate('fadein', start=start, end=end, **kw)
-    def fadeout(self, start=0.0, end=1.0, **kw): return self._delegate('fadeout', start=start, end=end, **kw)
-    def create(self, start=0.0, end=1.0, **kw): return self._delegate('create', start=start, end=end, **kw)
-    def draw_along(self, start=0.0, end=1.0, **kw): return self._delegate('draw_along', start=start, end=end, **kw)
-    def slide_in(self, start=0.0, end=1.0, **kw): return self._delegate('slide_in', start=start, end=end, **kw)
-    def slide_out(self, start=0.0, end=1.0, **kw): return self._delegate('slide_out', start=start, end=end, **kw)
-    def zoom_in(self, start=0.0, end=1.0, **kw): return self._delegate('zoom_in', start=start, end=end, **kw)
-    def zoom_out(self, start=0.0, end=1.0, **kw): return self._delegate('zoom_out', start=start, end=end, **kw)
-    def grow_from_center(self, start=0.0, end=1.0, **kw): return self._delegate('grow_from_center', start=start, end=end, **kw)
-    def shrink_to_center(self, start=0.0, end=1.0, **kw): return self._delegate('shrink_to_center', start=start, end=end, **kw)
-    def spin_in(self, start=0.0, end=1.0, **kw): return self._delegate('spin_in', start=start, end=end, **kw)
-    def spin_out(self, start=0.0, end=1.0, **kw): return self._delegate('spin_out', start=start, end=end, **kw)
+    # pop_in / pop_out have no end parameter
     def pop_in(self, start=0.0, **kw): return self._delegate('pop_in', start=start, **kw)
     def pop_out(self, start=0.0, **kw): return self._delegate('pop_out', start=start, **kw)
-    def draw_border_then_fill(self, start=0.0, end=1.0, **kw): return self._delegate('draw_border_then_fill', start=start, end=end, **kw)
-    def indicate(self, start=0.0, end=1.0, **kw): return self._delegate('indicate', start=start, end=end, **kw)
-    def create_then_fadeout(self, start=0.0, end=2.0, **kw): return self._delegate('create_then_fadeout', start=start, end=end, **kw)
-    def write_then_fadeout(self, start=0.0, end=2.0, **kw): return self._delegate('write_then_fadeout', start=start, end=end, **kw)
-    def fadein_then_fadeout(self, start=0.0, end=2.0, **kw): return self._delegate('fadein_then_fadeout', start=start, end=end, **kw)
 
     def show_increasing_subsets(self, start: float = 0, end: float = 1, easing=None):
         """Progressively reveal children over [start, end] — each child appears and stays visible."""
@@ -1271,10 +1249,7 @@ class VCollection(_BBoxMethodsMixin):
             obj.styling.opacity.set(cs, ce, _ramp(_cs, _cd, obj.styling.opacity.at_time(cs), easing))
             def _dy(t, _s=_cs, _d=_cd, _h=height, _e=easing):
                 return -_h * (1 - _e((t - _s) / _d))
-            for _, ya in obj._shift_reals():
-                ya.add(cs, ce, _dy, stay=True)
-            for c in obj._shift_coors():
-                c.add(cs, ce, lambda t, _f=_dy: (0, _f(t)), stay=True)
+            obj._apply_shift_effect(cs, ce, dy_func=_dy, stay=True)
         return self
 
     def orbit_around(self, cx: float | None = None, cy: float | None = None, radius: float | None = None,
@@ -1310,11 +1285,9 @@ class VCollection(_BBoxMethodsMixin):
                        _a0=angle0, _ocx=ocx, _ocy=ocy, _e=easing):
                 angle = _a0 + math.tau * _rev * _e((t - _s) / _d)
                 return _cx + _r * math.cos(angle) - _ocx, _cy + _r * math.sin(angle) - _ocy
-            for xa, ya in obj._shift_reals():
-                xa.add(start, end, lambda t, _f=_orbit: _f(t)[0])
-                ya.add(start, end, lambda t, _f=_orbit: _f(t)[1])
-            for c in obj._shift_coors():
-                c.add(start, end, lambda t, _f=_orbit: _f(t))
+            obj._apply_shift_effect(start, end,
+                dx_func=lambda t, _f=_orbit: _f(t)[0],
+                dy_func=lambda t, _f=_orbit: _f(t)[1])
         return self
 
     def cascade_scale(self, start: float = 0, end: float = 1, factor=1.5,
@@ -1490,4 +1463,23 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
 VGroup = VCollection
+
+# Generate delegation one-liners programmatically to avoid 17 identical stubs.
+for _name, _s, _e in [
+    ('fadein', 0.0, 1.0), ('fadeout', 0.0, 1.0), ('create', 0.0, 1.0),
+    ('draw_along', 0.0, 1.0), ('slide_in', 0.0, 1.0), ('slide_out', 0.0, 1.0),
+    ('zoom_in', 0.0, 1.0), ('zoom_out', 0.0, 1.0), ('grow_from_center', 0.0, 1.0),
+    ('shrink_to_center', 0.0, 1.0), ('spin_in', 0.0, 1.0), ('spin_out', 0.0, 1.0),
+    ('draw_border_then_fill', 0.0, 1.0), ('indicate', 0.0, 1.0),
+    ('create_then_fadeout', 0.0, 2.0), ('write_then_fadeout', 0.0, 2.0),
+    ('fadein_then_fadeout', 0.0, 2.0),
+]:
+    def _make_delegate(n, s, e):
+        def _method(self, start=s, end=e, **kw):
+            return self._delegate(n, start=start, end=end, **kw)
+        _method.__name__ = n
+        _method.__qualname__ = f'VCollection.{n}'
+        return _method
+    setattr(VCollection, _name, _make_delegate(_name, _s, _e))
+del _name, _s, _e
 

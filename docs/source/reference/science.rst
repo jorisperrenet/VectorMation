@@ -519,6 +519,165 @@ Damped pendulum
    canvas.add_objects(p, trail)
    canvas.browser_display()
 
+Charge
+------
+
+.. py:class:: Charge(magnitude=1, cx=960, cy=540, radius=None, color=None, add_glow=True, glow_layers=12, creation=0, z=0, **styling_kwargs)
+
+   Electrostatic point charge with a colored circle and +/- symbol.
+   Positive charges are drawn in red with a "+" sign, negative charges
+   in blue with a "-" sign.  Optional concentric translucent rings
+   create a glow effect.
+
+   :param float magnitude: Charge strength. Positive = red "+", negative = blue "-".
+   :param float cx: Center x-coordinate.
+   :param float cy: Center y-coordinate.
+   :param float radius: Circle radius. ``None`` auto-scales from magnitude.
+   :param str color: Override the automatic red/blue color.
+   :param bool add_glow: Draw concentric translucent rings for a glow effect.
+   :param int glow_layers: Number of glow rings (more = smoother but heavier).
+   :param float creation: Creation time.
+   :param float z: Z-index for layering.
+
+   .. code-block:: python
+
+      q_pos = Charge(magnitude=3, cx=600, cy=540)
+      q_neg = Charge(magnitude=-2, cx=1300, cy=540)
+
+----
+
+ElectricField
+-------------
+
+.. py:class:: ElectricField(*charges, x_range=(60, 1860, 120), y_range=(60, 1020, 120), max_length=80, color='#58C4DD', creation=0, z=0, **styling_kwargs)
+
+   Electric field visualization from a list of :py:class:`Charge` objects.
+   Computes Coulomb superposition at grid points and renders arrows
+   via ``ArrowVectorField``.
+
+   :param Charge charges: One or more Charge instances (positional args).
+   :param tuple x_range: Grid sampling x-range as ``(min, max, step)``.
+   :param tuple y_range: Grid sampling y-range as ``(min, max, step)``.
+   :param float max_length: Maximum arrow length in pixels.
+   :param str color: Arrow color.
+   :param float creation: Creation time.
+   :param float z: Z-index for layering.
+
+   .. code-block:: python
+
+      q1 = Charge(magnitude=3, cx=600, cy=540)
+      q2 = Charge(magnitude=-3, cx=1300, cy=540)
+      field = ElectricField(q1, q2)
+
+----
+
+Lens
+----
+
+.. py:class:: Lens(cx=960, cy=540, height=300, focal_length=200, thickness=30, n=1.52, color='#58C4DD', show_focal_points=True, show_axis=True, creation=0, z=0, **styling_kwargs)
+
+   Convex or concave lens for geometric optics diagrams.  Convex lenses
+   (positive focal length) are drawn as a biconvex shape; concave lenses
+   (negative focal length) are thin at the center and thick at the edges.
+
+   :param float cx: Center x-coordinate.
+   :param float cy: Center y-coordinate.
+   :param float height: Lens height in pixels.
+   :param float focal_length: Positive = convex, negative = concave.
+   :param float thickness: Maximum lens thickness in pixels.
+   :param float n: Refractive index (used by Ray for Snell's law).
+   :param str color: Fill color.
+   :param bool show_focal_points: Draw dots at the focal points.
+   :param bool show_axis: Draw the principal axis as a dashed line.
+   :param float creation: Creation time.
+   :param float z: Z-index for layering.
+
+   .. py:method:: image_point(obj_x, obj_y)
+
+      Compute the image position using the thin-lens equation
+      ``1/f = 1/do + 1/di``.  Returns ``(image_x, image_y)`` or ``None``
+      if the object is at the focal point (image at infinity).
+
+      :param float obj_x: Object x-coordinate.
+      :param float obj_y: Object y-coordinate.
+      :returns: ``(image_x, image_y)`` or ``None``.
+
+   .. code-block:: python
+
+      lens = Lens(focal_length=200, height=400)
+      # Compute where an object at (400, 400) forms its image:
+      img = lens.image_point(400, 400)
+
+----
+
+Ray
+---
+
+.. py:class:: Ray(x1=200, y1=540, angle=0, length=1600, lenses=None, color='#FFFF00', stroke_width=2, show_arrow=False, creation=0, z=0, **styling_kwargs)
+
+   A light ray that propagates in a straight line and refracts through
+   :py:class:`Lens` objects using Snell's law (thin-lens paraxial
+   approximation).
+
+   :param float x1: Starting x-coordinate.
+   :param float y1: Starting y-coordinate.
+   :param float angle: Initial direction in degrees (0 = rightward).
+   :param float length: Ray length in pixels.
+   :param list lenses: List of :py:class:`Lens` instances to refract through.
+   :param str color: Ray stroke color.
+   :param float stroke_width: Ray line width.
+   :param bool show_arrow: Draw a small arrowhead at the tip.
+   :param float creation: Creation time.
+   :param float z: Z-index for layering.
+
+   .. code-block:: python
+
+      lens = Lens(focal_length=200)
+      ray = Ray(x1=200, y1=400, angle=5, lenses=[lens], show_arrow=True)
+
+----
+
+Electrostatics example
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+   from vectormation.objects import *
+
+   canvas = VectorMathAnim()
+   canvas.set_background()
+
+   q1 = Charge(magnitude=3, cx=600, cy=540)
+   q2 = Charge(magnitude=-3, cx=1300, cy=540)
+   field = ElectricField(q1, q2)
+
+   canvas.add_objects(field, q1, q2)
+   canvas.browser_display()
+
+Optics example
+^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+   from vectormation.objects import *
+
+   canvas = VectorMathAnim()
+   canvas.set_background()
+
+   lens = Lens(focal_length=200, height=400)
+
+   # Three parallel rays at different heights
+   rays = [
+       Ray(x1=200, y1=440, lenses=[lens], show_arrow=True),
+       Ray(x1=200, y1=540, lenses=[lens], show_arrow=True),
+       Ray(x1=200, y1=640, lenses=[lens], show_arrow=True),
+   ]
+
+   canvas.add_objects(lens, *rays)
+   canvas.browser_display()
+
+----
+
 Molecule gallery
 ^^^^^^^^^^^^^^^^
 

@@ -686,19 +686,19 @@ class Table(_GridAccessMixin, VCollection):
         kw = _HIGHLIGHT_STYLE | kwargs
         return Rectangle(w, h, x=rx, y=ry, **kw)
 
-    def highlight_cell(self, row, col, start=0, end=1, color='#FFD700', easing=easings.there_and_back):
+    def highlight_cell(self, row, col, start: float = 0, end: float = 1, color='#FFD700', easing=easings.there_and_back):
         """Flash-highlight a single cell's text."""
         return self._flash([self.entries[row][col]], start, end, color, easing)
 
-    def highlight_row(self, row_idx, start=0, end=1, color='#FFD700', easing=easings.there_and_back):
+    def highlight_row(self, row_idx, start: float = 0, end: float = 1, color='#FFD700', easing=easings.there_and_back):
         """Flash-highlight all cells in a row."""
         return self._flash(self.entries[row_idx], start, end, color, easing)
 
-    def highlight_column(self, col, start=0, end=1, color='#FFD700', easing=easings.there_and_back):
+    def highlight_column(self, col, start: float = 0, end: float = 1, color='#FFD700', easing=easings.there_and_back):
         """Flash-highlight all cells in a column."""
         return self._flash([row[col] for row in self.entries if col < len(row)], start, end, color, easing)
 
-    def highlight_cells(self, cells, start=0, end=1, color='#FFD700', easing=easings.there_and_back):
+    def highlight_cells(self, cells, start: float = 0, end: float = 1, color='#FFD700', easing=easings.there_and_back):
         """Flash-highlight multiple cells. cells: list of (row, col) tuples."""
         return self._flash([self.entries[r][c] for r, c in cells], start, end, color, easing)
 
@@ -1030,15 +1030,15 @@ class Matrix(_GridAccessMixin, VCollection):
     def __repr__(self):
         return f'Matrix({self.rows}x{self.cols})'
 
-    def highlight_entry(self, row, col, start=0, end=1, color='#FFD700', easing=easings.there_and_back):
+    def highlight_entry(self, row, col, start: float = 0, end: float = 1, color='#FFD700', easing=easings.there_and_back):
         """Flash-highlight a single matrix entry."""
         return self._flash([self.entries[row][col]], start, end, color, easing)
 
-    def highlight_row(self, row, start=0, end=1, color='#FFD700', easing=easings.there_and_back):
+    def highlight_row(self, row, start: float = 0, end: float = 1, color='#FFD700', easing=easings.there_and_back):
         """Flash-highlight all entries in a row."""
         return self._flash(self.entries[row], start, end, color, easing)
 
-    def highlight_column(self, col, start=0, end=1, color='#FFD700', easing=easings.there_and_back):
+    def highlight_column(self, col, start: float = 0, end: float = 1, color='#FFD700', easing=easings.there_and_back):
         """Flash-highlight all entries in a column."""
         return self._flash([row[col] for row in self.entries if col < len(row)], start, end, color, easing)
 
@@ -1357,7 +1357,7 @@ def transform_matching_shapes(source, target, start: float = 0, end: float = 1, 
         except Exception:
             return None
 
-    key_fn = (lambda obj, _t: key(obj)) if key else _area_key  # noqa: ARG005
+    key_fn = (lambda obj, _t: key(obj)) if key else _area_key
     return _match_and_morph(src_objs, tgt_objs,
                             [key_fn(o, start) for o in src_objs],
                             [key_fn(o, end) for o in tgt_objs], start, end)

@@ -60,6 +60,10 @@ DonutChart
    :param float inner_radius: Inner ring radius.
    :param str center_text: Optional text displayed in the hole.
 
+   .. py:classmethod:: from_dict(data, **kwargs)
+
+      Create a ``DonutChart`` from a ``{label: value}`` dictionary.
+
    .. py:method:: get_sector(index)
 
       Return the ``Path`` object for the sector at *index*.
@@ -163,6 +167,14 @@ RadarChart
    :param list labels: Axis labels around the perimeter.
    :param float max_val: Maximum data value (auto-detected if ``None``).
 
+   .. py:classmethod:: from_dict(data, **kwargs)
+
+      Create a ``RadarChart`` from a ``{label: value}`` dictionary.
+
+   .. py:method:: add_dataset(values, color=None, fill_opacity=None, creation=0, z=0.15)
+
+      Add an additional data polygon overlay to the radar chart.
+
 ----
 
 PolarAxes
@@ -253,6 +265,10 @@ WaterfallChart
    :param list values: Incremental values (positive or negative).
    :param list labels: Bar labels.
    :param bool show_total: Append a total bar at the end.
+
+   .. py:classmethod:: from_dict(data, **kwargs)
+
+      Create a ``WaterfallChart`` from a ``{label: value}`` dictionary.
 
 ----
 

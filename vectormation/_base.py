@@ -1789,7 +1789,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         dy = _osc if axis in ('y', 'both') else None
         return self._apply_shift_effect(start, end, dx, dy)
 
-    def ripple(self, start: float = 0, count=3, end: float = 0.5, max_radius=100,
+    def ripple(self, start: float = 0, end: float = 0.5, count=3, max_radius=100,
                color='#58C4DD', stroke_width=2):
         """Emit expanding, fading rings from the object's center.
         Returns a VCollection of Circle objects (must be added to canvas)."""
@@ -1832,6 +1832,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         'down':  lambda pct: f'inset(0 0 {pct:.1f}% 0)',
         'up':    lambda pct: f'inset({pct:.1f}% 0 0 0)',
     }
+    _CLIP_INSET['bottom'] = _CLIP_INSET['down']
+    _CLIP_INSET['top'] = _CLIP_INSET['up']
     _CLIP_REVERSE = {'right': 'left', 'left': 'right', 'down': 'up', 'up': 'down',
                      'top': 'bottom', 'bottom': 'top'}
 

@@ -8,7 +8,7 @@ VCollection
 
    Container that groups VObjects. Supports indexing (``collection[i]``),
    iteration, and ``len()``. Most :doc:`VObject <vobject>` methods are
-   delegated to all children automatically.
+   delegated to all children automatically. ``VGroup`` is an alias.
 
    :param objects: VObject instances to group.
 
@@ -339,6 +339,35 @@ Arrow
 
 ----
 
+Vector
+------
+
+.. py:class:: Vector(x=100, y=0, origin_x=960, origin_y=540, **styling)
+
+   Bases: :py:class:`Arrow`
+
+   Arrow originating from a point (default: canvas origin). Commonly used in
+   coordinate systems to represent mathematical vectors.
+
+   :param float x: Horizontal component (pixels from origin).
+   :param float y: Vertical component (pixels from origin).
+   :param float origin_x: Starting x position (default ``960``).
+   :param float origin_y: Starting y position (default ``540``).
+
+   .. py:method:: get_vector(time=0)
+
+      Return the vector components ``(dx, dy)`` from start to end.
+
+   .. code-block:: python
+
+      from vectormation.objects import *
+
+      axes = Axes(x_range=(-3, 3), y_range=(-3, 3))
+      v = Vector(x=2 * 135, y=-1 * 135)   # 2 units right, 1 unit down
+      v.fadein(0, 1)
+
+----
+
 DoubleArrow
 -----------
 
@@ -385,6 +414,40 @@ Brace
    :param str label: Optional text label.
    :param float buff: Distance from target.
    :param float depth: Brace depth.
+
+   .. py:classmethod:: for_range(axes, axis, start_val, end_val, direction=None, label=None, **kwargs)
+
+      Create a Brace spanning a range on an Axes object.
+
+      :param axes: The Axes object.
+      :param str axis: ``'x'`` or ``'y'``.
+      :param float start_val: Start of the range.
+      :param float end_val: End of the range.
+
+----
+
+BraceBetweenPoints
+------------------
+
+.. py:class:: BraceBetweenPoints(x1, y1, x2, y2, label=None, buff=14, depth=18, **styling)
+
+   Bases: :py:class:`Brace`
+
+   Curly brace between two arbitrary points. The brace spans the line
+   segment from ``(x1, y1)`` to ``(x2, y2)``, with the tip pointing
+   perpendicular to the segment.
+
+   :param float x1: Start x-coordinate.
+   :param float y1: Start y-coordinate.
+   :param float x2: End x-coordinate.
+   :param float y2: End y-coordinate.
+   :param str label: Optional text label.
+   :param float buff: Distance from segment.
+   :param float depth: Brace depth.
+
+   .. code-block:: python
+
+      brace = BraceBetweenPoints(300, 400, 800, 400, label='500px')
 
 ----
 
@@ -656,6 +719,38 @@ Matrix
 
       Flash-highlight all entries in a column.
 
+DecimalMatrix
+~~~~~~~~~~~~~
+
+.. py:class:: DecimalMatrix(data, decimals=1, **kwargs)
+
+   Bases: :py:class:`Matrix`
+
+   Matrix that formats entries as decimals with a fixed number of places.
+
+   :param list data: 2D list of numeric values.
+   :param int decimals: Number of decimal places (default ``1``).
+
+   .. code-block:: python
+
+      m = DecimalMatrix([[1.234, 5.678], [9.012, 3.456]], decimals=2)
+
+IntegerMatrix
+~~~~~~~~~~~~~
+
+.. py:class:: IntegerMatrix(data, **kwargs)
+
+   Bases: :py:class:`Matrix`
+
+   Matrix that formats entries as integers (values are rounded).
+
+   :param list data: 2D list of numeric values.
+
+   .. code-block:: python
+
+      m = IntegerMatrix([[1.7, 2.3], [3.9, 4.1]])
+      # Displays: [[2, 2], [4, 4]]
+
 Code
 ~~~~
 
@@ -715,6 +810,28 @@ DynamicObject
 
    VObject whose SVG is regenerated every frame by calling ``func(time)``.
    The function should return a VObject.
+
+   .. code-block:: python
+
+      def my_clock(time):
+          angle = time * 360
+          hand = Line(960, 540, 960 + 100 * math.cos(math.radians(angle)),
+                      540 + 100 * math.sin(math.radians(angle)))
+          return hand
+
+      clock = DynamicObject(my_clock)
+
+.. py:function:: always_redraw(func, creation=0, z=0)
+
+   Convenience wrapper: create a :py:class:`DynamicObject` from a callable.
+   ``func(time)`` should return a VObject.
+
+   .. code-block:: python
+
+      dot = Dot()
+      dot.shift(dx=200, start=0, end=2)
+
+      line = always_redraw(lambda t: Line(960, 540, *dot.center(t)))
 
 NetworkGraph
 ~~~~~~~~~~~~

@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from vectormation._threed import (
     _project_point, _face_normal, _parse_color_to_rgb, _shade_color, _nice_ticks,
     _shift3, _Wireframe,
-    ThreeDAxes, Surface, Line3D, Dot3D, Arrow3D, ParametricCurve3D, Text3D,
+    ThreeDAxes, Surface, SurfaceMesh, Line3D, Dot3D, Arrow3D, ParametricCurve3D, Text3D,
     Sphere3D, Cube, Cylinder3D, Cone3D, Torus3D, Prism3D,
     Tetrahedron, Octahedron, Icosahedron, Dodecahedron,
 )
@@ -858,3 +858,84 @@ class TestPrimitive3DShift:
         dot = Dot3D((0, 0, 0))
         dot.shift(dx=3, dy=4, dz=5)
         assert dot._point == (3, 4, 5)
+
+
+# ---------------------------------------------------------------------------
+# SurfaceMesh
+# ---------------------------------------------------------------------------
+
+class TestSurfaceMesh:
+    def test_inherits_surface(self):
+        s = Surface(lambda u, v: u + v, resolution=(4, 4))
+        mesh = SurfaceMesh(s)
+        assert isinstance(mesh, Surface)
+
+    def test_produces_line_patches(self):
+        s = Surface(lambda u, v: u + v, resolution=(3, 3))
+        mesh = SurfaceMesh(s)
+        ax = ThreeDAxes()
+        patches = mesh.to_patches(ax, 0)
+        for _, svg in patches:
+            assert '<line' in svg
+
+    def test_no_polygon_patches(self):
+        """SurfaceMesh should produce only lines, no filled polygons."""
+        s = Surface(lambda u, v: u * v, resolution=(3, 3))
+        mesh = SurfaceMesh(s)
+        ax = ThreeDAxes()
+        patches = mesh.to_patches(ax, 0)
+        for _, svg in patches:
+            assert '<polygon' not in svg
+
+    def test_patch_count(self):
+        """U-direction: (u_steps+1)*v_steps + V-direction: (v_steps+1)*u_steps."""
+        s = Surface(lambda u, v: u + v, resolution=(4, 3))
+        mesh = SurfaceMesh(s)
+        ax = ThreeDAxes()
+        patches = mesh.to_patches(ax, 0)
+        # U lines: 5 * 3 = 15, V lines: 4 * 4 = 16, total = 31
+        assert len(patches) == (4 + 1) * 3 + (3 + 1) * 4
+
+    def test_custom_resolution(self):
+        s = Surface(lambda u, v: u + v, resolution=(10, 10))
+        mesh = SurfaceMesh(s, resolution=(2, 2))
+        ax = ThreeDAxes()
+        patches = mesh.to_patches(ax, 0)
+        # 3*2 + 3*2 = 12
+        assert len(patches) == (2 + 1) * 2 + (2 + 1) * 2
+
+    def test_stroke_color(self):
+        s = Surface(lambda u, v: u + v, resolution=(2, 2))
+        mesh = SurfaceMesh(s, stroke_color='#ff0000')
+        ax = ThreeDAxes()
+        patches = mesh.to_patches(ax, 0)
+        for _, svg in patches:
+            assert '#ff0000' in svg
+
+    def test_stroke_opacity(self):
+        s = Surface(lambda u, v: u + v, resolution=(2, 2))
+        mesh = SurfaceMesh(s, stroke_opacity=0.7)
+        ax = ThreeDAxes()
+        patches = mesh.to_patches(ax, 0)
+        for _, svg in patches:
+            assert 'opacity="0.7"' in svg
+
+    def test_zero_fill_opacity(self):
+        """SurfaceMesh should have 0 fill_opacity (wireframe only)."""
+        s = Surface(lambda u, v: u + v, fill_opacity=0.9, resolution=(2, 2))
+        mesh = SurfaceMesh(s)
+        assert mesh._fill_opacity == 0
+
+    def test_parametric_surface(self):
+        """SurfaceMesh works with parametric surfaces too."""
+        def param(u, v):
+            return (math.cos(u), math.sin(u), v)
+        s = Surface(param, u_range=(0, math.tau), v_range=(0, 1), resolution=(4, 2))
+        mesh = SurfaceMesh(s)
+        ax = ThreeDAxes()
+        patches = mesh.to_patches(ax, 0)
+        assert len(patches) == (4 + 1) * 2 + (2 + 1) * 4
+
+    def test_import_from_objects(self):
+        from vectormation.objects import SurfaceMesh as SM
+        assert SM is SurfaceMesh

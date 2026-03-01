@@ -943,7 +943,7 @@ EquilateralTriangle
 
 .. py:class:: EquilateralTriangle(side_length, angle=0, cx=960, cy=540, **styling)
 
-   Bases: :py:class:`RegularPolygon` (n=3)
+   Bases: :py:class:`RegularPolygon` (n=3). ``Triangle`` is an alias.
 
 ----
 

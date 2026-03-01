@@ -293,6 +293,38 @@ Surface
 
 ----
 
+SurfaceMesh
+-----------
+
+.. py:class:: SurfaceMesh(surface, resolution=None, stroke_color='#ffffff', stroke_width=1, stroke_opacity=0.4, creation=0, z=0)
+
+   Wireframe mesh overlay for a :py:class:`Surface`, showing grid lines without
+   fill. Inherits from :py:class:`Surface` but renders only line segments along
+   the U and V directions of the parameter grid.
+
+   :param Surface surface: The surface to overlay with a mesh.
+   :param tuple resolution: ``(u_steps, v_steps)`` grid resolution, or ``None``
+      to match the underlying surface's resolution.
+   :param str stroke_color: Line colour (default ``'#ffffff'``).
+   :param float stroke_width: Line width (default ``1``).
+   :param float stroke_opacity: Line opacity (default ``0.4``).
+
+   .. code-block:: python
+
+      import math
+
+      def saddle(x, y):
+          return (x**2 - y**2) / 4
+
+      surface = Surface(saddle, resolution=(20, 20),
+                         fill_color='#58C4DD', fill_opacity=0.8)
+      mesh = SurfaceMesh(surface, stroke_color='#ffffff',
+                          stroke_opacity=0.3)
+      axes.add_surface(surface)
+      axes.add_surface(mesh)
+
+----
+
 3D Primitives
 -------------
 
@@ -652,5 +684,69 @@ an animated camera:
    # Adjust lighting
    axes.set_light_direction(0, 0, 1)
 
+   canvas.add_objects(axes)
+   canvas.browser_display(start=0, end=6, fps=30)
+
+----
+
+3D Primitive Factory Functions
+------------------------------
+
+These factory functions create common 3D shapes as collections of patches
+that can be added to a :py:class:`ThreeDAxes` with ``axes.add_3d()``.
+
+.. py:function:: Sphere3D(cx=0, cy=0, cz=0, radius=1, resolution=(20, 20), fill_color='#58C4DD', fill_opacity=0.8, stroke_width=0.5)
+
+   Create a sphere at ``(cx, cy, cz)`` with the given radius.
+
+.. py:function:: Cube(cx=0, cy=0, cz=0, side=2, fill_color='#58C4DD', fill_opacity=0.8)
+
+   Create an axis-aligned cube centered at ``(cx, cy, cz)``.
+
+.. py:function:: Cylinder3D(cx=0, cy=0, cz=0, radius=1, height=2, resolution=(20, 2), fill_color='#58C4DD', fill_opacity=0.8)
+
+   Create a cylinder along the z-axis.
+
+.. py:function:: Cone3D(cx=0, cy=0, cz=0, radius=1, height=2, resolution=(20, 1), fill_color='#58C4DD', fill_opacity=0.8)
+
+   Create a cone with its apex pointing up the z-axis.
+
+.. py:function:: Torus3D(cx=0, cy=0, cz=0, major_radius=2, minor_radius=0.5, resolution=(30, 15), fill_color='#58C4DD', fill_opacity=0.8)
+
+   Create a torus (donut) in the xy-plane.
+
+.. py:function:: Prism3D(cx=0, cy=0, cz=0, sides=6, radius=1, height=2, fill_color='#58C4DD', fill_opacity=0.8)
+
+   Create a regular prism (hexagonal by default).
+
+.. py:function:: Tetrahedron(cx=0, cy=0, cz=0, side=2, fill_color='#58C4DD', fill_opacity=0.8)
+
+   Create a regular tetrahedron (4 equilateral triangle faces).
+
+.. py:function:: Octahedron(cx=0, cy=0, cz=0, side=2, fill_color='#58C4DD', fill_opacity=0.8)
+
+   Create a regular octahedron (8 equilateral triangle faces).
+
+.. py:function:: Icosahedron(cx=0, cy=0, cz=0, side=2, fill_color='#58C4DD', fill_opacity=0.8)
+
+   Create a regular icosahedron (20 equilateral triangle faces).
+
+.. py:function:: Dodecahedron(cx=0, cy=0, cz=0, side=2, fill_color='#58C4DD', fill_opacity=0.8)
+
+   Create a regular dodecahedron (12 pentagonal faces).
+
+.. code-block:: python
+
+   from vectormation.objects import *
+
+   canvas = VectorMathAnim()
+   canvas.set_background()
+
+   axes = ThreeDAxes(x_range=(-3, 3), y_range=(-3, 3), z_range=(-3, 3))
+   axes.add_3d(Sphere3D(cx=-1.5, cy=0, cz=0, radius=0.8, fill_color='#FF6B6B'))
+   axes.add_3d(Cube(cx=1.5, cy=0, cz=0, side=1.2, fill_color='#58C4DD'))
+   axes.add_3d(Torus3D(cy=2, major_radius=1, minor_radius=0.3, fill_color='#83C167'))
+
+   axes.begin_ambient_camera_rotation(start=0, rate=1)
    canvas.add_objects(axes)
    canvas.browser_display(start=0, end=6, fps=30)

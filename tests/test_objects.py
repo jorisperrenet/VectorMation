@@ -22012,3 +22012,302 @@ class TestStaggerMethods:
         canvas.add(items)
         svg = canvas.generate_frame_svg(time=1.0)
         assert '<svg' in svg
+
+
+# =====================================================================
+# Cycle 4: Bug fixes, compaction, and coverage tests
+# =====================================================================
+
+class TestWipeDirection:
+    """Test wipe direction including 'top'/'bottom' aliases."""
+    def test_wipe_right(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.wipe(direction='right', start=0, end=1)
+        assert result is c
+
+    def test_wipe_left(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.wipe(direction='left', start=0, end=1)
+        assert result is c
+
+    def test_wipe_up(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.wipe(direction='up', start=0, end=1)
+        assert result is c
+
+    def test_wipe_down(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.wipe(direction='down', start=0, end=1)
+        assert result is c
+
+    def test_wipe_top(self):
+        """'top' should work as an alias for 'up'."""
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.wipe(direction='top', start=0, end=1)
+        assert result is c
+
+    def test_wipe_bottom(self):
+        """'bottom' should work as an alias for 'down'."""
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.wipe(direction='bottom', start=0, end=1)
+        assert result is c
+
+    def test_wipe_top_reverse(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.wipe(direction='top', start=0, end=1, reverse=True)
+        assert result is c
+
+    def test_wipe_bottom_reverse(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.wipe(direction='bottom', start=0, end=1, reverse=True)
+        assert result is c
+
+    def test_wipe_renders_svg(self):
+        c = Circle(r=50, cx=100, cy=100)
+        c.wipe(direction='top', start=0, end=1)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(c)
+        svg = canvas.generate_frame_svg(time=0.5)
+        assert '<svg' in svg
+
+
+class TestRippleParamOrder:
+    """Test that ripple(start, end, count) parameter ordering works."""
+    def test_ripple_basic(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.ripple(start=0, end=0.5, count=3)
+        assert isinstance(result, VCollection)
+
+    def test_ripple_positional_start_end(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.ripple(0, 0.5)
+        assert isinstance(result, VCollection)
+        assert len(result.objects) == 3  # default count=3
+
+    def test_ripple_custom_count(self):
+        c = Circle(r=50, cx=100, cy=100)
+        result = c.ripple(start=0, end=1, count=5)
+        assert len(result.objects) == 5
+
+
+class TestPhysicsSpaceAddWall:
+    """Test PhysicsSpace.add() handles Wall objects."""
+    def test_add_wall_via_add(self):
+        from vectormation._physics import PhysicsSpace, Wall
+        space = PhysicsSpace()
+        wall = Wall(x=0, restitution=0.8)
+        space.add(wall)
+        assert wall in space.walls
+
+    def test_add_body_via_add(self):
+        from vectormation._physics import PhysicsSpace, Body
+        space = PhysicsSpace()
+        obj = Circle(r=10, cx=100, cy=100)
+        body = Body(obj, mass=1.0, radius=10)
+        space.add(body)
+        assert body in space.bodies
+
+    def test_add_spring_via_add(self):
+        from vectormation._physics import PhysicsSpace, Body, Spring
+        space = PhysicsSpace()
+        o1, o2 = Circle(r=10, cx=100, cy=100), Circle(r=10, cx=200, cy=200)
+        b1, b2 = Body(o1, mass=1.0, radius=10), Body(o2, mass=1.0, radius=10)
+        space.add(b1, b2)
+        s = Spring(b1, b2, stiffness=1.0)
+        space.add(s)
+        assert s in space.springs
+
+    def test_add_mixed(self):
+        from vectormation._physics import PhysicsSpace, Body, Wall
+        space = PhysicsSpace()
+        obj = Circle(r=10, cx=100, cy=100)
+        body = Body(obj, mass=1.0, radius=10)
+        wall = Wall(y=500, restitution=0.9)
+        space.add(body, wall)
+        assert body in space.bodies
+        assert wall in space.walls
+
+
+class TestPercentDegreeFormat:
+    """Test percent_format and degree_format from axes helpers."""
+    def test_percent_format_half(self):
+        from vectormation._axes_helpers import percent_format
+        assert percent_format(0.5) == '50%'
+
+    def test_percent_format_full(self):
+        from vectormation._axes_helpers import percent_format
+        assert percent_format(1.0) == '100%'
+
+    def test_percent_format_zero(self):
+        from vectormation._axes_helpers import percent_format
+        assert percent_format(0) == '0%'
+
+    def test_percent_format_quarter(self):
+        from vectormation._axes_helpers import percent_format
+        assert percent_format(0.25) == '25%'
+
+    def test_degree_format_90(self):
+        from vectormation._axes_helpers import degree_format
+        result = degree_format(90)
+        assert '90' in result
+        assert '°' in result or 'deg' in result.lower()
+
+    def test_degree_format_0(self):
+        from vectormation._axes_helpers import degree_format
+        result = degree_format(0)
+        assert '0' in result
+
+    def test_degree_format_360(self):
+        from vectormation._axes_helpers import degree_format
+        result = degree_format(360)
+        assert '360' in result
+
+
+class TestPendulumDynamics:
+    """Test Pendulum bob position changes over time."""
+    def test_bob_position_varies(self):
+        p = Pendulum(pivot_x=500, pivot_y=200, length=300, angle=30,
+                     period=1.5, start=0, end=3, creation=0)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(p)
+        svg0 = canvas.generate_frame_svg(time=0.1)
+        svg1 = canvas.generate_frame_svg(time=0.5)
+        # The SVGs should differ because the pendulum swings
+        assert svg0 != svg1
+
+    def test_pendulum_returns_self(self):
+        p = Pendulum(pivot_x=500, pivot_y=200, length=300, angle=30,
+                     period=1.5, start=0, end=3, creation=0)
+        assert hasattr(p, 'bob')
+        assert hasattr(p, 'rod')
+
+
+class TestStandingWaveDynamics:
+    """Test StandingWave waveform changes over time."""
+    def test_wave_varies(self):
+        w = StandingWave(x1=100, y1=300, x2=800, y2=300,
+                         amplitude=50, harmonics=2, frequency=1.0,
+                         start=0, end=2, creation=0)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(w)
+        svg0 = canvas.generate_frame_svg(time=0.1)
+        svg1 = canvas.generate_frame_svg(time=0.6)
+        assert svg0 != svg1
+
+
+class TestProgressBarAnimation:
+    """Test ProgressBar value and rendering."""
+    def test_creation(self):
+        pb = ProgressBar()
+        assert pb is not None
+
+    def test_set_progress(self):
+        pb = ProgressBar()
+        result = pb.set_progress(0.75, start=0)
+        assert result is pb
+
+    def test_get_progress(self):
+        pb = ProgressBar()
+        pb.set_progress(0.5, start=0)
+        val = pb.get_progress(time=0)
+        assert abs(val - 0.5) < 0.05
+
+    def test_renders_svg(self):
+        pb = ProgressBar()
+        pb.set_progress(0.75, start=0)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(pb)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+
+    def test_animate_progress(self):
+        pb = ProgressBar()
+        pb.set_progress(0.8, start=0, end=1)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(pb)
+        svg = canvas.generate_frame_svg(time=0.5)
+        assert '<svg' in svg
+
+
+class TestDelegationStubs:
+    """Test that factory-generated delegation methods work correctly."""
+    def test_fadein_delegation(self):
+        items = VCollection(Circle(r=10), Circle(r=20))
+        result = items.fadein(start=0, end=1)
+        assert result is items
+
+    def test_fadeout_delegation(self):
+        items = VCollection(Circle(r=10), Circle(r=20))
+        result = items.fadeout(start=0, end=1)
+        assert result is items
+
+    def test_create_delegation(self):
+        items = VCollection(Circle(r=10), Circle(r=20))
+        result = items.create(start=0, end=1)
+        assert result is items
+
+    def test_indicate_delegation(self):
+        items = VCollection(Circle(r=10), Circle(r=20))
+        result = items.indicate(start=0, end=1)
+        assert result is items
+
+    def test_create_then_fadeout_delegation(self):
+        items = VCollection(Circle(r=10), Circle(r=20))
+        result = items.create_then_fadeout(start=0, end=2)
+        assert result is items
+
+    def test_slide_in_delegation(self):
+        items = VCollection(Circle(r=10))
+        result = items.slide_in(start=0, end=1)
+        assert result is items
+
+    def test_grow_from_center_delegation(self):
+        items = VCollection(Circle(r=10))
+        result = items.grow_from_center(start=0, end=1)
+        assert result is items
+
+
+class TestApplyShiftEffectInCollection:
+    """Test that refactored _apply_shift_effect usage in VCollection works."""
+    def test_wave_anim(self):
+        items = VCollection(*[Circle(r=10, cx=i*50, cy=100) for i in range(5)])
+        result = items.wave_anim(start=0, end=2, amplitude=30)
+        assert result is items
+
+    def test_wave_effect_y(self):
+        items = VCollection(*[Circle(r=10, cx=i*50, cy=100) for i in range(4)])
+        result = items.wave_effect(start=0, end=1, amplitude=20, axis='y')
+        assert result is items
+
+    def test_wave_effect_x(self):
+        items = VCollection(*[Circle(r=10, cx=i*50, cy=100) for i in range(4)])
+        result = items.wave_effect(start=0, end=1, amplitude=20, axis='x')
+        assert result is items
+
+    def test_waterfall(self):
+        items = VCollection(*[Rectangle(30, 30) for _ in range(3)])
+        result = items.waterfall(start=0, end=2, height=100)
+        assert result is items
+
+    def test_orbit_around(self):
+        items = VCollection(*[Dot(cx=100+i*20, cy=100) for i in range(3)])
+        result = items.orbit_around(start=0, end=1, revolutions=1)
+        assert result is items
+
+    def test_reveal(self):
+        items = VCollection(*[Circle(r=10) for _ in range(3)])
+        result = items.reveal(start=0, end=1, direction='left')
+        assert result is items
+
+    def test_reveal_top(self):
+        items = VCollection(*[Circle(r=10) for _ in range(3)])
+        result = items.reveal(start=0, end=1, direction='top')
+        assert result is items
+
+    def test_wave_anim_renders(self):
+        items = VCollection(*[Circle(r=10, cx=i*50, cy=100) for i in range(3)])
+        items.wave_anim(start=0, end=2, amplitude=20)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(items)
+        svg = canvas.generate_frame_svg(time=1.0)
+        assert '<svg' in svg

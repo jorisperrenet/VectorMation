@@ -161,6 +161,54 @@ Colours & Gradients
 
    Interpolate between two colours at ``t`` (0--1).
 
+.. py:function:: lighten(color, amount=0.3)
+
+   Lighten a hex colour by blending towards white.
+
+.. py:function:: darken(color, amount=0.3)
+
+   Darken a hex colour by blending towards black.
+
+.. py:function:: adjust_hue(color, degrees)
+
+   Rotate the hue of a colour by *degrees*.
+
+.. py:function:: saturate(color, amount=0.3)
+
+   Increase saturation of a colour.
+
+.. py:function:: desaturate(color, amount=0.3)
+
+   Decrease saturation of a colour.
+
+.. py:function:: set_saturation(color, value)
+
+   Set saturation of a colour to a specific value (0--1).
+
+.. py:function:: set_lightness(color, value)
+
+   Set lightness of a colour to a specific value (0--1).
+
+.. py:function:: invert(color)
+
+   Return the inverted (complementary via RGB inversion) colour.
+
+.. py:function:: complementary(color)
+
+   Return the complementary colour (180-degree hue rotation).
+
+.. py:function:: triadic(color)
+
+   Return a list of three colours forming a triadic scheme (120-degree spacing).
+
+.. py:function:: analogous(color, spread=30)
+
+   Return a list of three colours forming an analogous scheme.
+
+.. py:function:: split_complementary(color, spread=30)
+
+   Return a list of three colours forming a split-complementary scheme.
+
 ----
 
 Filters & Definitions
