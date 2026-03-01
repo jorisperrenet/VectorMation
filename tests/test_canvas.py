@@ -192,3 +192,49 @@ class TestCanvas:
         svg = self.canvas.generate_frame_svg(0)
         # Both circles should be in SVG
         assert svg.count('<circle') == 2
+
+    # ── get_snap_points ────────────────────────────────────────────────
+
+    def test_get_snap_points_empty(self):
+        points = self.canvas.get_snap_points(time=0)
+        assert points == []
+
+    def test_get_snap_points_with_objects(self):
+        c = Circle(r=50, cx=200, cy=300)
+        self.canvas.add_objects(c)
+        points = self.canvas.get_snap_points(time=0)
+        # Circle should contribute snap points (center at minimum)
+        assert len(points) > 0
+
+    def test_get_snap_points_default_time(self):
+        c = Circle(r=50, cx=200, cy=300)
+        self.canvas.add_objects(c)
+        points = self.canvas.get_snap_points()
+        assert isinstance(points, list)
+
+    # ── export_sections ────────────────────────────────────────────────
+
+    def test_export_sections_no_sections(self):
+        c = Circle(r=30, cx=100, cy=100)
+        self.canvas.add_objects(c)
+        self.canvas.export_sections()
+        # Should create at least one file (start time)
+        files = [f for f in os.listdir(self.canvas.save_dir) if f.startswith('section_')]
+        assert len(files) >= 1
+
+    def test_export_sections_with_sections(self):
+        c = Circle(r=30, cx=100, cy=100)
+        self.canvas.add_objects(c)
+        self.canvas.add_section(1.0)
+        self.canvas.add_section(2.0)
+        self.canvas.export_sections(prefix='sec')
+        files = [f for f in os.listdir(self.canvas.save_dir) if f.startswith('sec_')]
+        assert len(files) == 3  # start + 2 sections
+
+    def test_export_sections_custom_prefix(self):
+        c = Circle(r=30, cx=100, cy=100)
+        self.canvas.add_objects(c)
+        self.canvas.export_sections(prefix='frame')
+        files = [f for f in os.listdir(self.canvas.save_dir) if f.startswith('frame_')]
+        assert len(files) >= 1
+        assert files[0].endswith('.svg')
