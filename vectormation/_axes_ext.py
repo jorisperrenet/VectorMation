@@ -1176,6 +1176,8 @@ class _AxesExtMixin:
     def plot_ribbon(self, x_values, y_lower, y_upper, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a ribbon (band) between y_lower and y_upper data arrays.
         Returns a filled Path."""
+        if not (len(x_values) == len(y_lower) == len(y_upper)):
+            raise ValueError(f'plot_ribbon: x_values ({len(x_values)}), y_lower ({len(y_lower)}), y_upper ({len(y_upper)}) must have equal length')
         style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.3,
                     'stroke': '#58C4DD', 'stroke_width': 1} | styling_kwargs
         data = list(zip(x_values, y_lower, y_upper))

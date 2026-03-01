@@ -685,6 +685,8 @@ class Axes(_AxesExtMixin, VCollection):
 
     def plot_line_graph(self, x_values, y_values, creation: float = 0, z: float = 0, **styling_kwargs):
         """Plot a line graph from discrete data points. Returns a VCollection with animate_data()."""
+        if len(x_values) != len(y_values):
+            raise ValueError(f'plot_line_graph: x_values ({len(x_values)}) and y_values ({len(y_values)}) must have equal length')
         if 'color' in styling_kwargs:
             styling_kwargs.setdefault('stroke', styling_kwargs.pop('color'))
         style_kw = _CURVE_STYLE | styling_kwargs
