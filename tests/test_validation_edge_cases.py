@@ -908,3 +908,127 @@ class TestLinkedListVizEdgeCases:
         llv = LinkedListViz([1, 2, 3])
         result = llv.traverse(start=0, delay=0.3)
         assert result is llv
+
+
+# ── Body validation ────────────────────────────────────────────────────
+
+class TestBodyValidation:
+    def test_zero_mass_raises(self):
+        from vectormation.objects import Body
+        with pytest.raises(ValueError, match="mass must be > 0"):
+            Body(Circle(), mass=0)
+
+    def test_negative_mass_raises(self):
+        from vectormation.objects import Body
+        with pytest.raises(ValueError, match="mass must be > 0"):
+            Body(Circle(), mass=-1)
+
+    def test_negative_friction_raises(self):
+        from vectormation.objects import Body
+        with pytest.raises(ValueError, match="friction must be >= 0"):
+            Body(Circle(), friction=-0.5)
+
+    def test_negative_restitution_raises(self):
+        from vectormation.objects import Body
+        with pytest.raises(ValueError, match="restitution must be >= 0"):
+            Body(Circle(), restitution=-0.1)
+
+    def test_valid_body(self):
+        from vectormation.objects import Body
+        b = Body(Circle(), mass=2.0, friction=0.3, restitution=0.9)
+        assert b.mass == 2.0
+        assert b.friction == 0.3
+        assert b.restitution == 0.9
+
+    def test_fixed_body_allows_any_mass(self):
+        """Fixed bodies get infinite mass regardless of input."""
+        from vectormation.objects import Body
+        import math
+        b = Body(Circle(), mass=0, fixed=True)
+        assert b.mass == math.inf
+
+    def test_friction_above_one_allowed(self):
+        """Friction > 1 is allowed (clamped in collision resolution)."""
+        from vectormation.objects import Body
+        b = Body(Circle(), friction=1.5)
+        assert b.friction == 1.5
+
+
+# ── Spring validation ─────────────────────────────────────────────────
+
+class TestSpringValidation:
+    def test_negative_stiffness_raises(self):
+        from vectormation.objects import Body, Spring
+        a = Body(Circle(cx=100, cy=100))
+        b = Body(Circle(cx=200, cy=200))
+        with pytest.raises(ValueError, match="stiffness must be >= 0"):
+            Spring(a, b, stiffness=-1)
+
+    def test_negative_damping_raises(self):
+        from vectormation.objects import Body, Spring
+        a = Body(Circle(cx=100, cy=100))
+        b = Body(Circle(cx=200, cy=200))
+        with pytest.raises(ValueError, match="damping must be >= 0"):
+            Spring(a, b, damping=-0.1)
+
+    def test_valid_spring(self):
+        from vectormation.objects import Body, Spring
+        a = Body(Circle(cx=100, cy=100))
+        b = Body(Circle(cx=300, cy=300))
+        s = Spring(a, b, stiffness=1.0, damping=0.05)
+        assert s.stiffness == 1.0
+        assert s.damping == 0.05
+        assert s.rest_length > 0
+
+    def test_zero_stiffness_allowed(self):
+        from vectormation.objects import Body, Spring
+        a = Body(Circle(cx=100, cy=100))
+        b = Body(Circle(cx=200, cy=200))
+        s = Spring(a, b, stiffness=0)
+        assert s.stiffness == 0
+
+
+# ── Cloth validation ──────────────────────────────────────────────────
+
+class TestClothValidation:
+    def test_zero_cols_raises(self):
+        from vectormation.objects import Cloth
+        with pytest.raises(ValueError, match="cols must be >= 1"):
+            Cloth(cols=0)
+
+    def test_zero_rows_raises(self):
+        from vectormation.objects import Cloth
+        with pytest.raises(ValueError, match="rows must be >= 1"):
+            Cloth(rows=0)
+
+    def test_negative_cols_raises(self):
+        from vectormation.objects import Cloth
+        with pytest.raises(ValueError, match="cols must be >= 1"):
+            Cloth(cols=-1)
+
+    def test_valid_cloth(self):
+        from vectormation.objects import Cloth
+        c = Cloth(cols=3, rows=3)
+        assert c.cols == 3
+        assert c.rows == 3
+
+    def test_single_col_row(self):
+        from vectormation.objects import Cloth
+        c = Cloth(cols=1, rows=1)
+        assert c.cols == 1
+
+
+# ── Friction clamping ─────────────────────────────────────────────────
+
+class TestFrictionClamping:
+    def test_friction_above_one_clamped_in_collision(self):
+        """Friction > 1 should not cause velocity reversal."""
+        from vectormation._physics import _collide_wall, Body, Wall
+        b = Body(Circle(cx=500, cy=500), friction=1.5, vx=100, vy=-200)
+        b.y = 500  # at wall position
+        b.radius = 10
+        w = Wall(y=510)  # horizontal floor
+        _collide_wall(b, w)
+        # After collision with high friction, tangential velocity (vx) should
+        # NOT be reversed (which would happen without clamping)
+        assert b.vx >= 0  # should stay non-negative (was +100)

@@ -23,7 +23,7 @@ def _tokenize(d):
             yield float(m.group(2))
 
 
-def _parse_path(d):
+def _tokenize_path(d):
     """Parse SVG path string into a list of (command, args) tuples.
     All commands are converted to their absolute uppercase equivalents."""
     tokens: list[Any] = list(_tokenize(d))
@@ -289,7 +289,7 @@ def path_bbox(d):
     if not d or not d.strip():
         return (0, 0, 0, 0)
 
-    segments = _parse_path(d)
+    segments = _tokenize_path(d)
     if not segments:
         return (0, 0, 0, 0)
 

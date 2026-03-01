@@ -49,6 +49,12 @@ class Body:
     def __init__(self, obj, mass: float = 1.0, restitution: float = 0.8, friction: float = 0.0,
                  radius=None, vx=0.0, vy=0.0, fixed=False,
                  angle: float = 0.0, angular_velocity=0.0, moment_of_inertia=None):
+        if not fixed and mass <= 0:
+            raise ValueError("Body mass must be > 0")
+        if friction < 0:
+            raise ValueError("Body friction must be >= 0")
+        if restitution < 0:
+            raise ValueError("Body restitution must be >= 0")
         self.obj = obj
         self.mass = mass if not fixed else math.inf
         self.restitution = restitution
@@ -115,6 +121,10 @@ class Spring:
     """
 
     def __init__(self, a, b, stiffness: float = 0.5, rest_length=None, damping: float = 0.02):
+        if stiffness < 0:
+            raise ValueError("Spring stiffness must be >= 0")
+        if damping < 0:
+            raise ValueError("Spring damping must be >= 0")
         self.a = a
         self.b = b
         self.stiffness = stiffness
@@ -363,6 +373,10 @@ class Cloth:
     def __init__(self, x: float = 560, y: float = 200, width: float = 800, height: float = 500,
                  cols=15, rows=10, pin_top=True, stiffness=2.0,
                  color='#58C4DD', creation: float = 0):
+        if cols < 1:
+            raise ValueError("Cloth cols must be >= 1")
+        if rows < 1:
+            raise ValueError("Cloth rows must be >= 1")
         from vectormation._shapes import Line, Dot  # lazy import (circular dep)
         self.cols = cols
         self.rows = rows
@@ -550,7 +564,7 @@ def _resolve_wall_axis(b, pos, vel, tangent_vel, wall_pos, e, fric):
 def _collide_wall(b, w):
     """Resolve wall collision for a body."""
     e = b.restitution * w.restitution
-    fric = 1 - b.friction
+    fric = max(0.0, 1 - b.friction)
     if w.y is not None:  # horizontal wall
         b.y, b.vy, b.vx = _resolve_wall_axis(b, b.y, b.vy, b.vx, w.y, e, fric)
     if w.x is not None:  # vertical wall

@@ -10,9 +10,7 @@ from vectormation._constants import (
     DEFAULT_OBJECT_TO_EDGE_BUFF,
 )
 
-def _clamp01(x):
-    """Clamp *x* to [0, 1]."""
-    return max(0.0, min(1.0, x))
+_clamp01 = easings._clamp01  # re-export to avoid duplicating the definition
 
 def _lerp(start, dur, a, b, easing):
     """Return a lambda that interpolates from *a* to *b* over [start, start+dur]."""
