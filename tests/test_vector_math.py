@@ -170,13 +170,22 @@ class TestCircleProperty:
         c = Circle(r=50)
         assert c.r is c.rx
 
-    def test_r_setter(self):
+    def test_r_setter_with_real(self):
         from vectormation.objects import Circle
         import vectormation.attributes as attributes
         c = Circle(r=50)
         c.r = attributes.Real(0, 100)
         assert c.rx.at_time(0) == 100
         assert c.ry.at_time(0) == 100
+
+    def test_r_setter_with_number(self):
+        from vectormation.objects import Circle
+        c = Circle(r=50)
+        c.r = 100
+        assert c.rx.at_time(0) == 100
+        assert c.ry.at_time(0) == 100
+        # Still has at_time method (didn't replace attribute with int)
+        assert hasattr(c.rx, 'at_time')
 
 
 class TestDecimalNumberTracker:

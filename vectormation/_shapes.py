@@ -1038,8 +1038,12 @@ class Circle(Ellipse):
 
     @r.setter
     def r(self, value):
-        self.rx = value
-        self.ry = value
+        if isinstance(value, attributes.Real):
+            self.rx = value
+            self.ry = value
+        else:
+            self.rx.set_onward(0, value)
+            self.ry.set_onward(0, value)
 
     def point_at_angle(self, degrees, time: float = 0):
         """Return (x, y) on the circle at the given angle (degrees, CCW from right)."""
