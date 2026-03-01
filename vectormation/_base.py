@@ -1443,8 +1443,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return self
 
     def circumscribe(self, start: float = 0, end: float = 1, buff=SMALL_BUFF, color=None, easing=easings.smooth, **styling_kwargs):
-        """Draw and remove a rectangle tracing around this object.
-        Returns the rectangle Path (must be added to canvas)."""
+        """Draw and remove a rectangle tracing around this object."""
         x, y, w, h = self.bbox(start)
         rx, ry = x - buff, y - buff
         rw, rh = w + 2 * buff, h + 2 * buff
@@ -1454,7 +1453,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         rect = Path(d, creation=start, **style)
         rect.draw_along(start=start, end=(start + end) / 2, easing=easing, change_existence=True)
         rect.fadeout(start=(start + end) / 2, end=end, change_existence=True)
-        return rect
+        _wrap_to_svg(self, lambda inner, time, _r=rect: inner + _r.to_svg(time) if _r.show.at_time(time) else inner, start)
+        return self
 
     def wiggle(self, start: float = 0, end: float = 1, amplitude: float = 12, n_wiggles: int = 4, easing=easings.there_and_back):
         """Shake the object horizontally. amplitude is max displacement in pixels."""

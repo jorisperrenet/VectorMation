@@ -2409,8 +2409,8 @@ class TestAnimationMethods:
 
     def test_circumscribe(self):
         c = Circle(r=50, cx=100, cy=100)
-        rect = c.circumscribe(start=0, end=2)
-        assert isinstance(rect, Path)
+        result = c.circumscribe(start=0, end=2)
+        assert result is c
 
 
 class TestDirectionConstants:

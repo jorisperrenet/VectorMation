@@ -926,24 +926,24 @@ class TestArrange:
 
 
 class TestCircumscribe:
-    def test_circumscribe_returns_path(self):
+    def test_circumscribe_returns_self(self):
         r = Rectangle(100, 50, x=10, y=20)
-        rect = r.circumscribe(start=0, end=2)
-        assert isinstance(rect, Path)
+        result = r.circumscribe(start=0, end=2)
+        assert result is r
 
-    def test_circumscribe_path_surrounds_object(self):
+    def test_circumscribe_renders_rect_in_svg(self):
         r = Rectangle(100, 50, x=10, y=20)
-        rect = r.circumscribe(start=0, end=2, buff=15)
-        # Path d should contain the bbox minus buff
-        bx, by, _, _ = r.bbox(0)
-        d = rect.d.at_time(0)
-        assert str(bx - 15) in d and str(by - 15) in d
+        r.circumscribe(start=0, end=2, buff=15)
+        svg = r.to_svg(0.5)
+        # The circumscribe path should appear in the SVG output
+        assert '<path' in svg
 
-    def test_circumscribe_fades_out(self):
+    def test_circumscribe_hidden_after_end(self):
         r = Rectangle(100, 50, x=10, y=20)
-        rect = r.circumscribe(start=0, end=2)
-        # After end, rect should be hidden
-        assert rect.show.at_time(2.1) is False
+        r.circumscribe(start=0, end=2)
+        svg = r.to_svg(2.5)
+        # After end, the circumscribe path should not appear
+        assert '<path' not in svg
 
 
 class TestSetColorHSL:
