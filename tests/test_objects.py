@@ -23169,3 +23169,346 @@ class TestSaveRestore:
         c = Circle(r=20)
         result = c.save_state(time=0)
         assert result is c
+
+
+class TestPolygonGeometry:
+    """Tests for Polygon geometric methods: edges, midpoints, diagonals, angles, triangulate."""
+
+    def test_get_edges_triangle(self):
+        tri = Polygon((100, 100), (200, 100), (150, 50), closed=True)
+        edges = tri.get_edges()
+        assert len(edges) == 3  # closed triangle has 3 edges
+
+    def test_get_edges_open_polyline(self):
+        poly = Polygon((0, 0), (100, 0), (200, 100), closed=False)
+        edges = poly.get_edges()
+        assert len(edges) == 2  # open polyline with 3 points has 2 edges
+
+    def test_get_edge_midpoints(self):
+        rect_poly = Polygon((0, 0), (100, 0), (100, 100), (0, 100), closed=True)
+        mids = rect_poly.get_edge_midpoints()
+        assert len(mids) == 4
+        # First edge midpoint: between (0,0) and (100,0)
+        assert abs(mids[0][0] - 50) < 1
+        assert abs(mids[0][1] - 0) < 1
+
+    def test_interior_angles_square(self):
+        sq = Polygon((0, 0), (100, 0), (100, 100), (0, 100), closed=True)
+        angles = sq.interior_angles()
+        assert len(angles) == 4
+        for a in angles:
+            assert abs(a - 90) < 1  # each angle should be ~90 degrees
+
+    def test_interior_angles_equilateral(self):
+        et = EquilateralTriangle(side_length=100)
+        angles = et.interior_angles()
+        assert len(angles) == 3
+        for a in angles:
+            assert abs(a - 60) < 1
+
+    def test_is_clockwise(self):
+        # clockwise in SVG coords (y-down): right, down, left, up
+        cw = Polygon((0, 0), (100, 0), (100, 100), (0, 100), closed=True)
+        ccw = Polygon((0, 0), (0, 100), (100, 100), (100, 0), closed=True)
+        assert cw.is_clockwise() != ccw.is_clockwise()
+
+    def test_get_diagonals_quadrilateral(self):
+        sq = Polygon((0, 0), (100, 0), (100, 100), (0, 100), closed=True)
+        diags = sq.get_diagonals()
+        assert len(diags) == 2  # square has 2 diagonals
+
+    def test_get_diagonals_triangle_empty(self):
+        tri = Polygon((0, 0), (100, 0), (50, 50), closed=True)
+        diags = tri.get_diagonals()
+        assert len(diags) == 0  # triangle has no diagonals
+
+    def test_triangulate_square(self):
+        sq = Polygon((0, 0), (100, 0), (100, 100), (0, 100), closed=True)
+        tris = sq.triangulate()
+        assert len(tris) == 2  # square decomposes into 2 triangles
+
+    def test_triangulate_pentagon(self):
+        poly = RegularPolygon(5, radius=100)
+        tris = poly.triangulate()
+        assert len(tris) == 3  # pentagon decomposes into 3 triangles
+
+    def test_bounding_circle(self):
+        sq = Polygon((0, 0), (100, 0), (100, 100), (0, 100), closed=True)
+        bc = sq.bounding_circle()
+        # Bounding circle should contain all vertices
+        r = bc.get_radius()
+        cx, cy = bc.c.at_time(0)
+        for vx, vy in sq.get_vertices():
+            dist = math.hypot(vx - cx, vy - cy)
+            assert dist <= r + 1  # within tolerance
+
+    def test_get_longest_shortest_edge(self):
+        poly = Polygon((0, 0), (200, 0), (200, 100), closed=True)
+        longest = poly.get_longest_edge()
+        shortest = poly.get_shortest_edge()
+        assert longest >= shortest
+
+
+class TestCircleGeometricMethodsExtended:
+    """Tests for Circle geometric methods: sectors, inscribed/circumscribed polygon, annulus."""
+
+    def test_get_sectors(self):
+        c = Circle(r=100)
+        sectors = c.get_sectors(4)
+        assert len(sectors.objects) == 4
+
+    def test_get_sectors_single(self):
+        c = Circle(r=100)
+        sectors = c.get_sectors(1)
+        assert len(sectors.objects) == 1
+
+    def test_inscribed_polygon(self):
+        c = Circle(r=100, cx=500, cy=500)
+        poly = c.inscribed_polygon(6)
+        assert isinstance(poly, RegularPolygon)
+        # All vertices should be on the circle
+        for vx, vy in poly.get_vertices():
+            dist = math.hypot(vx - 500, vy - 500)
+            assert abs(dist - 100) < 1
+
+    def test_circumscribed_polygon(self):
+        c = Circle(r=100, cx=500, cy=500)
+        poly = c.circumscribed_polygon(4)
+        # Circumscribed polygon should be larger - its inradius equals circle radius
+        assert isinstance(poly, Polygon)
+
+    def test_get_annulus(self):
+        c = Circle(r=100)
+        ann = c.get_annulus(0.5)
+        assert isinstance(ann, Annulus)
+
+    def test_annular_sector(self):
+        c = Circle(r=100)
+        sector = c.annular_sector(0.5, 0, 90)
+        assert isinstance(sector, Path)
+
+
+class TestRectangleMethods:
+    """Tests for Rectangle geometric methods: split, subdivide, inset, grid_lines, etc."""
+
+    def test_split_horizontal(self):
+        r = Rectangle(200, 100, x=0, y=0)
+        parts = r.split_horizontal(4)
+        assert len(parts.objects) == 4
+        # Each part should have height = 100/4 = 25
+        for part in parts.objects:
+            _, _, _, h = part._dims(0)
+            assert abs(h - 25) < 1
+
+    def test_split_vertical(self):
+        r = Rectangle(200, 100, x=0, y=0)
+        parts = r.split_vertical(3)
+        assert len(parts.objects) == 3
+
+    def test_subdivide_2x2(self):
+        r = Rectangle(200, 100, x=0, y=0)
+        grid = r.subdivide(2, 2)
+        assert len(grid.objects) == 4
+        # Each cell should be 100x50
+        for cell in grid.objects:
+            _, _, w, h = cell._dims(0)
+            assert abs(w - 100) < 1
+            assert abs(h - 50) < 1
+
+    def test_subdivide_3x3(self):
+        r = Rectangle(300, 300, x=0, y=0)
+        grid = r.subdivide(3, 3)
+        assert len(grid.objects) == 9
+
+    def test_inset(self):
+        r = Rectangle(200, 100, x=50, y=50)
+        inner = r.inset(10)
+        _, _, w, h = inner._dims(0)
+        assert abs(w - 180) < 1
+        assert abs(h - 80) < 1
+
+    def test_inset_too_large_raises(self):
+        r = Rectangle(200, 100, x=50, y=50)
+        with pytest.raises(ValueError, match="too large"):
+            r.inset(60)  # 2*60=120 > height 100
+
+    def test_contains_point(self):
+        r = Rectangle(200, 100, x=50, y=50)
+        assert r.contains_point(100, 80)  # inside
+        assert not r.contains_point(0, 0)  # outside
+
+    def test_get_grid_lines(self):
+        r = Rectangle(200, 200, x=0, y=0)
+        grid = r.get_grid_lines(4, 4)
+        # 4 horizontal + 4 vertical = 8 lines
+        assert len(grid.objects) == 8
+
+    def test_quadrants(self):
+        r = Rectangle(200, 200, x=0, y=0)
+        quads = r.quadrants()
+        assert len(quads.objects) == 4
+
+    def test_get_area(self):
+        r = Rectangle(200, 100, x=0, y=0)
+        assert abs(r.get_area() - 20000) < 1
+
+    def test_get_perimeter(self):
+        r = Rectangle(200, 100, x=0, y=0)
+        assert abs(r.get_perimeter() - 600) < 1
+
+    def test_get_diagonal_length(self):
+        r = Rectangle(300, 400, x=0, y=0)
+        assert abs(r.get_diagonal_length() - 500) < 1  # 3-4-5 triangle
+
+
+class TestRegularPolygonMethods:
+    """Tests for RegularPolygon geometry methods."""
+
+    def test_side_length(self):
+        # Hexagon with radius 100
+        hex = RegularPolygon(6, radius=100)
+        # Side length of regular hexagon = radius
+        assert abs(hex.get_side_length() - 100) < 1
+
+    def test_inradius(self):
+        hex = RegularPolygon(6, radius=100)
+        inr = hex.get_inradius()
+        # Inradius of hexagon = r * cos(pi/6) ≈ 86.6
+        assert abs(inr - 100 * math.cos(math.pi / 6)) < 1
+
+    def test_circumradius(self):
+        hex = RegularPolygon(6, radius=100)
+        assert abs(hex.get_circumradius() - 100) < 1
+
+    def test_apothem_equals_inradius(self):
+        pent = RegularPolygon(5, radius=80)
+        assert abs(pent.get_apothem() - pent.get_inradius()) < 0.01
+
+
+class TestStarPolygon:
+    """Tests for Star polygon."""
+
+    def test_star_vertices_count(self):
+        s = Star(5, outer_radius=100, inner_radius=50)
+        verts = s.get_vertices()
+        assert len(verts) == 10  # 5 outer + 5 inner
+
+    def test_star_radii(self):
+        s = Star(5, outer_radius=120, inner_radius=60)
+        assert s.get_outer_radius() == 120
+        assert s.get_inner_radius() == 60
+
+
+class TestEllipseGeometryExtended:
+    """Tests for Ellipse geometric methods: area, perimeter, foci."""
+
+    def test_get_area(self):
+        e = Ellipse(rx=100, ry=50)
+        expected = math.pi * 100 * 50
+        assert abs(e.get_area() - expected) < 1
+
+    def test_get_perimeter(self):
+        # For a circle (rx=ry=100), perimeter should be 2*pi*100
+        c_as_e = Ellipse(rx=100, ry=100)
+        expected = 2 * math.pi * 100
+        assert abs(c_as_e.get_perimeter() - expected) < 5  # Ramanujan approx
+
+    def test_get_foci_circle(self):
+        # Circle: foci should coincide with center
+        c = Ellipse(rx=100, ry=100, cx=500, cy=500)
+        f1, f2 = c.get_foci()
+        assert abs(f1[0] - f2[0]) < 1
+        assert abs(f1[1] - f2[1]) < 1
+
+    def test_get_foci_ellipse(self):
+        e = Ellipse(rx=100, ry=50, cx=500, cy=500)
+        f1, f2 = e.get_foci()
+        # Foci should be along the major axis (rx > ry => x-axis)
+        c2 = 100**2 - 50**2  # c^2 = a^2 - b^2
+        c_dist = math.sqrt(c2)
+        assert abs(f1[0] - (500 - c_dist)) < 1 or abs(f1[0] - (500 + c_dist)) < 1
+
+
+class TestVCollectionQueryMethods:
+    """Tests for VCollection filter, partition, group_by, flatten, etc."""
+
+    def test_filter(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        r1 = Rectangle(50, 50)
+        col = VCollection(c1, c2, r1)
+        circles = col.filter(lambda obj: isinstance(obj, Circle))
+        assert len(circles.objects) == 2
+
+    def test_filter_by_type(self):
+        c1 = Circle(r=10)
+        r1 = Rectangle(50, 50)
+        r2 = Rectangle(30, 30)
+        col = VCollection(c1, r1, r2)
+        rects = col.filter_by_type(Rectangle)
+        assert len(rects.objects) == 2
+
+    def test_partition(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=30)
+        c3 = Circle(r=5)
+        col = VCollection(c1, c2, c3)
+        big, small = col.partition(lambda obj: obj.get_radius() > 15)
+        assert len(big.objects) == 1
+        assert len(small.objects) == 2
+
+    def test_group_by(self):
+        c1 = Circle(r=10)
+        c2 = Circle(r=20)
+        r1 = Rectangle(50, 50)
+        col = VCollection(c1, c2, r1)
+        groups = col.group_by(lambda obj: type(obj).__name__)
+        assert 'Circle' in groups
+        assert 'Rectangle' in groups
+        assert len(groups['Circle'].objects) == 2
+
+    def test_flatten(self):
+        c1, c2, c3 = Circle(r=10), Circle(r=20), Circle(r=30)
+        inner = VCollection(c2, c3)
+        outer = VCollection(c1, inner)
+        assert len(outer.objects) == 2
+        outer.flatten()
+        assert len(outer.objects) == 3
+
+    def test_chunk(self):
+        circles = [Circle(r=10) for _ in range(7)]
+        col = VCollection(*circles)
+        chunks = col.chunk(3)
+        assert len(chunks) == 3  # 3 + 3 + 1
+        assert len(chunks[0].objects) == 3
+        assert len(chunks[2].objects) == 1
+
+    def test_find(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=20, cx=200, cy=200)
+        col = VCollection(c1, c2)
+        found = col.find(lambda obj, t: obj.get_radius(t) > 15)
+        assert found is c2
+
+    def test_find_index(self):
+        c1 = Circle(r=10, cx=100, cy=100)
+        c2 = Circle(r=20, cx=200, cy=200)
+        col = VCollection(c1, c2)
+        idx = col.find_index(lambda obj, t: obj.get_radius(t) > 15)
+        assert idx == 1
+
+    def test_sort_by_y(self):
+        r1 = Rectangle(50, 50, x=0, y=200)
+        r2 = Rectangle(50, 50, x=0, y=100)
+        r3 = Rectangle(50, 50, x=0, y=300)
+        col = VCollection(r1, r2, r3)
+        col.sort_by_y()
+        assert col.objects[0] is r2  # y=100 first
+        assert col.objects[1] is r1  # y=200 second
+
+    def test_sort_by_position(self):
+        r1 = Rectangle(50, 50, x=200, y=0)
+        r2 = Rectangle(50, 50, x=100, y=0)
+        col = VCollection(r1, r2)
+        col.sort_by_position(axis='x')
+        assert col.objects[0] is r2  # x=100 first
