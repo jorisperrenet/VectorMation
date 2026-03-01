@@ -1,6 +1,8 @@
 """Shape classes: Polygon, Circle, Rectangle, Line, Text, Arc, etc."""
 from __future__ import annotations
 import math
+import random as _random
+import re as _re
 from typing import Any
 
 import vectormation.easings as easings
@@ -402,11 +404,10 @@ class Polygon(VObject):
     @classmethod
     def from_svg_path(cls, path_d, **kwargs):
         """Create a Polygon from a simple SVG path string (M/L/Z commands only)."""
-        import re
         points = []
         cx, cy = 0.0, 0.0
-        for cmd, coords_str in re.findall(r'([MmLlZz])\s*([^MmLlZz]*)', path_d):
-            nums = [float(n) for n in re.findall(r'-?[\d.]+', coords_str)]
+        for cmd, coords_str in _re.findall(r'([MmLlZz])\s*([^MmLlZz]*)', path_d):
+            nums = [float(n) for n in _re.findall(r'-?[\d.]+', coords_str)]
             pairs = [(nums[i], nums[i+1]) for i in range(0, len(nums) - 1, 2)]
             if cmd == 'M':
                 for x, y in pairs:
@@ -590,7 +591,6 @@ class Polygon(VObject):
         if not pts:
             raise ValueError("bounding_circle requires at least one vertex")
 
-        import random as _random
         rng = _random.Random(0)  # deterministic seed for reproducibility
 
         def _circle_from_1(p):

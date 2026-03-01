@@ -1,5 +1,6 @@
 """Composite classes: MorphObject, TexObject, NumberLine, Table, Matrix, etc."""
 import math
+import re
 import tempfile
 from collections import defaultdict
 
@@ -130,7 +131,6 @@ def _strip_tex_commands(tex: str) -> str:
     Removes backslash-commands (e.g. \\frac, \\alpha), curly braces, dollar signs,
     and whitespace, leaving only the characters that dvisvgm renders as glyphs.
     """
-    import re
     # Remove LaTeX commands like \frac, \alpha, \text, etc.
     result = re.sub(r'\\[a-zA-Z]+\*?', '', tex)
     # Remove remaining braces, dollar signs, carets, underscores, spaces
@@ -282,6 +282,9 @@ class NumberLine(VCollection):
                                     fill='#aaa', stroke_width=0))
 
         super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return f'NumberLine(({self.x_start}, {self.x_end}), length={self.length})'
 
     def number_to_point(self, value, time: float = 0):
         """Convert a number on the line to an SVG (x, y) coordinate."""

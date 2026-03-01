@@ -1,5 +1,6 @@
 """Diagram classes: Tree, FlowChart, NetworkGraph, Automaton, etc."""
 import math
+import random
 from collections import deque
 import vectormation.easings as easings
 from vectormation._constants import (
@@ -474,7 +475,6 @@ class NetworkGraph(VCollection):
                 r, c = divmod(i, cols)
                 self._node_positions[nid] = (x0 + c * spacing, y0 + r * spacing)
         else:  # spring (simple force-directed, few iterations)
-            import random
             rng = random.Random(42)
             pos = {nid: (cx + rng.uniform(-radius, radius), cy + rng.uniform(-radius, radius))
                    for nid in node_ids}
