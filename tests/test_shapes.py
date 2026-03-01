@@ -2304,11 +2304,10 @@ class TestDonutChart:
         dc.animate_values([4, 4, 4], start=0, end=1)
         assert dc.values == [4, 4, 4]
 
-    def test_donutchart_animate_values_wrong_length_ignored(self):
+    def test_donutchart_animate_values_wrong_length_raises(self):
         dc = DonutChart([1, 2, 3])
-        result = dc.animate_values([1, 2], start=0, end=1)
-        assert result is dc
-        assert dc.values == [1, 2, 3]  # unchanged
+        with pytest.raises(ValueError, match="expects 3 values"):
+            dc.animate_values([1, 2], start=0, end=1)
 
     def test_donutchart_animate_values_path_changes(self):
         dc = DonutChart([1, 2, 3])

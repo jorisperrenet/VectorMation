@@ -5180,11 +5180,11 @@ class TestPieAnimateValues:
         assert pc.values == [40, 40, 20]
 
     def test_animate_values_wrong_length(self):
+        import pytest
         from vectormation.objects import PieChart
         pc = PieChart(values=[30, 20, 50])
-        result = pc.animate_values([40, 60], start=0, end=1)
-        assert result is pc
-        assert pc.values == [30, 20, 50]  # unchanged
+        with pytest.raises(ValueError, match="expects 3 values"):
+            pc.animate_values([40, 60], start=0, end=1)
 
 
 class TestCircleGeometricMethods:

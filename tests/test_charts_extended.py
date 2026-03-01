@@ -42,6 +42,12 @@ class TestDonutChart:
         result = d.animate_values([40, 40, 20], start=0, end=1)
         assert result is d
 
+    def test_animate_values_wrong_length(self):
+        d = DonutChart([30, 50, 20])
+        import pytest
+        with pytest.raises(ValueError, match="expects 3 values"):
+            d.animate_values([40, 60])
+
     def test_from_dict(self):
         d = DonutChart.from_dict({'A': 30, 'B': 50, 'C': 20})
         svg = d.to_svg(0)

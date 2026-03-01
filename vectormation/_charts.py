@@ -114,7 +114,9 @@ class PieChart(VCollection):
     def animate_values(self, new_values, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate pie chart to new values by morphing sector angles."""
         if len(new_values) != len(self.values):
-            return self
+            raise ValueError(
+                f"animate_values expects {len(self.values)} values, got {len(new_values)}"
+            )
         old_values = list(self.values)
         old_total = sum(old_values) or 1
         new_total = sum(new_values) or 1
@@ -266,7 +268,9 @@ class DonutChart(VCollection):
     def animate_values(self, new_values, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate donut chart to new values by morphing sector path shapes."""
         if len(new_values) != len(self.values):
-            return self
+            raise ValueError(
+                f"animate_values expects {len(self.values)} values, got {len(new_values)}"
+            )
         old_values = list(self.values)
         old_total = sum(old_values) or 1
         new_total = sum(new_values) or 1
@@ -365,6 +369,10 @@ class BarChart(VCollection):
 
     def animate_values(self, new_values, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate bars to new values over [start, end]."""
+        if len(new_values) != len(self._bars):
+            raise ValueError(
+                f"animate_values expects {len(self._bars)} values, got {len(new_values)}"
+            )
         max_val = (max(abs(v) for v in new_values) if new_values else 1) or 1
         dur = max(end - start, 1e-9)
         for bar, new_val in zip(self._bars, new_values):
