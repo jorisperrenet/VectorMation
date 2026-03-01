@@ -488,13 +488,16 @@ class _BooleanOp(VObject):
             return f"<g transform='{' '.join(parts)}'>{inner}</g>"
         return inner
 
-    def _style_attrs(self, time, *, include=None, prefix=''):
+    def _style_attrs(self, time, *, include=None, prefix='', exclude=()):
         """Build SVG presentation attribute string from styling.
 
         *include*: ``None`` for all, ``'fill'`` for fill-only, ``'stroke'`` for stroke-only.
+        *exclude*: tuple of attribute names to skip (e.g. ``('fill_rule',)``).
         """
         parts = [prefix.lstrip()] if prefix else []
         for name, svgname in style._STYLE_PAIRS:
+            if name in exclude:
+                continue
             if include == 'fill' and (name.startswith('stroke') or name == 'clip_path'):
                 continue
             if include == 'stroke' and not name.startswith('stroke'):
@@ -573,7 +576,8 @@ class Difference(_BooleanOp):
         defs = (f"<defs>{self._clip_def(pa, f'ca{u}')}"
                 f"{self._clip_inv(pb, f'nb{u}')}</defs>")
         fill = (f"<path d='{pa}{pb}' fill-rule='evenodd'"
-                f"{self._fill_attrs(time)} clip-path='url(#ca{u})'/>"  )
+                f"{self._style_attrs(time, include='fill', exclude=('fill_rule',))}"
+                f" clip-path='url(#ca{u})'/>")
         sa = self._stroke_path(pa, f'nb{u}', time)
         sb = self._stroke_path(pb, f'ca{u}', time)
         return self._wrap_group(defs + fill + sa + sb, time)
@@ -741,6 +745,7 @@ class Cutout(VObject):
         self.styling = style.Styling(
             styling_kwargs, creation=creation,
             fill=color, fill_opacity=opacity, stroke_width=0,
+            fill_rule='evenodd',
         )
 
     def _extra_attrs(self):
@@ -791,7 +796,7 @@ class Cutout(VObject):
                  f'a{rx},{ry} 0 0 1 {rx},{-ry} Z')
         else:
             d = outer + f'M{hx},{hy} h{hw} v{hh} h{-hw} Z'
-        return f"<path d='{d}' fill-rule='evenodd'{self.styling.svg_style(time)} />"
+        return f"<path d='{d}'{self.styling.svg_style(time)} />"
 
     def __repr__(self):
         return f'Cutout(hole=({self.hole_x.at_time(0)}, {self.hole_y.at_time(0)}))'
@@ -858,7 +863,7 @@ class Spotlight(VObject):
         Overlay opacity (0 = invisible, 1 = fully opaque).
     """
 
-    def __init__(self, target=ORIGIN, radius: float = 120, color='#000000', opacity: float = 0.7,
+    def __init__(self, target=ORIGIN, radius: float = 120, color='#000', opacity: float = 0.7,
                  creation: float = 0, z: float = 10, **kw):
         super().__init__(creation=creation, z=z, **kw)
         if isinstance(target, VObject):

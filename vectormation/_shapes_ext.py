@@ -1704,7 +1704,8 @@ class Annulus(VObject):
         self.inner_r = attributes.Real(creation, inner_radius)
         self.outer_r = attributes.Real(creation, outer_radius)
         self.styling = style.Styling(styling_kwargs, creation=creation,
-                                     fill='#58C4DD', fill_opacity=0.7, stroke='#fff', stroke_width=DEFAULT_STROKE_WIDTH)
+                                     fill='#58C4DD', fill_opacity=0.7, stroke='#fff', stroke_width=DEFAULT_STROKE_WIDTH,
+                                     fill_rule='evenodd')
 
     def _extra_attrs(self):
         return [self.c, self.inner_r, self.outer_r]
@@ -1765,7 +1766,7 @@ class Annulus(VObject):
 
     def to_svg(self, time):
         """Return the SVG <path> element string with even-odd fill rule."""
-        return f"<path d='{self.path(time)}' fill-rule='evenodd'{self.styling.svg_style(time)} />"
+        return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"
 
 class DashedLine(Line):
     """Line with a dashed stroke pattern."""
