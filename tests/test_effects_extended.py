@@ -1,6 +1,7 @@
 """Extended tests for _base_effects.py methods: connect, bind_to, homotopy, etc."""
 import pytest
 from vectormation.objects import Circle, Rectangle, Text, VCollection
+from vectormation._constants import LEFT, RIGHT, UP, DOWN
 
 
 class TestConnect:
@@ -373,6 +374,106 @@ class TestParallax:
         c = Circle(r=50)
         result = c.parallax(100, 50, start=0, end=1)
         assert result is c
+
+
+class TestDirectionTupleNormalization:
+    """Ensure methods accept tuple direction constants (UP, DOWN, LEFT, RIGHT)."""
+
+    def test_domino_left_tuple(self):
+        r = Rectangle(50, 100, x=100, y=100)
+        assert r.domino(start=0, end=1, direction=LEFT) is r
+
+    def test_domino_right_tuple(self):
+        r = Rectangle(50, 100, x=100, y=100)
+        assert r.domino(start=0, end=1, direction=RIGHT) is r
+
+    def test_unfold_left_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.unfold(start=0, end=1, direction=LEFT) is r
+
+    def test_unfold_right_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.unfold(start=0, end=1, direction=RIGHT) is r
+
+    def test_unfold_up_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.unfold(start=0, end=1, direction=UP) is r
+
+    def test_unfold_down_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.unfold(start=0, end=1, direction=DOWN) is r
+
+    def test_reveal_clip_left_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.reveal_clip(start=0, end=1, direction=LEFT) is r
+
+    def test_reveal_clip_right_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.reveal_clip(start=0, end=1, direction=RIGHT) is r
+
+    def test_reveal_clip_up_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.reveal_clip(start=0, end=1, direction=UP) is r
+
+    def test_reveal_clip_down_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.reveal_clip(start=0, end=1, direction=DOWN) is r
+
+    def test_wipe_left_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.wipe(direction=LEFT, start=0, end=1) is r
+
+    def test_wipe_right_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.wipe(direction=RIGHT, start=0, end=1) is r
+
+    def test_wipe_up_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.wipe(direction=UP, start=0, end=1) is r
+
+    def test_wipe_down_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.wipe(direction=DOWN, start=0, end=1) is r
+
+    def test_slide_in_left_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.slide_in(direction=LEFT, start=0, end=1) is r
+
+    def test_slide_in_right_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.slide_in(direction=RIGHT, start=0, end=1) is r
+
+    def test_slide_in_up_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.slide_in(direction=UP, start=0, end=1) is r
+
+    def test_slide_in_down_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.slide_in(direction=DOWN, start=0, end=1) is r
+
+    def test_slide_out_left_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.slide_out(direction=LEFT, start=0, end=1) is r
+
+    def test_slide_out_right_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.slide_out(direction=RIGHT, start=0, end=1) is r
+
+    def test_typewriter_reveal_left_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.typewriter_reveal(start=0, end=1, direction=LEFT) is r
+
+    def test_typewriter_reveal_right_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.typewriter_reveal(start=0, end=1, direction=RIGHT) is r
+
+    def test_typewriter_delete_left_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.typewriter_delete(start=0, end=1, direction=LEFT) is r
+
+    def test_typewriter_delete_right_tuple(self):
+        r = Rectangle(100, 50, x=100, y=100)
+        assert r.typewriter_delete(start=0, end=1, direction=RIGHT) is r
 
 
 class TestPointFromProportion:

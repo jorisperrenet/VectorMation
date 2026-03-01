@@ -8,7 +8,7 @@ import vectormation.attributes as attributes
 import vectormation.style as style
 from vectormation._base_helpers import (
     _clamp01, _lerp, _ramp, _clip_reveal,
-    _coords_of, _parse_path,
+    _coords_of, _parse_path, _norm_dir,
     _make_brect, _wrap_to_svg, _EDGE_POINTS,
 )
 from vectormation._constants import (
@@ -278,6 +278,7 @@ class _VObjectEffectsMixin:
     def domino(self, start: float = 0, end: float = 1, direction='right',
                angle: float = 90, easing=easings.smooth):
         """Tip the object over like a falling domino, rotating around its bottom edge."""
+        direction = _norm_dir(direction)
         dur = end - start
         if dur <= 0:
             return self
@@ -319,6 +320,7 @@ class _VObjectEffectsMixin:
     def unfold(self, start: float = 0, end: float = 1, direction='right',
                change_existence=True, easing=easings.smooth):
         """Animate the object unfolding from zero width to full size along one axis."""
+        direction = _norm_dir(direction)
         dur = end - start
         if dur <= 0:
             return self
@@ -551,10 +553,12 @@ class _VObjectEffectsMixin:
 
     # Maps reveal_clip direction names to _CLIP_INSET keys.
     # 'left' (reveal left→right) clips the right side, etc.
-    _REVEAL_DIR = {'left': 'right', 'right': 'left', 'top': 'down', 'bottom': 'up'}
+    _REVEAL_DIR = {'left': 'right', 'right': 'left', 'top': 'down', 'bottom': 'up',
+                   'up': 'down', 'down': 'up'}
 
     def reveal_clip(self, start: float = 0, end: float = 1, direction='left', easing=easings.smooth):
         """Progressive reveal using SVG clip-path in the given direction."""
+        direction = _norm_dir(direction, default='left')
         dur = end - start
         if dur <= 0:
             return self

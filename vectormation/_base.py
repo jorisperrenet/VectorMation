@@ -750,6 +750,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def _slide_anim(self, direction, start, end, slide_in, change_existence, easing):
         """Shared helper for slide_in / slide_out."""
+        direction = _norm_dir(direction)
         dur = end - start
         if dur <= 0:
             return self
@@ -1864,6 +1865,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
     def wipe(self, direction='right', start: float = 0, end: float = 1,
              easing=easings.smooth, reverse=False):
         """Reveal (or hide if reverse=True) with a clip-path wipe effect."""
+        direction = _norm_dir(direction)
         dur = end - start
         if dur <= 0:
             return self
@@ -2169,6 +2171,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def _typewriter_clip(self, start, end, direction, easing, reveal):
         """Shared logic for typewriter_reveal / typewriter_delete."""
+        direction = _norm_dir(direction)
         dur = end - start
         if dur <= 0:
             return self
