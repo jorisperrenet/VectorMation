@@ -267,3 +267,11 @@ class TestCustomForces:
         space.simulate(duration=0.5)
         assert b.x > 500
         assert b.y > 500
+
+
+class TestWallValidation:
+    def test_wall_needs_x_or_y(self):
+        """Wall with neither x nor y should raise ValueError."""
+        import pytest
+        with pytest.raises(ValueError, match='at least x or y'):
+            Wall()

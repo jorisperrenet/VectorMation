@@ -1316,3 +1316,27 @@ class Test3DPrimitivesEdgeCases:
         ax.add_3d(curve)
         svg = ax.to_svg(0)
         assert svg is not None
+
+
+class TestSurfaceFillStrokeAliases:
+    def test_surface_fill_alias(self):
+        s = Surface(lambda u, v: u + v, fill='#ff0000')
+        assert s._fill_color == '#ff0000'
+
+    def test_surface_stroke_alias(self):
+        s = Surface(lambda u, v: u + v, stroke='#00ff00')
+        assert s._stroke_color == '#00ff00'
+
+    def test_surface_fill_color_still_works(self):
+        s = Surface(lambda u, v: u + v, fill_color='#0000ff')
+        assert s._fill_color == '#0000ff'
+
+    def test_plot_surface_fill_alias(self):
+        ax = ThreeDAxes()
+        s = ax.plot_surface(lambda x, y: x + y, fill='#ff0000')
+        assert s._fill_color == '#ff0000'
+
+    def test_plot_surface_stroke_alias(self):
+        ax = ThreeDAxes()
+        s = ax.plot_surface(lambda x, y: x + y, stroke='#00ff00')
+        assert s._stroke_color == '#00ff00'

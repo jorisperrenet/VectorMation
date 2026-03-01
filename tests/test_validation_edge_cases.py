@@ -290,6 +290,18 @@ class TestLensEdgeCases:
         pt = l.image_point(200, 400)  # obj_x, obj_y
         assert pt is not None
 
+    def test_image_point_at_focal_point(self):
+        """Object at focal point returns None (image at infinity)."""
+        l = Lens(focal_length=200, cx=500)
+        pt = l.image_point(500 - 200, 400)
+        assert pt is None
+
+    def test_image_point_at_lens_center(self):
+        """Object at lens center passes through."""
+        l = Lens(focal_length=200, cx=500)
+        pt = l.image_point(500, 400)
+        assert pt == (500, 400)
+
 
 class TestRayEdgeCases:
     def test_basic(self):
@@ -495,6 +507,16 @@ class TestAutomatonEdgeCases:
         )
         result = a.simulate_input('a', start=0, delay=0.5)
         assert result is a
+
+    def test_simulate_input_no_initial_state(self):
+        """simulate_input without initial_state should raise ValueError."""
+        a = Automaton(
+            states=['q0', 'q1'],
+            transitions=[('q0', 'q1', 'a')],
+            accept_states=['q1'],
+        )
+        with pytest.raises(ValueError, match='initial_state'):
+            a.simulate_input('a')
 
 
 class TestNetworkGraphEdgeCases:
@@ -739,6 +761,11 @@ class TestIconGridEdgeCases:
     def test_single_color(self):
         data = [(10, '#58C4DD')]
         ig = IconGrid(data, cols=5)
+        svg = ig.to_svg(0)
+        assert svg is not None
+
+    def test_empty_data(self):
+        ig = IconGrid(data=[])
         svg = ig.to_svg(0)
         assert svg is not None
 
