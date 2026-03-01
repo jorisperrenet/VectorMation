@@ -406,9 +406,7 @@ class Automaton(VCollection):
         """
         trans_list = transitions if transitions is not None else self._transitions
         # Build lookup: (state, char) -> next_state
-        lookup = {}
-        for from_s, to_s, label in trans_list:
-            lookup[(from_s, label)] = to_s
+        lookup = {(from_s, label): to_s for from_s, to_s, label in trans_list}
 
         current = self._initial_state
         if current is None:
@@ -634,13 +632,7 @@ class Tree(VCollection):
         if isinstance(children, dict):
             return (key, [Tree._dict_to_tree({k: v}) for k, v in children.items()])
         if isinstance(children, (list, tuple)):
-            result = []
-            for child in children:
-                if isinstance(child, dict):
-                    result.append(Tree._dict_to_tree(child))
-                else:
-                    result.append((str(child), []))
-            return (key, result)
+            return (key, [Tree._dict_to_tree(c) if isinstance(c, dict) else (str(c), []) for c in children])
         return (key, [])
 
     @staticmethod

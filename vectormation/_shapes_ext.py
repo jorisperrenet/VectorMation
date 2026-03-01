@@ -1619,10 +1619,7 @@ class Arc(VObject):
         angle = math.degrees(math.atan2(-(py - cy), px - cx)) % 360
         start = self.start_angle.at_time(time) % 360
         end = self.end_angle.at_time(time) % 360
-        if start <= end:
-            return start <= angle <= end
-        else:
-            return angle >= start or angle <= end
+        return (start <= angle <= end) if start <= end else (angle >= start or angle <= end)
 
     @classmethod
     def from_three_points(cls, p1, p2, p3, **kwargs):

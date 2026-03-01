@@ -485,7 +485,7 @@ class LinkedListViz(VCollection):
 
     def traverse(self, start: float = 0, delay: float = 0.5, color='#FFFF00'):
         """Animate traversing each node in sequence."""
-        for i, _node in enumerate(self._nodes):
+        for i in range(len(self._nodes)):
             t = start + i * delay
             self.highlight(i, t, t + delay, color)
         return self

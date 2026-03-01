@@ -1430,12 +1430,8 @@ class CalendarHeatmap(VCollection):
         if isinstance(data, dict):
             grid = data
         else:
-            grid = {}
             flat = list(data)
-            for idx, val in enumerate(flat):
-                r = idx % rows
-                c = idx // rows
-                grid[(r, c)] = val
+            grid = {(idx % rows, idx // rows): val for idx, val in enumerate(flat)}
         if not grid:
             super().__init__(creation=creation, z=z)
             return
