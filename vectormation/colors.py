@@ -184,8 +184,12 @@ def color_gradient(color1, color2=None, n: int = 5):
     """
     if isinstance(color1, (list, tuple)):
         colors = list(color1)
+        if not colors:
+            return ['#000000'] * max(n, 1)
         if n <= 1:
             return [colors[0]]
+        if len(colors) == 1:
+            return [colors[0]] * n
         result = []
         for i in range(n):
             t = i / (n - 1) * (len(colors) - 1)

@@ -100,6 +100,22 @@ class TestColorGradient:
         # Middle should be white
         assert result[2] == '#ffffff'
 
+    def test_empty_list(self):
+        result = color_gradient([], n=3)
+        assert result == ['#000000', '#000000', '#000000']
+
+    def test_empty_list_n_zero(self):
+        result = color_gradient([], n=0)
+        assert result == ['#000000']
+
+    def test_single_color_list(self):
+        result = color_gradient(['#ff0000'], n=4)
+        assert result == ['#ff0000'] * 4
+
+    def test_single_color_list_n_one(self):
+        result = color_gradient(['#ff0000'], n=1)
+        assert result == ['#ff0000']
+
 
 class TestInterpolateColor:
     def test_start(self):
