@@ -1,8 +1,8 @@
 """Science and electronics classes: Resistor, NeuralNetwork, Pendulum, etc."""
 import math
-from vectormation._constants import _normalize, _label_text, ORIGIN
+from vectormation._constants import _normalize, _label_text, ORIGIN, CANVAS_WIDTH, CANVAS_HEIGHT
 from vectormation._base import VCollection
-from vectormation._shapes import Circle, Dot, Line, Lines, Text, Path, Polygon
+from vectormation._shapes import Circle, Dot, Line, Lines, Text, Path, Polygon, Rectangle
 
 
 def _component_geom(x1, y1, x2, y2):
@@ -281,7 +281,7 @@ class NeuralNetwork(VCollection):
         sizes = [len(l) for l in self._layers]
         return f'NeuralNetwork({sizes})'
 
-    def _label_layer(self, layer_idx, labels, sign, anchor, font_size=20, buff=30, creation=0, **kwargs):
+    def _label_layer(self, layer_idx, labels, sign, anchor, font_size: float = 20, buff: float = 30, creation: float = 0, **kwargs):
         """Add labels to one side of a neuron layer."""
         if not self._layers:
             return self
@@ -292,15 +292,15 @@ class NeuralNetwork(VCollection):
                           fill='#fff', creation=creation, **kwargs))
         return self
 
-    def label_input(self, labels, font_size=20, buff=30, **kwargs):
+    def label_input(self, labels, font_size: float = 20, buff: float = 30, **kwargs):
         """Add labels to the left of input neurons."""
         return self._label_layer(0, labels, -1, 'end', font_size, buff, **kwargs)
 
-    def label_output(self, labels, font_size=20, buff=30, **kwargs):
+    def label_output(self, labels, font_size: float = 20, buff: float = 30, **kwargs):
         """Add labels to the right of output neurons."""
         return self._label_layer(-1, labels, 1, 'start', font_size, buff, **kwargs)
 
-    def activate(self, layer_idx, neuron_idx, start=0, end=1, color='#FFFF00'):
+    def activate(self, layer_idx, neuron_idx, start: float = 0, end: float = 1, color='#FFFF00'):
         """Animate a neuron activation (flash color)."""
         if 0 <= layer_idx < len(self._layers):
             layer = self._layers[layer_idx]
@@ -308,7 +308,7 @@ class NeuralNetwork(VCollection):
                 layer[neuron_idx].flash(start=start, end=end, color=color)
         return self
 
-    def propagate(self, start=0, end=2, delay=0.3, color='#FFFF00'):
+    def propagate(self, start: float = 0, end: float = 1, delay: float = 0.3, color='#FFFF00'):
         """Animate a forward-propagation signal through the network."""
         duration = end - start
         for li, layer in enumerate(self._layers):
@@ -318,7 +318,7 @@ class NeuralNetwork(VCollection):
                              color=color)
         return self
 
-    def highlight_path(self, path, start=0, delay=0.3, color='#FF6B6B',
+    def highlight_path(self, path, start: float = 0, delay=0.3, color='#FF6B6B',
                        edge_color='#FF6B6B'):
         """Highlight a specific path through the network.
 
@@ -486,3 +486,449 @@ class StandingWave(VCollection):
 
     def __repr__(self):
         return 'StandingWave()'
+
+
+# ---------------------------------------------------------------------------
+# Electrostatics
+# ---------------------------------------------------------------------------
+
+class Charge(VCollection):
+    """Electrostatic point charge with a colored circle and +/- symbol.
+
+    Parameters
+    ----------
+    magnitude : float
+        Charge strength.  Positive values draw a red "+" charge,
+        negative values draw a blue "-" charge.
+    cx, cy : float
+        Position in SVG coordinates.
+    radius : float or None
+        Circle radius.  ``None`` auto-scales from magnitude.
+    color : str or None
+        Override the automatic red/blue color.
+    add_glow : bool
+        If *True*, concentric translucent circles create a glow effect.
+    glow_layers : int
+        Number of glow rings (more = smoother but heavier).
+    """
+
+    def __init__(self, magnitude=1, cx=ORIGIN[0], cy=ORIGIN[1], radius=None,
+                 color=None, add_glow=True, glow_layers=12,
+                 creation: float = 0, z: float = 0, **styling_kwargs):
+        self.magnitude = magnitude
+        self._cx = cx
+        self._cy = cy
+        is_positive = magnitude >= 0
+        if radius is None:
+            radius = min(abs(magnitude) * 16, 40) if abs(magnitude) < 5 else 40
+            radius = max(radius, 10)
+        self._radius = radius
+        if color is None:
+            color = '#FF4444' if is_positive else '#4488FF'
+        self._color = color
+
+        objects = []
+
+        # Glow rings (back to front, decreasing opacity)
+        if add_glow:
+            glow_max_r = radius * 3.5
+            from vectormation.colors import color_gradient as _cg
+            if is_positive:
+                glow_colors = _cg('#FF4444', '#FFAAAA', glow_layers)
+            else:
+                glow_colors = _cg('#4488FF', '#AACCFF', glow_layers)
+            for i in range(glow_layers):
+                t = (i + 1) / glow_layers
+                gr = radius + (glow_max_r - radius) * t
+                opacity = 0.25 * (1 - t) ** 1.5
+                objects.append(Circle(r=gr, cx=cx, cy=cy,
+                                      fill=glow_colors[i], fill_opacity=opacity,
+                                      stroke_width=0, creation=creation, z=z))
+
+        # Main circle
+        objects.append(Circle(r=radius, cx=cx, cy=cy,
+                              fill=color, fill_opacity=1,
+                              stroke='#fff', stroke_width=2,
+                              creation=creation, z=z + 0.1))
+
+        # +/- symbol
+        bar_w = radius * 0.8
+        bar_h = radius * 0.15
+        if is_positive:
+            # Horizontal bar
+            objects.append(Rectangle(bar_w, bar_h, x=cx, y=cy,
+                                     fill='#fff', fill_opacity=1, stroke_width=0,
+                                     creation=creation, z=z + 0.2))
+            # Vertical bar
+            objects.append(Rectangle(bar_h, bar_w, x=cx, y=cy,
+                                     fill='#fff', fill_opacity=1, stroke_width=0,
+                                     creation=creation, z=z + 0.2))
+        else:
+            # Just horizontal bar for minus
+            objects.append(Rectangle(bar_w, bar_h, x=cx, y=cy,
+                                     fill='#fff', fill_opacity=1, stroke_width=0,
+                                     creation=creation, z=z + 0.2))
+
+        super().__init__(*objects, creation=creation, z=z)
+
+    def __repr__(self):
+        sign = '+' if self.magnitude >= 0 else ''
+        return f'Charge({sign}{self.magnitude})'
+
+
+class ElectricField(VCollection):
+    """Electric field visualization from a list of Charge objects.
+
+    Computes the Coulomb field at grid points and renders arrows via
+    ArrowVectorField from ``_svg_utils``.
+
+    Parameters
+    ----------
+    charges : Charge
+        One or more Charge instances (positional args).
+    x_range, y_range : tuple
+        Grid sampling ranges as ``(min, max, step)`` in SVG pixels.
+    max_length : float
+        Maximum arrow length in pixels.
+    color : str
+        Arrow color.
+    """
+
+    def __init__(self, *charges, x_range=(60, CANVAS_WIDTH - 60, 120),
+                 y_range=(60, CANVAS_HEIGHT - 60, 120),
+                 max_length=80, color='#58C4DD',
+                 creation: float = 0, z: float = 0, **styling_kwargs):
+        self.charges = charges
+        # Collect positions and magnitudes
+        positions = []
+        magnitudes = []
+        for ch in charges:
+            positions.append((ch._cx, ch._cy))
+            magnitudes.append(ch.magnitude)
+
+        def field_func(x, y):
+            """Coulomb superposition: E = sum(q / r^2 * r_hat)."""
+            fx, fy = 0.0, 0.0
+            for (px, py), mag in zip(positions, magnitudes):
+                dx, dy = x - px, y - py
+                dist = math.hypot(dx, dy)
+                if dist < 15:  # avoid singularity near charge
+                    return (0.0, 0.0)
+                nx, ny = dx / dist, dy / dist
+                fx += mag / dist ** 2 * nx
+                fy += mag / dist ** 2 * ny
+            return (fx, fy)
+
+        from vectormation._svg_utils import ArrowVectorField
+        avf = ArrowVectorField(field_func, x_range=x_range, y_range=y_range,
+                               max_length=max_length, creation=creation, z=z,
+                               stroke=color, **styling_kwargs)
+        super().__init__(*avf.objects, creation=creation, z=z)
+
+    def __repr__(self):
+        return f'ElectricField({len(self.charges)} charges)'
+
+
+# ---------------------------------------------------------------------------
+# Optics
+# ---------------------------------------------------------------------------
+
+class Lens(VCollection):
+    """Convex or concave lens shape for geometric optics diagrams.
+
+    Parameters
+    ----------
+    cx, cy : float
+        Center position.
+    height : float
+        Lens height (top to bottom) in pixels.
+    focal_length : float
+        Focal length in pixels.  Positive = convex, negative = concave.
+    thickness : float
+        Maximum lens thickness in pixels.
+    n : float
+        Refractive index (used by Ray for Snell's law).
+    color : str
+        Fill color.
+    show_focal_points : bool
+        Draw small dots at the focal points.
+    show_axis : bool
+        Draw the principal (optical) axis as a dashed line.
+    """
+
+    def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], height=300,
+                 focal_length=200, thickness=30, n=1.52,
+                 color='#58C4DD', show_focal_points=True, show_axis=True,
+                 creation: float = 0, z: float = 0, **styling_kwargs):
+        self._cx = cx
+        self._cy = cy
+        self._height = height
+        self.focal_length = focal_length
+        self._thickness = thickness
+        self.n = n
+        self._is_convex = focal_length > 0
+
+        objects = []
+
+        half_h = height / 2
+        half_t = thickness / 2
+
+        if self._is_convex:
+            # Convex lens: two outward arcs forming a biconvex shape.
+            # Approximate with cubic bezier curves.
+            d = (
+                f'M {cx},{cy - half_h} '
+                f'C {cx + half_t * 2.2},{cy - half_h * 0.3} '
+                f'  {cx + half_t * 2.2},{cy + half_h * 0.3} '
+                f'  {cx},{cy + half_h} '
+                f'C {cx - half_t * 2.2},{cy + half_h * 0.3} '
+                f'  {cx - half_t * 2.2},{cy - half_h * 0.3} '
+                f'  {cx},{cy - half_h} Z'
+            )
+        else:
+            # Concave lens: thin at center, thick at edges.
+            edge_t = half_t * 2.0
+            center_t = half_t * 0.3
+            d = (
+                # Left edge outline
+                f'M {cx - edge_t},{cy - half_h} '
+                f'L {cx + edge_t},{cy - half_h} '
+                # Right concave curve (inward)
+                f'C {cx + center_t},{cy - half_h * 0.3} '
+                f'  {cx + center_t},{cy + half_h * 0.3} '
+                f'  {cx + edge_t},{cy + half_h} '
+                # Bottom edge
+                f'L {cx - edge_t},{cy + half_h} '
+                # Left concave curve (inward)
+                f'C {cx - center_t},{cy + half_h * 0.3} '
+                f'  {cx - center_t},{cy - half_h * 0.3} '
+                f'  {cx - edge_t},{cy - half_h} Z'
+            )
+
+        lens_path = Path(d, x=0, y=0, fill=color, fill_opacity=0.3,
+                         stroke=color, stroke_width=2,
+                         creation=creation, z=z + 0.1)
+        objects.append(lens_path)
+
+        # Optical axis (dashed horizontal line)
+        if show_axis:
+            axis_half = max(abs(focal_length) * 2, height)
+            objects.append(Line(cx - axis_half, cy, cx + axis_half, cy,
+                                stroke='#666', stroke_width=1,
+                                stroke_dasharray='8 4',
+                                creation=creation, z=z))
+
+        # Focal points
+        if show_focal_points:
+            f_abs = abs(focal_length)
+            objects.append(Dot(r=4, cx=cx - f_abs, cy=cy,
+                               fill='#FFFF00', creation=creation, z=z + 0.2))
+            objects.append(Dot(r=4, cx=cx + f_abs, cy=cy,
+                               fill='#FFFF00', creation=creation, z=z + 0.2))
+            objects.append(Text('F', x=cx - f_abs, y=cy + 20, font_size=16,
+                                fill='#FFFF00', stroke_width=0,
+                                text_anchor='middle',
+                                creation=creation, z=z + 0.2))
+            objects.append(Text('F', x=cx + f_abs, y=cy + 20, font_size=16,
+                                fill='#FFFF00', stroke_width=0,
+                                text_anchor='middle',
+                                creation=creation, z=z + 0.2))
+
+        self.lens_path = lens_path
+        super().__init__(*objects, creation=creation, z=z)
+
+    def image_point(self, obj_x, obj_y):
+        """Compute the image position of a point object using the thin-lens equation.
+
+        Returns (image_x, image_y) in SVG coordinates, or None if the object
+        is exactly at the focal point (image at infinity).
+        """
+        f = self.focal_length
+        # Object distance (positive = left of lens in standard convention)
+        do = self._cx - obj_x
+        if abs(do) < 1e-9:
+            # Object at the lens center -- passes through
+            return (obj_x, obj_y)
+        # Thin-lens equation: 1/f = 1/do + 1/di  =>  di = f*do / (do - f)
+        denom = do - f
+        if abs(denom) < 1e-9:
+            return None  # image at infinity
+        di = f * do / denom
+        magnification = -di / do
+        image_x = self._cx + di
+        image_y = self._cy + (obj_y - self._cy) * magnification
+        return (image_x, image_y)
+
+    def __repr__(self):
+        kind = 'convex' if self._is_convex else 'concave'
+        return f'Lens({kind}, f={self.focal_length})'
+
+
+class Ray(VCollection):
+    """A light ray that propagates and refracts through Lens objects.
+
+    Parameters
+    ----------
+    x1, y1 : float
+        Starting point of the ray.
+    angle : float
+        Initial direction in degrees (0 = rightward, 90 = downward).
+    length : float
+        Initial ray segment length in pixels.
+    lenses : list[Lens] or None
+        Lenses to propagate through.  Refraction uses Snell's law
+        at each lens surface.
+    color : str
+        Ray stroke color.
+    stroke_width : float
+        Ray line width.
+    show_arrow : bool
+        Draw a small arrowhead at the ray tip.
+    """
+
+    def __init__(self, x1=200, y1=ORIGIN[1], angle=0, length=1600,
+                 lenses=None, color='#FFFF00', stroke_width=2,
+                 show_arrow=False,
+                 creation: float = 0, z: float = 0, **styling_kwargs):
+        self._x1 = x1
+        self._y1 = y1
+        self._angle = angle
+        self._length = length
+        self._color = color
+
+        angle_rad = math.radians(angle)
+        dx = math.cos(angle_rad)
+        dy = math.sin(angle_rad)
+
+        objects = []
+        style_kw = {'stroke': color, 'stroke_width': stroke_width,
+                     'fill_opacity': 0} | styling_kwargs
+
+        if not lenses:
+            # Simple straight ray
+            x2 = x1 + dx * length
+            y2 = y1 + dy * length
+            objects.append(Line(x1, y1, x2, y2, creation=creation, z=z, **style_kw))
+            if show_arrow:
+                objects.extend(self._arrowhead(x2, y2, dx, dy, color, creation, z))
+        else:
+            # Sort lenses by intersection distance along the ray
+            sorted_lenses = self._sort_lenses(x1, y1, dx, dy, lenses)
+            segments = self._trace(x1, y1, dx, dy, length, sorted_lenses)
+            for seg in segments:
+                objects.append(Lines(*seg, creation=creation, z=z, **style_kw))
+            if show_arrow and segments:
+                last_seg = segments[-1]
+                if len(last_seg) >= 2:
+                    (ax, ay), (bx, by) = last_seg[-2], last_seg[-1]
+                    adx, ady = _normalize(bx - ax, by - ay)
+                    objects.extend(self._arrowhead(bx, by, adx, ady,
+                                                   color, creation, z))
+
+        self.segments = objects
+        super().__init__(*objects, creation=creation, z=z)
+
+    @staticmethod
+    def _arrowhead(x, y, dx, dy, color, creation, z):
+        """Return two short Lines forming a small arrowhead at (x, y)."""
+        tip_len = 12
+        px, py = -dy, dx  # perpendicular
+        ax1 = x - dx * tip_len + px * tip_len * 0.4
+        ay1 = y - dy * tip_len + py * tip_len * 0.4
+        ax2 = x - dx * tip_len - px * tip_len * 0.4
+        ay2 = y - dy * tip_len - py * tip_len * 0.4
+        return [
+            Line(x, y, ax1, ay1, stroke=color, stroke_width=2,
+                 creation=creation, z=z + 0.1),
+            Line(x, y, ax2, ay2, stroke=color, stroke_width=2,
+                 creation=creation, z=z + 0.1),
+        ]
+
+    @staticmethod
+    def _sort_lenses(x1, y1, dx, dy, lenses):
+        """Sort lenses by distance of their center projected onto the ray."""
+        dists = []
+        for lens in lenses:
+            # Project lens center onto the ray direction
+            t = (lens._cx - x1) * dx + (lens._cy - y1) * dy
+            dists.append((t, lens))
+        dists.sort(key=lambda pair: pair[0])
+        return [lens for _, lens in dists]
+
+    @staticmethod
+    def _intersect_ray_lens(rx, ry, dx, dy, lens):
+        """Find where the ray hits the lens vertical extent.
+
+        Returns the parameter t along the ray where the ray crosses
+        the lens center x-coordinate, or None if it doesn't hit.
+        """
+        # Treat the lens as a vertical slab at x = lens._cx
+        if abs(dx) < 1e-12:
+            return None  # ray is vertical, parallel to lens
+        t = (lens._cx - rx) / dx
+        if t < 1:
+            return None  # lens is behind the ray origin
+        hit_y = ry + dy * t
+        half_h = lens._height / 2
+        if abs(hit_y - lens._cy) > half_h:
+            return None  # misses the lens vertically
+        return t
+
+    @staticmethod
+    def _refract(dx, dy, focal_length, hit_y, lens_cy):
+        """Apply thin-lens refraction to the ray direction.
+
+        For a thin lens, a ray at height h from the axis is deflected by
+        angle = -h / f (paraxial approximation).
+        """
+        h = hit_y - lens_cy
+        # Deflection angle from thin-lens formula
+        if abs(focal_length) < 1e-9:
+            return dx, dy
+        deflection = -h / focal_length
+        # Rotate direction vector by deflection angle
+        cos_d = math.cos(deflection)
+        sin_d = math.sin(deflection)
+        # For a horizontal lens, the deflection is in the y-component
+        # But we use a proper 2D rotation for generality
+        new_dx = dx * cos_d - dy * sin_d
+        new_dy = dx * sin_d + dy * cos_d
+        mag = math.hypot(new_dx, new_dy)
+        if mag > 0:
+            new_dx /= mag
+            new_dy /= mag
+        return new_dx, new_dy
+
+    @classmethod
+    def _trace(cls, x1, y1, dx, dy, length, lenses):
+        """Trace a ray through a list of lenses, returning polyline segments."""
+        segments = []
+        cur_x, cur_y = x1, y1
+        cur_dx, cur_dy = dx, dy
+        remaining = length
+
+        for lens in lenses:
+            t = cls._intersect_ray_lens(cur_x, cur_y, cur_dx, cur_dy, lens)
+            if t is None or t > remaining:
+                continue
+            # Point where ray enters the lens
+            hit_x = cur_x + cur_dx * t
+            hit_y = cur_y + cur_dy * t
+            # Segment before the lens
+            segments.append([(cur_x, cur_y), (hit_x, hit_y)])
+            remaining -= t
+            # Refract through the lens
+            cur_dx, cur_dy = cls._refract(
+                cur_dx, cur_dy, lens.focal_length,
+                hit_y, lens._cy,
+            )
+            cur_x, cur_y = hit_x, hit_y
+
+        # Final segment after the last lens (or the only segment)
+        end_x = cur_x + cur_dx * remaining
+        end_y = cur_y + cur_dy * remaining
+        segments.append([(cur_x, cur_y), (end_x, end_y)])
+        return segments
+
+    def __repr__(self):
+        return f'Ray(angle={self._angle})'

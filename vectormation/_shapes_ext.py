@@ -28,10 +28,12 @@ class Line(VObject):
         return [self.p1, self.p2]
 
     def snap_points(self, time):
+        """Return the two endpoint positions as snap points."""
         p1, p2 = self.p1.at_time(time), self.p2.at_time(time)
         return [(float(p1[0]), float(p1[1])), (float(p2[0]), float(p2[1]))]
 
     def bbox(self, time):
+        """Return the bounding box enclosing both endpoints."""
         return self._bbox_from_points([self.p1.at_time(time), self.p2.at_time(time)], time) or super().bbox(time)
 
     def _ep(self, time):
@@ -40,26 +42,34 @@ class Line(VObject):
         return p1[0], p1[1], p2[0], p2[1]
 
     def path(self, time):
+        """Return the SVG path data string for this line."""
         x1, y1, x2, y2 = self._ep(time)
         return f'M{x1},{y1}L{x2},{y2}'
 
     def to_svg(self, time):
+        """Return the SVG <line> element string."""
         x1, y1, x2, y2 = self._ep(time)
         return f"<line x1='{x1}' y1='{y1}' x2='{x2}' y2='{y2}'{self.styling.svg_style(time)} />"
 
     def get_start(self, time=0):
+        """Return the start point (x, y) of the line."""
         p = self.p1.at_time(time); return (float(p[0]), float(p[1]))
 
     def get_end(self, time=0):
+        """Return the end point (x, y) of the line."""
         p = self.p2.at_time(time); return (float(p[0]), float(p[1]))
 
-    def get_length(self, time=0): return _distance(*self._ep(time))
+    def get_length(self, time=0):
+        """Return the length of the line in pixels."""
+        return _distance(*self._ep(time))
     length = get_length
 
     def get_angle(self, time=0):
+        """Return the angle of the line in degrees (atan2 of dy, dx)."""
         x1, y1, x2, y2 = self._ep(time); return math.degrees(math.atan2(y2 - y1, x2 - x1))
 
     def get_midpoint(self, time=0):
+        """Return the midpoint (x, y) of the line."""
         x1, y1, x2, y2 = self._ep(time); return ((x1 + x2) / 2, (y1 + y2) / 2)
 
     def split_at(self, t: float = 0.5, time: float = 0):
@@ -79,9 +89,11 @@ class Line(VObject):
     get_unit_vector = get_direction
 
     def get_vector(self, time=0):
+        """Return the direction vector (dx, dy) from start to end."""
         x1, y1, x2, y2 = self._ep(time); return (x2 - x1, y2 - y1)
 
     def get_normal(self, time=0):
+        """Return the unit normal vector perpendicular to the line."""
         dx, dy = self.get_direction(time); return (-dy, dx)
 
     def angle_to(self, other, time=0):
@@ -126,24 +138,31 @@ class Line(VObject):
         """Return True if start and end differ by less than *tol* on *axis* (0=x, 1=y)."""
         return abs(self.get_end(time)[axis] - self.get_start(time)[axis]) < tol
 
-    def is_horizontal(self, time=0, tol=1e-3): return self._is_aligned(1, time, tol)
-    def is_vertical(self, time=0, tol=1e-3): return self._is_aligned(0, time, tol)
+    def is_horizontal(self, time=0, tol=1e-3):
+        """Return True if the line is horizontal within tolerance."""
+        return self._is_aligned(1, time, tol)
 
-    def set_start(self, point, start=0, end=None, easing=easings.smooth):
+    def is_vertical(self, time=0, tol=1e-3):
+        """Return True if the line is vertical within tolerance."""
+        return self._is_aligned(0, time, tol)
+
+    def set_start(self, point, start: float = 0, end=None, easing=easings.smooth):
+        """Animate or set the start point of the line."""
         _set_attr(self.p1, start, end, point, easing)
         return self
 
-    def set_end(self, point, start=0, end=None, easing=easings.smooth):
+    def set_end(self, point, start: float = 0, end=None, easing=easings.smooth):
+        """Animate or set the end point of the line."""
         _set_attr(self.p2, start, end, point, easing)
         return self
 
-    def set_points(self, p1, p2, start=0):
+    def set_points(self, p1, p2, start: float = 0):
         """Set both endpoints at once."""
         self.p1.set_onward(start, p1)
         self.p2.set_onward(start, p2)
         return self
 
-    def set_length(self, length, start=0, end=None, easing=easings.smooth):
+    def set_length(self, length, start: float = 0, end=None, easing=easings.smooth):
         """Set absolute length while keeping the midpoint fixed."""
         x1, y1, x2, y2 = self._ep(start)
         cur = _distance(x1, y1, x2, y2)
@@ -156,7 +175,7 @@ class Line(VObject):
         _set_attr(self.p2, start, end, (mx + dx * half, my + dy * half), easing)
         return self
 
-    def extend_to(self, length, anchor='start', start=0, end=None, easing=easings.smooth):
+    def extend_to(self, length, anchor='start', start: float = 0, end=None, easing=easings.smooth):
         """Extend or shrink the line to *length*, keeping one endpoint fixed."""
         x1, y1, x2, y2 = self._ep(start)
         cur = _distance(x1, y1, x2, y2)
@@ -186,7 +205,7 @@ class Line(VObject):
 
     get_projection = get_perpendicular_point
 
-    def set_angle(self, angle_deg, about='midpoint', start=0, end=None, easing=easings.smooth):
+    def set_angle(self, angle_deg, about='midpoint', start: float = 0, end=None, easing=easings.smooth):
         """Rotate the line to the given angle (degrees) about its midpoint or start."""
         x1, y1, x2, y2 = self._ep(start)
         target = math.radians(angle_deg)
@@ -201,7 +220,7 @@ class Line(VObject):
             _set_attr(self.p2, start, end, (mx + half * math.cos(target), my + half * math.sin(target)), easing)
         return self
 
-    def put_start_and_end_on(self, p1, p2, start=0, end=None, easing=easings.smooth):
+    def put_start_and_end_on(self, p1, p2, start: float = 0, end=None, easing=easings.smooth):
         """Position the line between two points."""
         _set_attr(self.p1, start, end, p1, easing)
         _set_attr(self.p2, start, end, p2, easing)
@@ -386,7 +405,7 @@ class Line(VObject):
             dx, dy = 0, 0
         return Line(x1=px - dx, y1=py - dy, x2=px + dx, y2=py + dy, **kwargs)
 
-    def extend(self, factor=1.5, start=0, end=None, easing=easings.smooth):
+    def extend(self, factor=1.5, start: float = 0, end=None, easing=easings.smooth):
         """Scale the line length by *factor* while keeping the midpoint fixed."""
         x1, y1, x2, y2 = self._ep(start)
         mx, my = (x1 + x2) / 2, (y1 + y2) / 2
@@ -543,6 +562,7 @@ class Text(VObject):
         return [(self.x, self.y)]
 
     def snap_points(self, time):
+        """Return the text anchor position as a snap point."""
         return [(float(self.x.at_time(time)), float(self.y.at_time(time)))]
 
     @staticmethod
@@ -559,12 +579,14 @@ class Text(VObject):
         return x
 
     def path(self, time):
+        """Return an SVG path approximating the text bounding rectangle."""
         x, y, fs = self.x.at_time(time), self.y.at_time(time), self.font_size.at_time(time)
         w = self._estimate_width(self.text.at_time(time), fs)
         xl = self._text_left(x, w)
         return f'M{xl},{y-fs}L{xl+w},{y-fs}L{xl+w},{y}L{xl},{y}Z'
 
     def bbox(self, time):
+        """Return the estimated bounding box of the text."""
         x, y, fs = self.x.at_time(time), self.y.at_time(time), self.font_size.at_time(time)
         w = self._estimate_width(self.text.at_time(time), fs)
         return (self._text_left(x, w), y - fs, w, fs)
@@ -574,44 +596,55 @@ class Text(VObject):
         return self.text.at_time(time)
 
     def get_font_size(self, time=0):
+        """Return the font size at the given time."""
         return self.font_size.at_time(time)
 
-    def starts_with(self, prefix, time=0): return self.text.at_time(time).startswith(prefix)
-    def ends_with(self, suffix, time=0): return self.text.at_time(time).endswith(suffix)
+    def starts_with(self, prefix, time=0):
+        """Return True if the text starts with the given prefix."""
+        return self.text.at_time(time).startswith(prefix)
+
+    def ends_with(self, suffix, time=0):
+        """Return True if the text ends with the given suffix."""
+        return self.text.at_time(time).endswith(suffix)
 
     def __repr__(self):
         t = self.text.at_time(0)
         return f'Text({t!r})' if len(t) <= 20 else f'Text({t[:17]!r}...)'
 
-    def typing(self, start: float = 0, end: float = 1, change_existence=True):
-        """Typewriter effect: reveal text character by character over [start, end]."""
+    def _text_anim_setup(self, start, end, change_existence):
+        """Shared setup for text animations. Returns ``(full_text, dur)`` or ``None`` on early exit."""
         full_text = self.text.at_time(start)
-        n = len(full_text)
-        if n == 0:
-            return self
+        if not full_text:
+            return None
         if change_existence:
             self._show_from(start)
         dur = end - start
         if dur <= 0:
             self.text.set_onward(start, full_text)
+            return None
+        return full_text, dur
+
+    def typing(self, start: float = 0, end: float = 1, change_existence=True):
+        """Typewriter effect: reveal text character by character over [start, end]."""
+        setup = self._text_anim_setup(start, end, change_existence)
+        if setup is None:
             return self
+        full_text, dur = setup
+        n = len(full_text)
         self.text.set(start, end, lambda t, _s=start, _d=dur, _n=n: full_text[:max(1, int(_n * (t - _s) / _d))], stay=True)
         return self
 
-    def reveal_by_word(self, start=0, end=1, change_existence=True, easing=None):
+    def reveal_by_word(self, start: float = 0, end: float = 1, change_existence=True, easing=None):
         """Reveal text word by word over [start, end]."""
         easing = easing or easings.linear
-        full_text = self.text.at_time(start)
+        setup = self._text_anim_setup(start, end, change_existence)
+        if setup is None:
+            return self
+        full_text, dur = setup
         words = full_text.split()
         if not words:
             return self
-        if change_existence:
-            self._show_from(start)
         n = len(words)
-        dur = end - start
-        if dur <= 0:
-            self.text.set_onward(start, full_text)
-            return self
 
         def _text_at(t, _words=words, _full=full_text, _n=n, _e=easing,
                      _s=start, _d=dur):
@@ -634,7 +667,7 @@ class Text(VObject):
                 _ramp(start, dur, opacity, easing), stay=True)
         return rect
 
-    def highlight(self, start=0, end=1, color='#FFFF00', opacity=0.3, padding=4, easing=easings.there_and_back):
+    def highlight(self, start: float = 0, end: float = 1, color='#FFFF00', opacity=0.3, padding=4, easing=easings.there_and_back):
         """Highlight the text with a colored background rectangle that fades in/out.
         Returns the highlight Rectangle (must be added to canvas separately)."""
         bx, by, bw, bh = self.bbox(start)
@@ -643,7 +676,7 @@ class Text(VObject):
                          creation=start, fill=color, fill_opacity=0, stroke_width=0)
         return self._highlight_rect(rect, start, end, opacity, easing)
 
-    def highlight_substring(self, substring, color='#FFFF00', start=0, end=1,
+    def highlight_substring(self, substring, color='#FFFF00', start: float = 0, end: float = 1,
                             opacity=0.3, easing=easings.there_and_back):
         """Highlight a substring with a colored background rectangle.
         Returns the highlight Rectangle (must be added to canvas)."""
@@ -661,18 +694,14 @@ class Text(VObject):
                          creation=start, fill=color, fill_opacity=0, stroke_width=0)
         return self._highlight_rect(rect, start, end, opacity, easing)
 
-    def typewrite(self, start=0, end=1, cursor='|', change_existence=True):
+    def typewrite(self, start: float = 0, end: float = 1, cursor='|', change_existence=True):
         """Reveal text character by character like a typewriter.
         The text attribute is updated progressively with an optional cursor character."""
-        if change_existence:
-            self._show_from(start)
-        full_text = self.text.at_time(start)
+        setup = self._text_anim_setup(start, end, change_existence)
+        if setup is None:
+            return self
+        full_text, dur = setup
         n = len(full_text)
-        if n == 0:
-            return self
-        dur = end - start
-        if dur <= 0:
-            return self
         def _typed(t, _s=start, _d=dur):
             progress = min(1, (t - _s) / _d)
             chars = int(progress * n)
@@ -684,7 +713,7 @@ class Text(VObject):
         self.text.set_onward(end, full_text)
         return self
 
-    def untype(self, start=0, end=1, change_existence=True):
+    def untype(self, start: float = 0, end: float = 1, change_existence=True):
         """Reverse typewriter: remove characters right-to-left."""
         full_text = self.text.at_time(start)
         n = len(full_text)
@@ -705,17 +734,13 @@ class Text(VObject):
 
     word_by_word = reveal_by_word  # alias
 
-    def scramble(self, start=0, end=1, charset=None, change_existence=True):
+    def scramble(self, start: float = 0, end: float = 1, charset=None, change_existence=True):
         """Decode/reveal text from random characters. Characters settle left-to-right."""
-        if change_existence:
-            self._show_from(start)
-        full_text = self.text.at_time(start)
+        setup = self._text_anim_setup(start, end, change_existence)
+        if setup is None:
+            return self
+        full_text, dur = setup
         n = len(full_text)
-        if n == 0:
-            return self
-        dur = end - start
-        if dur <= 0:
-            return self
         if charset is None:
             charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*'
         import random
@@ -736,7 +761,7 @@ class Text(VObject):
         self.text.set_onward(end, full_text)
         return self
 
-    def set_font_size(self, size, start=0, end=None, easing=easings.smooth):
+    def set_font_size(self, size, start: float = 0, end=None, easing=easings.smooth):
         """Animate font size to new value."""
         _set_attr(self.font_size, start, end, size, easing)
         return self
@@ -771,7 +796,7 @@ class Text(VObject):
             _ramp(mid, dur2, 1, easing), stay=True)
         return self
 
-    def update_text(self, new_text, start=0):
+    def update_text(self, new_text, start: float = 0):
         """Instantly change the displayed text from *start* onward."""
         self.text.set_onward(start, new_text)
         return self
@@ -974,6 +999,7 @@ class Text(VObject):
         return ''.join(parts)
 
     def to_svg(self, time):
+        """Return the SVG <text> element string."""
         font_attrs = self._font_attrs()
         txt = _xml_escape(str(self.text.at_time(time)))
         return (f"<text x='{self.x.at_time(time)}' y='{self.y.at_time(time)}'"
@@ -988,30 +1014,28 @@ class CountAnimation(Text):
         super().__init__(text=fmt.format(start_val), x=x, y=y,
                          font_size=font_size, text_anchor=text_anchor,
                          creation=creation, z=z, **styling_kwargs)
-        dur = end - start
-        if dur <= 0:
-            self.text.set_onward(start, fmt.format(end_val))
-        else:
-            self.text.set(start, end,
-                lambda t, _s=start, _d=dur, _sv=start_val, _ev=end_val, _fmt=fmt, _e=easing: _fmt.format(_sv + (_ev - _sv) * _e((t - _s) / _d)),
-                stay=True)
         self._fmt = fmt
         self._last_val = end_val
+        self._count_anim(start_val, end_val, start, end, easing)
 
     def __repr__(self):
         return f'CountAnimation({self._last_val})'
 
-    def count_to(self, target, start, end, easing=easings.smooth):
-        """Animate counting from the current value to a new target."""
-        from_val, fmt = self._last_val, self._fmt
+    def _count_anim(self, from_val, to_val, start, end, easing):
+        """Set up counting animation between two values."""
+        fmt = self._fmt
         dur = end - start
         if dur <= 0:
-            self.text.set_onward(start, fmt.format(target))
+            self.text.set_onward(start, fmt.format(to_val))
         else:
             self.text.set(start, end,
-                lambda t, _f=from_val, _t=target, _s=start, _d=dur, _fmt=fmt, _e=easing:
+                lambda t, _f=from_val, _t=to_val, _s=start, _d=dur, _fmt=fmt, _e=easing:
                     _fmt.format(_f + (_t - _f) * _e((t - _s) / _d)),
                 stay=True)
+
+    def count_to(self, target, start, end, easing=easings.smooth):
+        """Animate counting from the current value to a new target."""
+        self._count_anim(self._last_val, target, start, end, easing)
         self._last_val = target
         return self
 
@@ -1023,22 +1047,26 @@ class ValueTracker:
 
     @property
     def last_change(self):
+        """Return the time of the last change to the tracked value."""
         return self.value.last_change
 
     def get_value(self, time=0):
+        """Return the tracked value at the given time."""
         return self.value.at_time(time)
 
     at_time = get_value
 
-    def set_value(self, val, start=0):
+    def set_value(self, val, start: float = 0):
+        """Set the tracked value from the given start time onward."""
         self.value.set_onward(start, val)
         return self
 
     def animate_value(self, target, start, end, easing=easings.smooth):
+        """Animate the tracked value to a target over [start, end]."""
         self.value.move_to(start, end, target, easing=easing)
         return self
 
-    def increment_value(self, delta, start=0):
+    def increment_value(self, delta, start: float = 0):
         """Add *delta* to the current value at *start*."""
         self.value.set_onward(start, self.value.at_time(start) + delta)
         return self
@@ -1070,9 +1098,11 @@ class ComplexValueTracker:
         self.show = attributes.Real(creation, True)
 
     def get_value(self, time=0):
+        """Return the complex value at the given time."""
         return complex(self.real.at_time(time), self.imag.at_time(time))
 
-    def set_value(self, val, start=0):
+    def set_value(self, val, start: float = 0):
+        """Set the complex value from the given start time onward."""
         if isinstance(val, (int, float)):
             val = complex(val)
         self.real.set_onward(start, val.real)
@@ -1080,6 +1110,7 @@ class ComplexValueTracker:
         return self
 
     def animate_value(self, target, start, end, easing=easings.smooth):
+        """Animate the complex value to a target over [start, end]."""
         if isinstance(target, (int, float)):
             target = complex(target)
         self.real.move_to(start, end, target.real, easing=easing)
@@ -1107,13 +1138,16 @@ class DecimalNumber(Text):
 
     @property
     def tracker(self):
+        """Return the underlying numeric attribute being tracked."""
         return self._tracker
 
-    def set_value(self, val, start=0):
+    def set_value(self, val, start: float = 0):
+        """Set the displayed numeric value from the given start time onward."""
         self._tracker.set_onward(start, val)
         return self
 
     def animate_value(self, target, start, end, easing=easings.smooth):
+        """Animate the displayed numeric value to a target over [start, end]."""
         self._tracker.move_to(start, end, target, easing=easing)
         return self
 
@@ -1146,6 +1180,7 @@ class Trace(VObject):
         return [self.p]
 
     def snap_points(self, time):
+        """Return the current traced point position as a snap point."""
         pos = self.p.at_time(time)
         return [(float(pos[0]), float(pos[1]))]
 
@@ -1161,6 +1196,7 @@ class Trace(VObject):
         return self
 
     def path(self, time):
+        """Return the SVG path data string for the traced polyline."""
         verts = self.vertices(time)
         if not verts:
             return ''
@@ -1169,6 +1205,7 @@ class Trace(VObject):
         return ' '.join(parts)
 
     def vertices(self, time):
+        """Return the list of sampled (x, y) vertices up to the given time."""
         steps = self._steps(time)
         verts = self._vert_cache[:steps]
         t = self.start + len(verts) * self.dt
@@ -1186,6 +1223,7 @@ class Trace(VObject):
         return int((end - self.start) / self.dt)
 
     def to_svg(self, time):
+        """Return the SVG <polyline> element string for the trace."""
         self.vertices(time)
         steps = self._steps(time)
         if steps == 0:
@@ -1195,6 +1233,7 @@ class Trace(VObject):
         return f"<polyline points='{pts} {cur[0]},{cur[1]}'{self.styling.svg_style(time)} />"
 
     def to_polygon(self, time):
+        """Convert the traced vertices into a Polygon object."""
         return Polygon(*self.vertices(time), creation=time, z=self.z.at_time(time), **self.styling.kwargs())
 
     def __repr__(self):
@@ -1213,6 +1252,7 @@ class Path(VObject):
         return [self.d]
 
     def snap_points(self, time):
+        """Return the four corners of the path bounding box as snap points."""
         d = self.d.at_time(time)
         if d:
             xmin, xmax, ymin, ymax = path_bbox(d)
@@ -1322,9 +1362,11 @@ class Path(VObject):
         return Path(reversed_d, **self._copy_style(time))
 
     def path(self, time):
+        """Return the SVG path data string."""
         return self.d.at_time(time)
 
     def to_svg(self, time):
+        """Return the SVG <path> element string."""
         return f"<path d='{self.d.at_time(time)}'{self.styling.svg_style(time)} />"
 
     @classmethod
@@ -1393,11 +1435,13 @@ class Image(VObject):
         return [(self.x, self.y)]
 
     def path(self, time):
+        """Return an SVG path tracing the image bounding rectangle."""
         x, y = self.x.at_time(time), self.y.at_time(time)
         w, h = self.width.at_time(time), self.height.at_time(time)
         return f'M{x},{y}L{x+w},{y}L{x+w},{y+h}L{x},{y+h}Z'
 
     def bbox(self, time):
+        """Return the bounding box of the image."""
         x, y = self.x.at_time(time), self.y.at_time(time)
         w, h = self.width.at_time(time), self.height.at_time(time)
         return self._bbox_from_points([(x,y),(x+w,y),(x+w,y+h),(x,y+h)], time) or super().bbox(time)
@@ -1406,6 +1450,7 @@ class Image(VObject):
         return f'Image({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f})'
 
     def to_svg(self, time):
+        """Return the SVG <image> element string."""
         return (f"<image href='{self.href}' x='{self.x.at_time(time)}' y='{self.y.at_time(time)}'"
                 f" width='{self.width.at_time(time)}' height='{self.height.at_time(time)}'"
                 f"{self.styling.svg_style(time)} />")
@@ -1430,9 +1475,11 @@ class Arc(VObject):
         return [(self.cx, self.cy)]
 
     def snap_points(self, time):
+        """Return the arc center position as a snap point."""
         return [(float(self.cx.at_time(time)), float(self.cy.at_time(time)))]
 
     def bbox(self, time):
+        """Return the bounding box of the arc including cardinal extremes."""
         cx, cy, r = self.cx.at_time(time), self.cy.at_time(time), self.r.at_time(time)
         sa, ea = self.start_angle.at_time(time), self.end_angle.at_time(time)
         sa_rad, ea_rad = math.radians(sa), math.radians(ea)
@@ -1447,6 +1494,7 @@ class Arc(VObject):
         return self._bbox_from_points(pts, time) or super().bbox(time)
 
     def path(self, time):
+        """Return the SVG path data string for the arc."""
         cx, cy, r = self.cx.at_time(time), self.cy.at_time(time), self.r.at_time(time)
         sa, ea = self.start_angle.at_time(time), self.end_angle.at_time(time)
         sa_rad, ea_rad = math.radians(sa), math.radians(ea)
@@ -1464,21 +1512,19 @@ class Arc(VObject):
         """Return the (x, y) position at the end of the arc."""
         return self.point_at_angle(self.end_angle.at_time(time), time)
 
+    def get_sweep(self, time=0):
+        """Return the total sweep angle in degrees."""
+        return abs(self.end_angle.at_time(time) - self.start_angle.at_time(time))
+
     def get_arc_length(self, time=0):
         """Return the arc length (r * angle_in_radians)."""
-        r = self.r.at_time(time)
-        sweep = abs(self.end_angle.at_time(time) - self.start_angle.at_time(time))
-        return r * math.radians(sweep)
+        return self.r.at_time(time) * math.radians(self.get_sweep(time))
 
     def get_chord_length(self, time=0):
         """Return the length of the chord from start point to end point."""
         p1 = self.get_start_point(time)
         p2 = self.get_end_point(time)
         return math.hypot(p2[0] - p1[0], p2[1] - p1[1])
-
-    def get_sweep(self, time=0):
-        """Return the total sweep angle in degrees."""
-        return abs(self.end_angle.at_time(time) - self.start_angle.at_time(time))
 
     def get_sagitta(self, time=0):
         """Return the sagitta (height of the arc segment from chord to arc)."""
@@ -1503,12 +1549,12 @@ class Arc(VObject):
         rad = math.radians(degrees)
         return (cx + r * math.cos(rad), cy - r * math.sin(rad))
 
-    def set_radius(self, value, start=0, end=None, easing=easings.smooth):
+    def set_radius(self, value, start: float = 0, end=None, easing=easings.smooth):
         """Animate or set the arc radius."""
         _set_attr(self.r, start, end, value, easing)
         return self
 
-    def set_angles(self, start_angle=None, end_angle=None, start=0, end=None, easing=easings.smooth):
+    def set_angles(self, start_angle=None, end_angle=None, start: float = 0, end=None, easing=easings.smooth):
         """Animate or set the arc start/end angles (degrees)."""
         if start_angle is not None:
             _set_attr(self.start_angle, start, end, start_angle, easing)
@@ -1516,7 +1562,7 @@ class Arc(VObject):
             _set_attr(self.end_angle, start, end, end_angle, easing)
         return self
 
-    def animate_sweep(self, target_angle, start=0, end=None, easing=None):
+    def animate_sweep(self, target_angle, start: float = 0, end=None, easing=None):
         """Animate the end angle of this arc to *target_angle* (degrees)."""
         if easing is None:
             easing = easings.smooth
@@ -1623,6 +1669,7 @@ class Arc(VObject):
         return f'Arc(r={self.r.at_time(0):.0f}, {self.start_angle.at_time(0):.0f}°-{self.end_angle.at_time(0):.0f}°)'
 
     def to_svg(self, time):
+        """Return the SVG <path> element string for the arc."""
         return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"
 
 class Wedge(Arc):
@@ -1653,6 +1700,7 @@ class Wedge(Arc):
         return f'Wedge(r={self.r.at_time(0):.0f}, {self.start_angle.at_time(0):.0f}\u00b0-{self.end_angle.at_time(0):.0f}\u00b0)'
 
     def path(self, time):
+        """Return the SVG path data for the wedge (arc closed through center)."""
         return super().path(time) + f'L{self.cx.at_time(time)},{self.cy.at_time(time)}Z'
 
 class Annulus(VObject):
@@ -1673,15 +1721,18 @@ class Annulus(VObject):
         return [self.c]
 
     def snap_points(self, time):
+        """Return the annulus center position as a snap point."""
         cx, cy = self.c.at_time(time)
         return [(float(cx), float(cy))]
 
     def bbox(self, time):
+        """Return the bounding box based on the outer radius."""
         cx, cy = self.c.at_time(time)
         r = self.outer_r.at_time(time)
         return self._bbox_from_points([(cx-r, cy-r), (cx+r, cy-r), (cx+r, cy+r), (cx-r, cy+r)], time) or super().bbox(time)
 
     def path(self, time):
+        """Return the SVG path data for the annulus ring shape."""
         cx, cy = self.c.at_time(time)
         ri, ro = self.inner_r.at_time(time), self.outer_r.at_time(time)
         # Outer circle CW, then inner circle CCW (creates a ring with even-odd fill)
@@ -1691,13 +1742,20 @@ class Annulus(VObject):
     def __repr__(self):
         return f'Annulus(inner={self.inner_r.at_time(0):.0f}, outer={self.outer_r.at_time(0):.0f})'
 
-    def get_inner_radius(self, time=0): return self.inner_r.at_time(time)
-    def get_outer_radius(self, time=0): return self.outer_r.at_time(time)
+    def get_inner_radius(self, time=0):
+        """Return the inner radius at the given time."""
+        return self.inner_r.at_time(time)
 
-    def set_inner_radius(self, value, start=0, end=None, easing=easings.smooth):
+    def get_outer_radius(self, time=0):
+        """Return the outer radius at the given time."""
+        return self.outer_r.at_time(time)
+
+    def set_inner_radius(self, value, start: float = 0, end=None, easing=easings.smooth):
+        """Animate or set the inner radius."""
         _set_attr(self.inner_r, start, end, value, easing); return self
 
-    def set_outer_radius(self, value, start=0, end=None, easing=easings.smooth):
+    def set_outer_radius(self, value, start: float = 0, end=None, easing=easings.smooth):
+        """Animate or set the outer radius."""
         _set_attr(self.outer_r, start, end, value, easing); return self
 
     def get_area(self, time=0):
@@ -1705,7 +1763,7 @@ class Annulus(VObject):
         ri, ro = self.inner_r.at_time(time), self.outer_r.at_time(time)
         return math.pi * (ro * ro - ri * ri)
 
-    def set_radii(self, inner=None, outer=None, start=0, end=None, easing=easings.smooth):
+    def set_radii(self, inner=None, outer=None, start: float = 0, end=None, easing=easings.smooth):
         """Set inner and/or outer radius."""
         if inner is not None:
             self.set_inner_radius(inner, start, end, easing)
@@ -1714,6 +1772,7 @@ class Annulus(VObject):
         return self
 
     def to_svg(self, time):
+        """Return the SVG <path> element string with even-odd fill rule."""
         return f"<path d='{self.path(time)}' fill-rule='evenodd'{self.styling.svg_style(time)} />"
 
 class DashedLine(Line):
@@ -1726,7 +1785,7 @@ class DashedLine(Line):
         x1, y1, x2, y2 = self._ep(0)
         return f'DashedLine(({x1:.0f},{y1:.0f})->({x2:.0f},{y2:.0f}))'
 
-    def set_dash_pattern(self, dash, gap=None, start=0):
+    def set_dash_pattern(self, dash, gap=None, start: float = 0):
         """Set the dash pattern. If gap is None, gap = dash."""
         if gap is None:
             gap = dash
@@ -1811,6 +1870,7 @@ class AnnularSector(Arc):
         return super()._extra_attrs() + [self.inner_r]
 
     def path(self, time):
+        """Return the SVG path data for the annular sector."""
         cx, cy, ro = self.cx.at_time(time), self.cy.at_time(time), self.r.at_time(time)
         ri = self.inner_r.at_time(time)
         sa, ea = self.start_angle.at_time(time), self.end_angle.at_time(time)
@@ -1829,16 +1889,19 @@ class AnnularSector(Arc):
         return (f'M{ox1},{oy1}A{ro},{ro} 0 {large},{sweep_out} {ox2},{oy2}'
                 f'L{ix1},{iy1}A{ri},{ri} 0 {large},{sweep_in} {ix2},{iy2}Z')
 
-    def set_inner_radius(self, value, start=0, end=None, easing=easings.smooth):
+    def set_inner_radius(self, value, start: float = 0, end=None, easing=easings.smooth):
+        """Animate or set the inner radius of the annular sector."""
         _set_attr(self.inner_r, start, end, value, easing)
         return self
 
     def get_area(self, time=0):
+        """Return the area of the annular sector."""
         ri = self.inner_r.at_time(time)
         ro = self.r.at_time(time)
         return 0.5 * math.radians(self.get_sweep(time)) * (ro * ro - ri * ri)
 
     def to_svg(self, time):
+        """Return the SVG <path> element string for the annular sector."""
         return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"
 
 class ArcPolygon(VObject):
@@ -1864,6 +1927,7 @@ class ArcPolygon(VObject):
         return f'ArcPolygon({len(self._verts)} vertices)'
 
     def path(self, time):
+        """Return the SVG path data for the arc polygon."""
         verts = self._verts
         n = len(verts)
         parts = [f'M{verts[0][0]:.1f},{verts[0][1]:.1f}']
@@ -1884,6 +1948,7 @@ class ArcPolygon(VObject):
         return ''.join(parts)
 
     def to_svg(self, time):
+        """Return the SVG <path> element string for the arc polygon."""
         return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"
 
 
@@ -1911,9 +1976,11 @@ class CubicBezier(VObject):
         return f'CubicBezier(({p0[0]:.0f},{p0[1]:.0f})->({p3[0]:.0f},{p3[1]:.0f}))'
 
     def snap_points(self, time):
+        """Return the start and end control points as snap points."""
         return [self.p0.at_time(time), self.p3.at_time(time)]
 
     def bbox(self, time):
+        """Return the bounding box enclosing all four control points."""
         pts = [self.p0.at_time(time), self.p1.at_time(time),
                self.p2.at_time(time), self.p3.at_time(time)]
         xs = [p[0] for p in pts]
@@ -1928,6 +1995,7 @@ class CubicBezier(VObject):
                 *self.p2.at_time(time), *self.p3.at_time(time))
 
     def path(self, time):
+        """Return the SVG path data string for the cubic Bezier curve."""
         x0, y0, x1, y1, x2, y2, x3, y3 = self._cps(time)
         return f'M{x0},{y0}C{x1},{y1} {x2},{y2} {x3},{y3}'
 
@@ -1948,6 +2016,7 @@ class CubicBezier(VObject):
         return (dx / mag, dy / mag) if mag > 1e-9 else (1.0, 0.0)
 
     def to_svg(self, time):
+        """Return the SVG <path> element string for the cubic Bezier curve."""
         return f"<path d='{self.path(time)}'{self.styling.svg_style(time)} />"
 
 class _TextBlockMixin:
@@ -1969,9 +2038,11 @@ class _TextBlockMixin:
         return [(self.x, self.y)]
 
     def snap_points(self, time):
+        """Return the text block origin as a snap point."""
         return [(self.x.at_time(time), self.y.at_time(time))]
 
     def path(self, time):
+        """Return an empty path (text blocks have no geometric path)."""
         return ''
 
     def _list_bbox(self, time, indent=0):
@@ -1982,6 +2053,7 @@ class _TextBlockMixin:
         return (x, y - self.font_size, w, h)
 
     def bbox(self, time=0):
+        """Return the bounding box of the text block."""
         return self._list_bbox(time, getattr(self, 'indent', 0))
 
     def _render_list_svg(self, time, label_func):
@@ -2007,13 +2079,16 @@ class Paragraph(_TextBlockMixin, VObject):
 
     @property
     def lines(self):
+        """Return the list of text lines."""
         return self.items
 
     @lines.setter
     def lines(self, val):
+        """Set the list of text lines."""
         self.items = val
 
     def bbox(self, time=0):
+        """Return the bounding box adjusted for text alignment."""
         x, y, w, h = self._list_bbox(time)
         if self.alignment == 'center':
             return (x - w / 2, y, w, h)
@@ -2022,6 +2097,7 @@ class Paragraph(_TextBlockMixin, VObject):
         return (x, y, w, h)
 
     def to_svg(self, time):
+        """Return the SVG markup for the paragraph lines."""
         x, y = self.x.at_time(time), self.y.at_time(time)
         anchor = {'left': 'start', 'center': 'middle', 'right': 'end'}[self.alignment]
         st = self.styling.svg_style(time)
@@ -2044,6 +2120,7 @@ class BulletedList(_TextBlockMixin, VObject):
         return f'BulletedList({len(self.items)} items)'
 
     def to_svg(self, time):
+        """Return the SVG markup for the bulleted list."""
         esc = _xml_escape(self.bullet)
         return self._render_list_svg(time, lambda i: esc)
 
@@ -2059,6 +2136,7 @@ class NumberedList(_TextBlockMixin, VObject):
         return f'NumberedList({len(self.items)} items)'
 
     def to_svg(self, time):
+        """Return the SVG markup for the numbered list."""
         sn = self.start_number
         return self._render_list_svg(time, lambda i: f'{sn + i}.')
 

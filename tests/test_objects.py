@@ -27,7 +27,7 @@ from vectormation.objects import (
     Paragraph, EquilateralTriangle, Star, AnnularSector, CubicBezier,
     DashedLine, RegularPolygon, FunctionGraph, Annulus, ArcBetweenPoints,
     Elbow, SurroundingCircle, BulletedList,
-    DoubleArrow, CurvedArrow, NumberLine,
+    DoubleArrow, CurvedArrow, NumberLine, Vector,
     Code, NetworkGraph, Tree, Label, LabeledLine, LabeledArrow,
     Callout, DimensionLine, Tooltip, ProgressBar, Legend, FlowChart,
     StreamLines, PolarAxes, Stamp, TimelineBar, RadarChart,
@@ -42,6 +42,7 @@ from vectormation.objects import (
     CANVAS_WIDTH, CANVAS_HEIGHT,
     pi_format, pi_ticks,
     ParametricFunction,
+    DecimalMatrix, IntegerMatrix,
 )
 from vectormation.attributes import Coor, Real
 import vectormation.easings as easings
@@ -148,6 +149,29 @@ class TestBrace:
         for d in ('down', 'up', 'left', 'right'):
             b = Brace(target, direction=d)
             assert isinstance(b, VCollection)
+
+
+class TestBraceBetweenPoints:
+    def test_creates_collection(self):
+        from vectormation.objects import BraceBetweenPoints
+        b = BraceBetweenPoints(100, 100, 300, 100)
+        assert isinstance(b, VCollection)
+        assert len(b) >= 1
+
+    def test_with_label(self):
+        from vectormation.objects import BraceBetweenPoints
+        b = BraceBetweenPoints(100, 100, 300, 100, label='2m')
+        assert len(b) >= 2
+
+    def test_vertical(self):
+        from vectormation.objects import BraceBetweenPoints
+        b = BraceBetweenPoints(200, 100, 200, 400)
+        assert isinstance(b, VCollection)
+
+    def test_repr(self):
+        from vectormation.objects import BraceBetweenPoints
+        b = BraceBetweenPoints(0, 0, 100, 100)
+        assert 'BraceBetweenPoints' in repr(b)
 
 
 class TestArrow:
@@ -1954,6 +1978,79 @@ class TestMatrix:
         svg = m.to_svg(0)
         assert '<text' in svg
         assert '<polyline' in svg  # brackets
+
+
+class TestGridAccessMixin:
+    """Tests for _GridAccessMixin methods shared between Table and Matrix."""
+
+    def test_table_set_cell_value(self):
+        t = Table([[1, 2], [3, 4]])
+        t.set_cell_value(0, 1, 'X', start=0)
+        assert t.get_entry(0, 1).text.at_time(0) == 'X'
+
+    def test_table_set_entry_value(self):
+        t = Table([[1, 2], [3, 4]])
+        t.set_entry_value(1, 0, 'Y', start=0)
+        assert t.get_entry(1, 0).text.at_time(0) == 'Y'
+
+    def test_matrix_set_cell_value(self):
+        m = Matrix([[1, 2], [3, 4]])
+        m.set_cell_value(0, 0, '99', start=0)
+        assert m.get_entry(0, 0).text.at_time(0) == '99'
+
+    def test_matrix_set_entry_value(self):
+        m = Matrix([[1, 2], [3, 4]])
+        m.set_entry_value(1, 1, '77', start=0)
+        assert m.get_entry(1, 1).text.at_time(0) == '77'
+
+    def test_get_cell_alias(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        assert t.get_cell(0, 0) is t.get_entry(0, 0)
+
+    def test_highlight_cell_alias(self):
+        m = Matrix([[1, 2], [3, 4]])
+        # highlight_cell should produce the same result as highlight_entry
+        result = m.highlight_cell(0, 0, start=0, end=1)
+        assert result is m
+
+    def test_get_row(self):
+        t = Table([[1, 2, 3], [4, 5, 6]])
+        row = t.get_row(0)
+        assert len(row) == 3
+
+    def test_get_column(self):
+        m = Matrix([[1, 2], [3, 4], [5, 6]])
+        col = m.get_column(1)
+        assert len(col) == 3
+
+    def test_highlight_row(self):
+        m = Matrix([[1, 2], [3, 4]])
+        result = m.highlight_row(0, start=0, end=1)
+        assert result is m  # returns self for chaining
+
+    def test_highlight_column(self):
+        t = Table([['a', 'b'], ['c', 'd']])
+        result = t.highlight_column(1, start=0, end=1)
+        assert result is t
+
+    def test_highlight_cells(self):
+        m = Matrix([[1, 2], [3, 4]])
+        result = m.highlight_cells([(0, 0), (1, 1)], start=0, end=1)
+        assert result is m
+
+
+class TestDecimalIntegerMatrix:
+    def test_decimal_matrix(self):
+        m = DecimalMatrix([[1.234, 5.678], [9.012, 3.456]], decimals=2)
+        assert m.get_entry(0, 0).text.at_time(0) == '1.23'
+        assert m.get_entry(0, 1).text.at_time(0) == '5.68'
+
+    def test_integer_matrix(self):
+        m = IntegerMatrix([[1.7, 2.3], [3.9, 4.1]])
+        assert m.get_entry(0, 0).text.at_time(0) == '2'
+        assert m.get_entry(0, 1).text.at_time(0) == '2'
+        assert m.get_entry(1, 0).text.at_time(0) == '4'
+        assert m.get_entry(1, 1).text.at_time(0) == '4'
 
 
 class TestDynamicObject:
@@ -20961,3 +21058,958 @@ class TestWaterfallChartFromDict:
         assert 'Revenue' in svg
         assert isinstance(svg, str)
 
+
+# ---------------------------------------------------------------------------
+# Electrostatics & Optics (Charge, ElectricField, Lens, Ray)
+# ---------------------------------------------------------------------------
+
+class TestCharge:
+    def test_positive_charge(self):
+        from vectormation.objects import Charge
+        c = Charge(magnitude=2, cx=500, cy=400)
+        assert len(c.objects) >= 2  # glow rings + circle + symbol
+        assert c.magnitude == 2
+
+    def test_negative_charge(self):
+        from vectormation.objects import Charge
+        c = Charge(magnitude=-1, cx=500, cy=400)
+        assert c.magnitude == -1
+        assert repr(c) == 'Charge(-1)'
+
+    def test_repr(self):
+        from vectormation.objects import Charge
+        assert 'Charge(+' in repr(Charge(3))
+        assert 'Charge(-' in repr(Charge(-2))
+
+    def test_no_glow(self):
+        from vectormation.objects import Charge
+        c = Charge(magnitude=1, add_glow=False)
+        # Without glow: just circle + 2 bars (for +)
+        assert len(c.objects) == 3
+
+    def test_custom_color(self):
+        from vectormation.objects import Charge
+        c = Charge(magnitude=1, color='#00FF00')
+        assert c._color == '#00FF00'
+
+    def test_renders_svg(self):
+        from vectormation.objects import Charge
+        c = Charge(magnitude=1)
+        svg = c.to_svg(0)
+        assert 'circle' in svg.lower() or 'ellipse' in svg.lower()
+
+
+class TestElectricField:
+    def test_single_charge(self):
+        from vectormation.objects import Charge, ElectricField
+        c = Charge(magnitude=1, cx=960, cy=540)
+        ef = ElectricField(c, x_range=(200, 1700, 300), y_range=(100, 1000, 300))
+        assert len(ef.objects) > 0
+
+    def test_dipole(self):
+        from vectormation.objects import Charge, ElectricField
+        pos = Charge(magnitude=2, cx=700, cy=540)
+        neg = Charge(magnitude=-2, cx=1200, cy=540)
+        ef = ElectricField(pos, neg, x_range=(200, 1700, 300), y_range=(100, 1000, 300))
+        assert len(ef.objects) > 0
+
+    def test_repr(self):
+        from vectormation.objects import Charge, ElectricField
+        c = Charge(1)
+        ef = ElectricField(c, x_range=(400, 1500, 400), y_range=(200, 900, 400))
+        assert repr(ef) == 'ElectricField(1 charges)'
+
+
+class TestLens:
+    def test_convex_lens(self):
+        from vectormation.objects import Lens
+        lens = Lens(focal_length=200)
+        assert lens._is_convex is True
+        assert len(lens.objects) >= 1
+
+    def test_concave_lens(self):
+        from vectormation.objects import Lens
+        lens = Lens(focal_length=-200)
+        assert lens._is_convex is False
+
+    def test_image_point_convex(self):
+        from vectormation.objects import Lens
+        lens = Lens(cx=960, cy=540, focal_length=200)
+        # Object at 2f -> image at 2f on other side
+        img = lens.image_point(960 - 400, 540)
+        assert img is not None
+        assert abs(img[0] - (960 + 400)) < 1
+
+    def test_image_at_focal_returns_none(self):
+        from vectormation.objects import Lens
+        lens = Lens(cx=960, cy=540, focal_length=200)
+        # Object exactly at focal point -> image at infinity
+        img = lens.image_point(960 - 200, 540)
+        assert img is None
+
+    def test_repr(self):
+        from vectormation.objects import Lens
+        assert 'convex' in repr(Lens(focal_length=100))
+        assert 'concave' in repr(Lens(focal_length=-100))
+
+    def test_no_focal_points(self):
+        from vectormation.objects import Lens
+        lens = Lens(show_focal_points=False, show_axis=False)
+        # Should have just the lens path
+        assert len(lens.objects) == 1
+
+
+class TestRay:
+    def test_simple_ray(self):
+        from vectormation.objects import Ray
+        r = Ray(x1=100, y1=540, angle=0, length=800)
+        assert len(r.objects) >= 1
+
+    def test_ray_with_arrow(self):
+        from vectormation.objects import Ray
+        r = Ray(x1=100, y1=540, angle=0, length=800, show_arrow=True)
+        assert len(r.objects) >= 3  # line + 2 arrowhead lines
+
+    def test_ray_through_lens(self):
+        from vectormation.objects import Ray, Lens
+        lens = Lens(cx=960, cy=540, focal_length=200)
+        r = Ray(x1=100, y1=400, angle=0, length=1600, lenses=[lens])
+        assert len(r.objects) >= 2  # at least 2 segments
+
+    def test_repr(self):
+        from vectormation.objects import Ray
+        assert repr(Ray(angle=45)) == 'Ray(angle=45)'
+
+    def test_ray_misses_lens(self):
+        from vectormation.objects import Ray, Lens
+        # Lens at center but ray at extreme y
+        lens = Lens(cx=960, cy=540, height=100)
+        r = Ray(x1=100, y1=100, angle=0, length=1600, lenses=[lens])
+        # Should have 1 segment (straight through, missed the lens)
+        assert len(r.objects) >= 1
+
+
+class TestAxesPlotDerivativeAntiderivative:
+    """Test plot_derivative and plot_antiderivative methods."""
+    def test_plot_derivative(self):
+        import math
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        ax.add_function(math.sin)
+        curve = ax.plot_derivative(math.sin)
+        svg = ax.to_svg(0)
+        assert isinstance(svg, str)
+        assert len(svg) > 100
+
+    def test_plot_antiderivative(self):
+        import math
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        ax.add_function(math.cos)
+        curve = ax.plot_antiderivative(math.cos)
+        svg = ax.to_svg(0)
+        assert isinstance(svg, str)
+        assert len(svg) > 100
+
+    def test_plot_antiderivative_custom_x0(self):
+        ax = Axes(x_range=(0, 10), y_range=(0, 100))
+        ax.add_function(lambda x: x)
+        curve = ax.plot_antiderivative(lambda x: x, x0=0)
+        svg = ax.to_svg(0)
+        assert isinstance(svg, str)
+
+    def test_plot_antiderivative_returns_path(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 10))
+        ax.add_function(lambda x: 2 * x)
+        curve = ax.plot_antiderivative(lambda x: 2 * x)
+        # Should be a Path object
+        assert hasattr(curve, 'to_svg')
+
+
+class TestAxesTickType:
+    """Test the new tick_type convenience parameter."""
+    def test_pi_tick_type(self):
+        import math
+        ax = Axes(x_range=(-math.pi, math.pi), y_range=(-1, 1), x_tick_type='pi')
+        svg = ax.to_svg(0)
+        # Should contain pi symbol (unicode)
+        assert '\u03c0' in svg or 'pi' in svg.lower()
+
+    def test_percent_tick_type(self):
+        ax = Axes(x_range=(0, 1), y_range=(0, 1), x_tick_type='percent')
+        svg = ax.to_svg(0)
+        assert '%' in svg
+
+    def test_degree_tick_type(self):
+        import math
+        ax = Axes(x_range=(0, math.tau), y_range=(-1, 1), x_tick_type='degree')
+        svg = ax.to_svg(0)
+        assert '°' in svg
+
+    def test_scientific_tick_type(self):
+        ax = Axes(x_range=(1, 1000), y_range=(0, 1), x_tick_type='scientific')
+        svg = ax.to_svg(0)
+        assert isinstance(svg, str)
+
+    def test_engineering_tick_type(self):
+        ax = Axes(x_range=(0, 10000), y_range=(0, 1), x_tick_type='engineering')
+        svg = ax.to_svg(0)
+        assert isinstance(svg, str)
+
+
+
+# ── DonutChart extended tests ───────────────────────────────────────────────
+
+class TestDonutChart:
+    def test_donut_basic_creation(self):
+        from vectormation.objects import DonutChart
+        chart = DonutChart([10, 20, 30], labels=['A', 'B', 'C'])
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(chart)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert len(chart.objects) > 0
+        assert chart.values == [10, 20, 30]
+
+    def test_donut_from_dict(self):
+        from vectormation.objects import DonutChart
+        chart = DonutChart.from_dict({'Alpha': 5, 'Beta': 15, 'Gamma': 10})
+        assert chart.values == [5, 15, 10]
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(chart)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+
+    def test_donut_get_sector(self):
+        from vectormation.objects import DonutChart
+        chart = DonutChart([10, 20, 30])
+        sector0 = chart.get_sector(0)
+        assert sector0 is not None
+        sector2 = chart.get_sector(2)
+        assert sector2 is not None
+        with pytest.raises((IndexError, ValueError)):
+            chart.get_sector(5)
+
+    def test_donut_highlight_sector(self):
+        from vectormation.objects import DonutChart
+        chart = DonutChart([10, 20, 30])
+        result = chart.highlight_sector(1, start=0, end=1)
+        assert result is chart
+
+    def test_donut_animate_values(self):
+        from vectormation.objects import DonutChart
+        chart = DonutChart([10, 20, 30])
+        result = chart.animate_values([30, 20, 10], start=0, end=1)
+        assert result is chart
+        assert chart.values == [30, 20, 10]
+
+
+# ── GanttChart extended tests ──────────────────────────────────────────────
+
+class TestGanttChart:
+    def test_gantt_basic(self):
+        from vectormation.objects import GanttChart
+        tasks = [
+            ('Design', 0, 3),
+            ('Build', 2, 6),
+            ('Test', 5, 8),
+        ]
+        chart = GanttChart(tasks)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(chart)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert len(chart._bars) == 3
+
+    def test_gantt_empty(self):
+        from vectormation.objects import GanttChart
+        chart = GanttChart([])
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(chart)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+
+    def test_gantt_custom_colors(self):
+        from vectormation.objects import GanttChart
+        tasks = [
+            ('Task A', 0, 5, '#FF0000'),
+            ('Task B', 3, 7, '#00FF00'),
+            ('Task C', 6, 10, '#0000FF'),
+        ]
+        chart = GanttChart(tasks)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(chart)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert len(chart._bars) == 3
+
+
+# ── FunnelChart extended tests ─────────────────────────────────────────────
+
+class TestFunnelChart:
+    def test_funnel_basic(self):
+        from vectormation.objects import FunnelChart
+        stages = [('Leads', 1000), ('Qualified', 600), ('Proposal', 300), ('Closed', 100)]
+        chart = FunnelChart(stages)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(chart)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert 'Leads' in svg
+
+    def test_funnel_empty(self):
+        from vectormation.objects import FunnelChart
+        chart = FunnelChart([])
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(chart)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+
+    def test_funnel_single_stage(self):
+        from vectormation.objects import FunnelChart
+        chart = FunnelChart([('Only Stage', 50)])
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(chart)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert 'Only Stage' in svg
+
+
+# ── WaterfallChart extended tests ──────────────────────────────────────────
+
+class TestWaterfallChartExtended:
+    def test_waterfall_basic(self):
+        from vectormation.objects import WaterfallChart
+        chart = WaterfallChart([100, -20, 30, -10], labels=['Q1', 'Q2', 'Q3', 'Q4'])
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(chart)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert 'Q1' in svg
+
+    def test_waterfall_from_dict(self):
+        from vectormation.objects import WaterfallChart
+        chart = WaterfallChart.from_dict({'Revenue': 200, 'Costs': -80, 'Tax': -30})
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(chart)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert 'Revenue' in svg
+
+    def test_waterfall_no_total(self):
+        from vectormation.objects import WaterfallChart
+        chart = WaterfallChart([50, -10, 20], labels=['A', 'B', 'C'], show_total=False)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(chart)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        # With show_total=False, 'Total' should not appear
+        assert 'Total' not in svg
+
+
+# ── RadarChart extended tests ──────────────────────────────────────────────
+
+class TestRadarChartExtended:
+    def test_radar_basic(self):
+        from vectormation.objects import RadarChart
+        chart = RadarChart([3, 4, 2, 5, 3], labels=['A', 'B', 'C', 'D', 'E'])
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(chart)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+
+    def test_radar_from_dict(self):
+        from vectormation.objects import RadarChart
+        chart = RadarChart.from_dict({'Speed': 8, 'Power': 6, 'Defense': 4})
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(chart)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+
+    def test_radar_add_dataset(self):
+        from vectormation.objects import RadarChart
+        chart = RadarChart([3, 4, 2, 5, 3])
+        initial_count = len(chart.objects)
+        result = chart.add_dataset([2, 3, 4, 1, 5])
+        assert result is chart
+        assert len(chart.objects) > initial_count
+
+    def test_radar_min_axes(self):
+        from vectormation.objects import RadarChart
+        chart = RadarChart([5, 3, 4])
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(chart)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert len(chart.objects) > 0
+
+
+# ── Cutout extended tests ─────────────────────────────────────────────────
+
+class TestCutoutExtended:
+    def test_cutout_creation(self):
+        from vectormation.objects import Cutout
+        c = Cutout(hole_x=200, hole_y=150, hole_w=400, hole_h=300)
+        assert c.hole_x.at_time(0) == 200
+        assert c.hole_y.at_time(0) == 150
+        assert c.hole_w.at_time(0) == 400
+        assert c.hole_h.at_time(0) == 300
+
+    def test_cutout_renders_svg(self):
+        from vectormation.objects import Cutout
+        c = Cutout(hole_x=100, hole_y=100, hole_w=200, hole_h=200)
+        svg = c.to_svg(0)
+        assert isinstance(svg, str)
+        assert len(svg) > 0
+        assert '<path' in svg
+        assert 'evenodd' in svg
+
+    def test_cutout_surround(self):
+        from vectormation.objects import Cutout
+        c = Cutout()
+        rect = Rectangle(width=100, height=50, x=500, y=300)
+        result = c.surround(rect, buff=10)
+        assert result is c
+        assert c.hole_x.at_time(0) == 490
+        assert c.hole_y.at_time(0) == 290
+        assert c.hole_w.at_time(0) == 120
+        assert c.hole_h.at_time(0) == 70
+
+
+# ── Axes asymptote tests ──────────────────────────────────────────────────
+
+class TestAxesAsymptote:
+    def test_add_vertical_asymptote(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        line = ax.add_vertical_asymptote(x_val=2)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(ax)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert 'stroke-dasharray' in svg
+
+    def test_add_horizontal_asymptote(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        line = ax.add_horizontal_asymptote(y_val=1)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(ax)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert 'stroke-dasharray' in svg
+
+    def test_add_asymptote_at_x(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        line = ax.add_asymptote(value=3, direction='vertical')
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(ax)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert 'stroke-dasharray' in svg
+
+
+# ── Axes labels tests ─────────────────────────────────────────────────────
+
+class TestAxesLabels:
+    def test_add_horizontal_label(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        lbl = ax.add_horizontal_label(y=2, text='y=2')
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(ax)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert isinstance(lbl, Text)
+        assert 'y=2' in svg
+
+    def test_add_vertical_label(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        lbl = ax.add_vertical_label(x=3, text='x=3')
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(ax)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert isinstance(lbl, Text)
+        assert 'x=3' in svg
+
+    def test_coords_label(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        group = ax.coords_label(1, 2)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(ax)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert isinstance(group, VCollection)
+
+
+# ── Axes critical/inflection tests ────────────────────────────────────────
+
+class TestAxesCrossAndInflection:
+    def test_get_critical_points(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-30, 30))
+        result = ax.get_critical_points(lambda x: x**3 - 3*x)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(ax)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert isinstance(result, VCollection)
+
+    def test_add_min_max_labels(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-10, 10))
+        result = ax.add_min_max_labels(lambda x: x**2 - 4, x_range=(-3, 3))
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(ax)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert isinstance(result, VCollection)
+
+    def test_add_inflection_points(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-30, 30))
+        result = ax.add_inflection_points(lambda x: x**3)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(ax)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert isinstance(result, VCollection)
+
+
+# ── Axes crosshair tests ──────────────────────────────────────────────────
+
+class TestAxesCrosshair:
+    def test_add_crosshair(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 30))
+        result = ax.add_crosshair(lambda x: x**2, x_start=-3, x_end=3, start=0, end=1)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(ax)
+        svg = canvas.generate_frame_svg(time=0.5)
+        assert '<svg' in svg
+        assert isinstance(result, VCollection)
+
+    def test_add_moving_label(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 30))
+        result = ax.add_moving_label(lambda x: x**2, text='point', x_start=-3, x_end=3, start=0, end=1)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(ax)
+        svg = canvas.generate_frame_svg(time=0.5)
+        assert '<svg' in svg
+        assert isinstance(result, VCollection)
+
+
+# ── Axes plot type tests ──────────────────────────────────────────────────
+
+class TestAxesPlotTypes:
+    def test_plot_scatter(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.plot_scatter([1, 3], [2, 4])
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(ax)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert '<circle' in svg
+
+    def test_plot_step(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.plot_step([0, 1, 2, 3, 4], [0, 1, 1, 2, 2])
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(ax)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+
+    def test_plot_histogram(self):
+        ax = Axes(x_range=(0, 5), y_range=(0, 5))
+        result = ax.plot_histogram([1, 2, 3, 2, 1], bins=5)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(ax)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert isinstance(result, VCollection)
+
+    def test_plot_implicit(self):
+        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
+        result = ax.plot_implicit(lambda x, y: x**2 + y**2 - 4)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(ax)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+
+
+# ── DoubleArrow tests ────────────────────────────────────────────────────
+
+class TestDoubleArrow:
+    def test_creation_default_params(self):
+        da = DoubleArrow()
+        assert isinstance(da, VCollection)
+        svg = da.to_svg(0)
+        assert svg != ''
+
+    def test_has_both_tip_and_tail(self):
+        da = DoubleArrow(x1=100, y1=200, x2=500, y2=200)
+        assert hasattr(da, 'tip')
+        assert hasattr(da, 'tail')
+        assert da.tip is not None
+        assert da.tail is not None
+        # shaft + tip + tail = at least 3 objects
+        assert len(da) >= 3
+
+    def test_set_start(self):
+        da = DoubleArrow(x1=100, y1=100, x2=400, y2=100)
+        result = da.set_start(200, 200, start=0, end=1)
+        assert result is da
+        end_pos = da.get_start(time=1)
+        assert abs(end_pos[0] - 200) < 1
+        assert abs(end_pos[1] - 200) < 1
+
+    def test_set_end(self):
+        da = DoubleArrow(x1=100, y1=100, x2=400, y2=100)
+        result = da.set_end(600, 300, start=0, end=1)
+        assert result is da
+        end_pos = da.get_end(time=1)
+        assert abs(end_pos[0] - 600) < 1
+        assert abs(end_pos[1] - 300) < 1
+
+    def test_custom_coords(self):
+        da = DoubleArrow(x1=50, y1=60, x2=700, y2=800)
+        s = da.get_start(0)
+        e = da.get_end(0)
+        assert abs(s[0] - 50) < 1
+        assert abs(s[1] - 60) < 1
+        assert abs(e[0] - 700) < 1
+        assert abs(e[1] - 800) < 1
+
+    def test_repr(self):
+        da = DoubleArrow()
+        assert 'DoubleArrow' in repr(da)
+
+    def test_renders_on_canvas(self):
+        da = DoubleArrow(x1=100, y1=200, x2=500, y2=200)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(da)
+        svg = canvas.generate_frame_svg(time=0)
+        assert '<svg' in svg
+        assert 'polygon' in svg.lower()
+
+
+# ── Vector tests ─────────────────────────────────────────────────────────
+
+class TestVector:
+    def test_creation_with_coordinates(self):
+        v = Vector(x=100, y=-50)
+        assert isinstance(v, VCollection)
+        svg = v.to_svg(0)
+        assert svg != ''
+
+    def test_get_vector(self):
+        v = Vector(x=200, y=-100)
+        dx, dy = v.get_vector(time=0)
+        assert abs(dx - 200) < 1
+        assert abs(dy - (-100)) < 1
+
+    def test_get_vector_default(self):
+        v = Vector()  # default x=100, y=0
+        dx, dy = v.get_vector(time=0)
+        assert abs(dx - 100) < 1
+        assert abs(dy) < 1
+
+    def test_coordinate_label(self):
+        v = Vector(x=135, y=-135)
+        label = v.coordinate_label()
+        assert isinstance(label, Matrix)
+        svg = label.to_svg(0)
+        assert svg != ''
+
+    def test_coordinate_label_integer(self):
+        v = Vector(x=100, y=-50)
+        label = v.coordinate_label(integer_labels=True)
+        assert isinstance(label, Matrix)
+
+    def test_coordinate_label_non_integer(self):
+        v = Vector(x=100, y=-50)
+        label = v.coordinate_label(integer_labels=False)
+        assert isinstance(label, Matrix)
+
+    def test_custom_origin(self):
+        v = Vector(x=100, y=0, origin_x=200, origin_y=300)
+        s = v.get_start(0)
+        e = v.get_end(0)
+        assert abs(s[0] - 200) < 1
+        assert abs(s[1] - 300) < 1
+        assert abs(e[0] - 300) < 1
+        assert abs(e[1] - 300) < 1
+
+    def test_repr(self):
+        v = Vector(x=100, y=-50)
+        assert 'Vector' in repr(v)
+
+
+# ── Checklist tests ──────────────────────────────────────────────────────
+
+class TestChecklist:
+    def test_creation_with_items(self):
+        cl = Checklist('Task A', 'Task B', 'Task C')
+        assert isinstance(cl, VCollection)
+        assert len(cl) > 0
+        svg = cl.to_svg(0)
+        assert 'Task A' in svg
+        assert 'Task B' in svg
+
+    def test_creation_with_tuples(self):
+        cl = Checklist(('Done', True), ('Pending', False))
+        assert isinstance(cl, VCollection)
+        svg = cl.to_svg(0)
+        assert 'Done' in svg
+        assert 'Pending' in svg
+
+    def test_check_item(self):
+        cl = Checklist('A', 'B', 'C')
+        result = cl.check_item(1, start=0, end=0.5)
+        assert result is cl
+
+    def test_check_item_out_of_range(self):
+        cl = Checklist('A', 'B')
+        result = cl.check_item(10, start=0, end=0.5)
+        assert result is cl
+
+    def test_reveal_items(self):
+        cl = Checklist('X', 'Y', 'Z')
+        result = cl.reveal_items(start=0, end=2)
+        assert result is cl
+
+    def test_reveal_items_empty(self):
+        cl = Checklist()
+        result = cl.reveal_items(start=0, end=1)
+        assert result is cl
+
+    def test_check_item_renders(self):
+        cl = Checklist('T1', 'T2')
+        cl.check_item(0, start=0, end=0.3)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(cl)
+        svg = canvas.generate_frame_svg(time=0.5)
+        assert '<svg' in svg
+
+
+# ── Code tests ───────────────────────────────────────────────────────────
+
+class TestCodeWidget:
+    def test_creation_with_code_string(self):
+        c = Code('x = 1\ny = 2\nprint(x + y)', language='python')
+        assert isinstance(c, VCollection)
+        assert c._num_lines == 3
+
+    def test_svg_output(self):
+        c = Code('def hello():\n    return "world"')
+        svg = c.to_svg(0)
+        assert 'def' in svg
+        assert 'return' in svg
+        assert 'world' in svg
+
+    def test_highlight_lines_single(self):
+        c = Code('a = 1\nb = 2\nc = 3')
+        rects = c.highlight_lines(2, start=0, end=1)
+        assert isinstance(rects, VCollection)
+        assert len(rects) == 1
+
+    def test_highlight_lines_multiple(self):
+        c = Code('a = 1\nb = 2\nc = 3\nd = 4')
+        rects = c.highlight_lines([1, 3], start=0, end=1)
+        assert isinstance(rects, VCollection)
+        assert len(rects) == 2
+
+    def test_highlight_lines_out_of_range(self):
+        c = Code('a = 1\nb = 2')
+        rects = c.highlight_lines([5, 10], start=0, end=1)
+        assert isinstance(rects, VCollection)
+        assert len(rects) == 0
+
+    def test_highlight_lines_renders(self):
+        c = Code('line1\nline2\nline3')
+        hl = c.highlight_lines([1, 2], start=0, end=1)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(c, hl)
+        svg = canvas.generate_frame_svg(time=0.5)
+        assert '<svg' in svg
+
+    def test_repr(self):
+        c = Code('a = 1\nb = 2')
+        r = repr(c)
+        assert 'Code' in r
+        assert '2 lines' in r
+
+    def test_different_languages(self):
+        for lang in ('python', 'javascript', 'rust', 'go', 'java', 'c'):
+            c = Code('x = 1', language=lang)
+            svg = c.to_svg(0)
+            assert svg != ''
+
+
+# ── Stepper tests ────────────────────────────────────────────────────────
+
+class TestStepper:
+    def test_creation_with_labels(self):
+        s = Stepper(['Step 1', 'Step 2', 'Step 3'])
+        assert isinstance(s, VCollection)
+        assert len(s._circles) == 3
+
+    def test_creation_with_int(self):
+        s = Stepper(4)
+        assert isinstance(s, VCollection)
+        assert len(s._circles) == 4
+
+    def test_advance(self):
+        s = Stepper(['A', 'B', 'C'], active=0)
+        result = s.advance(0, 1, start=0, end=0.5)
+        assert result is s
+
+    def test_advance_multiple(self):
+        s = Stepper(['A', 'B', 'C', 'D'], active=0)
+        s.advance(0, 1, start=0, end=0.5)
+        result = s.advance(1, 2, start=0.5, end=1)
+        assert result is s
+
+    def test_advance_out_of_range(self):
+        s = Stepper(['A', 'B'])
+        result = s.advance(0, 10, start=0, end=0.5)
+        assert result is s
+
+    def test_vertical_direction(self):
+        s = Stepper(['A', 'B', 'C'], direction='vertical')
+        assert isinstance(s, VCollection)
+        svg = s.to_svg(0)
+        assert svg != ''
+
+    def test_connecting_lines(self):
+        s = Stepper(['A', 'B', 'C'])
+        # n-1 connecting lines for n steps
+        assert len(s._lines) == 2
+
+    def test_renders_on_canvas(self):
+        s = Stepper(['A', 'B', 'C'])
+        s.advance(0, 2, start=0, end=1)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(s)
+        svg = canvas.generate_frame_svg(time=0.5)
+        assert '<svg' in svg
+
+
+# ── VariableWidget tests ─────────────────────────────────────────────────
+
+class TestVariableWidget:
+    def test_creation(self):
+        v = Variable('x', value=3.14)
+        assert isinstance(v, VCollection)
+        svg = v.to_svg(0)
+        assert 'x' in svg
+
+    def test_set_value(self):
+        v = Variable('n', value=0)
+        result = v.set_value(42, start=0)
+        assert result is v
+
+    def test_animate_value(self):
+        v = Variable('t', value=0)
+        result = v.animate_value(10, start=0, end=1)
+        assert result is v
+
+    def test_animate_value_renders(self):
+        v = Variable('y', value=0)
+        v.animate_value(100, start=0, end=2)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(v)
+        svg_start = canvas.generate_frame_svg(time=0)
+        svg_mid = canvas.generate_frame_svg(time=1)
+        svg_end = canvas.generate_frame_svg(time=2)
+        assert '<svg' in svg_start
+        assert '<svg' in svg_mid
+        assert '<svg' in svg_end
+
+    def test_tracker_property(self):
+        from vectormation.attributes import Real
+        v = Variable('x', value=5)
+        assert isinstance(v.tracker, Real)
+
+    def test_repr(self):
+        v = Variable('x', value=0)
+        assert 'Variable' in repr(v)
+
+    def test_custom_format(self):
+        v = Variable('pi', value=3.14159, fmt='{:.4f}')
+        assert isinstance(v, VCollection)
+        svg = v.to_svg(0)
+        assert 'pi' in svg
+
+
+# ── VCollection stagger method tests ─────────────────────────────────────
+
+class TestStaggerMethods:
+    def test_stagger_along_path(self):
+        circles = VCollection(*[Circle(r=10) for _ in range(5)])
+        path_d = 'M100,100 C200,50 400,150 500,100'
+        result = circles.stagger_along_path('fadein', path_d, start=0, end=2, delay=0.1)
+        assert result is circles
+
+    def test_stagger_along_path_empty(self):
+        empty = VCollection()
+        result = empty.stagger_along_path('fadein', 'M0,0 L100,100', start=0, end=1)
+        assert result is empty
+
+    def test_stagger_random(self):
+        rects = VCollection(*[Rectangle(20, 20) for _ in range(4)])
+        result = rects.stagger_random('fadein', start=0, end=2, seed=42)
+        assert result is rects
+
+    def test_stagger_random_deterministic(self):
+        r1 = VCollection(*[Circle(r=10) for _ in range(5)])
+        r2 = VCollection(*[Circle(r=10) for _ in range(5)])
+        r1.stagger_random('fadein', start=0, end=2, seed=123)
+        r2.stagger_random('fadein', start=0, end=2, seed=123)
+        # Same seed => same ordering => no error
+        assert len(r1) == len(r2)
+
+    def test_stagger_random_empty(self):
+        empty = VCollection()
+        result = empty.stagger_random('fadein', start=0, end=1)
+        assert result is empty
+
+    def test_wave_anim(self):
+        dots = VCollection(*[Dot() for _ in range(6)])
+        dots.arrange(direction=RIGHT, buff=30)
+        result = dots.wave_anim(start=0, end=2, amplitude=30, n_waves=2)
+        assert result is dots
+
+    def test_wave_anim_empty(self):
+        empty = VCollection()
+        result = empty.wave_anim(start=0, end=1)
+        assert result is empty
+
+    def test_wave_anim_renders(self):
+        dots = VCollection(*[Dot() for _ in range(4)])
+        dots.arrange(direction=RIGHT, buff=20)
+        dots.wave_anim(start=0, end=2, amplitude=20)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(dots)
+        svg = canvas.generate_frame_svg(time=1.0)
+        assert '<svg' in svg
+
+    def test_cascade(self):
+        circles = VCollection(*[Circle(r=15) for _ in range(4)])
+        result = circles.cascade('fadein', start=0, end=2, overlap=0.5)
+        assert result is circles
+
+    def test_cascade_overlap_zero(self):
+        rects = VCollection(*[Rectangle(20, 20) for _ in range(3)])
+        result = rects.cascade('fadeout', start=0, end=3, overlap=0)
+        assert result is rects
+
+    def test_cascade_overlap_one(self):
+        rects = VCollection(*[Rectangle(20, 20) for _ in range(3)])
+        result = rects.cascade('fadein', start=0, end=1, overlap=1)
+        assert result is rects
+
+    def test_cascade_empty(self):
+        empty = VCollection()
+        result = empty.cascade('fadein', start=0, end=1)
+        assert result is empty
+
+    def test_cascade_renders(self):
+        items = VCollection(*[Circle(r=10) for _ in range(3)])
+        items.cascade('fadein', start=0, end=2, overlap=0.3)
+        canvas = VectorMathAnim(tempfile.mkdtemp())
+        canvas.add(items)
+        svg = canvas.generate_frame_svg(time=1.0)
+        assert '<svg' in svg

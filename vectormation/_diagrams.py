@@ -133,7 +133,7 @@ class ChessBoard(VCollection):
         """Convert algebraic notation (e.g. 'e4') to (col, row) indices."""
         return ord(sq[0]) - ord('a'), 8 - int(sq[1])
 
-    def move_piece(self, from_sq, to_sq, start=0, end=1, easing=easings.smooth):
+    def move_piece(self, from_sq, to_sq, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate moving a piece from one square to another (e.g. 'e2' -> 'e4')."""
         piece = self._pieces.get(from_sq)
         if piece is None:
@@ -221,7 +221,7 @@ class PeriodicTable(VCollection):
     def __repr__(self):
         return 'PeriodicTable()'
 
-    def highlight(self, symbol, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+    def highlight(self, symbol, start: float = 0, end: float = 1, color='#FFFF00', easing=easings.there_and_back):
         """Highlight an element by symbol."""
         if symbol in self._cells:
             bg, _, sym = self._cells[symbol]
@@ -280,7 +280,7 @@ class BohrAtom(VCollection):
     def __repr__(self):
         return f'BohrAtom({len(self._electron_dots)} electrons)'
 
-    def orbit(self, start=0, end=None, speed=45):
+    def orbit(self, start: float = 0, end=None, speed=45):
         """Animate all electrons orbiting around the nucleus."""
         for dot in self._electron_dots:
             dot.always_rotate(start=start, end=end, degrees_per_second=speed)
@@ -392,7 +392,7 @@ class Automaton(VCollection):
             arrow.flash_color(color, start=start, end=start + duration, attr='stroke')
         return self
 
-    def simulate_input(self, word, start=0, delay=0.5, color='#FFFF00', transitions=None):
+    def simulate_input(self, word, start: float = 0, delay=0.5, color='#FFFF00', transitions=None):
         """Animate stepping through the automaton one character at a time.
 
         For each character in *word*, highlights the current state, then the
@@ -545,7 +545,7 @@ class NetworkGraph(VCollection):
     def __repr__(self):
         return f'NetworkGraph({len(self._node_positions)} nodes)'
 
-    def highlight_node(self, node_id, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+    def highlight_node(self, node_id, start: float = 0, end: float = 1, color='#FFFF00', easing=easings.there_and_back):
         """Flash-highlight a node by its ID."""
         _highlight_in_dict(self._node_circles, node_id, start, end, color, easing)
         return self
@@ -673,7 +673,7 @@ class Tree(VCollection):
         """Get (x, y) position of a node by label (first occurrence if duplicates)."""
         return self._positions_by_label.get(label, ORIGIN)
 
-    def highlight_node(self, label, start=0, end=1, color='#FFFF00', easing=easings.there_and_back):
+    def highlight_node(self, label, start: float = 0, end: float = 1, color='#FFFF00', easing=easings.there_and_back):
         """Flash-highlight a node by label."""
         _highlight_in_dict(self._node_objects, label, start, end, color, easing)
         return self

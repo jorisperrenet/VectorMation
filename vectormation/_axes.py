@@ -7,14 +7,17 @@ from vectormation._constants import (
     CANVAS_WIDTH, CANVAS_HEIGHT, UNIT, SMALL_BUFF, DEFAULT_FONT_SIZE, TEXT_Y_OFFSET, ORIGIN,
     _sample_function, _normalize,
 )
-from vectormation._base import VObject, VCollection, _lerp, _lerp_point
-from vectormation._base_helpers import _clamp01
+from vectormation._base import VObject, VCollection, _lerp
+from vectormation._base_helpers import _clamp01, _lerp_point
 from vectormation._collection import _scale_transform
 from vectormation._axes_helpers import (
     _CURVE_STYLE, _AREA_STYLE, _HIGHLIGHT_STYLE,
     _get_arrow, _get_dynamic_object, _get_tex_object,
     _nice_ticks, _build_axes_decoration,
     _TICK_FONT_SIZE, _LABEL_GAP,
+    pi_format, pi_ticks, pi_tex_format,
+    log_tex_format, scientific_format, engineering_format,
+    percent_format, degree_format,
 )
 
 from vectormation._shapes import (
@@ -29,6 +32,17 @@ class Axes(_AxesExtMixin, VCollection):
     x_max: attributes.Real
     y_min: 'attributes.Real | None'
     y_max: 'attributes.Real | None'
+    # Mapping from tick_type string to (format_func, ticks_func_or_None, tex_ticks_bool)
+    _TICK_TYPES = {
+        'pi':          (pi_format,          pi_ticks, False),
+        'pi_tex':      (pi_tex_format,      pi_ticks, True),
+        'log_tex':     (log_tex_format,     None,     True),
+        'scientific':  (scientific_format,  None,     False),
+        'engineering': (engineering_format, None,     False),
+        'percent':     (percent_format,     None,     False),
+        'degree':      (degree_format,      None,     False),
+    }
+
     def __init__(self, x_range=(-5, 5), y_range=None,
                  x=260, y=100, plot_width=1400, plot_height=880,
                  x_label=None, y_label=None,
@@ -37,7 +51,36 @@ class Axes(_AxesExtMixin, VCollection):
                  tick_format=None, x_tick_format=None, y_tick_format=None,
                  x_ticks=None, y_ticks=None,
                  tex_ticks=False,
+                 x_tick_type=None, y_tick_type=None,
                  creation=0, z=0):
+        """
+        Args:
+            x_tick_type: Shorthand tick preset for the x-axis.  One of
+                'pi', 'pi_tex', 'log_tex', 'scientific', 'engineering',
+                'percent', 'degree'.  Overrides *x_tick_format* and *x_ticks*
+                when set.
+            y_tick_type: Same as *x_tick_type* but for the y-axis.
+        """
+        # Resolve tick_type shortcuts into tick_format / ticks / tex_ticks
+        for axis, tick_type in [('x', x_tick_type), ('y', y_tick_type)]:
+            if tick_type is None:
+                continue
+            if tick_type not in self._TICK_TYPES:
+                raise ValueError(
+                    f"Unknown {axis}_tick_type {tick_type!r}. "
+                    f"Choose from {sorted(self._TICK_TYPES)}.")
+            fmt_func, ticks_func, needs_tex = self._TICK_TYPES[tick_type]
+            if axis == 'x':
+                x_tick_format = fmt_func
+                if ticks_func is not None:
+                    x_ticks = ticks_func(x_range[0], x_range[1])
+            else:
+                y_tick_format = fmt_func
+                if ticks_func is not None and y_range is not None:
+                    y_ticks = ticks_func(y_range[0], y_range[1])
+            if needs_tex:
+                tex_ticks = True
+
         self.x_min = attributes.Real(creation, x_range[0])
         self.x_max = attributes.Real(creation, x_range[1])
         if equal_aspect and y_range is not None and x_range[1] != x_range[0]:
@@ -333,7 +376,7 @@ class Axes(_AxesExtMixin, VCollection):
             curves.append(curve)
         return VGroup(*curves)
 
-    def animate_draw_function(self, func, start=0, end=1, x_range=None,
+    def animate_draw_function(self, func, start: float = 0, end: float = 1, x_range=None,
                                num_points=200, easing=easings.smooth,
                                creation=0, z=0, **styling_kwargs):
         """Draw a function curve progressively from left to right."""
@@ -419,13 +462,13 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(line)
         return self
 
-    def set_x_range(self, x_min, x_max, start=0):
+    def set_x_range(self, x_min, x_max, start: float = 0):
         """Set the x-axis range from start time onward."""
         self.x_min.set_onward(start, x_min)
         self.x_max.set_onward(start, x_max)
         return self
 
-    def set_y_range(self, y_min, y_max, start=0):
+    def set_y_range(self, y_min, y_max, start: float = 0):
         """Set the y-axis range from start time onward."""
         self.y_min.set_onward(start, y_min)
         self.y_max.set_onward(start, y_max)
@@ -449,7 +492,7 @@ class Axes(_AxesExtMixin, VCollection):
         self.animate_y_range(start, end, y_range, **kwargs)
         return self
 
-    def zoom_to_fit(self, func, x_range=None, padding=0.1, start=0, end=1, **kwargs):
+    def zoom_to_fit(self, func, x_range=None, padding=0.1, start: float = 0, end: float = 1, **kwargs):
         """Animate axes ranges to fit a function's output with optional padding.
 
         *func*: a callable f(x) -> y.
@@ -654,7 +697,7 @@ class Axes(_AxesExtMixin, VCollection):
             dots.append(dot)
         group = VCollection(curve, *dots, creation=creation, z=z)
 
-        def _animate_data(new_x, new_y, start=0, end=1, easing=None):
+        def _animate_data(new_x, new_y, start: float = 0, end: float = 1, easing=None):
             """Animate the line graph data to new values over [start, end]."""
             _easing = easing or easings.smooth
             old_data = list(data_ref[0])
@@ -948,6 +991,12 @@ class Axes(_AxesExtMixin, VCollection):
             return obj
         raise TypeError(f'{label} must be a function or a curve returned by plot()')
 
+    def _resolve_x_range(self, x_start=None, x_end=None):
+        """Return ``(x0, x1)`` falling back to the current axis range."""
+        x0 = float(self.x_min.at_time(0)) if x_start is None else float(x_start)
+        x1 = float(self.x_max.at_time(0)) if x_end is None else float(x_end)
+        return x0, x1
+
     def get_graph_intersection(self, f1, f2, x_range=None, n=1000):
         """Find approximate intersection points between two functions/curves."""
         func1 = self._resolve_func(f1, 'f1')
@@ -1032,8 +1081,7 @@ class Axes(_AxesExtMixin, VCollection):
 
     def get_average(self, func, x_start=None, x_end=None, samples=200):
         """Return the average value of *func* over [x_start, x_end]."""
-        x0 = x_start if x_start is not None else float(self.x_min.at_time(0))
-        x1 = x_end if x_end is not None else float(self.x_max.at_time(0))
+        x0, x1 = self._resolve_x_range(x_start, x_end)
         if x0 == x1:
             fn = self._resolve_func(func, 'func')
             return fn(x0)
@@ -1043,8 +1091,7 @@ class Axes(_AxesExtMixin, VCollection):
     def get_graph_length(self, func, x_start=None, x_end=None, samples=200):
         """Return approximate arc length of *func*'s graph in SVG pixel coordinates."""
         fn = self._resolve_func(func, 'func')
-        x0 = x_start if x_start is not None else self.x_min.at_time(0)
-        x1 = x_end if x_end is not None else self.x_max.at_time(0)
+        x0, x1 = self._resolve_x_range(x_start, x_end)
         total = 0.0
         prev = None
         for i in range(samples + 1):
@@ -1149,11 +1196,8 @@ class Axes(_AxesExtMixin, VCollection):
 
     def get_x_intercept(self, func, x_start=None, x_end=None):
         """Return the first x where func(x) is approximately 0, or None."""
-        if x_start is None:
-            x_start = float(self.x_min.at_time(0))
-        if x_end is None:
-            x_end = float(self.x_max.at_time(0))
-        zeros = self.get_zeros(func, x_start, x_end)
+        x0, x1 = self._resolve_x_range(x_start, x_end)
+        zeros = self.get_zeros(func, x0, x1)
         if zeros:
             return zeros[0][0]
         return None
@@ -1546,7 +1590,7 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(trail)
         return VCollection(dot, trail, creation=creation, z=z)
 
-    def add_animation_trace(self, func, x_start, x_end, start=0, end=1,
+    def add_animation_trace(self, func, x_start, x_end, start: float = 0, end: float = 1,
                              dot=True, trail=True, color='#FFFF00', **kwargs):
         """Add a moving dot on a function curve with an optional trailing path."""
         # Filter kwargs for each target method to avoid passing
@@ -1579,35 +1623,32 @@ class Axes(_AxesExtMixin, VCollection):
         self._add_plot_obj(line)
         return line
 
-    def highlight_x_range(self, x_lo, x_hi, creation=0, z=-1, **styling_kwargs):
-        """Shade a vertical strip between x_lo and x_hi. Returns a Rectangle."""
+    def _highlight_range(self, lo, hi, axis, creation, z, styling_kwargs):
+        """Shade a strip along one axis. Returns a Rectangle."""
         style_kw = _HIGHLIGHT_STYLE | styling_kwargs
-        rect = Rectangle(width=0, height=0, x=0, y=0,
-                          creation=creation, z=z, **style_kw)
-        _lo, _hi = x_lo, x_hi
-        rect.y.set_onward(creation, lambda t: self.plot_y)
-        rect.height.set_onward(creation, lambda t: self.plot_height)
-        rect.x.set_onward(creation, lambda t, _l=_lo, _h=_hi: min(
-            self._math_to_svg_x(_l, t), self._math_to_svg_x(_h, t)))
-        rect.width.set_onward(creation, lambda t, _l=_lo, _h=_hi: abs(
-            self._math_to_svg_x(_h, t) - self._math_to_svg_x(_l, t)))
+        rect = Rectangle(width=0, height=0, x=0, y=0, creation=creation, z=z, **style_kw)
+        if axis == 'x':
+            conv = self._math_to_svg_x
+            rect.y.set_onward(creation, lambda t: self.plot_y)
+            rect.height.set_onward(creation, lambda t: self.plot_height)
+            pos_attr, size_attr = rect.x, rect.width
+        else:
+            conv = self._math_to_svg_y
+            rect.x.set_onward(creation, lambda t: self.plot_x)
+            rect.width.set_onward(creation, lambda t: self.plot_width)
+            pos_attr, size_attr = rect.y, rect.height
+        pos_attr.set_onward(creation, lambda t, _l=lo, _h=hi, _c=conv: min(_c(_l, t), _c(_h, t)))
+        size_attr.set_onward(creation, lambda t, _l=lo, _h=hi, _c=conv: abs(_c(_h, t) - _c(_l, t)))
         self._add_plot_obj(rect)
         return rect
 
+    def highlight_x_range(self, x_lo, x_hi, creation=0, z=-1, **styling_kwargs):
+        """Shade a vertical strip between x_lo and x_hi. Returns a Rectangle."""
+        return self._highlight_range(x_lo, x_hi, 'x', creation, z, styling_kwargs)
+
     def highlight_y_range(self, y_lo, y_hi, creation=0, z=-1, **styling_kwargs):
         """Shade a horizontal strip between y_lo and y_hi. Returns a Rectangle."""
-        style_kw = _HIGHLIGHT_STYLE | styling_kwargs
-        rect = Rectangle(width=0, height=0, x=0, y=0,
-                          creation=creation, z=z, **style_kw)
-        _lo, _hi = y_lo, y_hi
-        rect.x.set_onward(creation, lambda t: self.plot_x)
-        rect.width.set_onward(creation, lambda t: self.plot_width)
-        rect.y.set_onward(creation, lambda t, _l=_lo, _h=_hi: min(
-            self._math_to_svg_y(_l, t), self._math_to_svg_y(_h, t)))
-        rect.height.set_onward(creation, lambda t, _l=_lo, _h=_hi: abs(
-            self._math_to_svg_y(_h, t) - self._math_to_svg_y(_l, t)))
-        self._add_plot_obj(rect)
-        return rect
+        return self._highlight_range(y_lo, y_hi, 'y', creation, z, styling_kwargs)
 
     def add_horizontal_band(self, y1, y2, color='#FFFF00', opacity=0.2, creation=0):
         """Add a shaded horizontal band between y-values y1 and y2. Returns a Rectangle."""
@@ -1619,33 +1660,16 @@ class Axes(_AxesExtMixin, VCollection):
         """Shade an axis-aligned rectangular region in math coordinates. Returns a Rectangle."""
         style_kw = _HIGHLIGHT_STYLE | styling_kwargs
         rect = Rectangle(width=0, height=0, x=0, y=0, creation=creation, z=z, **style_kw)
-        _xs, _xe = x_start, x_end
-        _ys, _ye = y_start, y_end
-
-        if _xs is None or _xe is None:
-            # Full-width: span the entire plot horizontally
-            rect.x.set_onward(creation, lambda t: self.plot_x)
-            rect.width.set_onward(creation, lambda t: self.plot_width)
-        else:
-            rect.x.set_onward(creation,
-                lambda t, _a=_xs, _b=_xe: min(
-                    self._math_to_svg_x(_a, t), self._math_to_svg_x(_b, t)))
-            rect.width.set_onward(creation,
-                lambda t, _a=_xs, _b=_xe: abs(
-                    self._math_to_svg_x(_b, t) - self._math_to_svg_x(_a, t)))
-
-        if _ys is None or _ye is None:
-            # Full-height: span the entire plot vertically
-            rect.y.set_onward(creation, lambda t: self.plot_y)
-            rect.height.set_onward(creation, lambda t: self.plot_height)
-        else:
-            rect.y.set_onward(creation,
-                lambda t, _a=_ys, _b=_ye: min(
-                    self._math_to_svg_y(_a, t), self._math_to_svg_y(_b, t)))
-            rect.height.set_onward(creation,
-                lambda t, _a=_ys, _b=_ye: abs(
-                    self._math_to_svg_y(_b, t) - self._math_to_svg_y(_a, t)))
-
+        for lo, hi, conv, plot_pos, plot_size, pos_attr, size_attr in [
+            (x_start, x_end, self._math_to_svg_x, 'plot_x', 'plot_width', rect.x, rect.width),
+            (y_start, y_end, self._math_to_svg_y, 'plot_y', 'plot_height', rect.y, rect.height),
+        ]:
+            if lo is None or hi is None:
+                pos_attr.set_onward(creation, lambda t, _p=plot_pos: getattr(self, _p))
+                size_attr.set_onward(creation, lambda t, _s=plot_size: getattr(self, _s))
+            else:
+                pos_attr.set_onward(creation, lambda t, _l=lo, _h=hi, _c=conv: min(_c(_l, t), _c(_h, t)))
+                size_attr.set_onward(creation, lambda t, _l=lo, _h=hi, _c=conv: abs(_c(_h, t) - _c(_l, t)))
         self._add_plot_obj(rect)
         return rect
 
@@ -1655,16 +1679,13 @@ class Axes(_AxesExtMixin, VCollection):
         if dur <= 0:
             return self
         _d = max(dur, 1e-9)
+        pairs = []
         if x_range is not None:
-            self.x_min.set(start, end,
-                _lerp(start, _d, self.x_min.at_time(start), x_range[0], easing), stay=True)
-            self.x_max.set(start, end,
-                _lerp(start, _d, self.x_max.at_time(start), x_range[1], easing), stay=True)
+            pairs += [(self.x_min, x_range[0]), (self.x_max, x_range[1])]
         if y_range is not None and self.y_min is not None:
-            self.y_min.set(start, end,
-                _lerp(start, _d, self.y_min.at_time(start), y_range[0], easing), stay=True)
-            self.y_max.set(start, end,
-                _lerp(start, _d, self.y_max.at_time(start), y_range[1], easing), stay=True)
+            pairs += [(self.y_min, y_range[0]), (self.y_max, y_range[1])]
+        for attr, target in pairs:
+            attr.set(start, end, _lerp(start, _d, attr.at_time(start), target, easing), stay=True)
         return self
 
     def add_shaded_inequality(self, func, direction='below', x_range=None,
@@ -1912,7 +1933,7 @@ class NumberPlane(VCollection):
         """Convert logical coordinates to SVG pixel coordinates."""
         return (self._cx + x * self._unit, self._cy - y * self._unit)
 
-    def apply_function(self, func, start=0, end=1, easing=easings.smooth, resolution=20):
+    def apply_function(self, func, start: float = 0, end: float = 1, easing=easings.smooth, resolution=20):
         """Animate a non-linear transformation of the grid."""
         # Rebuild grid as individual short line segments so they warp smoothly
         unit = self._unit
@@ -2010,7 +2031,7 @@ class NumberPlane(VCollection):
         self.objects.extend(labels)
         return self
 
-    def apply_matrix(self, matrix, start=0, end=1, easing=easings.smooth, resolution=20):
+    def apply_matrix(self, matrix, start: float = 0, end: float = 1, easing=easings.smooth, resolution=20):
         """Apply a 2x2 linear transformation matrix as an animated grid transformation."""
         return self.apply_function(
             lambda x, y: (
@@ -2069,7 +2090,7 @@ class ComplexPlane(Axes):
         label = text if text is not None else f'{re_val:g}+{im_val:g}i'
         return self.add_dot_label(re_val, im_val, label=label, **styling)
 
-    def apply_complex_function(self, func, start=0, end=1, easing=easings.smooth,
+    def apply_complex_function(self, func, start: float = 0, end: float = 1, easing=easings.smooth,
                                resolution=20, step=1.0):
         """Animate a complex function transformation of the plane."""
         xmin = self.x_min.at_time(0)

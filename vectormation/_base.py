@@ -28,7 +28,7 @@ style._RENDERED_DEFAULTS['mix_blend_mode'] = ''
 style.Styling.mix_blend_mode: attributes.String  # type: ignore[reportInvalidTypeForm]
 
 from vectormation._base_helpers import (
-    _clamp01, _lerp, _ramp, _ramp_down, _lerp_point, _clip_reveal, _clip_hide,
+    _clamp01, _lerp, _ramp, _ramp_down, _clip_reveal, _clip_hide,
     _norm_dir, _norm_edge, _coords_of, _set_attr, _parse_path, _path_prefix,
     _DIR_NAMES, _make_brect, _wrap_to_svg, _BBoxMethodsMixin,
 )
@@ -45,10 +45,14 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._updaters: list = []
 
     @abstractmethod
-    def to_svg(self, time: float) -> str: ...
+    def to_svg(self, time: float) -> str:
+        """Return the SVG markup for this object at the given time."""
+        ...
 
     @abstractmethod
-    def path(self, time: float) -> str: ...
+    def path(self, time: float) -> str:
+        """Return the SVG path string for this object at the given time."""
+        ...
 
     # -- Attribute declaration (override in subclasses) --
 
@@ -72,7 +76,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             xa.add(start, end, lambda t, _f=func: _f(t)[0], stay=stay)
             ya.add(start, end, lambda t, _f=func: _f(t)[1], stay=stay)
 
-    def add_updater(self, func, start=0, end=None):
+    def add_updater(self, func, start: float = 0, end=None):
         """Add an updater function called before each frame's to_svg.
         func(obj, time) should modify obj in-place. Active on [start, end]."""
         self._updaters.append((func, start, end))
@@ -100,6 +104,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     @property
     def last_change(self):
+        """Return the time of the last attribute change on this object."""
         return max(a.last_change for a in [*self._extra_attrs(), self.styling, self.z, self.show])
 
     def is_on_screen(self, time=0):
@@ -109,7 +114,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             return False
         return x + w > 0 and x < CANVAS_WIDTH and y + h > 0 and y < CANVAS_HEIGHT
 
-    def get_bounds(self, time=0):
+    def get_bounds(self, time: float = 0):
         """Return a dict with bounding box properties."""
         bx, by, bw, bh = self.bbox(time)
         return {
@@ -208,7 +213,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                     cur_c.interpolate(restore_c, start, end, easing=easings.linear)
         return self
 
-    def delay(self, duration, start=0):
+    def delay(self, duration, start: float = 0):
         """Hide for *duration* seconds from *start*, then show."""
         self._show_from(start + duration)
         return self
@@ -226,23 +231,23 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         """Return True if this object is shown at the given time."""
         return bool(self.show.at_time(time))
 
+    def _normalize_ranges(self, ranges):
+        """Flatten ``[(a,b), (c,d)]`` passed as a single list argument."""
+        if len(ranges) == 1 and isinstance(ranges[0], list):
+            return ranges[0]
+        return ranges
+
     def show_during(self, *ranges):
         """Show this object only during the specified time ranges."""
-        # Flatten if passed a list of tuples
-        if len(ranges) == 1 and isinstance(ranges[0], list):
-            ranges = ranges[0]
-        # Hide from the very beginning, then toggle on/off for each range
         self.show.set_onward(0, False)
-        for start, end in ranges:
+        for start, end in self._normalize_ranges(ranges):
             self.show.set_onward(start, True)
             self.show.set_onward(end, False)
         return self
 
     def hide_during(self, *ranges):
         """Hide this object during the specified time ranges, visible otherwise."""
-        if len(ranges) == 1 and isinstance(ranges[0], list):
-            ranges = ranges[0]
-        for start, end in ranges:
+        for start, end in self._normalize_ranges(ranges):
             self.show.set_onward(start, False)
             self.show.set_onward(end, True)
         return self
@@ -254,13 +259,9 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def visibility_toggle(self, *times):
         """Toggle visibility at each given time (hidden before first, shown, hidden, ...)."""
-        sorted_times = sorted(times)
         self.show.set_onward(0, False)
-        for i, t in enumerate(sorted_times):
-            if i % 2 == 0:
-                self.show.set_onward(t, True)
-            else:
-                self.show.set_onward(t, False)
+        for i, t in enumerate(sorted(times)):
+            self.show.set_onward(t, i % 2 == 0)
         return self
 
     def set_creation(self, time):
@@ -272,6 +273,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return f'{self.__class__.__name__}(z={self.z.at_time(0)})'
 
     def copy(self):
+        """Return a deep copy of this object."""
         return deepcopy(self)
 
     def always_rotate(self, start: float = 0, end: float | None = None, degrees_per_second: float = 90, cx: float | None = None, cy: float | None = None):
@@ -447,7 +449,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self._apply_shift_func(pos, s, end)
         return self
 
-    def animate_along_object(self, target, start=0, end=1, easing=easings.smooth):
+    def animate_along_object(self, target, start: float = 0, end: float = 1, easing=easings.smooth):
         """Move along the boundary/path of another VObject."""
         path_d = target.path(start)
         return self.along_path(start, end, path_d, easing=easing)
@@ -1031,6 +1033,16 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                 stay=(i == n_segs - 1))
         return self
 
+    @staticmethod
+    def _next_to_target(dir_name, mw, mh, ox, oy, ow, oh, ocx, ocy, buff):
+        """Compute the target center for placing self next to other."""
+        return {
+            'right': (ox + ow + buff + mw / 2, ocy),
+            'left':  (ox - buff - mw / 2, ocy),
+            'down':  (ocx, oy + oh + buff + mh / 2),
+            'up':    (ocx, oy - buff - mh / 2),
+        }[dir_name]
+
     def next_to(self, other, direction: str | tuple = 'right', buff=SMALL_BUFF, start: float = 0, end: float | None = None, easing=None):
         """Position this object next to another."""
         direction = _norm_dir(direction)
@@ -1038,13 +1050,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         ox, oy, ow, oh = other.bbox(start)
         mcx, mcy = mx + mw/2, my + mh/2
         ocx, ocy = ox + ow/2, oy + oh/2
-        targets = {
-            'right': (ox + ow + buff + mw/2, ocy),
-            'left':  (ox - buff - mw/2, ocy),
-            'down':  (ocx, oy + oh + buff + mh/2),
-            'up':    (ocx, oy - buff - mh/2),
-        }
-        tx, ty = targets[direction]
+        tx, ty = self._next_to_target(direction, mw, mh, ox, oy, ow, oh, ocx, ocy, buff)
         if end is not None:
             kw = {'start': start, 'end': end}
             if easing is not None:
@@ -1054,12 +1060,11 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             self.shift(dx=tx - mcx, dy=ty - mcy, start=start)
         return self
 
-    def attach_to(self, other, direction=None, buff=None, start=0, end=None):
+    def attach_to(self, other, direction=None, buff=None, start: float = 0, end=None):
         """Continuously position self next to *other* via an updater."""
         direction = direction or RIGHT
         buff = buff if buff is not None else MED_SMALL_BUFF
         dir_name = _DIR_NAMES.get(direction, 'right')
-        # Snapshot the initial center of self so we can compute deltas
         _init_cx, _init_cy = self.center(start)
         _init_dx = self.styling.dx.at_time(start)
         _init_dy = self.styling.dy.at_time(start)
@@ -1067,26 +1072,20 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             _, _, mw, mh = obj.bbox(t)
             ox, oy, ow, oh = other.bbox(t)
             ocx, ocy = other.center(t)
-            targets = {
-                'right': (ox + ow + _buff + mw / 2, ocy),
-                'left':  (ox - _buff - mw / 2, ocy),
-                'down':  (ocx, oy + oh + _buff + mh / 2),
-                'up':    (ocx, oy - _buff - mh / 2),
-            }
-            tx, ty = targets[_dir]
+            tx, ty = VObject._next_to_target(_dir, mw, mh, ox, oy, ow, oh, ocx, ocy, _buff)
             obj.styling.dx.set_onward(t, tx - _init_cx + _init_dx)
             obj.styling.dy.set_onward(t, ty - _init_cy + _init_dy)
         self.add_updater(_update, start=start, end=end)
         return self
 
-    def always_next_to(self, other, direction=RIGHT, buff=SMALL_BUFF, start=0, end=None):
+    def always_next_to(self, other, direction=RIGHT, buff=SMALL_BUFF, start: float = 0, end=None):
         """Updater-based ``next_to`` that tracks *other* each frame."""
         def _update(obj, t, _dir=direction, _buff=buff):
             obj.next_to(other, _dir, _buff, start=t)
         self.add_updater(_update, start=start, end=end)
         return self
 
-    def set_color_if(self, predicate, color, start=0, end=None):
+    def set_color_if(self, predicate, color, start: float = 0, end=None):
         """Set fill to *color* when ``predicate(t)`` is True, revert otherwise."""
         _orig_rgb = self.styling.fill.time_func(start)
         _new_color = attributes.Color(0, color)
@@ -1106,7 +1105,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.move_to(nx, ny, start=time)
         return self
 
-    def follow(self, other, start=0, end=None):
+    def follow(self, other, start: float = 0, end=None):
         """Continuously track *other*'s center via an updater."""
         _init_cx, _init_cy = self.center(start)
         _init_dx = self.styling.dx.at_time(start)
@@ -1391,7 +1390,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             _ramp(start, _d, 0.7, easings.there_and_back), stay=False)
         return self
 
-    def drop_shadow(self, color='#000000', dx=4, dy=4, blur=6, start=0):
+    def drop_shadow(self, color='#000000', dx=4, dy=4, blur=6, start: float = 0):
         """Apply an SVG feDropShadow filter, visible from *start* onward."""
         fid = f'ds{id(self)}'
         fdef = (f"<filter id='{fid}' x='-50%' y='-50%' width='200%' height='200%'>"
@@ -1518,11 +1517,11 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         return (x if corner[0] <= 0 else x + w,
                 y if corner[1] <= 0 else y + h)
 
-    def grow_from_corner(self, start=0, end=1, corner=None, change_existence=True, easing=easings.smooth):
+    def grow_from_corner(self, start: float = 0, end: float = 1, corner=None, change_existence=True, easing=easings.smooth):
         """Grow from zero size anchored at a corner."""
         return self._scale_anchor_anim(self._corner_point(corner, start), start, end, True, change_existence, easing)
 
-    def shrink_to_corner(self, start=0, end=1, corner=None, change_existence=True, easing=easings.smooth):
+    def shrink_to_corner(self, start: float = 0, end: float = 1, corner=None, change_existence=True, easing=easings.smooth):
         """Shrink to zero size anchored at a corner. Reverse of grow_from_corner."""
         return self._scale_anchor_anim(self._corner_point(corner, start), start, end, False, change_existence, easing)
 
@@ -1813,7 +1812,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             rings.append(ring)
         return VCollection(*rings)
 
-    def animate_dash(self, start=0, end=1, dash_length=10, gap=None, easing=easings.linear):
+    def animate_dash(self, start: float = 0, end: float = 1, dash_length=10, gap=None, easing=easings.linear):
         """Animate dashes moving along the stroke (marching ants effect).
         Works on any stroked shape (Line, Path, Circle, Rectangle, etc.)."""
         if gap is None:
@@ -1939,7 +1938,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             src.interpolate(attributes.Color(seg_s, original_rgb), seg_mid, seg_e, easing=easings.linear)
         return self
 
-    def color_shift(self, hue_shift=30, start=0, end=1, easing=easings.smooth):
+    def color_shift(self, hue_shift=30, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate shifting the fill color's hue by *hue_shift* degrees over [start, end]."""
         from vectormation.attributes import _rgb_to_hsl, _hsl_to_rgb
         src = self.styling.fill
@@ -2281,7 +2280,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         """Restore full opacity (undo dim)."""
         return self.dim(start=start, end=end, opacity=1.0, easing=easing)
 
-    def clone(self, offset_x=0, offset_y=0, *, count=None, dx=0, dy=0, start=0):
+    def clone(self, offset_x=0, offset_y=0, *, count=None, dx=0, dy=0, start: float = 0):
         """Deep copy, optionally shifted. With count=N returns VCollection of N shifted clones."""
         if count is not None:
             clones = []
@@ -2364,23 +2363,23 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             return f'#{r:02x}{g:02x}{b:02x}'
         return str(rgb)
 
-    def get_fill_color(self, time=0):
+    def get_fill_color(self, time: float = 0):
         """Return the fill color (hex string) at the given time."""
         return self._rgb_to_hex(self.styling.fill.time_func(time))
 
-    def get_stroke_color(self, time=0):
+    def get_stroke_color(self, time: float = 0):
         """Return the stroke color (hex string) at the given time."""
         return self._rgb_to_hex(self.styling.stroke.time_func(time))
 
-    def get_stroke_width(self, time=0):
+    def get_stroke_width(self, time: float = 0):
         """Return the stroke width at the given time."""
         return self.styling.stroke_width.at_time(time)
 
-    def get_fill_opacity(self, time=0):
+    def get_fill_opacity(self, time: float = 0):
         """Return the fill opacity at the given time."""
         return self.styling.fill_opacity.at_time(time)
 
-    def get_stroke_opacity(self, time=0):
+    def get_stroke_opacity(self, time: float = 0):
         """Return the stroke opacity at the given time."""
         return self.styling.stroke_opacity.at_time(time)
 
@@ -2468,7 +2467,7 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.styling.stroke_dasharray.set_onward(start, pattern_str)
         return self
 
-    def set_backstroke(self, color='#000000', width=8, start=0):
+    def set_backstroke(self, color='#000000', width=8, start: float = 0):
         """Add a background stroke (rendered behind fill) for readability."""
         self.set_stroke(color=color, width=width, start=start)
         _wrap_to_svg(self, lambda inner, t: f"<g style='paint-order: stroke fill'>{inner}</g>", start)

@@ -70,7 +70,7 @@ class Arrow(VCollection):
         self.tip.vertices[1].set_onward(start, lambda t: _cached_geom(t)[1])
         self.tip.vertices[2].set_onward(start, lambda t: _cached_geom(t)[2])
 
-    def _set_point(self, attr, x, y, start=0, end=None):
+    def _set_point(self, attr, x, y, start: float = 0, end=None):
         if end is None:
             attr.set_onward(start, lambda t: (x, y))
         else:
@@ -78,27 +78,32 @@ class Arrow(VCollection):
         self._update_tip_dynamic(start)
         return self
 
-    def set_start(self, x, y, start=0, end=None):
+    def set_start(self, x, y, start: float = 0, end=None):
         """Animate the arrow start point."""
         return self._set_point(self.shaft.p1, x, y, start, end)
 
-    def set_end(self, x, y, start=0, end=None):
+    def set_end(self, x, y, start: float = 0, end=None):
         """Animate the arrow end point."""
         return self._set_point(self.shaft.p2, x, y, start, end)
 
-    def get_start(self, time: float = 0): return self.shaft.p1.at_time(time)
-    def get_end(self, time: float = 0): return self.shaft.p2.at_time(time)
+    def get_start(self, time: float = 0):
+        """Return the start point (x, y) of the arrow."""
+        return self.shaft.p1.at_time(time)
+
+    def get_end(self, time: float = 0):
+        """Return the end point (x, y) of the arrow."""
+        return self.shaft.p2.at_time(time)
 
 
-    def get_midpoint(self, time=0):
+    def get_midpoint(self, time: float = 0):
         """Return the midpoint of the arrow shaft."""
         return self.shaft.get_midpoint(time)
 
-    def get_length(self, time=0):
+    def get_length(self, time: float = 0):
         """Return the length of the arrow shaft."""
         return self.shaft.get_length(time)
 
-    def set_color(self, color, start=0):
+    def set_color(self, color, start: float = 0):
         """Set shaft stroke and tip fill to *color* from *start* onward."""
         self.shaft.styling.stroke.set_onward(start, color)
         self.tip.styling.fill.set_onward(start, color)
@@ -107,7 +112,7 @@ class Arrow(VCollection):
         return self
 
     @classmethod
-    def between(cls, obj_a, obj_b, buff=0, **kwargs):
+    def between(cls, obj_a, obj_b, buff: float = 0, **kwargs):
         """Create an Arrow connecting two VObjects."""
         ca = obj_a.get_edge('center', time=0)
         cb = obj_b.get_edge('center', time=0)
@@ -386,6 +391,41 @@ class Brace(VCollection):
 
         return cls(target, direction=direction, label=label,
                    creation=creation, **kwargs)
+
+
+class BraceBetweenPoints(Brace):
+    """Curly brace between two arbitrary points.
+
+    The brace spans the line segment from (x1, y1) to (x2, y2), with the
+    tip pointing in the perpendicular direction.
+    """
+    def __init__(self, x1, y1, x2, y2, label=None, buff=SMALL_BUFF,
+                 depth=18, creation: float = 0, z: float = 0, **styling_kwargs):
+        # Create a thin rectangle aligned along the two points as target
+        from vectormation._shapes import Rectangle as _Rect
+        dx, dy = x2 - x1, y2 - y1
+        span = math.hypot(dx, dy)
+        # Determine direction: perpendicular to the line
+        if span < 1e-9:
+            direction = 'down'
+        else:
+            nx, ny = -dy / span, dx / span
+            # Pick the closest cardinal direction for the brace
+            candidates = [('down', 0, 1), ('up', 0, -1),
+                          ('right', 1, 0), ('left', -1, 0)]
+            direction = max(candidates, key=lambda c: c[1] * nx + c[2] * ny)[0]
+
+        # Create a minimal target rectangle spanning the two points
+        left = min(x1, x2)
+        top = min(y1, y2)
+        w = max(abs(dx), 1)
+        h = max(abs(dy), 1)
+        target = _Rect(w, h, x=left, y=top, creation=creation)
+        super().__init__(target, direction=direction, label=label, buff=buff,
+                         depth=depth, creation=creation, z=z, **styling_kwargs)
+
+    def __repr__(self):
+        return 'BraceBetweenPoints()'
 
 
 class Vector(Arrow):

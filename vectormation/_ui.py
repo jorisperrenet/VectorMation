@@ -56,11 +56,11 @@ class Variable(VCollection):
     def tracker(self):
         return self.number.tracker
 
-    def set_value(self, val, start=0):
+    def set_value(self, val, start: float = 0):
         self.number.set_value(val, start)
         return self
 
-    def animate_value(self, target, start, end, easing=easings.smooth):
+    def animate_value(self, target, start: float, end: float, easing=easings.smooth):
         self.number.animate_value(target, start, end, easing)
         return self
 
@@ -186,7 +186,7 @@ class Code(VCollection):
     def __repr__(self):
         return f'Code({self._num_lines} lines, lang={self._language!r})'
 
-    def highlight_lines(self, line_nums, start=0, end=1, color='#FFFF00', opacity=0.2,
+    def highlight_lines(self, line_nums, start: float = 0, end: float = 1, color='#FFFF00', opacity=0.2,
                         easing=easings.there_and_back):
         """Highlight specific code lines with a colored overlay."""
         if isinstance(line_nums, int):
@@ -206,7 +206,7 @@ class Code(VCollection):
             rects.append(rect)
         return VCollection(*rects) if rects else VCollection()
 
-    def reveal_lines(self, start=0, end=1, overlap=0.5):
+    def reveal_lines(self, start: float = 0, end: float = 1, overlap=0.5):
         """Reveal code lines sequentially with staggered fadein."""
         n = self._num_lines
         dur = end - start
@@ -626,7 +626,7 @@ class Checklist(VCollection):
             self._labels.append(lbl)
         super().__init__(*objects, creation=creation, z=z)
 
-    def check_item(self, index, start=0, end=0.3):
+    def check_item(self, index, start: float = 0, end: float = 0.3):
         """Animate checking the item at index (shows the check mark)."""
         if 0 <= index < len(self._marks):
             self._marks[index].text.set_onward(start, '\u2713')
@@ -634,7 +634,7 @@ class Checklist(VCollection):
             self._boxes[index].set_fill(self._check_color, start=start, end=end)
         return self
 
-    def reveal_items(self, start=0, end=1, overlap=0.5):
+    def reveal_items(self, start: float = 0, end: float = 1, overlap=0.5):
         """Cascade items into view sequentially."""
         n = len(self._boxes)
         if n == 0:
@@ -695,7 +695,7 @@ class Stepper(VCollection):
                 self._lines.append(conn)
         super().__init__(*objects, creation=creation, z=z)
 
-    def advance(self, from_step, to_step, start=0, end=0.5):
+    def advance(self, from_step, to_step, start: float = 0, end: float = 0.5):
         """Animate transitioning active step highlight from from_step to to_step."""
         # Dim old step circle
         if 0 <= from_step < len(self._circles):
@@ -874,7 +874,7 @@ class Filmstrip(VCollection):
             objects.extend([frame, lbl, num])
         super().__init__(*objects, creation=creation, z=z)
 
-    def highlight_frame(self, index, start=0, end=1, color='#58C4DD',
+    def highlight_frame(self, index, start: float = 0, end: float = 1, color='#58C4DD',
                         easing=easings.there_and_back):
         """Flash-highlight a frame by index."""
         if 0 <= index < len(self._frames):

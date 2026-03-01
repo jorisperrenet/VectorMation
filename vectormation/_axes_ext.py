@@ -402,14 +402,8 @@ class _AxesExtMixin:
         self._add_plot_obj(line)
         return line
 
-    def add_confidence_band(self, func_lo, func_hi, x_range=None, samples=100,
-                             creation=0, z=-1, **styling_kwargs):
-        """Shade a band between two functions (e.g. confidence interval).
-        func_lo/func_hi: callables (or curves with ._func).
-        Returns a dynamic Path object."""
-        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.2, 'stroke_width': 0} | styling_kwargs
-        lo_fn = self._resolve_func(func_lo, 'func_lo')
-        hi_fn = self._resolve_func(func_hi, 'func_hi')
+    def _make_band(self, lo_fn, hi_fn, x_range, samples, creation, z, style_kw):
+        """Create a dynamic band Path between two y-functions."""
         band = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
         def _band_d(time, _lo=lo_fn, _hi=hi_fn, _xr=x_range, _n=samples):
             xmin, xmax = self.x_min.at_time(time), self.x_max.at_time(time)
@@ -427,6 +421,17 @@ class _AxesExtMixin:
         band.d.set_onward(creation, _band_d)
         self._add_plot_obj(band)
         return band
+
+    def add_confidence_band(self, func_lo, func_hi, x_range=None, samples=100,
+                             creation=0, z=-1, **styling_kwargs):
+        """Shade a band between two functions (e.g. confidence interval).
+        func_lo/func_hi: callables (or curves with ._func).
+        Returns a dynamic Path object."""
+        style_kw = {'fill': '#58C4DD', 'fill_opacity': 0.2, 'stroke_width': 0} | styling_kwargs
+        return self._make_band(
+            self._resolve_func(func_lo, 'func_lo'),
+            self._resolve_func(func_hi, 'func_hi'),
+            x_range, samples, creation, z, style_kw)
 
     def add_boxplot(self, data_groups, x_positions=None, width=0.6,
                      creation=0, z=1, **styling_kwargs):
@@ -950,7 +955,7 @@ class _AxesExtMixin:
             objs += [line, dot]
         return VCollection(*objs, creation=creation, z=z)
 
-    def add_moving_label(self, func, text, x_start, x_end, start=0, end=2,
+    def add_moving_label(self, func, text, x_start, x_end, start: float = 0, end: float = 2,
                           font_size=16, offset_y=-15, creation=0, z=3, **styling_kwargs):
         """A text label that follows a curve point from x_start to x_end over [start, end].
         Returns a VCollection with the dot and the label."""
@@ -1066,7 +1071,7 @@ class _AxesExtMixin:
         self._add_plot_obj(dot)
         return dot
 
-    def add_annotation(self, x, y, text, start=0, **kwargs):
+    def add_annotation(self, x, y, text, start: float = 0, **kwargs):
         """Add a text annotation at graph coordinates (x, y), wrapper around add_point_label."""
         kwargs.setdefault('creation', start)
         return self.add_point_label(x, y, text=text, **kwargs)
@@ -1686,7 +1691,7 @@ class _AxesExtMixin:
         """Alias for :meth:`get_tangent_line` that adds the line to the axes."""
         return self.get_tangent_line(func, x_val, length=length, creation=creation, **kwargs)
 
-    def animated_tangent_line(self, func, x_start, x_end, start=0, end=1,
+    def animated_tangent_line(self, func, x_start, x_end, start: float = 0, end: float = 1,
                                length=200, creation=0, z=0, easing=None, **styling_kwargs):
         """Tangent line that slides along func from x_start to x_end over [start, end].
 
@@ -1886,6 +1891,67 @@ class _AxesExtMixin:
         self._add_plot_obj(curve)
         return curve
 
+    def plot_antiderivative(self, func, x0=None, num_points=200,
+                            creation=0, z=0, **styling_kwargs):
+        """Plot the numerical antiderivative (cumulative integral) of a function.
+
+        Uses the trapezoidal rule to compute F(x) = integral from x0 to x of f(t) dt.
+
+        Parameters
+        ----------
+        func : callable or curve
+            The function to integrate.
+        x0 : float or None
+            Starting x value for integration.  Defaults to x_min.
+        num_points : int
+            Number of sample points for the curve.
+        """
+        fn = self._resolve_func(func, 'func')
+        style_kw = {'stroke': '#FF6B6B', 'stroke_width': 3,
+                    'fill_opacity': 0, 'stroke_dasharray': '12,4'} | styling_kwargs
+
+        if hasattr(self, '_deferred_axes'):
+            self._build_deferred_axes(fn, num_points)
+
+        # Compute the antiderivative via cumulative trapezoidal integration
+        x_lo = self.x_min.at_time(0)
+        x_hi = self.x_max.at_time(0)
+        if x0 is None:
+            x0 = x_lo
+        xs = [x0 + (x_hi - x0) * i / (num_points - 1) for i in range(num_points)]
+        # Pre-compute the antiderivative values
+        integral_values = [0.0]
+        for i in range(1, len(xs)):
+            dx = xs[i] - xs[i - 1]
+            try:
+                y0 = fn(xs[i - 1])
+                y1 = fn(xs[i])
+                integral_values.append(integral_values[-1] + 0.5 * (y0 + y1) * dx)
+            except (ValueError, ZeroDivisionError):
+                integral_values.append(integral_values[-1])
+
+        # Build a lookup function for the antiderivative
+        def _antideriv(x, _xs=xs, _vals=integral_values):
+            if x <= _xs[0]:
+                return _vals[0]
+            if x >= _xs[-1]:
+                return _vals[-1]
+            # Binary search for the interval
+            lo, hi = 0, len(_xs) - 1
+            while lo < hi - 1:
+                mid = (lo + hi) // 2
+                if _xs[mid] <= x:
+                    lo = mid
+                else:
+                    hi = mid
+            t = (x - _xs[lo]) / (_xs[hi] - _xs[lo]) if _xs[hi] != _xs[lo] else 0
+            return _vals[lo] + t * (_vals[hi] - _vals[lo])
+
+        curve = self._make_curve(_antideriv, creation, z, num_points=num_points,
+                                 **style_kw)
+        self._add_plot_obj(curve)
+        return curve
+
     def get_trapezoidal_rule(self, func, x_range, dx=0.5, creation=0, z=0,
                              **styling_kwargs):
         """Visualize the trapezoidal rule approximation of the area under *func*."""
@@ -2021,27 +2087,12 @@ class _AxesExtMixin:
                         color='#58C4DD', opacity=0.2, creation=0):
         """Draw a shaded band from func(x)-spread_func(x) to func(x)+spread_func(x)."""
         fn = self._resolve_func(func, 'func')
-        spread_fn = self._resolve_func(spread_func, 'spread_func')
-        band = Path('', x=0, y=0, creation=creation, z=-1,
-                    fill=color, fill_opacity=opacity, stroke_width=0)
-        def _band_d(time, _fn=fn, _sf=spread_fn, _xr=x_range, _n=num_points):
-            xmin, xmax = self.x_min.at_time(time), self.x_max.at_time(time)
-            x0 = _xr[0] if _xr else xmin
-            x1 = _xr[1] if _xr else xmax
-            step = (x1 - x0) / max(_n, 1)
-            pts_hi, pts_lo = [], []
-            for i in range(_n + 1):
-                xv = x0 + i * step
-                yc = _fn(xv)
-                sp = _sf(xv)
-                sx_hi, sy_hi = self.coords_to_point(xv, yc + sp, time)
-                sx_lo, sy_lo = self.coords_to_point(xv, yc - sp, time)
-                pts_hi.append((sx_hi, sy_hi))
-                pts_lo.append((sx_lo, sy_lo))
-            return _band_path(pts_hi, pts_lo)
-        band.d.set_onward(creation, _band_d)
-        self._add_plot_obj(band)
-        return band
+        sf = self._resolve_func(spread_func, 'spread_func')
+        return self._make_band(
+            lambda x, _f=fn, _s=sf: _f(x) - _s(x),
+            lambda x, _f=fn, _s=sf: _f(x) + _s(x),
+            x_range, num_points, creation, -1,
+            {'fill': color, 'fill_opacity': opacity, 'stroke_width': 0})
 
     def add_mean_line(self, func_or_data, x_range=None, creation=0, **kwargs):
         """Add a horizontal dashed line at the mean value of a function or data."""
