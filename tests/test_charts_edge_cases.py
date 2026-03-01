@@ -281,6 +281,18 @@ class TestBoxPlotEdgeCases:
         svg = bp.to_svg(0)
         assert svg is not None
 
+    def test_empty_group_skipped(self):
+        """BoxPlot should skip empty groups without crashing."""
+        bp = BoxPlot(data_groups=[[], [1, 2, 3, 4, 5], []])
+        svg = bp.to_svg(0)
+        assert svg is not None
+
+    def test_all_groups_empty(self):
+        """BoxPlot with all empty groups should not crash."""
+        bp = BoxPlot(data_groups=[[], [], []])
+        svg = bp.to_svg(0)
+        assert svg is not None
+
 
 # ── MatrixHeatmap edge cases ────────────────────────────────────────────
 
@@ -302,6 +314,12 @@ class TestMatrixHeatmapEdgeCases:
 
     def test_uniform_values(self):
         mh = MatrixHeatmap(data=[[5, 5], [5, 5]])
+        svg = mh.to_svg(0)
+        assert svg is not None
+
+    def test_jagged_rows(self):
+        """MatrixHeatmap with rows of different lengths should not crash."""
+        mh = MatrixHeatmap(data=[[1, 2, 3], [4, 5]])
         svg = mh.to_svg(0)
         assert svg is not None
 

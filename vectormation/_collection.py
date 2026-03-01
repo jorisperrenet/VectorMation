@@ -162,18 +162,22 @@ class VCollection(_BBoxMethodsMixin):
                                      self._scale_y.at_time(time), self._scale_origin)
         return f'<g{transform}>\n{inner}\n</g>'
 
-    def bbox(self, time, start_idx: int = 0, end_idx=None):
+    def bbox(self, time: float = 0, start_idx: int = 0, end_idx=None):
         objs = self.objects[start_idx:end_idx]
         if not objs:
             return (0, 0, 0, 0)
-        boxes = [o.bbox(time) for o in objs]
-        xmin = min(b[0] for b in boxes)
-        ymin = min(b[1] for b in boxes)
-        xmax = max(b[0] + b[2] for b in boxes)
-        ymax = max(b[1] + b[3] for b in boxes)
+        b = objs[0].bbox(time)
+        xmin, ymin, xmax, ymax = b[0], b[1], b[0] + b[2], b[1] + b[3]
+        for obj in objs[1:]:
+            b = obj.bbox(time)
+            bx2, by2 = b[0] + b[2], b[1] + b[3]
+            if b[0] < xmin: xmin = b[0]
+            if b[1] < ymin: ymin = b[1]
+            if bx2 > xmax: xmax = bx2
+            if by2 > ymax: ymax = by2
         return (xmin, ymin, xmax - xmin, ymax - ymin)
 
-    def brect(self, time, start_idx: int = 0, end_idx=None, rx: float = 0, ry: float = 0, buff=SMALL_BUFF, follow=True):
+    def brect(self, time: float = 0, start_idx: int = 0, end_idx=None, rx: float = 0, ry: float = 0, buff=SMALL_BUFF, follow=True):
         """Bounding rectangle with buff outward padding."""
         return _make_brect(self.bbox, time, rx, ry, buff, follow,
                            start_idx=start_idx, end_idx=end_idx)
@@ -1113,7 +1117,7 @@ class VCollection(_BBoxMethodsMixin):
                 method_name_or_func(a, b, start, end)
         return self
 
-    def align_to(self, other, edge='left', start: float = 0, end: float | None = None, easing=None):
+    def align_to(self, other, edge: str | tuple = 'left', start: float = 0, end: float | None = None, easing=None):
         """Align the collection's edge to match *other*'s edge.
         other: another VObject/VCollection.
         edge: 'left', 'right', 'top', 'bottom' or direction constant.
@@ -1127,7 +1131,7 @@ class VCollection(_BBoxMethodsMixin):
             'top': (0, oy - my),
             'bottom': (0, (oy + oh) - (my + mh)),
         }
-        dx, dy = offsets.get(edge, (0, 0))
+        dx, dy = offsets[edge]
         kw = {'start': start}
         if end is not None:
             kw['end'] = end

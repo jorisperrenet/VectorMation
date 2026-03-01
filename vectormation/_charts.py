@@ -1613,7 +1613,7 @@ class MatrixHeatmap(VCollection):
             colormap = ['#313695', '#4575b4', '#74add1', '#abd9e9',
                         '#fee090', '#fdae61', '#f46d43', '#d73027']
         n_rows = len(data)
-        n_cols = len(data[0])
+        n_cols = max(len(row) for row in data)
         # Flatten to find min/max
         flat = [v for row in data for v in row]
         if not flat:
@@ -1627,7 +1627,7 @@ class MatrixHeatmap(VCollection):
             label_offset = max((len(str(l)) for l in row_labels), default=0) * font_size * 0.5 + 10
         col_offset = font_size + 10 if col_labels else 0
         for r in range(n_rows):
-            for c in range(n_cols):
+            for c in range(len(data[r])):
                 val = data[r][c]
                 frac = (val - mn) / rng
                 ci = min(int(frac * (len(colormap) - 1) + 0.5), len(colormap) - 1)
@@ -1677,6 +1677,12 @@ class BoxPlot(VCollection):
             return
         if positions is None:
             positions = list(range(1, len(data_groups) + 1))
+        # Filter out empty groups (keeping positions aligned)
+        pairs = [(p, g) for p, g in zip(positions, data_groups) if g]
+        if not pairs:
+            super().__init__(creation=creation, z=z)
+            return
+        positions, data_groups = zip(*pairs)
         # Compute stats for each group
         stats = []
         for grp in data_groups:

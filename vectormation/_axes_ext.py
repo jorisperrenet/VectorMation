@@ -1673,8 +1673,9 @@ class _AxesExtMixin:
         slope = (func(x_val + h) - func(x_val - h)) / (2 * h)
         cx_svg = self._math_to_svg_x(x_val, creation)
         cy_svg = self._math_to_svg_y(func(x_val), creation)
-        xspan = self.x_max.at_time(creation) - self.x_min.at_time(creation)
-        yspan = self.y_max.at_time(creation) - self.y_min.at_time(creation)
+        x_lo, x_hi = self.x_min.at_time(creation), self.x_max.at_time(creation)
+        y_lo, y_hi = self.y_min.at_time(creation), self.y_max.at_time(creation)
+        xspan, yspan = x_hi - x_lo, y_hi - y_lo
         if xspan == 0 or yspan == 0:
             return Line(x1=cx_svg, y1=cy_svg, x2=cx_svg + length, y2=cy_svg,
                         creation=creation, z=z, **style_kw)
@@ -1706,8 +1707,10 @@ class _AxesExtMixin:
                 xv = _xs + alpha * (_xe - _xs)
                 slope = (func(xv + h) - func(xv - h)) / (2 * h)
                 cx_svg, cy_svg = self.coords_to_point(xv, func(xv), t)
-                xspan = self.x_max.at_time(t) - self.x_min.at_time(t)
-                yspan = self.y_max.at_time(t) - self.y_min.at_time(t)
+                x_lo, x_hi = self.x_min.at_time(t), self.x_max.at_time(t)
+                y_lo, y_hi = self.y_min.at_time(t), self.y_max.at_time(t)
+                xspan = x_hi - x_lo
+                yspan = y_hi - y_lo
                 if xspan == 0 or yspan == 0:
                     return (cx_svg + _sign * _len / 2, cy_svg)
                 dx_px = self.plot_width / xspan

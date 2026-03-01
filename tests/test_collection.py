@@ -4002,3 +4002,20 @@ class TestRemoveSafe:
         col = VCollection(c1)
         result = col.remove(c1)
         assert result is col
+
+
+class TestVCollectionDefaultTime:
+    def test_bbox_default_time(self):
+        """VCollection.bbox() should work without explicit time argument."""
+        c = Circle(r=50, cx=100, cy=200)
+        col = VCollection(c)
+        bx, by, bw, bh = col.bbox()
+        assert bx == pytest.approx(50)
+        assert by == pytest.approx(150)
+
+    def test_brect_default_time(self):
+        """VCollection.brect() should work without explicit time argument."""
+        c = Circle(r=50, cx=100, cy=200)
+        col = VCollection(c)
+        rect = col.brect()
+        assert rect is not None
