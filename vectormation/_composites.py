@@ -283,9 +283,6 @@ class NumberLine(VCollection):
 
         super().__init__(*objects, creation=creation, z=z)
 
-    def __repr__(self):
-        return f'NumberLine(({self.x_start}, {self.x_end}), length={self.length})'
-
     def number_to_point(self, value, time: float = 0):
         """Convert a number on the line to an SVG (x, y) coordinate."""
         span = self.x_end - self.x_start
