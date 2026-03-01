@@ -11,7 +11,7 @@ from vectormation._constants import (
     _rotate_point, _sample_function, _distance, _normalize, _circumcenter,
 )
 from vectormation._base import VObject, VCollection, _ramp, _ramp_down, _set_attr
-from vectormation._base_helpers import _clamp01
+from vectormation._base_helpers import _clamp01, _parse_path as _parse_path_svgtools
 from vectormation._shapes import Polygon, Rectangle, Lines
 
 class Line(VObject):
@@ -1290,26 +1290,20 @@ class Path(VObject):
             kw[n] = getattr(self.styling, n).time_func(time)
         return kw
 
-    @staticmethod
-    def _parse_path_lazy(d):
-        try:
-            from svgpathtools import parse_path
-        except ImportError:
-            raise ImportError("svgpathtools is required for path operations")
-        return parse_path(d)
-
     def get_length(self, time: float = 0):
         """Return the total length of the path."""
         d = self.d.at_time(time)
-        return self._parse_path_lazy(d).length() if d else 0.0
+        if not d:
+            return 0.0
+        _parsed, length = _parse_path_svgtools(d)
+        return length
 
     def point_from_proportion(self, t, time: float = 0):
         """Return (x, y) at a proportional distance along the path (0-1)."""
         d = self.d.at_time(time)
         if not d:
             return (0, 0)
-        parsed = self._parse_path_lazy(d)
-        total = parsed.length()
+        parsed, total = _parse_path_svgtools(d)
         if total == 0:
             pt = parsed.point(0)
             return (pt.real, pt.imag)
@@ -1321,8 +1315,7 @@ class Path(VObject):
         d = self.d.at_time(time)
         if not d:
             return (0.0, 0.0)
-        parsed = self._parse_path_lazy(d)
-        total = parsed.length()
+        parsed, total = _parse_path_svgtools(d)
         if total == 0:
             return (0.0, 0.0)
         t_param = parsed.ilength(total * _clamp01(proportion))
@@ -1339,8 +1332,7 @@ class Path(VObject):
         d = self.d.at_time(time)
         if not d:
             return Path('')
-        parsed = self._parse_path_lazy(d)
-        total = parsed.length()
+        parsed, total = _parse_path_svgtools(d)
         if total == 0:
             return Path(d)
         t_start = _clamp01(t_start)
@@ -1357,7 +1349,7 @@ class Path(VObject):
         d = self.d.at_time(time)
         if not d:
             return Path('')
-        parsed = self._parse_path_lazy(d)
+        parsed, _length = _parse_path_svgtools(d)
         reversed_d = parsed.reversed().d()
         return Path(reversed_d, **self._copy_style(time))
 
