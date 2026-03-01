@@ -17899,9 +17899,8 @@ class TestRadarChartAddDataset:
 
     def test_add_dataset_wrong_length(self):
         rc = RadarChart([3, 5, 2], labels=['A', 'B', 'C'])
-        before = len(rc.objects)
-        rc.add_dataset([1, 2])  # wrong length
-        assert len(rc.objects) == before
+        with pytest.raises(ValueError, match="expects 3 values"):
+            rc.add_dataset([1, 2])  # wrong length
 
     def test_add_multiple_datasets(self):
         rc = RadarChart([3, 5, 2], labels=['A', 'B', 'C'])

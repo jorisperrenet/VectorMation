@@ -765,7 +765,7 @@ class RadarChart(VCollection):
     def add_dataset(self, values, color=None, fill_opacity=None, creation: float = 0, z: float = 0.15):
         """Add an additional data polygon overlay to the radar chart."""
         if len(values) != self._n:
-            return self
+            raise ValueError(f"add_dataset expects {self._n} values, got {len(values)}")
         if color is None:
             cols = _default_colors(None)
             color = cols[self._dataset_count % len(cols)]

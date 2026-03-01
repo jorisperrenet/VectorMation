@@ -143,6 +143,8 @@ class PhysicsSpace:
     """
 
     def __init__(self, gravity=(0, 980), dt=1 / 120, start: float = 0.0):
+        if dt <= 0:
+            raise ValueError("PhysicsSpace dt must be > 0")
         self.gravity = gravity
         self.dt = dt
         self.start = start

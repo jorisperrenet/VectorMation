@@ -380,6 +380,8 @@ class Pendulum(VCollection):
         self._pivot_y = pivot_y
         self._length = length
         self._init_angle = math.radians(angle)
+        if period <= 0:
+            raise ValueError("Pendulum period must be > 0")
         self._period = period
         self._damping = damping
         omega = math.tau / period
