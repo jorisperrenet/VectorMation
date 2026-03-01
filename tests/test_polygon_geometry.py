@@ -1,5 +1,4 @@
 """Tests for Polygon geometry methods: winding number, edges, angles, triangulation, etc."""
-import math
 import pytest
 from vectormation.objects import Polygon, RegularPolygon, VCollection
 
