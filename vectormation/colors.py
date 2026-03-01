@@ -132,6 +132,9 @@ class _Gradient:
     def fill_ref(self):
         return f'url(#{self.id})'
 
+    def __repr__(self):
+        return f'{type(self).__name__}({len(self.stops)} stops)'
+
 
 class LinearGradient(_Gradient):
     """SVG linear gradient. stops: list of (offset, color) tuples."""

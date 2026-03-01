@@ -485,6 +485,9 @@ class BrowserViewer:
         self._server = None
         self._needs_rebroadcast = False
 
+    def __repr__(self):
+        return f'BrowserViewer(port={self.port}, fps={self.fps})'
+
     def _process_request(self, _connection, request):
         """Serve the HTML page for non-WebSocket HTTP requests."""
         if request.path == '/ws':
