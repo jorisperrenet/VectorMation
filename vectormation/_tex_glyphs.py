@@ -4,6 +4,9 @@ Built-in Computer Modern glyphs for common characters (digits, letters, signs,
 Greek letters, etc.) are embedded as SVG path data in ``_tex_glyphs_data.py``
 — no LaTeX installation required for these.  Additional glyphs are compiled
 on-demand via LaTeX and cached.
+
+Built-in glyph format: ``(advance_width, y_offset, [(svg_d, transform), ...])``
+All built-in glyphs share a consistent baseline (compiled together in LaTeX).
 """
 import tempfile
 
@@ -13,6 +16,11 @@ from vectormation._tex_glyphs_data import BUILTIN_GLYPHS
 _latex_glyph_cache: dict[str, dict[str, tuple[list, list]]] = {}
 
 _fallback_tex_dir: str | None = None
+
+# Reference height: digit '0' advance width is used for scaling.
+# Pre-compute from the viewBox height of the digit group (9.9626 TeX points).
+# This is the height of the shared viewBox when digits are compiled together.
+_REF_HEIGHT = 6.420368  # abs(viewBox[3]) for standalone digit '0'
 
 
 def _resolve_tex_dir(tex_dir=None) -> str:
@@ -67,23 +75,31 @@ def ensure_glyphs(tokens, tex_dir=None):
 
 
 def _get_glyph(token, tex_dir):
-    """Look up a glyph: built-in first, then LaTeX cache."""
+    """Look up a glyph: built-in first, then LaTeX cache.
+
+    Built-in: ``(advance_width, y_offset, [(d, transform), ...])``
+    LaTeX-compiled: ``(viewbox, [bs4_Tags])`` (legacy format from get_characters)
+    """
     if token in BUILTIN_GLYPHS:
         return BUILTIN_GLYPHS[token]
     cache = _latex_glyph_cache.get(tex_dir, {})
     return cache.get(token)
 
 
-def _ref_height():
-    """Return the reference viewbox height (digit '0') for uniform scaling."""
-    vb = BUILTIN_GLYPHS['0'][0]
-    return abs(vb[3]) if vb[3] else 1
+def _is_builtin(glyph_data):
+    """Check whether glyph_data is built-in format vs LaTeX-compiled format."""
+    # Built-in: (float, float, list)  — advance_width, y_offset, paths
+    # LaTeX:    (list, list)          — viewbox, tags
+    return len(glyph_data) == 3
 
 
 def _char_width(glyph_data, font_size):
     """Return the advance width for a glyph at the given font_size."""
+    base_scale = font_size / _REF_HEIGHT
+    if _is_builtin(glyph_data):
+        return glyph_data[0] * base_scale + font_size * 0.05
+    # LaTeX-compiled: viewbox format [x, y, w, h]
     vb = glyph_data[0]
-    base_scale = font_size / _ref_height()
     return (abs(vb[2]) if vb[2] else 1) * base_scale + font_size * 0.05
 
 
@@ -131,8 +147,7 @@ def _assemble(tokens, x, y, font_size, creation, tex_dir, anchor, styles):
     elif anchor == 'end':
         anchor = 'right'
 
-    ref_h = _ref_height()
-    base_scale = font_size / ref_h
+    base_scale = font_size / _REF_HEIGHT
     space_width = font_size * 0.3
 
     total_w = sum(space_width if g is None else _char_width(g, font_size)
@@ -153,30 +168,34 @@ def _assemble(tokens, x, y, font_size, creation, tex_dir, anchor, styles):
         if glyph_data is None:
             cursor_x += space_width
             continue
-        vb = glyph_data[0]
-        char_width = (abs(vb[2]) if vb[2] else 1) * base_scale
-        # Baseline correction: vb bottom (vb[1]+vb[3]) is 0 for baseline chars,
-        # negative for chars above baseline (°), positive for descenders (,)
-        baseline_offset = (vb[1] + vb[3]) * base_scale
-        st = {**merged,
-              'scale_x': base_scale * merged.get('scale_x', 1),
-              'scale_y': base_scale * merged.get('scale_y', 1)}
 
-        if tok in BUILTIN_GLYPHS:
-            # Built-in: create Path objects directly (no bs4 dependency)
-            paths = glyph_data[1]
+        builtin = _is_builtin(glyph_data)
+
+        if builtin:
+            advance, y_off, paths = glyph_data
+            char_width = advance * base_scale
+            dy_offset = y_off * base_scale
+            st = {**merged,
+                  'scale_x': base_scale * merged.get('scale_x', 1),
+                  'scale_y': base_scale * merged.get('scale_y', 1)}
             for d, transform in paths:
                 obj = _make_path_obj(d, transform, **st)
                 obj.styling.dx.set_onward(creation, cursor_x)
-                obj.styling.dy.set_onward(creation, y + baseline_offset)
+                obj.styling.dy.set_onward(creation, y + dy_offset)
                 objects.append(obj)
         else:
-            # LaTeX-compiled: glyph_data[1] is list of bs4 Tags
+            # LaTeX-compiled: glyph_data = (viewbox, [bs4_Tags])
+            vb = glyph_data[0]
+            char_width = (abs(vb[2]) if vb[2] else 1) * base_scale
+            st = {**merged,
+                  'scale_x': base_scale * merged.get('scale_x', 1),
+                  'scale_y': base_scale * merged.get('scale_y', 1)}
             for char_svg in glyph_data[1]:
                 obj = from_svg(char_svg, **st)
                 obj.styling.dx.set_onward(creation, cursor_x)
-                obj.styling.dy.set_onward(creation, y + baseline_offset)
+                obj.styling.dy.set_onward(creation, y)
                 objects.append(obj)
+
         cursor_x += char_width + font_size * 0.05
 
     return VCollection(*objects, creation=creation)

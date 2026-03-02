@@ -11,25 +11,127 @@ Use ``python examples/<name>.py -v`` for verbose logging or ``--no-display`` to 
 
 Manim comparison examples are in ``examples/manim/`` (see :doc:`vs Manim <vs_manim>`).
 
-.. admonition:: Example: AnimationShowcase
+Animations
+----------
+
+.. admonition:: Example: AnimationsCreation
    :class: example
 
    .. raw:: html
 
-      <video src="_static/videos/animation_showcase.mp4" controls autoplay loop muted></video>
+      <video src="_static/videos/animations_creation.mp4" controls autoplay loop muted></video>
 
-   A comprehensive showcase of all animation methods: appearance, drawing, movement, scaling, rotation, effects, and transforms.
+   Creation and destruction animations: ``fadein``, ``fadeout``, ``write``, ``create``, ``draw_along``, ``slide_in``, ``slide_out``, ``zoom_in``, ``zoom_out``, ``rotate_in``, ``pop_in``, ``wipe``, ``elastic_in``, ``elastic_out``.
 
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/animation_showcase.py
+      .. literalinclude:: ../../examples/animations_creation.py
          :language: python
          :start-after: set_background
          :end-before: if args
 
-Animations
-----------
+.. admonition:: Example: AnimationsMovement
+   :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/animations_movement.mp4" controls autoplay loop muted></video>
+
+   Movement animations: ``shift``, ``move_to``, ``to_edge``, ``to_corner``, ``along_path``, ``path_arc``, ``orbit``, ``spiral_in``, ``spiral_out``.
+
+   .. dropdown:: Show code
+      :class-container: sd-shadow-none
+
+      .. literalinclude:: ../../examples/animations_movement.py
+         :language: python
+         :start-after: set_background
+         :end-before: if args
+
+.. admonition:: Example: AnimationsEffects
+   :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/animations_effects.mp4" controls autoplay loop muted></video>
+
+   Visual effects: ``shake``, ``jiggle``, ``glitch``, ``bounce``, ``wiggle``, ``wave``, ``rubber_band``, ``emphasize``, ``spring``, ``ripple``, ``pulsate``, ``indicate``, ``flash``, ``circumscribe``.
+
+   .. dropdown:: Show code
+      :class-container: sd-shadow-none
+
+      .. literalinclude:: ../../examples/animations_effects.py
+         :language: python
+         :start-after: set_background
+         :end-before: if args
+
+.. admonition:: Example: AnimationsColor
+   :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/animations_color.mp4" controls autoplay loop muted></video>
+
+   Color animations: ``set_color``, ``set_fill``, ``set_stroke``, ``color_cycle``, ``flash_color``, ``pulse_color``, ``set_color_by_gradient``.
+
+   .. dropdown:: Show code
+      :class-container: sd-shadow-none
+
+      .. literalinclude:: ../../examples/animations_color.py
+         :language: python
+         :start-after: set_background
+         :end-before: if args
+
+.. admonition:: Example: AnimationsText
+   :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/animations_text.mp4" controls autoplay loop muted></video>
+
+   Text-specific animations: ``typewrite``, ``untype``, ``scramble``, ``typing``, ``reveal_by_word``, ``highlight_substring``.
+
+   .. dropdown:: Show code
+      :class-container: sd-shadow-none
+
+      .. literalinclude:: ../../examples/animations_text.py
+         :language: python
+         :start-after: set_background
+         :end-before: if args
+
+.. admonition:: Example: AnimationsVCollection
+   :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/animations_vcollection.mp4" controls autoplay loop muted></video>
+
+   VCollection animations: ``stagger``, ``stagger_fadein``, ``stagger_fadeout``, ``wave_anim``, ``wave_effect``, ``reveal``, ``rotate_children``.
+
+   .. dropdown:: Show code
+      :class-container: sd-shadow-none
+
+      .. literalinclude:: ../../examples/animations_vcollection.py
+         :language: python
+         :start-after: set_background
+         :end-before: if args
+
+.. admonition:: Example: AnimationsCounters
+   :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/animations_counters.mp4" controls autoplay loop muted></video>
+
+   Counter animations: ``CountAnimation``, ``DecimalNumber``, ``Integer``, ``ValueTracker``, ``Variable``, with TeX-rendered counterparts using ``TexCountAnimation``.
+
+   .. dropdown:: Show code
+      :class-container: sd-shadow-none
+
+      .. literalinclude:: ../../examples/animations_counters.py
+         :language: python
+         :start-after: set_background
+         :end-before: if args
 
 .. admonition:: Example: Morphing
    :class: example
@@ -58,65 +160,6 @@ Animations
       :language: python
       :start-after: set_background
       :end-before: if not
-
-.. admonition:: Example: EasingPreview
-   :class: example
-
-   .. raw:: html
-
-      <video src="_static/videos/easing_preview.mp4" controls autoplay loop muted></video>
-
-   All 18 easing functions visualised side-by-side. Each dot travels its track using a different easing curve.
-
-   .. dropdown:: Show code
-      :class-container: sd-shadow-none
-
-      .. literalinclude:: ../../examples/easing_preview.py
-         :language: python
-         :start-after: set_background
-         :end-before: if not
-
-.. admonition:: Example: AnimationsShowcase
-   :class: example
-
-   .. raw:: html
-
-      <video src="_static/videos/animations_showcase_example.mp4" controls autoplay loop muted></video>
-
-   A grid of labelled effects -- shake, swing, wiggle, pulse, jiggle, rubber band, emphasize, and bounce -- each applied to a different shape.
-
-   .. literalinclude:: ../../examples/animations_showcase_example.py
-      :language: python
-      :start-after: set_background
-      :end-before: if not
-
-.. admonition:: Example: CollectionAnimations
-   :class: example
-
-   .. raw:: html
-
-      <video src="_static/videos/collection_animations_example.mp4" controls autoplay loop muted></video>
-
-   VCollection animation methods demonstrated on groups of circles, rectangles, and stars: stagger, cascade, wave, and spin.
-
-   .. literalinclude:: ../../examples/collection_animations_example.py
-      :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
-
-.. admonition:: Example: CombinedAnimations
-   :class: example
-
-   .. raw:: html
-
-      <video src="_static/videos/combined_animations_example.mp4" controls autoplay loop muted></video>
-
-   Combined animation methods: ``create_then_fadeout``, ``fadein_then_fadeout``, and chained sequences on circles, rectangles, and stars.
-
-   .. literalinclude:: ../../examples/combined_animations_example.py
-      :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 .. admonition:: Example: CurveEffects
    :class: example
@@ -460,48 +503,6 @@ Data Structures
 Animation Effects
 -----------------
 
-.. admonition:: Example: FadeInShift
-   :class: example
-
-   .. raw:: html
-
-      <video src="_static/videos/fadein_shift_example.mp4" controls autoplay loop muted></video>
-
-   Objects fade in from different directions using directional shifts.
-
-   .. literalinclude:: ../../examples/fadein_shift_example.py
-      :language: python
-      :start-after: set_background
-      :end-before: if not
-
-.. admonition:: Example: Bounce
-   :class: example
-
-   .. raw:: html
-
-      <video src="_static/videos/bounce_example.mp4" controls autoplay loop muted></video>
-
-   Bouncing entrance and exit animations using elastic and bounce easings.
-
-   .. literalinclude:: ../../examples/bounce_example.py
-      :language: python
-      :start-after: set_background
-      :end-before: if not
-
-.. admonition:: Example: Ripple
-   :class: example
-
-   .. raw:: html
-
-      <video src="_static/videos/ripple_example.mp4" controls autoplay loop muted></video>
-
-   Ripple effect expanding outward from shapes.
-
-   .. literalinclude:: ../../examples/ripple_example.py
-      :language: python
-      :start-after: set_background
-      :end-before: if not
-
 .. admonition:: Example: Orbit
    :class: example
 
@@ -516,20 +517,6 @@ Animation Effects
       :start-after: set_background
       :end-before: if not
 
-.. admonition:: Example: PopAndFloat
-   :class: example
-
-   .. raw:: html
-
-      <video src="_static/videos/pop_and_float_example.mp4" controls autoplay loop muted></video>
-
-   Objects pop in with overshoot and then gently float up and down.
-
-   .. literalinclude:: ../../examples/pop_and_float_example.py
-      :language: python
-      :start-after: set_background
-      :end-before: if not
-
 .. admonition:: Example: CascadeShake
    :class: example
 
@@ -540,48 +527,6 @@ Animation Effects
    Staggered cascade animation with shake effects on a group of objects.
 
    .. literalinclude:: ../../examples/cascade_shake_example.py
-      :language: python
-      :start-after: set_background
-      :end-before: if not
-
-.. admonition:: Example: CrossoutPulse
-   :class: example
-
-   .. raw:: html
-
-      <video src="_static/videos/crossout_pulse_example.mp4" controls autoplay loop muted></video>
-
-   Cross out and pulse animations for emphasis and attention.
-
-   .. literalinclude:: ../../examples/crossout_pulse_example.py
-      :language: python
-      :start-after: set_background
-      :end-before: if not
-
-.. admonition:: Example: SlideInOut
-   :class: example
-
-   .. raw:: html
-
-      <video src="_static/videos/slide_example.mp4" controls autoplay loop muted></video>
-
-   Slide in / slide out entrance and exit animations from different edges.
-
-   .. literalinclude:: ../../examples/slide_example.py
-      :language: python
-      :start-after: set_background
-      :end-before: if not
-
-.. admonition:: Example: WipeUnderline
-   :class: example
-
-   .. raw:: html
-
-      <video src="_static/videos/wipe_underline_example.mp4" controls autoplay loop muted></video>
-
-   Wipe transition and animated text underline.
-
-   .. literalinclude:: ../../examples/wipe_underline_example.py
       :language: python
       :start-after: set_background
       :end-before: if not
@@ -638,20 +583,6 @@ Animation Effects
    Stem plot, grouped bar chart, ``trail`` ghost images, and ``uncreate`` reverse-draw animation.
 
    .. literalinclude:: ../../examples/stem_grouped_example.py
-      :language: python
-      :start-after: set_background
-      :end-before: if not
-
-.. admonition:: Example: SplineFollow
-   :class: example
-
-   .. raw:: html
-
-      <video src="_static/videos/spline_follow_example.mp4" controls autoplay loop muted></video>
-
-   A circle follows a smooth spline through waypoints using ``along_path``.
-
-   .. literalinclude:: ../../examples/spline_follow_example.py
       :language: python
       :start-after: set_background
       :end-before: if not
@@ -1441,20 +1372,6 @@ Styling & Effects
       :start-after: set_background
       :end-before: if not
 
-.. admonition:: Example: SaveRestore
-   :class: example
-
-   .. raw:: html
-
-      <video src="_static/videos/save_restore_example.mp4" controls autoplay loop muted></video>
-
-   Save an object's state (position, colour), modify it, then restore the original state.
-
-   .. literalinclude:: ../../examples/save_restore_example.py
-      :language: python
-      :start-after: set_background
-      :end-before: if not
-
 .. admonition:: Example: Clone
    :class: example
 
@@ -1524,20 +1441,6 @@ Camera
    Camera focus/zoom on individual objects, then reset to full view.
 
    .. literalinclude:: ../../examples/focus_camera_example.py
-      :language: python
-      :start-after: set_background
-      :end-before: if not
-
-.. admonition:: Example: Zoom
-   :class: example
-
-   .. raw:: html
-
-      <video src="_static/videos/zoom_example.mp4" controls autoplay loop muted></video>
-
-   Camera zoom and pan to inspect details of a scene.
-
-   .. literalinclude:: ../../examples/zoom_example.py
       :language: python
       :start-after: set_background
       :end-before: if not
