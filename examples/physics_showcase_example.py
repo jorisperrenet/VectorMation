@@ -31,5 +31,7 @@ space2.add_walls(left=1200, right=1700, bottom=900)
 space2.simulate(duration=8)
 
 v.add(ball1, ball2, ball3, anchor, weight)
+if args.verbose:
+    v.export_video('docs/source/_static/videos/physics_showcase_example.mp4', fps=30, end=8)
 if not args.no_display:
     v.browser_display(end=args.duration or 8, fps=args.fps, port=args.port, hot_reload=args.hot_reload)

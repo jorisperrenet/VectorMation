@@ -42,5 +42,7 @@ for obj in [title, c, flash_c, flash_label, poly, sub, sub_label, ax, tangent, t
     obj.fadeout(start=9, end=9.8)
 
 v.add(title, c, flash_c, flash_label, poly, sub, sub_label, ax, tangent, tan_label)
+if args.verbose:
+    v.export_video('docs/source/_static/videos/curve_effects_example.mp4', fps=30, end=10)
 if not args.no_display:
     v.browser_display(end=args.duration or 10, fps=args.fps, port=args.port, hot_reload=args.hot_reload)

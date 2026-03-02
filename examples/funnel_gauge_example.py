@@ -66,5 +66,7 @@ canvas.add_objects(title, funnel, treemap, gauge,
                    spark1, spark2, spark3,
                    funnel_label, treemap_label, gauge_label, spark_label)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/funnel_gauge_example.mp4', fps=30, end=3)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

@@ -5903,25 +5903,25 @@ class TestAppearFrom:
         assert tgt.show.at_time(1.5) is True
 
 
-class TestAnimateEach:
-    def test_animate_each_fadein(self):
+class TestStagger:
+    def test_stagger_fadein(self):
         a = Circle(r=10)
         b = Circle(r=20)
         c = Circle(r=30)
         col = VCollection(a, b, c)
-        result = col.animate_each('fadein', start=0, end=3)
+        result = col.stagger('fadein', start=0, end=3)
         assert result is col
 
-    def test_animate_each_empty(self):
+    def test_stagger_empty(self):
         col = VCollection()
-        result = col.animate_each('fadein', start=0, end=1)
+        result = col.stagger('fadein', start=0, end=1)
         assert result is col
 
-    def test_animate_each_reverse(self):
+    def test_stagger_two(self):
         a = Circle(r=10)
         b = Circle(r=20)
         col = VCollection(a, b)
-        result = col.animate_each('fadein', start=0, end=2, reverse=True)
+        result = col.stagger('fadein', start=0, end=2)
         assert result is col
 
 
@@ -7672,19 +7672,19 @@ class TestGrowFromCorner:
         assert c.show.at_time(0.5) == True
 
 
-class TestApplySequentially:
-    def test_apply_sequentially_returns_self(self):
+class TestStaggerOverlap0:
+    def test_stagger_overlap_0_returns_self(self):
         grp = VCollection(Circle(r=20, cx=100, cy=100),
                           Circle(r=20, cx=200, cy=100))
-        result = grp.apply_sequentially('fadein', start=0, end=2)
+        result = grp.stagger('fadein', start=0, end=2, overlap=0)
         assert result is grp
 
-    def test_apply_sequentially_divides_time_equally(self):
+    def test_stagger_overlap_0_divides_time_equally(self):
         c1 = Circle(r=20, cx=100, cy=100)
         c2 = Circle(r=20, cx=200, cy=100)
         c3 = Circle(r=20, cx=300, cy=100)
         grp = VCollection(c1, c2, c3)
-        grp.apply_sequentially('fadein', start=0, end=3)
+        grp.stagger('fadein', start=0, end=3, overlap=0)
         # c1 should be visible at t=0.5 (its range is 0-1)
         assert c1.show.at_time(0.5) == True
         # c2 should NOT be visible at t=0.5 (its range is 1-2)
@@ -7694,15 +7694,15 @@ class TestApplySequentially:
         # c3 should be visible at t=2.5
         assert c3.show.at_time(2.5) == True
 
-    def test_apply_sequentially_empty_collection(self):
+    def test_stagger_overlap_0_empty_collection(self):
         grp = VCollection()
-        result = grp.apply_sequentially('fadein', start=0, end=1)
+        result = grp.stagger('fadein', start=0, end=1, overlap=0)
         assert result is grp
 
-    def test_apply_sequentially_single_child(self):
+    def test_stagger_overlap_0_single_child(self):
         c = Circle(r=20, cx=100, cy=100)
         grp = VCollection(c)
-        grp.apply_sequentially('fadein', start=0, end=2)
+        grp.stagger('fadein', start=0, end=2, overlap=0)
         # The single child gets the full range 0-2
         assert c.show.at_time(0.5) == True
         assert c.show.at_time(2.5) == True
@@ -8687,66 +8687,6 @@ class TestPendulum:
         assert rot[2] == pytest.approx(300, abs=1)
 
 
-class TestTypewriterReveal:
-    def test_typewriter_reveal_returns_self(self):
-        """typewriter_reveal should return self for chaining."""
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.typewriter_reveal(start=0, end=1)
-        assert result is c
-
-    def test_typewriter_reveal_shows_from_start(self):
-        """The object should be visible from start time onward."""
-        c = Circle(r=50, cx=100, cy=100)
-        c.typewriter_reveal(start=1, end=2)
-        assert c.show.at_time(0) is not True or c.show.at_time(0) == 0
-        assert c.show.at_time(1)
-
-    def test_typewriter_reveal_clip_at_start(self):
-        """At start time, the clip-path should fully hide the object (100% inset)."""
-        c = Circle(r=50, cx=100, cy=100)
-        c.typewriter_reveal(start=0, end=1, direction='right', easing=easings.linear)
-        clip = c.styling.clip_path.at_time(0)
-        # At t=0 with linear easing, progress=0, so inset should be 100%
-        assert '100' in clip
-
-    def test_typewriter_reveal_clip_at_end(self):
-        """At end time, the clip-path should be fully removed (0% inset)."""
-        c = Circle(r=50, cx=100, cy=100)
-        c.typewriter_reveal(start=0, end=1, direction='right', easing=easings.linear)
-        clip = c.styling.clip_path.at_time(1)
-        assert '0.0%' in clip
-
-    def test_typewriter_reveal_direction_left(self):
-        """Left direction should use the left inset position."""
-        c = Circle(r=50, cx=100, cy=100)
-        c.typewriter_reveal(start=0, end=1, direction='left', easing=easings.linear)
-        clip = c.styling.clip_path.at_time(0.5)
-        # At 50%, left inset should be at 50%
-        assert 'inset(0 0 0' in clip
-
-    def test_typewriter_reveal_direction_down(self):
-        """Down direction should use the bottom inset position."""
-        c = Circle(r=50, cx=100, cy=100)
-        c.typewriter_reveal(start=0, end=1, direction='down', easing=easings.linear)
-        clip = c.styling.clip_path.at_time(0.5)
-        assert 'inset(0 0' in clip
-
-    def test_typewriter_reveal_direction_up(self):
-        """Up direction should use the top inset position."""
-        c = Circle(r=50, cx=100, cy=100)
-        c.typewriter_reveal(start=0, end=1, direction='up', easing=easings.linear)
-        clip = c.styling.clip_path.at_time(0.5)
-        assert 'inset(' in clip
-
-    def test_typewriter_reveal_zero_duration_noop(self):
-        """typewriter_reveal with zero duration should be a no-op."""
-        c = Circle(r=50, cx=100, cy=100)
-        c.typewriter_reveal(start=1, end=1)
-        # clip_path should not have been set to a function
-        clip = c.styling.clip_path.at_time(1)
-        assert clip == '' or clip == 0 or clip == '0'
-
-
 class TestTelegraph:
     def test_telegraph_returns_self(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -9216,69 +9156,6 @@ class TestZoomTo:
         vb_h = canvas.vb_h.at_time(1)
         canvas_aspect = 1920 / 1080
         assert vb_w / vb_h == pytest.approx(canvas_aspect, abs=0.01)
-
-
-class TestTypewriterDelete:
-    """Tests for VObject.typewriter_delete — progressive clip-path removal."""
-
-    def test_returns_self(self):
-        c = Circle(r=50, cx=400, cy=400)
-        result = c.typewriter_delete(start=0, end=1)
-        assert result is c
-
-    def test_hidden_after_end(self):
-        c = Circle(r=50, cx=400, cy=400)
-        c.typewriter_delete(start=0, end=1)
-        assert c.show.at_time(1.5) is False
-
-    def test_visible_before_start(self):
-        c = Circle(r=50, cx=400, cy=400)
-        c.typewriter_delete(start=1, end=2)
-        # Object should be visible before the delete starts
-        assert c.show.at_time(0.5) is True
-
-    def test_clip_path_set_during_animation(self):
-        c = Circle(r=50, cx=400, cy=400)
-        c.typewriter_delete(start=0, end=1, easing=easings.linear)
-        clip = c.styling.clip_path.at_time(0.5)
-        assert 'inset' in clip
-
-    def test_clip_fully_hidden_at_end(self):
-        c = Circle(r=50, cx=400, cy=400)
-        c.typewriter_delete(start=0, end=1, direction='right', easing=easings.linear)
-        clip = c.styling.clip_path.at_time(1)
-        # At progress=1.0, the inset should clip everything (100% from right)
-        assert clip == 'inset(0 100.0% 0 0)'
-
-    def test_clip_fully_visible_at_start(self):
-        c = Circle(r=50, cx=400, cy=400)
-        c.typewriter_delete(start=0, end=1, direction='right', easing=easings.linear)
-        clip = c.styling.clip_path.at_time(0)
-        # At progress=0.0, nothing should be clipped (0% from right)
-        assert clip == 'inset(0 0.0% 0 0)'
-
-    def test_direction_left(self):
-        c = Circle(r=50, cx=400, cy=400)
-        c.typewriter_delete(start=0, end=1, direction='left', easing=easings.linear)
-        clip = c.styling.clip_path.at_time(0.5)
-        assert 'inset' in clip
-
-    def test_direction_up(self):
-        c = Circle(r=50, cx=400, cy=400)
-        c.typewriter_delete(start=0, end=1, direction='up', easing=easings.linear)
-        clip = c.styling.clip_path.at_time(0.5)
-        assert 'inset' in clip
-
-    def test_direction_down(self):
-        c = Circle(r=50, cx=400, cy=400)
-        c.typewriter_delete(start=0, end=1, direction='down', easing=easings.linear)
-        clip = c.styling.clip_path.at_time(0.5)
-        assert 'inset' in clip
-
-    def test_zero_duration_noop(self):
-        c = Circle(r=50, cx=400, cy=400)
-        result = c.typewriter_delete(start=1, end=1)
-        assert result is c
 
 
 class TestDomino:
@@ -10497,73 +10374,6 @@ class TestSetBlendMode:
             c = Circle(r=50, cx=100, cy=100)
             c.set_blend_mode(mode)
             assert c.styling.mix_blend_mode.at_time(0) == mode
-
-
-class TestRevealClip:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.reveal_clip(start=0, end=1)
-        assert result is c
-
-    def test_shows_from_start(self):
-        c = Circle(r=50, cx=100, cy=100)
-        c.reveal_clip(start=0.5, end=1.5)
-        assert not c.show.at_time(0.4)
-        assert c.show.at_time(0.5)
-
-    def test_clip_path_set_at_start(self):
-        c = Circle(r=50, cx=100, cy=100)
-        c.reveal_clip(start=0, end=1, direction='left', easing=easings.linear)
-        clip = c.styling.clip_path.at_time(0)
-        # At start, fully clipped (100%)
-        assert 'inset' in clip
-        assert '100' in clip
-
-    def test_clip_path_cleared_at_end(self):
-        c = Circle(r=50, cx=100, cy=100)
-        c.reveal_clip(start=0, end=1, direction='left', easing=easings.linear)
-        clip = c.styling.clip_path.at_time(1)
-        # At end, fully revealed (0%)
-        assert 'inset(0 0.0% 0 0)' == clip
-
-    def test_left_direction(self):
-        c = Circle(r=50, cx=100, cy=100)
-        c.reveal_clip(start=0, end=1, direction='left', easing=easings.linear)
-        clip = c.styling.clip_path.at_time(0.5)
-        # At 50%, right inset should be 50%
-        assert 'inset(0 50.0% 0 0)' == clip
-
-    def test_right_direction(self):
-        c = Circle(r=50, cx=100, cy=100)
-        c.reveal_clip(start=0, end=1, direction='right', easing=easings.linear)
-        clip = c.styling.clip_path.at_time(0.5)
-        # At 50%, left inset should be 50%
-        assert 'inset(0 0 0 50.0%)' == clip
-
-    def test_top_direction(self):
-        c = Circle(r=50, cx=100, cy=100)
-        c.reveal_clip(start=0, end=1, direction='top', easing=easings.linear)
-        clip = c.styling.clip_path.at_time(0.5)
-        # At 50%, bottom inset should be 50%
-        assert 'inset(0 0 50.0% 0)' == clip
-
-    def test_bottom_direction(self):
-        c = Circle(r=50, cx=100, cy=100)
-        c.reveal_clip(start=0, end=1, direction='bottom', easing=easings.linear)
-        clip = c.styling.clip_path.at_time(0.5)
-        # At 50%, top inset should be 50%
-        assert 'inset(50.0% 0 0 0)' == clip
-
-    def test_zero_duration_noop(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.reveal_clip(start=1, end=1)
-        assert result is c
-
-    def test_clip_appears_in_svg(self):
-        c = Circle(r=50, cx=100, cy=100)
-        c.reveal_clip(start=0, end=1, direction='left', easing=easings.linear)
-        svg = c.to_svg(0.5)
-        assert 'clip-path' in svg
 
 
 class TestRepeatAnimation:
@@ -12753,10 +12563,10 @@ class TestCollectionSwapChildren:
         assert result is col
 
 
-class TestCollectionCascade:
-    def test_cascade(self):
+class TestCollectionStagger:
+    def test_stagger(self):
         circles = VCollection(*[Circle(r=10) for _ in range(3)])
-        result = circles.cascade('fadein', start=0, end=1, overlap=0.3)
+        result = circles.stagger('fadein', start=0, end=1, overlap=0.3)
         assert result is circles
 
 
@@ -13352,7 +13162,17 @@ class TestAxesAddCoordinates:
         ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
         result = ax.add_coordinates()
         assert result is ax
-        assert len(ax.objects) > 0
+        assert ax._show_tick_labels is True
+
+    def test_add_coordinates_renders_labels(self):
+        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        svg_without = ax.to_svg(0)
+        ax2 = Axes(x_range=(-2, 2), y_range=(-2, 2))
+        ax2.add_coordinates()
+        svg_with = ax2.to_svg(0)
+        # Labels should appear only with add_coordinates
+        assert '<text' not in svg_without
+        assert '<text' in svg_with
 
     def test_add_grid_returns_self(self):
         ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
@@ -13814,10 +13634,10 @@ class TestShowPassingFlash:
         assert isinstance(result, Path)
 
 
-class TestSequential:
+class TestStaggerOverlap0Sequential:
     def test_returns_self(self):
         g = VGroup(Circle(), Dot())
-        result = g.sequential('fadein', start=0, end=1)
+        result = g.stagger('fadein', start=0, end=1, overlap=0)
         assert result is g
 
 
@@ -19770,14 +19590,14 @@ class TestBohrAtomOrbit:
             assert rot[0] != 0
 
 
-class TestVCollectionCascadeFadein:
+class TestVCollectionStaggerFadeinSorted:
     def test_returns_self(self):
         g = VGroup(Circle(), Rectangle(100, 50))
-        assert g.cascade_fadein(start=0, end=1) is g
+        assert g.stagger_fadein_sorted(start=0, end=1) is g
 
     def test_children_visible_after(self):
         g = VGroup(Circle(), Rectangle(100, 50))
-        g.cascade_fadein(start=0, end=1)
+        g.stagger_fadein_sorted(start=0, end=1)
         for obj in g.objects:
             assert obj.show.at_time(1)
 
@@ -22108,29 +21928,29 @@ class TestStaggerMethods:
         svg = canvas.generate_frame_svg(time=1.0)
         assert '<svg' in svg
 
-    def test_cascade(self):
+    def test_stagger(self):
         circles = VCollection(*[Circle(r=15) for _ in range(4)])
-        result = circles.cascade('fadein', start=0, end=2, overlap=0.5)
+        result = circles.stagger('fadein', start=0, end=2, overlap=0.5)
         assert result is circles
 
-    def test_cascade_overlap_zero(self):
+    def test_stagger_overlap_zero(self):
         rects = VCollection(*[Rectangle(20, 20) for _ in range(3)])
-        result = rects.cascade('fadeout', start=0, end=3, overlap=0)
+        result = rects.stagger('fadeout', start=0, end=3, overlap=0)
         assert result is rects
 
-    def test_cascade_overlap_one(self):
+    def test_stagger_overlap_one(self):
         rects = VCollection(*[Rectangle(20, 20) for _ in range(3)])
-        result = rects.cascade('fadein', start=0, end=1, overlap=1)
+        result = rects.stagger('fadein', start=0, end=1, overlap=1)
         assert result is rects
 
-    def test_cascade_empty(self):
+    def test_stagger_empty(self):
         empty = VCollection()
-        result = empty.cascade('fadein', start=0, end=1)
+        result = empty.stagger('fadein', start=0, end=1)
         assert result is empty
 
-    def test_cascade_renders(self):
+    def test_stagger_renders(self):
         items = VCollection(*[Circle(r=10) for _ in range(3)])
-        items.cascade('fadein', start=0, end=2, overlap=0.3)
+        items.stagger('fadein', start=0, end=2, overlap=0.3)
         canvas = VectorMathAnim(tempfile.mkdtemp())
         canvas.add(items)
         svg = canvas.generate_frame_svg(time=1.0)
@@ -22992,20 +22812,20 @@ class TestPulsateEdgeCases:
         assert result is c
 
 
-class TestCollectionCascadeEdgeCases:
-    """Additional tests for VCollection.cascade()."""
+class TestCollectionStaggerEdgeCases:
+    """Additional tests for VCollection.stagger()."""
 
-    def test_cascade_fadein(self):
+    def test_stagger_fadein(self):
         items = VCollection(Circle(r=20), Rectangle(40, 40), Circle(r=20))
-        items.cascade('fadein', start=0, end=2)
+        items.stagger('fadein', start=0, end=2)
         canvas = VectorMathAnim(tempfile.mkdtemp())
         canvas.add(items)
         svg = canvas.generate_frame_svg(time=1)
         assert '<svg' in svg
 
-    def test_cascade_returns_self(self):
+    def test_stagger_returns_self(self):
         items = VCollection(Circle(r=20), Circle(r=20))
-        result = items.cascade('fadein', start=0, end=1)
+        result = items.stagger('fadein', start=0, end=1)
         assert result is items
 
 

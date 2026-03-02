@@ -557,6 +557,7 @@ PolarAxes
 ---------
 
 .. py:class:: PolarAxes(r_range=(0, 5), cx=960, cy=540, radius=400, **styling)
+   :no-index:
 
    Bases: :py:class:`VCollection`
 
@@ -568,6 +569,7 @@ PolarAxes
    :param float radius: Radius of the outermost circle in pixels.
 
    .. py:method:: polar_to_point(r, theta)
+      :no-index:
 
       Convert polar coordinates ``(r, theta)`` to SVG coordinates.
 
@@ -583,6 +585,7 @@ PieChart
 --------
 
 .. py:class:: PieChart(values, labels=None, colors=None, cx=960, cy=540, r=240, **styling)
+   :no-index:
 
    Bases: :py:class:`VCollection`
 
@@ -593,6 +596,7 @@ PieChart
    :param list colors: Optional list of fill colours (defaults to palette).
 
    .. py:method:: animate_values(new_values, start=0, end=1, easing=smooth)
+      :no-index:
 
       Smoothly transition slice sizes to new values.
 
@@ -608,6 +612,7 @@ BarChart
 --------
 
 .. py:class:: BarChart(values, labels=None, colors=None, x=120, y=60, width=1440, height=840, bar_spacing=0.2, **styling)
+   :no-index:
 
    Bases: :py:class:`VCollection`
 
@@ -619,22 +624,27 @@ BarChart
    :param float bar_spacing: Space between bars (as a fraction, 0-1).
 
    .. py:method:: animate_values(new_values, start=0, end=1, easing=smooth)
+      :no-index:
 
       Smoothly transition bars to new values.
 
    .. py:method:: add_bar(value, label=None, color=None, start=0, end=0.5)
+      :no-index:
 
       Animate adding a new bar to the chart.
 
    .. py:method:: remove_bar(index=-1, start=0, end=0.5)
+      :no-index:
 
       Animate removing a bar.
 
    .. py:method:: animate_sort(key=None, reverse=False, start=0, end=1)
+      :no-index:
 
       Animate bars sliding into sorted order.
 
    .. py:method:: get_bar_by_label(label)
+      :no-index:
 
       Return the bar matching the given label text, or None.
 
@@ -659,6 +669,7 @@ DonutChart
 ----------
 
 .. py:class:: DonutChart(values, labels=None, colors=None, cx=960, cy=540, r=240, inner_radius=120, **styling)
+   :no-index:
 
    Bases: :py:class:`VCollection`
 
@@ -670,6 +681,7 @@ RadarChart
 ----------
 
 .. py:class:: RadarChart(values, labels=None, max_val=None, cx=960, cy=540, radius=250, **styling)
+   :no-index:
 
    Bases: :py:class:`VCollection`
 

@@ -48,5 +48,7 @@ dots.rotate_children(degrees=90, start=4, end=5)
 
 canvas.add_objects(ax, title, dots, label2)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/histogram_rotate_example.mp4', fps=30, end=5)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

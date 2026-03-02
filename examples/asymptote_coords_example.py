@@ -60,5 +60,7 @@ star.pulsate(start=4.5, end=7, n_pulses=4, scale_factor=1.4)
 
 canvas.add_objects(ax, title, dots, star)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/asymptote_coords_example.mp4', fps=30, end=7)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

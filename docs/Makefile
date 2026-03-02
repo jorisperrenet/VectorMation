@@ -38,7 +38,115 @@ VIDEOS = \
 	$(VIDEODIR)/spiral.mp4 \
 	$(VIDEODIR)/three_d_camera.mp4 \
 	$(VIDEODIR)/zoomed_inset.mp4 \
-	$(VIDEODIR)/axes_zoom.mp4
+	$(VIDEODIR)/axes_zoom.mp4 \
+	$(VIDEODIR)/animations_showcase_example.mp4 \
+	$(VIDEODIR)/annotation_untype_example.mp4 \
+	$(VIDEODIR)/array_viz_example.mp4 \
+	$(VIDEODIR)/asymptote_coords_example.mp4 \
+	$(VIDEODIR)/automaton_example.mp4 \
+	$(VIDEODIR)/bar_chart_animate_example.mp4 \
+	$(VIDEODIR)/bar_heartbeat_example.mp4 \
+	$(VIDEODIR)/bohr_atom_example.mp4 \
+	$(VIDEODIR)/bounce_example.mp4 \
+	$(VIDEODIR)/boxplot_band_example.mp4 \
+	$(VIDEODIR)/bubble_donut_example.mp4 \
+	$(VIDEODIR)/callout_example.mp4 \
+	$(VIDEODIR)/candlestick_gantt_example.mp4 \
+	$(VIDEODIR)/cascade_shake_example.mp4 \
+	$(VIDEODIR)/chart_enhance_example.mp4 \
+	$(VIDEODIR)/chart_showcase_example.mp4 \
+	$(VIDEODIR)/checklist_stepper_tagcloud_example.mp4 \
+	$(VIDEODIR)/chess_example.mp4 \
+	$(VIDEODIR)/clone_example.mp4 \
+	$(VIDEODIR)/code_highlight.mp4 \
+	$(VIDEODIR)/code_highlight_lines_example.mp4 \
+	$(VIDEODIR)/collection_animations_example.mp4 \
+	$(VIDEODIR)/combined_animations_example.mp4 \
+	$(VIDEODIR)/complex_plane_example.mp4 \
+	$(VIDEODIR)/contour_quiver_band_example.mp4 \
+	$(VIDEODIR)/crossout_pulse_example.mp4 \
+	$(VIDEODIR)/cursor_dim_example.mp4 \
+	$(VIDEODIR)/curve_effects_example.mp4 \
+	$(VIDEODIR)/dashed_title_example.mp4 \
+	$(VIDEODIR)/data_structures_example.mp4 \
+	$(VIDEODIR)/easing_preview.mp4 \
+	$(VIDEODIR)/electrostatics_example.mp4 \
+	$(VIDEODIR)/errorbar_histogram_boxplot_example.mp4 \
+	$(VIDEODIR)/errorbars_radial_example.mp4 \
+	$(VIDEODIR)/fadein_shift_example.mp4 \
+	$(VIDEODIR)/flowchart_example.mp4 \
+	$(VIDEODIR)/focus_camera_example.mp4 \
+	$(VIDEODIR)/funnel_gauge_example.mp4 \
+	$(VIDEODIR)/gradient_example.mp4 \
+	$(VIDEODIR)/gradient_styling_example.mp4 \
+	$(VIDEODIR)/heatmap_waterfall_example.mp4 \
+	$(VIDEODIR)/highlight_range_example.mp4 \
+	$(VIDEODIR)/histogram_rotate_example.mp4 \
+	$(VIDEODIR)/implicit_curve_example.mp4 \
+	$(VIDEODIR)/implicit_dotplot_example.mp4 \
+	$(VIDEODIR)/kpi_bullet_example.mp4 \
+	$(VIDEODIR)/legend_flip_example.mp4 \
+	$(VIDEODIR)/line_arc_utils_example.mp4 \
+	$(VIDEODIR)/linked_list_example.mp4 \
+	$(VIDEODIR)/network_graph_example.mp4 \
+	$(VIDEODIR)/network_tree_example.mp4 \
+	$(VIDEODIR)/neural_network_example.mp4 \
+	$(VIDEODIR)/number_plane_transform_example.mp4 \
+	$(VIDEODIR)/numberline_pointer_example.mp4 \
+	$(VIDEODIR)/optics_example.mp4 \
+	$(VIDEODIR)/orbit_example.mp4 \
+	$(VIDEODIR)/parametric_curve_example.mp4 \
+	$(VIDEODIR)/pendulum_example.mp4 \
+	$(VIDEODIR)/physics_bouncing_balls.mp4 \
+	$(VIDEODIR)/physics_cloth.mp4 \
+	$(VIDEODIR)/physics_showcase_example.mp4 \
+	$(VIDEODIR)/physics_spring.mp4 \
+	$(VIDEODIR)/polar_plot_example.mp4 \
+	$(VIDEODIR)/pop_and_float_example.mp4 \
+	$(VIDEODIR)/progress_bar_example.mp4 \
+	$(VIDEODIR)/progress_scoreboard_example.mp4 \
+	$(VIDEODIR)/radar_chart_example.mp4 \
+	$(VIDEODIR)/ribbon_swarm_heatmap_example.mp4 \
+	$(VIDEODIR)/ripple_example.mp4 \
+	$(VIDEODIR)/sankey_lollipop_example.mp4 \
+	$(VIDEODIR)/save_restore_example.mp4 \
+	$(VIDEODIR)/scatter_arc_example.mp4 \
+	$(VIDEODIR)/scatter_colorwave_example.mp4 \
+	$(VIDEODIR)/science_showcase_example.mp4 \
+	$(VIDEODIR)/scramble_text_example.mp4 \
+	$(VIDEODIR)/slide_example.mp4 \
+	$(VIDEODIR)/slope_wave_example.mp4 \
+	$(VIDEODIR)/speech_badge_divider_example.mp4 \
+	$(VIDEODIR)/spiral_secant_example.mp4 \
+	$(VIDEODIR)/spline_follow_example.mp4 \
+	$(VIDEODIR)/spring_grid_example.mp4 \
+	$(VIDEODIR)/stack_viz_example.mp4 \
+	$(VIDEODIR)/standing_wave_example.mp4 \
+	$(VIDEODIR)/status_meter_breadcrumb_example.mp4 \
+	$(VIDEODIR)/stem_grouped_example.mp4 \
+	$(VIDEODIR)/step_squish_example.mp4 \
+	$(VIDEODIR)/stream_lines_example.mp4 \
+	$(VIDEODIR)/table_highlight_example.mp4 \
+	$(VIDEODIR)/tangent_arealabel_example.mp4 \
+	$(VIDEODIR)/tangent_line_example.mp4 \
+	$(VIDEODIR)/text_highlight_example.mp4 \
+	$(VIDEODIR)/textbox_bracket_icongrid_example.mp4 \
+	$(VIDEODIR)/trace_area_example.mp4 \
+	$(VIDEODIR)/trace_elastic_example.mp4 \
+	$(VIDEODIR)/trail_reveal_example.mp4 \
+	$(VIDEODIR)/transform_from_copy_example.mp4 \
+	$(VIDEODIR)/tree_example.mp4 \
+	$(VIDEODIR)/typewrite_example.mp4 \
+	$(VIDEODIR)/ui_showcase_example.mp4 \
+	$(VIDEODIR)/variable_example.mp4 \
+	$(VIDEODIR)/vector_field_axes_example.mp4 \
+	$(VIDEODIR)/vector_field_example.mp4 \
+	$(VIDEODIR)/vector_sort_example.mp4 \
+	$(VIDEODIR)/venn_org_example.mp4 \
+	$(VIDEODIR)/waffle_mindmap_example.mp4 \
+	$(VIDEODIR)/wipe_underline_example.mp4 \
+	$(VIDEODIR)/zeroline_warp_example.mp4 \
+	$(VIDEODIR)/zoom_example.mp4
 
 SVGS = \
 	$(VIDEODIR)/brace_annotation.svg \
@@ -52,7 +160,9 @@ SVGS = \
 	$(VIDEODIR)/three_d_helix.svg \
 	$(VIDEODIR)/three_d_sphere.svg \
 	$(VIDEODIR)/three_d_surface_plot.svg \
-	$(VIDEODIR)/vector_arrow.svg
+	$(VIDEODIR)/vector_arrow.svg \
+	$(VIDEODIR)/code_explanation.svg \
+	$(VIDEODIR)/graph_example.svg
 
 ASSETS = $(VIDEOS) $(SVGS)
 
@@ -132,6 +242,336 @@ $(VIDEODIR)/speed_and_sections.mp4: $(EXDIR)/speed_and_sections.py $(LIB) | $(VI
 
 $(VIDEODIR)/axes_zoom.mp4: $(EXDIR)/axes_zoom.py $(LIB) | $(VIDEODIR)
 	cd $(ROOTDIR) && $(PYTHON) examples/axes_zoom.py -v --no-display
+
+$(VIDEODIR)/animations_showcase_example.mp4: $(EXDIR)/animations_showcase_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/animations_showcase_example.py -v --no-display
+
+$(VIDEODIR)/annotation_untype_example.mp4: $(EXDIR)/annotation_untype_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/annotation_untype_example.py -v --no-display
+
+$(VIDEODIR)/array_viz_example.mp4: $(EXDIR)/array_viz_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/array_viz_example.py -v --no-display
+
+$(VIDEODIR)/asymptote_coords_example.mp4: $(EXDIR)/asymptote_coords_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/asymptote_coords_example.py -v --no-display
+
+$(VIDEODIR)/automaton_example.mp4: $(EXDIR)/automaton_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/automaton_example.py -v --no-display
+
+$(VIDEODIR)/bar_chart_animate_example.mp4: $(EXDIR)/bar_chart_animate_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/bar_chart_animate_example.py -v --no-display
+
+$(VIDEODIR)/bar_heartbeat_example.mp4: $(EXDIR)/bar_heartbeat_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/bar_heartbeat_example.py -v --no-display
+
+$(VIDEODIR)/bohr_atom_example.mp4: $(EXDIR)/bohr_atom_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/bohr_atom_example.py -v --no-display
+
+$(VIDEODIR)/bounce_example.mp4: $(EXDIR)/bounce_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/bounce_example.py -v --no-display
+
+$(VIDEODIR)/boxplot_band_example.mp4: $(EXDIR)/boxplot_band_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/boxplot_band_example.py -v --no-display
+
+$(VIDEODIR)/bubble_donut_example.mp4: $(EXDIR)/bubble_donut_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/bubble_donut_example.py -v --no-display
+
+$(VIDEODIR)/callout_example.mp4: $(EXDIR)/callout_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/callout_example.py -v --no-display
+
+$(VIDEODIR)/candlestick_gantt_example.mp4: $(EXDIR)/candlestick_gantt_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/candlestick_gantt_example.py -v --no-display
+
+$(VIDEODIR)/cascade_shake_example.mp4: $(EXDIR)/cascade_shake_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/cascade_shake_example.py -v --no-display
+
+$(VIDEODIR)/chart_enhance_example.mp4: $(EXDIR)/chart_enhance_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/chart_enhance_example.py -v --no-display
+
+$(VIDEODIR)/chart_showcase_example.mp4: $(EXDIR)/chart_showcase_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/chart_showcase_example.py -v --no-display
+
+$(VIDEODIR)/checklist_stepper_tagcloud_example.mp4: $(EXDIR)/checklist_stepper_tagcloud_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/checklist_stepper_tagcloud_example.py -v --no-display
+
+$(VIDEODIR)/chess_example.mp4: $(EXDIR)/chess_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/chess_example.py -v --no-display
+
+$(VIDEODIR)/clone_example.mp4: $(EXDIR)/clone_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/clone_example.py -v --no-display
+
+$(VIDEODIR)/code_explanation.svg: $(EXDIR)/code_explanation.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/code_explanation.py -v --no-display
+
+$(VIDEODIR)/code_highlight.mp4: $(EXDIR)/code_highlight.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/code_highlight.py -v --no-display
+
+$(VIDEODIR)/code_highlight_lines_example.mp4: $(EXDIR)/code_highlight_lines_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/code_highlight_lines_example.py -v --no-display
+
+$(VIDEODIR)/collection_animations_example.mp4: $(EXDIR)/collection_animations_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/collection_animations_example.py -v --no-display
+
+$(VIDEODIR)/combined_animations_example.mp4: $(EXDIR)/combined_animations_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/combined_animations_example.py -v --no-display
+
+$(VIDEODIR)/complex_plane_example.mp4: $(EXDIR)/complex_plane_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/complex_plane_example.py -v --no-display
+
+$(VIDEODIR)/contour_quiver_band_example.mp4: $(EXDIR)/contour_quiver_band_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/contour_quiver_band_example.py -v --no-display
+
+$(VIDEODIR)/crossout_pulse_example.mp4: $(EXDIR)/crossout_pulse_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/crossout_pulse_example.py -v --no-display
+
+$(VIDEODIR)/cursor_dim_example.mp4: $(EXDIR)/cursor_dim_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/cursor_dim_example.py -v --no-display
+
+$(VIDEODIR)/curve_effects_example.mp4: $(EXDIR)/curve_effects_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/curve_effects_example.py -v --no-display
+
+$(VIDEODIR)/dashed_title_example.mp4: $(EXDIR)/dashed_title_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/dashed_title_example.py -v --no-display
+
+$(VIDEODIR)/data_structures_example.mp4: $(EXDIR)/data_structures_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/data_structures_example.py -v --no-display
+
+$(VIDEODIR)/easing_preview.mp4: $(EXDIR)/easing_preview.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/easing_preview.py -v --no-display
+
+$(VIDEODIR)/electrostatics_example.mp4: $(EXDIR)/electrostatics_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/electrostatics_example.py -v --no-display
+
+$(VIDEODIR)/errorbar_histogram_boxplot_example.mp4: $(EXDIR)/errorbar_histogram_boxplot_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/errorbar_histogram_boxplot_example.py -v --no-display
+
+$(VIDEODIR)/errorbars_radial_example.mp4: $(EXDIR)/errorbars_radial_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/errorbars_radial_example.py -v --no-display
+
+$(VIDEODIR)/fadein_shift_example.mp4: $(EXDIR)/fadein_shift_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/fadein_shift_example.py -v --no-display
+
+$(VIDEODIR)/flowchart_example.mp4: $(EXDIR)/flowchart_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/flowchart_example.py -v --no-display
+
+$(VIDEODIR)/focus_camera_example.mp4: $(EXDIR)/focus_camera_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/focus_camera_example.py -v --no-display
+
+$(VIDEODIR)/funnel_gauge_example.mp4: $(EXDIR)/funnel_gauge_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/funnel_gauge_example.py -v --no-display
+
+$(VIDEODIR)/gradient_example.mp4: $(EXDIR)/gradient_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/gradient_example.py -v --no-display
+
+$(VIDEODIR)/gradient_styling_example.mp4: $(EXDIR)/gradient_styling_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/gradient_styling_example.py -v --no-display
+
+$(VIDEODIR)/graph_example.svg: $(EXDIR)/graph_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/graph_example.py -v --no-display
+
+$(VIDEODIR)/heatmap_waterfall_example.mp4: $(EXDIR)/heatmap_waterfall_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/heatmap_waterfall_example.py -v --no-display
+
+$(VIDEODIR)/highlight_range_example.mp4: $(EXDIR)/highlight_range_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/highlight_range_example.py -v --no-display
+
+$(VIDEODIR)/histogram_rotate_example.mp4: $(EXDIR)/histogram_rotate_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/histogram_rotate_example.py -v --no-display
+
+$(VIDEODIR)/implicit_curve_example.mp4: $(EXDIR)/implicit_curve_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/implicit_curve_example.py -v --no-display
+
+$(VIDEODIR)/implicit_dotplot_example.mp4: $(EXDIR)/implicit_dotplot_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/implicit_dotplot_example.py -v --no-display
+
+$(VIDEODIR)/kpi_bullet_example.mp4: $(EXDIR)/kpi_bullet_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/kpi_bullet_example.py -v --no-display
+
+$(VIDEODIR)/legend_flip_example.mp4: $(EXDIR)/legend_flip_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/legend_flip_example.py -v --no-display
+
+$(VIDEODIR)/line_arc_utils_example.mp4: $(EXDIR)/line_arc_utils_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/line_arc_utils_example.py -v --no-display
+
+$(VIDEODIR)/linked_list_example.mp4: $(EXDIR)/linked_list_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/linked_list_example.py -v --no-display
+
+$(VIDEODIR)/network_graph_example.mp4: $(EXDIR)/network_graph_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/network_graph_example.py -v --no-display
+
+$(VIDEODIR)/network_tree_example.mp4: $(EXDIR)/network_tree_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/network_tree_example.py -v --no-display
+
+$(VIDEODIR)/neural_network_example.mp4: $(EXDIR)/neural_network_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/neural_network_example.py -v --no-display
+
+$(VIDEODIR)/number_plane_transform_example.mp4: $(EXDIR)/number_plane_transform_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/number_plane_transform_example.py -v --no-display
+
+$(VIDEODIR)/numberline_pointer_example.mp4: $(EXDIR)/numberline_pointer_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/numberline_pointer_example.py -v --no-display
+
+$(VIDEODIR)/optics_example.mp4: $(EXDIR)/optics_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/optics_example.py -v --no-display
+
+$(VIDEODIR)/orbit_example.mp4: $(EXDIR)/orbit_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/orbit_example.py -v --no-display
+
+$(VIDEODIR)/parametric_curve_example.mp4: $(EXDIR)/parametric_curve_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/parametric_curve_example.py -v --no-display
+
+$(VIDEODIR)/pendulum_example.mp4: $(EXDIR)/pendulum_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/pendulum_example.py -v --no-display
+
+$(VIDEODIR)/physics_bouncing_balls.mp4: $(EXDIR)/physics_bouncing_balls.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/physics_bouncing_balls.py -v --no-display
+
+$(VIDEODIR)/physics_cloth.mp4: $(EXDIR)/physics_cloth.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/physics_cloth.py -v --no-display
+
+$(VIDEODIR)/physics_showcase_example.mp4: $(EXDIR)/physics_showcase_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/physics_showcase_example.py -v --no-display
+
+$(VIDEODIR)/physics_spring.mp4: $(EXDIR)/physics_spring.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/physics_spring.py -v --no-display
+
+$(VIDEODIR)/polar_plot_example.mp4: $(EXDIR)/polar_plot_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/polar_plot_example.py -v --no-display
+
+$(VIDEODIR)/pop_and_float_example.mp4: $(EXDIR)/pop_and_float_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/pop_and_float_example.py -v --no-display
+
+$(VIDEODIR)/progress_bar_example.mp4: $(EXDIR)/progress_bar_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/progress_bar_example.py -v --no-display
+
+$(VIDEODIR)/progress_scoreboard_example.mp4: $(EXDIR)/progress_scoreboard_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/progress_scoreboard_example.py -v --no-display
+
+$(VIDEODIR)/radar_chart_example.mp4: $(EXDIR)/radar_chart_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/radar_chart_example.py -v --no-display
+
+$(VIDEODIR)/ribbon_swarm_heatmap_example.mp4: $(EXDIR)/ribbon_swarm_heatmap_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/ribbon_swarm_heatmap_example.py -v --no-display
+
+$(VIDEODIR)/ripple_example.mp4: $(EXDIR)/ripple_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/ripple_example.py -v --no-display
+
+$(VIDEODIR)/sankey_lollipop_example.mp4: $(EXDIR)/sankey_lollipop_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/sankey_lollipop_example.py -v --no-display
+
+$(VIDEODIR)/save_restore_example.mp4: $(EXDIR)/save_restore_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/save_restore_example.py -v --no-display
+
+$(VIDEODIR)/scatter_arc_example.mp4: $(EXDIR)/scatter_arc_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/scatter_arc_example.py -v --no-display
+
+$(VIDEODIR)/scatter_colorwave_example.mp4: $(EXDIR)/scatter_colorwave_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/scatter_colorwave_example.py -v --no-display
+
+$(VIDEODIR)/science_showcase_example.mp4: $(EXDIR)/science_showcase_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/science_showcase_example.py -v --no-display
+
+$(VIDEODIR)/scramble_text_example.mp4: $(EXDIR)/scramble_text_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/scramble_text_example.py -v --no-display
+
+$(VIDEODIR)/slide_example.mp4: $(EXDIR)/slide_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/slide_example.py -v --no-display
+
+$(VIDEODIR)/slope_wave_example.mp4: $(EXDIR)/slope_wave_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/slope_wave_example.py -v --no-display
+
+$(VIDEODIR)/speech_badge_divider_example.mp4: $(EXDIR)/speech_badge_divider_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/speech_badge_divider_example.py -v --no-display
+
+$(VIDEODIR)/spiral_secant_example.mp4: $(EXDIR)/spiral_secant_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/spiral_secant_example.py -v --no-display
+
+$(VIDEODIR)/spline_follow_example.mp4: $(EXDIR)/spline_follow_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/spline_follow_example.py -v --no-display
+
+$(VIDEODIR)/spring_grid_example.mp4: $(EXDIR)/spring_grid_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/spring_grid_example.py -v --no-display
+
+$(VIDEODIR)/stack_viz_example.mp4: $(EXDIR)/stack_viz_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/stack_viz_example.py -v --no-display
+
+$(VIDEODIR)/standing_wave_example.mp4: $(EXDIR)/standing_wave_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/standing_wave_example.py -v --no-display
+
+$(VIDEODIR)/status_meter_breadcrumb_example.mp4: $(EXDIR)/status_meter_breadcrumb_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/status_meter_breadcrumb_example.py -v --no-display
+
+$(VIDEODIR)/stem_grouped_example.mp4: $(EXDIR)/stem_grouped_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/stem_grouped_example.py -v --no-display
+
+$(VIDEODIR)/step_squish_example.mp4: $(EXDIR)/step_squish_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/step_squish_example.py -v --no-display
+
+$(VIDEODIR)/stream_lines_example.mp4: $(EXDIR)/stream_lines_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/stream_lines_example.py -v --no-display
+
+$(VIDEODIR)/table_highlight_example.mp4: $(EXDIR)/table_highlight_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/table_highlight_example.py -v --no-display
+
+$(VIDEODIR)/tangent_arealabel_example.mp4: $(EXDIR)/tangent_arealabel_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/tangent_arealabel_example.py -v --no-display
+
+$(VIDEODIR)/tangent_line_example.mp4: $(EXDIR)/tangent_line_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/tangent_line_example.py -v --no-display
+
+$(VIDEODIR)/text_highlight_example.mp4: $(EXDIR)/text_highlight_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/text_highlight_example.py -v --no-display
+
+$(VIDEODIR)/textbox_bracket_icongrid_example.mp4: $(EXDIR)/textbox_bracket_icongrid_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/textbox_bracket_icongrid_example.py -v --no-display
+
+$(VIDEODIR)/trace_area_example.mp4: $(EXDIR)/trace_area_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/trace_area_example.py -v --no-display
+
+$(VIDEODIR)/trace_elastic_example.mp4: $(EXDIR)/trace_elastic_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/trace_elastic_example.py -v --no-display
+
+$(VIDEODIR)/trail_reveal_example.mp4: $(EXDIR)/trail_reveal_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/trail_reveal_example.py -v --no-display
+
+$(VIDEODIR)/transform_from_copy_example.mp4: $(EXDIR)/transform_from_copy_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/transform_from_copy_example.py -v --no-display
+
+$(VIDEODIR)/tree_example.mp4: $(EXDIR)/tree_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/tree_example.py -v --no-display
+
+$(VIDEODIR)/typewrite_example.mp4: $(EXDIR)/typewrite_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/typewrite_example.py -v --no-display
+
+$(VIDEODIR)/ui_showcase_example.mp4: $(EXDIR)/ui_showcase_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/ui_showcase_example.py -v --no-display
+
+$(VIDEODIR)/variable_example.mp4: $(EXDIR)/variable_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/variable_example.py -v --no-display
+
+$(VIDEODIR)/vector_field_axes_example.mp4: $(EXDIR)/vector_field_axes_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/vector_field_axes_example.py -v --no-display
+
+$(VIDEODIR)/vector_field_example.mp4: $(EXDIR)/vector_field_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/vector_field_example.py -v --no-display
+
+$(VIDEODIR)/vector_sort_example.mp4: $(EXDIR)/vector_sort_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/vector_sort_example.py -v --no-display
+
+$(VIDEODIR)/venn_org_example.mp4: $(EXDIR)/venn_org_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/venn_org_example.py -v --no-display
+
+$(VIDEODIR)/waffle_mindmap_example.mp4: $(EXDIR)/waffle_mindmap_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/waffle_mindmap_example.py -v --no-display
+
+$(VIDEODIR)/wipe_underline_example.mp4: $(EXDIR)/wipe_underline_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/wipe_underline_example.py -v --no-display
+
+$(VIDEODIR)/zeroline_warp_example.mp4: $(EXDIR)/zeroline_warp_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/zeroline_warp_example.py -v --no-display
+
+$(VIDEODIR)/zoom_example.mp4: $(EXDIR)/zoom_example.py $(LIB) | $(VIDEODIR)
+	cd $(ROOTDIR) && $(PYTHON) examples/zoom_example.py -v --no-display
 
 $(VIDEODIR):
 	mkdir -p $@

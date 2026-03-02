@@ -10,6 +10,7 @@ Title
 -----
 
 .. py:class:: Title(text, creation=0, z=0, **kwargs)
+   :no-index:
 
    Centered title text at the top of the canvas with an underline.
    Passes extra keyword arguments through to ``Text`` (e.g. ``font_size``,
@@ -27,6 +28,7 @@ Variable
 --------
 
 .. py:class:: Variable(label='x', value=0, fmt='{:.2f}', x=960, y=540, font_size=48, creation=0, z=0, **styling)
+   :no-index:
 
    Display a variable label with an animated numeric value
    (e.g. ``x = 3.14``).
@@ -36,15 +38,18 @@ Variable
    :param str fmt: Format string for the displayed number.
 
    .. py:attribute:: tracker
+      :no-index:
       :type: Real
 
       The underlying ``DecimalNumber`` tracker.
 
    .. py:method:: set_value(val, start=0)
+      :no-index:
 
       Set the displayed value from *start* onward.
 
    .. py:method:: animate_value(target, start, end, easing=smooth)
+      :no-index:
 
       Animate the value to *target* over ``[start, end]``.
 
@@ -68,6 +73,7 @@ Code
 ----
 
 .. py:class:: Code(text, language='python', x=120, y=120, font_size=24, line_height=1.5, tab_width=4, creation=0, z=0, **styling)
+   :no-index:
 
    Syntax-highlighted code block with line numbers and a dark background.
    Supports Python, JavaScript, C, Java, Rust, and Go keyword highlighting.
@@ -77,11 +83,13 @@ Code
    :param float line_height: Multiplier for vertical spacing.
 
    .. py:method:: highlight_lines(line_nums, start=0, end=1, color='#FFFF00', opacity=0.2, easing=there_and_back)
+      :no-index:
 
       Highlight specific lines with a colored overlay. Returns a
       ``VCollection`` of overlay rectangles.
 
    .. py:method:: reveal_lines(start=0, end=1, overlap=0.5)
+      :no-index:
 
       Reveal code lines sequentially with staggered fade-in.
 
@@ -98,6 +106,7 @@ Label
 -----
 
 .. py:class:: Label(text, x=960, y=540, font_size=36, padding=10, corner_radius=4, creation=0, z=0, **styling)
+   :no-index:
 
    Text label with a surrounding rounded-rectangle background.
 
@@ -135,6 +144,7 @@ Callout
 -------
 
 .. py:class:: Callout(text, target, direction='up', distance=80, font_size=24, padding=8, corner_radius=4, creation=0, z=0, **styling)
+   :no-index:
 
    Text callout with a pointer line to a target position.
 
@@ -149,6 +159,7 @@ DimensionLine
 -------------
 
 .. py:class:: DimensionLine(p1, p2, label=None, offset=30, font_size=20, tick_size=10, creation=0, z=0, **styling)
+   :no-index:
 
    Technical dimension line between two points with extension lines, tick
    marks, and a measurement label.
@@ -164,6 +175,7 @@ Tooltip
 -------
 
 .. py:class:: Tooltip(text, target, start=0, duration=1.5, font_size=18, padding=6, creation=0, z=10, **styling)
+   :no-index:
 
    Small tooltip that automatically fades in, holds, and fades out near a
    target object.

@@ -8,6 +8,7 @@ Text
 ----
 
 .. py:class:: Text(text='', x=960, y=540, font_size=48, text_anchor=None, font_family=None, **styling)
+   :no-index:
 
    Plain SVG ``<text>`` element. Default fill is white (``#fff``) with no
    stroke.
@@ -20,6 +21,7 @@ Text
    :param str font_family: CSS font family name.
 
    .. py:attribute:: text
+      :no-index:
       :type: String
 
       Text content (time-varying).
@@ -31,11 +33,13 @@ Text
       :type: Real
 
    .. py:attribute:: font_size
+      :no-index:
       :type: Real
 
    .. rubric:: Querying
 
    .. py:method:: get_text(time=0)
+      :no-index:
 
       Return the text string at the given time.
 
@@ -56,10 +60,12 @@ Text
       Return the character at the given index.
 
    .. py:method:: starts_with(prefix, time=0)
+      :no-index:
 
       Return ``True`` if the text starts with *prefix*.
 
    .. py:method:: ends_with(suffix, time=0)
+      :no-index:
 
       Return ``True`` if the text ends with *suffix*.
 
@@ -146,6 +152,7 @@ Text
    .. rubric:: Text Animations
 
    .. py:method:: typing(start=0, end=1, change_existence=True)
+      :no-index:
 
       Typewriter effect: reveal characters one by one over ``[start, end]``.
 
@@ -154,6 +161,7 @@ Text
       :param bool change_existence: If ``True``, the object appears at *start*.
 
    .. py:method:: typewrite(start=0, end=1, cursor='|', change_existence=True)
+      :no-index:
 
       Reveal text character by character with a blinking cursor. Similar to
       :py:meth:`typing` but appends a *cursor* character (e.g. ``'|'``) after
@@ -162,12 +170,14 @@ Text
       :param str cursor: Cursor character displayed during reveal.
 
    .. py:method:: untype(start=0, end=1, change_existence=True)
+      :no-index:
 
       Reverse typewriter: remove characters right-to-left over
       ``[start, end]``. Text becomes empty at the end. If
       *change_existence* is ``True``, the object is hidden after completion.
 
    .. py:method:: reveal_by_word(start=0, end=1, change_existence=True, easing=None)
+      :no-index:
 
       Reveal text word by word over ``[start, end]``. Words appear in order,
       separated by spaces. ``word_by_word`` is an alias.
@@ -175,6 +185,7 @@ Text
       :param easing: Easing function for word timing (default: ``linear``).
 
    .. py:method:: scramble(start=0, end=1, charset=None, change_existence=True)
+      :no-index:
 
       Decode/reveal effect: characters settle left-to-right from random
       characters to the final text. Un-settled positions cycle through random
@@ -184,6 +195,7 @@ Text
       :param str charset: Character set for scrambled characters.
 
    .. py:method:: set_text(start, end, new_text, easing=smooth)
+      :no-index:
 
       Cross-fade to *new_text*: opacity drops to 0 at the midpoint, the text
       content changes, then opacity returns to 1.
@@ -191,6 +203,7 @@ Text
       :param str new_text: The replacement text.
 
    .. py:method:: highlight(start=0, end=1, color='#FFFF00', opacity=0.3, padding=4, easing=there_and_back)
+      :no-index:
 
       Highlight the text with a colored background rectangle that fades in and
       out. Returns the highlight :py:class:`Rectangle` (must be added to the
@@ -201,6 +214,7 @@ Text
       :param float padding: Padding around the text bounding box.
 
    .. py:method:: highlight_substring(substring, color='#FFFF00', start=0, end=1, opacity=0.3, easing=there_and_back)
+      :no-index:
 
       Highlight a specific substring within the text. The highlight rectangle
       is positioned over the approximate location of *substring*. Returns the
@@ -262,6 +276,7 @@ CountAnimation
 --------------
 
 .. py:class:: CountAnimation(start_val=0, end_val=100, start=0, end=1, fmt='{:.0f}', easing=smooth, x=960, y=540, font_size=60, **styling)
+   :no-index:
 
    Bases: :py:class:`Text`
 
@@ -303,6 +318,7 @@ DecimalNumber
 -------------
 
 .. py:class:: DecimalNumber(value=0, fmt='{:.2f}', x=960, y=540, font_size=48, **styling)
+   :no-index:
 
    Bases: :py:class:`Text`
 
@@ -314,6 +330,7 @@ DecimalNumber
    :param str fmt: Format string for display (default ``'{:.2f}'``).
 
    .. py:attribute:: tracker
+      :no-index:
       :type: Real
 
       The underlying tracked value.
@@ -347,6 +364,7 @@ Integer
 -------
 
 .. py:class:: Integer(value=0, x=960, y=540, font_size=48, **styling)
+   :no-index:
 
    Bases: :py:class:`DecimalNumber`
 
@@ -529,6 +547,7 @@ Paragraph
 ---------
 
 .. py:class:: Paragraph(*lines, x=960, y=540, font_size=36, alignment='left', line_spacing=1.4, **styling)
+   :no-index:
 
    Multi-line text with alignment and line spacing. Each line is rendered as
    a separate SVG ``<text>`` element.
@@ -560,6 +579,7 @@ BulletedList
 ------------
 
 .. py:class:: BulletedList(*items, x=200, y=200, font_size=36, bullet='\u2022', indent=40, line_spacing=1.6, **styling)
+   :no-index:
 
    List of items with bullet points.
 
@@ -585,6 +605,7 @@ NumberedList
 ------------
 
 .. py:class:: NumberedList(*items, x=200, y=200, font_size=36, indent=50, line_spacing=1.6, start_number=1, **styling)
+   :no-index:
 
    List of items with numeric labels (1. 2. 3. ...).
 

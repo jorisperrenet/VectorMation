@@ -64,7 +64,7 @@ Animations
 
    .. raw:: html
 
-      <img src="_static/videos/easing_preview.svg">
+      <video src="_static/videos/easing_preview.mp4" controls autoplay loop muted></video>
 
    All 18 easing functions visualised side-by-side. Each dot travels its track using a different easing curve.
 
@@ -79,6 +79,10 @@ Animations
 .. admonition:: Example: AnimationsShowcase
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/animations_showcase_example.mp4" controls autoplay loop muted></video>
+
    A grid of labelled effects -- shake, swing, wiggle, pulse, jiggle, rubber band, emphasize, and bounce -- each applied to a different shape.
 
    .. literalinclude:: ../../examples/animations_showcase_example.py
@@ -88,6 +92,10 @@ Animations
 
 .. admonition:: Example: CollectionAnimations
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/collection_animations_example.mp4" controls autoplay loop muted></video>
 
    VCollection animation methods demonstrated on groups of circles, rectangles, and stars: stagger, cascade, wave, and spin.
 
@@ -99,6 +107,10 @@ Animations
 .. admonition:: Example: CombinedAnimations
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/combined_animations_example.mp4" controls autoplay loop muted></video>
+
    Combined animation methods: ``create_then_fadeout``, ``fadein_then_fadeout``, and chained sequences on circles, rectangles, and stars.
 
    .. literalinclude:: ../../examples/combined_animations_example.py
@@ -109,6 +121,10 @@ Animations
 .. admonition:: Example: CurveEffects
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/curve_effects_example.mp4" controls autoplay loop muted></video>
+
    Curve effects: ``passing_flash`` highlights a stroke segment, ``get_subcurve`` extracts a portion of a polygon, and an animated tangent line tracks a curve.
 
    .. literalinclude:: ../../examples/curve_effects_example.py
@@ -118,6 +134,10 @@ Animations
 
 .. admonition:: Example: TransformFromCopy
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/transform_from_copy_example.mp4" controls autoplay loop muted></video>
 
    ``transform_from_copy`` morphs a ghost duplicate while the original object stays in place.
 
@@ -174,6 +194,10 @@ Plotting
 .. admonition:: Example: ParametricCurve
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/parametric_curve_example.mp4" controls autoplay loop muted></video>
+
    A Lissajous figure plotted as a parametric curve on axes.
 
    .. literalinclude:: ../../examples/parametric_curve_example.py
@@ -183,6 +207,10 @@ Plotting
 
 .. admonition:: Example: PolarPlot
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/polar_plot_example.mp4" controls autoplay loop muted></video>
 
    A 4-petal rose curve drawn on polar axes with ``plot_polar``.
 
@@ -194,6 +222,10 @@ Plotting
 .. admonition:: Example: HighlightRange
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/highlight_range_example.mp4" controls autoplay loop muted></video>
+
    ``highlight_x_range`` and ``get_line_from_to`` on axes, shading a region of interest and drawing reference lines.
 
    .. literalinclude:: ../../examples/highlight_range_example.py
@@ -203,6 +235,10 @@ Plotting
 
 .. admonition:: Example: SlopeWave
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/slope_wave_example.mp4" controls autoplay loop muted></video>
 
    Slope field for a circular ODE, combined with wave and glitch text effects.
 
@@ -214,6 +250,10 @@ Plotting
 .. admonition:: Example: TraceArea
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/trace_area_example.mp4" controls autoplay loop muted></video>
+
    ``trace_path`` records a moving circle's orbit, combined with ``get_area_between`` on axes and ``flash_color``.
 
    .. literalinclude:: ../../examples/trace_area_example.py
@@ -224,6 +264,10 @@ Plotting
 .. admonition:: Example: TangentAreaLabel
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/tangent_arealabel_example.mp4" controls autoplay loop muted></video>
+
    A moving tangent line tracks a curve while a shaded area grows, with stagger colour animations on a dot collection.
 
    .. literalinclude:: ../../examples/tangent_arealabel_example.py
@@ -233,6 +277,10 @@ Plotting
 
 .. admonition:: Example: SpiralSecant
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/spiral_secant_example.mp4" controls autoplay loop muted></video>
 
    ``spiral_in`` / ``spiral_out`` entrance effects and animated secant-line fade on a parabola.
 
@@ -303,6 +351,10 @@ Advanced
 .. admonition:: Example: LineArcUtils
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/line_arc_utils_example.mp4" controls autoplay loop muted></video>
+
    Line and Arc utility methods: ``get_length``, ``get_angle``, ``point_at``, ``perpendicular_at``, and ``add_label``.
 
    .. literalinclude:: ../../examples/line_arc_utils_example.py
@@ -352,6 +404,10 @@ Data Structures
 .. admonition:: Example: ArrayViz
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/array_viz_example.mp4" controls autoplay loop muted></video>
+
    Visualise an array and animate bubble sort steps: highlight cells, compare, and swap.
 
    .. literalinclude:: ../../examples/array_viz_example.py
@@ -361,6 +417,10 @@ Data Structures
 
 .. admonition:: Example: LinkedList
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/linked_list_example.mp4" controls autoplay loop muted></video>
 
    A singly linked list with animated node-by-node traversal.
 
@@ -372,6 +432,10 @@ Data Structures
 .. admonition:: Example: Stack
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/stack_viz_example.mp4" controls autoplay loop muted></video>
+
    A stack (LIFO) with push and pop animations.
 
    .. literalinclude:: ../../examples/stack_viz_example.py
@@ -381,6 +445,10 @@ Data Structures
 
 .. admonition:: Example: DataStructures
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/data_structures_example.mp4" controls autoplay loop muted></video>
 
    All four data-structure visualisations -- Array, Stack, Queue, LinkedList -- with highlight, push, pop, enqueue, and traversal animations.
 
@@ -395,6 +463,10 @@ Animation Effects
 .. admonition:: Example: FadeInShift
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/fadein_shift_example.mp4" controls autoplay loop muted></video>
+
    Objects fade in from different directions using directional shifts.
 
    .. literalinclude:: ../../examples/fadein_shift_example.py
@@ -404,6 +476,10 @@ Animation Effects
 
 .. admonition:: Example: Bounce
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/bounce_example.mp4" controls autoplay loop muted></video>
 
    Bouncing entrance and exit animations using elastic and bounce easings.
 
@@ -415,6 +491,10 @@ Animation Effects
 .. admonition:: Example: Ripple
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/ripple_example.mp4" controls autoplay loop muted></video>
+
    Ripple effect expanding outward from shapes.
 
    .. literalinclude:: ../../examples/ripple_example.py
@@ -424,6 +504,10 @@ Animation Effects
 
 .. admonition:: Example: Orbit
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/orbit_example.mp4" controls autoplay loop muted></video>
 
    Objects orbiting around a central point using ``orbit`` animation.
 
@@ -435,6 +519,10 @@ Animation Effects
 .. admonition:: Example: PopAndFloat
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/pop_and_float_example.mp4" controls autoplay loop muted></video>
+
    Objects pop in with overshoot and then gently float up and down.
 
    .. literalinclude:: ../../examples/pop_and_float_example.py
@@ -444,6 +532,10 @@ Animation Effects
 
 .. admonition:: Example: CascadeShake
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/cascade_shake_example.mp4" controls autoplay loop muted></video>
 
    Staggered cascade animation with shake effects on a group of objects.
 
@@ -455,6 +547,10 @@ Animation Effects
 .. admonition:: Example: CrossoutPulse
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/crossout_pulse_example.mp4" controls autoplay loop muted></video>
+
    Cross out and pulse animations for emphasis and attention.
 
    .. literalinclude:: ../../examples/crossout_pulse_example.py
@@ -464,6 +560,10 @@ Animation Effects
 
 .. admonition:: Example: SlideInOut
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/slide_example.mp4" controls autoplay loop muted></video>
 
    Slide in / slide out entrance and exit animations from different edges.
 
@@ -475,6 +575,10 @@ Animation Effects
 .. admonition:: Example: WipeUnderline
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/wipe_underline_example.mp4" controls autoplay loop muted></video>
+
    Wipe transition and animated text underline.
 
    .. literalinclude:: ../../examples/wipe_underline_example.py
@@ -484,6 +588,10 @@ Animation Effects
 
 .. admonition:: Example: StepSquish
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/step_squish_example.mp4" controls autoplay loop muted></video>
 
    Step-function plot on axes, ``squish`` animation, and staggered ``fadein`` on a VCollection.
 
@@ -495,6 +603,10 @@ Animation Effects
 .. admonition:: Example: SpringGrid
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/spring_grid_example.mp4" controls autoplay loop muted></video>
+
    ``spring`` animation on a bouncing ball, axes grid, and ``for_each`` to transform a collection of dots.
 
    .. literalinclude:: ../../examples/spring_grid_example.py
@@ -504,6 +616,10 @@ Animation Effects
 
 .. admonition:: Example: TraceElastic
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/trace_elastic_example.mp4" controls autoplay loop muted></video>
 
    ``trace_path`` on an orbiting dot, ``elastic_in`` / ``elastic_out`` entrance/exit, and ``add_secant_fade`` on axes.
 
@@ -515,6 +631,10 @@ Animation Effects
 .. admonition:: Example: StemGrouped
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/stem_grouped_example.mp4" controls autoplay loop muted></video>
+
    Stem plot, grouped bar chart, ``trail`` ghost images, and ``uncreate`` reverse-draw animation.
 
    .. literalinclude:: ../../examples/stem_grouped_example.py
@@ -525,6 +645,10 @@ Animation Effects
 .. admonition:: Example: SplineFollow
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/spline_follow_example.mp4" controls autoplay loop muted></video>
+
    A circle follows a smooth spline through waypoints using ``along_path``.
 
    .. literalinclude:: ../../examples/spline_follow_example.py
@@ -534,6 +658,10 @@ Animation Effects
 
 .. admonition:: Example: TrailReveal
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/trail_reveal_example.mp4" controls autoplay loop muted></video>
 
    ``trail`` stamps ghost copies along a moving ball's arc, ``reveal`` animates letters into view, and ``add_min_max_labels`` marks curve extrema.
 
@@ -548,6 +676,10 @@ Text Animations
 .. admonition:: Example: Typewriter
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/typewrite_example.mp4" controls autoplay loop muted></video>
+
    Typewriter and count animations: text appears character-by-character with a blinking cursor.
 
    .. literalinclude:: ../../examples/typewrite_example.py
@@ -557,6 +689,10 @@ Text Animations
 
 .. admonition:: Example: ScrambleText
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/scramble_text_example.mp4" controls autoplay loop muted></video>
 
    Scramble decode: random characters resolve into the final text.
 
@@ -568,6 +704,10 @@ Text Animations
 .. admonition:: Example: TextHighlight
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/text_highlight_example.mp4" controls autoplay loop muted></video>
+
    Highlight spans of text with coloured background boxes.
 
    .. literalinclude:: ../../examples/text_highlight_example.py
@@ -577,6 +717,10 @@ Text Animations
 
 .. admonition:: Example: CodeHighlight
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/code_highlight_lines_example.mp4" controls autoplay loop muted></video>
 
    Syntax-highlighted code block with animated line highlighting.
 
@@ -588,6 +732,10 @@ Text Animations
 .. admonition:: Example: AnnotationUntype
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/annotation_untype_example.mp4" controls autoplay loop muted></video>
+
    Arrow annotations on axes combined with ``untype`` to erase text character-by-character.
 
    .. literalinclude:: ../../examples/annotation_untype_example.py
@@ -598,6 +746,10 @@ Text Animations
 .. admonition:: Example: CodeBlock
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/code_highlight.mp4" controls autoplay loop muted></video>
+
    Syntax-highlighted ``Code`` block with a Fibonacci function and animated write-in.
 
    .. literalinclude:: ../../examples/code_highlight.py
@@ -607,6 +759,10 @@ Text Animations
 
 .. admonition:: Example: DashedTitle
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/dashed_title_example.mp4" controls autoplay loop muted></video>
 
    Dashed guide lines on axes, an axes title, and ``sequential`` staggered animation on a VCollection.
 
@@ -621,6 +777,10 @@ Charts & Data
 .. admonition:: Example: BarChartAnimate
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/bar_chart_animate_example.mp4" controls autoplay loop muted></video>
+
    Animated bar chart: bars grow in and transition to new values.
 
    .. literalinclude:: ../../examples/bar_chart_animate_example.py
@@ -630,6 +790,10 @@ Charts & Data
 
 .. admonition:: Example: RadarChart
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/radar_chart_example.mp4" controls autoplay loop muted></video>
 
    Radar/spider chart visualisation with multiple data categories.
 
@@ -641,6 +805,10 @@ Charts & Data
 .. admonition:: Example: TableHighlight
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/table_highlight_example.mp4" controls autoplay loop muted></video>
+
    Data table with animated cell highlighting and value changes.
 
    .. literalinclude:: ../../examples/table_highlight_example.py
@@ -650,6 +818,10 @@ Charts & Data
 
 .. admonition:: Example: ChartShowcase
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/chart_showcase_example.mp4" controls autoplay loop muted></video>
 
    Five chart types side-by-side: RadarChart, GaugeChart, SparkLine, KPICard, and WaffleChart.
 
@@ -661,6 +833,10 @@ Charts & Data
 .. admonition:: Example: ChartEnhance
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/chart_enhance_example.mp4" controls autoplay loop muted></video>
+
    Pie chart with animated slice highlighting and bar chart with ``set_values`` transitions.
 
    .. literalinclude:: ../../examples/chart_enhance_example.py
@@ -670,6 +846,10 @@ Charts & Data
 
 .. admonition:: Example: FunnelGauge
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/funnel_gauge_example.mp4" controls autoplay loop muted></video>
 
    Funnel chart, TreeMap, GaugeChart, and multiple SparkLines showcased together.
 
@@ -681,6 +861,10 @@ Charts & Data
 .. admonition:: Example: BubbleDonut
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/bubble_donut_example.mp4" controls autoplay loop muted></video>
+
    Bubble chart, stacked area, heatmap with colour bar, and donut chart on a single canvas.
 
    .. literalinclude:: ../../examples/bubble_donut_example.py
@@ -690,6 +874,10 @@ Charts & Data
 
 .. admonition:: Example: CandlestickGantt
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/candlestick_gantt_example.mp4" controls autoplay loop muted></video>
 
    Candlestick chart, dumbbell plot, parametric area fill, and Gantt chart.
 
@@ -701,6 +889,10 @@ Charts & Data
 .. admonition:: Example: HeatmapWaterfall
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/heatmap_waterfall_example.mp4" controls autoplay loop muted></video>
+
    Heatmap with crosshair, violin plots, and waterfall chart.
 
    .. literalinclude:: ../../examples/heatmap_waterfall_example.py
@@ -710,6 +902,10 @@ Charts & Data
 
 .. admonition:: Example: SankeyLollipop
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/sankey_lollipop_example.mp4" controls autoplay loop muted></video>
 
    Threshold line with data labels, lollipop chart, and Sankey flow diagram.
 
@@ -721,6 +917,10 @@ Charts & Data
 .. admonition:: Example: KPIBullet
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/kpi_bullet_example.mp4" controls autoplay loop muted></video>
+
    KPI cards with trend spark lines, bullet charts, filled step plot, and calendar heatmap.
 
    .. literalinclude:: ../../examples/kpi_bullet_example.py
@@ -730,6 +930,10 @@ Charts & Data
 
 .. admonition:: Example: ProgressScoreboard
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/progress_scoreboard_example.mp4" controls autoplay loop muted></video>
 
    Circular progress bars, population pyramid, data table, and animated scoreboard.
 
@@ -741,6 +945,10 @@ Charts & Data
 .. admonition:: Example: ErrorbarHistogramBoxplot
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/errorbar_histogram_boxplot_example.mp4" controls autoplay loop muted></video>
+
    Error bars on a scatter plot, histogram, colour bar, and box plot.
 
    .. literalinclude:: ../../examples/errorbar_histogram_boxplot_example.py
@@ -750,6 +958,10 @@ Charts & Data
 
 .. admonition:: Example: ContourQuiverBand
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/contour_quiver_band_example.mp4" controls autoplay loop muted></video>
 
    Contour plot, quiver (vector) field, reference band, and colour bar -- all on axes.
 
@@ -761,6 +973,10 @@ Charts & Data
 .. admonition:: Example: ScatterColorwave
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/scatter_colorwave_example.mp4" controls autoplay loop muted></video>
+
    Scatter/gather animations on dots, ``color_wave`` on a circle, and shaded inequality region.
 
    .. literalinclude:: ../../examples/scatter_colorwave_example.py
@@ -770,6 +986,10 @@ Charts & Data
 
 .. admonition:: Example: BoxplotBand
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/boxplot_band_example.mp4" controls autoplay loop muted></video>
 
    Box plots, confidence bands on a curve, and ``shuffle`` animation on a VCollection.
 
@@ -781,6 +1001,10 @@ Charts & Data
 .. admonition:: Example: RibbonSwarmHeatmap
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/ribbon_swarm_heatmap_example.mp4" controls autoplay loop muted></video>
+
    Ribbon plot, swarm plot, axis break, and matrix heatmap.
 
    .. literalinclude:: ../../examples/ribbon_swarm_heatmap_example.py
@@ -790,6 +1014,10 @@ Charts & Data
 
 .. admonition:: Example: BarHeartbeat
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/bar_heartbeat_example.mp4" controls autoplay loop muted></video>
 
    Bar plot on axes, heartbeat pulsate animation, and ``flip`` transform on a VCollection.
 
@@ -801,6 +1029,10 @@ Charts & Data
 .. admonition:: Example: HistogramRotate
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/histogram_rotate_example.mp4" controls autoplay loop muted></video>
+
    Histogram on axes, ``rotate_children`` on a VCollection, and labelled axes with data annotations.
 
    .. literalinclude:: ../../examples/histogram_rotate_example.py
@@ -810,6 +1042,10 @@ Charts & Data
 
 .. admonition:: Example: ImplicitDotplot
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/implicit_dotplot_example.mp4" controls autoplay loop muted></video>
 
    Implicit curves (circle, ellipse) and dot plot on separate axes panels.
 
@@ -824,6 +1060,10 @@ Graphs & Diagrams
 .. admonition:: Example: NetworkGraph
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/network_graph_example.mp4" controls autoplay loop muted></video>
+
    Directed graph with spring layout, animated edge creation.
 
    .. literalinclude:: ../../examples/network_graph_example.py
@@ -833,6 +1073,10 @@ Graphs & Diagrams
 
 .. admonition:: Example: FlowChart
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/flowchart_example.mp4" controls autoplay loop muted></video>
 
    Flowchart with decision nodes and directional arrows.
 
@@ -844,6 +1088,10 @@ Graphs & Diagrams
 .. admonition:: Example: Tree
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/tree_example.mp4" controls autoplay loop muted></video>
+
    Binary search tree with parent-child connections.
 
    .. literalinclude:: ../../examples/tree_example.py
@@ -853,6 +1101,10 @@ Graphs & Diagrams
 
 .. admonition:: Example: Automaton
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/automaton_example.mp4" controls autoplay loop muted></video>
 
    Deterministic finite automaton (DFA) accepting strings ending in "ab", with state highlighting.
 
@@ -864,6 +1116,10 @@ Graphs & Diagrams
 .. admonition:: Example: NetworkTree
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/network_tree_example.mp4" controls autoplay loop muted></video>
+
    NetworkGraph with directed edges and a Tree (org chart) with animated node highlighting.
 
    .. literalinclude:: ../../examples/network_tree_example.py
@@ -874,6 +1130,10 @@ Graphs & Diagrams
 .. admonition:: Example: VennOrg
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/venn_org_example.mp4" controls autoplay loop muted></video>
+
    Moving axis labels, span annotations, Venn diagrams (2-set and 3-set), and an OrgChart.
 
    .. literalinclude:: ../../examples/venn_org_example.py
@@ -883,6 +1143,10 @@ Graphs & Diagrams
 
 .. admonition:: Example: WaffleMindmap
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/waffle_mindmap_example.mp4" controls autoplay loop muted></video>
 
    Density plot with annotation box, WaffleChart, and MindMap with animated node expansion.
 
@@ -897,6 +1161,10 @@ Math & Science
 .. admonition:: Example: VectorField
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/vector_field_example.mp4" controls autoplay loop muted></video>
+
    Arrow-based vector field showing a spiral source pattern.
 
    .. literalinclude:: ../../examples/vector_field_example.py
@@ -906,6 +1174,10 @@ Math & Science
 
 .. admonition:: Example: ComplexPlane
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/complex_plane_example.mp4" controls autoplay loop muted></video>
 
    Complex plane with 5th roots of unity plotted as a pentagon.
 
@@ -917,6 +1189,10 @@ Math & Science
 .. admonition:: Example: ImplicitCurve
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/implicit_curve_example.mp4" controls autoplay loop muted></video>
+
    Implicit curve plots: circles and lemniscates defined by equations.
 
    .. literalinclude:: ../../examples/implicit_curve_example.py
@@ -926,6 +1202,10 @@ Math & Science
 
 .. admonition:: Example: TangentLine
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/tangent_line_example.mp4" controls autoplay loop muted></video>
 
    Tangent line tracking along a curve with animated point of tangency.
 
@@ -937,6 +1217,10 @@ Math & Science
 .. admonition:: Example: NeuralNetwork
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/neural_network_example.mp4" controls autoplay loop muted></video>
+
    Feed-forward neural network diagram with forward propagation animation.
 
    .. literalinclude:: ../../examples/neural_network_example.py
@@ -946,6 +1230,10 @@ Math & Science
 
 .. admonition:: Example: Pendulum
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/pendulum_example.mp4" controls autoplay loop muted></video>
 
    Damped pendulum with path trace — rod swings from a pivot point.
 
@@ -957,6 +1245,10 @@ Math & Science
 .. admonition:: Example: StandingWave
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/standing_wave_example.mp4" controls autoplay loop muted></video>
+
    Standing wave harmonics: the first four modes side-by-side.
 
    .. literalinclude:: ../../examples/standing_wave_example.py
@@ -966,6 +1258,10 @@ Math & Science
 
 .. admonition:: Example: BohrAtom
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/bohr_atom_example.mp4" controls autoplay loop muted></video>
 
    Bohr model of a Carbon atom with orbiting electrons.
 
@@ -977,6 +1273,10 @@ Math & Science
 .. admonition:: Example: NumberPlaneTransform
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/number_plane_transform_example.mp4" controls autoplay loop muted></video>
+
    NumberPlane grid transformed by a 2x2 matrix with animated basis vectors (i-hat, j-hat) using ``apply_matrix``.
 
    .. literalinclude:: ../../examples/number_plane_transform_example.py
@@ -986,6 +1286,10 @@ Math & Science
 
 .. admonition:: Example: StreamLines
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/stream_lines_example.mp4" controls autoplay loop muted></video>
 
    Animated stream lines for a dipole-like vector field with source and sink markers.
 
@@ -997,6 +1301,10 @@ Math & Science
 .. admonition:: Example: ScienceShowcase
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/science_showcase_example.mp4" controls autoplay loop muted></video>
+
    Electronic circuit components (Resistor, Capacitor, Inductor, Diode) and a NeuralNetwork diagram with forward-propagation animation.
 
    .. literalinclude:: ../../examples/science_showcase_example.py
@@ -1006,6 +1314,10 @@ Math & Science
 
 .. admonition:: Example: VectorFieldAxes
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/vector_field_axes_example.mp4" controls autoplay loop muted></video>
 
    Vector field plotted on axes with ``plot_vector_field``, combined with animated ``set_width`` / ``set_height`` on rectangles.
 
@@ -1017,6 +1329,10 @@ Math & Science
 .. admonition:: Example: VectorSort
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/vector_sort_example.mp4" controls autoplay loop muted></video>
+
    Vectors and intervals on axes, with ``sort_children`` reordering a VCollection.
 
    .. literalinclude:: ../../examples/vector_sort_example.py
@@ -1026,6 +1342,10 @@ Math & Science
 
 .. admonition:: Example: ScatterArc
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/scatter_arc_example.mp4" controls autoplay loop muted></video>
 
    Scatter plot on axes, ``path_arc`` movement along curved paths, and ``align_to`` on a VCollection.
 
@@ -1037,6 +1357,10 @@ Math & Science
 .. admonition:: Example: AsymptoteCoords
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/asymptote_coords_example.mp4" controls autoplay loop muted></video>
+
    Asymptote lines on a rational function, ``coords_label`` displaying coordinate readouts, and ``pulsate`` animation.
 
    .. literalinclude:: ../../examples/asymptote_coords_example.py
@@ -1046,6 +1370,10 @@ Math & Science
 
 .. admonition:: Example: CursorDim
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/cursor_dim_example.mp4" controls autoplay loop muted></video>
 
    Animated cursor following a parabola on axes, ``dim`` / ``undim`` to fade rectangles in and out of focus.
 
@@ -1057,6 +1385,10 @@ Math & Science
 .. admonition:: Example: ZerolineWarp
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/zeroline_warp_example.mp4" controls autoplay loop muted></video>
+
    Zero line on axes with negative range, ``add_dot_label`` annotations, and ``warp`` distortion effect.
 
    .. literalinclude:: ../../examples/zeroline_warp_example.py
@@ -1066,6 +1398,10 @@ Math & Science
 
 .. admonition:: Example: ErrorbarsRadial
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/errorbars_radial_example.mp4" controls autoplay loop muted></video>
 
    Error bars and regression line on scatter data, with radial ``distribute_radial`` layout.
 
@@ -1080,6 +1416,10 @@ Styling & Effects
 .. admonition:: Example: Gradients
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/gradient_example.mp4" controls autoplay loop muted></video>
+
    Linear and radial SVG gradients applied to shapes.
 
    .. literalinclude:: ../../examples/gradient_example.py
@@ -1089,6 +1429,10 @@ Styling & Effects
 
 .. admonition:: Example: Variable
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/variable_example.mp4" controls autoplay loop muted></video>
 
    Live variable display that tracks a changing value over time.
 
@@ -1100,6 +1444,10 @@ Styling & Effects
 .. admonition:: Example: SaveRestore
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/save_restore_example.mp4" controls autoplay loop muted></video>
+
    Save an object's state (position, colour), modify it, then restore the original state.
 
    .. literalinclude:: ../../examples/save_restore_example.py
@@ -1109,6 +1457,10 @@ Styling & Effects
 
 .. admonition:: Example: Clone
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/clone_example.mp4" controls autoplay loop muted></video>
 
    Deep-copy objects with independent animations using ``clone``.
 
@@ -1120,6 +1472,10 @@ Styling & Effects
 .. admonition:: Example: GradientStyling
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/gradient_styling_example.mp4" controls autoplay loop muted></video>
+
    ``set_color_by_gradient`` on a row of circles, ``set_opacity_by_gradient``, and ``SurroundingRectangle``.
 
    .. literalinclude:: ../../examples/gradient_styling_example.py
@@ -1130,6 +1486,10 @@ Styling & Effects
 .. admonition:: Example: NumberlinePointer
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/numberline_pointer_example.mp4" controls autoplay loop muted></video>
+
    NumberLine with an animated pointer and ``color_cycle`` on a circle.
 
    .. literalinclude:: ../../examples/numberline_pointer_example.py
@@ -1139,6 +1499,10 @@ Styling & Effects
 
 .. admonition:: Example: LegendFlip
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/legend_flip_example.mp4" controls autoplay loop muted></video>
 
    Legend on axes with multiple curves, ``flip`` animation, and ``wave_anim`` on a VCollection.
 
@@ -1153,6 +1517,10 @@ Camera
 .. admonition:: Example: FocusCamera
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/focus_camera_example.mp4" controls autoplay loop muted></video>
+
    Camera focus/zoom on individual objects, then reset to full view.
 
    .. literalinclude:: ../../examples/focus_camera_example.py
@@ -1162,6 +1530,10 @@ Camera
 
 .. admonition:: Example: Zoom
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/zoom_example.mp4" controls autoplay loop muted></video>
 
    Camera zoom and pan to inspect details of a scene.
 
@@ -1176,19 +1548,26 @@ Games
 .. admonition:: Example: ChessBoard
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/chess_example.mp4" controls autoplay loop muted></video>
+
    Chess board with the starting position and piece movement.
 
    .. literalinclude:: ../../examples/chess_example.py
       :language: python
       :start-after: set_background
       :end-before: if not
-         :end-before: # Export
 
 Physics
 -------
 
 .. admonition:: Example: PhysicsBouncingBalls
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/physics_bouncing_balls.mp4" controls autoplay loop muted></video>
 
    Multiple coloured balls bouncing with gravity, walls, and ball-ball collisions using ``PhysicsSpace``.
 
@@ -1200,6 +1579,10 @@ Physics
 .. admonition:: Example: PhysicsSpring
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/physics_spring.mp4" controls autoplay loop muted></video>
+
    A spring pendulum: a bob attached to a fixed anchor oscillates under gravity, leaving a trace path.
 
    .. literalinclude:: ../../examples/physics_spring.py
@@ -1210,6 +1593,10 @@ Physics
 .. admonition:: Example: PhysicsCloth
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/physics_cloth.mp4" controls autoplay loop muted></video>
+
    Cloth simulation with the top row pinned, fluttering under gravity using spring constraints.
 
    .. literalinclude:: ../../examples/physics_cloth.py
@@ -1219,6 +1606,10 @@ Physics
 
 .. admonition:: Example: PhysicsShowcase
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/physics_showcase_example.mp4" controls autoplay loop muted></video>
 
    Physics engine showcase: bouncing balls with walls and a spring-connected anchor-and-weight system.
 
@@ -1233,6 +1624,10 @@ UI Components
 .. admonition:: Example: UIShowcase
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/ui_showcase_example.mp4" controls autoplay loop muted></video>
+
    Badge, TextBox, SpeechBubble, Divider, Checklist, and ProgressBar components.
 
    .. literalinclude:: ../../examples/ui_showcase_example.py
@@ -1242,6 +1637,10 @@ UI Components
 
 .. admonition:: Example: SpeechBadgeDivider
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/speech_badge_divider_example.mp4" controls autoplay loop muted></video>
 
    SpeechBubble with different tail directions, Badge variants, NumberedList, and Divider.
 
@@ -1253,6 +1652,10 @@ UI Components
 .. admonition:: Example: Callout
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/callout_example.mp4" controls autoplay loop muted></video>
+
    Callout annotations pointing to shapes, with dimension lines and tooltip-style labels.
 
    .. literalinclude:: ../../examples/callout_example.py
@@ -1262,6 +1665,10 @@ UI Components
 
 .. admonition:: Example: ChecklistStepperTagCloud
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/checklist_stepper_tagcloud_example.mp4" controls autoplay loop muted></video>
 
    Checklist with animated check marks, Stepper progress indicators, and a TagCloud.
 
@@ -1273,6 +1680,10 @@ UI Components
 .. admonition:: Example: TextBoxBracketIconGrid
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/textbox_bracket_icongrid_example.mp4" controls autoplay loop muted></video>
+
    TextBox callouts, animated Bracket annotations, area chart, and an IconGrid layout.
 
    .. literalinclude:: ../../examples/textbox_bracket_icongrid_example.py
@@ -1283,6 +1694,10 @@ UI Components
 .. admonition:: Example: ProgressBar
    :class: example
 
+   .. raw:: html
+
+      <video src="_static/videos/progress_bar_example.mp4" controls autoplay loop muted></video>
+
    Animated ProgressBar filling to target values, combined with marching-ants dash animation on shapes.
 
    .. literalinclude:: ../../examples/progress_bar_example.py
@@ -1292,6 +1707,10 @@ UI Components
 
 .. admonition:: Example: StatusMeterBreadcrumb
    :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/status_meter_breadcrumb_example.mp4" controls autoplay loop muted></video>
 
    StatusIndicator dots, Meter gauges, and Breadcrumb navigation components.
 

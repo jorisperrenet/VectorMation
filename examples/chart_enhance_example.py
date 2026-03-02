@@ -39,5 +39,7 @@ bar.set_bar_colors(['#FF6B6B', '#FFFF00', '#83C167', '#58C4DD', '#9B59B6', '#FF9
 
 canvas.add_objects(pie, bar, title)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/chart_enhance_example.mp4', fps=30, end=6)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

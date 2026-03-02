@@ -35,5 +35,7 @@ tip = Tooltip('Click me!', star, start=2, duration=2, font_size=16)
 
 canvas.add_objects(circle, callout1, rect, callout2, dim, star, tip, title)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/callout_example.mp4', fps=30, end=4)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

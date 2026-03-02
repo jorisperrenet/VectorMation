@@ -48,5 +48,7 @@ for obj in [arr, stack, queue, ll, title]:
     obj.fadeout(start=10, end=11)
 
 v.add(title, arr, stack, queue, ll)
+if args.verbose:
+    v.export_video('docs/source/_static/videos/data_structures_example.mp4', fps=30, end=12)
 if not args.no_display:
     v.browser_display(end=args.end or 12, fps=args.fps, port=args.port, hot_reload=args.hot_reload)

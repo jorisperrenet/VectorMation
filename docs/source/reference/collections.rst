@@ -87,13 +87,14 @@ VCollection
 
       Distribute children evenly across the group's bounding box.
 
-   .. py:method:: stagger(method_name, delay, **kwargs)
+   .. py:method:: stagger(method_name, start=0, end=1, overlap=0.5, **kwargs)
 
-      Call a method on each child with staggered timing.
+      Call an animation method on children with overlapping timing.
+      ``overlap``: 0 = sequential, 1 = all simultaneous.
 
       .. code-block:: python
 
-         group.stagger('fadein', delay=0.2, start=0, end=1)
+         group.stagger('fadein', start=0, end=1, overlap=0.5)
 
    .. rubric:: Measurement
 
@@ -159,13 +160,10 @@ VCollection
 
       Staggered write animation across all children.
 
-   .. py:method:: cascade(method_name, delay=0.2, **kwargs)
+   .. py:method:: stagger_fadein_sorted(start=0, end=1, direction='left_to_right', easing=smooth)
 
-      Call *method_name* on each child with staggered timing.
-
-   .. py:method:: sequential(method_name, **kwargs)
-
-      Call *method_name* on children one after another, with no overlap.
+      Fade in children based on spatial ordering.
+      Directions: ``'left_to_right'``, ``'top_to_bottom'``, ``'center_out'``.
 
    .. py:method:: swap_children(i, j, start=0, end=1, easing=smooth)
 
@@ -257,10 +255,9 @@ VCollection
 
       Spread children in a fan pattern.
 
-   .. py:method:: cascade_fadein(start=0, end=1, direction='left_to_right', easing=smooth)
+   .. py:method:: stagger_scale(start=0, end=1, scale_factor=1.5, delay=0.2, easing=smooth)
 
-      Fade in children with a cascade effect based on spatial ordering.
-      Directions: ``'left_to_right'``, ``'top_to_bottom'``, ``'center_out'``.
+      Scale each child up then back down with stagger delay (popping wave).
 
    .. py:method:: connect_children(arrow=False, buff=0, start=0, **kwargs)
 
@@ -939,6 +936,7 @@ SampleSpace
 ~~~~~~~~~~~~
 
 .. py:class:: SampleSpace(width=600, height=400, x=660, y=340, **styling)
+   :no-index:
 
    Bases: :py:class:`VCollection`
 
@@ -950,6 +948,7 @@ Legend
 ~~~~~~
 
 .. py:class:: Legend(items, x=None, y=None, **styling)
+   :no-index:
 
    Bases: :py:class:`VCollection`
 
@@ -961,12 +960,14 @@ ProgressBar
 ~~~~~~~~~~~
 
 .. py:class:: ProgressBar(width=600, height=40, progress=0, x=660, y=520, **styling)
+   :no-index:
 
    Bases: :py:class:`VCollection`
 
    Animated progress bar that fills from left to right.
 
    .. py:method:: animate_to(value, start=0, end=1)
+      :no-index:
 
       Animate progress to a target value (0–1).
 

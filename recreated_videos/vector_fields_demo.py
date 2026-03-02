@@ -30,7 +30,7 @@ slope_field = ax1.add_slope_field(lambda x, y: x - y,
                                    x_step=0.5, y_step=0.5,
                                    seg_length=0.2,
                                    creation=1.0, stroke='#555')
-slope_field.stagger('fadein', delay=0.02, start=1.0, end=2.5)
+slope_field.stagger('fadein', start=1.0, end=2.5)
 
 # Solution curve overlay
 curve1 = ax1.plot(lambda x: x - 1 + 2 * math.exp(-x), creation=2.5,
@@ -52,7 +52,7 @@ canvas.add(ax2)
 vf = ax2.plot_vector_field(lambda x, y: (-y, x),
                             x_step=0.6, y_step=0.6,
                             creation=4.5, stroke='#83C167', fill='#83C167')
-vf.stagger('fadein', delay=0.02, start=4.5, end=6.0)
+vf.stagger('fadein', start=4.5, end=6.0)
 
 # ── Section 3: Tangent line on sin(x) ───────────────────────────────
 label3 = Text(text="Tangent to sin(x) at x=1", x=480, y=720,
@@ -91,7 +91,7 @@ canvas.add(ax4)
 grad_field = ax4.plot_vector_field(lambda x, y: (x, y),
                                     x_step=0.6, y_step=0.6, max_length=50,
                                     creation=10.5, stroke='#FF6B6B', fill='#FF6B6B')
-grad_field.stagger('fadein', delay=0.02, start=10.5, end=12)
+grad_field.stagger('fadein', start=10.5, end=12)
 
 if not args.no_display:
     canvas.browser_display(start=args.start or 0, end=args.end or 13,

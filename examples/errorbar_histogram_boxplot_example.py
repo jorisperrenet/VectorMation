@@ -72,5 +72,7 @@ canvas.add_objects(title, ax1, eb, eb_label,
                    ax3, cb, cb_label,
                    bp, bp_label)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/errorbar_histogram_boxplot_example.mp4', fps=30, end=3)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

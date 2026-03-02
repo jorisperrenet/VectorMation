@@ -55,5 +55,7 @@ r3.indicate(start=6, end=6.5, scale_factor=1.15)
 
 canvas.add_objects(ax, r1, r2, r3, dim_label, title)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/cursor_dim_example.mp4', fps=30, end=7)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

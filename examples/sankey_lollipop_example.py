@@ -65,5 +65,7 @@ sankey_label.fadein(1, 1.5)
 canvas.add_objects(ax, ax2, title, bars, threshold, labels, lp,
                    sankey, ax_label, lp_label, sankey_label)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/sankey_lollipop_example.mp4', fps=30, end=3)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

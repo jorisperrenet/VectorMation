@@ -220,7 +220,8 @@ def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_widt
                             show_grid, time, x_scale='linear', y_scale='linear', tick_format=None,
                             x_tick_format=None, y_tick_format=None,
                             x_ticks=None, y_ticks=None,
-                            tex_ticks=False):
+                            tex_ticks=False, show_tick_labels=False,
+                            tick_label_font_size=None, tick_label_color=None):
     """Build axis lines, ticks, tick labels, and grid as VObjects for a single frame."""
     objects = []
 
@@ -281,7 +282,8 @@ def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_widt
                         creation=time, stroke='#fff', stroke_width=_AXIS_STROKE_WIDTH))
 
     # Ticks and labels for both axes
-    TexObject = _get_tex_object() if tex_ticks else None
+    if tex_ticks:
+        from vectormation._tex_glyphs import assemble_tex_glyphs
 
     def _add_ticks(ticks, scale, to_svg_fn, is_x_axis, fmt):
         for val in ticks:
@@ -292,26 +294,46 @@ def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_widt
             else:
                 objects.append(Line(x1=x_zero - tick_len, y1=sv, x2=x_zero + tick_len, y2=sv,
                                     creation=time, stroke='#fff', stroke_width=_AXIS_STROKE_WIDTH))
+            if not show_tick_labels:
+                continue
             if scale != 'log' and abs(val) < 1e-9:
                 continue
+            fs = tick_label_font_size if tick_label_font_size is not None else _TICK_FONT_SIZE
+            clr = tick_label_color if tick_label_color is not None else '#aaa'
             label_str = _format_tick(val, fmt)
-            if tex_ticks and TexObject is not None and '$' in label_str:
-                lbl = TexObject(label_str, font_size=_TICK_FONT_SIZE, creation=time, fill='#aaa')
+            if tex_ticks and '$' in label_str:
+                inner = label_str.strip('$')
                 if is_x_axis:
-                    lbl.center_to_pos(sv, y_zero + tick_len + _TICK_GAP + _TICK_FONT_SIZE * 0.5, start=time)
+                    lbl = assemble_tex_glyphs(inner, sv,
+                                              y_zero + tick_len + _TICK_GAP + fs * 0.5,
+                                              fs, creation=time, anchor='center',
+                                              fill=clr)
                 else:
-                    lbl.center_to_pos(x_zero - tick_len - _TICK_GAP - lbl.get_width(time) / 2,
-                                      sv, start=time)
-                objects.append(lbl)
+                    lbl = assemble_tex_glyphs(inner,
+                                              x_zero - tick_len - _TICK_GAP,
+                                              sv, fs, creation=time, anchor='right',
+                                              fill=clr)
+                if lbl is not None:
+                    objects.append(lbl)
+                else:
+                    # Glyph assembly failed (LaTeX not installed) — use plain text
+                    if is_x_axis:
+                        objects.append(Text(text=inner, x=sv, y=y_zero + tick_len + _TICK_GAP + fs * TEXT_Y_OFFSET,
+                                            font_size=fs, text_anchor='middle',
+                                            creation=time, fill=clr, stroke_width=0))
+                    else:
+                        objects.append(Text(text=inner, x=x_zero - tick_len - _TICK_GAP, y=sv + fs * TEXT_Y_OFFSET,
+                                            font_size=fs, text_anchor='end',
+                                            creation=time, fill=clr, stroke_width=0))
             else:
                 if is_x_axis:
-                    objects.append(Text(text=label_str, x=sv, y=y_zero + tick_len + _TICK_GAP + _TICK_FONT_SIZE * TEXT_Y_OFFSET,
-                                        font_size=_TICK_FONT_SIZE, text_anchor='middle',
-                                        creation=time, fill='#aaa', stroke_width=0))
+                    objects.append(Text(text=label_str, x=sv, y=y_zero + tick_len + _TICK_GAP + fs * TEXT_Y_OFFSET,
+                                        font_size=fs, text_anchor='middle',
+                                        creation=time, fill=clr, stroke_width=0))
                 else:
-                    objects.append(Text(text=label_str, x=x_zero - tick_len - _TICK_GAP, y=sv + _TICK_FONT_SIZE * TEXT_Y_OFFSET,
-                                        font_size=_TICK_FONT_SIZE, text_anchor='end',
-                                        creation=time, fill='#aaa', stroke_width=0))
+                    objects.append(Text(text=label_str, x=x_zero - tick_len - _TICK_GAP, y=sv + fs * TEXT_Y_OFFSET,
+                                        font_size=fs, text_anchor='end',
+                                        creation=time, fill=clr, stroke_width=0))
     _add_ticks(x_ticks, x_scale, _to_svg_x, is_x_axis=True, fmt=_x_fmt)
     _add_ticks(y_ticks, y_scale, _to_svg_y, is_x_axis=False, fmt=_y_fmt)
 

@@ -30,5 +30,7 @@ orbit_path.fadein(0, 0.5)
 
 canvas.add_objects(orbit_path, sun, planet, moon, title)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/orbit_example.mp4', fps=30, end=6)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

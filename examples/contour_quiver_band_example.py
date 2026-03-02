@@ -80,5 +80,7 @@ canvas.add_objects(title, ax1, contours, c_label,
                    ax3, band, line, lbl, r_label,
                    ax4, hm, cb, hm_label)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/contour_quiver_band_example.mp4', fps=30, end=3)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

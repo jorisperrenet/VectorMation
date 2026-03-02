@@ -5,7 +5,7 @@ import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
 from vectormation._base_helpers import (
-    _clamp01, _lerp, _ramp, _clip_reveal,
+    _clamp01, _lerp, _ramp,
     _coords_of, _parse_path, _norm_dir, _norm_edge,
     _make_brect, _wrap_to_svg, _EDGE_POINTS,
 )
@@ -267,11 +267,6 @@ class _VObjectEffectsMixin:
         canvas.vb_w.move_to(start, end, target_w, easing=easing)
         canvas.vb_h.move_to(start, end, target_h, easing=easing)
         return self
-
-    def typewriter_delete(self, start: float = 0, end: float = 1,
-                          direction='right', easing=easings.smooth):
-        """Clip-path sweep hide (reverse of typewriter_reveal)."""
-        return self._typewriter_clip(start, end, direction, easing, reveal=False)
 
     def domino(self, start: float = 0, end: float = 1, direction='right',
                angle: float = 90, easing=easings.smooth):
@@ -550,30 +545,6 @@ class _VObjectEffectsMixin:
                 f"Must be one of: {', '.join(sorted(self._VALID_BLEND_MODES))}"
             )
         self.styling.mix_blend_mode.set_onward(start, mode)
-        return self
-
-    # -- Reveal clip --
-
-    # Maps reveal_clip direction names to _CLIP_INSET keys.
-    # 'left' (reveal left→right) clips the right side, etc.
-    _REVEAL_DIR = {'left': 'right', 'right': 'left', 'top': 'down', 'bottom': 'up',
-                   'up': 'down', 'down': 'up'}
-
-    def reveal_clip(self, start: float = 0, end: float = 1, direction='left', easing=easings.smooth):
-        """Progressive reveal using SVG clip-path in the given direction."""
-        direction = _norm_dir(direction, default='left')
-        dur = end - start
-        if dur <= 0:
-            return self
-        self._show_from(start)
-        key = self._REVEAL_DIR.get(direction)
-        if key is None:
-            raise ValueError(
-                f"Unsupported reveal direction '{direction}'. "
-                f"Must be one of: {', '.join(sorted(self._REVEAL_DIR))}"
-            )
-        self.styling.clip_path.set(start, end,
-            _clip_reveal(self._CLIP_INSET[key], start, max(dur, 1e-9), easing), stay=True)
         return self
 
     # -- Repeat animation --

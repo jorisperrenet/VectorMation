@@ -5,7 +5,7 @@ args = parse_args()
 canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/slope_wave')
 canvas.set_background()
 
-title = Text(text='Slope Field, Wave & Glitch', x=960, y=50,
+title = Text(text='Slope Field (add_slope_field)', x=960, y=50,
              font_size=42, fill='#58C4DD', stroke_width=0, text_anchor='middle')
 title.write(0, 1)
 
@@ -22,30 +22,9 @@ field = ax.add_slope_field(
     stroke='#58C4DD', stroke_width=1)
 field.fadein(1.5, 2.5)
 
-# Wave effect demo
-dots = VCollection(
-    *[Dot(cx=1100 + i * 50, cy=500, r=12, fill='#FF6B6B') for i in range(10)]
-)
-dots.fadein(2.5, 3)
+canvas.add_objects(ax, title)
 
-wave_label = Text(text='Wave Effect', x=1350, y=430,
-                  font_size=24, fill='#aaa', stroke_width=0, text_anchor='middle')
-wave_label.fadein(2.5, 3)
-
-dots.wave_effect(start=3, end=5, amplitude=30, axis='y')
-
-# Glitch effect demo
-glitch_text = Text(text='GLITCH', x=1350, y=700,
-                   font_size=48, fill='#83C167', stroke_width=0, text_anchor='middle')
-glitch_text.fadein(3.5, 4)
-glitch_text.glitch(start=4, end=5.5, intensity=15, n_flashes=8)
-
-glitch_rect = Rectangle(120, 80, x=1150, y=660, fill='#FFFF00', fill_opacity=0.5,
-                         stroke='#FFFF00', stroke_width=2)
-glitch_rect.fadein(3.5, 4)
-glitch_rect.glitch(start=4.5, end=6, intensity=20, n_flashes=6)
-
-canvas.add_objects(ax, title, dots, wave_label, glitch_text, glitch_rect)
-
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/slope_wave_example.mp4', fps=30, end=4)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

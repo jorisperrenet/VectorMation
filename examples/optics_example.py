@@ -34,5 +34,7 @@ for i, ray in enumerate(rays):
 
 canvas.add_objects(lens, *rays, title, focal_label)
 args = parse_args()
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/optics_example.mp4', fps=30, end=3)
 if not args.no_display:
     canvas.browser_display(start=0, end=3, fps=args.fps, port=args.port)

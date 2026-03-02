@@ -568,8 +568,8 @@ class Text(VObject):
 
     @staticmethod
     def _estimate_width(text, fs):
-        return sum(fs * (0.35 if ch in Text._NARROW else 0.75 if ch in Text._WIDE
-                         else 0.3 if ch == ' ' else 0.65 if ch.isupper() else 0.55)
+        return sum(fs * (0.4 if ch in Text._NARROW else 0.78 if ch in Text._WIDE
+                         else 0.33 if ch == ' ' else 0.68 if ch.isupper() else 0.6)
                    for ch in str(text))
 
     def _text_left(self, x, w):
@@ -668,7 +668,7 @@ class Text(VObject):
                 _ramp(start, dur, opacity, easing), stay=True)
         return rect
 
-    def highlight(self, start: float = 0, end: float = 1, color='#FFFF00', opacity: float = 0.3, padding: float = 4, easing=easings.there_and_back):
+    def highlight(self, start: float = 0, end: float = 1, color='#FFFF00', opacity: float = 0.3, padding: float = 8, easing=easings.there_and_back):
         """Highlight the text with a colored background rectangle that fades in/out.
         Returns the highlight Rectangle (must be added to canvas separately)."""
         bx, by, bw, bh = self.bbox(start)

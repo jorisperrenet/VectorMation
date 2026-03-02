@@ -178,7 +178,7 @@ class ThreeDAxes(VCollection):
         return self
 
     def _build_axis_label(self, label_text, pos_3d, creation):
-        """Create a TexObject for an axis label, positioned dynamically."""
+        """Create a label for an axis, using built-in glyphs when possible."""
         from vectormation._composites import TexObject
         tex = f'${label_text}$' if '$' not in label_text else label_text
         lbl = TexObject(tex, font_size=28, creation=creation,

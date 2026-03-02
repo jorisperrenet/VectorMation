@@ -21,5 +21,7 @@ typed.typewrite(2, 4, cursor='_')
 
 canvas.add_objects(heading, subtitle, typed)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/scramble_text_example.mp4', fps=30, end=4)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

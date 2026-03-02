@@ -201,14 +201,6 @@ class TestZoomTo:
         assert result is c
 
 
-class TestTypewriterDelete:
-    def test_basic(self):
-        r = Rectangle(200, 100)
-        r.typewriter_delete(start=0, end=1)
-        svg = r.to_svg(0.5)
-        assert svg is not None
-
-
 class TestDomino:
     def test_right(self):
         r = Rectangle(100, 200)
@@ -283,37 +275,6 @@ class TestWaveThrough:
         c.wave_through(start=0, end=1, direction='x')
         svg = c.to_svg(0.5)
         assert svg is not None
-
-
-class TestRevealClip:
-    def test_left(self):
-        r = Rectangle(200, 100)
-        r.reveal_clip(start=0, end=1, direction='left')
-        svg = r.to_svg(0.5)
-        assert svg is not None
-
-    def test_right(self):
-        r = Rectangle(200, 100)
-        r.reveal_clip(start=0, end=1, direction='right')
-        svg = r.to_svg(0.5)
-        assert svg is not None
-
-    def test_top(self):
-        r = Rectangle(200, 100)
-        r.reveal_clip(start=0, end=1, direction='top')
-        svg = r.to_svg(0.5)
-        assert svg is not None
-
-    def test_bottom(self):
-        r = Rectangle(200, 100)
-        r.reveal_clip(start=0, end=1, direction='bottom')
-        svg = r.to_svg(0.5)
-        assert svg is not None
-
-    def test_invalid_direction(self):
-        r = Rectangle(200, 100)
-        with pytest.raises(ValueError, match='Unsupported reveal direction'):
-            r.reveal_clip(direction='diagonal')
 
 
 class TestRepeatAnimation:

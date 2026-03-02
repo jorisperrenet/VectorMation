@@ -40,5 +40,7 @@ snk_label = Text(text='\u2013', x=1160, y=510, font_size=32,
 
 canvas.add_objects(sl, source, sink, src_label, snk_label)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/stream_lines_example.mp4', fps=30, end=2)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

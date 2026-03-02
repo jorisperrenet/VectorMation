@@ -1374,6 +1374,7 @@ FunctionGraph
 -------------
 
 .. py:class:: FunctionGraph(func, x_range=(-5, 5), y_range=None, num_points=200, x=120, y=60, width=1440, height=840, **styling)
+   :no-index:
 
    Bases: :py:class:`Lines`
 

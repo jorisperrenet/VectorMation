@@ -43,5 +43,7 @@ label.fadein(0.5, 1)
 
 canvas.add_objects(ax, ax2, title, stems, bars, circle, trail, label)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/stem_grouped_example.mp4', fps=30, end=5)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

@@ -93,15 +93,15 @@ ThreeDAxes
 
       Preset values:
 
-      ============ ============ ==============
-      Name         phi          theta
-      ============ ============ ==============
-      ``default``  75 deg       -30 deg
-      ``isometric``54.7 deg     -45 deg
-      ``front``    90 deg       0 deg
-      ``top``      0 deg        0 deg
-      ``side``     90 deg       -90 deg
-      ============ ============ ==============
+      =============== ============ ==============
+      Name            phi          theta
+      =============== ============ ==============
+      ``default``     75 deg       -30 deg
+      ``isometric``   54.7 deg     -45 deg
+      ``front``       90 deg       0 deg
+      ``top``         0 deg        0 deg
+      ``side``        90 deg       -90 deg
+      =============== ============ ==============
 
    .. py:method:: set_camera_zoom(factor, start=0, end=1, easing=smooth)
 
@@ -696,42 +696,52 @@ These factory functions create common 3D shapes as collections of patches
 that can be added to a :py:class:`ThreeDAxes` with ``axes.add_3d()``.
 
 .. py:function:: Sphere3D(cx=0, cy=0, cz=0, radius=1, resolution=(20, 20), fill_color='#58C4DD', fill_opacity=0.8, stroke_width=0.5)
+   :no-index:
 
    Create a sphere at ``(cx, cy, cz)`` with the given radius.
 
 .. py:function:: Cube(cx=0, cy=0, cz=0, side=2, fill_color='#58C4DD', fill_opacity=0.8)
+   :no-index:
 
    Create an axis-aligned cube centered at ``(cx, cy, cz)``.
 
 .. py:function:: Cylinder3D(cx=0, cy=0, cz=0, radius=1, height=2, resolution=(20, 2), fill_color='#58C4DD', fill_opacity=0.8)
+   :no-index:
 
    Create a cylinder along the z-axis.
 
 .. py:function:: Cone3D(cx=0, cy=0, cz=0, radius=1, height=2, resolution=(20, 1), fill_color='#58C4DD', fill_opacity=0.8)
+   :no-index:
 
    Create a cone with its apex pointing up the z-axis.
 
 .. py:function:: Torus3D(cx=0, cy=0, cz=0, major_radius=2, minor_radius=0.5, resolution=(30, 15), fill_color='#58C4DD', fill_opacity=0.8)
+   :no-index:
 
    Create a torus (donut) in the xy-plane.
 
 .. py:function:: Prism3D(cx=0, cy=0, cz=0, sides=6, radius=1, height=2, fill_color='#58C4DD', fill_opacity=0.8)
+   :no-index:
 
    Create a regular prism (hexagonal by default).
 
 .. py:function:: Tetrahedron(cx=0, cy=0, cz=0, side=2, fill_color='#58C4DD', fill_opacity=0.8)
+   :no-index:
 
    Create a regular tetrahedron (4 equilateral triangle faces).
 
 .. py:function:: Octahedron(cx=0, cy=0, cz=0, side=2, fill_color='#58C4DD', fill_opacity=0.8)
+   :no-index:
 
    Create a regular octahedron (8 equilateral triangle faces).
 
 .. py:function:: Icosahedron(cx=0, cy=0, cz=0, side=2, fill_color='#58C4DD', fill_opacity=0.8)
+   :no-index:
 
    Create a regular icosahedron (20 equilateral triangle faces).
 
 .. py:function:: Dodecahedron(cx=0, cy=0, cz=0, side=2, fill_color='#58C4DD', fill_opacity=0.8)
+   :no-index:
 
    Create a regular dodecahedron (12 pentagonal faces).
 

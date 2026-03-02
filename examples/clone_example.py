@@ -15,7 +15,7 @@ star = Star(n=5, outer_radius=40, inner_radius=20, cx=200, cy=300,
 star.fadein(0, 1)
 
 clones = star.clone(count=6, dx=120)
-clones.stagger('fadein', delay=0.2, start=0.5, end=1.5)
+clones.stagger('fadein', start=0.5, end=1.5)
 
 # Create circles and use filter to animate only large ones
 circles = VGroup(
@@ -29,9 +29,11 @@ circles.fadein(0, 1)
 
 # Filter: pulse only circles with radius > 40
 big = circles.filter(lambda obj: obj.rx.at_time(0) > 40)
-big.stagger('pulse', delay=0.3, start=2, end=3)
+big.stagger('pulse', start=2, end=3)
 
 canvas.add_objects(title, star, clones, circles)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/clone_example.mp4', fps=30, end=3)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

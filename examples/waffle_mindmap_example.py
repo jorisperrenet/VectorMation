@@ -56,5 +56,7 @@ mm_label.fadein(1, 1.5)
 canvas.add_objects(title, ax, kde, ab, density_label,
                    waffle, waffle_label, mm, mm_label)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/waffle_mindmap_example.mp4', fps=30, end=3)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

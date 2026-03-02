@@ -85,5 +85,7 @@ canvas.add_objects(title, ax1, ribbon, line, r_label,
                    ax3, bars, brk, b_label,
                    mh, mh_label)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/ribbon_swarm_heatmap_example.mp4', fps=30, end=3)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

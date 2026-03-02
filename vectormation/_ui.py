@@ -45,12 +45,10 @@ class Variable(VCollection):
     def __init__(self, label='x', value: float = 0, fmt='{:.2f}', x=ORIGIN[0], y=ORIGIN[1],
                  font_size: float = 48, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = _TEXT_STYLE | styling_kwargs
-        label_text = f'{label} = '
-        self.label = Text(label_text, x=x, y=y, font_size=font_size,
-                          text_anchor='end', creation=creation, z=z, **style_kw)
-        self.number = DecimalNumber(value, fmt=fmt, x=x, y=y,
+        full_fmt = f'{label} = {fmt}'
+        self.number = DecimalNumber(value, fmt=full_fmt, x=x, y=y,
                                     font_size=font_size, creation=creation, z=z, **style_kw)
-        super().__init__(self.label, self.number, creation=creation, z=z)
+        super().__init__(self.number, creation=creation, z=z)
 
     @property
     def tracker(self):

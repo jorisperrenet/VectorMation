@@ -48,5 +48,7 @@ for obj in [title, b1, b2, b3, tb, sb, div, cl, pb]:
     obj.fadeout(start=7, end=7.8)
 
 v.add(title, b1, b2, b3, tb, sb, div, cl, pb)
+if args.verbose:
+    v.export_video('docs/source/_static/videos/ui_showcase_example.mp4', fps=30, end=8)
 if not args.no_display:
     v.browser_display(end=args.duration or 8, fps=args.fps, port=args.port, hot_reload=args.hot_reload)

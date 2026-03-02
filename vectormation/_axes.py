@@ -12,7 +12,7 @@ from vectormation._base_helpers import _clamp01, _lerp_point, _norm_dir, _norm_a
 from vectormation._collection import _scale_transform
 from vectormation._axes_helpers import (
     _CURVE_STYLE, _AREA_STYLE, _HIGHLIGHT_STYLE,
-    _get_arrow, _get_dynamic_object, _get_tex_object,
+    _get_arrow, _get_dynamic_object,
     _nice_ticks, _build_axes_decoration,
     _TICK_FONT_SIZE, _LABEL_GAP,
     pi_format, pi_ticks, pi_tex_format,
@@ -106,6 +106,11 @@ class Axes(_AxesExtMixin, VCollection):
         self._x_ticks = x_ticks  # None or list of tick values
         self._y_ticks = y_ticks
         self._tex_ticks = tex_ticks  # render tick labels as TeX objects
+        # Auto-enable tick labels when a format, custom ticks, or tex_ticks is explicitly given
+        self._show_tick_labels = bool(tick_format or x_tick_format or y_tick_format
+                                      or x_ticks or y_ticks or tex_ticks)
+        self._tick_label_font_size = None  # set by add_coordinates()
+        self._tick_label_color = None  # set by add_coordinates()
 
         self._axis_labels = []
 
@@ -123,13 +128,14 @@ class Axes(_AxesExtMixin, VCollection):
         self.axes = _get_dynamic_object()(self._build_axes_at, creation=creation, z=z)
 
     def _build_label_objects(self, x_label, y_label, creation, z):
-        """Build axis title TexObjects (x_label, y_label) with dynamic position."""
+        """Build axis title labels with dynamic position, using built-in glyphs when possible."""
+        from vectormation._composites import TexObject
         objects = []
         for label_text, is_x in [(x_label, True), (y_label, False)]:
             if not label_text:
                 continue
             tex = label_text if '$' in label_text else f'${label_text}$'
-            lbl = _get_tex_object()(tex, font_size=DEFAULT_FONT_SIZE, creation=creation, z=z,
+            lbl = TexObject(tex, font_size=DEFAULT_FONT_SIZE, creation=creation, z=z,
                             fill='#fff', stroke_width=0)
             _, _, lw, lh = lbl.bbox(creation)
             if is_x:
@@ -165,7 +171,9 @@ class Axes(_AxesExtMixin, VCollection):
             self._show_grid, time, self._x_scale, self._y_scale, self._tick_format,
             x_tick_format=self._x_tick_format, y_tick_format=self._y_tick_format,
             x_ticks=self._x_ticks, y_ticks=self._y_ticks,
-            tex_ticks=self._tex_ticks)
+            tex_ticks=self._tex_ticks, show_tick_labels=self._show_tick_labels,
+            tick_label_font_size=self._tick_label_font_size,
+            tick_label_color=self._tick_label_color)
         # Include the persistent axis title labels (TexObjects created once)
         for lbl in self._axis_labels:
             coll.objects.append(lbl)
@@ -424,25 +432,28 @@ class Axes(_AxesExtMixin, VCollection):
         self.objects.append(path)
         return path
 
-    def add_coordinates(self, creation: float = 0, font_size=None, color='#aaa'):
-        """Add coordinate labels at each tick mark on both axes."""
-        if font_size is None:
-            font_size = _TICK_FONT_SIZE
-        xmin, xmax = self.x_min.at_time(creation), self.x_max.at_time(creation)
-        ymin = self.y_min.at_time(creation) if self.y_min is not None else -5
-        ymax = self.y_max.at_time(creation) if self.y_max is not None else 5
-        for val in _nice_ticks(xmin, xmax):
-            sx = self._math_to_svg_x(val, creation)
-            sy = self.plot_y + self.plot_height + font_size + 4
-            lbl = Text(text=f'{val:g}', x=sx, y=sy, font_size=font_size,
-                       text_anchor='middle', fill=color, stroke_width=0, creation=creation)
-            self._add_plot_obj(lbl)
-        for val in _nice_ticks(ymin, ymax):
-            sx = self.plot_x - 8
-            sy = self._math_to_svg_y(val, creation) + font_size * TEXT_Y_OFFSET
-            lbl = Text(text=f'{val:g}', x=sx, y=sy, font_size=font_size,
-                       text_anchor='end', fill=color, stroke_width=0, creation=creation)
-            self._add_plot_obj(lbl)
+    def add_coordinates(self, font_size=None, color='#aaa', tex=False, creation=None):
+        """Enable coordinate labels at each tick mark on both axes.
+
+        Labels are rendered dynamically as part of the axis decoration, so they
+        update when the axis range is animated.
+
+        Parameters
+        ----------
+        font_size : int, optional
+            Font size for the tick labels (default: 24).
+        color : str, optional
+            Fill color for the tick labels (default: '#aaa').
+        tex : bool, optional
+            If True, render tick labels as TeX objects.
+        """
+        self._show_tick_labels = True
+        if font_size is not None:
+            self._tick_label_font_size = font_size
+        if color != '#aaa':
+            self._tick_label_color = color
+        if tex:
+            self._tex_ticks = True
         return self
 
     def add_grid(self):
@@ -594,7 +605,8 @@ class Axes(_AxesExtMixin, VCollection):
         """Create a TeX label positioned near a plotted function curve."""
         direction = _norm_dir(direction, 'up')
         style_kw = {'fill': '#fff', 'stroke_width': 0} | styling_kwargs
-        label_obj = _get_tex_object()(label, font_size=font_size, creation=creation, z=z, **style_kw)
+        from vectormation._composites import TexObject
+        label_obj = TexObject(label, font_size=font_size, creation=creation, z=z, **style_kw)
         _, _, lw, lh = label_obj.bbox(creation)
         offsets = {'up': (0, -buff - lh/2), 'down': (0, buff + lh/2),
                    'left': (-buff - lw/2, 0), 'right': (buff + lw/2, 0)}

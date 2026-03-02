@@ -51,7 +51,7 @@ class TestVCollection:
         c2 = Circle(r=50)
         c3 = Circle(r=50)
         col = VCollection(c1, c2, c3)
-        col.stagger('fadein', delay=0.5, start=0, end=1)
+        col.stagger('fadein', start=0, end=1)
         # c1: fadein start=0 end=1
         # c2: fadein start=0.5 end=1.5
         # c3: fadein start=1.0 end=2.0
@@ -926,46 +926,46 @@ class TestVCollectionChunk:
         assert all(len(c.objects) == 2 for c in chunks)
 
 
-class TestFadeInOneByOne:
-    def test_fade_in_one_by_one_returns_self(self):
+class TestStaggerFadeinOverlap0:
+    def test_stagger_fadein_overlap0_returns_self(self):
         c1 = Circle(r=50)
         c2 = Circle(r=50)
         col = VCollection(c1, c2)
-        result = col.fade_in_one_by_one(start=0, end=2)
+        result = col.stagger_fadein(start=0, end=2, overlap=0)
         assert result is col
 
-    def test_fade_in_one_by_one_sequential(self):
+    def test_stagger_fadein_overlap0_sequential(self):
         """With overlap=0, children should fade in sequentially (no overlap)."""
         c1 = Circle(r=50)
         c2 = Circle(r=50)
         c3 = Circle(r=50)
         col = VCollection(c1, c2, c3)
-        col.fade_in_one_by_one(start=0, end=3, overlap=0.0, easing=easings.linear)
+        col.stagger_fadein(start=0, end=3, overlap=0, easing=easings.linear)
         # c1: 0-1, c2: 1-2, c3: 2-3
         # At t=0.5 c1 is mid-fade, c2 should not have started yet
         assert c1.styling.opacity.at_time(0.5) == pytest.approx(0.5, abs=0.1)
         # c2 starts at t=1, so at t=0.5 it should be at opacity 0 (not started)
         assert c2.show.at_time(0.5) is False
 
-    def test_fade_in_one_by_one_all_visible_at_end(self):
+    def test_stagger_fadein_overlap0_all_visible_at_end(self):
         """After the animation, all children should be fully visible."""
         circles = [Circle(r=50) for _ in range(4)]
         col = VCollection(*circles)
-        col.fade_in_one_by_one(start=0, end=4, easing=easings.linear)
+        col.stagger_fadein(start=0, end=4, overlap=0, easing=easings.linear)
         for c in circles:
             assert c.styling.opacity.at_time(4) == pytest.approx(1.0, abs=0.05)
 
-    def test_fade_in_one_by_one_empty_collection(self):
+    def test_stagger_fadein_overlap0_empty_collection(self):
         """Empty collection should return self without error."""
         col = VCollection()
-        result = col.fade_in_one_by_one(start=0, end=1)
+        result = col.stagger_fadein(start=0, end=1, overlap=0)
         assert result is col
 
-    def test_fade_in_one_by_one_single_child(self):
+    def test_stagger_fadein_overlap0_single_child(self):
         """Single child should use the full time range."""
         c = Circle(r=50)
         col = VCollection(c)
-        col.fade_in_one_by_one(start=0, end=2, easing=easings.linear)
+        col.stagger_fadein(start=0, end=2, overlap=0, easing=easings.linear)
         assert c.styling.opacity.at_time(1) == pytest.approx(0.5, abs=0.1)
         assert c.styling.opacity.at_time(2) == pytest.approx(1.0, abs=0.05)
 
@@ -1824,26 +1824,26 @@ class TestOrbitAround:
 
 
 # ---------------------------------------------------------------------------
-# VCollection.cascade_scale
+# VCollection.stagger_scale (formerly cascade_scale)
 # ---------------------------------------------------------------------------
 
-class TestCascadeScale:
+class TestStaggerScaleFormer:
     def test_returns_self(self):
         c1 = Circle(r=20, cx=100, cy=100)
         c2 = Circle(r=20, cx=200, cy=100)
         col = VCollection(c1, c2)
-        result = col.cascade_scale(start=0, end=2, factor=1.5, delay=0.2)
+        result = col.stagger_scale(start=0, end=2, scale_factor=1.5, delay=0.2)
         assert result is col
 
     def test_empty_collection(self):
         col = VCollection()
-        result = col.cascade_scale(start=0, end=1)
+        result = col.stagger_scale(start=0, end=1)
         assert result is col
 
     def test_zero_duration(self):
         c1 = Circle(r=20, cx=100, cy=100)
         col = VCollection(c1)
-        result = col.cascade_scale(start=1, end=1)
+        result = col.stagger_scale(start=1, end=1)
         assert result is col
 
     def test_first_child_scales_up(self):
@@ -1851,7 +1851,7 @@ class TestCascadeScale:
         c1 = Circle(r=20, cx=100, cy=100)
         c2 = Circle(r=20, cx=200, cy=100)
         col = VCollection(c1, c2)
-        col.cascade_scale(start=0, end=2, factor=2.0, delay=0.3, easing=easings.linear)
+        col.stagger_scale(start=0, end=2, scale_factor=2.0, delay=0.3, easing=easings.linear)
         # First child starts at t=0, its mid-animation should show scale > 1
         sx_mid = c1.styling.scale_x.at_time(0.85)
         assert sx_mid > 1.0, "First child should scale up at its peak"
@@ -1861,7 +1861,7 @@ class TestCascadeScale:
         c1 = Circle(r=20, cx=100, cy=100)
         c2 = Circle(r=20, cx=200, cy=100)
         col = VCollection(c1, c2)
-        col.cascade_scale(start=0, end=2, factor=2.0, delay=0.5, easing=easings.linear)
+        col.stagger_scale(start=0, end=2, scale_factor=2.0, delay=0.5, easing=easings.linear)
         # Before second child starts, its scale should be 1
         sx_c2_before = c2.styling.scale_x.at_time(0.1)
         assert sx_c2_before == pytest.approx(1.0, abs=0.01)
@@ -1870,7 +1870,7 @@ class TestCascadeScale:
         """After the animation, scale should return to baseline."""
         c1 = Circle(r=20, cx=100, cy=100)
         col = VCollection(c1)
-        col.cascade_scale(start=0, end=2, factor=1.5, delay=0.1, easing=easings.linear)
+        col.stagger_scale(start=0, end=2, scale_factor=1.5, delay=0.1, easing=easings.linear)
         # At the end, sin(pi * 1) = 0, so scale should be 1
         sx_end = c1.styling.scale_x.at_time(2.0)
         assert sx_end == pytest.approx(1.0, abs=0.01)
@@ -1879,7 +1879,7 @@ class TestCascadeScale:
         """Single child should use full duration."""
         c1 = Circle(r=20, cx=100, cy=100)
         col = VCollection(c1)
-        col.cascade_scale(start=0, end=1, factor=1.5, delay=0.2, easing=easings.linear)
+        col.stagger_scale(start=0, end=1, scale_factor=1.5, delay=0.2, easing=easings.linear)
         # With one child, delay is irrelevant - uses full duration
         sx_mid = c1.styling.scale_x.at_time(0.5)
         assert sx_mid > 1.0
@@ -2268,21 +2268,21 @@ class TestStaggerScale:
         assert sx_c3 > 1.05
 
 
-class TestApplySequential:
-    def test_apply_sequential_returns_self(self):
+class TestStaggerOverlap0:
+    def test_stagger_overlap0_returns_self(self):
         c1 = Circle(r=50)
         c2 = Circle(r=50)
         col = VCollection(c1, c2)
-        result = col.apply_sequential('fadein', 0, 2)
+        result = col.stagger('fadein', start=0, end=2, overlap=0)
         assert result is col
 
-    def test_apply_sequential_divides_time_evenly(self):
+    def test_stagger_overlap0_divides_time_evenly(self):
         """With 3 children and time 0-3, each child gets 1 second."""
         c1 = Circle(r=50)
         c2 = Circle(r=50)
         c3 = Circle(r=50)
         col = VCollection(c1, c2, c3)
-        col.apply_sequential('fadein', 0, 3)
+        col.stagger('fadein', start=0, end=3, overlap=0)
         # c1 should be shown from time 0 (its fadein starts at 0)
         assert c1.show.at_time(0) is True
         # c2 should be shown from time 1 (its fadein starts at 1)
@@ -2290,34 +2290,34 @@ class TestApplySequential:
         # c3 should be shown from time 2 (its fadein starts at 2)
         assert c3.show.at_time(2) is True
 
-    def test_apply_sequential_empty_collection(self):
+    def test_stagger_overlap0_empty_collection(self):
         col = VCollection()
-        result = col.apply_sequential('fadein', 0, 3)
+        result = col.stagger('fadein', start=0, end=3, overlap=0)
         assert result is col
 
-    def test_apply_sequential_single_child(self):
+    def test_stagger_overlap0_single_child(self):
         """Single child gets the entire time range."""
         c = Circle(r=50)
         col = VCollection(c)
-        col.apply_sequential('fadein', 0, 2)
+        col.stagger('fadein', start=0, end=2, overlap=0)
         assert c.show.at_time(0) is True
 
-    def test_apply_sequential_with_kwargs(self):
+    def test_stagger_overlap0_with_kwargs(self):
         """Extra kwargs should be forwarded to the method."""
         c1 = Circle(r=50)
         c2 = Circle(r=50)
         col = VCollection(c1, c2)
-        col.apply_sequential('fadein', 0, 2, easing=easings.linear)
+        col.stagger('fadein', start=0, end=2, overlap=0, easing=easings.linear)
         # Both should be shown at their respective start times
         assert c1.show.at_time(0) is True
         assert c2.show.at_time(1) is True
 
-    def test_apply_sequential_fadeout(self):
+    def test_stagger_overlap0_fadeout(self):
         """Should work with fadeout as well."""
         c1 = Circle(r=50)
         c2 = Circle(r=50)
         col = VCollection(c1, c2)
-        col.apply_sequential('fadeout', 0, 2)
+        col.stagger('fadeout', start=0, end=2, overlap=0)
         # After the full animation, both should be hidden
         assert c1.show.at_time(1.5) is False
         assert c2.show.at_time(2.5) is False
@@ -2488,12 +2488,12 @@ class TestHighlightNth:
         assert True
 
 
-class TestCascadeFadein:
+class TestStaggerFadeinSorted:
     def test_returns_self(self):
         c1 = Circle(r=20, cx=100, cy=100)
         c2 = Circle(r=20, cx=200, cy=100)
         col = VCollection(c1, c2)
-        result = col.cascade_fadein(start=0, end=2)
+        result = col.stagger_fadein_sorted(start=0, end=2)
         assert result is col
 
     def test_left_to_right_ordering(self):
@@ -2501,7 +2501,7 @@ class TestCascadeFadein:
         c_left = Circle(r=20, cx=50, cy=100)
         c_right = Circle(r=20, cx=200, cy=100)
         col = VCollection(c_right, c_left)
-        col.cascade_fadein(start=0, end=4, direction='left_to_right', easing=easings.linear)
+        col.stagger_fadein_sorted(start=0, end=4, direction='left_to_right', easing=easings.linear)
         # c_left (x=50) should be visible before c_right (x=200)
         assert c_left.show.at_time(0) is True
         # c_right starts later
@@ -2511,7 +2511,7 @@ class TestCascadeFadein:
         c_top = Circle(r=20, cx=100, cy=50)
         c_bottom = Circle(r=20, cx=100, cy=200)
         col = VCollection(c_bottom, c_top)
-        col.cascade_fadein(start=0, end=4, direction='top_to_bottom', easing=easings.linear)
+        col.stagger_fadein_sorted(start=0, end=4, direction='top_to_bottom', easing=easings.linear)
         # c_top (y=50) should start fading in first
         assert c_top.show.at_time(0) is True
 
@@ -2522,7 +2522,7 @@ class TestCascadeFadein:
         c2 = Circle(r=10, cx=100, cy=100)
         c3 = Circle(r=10, cx=400, cy=100)
         col = VCollection(c3, c1, c2)
-        col.cascade_fadein(start=0, end=4, direction='center_out', easing=easings.linear)
+        col.stagger_fadein_sorted(start=0, end=4, direction='center_out', easing=easings.linear)
         # c1 is closest to center (dist ~55), starts first
         # All children should be visible at the end
         assert c1.show.at_time(0) is True
@@ -2530,13 +2530,13 @@ class TestCascadeFadein:
 
     def test_empty_collection_no_error(self):
         col = VCollection()
-        result = col.cascade_fadein(start=0, end=1)
+        result = col.stagger_fadein_sorted(start=0, end=1)
         assert result is col
 
     def test_single_child(self):
         c = Circle(r=20, cx=100, cy=100)
         col = VCollection(c)
-        col.cascade_fadein(start=0, end=1, easing=easings.linear)
+        col.stagger_fadein_sorted(start=0, end=1, easing=easings.linear)
         assert c.show.at_time(0) is True
 
     def test_all_children_visible_after_end(self):
@@ -2544,7 +2544,7 @@ class TestCascadeFadein:
         c2 = Circle(r=20, cx=150, cy=100)
         c3 = Circle(r=20, cx=250, cy=100)
         col = VCollection(c1, c2, c3)
-        col.cascade_fadein(start=0, end=2, direction='left_to_right', easing=easings.linear)
+        col.stagger_fadein_sorted(start=0, end=2, direction='left_to_right', easing=easings.linear)
         # After the full animation, all children should be visible
         assert c1.show.at_time(2) is True
         assert c2.show.at_time(2) is True

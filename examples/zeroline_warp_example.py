@@ -49,5 +49,7 @@ shapes[2].warp(start=4.5, end=6.5, amplitude=0.25, frequency=5)
 
 canvas.add_objects(ax, title, shapes, warp_label)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/zeroline_warp_example.mp4', fps=30, end=7)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

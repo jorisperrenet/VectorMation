@@ -43,5 +43,7 @@ r2.set_height(200, start=3, stretch=True)
 
 canvas.add_objects(ax, r1, r2, label1, label2, title)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/vector_field_axes_example.mp4', fps=30, end=4)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

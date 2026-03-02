@@ -11,7 +11,7 @@ circles = VCollection(*[
     for i in range(10)
 ])
 circles.set_color_by_gradient('#FF0000', '#FFFF00', '#00FF00', attr='fill')
-circles.stagger('fadein', delay=0.1, start=0, end=0.5)
+circles.stagger('fadein', start=0, end=0.5)
 
 # Add opacity gradient to another row of rectangles
 rects = VCollection(*[
@@ -19,7 +19,7 @@ rects = VCollection(*[
     for i in range(10)
 ])
 rects.set_opacity_by_gradient(0.1, 1.0, attr='fill')
-rects.stagger('fadein', delay=0.1, start=1, end=1.5)
+rects.stagger('fadein', start=1, end=1.5)
 
 # SurroundingCircle demo
 star = Star(n=5, outer_radius=60, inner_radius=30, cx=960, cy=750,
@@ -34,5 +34,7 @@ title.write(0, 1)
 
 canvas.add_objects(circles, rects, star, surround, title)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/gradient_styling_example.mp4', fps=30, end=3)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

@@ -79,5 +79,7 @@ canvas.add_objects(ax, title, curve, vspan, hspan, ml,
                    venn2, venn3, chart,
                    ax_label, venn2_label, venn3_label, org_label)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/venn_org_example.mp4', fps=30, end=5)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

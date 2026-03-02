@@ -23,6 +23,8 @@ title.fadein(start=0, end=1)
 
 canvas.add_objects(title, *waves)
 args = parse_args()
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/standing_wave_example.mp4', fps=30, end=8)
 if not args.no_display:
     canvas.browser_display(start=0, end=8, fps=args.fps, port=args.port,
                            hot_reload=True)

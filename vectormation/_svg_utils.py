@@ -300,8 +300,23 @@ def from_svg(element, **styles):
         return obj
     elif tag == 'rect':
         rect_x, rect_y = g('x', 0) + tx, g('y', 0) + ty
-        return Rectangle(width=g('width'), height=g('height'), x=rect_x, y=rect_y,
-                         **_merged_attrs('width', 'height', 'x', 'y', 'transform'))
+        w, h = g('width'), g('height')
+        rx, ry = g('rx', 0), g('ry', 0)
+        # When used inside TexObject (scale_x/scale_y in styles), Rectangles
+        # mis-position because shift modifies x/y which then get scaled.
+        # Convert to a Path so all glyphs are uniform.
+        if 'scale_x' in styles or 'scale_y' in styles:
+            if rx == 0 and ry == 0:
+                d = f'M{rect_x},{rect_y}l{w},0l0,{h}l-{w},0z'
+            else:
+                d = (f'M{rect_x+rx},{rect_y} l {w-rx*2},0 '
+                     f'a {rx},{ry} 0 0,1 {rx},{ry} l 0,{h-ry*2} '
+                     f'a {rx},{ry} 0 0,1 -{rx},{ry} l {rx*2-w},0 '
+                     f'a {rx},{ry} 0 0,1 -{rx},-{ry} l 0,{ry*2-h} '
+                     f'a {rx},{ry} 0 0,1 {rx},-{ry} z')
+            return Path(d, **_merged_attrs('width', 'height', 'x', 'y', 'rx', 'ry', 'transform'))
+        return Rectangle(width=w, height=h, x=rect_x, y=rect_y, rx=rx, ry=ry,
+                         **_merged_attrs('width', 'height', 'x', 'y', 'rx', 'ry', 'transform'))
     elif tag == 'circle':
         return Circle(r=g('r', 100), cx=g('cx') + tx, cy=g('cy') + ty,
                       **_merged_attrs('r', 'cx', 'cy', 'transform'))

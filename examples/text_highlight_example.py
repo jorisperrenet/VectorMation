@@ -26,5 +26,7 @@ title.write(0, 1)
 
 canvas.add_objects(hl1, hl2, line1, line2, title)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/text_highlight_example.mp4', fps=30, end=5)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

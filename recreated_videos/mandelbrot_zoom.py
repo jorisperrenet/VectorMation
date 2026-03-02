@@ -15,7 +15,7 @@ canvas.set_background()
 # ── Constants ────────────────────────────────────────────────────────
 T = 12
 W, H = 1920, 1080
-COLS, ROWS = 96, 54  # grid resolution
+COLS, ROWS = 96*2, 54*2  # grid resolution
 CELL_W = W / COLS
 CELL_H = H / ROWS
 MAX_ITER = 100

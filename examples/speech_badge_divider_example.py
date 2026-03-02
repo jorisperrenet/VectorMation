@@ -54,5 +54,7 @@ canvas.add_objects(title, sb1, sb2, sb3,
                    b1, b2, b3, b4,
                    nl, d1, d2, d3)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/speech_badge_divider_example.mp4', fps=30, end=3)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

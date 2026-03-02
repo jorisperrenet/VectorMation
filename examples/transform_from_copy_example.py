@@ -22,5 +22,7 @@ ghost2 = square.transform_from_copy(star, start=2, end=4)
 ghost3 = star.transform_from_copy(circle, start=3, end=5)
 
 v.add(circle, square, star, ghost1, ghost2, ghost3)
+if args.verbose:
+    v.export_video('docs/source/_static/videos/transform_from_copy_example.mp4', fps=30, end=6)
 if not args.no_display:
     v.browser_display(end=args.duration or 6, fps=args.fps, port=args.port, hot_reload=args.hot_reload)

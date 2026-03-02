@@ -17,5 +17,7 @@ circle.scale(5, start=0.5, end=3)
 
 canvas.add_objects(var, circle)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/variable_example.mp4', fps=30, end=3)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

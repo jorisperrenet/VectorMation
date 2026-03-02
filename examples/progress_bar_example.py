@@ -32,5 +32,7 @@ circ.animate_dash(start=1.5, end=8, dash_length=20, gap=15)
 
 canvas.add_objects(title, bar, label, rect, circ)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/progress_bar_example.mp4', fps=30, end=8)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

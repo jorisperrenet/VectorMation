@@ -23,7 +23,7 @@ colors = ['#58C4DD', '#83C167', '#FF6B6B', '#FFFF00', '#FF79C6']
 circles = VCollection(*[Circle(r=30, fill=c, creation=0.5) for c in colors])
 circles.arrange(direction=(1, 0), buff=20)
 circles.center_to_pos(300, 230, start=0.5)
-circles.stagger('write', delay=0.2, start=1, end=2)
+circles.stagger('write', start=1, end=2)
 canvas.add(circles)
 
 # ── Cascade ─────────────────────────────────────────────────────
@@ -34,7 +34,7 @@ canvas.add(label2)
 squares = VCollection(*[Square(50, fill=c, creation=0.5) for c in colors])
 squares.arrange(direction=(1, 0), buff=15)
 squares.center_to_pos(960, 230, start=0.5)
-squares.stagger('fadein', delay=0.15, start=1, end=2)
+squares.stagger('fadein', start=1, end=2)
 canvas.add(squares)
 
 # ── Fan Out ─────────────────────────────────────────────────────
@@ -56,7 +56,7 @@ grid_items = VCollection(*[Square(45, fill=c, creation=3)
                             for c in colors * 2])
 grid_items.arrange_in_grid(rows=2, cols=5, buff=10)
 grid_items.center_to_pos(300, 460, start=3)
-grid_items.stagger('fadein', delay=0.1, start=3.5, end=4.5)
+grid_items.stagger('fadein', start=3.5, end=4.5)
 canvas.add(grid_items)
 
 # ── Wave Effect ─────────────────────────────────────────────────
@@ -67,7 +67,7 @@ canvas.add(label5)
 wave_circles = VCollection(*[Circle(r=25, fill=c, creation=3) for c in colors])
 wave_circles.arrange(direction=(1, 0), buff=20)
 wave_circles.center_to_pos(960, 460, start=3)
-wave_circles.stagger('fadein', delay=0.1, start=3.2, end=4)
+wave_circles.stagger('fadein', start=3.2, end=4)
 wave_circles.wave_anim(start=4.5, end=6.5, amplitude=40, n_waves=2)
 canvas.add(wave_circles)
 
@@ -80,7 +80,7 @@ gradient_rects = VCollection(*[Rectangle(40, 60, creation=3) for _ in range(8)])
 gradient_rects.arrange(direction=(1, 0), buff=8)
 gradient_rects.center_to_pos(1620, 460, start=3)
 gradient_rects.set_color_by_gradient('#FF0000', '#0000FF')
-gradient_rects.stagger('fadein', delay=0.1, start=3.5, end=4.5)
+gradient_rects.stagger('fadein', start=3.5, end=4.5)
 canvas.add(gradient_rects)
 
 # ── Waterfall ───────────────────────────────────────────────────
@@ -102,7 +102,7 @@ canvas.add(label8)
 dist_items = VCollection(*[Circle(r=20, fill=c, creation=6) for c in colors])
 dist_items.arrange(direction=(1, 0), buff=30)
 dist_items.center_to_pos(960, 700, start=6)
-dist_items.stagger('fadein', delay=0.15, start=6.5, end=7.5)
+dist_items.stagger('fadein', start=6.5, end=7.5)
 canvas.add(dist_items)
 
 # ── Sequential ──────────────────────────────────────────────────
@@ -113,8 +113,8 @@ canvas.add(label9)
 seq_items = VCollection(*[Rectangle(40, 60, fill=c, creation=6) for c in colors])
 seq_items.arrange(direction=(1, 0), buff=15)
 seq_items.center_to_pos(1620, 700, start=6)
-seq_items.stagger('fadein', delay=0.1, start=6.3, end=7)
-seq_items.sequential('rotate_by', start=7.5, end=9, degrees=180)
+seq_items.stagger('fadein', start=6.3, end=7)
+seq_items.stagger('rotate_by', start=7.5, end=9, overlap=0, degrees=180)
 canvas.add(seq_items)
 
 if not args.no_display:

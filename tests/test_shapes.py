@@ -1384,7 +1384,7 @@ class TestStagger:
         c2 = Circle(r=10, cx=100, cy=50)
         c3 = Circle(r=10, cx=150, cy=50)
         group = VCollection(c1, c2, c3)
-        group.stagger('fadein', delay=0.5, start=0, end=1)
+        group.stagger('fadein', start=0, end=1)
         # c1 should be visible at t=0.5, c2 shouldn't start until t=0.5
         assert c1.show.at_time(0.5)
         assert not c2.show.at_time(0.1)
@@ -11881,10 +11881,6 @@ class TestSuccession:
         )
         assert c.styling.opacity.at_time(0) < 0.1
 
-    def test_lagged_start_alias(self):
-        """VCollection.lagged_start should be an alias for cascade."""
-        assert VCollection.lagged_start is VCollection.cascade
-
 
 class TestCombinedAnimations:
     def test_create_then_fadeout(self):
@@ -11954,12 +11950,12 @@ class TestShowIncreasingSubsets:
         assert group.show_increasing_subsets(start=1, end=1) is group
 
 
-class TestShowOneByOne:
+class TestStaggerOverlap0:
     def test_basic(self):
         c1 = Circle(r=10, cx=100, cy=100)
         c2 = Circle(r=10, cx=200, cy=100)
         group = VCollection(c1, c2)
-        result = group.show_one_by_one(start=0, end=2)
+        result = group.stagger('fadein', start=0, end=2, overlap=0)
         assert result is group
         # c1 fades in from 0..1, c2 from 1..2
         assert c1.styling.opacity.at_time(0) < 0.1
@@ -12141,28 +12137,28 @@ class TestCollectionStaggerMethods:
         c1 = Circle(r=10, cx=100, cy=100)
         c2 = Circle(r=10, cx=200, cy=100)
         group = VCollection(c1, c2)
-        result = group.stagger('fadein', delay=0.5, start=0, end=1)
+        result = group.stagger('fadein', start=0, end=1)
         assert result is group
         # c1 should start fading at t=0
         assert c1.styling.opacity.at_time(0) < 0.1
         # c2 starts at t=0.5, so at t=0 it's not yet fading (change_existence)
         assert c2.show.at_time(0) is False
 
-    def test_cascade_animates_sequentially(self):
+    def test_stagger_animates_sequentially(self):
         c1 = Circle(r=10, cx=100, cy=100)
         c2 = Circle(r=10, cx=200, cy=100)
         c3 = Circle(r=10, cx=300, cy=100)
         group = VCollection(c1, c2, c3)
-        result = group.cascade('fadein', start=0, end=3)
+        result = group.stagger('fadein', start=0, end=3)
         assert result is group
         # First child should start before second
         assert c1.styling.opacity.at_time(0) < 0.1
 
-    def test_sequential(self):
+    def test_stagger_overlap_0(self):
         c1 = Circle(r=10, cx=100, cy=100)
         c2 = Circle(r=10, cx=200, cy=100)
         group = VCollection(c1, c2)
-        result = group.sequential('fadein', start=0, end=2)
+        result = group.stagger('fadein', start=0, end=2, overlap=0)
         assert result is group
 
     def test_wave_anim(self):

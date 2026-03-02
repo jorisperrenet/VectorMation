@@ -18,5 +18,7 @@ board.move_piece('f1', 'c4', 5, 6)   # 3. Bc4 (Italian Game)
 
 canvas.add_objects(board)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/chess_example.mp4', fps=30, end=6)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

@@ -403,22 +403,6 @@ class TestDirectionTupleNormalization:
         r = Rectangle(100, 50, x=100, y=100)
         assert r.unfold(start=0, end=1, direction=DOWN) is r
 
-    def test_reveal_clip_left_tuple(self):
-        r = Rectangle(100, 50, x=100, y=100)
-        assert r.reveal_clip(start=0, end=1, direction=LEFT) is r
-
-    def test_reveal_clip_right_tuple(self):
-        r = Rectangle(100, 50, x=100, y=100)
-        assert r.reveal_clip(start=0, end=1, direction=RIGHT) is r
-
-    def test_reveal_clip_up_tuple(self):
-        r = Rectangle(100, 50, x=100, y=100)
-        assert r.reveal_clip(start=0, end=1, direction=UP) is r
-
-    def test_reveal_clip_down_tuple(self):
-        r = Rectangle(100, 50, x=100, y=100)
-        assert r.reveal_clip(start=0, end=1, direction=DOWN) is r
-
     def test_wipe_left_tuple(self):
         r = Rectangle(100, 50, x=100, y=100)
         assert r.wipe(direction=LEFT, start=0, end=1) is r
@@ -459,21 +443,6 @@ class TestDirectionTupleNormalization:
         r = Rectangle(100, 50, x=100, y=100)
         assert r.slide_out(direction=RIGHT, start=0, end=1) is r
 
-    def test_typewriter_reveal_left_tuple(self):
-        r = Rectangle(100, 50, x=100, y=100)
-        assert r.typewriter_reveal(start=0, end=1, direction=LEFT) is r
-
-    def test_typewriter_reveal_right_tuple(self):
-        r = Rectangle(100, 50, x=100, y=100)
-        assert r.typewriter_reveal(start=0, end=1, direction=RIGHT) is r
-
-    def test_typewriter_delete_left_tuple(self):
-        r = Rectangle(100, 50, x=100, y=100)
-        assert r.typewriter_delete(start=0, end=1, direction=LEFT) is r
-
-    def test_typewriter_delete_right_tuple(self):
-        r = Rectangle(100, 50, x=100, y=100)
-        assert r.typewriter_delete(start=0, end=1, direction=RIGHT) is r
 
 
 class TestPointFromProportion:

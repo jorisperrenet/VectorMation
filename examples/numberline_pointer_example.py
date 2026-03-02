@@ -31,5 +31,7 @@ txt.glitch(start=2, end=5, intensity=15, n_flashes=8)
 
 canvas.add_objects(nl, circle, txt, title)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/numberline_pointer_example.mp4', fps=30, end=6)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

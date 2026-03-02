@@ -87,6 +87,8 @@ label.fadein(0.5, 1.5)
 # Add everything to canvas
 canvas.add_objects(trace, spring_line, anchor_dot, bob, title, label)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/physics_spring.mp4', fps=30, end=10)
 if not args.no_display:
     canvas.browser_display(start=0, end=duration, fps=args.fps, port=args.port,
                            hot_reload=True)

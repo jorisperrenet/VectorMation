@@ -330,18 +330,6 @@ class TestBreathe:
         assert c.breathe(start=0, end=2) is c
 
 
-# ── typewriter effects ─────────────────────────────────────────
-
-class TestTypewriterEffects:
-    def test_typewriter_reveal_returns_self(self):
-        t = Text(text='Hello', x=400, y=400, font_size=30)
-        assert t.typewriter_reveal(start=0, end=1) is t
-
-    def test_typewriter_delete_returns_self(self):
-        t = Text(text='Hello', x=400, y=400, font_size=30)
-        assert t.typewriter_delete(start=0, end=1) is t
-
-
 # ── follow_spline ──────────────────────────────────────────────
 
 class TestFollowSpline:

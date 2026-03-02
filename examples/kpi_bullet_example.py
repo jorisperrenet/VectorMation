@@ -80,5 +80,7 @@ for i, day in enumerate(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']):
 canvas.add_objects(title, kpi1, kpi2, kpi3, bc1, bc2, bc3,
                    ax, fs, step_label, cal, cal_label)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/kpi_bullet_example.mp4', fps=30, end=4)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

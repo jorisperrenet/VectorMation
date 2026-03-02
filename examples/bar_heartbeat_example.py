@@ -46,5 +46,7 @@ flip_label.fadein(1, 1.5)
 
 canvas.add_objects(ax, title, heart, heart_label, letters, flip_label)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/bar_heartbeat_example.mp4', fps=30, end=5)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

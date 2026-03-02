@@ -44,5 +44,7 @@ anim.add(Text(f'Animated: length changes over time',
               x=600, y=750, font_size=24, text_anchor='middle', fill='#888'))
 
 args = parse_args()
+if args.verbose:
+    anim.export_video('docs/source/_static/videos/line_arc_utils_example.mp4', fps=30, end=4)
 if not args.no_display:
     anim.browser_display(0, 4, fps=args.fps, port=args.port)

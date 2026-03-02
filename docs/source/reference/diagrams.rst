@@ -266,6 +266,7 @@ NetworkGraph
 ------------
 
 .. py:class:: NetworkGraph(nodes, edges=None, cx=960, cy=540, radius=300, node_r=30, font_size=20, layout='circular', directed=False, creation=0, z=0)
+   :no-index:
 
    Network/graph visualization with labeled nodes and edges. Supports
    three layout algorithms and both directed (arrow) and undirected (line)
@@ -294,6 +295,7 @@ NetworkGraph
    :param float z: Z-index for layering.
 
    .. py:method:: highlight_node(node_id, start=0, end=1, color='#FFFF00', easing=there_and_back)
+      :no-index:
 
       Flash-highlight a node by its ID.
 
@@ -507,6 +509,7 @@ FlowChart
 ---------
 
 .. py:class:: FlowChart(steps, direction='right', x=200, y=400, box_width=200, box_height=60, spacing=80, box_color='#58C4DD', text_color='#fff', arrow_color='#999', font_size=20, corner_radius=8, creation=0, z=0)
+   :no-index:
 
    Simple flow chart with labeled rounded-rectangle boxes connected by
    arrows. Boxes are arranged in a linear sequence either horizontally

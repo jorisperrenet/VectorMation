@@ -5,7 +5,7 @@ args = parse_args()
 canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/trace_elastic')
 canvas.set_background()
 
-title = Text(text='Trace, Elastic In/Out & Secant Fade', x=960, y=50,
+title = Text(text='Trace & Secant Fade', x=960, y=50,
              font_size=42, fill='#58C4DD', stroke_width=0, text_anchor='middle')
 title.write(0, 1)
 
@@ -29,29 +29,9 @@ secant = ax.add_secant_fade(f, x=2, dx_start=2, dx_end=0.01,
                              start=3, end=5, stroke='#83C167')
 secant.fadein(3, 3.3)
 
-# Right side: elastic in/out demo
-shapes = VCollection(
-    Circle(cx=1350, cy=700, r=35, fill='#FF6B6B', fill_opacity=0.5,
-           stroke='#FF6B6B', stroke_width=2),
-    Rectangle(70, 70, x=1445, y=665, fill='#83C167', fill_opacity=0.5,
-              stroke='#83C167', stroke_width=2),
-    Star(outer_radius=35, inner_radius=18, cx=1550, cy=700,
-         fill='#FFFF00', fill_opacity=0.5, stroke='#FFFF00', stroke_width=2),
-)
+canvas.add_objects(ax, title)
 
-# Elastic in each shape
-shapes[0].elastic_in(start=3, end=4)
-shapes[1].elastic_in(start=3.3, end=4.3)
-shapes[2].elastic_in(start=3.6, end=4.6)
-
-# Swap children demo
-label = Text(text='Swap Children', x=1450, y=630,
-             font_size=22, fill='#aaa', stroke_width=0, text_anchor='middle')
-label.fadein(4.5, 5)
-
-shapes.swap_children(0, 2, start=5, end=6)
-
-canvas.add_objects(ax, title, shapes, label)
-
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/trace_elastic_example.mp4', fps=30, end=6)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

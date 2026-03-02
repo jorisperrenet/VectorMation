@@ -54,16 +54,16 @@ r2.bounce_in(start=4.3, end=5)
 r2.bounce_out(start=5.3, end=6)
 v.add(r2)
 
-# ── Section 4: typewriter_reveal / typewriter_delete (6-8s) ───
-title4 = Text(text='typewriter_reveal / typewriter_delete', x=960, y=80,
+# ── Section 4: wipe / wipe reverse (6-8s) ───
+title4 = Text(text='wipe / wipe reverse', x=960, y=80,
               font_size=28, text_anchor='middle', creation=6)
 v.add(title4)
 title4.fadeout(start=8, end=8.3)
 
 txt = Text(text='Hello, Animation!', x=960, y=450, font_size=48,
            text_anchor='middle', creation=6)
-txt.typewriter_reveal(start=6, end=7.2)
-txt.typewriter_delete(start=7.5, end=8)
+txt.wipe(start=6, end=7.2)
+txt.wipe(start=7.5, end=8, reverse=True)
 v.add(txt)
 
 # ── Section 5: follow_spline / animate_along_object (8-10s) ───

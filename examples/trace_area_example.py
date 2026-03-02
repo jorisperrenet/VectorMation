@@ -46,9 +46,11 @@ dots = VGroup(
     *[Dot(cx=0, cy=0, r=8, fill='#FFFF00', stroke_width=0) for _ in range(6)]
 )
 dots.spread(1100, 200, 1700, 400)
-dots.cascade('fadein', start=1.5, end=3, overlap=0.4)
+dots.stagger('fadein', start=1.5, end=3, overlap=0.4)
 
 canvas.add_objects(dot, trace, rect, ax, dots, title)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/trace_area_example.mp4', fps=30, end=6)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

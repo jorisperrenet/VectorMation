@@ -26,7 +26,7 @@ class TestTitle:
 class TestVariable:
     def test_creates(self):
         var = Variable(label='x', value=3.14, creation=0)
-        assert len(var.objects) == 2
+        assert len(var.objects) == 1
 
     def test_repr(self):
         var = Variable(label='x', value=0, creation=0)

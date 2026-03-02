@@ -69,5 +69,7 @@ canvas.add_objects(title, si_label, s1, s2, s3, s4, s5,
                    m_label, m1, m2, m3, m4, m5,
                    bc_label, bc1, bc2)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/status_meter_breadcrumb_example.mp4', fps=30, end=3)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

@@ -16,7 +16,7 @@ flow_h = FlowChart(
     box_width=250, box_height=60, spacing=100,
     box_color='#58C4DD', font_size=22,
 )
-flow_h.stagger('fadein', delay=0.3, start=0.5, end=1)
+flow_h.stagger('fadein', start=0.5, end=1)
 
 # Vertical flow chart
 flow_v = FlowChart(
@@ -25,9 +25,11 @@ flow_v = FlowChart(
     box_width=200, box_height=50, spacing=60,
     box_color='#83C167', font_size=20,
 )
-flow_v.stagger('fadein', delay=0.3, start=2, end=2.5)
+flow_v.stagger('fadein', start=2, end=2.5)
 
 canvas.add_objects(flow_h, flow_v, title)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/flowchart_example.mp4', fps=30, end=3)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

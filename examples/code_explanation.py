@@ -65,5 +65,7 @@ object = VCollection(circle, object_text, line_to_attr, attr, *attr_objects, exp
 canvas.add_objects(video, frames, object)
 
 # Display the window
+if args.verbose:
+    canvas.write_frame(filename='docs/source/_static/videos/code_explanation.svg')
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

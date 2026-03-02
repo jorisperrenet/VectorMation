@@ -3,7 +3,7 @@ import pytest
 import vectormation.easings as easings
 from vectormation._base_helpers import (
     _clamp01, _lerp, _ramp, _ramp_down, _lerp_point,
-    _clip_reveal, _clip_hide,
+    _clip_reveal,
     _norm_dir, _norm_edge, _coords_of, _set_attr,
 )
 from vectormation._constants import UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR
@@ -110,17 +110,6 @@ class TestClipRevealHide:
         result = f(1)
         assert '0' in result
 
-    def test_hide_start_is_visible(self):
-        tmpl = lambda pct: f'inset({pct}%)'
-        f = _clip_hide(tmpl, 0, 1, easings.linear)
-        result = f(0)
-        assert '0' in result
-
-    def test_hide_end_is_clipped(self):
-        tmpl = lambda pct: f'inset({pct}%)'
-        f = _clip_hide(tmpl, 0, 1, easings.linear)
-        result = f(1)
-        assert '100' in result
 
 
 class TestNormDir:

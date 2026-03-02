@@ -66,6 +66,8 @@ canvas.add_objects(
     title, *balls,
 )
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/physics_bouncing_balls.mp4', fps=30, end=8)
 if not args.no_display:
     canvas.browser_display(start=0, end=duration, fps=args.fps, port=args.port,
                            hot_reload=True)

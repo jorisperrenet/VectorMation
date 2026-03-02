@@ -352,7 +352,7 @@ class VCollection(_BBoxMethodsMixin):
         random.shuffle(self.objects)
         return self
 
-    def shuffle_animate(self, start: float = 0, end: float = 1, easing=None):
+    def shuffle_animate(self, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animated random shuffle -- children smoothly slide to randomly reassigned positions."""
         n = len(self.objects)
         if n < 2:
@@ -643,11 +643,21 @@ class VCollection(_BBoxMethodsMixin):
             obj.center_to_pos(c * cell_w + max_w / 2, r * cell_h + max_h / 2, **kw)
         return self
 
-    def stagger(self, method_name, delay, **kwargs):
-        """Call method on each child with staggered timing offsets."""
+    def stagger(self, method_name, start: float = 0, end: float = 1, overlap: float = 0.5, **kwargs):
+        """Call an animation method on children with overlapping timing.
+        overlap: 0 = sequential, 1 = all simultaneous. 0.5 = half overlap."""
+        n = len(self.objects)
+        if n == 0:
+            return self
+        dur = end - start
+        if dur <= 0:
+            return self
+        overlap = max(0.0, min(1.0, overlap))
+        child_dur, step = _stagger_timing(n, dur, overlap)
         for i, obj in enumerate(self.objects):
-            kw = {k: (v + i * delay if k in ('start', 'end') else v) for k, v in kwargs.items()}
-            getattr(obj, method_name)(**kw)
+            s = start + i * step
+            e = s + child_dur
+            getattr(obj, method_name)(start=s, end=e, **kwargs)
         return self
 
     def stagger_along_path(self, method_name, path_d, start: float = 0, end: float = 1,
@@ -695,14 +705,6 @@ class VCollection(_BBoxMethodsMixin):
             obj._apply_shift_effect(start, end, dy_func=_dy)
         return self
 
-    def sequential(self, method_name, start: float = 0, end: float = 1, **kwargs):
-        """Run an animation method on children one after another with no overlap.
-        Equivalent to cascade with overlap=0."""
-        return self.cascade(method_name, start=start, end=end, overlap=0, **kwargs)
-
-    apply_sequentially = sequential
-    apply_sequential = sequential
-
     def spread(self, x1, y1, x2, y2, start: float = 0):
         """Distribute children evenly along a line from (x1, y1) to (x2, y2)."""
         n = len(self.objects)
@@ -741,27 +743,8 @@ class VCollection(_BBoxMethodsMixin):
                 obj.shift(dx=dx, dy=dy, start=start)
         return self
 
-    def cascade(self, method_name, start: float = 0, end: float = 1, overlap: float = 0.5, **kwargs):
-        """Call an animation method on children with overlapping timing.
-        overlap: 0 = sequential, 1 = all simultaneous. 0.5 = half overlap."""
-        n = len(self.objects)
-        if n == 0:
-            return self
-        dur = end - start
-        if dur <= 0:
-            return self
-        overlap = max(0.0, min(1.0, overlap))
-        child_dur, step = _stagger_timing(n, dur, overlap)
-        for i, obj in enumerate(self.objects):
-            s = start + i * step
-            e = s + child_dur
-            getattr(obj, method_name)(start=s, end=e, **kwargs)
-        return self
-
-    lagged_start = cascade  # Manim-compatible alias
-
     def _stagger_fade(self, method, start, end, shift_dir, shift_amount, overlap, easing):
-        return self.cascade(method, start=start, end=end, overlap=overlap,
+        return self.stagger(method, start=start, end=end, overlap=overlap,
                             shift_dir=shift_dir, shift_amount=shift_amount, easing=easing)
 
     def stagger_fadein(self, start: float = 0, end: float = 1,
@@ -775,19 +758,6 @@ class VCollection(_BBoxMethodsMixin):
                          easing=easings.smooth):
         """Fade out children with staggered timing and optional shift direction."""
         return self._stagger_fade('fadeout', start, end, shift_dir, shift_amount, overlap, easing)
-
-    def fade_in_one_by_one(self, start: float = 0, end: float = 1,
-                            overlap=0.0, easing=easings.smooth):
-        """Fade in each child sequentially with optional overlap between windows."""
-        n = len(self.objects)
-        if n == 0 or end <= start:
-            return self
-        dur = end - start
-        slot = dur if n == 1 else (dur + overlap * (n - 1)) / n
-        for i, obj in enumerate(self.objects):
-            obj_start = start + i * (slot - overlap)
-            obj.fadein(start=obj_start, end=min(obj_start + slot, end), easing=easing)
-        return self
 
     def reveal(self, start: float = 0, end: float = 1, direction='left',
                 easing=easings.smooth, shift_amount=30):
@@ -962,28 +932,6 @@ class VCollection(_BBoxMethodsMixin):
         for i, obj in enumerate(self.objects):
             s = start + i * step
             obj.rotate_by(s, min(s + step * 1.5, end), degrees, easing=easing)
-        return self
-
-    def animate_each(self, method, start: float = 0, end: float = 1,
-                     delay=None, reverse=False, **method_kwargs):
-        """Call *method* on each child with staggered timing."""
-        n = len(self.objects)
-        if n == 0:
-            return self
-        dur = end - start
-        if dur <= 0:
-            return self
-        if delay is None:
-            delay = dur / max(n, 1) * 0.5
-        # Clamp delay so children don't overflow past end
-        max_delay = dur / max(n, 2)
-        delay = min(delay, max_delay)
-        child_dur = max(dur - (n - 1) * delay, 0.01)
-        items = self.objects[::-1] if reverse else self.objects
-        for i, obj in enumerate(items):
-            obj_start = start + i * delay
-            obj_end = obj_start + child_dur
-            getattr(obj, method)(start=obj_start, end=obj_end, **method_kwargs)
         return self
 
     def scatter_from(self, cx: float | None = None, cy: float | None = None, radius: float = 300,
@@ -1175,19 +1123,6 @@ class VCollection(_BBoxMethodsMixin):
             obj._show_from(t)
         return self
 
-    def show_one_by_one(self, start: float = 0, end: float = 1, method='fadein', **kwargs):
-        """Show each child sequentially with a brief animation.
-        Each child gets an equal time slice for its entrance animation."""
-        n = len(self.objects)
-        if n == 0: return self
-        dur = end - start
-        if dur <= 0: return self
-        slice_dur = dur / n
-        for i, obj in enumerate(self.objects):
-            s = start + i * slice_dur
-            getattr(obj, method)(start=s, end=s + slice_dur, **kwargs)
-        return self
-
     def snake_layout(self, cols=None, buff=SMALL_BUFF, start: float = 0):
         """Arrange children in a snake/zigzag grid (alternating row direction)."""
         n = len(self.objects)
@@ -1324,20 +1259,6 @@ class VCollection(_BBoxMethodsMixin):
                 dy_func=lambda t, _f=_orbit: _f(t)[1])
         return self
 
-    def cascade_scale(self, start: float = 0, end: float = 1, factor: float = 1.5,
-                      delay: float = 0.15, easing=easings.smooth):
-        """Stagger scale-up-and-back animations across children with a fixed delay."""
-        n = len(self.objects)
-        if n == 0 or end <= start:
-            return self
-        total_delay = delay * (n - 1) if n > 1 else 0
-        child_dur = max((end - start) - total_delay, 0.01)
-        for i, obj in enumerate(self.objects):
-            s = start + i * delay
-            e = min(s + child_dur, end)
-            self._apply_scale_pop(obj, s, e, factor, easing)
-        return self
-
     def distribute_along_arc(self, cx=ORIGIN[0], cy=ORIGIN[1], radius: float = 200,
                               start_angle: float = 0, end_angle=None,
                               start: float = 0,
@@ -1381,8 +1302,8 @@ class VCollection(_BBoxMethodsMixin):
 
     distribute_evenly = spread
 
-    def cascade_fadein(self, start: float = 0, end: float = 1, direction='left_to_right', easing=easings.smooth):
-        """Fade in children with a cascade effect based on spatial ordering."""
+    def stagger_fadein_sorted(self, start: float = 0, end: float = 1, direction='left_to_right', easing=easings.smooth):
+        """Fade in children with a staggered effect based on spatial ordering."""
         n = len(self.objects)
         if n == 0 or end <= start:
             return self
@@ -1397,7 +1318,7 @@ class VCollection(_BBoxMethodsMixin):
         else:
             sorted_objs = list(self.objects)
         tmp = VCollection(*sorted_objs)
-        tmp.cascade('fadein', start=start, end=end, overlap=0.5, easing=easing)
+        tmp.stagger('fadein', start=start, end=end, overlap=0.5, easing=easing)
         return self
 
     def label_children(self, labels, direction=UP, buff: float = 20, font_size=None, creation: float = 0):

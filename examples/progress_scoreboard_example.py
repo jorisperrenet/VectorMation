@@ -76,5 +76,7 @@ canvas.add_objects(title, cp1, cp2, cp3, cp1_lbl, cp2_lbl, cp3_lbl,
                    ax, pp, pyramid_label, ax2, bars, dt, table_label,
                    sb, sb_label)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/progress_scoreboard_example.mp4', fps=30, end=4)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

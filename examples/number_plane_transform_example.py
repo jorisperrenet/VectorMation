@@ -39,6 +39,8 @@ title.fadein(0, 0.5)
 
 canvas.add(plane, i_hat, j_hat, title)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/number_plane_transform_example.mp4', fps=30, end=5)
 if not args.no_display:
     canvas.browser_display(start=args.start or 0, end=args.end or 5,
                            fps=args.fps, port=args.port)

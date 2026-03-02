@@ -41,5 +41,7 @@ canvas.add(legend)
 graph.highlight_node(3, start=4.5, end=5.5)
 tree.highlight_node('CTO', start=5, end=6)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/network_tree_example.mp4', fps=30, end=6)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port)

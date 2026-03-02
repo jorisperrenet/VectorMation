@@ -91,6 +91,7 @@ Angle
 ~~~~~
 
 .. py:class:: Angle(vertex, p1, p2, radius=36, label=None, label_radius=None, label_font_size=36, **styling)
+   :no-index:
 
    Bases: :py:class:`VCollection`
 
@@ -130,6 +131,7 @@ RightAngle
 ~~~~~~~~~~
 
 .. py:class:: RightAngle(vertex, p1, p2, size=18, **styling)
+   :no-index:
 
    Bases: :py:class:`VCollection`
 
@@ -151,6 +153,7 @@ Cross
 ~~~~~
 
 .. py:class:: Cross(size=36, cx=960, cy=540, **styling)
+   :no-index:
 
    Bases: :py:class:`VCollection`
 

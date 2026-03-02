@@ -556,9 +556,9 @@ def _wall_friction_impulse(b, tangent_v, sign):
 
 def _resolve_wall_axis(b, pos, vel, tangent_vel, wall_pos, e, fric):
     """Resolve collision on one axis; returns (new_pos, new_vel, new_tangent)."""
-    if pos + b.radius > wall_pos and vel > 0:
+    if pos + b.radius > wall_pos and pos < wall_pos:
         sign = 1
-    elif pos - b.radius < wall_pos and vel < 0:
+    elif pos - b.radius < wall_pos and pos > wall_pos:
         sign = -1
     else:
         return pos, vel, tangent_vel

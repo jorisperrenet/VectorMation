@@ -12,5 +12,7 @@ graph = Graph(math.sin, x_range=(-2 * math.pi, 2 * math.pi),
               y_range=(-1.5, 1.5), x_label='x', y_label='sin(x)')
 
 canvas.add_objects(graph)
+if args.verbose:
+    canvas.write_frame(filename='docs/source/_static/videos/graph_example.svg')
 if not args.no_display:
     canvas.browser_display(end=0, fps=args.fps, port=args.port, hot_reload=True)

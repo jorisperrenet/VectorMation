@@ -32,7 +32,7 @@ squares = VGroup(
     *[Rectangle(width=50, height=50, x=1050 + (i % 4) * 70, y=200 + (i // 4) * 70,
                 fill='#FF6B6B', fill_opacity=0.7, stroke_width=0) for i in range(12)]
 )
-squares.sequential('fadein', start=1, end=4)
+squares.stagger('fadein', start=1, end=4, overlap=0)
 
 # Shrink to point demo
 dot_target = Dot(cx=1250, cy=600, r=6, fill='#FFFF00', stroke_width=0)
@@ -42,5 +42,7 @@ for i, sq in enumerate(squares):
 
 canvas.add_objects(ax, squares, dot_target, title)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/dashed_title_example.mp4', fps=30, end=6)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

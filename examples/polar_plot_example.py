@@ -24,5 +24,7 @@ title.write(0, 1)
 
 canvas.add_objects(polar, title)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/polar_plot_example.mp4', fps=30, end=3)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

@@ -66,5 +66,7 @@ canvas.add_objects(title, tb1, tb2, tb3, line1, br1, br2,
                    ax, area, curve, area_label,
                    ig, ig_label)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/textbox_bracket_icongrid_example.mp4', fps=30, end=3)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

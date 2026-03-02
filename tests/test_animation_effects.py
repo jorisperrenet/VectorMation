@@ -134,25 +134,6 @@ class TestSetBlendMode:
             c.set_blend_mode('invalid_mode')
 
 
-class TestRevealClip:
-    def test_returns_self(self):
-        c = Circle(r=50)
-        result = c.reveal_clip(start=0, end=1, direction='left')
-        assert result is c
-
-    def test_all_directions(self):
-        for d in ('left', 'right', 'top', 'bottom'):
-            c = Circle(r=50)
-            c.reveal_clip(start=0, end=1, direction=d)
-            svg = c.to_svg(0.5)
-            assert svg is not None
-
-    def test_invalid_direction(self):
-        c = Circle(r=50)
-        with pytest.raises(ValueError, match="Unsupported reveal direction"):
-            c.reveal_clip(direction='diagonal')
-
-
 class TestRepeatAnimation:
     def test_returns_self(self):
         c = Circle(r=50)

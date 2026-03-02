@@ -41,10 +41,6 @@ def _clip_reveal(tmpl, start, dur, easing):
     return lambda t, _s=start, _d=dur, _tmpl=tmpl, _e=easing: _tmpl(100 * (1 - _e((t - _s) / _d)))
 
 
-def _clip_hide(tmpl, start, dur, easing):
-    """Return a clip-path function that hides (0% clipped → 100%) over [start, start+dur]."""
-    return lambda t, _s=start, _d=dur, _tmpl=tmpl, _e=easing: _tmpl(100 * _e((t - _s) / _d))
-
 
 def _norm_dir(direction, default='right'):
     """Convert a tuple direction constant to its string name."""

@@ -7,14 +7,13 @@ from vectormation.pathbbox import path_bbox
 from vectormation._constants import (
     CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
     SMALL_BUFF, MED_SMALL_BUFF,
-    DOWN, RIGHT,
+    UP, DOWN, LEFT, RIGHT,
     Z_FRONT, Z_BACK,
 )
 
 import vectormation.easings as easings
 import vectormation.attributes as attributes
 import vectormation.style as style
-import vectormation.morphing as morphing
 from vectormation.colors import _hex_to_rgb, color_from_name
 
 # Register mix-blend-mode as a styling attribute so it flows through svg_style().
@@ -28,8 +27,8 @@ style._RENDERED_DEFAULTS['mix_blend_mode'] = ''
 style.Styling.mix_blend_mode: attributes.String  # type: ignore[reportInvalidTypeForm]
 
 from vectormation._base_helpers import (
-    _clamp01, _lerp, _ramp, _ramp_down, _clip_reveal, _clip_hide,
-    _norm_dir, _norm_edge, _coords_of, _set_attr, _parse_path, _path_prefix,
+    _clamp01, _lerp, _ramp, _ramp_down, _clip_reveal,
+    _norm_dir, _norm_edge, _coords_of, _set_attr, _parse_path,
     _DIR_NAMES, _make_brect, _wrap_to_svg, _BBoxMethodsMixin,
 )
 from vectormation._base_effects import _VObjectEffectsMixin
@@ -783,6 +782,10 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
     def _fade_slide_anim(self, direction, distance, start, end, fade_in, change_existence, easing):
         """Shared helper for fade_slide_in / fade_slide_out."""
+        if isinstance(direction, str):
+            _str_to_dir = {'up': UP, 'down': DOWN, 'left': LEFT, 'right': RIGHT,
+                           'top': UP, 'bottom': DOWN}
+            direction = _str_to_dir.get(direction.lower(), DOWN)
         direction = direction or DOWN
         dur = end - start
         if dur <= 0:
@@ -837,39 +840,49 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         self.styling.stroke_width.set(start, end, lambda t, _s=start, _d=dur, _msw=max_stroke_width, _sw=sw: _msw * stroke_easing((t-_s)/_d) + easing((t-_s)/_d) * _sw)
         return self
 
-    def _create_path_anim(self, start, end, reverse, change_existence, easing):
-        """Shared helper for create/uncreate path drawing animations."""
-        if not reverse and change_existence:
-            self._show_from(end)
-        if reverse and change_existence:
-            self.show.set_onward(end, False)
-
-        p = morphing.Path(self.path(start))
-        dur = end - start
-        def f(t, _dur=dur): return easing((t - start) / _dur) if _dur > 0 else 1
-
-        from vectormation._shapes import Path
-        res = Path('')
-        if reverse:
-            res.d.set(start, end, lambda t: _path_prefix(p, 1 - f(t)).d())
-        else:
-            res.d.set(start, end, lambda t: _path_prefix(p, f(t)).d())
-        res.styling = deepcopy(self.styling)
-        res.styling.fill_opacity.set_onward(0, 0)
-        if change_existence:
-            res._show_from(start)
-            if reverse:
-                res.show.set_onward(end, False)
-        return res
-
     def create(self, start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
-        """Animate drawing the path of this object from start to end."""
-        return self._create_path_anim(start, end, False, change_existence, easing)
+        """Animate drawing the stroke of this object, then fade in the fill."""
+        _, total_length = _parse_path(self.path(start))
+        if change_existence:
+            self._show_from(start)
+        dur = end - start
+        # Animate stroke via dashoffset
+        self.styling.stroke_dasharray.set_onward(start, str(total_length))
+        self.styling.stroke_dashoffset.set_onward(start, total_length)
+        if dur <= 0:
+            self.styling.stroke_dashoffset.set_onward(start, 0)
+            return self
+        self.styling.stroke_dashoffset.set(start, end,
+            _ramp_down(start, dur, total_length, easing), stay=True)
+        # Fade in the fill over the last third
+        target_fo = self.styling.fill_opacity.at_time(start)
+        if isinstance(target_fo, (int, float)) and target_fo > 0:
+            fill_start = start + dur * 0.66
+            self.styling.fill_opacity.set_onward(start, 0)
+            self.styling.fill_opacity.set(fill_start, end,
+                _ramp(fill_start, end - fill_start, target_fo, easing), stay=True)
+        return self
 
     def uncreate(self, start: float = 0, end: float = 1, change_existence=True, easing=easings.smooth):
-        """Reverse of create — wipes the path from end to start.
-        The original object is hidden at `end`."""
-        return self._create_path_anim(start, end, True, change_existence, easing)
+        """Reverse of create — wipes the stroke from end to start."""
+        _, total_length = _parse_path(self.path(start))
+        dur = end - start
+        # Fade out fill over the first third
+        target_fo = self.styling.fill_opacity.at_time(start)
+        if isinstance(target_fo, (int, float)) and target_fo > 0:
+            fill_end = start + dur * 0.33
+            self.styling.fill_opacity.set(start, fill_end,
+                _ramp_down(start, fill_end - start, target_fo, easing), stay=True)
+        # Animate stroke via dashoffset (reverse: 0 → total_length)
+        self.styling.stroke_dasharray.set_onward(start, str(total_length))
+        if dur <= 0:
+            self.styling.stroke_dashoffset.set_onward(start, total_length)
+        else:
+            self.styling.stroke_dashoffset.set(start, end,
+                _ramp(start, dur, total_length, easing), stay=True)
+        if change_existence:
+            self.show.set_onward(end, False)
+        return self
 
     def draw_along(self, start: float = 0, end: float = 1, easing=easings.smooth, change_existence=True):
         """Animate drawing the stroke of this object using stroke-dashoffset."""
@@ -1918,11 +1931,18 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         src = getattr(self.styling, attr)
         if not isinstance(src, attributes.Color):
             return self
-        n = len(colors)
-        for i in range(n - 1):
-            seg_s = start + dur * i / (n - 1)
-            seg_e = start + dur * (i + 1) / (n - 1)
-            src.interpolate(attributes.Color(seg_s, colors[i + 1]), seg_s, seg_e, easing=easing)
+        original_rgb = src.time_func(start)
+        parsed = [original_rgb] + [attributes.Color(0, c).time_func(0) for c in colors]
+        n = len(parsed)
+        def _cycle(t, _s=start, _d=dur, _n=n, _p=parsed, _e=easing):
+            p = max(0.0, min((t - _s) / _d, 1.0))
+            seg_f = p * (_n - 1)
+            idx = min(int(seg_f), _n - 2)
+            local = _e(seg_f - idx)
+            a, b = _p[idx], _p[idx + 1]
+            return tuple(av + (bv - av) * local for av, bv in zip(a, b))
+        src.set_onward(start, _cycle)
+        src.last_change = max(src.last_change, end)
         return self
 
     def glitch(self, start: float = 0, end: float = 1, intensity: float = 10, n_flashes: int = 5,
@@ -1956,13 +1976,14 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         if not isinstance(src, attributes.Color):
             return self
         original_rgb = src.time_func(start)
+        target_rgb = attributes.Color(0, color).time_func(0)
         pulse_dur = dur / n_pulses
-        for i in range(n_pulses):
-            seg_s = start + i * pulse_dur
-            seg_mid = seg_s + pulse_dur / 2
-            seg_e = seg_s + pulse_dur
-            src.interpolate(attributes.Color(seg_s, color), seg_s, seg_mid, easing=easings.linear)
-            src.interpolate(attributes.Color(seg_s, original_rgb), seg_mid, seg_e, easing=easings.linear)
+        def _pulse(t, _s=start, _pd=pulse_dur, _orig=original_rgb, _tgt=target_rgb):
+            p = (t - _s) % _pd / _pd
+            blend = 1.0 - abs(2.0 * p - 1.0)  # triangle wave 0→1→0
+            return tuple(ov + (tv - ov) * blend for ov, tv in zip(_orig, _tgt))
+        src.set_onward(start, _pulse)
+        src.last_change = max(src.last_change, end)
         return self
 
     def color_shift(self, hue_shift: float = 30, start: float = 0, end: float = 1, easing=easings.smooth):
@@ -2170,27 +2191,6 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
 
         self.styling.rotation.set(start, end, _rot)
         return self
-
-    def _typewriter_clip(self, start, end, direction, easing, reveal):
-        """Shared logic for typewriter_reveal / typewriter_delete."""
-        direction = _norm_dir(direction)
-        dur = end - start
-        if dur <= 0:
-            return self
-        if reveal:
-            self._show_from(start)
-        else:
-            self._hide_from(end)
-        d = max(dur, 1e-9)
-        tmpl = self._CLIP_INSET.get(direction, self._CLIP_INSET['right'])
-        clip_fn = _clip_reveal(tmpl, start, d, easing) if reveal else _clip_hide(tmpl, start, d, easing)
-        self.styling.clip_path.set(start, end, clip_fn, stay=True)
-        return self
-
-    def typewriter_reveal(self, start: float = 0, end: float = 1,
-                          direction='right', easing=easings.smooth):
-        """Clip-path sweep reveal. direction: 'right', 'left', 'down', 'up'."""
-        return self._typewriter_clip(start, end, direction, easing, reveal=True)
 
     def cross_out(self, start: float = 0, end: float = 0.5, color='#FC6255',
                    stroke_width: float = 4, buff: float = 5):
@@ -2422,7 +2422,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
         for name, target in kwargs.items():
             attr = getattr(self.styling, name)
             if isinstance(attr, attributes.Color):
-                attr.interpolate(attributes.Color(start, target), start, end, easing=easing)
+                interp = attr.interpolate(attributes.Color(start, target), start, end, easing=easing)
+                setattr(self.styling, name, interp)
             else:
                 attr.move_to(start, end, target, easing=easing)
         return self

@@ -87,17 +87,17 @@ class TestWaterfall:
         assert result is items
 
 
-class TestSequential:
-    def test_applies_method_sequentially(self):
+class TestStaggerOverlap0:
+    def test_applies_method_with_no_overlap(self):
         items = VCollection(*[Rectangle(40, 60) for _ in range(4)])
         items.arrange(direction=(1, 0), buff=15)
-        items.sequential('rotate_by', start=0, end=2, degrees=90)
+        items.stagger('rotate_by', start=0, end=2, overlap=0, degrees=90)
         assert items is not None
 
     def test_returns_self(self):
         items = VCollection(*[Circle(r=20) for _ in range(3)])
         items.arrange(direction=(1, 0), buff=10)
-        result = items.sequential('fadein', start=0, end=1)
+        result = items.stagger('fadein', start=0, end=1, overlap=0)
         assert result is items
 
 

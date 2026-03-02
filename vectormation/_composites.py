@@ -138,38 +138,26 @@ def _strip_tex_commands(tex: str) -> str:
 
 
 class TexObject(VCollection):
-    """Renders LaTeX content as SVG paths via dvisvgm."""
+    """Renders LaTeX content as SVG paths.
+
+    Uses built-in Computer Modern glyphs when possible (no LaTeX needed).
+    Falls back to full LaTeX compilation via dvisvgm for complex expressions.
+    """
     def __init__(self, to_render, x: float = 0, y: float = 0, font_size: float = 48, creation: float = 0, z: float = 0, **styles):
-        from vectormation.tex_file_writing import get_characters
-        import vectormation._canvas as _cm
-        import tempfile
-        tex_dir = f'{_cm.save_directory}/tex' if hasattr(_cm, 'save_directory') else tempfile.mkdtemp()
         self._tex = to_render
         t2c = styles.pop('t2c', None)
-        self.char_viewbox, chars = get_characters(tex_dir, to_render, 'latex', '')
 
-        # Normalize: scale raw dvisvgm pt coordinates to pixel size
-        vb_height = abs(self.char_viewbox[3]) if self.char_viewbox[3] else 1
-        base_scale = font_size / vb_height
-        user_sx = styles.pop('scale_x', 1)
-        user_sy = styles.pop('scale_y', 1)
+        chars = self._try_glyph_assembly(to_render, font_size, creation, styles)
+        if chars is None:
+            chars = self._compile_latex(to_render, font_size, creation, styles)
 
-        st = {'stroke_width': 0, 'fill': '#fff',
-              'scale_x': base_scale * user_sx, 'scale_y': base_scale * user_sy} | styles
-        chars = [from_svg(char, **st) for char in chars]
-
-        # Build a mapping from each char object index to the visible-char it represents.
-        # _strip_tex_commands approximates which characters dvisvgm renders as glyphs.
         self._visible_tex = _strip_tex_commands(to_render)
 
-        # Init the collection of VObjects
         super().__init__(*chars, creation=creation, z=z)
 
-        # Initialize the position and scale/width of the group viewbox
         self.x = attributes.Real(creation, x)
         self.y = attributes.Real(creation, y)
 
-        # Get the bounding box and reset the position
         xmin, ymin, _, _ = self.bbox(creation)
         for obj in self.objects:
             obj.styling.dx.add_onward(creation, lambda t, _xm=xmin: self.x.at_time(t) - _xm)
@@ -177,6 +165,43 @@ class TexObject(VCollection):
 
         if t2c is not None:
             self.set_color_by_tex(t2c, creation)
+
+    @staticmethod
+    def _try_glyph_assembly(to_render, font_size, creation, styles):
+        """Try to assemble from built-in/cached glyphs. Returns list of VObjects or None."""
+        from vectormation._tex_glyphs import _tokenize_tex, _assemble, _resolve_tex_dir
+
+        inner = to_render
+        if inner.startswith('$') and inner.endswith('$'):
+            inner = inner[1:-1]
+
+        tokens = _tokenize_tex(inner)
+        if tokens is None:
+            return None
+
+        tex_dir = _resolve_tex_dir()
+        result = _assemble(tokens, 0, 0, font_size, creation, tex_dir, 'left', styles)
+        if result is None:
+            return None
+        return list(result.objects)
+
+    @staticmethod
+    def _compile_latex(to_render, font_size, creation, styles):
+        """Full LaTeX compilation fallback. Returns list of VObjects."""
+        from vectormation.tex_file_writing import get_characters
+        from vectormation._tex_glyphs import _resolve_tex_dir
+
+        tex_dir = _resolve_tex_dir()
+        char_viewbox, raw_chars = get_characters(tex_dir, to_render, 'latex', '')
+
+        vb_height = abs(char_viewbox[3]) if char_viewbox[3] else 1
+        base_scale = font_size / vb_height
+        user_sx = styles.pop('scale_x', 1)
+        user_sy = styles.pop('scale_y', 1)
+
+        st = {'stroke_width': 0, 'fill': '#fff',
+              'scale_x': base_scale * user_sx, 'scale_y': base_scale * user_sy} | styles
+        return [from_svg(char, **st) for char in raw_chars]
 
     def get_part_by_tex(self, substring: str) -> 'VCollection':
         """Return a VCollection of character objects whose source LaTeX matches *substring*.
@@ -276,10 +301,17 @@ class NumberLine(VCollection):
                                 creation=creation, z=z, stroke='#fff', stroke_width=3))
             if include_numbers:
                 label = f'{val:g}'
-                objects.append(Text(text=label, x=sx - len(label) * font_size * 0.15,
-                                    y=y + tick_size/2 + font_size + 2,
-                                    font_size=font_size, creation=creation, z=z,
-                                    fill='#aaa', stroke_width=0))
+                from vectormation._tex_glyphs import assemble_tex_glyphs
+                lbl = assemble_tex_glyphs(label, sx, y + tick_size/2 + font_size * 0.5 + 2,
+                                          font_size, creation=creation, anchor='center',
+                                          fill='#aaa')
+                if lbl is not None:
+                    objects.append(lbl)
+                else:
+                    objects.append(Text(text=label, x=sx - len(label) * font_size * 0.15,
+                                        y=y + tick_size/2 + font_size + 2,
+                                        font_size=font_size, creation=creation, z=z,
+                                        fill='#aaa', stroke_width=0))
 
         super().__init__(*objects, creation=creation, z=z)
 
@@ -1186,25 +1218,15 @@ class IntegerMatrix(Matrix):
 class TexCountAnimation(DynamicObject):
     """Animated number display using pre-rendered LaTeX digit glyphs."""
 
-    _glyph_cache = {}  # class-level: {(tex_dir, font_size): {char: (vb, chars)}}
-
     def __init__(self, start_val: float = 0, end_val: float = 100, start: float = 0, end: float = 1,
                  fmt='{:.0f}', easing=easings.smooth,
                  x: float = ORIGIN[0], y: float = ORIGIN[1], font_size: float = 48,
-                 creation: float = 0, z: float = 0, **styles):
-        from vectormation.tex_file_writing import get_characters
-        import vectormation._canvas as _cm
-        import tempfile
-        tex_dir = f'{_cm.save_directory}/tex' if hasattr(_cm, 'save_directory') else tempfile.mkdtemp()
+                 text_anchor=None, creation: float = 0, z: float = 0, **styles):
+        from vectormation._tex_glyphs import _resolve_tex_dir
 
-        cache_key = (tex_dir, font_size)
-        if cache_key not in TexCountAnimation._glyph_cache:
-            TexCountAnimation._glyph_cache[cache_key] = {
-                ch: get_characters(tex_dir, f'${ch}$', 'latex', '')
-                for ch in '0123456789.-'
-            }
-        self._glyphs = TexCountAnimation._glyph_cache[cache_key]
+        self._tex_dir = _resolve_tex_dir()
         self._x, self._y, self._font_size = x, y, font_size
+        self._text_anchor = text_anchor
         self._styles = {'stroke_width': 0, 'fill': '#fff'} | styles
         self._fmt, self._start_val, self._end_val = fmt, start_val, end_val
         self._anim_start, self._anim_dur = start, max(end - start, 1e-9)
@@ -1236,29 +1258,21 @@ class TexCountAnimation(DynamicObject):
 
     def _build_number(self, val, creation: float = 0):
         """Assemble digit glyphs into a VCollection for the given numeric value."""
-        text = self._fmt.format(val)
-        objects = []
-        cursor_x = self._x
-        for ch in text:
-            glyph_data = self._glyphs.get(ch)
-            if glyph_data is None:
-                cursor_x += self._font_size * 0.3
-                continue
-            vb, chars = glyph_data
-            vb_height = abs(vb[3]) if vb[3] else 1
-            base_scale = self._font_size / vb_height
-            char_width = (abs(vb[2]) if vb[2] else 1) * base_scale
-            st = {**self._styles,
-                  'scale_x': base_scale * self._styles.get('scale_x', 1),
-                  'scale_y': base_scale * self._styles.get('scale_y', 1)}
-            for char_svg in chars:
-                obj = from_svg(char_svg, **st)
-                obj.styling.dx.set_onward(creation, cursor_x)
-                obj.styling.dy.set_onward(creation, self._y)
-                objects.append(obj)
-            cursor_x += char_width + self._font_size * 0.05
+        from vectormation._tex_glyphs import assemble_tex_glyphs
 
-        return VCollection(*objects, creation=creation)
+        text = self._fmt.format(val)
+        # Map text_anchor to assemble_tex_glyphs anchor names
+        anchor = 'left'
+        if self._text_anchor == 'middle':
+            anchor = 'center'
+        elif self._text_anchor == 'end':
+            anchor = 'right'
+        result = assemble_tex_glyphs(text, self._x, self._y, self._font_size,
+                                     creation=creation, tex_dir=self._tex_dir,
+                                     anchor=anchor, **self._styles)
+        if result is None:
+            return VCollection(creation=creation)
+        return result
 
     def count_to(self, target: float, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate counting from the current value to a new target."""

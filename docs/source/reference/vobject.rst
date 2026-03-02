@@ -183,17 +183,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Clip-path wipe reveal (or hide if *reverse*).
 
-   .. py:method:: typewriter_reveal(start=0, end=1, direction='right', easing=smooth)
-
-      Progressive clip-path reveal (typewriter effect).
-
-   .. py:method:: typewriter_delete(start=0, end=1, direction='right', easing=smooth)
-
-      Progressive clip-path hide (reverse typewriter).
-
-   .. py:method:: reveal_clip(start=0, end=1, direction='left', easing=smooth)
-
-      Progressive reveal using clip-path inset.
 
    .. py:method:: pop_in(start=0, end=0.5, change_existence=True)
 

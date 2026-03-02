@@ -35,7 +35,7 @@ sankey = SankeyDiagram(
     x=160, y=140, width=1600, height=420,
     creation=1.0
 )
-sankey.stagger('fadein', delay=0.05, start=1.0, end=3.0)
+sankey.stagger('fadein', start=1.0, end=3.0)
 canvas.add(sankey)
 
 # ── Funnel Chart: Sales Pipeline ─────────────────────────────────────
@@ -54,7 +54,7 @@ funnel = FunnelChart(
     x=180, y=660, width=600, height=380,
     creation=4
 )
-funnel.stagger('fadein', delay=0.15, start=4.5, end=6)
+funnel.stagger('fadein', start=4.5, end=6)
 canvas.add(funnel)
 
 # ── Waterfall Chart: Budget ──────────────────────────────────────────
@@ -68,7 +68,7 @@ waterfall = WaterfallChart(
     x=1090, y=660, width=700, height=380,
     creation=4
 )
-waterfall.stagger('fadein', delay=0.12, start=4.5, end=6)
+waterfall.stagger('fadein', start=4.5, end=6)
 canvas.add(waterfall)
 
 if not args.no_display:

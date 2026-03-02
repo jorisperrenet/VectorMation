@@ -39,5 +39,7 @@ title.write(0, 1)
 
 canvas.add_objects(tree, title)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/tree_example.mp4', fps=30, end=4)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

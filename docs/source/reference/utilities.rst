@@ -215,6 +215,7 @@ Filters & Definitions
 ---------------------
 
 .. py:class:: ClipPath(*objects)
+   :no-index:
 
    SVG clip path definition. Pass one or more shape objects.
 
@@ -225,22 +226,27 @@ Filters & Definitions
       rect = Rectangle(3, 3, clip_path=clip.clip_ref())
 
    .. py:method:: clip_ref()
+      :no-index:
 
       Returns the ``url(#...)`` reference string.
 
 .. py:class:: BlurFilter(std_deviation=4)
+   :no-index:
 
    Gaussian blur filter.
 
    .. py:method:: filter_ref()
+      :no-index:
 
       Returns the ``url(#...)`` reference string.
 
 .. py:class:: DropShadowFilter(dx=4, dy=4, std_deviation=4, color='#000', opacity=0.5)
+   :no-index:
 
    Drop shadow filter.
 
    .. py:method:: filter_ref()
+      :no-index:
 
       Returns the ``url(#...)`` reference string.
 
@@ -355,6 +361,7 @@ Helper Functions
 ----------------
 
 .. py:function:: parse_args()
+   :no-index:
 
    Common CLI argument parser. Returns an object with:
    ``verbose``, ``port``, ``fps``, ``no_display``, ``output``,
@@ -371,10 +378,12 @@ Helper Functions
    Length of an SVG path string.
 
 .. py:function:: from_svg(soup_element)
+   :no-index:
 
    Parse a single BeautifulSoup element into a VObject.
 
 .. py:function:: from_svg_file(filename)
+   :no-index:
 
    Load an entire SVG file into a :py:class:`VCollection`.
 

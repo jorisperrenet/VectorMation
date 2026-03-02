@@ -18,6 +18,7 @@ Resistor
 --------
 
 .. py:class:: Resistor(x1=400, y1=540, x2=600, y2=540, label='R', creation=0, z=0, **styling_kwargs)
+   :no-index:
 
    Electrical resistor schematic symbol drawn as a zigzag line between two
    endpoints, with optional lead wires on each side.
@@ -49,6 +50,7 @@ Capacitor
 ---------
 
 .. py:class:: Capacitor(x1=400, y1=540, x2=600, y2=540, label='C', creation=0, z=0, **styling_kwargs)
+   :no-index:
 
    Electrical capacitor symbol: two parallel plates with lead wires.
 
@@ -72,6 +74,7 @@ Inductor
 --------
 
 .. py:class:: Inductor(x1=400, y1=540, x2=600, y2=540, label='L', n_loops=4, creation=0, z=0, **styling_kwargs)
+   :no-index:
 
    Electrical inductor symbol drawn as a series of semicircular arcs
    (coil / solenoid) between two endpoints.
@@ -97,6 +100,7 @@ Diode
 -----
 
 .. py:class:: Diode(x1=400, y1=540, x2=600, y2=540, label='D', creation=0, z=0, **styling_kwargs)
+   :no-index:
 
    Electrical diode symbol: a triangle pointing in the direction of current
    flow with a bar at the tip, plus lead wires.
@@ -121,6 +125,7 @@ LED
 ---
 
 .. py:class:: LED(x1=400, y1=540, x2=600, y2=540, label='LED', color='#FF0000', creation=0, z=0, **styling_kwargs)
+   :no-index:
 
    Light-emitting diode symbol: a :py:class:`Diode` with two small rays
    emanating from the junction to indicate light emission.
@@ -169,6 +174,7 @@ UnitInterval
 ------------
 
 .. py:class:: UnitInterval(x=360, y=540, length=600, tick_step=0.1, show_labels=True, font_size=18, creation=0, z=0, **styling_kwargs)
+   :no-index:
 
    Convenience wrapper that returns a :py:class:`NumberLine` pre-configured
    for the ``[0, 1]`` range -- commonly used for probabilities and
@@ -199,6 +205,7 @@ Molecule2D
 ----------
 
 .. py:class:: Molecule2D(atoms, bonds=None, scale=80, cx=960, cy=540, atom_radius=20, font_size=16, creation=0, z=0)
+   :no-index:
 
    Simple 2D molecule visualization built from atom positions and bond
    connectivity. Atoms are drawn as colored circles (element-specific
@@ -220,20 +227,20 @@ Molecule2D
 
    Built-in atom color palette:
 
-   ======= ========= ============
-   Symbol  Color     Description
-   ======= ========= ============
-   C       ``#555``  Carbon
-   H       ``#fff``  Hydrogen
-   O       ``#FF4444`` Oxygen
-   N       ``#4444FF`` Nitrogen
-   S       ``#FFFF00`` Sulfur
-   P       ``#FF8800`` Phosphorus
-   F       ``#00FF00`` Fluorine
-   Cl      ``#00FF00`` Chlorine
-   Br      ``#882200`` Bromine
-   I       ``#8800FF`` Iodine
-   ======= ========= ============
+   ======= ============ ============
+   Symbol  Color        Description
+   ======= ============ ============
+   C       ``#555``     Carbon
+   H       ``#fff``     Hydrogen
+   O       ``#FF4444``  Oxygen
+   N       ``#4444FF``  Nitrogen
+   S       ``#FFFF00``  Sulfur
+   P       ``#FF8800``  Phosphorus
+   F       ``#00FF00``  Fluorine
+   Cl      ``#00FF00``  Chlorine
+   Br      ``#882200``  Bromine
+   I       ``#8800FF``  Iodine
+   ======= ============ ============
 
    .. code-block:: python
 
@@ -257,6 +264,7 @@ NeuralNetwork
 -------------
 
 .. py:class:: NeuralNetwork(layer_sizes, cx=960, cy=540, width=800, height=500, neuron_radius=16, neuron_fill='#58C4DD', edge_color='#888', edge_width=1, creation=0, z=0)
+   :no-index:
 
    Neural network diagram with layers of neurons connected by fully-connected
    edges. Supports labeling input/output layers, activating individual neurons,
@@ -292,6 +300,7 @@ NeuralNetwork
       :param float buff: Horizontal buffer between neuron and label.
 
    .. py:method:: activate(layer_idx, neuron_idx, start=0, end=1, color='#FFFF00') -> NeuralNetwork
+      :no-index:
 
       Flash-animate a single neuron to indicate activation.
 
@@ -336,6 +345,7 @@ Pendulum
 --------
 
 .. py:class:: Pendulum(pivot_x=960, pivot_y=200, length=300, angle=30, bob_radius=20, period=2.0, damping=0.0, start=0, end=5, creation=0, z=0)
+   :no-index:
 
    Animated simple pendulum consisting of a pivot point, a rigid rod, and
    a circular bob. The bob oscillates according to ``angle * exp(-damping * t) * cos(2*pi/period * t)``.
@@ -396,6 +406,7 @@ StandingWave
 ------------
 
 .. py:class:: StandingWave(x1=300, y1=540, x2=1620, y2=540, amplitude=100, harmonics=3, frequency=1.0, num_points=200, start=0, end=5, creation=0, z=0, **kwargs)
+   :no-index:
 
    Animated standing wave between two fixed endpoints. The wave displacement
    is computed as ``amplitude * sin(k * x) * cos(omega * t)`` where *k*

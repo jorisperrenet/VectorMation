@@ -65,5 +65,7 @@ dots.shuffle_positions(start=3, end=4.5, seed=7)
 
 canvas.add_objects(ax, ax2, title, band, band_label, boxes, dots, shuffle_label)
 
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/boxplot_band_example.mp4', fps=30, end=5)
 if not args.no_display:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

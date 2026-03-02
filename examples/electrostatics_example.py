@@ -25,5 +25,7 @@ title.fadein(start=0, end=1)
 
 canvas.add_objects(field, q_pos, q_neg, title)
 args = parse_args()
+if args.verbose:
+    canvas.export_video('docs/source/_static/videos/electrostatics_example.mp4', fps=30, end=3)
 if not args.no_display:
     canvas.browser_display(start=0, end=3, fps=args.fps, port=args.port)

@@ -21,7 +21,7 @@ canvas.add(label1)
 
 arr = ArrayViz([7, 3, 9, 1, 5], cell_size=70, y=130, creation=0.5)
 arr.center_to_pos(480, 180, start=0.5)
-arr.stagger('fadein', delay=0.1, start=0.5, end=1.5)
+arr.stagger('fadein', start=0.5, end=1.5)
 canvas.add(arr)
 
 # Highlight cells
@@ -43,7 +43,7 @@ canvas.add(label2)
 stack = StackViz([10, 20], cell_width=110, cell_height=45,
                  creation=0.5)
 stack.center_to_pos(1440, 200, start=0.5)
-stack.stagger('fadein', delay=0.1, start=0.5, end=1.5)
+stack.stagger('fadein', start=0.5, end=1.5)
 canvas.add(stack)
 
 # Push two values
@@ -61,7 +61,7 @@ canvas.add(label3)
 queue = QueueViz(['A', 'B', 'C'], cell_width=75, cell_height=55,
                  creation=4.5)
 queue.center_to_pos(480, 480, start=4.5)
-queue.stagger('fadein', delay=0.1, start=4.5, end=5.5)
+queue.stagger('fadein', start=4.5, end=5.5)
 canvas.add(queue)
 
 # Enqueue
@@ -79,7 +79,7 @@ canvas.add(label4)
 ll = LinkedListViz([10, 20, 30, 40], node_radius=30, spacing=130,
                    creation=4.5)
 ll.center_to_pos(1200, 480, start=4.5)
-ll.stagger('fadein', delay=0.1, start=4.5, end=5.5)
+ll.stagger('fadein', start=4.5, end=5.5)
 canvas.add(ll)
 
 # Traverse animation
