@@ -12,7 +12,8 @@ c1.fadein(0, 0.5)
 c2 = Circle(r=40, cx=1600, cy=700, fill='#83C167', fill_opacity=0.8)
 c2.fadein(0, 0.5)
 
-label1 = Text(text='Object A', x=260, y=250, font_size=24, fill='#fff', stroke_width=0)
+label1 = Text(text='Object A', x=300, y=220, font_size=24, fill='#fff', stroke_width=0,
+              text_anchor='middle')
 label1.fadein(0, 0.5)
 
 label2 = Text(text='Object B', x=1560, y=650, font_size=24, fill='#fff', stroke_width=0)
@@ -36,7 +37,7 @@ title.write(0, 1)
 
 canvas.add_objects(c1, c2, label1, label2, title)
 
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/focus_camera_example.mp4', fps=30, end=6)
-if not args.no_display:
-    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)
+if not args.for_docs:
+    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=6)

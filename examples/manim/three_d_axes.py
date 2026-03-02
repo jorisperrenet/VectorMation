@@ -12,7 +12,7 @@ title = Text('3D Axes', font_size=48, fill='#fff', stroke_width=0)
 title.to_corner('UL')
 
 canvas.add_objects(axes, title)
-if args.verbose:
+if args.for_docs:
     canvas.write_frame(0, 'docs/source/_static/videos/three_d_axes.svg')
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

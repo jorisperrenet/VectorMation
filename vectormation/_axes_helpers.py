@@ -58,7 +58,7 @@ def _nice_ticks(vmin, vmax, target_count: int = 7):
 
 _AXIS_STROKE_WIDTH = 3
 _TICK_FONT_SIZE = DEFAULT_FONT_SIZE // 2  # 24
-_TICK_GAP = SMALL_BUFF // 2               # 7 (gap between tick and label)
+_TICK_GAP = SMALL_BUFF                    # 14 (gap between tick and label)
 _LABEL_GAP = SMALL_BUFF + 2              # 16 (gap between axis end and label)
 
 def _log_ticks(vmin, vmax):
@@ -301,30 +301,44 @@ def _build_axes_decoration(x_min, x_max, y_min, y_max, plot_x, plot_y, plot_widt
             fs = tick_label_font_size if tick_label_font_size is not None else _TICK_FONT_SIZE
             clr = tick_label_color if tick_label_color is not None else '#aaa'
             label_str = _format_tick(val, fmt)
-            if tex_ticks and '$' in label_str:
+            if tex_ticks:
                 inner = label_str.strip('$')
                 if is_x_axis:
                     lbl = assemble_tex_glyphs(inner, sv,
-                                              y_zero + tick_len + _TICK_GAP + fs * 0.5,
+                                              y_zero + tick_len + _TICK_GAP + fs,
                                               fs, creation=time, anchor='center',
                                               fill=clr)
                 else:
                     lbl = assemble_tex_glyphs(inner,
                                               x_zero - tick_len - _TICK_GAP,
-                                              sv, fs, creation=time, anchor='right',
+                                              sv, fs, creation=time,
+                                              anchor='right', v_anchor='center',
                                               fill=clr)
                 if lbl is not None:
                     objects.append(lbl)
                 else:
-                    # Glyph assembly failed (LaTeX not installed) — use plain text
-                    if is_x_axis:
-                        objects.append(Text(text=inner, x=sv, y=y_zero + tick_len + _TICK_GAP + fs * TEXT_Y_OFFSET,
-                                            font_size=fs, text_anchor='middle',
-                                            creation=time, fill=clr, stroke_width=0))
-                    else:
-                        objects.append(Text(text=inner, x=x_zero - tick_len - _TICK_GAP, y=sv + fs * TEXT_Y_OFFSET,
-                                            font_size=fs, text_anchor='end',
-                                            creation=time, fill=clr, stroke_width=0))
+                    # Glyph assembly failed — try full TeX compilation via TexObject
+                    from vectormation._composites import TexObject
+                    try:
+                        tex_lbl = TexObject(label_str, font_size=fs, creation=time, fill=clr)
+                        tw, th = tex_lbl.get_width(time), tex_lbl.get_height(time)
+                        if is_x_axis:
+                            tex_lbl.x.add_onward(time, sv - tw / 2)
+                            tex_lbl.y.add_onward(time, y_zero + tick_len + _TICK_GAP)
+                        else:
+                            tex_lbl.x.add_onward(time, x_zero - tick_len - _TICK_GAP - tw)
+                            tex_lbl.y.add_onward(time, sv - th / 2)
+                        objects.append(tex_lbl)
+                    except Exception:
+                        # Final fallback: plain text
+                        if is_x_axis:
+                            objects.append(Text(text=inner, x=sv, y=y_zero + tick_len + _TICK_GAP + fs * TEXT_Y_OFFSET,
+                                                font_size=fs, text_anchor='middle',
+                                                creation=time, fill=clr, stroke_width=0))
+                        else:
+                            objects.append(Text(text=inner, x=x_zero - tick_len - _TICK_GAP, y=sv + fs * TEXT_Y_OFFSET,
+                                                font_size=fs, text_anchor='end',
+                                                creation=time, fill=clr, stroke_width=0))
             else:
                 if is_x_axis:
                     objects.append(Text(text=label_str, x=sv, y=y_zero + tick_len + _TICK_GAP + fs * TEXT_Y_OFFSET,

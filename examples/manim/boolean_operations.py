@@ -40,7 +40,7 @@ for name, cls, color, tx, ty in ops:
     label.fadein(start=t, end=t + 0.5)
     t += 1.5
 
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/boolean_operations.mp4', fps=30)
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(start=0, end=t + 0.5, fps=args.fps, port=args.port, hot_reload=True)

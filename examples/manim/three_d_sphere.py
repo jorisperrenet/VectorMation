@@ -6,7 +6,7 @@ args = parse_args()
 canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/manim/three_d_sphere')
 canvas.set_background()
 
-axes = ThreeDAxes(x_range=(-3, 3), y_range=(-3, 3), z_range=(-3, 3))
+axes = ThreeDAxes(x_range=(-3, 3), y_range=(-3, 3), z_range=(-2, 2))
 
 sphere = Sphere3D(radius=1.5, fill_color='#FC6255',
                   checkerboard_colors=('#FC6255', '#c44030'),
@@ -14,7 +14,7 @@ sphere = Sphere3D(radius=1.5, fill_color='#FC6255',
 axes.add_surface(sphere)
 
 canvas.add_objects(axes)
-if args.verbose:
+if args.for_docs:
     canvas.write_frame(0, 'docs/source/_static/videos/three_d_sphere.svg')
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

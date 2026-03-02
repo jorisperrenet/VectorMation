@@ -22234,7 +22234,7 @@ class TestApplyShiftEffectInCollection:
 
     def test_orbit_around(self):
         items = VCollection(*[Dot(cx=100+i*20, cy=100) for i in range(3)])
-        result = items.orbit_around(start=0, end=1, revolutions=1)
+        result = items.orbit_around(start=0, end=1, degrees=360)
         assert result is items
 
     def test_reveal(self):

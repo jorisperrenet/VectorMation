@@ -118,7 +118,7 @@ canvas.add_objects(
     label5, var, tex_var,
 )
 
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/animations_counters.mp4', fps=30, end=8)
-if not args.no_display:
-    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)
+if not args.for_docs:
+    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=8)

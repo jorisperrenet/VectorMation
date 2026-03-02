@@ -63,8 +63,9 @@ def _circular_layout(keys, cx, cy, radius):
 
 class ChessBoard(VCollection):
     """Chess board visualization."""
+    # Use filled (black) symbols for all pieces — color via fill/stroke
     _PIECE_SYMBOLS = {
-        'K': '\u2654', 'Q': '\u2655', 'R': '\u2656', 'B': '\u2657', 'N': '\u2658', 'P': '\u2659',
+        'K': '\u265a', 'Q': '\u265b', 'R': '\u265c', 'B': '\u265d', 'N': '\u265e', 'P': '\u265f',
         'k': '\u265a', 'q': '\u265b', 'r': '\u265c', 'b': '\u265d', 'n': '\u265e', 'p': '\u265f',
     }
 
@@ -115,13 +116,17 @@ class ChessBoard(VCollection):
                     col_idx += int(ch)
                 elif ch in self._PIECE_SYMBOLS:
                     px = x0 + col_idx * cell + cell / 2
-                    py = y0 + row_idx * cell + cell / 2 + cell * 0.1
-                    piece = Text(text=self._PIECE_SYMBOLS[ch],
-                                 x=px, y=py, font_size=cell * 0.7,
-                                 text_anchor='middle',
-                                 creation=creation, z=z + 1,
-                                 fill='#fff' if ch.isupper() else '#222',
-                                 stroke_width=0)
+                    py = y0 + row_idx * cell + cell / 2 + cell * 0.15
+                    is_white = ch.isupper()
+                    piece_kw = dict(x=px, y=py, font_size=cell * 0.75,
+                                    text_anchor='middle',
+                                    creation=creation, z=z + 1,
+                                    fill='#fff' if is_white else '#222')
+                    if is_white:
+                        piece_kw.update(stroke='#333', stroke_width=0.5)
+                    else:
+                        piece_kw['stroke_width'] = 0
+                    piece = Text(text=self._PIECE_SYMBOLS[ch], **piece_kw)
                     sq_name = chr(ord('a') + col_idx) + str(8 - row_idx)
                     self._pieces[sq_name] = piece
                     objects.append(piece)

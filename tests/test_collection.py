@@ -1743,7 +1743,7 @@ class TestWaterfall:
 
 
 class TestOrbitAround:
-    """Tests for VCollection.orbit_around — children revolving around a center."""
+    """Tests for VCollection.orbit_around — whole group orbits around a center."""
 
     def test_returns_self(self):
         c1 = Circle(r=10, cx=100, cy=300)
@@ -1764,11 +1764,11 @@ class TestOrbitAround:
         assert result is col
 
     def test_children_move_in_circle(self):
-        """A child at (cx+R, cy) should orbit to (cx, cy+R) at quarter revolution."""
-        c1 = Circle(r=10, cx=250, cy=300)  # Right of center
+        """Group center at (cx+R, cy) should orbit to (cx, cy+R) at quarter revolution."""
+        c1 = Circle(r=10, cx=250, cy=300)  # Right of orbit center
         col = VCollection(c1)
         col.orbit_around(cx=150, cy=300, radius=100, start=0, end=4,
-                         revolutions=1, easing=easings.linear)
+                         degrees=360, easing=easings.linear)
         # At t=1 (quarter revolution): should be at bottom (cx, cy+R) = (150, 400)
         pos = c1.c.at_time(1)
         assert pos[0] == pytest.approx(150, abs=5)
@@ -1779,7 +1779,7 @@ class TestOrbitAround:
         c1 = Circle(r=10, cx=250, cy=300)
         col = VCollection(c1)
         col.orbit_around(cx=150, cy=300, radius=100, start=0, end=4,
-                         revolutions=1, easing=easings.linear)
+                         degrees=360, easing=easings.linear)
         pos_start = c1.c.at_time(0)
         pos_end = c1.c.at_time(4)
         assert pos_end[0] == pytest.approx(pos_start[0], abs=2)
@@ -1795,32 +1795,29 @@ class TestOrbitAround:
         assert result is col
 
     def test_half_revolution(self):
-        """At half revolution, child at (cx+R, cy) should be at (cx-R, cy)."""
-        c1 = Circle(r=10, cx=250, cy=300)  # Right of center at distance 100
+        """At half revolution, group at (cx+R, cy) should be at (cx-R, cy)."""
+        c1 = Circle(r=10, cx=250, cy=300)  # Right of orbit center at distance 100
         col = VCollection(c1)
         col.orbit_around(cx=150, cy=300, radius=100, start=0, end=2,
-                         revolutions=1, easing=easings.linear)
+                         degrees=360, easing=easings.linear)
         # At t=1 (half revolution): should be at (cx-R, cy) = (50, 300)
         pos = c1.c.at_time(1)
         assert pos[0] == pytest.approx(50, abs=5)
         assert pos[1] == pytest.approx(300, abs=5)
 
     def test_multiple_children_maintain_spacing(self):
-        """Two children 180 degrees apart should stay 180 degrees apart."""
+        """Two children should maintain their relative positions."""
         c1 = Circle(r=10, cx=250, cy=300)  # Right of center
-        c2 = Circle(r=10, cx=50, cy=300)   # Left of center
+        c2 = Circle(r=10, cx=200, cy=300)  # Closer to center
         col = VCollection(c1, c2)
         col.orbit_around(cx=150, cy=300, radius=100, start=0, end=4,
-                         revolutions=1, easing=easings.linear)
-        # At t=1 (quarter revolution):
-        # c1 starts at angle 0 -> should be at angle pi/2 (bottom)
-        # c2 starts at angle pi -> should be at angle 3pi/2 (top)
+                         degrees=360, easing=easings.linear)
+        # At t=1 (quarter revolution), both should have moved by the same offset
+        # The group moves as a rigid body, so spacing between c1 and c2 is preserved
         pos1 = c1.c.at_time(1)
         pos2 = c2.c.at_time(1)
-        assert pos1[0] == pytest.approx(150, abs=5)
-        assert pos1[1] == pytest.approx(400, abs=5)
-        assert pos2[0] == pytest.approx(150, abs=5)
-        assert pos2[1] == pytest.approx(200, abs=5)
+        # c1 and c2 should maintain their 50px horizontal spacing
+        assert pos1[0] - pos2[0] == pytest.approx(50, abs=5)
 
 
 # ---------------------------------------------------------------------------

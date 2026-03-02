@@ -16,7 +16,7 @@ angle = Angle(vertex=l1.p1, p1=l1.p2, p2=l2.p2, radius=40,
               label=r'$\theta$', label_font_size=36)
 
 canvas.add_objects(l1, l2, angle)
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/moving_angle.mp4', fps=30)
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

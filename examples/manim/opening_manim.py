@@ -37,7 +37,7 @@ grid = NumberPlane(creation=4)
 grid.fadein(4, 6)
 
 canvas.add_objects(grid, morph, formula, grid_title)
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/opening_manim.mp4', fps=30)
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

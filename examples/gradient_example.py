@@ -30,15 +30,12 @@ canvas.add_def(glow)
 # Apply gradients to shapes
 r1 = Rectangle(400, 300, x=100, y=200, fill=sunset.fill_ref(),
                fill_opacity=1, stroke_width=0)
-r1.fadein(0, 1)
 
 r2 = Rectangle(400, 300, x=600, y=200, fill=ocean.fill_ref(),
                fill_opacity=1, stroke_width=0)
-r2.fadein(0.3, 1.3)
 
 c1 = Circle(r=150, cx=1500, cy=350, fill=glow.fill_ref(),
             fill_opacity=1, stroke_width=0)
-c1.fadein(0.6, 1.6)
 
 # Labels
 l1 = Text(text='Linear (horizontal)', x=300, y=560, font_size=24,
@@ -47,17 +44,13 @@ l2 = Text(text='Linear (vertical)', x=800, y=560, font_size=24,
           fill='#aaa', stroke_width=0, text_anchor='middle')
 l3 = Text(text='Radial', x=1500, y=560, font_size=24,
           fill='#aaa', stroke_width=0, text_anchor='middle')
-l1.fadein(0, 1)
-l2.fadein(0, 1)
-l3.fadein(0, 1)
 
 title = Text(text='SVG Gradient Support', x=960, y=80,
              font_size=48, fill='#fff', stroke_width=0, text_anchor='middle')
-title.write(0, 1)
 
 canvas.add_objects(r1, r2, c1, l1, l2, l3, title)
 
-if args.verbose:
-    canvas.export_video('docs/source/_static/videos/gradient_example.mp4', fps=30, end=2)
-if not args.no_display:
+if args.for_docs:
+    canvas.write_frame(filename='docs/source/_static/videos/gradient_example.svg')
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

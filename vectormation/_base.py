@@ -295,10 +295,10 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
                 ya.add_onward(start, lambda t, _s=start, _vy=vy: _vy * (t - _s))
         else:
             for c in self._shift_coors():
-                c.add_onward(start, lambda t, _s=start, _e=end, _vx=vx, _vy=vy: (_vx * (min(t, _e) - _s), _vy * (min(t, _e) - _s)))
+                c.add_onward(start, lambda t, _s=start, _e=end, _vx=vx, _vy=vy: (_vx * (min(t, _e) - _s), _vy * (min(t, _e) - _s)), last_change=end)
             for xa, ya in self._shift_reals():
-                xa.add_onward(start, lambda t, _s=start, _e=end, _vx=vx: _vx * (min(t, _e) - _s))
-                ya.add_onward(start, lambda t, _s=start, _e=end, _vy=vy: _vy * (min(t, _e) - _s))
+                xa.add_onward(start, lambda t, _s=start, _e=end, _vx=vx: _vx * (min(t, _e) - _s), last_change=end)
+                ya.add_onward(start, lambda t, _s=start, _e=end, _vy=vy: _vy * (min(t, _e) - _s), last_change=end)
         return self
 
     def shift(self, dx: float = 0, dy: float = 0, start: float = 0, end: float | None = None, easing=easings.smooth):

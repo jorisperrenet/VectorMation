@@ -19,8 +19,7 @@ title.fadein(start=0, end=1)
 
 canvas.add_objects(trace, p, title)
 args = parse_args()
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/pendulum_example.mp4', fps=30, end=10)
-if not args.no_display:
-    canvas.browser_display(start=0, end=10, fps=args.fps, port=args.port,
-                           hot_reload=True)
+if not args.for_docs:
+    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=10)

@@ -1222,41 +1222,43 @@ class VCollection(_BBoxMethodsMixin):
         return self
 
     def orbit_around(self, cx: float | None = None, cy: float | None = None, radius: float | None = None,
-                     start: float = 0, end: float = 1, revolutions: float = 1,
+                     start: float = 0, end: float = 1, degrees: float = 360,
                      easing=easings.linear):
-        """Animate children orbiting around a center point with equal angular spacing."""
-        n = len(self.objects)
-        if n == 0:
+        """Orbit the entire collection as a rigid body around (*cx*, *cy*)."""
+        if not self.objects:
             return self
+        gcx, gcy = self.center(start)
+        if cx is None:
+            cx = gcx
+        if cy is None:
+            cy = gcy
+        if radius is None:
+            radius = math.hypot(gcx - cx, gcy - cy)
+            if radius < 1:
+                radius = 100
         dur = end - start
         if dur <= 0:
             return self
-        # Resolve center
-        cx, cy = self._resolve_center(start, cx, cy)
-        # Compute initial angle and radius for each child
-        child_data = []
-        for obj in self.objects:
-            ocx, ocy = obj.center(start)
-            dx, dy = ocx - cx, ocy - cy
-            dist = math.hypot(dx, dy)
-            angle0 = math.atan2(dy, dx)
-            child_data.append((angle0, dist, ocx, ocy))
-        if radius is None:
-            radius = sum(d[1] for d in child_data) / max(n, 1)
-            # Use at least a small radius to avoid degenerate orbits
-            if radius < 1:
-                radius = 100
+        start_angle = math.atan2(gcy - cy, gcx - cx)
         _d = max(dur, 1e-9)
-
-        for i, obj in enumerate(self.objects):
-            angle0, _, ocx, ocy = child_data[i]
-            def _orbit(t, _s=start, _d=_d, _cx=cx, _cy=cy, _r=radius, _rev=revolutions,
-                       _a0=angle0, _ocx=ocx, _ocy=ocy, _e=easing):
-                angle = _a0 + math.tau * _rev * _e((t - _s) / _d)
-                return _cx + _r * math.cos(angle) - _ocx, _cy + _r * math.sin(angle) - _ocy
-            obj._apply_shift_effect(start, end,
-                dx_func=lambda t, _f=_orbit: _f(t)[0],
-                dy_func=lambda t, _f=_orbit: _f(t)[1])
+        # Compute a single displacement from the group center's orbit
+        # and apply it identically to every child so the group moves rigidly.
+        def _dx(t, _s=start, _d=_d, _sa=start_angle, _rad=math.radians(degrees),
+                _cx=cx, _r=radius, _gcx=gcx, _e=easing):
+            angle = _sa + _e((t - _s) / _d) * _rad
+            return _cx + _r * math.cos(angle) - _gcx
+        def _dy(t, _s=start, _d=_d, _sa=start_angle, _rad=math.radians(degrees),
+                _cy=cy, _r=radius, _gcy=gcy, _e=easing):
+            angle = _sa + _e((t - _s) / _d) * _rad
+            return _cy + _r * math.sin(angle) - _gcy
+        def _apply_recursive(obj):
+            if hasattr(obj, '_apply_shift_effect'):
+                obj._apply_shift_effect(start, end, dx_func=_dx, dy_func=_dy)
+            else:
+                for child in obj.objects:
+                    _apply_recursive(child)
+        for obj in self.objects:
+            _apply_recursive(obj)
         return self
 
     def distribute_along_arc(self, cx=ORIGIN[0], cy=ORIGIN[1], radius: float = 200,

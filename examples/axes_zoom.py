@@ -9,6 +9,7 @@ canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/axes_zoom')
 canvas.set_background()
 
 ax = Axes(x_range=(-5, 5), y_range=(-2, 26), x_label='x', y_label='y')
+ax.add_coordinates(tex=True)
 
 f = lambda x: x ** 2
 curve = ax.plot(f, label='$f(x)=x^2$', stroke='#58C4DD', stroke_width=4)
@@ -37,7 +38,7 @@ dot.c.set_onward(10, ax.graph_position(f, x_val))
 dot.fadein(10, 10.5)
 
 canvas.add_objects(ax, create_anim, dot)
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/axes_zoom.mp4', fps=30, end=14)
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=14)

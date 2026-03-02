@@ -867,6 +867,12 @@ Polygon
 
       Return individual :py:class:`Line` objects with a gap between each.
 
+   .. py:method:: get_subcurve(a, b, time=0, **kwargs)
+
+      Extract the portion of the polyline between parameters *a* and *b*
+      (floats in ``[0, 1]`` representing fraction of total path length).
+      Returns a new :py:class:`Lines` object.
+
    .. py:method:: subdivide_edges(iterations=1, time=0, **kwargs)
 
       Subdivide each edge into two, refining the polygon.

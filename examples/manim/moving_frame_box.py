@@ -13,7 +13,7 @@ rect2 = text.brect(0, 26, 38, follow=False, buff=12)
 obj = MorphObject(rect1, rect2, start=2, end=4)
 
 canvas.add_objects(text, obj, rect1, rect2)
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/moving_frame_box.mp4', fps=30)
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

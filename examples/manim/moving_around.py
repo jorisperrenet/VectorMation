@@ -13,7 +13,7 @@ square.scale(0.3, 2, 3)
 square.rotate_by(3, 4, 23)
 
 canvas.add_objects(square)
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/moving_around.mp4', fps=30)
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

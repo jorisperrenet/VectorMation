@@ -15,12 +15,14 @@ title.write(0, 1)
 
 # Create a cloth: top row pinned, draping under gravity
 # Centered horizontally, starting near the top of the canvas
+# Stiffness must be high enough to resist gravity across the chain:
+# total stretch ≈ m*g/(2k) * n*(n+1); with k=15, ~176px of drape
 cloth = Cloth(
-    x=460, y=150,
-    width=1000, height=600,
-    cols=20, rows=14,
+    x=460, y=120,
+    width=1000, height=350,
+    cols=20, rows=12,
     pin_top=True,
-    stiffness=3.0,
+    stiffness=15,
     color='#58C4DD',
 )
 
@@ -44,8 +46,7 @@ cloth_objects = cloth.objects()
 # Add everything to canvas
 canvas.add_objects(title, *cloth_objects)
 
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/physics_cloth.mp4', fps=30, end=8)
-if not args.no_display:
-    canvas.browser_display(start=0, end=duration, fps=args.fps, port=args.port,
-                           hot_reload=True)
+if not args.for_docs:
+    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=8)

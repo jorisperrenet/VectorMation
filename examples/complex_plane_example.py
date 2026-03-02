@@ -6,9 +6,10 @@ args = parse_args()
 canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/complex_plane')
 canvas.set_background()
 
-# Create a complex plane and plot roots of unity
-plane = ComplexPlane(x_range=(-3, 3), y_range=(-3, 3), show_grid=True)
-plane.fadein(0, 1)
+# Create a complex plane with equal aspect (square plot area)
+plane = ComplexPlane(x_range=(-2.5, 2.5), y_range=(-2.5, 2.5),
+                     plot_width=700, plot_height=700,
+                     x=610, y=180, show_grid=True)
 
 # Plot 5th roots of unity as dots connected by lines
 n = 5
@@ -18,7 +19,6 @@ for k in range(n):
     z = complex(math.cos(angle), math.sin(angle))
     px, py = plane.number_to_point(z)
     dot = Dot(cx=px, cy=py, r=8, fill='#FF6666', stroke_width=0)
-    dot.fadein(1, 1.5)
     roots.append((px, py, dot))
 
 # Connect them with lines to form a pentagon
@@ -28,16 +28,14 @@ for i in range(n):
     x2, y2, _ = roots[(i + 1) % n]
     line = Line(x1=x1, y1=y1, x2=x2, y2=y2,
                 stroke='#FFFF00', stroke_width=2)
-    line.create(1.5, 2.5)
     lines.append(line)
 
-title = Text(text='5th Roots of Unity', x=960, y=60,
+title = Text(text='5th Roots of Unity', x=960, y=100,
              font_size=48, fill='#fff', stroke_width=0, text_anchor='middle')
-title.write(0, 1)
 
 canvas.add_objects(plane, *[d for _, _, d in roots], *lines, title)
 
-if args.verbose:
-    canvas.export_video('docs/source/_static/videos/complex_plane_example.mp4', fps=30, end=3)
-if not args.no_display:
+if args.for_docs:
+    canvas.write_frame(filename='docs/source/_static/videos/complex_plane_example.svg')
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

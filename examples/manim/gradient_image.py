@@ -19,7 +19,7 @@ border = SurroundingRectangle(rect, buff=0, stroke='#00FF00', stroke_width=4,
                               fill_opacity=0)
 
 canvas.add_objects(rect, border)
-if args.verbose:
+if args.for_docs:
     canvas.write_frame(0, 'docs/source/_static/videos/gradient_image.svg')
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

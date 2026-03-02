@@ -13,7 +13,7 @@ b1 = Brace(line, direction='down', label='Horizontal distance')
 b2 = Brace(line, direction='right', label=r'$x-x_1$')
 
 canvas.add_objects(line, dot1, dot2, b1, b2)
-if args.verbose:
+if args.for_docs:
     canvas.write_frame(0, 'docs/source/_static/videos/brace_annotation.svg')
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

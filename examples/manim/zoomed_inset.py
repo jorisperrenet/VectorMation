@@ -47,7 +47,7 @@ zi.fadein(start=0.5, end=1)
 # Animate the source sweeping across the canvas
 zi.move_source(800, 300, start=2, end=4)
 
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/zoomed_inset.mp4', fps=30)
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(start=0, end=5, fps=args.fps, port=args.port)

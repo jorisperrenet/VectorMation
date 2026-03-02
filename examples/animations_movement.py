@@ -234,9 +234,9 @@ src = Circle(r=20, cx=col_x(c) - 50, cy=obj_y(r) + 30,
              fill='#666', fill_opacity=0.5)
 src.fadein(a - FADE_IN_BEFORE, a)
 s = make_circle(c, r)
-s.fadein(a - FADE_IN_BEFORE, a)
-s.transform_from_copy(src, start=a, end=a + ANIM_DUR)
-objs += [lbl, src, s]
+s.fadein(a, a)  # hidden until morph completes
+morph = src.transform_from_copy(s, start=a, end=a + ANIM_DUR)
+objs += [lbl, src, s, morph]
 
 # ── Row 4: Continuous / tracking ──────────────────────────────────────
 r = 4
@@ -334,9 +334,8 @@ objs += [lbl, s]
 canvas.add_objects(*objs)
 
 total_dur = row_t(N_ROWS - 1) + (COLS - 1) * STAGGER + ANIM_DUR + 1.0
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/animations_movement.mp4',
                         fps=30, end=total_dur)
-if not args.no_display:
-    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True,
-                           end=total_dur)
+if not args.for_docs:
+    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=total_dur)

@@ -12,7 +12,7 @@ point.c.move_to(4, 5, (1060, 440))
 trace = Trace(point.c, start=0, end=5, dt=1/60)
 
 canvas.add_objects(trace, point)
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/point_with_trace.mp4', fps=30)
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

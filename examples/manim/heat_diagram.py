@@ -12,7 +12,7 @@ x_vals = [0, 8, 38, 39]
 y_vals = [20, 0, 0, -5]
 graph = ax.plot_line_graph(x_vals, y_vals, stroke='#FFFF00')
 canvas.add_objects(ax)
-if args.verbose:
+if args.for_docs:
     canvas.write_frame(0, 'docs/source/_static/videos/heat_diagram.svg')
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

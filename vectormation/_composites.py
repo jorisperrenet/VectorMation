@@ -172,15 +172,51 @@ class TexObject(VCollection):
         from vectormation._tex_glyphs import _tokenize_tex, _assemble, _resolve_tex_dir
 
         inner = to_render
+        # $...$ wrapping means explicit math mode (italic letters)
         if inner.startswith('$') and inner.endswith('$'):
             inner = inner[1:-1]
-
-        tokens = _tokenize_tex(inner)
-        if tokens is None:
-            return None
+            text_mode = False
+            tokens = _tokenize_tex(inner)
+            if tokens is None:
+                return None
+        elif '$' in inner:
+            # Inline $...$ segments: split into text-mode and math-mode parts.
+            # Even-indexed parts are text mode, odd-indexed are math mode.
+            parts = inner.split('$')
+            if len(parts) % 2 == 0:
+                # Unmatched dollar sign — can't glyph-assemble
+                return None
+            tokens = []
+            for i, part in enumerate(parts):
+                if not part:
+                    continue
+                is_math = (i % 2 == 1)
+                seg_tokens = _tokenize_tex(part)
+                if seg_tokens is None:
+                    return None
+                if is_math:
+                    # Math-mode tokens are passed as plain strings
+                    tokens.extend(seg_tokens)
+                else:
+                    # Text-mode tokens are wrapped as ('text', char) tuples
+                    for tok in seg_tokens:
+                        if tok == ' ':
+                            tokens.append(' ')
+                        elif isinstance(tok, tuple):
+                            tokens.append(tok)
+                        else:
+                            tokens.append(('text', tok))
+            text_mode = False
+        else:
+            # Plain text: use upright (text-mode) letters
+            text_mode = True
+            tokens = _tokenize_tex(inner)
+            if tokens is None:
+                return None
 
         tex_dir = _resolve_tex_dir()
-        result = _assemble(tokens, 0, 0, font_size, creation, tex_dir, 'left', styles)
+        result = _assemble(tokens, 0, 0, font_size, creation, tex_dir, 'left', styles,
+                           text_mode=text_mode)
         if result is None:
             return None
         return list(result.objects)
@@ -609,9 +645,11 @@ class NumberLine(VCollection):
                     obj.p1.set_onward(start,
                         lambda t, _ox=old_x, _dx=_dx, _y=p1_y, _s=start, _d=dur, _e=_easing, _end=end:
                             (_ox + _dx * _e(min(1, (t - _s) / _d)) if t < _end else _ox + _dx, _y))
+                    obj.p1.last_change = max(obj.p1.last_change, end)
                     obj.p2.set_onward(start,
                         lambda t, _ox=old_x, _dx=_dx, _y=p2_y, _s=start, _d=dur, _e=_easing, _end=end:
                             (_ox + _dx * _e(min(1, (t - _s) / _d)) if t < _end else _ox + _dx, _y))
+                    obj.p2.last_change = max(obj.p2.last_change, end)
             elif hasattr(obj, 'text') and hasattr(obj, 'x'):
                 # It's a Text label
                 cur_x = obj.x.at_time(start)
@@ -1327,6 +1365,7 @@ def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='VectorMation animation script')
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose logging')
+    parser.add_argument('--for-docs', action='store_true', help='Export video/SVG for documentation')
     parser.add_argument('--port', type=int, default=8765, help='Browser viewer port')
     parser.add_argument('--fps', type=int, default=60, help='Frames per second')
     parser.add_argument('--no-display', action='store_true', help='Skip browser display')

@@ -7,7 +7,7 @@ args = parse_args()
 canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/manim/three_d_helix')
 canvas.set_background()
 
-axes = ThreeDAxes(x_range=(-2, 2), y_range=(-2, 2), z_range=(-1, 3))
+axes = ThreeDAxes(x_range=(-2, 2), y_range=(-2, 2), z_range=(-1, 2.5))
 
 # A helix wrapping around the z-axis
 def helix(t):
@@ -21,7 +21,7 @@ axes.add_3d(curve)
 axes.add_3d(Dot3D((1, 0, 0), radius=6, fill='#FC6255'))
 
 canvas.add_objects(axes)
-if args.verbose:
+if args.for_docs:
     canvas.write_frame(0, 'docs/source/_static/videos/three_d_helix.svg')
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

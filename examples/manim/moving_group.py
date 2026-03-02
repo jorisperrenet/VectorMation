@@ -19,7 +19,7 @@ ref_x, ref_y = d3.c.at_time(0)
 group.shift(dx=target_x - ref_x, dy=target_y - ref_y, start=0.5, end=2)
 
 canvas.add_objects(group, dest)
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/moving_group.mp4', fps=30)
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

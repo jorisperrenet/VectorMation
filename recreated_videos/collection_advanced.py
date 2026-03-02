@@ -79,7 +79,7 @@ orb = make_shapes(5, 'circle', 15)
 orb.arrange_in_circle(radius=80)
 orb.center_to_pos(1570, 350, start=0)
 orb.stagger('fadein', start=0.5, end=1.2)
-orb.orbit_around(cx=1570, cy=350, start=1.5, end=5.0, revolutions=2)
+orb.orbit_around(cx=1570, cy=350, start=1.5, end=5.0, degrees=720)
 orb.fadeout(5.0, 5.5)
 v.add(orb)
 

@@ -48,10 +48,9 @@ canvas.add_objects(Polygon(
 ))
 
 # Export to all logo locations
-root = os.path.join(os.path.dirname(__file__), '..')
-for path in ['examples/svgs/logo.svg', 'docs/source/_static/logo.svg']:
-    canvas.write_frame(time=0, filename=os.path.join(root, path))
-
-# Display
-if not args.no_display:
+if args.for_docs:
+    root = os.path.join(os.path.dirname(__file__), '..')
+    for path in ['examples/svgs/logo.svg', 'docs/source/_static/logo.svg']:
+        canvas.write_frame(time=0, filename=os.path.join(root, path))
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

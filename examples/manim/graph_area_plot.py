@@ -25,7 +25,7 @@ vline1 = ax.get_vertical_line(2, y_val=f1(2))
 vline2 = ax.get_vertical_line(3, y_val=f1(3))
 
 canvas.add_objects(ax)
-if args.verbose:
+if args.for_docs:
     canvas.write_frame(0, 'docs/source/_static/videos/graph_area_plot.svg')
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

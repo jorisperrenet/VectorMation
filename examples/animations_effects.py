@@ -347,9 +347,8 @@ objs += [lbl, s]
 canvas.add_objects(*objs)
 
 total_dur = row_t(N_ROWS - 1) + (COLS - 1) * STAGGER + ANIM_DUR + 1.0
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/animations_effects.mp4',
                         fps=30, end=total_dur)
-if not args.no_display:
-    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True,
-                           end=total_dur)
+if not args.for_docs:
+    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=total_dur)

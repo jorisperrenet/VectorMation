@@ -314,6 +314,13 @@ class BinaryTree(VCollection):
                 right = node[2] if len(node) > 2 else None
             else:
                 return
+            # Add node before children (pre-order) so traverse() visits root first
+            self._node_objects.append(
+                Circle(r=node_radius, cx=cx, cy=cy, fill=fill, stroke=border_color,
+                       stroke_width=2, creation=creation, z=z + 0.1))
+            objects.append(self._node_objects[-1])
+            objects.append(_label_text(str(val), cx, cy, font_size,
+                                       creation=creation, z=z + 0.2, fill=text_color))
             child_y, child_spread = cy + v_spacing, spread / 2
             for child, sign in ((left, -1), (right, 1)):
                 if child is not None:
@@ -322,12 +329,6 @@ class BinaryTree(VCollection):
                                         stroke=edge_color, stroke_width=2,
                                         creation=creation, z=z))
                     _draw(child, child_x, child_y, child_spread)
-            self._node_objects.append(
-                Circle(r=node_radius, cx=cx, cy=cy, fill=fill, stroke=border_color,
-                       stroke_width=2, creation=creation, z=z + 0.1))
-            objects.append(self._node_objects[-1])
-            objects.append(_label_text(str(val), cx, cy, font_size,
-                                       creation=creation, z=z + 0.2, fill=text_color))
 
         _draw(tree, x, y, h_spacing)
         super().__init__(*objects, creation=creation, z=z)

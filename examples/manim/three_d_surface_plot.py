@@ -20,7 +20,7 @@ axes.plot_surface(gaussian, resolution=(24, 24),
                   fill_opacity=0.85)
 
 canvas.add_objects(axes)
-if args.verbose:
+if args.for_docs:
     canvas.write_frame(0, 'docs/source/_static/videos/three_d_surface_plot.svg')
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

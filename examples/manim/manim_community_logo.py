@@ -24,7 +24,7 @@ logo = VCollection(tr, sq, cir, char)
 logo.center_to_pos()
 
 canvas.add_objects(logo)
-if args.verbose:
+if args.for_docs:
     canvas.write_frame(0, 'docs/source/_static/videos/manim_community_logo.svg')
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

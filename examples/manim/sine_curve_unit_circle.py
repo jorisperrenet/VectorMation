@@ -7,7 +7,7 @@ args = parse_args()
 canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/manim/sine_curve_unit_circle')
 canvas.set_background()
 
-ax = Axes(x_range=(-3, 14), y_range=(-1.5, 1.5), equal_aspect=True)
+ax = Axes(x_range=(-3, 14), y_range=(-1.5, 1.5), equal_aspect=True, x_tick_type='pi_tex')
 c2p = ax.coords_to_point
 
 RATE, DURATION = 0.5, 4
@@ -38,9 +38,9 @@ h_line.p1.set_onward(0, lambda t: dot.c.at_time(t))
 h_line.p2.set_onward(0, lambda t: curve_dot.c.at_time(t))
 
 canvas.add_objects(ax, circle, radius_line, h_line, dot, curve_dot)
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/sine_curve_unit_circle.mp4',
                          fps=30, end=DURATION)
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(start=0, end=DURATION, fps=args.fps,
                            port=args.port, hot_reload=True)

@@ -20,8 +20,7 @@ nn.propagate(start=2, end=4, delay=0.5, color='#FFFF00')
 
 canvas.add_objects(nn, title)
 args = parse_args()
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/neural_network_example.mp4', fps=30, end=5)
-if not args.no_display:
-    canvas.browser_display(start=0, end=5, fps=args.fps, port=args.port,
-                           hot_reload=True)
+if not args.for_docs:
+    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=5)

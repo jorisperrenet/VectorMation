@@ -8,7 +8,6 @@ canvas.set_background()
 
 # Create polar axes and plot a rose curve
 polar = PolarAxes(r_range=(0, 3), n_rings=3, n_sectors=12)
-polar.fadein(0, 1)
 
 # Plot a 4-petal rose: r = 3*cos(2*theta)
 curve = polar.plot_polar(
@@ -16,15 +15,14 @@ curve = polar.plot_polar(
     theta_range=(0, 360),
     stroke='#FF6666', stroke_width=3,
 )
-curve.create(1, 3)
 
-title = Text(text='Rose Curve: r = 3|cos(2\u03b8)|', x=960, y=80,
-             font_size=44, fill='#fff', stroke_width=0, text_anchor='middle')
-title.write(0, 1)
+title = TexObject(r'Rose Curve: $r = 3|\cos(2\theta)|$',
+                  font_size=44, fill='#fff')
+title.center_to_pos(960, 80)
 
 canvas.add_objects(polar, title)
 
-if args.verbose:
-    canvas.export_video('docs/source/_static/videos/polar_plot_example.mp4', fps=30, end=3)
-if not args.no_display:
+if args.for_docs:
+    canvas.write_frame(filename='docs/source/_static/videos/polar_plot_example.svg')
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

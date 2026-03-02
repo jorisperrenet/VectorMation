@@ -101,7 +101,7 @@ def _frange(start, stop, step):
 class ThreeDAxes(VCollection):
     """3D coordinate axes with camera control, ticks, labels, and depth-sorted rendering."""
 
-    def __init__(self, x_range=(-3, 3), y_range=(-3, 3), z_range=(-3, 3),
+    def __init__(self, x_range=(-3, 3), y_range=(-3, 3), z_range=(-2, 2),
                  cx=ORIGIN[0], cy=ORIGIN[1], scale: float = 160,
                  phi=math.radians(75), theta=math.radians(-30),
                  show_ticks=True, show_labels=True, show_grid=False,

@@ -38,19 +38,19 @@ for i_px in range(75, 776, 100):
 # the text under the frames
 frames_text = TexObject('Individual Frames', font_size=35, fill='white')
 frames_text.center_to_pos(posx=500, posy=556)
-frames_subtext = TexObject('(collection of all objects at time $t$)', font_size=18, fill='white')
+frames_subtext = TexObject('(collection of all objects at time t)', font_size=18, fill='white')
 frames_subtext.center_to_pos(posx=500, posy=595)
 frames = VCollection(*rects + [frames_text, frames_subtext])
 
 ## Making an bottom object+attributes part
 circle = Circle(r=70, cx=200, cy=750, fill='blue', fill_opacity=1, stroke_width=0)
-object_text = TexObject('Object($t$)', font_size=28, fill='white')
+object_text = TexObject('Object(t)', font_size=28, fill='white')
 object_text.center_to_pos(200, 850)
-attr = TexObject('Attributes($t$)', font_size=28, fill='white')
+attr = TexObject('Attributes(t)', font_size=28, fill='white')
 attr.center_to_pos(500, 750)
 line_to_attr = Line(x1=270+10, y1=750, x2=attr.bbox(0)[0]-10, y2=750, stroke_width=4)
 attr_objects = []
-attr_names = ['Show($t$)', 'Center($t$)', 'Radius($t$)', 'Styling($t$)']
+attr_names = ['Show(t)', 'Center(t)', 'Radius(t)', 'Styling(t)']
 for idx, a in enumerate(attr_names):
     text = TexObject(a, font_size=20, fill='white')
     text.center_to_pos(posx=800, posy=750+(idx-1.5)*70)
@@ -65,7 +65,7 @@ object = VCollection(circle, object_text, line_to_attr, attr, *attr_objects, exp
 canvas.add_objects(video, frames, object)
 
 # Display the window
-if args.verbose:
+if args.for_docs:
     canvas.write_frame(filename='docs/source/_static/videos/code_explanation.svg')
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

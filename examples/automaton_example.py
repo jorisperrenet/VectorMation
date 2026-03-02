@@ -31,8 +31,7 @@ title.fadein(0, 0.5)
 
 canvas.add_objects(fsm, title)
 
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/automaton_example.mp4', fps=30, end=6)
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 6,
-                           fps=args.fps, port=args.port)
+if not args.for_docs:
+    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=6)

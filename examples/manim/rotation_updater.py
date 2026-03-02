@@ -11,7 +11,7 @@ l2.p1.rotate_around(1, 3, l2.p2.at_time(0), degrees=130)
 l2.p1.rotate_around(3, 5, l2.p2.at_time(0), degrees=130, clockwise=True)
 
 canvas.add_objects(l1, l2)
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/rotation_updater.mp4', fps=30)
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

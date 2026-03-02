@@ -19,7 +19,7 @@ tip_text = Text('(2, 2)', font_size=36)
 tip_text.center_to_pos(posx=tx + 50, posy=ty - 10)
 
 canvas.add_objects(plane, origin, arrow, origin_text, tip_text)
-if args.verbose:
+if args.for_docs:
     canvas.write_frame(0, 'docs/source/_static/videos/vector_arrow.svg')
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

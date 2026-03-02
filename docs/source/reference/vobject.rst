@@ -475,6 +475,20 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
       Create a ghost copy of this object that morphs into *target*.
       Returns a :py:class:`MorphObject`.
 
+      .. admonition:: Example: TransformFromCopy
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/transform_from_copy_example.mp4" controls autoplay loop muted></video>
+
+         ``transform_from_copy`` morphs a ghost duplicate while the original object stays in place.
+
+         .. literalinclude:: ../../../examples/transform_from_copy_example.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. rubric:: Advanced Effects
 
    .. py:method:: apply_wave(start=0, end=1, amplitude=30, wave_func=None, direction='y', easing=smooth)

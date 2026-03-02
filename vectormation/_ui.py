@@ -1,6 +1,5 @@
 """UI component classes: TextBox, Badge, Checklist, Code, etc."""
 import math
-import re
 
 import vectormation.easings as easings
 import vectormation.style as style
@@ -91,85 +90,136 @@ class Underline(VCollection):
 # Code
 # ---------------------------------------------------------------------------
 
-class Code(VCollection):
-    """Syntax-highlighted code display."""
-    _KEYWORD_COLORS = {
-        'python': {'def', 'class', 'return', 'if', 'else', 'elif', 'for', 'while',
-                   'import', 'from', 'in', 'not', 'and', 'or', 'with', 'as', 'try',
-                   'except', 'finally', 'raise', 'yield', 'lambda', 'pass', 'break',
-                   'continue', 'True', 'False', 'None', 'is', 'async', 'await'},
-        'javascript': {'function', 'const', 'let', 'var', 'return', 'if', 'else',
-                       'for', 'while', 'class', 'import', 'export', 'from', 'new',
-                       'this', 'async', 'await', 'try', 'catch', 'throw', 'true',
-                       'false', 'null', 'undefined', 'typeof', 'instanceof'},
-        'c': {'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break',
-              'continue', 'return', 'struct', 'typedef', 'enum', 'union',
-              'void', 'int', 'char', 'float', 'double', 'long', 'short',
-              'unsigned', 'signed', 'const', 'static', 'extern', 'sizeof',
-              'NULL', 'include', 'define', 'ifdef', 'endif'},
-        'java': {'class', 'public', 'private', 'protected', 'static', 'final',
-                 'abstract', 'interface', 'extends', 'implements', 'new',
-                 'return', 'if', 'else', 'for', 'while', 'do', 'switch',
-                 'case', 'break', 'continue', 'try', 'catch', 'finally',
-                 'throw', 'throws', 'import', 'package', 'void', 'int',
-                 'boolean', 'String', 'true', 'false', 'null', 'this', 'super'},
-        'rust': {'fn', 'let', 'mut', 'if', 'else', 'for', 'while', 'loop',
-                 'match', 'return', 'struct', 'enum', 'impl', 'trait', 'pub',
-                 'use', 'mod', 'crate', 'self', 'super', 'where', 'async',
-                 'await', 'move', 'ref', 'type', 'const', 'static', 'unsafe',
-                 'true', 'false', 'None', 'Some', 'Ok', 'Err'},
-        'go': {'func', 'var', 'const', 'type', 'struct', 'interface', 'map',
-               'chan', 'if', 'else', 'for', 'range', 'switch', 'case',
-               'default', 'break', 'continue', 'return', 'go', 'select',
-               'defer', 'package', 'import', 'true', 'false', 'nil',
-               'make', 'append', 'len', 'cap'},
+def _pygments_tokenize(text, language):
+    """Tokenize *text* using Pygments and return a list of (token_type, value) pairs."""
+    from pygments.lexers import get_lexer_by_name, TextLexer
+    try:
+        lexer = get_lexer_by_name(language, stripnl=False, stripall=False)
+    except Exception:
+        lexer = TextLexer(stripnl=False, stripall=False)
+    return list(lexer.get_tokens(text))
+
+
+# One Dark colour scheme — maps Pygments token types to hex colours.
+_ONE_DARK = None
+
+def _one_dark():
+    global _ONE_DARK
+    if _ONE_DARK is not None:
+        return _ONE_DARK
+    from pygments import token as T
+    _ONE_DARK = {
+        T.Token:                '#abb2bf',  # default
+        T.Comment:              '#5c6370',
+        T.Comment.Single:       '#5c6370',
+        T.Comment.Multiline:    '#5c6370',
+        T.Comment.Hashbang:     '#5c6370',
+        T.Comment.Preproc:      '#c678dd',
+        T.Keyword:              '#c678dd',
+        T.Keyword.Constant:     '#d19a66',
+        T.Keyword.Namespace:    '#c678dd',
+        T.Keyword.Type:         '#e5c07b',
+        T.Name:                 '#abb2bf',
+        T.Name.Builtin:         '#61afef',
+        T.Name.Builtin.Pseudo:  '#e06c75',
+        T.Name.Function:        '#61afef',
+        T.Name.Function.Magic:  '#61afef',
+        T.Name.Class:           '#e5c07b',
+        T.Name.Decorator:       '#e5c07b',
+        T.Name.Exception:       '#e5c07b',
+        T.Name.Variable:        '#e06c75',
+        T.Name.Variable.Magic:  '#e06c75',
+        T.Name.Attribute:       '#e06c75',
+        T.Name.Tag:             '#e06c75',
+        T.String:               '#98c379',
+        T.String.Doc:           '#5c6370',
+        T.String.Escape:        '#56b6c2',
+        T.String.Interpol:      '#56b6c2',
+        T.String.Affix:         '#c678dd',
+        T.Number:               '#d19a66',
+        T.Number.Integer:       '#d19a66',
+        T.Number.Float:         '#d19a66',
+        T.Operator:             '#56b6c2',
+        T.Operator.Word:        '#c678dd',
+        T.Punctuation:          '#abb2bf',
+        T.Literal:              '#98c379',
+        T.Generic:              '#abb2bf',
     }
+    return _ONE_DARK
+
+
+def _token_color(ttype):
+    """Walk up the Pygments token hierarchy until a colour is found."""
+    theme = _one_dark()
+    while ttype:
+        if ttype in theme:
+            return theme[ttype]
+        ttype = ttype.parent
+    return '#abb2bf'
+
+
+class Code(VCollection):
+    """Syntax-highlighted code display using Pygments."""
 
     def __init__(self, text, language='python', x: float = 120, y: float = 120, font_size: float = 24,
                  line_height=1.5, tab_width=4, creation: float = 0, z: float = 0, **styling_kwargs):
-        lines = text.strip('\n').split('\n')
+        source = text.strip('\n')
+        lines = source.split('\n')
+        char_w = font_size * CHAR_WIDTH_FACTOR
         objects = []
-        keywords = self._KEYWORD_COLORS.get(language, set())
-        bg_width = max(len(line) for line in lines) * font_size * CHAR_WIDTH_FACTOR + 40 if lines else 200
+
+        # Background
+        max_line_len = max(len(line.replace('\t', ' ' * tab_width)) for line in lines) if lines else 0
+        num_gutter = len(str(len(lines))) + 1  # gutter width in characters
+        bg_width = (num_gutter + 1.5 + max_line_len) * char_w + 30 if lines else 200
         bg_height = len(lines) * font_size * line_height + 20
 
-        bg_style = {'fill': '#1e1e2e', 'fill_opacity': 0.95, 'stroke': '#444', 'stroke_width': 1} | styling_kwargs
+        bg_style = {'fill': '#282c34', 'fill_opacity': 0.95, 'stroke': '#444', 'stroke_width': 1} | styling_kwargs
         bg = RoundedRectangle(bg_width, bg_height, x=x - 10, y=y - font_size - 5,
                               corner_radius=8, creation=creation, z=z, **bg_style)
         objects.append(bg)
 
-        line_groups = []  # list of lists, one per source line
-        for i, line in enumerate(lines):
+        # Tokenize with Pygments
+        tokens = _pygments_tokenize(source, language)
+
+        # Build per-line token lists
+        line_tokens = [[]]  # list of lists of (ttype, text)
+        for ttype, value in tokens:
+            parts = value.split('\n')
+            for j, part in enumerate(parts):
+                if j > 0:
+                    line_tokens.append([])
+                if part:
+                    line_tokens[-1].append((ttype, part))
+        # Pygments may add a trailing empty line
+        while len(line_tokens) > len(lines):
+            line_tokens.pop()
+
+        code_x = x + (num_gutter + 1.5) * char_w
+        mono = 'monospace'
+
+        line_groups = []
+        for i, ltoks in enumerate(line_tokens):
             ly = y + i * font_size * line_height
             line_objs = []
-            # Line number
-            ln = Text(text=f'{i+1:>3}', x=x, y=ly, font_size=font_size,
-                      creation=creation, z=z, fill='#666', stroke_width=0)
+            # Line number (right-aligned in gutter)
+            num_str = str(i + 1).rjust(num_gutter)
+            ln = Text(text=num_str, x=x, y=ly, font_size=font_size,
+                      font_family=mono, creation=creation, z=z,
+                      fill='#636d83', stroke_width=0)
             objects.append(ln)
             line_objs.append(ln)
-            # Code content with basic keyword highlighting
-            code_x = x + font_size * 2.5
-            expanded = line.replace('\t', ' ' * tab_width)
-            words = re.split(r'(\s+)', expanded)
+            # Code tokens
             wx = code_x
-            for word in words:
-                if not word:
-                    continue
-                if word.isspace():
-                    wx += len(word) * font_size * CHAR_WIDTH_FACTOR
-                    continue
-                color = '#c678dd' if word in keywords else '#abb2bf'
-                if word.startswith(('#', '//')):
-                    color = '#5c6370'
-                elif word.startswith(("'", '"')) or word.endswith(("'", '"')):
-                    color = '#98c379'
-                elif word.replace('.', '').replace('-', '').isdigit():
-                    color = '#d19a66'
-                t = Text(text=word, x=wx, y=ly, font_size=font_size,
-                         creation=creation, z=z, fill=color, stroke_width=0)
+            for ttype, value in ltoks:
+                expanded = value.replace('\t', ' ' * tab_width)
+                color = _token_color(ttype)
+                t = Text(text=expanded, x=wx, y=ly, font_size=font_size,
+                         font_family=mono, creation=creation, z=z,
+                         fill=color, stroke_width=0)
                 objects.append(t)
                 line_objs.append(t)
-                wx += len(word) * font_size * CHAR_WIDTH_FACTOR
+                wx += len(expanded) * char_w
             line_groups.append(line_objs)
         super().__init__(*objects, creation=creation, z=z)
         self._code_x = x

@@ -6,7 +6,7 @@ args = parse_args()
 
 canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/manim/polygon_on_axes')
 canvas.set_background()
-ax = Axes(x_range=(0, 10), y_range=(0, 10), x_label='x', y_label='y')
+ax = Axes(x_range=(0, 10), y_range=(0, 10), tex_ticks=True)
 
 f = lambda x: 25 / x if x > 0.1 else 100
 curve = ax.plot(f, stroke='yellow')
@@ -36,7 +36,7 @@ dot.fadeout(6, 7)
 
 canvas.add_objects(ax, dot)
 canvas.add_objects(morph, morph2, morph3, coll)
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/polygon_on_axes.mp4', fps=30)
-if not args.no_display:
+if not args.for_docs:
     canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

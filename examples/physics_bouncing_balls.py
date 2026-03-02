@@ -1,5 +1,6 @@
 """Multiple colored balls bouncing with gravity, walls, and ball-ball collisions."""
 import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+import random
 from vectormation.objects import *
 args = parse_args()
 
@@ -28,26 +29,29 @@ ceiling_line = Line(x1=60, y1=60, x2=1860, y2=60, stroke='#555', stroke_width=2)
 left_line = Line(x1=60, y1=60, x2=60, y2=1020, stroke='#555', stroke_width=2)
 right_line = Line(x1=1860, y1=60, x2=1860, y2=1020, stroke='#555', stroke_width=2)
 
-# Ball configurations: (cx, cy, radius, color, vx, vy, mass)
-ball_configs = [
-    (300,  200, 40, '#FF6B6B', 200,  -100, 3.0),    # large red
-    (600,  150, 30, '#58C4DD', -150, -200, 2.0),     # medium cyan
-    (900,  300, 25, '#83C167', 300,  -50,  1.5),     # green
-    (1200, 180, 35, '#FFFF00', -100, 100,  2.5),     # yellow
-    (500,  400, 20, '#9B59B6', 250,  -300, 1.0),     # small purple
-    (1400, 350, 28, '#FF9F43', -200, -150, 1.8),     # orange
-    (800,  250, 22, '#E74C3C', 180,  50,   1.2),     # dark red
-    (1100, 500, 32, '#1ABC9C', -80,  -250, 2.2),     # teal
-    (350,  500, 18, '#E84393', 300,  -200, 0.8),     # pink
-    (750,  600, 45, '#6C5CE7', 100,  -400, 4.0),     # large indigo
+# Generate balls in a loop
+rng = random.Random(42)
+colors = [
+    '#FF6B6B', '#58C4DD', '#83C167', '#FFFF00', '#9B59B6',
+    '#FF9F43', '#E74C3C', '#1ABC9C', '#E84393', '#6C5CE7',
+    '#00CEC9', '#FD79A8', '#A29BFE', '#FFEAA7', '#55E6C1',
+    '#F8A5C2', '#778BEB', '#CF6A87', '#63CDDA', '#EA8685',
 ]
+n_balls = 40
 
 balls = []
-for cx, cy, r, color, vx, vy, mass in ball_configs:
+for i in range(n_balls):
+    r = rng.randint(10, 35)
+    cx = rng.randint(80 + r, 1840 - r)
+    cy = rng.randint(80 + r, 600)
+    vx = rng.randint(-300, 300)
+    vy = rng.randint(-400, 100)
+    mass = (r / 20) ** 2  # mass proportional to area
+    color = colors[i % len(colors)]
+
     ball = Circle(r=r, cx=cx, cy=cy, fill=color, fill_opacity=0.85,
                   stroke=lighten(color, 0.3), stroke_width=2)
-    body = space.add_body(ball, mass=mass, restitution=0.85, friction=0.02,
-                          vx=vx, vy=vy)
+    space.add_body(ball, mass=mass, restitution=0.85, friction=0.02, vx=vx, vy=vy)
     balls.append(ball)
 
 # Add a small amount of drag so things don't go on forever
@@ -66,8 +70,7 @@ canvas.add_objects(
     title, *balls,
 )
 
-if args.verbose:
+if args.for_docs:
     canvas.export_video('docs/source/_static/videos/physics_bouncing_balls.mp4', fps=30, end=8)
-if not args.no_display:
-    canvas.browser_display(start=0, end=duration, fps=args.fps, port=args.port,
-                           hot_reload=True)
+if not args.for_docs:
+    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=8)

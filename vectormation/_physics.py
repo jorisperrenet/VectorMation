@@ -22,6 +22,48 @@ from vectormation._constants import ORIGIN
 _MIN_DIST = 0.001  # guard against near-zero distance in collisions/springs
 
 
+def _detect_shape(obj, radius_override=None):
+    """Detect collision shape from a VObject.
+
+    Returns ('circle', radius, []) or ('polygon', bounding_radius, local_verts).
+    local_verts are centred on (0,0) relative to the body center.
+    """
+    if radius_override is not None:
+        r = float(radius_override)
+        return ('circle', r, [])
+    # Circle / Dot — true circle collision
+    if hasattr(obj, 'r'):
+        a = getattr(obj, 'r')
+        r = float(a.at_time(0)) if hasattr(a, 'at_time') else float(a)
+        return ('circle', r, [])
+    # Ellipse (rx, ry without width/height) — approximate as circle
+    try:
+        if hasattr(obj, 'rx') and hasattr(obj, 'ry') and not hasattr(obj, 'width'):
+            rx_attr = getattr(obj, 'rx')
+            ry_attr = getattr(obj, 'ry')
+            rx = float(rx_attr.at_time(0)) if hasattr(rx_attr, 'at_time') else float(rx_attr)
+            ry = float(ry_attr.at_time(0)) if hasattr(ry_attr, 'at_time') else float(ry_attr)
+            return ('circle', max(rx, ry), [])
+    except Exception:
+        pass
+    # Any shape with vertices — use convex polygon collision
+    if hasattr(obj, 'get_vertices'):
+        try:
+            verts = obj.get_vertices(0)
+            if len(verts) >= 3:
+                cx = sum(v[0] for v in verts) / len(verts)
+                cy = sum(v[1] for v in verts) / len(verts)
+                local = [(v[0] - cx, v[1] - cy) for v in verts]
+                bounding_r = max(math.hypot(lx, ly) for lx, ly in local)
+                return ('polygon', bounding_r, local)
+        except Exception:
+            pass
+    raise TypeError(
+        f"Physics simulation does not support {type(obj).__name__}. "
+        "The object must be a Circle, Ellipse, or a polygon with get_vertices()."
+    )
+
+
 class Body:
     """A physics body wrapping a VObject.
 
@@ -67,7 +109,8 @@ class Body:
         self.x, self.y = float(cx), float(cy)
         self.vx, self.vy = float(vx), float(vy)
         self.fx, self.fy = 0.0, 0.0  # accumulated force
-        self.radius = float(radius) if radius is not None else _guess_radius(obj)
+        # Collision shape: 'circle' or 'polygon'
+        self.shape, self.radius, self._local_verts = _detect_shape(obj, radius)
         # Rotation / angular dynamics
         self.angle = float(angle)
         self.angular_velocity = float(angular_velocity)
@@ -291,19 +334,27 @@ class PhysicsSpace:
                     b.angular_velocity += angular_acc * self.dt
                 b.angle += b.angular_velocity * self.dt
 
-            # Wall collisions
-            for b in self.bodies:
-                if b.fixed:
-                    continue
-                for w in self.walls:
-                    _collide_wall(b, w)
-
-            # Body-body collisions
+            # Body-body collisions (with impulse)
             for i, a in enumerate(self.bodies):
                 for b in self.bodies[i + 1:]:
                     if a.fixed and b.fixed:
                         continue
                     _collide_bodies(a, b)
+
+            # Position-only passes to resolve remaining overlaps from stacking
+            for _iteration in range(3):
+                for i, a in enumerate(self.bodies):
+                    for b in self.bodies[i + 1:]:
+                        if a.fixed and b.fixed:
+                            continue
+                        _separate_bodies(a, b)
+
+            # Wall collisions last so nothing is pushed through walls
+            for b in self.bodies:
+                if b.fixed:
+                    continue
+                for w in self.walls:
+                    _collide_wall(b, w)
 
             # Record positions and angles
             for b in self.bodies:
@@ -455,34 +506,40 @@ class Cloth:
 
 def _body_center(obj, time):
     """Extract the center position of a VObject."""
-    for xa, ya in (('cx', 'cy'), ('x', 'y')):
+    # Circles / Ellipses — cx, cy is the true center
+    if hasattr(obj, 'cx') and hasattr(obj, 'cy'):
+        try:
+            return (getattr(obj, 'cx').at_time(time),
+                    getattr(obj, 'cy').at_time(time))
+        except AttributeError:
+            pass
+    # Polygon / Star / Rectangle — use vertex centroid (must match _detect_shape)
+    if hasattr(obj, 'get_vertices'):
+        try:
+            verts = obj.get_vertices(time)
+            if len(verts) >= 3:
+                cx = sum(v[0] for v in verts) / len(verts)
+                cy = sum(v[1] for v in verts) / len(verts)
+                return (cx, cy)
+        except Exception:
+            pass
+    # Fallback: bbox center
+    if hasattr(obj, 'bbox'):
+        try:
+            bx, by, bw, bh = obj.bbox(time)
+            return (bx + bw / 2, by + bh / 2)
+        except Exception:
+            pass
+    # Fallback: x/y (e.g. Text)
+    for xa, ya in (('x', 'y'),):
         try:
             return (getattr(obj, xa).at_time(time),
                     getattr(obj, ya).at_time(time))
         except AttributeError:
             pass
-    try:
-        c = obj.c.at_time(time)
-        return (c[0], c[1])
-    except AttributeError:
-        return ORIGIN  # fallback to canvas center
+    return ORIGIN  # last resort
 
 
-def _guess_radius(obj):
-    """Try to extract a collision radius from a VObject."""
-    for attr in ('rx', 'r'):
-        if hasattr(obj, attr):
-            a = getattr(obj, attr)
-            if hasattr(a, 'at_time'):
-                return float(a.at_time(0))
-            return float(a)
-    # For rectangles, use half-diagonal
-    try:
-        w = obj.width.at_time(0)
-        h = obj.height.at_time(0)
-        return math.hypot(w, h) / 2
-    except AttributeError:
-        return 20.0  # default
 
 
 def _spring_pos(thing):
@@ -554,15 +611,51 @@ def _wall_friction_impulse(b, tangent_v, sign):
         b.angular_velocity += sign * math.degrees(impulse * b.radius / b.moment_of_inertia)
 
 
-def _resolve_wall_axis(b, pos, vel, tangent_vel, wall_pos, e, fric):
+def _rotated_local_verts(b):
+    """Return local vertices rotated by the body's current angle."""
+    angle = getattr(b, 'angle', 0.0)
+    if angle == 0.0:
+        return b._local_verts
+    rad = math.radians(angle)
+    cos_a, sin_a = math.cos(rad), math.sin(rad)
+    return [(lx * cos_a - ly * sin_a, lx * sin_a + ly * cos_a)
+            for lx, ly in b._local_verts]
+
+
+def _world_verts(b):
+    """Return the polygon vertices in world space, rotated by body angle."""
+    rverts = _rotated_local_verts(b)
+    return [(b.x + lx, b.y + ly) for lx, ly in rverts]
+
+
+def _body_extent(b, axis):
+    """Return the half-extent of body *b* along the given axis ('x' or 'y').
+
+    For circles this is the radius; for polygons it is the max vertex offset
+    after applying the body's current rotation angle.
+    """
+    shape = getattr(b, 'shape', 'circle')
+    if shape == 'circle':
+        return b.radius
+    rverts = _rotated_local_verts(b)
+    if not rverts:
+        return b.radius
+    if axis == 'x':
+        return max(abs(lx) for lx, _ in rverts)
+    return max(abs(ly) for _, ly in rverts)
+
+
+# ── Wall collision ──────────────────────────────────────────────────
+
+def _resolve_wall_axis(b, pos, vel, tangent_vel, wall_pos, extent, e, fric):
     """Resolve collision on one axis; returns (new_pos, new_vel, new_tangent)."""
-    if pos + b.radius > wall_pos and pos < wall_pos:
+    if pos + extent > wall_pos and pos < wall_pos:
         sign = 1
-    elif pos - b.radius < wall_pos and pos > wall_pos:
+    elif pos - extent < wall_pos and pos > wall_pos:
         sign = -1
     else:
         return pos, vel, tangent_vel
-    pos = wall_pos - sign * b.radius
+    pos = wall_pos - sign * extent
     vel *= -e
     _wall_friction_impulse(b, tangent_vel, sign)
     tangent_vel *= fric
@@ -574,22 +667,167 @@ def _collide_wall(b, w):
     e = b.restitution * w.restitution
     fric = max(0.0, 1 - b.friction)
     if w.y is not None:  # horizontal wall
-        b.y, b.vy, b.vx = _resolve_wall_axis(b, b.y, b.vy, b.vx, w.y, e, fric)
+        b.y, b.vy, b.vx = _resolve_wall_axis(b, b.y, b.vy, b.vx, w.y,
+                                               _body_extent(b, 'y'), e, fric)
     if w.x is not None:  # vertical wall
-        b.x, b.vx, b.vy = _resolve_wall_axis(b, b.x, b.vx, b.vy, w.x, e, fric)
+        b.x, b.vx, b.vy = _resolve_wall_axis(b, b.x, b.vx, b.vy, w.x,
+                                               _body_extent(b, 'x'), e, fric)
 
 
-def _collide_bodies(a, b):
-    """Resolve elastic collision between two circular bodies."""
+# ── SAT helpers ─────────────────────────────────────────────────────
+
+def _project_polygon(verts, ax, ay):
+    """Project polygon vertices onto axis (ax, ay). Returns (min, max)."""
+    dots = [vx * ax + vy * ay for vx, vy in verts]
+    return min(dots), max(dots)
+
+
+def _project_circle(cx, cy, r, ax, ay):
+    """Project a circle onto axis (ax, ay). Returns (min, max)."""
+    c = cx * ax + cy * ay
+    return c - r, c + r
+
+
+def _overlap_on_axis(min1, max1, min2, max2):
+    """Return overlap amount on a 1D axis, or None if separated."""
+    if max1 < min2 or max2 < min1:
+        return None
+    return min(max1, max2) - max(min1, min2)
+
+
+def _edge_normals(verts):
+    """Yield normalised perpendicular vectors for each edge of a polygon."""
+    n = len(verts)
+    for i in range(n):
+        x1, y1 = verts[i]
+        x2, y2 = verts[(i + 1) % n]
+        ex, ey = x2 - x1, y2 - y1
+        length = math.hypot(ex, ey)
+        if length < _MIN_DIST:
+            continue
+        yield -ey / length, ex / length  # outward normal
+
+
+# ── Overlap tests ───────────────────────────────────────────────────
+
+def _overlap_circle_circle(a, b):
+    """Return (overlap, ux, uy) or None if no collision."""
     dx, dy = b.x - a.x, b.y - a.y
     dist = math.hypot(dx, dy)
     min_dist = a.radius + b.radius
     if dist >= min_dist or dist < _MIN_DIST:
+        return None
+    ux, uy = dx / dist, dy / dist
+    return (min_dist - dist, ux, uy)
+
+
+def _overlap_polygon_polygon(a, b):
+    """SAT test for two convex polygons. Returns (overlap, nx, ny) or None."""
+    verts_a = _world_verts(a)
+    verts_b = _world_verts(b)
+    min_overlap = math.inf
+    best_nx, best_ny = 0.0, 0.0
+    for ax, ay in _edge_normals(verts_a):
+        min1, max1 = _project_polygon(verts_a, ax, ay)
+        min2, max2 = _project_polygon(verts_b, ax, ay)
+        o = _overlap_on_axis(min1, max1, min2, max2)
+        if o is None:
+            return None
+        if o < min_overlap:
+            min_overlap = o
+            best_nx, best_ny = ax, ay
+    for ax, ay in _edge_normals(verts_b):
+        min1, max1 = _project_polygon(verts_a, ax, ay)
+        min2, max2 = _project_polygon(verts_b, ax, ay)
+        o = _overlap_on_axis(min1, max1, min2, max2)
+        if o is None:
+            return None
+        if o < min_overlap:
+            min_overlap = o
+            best_nx, best_ny = ax, ay
+    # Ensure normal points from a → b
+    dx, dy = b.x - a.x, b.y - a.y
+    if dx * best_nx + dy * best_ny < 0:
+        best_nx, best_ny = -best_nx, -best_ny
+    return (min_overlap, best_nx, best_ny)
+
+
+def _overlap_circle_polygon(circ, poly):
+    """SAT test for circle vs convex polygon. Returns (overlap, nx, ny) or None.
+
+    Normal points from circ → poly.
+    """
+    verts = _world_verts(poly)
+    min_overlap = math.inf
+    best_nx, best_ny = 0.0, 0.0
+    # Test polygon edge normals
+    for ax, ay in _edge_normals(verts):
+        cmin, cmax = _project_circle(circ.x, circ.y, circ.radius, ax, ay)
+        pmin, pmax = _project_polygon(verts, ax, ay)
+        o = _overlap_on_axis(cmin, cmax, pmin, pmax)
+        if o is None:
+            return None
+        if o < min_overlap:
+            min_overlap = o
+            best_nx, best_ny = ax, ay
+    # Test axis from circle center to closest polygon vertex
+    closest_dsq = math.inf
+    closest_vx, closest_vy = verts[0]
+    for vx, vy in verts:
+        dsq = (vx - circ.x) ** 2 + (vy - circ.y) ** 2
+        if dsq < closest_dsq:
+            closest_dsq = dsq
+            closest_vx, closest_vy = vx, vy
+    ax, ay = closest_vx - circ.x, closest_vy - circ.y
+    length = math.hypot(ax, ay)
+    if length >= _MIN_DIST:
+        ax, ay = ax / length, ay / length
+        cmin, cmax = _project_circle(circ.x, circ.y, circ.radius, ax, ay)
+        pmin, pmax = _project_polygon(verts, ax, ay)
+        o = _overlap_on_axis(cmin, cmax, pmin, pmax)
+        if o is None:
+            return None
+        if o < min_overlap:
+            min_overlap = o
+            best_nx, best_ny = ax, ay
+    # Ensure normal points from circ → poly
+    dx, dy = poly.x - circ.x, poly.y - circ.y
+    if dx * best_nx + dy * best_ny < 0:
+        best_nx, best_ny = -best_nx, -best_ny
+    return (min_overlap, best_nx, best_ny)
+
+
+# ── Body-body collision ─────────────────────────────────────────────
+
+def _collide_bodies(a, b):
+    """Resolve elastic collision between two bodies using SAT."""
+    sa = getattr(a, 'shape', 'circle')
+    sb = getattr(b, 'shape', 'circle')
+
+    # Quick bounding-radius rejection
+    dx, dy = b.x - a.x, b.y - a.y
+    if dx * dx + dy * dy > (a.radius + b.radius + 1) ** 2:
         return
 
-    # Separate bodies along normal
-    overlap = min_dist - dist
-    ux, uy = dx / dist, dy / dist
+    # Detect overlap
+    if sa == 'circle' and sb == 'circle':
+        result = _overlap_circle_circle(a, b)
+    elif sa == 'polygon' and sb == 'polygon':
+        result = _overlap_polygon_polygon(a, b)
+    elif sa == 'circle' and sb == 'polygon':
+        result = _overlap_circle_polygon(a, b)
+    elif sa == 'polygon' and sb == 'circle':
+        result = _overlap_circle_polygon(b, a)
+        if result:
+            overlap, nx, ny = result
+            result = (overlap, -nx, -ny)  # flip: a → b
+    else:
+        return
+    if result is None:
+        return
+    overlap, ux, uy = result
+
+    # Separate bodies along MTV
     if a.fixed:
         b.x += ux * overlap
         b.y += uy * overlap
@@ -597,19 +835,21 @@ def _collide_bodies(a, b):
         a.x -= ux * overlap
         a.y -= uy * overlap
     else:
-        a.x -= ux * overlap / 2
-        a.y -= uy * overlap / 2
-        b.x += ux * overlap / 2
-        b.y += uy * overlap / 2
+        total_inv = 1 / a.mass + 1 / b.mass
+        wa = (1 / a.mass) / total_inv
+        wb = (1 / b.mass) / total_inv
+        a.x -= ux * overlap * wa
+        a.y -= uy * overlap * wa
+        b.x += ux * overlap * wb
+        b.y += uy * overlap * wb
 
     # Impulse-based velocity resolution
     e = min(a.restitution, b.restitution)
     dvx, dvy = a.vx - b.vx, a.vy - b.vy
     dvn = dvx * ux + dvy * uy
-    if dvn > 0:  # already separating
+    if dvn < 0:  # already separating
         return
 
-    # Normal impulse (uses 1/inf = 0 for fixed bodies)
     inv_ma = 0 if a.fixed else 1 / a.mass
     inv_mb = 0 if b.fixed else 1 / b.mass
     denom = inv_ma + inv_mb
@@ -634,6 +874,45 @@ def _collide_bodies(a, b):
             b.angular_velocity -= math.degrees(jt * b.radius / b.moment_of_inertia)
 
 
+def _separate_bodies(a, b):
+    """Position-only separation pass (no impulse). Used for iterative overlap resolution."""
+    sa = getattr(a, 'shape', 'circle')
+    sb = getattr(b, 'shape', 'circle')
+    dx, dy = b.x - a.x, b.y - a.y
+    if dx * dx + dy * dy > (a.radius + b.radius + 1) ** 2:
+        return
+    if sa == 'circle' and sb == 'circle':
+        result = _overlap_circle_circle(a, b)
+    elif sa == 'polygon' and sb == 'polygon':
+        result = _overlap_polygon_polygon(a, b)
+    elif sa == 'circle' and sb == 'polygon':
+        result = _overlap_circle_polygon(a, b)
+    elif sa == 'polygon' and sb == 'circle':
+        result = _overlap_circle_polygon(b, a)
+        if result:
+            overlap, nx, ny = result
+            result = (overlap, -nx, -ny)
+    else:
+        return
+    if result is None:
+        return
+    overlap, ux, uy = result
+    if a.fixed:
+        b.x += ux * overlap
+        b.y += uy * overlap
+    elif b.fixed:
+        a.x -= ux * overlap
+        a.y -= uy * overlap
+    else:
+        total_inv = 1 / a.mass + 1 / b.mass
+        wa = (1 / a.mass) / total_inv
+        wb = (1 / b.mass) / total_inv
+        a.x -= ux * overlap * wa
+        a.y -= uy * overlap * wa
+        b.x += ux * overlap * wb
+        b.y += uy * overlap * wb
+
+
 def _traj_at(traj, start, dt, t):
     """Interpolate a trajectory at time *t*. Works for (x,y) tuples and scalars."""
     elapsed = t - start
@@ -656,17 +935,31 @@ def _bake_trajectory(body, start, dt):
     if not traj or body.fixed:
         return
     obj = body.obj
+    end_time = start + (len(traj) - 1) * dt
     pos_at = lambda t, _tr=traj: _traj_at(_tr, start, dt, t)
 
     # Set position via the appropriate attribute
-    if hasattr(obj, 'c'):
-        obj.c.set_onward(start, pos_at)
-    elif hasattr(obj, 'cx') and hasattr(obj, 'cy'):
+    if hasattr(obj, 'cx') and hasattr(obj, 'cy'):
+        # Circle / Ellipse / Dot — set center directly
         obj.cx.set_onward(start, lambda t: pos_at(t)[0])
         obj.cy.set_onward(start, lambda t: pos_at(t)[1])
-    elif hasattr(obj, 'x') and hasattr(obj, 'y'):
-        obj.x.set_onward(start, lambda t: pos_at(t)[0])
-        obj.y.set_onward(start, lambda t: pos_at(t)[1])
+        obj.cx.last_change = max(obj.cx.last_change, end_time)
+        obj.cy.last_change = max(obj.cy.last_change, end_time)
+    else:
+        # Generic VObject (Polygon, Rectangle, …) — apply delta via add_onward
+        x0, y0 = traj[0]  # initial simulated center
+        def _delta(t, _x0=x0, _y0=y0):
+            px, py = pos_at(t)
+            return (px - _x0, py - _y0)
+        def _dx(t, _x0=x0):
+            return pos_at(t)[0] - _x0
+        def _dy(t, _y0=y0):
+            return pos_at(t)[1] - _y0
+        for coor in obj._shift_coors():
+            coor.add_onward(start, _delta, last_change=end_time)
+        for xa, ya in obj._shift_reals():
+            xa.add_onward(start, _dx, last_change=end_time)
+            ya.add_onward(start, _dy, last_change=end_time)
 
     # Bake rotation if any angular motion was recorded
     ang_traj = body._angle_trajectory
@@ -678,6 +971,7 @@ def _bake_trajectory(body, start, dt):
                 px, py = _traj_at(_ptr, start, dt, t)
                 return (angle, px, py)
             obj.styling.rotation.set_onward(start, _rot_at)
+            obj.styling.rotation.last_change = max(obj.styling.rotation.last_change, end_time)
 
 
 def _bake_line_to_bodies(line, ba, bb, start, dt):
@@ -686,3 +980,6 @@ def _bake_line_to_bodies(line, ba, bb, start, dt):
     pos_b = lambda t, _tr=bb._trajectory: _traj_at(_tr, start, dt, t)
     line.p1.set_onward(start, pos_a)
     line.p2.set_onward(start, pos_b)
+    end_time = start + max(len(ba._trajectory), len(bb._trajectory), 1) * dt
+    line.p1.last_change = max(line.p1.last_change, end_time)
+    line.p2.last_change = max(line.p2.last_change, end_time)
