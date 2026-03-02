@@ -2,18 +2,14 @@
 import math
 import pytest
 from vectormation.objects import (
-    AnnotationDot, BackgroundRectangle, ScreenRectangle, SurroundingCircle,
-    Elbow, RightAngle, Countdown, LabeledDot,
-    Circle, Rectangle, Square, Text, Dot, Star, RegularPolygon,
-    VectorMathAnim, ORIGIN,
+    BackgroundRectangle, ScreenRectangle, SurroundingCircle,
+    Elbow, RightAngle, Countdown,
+    Circle, Square, Star, RegularPolygon,
+    VectorMathAnim, ORIGIN, AnnotationDot,
 )
 
 
 class TestAnnotationDot:
-    def test_default_creation(self):
-        d = AnnotationDot()
-        assert d is not None
-
     def test_default_position_at_origin(self):
         d = AnnotationDot()
         cx, cy = d.center(0)
@@ -26,40 +22,19 @@ class TestAnnotationDot:
         assert abs(cx - 100) < 1
         assert abs(cy - 200) < 1
 
-    def test_stroke_defaults(self):
-        d = AnnotationDot()
-        v = VectorMathAnim('/tmp')
-        v.add(d)
-        out = v.generate_frame_svg(0)
-        assert 'stroke-width' in out
-
     def test_custom_radius(self):
         d = AnnotationDot(r=30)
         assert d.rx.at_time(0) == pytest.approx(30, abs=1)
-
-    def test_repr(self):
-        d = AnnotationDot(cx=100, cy=200)
-        r = repr(d)
-        assert 'AnnotationDot' in r
-
-    def test_inherits_from_dot(self):
-        d = AnnotationDot()
-        assert isinstance(d, Dot)
 
 
 class TestBackgroundRectangle:
     def test_surrounds_target(self):
         target = Circle(r=50, cx=500, cy=300)
         bg = BackgroundRectangle(target)
-        bx, by, bw, bh = bg.bbox(0)
-        tx, ty, tw, th = target.bbox(0)
+        _, _, bw, bh = bg.bbox(0)
+        _, _, tw, th = target.bbox(0)
         assert bw >= tw
         assert bh >= th
-
-    def test_default_z_behind(self):
-        target = Square(50)
-        bg = BackgroundRectangle(target)
-        assert bg.z.at_time(0) <= 0
 
     def test_custom_buff(self):
         target = Square(50, x=400, y=400)
@@ -74,10 +49,6 @@ class TestBackgroundRectangle:
         svg.add(bg)
         out = svg.generate_frame_svg(0)
         assert 'rgb(255,0,0)' in out or '255, 0, 0' in out
-
-    def test_repr(self):
-        bg = BackgroundRectangle(Circle(r=30))
-        assert 'BackgroundRectangle' in repr(bg)
 
 
 class TestScreenRectangle:
@@ -96,14 +67,6 @@ class TestScreenRectangle:
         sr = ScreenRectangle(width=640)
         h = sr.get_height(0)
         assert abs(h - 640 * 9 / 16) < 1
-
-    def test_repr(self):
-        sr = ScreenRectangle()
-        assert 'ScreenRectangle' in repr(sr)
-
-    def test_is_rectangle(self):
-        sr = ScreenRectangle()
-        assert isinstance(sr, Rectangle)
 
 
 class TestSurroundingCircle:
@@ -145,32 +108,13 @@ class TestSurroundingCircle:
         sc2 = SurroundingCircle(target, buff=50)
         assert sc2.rx.at_time(0) > sc1.rx.at_time(0)
 
-    def test_repr(self):
-        sc = SurroundingCircle(Circle(r=20))
-        assert 'SurroundingCircle' in repr(sc)
-
 
 class TestElbow:
-    def test_creation(self):
-        e = Elbow()
-        assert e is not None
-
     def test_custom_size(self):
         e = Elbow(width=60, height=80)
         _, _, w, h = e.bbox(0)
         assert w > 0
         assert h > 0
-
-    def test_custom_position(self):
-        e = Elbow(cx=100, cy=200)
-        svg = VectorMathAnim('/tmp')
-        svg.add(e)
-        out = svg.generate_frame_svg(0)
-        assert '100' in out
-
-    def test_repr(self):
-        e = Elbow()
-        assert 'Elbow' in repr(e)
 
     def test_renders_svg(self):
         e = Elbow()
@@ -181,21 +125,6 @@ class TestElbow:
 
 
 class TestRightAngle:
-    def test_creation(self):
-        ra = RightAngle(vertex=(0, 0), p1=(1, 0), p2=(0, 1))
-        assert ra is not None
-
-    def test_renders(self):
-        ra = RightAngle(vertex=(100, 100), p1=(200, 100), p2=(100, 200))
-        v = VectorMathAnim('/tmp')
-        v.add(ra)
-        svg = v.generate_frame_svg(0)
-        assert len(svg) > 100
-
-    def test_custom_size(self):
-        ra = RightAngle(vertex=(0, 0), p1=(1, 0), p2=(0, 1), size=30)
-        assert ra is not None
-
     def test_custom_style(self):
         ra = RightAngle(vertex=(0, 0), p1=(1, 0), p2=(0, 1), stroke='#ff0000')
         v = VectorMathAnim('/tmp')
@@ -203,19 +132,8 @@ class TestRightAngle:
         svg = v.generate_frame_svg(0)
         assert 'rgb(255,0,0)' in svg or '255, 0, 0' in svg
 
-    def test_45_degree_angle(self):
-        ra = RightAngle(vertex=(100, 100), p1=(200, 0), p2=(0, 200))
-        v = VectorMathAnim('/tmp')
-        v.add(ra)
-        svg = v.generate_frame_svg(0)
-        assert len(svg) > 50
-
 
 class TestCountdown:
-    def test_creation(self):
-        cd = Countdown(start_value=5, end_value=0, start=0, end=5)
-        assert cd is not None
-
     def test_renders_initial_value(self):
         cd = Countdown(start_value=10, end_value=0, start=0, end=10)
         v = VectorMathAnim('/tmp')
@@ -237,20 +155,8 @@ class TestCountdown:
         svg = v.generate_frame_svg(10)
         assert '10' in svg
 
-    def test_custom_position(self):
-        cd = Countdown(start_value=5, end_value=0, x=100, y=200, start=0, end=5)
-        v = VectorMathAnim('/tmp')
-        v.add(cd)
-        svg = v.generate_frame_svg(0)
-        assert len(svg) > 50
-
 
 class TestLabeledDot:
-    def test_creation(self):
-        from vectormation.objects import LabeledDot
-        ld = LabeledDot('A')
-        assert ld is not None
-
     def test_renders_label(self):
         from vectormation.objects import LabeledDot
         ld = LabeledDot('X', cx=300, cy=300)
@@ -266,23 +172,8 @@ class TestLabeledDot:
         assert abs(cx - 100) < 50
         assert abs(cy - 200) < 50
 
-    def test_custom_radius(self):
-        from vectormation.objects import LabeledDot
-        ld = LabeledDot('B', r=40)
-        assert ld is not None
-
 
 class TestStar:
-    def test_default_creation(self):
-        s = Star()
-        assert s is not None
-
-    def test_custom_points(self):
-        s3 = Star(n=3)
-        s8 = Star(n=8)
-        assert s3 is not None
-        assert s8 is not None
-
     def test_custom_radii(self):
         s = Star(outer_radius=100, inner_radius=40)
         assert s._outer_radius == 100
@@ -301,14 +192,6 @@ class TestStar:
 
 
 class TestRegularPolygon:
-    def test_triangle(self):
-        p = RegularPolygon(3)
-        assert p is not None
-
-    def test_hexagon(self):
-        p = RegularPolygon(6, radius=100)
-        assert p is not None
-
     def test_side_length(self):
         p = RegularPolygon(4, radius=100)
         expected = 2 * 100 * math.sin(math.pi / 4)

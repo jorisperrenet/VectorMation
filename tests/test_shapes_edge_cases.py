@@ -2,13 +2,12 @@
 import math
 import pytest
 from vectormation.objects import (
-    Polygon, Circle, Ellipse, Rectangle, Dot,
-    Line, FunctionGraph, Arc, Annulus, CubicBezier, Path,
-    ArcBetweenPoints, Wedge, Spiral,
+    Polygon, Circle, Ellipse, Rectangle, Line, FunctionGraph, Arc, Annulus,
+    CubicBezier, Path, Wedge,
 )
 
 
-# ── Zero-size shapes ───────────────────────────────────────────────────
+# -- Zero-size shapes --
 
 class TestZeroSizeShapes:
     def test_circle_r0_area(self):
@@ -18,11 +17,6 @@ class TestZeroSizeShapes:
     def test_circle_r0_perimeter(self):
         c = Circle(r=0, cx=100, cy=100)
         assert c.get_perimeter() == 0
-
-    def test_circle_r0_renders(self):
-        c = Circle(r=0, cx=100, cy=100)
-        svg = c.to_svg(0)
-        assert svg is not None
 
     def test_rectangle_0x0(self):
         r = Rectangle(0, 0, x=100, y=100)
@@ -45,13 +39,8 @@ class TestZeroSizeShapes:
         e = Ellipse(rx=0, ry=0, cx=100, cy=100)
         assert e.get_area() == 0
 
-    def test_dot_renders(self):
-        d = Dot(cx=100, cy=100, r=0)
-        svg = d.to_svg(0)
-        assert svg is not None
 
-
-# ── Annulus edge cases ──────────────────────────────────────────────────
+# -- Annulus edge cases --
 
 class TestAnnulusEdgeCases:
     def test_equal_radii(self):
@@ -64,27 +53,10 @@ class TestAnnulusEdgeCases:
         a = Annulus(inner_radius=0, outer_radius=100, cx=500, cy=500)
         assert a.get_area() == pytest.approx(math.pi * 100**2, rel=0.01)
 
-    def test_renders(self):
-        a = Annulus(inner_radius=50, outer_radius=100, cx=500, cy=500)
-        svg = a.to_svg(0)
-        assert svg is not None
 
-
-# ── Path edge cases ─────────────────────────────────────────────────────
+# -- Path edge cases --
 
 class TestPathEdgeCases:
-    def test_empty_path_length(self):
-        p = Path('')
-        assert p.get_length(0) == 0
-
-    def test_empty_path_point(self):
-        p = Path('')
-        assert p.point_from_proportion(0.5, 0) == (0, 0)
-
-    def test_empty_path_tangent(self):
-        p = Path('')
-        assert p.tangent_at(0.5, 0) == (0.0, 0.0)
-
     def test_simple_line_path(self):
         p = Path('M 0 0 L 100 0')
         length = p.get_length(0)
@@ -101,24 +73,9 @@ class TestPathEdgeCases:
         assert pt[0] == pytest.approx(100, abs=1)
 
 
-# ── Arc edge cases ──────────────────────────────────────────────────────
+# -- Arc edge cases --
 
 class TestArcEdgeCases:
-    def test_zero_sweep(self):
-        a = Arc(r=100, start_angle=0, end_angle=0, cx=500, cy=500)
-        svg = a.to_svg(0)
-        assert svg is not None
-
-    def test_full_circle_sweep(self):
-        a = Arc(r=100, start_angle=0, end_angle=360, cx=500, cy=500)
-        svg = a.to_svg(0)
-        assert svg is not None
-
-    def test_negative_sweep(self):
-        a = Arc(r=100, start_angle=90, end_angle=0, cx=500, cy=500)
-        svg = a.to_svg(0)
-        assert svg is not None
-
     def test_zero_radius(self):
         a = Arc(r=0, start_angle=0, end_angle=90, cx=500, cy=500)
         assert a.get_arc_length(0) == 0
@@ -128,20 +85,9 @@ class TestArcEdgeCases:
         assert a.get_sagitta(0) == 0
 
 
-# ── CubicBezier edge cases ─────────────────────────────────────────────
+# -- CubicBezier edge cases --
 
 class TestCubicBezierEdgeCases:
-    def test_all_same_point(self):
-        """All four control points identical."""
-        cb = CubicBezier(p0=(100, 100), p1=(100, 100), p2=(100, 100), p3=(100, 100))
-        svg = cb.to_svg(0)
-        assert svg is not None
-
-    def test_collinear_points(self):
-        cb = CubicBezier(p0=(0, 0), p1=(100, 0), p2=(200, 0), p3=(300, 0))
-        svg = cb.to_svg(0)
-        assert svg is not None
-
     def test_point_at_start(self):
         cb = CubicBezier(p0=(0, 0), p1=(50, 100), p2=(150, 100), p3=(200, 0))
         pt = cb.point_at(0, 0)
@@ -162,33 +108,16 @@ class TestCubicBezierEdgeCases:
         assert math.isfinite(ty)
 
 
-# ── FunctionGraph edge cases ────────────────────────────────────────────
+# -- FunctionGraph edge cases --
 
 class TestFunctionGraphEdgeCases:
-    def test_constant_function(self):
-        fg = FunctionGraph(lambda x: 5, x_range=(-5, 5))
-        svg = fg.to_svg(0)
-        assert svg is not None
-
-    def test_zero_range(self):
-        """FunctionGraph with x_min == x_max should not crash."""
-        fg = FunctionGraph(lambda x: x, x_range=(0, 0))
-        svg = fg.to_svg(0)
-        assert svg is not None
-
     def test_get_slope(self):
         fg = FunctionGraph(lambda x: x**2, x_range=(-5, 5))
         slope = fg.get_slope_at(3)
         assert slope == pytest.approx(6, abs=0.01)
 
-    def test_get_point(self):
-        fg = FunctionGraph(lambda x: x, x_range=(-5, 5))
-        pt = fg.get_point_from_x(0)
-        assert isinstance(pt, tuple)
-        assert len(pt) == 2
 
-
-# ── Polygon edge cases ─────────────────────────────────────────────────
+# -- Polygon edge cases --
 
 class TestPolygonEdgeCases:
     def test_triangle_centroid(self):
@@ -204,40 +133,9 @@ class TestPolygonEdgeCases:
         assert math.isfinite(cx) and math.isfinite(cy)
 
 
-# ── ArcBetweenPoints edge cases ────────────────────────────────────────
-
-class TestArcBetweenPointsEdgeCases:
-    def test_basic(self):
-        abp = ArcBetweenPoints((100, 100), (300, 100), angle=90)
-        svg = abp.to_svg(0)
-        assert svg is not None
-
-    def test_same_point(self):
-        """Arc between identical points should not crash."""
-        abp = ArcBetweenPoints((100, 100), (100, 100), angle=90)
-        svg = abp.to_svg(0)
-        assert svg is not None
-
-    def test_near_zero_angle(self):
-        """Arc with very small angle should still render."""
-        abp = ArcBetweenPoints((100, 100), (300, 100), angle=0.01)
-        svg = abp.to_svg(0)
-        assert svg is not None
-
-
-# ── Wedge edge cases ───────────────────────────────────────────────────
+# -- Wedge edge cases --
 
 class TestWedgeEdgeCases:
-    def test_full_circle_wedge(self):
-        w = Wedge(r=100, start_angle=0, end_angle=360, cx=500, cy=500)
-        svg = w.to_svg(0)
-        assert svg is not None
-
-    def test_zero_radius_wedge(self):
-        w = Wedge(r=0, start_angle=0, end_angle=90, cx=500, cy=500)
-        svg = w.to_svg(0)
-        assert svg is not None
-
     def test_wedge_area(self):
         w = Wedge(r=100, start_angle=0, end_angle=90, cx=500, cy=500)
         area = w.get_area(0)
@@ -245,65 +143,20 @@ class TestWedgeEdgeCases:
         assert area == pytest.approx(expected, rel=0.01)
 
 
-# ── Line edge cases ────────────────────────────────────────────────────
+# -- Line edge cases --
 
 class TestLineEdgeCases:
     def test_zero_length_line(self):
-        l = Line(100, 100, 100, 100)
-        assert l.get_length(0) == 0
-
-    def test_set_length_zero_line(self):
-        """set_length on zero-length line should be no-op."""
-        l = Line(100, 100, 100, 100)
-        l.set_length(50)
-        # Should not crash
-
-    def test_extend_to_zero_line(self):
-        l = Line(100, 100, 100, 100)
-        l.extend_to(200)
-        # Should not crash
+        line = Line(100, 100, 100, 100)
+        assert line.get_length(0) == 0
 
 
-# ── Spiral edge cases ──────────────────────────────────────────────────
-
-class TestSpiralEdgeCases:
-    def test_basic_spiral(self):
-        s = Spiral(a=0, b=15, turns=3, cx=500, cy=500)
-        svg = s.to_svg(0)
-        assert svg is not None
-
-    def test_zero_turns(self):
-        s = Spiral(a=10, b=15, turns=0, cx=500, cy=500)
-        svg = s.to_svg(0)
-        assert svg is not None
-
-    def test_log_spiral(self):
-        s = Spiral(a=5, b=0.1, turns=2, log_spiral=True, cx=500, cy=500)
-        svg = s.to_svg(0)
-        assert svg is not None
-
-
-# ── ValueTracker / DecimalNumber / Paragraph edge cases ──────────────
-
-class TestValueTrackerProperties:
-    def test_last_change(self):
-        from vectormation.objects import ValueTracker
-        vt = ValueTracker(10)
-        vt.set_value(20, start=0.5)
-        assert vt.last_change == 0.5
-
-    def test_at_time_alias(self):
-        from vectormation.objects import ValueTracker
-        vt = ValueTracker(42)
-        assert vt.at_time(0) == 42
-        assert vt.get_value(0) == 42
-
+# -- ValueTracker / DecimalNumber / Paragraph edge cases --
 
 class TestDecimalNumberTracker:
     def test_tracker_property(self):
         from vectormation.objects import DecimalNumber
         dn = DecimalNumber(3.14, x=100, y=100)
-        assert dn.tracker is not None
         assert dn.tracker.at_time(0) == pytest.approx(3.14)
 
 

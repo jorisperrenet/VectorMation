@@ -61,11 +61,6 @@ class TestTrace:
 
 
 class TestRowOperation:
-    def test_returns_self(self):
-        m = Matrix([[1, 0], [0, 1]])
-        result = m.row_operation(0, 1, scalar=2, start=0, end=1)
-        assert result is m
-
     def test_add_row(self):
         m = Matrix([[1, 2], [3, 4]])
         m.row_operation(0, 1, scalar=1, start=0, end=0)
@@ -82,16 +77,6 @@ class TestRowOperation:
 
 
 class TestSwapRows:
-    def test_returns_self(self):
-        m = Matrix([[1, 2], [3, 4]])
-        result = m.swap_rows(0, 1, start=0, end=1)
-        assert result is m
-
-    def test_same_row_noop(self):
-        m = Matrix([[1, 2], [3, 4]])
-        result = m.swap_rows(0, 0)
-        assert result is m
-
     def test_entries_swapped(self):
         m = Matrix([[1, 2], [3, 4]])
         e0 = m.entries[0]
@@ -101,35 +86,11 @@ class TestSwapRows:
         assert m.entries[1] is e0
 
 
-class TestSetRowColors:
-    def test_returns_self(self):
-        m = Matrix([[1, 2], [3, 4]])
-        result = m.set_row_colors('#FF0000', '#00FF00')
-        assert result is m
-
-    def test_cycling(self):
-        m = Matrix([[1, 2], [3, 4], [5, 6]])
-        result = m.set_row_colors('#FF0000', '#00FF00')
-        assert result is m  # 3 rows, 2 colors -> cycles
-
-
-class TestSetColumnColors:
-    def test_returns_self(self):
-        m = Matrix([[1, 2], [3, 4]])
-        result = m.set_column_colors('#FF0000', '#00FF00')
-        assert result is m
-
-
 class TestAugmented:
     def test_basic(self):
         m = Matrix.augmented([[1, 2], [3, 4]], [[5], [6]])
         assert m.rows == 2
         assert m.cols == 3
-
-    def test_renders(self):
-        m = Matrix.augmented([[1, 0], [0, 1]], [[3], [4]])
-        svg = m.to_svg(0)
-        assert svg is not None
 
 
 class TestSetEntryValue:

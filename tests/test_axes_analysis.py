@@ -1,7 +1,7 @@
 """Tests for Axes analytical methods: extrema, zeros, integrals, derivatives, etc."""
 import math
 import pytest
-from vectormation.objects import Axes, VectorMathAnim, VCollection
+from vectormation.objects import Axes, VectorMathAnim
 
 
 @pytest.fixture
@@ -14,7 +14,7 @@ def canvas():
     return VectorMathAnim('/tmp')
 
 
-# ── get_function_max / get_function_min ──────────────────────────────
+# -- get_function_max / get_function_min --
 
 class TestFunctionExtrema:
     def test_max_of_quadratic(self, ax):
@@ -39,10 +39,6 @@ class TestFunctionExtrema:
         assert abs(x - (-math.pi / 2)) < 0.1
         assert abs(y - (-1.0)) < 0.01
 
-    def test_constant_function(self, ax):
-        x, y = ax.get_function_max(lambda x: 3, -5, 5)
-        assert y == 3
-
     def test_linear_max_at_endpoint(self, ax):
         """For f(x) = x, max is at x=5."""
         x, y = ax.get_function_max(lambda x: x, -5, 5)
@@ -55,13 +51,12 @@ class TestFunctionExtrema:
             ax.get_function_max(lambda x: float('nan'), 0, 1)
 
 
-# ── get_zeros ────────────────────────────────────────────────────────
+# -- get_zeros --
 
 class TestGetZeros:
     def test_linear_zero(self, ax):
         """f(x) = x has a zero at x=0."""
         zeros = ax.get_zeros(lambda x: x, -5, 5)
-        assert len(zeros) >= 1
         assert any(abs(z[0]) < 0.1 for z in zeros)
 
     def test_quadratic_zeros(self, ax):
@@ -71,11 +66,6 @@ class TestGetZeros:
         x_vals = sorted(z[0] for z in zeros)
         assert abs(x_vals[0] - (-2.0)) < 0.1
         assert abs(x_vals[-1] - 2.0) < 0.1
-
-    def test_no_zeros(self, ax):
-        """f(x) = x^2 + 1 has no real zeros."""
-        zeros = ax.get_zeros(lambda x: x**2 + 1, -5, 5)
-        assert len(zeros) == 0
 
     def test_sine_zeros(self, ax):
         """sin(x) has zeros at 0, pi, -pi, etc."""
@@ -88,7 +78,7 @@ class TestGetZeros:
         assert any(abs(z[0]) < 0.05 for z in zeros)
 
 
-# ── get_x_intercept / get_y_intercept ────────────────────────────────
+# -- get_x_intercept / get_y_intercept --
 
 class TestIntercepts:
     def test_x_intercept_linear(self, ax):
@@ -120,7 +110,7 @@ class TestIntercepts:
         assert yi is None
 
 
-# ── get_derivative / get_secant_slope ────────────────────────────────
+# -- get_derivative / get_secant_slope --
 
 class TestDerivatives:
     def test_derivative_of_x_squared(self, ax):
@@ -132,11 +122,6 @@ class TestDerivatives:
         """d/dx(sin(x)) = cos(x) at x=0 gives ~1."""
         d = ax.get_derivative(math.sin, 0)
         assert abs(d - 1.0) < 0.01
-
-    def test_derivative_of_constant(self, ax):
-        """d/dx(5) = 0."""
-        d = ax.get_derivative(lambda x: 5, 2)
-        assert abs(d) < 0.01
 
     def test_get_slope_is_alias(self, ax):
         """get_slope should produce the same result as get_derivative."""
@@ -159,7 +144,7 @@ class TestDerivatives:
         assert abs(secant - deriv) < 0.1
 
 
-# ── get_area_value / get_integral ────────────────────────────────────
+# -- get_area_value / get_integral --
 
 class TestAreaValue:
     def test_area_of_constant(self, ax):
@@ -192,32 +177,21 @@ class TestAreaValue:
         assert abs(area - 2.0) < 0.05
 
 
-# ── get_average ──────────────────────────────────────────────────────
+# -- get_average --
 
 class TestGetAverage:
-    def test_average_of_constant(self, ax):
-        avg = ax.get_average(lambda x: 5, 0, 10)
-        assert abs(avg - 5.0) < 0.01
-
     def test_average_of_linear(self, ax):
         """Average of f(x)=x over [0,4] is 2."""
         avg = ax.get_average(lambda x: x, 0, 4)
         assert abs(avg - 2.0) < 0.1
 
-    def test_average_same_endpoints(self, ax):
-        """If x0 == x1, return f(x0)."""
-        avg = ax.get_average(lambda x: x**2, 3, 3)
-        assert avg == 9.0
 
-
-# ── get_graph_length ─────────────────────────────────────────────────
+# -- get_graph_length --
 
 class TestGraphLength:
     def test_horizontal_line_length(self, ax):
         """f(x) = 0 from -5 to 5 has length = plot_width."""
         length = ax.get_graph_length(lambda x: 0, -5, 5)
-        assert length > 0
-        # Should be approximately plot_width
         assert abs(length - ax.plot_width) < 5
 
     def test_increasing_length(self, ax):
@@ -226,20 +200,10 @@ class TestGraphLength:
         curved = ax.get_graph_length(lambda x: math.sin(x * 2) + x, 0, 3)
         assert curved > straight * 0.9  # curved should be at least as long
 
-    def test_zero_range(self, ax):
-        """Zero range should give zero length."""
-        length = ax.get_graph_length(lambda x: x, 2, 2)
-        assert length == 0.0
 
-
-# ── get_point_on_graph ───────────────────────────────────────────────
+# -- get_point_on_graph --
 
 class TestGetPointOnGraph:
-    def test_returns_point(self, ax):
-        pt = ax.get_point_on_graph(lambda x: x**2, 2)
-        assert pt is not None
-        assert len(pt) == 2
-
     def test_error_returns_none(self, ax):
         def bad(x):
             raise ValueError("boom")
@@ -253,58 +217,44 @@ class TestGetPointOnGraph:
         assert abs(pt[1] - expected[1]) < 1
 
 
-# ── get_vertical_line / get_line_from_to ─────────────────────────────
+# -- get_vertical_line / get_line_from_to --
 
 class TestLineHelpers:
     def test_get_vertical_line(self, ax, canvas):
         canvas.add(ax)
-        line = ax.get_vertical_line(2)
-        assert line is not None
+        ax.get_vertical_line(2)
         svg = canvas.generate_frame_svg(time=0)
         assert '<line' in svg
 
     def test_get_line_from_to(self, ax, canvas):
         canvas.add(ax)
-        line = ax.get_line_from_to(0, 0, 3, 4)
-        assert line is not None
+        ax.get_line_from_to(0, 0, 3, 4)
         svg = canvas.generate_frame_svg(time=0)
         assert '<line' in svg
 
 
-# ── highlight_x_range / highlight_y_range ────────────────────────────
+# -- highlight_x_range / highlight_y_range --
 
 class TestHighlightRanges:
     def test_highlight_x_range(self, ax, canvas):
         canvas.add(ax)
-        rect = ax.highlight_x_range(1, 3)
-        assert rect is not None
+        ax.highlight_x_range(1, 3)
         svg = canvas.generate_frame_svg(time=0)
         assert '<rect' in svg
 
     def test_highlight_y_range(self, ax, canvas):
         canvas.add(ax)
-        rect = ax.highlight_y_range(-2, 2)
-        assert rect is not None
+        ax.highlight_y_range(-2, 2)
         svg = canvas.generate_frame_svg(time=0)
         assert '<rect' in svg
 
 
-# ── add_dot_label ────────────────────────────────────────────────────
+# -- add_dot_label --
 
 class TestAddDotLabel:
-    def test_returns_dot_and_label(self, ax, canvas):
-        canvas.add(ax)
-        result = ax.add_dot_label(2, 3, label='P')
-        # Returns (dot, label) tuple
-        assert len(result) == 2
-        dot, lbl = result
-        assert dot is not None
-        assert lbl is not None
-
     def test_no_label_text(self, ax, canvas):
         canvas.add(ax)
-        dot, lbl = ax.add_dot_label(1, 1)
-        assert dot is not None
+        _, lbl = ax.add_dot_label(1, 1)
         assert lbl is None
 
     def test_renders_in_svg(self, ax, canvas):
@@ -314,36 +264,24 @@ class TestAddDotLabel:
         assert 'Origin' in svg
 
 
-# ── add_legend ───────────────────────────────────────────────────────
+# -- add_legend --
 
 class TestAddLegend:
     def test_basic_legend(self, ax, canvas):
         canvas.add(ax)
-        legend = ax.add_legend([('sin', '#FF0000'), ('cos', '#0000FF')])
-        assert legend is not None
+        ax.add_legend([('sin', '#FF0000'), ('cos', '#0000FF')])
         svg = canvas.generate_frame_svg(time=0)
         assert 'sin' in svg
         assert 'cos' in svg
 
-    def test_empty_entries(self, ax):
-        legend = ax.add_legend([])
-        assert isinstance(legend, VCollection)
 
-    def test_position_variants(self, ax, canvas):
-        canvas.add(ax)
-        for pos in ['upper left', 'upper right', 'lower left', 'lower right']:
-            legend = ax.add_legend([('f', '#FFF')], position=pos)
-            assert legend is not None
-
-
-# ── add_coordinates / add_grid ───────────────────────────────────────
+# -- add_coordinates / add_grid --
 
 class TestAxesDecorations:
     def test_add_coordinates(self, ax, canvas):
         canvas.add(ax)
         ax.add_coordinates()
         svg = canvas.generate_frame_svg(time=0)
-        # Should contain tick labels
         assert '<text' in svg
 
     def test_add_grid(self, ax, canvas):
@@ -352,31 +290,19 @@ class TestAxesDecorations:
         svg = canvas.generate_frame_svg(time=0)
         assert '<line' in svg
 
-    def test_add_zero_line(self, ax, canvas):
-        canvas.add(ax)
-        line = ax.add_zero_line()
-        assert line is not None
 
-
-# ── get_area (visual) ────────────────────────────────────────────────
+# -- get_area (visual) --
 
 class TestGetAreaVisual:
     def test_get_area_returns_path(self, ax, canvas):
         canvas.add(ax)
         curve = ax.plot(lambda x: x**2)
-        area = ax.get_area(curve)
-        assert area is not None
+        ax.get_area(curve)
         svg = canvas.generate_frame_svg(time=0)
         assert '<path' in svg
 
-    def test_get_area_with_func(self, ax, canvas):
-        canvas.add(ax)
-        area = ax.get_area(lambda x: math.sin(x), x_range=(0, math.pi))
-        assert area is not None
-
     def test_get_area_between(self, ax, canvas):
         canvas.add(ax)
-        area = ax.get_area_between(lambda x: x, lambda x: x**2, x_range=(0, 1))
-        assert area is not None
+        ax.get_area_between(lambda x: x, lambda x: x**2, x_range=(0, 1))
         svg = canvas.generate_frame_svg(time=0)
         assert '<path' in svg

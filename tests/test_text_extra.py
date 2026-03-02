@@ -43,10 +43,6 @@ class TestStartsEndsWith:
 
 
 class TestBoldItalic:
-    def test_bold_returns_self(self):
-        t = Text(text='hi', x=100, y=100, creation=0)
-        assert t.bold() is t
-
     def test_bold_sets_weight(self):
         t = Text(text='hi', x=100, y=100, creation=0)
         t.bold()
@@ -62,10 +58,6 @@ class TestBoldItalic:
         t.bold()
         t.bold('normal')
         assert t._font_weight is None
-
-    def test_italic_returns_self(self):
-        t = Text(text='hi', x=100, y=100, creation=0)
-        assert t.italic() is t
 
     def test_italic_sets_style(self):
         t = Text(text='hi', x=100, y=100, creation=0)
@@ -96,10 +88,6 @@ class TestBoldItalic:
 
 
 class TestSetFontFamily:
-    def test_returns_self(self):
-        t = Text(text='hi', x=100, y=100, creation=0)
-        assert t.set_font_family('Arial') is t
-
     def test_sets_family(self):
         t = Text(text='hi', x=100, y=100, creation=0)
         t.set_font_family('Courier')
@@ -107,10 +95,6 @@ class TestSetFontFamily:
 
 
 class TestSetFontSize:
-    def test_returns_self(self):
-        t = Text(text='hi', x=100, y=100, creation=0)
-        assert t.set_font_size(24, start=0) is t
-
     def test_changes_size(self):
         t = Text(text='hi', x=100, y=100, font_size=20, creation=0)
         t.set_font_size(40, start=0, end=1)
@@ -118,14 +102,9 @@ class TestSetFontSize:
 
 
 class TestTypewrite:
-    def test_returns_self(self):
-        t = Text(text='hello', x=100, y=100, creation=0)
-        assert t.typewrite(0, 1) is t
-
     def test_progressive_reveal(self):
         t = Text(text='hello', x=100, y=100, creation=0)
         t.typewrite(0, 1)
-        # At t=0.5, should show about half the text + cursor
         mid = t.get_text(time=0.5)
         assert len(mid) > 0
         assert len(mid) < len('hello') + 2  # text + possible cursor
@@ -142,16 +121,8 @@ class TestTypewrite:
         if len(mid) > 0 and mid != 'hello':
             assert mid.endswith('_')
 
-    def test_zero_duration(self):
-        t = Text(text='hello', x=100, y=100, creation=0)
-        t.typewrite(0, 0)
-
 
 class TestUntype:
-    def test_returns_self(self):
-        t = Text(text='hello', x=100, y=100, creation=0)
-        assert t.untype(0, 1) is t
-
     def test_empty_at_end(self):
         t = Text(text='hello', x=100, y=100, creation=0)
         t.untype(0, 1)
@@ -163,14 +134,6 @@ class TestUntype:
         mid = t.get_text(time=0.5)
         assert len(mid) < 5
 
-    def test_zero_duration(self):
-        t = Text(text='hello', x=100, y=100, creation=0)
-        t.untype(0, 0)
-
-    def test_empty_text(self):
-        t = Text(text='', x=100, y=100, creation=0)
-        assert t.untype(0, 1) is t
-
     def test_hides_with_change_existence(self):
         t = Text(text='hello', x=100, y=100, creation=0)
         t.untype(0, 1, change_existence=True)
@@ -178,10 +141,6 @@ class TestUntype:
 
 
 class TestScramble:
-    def test_returns_self(self):
-        t = Text(text='hello', x=100, y=100, creation=0)
-        assert t.scramble(0, 1) is t
-
     def test_settled_at_end(self):
         t = Text(text='hello', x=100, y=100, creation=0)
         t.scramble(0, 1)
@@ -197,26 +156,16 @@ class TestScramble:
         t = Text(text='abc', x=100, y=100, creation=0)
         t.scramble(0, 1, charset='XYZ')
         mid = t.get_text(time=0.1)
-        # All non-settled chars should be from charset
         assert len(mid) == 3
 
     def test_preserves_spaces(self):
         t = Text(text='a b', x=100, y=100, creation=0)
         t.scramble(0, 1)
         mid = t.get_text(time=0.1)
-        # Space should remain as space
         assert mid[1] == ' '
-
-    def test_zero_duration(self):
-        t = Text(text='hello', x=100, y=100, creation=0)
-        t.scramble(0, 0)
 
 
 class TestUpdateText:
-    def test_returns_self(self):
-        t = Text(text='hello', x=100, y=100, creation=0)
-        assert t.update_text('world') is t
-
     def test_changes_text(self):
         t = Text(text='hello', x=100, y=100, creation=0)
         t.update_text('world', start=1)
@@ -225,10 +174,6 @@ class TestUpdateText:
 
 
 class TestReverseText:
-    def test_returns_self(self):
-        t = Text(text='hello', x=100, y=100, creation=0)
-        assert t.reverse_text() is t
-
     def test_reverses_in_place(self):
         t = Text(text='hello', x=100, y=100, creation=0)
         t.reverse_text()

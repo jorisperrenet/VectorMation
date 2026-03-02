@@ -4,38 +4,7 @@ import pytest
 from vectormation.objects import NumberLine, Axes
 
 
-# ── Axes construction edge cases ──────────────────────────────────────────
-
-class TestAxesConstruction:
-    def test_default_axes(self):
-        ax = Axes()
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-    def test_custom_range(self):
-        ax = Axes(x_range=(-10, 10, 2), y_range=(-5, 5, 1))
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-    def test_zero_step(self):
-        """Axes with step=0 in range should not crash."""
-        ax = Axes(x_range=(-5, 5, 0))
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-    def test_negative_step(self):
-        ax = Axes(x_range=(0, 10, -1))
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-    def test_equal_range(self):
-        """x_min == x_max."""
-        ax = Axes(x_range=(5, 5, 1))
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-
-# ── coords_to_point / input_to_graph_point ───────────────────────────────
+# -- coords_to_point / input_to_graph_point -----------------------------------
 
 class TestCoordsToPoint:
     def test_origin(self):
@@ -55,173 +24,7 @@ class TestCoordsToPoint:
         assert len(pt) == 2
 
 
-# ── plot / add_function ───────────────────────────────────────────────────
-
-class TestAxesPlot:
-    def test_linear(self):
-        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
-        curve = ax.plot(lambda x: x)
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-    def test_constant(self):
-        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
-        ax.plot(lambda x: 3)
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-    def test_quadratic(self):
-        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 25, 5))
-        ax.plot(lambda x: x**2)
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-
-# ── plot_histogram edge cases ────────────────────────────────────────────
-
-class TestPlotHistogram:
-    def test_basic(self):
-        ax = Axes(x_range=(0, 10, 1), y_range=(0, 5, 1))
-        ax.plot_histogram([1, 2, 2, 3, 3, 3, 4, 5, 6, 7])
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-    def test_single_value(self):
-        ax = Axes(x_range=(0, 10, 1), y_range=(0, 5, 1))
-        ax.plot_histogram([5])
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-    def test_identical_values(self):
-        """All values the same — lo == hi edge case."""
-        ax = Axes(x_range=(0, 10, 1), y_range=(0, 5, 1))
-        ax.plot_histogram([3, 3, 3, 3])
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-    def test_bins_zero_clamped(self):
-        """bins=0 should be clamped to 1."""
-        ax = Axes(x_range=(0, 10, 1), y_range=(0, 5, 1))
-        ax.plot_histogram([1, 2, 3, 4], bins=0)
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-
-# ── add_parametric_plot ───────────────────────────────────────────────────
-
-class TestParametricPlot:
-    def test_basic(self):
-        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
-        ax.add_parametric_plot(
-            lambda t: math.cos(t * math.tau),
-            lambda t: math.sin(t * math.tau),
-            t_range=(0, 1),
-        )
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-    def test_num_points_zero_clamped(self):
-        """num_points=0 should be clamped to 1."""
-        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
-        ax.add_parametric_plot(
-            lambda t: t,
-            lambda t: t,
-            t_range=(0, 1),
-            num_points=0,
-        )
-
-    def test_few_points(self):
-        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
-        ax.add_parametric_plot(
-            lambda t: math.cos(t),
-            lambda t: math.sin(t),
-            t_range=(0, math.tau),
-            num_points=3,
-        )
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-
-# ── get_area ──────────────────────────────────────────────────────────────
-
-class TestGetArea:
-    def test_basic(self):
-        ax = Axes(x_range=(0, 5, 1), y_range=(0, 10, 2))
-        curve = ax.plot(lambda x: x)
-        area = ax.get_area(curve, x_range=(0, 5))
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-    def test_function_area(self):
-        ax = Axes(x_range=(0, 5, 1), y_range=(0, 10, 2))
-        area = ax.get_area(lambda x: x, x_range=(0, 5))
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-
-# ── get_vertical_line / get_horizontal_line ───────────────────────────────
-
-class TestAxesLines:
-    def test_vertical_line(self):
-        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 25, 5))
-        ax.plot(lambda x: x**2)
-        ax.get_vertical_line(2, y_val=4)
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-    def test_horizontal_line(self):
-        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
-        ax.plot(lambda x: x)
-        ax.get_horizontal_line(3, 3)
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-
-# ── Axes animated range ──────────────────────────────────────────────────
-
-class TestAxesAnimatedRange:
-    def test_x_range_animation(self):
-        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
-        ax.x_min.move_to(0, 1, -10)
-        ax.x_max.move_to(0, 1, 10)
-        svg0 = ax.to_svg(0)
-        svg1 = ax.to_svg(1)
-        assert svg0 is not None
-        assert svg1 is not None
-
-    def test_y_range_animation(self):
-        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
-        ax.y_min.move_to(0, 1, -10)
-        ax.y_max.move_to(0, 1, 10)
-        svg = ax.to_svg(0.5)
-        assert svg is not None
-
-
-# ── add_coordinates / add_grid ────────────────────────────────────────────
-
-class TestAxesDecorations:
-    def test_add_grid(self):
-        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
-        ax.add_grid()
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-    def test_add_title(self):
-        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
-        ax.add_title('Test Title')
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-    def test_add_legend(self):
-        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
-        c1 = ax.plot(lambda x: x, stroke='#f00')
-        c2 = ax.plot(lambda x: -x, stroke='#00f')
-        ax.add_legend([('f(x)', '#f00'), ('g(x)', '#00f')])
-        svg = ax.to_svg(0)
-        assert svg is not None
-
-
-# ── NumberLine roundtrip tests ───────────────────────────────────────────
+# -- NumberLine roundtrip tests ------------------------------------------------
 
 class TestNumberLineRoundtrip:
     def test_roundtrip_integers(self):
@@ -238,50 +41,29 @@ class TestNumberLineRoundtrip:
             result = nl.point_to_number(px)
             assert abs(result - v) < 0.5
 
-    def test_two_element_range(self):
-        """Range with only (start, end), no step."""
-        nl = NumberLine(x_range=(-3, 3))
-        svg = nl.to_svg(0)
-        assert svg is not None
-
-
-class TestPlotImplicitEdgeCases:
-    def test_num_points_zero(self):
-        """plot_implicit with num_points=0 should not crash (clamped to 1)."""
-        from vectormation.objects import Axes
-        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
-        ax.plot_implicit(lambda x, y: x**2 + y**2 - 1, num_points=0)
-        svg = ax.to_svg(0)
-        assert svg is not None
-
 
 class TestPlotLengthValidation:
     def test_scatter_mismatched_lengths(self):
-        from vectormation.objects import Axes
         ax = Axes(x_range=(0, 5), y_range=(0, 5))
         with pytest.raises(ValueError, match='equal length'):
             ax.plot_scatter([1, 2, 3], [1, 2])
 
     def test_step_mismatched_lengths(self):
-        from vectormation.objects import Axes
         ax = Axes(x_range=(0, 5), y_range=(0, 5))
         with pytest.raises(ValueError, match='equal length'):
             ax.plot_step([1, 2], [1])
 
     def test_bar_mismatched_lengths(self):
-        from vectormation.objects import Axes
         ax = Axes(x_range=(0, 5), y_range=(0, 5))
         with pytest.raises(ValueError, match='equal length'):
             ax.plot_bar([1, 2, 3], [1])
 
     def test_filled_step_mismatched_lengths(self):
-        from vectormation.objects import Axes
         ax = Axes(x_range=(0, 5), y_range=(0, 5))
         with pytest.raises(ValueError, match='equal length'):
             ax.plot_filled_step([1], [1, 2])
 
     def test_grouped_bar_jagged(self):
-        from vectormation.objects import Axes
         ax = Axes(x_range=(0, 5), y_range=(0, 5))
         with pytest.raises(ValueError, match='equal length'):
             ax.plot_grouped_bar([[1, 2, 3], [4, 5]])

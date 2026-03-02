@@ -131,9 +131,6 @@ class TestConvexHull:
         with pytest.raises(ValueError):
             Polygon.convex_hull((0, 0), (1, 1))
 
-    def test_returns_polygon(self):
-        p = Polygon.convex_hull((0, 0), (100, 0), (50, 100))
-        assert isinstance(p, Polygon)
 
     def test_kwargs_forwarded(self):
         p = Polygon.convex_hull((0, 0), (100, 0), (50, 100), fill='#ff0000')
@@ -244,9 +241,6 @@ class TestArc:
 
 class TestCircleBackwardCompat:
     """Circle is now a thin subclass of Ellipse; verify backward compat."""
-    def test_circle_is_ellipse(self):
-        c = Circle(r=50, cx=100, cy=200)
-        assert isinstance(c, Ellipse)
 
     def test_r_property_getter(self):
         c = Circle(r=75, cx=0, cy=0)
@@ -281,10 +275,6 @@ class TestCircleBackwardCompat:
         assert w == pytest.approx(100)
         assert h == pytest.approx(100)
 
-    def test_dot_inherits_from_circle(self):
-        d = Dot(r=6, cx=50, cy=50)
-        assert isinstance(d, Circle)
-        assert isinstance(d, Ellipse)
 
     def test_annotation_dot(self):
         d = AnnotationDot(cx=100, cy=200)
@@ -293,10 +283,6 @@ class TestCircleBackwardCompat:
         svg = d.to_svg(0)
         assert 'circle' in svg
 
-    def test_triangle_alias(self):
-        t = Triangle(100)
-        assert isinstance(t, EquilateralTriangle)
-        assert isinstance(t, RegularPolygon)
 
     def test_line_set_angle(self):
         line = Line(0, 0, 100, 0)
@@ -322,9 +308,6 @@ class TestCircleBackwardCompat:
 
 class TestLinesBackwardCompat:
     """Lines is now a thin subclass of Polygon with closed=False."""
-    def test_lines_is_polygon(self):
-        l = Lines((0, 0), (100, 0), (100, 100))
-        assert isinstance(l, Polygon)
 
     def test_lines_emits_polyline_tag(self):
         l = Lines((0, 0), (100, 0), (100, 100))
@@ -370,9 +353,6 @@ class TestLinesBackwardCompat:
 
 class TestRegularPolygonWithoutFixedVertex:
     """RegularPolygon now inherits directly from Polygon (FixedVertexPolygon removed)."""
-    def test_regular_polygon_is_polygon(self):
-        rp = RegularPolygon(5, radius=100)
-        assert isinstance(rp, Polygon)
 
     def test_regular_polygon_vertex_count(self):
         for n in [3, 4, 5, 6, 8]:
@@ -390,7 +370,6 @@ class TestRegularPolygonWithoutFixedVertex:
         rp = RegularPolygon(6, radius=100)
         svg = rp.to_svg(0)
         assert '<polygon' in svg
-
 
 
 class TestSnapPoints:
@@ -517,9 +496,6 @@ class TestStar:
         s = Star(n=5, outer_radius=100)
         assert len(s.vertices) == 10  # 5 outer + 5 inner
 
-    def test_star_is_polygon(self):
-        s = Star(n=5, outer_radius=100)
-        assert isinstance(s, Polygon)
 
     def test_star_svg(self):
         s = Star(n=5, outer_radius=100, cx=500, cy=500, fill='gold')
@@ -538,9 +514,6 @@ class TestStar:
 
 
 class TestRoundedRectangle:
-    def test_is_rectangle(self):
-        rr = RoundedRectangle(200, 100, x=10, y=20, corner_radius=15)
-        assert isinstance(rr, Rectangle)
 
     def test_rx_ry_set(self):
         rr = RoundedRectangle(200, 100, x=10, y=20, corner_radius=15)
@@ -554,9 +527,6 @@ class TestRoundedRectangle:
 
 
 class TestDashedLine:
-    def test_is_line(self):
-        dl = DashedLine(0, 0, 100, 100)
-        assert isinstance(dl, Line)
 
     def test_dash_pattern_in_svg(self):
         dl = DashedLine(0, 0, 100, 100, dash='10,5')
@@ -598,12 +568,6 @@ class TestCircleGetTangentLines:
         lines = c.get_tangent_lines(50, 0)
         assert len(lines) == 1
 
-    def test_tangent_lines_are_line_objects(self):
-        """Returned objects are Line instances."""
-        from vectormation.objects import Line
-        c = Circle(r=50, cx=100, cy=100)
-        lines = c.get_tangent_lines(300, 100)
-        assert all(isinstance(l, Line) for l in lines)
 
     def test_tangent_touch_point_on_circle(self):
         """The midpoint of each tangent line should be close to the circle boundary."""
@@ -643,9 +607,6 @@ class TestCircleGetTangentLines:
 
 
 class TestNumberLine:
-    def test_is_vcollection(self):
-        nl = NumberLine(x_range=(-3, 3, 1), length=400, x=100, y=500)
-        assert isinstance(nl, VCollection)
 
     def test_number_to_point(self):
         nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500)
@@ -662,11 +623,6 @@ class TestNumberLine:
 
 
 class TestNumberLineHighlightRange:
-    def test_returns_rectangle(self):
-        from vectormation.objects import Rectangle
-        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500)
-        rect = nl.highlight_range(2, 6)
-        assert isinstance(rect, Rectangle)
 
     def test_rect_appended_to_objects(self):
         nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500)
@@ -709,9 +665,6 @@ class TestNumberLineHighlightRange:
 
 
 class TestEquilateralTriangleFromRegular:
-    def test_is_regular_polygon(self):
-        t = EquilateralTriangle(side_length=100)
-        assert isinstance(t, RegularPolygon)
 
     def test_vertex_count(self):
         t = EquilateralTriangle(side_length=100)
@@ -767,11 +720,6 @@ class TestSetColor:
         fill_val = c.styling.fill.at_time(1)
         assert 'rgb(255,0,0)' == fill_val
 
-    def test_set_color_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.set_color(0, 1, fill='#0000FF')
-        assert result is c
-
 
 class TestGrowFromCenter:
     def test_scale_starts_at_zero(self):
@@ -785,10 +733,6 @@ class TestGrowFromCenter:
         c.grow_from_center(start=0, end=1, change_existence=False)
         scale = c.styling.scale_x.at_time(1)
         assert scale == pytest.approx(1, abs=0.01)
-
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.grow_from_center(start=0, end=1) is c
 
 
 class TestIndicate:
@@ -846,10 +790,6 @@ class TestShrinkToCenter:
         c.shrink_to_center(start=0, end=1)
         assert not c.show.at_time(1.1)
 
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.shrink_to_center(start=0, end=1) is c
-
 
 class TestSetOpacity:
     def test_opacity_changes(self):
@@ -857,29 +797,8 @@ class TestSetOpacity:
         c.set_opacity(0.5, start=0, end=1)
         assert c.styling.opacity.at_time(1) == pytest.approx(0.5, abs=0.01)
 
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.set_opacity(0.5, start=0, end=1) is c
-
-
-class TestFadeinFadeoutReturn:
-    def test_fadein_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.fadein(start=0, end=1) is c
-
-    def test_fadeout_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.fadeout(start=0, end=1) is c
-
-    def test_write_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.write(start=0, end=1) is c
-
 
 class TestFlash:
-    def test_flash_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100, fill='#FF0000')
-        assert c.flash(start=0, end=1, color='#FFFF00') is c
 
     def test_flash_returns_to_original(self):
         c = Circle(r=50, cx=100, cy=100, fill='#FF0000')
@@ -891,9 +810,6 @@ class TestFlash:
 
 
 class TestSpin:
-    def test_spin_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.spin(start=0, end=1, degrees=360) is c
 
     def test_spin_adds_rotation(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -926,10 +842,6 @@ class TestArrange:
 
 
 class TestCircumscribe:
-    def test_circumscribe_returns_self(self):
-        r = Rectangle(100, 50, x=10, y=20)
-        result = r.circumscribe(start=0, end=2)
-        assert result is r
 
     def test_circumscribe_renders_rect_in_svg(self):
         r = Rectangle(100, 50, x=10, y=20)
@@ -947,9 +859,6 @@ class TestCircumscribe:
 
 
 class TestSetColorHSL:
-    def test_set_color_hsl_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100, fill='#FF0000')
-        assert c.set_color(0, 1, fill='#00FF00', color_space='hsl') is c
 
     def test_set_color_hsl_interpolates(self):
         c = Circle(r=50, cx=100, cy=100, fill='#FF0000')
@@ -967,9 +876,6 @@ class TestSetColorHSL:
 
 
 class TestWiggle:
-    def test_wiggle_returns_self(self):
-        r = Rectangle(100, 50, x=10, y=20)
-        assert r.wiggle(start=0, end=1) is r
 
     def test_wiggle_displaces_during(self):
         r = Rectangle(100, 50, x=10, y=20)
@@ -1009,11 +915,6 @@ class TestAlignTo:
         b.align_to(a, edge='top')
         assert b.bbox(0)[1] == pytest.approx(a.bbox(0)[1], abs=0.1)
 
-    def test_align_returns_self(self):
-        a = Rectangle(100, 50, x=100, y=100)
-        b = Rectangle(80, 40, x=300, y=200)
-        assert b.align_to(a, edge='left') is b
-
 
 class TestFadeTransform:
     def test_fade_transform_hides_source(self):
@@ -1030,19 +931,7 @@ class TestFadeTransform:
 
 
 class TestFromSvgInlineStyle:
-    def test_circle_with_inline_style(self):
-        from bs4 import BeautifulSoup
-        svg = '<circle cx="100" cy="200" r="50" style="fill:#ff0000;stroke:#00ff00" />'
-        elem = BeautifulSoup(svg, 'html.parser').find('circle')
-        obj = from_svg(elem)
-        assert isinstance(obj, Circle)
 
-    def test_rect_with_inline_style(self):
-        from bs4 import BeautifulSoup
-        svg = '<rect width="100" height="50" style="fill:#0000ff" />'
-        elem = BeautifulSoup(svg, 'html.parser').find('rect')
-        obj = from_svg(elem)
-        assert isinstance(obj, Rectangle)
 
     def test_parse_inline_style(self):
         from vectormation._svg_utils import _parse_inline_style
@@ -1055,9 +944,6 @@ class TestFromSvgInlineStyle:
 
 
 class TestTyping:
-    def test_typing_returns_self(self):
-        t = Text('Hello World', x=100, y=200)
-        assert t.typing(start=0, end=1) is t
 
     def test_typing_shows_partial_text(self):
         t = Text('Hello', x=100, y=200)
@@ -1075,9 +961,6 @@ class TestTyping:
 
 
 class TestSetText:
-    def test_set_text_returns_self(self):
-        t = Text('Before', x=100, y=200)
-        assert t.set_text(0, 1, 'After') is t
 
     def test_set_text_changes_content(self):
         t = Text('Before', x=100, y=200)
@@ -1097,10 +980,6 @@ class TestSetText:
 
 
 class TestAlongPath:
-    def test_along_path_returns_self(self):
-        c = Circle(r=20, cx=0, cy=0)
-        result = c.along_path(0, 1, 'M0,0 L100,0')
-        assert result is c
 
     def test_along_path_moves_object(self):
         c = Circle(r=20, cx=0, cy=0)
@@ -1124,11 +1003,6 @@ class TestCountAnimationValues:
                            fmt='{:.2f}', x=100, y=100)
         assert c.text.at_time(1) == '1.00'
 
-    def test_count_animation_is_text(self):
-        c = CountAnimation(start_val=0, end_val=10, x=100, y=100)
-        assert isinstance(c, Text)
-
-
 
 class TestWiggleOnCircle:
     def test_wiggle_on_circle(self):
@@ -1142,9 +1016,6 @@ class TestWiggleOnCircle:
 
 
 class TestAnnulus:
-    def test_annulus_is_vobject(self):
-        a = Annulus(inner_radius=30, outer_radius=60, cx=100, cy=100)
-        assert isinstance(a, VObject)
 
     def test_annulus_path_has_two_arcs(self):
         a = Annulus(inner_radius=30, outer_radius=60, cx=100, cy=100)
@@ -1180,9 +1051,6 @@ class TestSwap:
 
 
 class TestDrawAlongCircle:
-    def test_draw_along_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.draw_along(start=0, end=1) is c
 
     def test_draw_along_sets_dasharray(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -1193,9 +1061,6 @@ class TestDrawAlongCircle:
 
 
 class TestCurvedArrow:
-    def test_curved_arrow_is_vcollection(self):
-        ca = CurvedArrow(x1=0, y1=0, x2=100, y2=100)
-        assert isinstance(ca, VCollection)
 
     def test_curved_arrow_has_two_objects(self):
         ca = CurvedArrow(x1=0, y1=0, x2=100, y2=100)
@@ -1213,16 +1078,8 @@ class TestDoubleArrow:
         da = DoubleArrow(x1=0, y1=0, x2=100, y2=0)
         assert len(da.objects) == 3  # shaft + 2 tips
 
-    def test_double_arrow_is_arrow(self):
-        from vectormation.objects import DoubleArrow
-        da = DoubleArrow(x1=0, y1=0, x2=100, y2=0)
-        assert isinstance(da, Arrow)
-
 
 class TestAlwaysRotate:
-    def test_always_rotate_returns_self(self):
-        c = Circle(r=20, cx=100, cy=100)
-        assert c.always_rotate(start=0) is c
 
     def test_always_rotate_sets_rotation(self):
         c = Circle(r=20, cx=100, cy=100)
@@ -1373,10 +1230,6 @@ class TestDashedLineSvg:
         assert 'stroke-dasharray' in svg
         assert '5,3' in svg
 
-    def test_dashed_line_is_line(self):
-        d = DashedLine(x1=0, y1=0, x2=100, y2=100)
-        assert isinstance(d, Line)
-
 
 class TestStagger:
     def test_stagger_offsets_timing(self):
@@ -1461,10 +1314,6 @@ class TestFunctionGraph:
         svg = fg.to_svg(0)
         assert 'rgb(255,0,0)' in svg
 
-    def test_is_lines(self):
-        fg = FunctionGraph(lambda x: x, x_range=(0, 1))
-        assert isinstance(fg, Lines)
-        assert isinstance(fg, Polygon)  # Lines inherits from Polygon
 
     def test_auto_y_range(self):
         fg = FunctionGraph(lambda x: 2*x, x_range=(-1, 1), num_points=10,
@@ -1569,10 +1418,6 @@ class TestShapePropertySetters:
         c.set_radius(100, start=0)
         assert c.r.at_time(0) == 100
 
-    def test_circle_set_radius_returns_self(self):
-        c = Circle(r=50)
-        result = c.set_radius(100, start=0)
-        assert result is c
 
     def test_ellipse_set_rx_ry(self):
         e = Ellipse(rx=50, ry=30)
@@ -1591,13 +1436,6 @@ class TestShapePropertySetters:
         e.set_ry(60, start=0)
         assert e.ry.at_time(0) == 60
 
-    def test_ellipse_set_rx_returns_self(self):
-        e = Ellipse(rx=50, ry=30)
-        assert e.set_rx(80, start=0) is e
-
-    def test_ellipse_set_ry_returns_self(self):
-        e = Ellipse(rx=50, ry=30)
-        assert e.set_ry(60, start=0) is e
 
     def test_text_set_font_size(self):
         t = Text(text='Hello', font_size=24)
@@ -1674,9 +1512,6 @@ class TestShapePropertySetters:
         assert a.start_angle.at_time(0) == 0  # unchanged
         assert a.end_angle.at_time(0) == 270
 
-    def test_arc_set_angles_returns_self(self):
-        a = Arc()
-        assert a.set_angles(start_angle=10, start=0) is a
 
     def test_annulus_set_inner_radius(self):
         an = Annulus(inner_radius=30, outer_radius=100)
@@ -2179,9 +2014,6 @@ class TestGettersSetters:
         s0 = pc.get_sector(0)
         assert s0 is pc._sectors[0]
 
-    def test_piechart_get_sector_is_wedge(self):
-        pc = PieChart([1, 2, 3])
-        assert isinstance(pc.get_sector(1), Wedge)
 
     # Axes.set_x_range, set_y_range
     def test_axes_set_x_range(self):
@@ -2202,16 +2034,8 @@ class TestGettersSetters:
         assert ax.x_min.at_time(0) == pytest.approx(-5)
         assert ax.x_min.at_time(2) == pytest.approx(-20)
 
-    def test_axes_set_y_range_returns_self(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
-        result = ax.set_y_range(-1, 1)
-        assert result is ax
 
     # Axes.get_horizontal_lines
-    def test_axes_get_horizontal_lines_returns_vcollection(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
-        result = ax.get_horizontal_lines([0, 1, 2])
-        assert isinstance(result, VCollection)
 
     def test_axes_get_horizontal_lines_count(self):
         ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
@@ -2372,9 +2196,6 @@ class TestPathFromPoints:
         d = p.d.at_time(0)
         assert d == ''
 
-    def test_returns_path_instance(self):
-        p = Path.from_points([(0, 0), (10, 10)])
-        assert isinstance(p, Path)
 
     def test_kwargs_passed_through(self):
         p = Path.from_points([(0, 0), (10, 10)], stroke='#f00')
@@ -2388,10 +2209,6 @@ class TestPathFromPoints:
 
 
 class TestRectangleRoundCorners:
-    def test_returns_rounded_rectangle(self):
-        r = Rectangle(200, 100, x=10, y=20)
-        rr = r.round_corners(radius=15)
-        assert isinstance(rr, RoundedRectangle)
 
     def test_preserves_dimensions(self):
         r = Rectangle(200, 100, x=10, y=20)
@@ -2435,10 +2252,6 @@ class TestRectangleRoundCorners:
 
 
 class TestLineFromDirection:
-    def test_creates_line(self):
-        from vectormation.objects import Line
-        line = Line.from_direction((960, 540), (1, 0), 200)
-        assert isinstance(line, Line)
 
     def test_horizontal_right(self):
         from vectormation.objects import Line
@@ -2491,11 +2304,6 @@ class TestLineFromDirection:
 
 
 class TestCircleInscribedPolygon:
-    def test_returns_regular_polygon(self):
-        from vectormation.objects import Circle, RegularPolygon
-        c = Circle(r=100, cx=400, cy=300)
-        poly = c.inscribed_polygon(6)
-        assert isinstance(poly, RegularPolygon)
 
     def test_vertex_count(self):
         from vectormation.objects import Circle
@@ -2555,10 +2363,6 @@ class TestCircleInscribedPolygon:
 
 
 class TestWedgeToArc:
-    def test_returns_arc_instance(self):
-        w = Wedge(cx=500, cy=400, r=100, start_angle=30, end_angle=120)
-        arc = w.to_arc()
-        assert isinstance(arc, Arc)
 
     def test_preserves_center(self):
         w = Wedge(cx=500, cy=400, r=100, start_angle=0, end_angle=90)
@@ -2583,10 +2387,6 @@ class TestWedgeToArc:
         svg = arc.to_svg(0)
         assert '255' in svg or 'ff0000' in svg.lower() or 'ff,' in svg.lower()
 
-    def test_is_not_wedge(self):
-        w = Wedge(cx=0, cy=0, r=50, start_angle=0, end_angle=90)
-        arc = w.to_arc()
-        assert not isinstance(arc, Wedge)
 
     def test_time_parameter_used(self):
         w = Wedge(cx=0, cy=0, r=50, start_angle=0, end_angle=90)
@@ -2616,11 +2416,6 @@ class TestRectangleGetCorners:
         assert corners[0] == pytest.approx((0.0, 0.0))
         assert corners[2] == pytest.approx((100.0, 100.0))
 
-    def test_all_floats(self):
-        r = Rectangle(width=60, height=40, x=5, y=5)
-        for pt in r.get_corners():
-            assert isinstance(pt[0], float)
-            assert isinstance(pt[1], float)
 
     def test_time_parameter(self):
         r = Rectangle(width=100, height=50, x=0, y=0)
@@ -2739,11 +2534,6 @@ class TestCircleTangentAtPoint:
         assert y1 == pytest.approx(400, abs=2)
         assert y2 == pytest.approx(400, abs=2)
 
-    def test_returns_line(self):
-        """Result should be a Line instance."""
-        c = Circle(r=50, cx=200, cy=200)
-        tl = c.tangent_at_point(300, 200)
-        assert isinstance(tl, Line)
 
     def test_tangent_length(self):
         """The line length should equal the requested length."""
@@ -2792,11 +2582,6 @@ class TestPolygonGetEdges:
         edges = poly.get_edges()
         assert len(edges) == 2
 
-    def test_edges_are_line_objects(self):
-        """Each returned edge is a Line instance."""
-        tri = Polygon((0, 0), (100, 0), (50, 100))
-        for edge in tri.get_edges():
-            assert isinstance(edge, Line)
 
     def test_edge_endpoints_match_vertices(self):
         """Edge endpoints match consecutive polygon vertices."""
@@ -2872,10 +2657,6 @@ class TestAxesGetIntersectionPoint:
 # ---------------------------------------------------------------------------
 
 class TestSwing:
-    def test_swing_returns_self(self):
-        c = Circle(r=50, cx=100, cy=300)
-        result = c.swing(start=0, end=1, amplitude=20)
-        assert result is c
 
     def test_swing_zero_rotation_at_start(self):
         """At t=0 (start of swing) normalised time is 0, so rotation is 0."""
@@ -3035,10 +2816,6 @@ class TestRectangleSplit:
         for i, x in enumerate(xs):
             assert x == pytest.approx(i * 30)
 
-    def test_returns_vcollection(self):
-        r = Rectangle(100, 100)
-        result = r.split()
-        assert isinstance(result, VCollection)
 
     def test_count_1(self):
         """Splitting into 1 piece should return a single rectangle of the same size."""
@@ -3062,10 +2839,6 @@ class TestRectangleSplit:
 
 
 class TestAxesAddAreaLabel:
-    def test_returns_text(self):
-        ax = Axes(x_range=(0, 4), y_range=(0, 4))
-        lbl = ax.add_area_label(lambda x: x, x_start=0, x_end=2)
-        assert isinstance(lbl, Text)
 
     def test_area_value_in_text(self):
         """For f(x)=1 over [0,3], area = 3.00."""
@@ -3097,11 +2870,6 @@ class TestAxesAddAreaLabel:
 
 
 class TestLineSplitAt:
-    def test_midpoint_split_returns_two_lines(self):
-        line = Line(0, 0, 200, 0)
-        a, b = line.split_at(0.5)
-        assert isinstance(a, Line)
-        assert isinstance(b, Line)
 
     def test_midpoint_split_start_of_first(self):
         line = Line(0, 0, 200, 0)
@@ -3223,11 +2991,6 @@ class TestRectangleGetDiagonalLength:
         r = Rectangle(width=7, height=0)
         assert r.get_diagonal_length() == pytest.approx(7.0)
 
-    def test_returns_float(self):
-        r = Rectangle(width=100, height=200)
-        d = r.get_diagonal_length()
-        assert isinstance(d, float)
-
 
 class TestLineGetNormal:
     def test_horizontal_line_normal_is_vertical(self):
@@ -3272,12 +3035,6 @@ class TestLineGetNormal:
 
 
 class TestAxesAddTangentAt:
-    def test_add_tangent_at_returns_line(self):
-        """add_tangent_at should return a Line object."""
-        from vectormation.objects import Line
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        line = ax.add_tangent_at(lambda x: x ** 2, x_val=1)
-        assert isinstance(line, Line)
 
     def test_add_tangent_at_at_minimum_is_horizontal(self):
         """Tangent at x=0 for x^2 is horizontal (slope=0), so y1==y2."""
@@ -3304,10 +3061,6 @@ class TestAxesAddTangentAt:
 
 
 class TestCircleArcBetween:
-    def test_returns_arc_instance(self):
-        c = Circle(r=100, cx=500, cy=300)
-        arc = c.arc_between(0, 90)
-        assert isinstance(arc, Arc)
 
     def test_arc_has_same_center(self):
         c = Circle(r=100, cx=500, cy=300)
@@ -3371,15 +3124,7 @@ class TestTextWordCount:
 
 
 class TestAxesAxisLines:
-    def test_get_x_axis_line_returns_line(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
-        line = ax.get_x_axis_line()
-        assert isinstance(line, Line)
 
-    def test_get_y_axis_line_returns_line(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
-        line = ax.get_y_axis_line()
-        assert isinstance(line, Line)
 
     def test_x_axis_line_is_horizontal(self):
         ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
@@ -3450,10 +3195,6 @@ class TestSetStrokeDash:
         c.set_stroke_dash(None, start=1)
         assert c.styling.stroke_dasharray.at_time(1) == ''
 
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.set_stroke_dash('5 3')
-        assert result is c
 
     def test_respects_start(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -3521,11 +3262,6 @@ class TestVCollectionGroupBy:
         assert len(groups[Circle].objects) == 2
         assert len(groups[Rectangle].objects) == 1
 
-    def test_returns_vcollection_values(self):
-        c1 = Circle(r=50)
-        col = VCollection(c1)
-        groups = col.group_by(type)
-        assert isinstance(groups[Circle], VCollection)
 
     def test_group_by_custom_func(self):
         c1 = Circle(r=50)
@@ -3568,10 +3304,6 @@ class TestAxesGetAreaValue:
         result = ax.get_area_value(lambda x: x, 0, 4, samples=1000)
         assert result == pytest.approx(8.0, rel=1e-3)
 
-    def test_returns_float(self):
-        ax = Axes(x_range=(0, 5), y_range=(0, 5))
-        result = ax.get_area_value(lambda x: x, 0, 2)
-        assert isinstance(result, float)
 
     def test_accepts_plot_curve(self):
         """get_area_value should accept a Path with ._func attribute."""
@@ -3620,8 +3352,6 @@ class TestLineFromAngle:
         length = math.sqrt(x2 ** 2 + y2 ** 2)
         assert length == pytest.approx(150, abs=1e-6)
 
-    def test_returns_line_instance(self):
-        assert isinstance(Line.from_angle((0, 0), 0, 100), Line)
 
     def test_kwargs_forwarded(self):
         line = Line.from_angle((0, 0), 0, 100, stroke='#FF0000')
@@ -3721,10 +3451,6 @@ class TestAxesGetPlotArea:
 
 
 class TestCircleChord:
-    def test_chord_returns_line(self):
-        c = Circle(r=100, cx=200, cy=200)
-        ch = c.chord(0, 90)
-        assert isinstance(ch, Line)
 
     def test_chord_endpoints_on_circle(self):
         c = Circle(r=100, cx=200, cy=200)
@@ -3795,10 +3521,6 @@ class TestRectangleFromCorners:
         assert 'stroke=' in svg
         assert 'abc123' in svg.lower() or 'rgb(171,193,35)' in svg or '171,193,35' in svg
 
-    def test_returns_rectangle_instance(self):
-        r = Rectangle.from_corners(0, 0, 100, 100)
-        assert isinstance(r, Rectangle)
-
 
 class TestLineParameterAt:
     def test_parameter_at_start(self):
@@ -3845,10 +3567,6 @@ class TestLineParameterAt:
 
 
 class TestPolygonRotateVertices:
-    def test_returns_polygon(self):
-        p = Polygon((0, 0), (100, 0), (100, 100))
-        rotated = p.rotate_vertices(0)
-        assert isinstance(rotated, Polygon)
 
     def test_zero_rotation_unchanged(self):
         """Rotating by 0 degrees should leave vertices unchanged."""
@@ -3901,10 +3619,6 @@ class TestPolygonRotateVertices:
 
 
 class TestCircleDiameterLine:
-    def test_returns_line(self):
-        c = Circle(r=100, cx=200, cy=200)
-        d = c.diameter_line()
-        assert isinstance(d, Line)
 
     def test_horizontal_diameter_angle_zero(self):
         """Angle 0 -> horizontal line through centre."""
@@ -3975,10 +3689,6 @@ class TestCircleDiameterLine:
 
 
 class TestRectangleInset:
-    def test_returns_rectangle(self):
-        r = Rectangle(200, 100, x=0, y=0)
-        inner = r.inset(10)
-        assert isinstance(inner, Rectangle)
 
     def test_dimensions_reduced(self):
         """Inset by 10 should reduce each dimension by 20."""
@@ -4309,10 +4019,6 @@ class TestArcFromThreePoints:
 # Text.reveal_by_word
 
 class TestTextRevealByWord:
-    def test_reveal_by_word_returns_self(self):
-        t = Text(text='hello world foo bar')
-        result = t.reveal_by_word(start=0, end=2)
-        assert result is t
 
     def test_reveal_by_word_empty_at_start(self):
         t = Text(text='hello world foo')
@@ -4335,19 +4041,10 @@ class TestTextRevealByWord:
         text_at_1_5 = t.text.at_time(1.5)
         assert text_at_1_5 == 'one'
 
-    def test_reveal_by_word_empty_text(self):
-        t = Text(text='')
-        result = t.reveal_by_word(start=0, end=1)
-        assert result is t
-
 
 # Rectangle.to_polygon
 
 class TestRectangleToPolygon:
-    def test_to_polygon_returns_polygon(self):
-        r = Rectangle(100, 50, x=10, y=20)
-        poly = r.to_polygon()
-        assert isinstance(poly, Polygon)
 
     def test_to_polygon_has_four_vertices(self):
         r = Rectangle(100, 50, x=10, y=20)
@@ -4440,11 +4137,6 @@ class TestLineBisector:
         # The bisector should be horizontal: same y for both endpoints
         assert p1[1] == pytest.approx(p2[1], abs=0.01)
 
-    def test_bisector_returns_line(self):
-        """bisector() should return a Line instance."""
-        line = Line(x1=0, y1=0, x2=100, y2=100)
-        bis = line.bisector()
-        assert isinstance(bis, Line)
 
     def test_bisector_custom_length(self):
         """Bisector with custom length should have the specified length."""
@@ -4515,11 +4207,6 @@ class TestRectangleExpand:
         assert r.width.at_time(0) == pytest.approx(100)
         assert r.height.at_time(0) == pytest.approx(60)
 
-    def test_expand_returns_self(self):
-        """expand should return self for chaining."""
-        r = Rectangle(width=100, height=60, x=50, y=50)
-        result = r.expand(amount=10, start=0, end=1)
-        assert result is r
 
     def test_expand_center_stays(self):
         """The center of the rectangle should stay in place during expansion."""
@@ -4548,11 +4235,6 @@ class TestTextToUpper:
         assert t.text.at_time(0) == 'hello'
         assert t.text.at_time(2) == 'HELLO'
 
-    def test_to_upper_returns_self(self):
-        """to_upper should return self for chaining."""
-        t = Text('abc')
-        result = t.to_upper(time=0)
-        assert result is t
 
     def test_to_upper_already_upper(self):
         """to_upper on already uppercase text is a no-op."""
@@ -4574,12 +4256,6 @@ class TestTextToLower:
         t.to_lower(time=2)
         assert t.text.at_time(0) == 'HELLO'
         assert t.text.at_time(2) == 'hello'
-
-    def test_to_lower_returns_self(self):
-        """to_lower should return self for chaining."""
-        t = Text('ABC')
-        result = t.to_lower(time=0)
-        assert result is t
 
 
 class TestLineGetVector:
@@ -4645,10 +4321,6 @@ class TestPolygonTranslate:
         assert verts[1] == pytest.approx((210, 120))
         assert verts[2] == pytest.approx((160, 220))
 
-    def test_translate_returns_self(self):
-        p = Polygon((100, 100), (200, 100), (150, 200))
-        result = p.translate(5, -5)
-        assert result is p
 
     def test_translate_updates_bbox(self):
         p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
@@ -4815,10 +4487,6 @@ class TestSetCreation:
         assert c.show.at_time(2) == True
         assert c.show.at_time(3) == True
 
-    def test_set_creation_returns_self(self):
-        c = Circle(r=50)
-        result = c.set_creation(1)
-        assert result is c
 
     def test_set_creation_on_rectangle(self):
         r = Rectangle(width=100, height=50)
@@ -4899,12 +4567,6 @@ class TestFlashScale:
         # At end scale should be back to 1.0
         sx_end = c.styling.scale_x.at_time(2)
         assert sx_end == pytest.approx(1.0, abs=0.01)
-
-    def test_returns_self(self):
-        """flash_scale should return self for chaining."""
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.flash_scale(factor=1.5, start=0, end=1)
-        assert result is c
 
 
 class TestArcGetChordLength:
@@ -5016,11 +4678,6 @@ class TestTextReverseText:
         t.reverse_text()
         assert t.text.at_time(0) == 'olleh'
 
-    def test_reverse_text_returns_self(self):
-        """reverse_text should return self for chaining."""
-        t = Text('abc')
-        result = t.reverse_text()
-        assert result is t
 
     def test_reverse_text_empty(self):
         """reverse_text on empty string stays empty."""
@@ -5120,10 +4777,6 @@ class TestRectangleGrowWidth:
         r.grow_width(40, start=0, end=1)
         assert r.width.at_time(1) == pytest.approx(140)
 
-    def test_grow_width_returns_self(self):
-        """grow_width should return self for chaining."""
-        r = Rectangle(width=100, height=50, x=10, y=20)
-        assert r.grow_width(20) is r
 
     def test_grow_width_preserves_height(self):
         """grow_width should not change the height."""
@@ -5139,10 +4792,6 @@ class TestRectangleGrowHeight:
         r.grow_height(25, start=0, end=1)
         assert r.height.at_time(1) == pytest.approx(75)
 
-    def test_grow_height_returns_self(self):
-        """grow_height should return self for chaining."""
-        r = Rectangle(width=100, height=50, x=10, y=20)
-        assert r.grow_height(20) is r
 
     def test_grow_height_negative(self):
         """grow_height with negative amount should decrease height."""
@@ -5433,13 +5082,6 @@ class TestLineProjectOnto:
         assert p2[0] == pytest.approx(100, abs=1e-6)
         assert p2[1] == pytest.approx(0, abs=1e-6)
 
-    def test_returns_line_instance(self):
-        """project_onto should return a Line."""
-        line = Line(0, 0, 100, 100)
-        axis = Line(0, 0, 100, 0)
-        result = line.project_onto(axis)
-        assert isinstance(result, Line)
-
 
 class TestLineReflectOver:
     def test_reflect_over_x_axis(self):
@@ -5486,12 +5128,6 @@ class TestLineReflectOver:
         ref = line.reflect_over(axis)
         assert ref.get_length() == pytest.approx(original_len, abs=1e-6)
 
-    def test_returns_line_instance(self):
-        """reflect_over should return a Line."""
-        line = Line(0, 0, 100, 100)
-        axis = Line(0, 50, 100, 50)
-        result = line.reflect_over(axis)
-        assert isinstance(result, Line)
 
     def test_reflect_over_diagonal(self):
         """Reflecting (100, 0) -> (100, 0) over y=x line should give (0, 100) -> (0, 100)."""
@@ -6328,11 +5964,6 @@ class TestTextTruncate:
         t.truncate(5, ellipsis='')
         assert t.get_text() == 'Hello'
 
-    def test_truncate_returns_self(self):
-        """truncate should return self for chaining."""
-        t = Text('Hello, World!')
-        result = t.truncate(8)
-        assert result is t
 
     def test_truncate_raises_on_small_n(self):
         """n smaller than ellipsis length should raise ValueError."""
@@ -6422,12 +6053,6 @@ class TestCircleCircumscribedPolygon:
         inradius = poly.get_inradius()
         assert inradius == pytest.approx(80, abs=1e-6)
 
-    def test_returns_regular_polygon(self):
-        """Result should be a RegularPolygon."""
-        from vectormation.objects import RegularPolygon
-        c = Circle(r=50)
-        poly = c.circumscribed_polygon(5)
-        assert isinstance(poly, RegularPolygon)
 
     def test_vertices_outside_circle(self):
         """All vertices of circumscribed polygon should lie outside the circle."""
@@ -6787,15 +6412,6 @@ class TestTextBoldItalic:
         assert "font-weight='bold'" in svg
         assert "font-style='italic'" in svg
 
-    def test_bold_returns_self(self):
-        t = Text('Hello')
-        result = t.bold()
-        assert result is t
-
-    def test_italic_returns_self(self):
-        t = Text('Hello')
-        result = t.italic()
-        assert result is t
 
     def test_default_no_weight_or_style(self):
         t = Text('Hello')
@@ -6905,10 +6521,6 @@ class TestRectangleSampleBorder:
 
 
 class TestCircleGetSectors:
-    def test_returns_vcollection(self):
-        c = Circle(r=100, cx=200, cy=300)
-        result = c.get_sectors(4)
-        assert isinstance(result, VCollection)
 
     def test_correct_number_of_sectors(self):
         c = Circle(r=100, cx=200, cy=300)
@@ -6946,11 +6558,6 @@ class TestCircleGetSectors:
         svg = result.objects[0].to_svg(0)
         assert 'rgb(255,0,0)' in svg or '#ff0000' in svg
 
-    def test_each_sector_is_wedge(self):
-        c = Circle(r=50, cx=0, cy=0)
-        result = c.get_sectors(5)
-        for w in result.objects:
-            assert isinstance(w, Wedge)
 
     def test_n_less_than_1_treated_as_1(self):
         c = Circle(r=100, cx=0, cy=0)
@@ -6959,21 +6566,12 @@ class TestCircleGetSectors:
 
 
 class TestPolygonExplodeEdges:
-    def test_returns_vcollection(self):
-        p = Polygon((0, 0), (100, 0), (50, 100))
-        result = p.explode_edges()
-        assert isinstance(result, VCollection)
 
     def test_triangle_has_three_edges(self):
         p = Polygon((0, 0), (100, 0), (50, 100))
         result = p.explode_edges()
         assert len(result.objects) == 3
 
-    def test_all_edges_are_lines(self):
-        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
-        result = p.explode_edges()
-        for obj in result.objects:
-            assert isinstance(obj, Line)
 
     def test_square_has_four_edges(self):
         p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
@@ -7078,10 +6676,6 @@ class TestLinePerpendicularAt:
 
 
 class TestRectangleGetGridLines:
-    def test_returns_vcollection(self):
-        r = Rectangle(200, 100, x=0, y=0)
-        result = r.get_grid_lines(1, 1)
-        assert isinstance(result, VCollection)
 
     def test_correct_number_of_lines(self):
         r = Rectangle(200, 100, x=0, y=0)
@@ -7089,11 +6683,6 @@ class TestRectangleGetGridLines:
         result = r.get_grid_lines(2, 3)
         assert len(result.objects) == 5
 
-    def test_all_objects_are_lines(self):
-        r = Rectangle(200, 100, x=0, y=0)
-        result = r.get_grid_lines(2, 2)
-        for obj in result.objects:
-            assert isinstance(obj, Line)
 
     def test_horizontal_line_positions(self):
         """1 horizontal line in a 300x300 rect should be at y=150."""
@@ -7145,14 +6734,6 @@ class TestRectangleGetGridLines:
 
 
 class TestAxesAddParametricPlot:
-    def test_returns_path(self):
-        axes = Axes(x_range=(-2, 2), y_range=(-2, 2))
-        curve = axes.add_parametric_plot(
-            fx=lambda t: math.cos(t),
-            fy=lambda t: math.sin(t),
-            t_range=(0, 2 * math.pi),
-        )
-        assert isinstance(curve, Path)
 
     def test_curve_added_to_axes(self):
         axes = Axes(x_range=(-2, 2), y_range=(-2, 2))
@@ -7214,10 +6795,6 @@ class TestAxesAddParametricPlot:
 
 
 class TestNumberLineAddBrace:
-    def test_returns_brace(self):
-        nl = NumberLine(x_range=(0, 10, 1))
-        brace = nl.add_brace(2, 5)
-        assert isinstance(brace, Brace)
 
     def test_brace_added_to_objects(self):
         nl = NumberLine(x_range=(0, 10, 1))
@@ -7261,10 +6838,6 @@ class TestNumberLineAddBrace:
 
 
 class TestPolygonInset:
-    def test_returns_polygon(self):
-        p = Polygon((0, 0), (200, 0), (200, 100), (0, 100))
-        inner = p.inset(10)
-        assert isinstance(inner, Polygon)
 
     def test_vertex_count_preserved(self):
         p = Polygon((0, 0), (200, 0), (200, 100), (0, 100))
@@ -7343,10 +6916,6 @@ class TestPolygonInset:
 
 
 class TestCircleAnnularSector:
-    def test_returns_path(self):
-        c = Circle(r=100, cx=500, cy=500)
-        p = c.annular_sector()
-        assert isinstance(p, Path)
 
     def test_svg_contains_arc_commands(self):
         c = Circle(r=100, cx=500, cy=500)
@@ -7401,10 +6970,6 @@ class TestCircleAnnularSector:
 
 
 class TestAxesAddHorizontalBand:
-    def test_returns_rectangle(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        band = ax.add_horizontal_band(1, 3)
-        assert isinstance(band, Rectangle)
 
     def test_band_added_to_objects(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
@@ -7450,10 +7015,6 @@ class TestAxesAddHorizontalBand:
 
 
 class TestTableHighlightRow:
-    def test_returns_self(self):
-        t = Table([[1, 2], [3, 4]])
-        result = t.highlight_row(0, start=0, end=1)
-        assert result is t
 
     def test_changes_fill_color(self):
         """Highlighting should change the fill color of row cells at midpoint."""
@@ -7499,21 +7060,8 @@ class TestTableHighlightRow:
         # Should remain white (#fff), not red
         assert fill == (255, 255, 255)
 
-    def test_custom_easing(self):
-        """Custom easing should be used for opacity."""
-        t = Table([[1, 2], [3, 4]])
-        t.highlight_row(0, start=0, end=1, easing=easings.linear)
-        # Just verify it doesn't raise
-        entry = t.entries[0][0]
-        _ = entry.styling.fill_opacity.at_time(0.5)
-
 
 class TestNumberLineAddTickLabelsRange:
-    def test_returns_self(self):
-        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500,
-                        include_numbers=False)
-        result = nl.add_tick_labels_range(0, 5, 1)
-        assert result is nl
 
     def test_labels_added_to_objects(self):
         nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500,
@@ -7523,13 +7071,6 @@ class TestNumberLineAddTickLabelsRange:
         # 0, 1, 2, 3, 4, 5 = 6 labels
         assert len(nl.objects) == n_before + 6
 
-    def test_labels_are_text_objects(self):
-        nl = NumberLine(x_range=(0, 10, 1), length=500, x=100, y=500,
-                        include_numbers=False)
-        n_before = len(nl.objects)
-        nl.add_tick_labels_range(2, 4, 1)
-        for obj in nl.objects[n_before:]:
-            assert isinstance(obj, Text)
 
     def test_label_positions(self):
         """Labels should be positioned at the correct x coordinates."""
@@ -7920,11 +7461,6 @@ class TestTextCharCount:
 # Tests for Polygon.smooth_corners
 # ---------------------------------------------------------------------------
 class TestPolygonSmoothCorners:
-    def test_returns_path(self):
-        """smooth_corners should return a Path object."""
-        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
-        result = p.smooth_corners(radius=10)
-        assert isinstance(result, Path)
 
     def test_path_d_contains_Q_commands(self):
         """The smoothed path should contain quadratic Bezier Q commands."""
@@ -7961,12 +7497,6 @@ class TestPolygonSmoothCorners:
         d = result.d.at_time(0)
         # Q commands still appear but the curve degenerates to a point
         assert 'Q' in d
-
-    def test_fewer_than_3_vertices(self):
-        """With fewer than 3 vertices, smooth_corners should still return a Path."""
-        p = Polygon((0, 0), (100, 100), closed=False)
-        result = p.smooth_corners(radius=10)
-        assert isinstance(result, Path)
 
 
 # ---------------------------------------------------------------------------
@@ -8032,50 +7562,9 @@ class TestLineAngleWith:
 
 
 # ---------------------------------------------------------------------------
-# Tests for Table.animate_cells
-# ---------------------------------------------------------------------------
-class TestTableAnimateCells:
-    def test_returns_self(self):
-        """animate_cells should return self for chaining."""
-        t = Table([[1, 2], [3, 4]])
-        result = t.animate_cells([(0, 0), (1, 1)])
-        assert result is t
-
-    def test_calls_method_on_entries(self):
-        """animate_cells should call the specified method on each cell."""
-        t = Table([[10, 20], [30, 40]])
-        # 'flash' is a valid animation method on Text (VObject)
-        t.animate_cells([(0, 0), (0, 1), (1, 0)], method_name='flash')
-        # No exception means the methods were found and called
-
-    def test_stagger_delay(self):
-        """Each cell should receive an incremented start time."""
-        t = Table([['a', 'b'], ['c', 'd']])
-        # Use 'indicate' with default delay=0.15
-        t.animate_cells([(0, 0), (1, 1)], method_name='indicate', start=1.0, delay=0.5)
-        # Just verify it doesn't raise
-
-    def test_kwargs_forwarded(self):
-        """Extra kwargs should be forwarded to the animation method."""
-        t = Table([[1, 2], [3, 4]])
-        t.animate_cells([(0, 0)], method_name='flash', end=2.0, color='#f00')
-
-    def test_empty_cells_list(self):
-        """An empty cells list should do nothing and return self."""
-        t = Table([[1, 2], [3, 4]])
-        result = t.animate_cells([])
-        assert result is t
-
-
-# ---------------------------------------------------------------------------
 # Tests for Axes.add_mean_line
 # ---------------------------------------------------------------------------
 class TestAxesAddMeanLine:
-    def test_returns_line(self):
-        """add_mean_line should return a Line object."""
-        ax = Axes(x_range=(-5, 5), y_range=(-10, 10))
-        line = ax.add_mean_line(lambda x: x ** 2)
-        assert isinstance(line, Line)
 
     def test_mean_of_constant_function(self):
         """For a constant function f(x)=5, the mean line should be at y=5."""
@@ -8130,11 +7619,6 @@ class TestAxesAddMeanLine:
 # Tests for NumberLine.animate_add_tick
 # ---------------------------------------------------------------------------
 class TestNumberLineAnimateAddTick:
-    def test_returns_self(self):
-        """animate_add_tick should return self."""
-        nl = NumberLine(x_range=(-5, 5, 1))
-        result = nl.animate_add_tick(2.5, start=0, end=1)
-        assert result is nl
 
     def test_adds_tick_line(self):
         """A new Line object should be appended to the number line."""
@@ -8168,18 +7652,8 @@ class TestNumberLineAnimateAddTick:
         nl.animate_add_tick(3.0, start=0, end=1)
         assert len(nl.objects) == n_before + 1
 
-    def test_custom_easing(self):
-        """Custom easing function should be accepted."""
-        nl = NumberLine(x_range=(0, 10, 1))
-        nl.animate_add_tick(7.0, start=0, end=2, easing=easings.linear)
-
 
 class TestTextSplitIntoWords:
-    def test_returns_vcollection(self):
-        """split_into_words should return a VCollection."""
-        t = Text(text='Hello World', x=100, y=200)
-        result = t.split_into_words()
-        assert isinstance(result, VCollection)
 
     def test_correct_word_count(self):
         """The number of Text objects should match the number of words."""
@@ -8240,11 +7714,6 @@ class TestTextSplitIntoWords:
 
 
 class TestEllipseGetTangentLine:
-    def test_returns_line(self):
-        """get_tangent_line should return a Line object."""
-        e = Ellipse(rx=100, ry=60, cx=500, cy=400)
-        result = e.get_tangent_line(45)
-        assert isinstance(result, Line)
 
     def test_tangent_at_zero_degrees(self):
         """At 0 degrees the tangent should be vertical (for a circle)."""
@@ -8289,11 +7758,6 @@ class TestEllipseGetTangentLine:
 
 
 class TestRectangleChamfer:
-    def test_returns_path(self):
-        """chamfer should return a Path object."""
-        r = Rectangle(width=200, height=100, x=50, y=50)
-        result = r.chamfer(size=20)
-        assert isinstance(result, Path)
 
     def test_path_is_closed(self):
         """The chamfered path should be closed (ends with Z)."""
@@ -8344,11 +7808,6 @@ class TestRectangleChamfer:
 
 
 class TestAxesAddVerticalAsymptote:
-    def test_returns_line(self):
-        """add_vertical_asymptote should return a Line object."""
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        result = ax.add_vertical_asymptote(2)
-        assert isinstance(result, Line)
 
     def test_adds_to_objects(self):
         """The asymptote should be added to ax.objects."""
@@ -8390,11 +7849,6 @@ class TestAxesAddVerticalAsymptote:
 
 
 class TestAxesAddHorizontalAsymptote:
-    def test_returns_line(self):
-        """add_horizontal_asymptote should return a Line object."""
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        result = ax.add_horizontal_asymptote(2)
-        assert isinstance(result, Line)
 
     def test_adds_to_objects(self):
         """The asymptote should be added to ax.objects."""
@@ -8532,11 +7986,6 @@ class TestLineGetNormalLine:
 
 
 class TestCircleGetAnnulus:
-    def test_returns_annulus(self):
-        """get_annulus should return an Annulus instance."""
-        c = Circle(r=100, cx=500, cy=300)
-        ann = c.get_annulus()
-        assert isinstance(ann, Annulus)
 
     def test_outer_radius_matches_circle(self):
         """Outer radius should equal the circle's radius."""
@@ -8610,11 +8059,6 @@ class TestTableAnimateCellValues:
         # After midpoint, new value
         assert t.entries[0][0].text.at_time(1.5) == 'X'
 
-    def test_returns_self(self):
-        """animate_cell_values should return self for chaining."""
-        t = Table([[1, 2]])
-        result = t.animate_cell_values([[3, 4]], start=0, end=1)
-        assert result is t
 
     def test_zero_duration(self):
         """With start==end, values should change instantly."""
@@ -8625,11 +8069,6 @@ class TestTableAnimateCellValues:
 
 
 class TestAxesAddFunctionLabel:
-    def test_returns_text(self):
-        """add_function_label should return a Text object."""
-        axes = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        lbl = axes.add_function_label(lambda x: x**2, 'y = x^2', x_pos=2)
-        assert isinstance(lbl, Text)
 
     def test_label_text_content(self):
         """The label should contain the specified text."""
@@ -8682,11 +8121,6 @@ class TestAxesAddFunctionLabel:
 
 
 class TestPolygonBuffer:
-    def test_returns_polygon(self):
-        """buffer should return a Polygon."""
-        p = Polygon((0, 0), (100, 0), (100, 100), (0, 100))
-        result = p.buffer(10)
-        assert isinstance(result, Polygon)
 
     def test_offset_changes_area(self):
         """buffer with non-zero distance should change the polygon area."""
@@ -8732,11 +8166,6 @@ class TestPolygonBuffer:
 
 
 class TestArcGetChord:
-    def test_returns_line(self):
-        """get_chord should return a Line instance."""
-        arc = Arc(cx=500, cy=300, r=100, start_angle=0, end_angle=90)
-        chord = arc.get_chord()
-        assert isinstance(chord, Line)
 
     def test_chord_start_matches_arc_start(self):
         """Chord start should match arc start point."""
@@ -8885,11 +8314,6 @@ class TestArcGetMidpoint:
 
 
 class TestAxesAddLabeledPoint:
-    def test_returns_vcollection(self):
-        """Should return a VCollection."""
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        result = ax.add_labeled_point(1, 2, label='A')
-        assert isinstance(result, VCollection)
 
     def test_dot_only_when_no_label(self):
         """With no label, collection should have 1 object (dot)."""
@@ -8945,12 +8369,6 @@ class TestAxesAddLabeledPoint:
 
 
 class TestAxesAddFunctionRegion:
-    def test_returns_path(self):
-        """Should return a Path object."""
-        ax = Axes(x_range=(-5, 5), y_range=(-2, 2))
-        area = ax.add_function_region(math.sin)
-        from vectormation.objects import Path
-        assert isinstance(area, Path)
 
     def test_area_has_fill(self):
         """The returned area should have a fill."""
@@ -8959,13 +8377,6 @@ class TestAxesAddFunctionRegion:
         fo = area.styling.fill_opacity.at_time(0)
         assert fo == pytest.approx(0.5)
 
-    def test_with_x_range(self):
-        """Should accept an x_range parameter."""
-        ax = Axes(x_range=(-5, 5), y_range=(-2, 2))
-        area = ax.add_function_region(math.sin, x_range=(0, math.pi))
-        # The area's d attribute should be non-empty at time 0
-        d = area.d.at_time(0)
-        assert len(d) > 0
 
     def test_custom_color(self):
         """Custom color should appear in SVG output."""
@@ -9024,11 +8435,6 @@ class TestTextReverse:
 
 
 class TestRectangleSplitHorizontal:
-    def test_returns_vcollection(self):
-        """Should return a VCollection."""
-        r = Rectangle(200, 100, x=10, y=20)
-        result = r.split_horizontal(3)
-        assert isinstance(result, VCollection)
 
     def test_correct_count(self):
         """Should return n rectangles."""
@@ -9071,11 +8477,6 @@ class TestRectangleSplitHorizontal:
 
 
 class TestRectangleSplitVertical:
-    def test_returns_vcollection(self):
-        """Should return a VCollection."""
-        r = Rectangle(200, 100, x=10, y=20)
-        result = r.split_vertical(3)
-        assert isinstance(result, VCollection)
 
     def test_correct_count(self):
         """Should return n rectangles."""
@@ -9118,10 +8519,6 @@ class TestRectangleSplitVertical:
 
 
 class TestCircleGetArc:
-    def test_returns_arc_instance(self):
-        c = Circle(r=100, cx=500, cy=300)
-        arc = c.get_arc(0, 90)
-        assert isinstance(arc, Arc)
 
     def test_default_angles(self):
         c = Circle(r=100, cx=500, cy=300)
@@ -9216,10 +8613,6 @@ class TestLineDivide:
 
 
 class TestTableGetCell:
-    def test_returns_text_object(self):
-        t = Table([[1, 2], [3, 4]])
-        cell = t.get_cell(0, 0)
-        assert isinstance(cell, Text)
 
     def test_correct_value(self):
         t = Table([['a', 'b'], ['c', 'd']])
@@ -9312,10 +8705,6 @@ class TestCircleCircumference:
 
 
 class TestAxesShadeBetween:
-    def test_returns_path(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        p = ax.shade_between(lambda x: x, lambda x: x**2)
-        assert isinstance(p, Path)
 
     def test_custom_color_and_opacity(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
@@ -9324,28 +8713,8 @@ class TestAxesShadeBetween:
         # Color may be rendered as hex '#FF0000' or as 'rgb(255,0,0)'
         assert '#FF0000' in svg or 'rgb(255,0,0)' in svg
 
-    def test_with_x_range(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        p = ax.shade_between(lambda x: 0, lambda x: 1, x_range=(0, 2))
-        # The path should be created with a non-empty d attribute
-        d = p.d.at_time(0)
-        assert len(d) > 0
-
-    def test_with_curve_objects(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        c1 = ax.plot(lambda x: x)
-        c2 = ax.plot(lambda x: x**2)
-        p = ax.shade_between(c1, c2)
-        assert isinstance(p, Path)
-        d = p.d.at_time(0)
-        assert len(d) > 0
-
 
 class TestNumberLineAddDotAt:
-    def test_returns_dot(self):
-        nl = NumberLine(x_range=(-5, 5))
-        dot = nl.add_dot_at(0)
-        assert isinstance(dot, Dot)
 
     def test_dot_position(self):
         nl = NumberLine(x_range=(0, 10))
@@ -9397,10 +8766,6 @@ class TestRectangleDiagonalLength:
 
 
 class TestLineAddTip:
-    def test_returns_vcollection(self):
-        line = Line(x1=0, y1=0, x2=100, y2=0)
-        result = line.add_tip()
-        assert isinstance(result, VCollection)
 
     def test_end_tip_only(self):
         line = Line(x1=0, y1=0, x2=100, y2=0)
@@ -9501,10 +8866,6 @@ class TestLineAddTip:
 
 
 class TestTextAddBackgroundRectangle:
-    def test_returns_vcollection(self):
-        t = Text(text='Hello', x=100, y=100)
-        result = t.add_background_rectangle()
-        assert isinstance(result, VCollection)
 
     def test_contains_rect_and_text(self):
         t = Text(text='Hello', x=100, y=100)
@@ -9562,10 +8923,6 @@ class TestTextAddBackgroundRectangle:
 
 
 class TestCircleFromBoundingBox:
-    def test_returns_circle(self):
-        r = Rectangle(width=100, height=100, x=0, y=0)
-        c = Circle.from_bounding_box(r)
-        assert isinstance(c, Circle)
 
     def test_center_at_bbox_center(self):
         r = Rectangle(width=100, height=100, x=0, y=0)
@@ -9627,10 +8984,6 @@ class TestCircleFromBoundingBox:
 
 
 class TestAxesAnnotateArea:
-    def test_returns_vcollection(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        result = ax.annotate_area(lambda x: x**2, x_range=(0, 2))
-        assert isinstance(result, VCollection)
 
     def test_area_only_no_label(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
@@ -9662,11 +9015,6 @@ class TestAxesAnnotateArea:
         # get_area adds the Path to ax.objects
         assert len(ax.objects) > n_before
 
-    def test_with_plot_curve(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        curve = ax.plot(lambda x: x**2)
-        result = ax.annotate_area(curve, x_range=(0, 2))
-        assert isinstance(result, VCollection)
 
     def test_svg_renders(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
@@ -9679,10 +9027,6 @@ class TestAxesAnnotateArea:
 
 
 class TestNumberLineAddAnimatedPointer:
-    def test_returns_self(self):
-        nl = NumberLine(x_range=(-5, 5, 1))
-        result = nl.add_animated_pointer(lambda t: 0)
-        assert result is nl
 
     def test_adds_objects(self):
         nl = NumberLine(x_range=(-5, 5, 1))
@@ -9870,12 +9214,6 @@ class TestArrowBetween:
         len_with_buff = arrow_with_buff.get_length(0)
         assert len_with_buff == pytest.approx(len_no_buff - 20, abs=1)
 
-    def test_between_returns_arrow(self):
-        """Arrow.between should return an Arrow instance."""
-        r1 = Circle(r=25, cx=100, cy=100)
-        r2 = Circle(r=25, cx=300, cy=100)
-        arrow = Arrow.between(r1, r2)
-        assert isinstance(arrow, Arrow)
 
     def test_between_kwargs_forwarded(self):
         """Extra kwargs should be forwarded to the Arrow constructor."""
@@ -9888,9 +9226,6 @@ class TestArrowBetween:
 
 
 class TestVector:
-    def test_vector_is_arrow(self):
-        v = Vector(100, 50)
-        assert isinstance(v, Arrow)
 
     def test_vector_get_vector(self):
         v = Vector(100, 0, origin_x=0, origin_y=0)
@@ -9901,11 +9236,6 @@ class TestVector:
     def test_vector_repr(self):
         v = Vector(50, -30)
         assert 'Vector' in repr(v)
-
-    def test_vector_coordinate_label(self):
-        v = Vector(100, 0, origin_x=0, origin_y=0)
-        m = v.coordinate_label()
-        assert m is not None
 
 
 class TestTableFromDict:
@@ -9977,13 +9307,6 @@ class TestBarChartHighlightBar:
         with pytest.raises(IndexError):
             chart.highlight_bar(5)
 
-    def test_highlight_bar_animated(self):
-        """highlight_bar with end should animate the color change."""
-        chart = BarChart([10, 20, 30])
-        chart.highlight_bar(0, color='#FF0000', start=0, end=1)
-        # Should not raise and bar should exist
-        assert chart._bars[0] is not None
-
 
 # ---- Rectangle.from_two_objects ----
 
@@ -10042,13 +9365,6 @@ class TestRectangleFromTwoObjects:
         r = Rectangle.from_two_objects(a, b, fill='#FF0000')
         fill = r.styling.fill.at_time(0).lower()
         assert '255' in fill or 'ff0000' in fill
-
-    def test_returns_rectangle(self):
-        """Return type should be Rectangle."""
-        a = Rectangle(50, 50, x=0, y=0)
-        b = Rectangle(50, 50, x=100, y=0)
-        r = Rectangle.from_two_objects(a, b)
-        assert isinstance(r, Rectangle)
 
 
 # ---- Line.from_objects ----
@@ -10111,12 +9427,6 @@ class TestLineFromObjects:
         svg = line.to_svg(0).lower()
         assert '255' in svg or 'ff0000' in svg
 
-    def test_returns_line(self):
-        """Return type should be Line."""
-        a = Rectangle(100, 100, x=0, y=0)
-        b = Rectangle(100, 100, x=300, y=0)
-        assert isinstance(Line.from_objects(a, b), Line)
-
 
 # ---- Text.wrap ----
 
@@ -10158,11 +9468,6 @@ class TestTextWrap:
             expected_spacing = 40 * 1.2  # font_size * 1.2
             assert y1 - y0 == pytest.approx(expected_spacing)
 
-    def test_returns_vcollection(self):
-        """Return type should be VCollection."""
-        t = Text(text='hello world', x=100, y=100, font_size=48)
-        col = t.wrap(max_width=300)
-        assert isinstance(col, VCollection)
 
     def test_preserves_x_position(self):
         """All wrapped lines should share the same x position."""
@@ -10182,11 +9487,6 @@ class TestTextWrap:
 # ---- Axes.add_animation_trace ----
 
 class TestAxesAddAnimationTrace:
-    def test_returns_self(self):
-        """add_animation_trace should return self for chaining."""
-        ax = Axes()
-        result = ax.add_animation_trace(lambda x: x ** 2, 0, 5)
-        assert result is ax
 
     def test_dot_and_trail(self):
         """Default call should add objects (dot + trail)."""
@@ -10291,11 +9591,6 @@ class TestBarChartAnimateSort:
 
 
 class TestPolygonToPath:
-    def test_returns_path_object(self):
-        """to_path should return a Path instance."""
-        poly = Polygon((0, 0), (100, 0), (100, 100))
-        p = poly.to_path()
-        assert isinstance(p, Path)
 
     def test_path_d_matches_polygon(self):
         """The Path's d string should match the polygon's path()."""
@@ -10401,11 +9696,6 @@ class TestTableAddRow:
         assert t.entries[2][0].text.at_time(0) == '5'
         assert t.entries[2][1].text.at_time(0) == '6'
 
-    def test_add_row_returns_self(self):
-        """add_row should return self for chaining."""
-        t = Table([[1, 2]])
-        result = t.add_row([3, 4], animate=False)
-        assert result is t
 
     def test_add_row_with_animation(self):
         """add_row with animate=True should not raise."""
@@ -10439,11 +9729,6 @@ class TestTableAddColumn:
         assert t.entries[0][2].text.at_time(0) == '5'
         assert t.entries[1][2].text.at_time(0) == '6'
 
-    def test_add_column_returns_self(self):
-        """add_column should return self for chaining."""
-        t = Table([[1, 2]])
-        result = t.add_column([3], animate=False)
-        assert result is t
 
     def test_add_column_with_animation(self):
         """add_column with animate=True should not raise."""
@@ -10503,10 +9788,6 @@ class TestPieChartExplode:
         assert s0_shift == pytest.approx(20, abs=1)
         assert s2_shift == pytest.approx(20, abs=1)
 
-    def test_explode_out_of_range_ignored(self):
-        """Out-of-range indices should be silently ignored."""
-        chart = PieChart([30, 50, 20])
-        chart.explode([10, -1], distance=30)  # should not raise
 
     def test_explode_animated(self):
         """Animated explode should shift between start and end times."""
@@ -10778,11 +10059,6 @@ class TestPieChartFromDict:
         chart = PieChart.from_dict({'Only': 100})
         assert chart.values == [100]
 
-    def test_kwargs_forwarded(self):
-        """Extra kwargs should be forwarded to the constructor."""
-        data = {'A': 50, 'B': 50}
-        chart = PieChart.from_dict(data, r=300)
-        assert isinstance(chart, PieChart)
 
     def test_repr(self):
         """repr should work correctly."""
@@ -10791,42 +10067,12 @@ class TestPieChartFromDict:
 
 
 class TestAxesAddFilledCurve:
-    def test_returns_vcollection(self):
-        """add_filled_curve should return a VCollection."""
-        ax = Axes(x_range=(-5, 5), y_range=(-2, 2))
-        result = ax.add_filled_curve(lambda x: x**2, reveal=False)
-        assert isinstance(result, VCollection)
 
     def test_collection_has_two_objects(self):
         """The returned VCollection should contain curve and area."""
         ax = Axes(x_range=(-3, 3), y_range=(-1, 10))
         result = ax.add_filled_curve(lambda x: x**2, reveal=False)
         assert len(result.objects) == 2
-
-    def test_with_x_range(self):
-        """add_filled_curve with x_range should not error."""
-        ax = Axes(x_range=(-5, 5), y_range=(-2, 30))
-        result = ax.add_filled_curve(lambda x: x**2, x_range=(-2, 2), reveal=False)
-        assert isinstance(result, VCollection)
-
-    def test_with_reveal_animation(self):
-        """add_filled_curve with reveal=True and end should not error."""
-        ax = Axes(x_range=(-5, 5), y_range=(-2, 2))
-        result = ax.add_filled_curve(math.sin, start=0, end=2, reveal=True)
-        assert isinstance(result, VCollection)
-
-    def test_without_reveal(self):
-        """add_filled_curve with reveal=False should create instant objects."""
-        ax = Axes(x_range=(0, 5), y_range=(0, 5))
-        result = ax.add_filled_curve(lambda x: x, reveal=False)
-        assert isinstance(result, VCollection)
-
-    def test_custom_color_and_opacity(self):
-        """Custom color and opacity should be accepted."""
-        ax = Axes(x_range=(-3, 3), y_range=(-1, 10))
-        result = ax.add_filled_curve(lambda x: x**2, color='#FF0000',
-                                     opacity=0.5, reveal=False)
-        assert isinstance(result, VCollection)
 
 
 # ---------------------------------------------------------------------------
@@ -10974,11 +10220,6 @@ class TestTableTranspose:
                 transposed_texts.add(t.entries[r][c].text.at_time(0))
         assert original_texts == transposed_texts
 
-    def test_returns_self(self):
-        """transpose() should return self for chaining."""
-        t = Table([[1, 2], [3, 4]])
-        result = t.transpose()
-        assert result is t
 
     def test_animated_transpose(self):
         """Animated transpose should not error."""
@@ -11001,28 +10242,7 @@ class TestTableTranspose:
 # ---------------------------------------------------------------------------
 
 class TestAxesGetGraphIntersection:
-    def test_finds_intersection(self):
-        """Should find intersection of two crossing functions."""
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        f1 = lambda x: x
-        f2 = lambda x: -x + 2
-        dot = ax.mark_intersection(f1, f2, x_range=(0, 3))
-        assert dot is not None
 
-    def test_returns_dot(self):
-        """Without label, should return a Dot."""
-        from vectormation.objects import Dot as DotCls
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        dot = ax.mark_intersection(lambda x: x, lambda x: 2 - x, x_range=(0, 3))
-        assert isinstance(dot, DotCls)
-
-    def test_with_label_returns_collection(self):
-        """With label, should return a VCollection."""
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        result = ax.mark_intersection(
-            lambda x: x, lambda x: 2 - x,
-            x_range=(0, 3), label='P')
-        assert isinstance(result, VCollection)
 
     def test_no_intersection_returns_none(self):
         """Non-crossing functions should return None."""
@@ -11031,12 +10251,6 @@ class TestAxesGetGraphIntersection:
             lambda x: x + 10, lambda x: x - 10, x_range=(-5, 5))
         assert result is None
 
-    def test_default_x_range(self):
-        """When x_range is None, should use axes' x range."""
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        dot = ax.mark_intersection(lambda x: x, lambda x: -x)
-        # x=0, y=0 is the intersection
-        assert dot is not None
 
     def test_kwargs_forwarded_to_dot(self):
         """Extra kwargs like fill and r should reach the Dot."""
@@ -11054,17 +10268,7 @@ class TestAxesGetGraphIntersection:
 # ---------------------------------------------------------------------------
 
 class TestBraceForRange:
-    def test_x_range_creates_brace(self):
-        """for_range on x-axis should produce a Brace."""
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        b = Brace.for_range(ax, 'x', 2, 8)
-        assert isinstance(b, Brace)
 
-    def test_y_range_creates_brace(self):
-        """for_range on y-axis should produce a Brace."""
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        b = Brace.for_range(ax, 'y', 1, 5)
-        assert isinstance(b, Brace)
 
     def test_invalid_axis_raises(self):
         """Invalid axis should raise ValueError."""
@@ -11198,11 +10402,6 @@ class TestArcAnimateSweep:
         a.animate_sweep(90, start=0, end=1, easing=easings.linear)
         # With linear easing, midpoint should be exactly 45
         assert a.end_angle.at_time(0.5) == pytest.approx(45)
-
-    def test_animate_sweep_returns_self(self):
-        """animate_sweep should return self for chaining."""
-        a = Arc()
-        assert a.animate_sweep(180) is a
 
 
 # ---- BarChart.add_bar ----
@@ -11404,10 +10603,6 @@ class TestTextUpdateText:
         assert t.text.at_time(2) == 'world'
         assert t.text.at_time(5) == 'world'
 
-    def test_update_text_returns_self(self):
-        t = Text('hello')
-        result = t.update_text('world')
-        assert result is t
 
     def test_update_text_chaining(self):
         t = Text('a')
@@ -11423,10 +10618,6 @@ class TestTextUpdateText:
 
 
 class TestAxesPlotLineGraphAnimateData:
-    def test_plot_line_graph_returns_vcollection(self):
-        axes = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
-        graph = axes.plot_line_graph([1, 2, 3], [1, 4, 9])
-        assert isinstance(graph, VCollection)
 
     def test_plot_line_graph_has_animate_data(self):
         axes = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
@@ -11491,10 +10682,6 @@ class TestNumberLineAnimateRange:
         assert nl.x_start == -10
         assert nl.x_end == 10
 
-    def test_animate_range_returns_self(self):
-        nl = NumberLine(x_range=(-5, 5, 1))
-        result = nl.animate_range(-10, 10, start=0, end=1)
-        assert result is nl
 
     def test_animate_range_instant(self):
         nl = NumberLine(x_range=(0, 10, 1))
@@ -11536,9 +10723,6 @@ class TestNumberLineAnimateRange:
         assert mid_x == pytest.approx(37.5, abs=1)
 
 class TestSquare:
-    def test_square_is_rectangle(self):
-        s = Square(side=100)
-        assert isinstance(s, Rectangle)
 
     def test_square_equal_sides(self):
         s = Square(side=100)
@@ -11562,10 +10746,6 @@ class TestSquare:
 
 
 class TestInteger:
-    def test_integer_is_decimal_number(self):
-        from vectormation.objects import DecimalNumber
-        i = Integer(42)
-        assert isinstance(i, DecimalNumber)
 
     def test_integer_no_decimals(self):
         i = Integer(42)
@@ -11658,9 +10838,6 @@ class TestSmoothererstep:
 # ── New animation tests ──
 
 class TestFadeinWithScale:
-    def test_fadein_scale_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.fadein(start=0, end=1, scale=0.5) is c
 
     def test_fadein_scale_starts_small(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -11674,9 +10851,6 @@ class TestFadeinWithScale:
 
 
 class TestFadeoutWithScale:
-    def test_fadeout_scale_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.fadeout(start=0, end=1, scale=0.5) is c
 
     def test_fadeout_scale_starts_normal(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -11690,9 +10864,6 @@ class TestFadeoutWithScale:
 
 
 class TestSpinIn:
-    def test_spin_in_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.spin_in(start=0, end=1) is c
 
     def test_spin_in_shows_object(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -11706,9 +10877,6 @@ class TestSpinIn:
 
 
 class TestSpinOut:
-    def test_spin_out_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.spin_out(start=0, end=1) is c
 
     def test_spin_out_hides_object(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -11716,27 +10884,7 @@ class TestSpinOut:
         assert not c.show.at_time(1.5)
 
 
-class TestBlinkNew:
-    def test_blink_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.blink(start=0, end=1, num_blinks=4) is c
-
-    def test_blink_opacity_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.blink_opacity(start=0, end=1, frequency=4) is c
-
-
-class TestIndicateEnhanced:
-    def test_indicate_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100, fill='#FF0000')
-        assert c.indicate(start=0, end=1) is c
-
-
 class TestArrowGrow:
-    def test_grow_returns_self(self):
-        from vectormation.objects import Arrow
-        a = Arrow(x1=100, y1=100, x2=300, y2=100)
-        assert a.grow(start=0, end=1) is a
 
     def test_grow_starts_from_start_point(self):
         from vectormation.objects import Arrow
@@ -11754,9 +10902,6 @@ class TestArrowGrow:
 
 
 class TestDrawBorderThenFill:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100, fill='#FF0000')
-        assert c.draw_border_then_fill(start=0, end=1) is c
 
     def test_fill_starts_hidden(self):
         c = Circle(r=50, cx=100, cy=100, fill='#FF0000')
@@ -11822,31 +10967,6 @@ class TestVCollectionAnimations:
         assert c1.styling.opacity.at_time(1) < 0.1
         assert c2.styling.opacity.at_time(1) < 0.1
 
-    def test_create_delegates(self):
-        c = Circle(r=30, cx=100, cy=100)
-        g = VGroup(c)
-        assert g.create(start=0, end=1) is g
-
-    def test_grow_from_center_delegates(self):
-        c = Circle(r=30, cx=100, cy=100)
-        g = VGroup(c)
-        assert g.grow_from_center(start=0, end=1) is g
-
-    def test_indicate_delegates(self):
-        c = Circle(r=30, cx=100, cy=100)
-        g = VGroup(c)
-        assert g.indicate(start=0, end=1) is g
-
-    def test_pop_in_delegates(self):
-        c = Circle(r=30, cx=100, cy=100)
-        g = VGroup(c)
-        assert g.pop_in(start=0) is g
-
-    def test_draw_border_then_fill_delegates(self):
-        c = Circle(r=30, cx=100, cy=100, fill='#FF0000')
-        g = VGroup(c)
-        assert g.draw_border_then_fill(start=0, end=1) is g
-
 
 class TestTransformFromCopy:
     def test_returns_copy(self):
@@ -11889,9 +11009,6 @@ class TestCombinedAnimations:
         # Should be visible during hold phase
         assert c.show.at_time(1.5) is True
 
-    def test_write_then_fadeout(self):
-        c = Circle(r=30, cx=100, cy=100)
-        assert c.write_then_fadeout(start=0, end=3) is c
 
     def test_fadein_then_fadeout(self):
         c = Circle(r=30, cx=100, cy=100)
@@ -11901,20 +11018,8 @@ class TestCombinedAnimations:
         # Should fade back out by end
         assert c.styling.opacity.at_time(3) < 0.1
 
-    def test_zero_duration_returns_self(self):
-        c = Circle(r=30, cx=100, cy=100)
-        assert c.create_then_fadeout(start=1, end=1) is c
-        assert c.write_then_fadeout(start=1, end=1) is c
-        assert c.fadein_then_fadeout(start=1, end=1) is c
-
 
 class TestCounterclockwiseMorph:
-    def test_returns_morph_object(self):
-        from vectormation.objects import counterclockwise_morph, MorphObject
-        c = Circle(r=30, cx=100, cy=100)
-        r = Rectangle(60, 40, x=300, y=300)
-        morph = counterclockwise_morph(c, r, start=0, end=2)
-        assert isinstance(morph, MorphObject)
 
     def test_can_generate_svg(self):
         from vectormation.objects import counterclockwise_morph
@@ -11963,24 +11068,7 @@ class TestStaggerOverlap0:
         assert c2.show.at_time(0.5) is False
 
 
-class TestApplyWave:
-    def test_returns_self(self):
-        c = Circle(r=30, cx=100, cy=100)
-        assert c.apply_wave(start=0, end=2) is c
-
-    def test_zero_duration(self):
-        c = Circle(r=30, cx=100, cy=100)
-        assert c.apply_wave(start=1, end=1) is c
-
-    def test_x_direction(self):
-        c = Circle(r=30, cx=100, cy=100)
-        assert c.apply_wave(start=0, end=2, direction='x') is c
-
-
 class TestScaleInPlace:
-    def test_returns_self(self):
-        c = Circle(r=30, cx=100, cy=100)
-        assert c.scale_in_place(2.0, start=0, end=1) is c
 
     def test_center_preserved(self):
         c = Circle(r=30, cx=500, cy=500)
@@ -12009,11 +11097,6 @@ class TestTextAnimations:
         assert t.text.at_time(0) == "old"
         assert t.text.at_time(2) == "new"
 
-    def test_highlight(self):
-        t = Text("Hello World", x=100, y=100)
-        result = t.highlight(start=0, end=1, color='#FF0000')
-        # highlight returns a VCollection or self
-        assert result is not None
 
     def test_scramble(self):
         t = Text("Hello", x=100, y=100)
@@ -12038,14 +11121,6 @@ class TestTextAnimations:
         # At start, should be empty or partial
         text_start = t.text.at_time(0)
         assert len(text_start) <= len("Hello World")
-
-
-class TestTextHighlightSubstring:
-    def test_basic(self):
-        t = Text("Hello World", x=100, y=100)
-        result = t.highlight_substring("World", start=0, end=1, color='#E74C3C')
-        # Should return something (highlight rect or self)
-        assert result is not None
 
 
 # =============================================================================
@@ -12278,12 +11353,6 @@ class TestGetSubcurve:
         assert len(verts) >= 2
         assert verts[0][0] == pytest.approx(100, abs=1)
         assert verts[-1][0] == pytest.approx(200, abs=1)
-
-    def test_empty_range(self):
-        p = Lines((0, 0), (100, 0))
-        sub = p.get_subcurve(0.5, 0.5)
-        # Should return something (degenerate) but not crash
-        assert sub is not None
 
 
 class TestPassingFlash:

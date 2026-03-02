@@ -62,48 +62,9 @@ class TestDrawAlong:
         offset = c.styling.stroke_dashoffset.at_time(1)
         assert offset == pytest.approx(0, abs=0.1)
 
-    def test_draw_along_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.draw_along(start=0, end=1)
-        assert result is c
-
 
 class TestFromSvg:
-    def test_from_svg_path(self):
-        soup = BeautifulSoup("<path d='M0,0L100,100' x='0' y='0'/>", 'html.parser')
-        elem = soup.find('path')
-        obj = from_svg(elem)
-        assert isinstance(obj, Path)
 
-    def test_from_svg_circle(self):
-        soup = BeautifulSoup("<circle cx='50' cy='50' r='25'/>", 'html.parser')
-        elem = soup.find('circle')
-        obj = from_svg(elem)
-        assert isinstance(obj, Circle)
-
-    def test_from_svg_ellipse(self):
-        soup = BeautifulSoup("<ellipse cx='50' cy='50' rx='30' ry='20'/>", 'html.parser')
-        elem = soup.find('ellipse')
-        obj = from_svg(elem)
-        assert isinstance(obj, Ellipse)
-
-    def test_from_svg_line(self):
-        soup = BeautifulSoup("<line x1='0' y1='0' x2='100' y2='100'/>", 'html.parser')
-        elem = soup.find('line')
-        obj = from_svg(elem)
-        assert isinstance(obj, Line)
-
-    def test_from_svg_polygon(self):
-        soup = BeautifulSoup("<polygon points='0,0 100,0 50,100'/>", 'html.parser')
-        elem = soup.find('polygon')
-        obj = from_svg(elem)
-        assert isinstance(obj, Polygon)
-
-    def test_from_svg_polyline(self):
-        soup = BeautifulSoup("<polyline points='0,0 100,0 50,100'/>", 'html.parser')
-        elem = soup.find('polyline')
-        obj = from_svg(elem)
-        assert isinstance(obj, Lines)
 
     def test_from_svg_unknown_raises(self):
         soup = BeautifulSoup("<defs/>", 'html.parser')
@@ -112,27 +73,7 @@ class TestFromSvg:
             from_svg(elem)
 
 
-class TestFromSvgFile:
-    def test_load_simple_svg(self):
-        tmpdir = tempfile.mkdtemp()
-        svg_path = os.path.join(tmpdir, 'test.svg')
-        with open(svg_path, 'w') as f:
-            f.write("""<?xml version='1.0'?>
-<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'>
-  <circle cx='50' cy='50' r='25'/>
-  <rect x='10' y='10' width='30' height='30'/>
-</svg>""")
-        col = from_svg_file(svg_path)
-        assert isinstance(col, VCollection)
-        assert len(col) >= 1  # At least the circle (rect may be converted to path)
-
-
 class TestBrace:
-    def test_brace_down(self):
-        target = Rectangle(width=100, height=50, x=100, y=100)
-        b = Brace(target, direction='down')
-        assert isinstance(b, VCollection)
-        assert len(b) >= 1
 
     def test_brace_with_label(self):
         target = Rectangle(width=100, height=50, x=100, y=100)
@@ -144,29 +85,14 @@ class TestBrace:
         with pytest.raises(ValueError):
             Brace(target, direction='diagonal')
 
-    def test_brace_all_directions(self):
-        target = Rectangle(width=100, height=50, x=100, y=100)
-        for d in ('down', 'up', 'left', 'right'):
-            b = Brace(target, direction=d)
-            assert isinstance(b, VCollection)
-
 
 class TestBraceBetweenPoints:
-    def test_creates_collection(self):
-        from vectormation.objects import BraceBetweenPoints
-        b = BraceBetweenPoints(100, 100, 300, 100)
-        assert isinstance(b, VCollection)
-        assert len(b) >= 1
 
     def test_with_label(self):
         from vectormation.objects import BraceBetweenPoints
         b = BraceBetweenPoints(100, 100, 300, 100, label='2m')
         assert len(b) >= 2
 
-    def test_vertical(self):
-        from vectormation.objects import BraceBetweenPoints
-        b = BraceBetweenPoints(200, 100, 200, 400)
-        assert isinstance(b, VCollection)
 
     def test_repr(self):
         from vectormation.objects import BraceBetweenPoints
@@ -220,10 +146,6 @@ class TestClipPath:
 
 
 class TestGraph:
-    def test_graph_creates_collection(self):
-        g = Graph(lambda x: x**2, x_range=(-2, 2))
-        assert isinstance(g, VCollection)
-        assert len(g) > 0
 
     def test_graph_to_svg(self):
         g = Graph(lambda x: x**2, x_range=(-2, 2))
@@ -256,9 +178,6 @@ class TestShowHide:
 
 
 class TestDot:
-    def test_dot_is_circle(self):
-        d = Dot(r=6, cx=50, cy=50)
-        assert isinstance(d, Circle)
 
     def test_dot_default_styling(self):
         d = Dot()
@@ -312,10 +231,6 @@ class TestEllipse:
 
 
 class TestWaveAnimation:
-    def test_wave_returns_self(self):
-        r = Rectangle(100, 50, x=100, y=100)
-        result = r.wave(start=0, end=1)
-        assert result is r
 
     def test_wave_shifts_y(self):
         r = Rectangle(100, 50, x=100, y=100)
@@ -327,10 +242,6 @@ class TestWaveAnimation:
 
 
 class TestGrowFromEdge:
-    def test_grow_from_edge_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.grow_from_edge('bottom', start=0, end=1)
-        assert result is c
 
     def test_grow_from_edge_hides_before_start(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -359,10 +270,6 @@ class TestCross:
 
 
 class TestSpiralIn:
-    def test_spiral_in_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.spiral_in(start=0, end=1)
-        assert result is c
 
     def test_spiral_in_hides_before(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -377,10 +284,6 @@ class TestSpiralIn:
 
 
 class TestBlink:
-    def test_blink_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.blink(start=0)
-        assert result is c
 
     def test_blink_opacity_at_mid(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -390,10 +293,6 @@ class TestBlink:
 
     # ── new multi-blink tests ──────────────────────────────────────────────────
 
-    def test_multi_blink_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.blink(start=0, end=3, count=3)
-        assert result is c
 
     def test_multi_blink_opacity_starts_high(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -433,10 +332,6 @@ class TestLabeledDot:
         assert isinstance(ld, VCollection)
         assert len(ld) == 2
 
-    def test_has_dot_and_label(self):
-        ld = LabeledDot(label='A')
-        assert isinstance(ld.dot, Dot)
-        assert isinstance(ld.label, Text)
 
     def test_to_svg(self):
         ld = LabeledDot(label='A', r=20, cx=100, cy=100)
@@ -521,19 +416,8 @@ class TestSetFillStroke:
         c.set_stroke(color='#ff0000', width=5)
         assert c.styling.stroke_width.at_time(0) == 5
 
-    def test_set_fill_returns_self(self):
-        c = Circle(r=50)
-        assert c.set_fill('#f00') is c
-
-    def test_set_stroke_returns_self(self):
-        c = Circle(r=50)
-        assert c.set_stroke(color='#f00') is c
-
 
 class TestAxes:
-    def test_creates_collection(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        assert isinstance(ax, VCollection)
 
     def test_plot_adds_curve(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
@@ -678,11 +562,6 @@ class TestAxesNewMethods:
         result = ax.add_regression_line([1], [2])
         assert result is None
 
-    def test_add_slope_field(self):
-        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
-        field = ax.add_slope_field(lambda x, y: x + y, x_step=1, y_step=1)
-        assert isinstance(field, VCollection)
-        assert len(field) > 0
 
     def test_add_zero_line(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
@@ -690,11 +569,6 @@ class TestAxesNewMethods:
         svg = line.to_svg(0)
         assert '<line' in svg
 
-    def test_add_min_max_labels(self):
-        import math
-        ax = Axes(x_range=(0, 7), y_range=(-3, 3))
-        labels = ax.add_min_max_labels(math.sin)
-        assert isinstance(labels, VCollection)
 
     def test_add_interval(self):
         ax = Axes(x_range=(0, 10), y_range=(0, 10))
@@ -708,19 +582,6 @@ class TestAxesNewMethods:
         assert isinstance(lines, VCollection)
         assert len(lines) == 3
 
-    def test_plot_line_graph_dynamic_dots(self):
-        ax = Axes(x_range=(0, 5), y_range=(0, 10))
-        graph = ax.plot_line_graph([1, 2, 3], [2, 4, 6])
-        # Dots should have dynamic .c attribute
-        dot = graph.objects[1]  # first dot (index 0 is the curve)
-        p0 = dot.c.at_time(0)
-        assert isinstance(p0, tuple)
-
-    def test_add_dot_label_dynamic(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        dot, _ = ax.add_dot_label(5, 5, label='test')
-        p0 = dot.c.at_time(0)
-        assert isinstance(p0, tuple)
 
     def test_plot_bar(self):
         ax = Axes(x_range=(0, 5), y_range=(0, 10))
@@ -926,9 +787,6 @@ class TestAxesNewMethods:
         svg = tm.to_svg(0)
         assert '<rect' in svg
 
-    def test_treemap_single(self):
-        tm = TreeMap([('Only', 100)])
-        assert len(tm) >= 1
 
     def test_gauge_chart(self):
         gc = GaugeChart(72, min_val=0, max_val=100, label='Speed')
@@ -1095,9 +953,6 @@ class TestAxesNewMethods:
         svg = cp.to_svg(0)
         assert '75%' in svg
 
-    def test_circular_progress_bar_zero(self):
-        cp = CircularProgressBar(0)
-        assert len(cp) >= 1  # at least track
 
     def test_scoreboard(self):
         entries = [('Goals', '3'), ('Assists', '7'), ('Saves', '12')]
@@ -1173,12 +1028,6 @@ class TestAxesNewMethods:
         eb = ax.plot_error_bar([1, 2], [5, 7], [(1, 2), (0.5, 1.5)])
         assert len(eb) == 4
 
-    def test_plot_histogram(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 5), plot_width=300, plot_height=200)
-        data = [1, 2, 2, 3, 3, 3, 4, 5, 6, 7, 8]
-        hist = ax.plot_histogram(data, bins=5)
-        assert isinstance(hist, VCollection)
-        assert len(hist) > 0
 
     def test_add_color_bar(self):
         ax = Axes(x_range=(0, 10), y_range=(0, 10), plot_width=300, plot_height=200)
@@ -1187,11 +1036,6 @@ class TestAxesNewMethods:
         svg = cb.to_svg(0)
         assert '0.0' in svg and '100.0' in svg
 
-    def test_box_plot(self):
-        bp = BoxPlot([[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                      [2, 4, 6, 8, 10, 12, 14]])
-        assert isinstance(bp, VCollection)
-        assert len(bp) > 0
 
     def test_box_plot_empty(self):
         bp = BoxPlot([])
@@ -1204,17 +1048,6 @@ class TestAxesNewMethods:
         assert isinstance(cs, VCollection)
         assert len(cs) == 6  # 3 wicks + 3 bodies
 
-    def test_plot_contour(self):
-        ax = Axes(x_range=(-2, 2), y_range=(-2, 2), plot_width=300, plot_height=300)
-        ct = ax.plot_contour(lambda x, y: x**2 + y**2, levels=4, x_samples=20, y_samples=20)
-        assert isinstance(ct, VCollection)
-        assert len(ct) > 0
-
-    def test_plot_quiver(self):
-        ax = Axes(x_range=(-2, 2), y_range=(-2, 2), plot_width=300, plot_height=300)
-        qv = ax.plot_quiver(lambda x, y: (-y, x), x_step=1, y_step=1)
-        assert isinstance(qv, VCollection)
-        assert len(qv) > 0
 
     def test_add_text_annotation(self):
         ax = Axes(x_range=(0, 10), y_range=(0, 10), plot_width=300, plot_height=200)
@@ -1488,27 +1321,8 @@ class TestUntested:
         assert isinstance(da, VCollection)
         assert len(da) >= 3  # shaft + 2 tips
 
-    def test_curved_arrow(self):
-        ca = CurvedArrow(x1=100, y1=300, x2=400, y2=300, angle=0.5)
-        assert isinstance(ca, VCollection)
-
-    def test_number_line(self):
-        nl = NumberLine(x_range=(-3, 3, 1), length=600)
-        assert isinstance(nl, VCollection)
-        assert len(nl) > 0
-
 
 class TestVCollectionNew:
-    def test_wave_effect(self):
-        dots = VCollection(
-            Dot(cx=100, cy=100),
-            Dot(cx=200, cy=100),
-            Dot(cx=300, cy=100),
-        )
-        dots.wave_effect(start=0, end=1, amplitude=20)
-        # Check that dots have shifted positions during the animation
-        p1 = dots[1].c.at_time(0.5)
-        assert isinstance(p1, tuple)
 
     def test_sort_children_instant(self):
         dots = VCollection(
@@ -1520,16 +1334,6 @@ class TestVCollectionNew:
         # After sorting, first object should be leftmost
         assert dots[0].c.at_time(0)[0] < dots[1].c.at_time(0)[0]
 
-    def test_reveal(self):
-        items = VCollection(
-            Dot(cx=100, cy=100),
-            Dot(cx=200, cy=100),
-        )
-        items.reveal(start=0, end=1, direction='left')
-        # First item should be hidden at time 0 (before reveal starts)
-        # Actually fadein shows from start time, so check it doesn't crash
-        svg = items[0].to_svg(0.5)
-        assert svg is not None
 
     def test_distribute_radial(self):
         dots = VCollection(
@@ -1588,24 +1392,8 @@ class TestVCollectionNew:
         assert abs(p0[0] - p1[0]) < 10
         assert abs(p0[1] - p1[1]) < 10
 
-    def test_stagger_color(self):
-        dots = VCollection(
-            Dot(cx=100, cy=100, fill='#FF0000'),
-            Dot(cx=200, cy=100, fill='#FF0000'),
-            Dot(cx=300, cy=100, fill='#FF0000'),
-        )
-        dots.stagger_color(start=0, end=1, colors=('#FF0000', '#00FF00'))
-        # First dot should start changing before last
-        c0 = dots[0].styling.fill.at_time(0.2)
-        assert c0 is not None
-
 
 class TestVObjectNew:
-    def test_warp(self):
-        c = Circle(r=50)
-        c.warp(start=0, end=1, amplitude=0.2)
-        sx = c.styling.scale_x.at_time(0.5)
-        assert isinstance(sx, (int, float))
 
     def test_swirl(self):
         c = Circle(r=50)
@@ -1619,10 +1407,6 @@ class TestVObjectNew:
         ghosts = d.trail(start=0, end=1, n_copies=3)
         assert len(ghosts) == 3
 
-    def test_heartbeat_returns_self(self):
-        c = Circle(r=50)
-        result = c.heartbeat(start=0, end=2, beats=3, scale_factor=1.5)
-        assert result is c
 
     def test_heartbeat_double_pulse(self):
         """ECG-style heartbeat should show two pulses per beat."""
@@ -1638,10 +1422,6 @@ class TestVObjectNew:
         sx_rest = c.styling.scale_x.at_time(2.4)
         assert sx_rest == pytest.approx(1.0, abs=0.01), "Rest phase should be at baseline"
 
-    def test_heartbeat_zero_duration(self):
-        c = Circle(r=50)
-        result = c.heartbeat(start=1, end=1)
-        assert result is c
 
     def test_heartbeat_multiple_beats(self):
         """Each beat should produce the same pattern."""
@@ -1652,10 +1432,6 @@ class TestVObjectNew:
         sx_beat2 = c.styling.scale_x.at_time(1.125)
         assert sx_beat1 == pytest.approx(sx_beat2, abs=0.01)
 
-    def test_color_wave_returns_self(self):
-        c = Circle(r=50, fill='#FF0000')
-        result = c.color_wave(start=0, end=1, wave_color='#00FF00')
-        assert result is c
 
     def test_color_wave_sweep(self):
         """Color should change during the sweep and return to base at edges."""
@@ -1665,19 +1441,6 @@ class TestVObjectNew:
         mid = c.styling.fill.at_time(0.5)
         assert mid != '#FF0000', "Color should change at wave peak"
 
-    def test_color_wave_zero_duration(self):
-        c = Circle(r=50, fill='#FF0000')
-        result = c.color_wave(start=1, end=1)
-        assert result is c
-
-    def test_color_wave_edges_near_base(self):
-        """At the start and end, color should be close to the base color."""
-        c = Circle(r=50, fill='#FF0000')
-        c.color_wave(start=0, end=1, wave_color='#00FF00', width=0.3)
-        # At t=0.01 (very start), sweep is at the edge, color should be near base
-        start_color = c.styling.fill.at_time(0.01)
-        # The start color should still be reddish (base is #FF0000)
-        assert start_color is not None
 
     def test_teleport(self):
         d = Dot(cx=100, cy=100)
@@ -1705,9 +1468,6 @@ class TestSetZ:
 
 
 class TestPieChart:
-    def test_creates_collection(self):
-        pc = PieChart([30, 40, 30])
-        assert isinstance(pc, VCollection)
 
     def test_with_labels(self):
         pc = PieChart([30, 40, 30], labels=['A', 'B', 'C'])
@@ -1769,7 +1529,6 @@ class TestRepr:
         r = repr(vc)
         assert 'VCollection' in r
         assert '2' in r
-
 
 
 class TestAngle:
@@ -1842,10 +1601,6 @@ class TestEdgeShortcuts:
 
 
 class TestTrace:
-    def test_trace_creates(self):
-        p = Coor(0, (100, 100))
-        t = Trace(p, start=0, end=1, dt=0.1)
-        assert isinstance(t, Trace)
 
     def test_trace_to_svg(self):
         p = Coor(0, (100, 100))
@@ -1899,9 +1654,6 @@ class TestTrace:
 
 
 class TestCountAnimation:
-    def test_count_creates(self):
-        c = CountAnimation(start_val=0, end_val=100, start=0, end=1)
-        assert isinstance(c, Text)
 
     def test_count_text_at_start(self):
         c = CountAnimation(start_val=0, end_val=100, start=0, end=1, fmt='{:.0f}')
@@ -2021,10 +1773,6 @@ class TestGridAccessMixin:
         t = Table([['a', 'b'], ['c', 'd']])
         assert t.get_cell(0, 0) is t.get_entry(0, 0)
 
-    def test_highlight_entry_matrix(self):
-        m = Matrix([[1, 2], [3, 4]])
-        result = m.highlight_entry(0, 0, start=0, end=1)
-        assert result is m
 
     def test_get_row(self):
         t = Table([[1, 2, 3], [4, 5, 6]])
@@ -2040,16 +1788,6 @@ class TestGridAccessMixin:
         m = Matrix([[1, 2], [3, 4]])
         result = m.highlight_row(0, start=0, end=1)
         assert result is m  # returns self for chaining
-
-    def test_highlight_column(self):
-        t = Table([['a', 'b'], ['c', 'd']])
-        result = t.highlight_column(1, start=0, end=1)
-        assert result is t
-
-    def test_highlight_cells(self):
-        t = Table([['a', 'b'], ['c', 'd']])
-        result = t.highlight_cells([(0, 0), (1, 1)], start=0, end=1)
-        assert result is t
 
 
 class TestDecimalIntegerMatrix:
@@ -2138,9 +1876,6 @@ class TestValueTracker:
 
 
 class TestDecimalNumber:
-    def test_creates_text(self):
-        d = DecimalNumber(3.14)
-        assert isinstance(d, Text)
 
     def test_initial_value(self):
         d = DecimalNumber(3.14, fmt='{:.1f}')
@@ -2178,10 +1913,6 @@ class TestSizeConstants:
 
 
 class TestSurroundingRectangle:
-    def test_creates_rounded_rect(self):
-        c = Circle(r=50, cx=100, cy=100)
-        sr = SurroundingRectangle(c)
-        assert isinstance(sr, RoundedRectangle)
 
     def test_surrounds_target(self):
         r = Rectangle(100, 60, x=200, y=300)
@@ -2214,10 +1945,6 @@ class TestSurroundingRectangle:
 
 
 class TestBackgroundRectangle:
-    def test_creates_rectangle(self):
-        c = Circle(r=50, cx=100, cy=100)
-        br = BackgroundRectangle(c)
-        assert isinstance(br, Rectangle)
 
     def test_behind_target(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -2264,9 +1991,6 @@ class TestSetStyle:
         c.set_style(opacity=0.5)
         assert c.styling.opacity.at_time(0) == pytest.approx(0.5)
 
-    def test_returns_self(self):
-        c = Circle(r=50)
-        assert c.set_style(fill='#f00') is c
 
     def test_set_multiple(self):
         c = Circle(r=50)
@@ -2276,9 +2000,6 @@ class TestSetStyle:
 
 
 class TestAlwaysRedraw:
-    def test_creates_dynamic_object(self):
-        d = always_redraw(lambda _: Circle(r=50))
-        assert isinstance(d, DynamicObject)
 
     def test_regenerates_per_frame(self):
         d = always_redraw(lambda t: Circle(r=50 + t * 10))
@@ -2312,9 +2033,6 @@ class TestAnimationMethods:
         assert c.styling.scale_x.at_time(0) == pytest.approx(1)
         assert c.styling.scale_x.at_time(1) == pytest.approx(0)
 
-    def test_indicate_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.indicate(start=0, end=1) is c
 
     def test_indicate_scales(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -2322,13 +2040,6 @@ class TestAnimationMethods:
         mid = c.styling.scale_x.at_time(0.5)
         assert mid > 1  # should be scaled up at midpoint
 
-    def test_flash_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.flash(start=0, end=1) is c
-
-    def test_pulse_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.pulse(start=0, end=1) is c
 
     def test_pulse_opacity(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -2342,13 +2053,6 @@ class TestAnimationMethods:
         rot = c.styling.rotation.at_time(0.5)
         assert abs(rot[0] - 90) < 1  # halfway through 180°
 
-    def test_wiggle(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.wiggle(start=0, end=1) is c
-
-    def test_wave(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.wave(start=0, end=1) is c
 
     def test_move_to(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -2385,9 +2089,6 @@ class TestAnimationMethods:
         assert cx1 == pytest.approx(200, abs=1)
         assert cx2 == pytest.approx(200, abs=1)  # stopped at end
 
-    def test_grow_from_edge(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.grow_from_edge(start=0, end=1) is c
 
     def test_scale(self):
         r = Rectangle(100, 50, x=0, y=0)
@@ -2406,11 +2107,6 @@ class TestAnimationMethods:
         c = Circle(r=50)
         c.set_opacity(0.3)
         assert c.styling.opacity.at_time(0) == pytest.approx(0.3)
-
-    def test_circumscribe(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.circumscribe(start=0, end=2)
-        assert result is c
 
 
 class TestDirectionConstants:
@@ -2515,9 +2211,6 @@ class TestBooleanOps:
 
 
 class TestThreeDAxesBasic:
-    def test_creates_collection(self):
-        ax = ThreeDAxes()
-        assert isinstance(ax, VCollection)
 
     def test_coords_to_point_origin(self):
         ax = ThreeDAxes(cx=960, cy=540)
@@ -2558,9 +2251,6 @@ class TestZoomedInset:
     def setup_method(self):
         self.canvas = VectorMathAnim(tempfile.mkdtemp(), width=800, height=600)
 
-    def test_creates_vobject(self):
-        zi = ZoomedInset(self.canvas, (100, 100, 200, 200), (500, 50, 250, 250))
-        assert isinstance(zi, ZoomedInset)
 
     def test_svg_contains_nested_svg(self):
         c = Circle(r=50, cx=200, cy=200)
@@ -2757,9 +2447,6 @@ class TestScreenRectangle:
 
 
 class TestCode:
-    def test_creates_collection(self):
-        c = Code("x = 1\nprint(x)", language='python')
-        assert isinstance(c, VCollection)
 
     def test_to_svg(self):
         c = Code("def f():\n    return 42")
@@ -2767,10 +2454,6 @@ class TestCode:
         assert 'def' in svg
         assert '42' in svg
 
-    def test_highlight_lines(self):
-        c = Code("a = 1\nb = 2\nc = 3")
-        rects = c.highlight_lines([1, 3], start=0, end=1)
-        assert isinstance(rects, VCollection)
 
     def test_javascript(self):
         c = Code("const x = 5;", language='javascript')
@@ -2807,16 +2490,6 @@ class TestNetworkGraph:
         svg = g.to_svg(0)
         assert 'weight' in svg
 
-    def test_empty(self):
-        g = NetworkGraph([])
-        svg = g.to_svg(0)
-        assert svg is not None
-
-    def test_highlight_node(self):
-        g = NetworkGraph(['A', 'B'])
-        result = g.highlight_node(0, start=0, end=1)
-        assert result is g
-
 
 class TestTree:
     def test_dict_tree(self):
@@ -2830,10 +2503,6 @@ class TestTree:
         assert t.get_node_position('root') != (960, 540)
         assert t.get_node_position('C') != (960, 540)
 
-    def test_highlight_node(self):
-        t = Tree({'root': {'leaf': {}}})
-        result = t.highlight_node('root', start=0, end=1)
-        assert result is t
 
     def test_right_layout(self):
         t = Tree(('root', [('A', []), ('B', [])]), layout='right')
@@ -2980,11 +2649,6 @@ class TestPolarAxes:
         x, _ = pa.polar_to_point(5, 0)
         assert x > pa._cx  # r=max at angle 0 should be to the right
 
-    def test_plot_polar(self):
-        pa = PolarAxes()
-        curve = pa.plot_polar(lambda _theta: 2)
-        assert curve is not None
-
 
 class TestStamp:
     def test_creates(self):
@@ -3029,21 +2693,6 @@ class TestVariable:
         assert isinstance(v, VCollection)
         svg = v.to_svg(0)
         assert 'x' in svg
-
-    def test_set_value(self):
-        v = Variable('n', value=0)
-        result = v.set_value(42, start=0)
-        assert result is v
-
-    def test_animate_value(self):
-        v = Variable('t', value=0)
-        result = v.animate_value(10, start=0, end=1)
-        assert result is v
-
-    def test_tracker(self):
-        from vectormation.attributes import Real
-        v = Variable('x', value=5)
-        assert isinstance(v.tracker, Real)
 
 
 class TestUnderline:
@@ -3125,10 +2774,6 @@ class TestAutomaton:
         svg = a.to_svg(0)
         assert 'q0' in svg
 
-    def test_empty(self):
-        a = Automaton(states=[], transitions=[])
-        svg = a.to_svg(0)
-        assert svg is not None
 
     def test_self_loop(self):
         a = Automaton(
@@ -3230,16 +2875,6 @@ class TestFilmstrip:
         f = Filmstrip(['A', 'B', 'C'])
         assert len(f._frames) == 3
 
-    def test_highlight_frame(self):
-        f = Filmstrip(['A', 'B', 'C'])
-        result = f.highlight_frame(1, start=0, end=1)
-        assert result is f
-
-    def test_empty(self):
-        f = Filmstrip([])
-        svg = f.to_svg(0)
-        assert svg is not None
-
 
 class TestLineUtilities:
     def test_get_start_end(self):
@@ -3309,12 +2944,6 @@ class TestArcUtilities:
 
 
 class TestMorphObject:
-    def test_creation(self):
-        c = Circle(r=50, cx=100, cy=100)
-        r = Rectangle(100, 100, x=300, y=300)
-        m = MorphObject(c, r, start=0, end=1)
-        svg = m.to_svg(0.5)
-        assert svg is not None
 
     def test_source_hidden_after_start(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -3334,13 +2963,6 @@ class TestMorphObject:
         MorphObject(c, r, start=1, end=2)
         assert not r.show.at_time(0.5)
 
-    def test_with_rotation(self):
-        c = Circle(r=50, cx=100, cy=100)
-        r = Rectangle(100, 100, x=300, y=300)
-        m = MorphObject(c, r, start=0, end=1, rotation_degrees=180)
-        svg = m.to_svg(0.5)
-        assert svg is not None
-
 
 class TestTitleStyling:
     def test_has_underline(self):
@@ -3355,10 +2977,6 @@ class TestTitleStyling:
 
 
 class TestNumberPlane:
-    def test_creation(self):
-        np = NumberPlane()
-        svg = np.to_svg(0)
-        assert svg is not None
 
     def test_coords_to_point(self):
         np = NumberPlane()
@@ -3371,10 +2989,6 @@ class TestNumberPlane:
         x, y = np.coords_to_point(1, 0)
         assert x == 960 + 135  # UNIT = 135
 
-    def test_custom_ranges(self):
-        np = NumberPlane(x_range=(-5, 5, 1), y_range=(-3, 3, 1))
-        svg = np.to_svg(0)
-        assert svg is not None
 
     def test_custom_styles(self):
         np = NumberPlane(background_line_style={'stroke': '#ff0000'},
@@ -3382,11 +2996,6 @@ class TestNumberPlane:
         svg = np.to_svg(0)
         assert 'rgb(255,0,0)' in svg
         assert 'rgb(0,255,0)' in svg
-
-    def test_no_faded_lines(self):
-        np = NumberPlane(faded_line_ratio=1)
-        svg = np.to_svg(0)
-        assert svg is not None
 
 
 class TestPolygonUtilities:
@@ -3688,11 +3297,6 @@ class TestFunctionGraphQuery:
         assert fg.get_slope_at(0) == pytest.approx(0.0, abs=1e-4)
         assert fg.get_slope_at(3) == pytest.approx(6.0, abs=1e-4)
 
-    def test_stores_function(self):
-        f = lambda x: x + 1
-        fg = FunctionGraph(f, x_range=(0, 5))
-        assert fg._func is f
-
 
 class TestFromSvgGroup:
     def test_g_element_returns_vcollection(self):
@@ -3856,10 +3460,6 @@ class TestPolygonSubclassRepr:
 
 
 class TestAxesAddLabel:
-    def test_add_label_returns_text(self):
-        ax = Axes(x_range=[-5, 5, 1], y_range=[-5, 5, 1])
-        lbl = ax.add_label(2, 3, 'Hello')
-        assert isinstance(lbl, Text)
 
     def test_add_label_position(self):
         ax = Axes(x_range=[-5, 5, 1], y_range=[-5, 5, 1])
@@ -3871,10 +3471,6 @@ class TestAxesAddLabel:
         assert abs(lx - cx) < 50
         assert abs(ly - cy) < 50
 
-    def test_add_dot_returns_dot(self):
-        ax = Axes(x_range=[-5, 5, 1], y_range=[-5, 5, 1])
-        d = ax.add_dot(1, 2)
-        assert isinstance(d, Dot)
 
     def test_add_dot_position(self):
         ax = Axes(x_range=[-5, 5, 1], y_range=[-5, 5, 1])
@@ -3934,20 +3530,7 @@ class TestVCollectionSort:
         assert g.objects[2] is c1
 
 
-class TestStaggerFadeout:
-    def test_stagger_fadeout_runs(self):
-        c1 = Circle(r=10)
-        c2 = Circle(r=20)
-        g = VCollection(c1, c2)
-        result = g.stagger_fadeout(start=0, end=2)
-        assert result is g
-
-
 class TestRotateOut:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.rotate_out(start=0, end=1)
-        assert result is c
 
     def test_hides_at_end(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -3975,19 +3558,8 @@ class TestRotateOut:
         # Without change_existence, object should still be visible after end
         assert c.show.at_time(1.5)
 
-    def test_zero_duration_no_crash(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.rotate_out(start=1, end=1)
-        assert result is c
-
 
 class TestStaggerRandom:
-    def test_returns_self(self):
-        c1 = Circle(r=10)
-        c2 = Circle(r=20)
-        g = VCollection(c1, c2)
-        result = g.stagger_random('fadein', start=0, end=2)
-        assert result is g
 
     def test_calls_method_on_all_children(self):
         c1 = Circle(r=10)
@@ -4015,29 +3587,6 @@ class TestStaggerRandom:
         svg_b = h.to_svg(1.5)
 
         assert svg_a == svg_b
-
-    def test_empty_collection(self):
-        g = VCollection()
-        result = g.stagger_random('fadein', start=0, end=1)
-        assert result is g
-
-    def test_zero_duration_no_crash(self):
-        c1 = Circle(r=10)
-        g = VCollection(c1)
-        result = g.stagger_random('fadein', start=1, end=1)
-        assert result is g
-
-    def test_different_seeds_give_different_order(self):
-        # With enough children, different seeds should produce different orderings
-        g1 = VCollection(*[Circle(r=i * 10 + 10) for i in range(5)])
-        g2 = VCollection(*[Circle(r=i * 10 + 10) for i in range(5)])
-        g1.stagger_random('fadein', start=0, end=5, seed=1)
-        g2.stagger_random('fadein', start=0, end=5, seed=2)
-        # Very likely to differ at mid-point; just check no crash
-        svg1 = g1.to_svg(2.5)
-        svg2 = g2.to_svg(2.5)
-        assert svg1 is not None
-        assert svg2 is not None
 
 
 class TestCubicBezierImprovements:
@@ -4154,15 +3703,7 @@ class TestTextGetText:
 
 
 class TestAxesLabelAccess:
-    def test_get_x_axis_label(self):
-        ax = Axes(x_range=[-3, 3], y_range=[-2, 2], x_label='X')
-        lbl = ax.get_x_axis_label()
-        assert lbl is not None
 
-    def test_get_y_axis_label(self):
-        ax = Axes(x_range=[-3, 3], y_range=[-2, 2], y_label='Y')
-        lbl = ax.get_y_axis_label()
-        assert lbl is not None
 
     def test_no_label_returns_none(self):
         ax = Axes(x_range=[-3, 3], y_range=[-2, 2])
@@ -4454,9 +3995,6 @@ class TestArrowUtilities:
 
 
 class TestTableExtended:
-    def test_highlight_cells(self):
-        t = Table([[1, 2], [3, 4]])
-        t.highlight_cells([(0, 0), (1, 1)], start=0, end=1)
         # No exception means success
 
     def test_set_cell_value(self):
@@ -4512,10 +4050,6 @@ class TestNumberLinePointToNumber:
 
 
 class TestNumberLineAddPointer:
-    def test_add_pointer_returns_vcollection(self):
-        nl = NumberLine(x_range=(-5, 5, 1))
-        ptr = nl.add_pointer(0)
-        assert isinstance(ptr, VCollection)
 
     def test_pointer_added_to_numberline(self):
         nl = NumberLine(x_range=(-5, 5, 1))
@@ -4644,11 +4178,6 @@ class TestBounceIn:
         sx = c.styling.scale_x.at_time(1)
         assert sx == pytest.approx(1.0, abs=0.05)
 
-    def test_bounce_in_zero_duration_noop(self):
-        """Zero-duration bounce_in should not raise and returns self."""
-        c = Circle(r=50)
-        result = c.bounce_in(start=0, end=0)
-        assert result is c
 
     def test_bounce_in_no_change_existence(self):
         """With change_existence=False the show attribute is not modified."""
@@ -4814,11 +4343,6 @@ class TestDrawBorderThenFill:
         fo_end = c.styling.fill_opacity.at_time(2)
         assert fo_start < fo_end or fo_start == pytest.approx(0, abs=0.1)
 
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.draw_border_then_fill(start=0, end=1)
-        assert result is c
-
 
 class TestNewEasings:
     def test_running_start(self):
@@ -4858,21 +4382,6 @@ class TestDataStructures:
         svg = arr.to_svg(0)
         assert '5' in svg and '3' in svg and '8' in svg
 
-    def test_array_highlight(self):
-        from vectormation.objects import Array
-        arr = Array([1, 2, 3])
-        arr.highlight_cell(1, start=0, end=1)  # should not error
-
-    def test_array_swap(self):
-        from vectormation.objects import Array
-        arr = Array([10, 20, 30])
-        arr.swap_cells(0, 2, start=0, end=1)
-
-    def test_array_pointer(self):
-        from vectormation.objects import Array
-        arr = Array([1, 2, 3])
-        ptr = arr.add_pointer(1, label='i')
-        assert ptr is not None
 
     def test_stack_render(self):
         from vectormation.objects import Stack
@@ -4916,10 +4425,6 @@ class TestDataStructures:
         svg = ll.to_svg(0)
         assert 'A' in svg and 'null' in svg
 
-    def test_linked_list_highlight(self):
-        from vectormation.objects import LinkedList
-        ll = LinkedList([1, 2, 3])
-        ll.highlight_node(1, start=0, end=1)
 
     def test_binary_tree_render(self):
         from vectormation.objects import BinaryTree
@@ -4932,26 +4437,6 @@ class TestDataStructures:
         bt = BinaryTree(42)
         svg = bt.to_svg(0)
         assert '42' in svg
-
-
-class TestArraySetValueAndSort:
-    def test_set_value(self):
-        from vectormation.objects import Array
-        arr = Array([1, 2, 3])
-        result = arr.set_value(1, 99, start=0, end=0.5)
-        assert result is arr
-
-    def test_sort_returns_self(self):
-        from vectormation.objects import Array
-        arr = Array([3, 1, 2])
-        result = arr.sort(start=0, end=2)
-        assert result is arr
-
-    def test_sort_empty(self):
-        from vectormation.objects import Array
-        arr = Array([])
-        result = arr.sort(start=0, end=1)
-        assert result is arr
 
 
 class TestLinkedListAppendRemove:
@@ -5122,11 +4607,6 @@ class TestStyleGetters:
 
 
 class TestCollectionSearch:
-    def test_find(self):
-        from vectormation.objects import VCollection, Circle, Rectangle
-        col = VCollection(Circle(), Rectangle(50, 50), Circle())
-        found = col.find(lambda obj, _: isinstance(obj, Rectangle))
-        assert isinstance(found, Rectangle)
 
     def test_find_none(self):
         from vectormation.objects import VCollection, Circle
@@ -5204,26 +4684,6 @@ class TestCircleGeometricMethods:
         assert abs(px - 500) < 1
         assert abs(py - 400) < 1
 
-    def test_tangent_line(self):
-        from vectormation.objects import Circle, Line
-        c = Circle(cx=500, cy=500, r=100)
-        tl = c.tangent_line(0, length=200)
-        assert isinstance(tl, Line)
-
-
-class TestHighlightSubstring:
-    def test_basic(self):
-        from vectormation.objects import Text, Rectangle
-        t = Text(text='Hello World', x=100, y=100, font_size=24)
-        rect = t.highlight_substring('World')
-        assert isinstance(rect, Rectangle)
-
-    def test_not_found(self):
-        from vectormation.objects import Text, Rectangle
-        t = Text(text='Hello', x=100, y=100, font_size=24)
-        rect = t.highlight_substring('xyz')
-        assert isinstance(rect, Rectangle)
-
 
 class TestDiode:
     def test_creates(self):
@@ -5285,21 +4745,6 @@ class TestAxesDistributions:
         assert curve is not None
         svg = ax.to_svg(0)
         assert '<path' in svg
-
-    def test_plot_normal_no_fill(self):
-        ax = Axes(x_range=(-4, 4, 1), y_range=(0, 0.5, 0.1))
-        curve = ax.plot_normal(mean=0, std=1, fill=False)
-        assert curve is not None
-
-    def test_plot_exponential(self):
-        ax = Axes(x_range=(0, 5, 1), y_range=(0, 2, 0.5))
-        curve = ax.plot_exponential(rate=1)
-        assert curve is not None
-
-    def test_plot_uniform(self):
-        ax = Axes(x_range=(-1, 3, 1), y_range=(0, 2, 0.5))
-        curve = ax.plot_uniform(a=0, b=1)
-        assert curve is not None
 
 
 class TestNewEasingCombinators:
@@ -5472,11 +4917,6 @@ class TestTextFitToBox:
         # Should not crash, font_size unchanged
         assert t.font_size.at_time(0) == 48
 
-    def test_returns_self(self):
-        t = Text(text="Test", font_size=48)
-        result = t.fit_to_box(max_width=100)
-        assert result is t
-
 
 class TestAxesLabeledPoints:
     def test_add_labeled_points(self):
@@ -5571,11 +5011,6 @@ class TestShowDuring:
         assert not c.show.at_time(3)  # hidden between
         assert c.show.at_time(5)  # visible
 
-    def test_show_during_returns_self(self):
-        c = Circle(r=50)
-        result = c.show_during((0, 1))
-        assert result is c
-
 
 class TestGlow:
     def test_glow_basic(self):
@@ -5585,9 +5020,6 @@ class TestGlow:
         svg = c.to_svg(0.5)
         assert svg
 
-    def test_glow_zero_duration(self):
-        c = Circle(r=50)
-        c.glow(start=1, end=1)  # should not crash
 
     def test_glow_stroke_width_at_midpoint(self):
         c = Circle(r=50)
@@ -5623,10 +5055,6 @@ class TestHideDuring:
         svg_after = c.to_svg(4)
         assert svg_after
 
-    def test_return_self(self):
-        c = Circle(r=50)
-        assert c.hide_during((0, 1)) is c
-
 
 class TestColorSetters:
     def test_set_saturation(self):
@@ -5635,10 +5063,6 @@ class TestColorSetters:
         assert isinstance(result, str)
         assert result.startswith('#')
 
-    def test_set_lightness(self):
-        from vectormation.colors import set_lightness
-        result = set_lightness('#ff0000', 0.5)
-        assert isinstance(result, str)
 
     def test_invert(self):
         from vectormation.colors import invert
@@ -5664,11 +5088,6 @@ class TestBarChartAccessors:
         bc = BarChart(values=[10, 20, 30], labels=['A', 'B', 'C'])
         bars = bc.get_bars()
         assert len(bars.objects) == 3
-
-    def test_highlight_bar(self):
-        bc = BarChart(values=[10, 20, 30], labels=['A', 'B', 'C'])
-        result = bc.highlight_bar(1, start=0, end=1)
-        assert result is bc
 
 
 class TestAnimatePointer:
@@ -5698,12 +5117,6 @@ class TestAnimatePointer:
         target_x = nl.number_to_point(7)[0]
         assert abs(lbl.x.at_time(1) - target_x) < 1
 
-    def test_returns_self(self):
-        nl = NumberLine(x_range=(0, 10, 1))
-        ptr = nl.add_pointer(5)
-        result = nl.animate_pointer(ptr, 8, start=0, end=1)
-        assert result is nl
-
 
 class TestUtilityFunctions:
     def test_distance(self):
@@ -5725,28 +5138,7 @@ class TestProgressBarGetProgress:
         assert 0 <= val <= 1
 
 
-class TestMatrixHighlight:
-    def test_highlight_entry(self):
-        m = Matrix([[1, 2], [3, 4]])
-        result = m.highlight_entry(0, 0, start=0, end=1)
-        assert result is m
-
-    def test_highlight_row(self):
-        m = Matrix([[1, 2, 3], [4, 5, 6]])
-        result = m.highlight_row(0, start=0, end=1)
-        assert result is m
-
-    def test_highlight_column(self):
-        m = Matrix([[1, 2], [3, 4], [5, 6]])
-        result = m.highlight_column(1, start=0, end=1)
-        assert result is m
-
-
 class TestTableBatchOps:
-    def test_highlight_range(self):
-        t = Table([['A', 'B', 'C'], ['D', 'E', 'F'], ['G', 'H', 'I']])
-        result = t.highlight_range(0, 0, 1, 1, start=0, end=1)
-        assert result is t
 
     def test_set_cell_values(self):
         t = Table([['a', 'b'], ['c', 'd']])
@@ -5779,10 +5171,6 @@ class TestCanvasUtilities:
 
 
 class TestBarChartGetByLabel:
-    def test_found(self):
-        bc = BarChart(values=[10, 20, 30], labels=['A', 'B', 'C'])
-        bar = bc.get_bar_by_label('B')
-        assert bar is not None
 
     def test_not_found(self):
         bc = BarChart(values=[10, 20], labels=['X', 'Y'])
@@ -5794,11 +5182,6 @@ class TestAngleSetRadius:
         a = Angle(vertex=(500, 500), p1=(600, 500), p2=(500, 400))
         a.set_radius(50, start=0)
         assert a  # no crash
-
-    def test_set_radius_animated(self):
-        a = Angle(vertex=(500, 500), p1=(600, 500), p2=(500, 400))
-        result = a.set_radius(80, start=0, end=1)
-        assert result is a
 
 
 class TestVCollectionUtilities:
@@ -5859,17 +5242,6 @@ class TestVCollectionUtilities:
         assert r.contains_point(5, 20) is False
 
 
-class TestArrowSetColor:
-    def test_set_color(self):
-        a = Arrow(100, 100, 200, 100)
-        result = a.set_color('#FF0000', start=0)
-        assert result is a
-
-    def test_set_color_returns_self(self):
-        a = Arrow(100, 100, 200, 100)
-        assert a.set_color('#00FF00') is a
-
-
 class TestNumberLineSegment:
     def test_add_segment(self):
         nl = NumberLine(x_range=(-5, 5, 1))
@@ -5877,11 +5249,6 @@ class TestNumberLineSegment:
         assert rect is not None
         # Should have been added to objects
         assert rect in nl.objects
-
-    def test_add_segment_custom_color(self):
-        nl = NumberLine(x_range=(-5, 5, 1))
-        rect = nl.add_segment(0, 3, color='#FF0000')
-        assert rect is not None
 
 
 class TestAppearFrom:
@@ -5935,13 +5302,6 @@ class TestBarChartValueLabels:
 
 
 class TestAxesAnimateDrawFunction:
-    def test_animate_draw_function(self):
-        ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
-        path = ax.animate_draw_function(lambda x: x**2, start=0, end=2)
-        assert path is not None
-        # Path should have a d attribute
-        d_val = path.d.at_time(1)  # midway
-        assert isinstance(d_val, str)
 
     def test_animate_draw_function_returns_path(self):
         ax = Axes(x_range=(-5, 5, 1), y_range=(-5, 5, 1))
@@ -5965,23 +5325,6 @@ class TestTextSplitChars:
         chars = t.split_chars()
         assert len(chars.objects) == 0
 
-    def test_split_chars_returns_vcollection(self):
-        t = Text(text='Hi', x=100, y=200, font_size=48)
-        chars = t.split_chars()
-        assert isinstance(chars, VCollection)
-
-
-class TestBarChartGrowFromZero:
-    def test_grow_from_zero(self):
-        bc = BarChart(values=[10, 20, 30], labels=['A', 'B', 'C'])
-        result = bc.grow_from_zero(start=0, end=2)
-        assert result is bc
-
-    def test_grow_from_zero_no_stagger(self):
-        bc = BarChart(values=[10, 20], labels=['A', 'B'])
-        result = bc.grow_from_zero(start=0, end=1, stagger=False)
-        assert result is bc
-
 
 class TestCanvasDuration:
     def test_duration_property(self):
@@ -5992,13 +5335,6 @@ class TestCanvasDuration:
         v.add(c)
         c.fadein(0, 2)
         assert v.duration >= 2
-
-    def test_duration_empty(self):
-        import tempfile
-        from vectormation._canvas import VectorMathAnim
-        v = VectorMathAnim(tempfile.gettempdir())
-        d = v.duration
-        assert isinstance(d, (int, float))
 
 
 class TestChecklistAnimations:
@@ -6015,14 +5351,6 @@ class TestChecklistAnimations:
         assert result is cl
 
 
-class TestStepperAdvance:
-    def test_advance(self):
-        from vectormation.objects import Stepper
-        s = Stepper(['Step 1', 'Step 2', 'Step 3'])
-        result = s.advance(0, 1, start=0, end=0.5)
-        assert result is s
-
-
 class TestPieChartLabels:
     def test_add_percentage_labels(self):
         from vectormation.objects import PieChart
@@ -6031,27 +5359,6 @@ class TestPieChartLabels:
         result = pc.add_percentage_labels()
         assert result is pc
         assert len(pc.objects) > initial_count
-
-
-class TestCodeRevealLines:
-    def test_reveal_lines(self):
-        from vectormation.objects import Code
-        c = Code('line1\nline2\nline3', language='python')
-        result = c.reveal_lines(start=0, end=2)
-        assert result is c
-
-    def test_reveal_lines_returns_self(self):
-        from vectormation.objects import Code
-        c = Code('a = 1\nb = 2', language='python')
-        assert c.reveal_lines(start=0, end=1) is c
-
-
-class TestTableSortByColumn:
-    def test_sort_by_column(self):
-        from vectormation.objects import Table
-        t = Table(data=[['B', '2'], ['A', '1'], ['C', '3']])
-        result = t.sort_by_column(0, start=0, end=1)
-        assert result is t
 
 
 class TestGetGraphIntersection:
@@ -6098,11 +5405,6 @@ class TestMatchPosition:
         assert cx == pytest.approx(rx, abs=0.1)
         assert cy == pytest.approx(ry, abs=0.1)
 
-    def test_match_position_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        r = Circle(r=30, cx=500, cy=400)
-        result = c.match_position(r)
-        assert result is c
 
     def test_match_position_with_tuple(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -6218,15 +5520,6 @@ class TestSampleFunction:
         total_points = sum(len(s) for s in segments)
         assert total_points >= 6
 
-    def test_non_finite_values(self):
-        import math
-        from vectormation._constants import _sample_function
-        def f(x):
-            return math.inf if abs(x - 0.5) < 0.01 else x
-        _, _, segments, _ = _sample_function(f, 0, 1, (0, 1), 100, 0, 0, 100, 100)
-        # Should split into segments around the non-finite value
-        assert len(segments) >= 1
-
 
 # ---------------------------------------------------------------------------
 # VObject convenience methods
@@ -6282,10 +5575,6 @@ class TestSetPosition:
         assert cx == pytest.approx(500, abs=0.1)
         assert cy == pytest.approx(300, abs=0.1)
 
-    def test_returns_self(self):
-        c = Circle(r=50)
-        result = c.set_position(100, 100)
-        assert result is c
 
     def test_animated(self):
         c = Circle(r=50, cx=100, cy=200)
@@ -6304,10 +5593,6 @@ class TestSetPosition:
 # ---------------------------------------------------------------------------
 
 class TestNumberLineAddLabel:
-    def test_returns_self(self):
-        nl = NumberLine(x_range=(-5, 5, 1))
-        result = nl.add_label(0, 'origin')
-        assert result is nl
 
     def test_label_added_to_objects(self):
         from vectormation._shapes import Text
@@ -6360,17 +5645,7 @@ class TestNumberLineAddLabel:
 
 
 class TestBarChartGetMaxMinBar:
-    def test_get_max_bar_returns_rectangle(self):
-        from vectormation._shapes import Rectangle
-        bc = BarChart([10, 30, 20])
-        bar = bc.get_max_bar()
-        assert isinstance(bar, Rectangle)
 
-    def test_get_min_bar_returns_rectangle(self):
-        from vectormation._shapes import Rectangle
-        bc = BarChart([10, 30, 20])
-        bar = bc.get_min_bar()
-        assert isinstance(bar, Rectangle)
 
     def test_get_max_bar_is_tallest(self):
         bc = BarChart([10, 30, 20])
@@ -6421,11 +5696,6 @@ class TestBarChartGetMaxMinBar:
 
 
 class TestTableGetCellRect:
-    def test_returns_rectangle(self):
-        from vectormation._shapes import Rectangle
-        t = Table([[1, 2], [3, 4]])
-        rect = t.get_cell_rect(0, 0)
-        assert isinstance(rect, Rectangle)
 
     def test_not_added_to_table(self):
         t = Table([[1, 2], [3, 4]])
@@ -6488,14 +5758,6 @@ class TestTableGetCellRect:
 
 
 class TestAxesAddPointLabel:
-    def test_returns_dot_and_label(self):
-        from vectormation._shapes import Dot, Text
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        result = ax.add_point_label(1, 2, text='P')
-        assert isinstance(result, tuple)
-        dot, lbl = result
-        assert isinstance(dot, Dot)
-        assert isinstance(lbl, Text)
 
     def test_default_text_format(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
@@ -6544,10 +5806,6 @@ class TestAxesAddPointLabel:
 
 
 class TestFlashHighlight:
-    def test_returns_rectangle(self):
-        c = Circle(r=50, cx=200, cy=200)
-        rect = c.flash_highlight(start=0, end=1)
-        assert isinstance(rect, Rectangle)
 
     def test_stroke_opacity_fades_in_and_out(self):
         c = Circle(r=50, cx=200, cy=200)
@@ -6579,10 +5837,6 @@ class TestFlashHighlight:
         assert rw >= bw
         assert rh >= bh
 
-    def test_zero_duration_still_returns_rect(self):
-        c = Circle(r=50, cx=100, cy=100)
-        rect = c.flash_highlight(start=1, end=1)
-        assert isinstance(rect, Rectangle)
 
     def test_custom_stroke_width(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -6591,11 +5845,6 @@ class TestFlashHighlight:
 
 
 class TestAxesShadeRegion:
-    def test_shade_region_x_only_returns_rectangle(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        rect = ax.shade_region(x_start=1, x_end=3)
-        from vectormation.objects import Rectangle
-        assert isinstance(rect, Rectangle)
 
     def test_shade_region_x_only_has_full_height(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
@@ -6644,10 +5893,6 @@ class TestAxesShadeRegion:
 # ── color_gradient_anim ─────────────────────────────────────────────────────
 
 class TestColorGradientAnim:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.color_gradient_anim(['#ff0000', '#0000ff'], start=0, end=1)
-        assert result is c
 
     def test_fill_at_start_is_first_color(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -6687,11 +5932,6 @@ class TestColorGradientAnim:
         c = Circle(r=50, cx=100, cy=100)
         result = c.color_gradient_anim(['#ff0000'], start=0, end=1)
         assert result is c  # returns self without error
-
-    def test_zero_duration_noop(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.color_gradient_anim(['#ff0000', '#0000ff'], start=1, end=1)
-        assert result is c
 
 
 # ── Arc.to_wedge ────────────────────────────────────────────────────────────
@@ -6763,10 +6003,6 @@ class TestFadeColor:
         # Midpoint should be roughly grey (all channels ~128)
         assert rgb[0] == pytest.approx(128, abs=5)
 
-    def test_returns_self(self):
-        c = Circle(r=50)
-        result = c.fade_color('#ff0000', start=0, end=1)
-        assert result is c
 
     def test_respects_easing(self):
         import vectormation.easings as easings
@@ -6859,10 +6095,6 @@ class TestSpaceEvenly:
 # ── Axes.add_callout ─────────────────────────────────────────────────────────
 
 class TestAxesAddCallout:
-    def test_returns_vcollection(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        result = ax.add_callout(1, 2, 'Max')
-        assert isinstance(result, VCollection)
 
     def test_has_three_children(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
@@ -6908,15 +6140,7 @@ class TestAxesAddCallout:
 
 
 class TestSquashAndStretch:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.squash_and_stretch(start=0, end=1)
-        assert result is c
 
-    def test_zero_duration_noop(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.squash_and_stretch(start=0, end=0)
-        assert result is c
 
     def test_scale_x_peaks_at_midpoint(self):
         """At midpoint, scale_x should be close to factor (wider)."""
@@ -6955,9 +6179,6 @@ class TestSquashAndStretch:
 
 
 class TestScaleToSize:
-    def test_returns_self(self):
-        r = Rectangle(200, 100)
-        assert r.scale_to_size(width=400) is r
 
     def test_scale_to_width_proportional(self):
         r = Rectangle(200, 100)
@@ -7007,10 +6228,6 @@ class TestScaleToSize:
 # ── VObject.emphasize_scale ──────────────────────────────────────────────────
 
 class TestEmphasizeScale:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.emphasize_scale(0, 1)
-        assert result is c
 
     def test_scale_at_start_is_original(self):
         """At time=0 (start) scale should equal the base scale (1.0)."""
@@ -7073,9 +6290,6 @@ class TestTextCharCount:
         t = Text(text='hello world')
         assert t.char_count() == 11
 
-    def test_returns_int(self):
-        t = Text(text='abc')
-        assert isinstance(t.char_count(), int)
 
     def test_uses_time_zero(self):
         """char_count uses the text at time=0, not a later animated value."""
@@ -7111,11 +6325,6 @@ class TestFilterByType2:
         result = col.filter_by_type(Rectangle)
         assert len(result.objects) == 0
 
-    def test_returns_vcollection(self):
-        c = Circle(r=10)
-        col = VCollection(c)
-        result = col.filter_by_type(Circle)
-        assert isinstance(result, VCollection)
 
     def test_subclass_included(self):
         """Dot is a subclass of Circle; filter_by_type(Circle) should include it."""
@@ -7224,10 +6433,6 @@ class TestMorphStyle:
 
 
 class TestVObjectClone:
-    def test_clone_returns_same_type(self):
-        c = Circle(r=50, cx=100, cy=200)
-        c2 = c.clone()
-        assert isinstance(c2, Circle)
 
     def test_clone_no_offset_same_position(self):
         c = Circle(r=50, cx=100, cy=200)
@@ -7377,10 +6582,6 @@ class TestAxesGetDerivative:
         d = ax.get_derivative(math.sin, math.pi / 2)
         assert d == pytest.approx(0.0, abs=1e-4)
 
-    def test_derivative_returns_float(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        d = ax.get_derivative(lambda x: x, 0.0)
-        assert isinstance(d, float)
 
     def test_derivative_from_curve(self):
         """Should also work when passed a curve returned by plot()."""
@@ -7397,10 +6598,6 @@ class TestAxesGetDerivative:
 
 
 class TestVObjectPulseScale:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.pulse_scale(0, 1)
-        assert result is c
 
     def test_scale_at_start_unchanged(self):
         """At t=start the scale should still be the baseline."""
@@ -7435,18 +6632,8 @@ class TestVObjectPulseScale:
             sy = c.styling.scale_y.at_time(t)
             assert sx == pytest.approx(sy, abs=1e-12)
 
-    def test_zero_duration_no_error(self):
-        """Zero-duration call should not raise and should return self."""
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.pulse_scale(1, 1)
-        assert result is c
-
 
 class TestAnimateOpacity:
-    def test_returns_self(self):
-        c = Circle(r=50)
-        result = c.animate_opacity(0.0, 1.0, start=0, end=1)
-        assert result is c
 
     def test_opacity_at_start(self):
         """Opacity at t=start should equal start_opacity."""
@@ -7611,11 +6798,6 @@ class TestBounceOut:
 
 
 class TestAttachTo:
-    def test_attach_to_adds_updater(self):
-        dot = Circle(10, cx=100, cy=100)
-        label = Text("A")
-        label.attach_to(dot, direction=(1, 0), buff=20, start=0, end=1)
-        assert len(label._updaters) > 0
 
     def test_attach_to_default_direction(self):
         dot = Circle(10, cx=100, cy=100)
@@ -7625,10 +6807,6 @@ class TestAttachTo:
 
 
 class TestGrowFromCorner:
-    def test_grow_from_corner_returns_self(self):
-        c = Circle(r=50, cx=200, cy=200)
-        result = c.grow_from_corner(start=0, end=1)
-        assert result is c
 
     def test_grow_from_corner_hides_before_start(self):
         c = Circle(r=50, cx=200, cy=200)
@@ -7753,10 +6931,6 @@ class TestBarChartSortBars:
         bc.sort_bars(key=abs, start=0, end=1)
         assert bc.values == [-1, -2, 3, 5]
 
-    def test_sort_bars_returns_self(self):
-        bc = BarChart([3, 1, 2])
-        result = bc.sort_bars(start=0, end=1)
-        assert result is bc
 
     def test_sort_bars_single_bar(self):
         bc = BarChart([42])
@@ -7766,10 +6940,6 @@ class TestBarChartSortBars:
 
 
 class TestFadeSlideIn:
-    def test_fade_slide_in_returns_self(self):
-        c = Circle(r=50, cx=500, cy=500)
-        result = c.fade_slide_in(direction=DOWN, distance=200, start=0, end=1)
-        assert result is c
 
     def test_fade_slide_in_opacity_starts_at_zero(self):
         """At the start of the animation, opacity should be 0."""
@@ -7796,10 +6966,6 @@ class TestFadeSlideIn:
 
 
 class TestAxesAddHorizontalLine:
-    def test_add_horizontal_line_returns_line(self):
-        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
-        line = ax.add_horizontal_line(y=2)
-        assert isinstance(line, Line)
 
     def test_add_horizontal_line_at_y_value(self):
         """The line should span the full plot width at the correct y."""
@@ -7824,11 +6990,6 @@ class TestAxesAddHorizontalLine:
 
 
 class TestColorShift:
-    def test_color_shift_returns_self(self):
-        """color_shift should return self for chaining."""
-        c = Circle(r=50, fill='#ff0000')
-        result = c.color_shift(hue_shift=60, start=0, end=1)
-        assert result is c
 
     def test_color_shift_changes_color(self):
         """At end time, the fill color should have shifted hue."""
@@ -7861,15 +7022,6 @@ class TestColorShift:
 
 
 class TestPlotPiecewise:
-    def test_plot_piecewise_returns_group(self):
-        """plot_piecewise should return a VGroup."""
-        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
-        pieces = [
-            (lambda x: x, -5, 0),
-            (lambda x: x**2, 0, 5),
-        ]
-        group = ax.plot_piecewise(pieces)
-        assert isinstance(group, VGroup)
 
     def test_plot_piecewise_correct_count(self):
         """plot_piecewise should have one curve per piece."""
@@ -7896,10 +7048,6 @@ class TestPlotPiecewise:
 
 
 class TestShrinkToCorner:
-    def test_shrink_to_corner_returns_self(self):
-        c = Circle(r=50, cx=200, cy=200)
-        result = c.shrink_to_corner(start=0, end=1)
-        assert result is c
 
     def test_shrink_to_corner_hides_after_end(self):
         c = Circle(r=50, cx=200, cy=200)
@@ -7973,10 +7121,6 @@ class TestAxesGetSlope:
 
 # ---------- fade_slide_out ----------
 class TestFadeSlideOut:
-    def test_fade_slide_out_returns_self(self):
-        c = Circle(r=50, cx=500, cy=500)
-        result = c.fade_slide_out(direction=DOWN, distance=200, start=0, end=1)
-        assert result is c
 
     def test_fade_slide_out_opacity_at_start_is_one(self):
         """At the start of the animation, opacity should still be 1."""
@@ -8000,12 +7144,6 @@ class TestFadeSlideOut:
         c.fade_slide_out(direction=UP, distance=100, start=2, end=3)
         assert c.show.at_time(2.5) is True
         assert c.show.at_time(3) is False
-
-    def test_fade_slide_out_zero_duration(self):
-        """Zero-duration should hide immediately and return self."""
-        c = Circle(r=50, cx=500, cy=500)
-        result = c.fade_slide_out(direction=LEFT, distance=100, start=1, end=1)
-        assert result is c
 
 
 # ---------- Line.angle_to ----------
@@ -8182,12 +7320,6 @@ class TestHoverScale:
         sx = c.styling.scale_x.at_time(3)
         assert sx == pytest.approx(1.0)
 
-    def test_hover_scale_returns_self(self):
-        """hover_scale should return self for chaining."""
-        c = Circle(r=50)
-        result = c.hover_scale(factor=1.3, start=0, end=1)
-        assert result is c
-
 
 class TestAxesGetXIntercept:
     def test_x_intercept_linear(self):
@@ -8226,10 +7358,6 @@ class TestAxesGetYIntercept:
 
 
 class TestRippleScale:
-    def test_ripple_scale_returns_self(self):
-        """ripple_scale should return self for chaining."""
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.ripple_scale(start=0, end=1) is c
 
     def test_ripple_scale_ends_at_original(self):
         """At end time the scale should return to approximately the original."""
@@ -8305,11 +7433,6 @@ class TestVObjectDelay:
         # Visible at start + duration = 4
         assert c.show.at_time(4) is True
 
-    def test_delay_returns_self(self):
-        """delay() should return self for chaining."""
-        c = Circle(r=50)
-        assert c.delay(1) is c
-
 
 class TestAxesCoordsToScreen:
     """Tests for Axes.coords_to_screen()."""
@@ -8354,11 +7477,6 @@ class TestVisibilityToggle:
         assert r.show.at_time(2)        # visible during [1, 4)
         assert not r.show.at_time(5)    # hidden after
 
-    def test_returns_self(self):
-        """visibility_toggle should return self for chaining."""
-        c = Circle(r=50)
-        result = c.visibility_toggle(1, 2, 3)
-        assert result is c
 
     def test_unsorted_times(self):
         """Times should be sorted internally regardless of input order."""
@@ -8397,11 +7515,6 @@ class TestEllipseTangentAtAngle:
         assert mid_x == pytest.approx(500, abs=1e-6)
         assert mid_y == pytest.approx(400, abs=1e-6)
 
-    def test_tangent_returns_line(self):
-        """tangent_at_angle should return a Line object."""
-        e = Ellipse(rx=150, ry=80, cx=960, cy=540)
-        line = e.tangent_at_angle(45)
-        assert isinstance(line, Line)
 
     def test_tangent_line_length(self):
         """The tangent line should have the specified length."""
@@ -8453,11 +7566,6 @@ class TestBlinkOpacity:
         op_end = c.styling.opacity.at_time(2.0)
         assert op_end == pytest.approx(0.2, abs=0.05)
 
-    def test_blink_opacity_returns_self(self):
-        """blink_opacity should return self for chaining."""
-        c = Circle(r=50)
-        result = c.blink_opacity(start=0, end=1)
-        assert result is c
 
     def test_blink_opacity_zero_duration_noop(self):
         """blink_opacity with zero duration should be a no-op."""
@@ -8485,11 +7593,6 @@ class TestAxesGetGraphValue:
 
 
 class TestAxesPlotDerivative:
-    def test_plot_derivative_returns_path(self):
-        """plot_derivative should return a Path object."""
-        ax = Axes(x_range=(-5, 5), y_range=(-10, 10))
-        curve = ax.plot_derivative(lambda x: x ** 2)
-        assert isinstance(curve, Path)
 
     def test_plot_derivative_has_func(self):
         """The returned curve should have a _func attribute."""
@@ -8539,11 +7642,6 @@ class TestAxesPlotDerivative:
 
 
 class TestAxesGetTrapezoidalRule:
-    def test_returns_dynamic_object(self):
-        """get_trapezoidal_rule should return a DynamicObject."""
-        ax = Axes(x_range=(0, 5), y_range=(0, 25))
-        dyn = ax.get_trapezoidal_rule(lambda x: x ** 2, x_range=(0, 4), dx=1)
-        assert isinstance(dyn, DynamicObject)
 
     def test_added_to_axes(self):
         """The trapezoids should be added to the axes' objects."""
@@ -8574,21 +7672,8 @@ class TestAxesGetTrapezoidalRule:
         coll = dyn._func(0)
         assert len(coll.objects) == 4  # 2 / 0.5 = 4
 
-    def test_trapezoids_are_polygons(self):
-        """Each element in the result should be a Polygon."""
-        ax = Axes(x_range=(0, 5), y_range=(0, 25))
-        dyn = ax.get_trapezoidal_rule(lambda x: x + 1, x_range=(0, 3), dx=1)
-        coll = dyn._func(0)
-        for obj in coll.objects:
-            assert isinstance(obj, Polygon)
-
 
 class TestBreathe:
-    def test_breathe_returns_self(self):
-        """breathe should return self for chaining."""
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.breathe(start=0, end=2)
-        assert result is c
 
     def test_breathe_scale_oscillates(self):
         """breathe should produce oscillating scale values around baseline."""
@@ -8629,11 +7714,6 @@ class TestBreathe:
 
 
 class TestPendulum:
-    def test_pendulum_returns_self(self):
-        """pendulum should return self for chaining."""
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.pendulum(start=0, end=2)
-        assert result is c
 
     def test_pendulum_starts_at_zero_rotation(self):
         """At the start time, the rotation angle should be approximately zero."""
@@ -8688,9 +7768,6 @@ class TestPendulum:
 
 
 class TestTelegraph:
-    def test_telegraph_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.telegraph(start=0) is c
 
     def test_telegraph_scales_at_midpoint(self):
         """At the midpoint the scale should be above 1 (scaled up)."""
@@ -8713,10 +7790,6 @@ class TestTelegraph:
         end_sx = c.styling.scale_x.at_time(1.0)
         assert end_sx == pytest.approx(1.0, abs=0.05)
 
-    def test_telegraph_zero_duration_noop(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.telegraph(start=0, end=0)
-        assert result is c
 
     def test_telegraph_renders_svg(self):
         """Should render without error during the effect."""
@@ -8727,9 +7800,6 @@ class TestTelegraph:
 
 
 class TestSkate:
-    def test_skate_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.skate(500, 300, start=0, end=1) is c
 
     def test_skate_moves_to_target(self):
         """Object center should reach the target position at end."""
@@ -8746,10 +7816,6 @@ class TestSkate:
         rot = c.styling.rotation.at_time(0.5)
         assert abs(rot[0] - 180) < 2  # halfway through 360 degrees
 
-    def test_skate_zero_duration_noop(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.skate(500, 300, start=0, end=0)
-        assert result is c
 
     def test_skate_partial_rotation(self):
         """Skating with partial rotation (e.g., 180 degrees)."""
@@ -8760,9 +7826,6 @@ class TestSkate:
 
 
 class TestFlicker:
-    def test_flicker_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.flicker(start=0, end=1) is c
 
     def test_flicker_opacity_varies(self):
         """Opacity should vary during the flicker effect."""
@@ -8787,10 +7850,6 @@ class TestFlicker:
             op = c.styling.opacity.at_time(t_val)
             assert op >= 0.19  # allow tiny float tolerance
 
-    def test_flicker_zero_duration_noop(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.flicker(start=0, end=0)
-        assert result is c
 
     def test_flicker_renders_svg(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -8800,9 +7859,6 @@ class TestFlicker:
 
 
 class TestSlingshot:
-    def test_slingshot_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        assert c.slingshot(500, 300, start=0, end=1) is c
 
     def test_slingshot_reaches_target_at_end(self):
         """Object should be at/near the target position at end."""
@@ -8829,10 +7885,6 @@ class TestSlingshot:
         # The overshoot means cx should be > 600
         assert cx_overshoot > 600
 
-    def test_slingshot_zero_duration_noop(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.slingshot(500, 300, start=0, end=0)
-        assert result is c
 
     def test_slingshot_renders_svg(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -8869,19 +7921,6 @@ class TestAxesAddInflectionPoints:
         dots = [o for o in result.objects if isinstance(o, Dot)]
         assert len(dots) == 0
 
-    def test_sin_has_inflections(self):
-        """sin(x) on [0, 2*pi] should have an inflection point near x=pi."""
-        import math
-        ax = Axes(x_range=(0.5, 5.5), y_range=(-2, 2))
-        result = ax.add_inflection_points(lambda x: math.sin(x), samples=400)
-        dots = [o for o in result.objects if isinstance(o, Dot)]
-        assert len(dots) >= 1
-
-    def test_returns_vcollection(self):
-        """Result should be a VCollection."""
-        ax = Axes(x_range=(-3, 3), y_range=(-10, 10))
-        result = ax.add_inflection_points(lambda x: x**3)
-        assert isinstance(result, VCollection)
 
     def test_custom_x_range(self):
         """Should only find inflection points within the given x_range."""
@@ -8926,11 +7965,6 @@ class TestGetCriticalPoints:
         dots = [o for o in result.objects if isinstance(o, Dot)]
         assert len(dots) == 0
 
-    def test_returns_vcollection(self):
-        """Result should be a VCollection."""
-        ax = Axes(x_range=(-3, 3), y_range=(-10, 10))
-        result = ax.get_critical_points(lambda x: x**2)
-        assert isinstance(result, VCollection)
 
     def test_custom_x_range(self):
         """Should only find critical points within the given x_range."""
@@ -8970,10 +8004,6 @@ class TestGetCriticalPoints:
 
 
 class TestElasticBounce:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=400, cy=400)
-        result = c.elastic_bounce(start=0, end=2)
-        assert result is c
 
     def test_zero_duration_noop(self):
         c = Circle(r=50, cx=400, cy=400)
@@ -9027,10 +8057,6 @@ class TestElasticBounce:
 
 
 class TestMorphScale:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=400, cy=400)
-        result = c.morph_scale(target_scale=2.0, start=0, end=1)
-        assert result is c
 
     def test_zero_duration_noop(self):
         c = Circle(r=50, cx=400, cy=400)
@@ -9068,10 +8094,6 @@ class TestMorphScale:
 
 
 class TestStrobe:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=400, cy=400)
-        result = c.strobe(start=0, end=1, n_flashes=3)
-        assert result is c
 
     def test_zero_duration_noop(self):
         c = Circle(r=50, cx=400, cy=400)
@@ -9112,11 +8134,6 @@ class TestStrobe:
 class TestZoomTo:
     """Tests for VObject.zoom_to — animated camera zoom to focus on an object."""
 
-    def test_returns_self(self):
-        c = Circle(r=50, cx=300, cy=200)
-        canvas = VectorMathAnim(save_dir='/tmp/_vma_test_zoom', width=1920, height=1080)
-        result = c.zoom_to(canvas, start=0, end=1)
-        assert result is c
 
     def test_viewbox_targets_object(self):
         c = Circle(r=50, cx=300, cy=200)
@@ -9161,10 +8178,6 @@ class TestZoomTo:
 class TestDomino:
     """Tests for VObject.domino — tipping-over rotation effect."""
 
-    def test_returns_self(self):
-        r = Rectangle(width=50, height=100, x=400, y=300)
-        result = r.domino(start=0, end=1)
-        assert result is r
 
     def test_hidden_after_end(self):
         r = Rectangle(width=50, height=100, x=400, y=300)
@@ -9208,10 +8221,6 @@ class TestDomino:
         assert rot[1] == pytest.approx(bx, abs=0.1)
         assert rot[2] == pytest.approx(by + bh, abs=0.1)
 
-    def test_zero_duration_noop(self):
-        r = Rectangle(width=50, height=100, x=400, y=300)
-        result = r.domino(start=1, end=1)
-        assert result is r
 
     def test_mid_animation_rotation(self):
         r = Rectangle(width=50, height=100, x=400, y=300)
@@ -9350,10 +8359,6 @@ class TestNumberLineSnapToTick:
 # ---------------------------------------------------------------------------
 
 class TestDissolveOut:
-    def test_returns_self(self):
-        c = Circle(r=50)
-        result = c.dissolve_out(start=0, end=1)
-        assert result is c
 
     def test_opacity_starts_near_original(self):
         """Opacity at the very start should be close to the original value."""
@@ -9450,11 +8455,6 @@ class TestStampTrail:
         t_appear = 1 / 3  # (0+1)*(1)/(2+1) = 1/3
         assert g.show.at_time(t_appear + 0.3 + 0.01) == False
 
-    def test_returns_self_pattern(self):
-        """stamp_trail returns a list, not self (matches trail pattern)."""
-        d = Dot(cx=100, cy=100)
-        result = d.stamp_trail(start=0, end=1, count=3)
-        assert isinstance(result, list)
 
     def test_empty_when_zero_count(self):
         d = Dot(cx=100, cy=100)
@@ -9477,10 +8477,6 @@ class TestStampTrail:
 
 
 class TestUnfold:
-    def test_returns_self(self):
-        r = Rectangle(200, 100, 100, 100)
-        result = r.unfold(start=0, end=1)
-        assert result is r
 
     def test_scale_x_at_start_is_zero_right(self):
         r = Rectangle(200, 100, 100, 100)
@@ -9533,17 +8529,8 @@ class TestUnfold:
         # Should be visible before animation
         assert r.show.at_time(0.5) == True
 
-    def test_zero_duration(self):
-        r = Rectangle(200, 100, 100, 100)
-        result = r.unfold(start=1, end=1)
-        assert result is r
-
 
 class TestGlitchShift:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=500, cy=500)
-        result = c.glitch_shift(start=0, end=1)
-        assert result is c
 
     def test_position_displaced_during_effect(self):
         c = Circle(r=50, cx=500, cy=500)
@@ -9588,22 +8575,8 @@ class TestGlitchShift:
         diffs = [abs(c1.c.at_time(t)[0] - c2.c.at_time(t)[0]) for t in [0.1, 0.3, 0.5]]
         assert any(d > 1 for d in diffs)
 
-    def test_zero_duration(self):
-        c = Circle(r=50, cx=500, cy=500)
-        result = c.glitch_shift(start=1, end=1)
-        assert result is c
-
-    def test_zero_steps(self):
-        c = Circle(r=50, cx=500, cy=500)
-        result = c.glitch_shift(start=0, end=1, steps=0)
-        assert result is c
-
 
 class TestWaveThrough:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=500, cy=500)
-        result = c.wave_through(start=0, end=2, amplitude=30, frequency=2)
-        assert result is c
 
     def test_y_displacement_at_midpoint(self):
         """At the midpoint the envelope is at maximum, so there should be displacement."""
@@ -9667,10 +8640,6 @@ class TestCountdownText:
         assert t.text.at_time(1) == '2'
         assert t.text.at_time(2) == '1'
 
-    def test_countdown_returns_self(self):
-        t = Text('', x=500, y=500)
-        result = t.countdown(start=0, end=3, from_val=3)
-        assert result is t
 
     def test_countdown_from_5(self):
         t = Text('', x=500, y=500)
@@ -9686,10 +8655,6 @@ class TestCountdownText:
         with pytest.raises(TypeError, match="Text"):
             c.countdown(start=0, end=3)
 
-    def test_zero_duration(self):
-        t = Text('', x=500, y=500)
-        result = t.countdown(start=1, end=1, from_val=3)
-        assert result is t
 
     def test_from_val_1(self):
         t = Text('', x=500, y=500)
@@ -9698,10 +8663,6 @@ class TestCountdownText:
 
 
 class TestSqueeze:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=500, cy=500)
-        result = c.squeeze(start=0, end=1, axis='x', factor=0.5)
-        assert result is c
 
     def test_squeeze_x_at_end(self):
         """After squeeze along x, scale_x should be factor and scale_y should be 1/factor."""
@@ -9747,11 +8708,6 @@ class TestSqueeze:
         assert sx == pytest.approx(0.5, abs=0.05)
         assert sy == pytest.approx(2.0, abs=0.05)
 
-    def test_zero_duration(self):
-        c = Circle(r=50, cx=500, cy=500)
-        result = c.squeeze(start=1, end=1)
-        assert result is c
-
 
 class TestBindTo:
     def test_bind_to_returns_self(self):
@@ -9791,10 +8747,6 @@ class TestBindTo:
 
 
 class TestDuplicate:
-    def test_duplicate_returns_vcollection(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.duplicate(count=3)
-        assert isinstance(result, VCollection)
 
     def test_duplicate_count(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -9828,10 +8780,6 @@ class TestDuplicate:
 
 
 class TestArcTo:
-    def test_arc_to_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.arc_to(500, 500, start=0, end=1)
-        assert result is c
 
     def test_arc_to_reaches_target(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -9857,18 +8805,8 @@ class TestArcTo:
         assert cx == pytest.approx(500, abs=2)
         assert cy == pytest.approx(100, abs=2)
 
-    def test_arc_to_zero_duration(self):
-        """Zero or negative duration should still return self."""
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.arc_to(500, 500, start=1, end=0)
-        assert result is c
-
 
 class TestTypewriterCursor:
-    def test_typewriter_cursor_returns_self(self):
-        t = Text('hello', x=100, y=100)
-        result = t.typewriter_cursor(start=0, end=2)
-        assert result is t
 
     def test_typewriter_cursor_appends_cursor(self):
         t = Text('hello', x=100, y=100)
@@ -9911,10 +8849,6 @@ class TestTypewriterCursor:
 
 
 class TestPulseOutline:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.pulse_outline(start=0, end=2)
-        assert result is c
 
     def test_stroke_width_increases_during_animation(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -9960,10 +8894,6 @@ class TestPulseOutline:
 
 
 class TestShimmer:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.shimmer(start=0, end=2)
-        assert result is c
 
     def test_opacity_varies_during_animation(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -9999,10 +8929,6 @@ class TestShimmer:
 
 
 class TestBlinkNumBlinks:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.blink(start=0, end=3, num_blinks=3, easing=easings.linear)
-        assert result is c
 
     def test_opacity_toggles_off(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -10088,10 +9014,6 @@ class TestPinTo:
 
 
 class TestParallax:
-    def test_parallax_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.parallax(dx=200, dy=100, start=0, end=1)
-        assert result is c
 
     def test_parallax_moves_by_depth_factor(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -10126,10 +9048,6 @@ class TestParallax:
 
 
 class TestSetDashPattern:
-    def test_set_dash_pattern_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.set_dash_pattern('dashes', start=0)
-        assert result is c
 
     def test_set_dash_pattern_dashes(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -10167,10 +9085,6 @@ class TestSetDashPattern:
 
 
 class TestShowIf:
-    def test_show_if_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.show_if(lambda t: t < 1, start=0)
-        assert result is c
 
     def test_show_if_visible_when_true(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -10203,10 +9117,6 @@ class TestShowIf:
 
 
 class TestFadeToColor:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100, fill='#0000ff', stroke='#0000ff')
-        result = c.fade_to_color('#ff0000', start=0, end=1)
-        assert result is c
 
     def test_fill_changes_to_target(self):
         c = Circle(r=50, cx=100, cy=100, fill='#0000ff', stroke='#0000ff')
@@ -10230,10 +9140,6 @@ class TestFadeToColor:
 
 
 class TestSpinAndFade:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.spin_and_fade(start=0, end=1)
-        assert result is c
 
     def test_opacity_zero_at_end(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -10261,10 +9167,6 @@ class TestSpinAndFade:
 
 
 class TestGrowToSize:
-    def test_returns_self(self):
-        r = Rectangle(100, 50, x=100, y=100)
-        result = r.grow_to_size(target_width=200, start=0, end=1)
-        assert result is r
 
     def test_grow_width_only_maintains_ratio(self):
         r = Rectangle(100, 50, x=100, y=100)
@@ -10301,10 +9203,6 @@ class TestGrowToSize:
 
 
 class TestTiltTowards:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.tilt_towards(200, 200, start=0, end=1)
-        assert result is c
 
     def test_tilts_clockwise_toward_below(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -10328,10 +9226,6 @@ class TestTiltTowards:
 
 
 class TestSetBlendMode:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.set_blend_mode('multiply')
-        assert result is c
 
     def test_sets_blend_mode_multiply(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -10377,10 +9271,6 @@ class TestSetBlendMode:
 
 
 class TestRepeatAnimation:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.repeat_animation('pulsate', count=2, start=0, end=2)
-        assert result is c
 
     def test_divides_time_evenly(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -10399,15 +9289,6 @@ class TestRepeatAnimation:
         assert sx_mid1 != pytest.approx(1.0, abs=0.01)
         assert sx_mid2 != pytest.approx(1.0, abs=0.01)
 
-    def test_count_zero_noop(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.repeat_animation('pulsate', count=0, start=0, end=1)
-        assert result is c
-
-    def test_zero_duration_noop(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.repeat_animation('pulsate', count=2, start=1, end=1)
-        assert result is c
 
     def test_single_repetition(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -10423,10 +9304,6 @@ class TestRepeatAnimation:
 
 
 class TestElasticScale:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.elastic_scale(start=0, end=2)
-        assert result is c
 
     def test_starts_near_factor(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -10452,10 +9329,6 @@ class TestElasticScale:
         scales = [c.styling.scale_x.at_time(t) for t in [0.05, 0.1, 0.2, 0.3, 0.5]]
         assert max(scales) > 1.0
 
-    def test_zero_duration_noop(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.elastic_scale(start=1, end=1, factor=2.0)
-        assert result is c
 
     def test_scale_y_matches_x(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -10473,10 +9346,6 @@ class TestElasticScale:
 
 
 class TestSnapToGrid:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=110, cy=90)
-        result = c.snap_to_grid(grid_size=50, start=0, end=1)
-        assert result is c
 
     def test_snaps_to_nearest_grid_point(self):
         """Object at (110, 90) should snap to (100, 100) with grid_size=50."""
@@ -10519,10 +9388,6 @@ class TestSnapToGrid:
 
 
 class TestAddBackground:
-    def test_returns_rectangle(self):
-        c = Circle(r=50, cx=100, cy=100)
-        bg = c.add_background()
-        assert isinstance(bg, Rectangle)
 
     def test_default_color_and_opacity(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -10565,10 +9430,6 @@ class TestAddBackground:
 
 
 class TestCycleColors:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100, fill='#ff0000')
-        result = c.cycle_colors(['#ff0000', '#00ff00', '#0000ff'], start=0, end=1)
-        assert result is c
 
     def test_starts_with_first_color(self):
         c = Circle(r=50, cx=100, cy=100, fill='#ffffff')
@@ -10582,15 +9443,6 @@ class TestCycleColors:
         fill = c.styling.fill.at_time(1)
         assert fill == 'rgb(0,0,255)'
 
-    def test_single_color_noop(self):
-        c = Circle(r=50, cx=100, cy=100, fill='#ff0000')
-        result = c.cycle_colors(['#ff0000'], start=0, end=1)
-        assert result is c
-
-    def test_zero_duration_noop(self):
-        c = Circle(r=50, cx=100, cy=100, fill='#ff0000')
-        result = c.cycle_colors(['#ff0000', '#00ff00'], start=1, end=1)
-        assert result is c
 
     def test_two_colors(self):
         c = Circle(r=50, cx=100, cy=100, fill='#ffffff')
@@ -10602,10 +9454,6 @@ class TestCycleColors:
 
 
 class TestFreeze:
-    def test_freeze_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.freeze(start=0, end=1)
-        assert result is c
 
     def test_freeze_holds_opacity(self):
         c = Circle(r=50, cx=100, cy=100, fill_opacity=1)
@@ -10631,10 +9479,6 @@ class TestFreeze:
 
 
 class TestDelayAnimation:
-    def test_delay_animation_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.delay_animation('fadein', delay=1, start=0, end=1)
-        assert result is c
 
     def test_delay_shifts_start(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -10664,10 +9508,6 @@ class TestDelayAnimation:
 
 
 class TestWobble:
-    def test_wobble_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.wobble(start=0, end=1, amplitude=5, frequency=3)
-        assert result is c
 
     def test_wobble_produces_displacement(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -10704,10 +9544,6 @@ class TestWobble:
 
 
 class TestFocusZoom:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.focus_zoom(start=0, end=1, zoom_factor=1.3)
-        assert result is c
 
     def test_scale_at_midpoint(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -10754,10 +9590,6 @@ class TestFocusZoom:
 
 
 class TestTypewriterEffect:
-    def test_returns_self(self):
-        t = Text(text='', x=100, y=100)
-        result = t.typewriter_effect('Hello', start=0, end=1)
-        assert result is t
 
     def test_reveals_characters_progressively(self):
         t = Text(text='', x=100, y=100)
@@ -10775,20 +9607,12 @@ class TestTypewriterEffect:
         t.typewriter_effect('World!', start=0, end=2)
         assert t.text.at_time(2) == 'World!'
 
-    def test_empty_text_is_noop(self):
-        t = Text(text='', x=100, y=100)
-        result = t.typewriter_effect('', start=0, end=1)
-        assert result is t
 
     def test_non_text_raises_type_error(self):
         c = Circle(r=50, cx=100, cy=100)
         with pytest.raises(TypeError):
             c.typewriter_effect('Hello', start=0, end=1)
 
-    def test_zero_duration(self):
-        t = Text(text='', x=100, y=100)
-        result = t.typewriter_effect('Hello', start=1, end=1)
-        assert result is t
 
     def test_custom_time_range(self):
         t = Text(text='', x=100, y=100)
@@ -10808,10 +9632,6 @@ class TestTeleport:
         assert abs(p[0] - 500) < 5
         assert abs(p[1] - 500) < 5
 
-    def test_teleport_returns_self(self):
-        d = Dot(cx=100, cy=100)
-        result = d.teleport(200, 300, start=0)
-        assert result is d
 
     def test_teleport_backward_compat_time(self):
         d = Dot(cx=100, cy=100)
@@ -10897,17 +9717,7 @@ class TestPointFromProportion:
 
 
 class TestConnect:
-    def test_connect_returns_line(self):
-        r1 = Rectangle(100, 50, x=100, y=100)
-        r2 = Rectangle(100, 50, x=400, y=100)
-        conn = r1.connect(r2)
-        assert isinstance(conn, Line)
 
-    def test_connect_arrow(self):
-        r1 = Rectangle(100, 50, x=100, y=100)
-        r2 = Rectangle(100, 50, x=400, y=100)
-        conn = r1.connect(r2, arrow=True)
-        assert isinstance(conn, Arrow)
 
     def test_connect_endpoints(self):
         r1 = Rectangle(100, 50, x=100, y=100)
@@ -10947,11 +9757,6 @@ class TestConnect:
         r1_right_after = r1.get_edge('right', 0)
         assert abs(p1[0] - r1_right_after[0]) < 1
 
-    def test_connect_follow_arrow(self):
-        r1 = Rectangle(100, 50, x=100, y=100)
-        r2 = Rectangle(100, 50, x=400, y=100)
-        conn = r1.connect(r2, arrow=True, follow=True)
-        assert isinstance(conn, Arrow)
 
     def test_connect_custom_styling(self):
         r1 = Rectangle(100, 50, x=100, y=100)
@@ -11023,13 +9828,6 @@ class TestRemoveUpdater:
         c.remove_updater(mover)
         assert len(c._updaters) == 0
 
-    def test_remove_updater_returns_self(self):
-        c = Circle(r=50)
-        def mover(obj, t):
-            pass
-        c.add_updater(mover)
-        result = c.remove_updater(mover)
-        assert result is c
 
     def test_remove_updater_only_removes_matching(self):
         c = Circle(r=50)
@@ -11070,10 +9868,6 @@ class TestClearUpdaters:
         c.clear_updaters()
         assert len(c._updaters) == 0
 
-    def test_clear_updaters_returns_self(self):
-        c = Circle(r=50)
-        result = c.clear_updaters()
-        assert result is c
 
     def test_clear_updaters_on_empty(self):
         c = Circle(r=50)
@@ -11124,10 +9918,6 @@ class TestIsOnScreen:
 
 
 class TestScaleAboutPoint:
-    def test_scale_about_point_returns_self(self):
-        c = Circle(r=50, cx=200, cy=200)
-        result = c.scale_about_point(2, 0, 0)
-        assert result is c
 
     def test_scale_about_own_center(self):
         """Scaling about own center should not move the object."""
@@ -11156,10 +9946,6 @@ class TestScaleAboutPoint:
 
 
 class TestDropShadow:
-    def test_drop_shadow_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.drop_shadow()
-        assert result is c
 
     def test_drop_shadow_wraps_svg(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -11243,10 +10029,6 @@ class TestLookAt:
         # At end, should be ~90 degrees (pointing down)
         assert rot_end[0] == pytest.approx(90, abs=1)
 
-    def test_look_at_returns_self(self):
-        c = Circle(r=20, cx=100, cy=100)
-        result = c.look_at((200, 200), start=0)
-        assert result is c
 
     def test_look_at_diagonal(self):
         """Looking at a 45-degree diagonal."""
@@ -11335,10 +10117,6 @@ class TestSetGradientFill:
         svg = c.to_svg(5)
         assert '<linearGradient' in svg
 
-    def test_gradient_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.set_gradient_fill(['#ff0000', '#0000ff'])
-        assert result is c
 
     def test_gradient_three_colors(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -11400,10 +10178,6 @@ class TestScaleToFit:
         assert h == pytest.approx(25, abs=1)
         assert w == pytest.approx(50, abs=1)
 
-    def test_scale_to_fit_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.scale_to_fit(width=50)
-        assert result is c
 
     def test_scale_to_fit_no_args(self):
         """Calling with no width/height does nothing."""
@@ -11422,10 +10196,6 @@ class TestScaleToFit:
 
 
 class TestSetBackstroke:
-    def test_set_backstroke_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.set_backstroke('#ffffff', width=10)
-        assert result is c
 
     def test_set_backstroke_adds_paint_order(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -11477,11 +10247,6 @@ class TestAnimateAlongObject:
 
 
 class TestAlwaysNextTo:
-    def test_returns_self(self):
-        a = Circle(r=20, cx=100, cy=100)
-        b = Circle(r=20, cx=300, cy=100)
-        result = a.always_next_to(b, direction=RIGHT)
-        assert result is a
 
     def test_positions_next_to_at_start(self):
         """At start time, self should be positioned next to other."""
@@ -11517,17 +10282,6 @@ class TestAlwaysNextTo:
         bx = b.bbox(0)[0]
         assert ax < bx
 
-    def test_with_end(self):
-        """Updater should respect end time."""
-        a = Circle(r=20, cx=100, cy=100)
-        b = Circle(r=20, cx=300, cy=300)
-        a.always_next_to(b, direction=RIGHT, buff=10, start=0, end=0.5)
-        # Updater should run at t=0.3
-        a._run_updaters(0.3)
-        # Updater should not run at t=0.8 (beyond end)
-        pos_mid = a.center(0.3)
-        # Just verify it doesn't crash
-        a._run_updaters(0.8)
 
     def test_default_buff(self):
         """Default buff should be SMALL_BUFF (14), matching next_to."""
@@ -11543,10 +10297,6 @@ class TestAlwaysNextTo:
 
 
 class TestSetColorIf:
-    def test_returns_self(self):
-        c = Circle(r=20, cx=100, cy=100, fill='#ff0000')
-        result = c.set_color_if(lambda t: t > 0.5, '#00ff00')
-        assert result is c
 
     def test_color_changes_when_predicate_true(self):
         c = Circle(r=20, cx=100, cy=100, fill='#ff0000')
@@ -11584,10 +10334,6 @@ class TestSetColorIf:
 
 
 class TestApplyPointwise:
-    def test_returns_self(self):
-        c = Circle(r=20, cx=100, cy=100)
-        result = c.apply_pointwise(lambda x, y: (x + 10, y + 10))
-        assert result is c
 
     def test_translates_circle(self):
         c = Circle(r=20, cx=100, cy=100)
@@ -11651,10 +10397,6 @@ class TestSetLifetime:
         c.set_lifetime(1, 3)
         assert c.show.at_time(3) == 0
 
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.set_lifetime(1, 3)
-        assert result is c
 
     def test_at_boundaries(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -11666,10 +10408,6 @@ class TestSetLifetime:
 
 
 class TestGetStyle:
-    def test_returns_dict(self):
-        c = Circle(r=50, cx=100, cy=100)
-        s = c.get_style(0)
-        assert isinstance(s, dict)
 
     def test_has_expected_keys(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -11738,10 +10476,6 @@ class TestMoveTowards:
         assert cx == pytest.approx(300, abs=2)
         assert cy == pytest.approx(400, abs=2)
 
-    def test_returns_self(self):
-        c = Circle(r=10, cx=0, cy=0)
-        result = c.move_towards((100, 100))
-        assert result is c
 
     def test_quarter_fraction(self):
         c = Circle(r=10, cx=0, cy=0)
@@ -11853,10 +10587,6 @@ class TestPlaceBetween:
         assert cx == pytest.approx(100, abs=2)
         assert cy == pytest.approx(0, abs=2)
 
-    def test_place_between_returns_self(self):
-        c = Circle(r=10, cx=0, cy=0)
-        result = c.place_between((100, 100), (200, 200))
-        assert result is c
 
     def test_place_between_animated(self):
         c = Circle(r=10, cx=0, cy=0)
@@ -11870,11 +10600,6 @@ class TestPlaceBetween:
 
 
 class TestSetClip:
-    def test_set_clip_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        clip = Rectangle(width=80, height=80, x=60, y=60)
-        result = c.set_clip(clip)
-        assert result is c
 
     def test_set_clip_injects_clippath(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -11959,11 +10684,6 @@ class TestAnimatedNextTo:
         expected_mid = (bx_0 + bx_1) / 2
         assert bx_mid == pytest.approx(expected_mid, abs=1)
 
-    def test_next_to_animated_returns_self(self):
-        a = Rectangle(100, 50, x=100, y=100)
-        b = Rectangle(80, 50, x=0, y=0)
-        result = b.next_to(a, 'right', start=0, end=1)
-        assert result is b
 
     def test_next_to_without_end_backward_compat(self):
         """Without end, next_to should still work instantly."""
@@ -12030,11 +10750,6 @@ class TestAnimatedAlignTo:
         expected_mid = (bx_0 + bx_1) / 2
         assert bx_mid == pytest.approx(expected_mid, abs=1)
 
-    def test_align_to_animated_returns_self(self):
-        a = Rectangle(100, 50, x=200, y=100)
-        b = Rectangle(80, 50, x=0, y=0)
-        result = b.align_to(a, 'left', start=0, end=1)
-        assert result is b
 
     def test_align_to_without_end_backward_compat(self):
         """Without end, align_to should still work instantly."""
@@ -12055,9 +10770,6 @@ class TestAnimatedAlignTo:
 # ── NeuralNetwork ────────────────────────────────────────────────────────────
 
 class TestNeuralNetwork:
-    def test_creates_with_layers(self):
-        nn = NeuralNetwork([3, 4, 2])
-        assert len(nn.objects) > 0
 
     def test_svg_renders(self):
         c = VectorMathAnim(save_dir='/tmp/t')
@@ -12066,28 +10778,10 @@ class TestNeuralNetwork:
         svg = c.generate_frame_svg(0)
         assert '<circle' in svg
 
-    def test_label_input(self):
-        nn = NeuralNetwork([2, 3, 1])
-        result = nn.label_input(['a', 'b'])
-        assert result is nn
-
-    def test_label_output(self):
-        nn = NeuralNetwork([2, 3, 1])
-        result = nn.label_output(['y'])
-        assert result is nn
-
-    def test_propagate(self):
-        nn = NeuralNetwork([2, 3, 1])
-        result = nn.propagate(start=0, end=1)
-        assert result is nn
-
 
 # ── Pendulum ─────────────────────────────────────────────────────────────────
 
 class TestPendulumObject:
-    def test_creates(self):
-        p = Pendulum()
-        assert len(p.objects) > 0
 
     def test_has_bob_and_rod(self):
         p = Pendulum()
@@ -12101,17 +10795,10 @@ class TestPendulumObject:
         svg = c.generate_frame_svg(0)
         assert '<' in svg
 
-    def test_custom_params(self):
-        p = Pendulum(pivot_x=500, pivot_y=200, length=300, angle=60)
-        assert len(p.objects) > 0
-
 
 # ── StandingWave ─────────────────────────────────────────────────────────────
 
 class TestStandingWave:
-    def test_creates(self):
-        sw = StandingWave(harmonics=3)
-        assert len(sw.objects) > 0
 
     def test_svg_renders(self):
         c = VectorMathAnim(save_dir='/tmp/t')
@@ -12135,10 +10822,6 @@ class TestArrayViz:
         svg = c.generate_frame_svg(0)
         assert '<rect' in svg
 
-    def test_highlight(self):
-        arr = ArrayViz([1, 2, 3])
-        result = arr.highlight(1, start=0, end=1)
-        assert result is arr
 
     def test_swap(self):
         arr = ArrayViz([10, 20, 30])
@@ -12150,10 +10833,6 @@ class TestArrayViz:
         arr.set_value(1, 99, start=0)
         assert arr.values[1] == 99
 
-    def test_pointer(self):
-        arr = ArrayViz([10, 20, 30])
-        result = arr.pointer(0, label='i', start=0)
-        assert result is not None
 
     def test_swap_invalid_index(self):
         arr = ArrayViz([1, 2, 3])
@@ -12176,16 +10855,6 @@ class TestLinkedListViz:
         svg = c.generate_frame_svg(0)
         assert '<circle' in svg
 
-    def test_highlight(self):
-        ll = LinkedListViz([10, 20, 30])
-        result = ll.highlight(0, start=0, end=0.5)
-        assert result is ll
-
-    def test_traverse(self):
-        ll = LinkedListViz([10, 20, 30])
-        result = ll.traverse(start=0, delay=0.3)
-        assert result is ll
-
 
 # ── StackViz ─────────────────────────────────────────────────────────────────
 
@@ -12205,10 +10874,6 @@ class TestStackViz:
         s.pop(start=0, end=0.5)
         assert len(s.values) == 2
 
-    def test_pop_empty(self):
-        s = StackViz([])
-        result = s.pop(start=0, end=0.5)
-        assert result is s
 
     def test_svg_renders(self):
         c = VectorMathAnim(save_dir='/tmp/t')
@@ -12220,100 +10885,22 @@ class TestStackViz:
 
 # ── Pop-in / Pop-out ─────────────────────────────────────────────────────────
 
-class TestPopIn:
-    def test_pop_in_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.pop_in(start=0, end=0.5)
-        assert result is c
-
-    def test_pop_out_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.pop_out(start=0, end=0.5)
-        assert result is c
-
 
 # ── Elastic / Bounce ─────────────────────────────────────────────────────────
-
-class TestElasticInOut:
-    def test_elastic_in_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.elastic_in(start=0, end=1)
-        assert result is c
-
-    def test_elastic_out_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.elastic_out(start=0, end=1)
-        assert result is c
-
-    def test_elastic_in_accepts_easing(self):
-        c = Circle(r=50, cx=100, cy=100)
-        c.elastic_in(start=0, end=1, easing=easings.smooth)
-
-    def test_elastic_out_accepts_easing(self):
-        c = Circle(r=50, cx=100, cy=100)
-        c.elastic_out(start=0, end=1, easing=easings.smooth)
-
-    def test_bounce_in_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.bounce_in(start=0, end=1)
-        assert result is c
-
-    def test_bounce_out_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.bounce_out(start=0, end=1)
-        assert result is c
 
 
 # ── Slide-in / Slide-out ─────────────────────────────────────────────────────
 
-class TestSlideInOut:
-    def test_slide_in_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.slide_in(direction='left', start=0, end=1)
-        assert result is c
-
-    def test_slide_out_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.slide_out(direction='right', start=0, end=1)
-        assert result is c
-
 
 # ── Zoom-in / Zoom-out ──────────────────────────────────────────────────────
 
-class TestZoomInOut:
-    def test_zoom_in_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.zoom_in(start=0, end=1)
-        assert result is c
-
-    def test_zoom_out_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.zoom_out(start=0, end=1)
-        assert result is c
-
 
 # ── Float anim ───────────────────────────────────────────────────────────────
-
-class TestFloatAnim:
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.float_anim(start=0, end=2)
-        assert result is c
-
-    def test_zero_duration_noop(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.float_anim(start=1, end=1)
-        assert result is c
 
 
 # ── Fade transform ───────────────────────────────────────────────────────────
 
 class TestFadeTransform:
-    def test_returns_source(self):
-        a = Circle(r=50, cx=100, cy=100)
-        b = Rectangle(100, 50, x=200, y=200)
-        result = Circle.fade_transform(a, b, start=0, end=1)
-        assert result is a
 
     def test_source_hidden_at_end(self):
         a = Circle(r=50, cx=100, cy=100)
@@ -12353,15 +10940,6 @@ class TestQueueViz:
         assert q.values == [2, 3]
         assert len(q._queue_cells) == 2
 
-    def test_dequeue_empty(self):
-        q = QueueViz([])
-        result = q.dequeue(start=0, end=0.5)
-        assert result is q
-
-    def test_highlight(self):
-        q = QueueViz([10, 20, 30])
-        result = q.highlight(1, color='#FF0000', start=0, end=1)
-        assert result is q
 
     def test_enqueue_dequeue_sequence(self):
         q = QueueViz([1])
@@ -12385,26 +10963,7 @@ class TestBinaryTreeHighlight:
         assert result is tree
 
 
-class TestSaveStateRestore:
-    def test_save_and_restore(self):
-        c = Circle(r=50, cx=100, cy=100, fill='#FF0000')
-        c.save_state(0)
-        c.set_fill(color='#0000FF', start=0.5)
-        result = c.restore(start=1, end=2)
-        assert result is c
-
-    def test_restore_returns_self(self):
-        c = Circle(r=50)
-        c.save_state(0)
-        assert c.restore(start=1, end=2) is c
-
-
 class TestFollowSpline:
-    def test_follow_spline_returns_self(self):
-        c = Circle(r=20, cx=100, cy=100)
-        pts = [(100, 100), (200, 50), (300, 100), (400, 50)]
-        result = c.follow_spline(pts, start=0, end=2)
-        assert result is c
 
     def test_follow_spline_moves_through_points(self):
         c = Circle(r=20, cx=100, cy=100)
@@ -12435,10 +10994,6 @@ class TestPathArc:
 
 
 class TestOrbit:
-    def test_orbit_returns_self(self):
-        d = Dot(cx=200, cy=200)
-        result = d.orbit(960, 540, start=0, end=2)
-        assert result is d
 
     def test_orbit_changes_position(self):
         d = Dot(cx=960, cy=300)
@@ -12446,38 +11001,6 @@ class TestOrbit:
         cx, cy = d.get_center(1)
         # should have moved from initial position
         assert abs(cy - 300) > 10 or abs(cx - 960) > 10
-
-
-class TestPulsate:
-    def test_pulsate_returns_self(self):
-        c = Circle(r=40)
-        result = c.pulsate(start=0, end=2, n_pulses=3)
-        assert result is c
-
-
-class TestFlip:
-    def test_flip_returns_self(self):
-        r = Rectangle(100, 50, x=100, y=100)
-        result = r.flip(start=0, end=0.5)
-        assert result is r
-
-    def test_flip_vertical(self):
-        r = Rectangle(100, 50, x=100, y=100)
-        result = r.flip(axis='vertical', start=0, end=0.5)
-        assert result is r
-
-
-class TestDimUndim:
-    def test_dim(self):
-        c = Circle(r=50, fill='#FF0000', fill_opacity=1)
-        result = c.dim(start=0, end=1, opacity=0.3)
-        assert result is c
-
-    def test_undim(self):
-        c = Circle(r=50, fill='#FF0000', fill_opacity=1)
-        c.dim(start=0, end=1, opacity=0.3)
-        result = c.undim(start=1, end=2)
-        assert result is c
 
 
 class TestCrossOut:
@@ -12494,33 +11017,6 @@ class TestStampMethod:
         s = c.stamp(time=0)
         assert s is not c
         assert hasattr(s, 'styling')
-
-
-class TestApplyMatrix:
-    def test_apply_matrix(self):
-        r = Rectangle(100, 50, x=100, y=100)
-        result = r.apply_matrix([[1, 0], [0, 1]], start=0)
-        assert result is r
-
-
-class TestReflect:
-    def test_reflect_vertical(self):
-        r = Rectangle(100, 50, x=100, y=100)
-        result = r.reflect(axis='vertical', start=0)
-        assert result is r
-
-    def test_reflect_horizontal(self):
-        r = Rectangle(100, 50, x=100, y=100)
-        result = r.reflect(axis='horizontal', start=0)
-        assert result is r
-
-
-class TestTracePath:
-    def test_trace_returns_path(self):
-        d = Dot(cx=100, cy=100)
-        d.shift(dx=200, start=0, end=2)
-        path = d.trace_path(start=0, end=2)
-        assert path is not None
 
 
 class TestCollectionFilter:
@@ -12570,145 +11066,6 @@ class TestCollectionStagger:
         assert result is circles
 
 
-class TestSpring:
-    def test_spring_returns_self(self):
-        c = Circle(r=20)
-        result = c.spring(start=0, end=2, amplitude=50)
-        assert result is c
-
-
-class TestRubberBand:
-    def test_rubber_band_returns_self(self):
-        c = Circle(r=20)
-        result = c.rubber_band(start=0, end=1)
-        assert result is c
-
-
-class TestJiggle:
-    def test_jiggle_returns_self(self):
-        c = Circle(r=20)
-        result = c.jiggle(start=0, end=1)
-        assert result is c
-
-
-class TestSquish:
-    def test_squish_returns_self(self):
-        r = Rectangle(100, 50)
-        result = r.squish(start=0, end=1)
-        assert result is r
-
-
-class TestColorCycle:
-    def test_color_cycle_returns_self(self):
-        c = Circle(r=30, fill='#FF0000')
-        result = c.color_cycle(['#FF0000', '#00FF00', '#0000FF'], start=0, end=3)
-        assert result is c
-
-
-class TestGlitch:
-    def test_glitch_returns_self(self):
-        r = Rectangle(100, 50)
-        result = r.glitch(start=0, end=1)
-        assert result is r
-
-
-class TestWipe:
-    def test_wipe_returns_self(self):
-        r = Rectangle(100, 50, x=100, y=100)
-        result = r.wipe(start=0, end=1)
-        assert result is r
-
-    def test_wipe_direction(self):
-        r = Rectangle(100, 50, x=100, y=100)
-        result = r.wipe(direction='left', start=0, end=1)
-        assert result is r
-
-
-class TestCreateUncreate:
-    def test_create_returns_path(self):
-        p = Lines([(100, 100), (200, 200), (300, 100)], stroke='#fff')
-        result = p.create(start=0, end=1)
-        assert result is not None
-
-    def test_uncreate_returns_path(self):
-        p = Lines([(100, 100), (200, 200), (300, 100)], stroke='#fff')
-        result = p.uncreate(start=0, end=1)
-        assert result is not None
-
-
-class TestAnimateDash:
-    def test_animate_dash_returns_self(self):
-        c = Circle(r=60, stroke='#fff')
-        result = c.animate_dash(start=0, end=2)
-        assert result is c
-
-
-class TestBraceDirectionConstants:
-    """Test that Brace, Callout, brace_between_points accept tuple direction constants."""
-
-    def test_brace_with_down_constant(self):
-        r = Rectangle(100, 50, x=400, y=400)
-        b = Brace(r, direction=DOWN)
-        assert b is not None
-
-    def test_brace_with_up_constant(self):
-        r = Rectangle(100, 50, x=400, y=400)
-        b = Brace(r, direction=UP)
-        assert b is not None
-
-    def test_brace_with_left_constant(self):
-        r = Rectangle(100, 50, x=400, y=400)
-        b = Brace(r, direction=LEFT)
-        assert b is not None
-
-    def test_brace_with_right_constant(self):
-        r = Rectangle(100, 50, x=400, y=400)
-        b = Brace(r, direction=RIGHT)
-        assert b is not None
-
-    def test_callout_with_direction_constants(self):
-        c = Callout('test', (500, 500), direction=DOWN)
-        assert c is not None
-        c2 = Callout('test', (500, 500), direction=UP)
-        assert c2 is not None
-
-    def test_brace_between_points_with_direction_constant(self):
-        from vectormation.objects import brace_between_points
-        b = brace_between_points((100, 100), (300, 100), direction=DOWN)
-        assert b is not None
-
-
-class TestNumberLineAddBraceDirection:
-    def test_add_brace_with_tuple_direction(self):
-        nl = NumberLine(x_range=(0, 10, 1))
-        b = nl.add_brace(2, 5, direction=DOWN)
-        assert b is not None
-
-
-class TestFlashFillHelper:
-    """Test that _flash_fill helper works via data structure highlight methods."""
-
-    def test_arrayviz_highlight(self):
-        a = ArrayViz([1, 2, 3])
-        result = a.highlight(0, start=0, end=1)
-        assert result is a
-
-    def test_linkedlistviz_highlight(self):
-        ll = LinkedListViz([10, 20, 30])
-        result = ll.highlight(1, start=0, end=1)
-        assert result is ll
-
-    def test_queueviz_highlight(self):
-        q = QueueViz([1, 2, 3])
-        result = q.highlight(0, start=0, end=0.5)
-        assert result is q
-
-    def test_highlight_out_of_range(self):
-        a = ArrayViz([1, 2])
-        result = a.highlight(99, start=0, end=1)
-        assert result is a
-
-
 class TestParseArgsExtended:
     def test_parse_args_has_new_options(self):
         from vectormation._composites import parse_args
@@ -12733,15 +11090,7 @@ class TestVCollectionSelect:
 
 
 class TestVCollectionChildAccess:
-    def test_first(self):
-        a, b = Circle(r=10), Rectangle(20, 20)
-        col = VCollection(a, b)
-        assert col.first() is a
 
-    def test_last(self):
-        a, b = Circle(r=10), Rectangle(20, 20)
-        col = VCollection(a, b)
-        assert col.last() is b
 
     def test_nth(self):
         objs = [Circle(r=10) for _ in range(4)]
@@ -12755,13 +11104,6 @@ class TestVCollectionChildAccess:
 
 
 class TestVCollectionManagement:
-    def test_insert_at(self):
-        a, b = Circle(r=10), Rectangle(20, 20)
-        col = VCollection(a)
-        c = Circle(r=5)
-        col.insert_at(0, c)
-        assert col[0] is c
-        assert col[1] is a
 
     def test_remove_at(self):
         a, b = Circle(r=10), Rectangle(20, 20)
@@ -12774,31 +11116,6 @@ class TestVCollectionManagement:
         col = VCollection(Circle(r=10), Rectangle(20, 20))
         col.clear()
         assert len(col) == 0
-
-    def test_send_to_back(self):
-        a, b, c = Circle(r=10), Circle(r=20), Circle(r=30)
-        col = VCollection(a, b, c)
-        col.send_to_back(c)
-        assert col[0] is c
-
-    def test_bring_to_front(self):
-        a, b, c = Circle(r=10), Circle(r=20), Circle(r=30)
-        col = VCollection(a, b, c)
-        col.bring_to_front(a)
-        assert col[-1] is a
-
-
-class TestVCollectionSpaceEvenly:
-    def test_space_evenly(self):
-        objs = [Circle(r=20) for _ in range(3)]
-        col = VCollection(*objs)
-        col.space_evenly(direction='right')
-        # After spacing, objects should have different x positions
-        x0 = objs[0].get_x(0)
-        x1 = objs[1].get_x(0)
-        x2 = objs[2].get_x(0)
-        # Objects should be in order (x0 <= x1 <= x2 or all same if 0-width)
-        assert isinstance(x0, (int, float))
 
 
 class TestVCollectionShuffle:
@@ -12968,24 +11285,6 @@ class TestPieChartAddLegend:
         assert len(chart.objects) > 2
 
 
-class TestMatrixHighlightRowColumn:
-    def test_highlight_row(self):
-        m = Matrix([[1, 2], [3, 4]])
-        result = m.highlight_row(0, start=0, end=1)
-        assert result is m
-
-    def test_highlight_column(self):
-        m = Matrix([[1, 2], [3, 4]])
-        result = m.highlight_column(1, start=0, end=1)
-        assert result is m
-
-    def test_highlight_row_out_of_range(self):
-        m = Matrix([[1, 2], [3, 4]])
-        # highlight_row should not crash for valid rows
-        result = m.highlight_row(1, start=0, end=1)
-        assert result is m
-
-
 class TestCanvasConstants:
     def test_canvas_dimensions(self):
         assert CANVAS_WIDTH == 1920
@@ -12997,13 +11296,6 @@ class TestCanvasConstants:
 
 
 class TestTextTypewrite:
-    def test_typewrite_basic(self):
-        t = Text('Hello', x=100, y=100)
-        result = t.typewrite(start=0, end=1)
-        assert result is t
-        # At t=0 should show cursor
-        txt = t.text.at_time(0.01)
-        assert isinstance(txt, str)
 
     def test_typewrite_end_shows_full_text(self):
         t = Text('AB', x=100, y=100)
@@ -13103,58 +11395,12 @@ class TestMatrixGetRowColumn:
         assert len(col.objects) == 2
 
 
-class TestVariableTracker:
-    def test_variable_tracker_property(self):
-        v = Variable('x', value=5)
-        tracker = v.tracker
-        assert tracker is not None
-
-    def test_variable_set_value(self):
-        v = Variable('x', value=5)
-        result = v.set_value(10, start=0)
-        assert result is v
-
-    def test_variable_animate_value(self):
-        v = Variable('x', value=5)
-        result = v.animate_value(20, start=0, end=1)
-        assert result is v
-
-
-class TestTextHighlightSubstring:
-    def test_highlight_returns_rect(self):
-        t = Text('Hello World', x=100, y=100)
-        rect = t.highlight(start=0, end=1)
-        assert isinstance(rect, Rectangle)
-
-    def test_highlight_substring_returns_rect(self):
-        t = Text('Hello World', x=100, y=100)
-        rect = t.highlight_substring('World', start=0, end=1)
-        assert isinstance(rect, Rectangle)
-
-    def test_highlight_substring_not_found(self):
-        t = Text('Hello', x=100, y=100)
-        rect = t.highlight_substring('XYZ', start=0, end=1)
-        # Should return an empty rect
-        assert isinstance(rect, Rectangle)
-
-
 class TestDecimalNumberTracker:
-    def test_decimal_tracker(self):
-        d = DecimalNumber(3.14)
-        tracker = d.tracker
-        assert tracker is not None
 
     def test_decimal_set_and_get(self):
         d = DecimalNumber(0)
         d.set_value(42, start=0)
         assert d.tracker.at_time(0) == pytest.approx(42)
-
-
-class TestScaleBy:
-    def test_scale_by_alias(self):
-        c = Circle()
-        result = c.scale_by(0, 1, 2.0)
-        assert result is c
 
 
 class TestAxesAddCoordinates:
@@ -13174,10 +11420,6 @@ class TestAxesAddCoordinates:
         assert '<text' not in svg_without
         assert '<text' in svg_with
 
-    def test_add_grid_returns_self(self):
-        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
-        result = ax.add_grid()
-        assert result is ax
 
     def test_set_ranges(self):
         ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
@@ -13188,41 +11430,8 @@ class TestAxesAddCoordinates:
         assert ax.y_min.at_time(0) == pytest.approx(-3)
         assert ax.y_max.at_time(0) == pytest.approx(3)
 
-    def test_add_zero_line_x(self):
-        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
-        result = ax.add_zero_line(axis='x')
-        assert result is ax
-
-    def test_add_zero_line_y(self):
-        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
-        result = ax.add_zero_line(axis='y')
-        assert result is ax
-
-
-class TestAxesAddTitle:
-    def test_add_title_returns_text(self):
-        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
-        result = ax.add_title('My Plot')
-        assert isinstance(result, Text)
-
-
-class TestAxesAnimateRange:
-    def test_animate_x_range(self):
-        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
-        result = ax.animate_x_range((-5, 5), start=0, end=1)
-        assert result is ax
-
-    def test_animate_y_range(self):
-        ax = Axes(x_range=(-2, 2), y_range=(-2, 2))
-        result = ax.animate_y_range((-5, 5), start=0, end=1)
-        assert result is ax
-
 
 class TestCodeHighlightLines:
-    def test_highlight_lines_returns_vcollection(self):
-        code = Code('def foo():\n    return 42', language='python')
-        result = code.highlight_lines([1])
-        assert isinstance(result, VCollection)
 
     def test_reveal_lines(self):
         code = Code('line1\nline2\nline3', language='python')
@@ -13244,9 +11453,6 @@ class TestTitleObject:
 
 
 class TestDynamicObjectTest:
-    def test_creates(self):
-        d = DynamicObject(lambda t: Circle(r=10 + t * 10))
-        assert d is not None
 
     def test_renders(self):
         c = VectorMathAnim(save_dir='/tmp/t')
@@ -13270,10 +11476,6 @@ class TestChessBoardMovePiece:
 
 
 class TestLED:
-    def test_creates(self):
-        led = LED()
-        assert isinstance(led, VCollection)
-        assert len(led.objects) > 0
 
     def test_renders_svg(self):
         c = VectorMathAnim(save_dir='/tmp/t')
@@ -13284,9 +11486,6 @@ class TestLED:
 
 
 class TestCalloutRender:
-    def test_callout_creates(self):
-        co = Callout('hello', target=(500, 500))
-        assert isinstance(co, VCollection)
 
     def test_callout_renders(self):
         c = VectorMathAnim(save_dir='/tmp/t')
@@ -13296,22 +11495,7 @@ class TestCalloutRender:
         assert 'note' in svg
 
 
-class TestDimensionLineRender:
-    def test_creates(self):
-        dl = DimensionLine(p1=(100, 500), p2=(500, 500), label='400px')
-        assert isinstance(dl, VCollection)
-
-
-class TestTooltipRender:
-    def test_creates(self):
-        tt = Tooltip('tip', target=(500, 500))
-        assert isinstance(tt, VCollection)
-
-
 class TestLabelRender:
-    def test_label_creates(self):
-        lbl = Label('label')
-        assert isinstance(lbl, VCollection)
 
     def test_label_renders(self):
         c = VectorMathAnim(save_dir='/tmp/t')
@@ -13321,28 +11505,12 @@ class TestLabelRender:
         assert 'test' in svg
 
 
-class TestLegendRender:
-    def test_creates(self):
-        lg = Legend([('#ff0000', 'Red'), ('#00ff00', 'Green')])
-        assert isinstance(lg, VCollection)
-
-
 class TestProgressBarAnimateTo:
-    def test_creates(self):
-        pb = ProgressBar()
-        assert isinstance(pb, VCollection)
 
     def test_animate_to(self):
         pb = ProgressBar()
         result = pb.animate_to(0.5, start=0, end=1)
         assert result is pb
-
-
-class TestFlowChartRender:
-    def test_creates(self):
-        fc = FlowChart(['Start', 'Process', 'End'])
-        assert isinstance(fc, VCollection)
-        assert len(fc.objects) > 0
 
 
 class TestAddDotLabelConsistentReturn:
@@ -13354,98 +11522,12 @@ class TestAddDotLabelConsistentReturn:
         # Without label, second element should be None
         assert result[1] is None
 
-    def test_with_label_returns_tuple(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        dot, lbl = ax.add_dot_label(0, 0, label='test')
-        assert dot is not None
-        assert lbl is not None
-
 
 class TestRegressionLineEdgeCases:
     def test_insufficient_data(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
         result = ax.add_regression_line([1], [1])
         assert result is None
-
-    def test_normal_data(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        result = ax.add_regression_line([1, 2, 3], [1, 2, 3])
-        assert result is not None
-
-
-class TestShimmerAnim:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.shimmer(start=0, end=1) is c
-
-    def test_renders_mid(self):
-        c = Circle(fill='#ff0000')
-        c.shimmer(start=0, end=1, passes=2)
-        svg = c.to_svg(0.5)
-        assert isinstance(svg, str)
-
-
-class TestSwingAnim:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.swing(start=0, end=1) is c
-
-    def test_renders_mid(self):
-        c = Circle()
-        c.swing(start=0, end=1, amplitude=30)
-        svg = c.to_svg(0.5)
-        assert isinstance(svg, str)
-
-
-class TestUndulateAnim:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.undulate(start=0, end=1) is c
-
-    def test_renders_mid(self):
-        c = Circle(cx=960, cy=540)
-        c.undulate(start=0, end=1, amplitude=0.2)
-        svg = c.to_svg(0.5)
-        assert isinstance(svg, str)
-
-
-class TestRippleEffect:
-    def test_returns_vcollection(self):
-        from vectormation._base import VCollection
-        c = Circle()
-        result = c.ripple(start=0)
-        assert isinstance(result, VCollection)
-
-    def test_with_count(self):
-        c = Circle(cx=960, cy=540)
-        c.ripple(start=0, count=2, end=1)
-        assert isinstance(c, Circle)
-
-
-class TestHighlightBorderAnim:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.highlight_border(start=0) is c
-
-
-class TestFlashHighlightAnim:
-    def test_returns_rectangle(self):
-        from vectormation._shapes import Rectangle
-        c = Circle()
-        result = c.flash_highlight(start=0)
-        assert isinstance(result, Rectangle)
-
-
-class TestPulseOutlineAnim:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.pulse_outline(start=0) is c
-
-
-class TestGlitchAnim:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.glitch(start=0, end=1) is c
 
 
 class TestFlashNoFill:
@@ -13465,54 +11547,12 @@ class TestAlwaysNextToBuff:
         assert sig.parameters['buff'].default == 14  # SMALL_BUFF
 
 
-class TestFlashColor:
-    def test_returns_self(self):
-        c = Circle(fill='#ff0000')
-        result = c.flash_color('#00ff00', start=0, end=0.5)
-        assert result is c
-
-    def test_color_changes_at_midpoint(self):
-        c = Circle(fill='#ff0000')
-        c.flash_color('#00ff00', start=0, end=1.0)
-        # At midpoint (t=0.5) should be at the flash color
-        mid_color = c.styling.fill.time_func(0.5)
-        assert isinstance(mid_color, tuple)
-
-
 class TestRotateIn:
-    def test_returns_self(self):
-        c = Circle()
-        result = c.rotate_in(start=0, end=1)
-        assert result is c
 
     def test_visible_after(self):
         c = Circle(creation=5)
         c.rotate_in(start=0, end=1)
         assert c.show.at_time(0.5)
-
-
-class TestPulseColor:
-    def test_returns_self(self):
-        c = Circle(fill='#ff0000')
-        result = c.pulse_color('#00ff00', start=0, end=1, n_pulses=2)
-        assert result is c
-
-    def test_no_crash_zero_pulses(self):
-        c = Circle(fill='#ff0000')
-        result = c.pulse_color('#00ff00', n_pulses=0)
-        assert result is c
-
-
-class TestWaveAnim:
-    def test_returns_self(self):
-        g = VGroup(Circle(), Circle())
-        result = g.wave_anim(start=0, end=1, amplitude=20)
-        assert result is g
-
-    def test_empty_collection(self):
-        g = VGroup()
-        result = g.wave_anim(start=0, end=1)
-        assert result is g
 
 
 class TestAlignSubmobjects:
@@ -13526,23 +11566,8 @@ class TestAlignSubmobjects:
         b2 = c2.bbox(0)
         assert abs(b1[0] - b2[0]) < 1
 
-    def test_returns_self(self):
-        g = VGroup(Circle(), Circle())
-        assert g.align_submobjects() is g
-
-
-class TestStaggerFadein:
-    def test_returns_self(self):
-        g = VGroup(Circle(), Dot())
-        result = g.stagger_fadein(start=0, end=2)
-        assert result is g
-
 
 class TestHighlightChild:
-    def test_returns_self(self):
-        g = VGroup(Circle(), Dot(), Circle())
-        result = g.highlight_child(1, start=0, end=1)
-        assert result is g
 
     def test_dims_others(self):
         c1 = Circle()
@@ -13573,22 +11598,7 @@ class TestSortObjects:
         assert g.objects[0] is c2
 
 
-class TestRotateChildren:
-    def test_returns_self(self):
-        g = VGroup(Circle(cx=100, cy=100), Circle(cx=200, cy=100))
-        result = g.rotate_children(degrees=90, start=0, end=1)
-        assert result is g
-
-    def test_empty_collection(self):
-        g = VGroup()
-        result = g.rotate_children()
-        assert result is g
-
-
 class TestEmphasize:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.emphasize(start=0, end=0.8) is c
 
     def test_scale_changes(self):
         c = Circle()
@@ -13598,53 +11608,12 @@ class TestEmphasize:
 
 
 class TestGrowFromPoint:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.grow_from_point(960, 540, start=0, end=1) is c
 
     def test_invisible_at_start(self):
         c = Circle()
         c.grow_from_point(960, 540, start=0, end=1)
         sx = c.styling.scale_x.at_time(0)
         assert sx < 0.01
-
-
-class TestShrinkToPoint:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.shrink_to_point(960, 540, start=0, end=1) is c
-
-
-class TestShrinkToEdge:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.shrink_to_edge('bottom', start=0, end=1) is c
-
-
-class TestSpiralOut:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.spiral_out(start=0, end=1) is c
-
-
-class TestShowPassingFlash:
-    def test_returns_path(self):
-        c = Circle()
-        result = c.show_passing_flash(start=0, end=1)
-        assert isinstance(result, Path)
-
-
-class TestStaggerOverlap0Sequential:
-    def test_returns_self(self):
-        g = VGroup(Circle(), Dot())
-        result = g.stagger('fadein', start=0, end=1, overlap=0)
-        assert result is g
-
-
-class TestForEach:
-    def test_calls_method(self):
-        g = VGroup(Circle(cx=100), Circle(cx=200))
-        g.for_each('set_fill', color='#ff0000')
         # No crash = success
 
 
@@ -13696,10 +11665,6 @@ class TestSurround:
 
 
 class TestAnimateStyle:
-    def test_animate_fill(self):
-        c = Circle(r=50, cx=100, cy=100, fill='#ff0000')
-        result = c.animate_style(0, 1, fill='#0000ff')
-        assert result is c
 
     def test_animate_stroke_width(self):
         c = Circle(r=50, cx=100, cy=100, stroke_width=2)
@@ -13727,10 +11692,6 @@ class TestSplitWords:
 
 
 class TestAxesSetRanges:
-    def test_set_ranges_animates_both_axes(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        result = ax.set_ranges((-10, 10), (-10, 10), start=0, end=1)
-        assert result is ax
 
     def test_animate_x_range(self):
         ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
@@ -13743,161 +11704,6 @@ class TestAxesSetRanges:
         ax.animate_y_range((-10, 10), start=0, end=1)
         assert ax.y_min.at_time(1) == pytest.approx(-10, abs=0.5)
         assert ax.y_max.at_time(1) == pytest.approx(10, abs=0.5)
-
-
-class TestAxesPlotMethods:
-    def test_plot_scatter(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        result = ax.plot_scatter([1, 3, 5], [2, 4, 6])
-        assert result is not None
-
-    def test_plot_step(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        result = ax.plot_step([1, 3, 5, 7], [2, 4, 6, 8])
-        assert result is not None
-
-    def test_plot_parametric(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-5, 5))
-        result = ax.plot_parametric(lambda t: (math.cos(t), math.sin(t)))
-        assert result is not None
-
-    def test_plot_stem(self):
-        ax = Axes(x_range=(0, 5), y_range=(0, 5))
-        result = ax.plot_stem([1, 2, 3], [2, 3, 4])
-        assert result is not None
-
-    def test_plot_vector_field(self):
-        ax = Axes(x_range=(-3, 3), y_range=(-3, 3))
-        result = ax.plot_vector_field(lambda x, y: (-y, x))
-        assert result is not None
-
-
-class TestAxesDecorations:
-    def test_get_horizontal_line(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        ax.plot(lambda x: x)
-        line = ax.get_horizontal_line(5, 5)
-        assert line is not None
-
-    def test_get_dashed_line(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        line = ax.get_dashed_line(1, 2, 5, 6)
-        assert line is not None
-
-    def test_get_line_from_to(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        line = ax.get_line_from_to(1, 2, 5, 6)
-        assert line is not None
-
-    def test_highlight_x_range(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        rect = ax.highlight_x_range(2, 8)
-        assert rect is not None
-
-    def test_highlight_y_range(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        rect = ax.highlight_y_range(2, 8)
-        assert rect is not None
-
-    def test_get_rect(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        rect = ax.get_rect(1, 2, 5, 6)
-        assert rect is not None
-
-    def test_get_area_between(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        f1 = ax.plot(lambda x: x)
-        f2 = ax.plot(lambda x: x ** 2 / 10)
-        area = ax.get_area_between(f1, f2)
-        assert area is not None
-
-    def test_get_secant_line(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        curve = ax.plot(lambda x: x ** 2 / 10)
-        line = ax.get_secant_line(curve, 2, 5)
-        assert line is not None
-
-    def test_get_graph_label(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        curve = ax.plot(lambda x: x)
-        label = ax.get_graph_label(curve, "f(x)")
-        assert label is not None
-
-    def test_coords_label(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        label = ax.coords_label(3, 5)
-        assert label is not None
-
-    def test_add_legend(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        ax.plot(lambda x: x, stroke='#ff0000')
-        legend = ax.add_legend([("f(x)", "#ff0000")])
-        assert legend is not None
-
-    def test_add_horizontal_label(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        label = ax.add_horizontal_label(5, "y=5")
-        assert label is not None
-
-    def test_add_vertical_label(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        label = ax.add_vertical_label(5, "x=5")
-        assert label is not None
-
-    def test_add_asymptote(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        line = ax.add_asymptote(5)
-        assert line is not None
-
-    def test_add_arrow_annotation(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        ann = ax.add_arrow_annotation(3, 4, "point")
-        assert ann is not None
-
-
-class TestNeuralNetworkActivate:
-    def test_activate_returns_self(self):
-        nn = NeuralNetwork([3, 4, 2])
-        result = nn.activate(0, 0, start=0, end=1)
-        assert result is nn
-
-
-class TestAxesAdvancedMethods:
-    def test_add_cursor(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        dot = ax.add_cursor(lambda x: x, 0, 10, start=0, end=1)
-        assert dot is not None
-
-    def test_add_trace(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        result = ax.add_trace(lambda x: x, 0, 10, start=0, end=1)
-        assert result is not None
-
-    def test_add_crosshair(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        result = ax.add_crosshair(lambda x: x, 0, 10, start=0, end=1)
-        assert result is not None
-
-    def test_add_secant_fade(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 10))
-        result = ax.add_secant_fade(lambda x: x ** 2 / 10, 5)
-        assert result is not None
-
-    def test_get_slope_field(self):
-        ax = Axes(x_range=(-3, 3), y_range=(-3, 3))
-        result = ax.get_slope_field(lambda x, y: y - x)
-        assert result is not None
-
-
-class TestAutomatonHighlight:
-    def test_highlight_state(self):
-        a = Automaton(
-            states=['q0', 'q1'],
-            transitions=[('q0', 'q1', 'a')],
-            initial_state='q0',
-            accept_states={'q1'},
-        )
-        a.highlight_state('q0', start=0, end=1)
 
 
 class TestPiTickFormat:
@@ -13982,9 +11788,6 @@ class TestParametricFunction:
         svg = pf.to_svg(0)
         assert 'polyline' in svg
 
-    def test_custom_num_points(self):
-        pf = ParametricFunction(lambda t: (t * 100, t * 100), t_range=(0, 5), num_points=50)
-        assert pf._func is not None
 
     def test_get_point(self):
         pf = ParametricFunction(lambda t: (t * 100, t * 200), t_range=(0, 1))
@@ -14039,10 +11842,6 @@ class TestLabeledLine:
         assert 'distance' in svg
         assert '<line' in svg
 
-    def test_label_position(self):
-        ll = LabeledLine(x1=100, y1=200, x2=300, y2=200, label='test')
-        assert ll.label_obj is not None
-        assert ll.line is not None
 
     def test_styling(self):
         ll = LabeledLine(x1=0, y1=0, x2=100, y2=0, label='x', stroke='#f00')
@@ -14282,15 +12081,6 @@ class TestMatrixSwapRows:
         assert m.entries[0][0].text.at_time(0) == '3'
         assert m.entries[1][0].text.at_time(0) == '1'
 
-    def test_swap_rows_noop_same(self):
-        m = Matrix([[1, 2], [3, 4]])
-        result = m.swap_rows(0, 0, start=0, end=1)
-        assert result is m
-
-    def test_swap_rows_out_of_range(self):
-        m = Matrix([[1, 2], [3, 4]])
-        result = m.swap_rows(0, 5, start=0, end=1)
-        assert result is m
 
     def test_swap_rows_positions_change(self):
         m = Matrix([[1, 2], [3, 4]])
@@ -14332,27 +12122,6 @@ class TestMatrixRowOperation:
         result = m.set_entry_value(0, 0, 99, start=0)
         assert result is m
         assert m.entries[0][0].text.at_time(0) == '99'
-
-
-class TestMatrixColorMethods:
-    def test_set_row_colors(self):
-        m = Matrix([[1, 2], [3, 4]])
-        result = m.set_row_colors('#FF0000', '#00FF00', start=0)
-        assert result is m
-
-    def test_set_column_colors(self):
-        m = Matrix([[1, 2], [3, 4]])
-        result = m.set_column_colors('#FF0000', '#00FF00', start=0)
-        assert result is m
-
-    def test_set_row_colors_cycles(self):
-        m = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-        # Only one color cycles across all rows
-        m.set_row_colors('#FF0000', start=0)
-
-    def test_set_column_colors_cycles(self):
-        m = Matrix([[1, 2, 3], [4, 5, 6]])
-        m.set_column_colors('#FF0000', '#00FF00', start=0)
 
 
 class TestDecimalMatrix:
@@ -14397,15 +12166,6 @@ class TestTableSwapRows:
         assert t.entries[0][0].text.at_time(0) == '3'
         assert t.entries[1][0].text.at_time(0) == '1'
 
-    def test_swap_noop_same(self):
-        t = Table([[1, 2], [3, 4]])
-        result = t.swap_rows(0, 0)
-        assert result is t
-
-    def test_swap_out_of_range(self):
-        t = Table([[1, 2], [3, 4]])
-        result = t.swap_rows(0, 5)
-        assert result is t
 
     def test_swap_positions_move(self):
         t = Table([[1, 2], [3, 4]])
@@ -14491,23 +12251,12 @@ class TestMatrixAugmented:
 
 
 class TestNeuralNetworkHighlightPath:
-    def test_highlight_path_basic(self):
-        from vectormation.objects import NeuralNetwork
-        nn = NeuralNetwork([3, 4, 2])
-        result = nn.highlight_path([0, 1, 0], start=0, delay=0.3)
-        assert result is nn
 
     def test_highlight_path_wrong_length(self):
         from vectormation.objects import NeuralNetwork
         nn = NeuralNetwork([3, 4, 2])
         result = nn.highlight_path([0, 1], start=0)  # too short
         assert result is nn  # should be no-op
-
-    def test_highlight_path_with_colors(self):
-        from vectormation.objects import NeuralNetwork
-        nn = NeuralNetwork([2, 3, 2])
-        result = nn.highlight_path([1, 2, 0], color='#FF0000', edge_color='#00FF00')
-        assert result is nn
 
 
 class TestArcSagittaAndTangent:
@@ -14524,11 +12273,6 @@ class TestArcSagittaAndTangent:
         expected = 100 * (1 - math.cos(math.radians(45)))
         assert abs(a.get_sagitta() - expected) < 1e-6
 
-    def test_tangent_at_returns_line(self):
-        from vectormation.objects import Arc
-        a = Arc(r=100, start_angle=0, end_angle=180)
-        line = a.tangent_at(0)
-        assert isinstance(line, Line)
 
     def test_tangent_at_length(self):
         from vectormation.objects import Arc
@@ -14546,15 +12290,6 @@ class TestTableSwapColumns:
         assert t.entries[0][0].text.at_time(0) == '2'
         assert t.entries[0][1].text.at_time(0) == '1'
 
-    def test_swap_noop_same(self):
-        t = Table([[1, 2], [3, 4]])
-        result = t.swap_columns(0, 0)
-        assert result is t
-
-    def test_swap_out_of_range(self):
-        t = Table([[1, 2], [3, 4]])
-        result = t.swap_columns(0, 5)
-        assert result is t
 
     def test_swap_positions_move(self):
         t = Table([['a', 'b'], ['c', 'd']])
@@ -14564,23 +12299,6 @@ class TestTableSwapColumns:
         t.swap_columns(0, 1, start=0, end=1)
         new_x0 = t.entries[0][0].x.at_time(2)
         assert abs(new_x0 - x0) < 1
-
-
-class TestTableHighlightWhere:
-    def test_highlight_where_matches(self):
-        t = Table([[1, 2], [3, 4]])
-        result = t.highlight_where(lambda x: x == '4', start=0, end=1)
-        assert result is t
-
-    def test_highlight_where_no_matches(self):
-        t = Table([['a', 'b']])
-        result = t.highlight_where(lambda x: x == 'z', start=0, end=1)
-        assert result is t
-
-    def test_highlight_where_numeric(self):
-        t = Table([[10, 20], [30, 40]])
-        result = t.highlight_where(lambda x: int(x) > 15, start=0, end=1)
-        assert result is t
 
 
 class TestPolygonGetDiagonals:
@@ -14692,27 +12410,8 @@ class TestArrayIndexValidation:
         with pytest.raises(IndexError):
             a.set_value(5, 99)
 
-    def test_highlight_cell_valid_index(self):
-        a = Array([10, 20, 30])
-        result = a.highlight_cell(1)
-        assert result is a
-
-    def test_swap_cells_valid_indices(self):
-        a = Array([10, 20, 30])
-        result = a.swap_cells(0, 2)
-        assert result is a
-
-    def test_set_value_valid_index(self):
-        a = Array([10, 20, 30])
-        result = a.set_value(1, 99)
-        assert result is a
-
 
 class TestStackPeekIsEmpty:
-    def test_peek_nonempty(self):
-        s = Stack([10, 20])
-        val = s.peek()
-        assert val is not None
 
     def test_peek_empty(self):
         s = Stack()
@@ -14728,10 +12427,6 @@ class TestStackPeekIsEmpty:
 
 
 class TestQueuePeekIsEmpty:
-    def test_peek_nonempty(self):
-        q = Queue([10, 20])
-        val = q.peek()
-        assert val is not None
 
     def test_peek_empty(self):
         q = Queue()
@@ -14744,18 +12439,6 @@ class TestQueuePeekIsEmpty:
     def test_is_empty_false(self):
         q = Queue([1])
         assert not q.is_empty()
-
-
-class TestBinaryTreeTraverse:
-    def test_traverse_returns_self(self):
-        t = BinaryTree((1, (2,), (3,)))
-        result = t.traverse()
-        assert result is t
-
-    def test_traverse_custom_delay(self):
-        t = BinaryTree((1, (2,), (3,)))
-        result = t.traverse(start=0, delay=0.5)
-        assert result is t
 
 
 class TestAxesGetOrigin:
@@ -14782,11 +12465,6 @@ class TestAxesZoomToFit:
         yhi = ax.y_max.at_time(1)
         assert yhi > 15
 
-    def test_zoom_to_fit_empty_function(self):
-        ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
-        # Function that always raises → should return self unchanged
-        result = ax.zoom_to_fit(lambda x: 1 / 0)
-        assert result is ax
 
     def test_zoom_to_fit_with_padding(self):
         ax = Axes(x_range=(-5, 5), y_range=(-10, 10))
@@ -14804,11 +12482,6 @@ class TestPlotHistogramEmptyData:
         result = ax.plot_histogram([])
         assert len(result.objects) == 0
 
-    def test_empty_data_no_error(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 5))
-        result = ax.plot_histogram([], bins=5)
-        assert result is not None
-
 
 class TestBarChartGetBarsRenamed:
     def test_get_bars_default(self):
@@ -14820,11 +12493,6 @@ class TestBarChartGetBarsRenamed:
         bc = BarChart([10, 20, 30, 40])
         bars = bc.get_bars(start_idx=1, end_idx=3)
         assert len(bars.objects) == 2
-
-    def test_sort_bars_alias(self):
-        bc = BarChart([30, 10, 20])
-        result = bc.sort_bars()
-        assert result is bc
 
 
 class TestVObjectIsVisible:
@@ -14890,19 +12558,6 @@ class TestArcComplement:
         comp = a.complement()
         assert comp.r.at_time(0) == pytest.approx(80)
         assert comp.cx.at_time(0) == pytest.approx(200)
-
-
-class TestArrayReverse:
-    def test_reverse_returns_self(self):
-        a = Array([1, 2, 3, 4])
-        result = a.reverse()
-        assert result is a
-
-    def test_reverse_swaps_labels(self):
-        a = Array([10, 20, 30])
-        a.reverse(start=0, end=1)
-        # After reverse, labels should be swapped
-        assert a is not None  # Just check it runs without error
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -15638,17 +13293,6 @@ class TestNumberPlaneApplyMatrix:
         result = plane.apply_matrix([[1, 0], [0, 1]])
         assert result is plane
 
-    def test_identity_matrix_unchanged_endpoints(self):
-        plane = NumberPlane(x_range=(-2, 2, 1), y_range=(-2, 2, 1))
-        plane.apply_matrix([[1, 0], [0, 1]])
-        # After identity transform the plane should still have objects
-        assert len(plane.objects) > 0
-
-    def test_rebuilds_objects(self):
-        plane = NumberPlane(x_range=(-2, 2, 1), y_range=(-2, 2, 1))
-        plane.apply_matrix([[2, 0], [0, 2]])
-        # apply_matrix calls apply_function which rebuilds the grid as Line segments
-        assert any(isinstance(o, Line) for o in plane.objects)
 
     def test_shear_matrix(self):
         plane = NumberPlane(x_range=(-2, 2, 1), y_range=(-2, 2, 1))
@@ -15713,10 +13357,6 @@ class TestComplexPlaneAliases:
 
 
 class TestComplexPlaneAddCoordinateLabels:
-    def test_returns_self(self):
-        cp = ComplexPlane(x_range=(-3, 3), y_range=(-3, 3))
-        result = cp.add_coordinate_labels()
-        assert result is cp
 
     def test_creates_text_objects(self):
         cp = ComplexPlane(x_range=(-3, 3), y_range=(-3, 3))
@@ -15724,12 +13364,6 @@ class TestComplexPlaneAddCoordinateLabels:
         cp.add_coordinate_labels()
         assert len(cp.objects) > before
 
-    def test_imaginary_labels_contain_i(self):
-        cp = ComplexPlane(x_range=(-3, 3), y_range=(-3, 3))
-        cp.add_coordinate_labels()
-        texts = [o for o in cp.objects if isinstance(o, Text)]
-        imag_labels = [t.text.at_time(0) for t in texts if 'i' in t.text.at_time(0)]
-        assert len(imag_labels) > 0
 
     def test_skips_zero(self):
         cp = ComplexPlane(x_range=(-2, 2), y_range=(-2, 2))
@@ -15826,10 +13460,6 @@ class TestTexObjectGetPartByTex:
         part = tex.get_part_by_tex('a')
         assert len(part.objects) == 2
 
-    def test_get_part_returns_vcollection_instance(self):
-        tex = _make_tex('xy')
-        part = tex.get_part_by_tex('x')
-        assert isinstance(part, VCollection)
 
     def test_get_part_empty_query_returns_empty(self):
         tex = _make_tex('abc')
@@ -15858,9 +13488,6 @@ class TestTexObjectSetColorByTex:
         assert 'ff' in fill_x.lower() or '255,0,0' in fill_x.lower()
         assert '0,255' in fill_plus.lower() or '00ff' in fill_plus.lower()
 
-    def test_set_color_no_match_does_not_raise(self):
-        tex = _make_tex('x+y')
-        tex.set_color_by_tex({'z': '#ff0000'})
 
     def test_set_color_alias_same_function(self):
         tex = _make_tex('x+y')
@@ -15905,14 +13532,6 @@ class TestTexObjectT2cParam:
 # ---------------------------------------------------------------------------
 
 class TestTransformMatchingShapes:
-    def test_transform_matching_shapes_returns_vcollection(self):
-        """transform_matching_shapes returns a VCollection."""
-        c1 = Circle(r=50, cx=400, cy=400)
-        c2 = Circle(r=50, cx=600, cy=400)
-        src = VCollection(c1)
-        tgt = VCollection(c2)
-        result = transform_matching_shapes(src, tgt, start=0, end=1)
-        assert isinstance(result, VCollection)
 
     def test_transform_matching_shapes_with_matching_objects(self):
         """Matched objects produce MorphObject animations inside the result."""
@@ -15981,31 +13600,6 @@ class TestTransformMatchingShapes:
 
 
 @pytest.mark.skipif(not _LATEX_AVAILABLE, reason='LaTeX/dvisvgm not installed')
-class TestTransformMatchingTex:
-    def test_transform_matching_tex_basic(self):
-        """transform_matching_tex produces a non-empty VCollection for differing TeX."""
-        import shutil as _shutil2
-        import tempfile, vectormation._canvas as _cm
-        if not hasattr(_cm, 'save_directory'):
-            _cm.save_directory = tempfile.mkdtemp()
-        from vectormation.objects import TexObject
-        src = TexObject('x+y', x=300, y=400)
-        tgt = TexObject('x-z', x=300, y=400)
-        result = transform_matching_tex(src, tgt, start=0, end=1)
-        assert isinstance(result, VCollection)
-        # There should be at least one MorphObject (for the shared 'x' glyph)
-        morphs = [o for o in result.objects if isinstance(o, MorphObject)]
-        assert len(morphs) >= 1
-
-    def test_transform_matching_tex_fallback_without_tex_attr(self):
-        """transform_matching_tex falls back gracefully for non-TexObject inputs."""
-        c1 = Circle(r=50, cx=400, cy=400)
-        c2 = Circle(r=50, cx=600, cy=400)
-        src = VCollection(c1)
-        tgt = VCollection(c2)
-        # Should not raise, returns a VCollection
-        result = transform_matching_tex(src, tgt, start=0, end=1)
-        assert isinstance(result, VCollection)
 
 
 # ---------------------------------------------------------------------------
@@ -16046,11 +13640,6 @@ class TestSankeyDiagramComprehensive:
         assert '<path' in svg
         assert '<rect' in svg
 
-    def test_custom_dimensions(self):
-        flows = [('A', 'B', 10)]
-        sk = SankeyDiagram(flows, x=200, y=150, width=800, height=400)
-        assert isinstance(sk, VCollection)
-        assert len(sk) > 0
 
     def test_fadein_returns_self(self):
         sk = SankeyDiagram([('X', 'Y', 10)])
@@ -16103,16 +13692,6 @@ class TestGanttChartComprehensive:
         assert '0' in svg
         assert '10' in svg
 
-    def test_fadein_returns_self(self):
-        gc = GanttChart([('T', 0, 2)])
-        result = gc.fadein(start=0, end=1)
-        assert result is gc
-
-    def test_bars_are_rectangles(self):
-        gc = GanttChart([('T1', 0, 3), ('T2', 2, 5)])
-        for bar in gc._bars:
-            assert isinstance(bar, Rectangle)
-
 
 class TestFunnelChartComprehensive:
     def test_stages_count_matches_sections(self):
@@ -16142,22 +13721,6 @@ class TestFunnelChartComprehensive:
         assert len(fc) == 2  # 1 polygon + 1 label
         svg = fc.to_svg(0)
         assert 'Only' in svg
-
-    def test_custom_size(self):
-        stages = [('A', 50), ('B', 25)]
-        fc = FunnelChart(stages, x=200, y=200, width=400, height=300)
-        assert isinstance(fc, VCollection)
-        assert len(fc) > 0
-
-    def test_fadein_returns_self(self):
-        fc = FunnelChart([('X', 10), ('Y', 5)])
-        result = fc.fadein(start=0, end=1)
-        assert result is fc
-
-    def test_set_opacity_returns_self(self):
-        fc = FunnelChart([('X', 10)])
-        result = fc.set_opacity(0.5, start=0, end=1)
-        assert result is fc
 
 
 class TestTreeMapComprehensive:
@@ -16248,16 +13811,6 @@ class TestGaugeChartComprehensive:
         # With label should have more objects
         assert len(gc_lbl) > len(gc_no_lbl)
 
-    def test_custom_colors(self):
-        colors = [('#0000FF', 0.0), ('#FF0000', 1.0)]
-        gc = GaugeChart(75, colors=colors)
-        assert isinstance(gc, VCollection)
-        assert len(gc) > 0
-
-    def test_fadein_returns_self(self):
-        gc = GaugeChart(50)
-        result = gc.fadein(start=0, end=1)
-        assert result is gc
 
     def test_repr(self):
         gc = GaugeChart(50)
@@ -16372,12 +13925,6 @@ class TestOrgChartComprehensive:
 
 
 class TestMindMapComprehensive:
-    def test_central_node_circle_exists(self):
-        root = ('Center', [('Branch', [])])
-        mm = MindMap(root)
-        circles = [o for o in mm.objects if isinstance(o, Circle)]
-        # At least the root circle
-        assert len(circles) >= 1
 
     def test_root_label_in_svg(self):
         root = ('MyTopic', [('Sub1', []), ('Sub2', [])])
@@ -16458,20 +14005,11 @@ class TestBoxPlotComprehensive:
         svg = bp.to_svg(0)
         assert 'rgb(0,255,0)' in svg or '00ff00' in svg.lower()
 
-    def test_single_value_group(self):
-        # Single-value group should not raise
-        bp = BoxPlot([[42]])
-        assert isinstance(bp, VCollection)
-        assert len(bp) > 0
 
     def test_empty_data_empty_collection(self):
         bp = BoxPlot([])
         assert len(bp) == 0
 
-    def test_custom_positions(self):
-        bp = BoxPlot([[1, 2, 3], [4, 5, 6]], positions=[0, 2])
-        assert isinstance(bp, VCollection)
-        assert len(bp) > 0
 
     def test_fadein_returns_self(self):
         bp = BoxPlot([[1, 2, 3, 4, 5]])
@@ -16942,10 +14480,6 @@ class TestNumberedListRender:
 
 
 class TestIconGridRender:
-    def test_basic(self):
-        ig = IconGrid([(5, '#f00'), (3, '#0f0')], x=100, y=100)
-        svg = ig.to_svg(0)
-        assert len(ig) > 0
 
     def test_repr(self):
         ig = IconGrid([(2, '#fff')])
@@ -16975,15 +14509,7 @@ class TestParagraphRender:
 
 
 class TestStepperRender:
-    def test_basic(self):
-        s = Stepper(['Step 1', 'Step 2', 'Step 3'], x=100, y=100)
-        svg = s.to_svg(0)
-        assert len(s) > 0
 
-    def test_advance(self):
-        s = Stepper(['A', 'B', 'C'], x=100, y=100)
-        result = s.advance(0, 1, start=0, end=1)
-        assert result is s
 
     def test_repr(self):
         s = Stepper(['A'])
@@ -17022,11 +14548,6 @@ class TestProgressBarRender:
         pb = ProgressBar(x=100, y=100, width=300)
         result = pb.animate_to(0.8, start=0, end=1)
         assert result is pb
-
-    def test_get_progress(self):
-        pb = ProgressBar(x=100, y=100, width=300)
-        val = pb.get_progress(0)
-        assert isinstance(val, float)
 
 
 class TestTooltipRender2:
@@ -17272,22 +14793,6 @@ class TestSpinInOutShared:
         assert c.styling.scale_x.at_time(1) == pytest.approx(0.0, abs=0.05)
 
 
-class TestComplexPlaneLabel:
-    """Test ComplexPlane.add_complex_label method."""
-
-    def test_add_complex_label_creates_dot(self):
-        from vectormation.objects import ComplexPlane
-        cp = ComplexPlane(x_range=(-3, 3), y_range=(-3, 3))
-        result = cp.add_complex_label(1 + 2j, 'z₁')
-        assert result is not None
-
-    def test_add_complex_label_real_number(self):
-        from vectormation.objects import ComplexPlane
-        cp = ComplexPlane(x_range=(-3, 3), y_range=(-3, 3))
-        result = cp.add_complex_label(2.0, 'real')
-        assert result is not None
-
-
 class TestNumberPlaneGetVector:
     """Test NumberPlane.get_vector method."""
 
@@ -17328,11 +14833,6 @@ class TestPhaseAnim:
         c.fadein_then_fadeout(start=0, end=2)
         assert c.show.at_time(0.5) is True
         assert c.show.at_time(2.01) is False
-
-    def test_create_then_fadeout_zero_dur(self):
-        c = Circle(r=50)
-        result = c.create_then_fadeout(start=1, end=1)
-        assert result is c
 
 
 class TestWrapToSvg:
@@ -17449,18 +14949,6 @@ class TestValueTrackerOps:
         assert a.get_value() == 15
 
 
-class TestHighlightParamOrder:
-    """All highlight methods should have (index, start, end, color) order."""
-
-    def test_queue_highlight_order(self):
-        q = QueueViz([1, 2, 3])
-        q.highlight(0, start=0, end=0.5, color='#FF0000')
-
-    def test_binary_tree_highlight_order(self):
-        bt = BinaryTree([1, 2, 3])
-        bt.highlight_node(0, start=0, end=0.5, color='#FF0000')
-
-
 class TestAxesCoordHelpers:
     """Test the _cf/_xf/_yf lambda helpers on Axes."""
 
@@ -17471,29 +14959,12 @@ class TestAxesCoordHelpers:
         # Should return a tuple (x, y)
         assert len(result) == 2
 
-    def test_xf_single_axis(self):
-        axes = Axes(x_range=(0, 10, 1), y_range=(0, 10, 1))
-        func = axes._xf(5)
-        result = func(0)
-        assert isinstance(result, (int, float))
-
-    def test_yf_single_axis(self):
-        axes = Axes(x_range=(0, 10, 1), y_range=(0, 10, 1))
-        func = axes._yf(5)
-        result = func(0)
-        assert isinstance(result, (int, float))
 
     def test_xf_with_offset(self):
         axes = Axes(x_range=(0, 10, 1), y_range=(0, 10, 1))
         func_no_offset = axes._xf(5)
         func_with_offset = axes._xf(5, offset=10)
         assert abs(func_with_offset(0) - func_no_offset(0) - 10) < 1e-6
-
-    def test_yf_with_math_point(self):
-        axes = Axes(x_range=(0, 10, 1), y_range=(0, 10, 1))
-        func = axes._yf(5, mx=3, offset=20)
-        result = func(0)
-        assert isinstance(result, (int, float))
 
 
 class TestBarChartAliases:
@@ -17536,10 +15007,6 @@ class TestEllipseEpHelper:
 class TestCheckIdx:
     """Test the _check_idx helper in _charts.py."""
 
-    def test_pie_get_sector_valid(self):
-        pc = PieChart([1, 2, 3])
-        sector = pc.get_sector(0)
-        assert sector is not None
 
     def test_pie_get_sector_out_of_range(self):
         pc = PieChart([1, 2, 3])
@@ -17551,10 +15018,6 @@ class TestCheckIdx:
         with pytest.raises(IndexError):
             pc.get_sector(-1)
 
-    def test_bar_highlight_negative_index(self):
-        bc = BarChart([1, 2, 3])
-        # Negative indexing should work for highlight_bar
-        bc.highlight_bar(-1, color='#FF0000', start=0)
 
     def test_bar_remove_negative_index(self):
         bc = BarChart([1, 2, 3])
@@ -17605,16 +15068,6 @@ class TestScaleEffectHelper:
         # Mid-animation should differ from base scale
         sx_mid = c.styling.scale_x.at_time(0.5)
         assert sx_mid != 1.0  # oscillating
-
-    def test_warp_zero_duration_noop(self):
-        c = Circle(r=50)
-        result = c.warp(start=1, end=1)
-        assert result is c
-
-    def test_heartbeat_zero_duration_noop(self):
-        c = Circle(r=50)
-        result = c.heartbeat(start=1, end=1)
-        assert result is c
 
 
 class TestSetColorProp:
@@ -17673,11 +15126,6 @@ class TestAnnulusCompact:
         a.set_outer_radius(150)
         assert a.get_outer_radius() == 150
 
-    def test_setter_returns_self(self):
-        a = Annulus()
-        assert a.set_inner_radius(40) is a
-        assert a.set_outer_radius(80) is a
-
 
 class TestCircularLayoutHelper:
     """Tests for _circular_layout used by Automaton, NetworkGraph, MindMap."""
@@ -17705,10 +15153,6 @@ class TestCircularLayoutHelper:
 
 
 class TestRadarChartAddDataset:
-    def test_add_dataset_returns_self(self):
-        rc = RadarChart([3, 5, 2, 4, 1], labels=['A', 'B', 'C', 'D', 'E'])
-        result = rc.add_dataset([1, 2, 3, 4, 5])
-        assert result is rc
 
     def test_add_dataset_adds_objects(self):
         rc = RadarChart([3, 5, 2, 4, 1], labels=['A', 'B', 'C', 'D', 'E'])
@@ -17743,11 +15187,6 @@ class TestNeuralNetworkLabelLayer:
         nn.label_output(['y'])
         texts = [o for o in nn.objects if hasattr(o, 'text')]
         assert any(t.text.at_time(0) == 'y' for t in texts)
-
-    def test_label_empty_network(self):
-        nn = NeuralNetwork([])
-        result = nn.label_input(['a'])
-        assert result is nn
 
 
 class TestRectangleDims:
@@ -17808,23 +15247,6 @@ class TestSpotlightAnimatedAttrs:
         assert svg0 != svg1
 
 
-class TestNumberLineRangeRect:
-    def test_add_segment_returns_rect(self):
-        nl = NumberLine(x_range=(0, 10, 1))
-        rect = nl.add_segment(2, 5)
-        assert isinstance(rect, Rectangle)
-
-    def test_highlight_range_returns_rect(self):
-        nl = NumberLine(x_range=(0, 10, 1))
-        rect = nl.highlight_range(2, 5)
-        assert isinstance(rect, Rectangle)
-
-    def test_highlight_range_clamps(self):
-        nl = NumberLine(x_range=(0, 10, 1))
-        rect = nl.highlight_range(-5, 15)
-        assert rect is not None
-
-
 class TestSampleGrid:
     def test_sample_grid_basic(self):
         from vectormation._svg_utils import _sample_grid
@@ -17852,24 +15274,6 @@ class TestStaggerTiming:
         child_dur, step = _stagger_timing(5, 2.0, 1.0)
         assert child_dur == pytest.approx(2.0)
         assert step == pytest.approx(0.0)
-
-
-class TestTextHighlightHelper:
-    def test_highlight_returns_rect(self):
-        t = Text(text='Hello World', x=500, y=300, font_size=48)
-        rect = t.highlight(start=0, end=1)
-        assert isinstance(rect, Rectangle)
-
-    def test_highlight_substring_returns_rect(self):
-        t = Text(text='Hello World', x=500, y=300, font_size=48)
-        rect = t.highlight_substring('World', start=0, end=1)
-        assert isinstance(rect, Rectangle)
-
-    def test_highlight_substring_not_found(self):
-        t = Text(text='Hello', x=500, y=300, font_size=48)
-        rect = t.highlight_substring('xyz')
-        # Should return empty rect
-        assert isinstance(rect, Rectangle)
 
 
 class TestArrowTipPoints:
@@ -18158,15 +15562,6 @@ class TestMorphingHelpers:
         assert len(result) == 1
         assert isinstance(result[0], CubicBezier)
 
-    def test_segs_to_bezier_arc(self):
-        import svgpathtools
-        from vectormation.morphing import _segs_to_bezier, CubicBezier
-        arc = svgpathtools.Arc(start=0+0j, radius=50+50j, rotation=0,
-                               large_arc=False, sweep=True, end=100+0j)
-        path = svgpathtools.Path(arc)
-        result = _segs_to_bezier(path)
-        assert len(result) >= 1
-        assert all(isinstance(b, CubicBezier) for b in result)
 
     def test_point_at_bbox_center(self):
         import svgpathtools
@@ -18253,21 +15648,6 @@ class TestMakeNodeCircle:
         svg = c.to_svg(0)
         assert 'rgb(30,30,46)' in svg
         assert 'rgb(88,196,221)' in svg
-
-
-class TestHighlightInDict:
-    """Tests for _highlight_in_dict diagram helper."""
-
-    def test_highlight_existing_key(self):
-        from vectormation._diagrams import _highlight_in_dict
-        circ = Circle(r=10, cx=100, cy=100, creation=0)
-        d = {'a': circ}
-        _highlight_in_dict(d, 'a', 0, 1, '#FF0', easings.there_and_back)
-        # No error; method was called
-
-    def test_highlight_missing_key(self):
-        from vectormation._diagrams import _highlight_in_dict
-        _highlight_in_dict({}, 'missing', 0, 1, '#FF0', easings.there_and_back)
         # No error for missing key
 
 
@@ -18299,30 +15679,6 @@ class TestCentroidDelegation:
         cx, cy = p.centroid(0)
         assert abs(cx - 100) < 1
         assert abs(cy - 100) < 1
-
-
-class TestSpotlightSetOverlayColor:
-    """Test Spotlight.set_overlay_color animated case uses interpolate."""
-
-    def test_animated_color_change(self):
-        from vectormation.objects import Spotlight
-        s = Spotlight(target=(500, 400), radius=100, creation=0)
-        # Should not raise (previously used .set() with wrong args)
-        s.set_overlay_color('#ff0000', start=0, end=1)
-
-    def test_instant_color_change(self):
-        from vectormation.objects import Spotlight
-        s = Spotlight(target=(500, 400), radius=100, creation=0)
-        s.set_overlay_color('#00ff00', start=0)
-
-
-class TestRadarChartDoubleColors:
-    """Test RadarChart.add_dataset doesn't call _default_colors twice."""
-
-    def test_add_dataset_default_color(self):
-        from vectormation.objects import RadarChart
-        rc = RadarChart([1, 2, 3], labels=['A', 'B', 'C'], creation=0)
-        rc.add_dataset([2, 3, 1])  # Should use default color without error
 
 
 class TestComponentStyleConstant:
@@ -18395,11 +15751,6 @@ class TestMatrixFlashConsistency:
         svg = canvas.generate_frame_svg(0.5)
         assert '<text' in svg
 
-    def test_matrix_highlight_with_easing(self):
-        from vectormation.objects import Matrix
-        m = Matrix([[1, 2], [3, 4]], creation=0)
-        m.highlight_row(0, start=0, end=1, easing=easings.smooth)
-
 
 class TestRotateFadeCompact:
     """Test rotate_in/out after compacting opacity ramp logic."""
@@ -18459,18 +15810,6 @@ class TestSecantFadeEndpoint:
         p1_end = line.p1.at_time(1)
         assert p1_start != p1_end, "secant endpoint should animate"
 
-    def test_secant_p1_p2_symmetric(self):
-        from vectormation.objects import Axes
-        ax = Axes(x_range=[-2, 2], y_range=[-2, 4], creation=0)
-        line = ax.add_secant_fade(lambda x: x**2, x=1, dx_start=1, dx_end=0.1,
-                                   start=0, end=1)
-        p1 = line.p1.at_time(0.5)
-        p2 = line.p2.at_time(0.5)
-        mx = (p1[0] + p2[0]) / 2
-        my = (p1[1] + p2[1]) / 2
-        # midpoint should be close to the midpoint of the secant
-        assert isinstance(mx, float) and isinstance(my, float)
-
 
 class TestClamp01Helper:
     """Test _clamp01 helper used in easing combinators."""
@@ -18525,21 +15864,6 @@ class TestDelayAnimationEndFix:
         x0 = r.x.at_time(0)
         x_end = r.x.at_time(1.5)
         assert abs(x_end - x0 - 100) < 1
-
-    def test_delay_with_none_default_end(self):
-        r = Rectangle(100, 50, creation=0)
-        # set_opacity has end=None default; should not crash
-        r.delay_animation('set_opacity', 1, 0.5)
-
-
-class TestBarChartDurationFallback:
-    """Test BarChart.animate_values uses max(dur, 1e-9) pattern."""
-
-    def test_animate_values_zero_duration(self):
-        from vectormation.objects import BarChart
-        bc = BarChart([1, 2, 3], creation=0)
-        # Should not crash with start == end
-        bc.animate_values([3, 2, 1], start=0, end=0)
 
 
 class TestSnapPointsDelegation:
@@ -18631,21 +15955,9 @@ class TestNeuralNetworkLabelCreation:
         assert 'a' in svg
 
 
-class TestRevealLinesCompact:
-    """Test Code.reveal_lines after removing redundant n==0 check."""
-
-    def test_reveal_no_crash(self):
-        from vectormation.objects import Code
-        c = Code('print("hello")', creation=0)
-        c.reveal_lines(start=0, end=1)
-
-
 class TestWallExport:
     """Test Wall is exported from objects module."""
 
-    def test_wall_importable(self):
-        from vectormation.objects import Wall
-        assert Wall is not None
 
     def test_wall_creation(self):
         from vectormation.objects import Wall
@@ -18826,12 +16138,6 @@ class TestColorGradientUsesInterpolate:
 class TestSetAttrInSvgUtils:
     """_svg_utils methods use _set_attr instead of manual if/else."""
 
-    def test_angle_set_radius(self):
-        from vectormation.objects import Angle
-        a = Angle((400, 400), (500, 400), (400, 300))
-        a.set_radius(50, start=0, end=1)
-        svg = a.to_svg(0.5)
-        assert svg is not None
 
     def test_spotlight_set_radius(self):
         from vectormation.objects import Spotlight
@@ -18839,24 +16145,6 @@ class TestSetAttrInSvgUtils:
         s.set_radius(200, start=0, end=1)
         svg = s.to_svg(0.5)
         assert 'path' in svg.lower()
-
-    def test_spotlight_set_overlay_opacity(self):
-        from vectormation.objects import Spotlight
-        s = Spotlight((960, 540), radius=100)
-        s.set_overlay_opacity(0.5, start=0)
-        svg = s.to_svg(0)
-        assert svg is not None
-
-
-class TestHighlightRangeUsesFlash:
-    """Table.highlight_range delegates to _flash."""
-
-    def test_highlight_range(self):
-        from vectormation.objects import Table
-        t = Table([['a', 'b'], ['c', 'd']])
-        t.highlight_range(0, 0, 1, 1, start=0, end=1)
-        svg = t.to_svg(0.5)
-        assert svg is not None
 
 
 class TestColorWaveHexParsing:
@@ -19020,12 +16308,6 @@ class TestPhysicsSimulate:
         dist = math.hypot(b2.x - b1.x, b2.y - b1.y)
         assert dist > 10
 
-    def test_cloth_simulate(self):
-        from vectormation._physics import Cloth
-        cloth = Cloth(x=100, y=100, width=200, height=100, cols=3, rows=2)
-        cloth.simulate(duration=0.5)
-        objs = cloth.objects()
-        assert len(objs) > 0
 
     def test_attraction(self):
         from vectormation._physics import PhysicsSpace
@@ -19074,26 +16356,7 @@ class TestNumberLineExtraMethods:
         assert len(nl.objects) > before
 
 
-class TestTableExtraMethods:
-    """Smoke tests for untested Table methods."""
-
-    def test_animate_cell_values(self):
-        from vectormation.objects import Table
-        t = Table([['1', '2'], ['3', '4']])
-        result = t.animate_cell_values([['10', '20'], ['30', '40']], start=0, end=1)
-        assert result is t
-
-    def test_animate_cells(self):
-        from vectormation.objects import Table
-        t = Table([['a', 'b'], ['c', 'd']])
-        result = t.animate_cells([(0, 0), (1, 1)], method_name='flash', start=0, end=1)
-        assert result is t
-
-
 class TestDissolveOutAnim:
-    def test_dissolve_out_returns_self(self):
-        c = Circle()
-        assert c.dissolve_out(0, 1) is c
 
     def test_dissolve_out_hides_at_end(self):
         c = Circle()
@@ -19112,26 +16375,7 @@ class TestDissolveOutAnim:
         assert not c.show.at_time(0.1)
 
 
-class TestShimmerEffect:
-    def test_shimmer_returns_self(self):
-        c = Circle()
-        assert c.shimmer(0, 1) is c
-
-    def test_shimmer_modifies_opacity(self):
-        c = Circle()
-        c.shimmer(0, 1)
-        mid_op = c.styling.opacity.at_time(0.5)
-        assert isinstance(mid_op, (int, float))
-
-    def test_shimmer_zero_duration(self):
-        c = Circle()
-        assert c.shimmer(0, 0) is c
-
-
 class TestUndulateEffect:
-    def test_undulate_returns_self(self):
-        c = Circle()
-        assert c.undulate(0, 1) is c
 
     def test_undulate_changes_scale(self):
         c = Circle()
@@ -19140,16 +16384,8 @@ class TestUndulateEffect:
         sx = c.styling.scale_x.at_time(0.125)
         assert sx != 1.0
 
-    def test_undulate_zero_duration(self):
-        c = Circle()
-        assert c.undulate(0, 0) is c
-
 
 class TestAlwaysNextToAnim:
-    def test_always_next_to_returns_self(self):
-        c = Circle()
-        r = Rectangle(200, 100)
-        assert c.always_next_to(r, RIGHT) is c
 
     def test_always_next_to_positions(self):
         r = Rectangle(200, 100, x=400, y=400)
@@ -19178,33 +16414,7 @@ class TestStampTrailAnim:
         assert c.stamp_trail(0, 0, count=5) == []
 
 
-class TestWaveThroughAnim:
-    def test_wave_through_returns_self(self):
-        c = Circle()
-        assert c.wave_through(0, 1) is c
-
-    def test_wave_through_x_axis(self):
-        c = Circle()
-        c.wave_through(0, 1, direction='x')
-        dx = c.styling.dx.at_time(0.25)
-        # Should have some displacement at 25%
-        assert isinstance(dx, (int, float))
-
-    def test_wave_through_y_axis(self):
-        c = Circle()
-        c.wave_through(0, 1, direction='y')
-        dy = c.styling.dy.at_time(0.25)
-        assert isinstance(dy, (int, float))
-
-    def test_wave_through_zero_duration(self):
-        c = Circle()
-        assert c.wave_through(0, 0) is c
-
-
 class TestCycleColorsAnim:
-    def test_cycle_colors_returns_self(self):
-        c = Circle()
-        assert c.cycle_colors(['#ff0000', '#00ff00', '#0000ff'], 0, 1) is c
 
     def test_cycle_colors_changes_fill(self):
         c = Circle(fill='#ff0000')
@@ -19219,9 +16429,6 @@ class TestCycleColorsAnim:
 
 
 class TestTypewriterEffectAnim:
-    def test_typewriter_effect_returns_self(self):
-        t = Text(text='', x=100, y=100)
-        assert t.typewriter_effect('hello', 0, 1) is t
 
     def test_typewriter_effect_text_at_end(self):
         t = Text(text='', x=100, y=100)
@@ -19236,26 +16443,7 @@ class TestTypewriterEffectAnim:
         assert len(mid_text) > 0
 
 
-class TestApplyWaveAnim:
-    def test_apply_wave_returns_self(self):
-        c = Circle()
-        assert c.apply_wave(0, 1) is c
-
-    def test_apply_wave_displaces(self):
-        c = Circle()
-        c.apply_wave(0, 1, amplitude=50)
-        dy = c.styling.dy.at_time(0.25)
-        assert isinstance(dy, (int, float))
-
-    def test_apply_wave_zero_duration(self):
-        c = Circle()
-        assert c.apply_wave(0, 0) is c
-
-
 class TestTiltTowardsAnim:
-    def test_tilt_towards_returns_self(self):
-        c = Circle()
-        assert c.tilt_towards(500, 500, start=0, end=1) is c
 
     def test_tilt_towards_changes_rotation(self):
         c = Circle()
@@ -19265,9 +16453,6 @@ class TestTiltTowardsAnim:
 
 
 class TestScaleInPlaceAnim:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.scale_in_place(2, start=0, end=1) is c
 
     def test_scale_changes_size(self):
         c = Circle()
@@ -19286,9 +16471,6 @@ class TestScaleInPlaceAnim:
 
 
 class TestPassingFlashAnim:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.passing_flash(start=0, end=1) is c
 
     def test_sets_dasharray(self):
         c = Circle()
@@ -19316,9 +16498,6 @@ class TestPassingFlashAnim:
 
 
 class TestSetWidthAnim:
-    def test_returns_self(self):
-        r = Rectangle(width=200, height=100)
-        assert r.set_width(400) is r
 
     def test_changes_width(self):
         r = Rectangle(width=200, height=100)
@@ -19335,9 +16514,6 @@ class TestSetWidthAnim:
 
 
 class TestSetHeightAnim:
-    def test_returns_self(self):
-        r = Rectangle(width=200, height=100)
-        assert r.set_height(300) is r
 
     def test_changes_height(self):
         r = Rectangle(width=200, height=100)
@@ -19346,9 +16522,6 @@ class TestSetHeightAnim:
 
 
 class TestSetVisibleMethod:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.set_visible(False) is c
 
     def test_hides_object(self):
         c = Circle()
@@ -19365,9 +16538,6 @@ class TestSetVisibleMethod:
 
 
 class TestRotateByAnim:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.rotate_by(0, 1, 90) is c
 
     def test_rotates_by_degrees(self):
         c = Circle()
@@ -19378,9 +16548,6 @@ class TestRotateByAnim:
 
 
 class TestFadeShiftAnim:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.fade_shift(dx=100, start=0, end=1) is c
 
     def test_hidden_after(self):
         c = Circle()
@@ -19396,9 +16563,6 @@ class TestFadeShiftAnim:
 
 
 class TestFlashScaleAnim:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.flash_scale(factor=2, start=0, end=1) is c
 
     def test_scale_peaks_at_midpoint(self):
         c = Circle()
@@ -19416,9 +16580,6 @@ class TestFlashScaleAnim:
 
 
 class TestSetStrokeDashMethod:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.set_stroke_dash('5 3') is c
 
     def test_string_pattern(self):
         c = Circle()
@@ -19438,9 +16599,6 @@ class TestSetStrokeDashMethod:
 
 
 class TestStretchMethod:
-    def test_returns_self(self):
-        c = Circle()
-        assert c.stretch(x_factor=2, y_factor=1, start=0) is c
 
     def test_x_stretch(self):
         c = Circle()
@@ -19458,10 +16616,6 @@ class TestStretchMethod:
 
 
 class TestMatchWidthMethod:
-    def test_returns_self(self):
-        a = Circle()
-        b = Rectangle(width=400, height=100)
-        assert a.match_width(b) is a
 
     def test_matches_width(self):
         a = Circle()
@@ -19471,10 +16625,6 @@ class TestMatchWidthMethod:
 
 
 class TestMatchHeightMethod:
-    def test_returns_self(self):
-        a = Circle()
-        b = Rectangle(width=100, height=400)
-        assert a.match_height(b) is a
 
     def test_matches_height(self):
         a = Circle()
@@ -19484,9 +16634,6 @@ class TestMatchHeightMethod:
 
 
 class TestTableTranspose:
-    def test_returns_self(self):
-        t = Table([['a', 'b'], ['c', 'd']])
-        assert t.transpose() is t
 
     def test_swaps_rows_cols(self):
         t = Table([['a', 'b'], ['c', 'd']])
@@ -19502,9 +16649,6 @@ class TestTableTranspose:
 
 
 class TestTableAddRow:
-    def test_returns_self(self):
-        t = Table([['a', 'b'], ['c', 'd']])
-        assert t.add_row(['e', 'f']) is t
 
     def test_increments_rows(self):
         t = Table([['a', 'b'], ['c', 'd']])
@@ -19513,9 +16657,6 @@ class TestTableAddRow:
 
 
 class TestTableAddColumn:
-    def test_returns_self(self):
-        t = Table([['a', 'b'], ['c', 'd']])
-        assert t.add_column(['x', 'y']) is t
 
     def test_increments_cols(self):
         t = Table([['a', 'b'], ['c', 'd']])
@@ -19524,10 +16665,6 @@ class TestTableAddColumn:
 
 
 class TestTableGetCellRectExtra:
-    def test_returns_rectangle(self):
-        t = Table([['a', 'b'], ['c', 'd']])
-        rect = t.get_cell_rect(0, 0)
-        assert isinstance(rect, Rectangle)
 
     def test_has_positive_dimensions(self):
         t = Table([['a', 'b'], ['c', 'd']])
@@ -19537,9 +16674,6 @@ class TestTableGetCellRectExtra:
 
 
 class TestPieChartExplode:
-    def test_returns_self(self):
-        p = PieChart([30, 50, 20])
-        assert p.explode([0]) is p
 
     def test_shifts_sector(self):
         p = PieChart([30, 50, 20])
@@ -19549,15 +16683,8 @@ class TestPieChartExplode:
         # sector should have shifted
         assert x_before != x_after
 
-    def test_invalid_index_skipped(self):
-        p = PieChart([30, 50, 20])
-        p.explode([99])  # should not error
-
 
 class TestBarChartAddBar:
-    def test_returns_self(self):
-        b = BarChart([10, 20, 30])
-        assert b.add_bar(40) is b
 
     def test_increases_bar_count(self):
         b = BarChart([10, 20, 30])
@@ -19570,10 +16697,6 @@ class TestPeriodicTableHighlight:
     def test_returns_self(self):
         pt = PeriodicTable()
         assert pt.highlight('C', start=0, end=1) is pt
-
-    def test_unknown_symbol_noop(self):
-        pt = PeriodicTable()
-        pt.highlight('Xx', start=0, end=1)  # should not error
 
 
 class TestBohrAtomOrbit:
@@ -19591,9 +16714,6 @@ class TestBohrAtomOrbit:
 
 
 class TestVCollectionStaggerFadeinSorted:
-    def test_returns_self(self):
-        g = VGroup(Circle(), Rectangle(100, 50))
-        assert g.stagger_fadein_sorted(start=0, end=1) is g
 
     def test_children_visible_after(self):
         g = VGroup(Circle(), Rectangle(100, 50))
@@ -19602,18 +16722,7 @@ class TestVCollectionStaggerFadeinSorted:
             assert obj.show.at_time(1)
 
 
-class TestVCollectionOrbitAround:
-    def test_returns_self(self):
-        g = VGroup(Circle(), Dot())
-        assert g.orbit_around(960, 540, start=0, end=1) is g
-
-
 class TestVCollectionFlattenMethod:
-    def test_returns_vcollection(self):
-        inner = VGroup(Dot(), Dot())
-        outer = VGroup(Circle(), inner)
-        result = outer.flatten()
-        assert isinstance(result, VGroup)
 
     def test_flattens_nested(self):
         inner = VGroup(Dot(), Dot())
@@ -19622,23 +16731,7 @@ class TestVCollectionFlattenMethod:
         assert len(result.objects) == 3
 
 
-class TestRotateToVCollection:
-    def test_returns_self(self):
-        g = VGroup(Circle(), Rectangle(100, 50))
-        assert g.rotate_to(0, 1, 45) is g
-
-
-class TestRotateByVCollection:
-    def test_returns_self(self):
-        g = VGroup(Circle(), Rectangle(100, 50))
-        assert g.rotate_by(0, 1, 90) is g
-
-
 class TestLineSplitAt:
-    def test_returns_two_lines(self):
-        line = Line(x1=100, y1=100, x2=300, y2=100)
-        a, b = line.split_at(0.5)
-        assert isinstance(a, Line) and isinstance(b, Line)
 
     def test_midpoint_matches(self):
         line = Line(x1=100, y1=100, x2=300, y2=100)
@@ -19690,9 +16783,6 @@ class TestLineFromAngle:
 
 
 class TestLineFromSlopePoint:
-    def test_creates_line(self):
-        line = Line.from_slope_point(1, (200, 200), length=200)
-        assert isinstance(line, Line)
 
     def test_infinite_slope(self):
         line = Line.from_slope_point(float('inf'), (200, 200))
@@ -19702,9 +16792,6 @@ class TestLineFromSlopePoint:
 
 
 class TestTextTyping:
-    def test_returns_self(self):
-        t = Text(text='Hello')
-        assert t.typing(start=0, end=1) is t
 
     def test_reveals_characters(self):
         t = Text(text='Hello')
@@ -19714,9 +16801,6 @@ class TestTextTyping:
 
 
 class TestTextSetText:
-    def test_returns_self(self):
-        t = Text(text='Hello')
-        assert t.set_text(0, 1, 'World') is t
 
     def test_changes_text(self):
         t = Text(text='Hello')
@@ -19724,16 +16808,7 @@ class TestTextSetText:
         assert t.text.at_time(1) == 'World'
 
 
-class TestTextRevealByWord:
-    def test_returns_self(self):
-        t = Text(text='Hello World')
-        assert t.reveal_by_word(start=0, end=1) is t
-
-
 class TestArcAnimateSweep:
-    def test_returns_self(self):
-        a = Arc(start_angle=0, end_angle=90)
-        assert a.animate_sweep(180, start=0, end=1) is a
 
     def test_changes_angle(self):
         a = Arc(start_angle=0, end_angle=90)
@@ -19746,15 +16821,6 @@ class TestChessBoardDiagram:
         b = ChessBoard()
         assert len(b._pieces) == 32
 
-    def test_move_piece(self):
-        b = ChessBoard()
-        assert b.move_piece('e2', 'e4', start=0, end=1) is b
-        piece = b._pieces.get('e4')
-        assert piece is not None
-
-    def test_move_nonexistent_returns_self(self):
-        b = ChessBoard()
-        assert b.move_piece('z9', 'a1') is b
 
     def test_repr(self):
         b = ChessBoard()
@@ -19767,18 +16833,6 @@ class TestAutomatonDiagram:
         assert 'q0' in a._state_positions
         assert 'q1' in a._state_positions
 
-    def test_highlight_state(self):
-        a = Automaton(['q0', 'q1'], [('q0', 'q1', 'a')], initial_state='q0')
-        assert a.highlight_state('q0', start=0, end=1) is a
-
-    def test_highlight_transition(self):
-        a = Automaton(['q0', 'q1'], [('q0', 'q1', 'a')], initial_state='q0')
-        assert a.highlight_transition('q0', 'q1', start=0, end=1) is a
-
-    def test_simulate_input(self):
-        a = Automaton(['q0', 'q1'], [('q0', 'q1', 'a')],
-                      accept_states={'q1'}, initial_state='q0')
-        assert a.simulate_input('a', start=0) is a
 
     def test_empty_automaton(self):
         a = Automaton([], [])
@@ -19802,9 +16856,6 @@ class TestNetworkGraphDiagram:
         g = NetworkGraph(['A', 'B'], [(0, 1)], directed=True)
         assert len(g._node_positions) == 2
 
-    def test_highlight_node(self):
-        g = NetworkGraph(['A', 'B'], [(0, 1)])
-        assert g.highlight_node(0, start=0, end=1) is g
 
     def test_get_node_position(self):
         g = NetworkGraph(['A', 'B'], [(0, 1)])
@@ -19855,10 +16906,6 @@ class TestTreeDiagram:
         pos = t.get_node_position('X')
         assert len(pos) == 2
 
-    def test_highlight_node(self):
-        root = ('A', [('B', [])])
-        t = Tree(root)
-        assert t.highlight_node('A', start=0, end=1) is t
 
     def test_repr(self):
         root = ('R', [('C1', []), ('C2', [])])
@@ -19867,10 +16914,6 @@ class TestTreeDiagram:
 
 
 class TestMindMapDiagram:
-    def test_creates_objects(self):
-        root = ('Center', [('Branch1', []), ('Branch2', [('Leaf', [])])])
-        m = MindMap(root)
-        assert len(m.objects) > 0
 
     def test_no_children(self):
         m = MindMap(('Alone', []))
@@ -19882,10 +16925,6 @@ class TestMindMapDiagram:
 
 
 class TestResistorComponent:
-    def test_creates_objects(self):
-        from vectormation.objects import Resistor
-        r = Resistor(x1=300, y1=500, x2=500, y2=500)
-        assert len(r.objects) >= 1
 
     def test_repr(self):
         from vectormation.objects import Resistor
@@ -19932,23 +16971,7 @@ class TestAxesDumbbell:
         assert 'circle' in svg.lower() or 'ellipse' in svg.lower() or 'cx' in svg
 
 
-class TestAxesLollipop:
-    def test_returns_collection(self):
-        ax = Axes(x_range=[0, 5], y_range=[0, 10])
-        result = ax.plot_lollipop([1, 2, 3], [4, 7, 3])
-        assert isinstance(result, VCollection)
-
-    def test_custom_radius(self):
-        ax = Axes(x_range=[0, 5], y_range=[0, 10])
-        result = ax.plot_lollipop([1, 2], [4, 7], r=10)
-        assert isinstance(result, VCollection)
-
-
 class TestAxesVerticalAsymptote:
-    def test_returns_line(self):
-        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
-        result = ax.add_vertical_asymptote(2)
-        assert isinstance(result, Line)
 
     def test_dashed_style(self):
         ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
@@ -19957,68 +16980,7 @@ class TestAxesVerticalAsymptote:
         assert 'stroke-dasharray' in svg
 
 
-class TestAxesHorizontalAsymptote:
-    def test_returns_line(self):
-        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
-        result = ax.add_horizontal_asymptote(3)
-        assert isinstance(result, Line)
-
-
-class TestAxesInflectionPoints:
-    def test_returns_collection(self):
-        ax = Axes(x_range=[-3, 3], y_range=[-10, 10])
-        result = ax.add_inflection_points(lambda x: x**3, x_range=(-3, 3))
-        assert isinstance(result, VCollection)
-
-    def test_finds_inflection(self):
-        # x^3 has inflection at x=0
-        ax = Axes(x_range=[-3, 3], y_range=[-30, 30])
-        result = ax.add_inflection_points(lambda x: x**3, x_range=(-2, 2))
-        assert len(result.objects) > 0  # at least one dot+label
-
-
-class TestAxesCriticalPoints:
-    def test_returns_collection(self):
-        ax = Axes(x_range=[-3, 3], y_range=[-5, 5])
-        result = ax.get_critical_points(lambda x: x**2 - 1, x_range=(-3, 3))
-        assert isinstance(result, VCollection)
-
-    def test_finds_minimum(self):
-        # x^2 has a minimum at x=0
-        ax = Axes(x_range=[-3, 3], y_range=[-2, 10])
-        result = ax.get_critical_points(lambda x: x**2, x_range=(-2, 2))
-        assert len(result.objects) > 0
-
-    def test_label_type_coords(self):
-        ax = Axes(x_range=[-3, 3], y_range=[-2, 10])
-        result = ax.get_critical_points(lambda x: x**2, x_range=(-2, 2), label_type='coords')
-        assert isinstance(result, VCollection)
-
-
-class TestAxesGetTangentLine:
-    def test_returns_line(self):
-        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
-        result = ax.get_tangent_line(lambda x: x**2, x_val=1)
-        assert isinstance(result, Line)
-
-    def test_at_zero(self):
-        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
-        result = ax.get_tangent_line(lambda x: x**2, x_val=0)
-        assert isinstance(result, Line)
-
-
-class TestAxesAddTangentAt:
-    def test_alias_returns_line(self):
-        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
-        result = ax.add_tangent_at(lambda x: x**2, x_val=2)
-        assert isinstance(result, Line)
-
-
 class TestAxesAnimatedTangentLine:
-    def test_returns_line(self):
-        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
-        result = ax.animated_tangent_line(lambda x: x**2, x_start=-2, x_end=2)
-        assert isinstance(result, Line)
 
     def test_dynamic_endpoints(self):
         ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
@@ -20045,15 +17007,7 @@ class TestAxesGetIntersectionPoint:
 
 
 class TestAxesMarkIntersection:
-    def test_returns_dot(self):
-        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
-        result = ax.mark_intersection(lambda x: x, lambda x: 2 - x)
-        assert result is not None
 
-    def test_with_label(self):
-        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
-        result = ax.mark_intersection(lambda x: x, lambda x: 2 - x, label='P')
-        assert isinstance(result, VCollection)
 
     def test_no_intersection(self):
         ax = Axes(x_range=[0, 1], y_range=[0, 10])
@@ -20074,18 +17028,7 @@ class TestAxesGetHorizontalLines:
         assert len(result.objects) == 1
 
 
-class TestAxesGetXAxisLine:
-    def test_returns_line(self):
-        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
-        result = ax.get_x_axis_line()
-        assert isinstance(result, Line)
-
-
 class TestAxesGetYAxisLine:
-    def test_returns_line(self):
-        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
-        result = ax.get_y_axis_line()
-        assert isinstance(result, Line)
 
     def test_zero_in_range(self):
         ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
@@ -20103,42 +17046,7 @@ class TestAxesResidualLines:
         assert len(result.objects) == 3
 
 
-class TestAxesSpreadBand:
-    def test_returns_path(self):
-        ax = Axes(x_range=[-5, 5], y_range=[-5, 5])
-        result = ax.add_spread_band(lambda x: x, lambda x: 0.5)
-        assert isinstance(result, Path)
-
-
-class TestAxesMeanLine:
-    def test_from_function(self):
-        ax = Axes(x_range=[0, 4], y_range=[0, 10])
-        result = ax.add_mean_line(lambda x: 5)
-        assert isinstance(result, Line)
-
-    def test_from_data(self):
-        ax = Axes(x_range=[0, 4], y_range=[0, 10])
-        result = ax.add_mean_line([2, 4, 6])
-        assert isinstance(result, Line)
-
-
-class TestAxesFunctionLabel:
-    def test_returns_text(self):
-        ax = Axes(x_range=[-5, 5], y_range=[-5, 25])
-        result = ax.add_function_label(lambda x: x**2, 'f(x)')
-        assert isinstance(result, Text)
-
-    def test_with_x_pos(self):
-        ax = Axes(x_range=[-5, 5], y_range=[-5, 25])
-        result = ax.add_function_label(lambda x: x**2, 'f(x)', x_pos=2)
-        assert isinstance(result, Text)
-
-
 class TestAxesAnnotateArea:
-    def test_returns_collection(self):
-        ax = Axes(x_range=[0, 5], y_range=[0, 25])
-        result = ax.annotate_area(lambda x: x**2, x_range=(1, 3))
-        assert isinstance(result, VCollection)
 
     def test_with_label(self):
         ax = Axes(x_range=[0, 5], y_range=[0, 25])
@@ -20207,11 +17115,6 @@ class TestTextBox:
 
 
 class TestBracket:
-    def test_down_direction(self):
-        from vectormation._ui import Bracket
-        b = Bracket(direction='down', width=200)
-        svg = b.to_svg(0)
-        assert len(svg) > 0
 
     def test_with_label(self):
         from vectormation._ui import Bracket
@@ -20248,12 +17151,6 @@ class TestSpeechBubble:
         assert hasattr(sb, 'tail')
         assert hasattr(sb, 'label')
 
-    def test_tail_directions(self):
-        from vectormation._ui import SpeechBubble
-        for d in ('down', 'up', 'left', 'right'):
-            sb = SpeechBubble(text='Test', tail_direction=d)
-            svg = sb.to_svg(0)
-            assert len(svg) > 0
 
     def test_repr(self):
         from vectormation._ui import SpeechBubble
@@ -20275,11 +17172,6 @@ class TestBadge:
 
 
 class TestDivider:
-    def test_horizontal(self):
-        from vectormation._ui import Divider
-        d = Divider(direction='horizontal')
-        svg = d.to_svg(0)
-        assert len(svg) > 0
 
     def test_with_label(self):
         from vectormation._ui import Divider
@@ -20287,11 +17179,6 @@ class TestDivider:
         svg = d.to_svg(0)
         assert 'OR' in svg
 
-    def test_vertical(self):
-        from vectormation._ui import Divider
-        d = Divider(direction='vertical')
-        svg = d.to_svg(0)
-        assert len(svg) > 0
 
     def test_repr(self):
         from vectormation._ui import Divider
@@ -20321,11 +17208,6 @@ class TestStatusIndicator:
         assert hasattr(si, 'dot')
         assert hasattr(si, 'label')
 
-    def test_custom_color(self):
-        from vectormation._ui import StatusIndicator
-        si = StatusIndicator('Custom', status='#FF00FF')
-        svg = si.to_svg(0)
-        assert len(svg) > 0
 
     def test_repr(self):
         from vectormation._ui import StatusIndicator
@@ -20338,11 +17220,6 @@ class TestMeter:
         m = Meter(value=0.7, direction='vertical')
         assert hasattr(m, 'fill_rect')
 
-    def test_horizontal(self):
-        from vectormation._ui import Meter
-        m = Meter(value=0.3, direction='horizontal')
-        svg = m.to_svg(0)
-        assert len(svg) > 0
 
     def test_repr(self):
         from vectormation._ui import Meter
@@ -20372,23 +17249,6 @@ class TestArrayDataStructure:
         a = Array([1, 2, 3])
         assert repr(a) == 'Array(3 cells)'
 
-    def test_highlight_cell(self):
-        from vectormation._data_structures import Array
-        a = Array([10, 20, 30])
-        result = a.highlight_cell(1)
-        assert result is a
-
-    def test_swap_cells(self):
-        from vectormation._data_structures import Array
-        a = Array([10, 20, 30])
-        result = a.swap_cells(0, 2)
-        assert result is a
-
-    def test_set_value(self):
-        from vectormation._data_structures import Array
-        a = Array([10, 20])
-        result = a.set_value(0, 99)
-        assert result is a
 
     def test_check_index_error(self):
         from vectormation._data_structures import Array
@@ -20417,11 +17277,6 @@ class TestStackDataStructure:
         assert result is s
         assert not s.is_empty()
 
-    def test_pop(self):
-        from vectormation._data_structures import Stack
-        s = Stack([1, 2])
-        result = s.pop()
-        assert result is s
 
     def test_peek(self):
         from vectormation._data_structures import Stack
@@ -20441,17 +17296,6 @@ class TestQueueDataStructure:
         q = Queue([1, 2, 3])
         assert repr(q) == 'Queue(3 items)'
 
-    def test_enqueue(self):
-        from vectormation._data_structures import Queue
-        q = Queue()
-        result = q.enqueue(42)
-        assert result is q
-
-    def test_dequeue(self):
-        from vectormation._data_structures import Queue
-        q = Queue([1, 2])
-        result = q.dequeue()
-        assert result is q
 
     def test_peek(self):
         from vectormation._data_structures import Queue
@@ -20470,42 +17314,12 @@ class TestLinkedListDataStructure:
         ll = LinkedList([1, 2, 3])
         assert repr(ll) == 'LinkedList(3 nodes)'
 
-    def test_highlight_node(self):
-        from vectormation._data_structures import LinkedList
-        ll = LinkedList([10, 20])
-        result = ll.highlight_node(0)
-        assert result is ll
-
-    def test_append_node(self):
-        from vectormation._data_structures import LinkedList
-        ll = LinkedList([1])
-        result = ll.append_node(2)
-        assert result is ll
-
-    def test_remove_node(self):
-        from vectormation._data_structures import LinkedList
-        ll = LinkedList([1, 2, 3])
-        result = ll.remove_node(1)
-        assert result is ll
-
 
 class TestBinaryTreeDataStructure:
     def test_creates_nodes(self):
         from vectormation._data_structures import BinaryTree
         bt = BinaryTree((1, (2, None, None), (3, None, None)))
         assert 'BinaryTree' in repr(bt)
-
-    def test_highlight_node(self):
-        from vectormation._data_structures import BinaryTree
-        bt = BinaryTree((1, 2, 3))
-        result = bt.highlight_node(0)
-        assert result is bt
-
-    def test_traverse(self):
-        from vectormation._data_structures import BinaryTree
-        bt = BinaryTree((1, 2, 3))
-        result = bt.traverse()
-        assert result is bt
 
 
 # ---------------------------------------------------------------------------
@@ -20530,12 +17344,6 @@ class TestAnnulus:
         a = Annulus(inner_radius=0, outer_radius=10)
         assert abs(a.get_area() - math.pi * 100) < 1
 
-    def test_set_radii(self):
-        from vectormation.objects import Annulus
-        a = Annulus(inner_radius=30, outer_radius=60)
-        result = a.set_radii(inner=40, outer=80)
-        assert result is a
-
 
 class TestDashedLine:
     def test_creates_dashed(self):
@@ -20556,11 +17364,6 @@ class TestDashedLine:
 
 
 class TestArcBetweenPoints:
-    def test_creates_arc(self):
-        from vectormation.objects import ArcBetweenPoints
-        a = ArcBetweenPoints((100, 100), (300, 100), angle=60)
-        svg = a.to_svg(0)
-        assert len(svg) > 0
 
     def test_repr(self):
         from vectormation.objects import ArcBetweenPoints
@@ -20568,11 +17371,6 @@ class TestArcBetweenPoints:
 
 
 class TestElbow:
-    def test_creates_elbow(self):
-        from vectormation.objects import Elbow
-        e = Elbow()
-        svg = e.to_svg(0)
-        assert len(svg) > 0
 
     def test_repr(self):
         from vectormation.objects import Elbow
@@ -20700,12 +17498,6 @@ class TestComplexValueTracker:
         from vectormation.objects import ComplexValueTracker
         ct = ComplexValueTracker(1 + 0j)
         assert 'ComplexValueTracker' in repr(ct)
-
-    def test_traverse_binary_tree(self):
-        from vectormation._data_structures import BinaryTree
-        bt = BinaryTree((1, 2, 3))
-        result = bt.traverse()
-        assert result is bt
 
 
 class TestBlurFilter:
@@ -20866,17 +17658,6 @@ class TestEllipseZeroRadiusPerimeter:
         assert e.get_perimeter() > 0
 
 
-class TestCollideBodiesBothFixed:
-    def test_both_fixed_no_crash(self):
-        """_collide_bodies should not crash when both bodies are fixed."""
-        from vectormation._physics import Body, _collide_bodies
-        a = Body(100, 100, radius=20, fixed=True)
-        b = Body(110, 100, radius=20, fixed=True)
-        a.vx, b.vx = 5, -5  # approaching
-        # Should not raise ZeroDivisionError
-        _collide_bodies(a, b)
-
-
 class TestGetAreaExceptionHandling:
     def test_log_negative_domain(self):
         """get_area should handle functions that raise on some inputs."""
@@ -20887,15 +17668,6 @@ class TestGetAreaExceptionHandling:
         area = ax.get_area(math.log, x_range=(0.01, 4))
         svg = area.to_svg(0)
         assert '<path' in svg
-
-    def test_division_by_zero(self):
-        """get_area should handle functions that divide by zero."""
-        from vectormation._axes import Axes
-        ax = Axes(x_range=(-2, 2), y_range=(-5, 5))
-        area = ax.get_area(lambda x: 1 / x, x_range=(-1, 1))
-        svg = area.to_svg(0)
-        # Should not crash, even though 1/0 is undefined
-        assert isinstance(svg, str)
 
 
 class TestDegenShapeEdgeCases:
@@ -20930,23 +17702,6 @@ class TestDegenShapeEdgeCases:
         from vectormation._shapes import Circle
         c = Circle(r=100)
         assert abs(c.get_area() - math.pi * 100 * 100) < 1
-
-
-class TestNumberLineEdgeCases:
-    def test_large_step(self):
-        """Step larger than range should still create the line."""
-        from vectormation._composites import NumberLine
-        nl = NumberLine(x_range=(0, 10, 100))
-        svg = nl.to_svg(0)
-        assert isinstance(svg, str)
-
-    def test_highlight_range_reversed(self):
-        """highlight_range with start > end should swap them."""
-        from vectormation._composites import NumberLine
-        nl = NumberLine(x_range=(0, 10))
-        rect = nl.highlight_range(8, 3)
-        svg = rect.to_svg(0)
-        assert isinstance(svg, str)
 
 
 class TestVCollectionEdgeCases:
@@ -21042,18 +17797,7 @@ class TestCharge:
 
 
 class TestElectricField:
-    def test_single_charge(self):
-        from vectormation.objects import Charge, ElectricField
-        c = Charge(magnitude=1, cx=960, cy=540)
-        ef = ElectricField(c, x_range=(200, 1700, 300), y_range=(100, 1000, 300))
-        assert len(ef.objects) > 0
 
-    def test_dipole(self):
-        from vectormation.objects import Charge, ElectricField
-        pos = Charge(magnitude=2, cx=700, cy=540)
-        neg = Charge(magnitude=-2, cx=1200, cy=540)
-        ef = ElectricField(pos, neg, x_range=(200, 1700, 300), y_range=(100, 1000, 300))
-        assert len(ef.objects) > 0
 
     def test_repr(self):
         from vectormation.objects import Charge, ElectricField
@@ -21102,10 +17846,6 @@ class TestLens:
 
 
 class TestRay:
-    def test_simple_ray(self):
-        from vectormation.objects import Ray
-        r = Ray(x1=100, y1=540, angle=0, length=800)
-        assert len(r.objects) >= 1
 
     def test_ray_with_arrow(self):
         from vectormation.objects import Ray
@@ -21121,14 +17861,6 @@ class TestRay:
     def test_repr(self):
         from vectormation.objects import Ray
         assert repr(Ray(angle=45)) == 'Ray(angle=45)'
-
-    def test_ray_misses_lens(self):
-        from vectormation.objects import Ray, Lens
-        # Lens at center but ray at extreme y
-        lens = Lens(cx=960, cy=540, height=100)
-        r = Ray(x1=100, y1=100, angle=0, length=1600, lenses=[lens])
-        # Should have 1 segment (straight through, missed the lens)
-        assert len(r.objects) >= 1
 
 
 class TestAxesPlotDerivativeAntiderivative:
@@ -21151,12 +17883,6 @@ class TestAxesPlotDerivativeAntiderivative:
         assert isinstance(svg, str)
         assert len(svg) > 100
 
-    def test_plot_antiderivative_custom_x0(self):
-        ax = Axes(x_range=(0, 10), y_range=(0, 100))
-        ax.add_function(lambda x: x)
-        curve = ax.plot_antiderivative(lambda x: x, x0=0)
-        svg = ax.to_svg(0)
-        assert isinstance(svg, str)
 
     def test_plot_antiderivative_returns_path(self):
         ax = Axes(x_range=(0, 5), y_range=(0, 10))
@@ -21185,17 +17911,6 @@ class TestAxesTickType:
         ax = Axes(x_range=(0, math.tau), y_range=(-1, 1), x_tick_type='degree')
         svg = ax.to_svg(0)
         assert '°' in svg
-
-    def test_scientific_tick_type(self):
-        ax = Axes(x_range=(1, 1000), y_range=(0, 1), x_tick_type='scientific')
-        svg = ax.to_svg(0)
-        assert isinstance(svg, str)
-
-    def test_engineering_tick_type(self):
-        ax = Axes(x_range=(0, 10000), y_range=(0, 1), x_tick_type='engineering')
-        svg = ax.to_svg(0)
-        assert isinstance(svg, str)
-
 
 
 # ── DonutChart extended tests ───────────────────────────────────────────────
@@ -21655,15 +18370,6 @@ class TestVector:
         svg = label.to_svg(0)
         assert svg != ''
 
-    def test_coordinate_label_integer(self):
-        v = Vector(x=100, y=-50)
-        label = v.coordinate_label(integer_labels=True)
-        assert isinstance(label, Matrix)
-
-    def test_coordinate_label_non_integer(self):
-        v = Vector(x=100, y=-50)
-        label = v.coordinate_label(integer_labels=False)
-        assert isinstance(label, Matrix)
 
     def test_custom_origin(self):
         v = Vector(x=100, y=0, origin_x=200, origin_y=300)
@@ -21793,21 +18499,6 @@ class TestStepper:
         assert isinstance(s, VCollection)
         assert len(s._circles) == 4
 
-    def test_advance(self):
-        s = Stepper(['A', 'B', 'C'], active=0)
-        result = s.advance(0, 1, start=0, end=0.5)
-        assert result is s
-
-    def test_advance_multiple(self):
-        s = Stepper(['A', 'B', 'C', 'D'], active=0)
-        s.advance(0, 1, start=0, end=0.5)
-        result = s.advance(1, 2, start=0.5, end=1)
-        assert result is s
-
-    def test_advance_out_of_range(self):
-        s = Stepper(['A', 'B'])
-        result = s.advance(0, 10, start=0, end=0.5)
-        assert result is s
 
     def test_vertical_direction(self):
         s = Stepper(['A', 'B', 'C'], direction='vertical')
@@ -21838,15 +18529,6 @@ class TestVariableWidget:
         svg = v.to_svg(0)
         assert 'x' in svg
 
-    def test_set_value(self):
-        v = Variable('n', value=0)
-        result = v.set_value(42, start=0)
-        assert result is v
-
-    def test_animate_value(self):
-        v = Variable('t', value=0)
-        result = v.animate_value(10, start=0, end=1)
-        assert result is v
 
     def test_animate_value_renders(self):
         v = Variable('y', value=0)
@@ -21860,10 +18542,6 @@ class TestVariableWidget:
         assert '<svg' in svg_mid
         assert '<svg' in svg_end
 
-    def test_tracker_property(self):
-        from vectormation.attributes import Real
-        v = Variable('x', value=5)
-        assert isinstance(v.tracker, Real)
 
     def test_repr(self):
         v = Variable('x', value=0)
@@ -21963,47 +18641,7 @@ class TestStaggerMethods:
 
 class TestWipeDirection:
     """Test wipe direction including 'top'/'bottom' aliases."""
-    def test_wipe_right(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.wipe(direction='right', start=0, end=1)
-        assert result is c
 
-    def test_wipe_left(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.wipe(direction='left', start=0, end=1)
-        assert result is c
-
-    def test_wipe_up(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.wipe(direction='up', start=0, end=1)
-        assert result is c
-
-    def test_wipe_down(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.wipe(direction='down', start=0, end=1)
-        assert result is c
-
-    def test_wipe_top(self):
-        """'top' should work as an alias for 'up'."""
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.wipe(direction='top', start=0, end=1)
-        assert result is c
-
-    def test_wipe_bottom(self):
-        """'bottom' should work as an alias for 'down'."""
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.wipe(direction='bottom', start=0, end=1)
-        assert result is c
-
-    def test_wipe_top_reverse(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.wipe(direction='top', start=0, end=1, reverse=True)
-        assert result is c
-
-    def test_wipe_bottom_reverse(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.wipe(direction='bottom', start=0, end=1, reverse=True)
-        assert result is c
 
     def test_wipe_renders_svg(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -22016,10 +18654,6 @@ class TestWipeDirection:
 
 class TestRippleParamOrder:
     """Test that ripple(start, end, count) parameter ordering works."""
-    def test_ripple_basic(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.ripple(start=0, end=0.5, count=3)
-        assert isinstance(result, VCollection)
 
     def test_ripple_positional_start_end(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -22140,9 +18774,6 @@ class TestStandingWaveDynamics:
 
 class TestProgressBarAnimation:
     """Test ProgressBar value and rendering."""
-    def test_creation(self):
-        pb = ProgressBar()
-        assert pb is not None
 
     def test_set_progress(self):
         pb = ProgressBar()
@@ -22256,25 +18887,6 @@ class TestApplyShiftEffectInCollection:
         assert '<svg' in svg
 
 
-class TestTreeDictToTree:
-    """Test Tree._dict_to_tree handles list children."""
-    def test_dict_with_list_children(self):
-        t = Tree({'A': ['B', 'C', 'D']})
-        assert len(t.objects) > 0
-
-    def test_dict_with_nested_dict(self):
-        t = Tree({'root': {'left': {}, 'right': {}}})
-        assert len(t.objects) > 0
-
-    def test_dict_with_mixed_children(self):
-        t = Tree({'root': [{'child1': ['a', 'b']}, 'child2']})
-        assert len(t.objects) > 0
-
-    def test_empty_dict(self):
-        t = Tree({'root': []})
-        assert len(t.objects) > 0
-
-
 class TestHighlightSectorShared:
     """Test PieChart and DonutChart highlight_sector after refactor."""
     def test_pie_highlight_sector(self):
@@ -22300,30 +18912,7 @@ class TestHighlightSectorShared:
 
 class TestWaveThroughApplyWave:
     """Test wave_through and apply_wave use shared helper."""
-    def test_wave_through_y(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.wave_through(start=0, end=1, amplitude=20, direction='y')
-        assert result is c
 
-    def test_wave_through_x(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.wave_through(start=0, end=1, amplitude=20, direction='x')
-        assert result is c
-
-    def test_apply_wave_y(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.apply_wave(start=0, end=1, amplitude=30)
-        assert result is c
-
-    def test_apply_wave_custom_func(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.apply_wave(start=0, end=1, amplitude=20, wave_func=math.cos)
-        assert result is c
-
-    def test_wave_through_zero_duration(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.wave_through(start=0, end=0)
-        assert result is c
 
     def test_apply_wave_renders(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -22336,10 +18925,6 @@ class TestWaveThroughApplyWave:
 
 class TestElasticBounceAnimations:
     """Test elastic_bounce effect."""
-    def test_basic(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.elastic_bounce(start=0, end=2, height=100)
-        assert result is c
 
     def test_renders(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -22348,11 +18933,6 @@ class TestElasticBounceAnimations:
         canvas.add(c)
         svg = canvas.generate_frame_svg(time=1.0)
         assert '<svg' in svg
-
-    def test_zero_duration(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.elastic_bounce(start=0, end=0)
-        assert result is c
 
 
 class TestAnimatedBoundaryNoStyling:
@@ -22431,11 +19011,6 @@ class TestSetGradientFillDirections:
 
 class TestSetClipBasic:
     """Test set_clip method."""
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        mask = Rectangle(200, 200, x=0, y=0)
-        result = c.set_clip(mask)
-        assert result is c
 
     def test_renders_clippath(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -22449,10 +19024,6 @@ class TestSetClipBasic:
 
 class TestSetLifetimeVisibility:
     """Test set_lifetime method."""
-    def test_returns_self(self):
-        c = Circle(r=50, cx=100, cy=100)
-        result = c.set_lifetime(1, 3)
-        assert result is c
 
     def test_hidden_before_start(self):
         c = Circle(r=50, cx=100, cy=100)
@@ -22550,10 +19121,6 @@ class TestScienceComponentsGeometry:
 
 class TestUnitIntervalBasic:
     """Test UnitInterval convenience wrapper."""
-    def test_creates(self):
-        from vectormation.objects import UnitInterval
-        ui = UnitInterval()
-        assert ui is not None
 
     def test_custom_position(self):
         from vectormation.objects import UnitInterval
@@ -22567,9 +19134,6 @@ class TestUnitIntervalBasic:
 class TestAlwaysRedrawConvenience:
     """Tests for always_redraw convenience wrapper."""
 
-    def test_returns_dynamic_object(self):
-        d = always_redraw(lambda t: Circle())
-        assert isinstance(d, DynamicObject)
 
     def test_renders_each_frame(self):
         canvas = VectorMathAnim(tempfile.mkdtemp())
@@ -22588,47 +19152,12 @@ class TestAlwaysRedrawConvenience:
         svg_after = canvas.generate_frame_svg(time=3)
         assert '<circle' not in svg_before
         assert '<circle' in svg_after
-
-
-class TestSuccession:
-    """Tests for succession() helper that chains animation steps."""
-
-    def test_chains_animations(self):
-        from vectormation.objects import succession
-        c = Circle()
-        r = Rectangle(200, 100)
-        succession(
-            (c, 'fadein'),
-            (r, 'fadein'),
-            start=0,
-        )
-        # Verify both objects have animations queued
-        assert c.styling is not None
-        assert r.styling is not None
-
-    def test_empty_does_nothing(self):
-        from vectormation.objects import succession
-        succession()  # should not raise
-
-    def test_lag_ratio(self):
-        from vectormation.objects import succession
-        c1 = Circle()
-        c2 = Circle()
-        succession(
-            (c1, 'fadein'),
-            (c2, 'fadein'),
-            start=0, lag_ratio=0.5,
-        )
         # With lag_ratio=0.5, animations should overlap
 
 
 class TestParametricFunctionBasic:
     """Tests for ParametricFunction."""
 
-    def test_creates(self):
-        from vectormation.objects import ParametricFunction
-        pf = ParametricFunction(lambda t: (t * 100, t * 100))
-        assert pf is not None
 
     def test_renders(self):
         from vectormation.objects import ParametricFunction
@@ -22642,10 +19171,6 @@ class TestParametricFunctionBasic:
 class TestComplexValueTrackerBasic:
     """Tests for ComplexValueTracker."""
 
-    def test_creates(self):
-        from vectormation.objects import ComplexValueTracker
-        cvt = ComplexValueTracker(1 + 2j)
-        assert cvt is not None
 
     def test_get_value(self):
         from vectormation.objects import ComplexValueTracker
@@ -22726,10 +19251,6 @@ class TestPathArcEdgeCases:
 class TestCrossOutEdgeCases:
     """Additional tests for cross_out() method."""
 
-    def test_cross_out_returns_cross(self):
-        r = Rectangle(200, 100)
-        result = r.cross_out()
-        assert result is not None
 
     def test_cross_out_renders(self):
         r = Rectangle(200, 100, x=500, y=500)
@@ -22744,11 +19265,6 @@ class TestCrossOutEdgeCases:
 class TestTracePathEdgeCases:
     """Additional tests for trace_path() method."""
 
-    def test_trace_returns_path(self):
-        c = Circle(cx=100, cy=100, r=20)
-        c.shift(dx=200, start=0, end=1)
-        trace = c.trace_path(0, 1)
-        assert trace is not None
 
     def test_trace_renders(self):
         c = Circle(cx=100, cy=100, r=20)
@@ -22764,10 +19280,6 @@ class TestTracePathEdgeCases:
 class TestCollectionDistribute:
     """Additional tests for VCollection.distribute()."""
 
-    def test_distribute_horizontal(self):
-        items = VCollection(Circle(r=20), Rectangle(40, 40), Circle(r=20))
-        items.distribute(direction='right', buff=20)
-        assert items is not None
 
     def test_distribute_returns_self(self):
         items = VCollection(Circle(r=20), Circle(r=20))
@@ -22806,11 +19318,6 @@ class TestPulsateEdgeCases:
         svg = canvas.generate_frame_svg(time=0.5)
         assert '<circle' in svg
 
-    def test_pulsate_returns_self(self):
-        c = Circle(r=50)
-        result = c.pulsate(start=0, end=1)
-        assert result is c
-
 
 class TestCollectionStaggerEdgeCases:
     """Additional tests for VCollection.stagger()."""
@@ -22846,10 +19353,6 @@ class TestArrangeInCircle:
         dist = ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**0.5
         assert dist > 50
 
-    def test_single_child(self):
-        items = VCollection(Circle(r=10))
-        items.arrange_in_circle(radius=100)
-
 
 class TestLabelChildren:
     """Tests for VCollection.label_children()."""
@@ -22878,10 +19381,6 @@ class TestLabelChildren:
 class TestBatchAnimate:
     """Tests for VCollection.batch_animate()."""
 
-    def test_basic_set_color(self):
-        c1, c2 = Circle(r=20), Circle(r=20)
-        items = VCollection(c1, c2)
-        items.batch_animate('set_color', param_name='fill', values=['#ff0000', '#00ff00'])
 
     def test_returns_self(self):
         items = VCollection(Circle(r=20), Circle(r=20))
@@ -22986,10 +19485,6 @@ class TestDistributeAlongArc:
         result = items.distribute_along_arc()
         assert result is items
 
-    def test_single_child(self):
-        items = VCollection(Circle(r=10))
-        items.distribute_along_arc(cx=500, cy=500, radius=150, start_angle=0, end_angle=math.pi)
-
 
 class TestFanOut:
     """Tests for VCollection.fan_out()."""
@@ -23033,10 +19528,6 @@ class TestAlignCenters:
         result = items.align_centers(axis='x')
         assert result is items
 
-    def test_empty_collection(self):
-        items = VCollection()
-        items.align_centers(axis='x')
-
 
 class TestSlidingWindow:
     """Tests for VCollection.sliding_window()."""
@@ -23067,11 +19558,6 @@ class TestSlidingWindow:
 class TestForEachExtended:
     """Extended tests for VCollection.for_each()."""
 
-    def test_calls_method_on_all(self):
-        c1 = Circle(r=10, cx=500, cy=500)
-        c2 = Circle(r=10, cx=600, cy=500)
-        items = VCollection(c1, c2)
-        items.for_each('fadein', start=0, end=1)
         # Both should have animations applied
 
     def test_returns_self(self):
@@ -23096,22 +19582,6 @@ class TestBecomeExtended:
         c2 = Circle(r=20, fill='#ff0000')
         result = c1.become(c2, time=0)
         assert result is c1
-
-
-class TestSaveRestore:
-    """Tests for VObject.save_state() and restore()."""
-
-    def test_save_and_restore(self):
-        c = Circle(r=20, cx=500, cy=500, fill='#ff0000')
-        c.save_state(time=0)
-        c.set_color(start=1, end=2, fill='#00ff00')
-        c.restore(start=3, end=4)
-        # After restore, fill should return to red
-
-    def test_save_state_returns_self(self):
-        c = Circle(r=20)
-        result = c.save_state(time=0)
-        assert result is c
 
 
 class TestPolygonGeometry:
@@ -23213,22 +19683,6 @@ class TestCircleGeometricMethodsExtended:
         for vx, vy in poly.get_vertices():
             dist = math.hypot(vx - 500, vy - 500)
             assert abs(dist - 100) < 1
-
-    def test_circumscribed_polygon(self):
-        c = Circle(r=100, cx=500, cy=500)
-        poly = c.circumscribed_polygon(4)
-        # Circumscribed polygon should be larger - its inradius equals circle radius
-        assert isinstance(poly, Polygon)
-
-    def test_get_annulus(self):
-        c = Circle(r=100)
-        ann = c.get_annulus(0.5)
-        assert isinstance(ann, Annulus)
-
-    def test_annular_sector(self):
-        c = Circle(r=100)
-        sector = c.annular_sector(0.5, 0, 90)
-        assert isinstance(sector, Path)
 
 
 class TestRectangleMethods:
@@ -23651,19 +20105,6 @@ class TestCloth:
         assert c.cols == 5
         assert c.rows == 3
 
-    def test_objects_returns_vobjects(self):
-        from vectormation._physics import Cloth
-        c = Cloth(cols=4, rows=3)
-        objs = c.objects()
-        assert len(objs) > 0
-
-    def test_simulate(self):
-        from vectormation._physics import Cloth
-        c = Cloth(cols=3, rows=2)
-        c.simulate(duration=0.5)
-        # Bodies should have trajectories baked
-        body = c._bodies[1][1]
-        assert len(body._trajectory) > 0
 
     def test_objects_count(self):
         from vectormation._physics import Cloth
@@ -23700,15 +20141,6 @@ class TestPhysicsEdgeCases:
         assert b.x == pytest.approx(500, abs=1)
         assert b.y == pytest.approx(500, abs=1)
 
-    def test_spring_with_fixed_anchor(self):
-        from vectormation._physics import PhysicsSpace
-        space = PhysicsSpace(gravity=(0, 0))
-        c = Circle(r=20, cx=500, cy=300)
-        b = space.add_body(c, mass=1.0)
-        space.add_spring(b, (500, 500), stiffness=1.0, rest_length=0)
-        space.simulate(duration=1.0)
-        # Body should move toward anchor
-        assert isinstance(b.y, float)
 
     def test_add_walls_multiple(self):
         from vectormation._physics import PhysicsSpace

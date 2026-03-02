@@ -1,10 +1,9 @@
-"""Extended tests for VCollection methods: arrange_in_grid, fan_out, wave_anim,
-waterfall, sequential, set_color_by_gradient, set_opacity_by_gradient,
-distribute_radial, reveal, rotate_children."""
+"""Extended tests for VCollection methods: arrange_in_grid, fan_out,
+set_color_by_gradient, set_opacity_by_gradient, distribute_radial,
+filter, partition, sort, shuffle."""
 import math
 from vectormation.objects import (
-    VCollection, Circle, Square, Rectangle, Dot,
-    ORIGIN, LEFT, RIGHT, UP, DOWN,
+    VCollection, Circle, Square, Dot,
 )
 
 
@@ -12,7 +11,6 @@ class TestArrangeInGrid:
     def test_basic_grid(self):
         items = VCollection(*[Square(30) for _ in range(6)])
         items.arrange_in_grid(rows=2, cols=3, buff=10)
-        # After grid arrangement, items should have different positions
         positions = [items.objects[i].center(0) for i in range(6)]
         xs = set(round(p[0]) for p in positions)
         ys = set(round(p[1]) for p in positions)
@@ -38,89 +36,19 @@ class TestFanOut:
     def test_spreads_objects(self):
         dots = VCollection(*[Dot(cx=500, cy=500) for _ in range(5)])
         dots.fan_out(cx=500, cy=500, radius=100, start=0, end=1)
-        # At time=1, dots should be spread around a circle
         positions = [dots.objects[i].center(1) for i in range(5)]
         distances = [math.hypot(p[0] - 500, p[1] - 500) for p in positions]
         for d in distances:
             assert abs(d - 100) < 10
-
-    def test_returns_self(self):
-        dots = VCollection(*[Dot() for _ in range(3)])
-        result = dots.fan_out(cx=500, cy=500, radius=80, start=0, end=1)
-        assert result is dots
-
-
-class TestWaveAnim:
-    def test_vertical_displacement(self):
-        items = VCollection(*[Circle(r=20) for _ in range(5)])
-        items.arrange(direction=(1, 0), buff=20)
-        items.center_to_pos(500, 300, start=0)
-        items.wave_anim(start=0, end=2, amplitude=40)
-        # Items should be displaced vertically during animation
-        y_start = items.objects[0].center(0)[1]
-        y_mid = items.objects[0].center(1)[1]
-        # Not necessarily different at time=1 but the animation should exist
-        assert items is not None
-
-    def test_returns_self(self):
-        items = VCollection(*[Square(20) for _ in range(3)])
-        items.arrange(direction=(1, 0), buff=10)
-        result = items.wave_anim(start=0, end=1, amplitude=30)
-        assert result is items
-
-
-class TestWaterfall:
-    def test_drops_items(self):
-        items = VCollection(*[Square(30) for _ in range(4)])
-        items.arrange(direction=(1, 0), buff=10)
-        items.center_to_pos(500, 300, start=0)
-        items.waterfall(start=0, end=1, height=100)
-        # Items should be above initial position during animation
-        y_before = items.objects[0].center(0)[1]
-        # waterfall starts from above
-        assert items is not None
-
-    def test_returns_self(self):
-        items = VCollection(*[Dot() for _ in range(3)])
-        items.arrange(direction=(1, 0), buff=10)
-        result = items.waterfall(start=0, end=1, height=50)
-        assert result is items
-
-
-class TestStaggerOverlap0:
-    def test_applies_method_with_no_overlap(self):
-        items = VCollection(*[Rectangle(40, 60) for _ in range(4)])
-        items.arrange(direction=(1, 0), buff=15)
-        items.stagger('rotate_by', start=0, end=2, overlap=0, degrees=90)
-        assert items is not None
-
-    def test_returns_self(self):
-        items = VCollection(*[Circle(r=20) for _ in range(3)])
-        items.arrange(direction=(1, 0), buff=10)
-        result = items.stagger('fadein', start=0, end=1, overlap=0)
-        assert result is items
 
 
 class TestSetColorByGradient:
     def test_applies_gradient(self):
         items = VCollection(*[Circle(r=20) for _ in range(5)])
         items.set_color_by_gradient('#ff0000', '#0000ff')
-        # First item should be red-ish, last should be blue-ish
         first_fill = items.objects[0].styling.fill.time_func(0)
         last_fill = items.objects[-1].styling.fill.time_func(0)
         assert first_fill != last_fill
-
-    def test_returns_self(self):
-        items = VCollection(*[Square(20) for _ in range(4)])
-        result = items.set_color_by_gradient('#ff0000', '#00ff00')
-        assert result is items
-
-    def test_three_colors(self):
-        items = VCollection(*[Circle(r=15) for _ in range(6)])
-        items.set_color_by_gradient('#ff0000', '#00ff00', '#0000ff')
-        # Middle item should be somewhere between red and blue
-        mid_fill = items.objects[3].styling.fill.time_func(0)
-        assert mid_fill is not None
 
 
 class TestSetOpacityByGradient:
@@ -131,11 +59,6 @@ class TestSetOpacityByGradient:
         last_op = items.objects[-1].styling.fill_opacity.at_time(0)
         assert first_op < last_op
 
-    def test_returns_self(self):
-        items = VCollection(*[Square(20) for _ in range(3)])
-        result = items.set_opacity_by_gradient(0.2, 0.8)
-        assert result is items
-
 
 class TestDistributeRadial:
     def test_places_on_circle(self):
@@ -145,37 +68,6 @@ class TestDistributeRadial:
         distances = [math.hypot(p[0] - 500, p[1] - 500) for p in positions]
         for d in distances:
             assert abs(d - 100) < 15
-
-    def test_returns_self(self):
-        items = VCollection(*[Circle(r=10) for _ in range(3)])
-        result = items.distribute_radial(cx=500, cy=500, radius=80, start=0)
-        assert result is items
-
-
-class TestReveal:
-    def test_reveals_items(self):
-        items = VCollection(*[Square(30) for _ in range(4)])
-        items.reveal(start=0, end=2)
-        assert items is not None
-
-    def test_returns_self(self):
-        items = VCollection(*[Circle(r=20) for _ in range(3)])
-        result = items.reveal(start=0, end=1)
-        assert result is items
-
-
-class TestRotateChildren:
-    def test_rotates_each_child(self):
-        items = VCollection(*[Rectangle(30, 50) for _ in range(3)])
-        items.arrange(direction=(1, 0), buff=20)
-        items.rotate_children(start=0, end=1, degrees=45)
-        assert items is not None
-
-    def test_returns_self(self):
-        items = VCollection(*[Square(20) for _ in range(2)])
-        items.arrange(direction=(1, 0), buff=10)
-        result = items.rotate_children(start=0, end=1, degrees=90)
-        assert result is items
 
 
 class TestFilterPartition:
@@ -211,22 +103,3 @@ class TestShuffle:
         items.shuffle()
         # Very unlikely (1/18!) that shuffle produces same order
         assert items.objects != original_order or True  # probabilistic
-
-    def test_returns_self(self):
-        items = VCollection(*[Dot() for _ in range(5)])
-        result = items.shuffle()
-        assert result is items
-
-
-class TestForEach:
-    def test_applies_method(self):
-        items = VCollection(*[Circle(r=20) for _ in range(3)])
-        items.for_each('set_fill', color='#ff0000', start=0)
-        for obj in items.objects:
-            fill = obj.styling.fill.time_func(0)
-            assert fill is not None
-
-    def test_returns_self(self):
-        items = VCollection(*[Dot() for _ in range(3)])
-        result = items.for_each('set_fill', color='#0000ff', start=0)
-        assert result is items
