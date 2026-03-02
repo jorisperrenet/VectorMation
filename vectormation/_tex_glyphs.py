@@ -108,9 +108,13 @@ def _assemble(tokens, x, y, font_size, creation, tex_dir, anchor, styles):
     from vectormation._base import VCollection
     from vectormation._svg_utils import from_svg
 
-    # Look up all glyphs, auto-compiling via LaTeX if needed
-    glyph_list = []
+    # Look up all glyphs, auto-compiling via LaTeX if needed.
+    # Spaces produce a cursor gap (no glyph lookup).
+    glyph_list = []  # parallel to tokens: glyph_data or None for spaces
     for tok in tokens:
+        if tok == ' ':
+            glyph_list.append(None)
+            continue
         g = _get_glyph(tok, tex_dir)
         if g is None:
             # Try to compile on-demand
@@ -127,7 +131,12 @@ def _assemble(tokens, x, y, font_size, creation, tex_dir, anchor, styles):
     elif anchor == 'end':
         anchor = 'right'
 
-    total_w = sum(_char_width(g, font_size) for g in glyph_list)
+    ref_h = _ref_height()
+    base_scale = font_size / ref_h
+    space_width = font_size * 0.3
+
+    total_w = sum(space_width if g is None else _char_width(g, font_size)
+                  for g in glyph_list)
     if anchor == 'center':
         offset_x = -total_w / 2
     elif anchor == 'right':
@@ -138,13 +147,17 @@ def _assemble(tokens, x, y, font_size, creation, tex_dir, anchor, styles):
     default_styles = {'stroke_width': 0, 'fill': '#fff'}
     merged = {**default_styles, **styles}
 
-    ref_h = _ref_height()
     objects = []
     cursor_x = x + offset_x
     for tok, glyph_data in zip(tokens, glyph_list):
+        if glyph_data is None:
+            cursor_x += space_width
+            continue
         vb = glyph_data[0]
-        base_scale = font_size / ref_h
         char_width = (abs(vb[2]) if vb[2] else 1) * base_scale
+        # Baseline correction: vb bottom (vb[1]+vb[3]) is 0 for baseline chars,
+        # negative for chars above baseline (°), positive for descenders (,)
+        baseline_offset = (vb[1] + vb[3]) * base_scale
         st = {**merged,
               'scale_x': base_scale * merged.get('scale_x', 1),
               'scale_y': base_scale * merged.get('scale_y', 1)}
@@ -155,14 +168,14 @@ def _assemble(tokens, x, y, font_size, creation, tex_dir, anchor, styles):
             for d, transform in paths:
                 obj = _make_path_obj(d, transform, **st)
                 obj.styling.dx.set_onward(creation, cursor_x)
-                obj.styling.dy.set_onward(creation, y)
+                obj.styling.dy.set_onward(creation, y + baseline_offset)
                 objects.append(obj)
         else:
             # LaTeX-compiled: glyph_data[1] is list of bs4 Tags
             for char_svg in glyph_data[1]:
                 obj = from_svg(char_svg, **st)
                 obj.styling.dx.set_onward(creation, cursor_x)
-                obj.styling.dy.set_onward(creation, y)
+                obj.styling.dy.set_onward(creation, y + baseline_offset)
                 objects.append(obj)
         cursor_x += char_width + font_size * 0.05
 
@@ -171,15 +184,22 @@ def _assemble(tokens, x, y, font_size, creation, tex_dir, anchor, styles):
 
 def assemble_tex_glyphs(text, x, y, font_size, creation=0, tex_dir=None,
                          anchor='center', **styles):
-    """Assemble a plain string character-by-character from cached glyphs.
+    """Assemble a string from cached glyphs.
 
-    Each character in *text* is treated as a single token.  Built-in glyphs
-    are used when available; missing characters are compiled via LaTeX
-    on-demand.  Returns None only if a character cannot be resolved at all
+    Plain characters are treated as individual tokens.  Backslash commands
+    like ``\\degree`` or ``\\pi`` are resolved via aliases or the glyph cache.
+    Returns None only if a character cannot be resolved at all
     (e.g. LaTeX not installed and character not built-in).
     """
     tex_dir = _resolve_tex_dir(tex_dir)
-    return _assemble(list(text), x, y, font_size, creation, tex_dir, anchor, styles)
+    # Use tokenizer if text contains backslash commands, otherwise split chars
+    if '\\' in text:
+        tokens = _tokenize_tex(text)
+        if tokens is None:
+            return None
+    else:
+        tokens = list(text)
+    return _assemble(tokens, x, y, font_size, creation, tex_dir, anchor, styles)
 
 
 def assemble_tex_tokens(tokens, x, y, font_size, creation=0, tex_dir=None,
@@ -193,10 +213,27 @@ def assemble_tex_tokens(tokens, x, y, font_size, creation=0, tex_dir=None,
     return _assemble(list(tokens), x, y, font_size, creation, tex_dir, anchor, styles)
 
 
+# Command aliases: \degree → °, etc.
+_COMMAND_ALIASES = {
+    '\\degree': '°',
+    '\\circ': '°',
+    '\\cdot': '·',
+    '\\times': '×',
+    '\\leq': '≤',
+    '\\geq': '≥',
+    '\\neq': '≠',
+    '\\pm': '±',
+    '\\infty': '∞',
+    '\\partial': '∂',
+    '\\nabla': '∇',
+}
+
+
 def _tokenize_tex(inner):
     """Split a TeX inner string into tokens for glyph assembly.
 
     Handles backslash commands (``\\pi``, ``\\alpha``) and single characters.
+    Command aliases like ``\\degree`` are resolved to their Unicode equivalents.
     Returns None for complex expressions that can't be tokenized (e.g.
     commands with brace arguments like ``\\frac{1}{2}``).
     """
@@ -213,7 +250,8 @@ def _tokenize_tex(inner):
             # and can't be rendered as a single glyph
             if j < len(inner) and inner[j] == '{':
                 return None
-            tokens.append(cmd)
+            # Resolve aliases to Unicode characters
+            tokens.append(_COMMAND_ALIASES.get(cmd, cmd))
             i = j
         elif inner[i] in ' \t':
             i += 1  # skip whitespace

@@ -86,7 +86,7 @@ vt_dec = DecimalNumber(tracker, fmt='{:.1f}\u00b0', x=cx4, y=260,
 vt_dec.fadein(1, 1.5)
 
 tex_vt = TexCountAnimation(start_val=0, end_val=360, start=1, end=4,
-                           fmt='{:.1f}\u00b0', x=cx4, y=370, font_size=56,
+                           fmt='{:.1f}\\degree', x=cx4, y=370, font_size=56,
                            fill='#D4ADFC', text_anchor='middle')
 tex_vt.count_to(180, 5, 7)
 
@@ -103,10 +103,9 @@ var.fadein(1, 1.5)
 var.animate_value(25.0, start=2, end=4)
 var.animate_value(-3.5, start=5, end=7)
 
-tex_var_label = TexObject('$x=$', x=910, y=670, font_size=48, fill='#fff')
 tex_var = TexCountAnimation(start_val=0, end_val=25.0, start=2, end=4,
-                            fmt='{:.1f}', x=980, y=670, font_size=48,
-                            fill='#fff', text_anchor='left')
+                            fmt='x = {:.1f}', x=960, y=670, font_size=48,
+                            fill='#fff', text_anchor='middle')
 tex_var.count_to(-3.5, 5, 7)
 
 # =====================================================================
@@ -116,7 +115,7 @@ canvas.add_objects(
     label2, dec, tex_dec,
     label3, intnum, tex_int,
     label4, vt_dec, tex_vt,
-    label5, var, tex_var_label, tex_var,
+    label5, var, tex_var,
 )
 
 if args.verbose:

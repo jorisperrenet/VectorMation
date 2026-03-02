@@ -1,6 +1,13 @@
 **/__pycache__/
 /svgs/
 **/svgs/
+!examples/svgs/
+examples/svgs/*
+!examples/svgs/logo.svg
+!examples/svgs/heart.svg
+!examples/svgs/moving_frame_box.svg
+!examples/svgs/sierpinski_triangle.svg
+!examples/svgs/spiral.svg
 .coverage
 *.egg-info/
 dist/
