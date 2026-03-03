@@ -2,17 +2,17 @@ import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')
 from vectormation.objects import *
 args = parse_args()
 
-COLS = 4
+COLS = 2
+ROWS = 2
 COL_W = 1920 // COLS
 ROW_H = 400
 TITLE_Y = 50
 FIRST_ROW = 130
 ANIM_DUR = 3.0
-STAGGER = 1.0
+STAGGER = 0.5
 FADE_IN_BEFORE = 0.5
-N_ROWS = 1
 
-canvas_h = FIRST_ROW + N_ROWS * ROW_H + 40
+canvas_h = FIRST_ROW + ROWS * ROW_H + 40
 canvas = VectorMathAnim(width=1920, height=canvas_h, verbose=args.verbose,
                         save_dir='svgs/numberline_features')
 canvas.set_background()
@@ -26,16 +26,16 @@ title = Text(text='NumberLine Features', x=960, y=TITLE_Y, font_size=44,
 title.write(0, 0.5)
 objs = [title]
 
-# --- Column 0: add_pointer + animate_pointer ---
-c = 0
-t0 = c * STAGGER
-lbl0 = Text(text='add_pointer + animate', x=col_x(c), y=lbl_y(0),
+# --- (0,0): add_pointer + animate_pointer ---
+c, r = 0, 0
+t0 = (c + r * COLS) * STAGGER
+lbl0 = Text(text='add_pointer + animate', x=col_x(c), y=lbl_y(r),
             font_size=22, fill='#aaa', stroke_width=0, text_anchor='middle')
 lbl0.fadein(t0, t0 + FADE_IN_BEFORE)
 objs.append(lbl0)
 
-nl0 = NumberLine(x_range=(-5, 5, 1), length=350, x=col_x(c) - 175, y=obj_y(0),
-                 include_arrows=True, include_numbers=True, tick_size=20, font_size=14)
+nl0 = NumberLine(x_range=(-5, 5, 1), length=400, x=col_x(c) - 200, y=obj_y(r),
+                 include_arrows=True, include_numbers=True, tick_size=20, font_size=16)
 nl0.fadein(t0, t0 + FADE_IN_BEFORE)
 
 ptr = nl0.add_pointer(-3, label='x', color='#FF6B6B', size=10, creation=t0 + FADE_IN_BEFORE)
@@ -44,16 +44,16 @@ nl0.animate_pointer(ptr, 0, start=t0 + FADE_IN_BEFORE + ANIM_DUR * 0.55,
                     end=t0 + FADE_IN_BEFORE + ANIM_DUR)
 objs.append(nl0)
 
-# --- Column 1: point_to_number ---
-c = 1
-t1 = c * STAGGER
-lbl1 = Text(text='point_to_number', x=col_x(c), y=lbl_y(0),
+# --- (1,0): point_to_number ---
+c, r = 1, 0
+t1 = (c + r * COLS) * STAGGER
+lbl1 = Text(text='point_to_number', x=col_x(c), y=lbl_y(r),
             font_size=22, fill='#aaa', stroke_width=0, text_anchor='middle')
 lbl1.fadein(t1, t1 + FADE_IN_BEFORE)
 objs.append(lbl1)
 
-nl1 = NumberLine(x_range=(-5, 5, 1), length=350, x=col_x(c) - 175, y=obj_y(0),
-                 include_arrows=True, include_numbers=True, tick_size=20, font_size=14)
+nl1 = NumberLine(x_range=(-5, 5, 1), length=400, x=col_x(c) - 200, y=obj_y(r),
+                 include_arrows=True, include_numbers=True, tick_size=20, font_size=16)
 nl1.fadein(t1, t1 + FADE_IN_BEFORE)
 
 # Place a dot at value 2.7 and show the converted number
@@ -83,16 +83,16 @@ val_text2.fadein(t1 + FADE_IN_BEFORE + 1.5, t1 + FADE_IN_BEFORE + 1.8)
 
 objs.extend([nl1, dot1, val_text1, dot2, val_text2])
 
-# --- Column 2: snap_to_tick ---
-c = 2
-t2 = c * STAGGER
-lbl2 = Text(text='snap_to_tick', x=col_x(c), y=lbl_y(0),
+# --- (0,1): snap_to_tick ---
+c, r = 0, 1
+t2 = (c + r * COLS) * STAGGER
+lbl2 = Text(text='snap_to_tick', x=col_x(c), y=lbl_y(r),
             font_size=22, fill='#aaa', stroke_width=0, text_anchor='middle')
 lbl2.fadein(t2, t2 + FADE_IN_BEFORE)
 objs.append(lbl2)
 
-nl2 = NumberLine(x_range=(-4, 4, 1), length=350, x=col_x(c) - 175, y=obj_y(0),
-                 include_arrows=True, include_numbers=True, tick_size=20, font_size=14)
+nl2 = NumberLine(x_range=(-4, 4, 1), length=400, x=col_x(c) - 200, y=obj_y(r),
+                 include_arrows=True, include_numbers=True, tick_size=20, font_size=16)
 nl2.fadein(t2, t2 + FADE_IN_BEFORE)
 
 # Show dots snapping from non-tick positions to tick positions
@@ -118,16 +118,16 @@ for i, (val, clr) in enumerate(zip(snap_values, snap_colors)):
 
 objs.append(nl2)
 
-# --- Column 3: highlight_range ---
-c = 3
-t3 = c * STAGGER
-lbl3 = Text(text='highlight_range', x=col_x(c), y=lbl_y(0),
+# --- (1,1): highlight_range ---
+c, r = 1, 1
+t3 = (c + r * COLS) * STAGGER
+lbl3 = Text(text='highlight_range', x=col_x(c), y=lbl_y(r),
             font_size=22, fill='#aaa', stroke_width=0, text_anchor='middle')
 lbl3.fadein(t3, t3 + FADE_IN_BEFORE)
 objs.append(lbl3)
 
-nl3 = NumberLine(x_range=(-5, 5, 1), length=350, x=col_x(c) - 175, y=obj_y(0),
-                 include_arrows=True, include_numbers=True, tick_size=20, font_size=14)
+nl3 = NumberLine(x_range=(-5, 5, 1), length=400, x=col_x(c) - 200, y=obj_y(r),
+                 include_arrows=True, include_numbers=True, tick_size=20, font_size=16)
 nl3.fadein(t3, t3 + FADE_IN_BEFORE)
 
 # Multiple colored highlights, staggered
@@ -145,7 +145,7 @@ objs.append(nl3)
 
 canvas.add_objects(*objs)
 
-total_dur = STAGGER * (COLS - 1) + ANIM_DUR + 2.0
+total_dur = (COLS * ROWS - 1) * STAGGER + ANIM_DUR + 2.0
 if args.for_docs:
     canvas.export_video('docs/source/_static/videos/numberline_features.mp4',
                         fps=30, end=total_dur)

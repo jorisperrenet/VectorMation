@@ -338,14 +338,14 @@ class NumberLine(VCollection):
             if include_numbers:
                 label = f'{val:g}'
                 from vectormation._tex_glyphs import assemble_tex_glyphs
-                lbl = assemble_tex_glyphs(label, sx, y + tick_size/2 + font_size * 0.5 + 2,
+                lbl = assemble_tex_glyphs(label, sx, y + tick_size/2 + font_size * 0.8 + 4,
                                           font_size, creation=creation, anchor='center',
                                           fill='#aaa')
                 if lbl is not None:
                     objects.append(lbl)
                 else:
                     objects.append(Text(text=label, x=sx - len(label) * font_size * 0.15,
-                                        y=y + tick_size/2 + font_size + 2,
+                                        y=y + tick_size/2 + font_size + 6,
                                         font_size=font_size, creation=creation, z=z,
                                         fill='#aaa', stroke_width=0))
 
@@ -1145,10 +1145,10 @@ class Matrix(_GridAccessMixin, VCollection):
         import math
         for c in range(self.cols):
             a, b = self.entries[i][c], self.entries[j][c]
-            ax, ay = a.x.at_time(start), a.y.at_time(start)
-            bx, by = b.x.at_time(start), b.y.at_time(start)
-            a.path_arc(bx, by, start=start, end=end, angle=math.pi / 4, easing=easing)
-            b.path_arc(ax, ay, start=start, end=end, angle=-math.pi / 4, easing=easing)
+            ac = a.center(start)
+            bc = b.center(start)
+            a.path_arc(bc[0], bc[1], start=start, end=end, angle=math.pi / 4, easing=easing)
+            b.path_arc(ac[0], ac[1], start=start, end=end, angle=-math.pi / 4, easing=easing)
         self.entries[i], self.entries[j] = self.entries[j], self.entries[i]
         return self
 

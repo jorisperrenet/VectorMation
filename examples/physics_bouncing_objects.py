@@ -8,25 +8,21 @@ canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/physics_bouncing_ob
 canvas.set_background()
 
 duration = 8
+rng = random.Random(42)
 
 title = Text(text='Bouncing Objects', x=960, y=60,
              font_size=48, fill='#58C4DD', stroke_width=0, text_anchor='middle')
 title.write(0, 1)
 
 space = PhysicsSpace(gravity=(0, 800), dt=1/120)
+space.add_walls(left=60, right=1860, top=60, bottom=1020)
 
-# Walls
-space.add_wall(y=1020)
-space.add_wall(y=60)
-space.add_wall(x=60)
-space.add_wall(x=1860)
-
-floor_line = Line(x1=60, y1=1020, x2=1860, y2=1020, stroke='#555', stroke_width=2)
-ceiling_line = Line(x1=60, y1=60, x2=1860, y2=60, stroke='#555', stroke_width=2)
-left_line = Line(x1=60, y1=60, x2=60, y2=1020, stroke='#555', stroke_width=2)
-right_line = Line(x1=1860, y1=60, x2=1860, y2=1020, stroke='#555', stroke_width=2)
-
-rng = random.Random(42)
+walls = [
+    Line(x1=60, y1=1020, x2=1860, y2=1020, stroke='#555', stroke_width=2),
+    Line(x1=60, y1=60, x2=1860, y2=60, stroke='#555', stroke_width=2),
+    Line(x1=60, y1=60, x2=60, y2=1020, stroke='#555', stroke_width=2),
+    Line(x1=1860, y1=60, x2=1860, y2=1020, stroke='#555', stroke_width=2),
+]
 
 colors = [
     '#FF6B6B', '#58C4DD', '#83C167', '#FFFF00', '#9B59B6',
@@ -34,73 +30,50 @@ colors = [
     '#00CEC9', '#FD79A8', '#A29BFE', '#FFEAA7', '#55E6C1',
 ]
 
-objects = []
 
-def random_vel():
-    return rng.randint(-300, 300), rng.randint(-400, 100)
-
-def random_pos(r=30):
-    return rng.randint(80 + r, 1840 - r), rng.randint(80 + r, 500)
-
-# Circles (10)
-for i in range(10):
-    r = rng.randint(15, 35)
-    cx, cy = random_pos(r)
-    vx, vy = random_vel()
+def make_random(i):
+    """Create a random shape with random size, position, and velocity."""
+    size = rng.randint(15, 40)
+    cx = rng.randint(80 + size, 1840 - size)
+    cy = rng.randint(80 + size, 500)
+    vx, vy = rng.randint(-300, 300), rng.randint(-400, 100)
     color = colors[i % len(colors)]
-    obj = Circle(r=r, cx=cx, cy=cy, fill=color, fill_opacity=0.85,
-                 stroke=lighten(color, 0.3), stroke_width=2)
-    space.add_body(obj, mass=(r / 20) ** 2, restitution=0.85, friction=0.02, vx=vx, vy=vy)
-    objects.append(obj)
+    style = dict(fill=color, fill_opacity=0.85, stroke=lighten(color, 0.3), stroke_width=2)
+    kind = rng.choice([
+        'circle', 'ellipse', 'star',
+        'triangle', 'pentagon', 'hexagon', 'octagon',
+        'diamond', 'wedge', 'annular_sector',
+    ])
 
-# Squares / Rectangles (8)
-for i in range(8):
-    s = rng.randint(25, 50)
-    w, h = s, rng.randint(int(s * 0.8), int(s * 1.2))  # near-square
-    cx, cy = random_pos(max(w, h))
-    vx, vy = random_vel()
-    color = colors[(10 + i) % len(colors)]
-    obj = Rectangle(x=cx - w / 2, y=cy - h / 2, width=w, height=h,
-                    fill=color, fill_opacity=0.85,
-                    stroke=lighten(color, 0.3), stroke_width=2, rx=4)
-    space.add_body(obj, mass=(w * h) / 800, restitution=0.75, friction=0.03, vx=vx, vy=vy)
-    objects.append(obj)
+    if kind == 'circle':
+        obj = Circle(r=size, cx=cx, cy=cy, **style)
+    elif kind == 'ellipse':
+        rx, ry = size, rng.randint(int(size * 0.5), int(size * 0.8))
+        obj = Ellipse(rx=rx, ry=ry, cx=cx, cy=cy, **style)
+    elif kind == 'star':
+        obj = Star(outer_radius=size, inner_radius=size * 0.45, cx=cx, cy=cy, **style)
+    elif kind == 'diamond':
+        s = size * 0.9
+        obj = Polygon((cx, cy - s), (cx + s * 0.6, cy), (cx, cy + s), (cx - s * 0.6, cy), **style)
+    elif kind == 'wedge':
+        sweep = rng.randint(60, 150)
+        start_a = rng.randint(0, 360)
+        obj = Wedge(cx=cx, cy=cy, r=size, start_angle=start_a, end_angle=start_a + sweep, **style)
+    elif kind == 'annular_sector':
+        sweep = rng.randint(60, 150)
+        start_a = rng.randint(0, 360)
+        inner = size * 0.4
+        obj = AnnularSector(inner_radius=inner, outer_radius=size, cx=cx, cy=cy,
+                            start_angle=start_a, end_angle=start_a + sweep, **style)
+    else:
+        n = {'triangle': 3, 'pentagon': 5, 'hexagon': 6, 'octagon': 8}[kind]
+        obj = RegularPolygon(n=n, radius=size, cx=cx, cy=cy, **style)
 
-# Triangles (6)
-for i in range(6):
-    size = rng.randint(25, 45)
-    cx, cy = random_pos(size)
-    vx, vy = random_vel()
-    color = colors[(18 + i) % len(colors)]
-    obj = RegularPolygon(n=3, radius=size, cx=cx, cy=cy,
-                         fill=color, fill_opacity=0.85,
-                         stroke=lighten(color, 0.3), stroke_width=2)
     space.add_body(obj, mass=(size / 20) ** 2, restitution=0.8, friction=0.02, vx=vx, vy=vy)
-    objects.append(obj)
+    return obj
 
-# Pentagons (4)
-for i in range(4):
-    size = rng.randint(20, 35)
-    cx, cy = random_pos(size)
-    vx, vy = random_vel()
-    color = colors[(24 + i) % len(colors)]
-    obj = RegularPolygon(n=5, radius=size, cx=cx, cy=cy,
-                         fill=color, fill_opacity=0.85,
-                         stroke=lighten(color, 0.3), stroke_width=2)
-    space.add_body(obj, mass=(size / 20) ** 2, restitution=0.8, friction=0.02, vx=vx, vy=vy)
-    objects.append(obj)
 
-# Stars (4)
-for i in range(4):
-    size = rng.randint(20, 35)
-    cx, cy = random_pos(size)
-    vx, vy = random_vel()
-    color = colors[(28 + i) % len(colors)]
-    obj = Star(outer_radius=size, inner_radius=size * 0.45, cx=cx, cy=cy, n=5,
-               fill=color, fill_opacity=0.85,
-               stroke=lighten(color, 0.3), stroke_width=2)
-    space.add_body(obj, mass=(size / 20) ** 2, restitution=0.8, friction=0.02, vx=vx, vy=vy)
-    objects.append(obj)
+objects = [make_random(i) for i in range(45)]
 
 space.add_drag(coefficient=0.002)
 space.simulate(duration=duration)
@@ -108,12 +81,9 @@ space.simulate(duration=duration)
 for obj in objects:
     obj.fadein(0, 0.3)
 
-canvas.add_objects(
-    floor_line, ceiling_line, left_line, right_line,
-    title, *objects,
-)
+canvas.add_objects(*walls, title, *objects)
 
 if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/physics_bouncing_objects.mp4', fps=30, end=8)
+    canvas.export_video('docs/source/_static/videos/physics_bouncing_objects.mp4', fps=30)
 if not args.for_docs:
-    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=8)
+    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)

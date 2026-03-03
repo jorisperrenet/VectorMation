@@ -27,10 +27,6 @@ def _get_dynamic_object():
     from vectormation._composites import DynamicObject
     return DynamicObject
 
-def _get_tex_object():
-    from vectormation._composites import TexObject
-    return TexObject
-
 def _nice_ticks(vmin, vmax, target_count: int = 7):
     """Generate nicely spaced tick values between vmin and vmax."""
     if target_count <= 0:

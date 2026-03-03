@@ -31,19 +31,27 @@ def _detect_shape(obj, radius_override=None):
     if radius_override is not None:
         r = float(radius_override)
         return ('circle', r, [])
+    # Wedge / AnnularSector (Arc subclasses with start/end angle) — approximate
+    # as polygon.  Must come before the 'r' check to avoid treating them as circles.
+    if hasattr(obj, 'start_angle') and hasattr(obj, 'end_angle') and hasattr(obj, 'r'):
+        return _detect_arc_shape(obj)
     # Circle / Dot — true circle collision
-    if hasattr(obj, 'r'):
+    if hasattr(obj, 'r') and not hasattr(obj, 'start_angle'):
         a = getattr(obj, 'r')
         r = float(a.at_time(0)) if hasattr(a, 'at_time') else float(a)
         return ('circle', r, [])
-    # Ellipse (rx, ry without width/height) — approximate as circle
+    # Ellipse (rx, ry without width/height) — approximate as polygon
     try:
         if hasattr(obj, 'rx') and hasattr(obj, 'ry') and not hasattr(obj, 'width'):
             rx_attr = getattr(obj, 'rx')
             ry_attr = getattr(obj, 'ry')
             rx = float(rx_attr.at_time(0)) if hasattr(rx_attr, 'at_time') else float(rx_attr)
             ry = float(ry_attr.at_time(0)) if hasattr(ry_attr, 'at_time') else float(ry_attr)
-            return ('circle', max(rx, ry), [])
+            n = 16  # sample points for polygon approximation
+            local = [(rx * math.cos(2 * math.pi * i / n),
+                       ry * math.sin(2 * math.pi * i / n)) for i in range(n)]
+            bounding_r = max(rx, ry)
+            return ('polygon', bounding_r, local)
     except Exception:
         pass
     # Any shape with vertices — use convex polygon collision
@@ -62,6 +70,37 @@ def _detect_shape(obj, radius_override=None):
         f"Physics simulation does not support {type(obj).__name__}. "
         "The object must be a Circle, Ellipse, or a polygon with get_vertices()."
     )
+
+
+def _detect_arc_shape(obj):
+    """Approximate a Wedge or AnnularSector as a convex polygon for collision.
+
+    Local verts are relative to (cx, cy) to match _body_center.
+    """
+    r = float(obj.r.at_time(0))
+    cx = float(obj.cx.at_time(0))
+    cy = float(obj.cy.at_time(0))
+    sa = math.radians(float(obj.start_angle.at_time(0)))
+    ea = math.radians(float(obj.end_angle.at_time(0)))
+    inner_r = float(obj.inner_r.at_time(0)) if hasattr(obj, 'inner_r') else 0
+    # Sample arc boundary as local offsets from (cx, cy)
+    n = 12
+    sweep = ea - sa
+    local = []
+    # Outer arc
+    for i in range(n + 1):
+        a = sa + sweep * i / n
+        local.append((r * math.cos(a), -r * math.sin(a)))
+    if inner_r > 0:
+        # Inner arc (reversed)
+        for i in range(n, -1, -1):
+            a = sa + sweep * i / n
+            local.append((inner_r * math.cos(a), -inner_r * math.sin(a)))
+    else:
+        # Wedge: close through center
+        local.append((0.0, 0.0))
+    bounding_r = max(math.hypot(lx, ly) for lx, ly in local)
+    return ('polygon', bounding_r, local)
 
 
 class Body:
@@ -117,6 +156,7 @@ class Body:
         self.moment_of_inertia = (float(moment_of_inertia) if moment_of_inertia is not None
                                   else 0.5 * self.mass * self.radius ** 2)
         self.torque = 0.0  # accumulated torque for current step
+        self._is_wall = False  # set to True for wall bodies (fast-path collision)
         # Trajectories (filled by simulate)
         self._trajectory: list[tuple[float, float]] = []
         self._angle_trajectory: list[float] = []
@@ -204,10 +244,10 @@ class PhysicsSpace:
         self.dt = dt
         self.start = start
         self.bodies: list[Body] = []
-        self.walls: list[Wall] = []
         self.springs: list[Spring] = []
         self._forces: list = []  # (callable(body, t) -> (fx, fy))
         self._angular_forces: list = []  # (callable(body) -> None, mutates torque)
+        self._wall_count = 0  # for repr
 
     # ── Adding objects ──────────────────────────────────────────────
 
@@ -223,17 +263,46 @@ class PhysicsSpace:
         self.bodies.append(b)
         return b
 
-    def add_wall(self, x=None, y=None, restitution: float = 0.9) -> Wall:
-        """Add an infinite axis-aligned wall.
+    def add_wall(self, x=None, y=None, restitution: float = 0.9,
+                 friction: float = 1.0, _outward=1):
+        """Add an axis-aligned wall (internally a large static rectangle body).
 
         Can also accept a pre-built Wall object as the first argument.
+
+        ``_outward`` controls which direction the solid part extends:
+        +1 = wall extends in the positive direction (right / down),
+        -1 = wall extends in the negative direction (left / up).
         """
         if isinstance(x, Wall):
-            self.walls.append(x)
-            return x
-        w = Wall(x=x, y=y, restitution=restitution)
-        self.walls.append(w)
-        return w
+            # Backward compat: convert Wall to a static rectangle body
+            if x.x is not None:
+                self.add_wall(x=x.x, restitution=x.restitution)
+            if x.y is not None:
+                self.add_wall(y=x.y, restitution=x.restitution)
+            return
+        if x is None and y is None:
+            raise ValueError("Wall needs at least x or y")
+        from vectormation._shapes import Polygon  # lazy import
+        _W, _H = 20000, 500  # wall dimensions (large enough to cover any scene)
+        if y is not None:  # horizontal wall at y
+            y2 = y + _outward * _H
+            verts = [(-_W, y), (_W, y), (_W, y2), (-_W, y2)]
+        else:  # vertical wall at x
+            x2 = x + _outward * _H
+            verts = [(x, -_W), (x, _W), (x2, _W), (x2, -_W)]
+        obj = Polygon(*verts)
+        b = self.add_body(obj, mass=1, restitution=restitution, friction=friction, fixed=True)
+        b._is_wall = True
+        # Tag for fast axis-aligned collision (avoids full SAT)
+        if y is not None:
+            b._wall_axis = 'y'
+            b._wall_pos = float(y)
+            b._wall_normal = (0.0, -float(_outward))  # points away from solid
+        else:
+            b._wall_axis = 'x'
+            b._wall_pos = float(x)
+            b._wall_normal = (-float(_outward), 0.0)
+        self._wall_count += 1
 
     def add_spring(self, a, b, stiffness: float = 0.5, rest_length=None,
                    damping=0.02) -> Spring:
@@ -251,17 +320,19 @@ class PhysicsSpace:
             elif isinstance(b, Spring):
                 self.springs.append(b)
             elif isinstance(b, Wall):
-                self.walls.append(b)
+                self.add_wall(b)
         return self
 
     def add_walls(self, left=None, right=None, top=None, bottom=None, restitution: float = 0.9):
         """Add multiple axis-aligned walls at once."""
-        for x in (left, right):
-            if x is not None:
-                self.add_wall(x=x, restitution=restitution)
-        for y in (top, bottom):
-            if y is not None:
-                self.add_wall(y=y, restitution=restitution)
+        if left is not None:
+            self.add_wall(x=left, restitution=restitution, _outward=-1)
+        if right is not None:
+            self.add_wall(x=right, restitution=restitution, _outward=1)
+        if top is not None:
+            self.add_wall(y=top, restitution=restitution, _outward=-1)
+        if bottom is not None:
+            self.add_wall(y=bottom, restitution=restitution, _outward=1)
         return self
 
     def add_force(self, func):
@@ -270,7 +341,7 @@ class PhysicsSpace:
         return self
 
     def __repr__(self):
-        return f'PhysicsSpace({len(self.bodies)} bodies, {len(self.walls)} walls, {len(self.springs)} springs)'
+        return f'PhysicsSpace({len(self.bodies)} bodies, {self._wall_count} walls, {len(self.springs)} springs)'
 
     # ── Simulation ──────────────────────────────────────────────────
 
@@ -283,6 +354,11 @@ class PhysicsSpace:
         steps = int(math.ceil(duration / self.dt))
         gx, gy = self.gravity
 
+        # Partition bodies for optimised collision loops
+        _walls = [b for b in self.bodies if b._is_wall]
+        _dynamic = [b for b in self.bodies if not b.fixed]
+        _non_wall = [b for b in self.bodies if not b._is_wall]
+
         # Initialize trajectories
         for b in self.bodies:
             b._trajectory = [(b.x, b.y)]
@@ -292,9 +368,7 @@ class PhysicsSpace:
             t = self.start + step * self.dt
 
             # Reset forces and torques, apply gravity
-            for b in self.bodies:
-                if b.fixed:
-                    continue
+            for b in _dynamic:
                 b.fx, b.fy = gx * b.mass, gy * b.mass
                 b.torque = 0.0
 
@@ -303,9 +377,7 @@ class PhysicsSpace:
                 _apply_spring(s)
 
             # Apply custom forces
-            for b in self.bodies:
-                if b.fixed:
-                    continue
+            for b in _dynamic:
                 for force_fn in self._forces:
                     fx, fy = force_fn(b, t)
                     b.fx += fx
@@ -313,48 +385,46 @@ class PhysicsSpace:
 
             # Apply angular drag forces
             for drag_fn in self._angular_forces:
-                for b in self.bodies:
-                    if b.fixed:
-                        continue
+                for b in _dynamic:
                     drag_fn(b)
 
             # Integrate (semi-implicit Euler for stability)
-            for b in self.bodies:
-                if b.fixed:
-                    continue
+            dt = self.dt
+            for b in _dynamic:
                 ax = b.fx / b.mass if b.mass else 0
                 ay = b.fy / b.mass if b.mass else 0
-                b.vx += ax * self.dt
-                b.vy += ay * self.dt
-                b.x += b.vx * self.dt
-                b.y += b.vy * self.dt
+                b.vx += ax * dt
+                b.vy += ay * dt
+                b.x += b.vx * dt
+                b.y += b.vy * dt
                 # Angular integration
                 if b.moment_of_inertia > 0:
                     angular_acc = b.torque / b.moment_of_inertia
-                    b.angular_velocity += angular_acc * self.dt
-                b.angle += b.angular_velocity * self.dt
+                    b.angular_velocity += angular_acc * dt
+                b.angle += b.angular_velocity * dt
 
-            # Body-body collisions (with impulse)
-            for i, a in enumerate(self.bodies):
-                for b in self.bodies[i + 1:]:
+            # Wall-body collisions (fast axis-aligned check)
+            for w in _walls:
+                for b in _dynamic:
+                    _collide_wall(w, b)
+
+            # Body-body collisions (non-wall pairs only)
+            for i, a in enumerate(_non_wall):
+                for b in _non_wall[i + 1:]:
                     if a.fixed and b.fixed:
                         continue
                     _collide_bodies(a, b)
 
-            # Position-only passes to resolve remaining overlaps from stacking
-            for _iteration in range(3):
-                for i, a in enumerate(self.bodies):
-                    for b in self.bodies[i + 1:]:
+            # Separation passes to resolve remaining overlaps from stacking
+            for _pass in range(2):
+                for w in _walls:
+                    for b in _dynamic:
+                        _separate_wall(w, b)
+                for i, a in enumerate(_non_wall):
+                    for b in _non_wall[i + 1:]:
                         if a.fixed and b.fixed:
                             continue
                         _separate_bodies(a, b)
-
-            # Wall collisions last so nothing is pushed through walls
-            for b in self.bodies:
-                if b.fixed:
-                    continue
-                for w in self.walls:
-                    _collide_wall(b, w)
 
             # Record positions and angles
             for b in self.bodies:
@@ -602,13 +672,25 @@ def _apply_spring(s):
         s.b.fy -= fy
 
 
-def _wall_friction_impulse(b, tangent_v, sign):
-    """Apply friction-induced angular impulse during wall collision."""
-    if b.friction > 0 and b.moment_of_inertia > 0:
-        omega_rad = math.radians(b.angular_velocity)
-        surface_v = tangent_v + sign * omega_rad * b.radius
-        impulse = -b.friction * surface_v * b.mass
-        b.angular_velocity += sign * math.degrees(impulse * b.radius / b.moment_of_inertia)
+def _contact_offset(b, nx, ny):
+    """Return the contact point offset (rx, ry) from body center along normal.
+
+    For circles: the point on the surface toward the collision.
+    For polygons: the centroid of vertices closest to the collision boundary.
+    """
+    if b.shape == 'circle':
+        return (nx * b.radius, ny * b.radius)
+    rverts = _rotated_local_verts(b)
+    if not rverts:
+        return (nx * b.radius, ny * b.radius)
+    # Project vertices onto normal; contact verts are those with max projection
+    projs = [lx * nx + ly * ny for lx, ly in rverts]
+    max_p = max(projs)
+    tol = 1.5
+    contact = [(lx, ly) for (lx, ly), p in zip(rverts, projs) if p > max_p - tol]
+    cx = sum(lx for lx, _ in contact) / len(contact)
+    cy = sum(ly for _, ly in contact) / len(contact)
+    return (cx, cy)
 
 
 def _rotated_local_verts(b):
@@ -626,52 +708,6 @@ def _world_verts(b):
     """Return the polygon vertices in world space, rotated by body angle."""
     rverts = _rotated_local_verts(b)
     return [(b.x + lx, b.y + ly) for lx, ly in rverts]
-
-
-def _body_extent(b, axis):
-    """Return the half-extent of body *b* along the given axis ('x' or 'y').
-
-    For circles this is the radius; for polygons it is the max vertex offset
-    after applying the body's current rotation angle.
-    """
-    shape = getattr(b, 'shape', 'circle')
-    if shape == 'circle':
-        return b.radius
-    rverts = _rotated_local_verts(b)
-    if not rverts:
-        return b.radius
-    if axis == 'x':
-        return max(abs(lx) for lx, _ in rverts)
-    return max(abs(ly) for _, ly in rverts)
-
-
-# ── Wall collision ──────────────────────────────────────────────────
-
-def _resolve_wall_axis(b, pos, vel, tangent_vel, wall_pos, extent, e, fric):
-    """Resolve collision on one axis; returns (new_pos, new_vel, new_tangent)."""
-    if pos + extent > wall_pos and pos < wall_pos:
-        sign = 1
-    elif pos - extent < wall_pos and pos > wall_pos:
-        sign = -1
-    else:
-        return pos, vel, tangent_vel
-    pos = wall_pos - sign * extent
-    vel *= -e
-    _wall_friction_impulse(b, tangent_vel, sign)
-    tangent_vel *= fric
-    return pos, vel, tangent_vel
-
-
-def _collide_wall(b, w):
-    """Resolve wall collision for a body."""
-    e = b.restitution * w.restitution
-    fric = max(0.0, 1 - b.friction)
-    if w.y is not None:  # horizontal wall
-        b.y, b.vy, b.vx = _resolve_wall_axis(b, b.y, b.vy, b.vx, w.y,
-                                               _body_extent(b, 'y'), e, fric)
-    if w.x is not None:  # vertical wall
-        b.x, b.vx, b.vy = _resolve_wall_axis(b, b.x, b.vx, b.vy, w.x,
-                                               _body_extent(b, 'x'), e, fric)
 
 
 # ── SAT helpers ─────────────────────────────────────────────────────
@@ -797,19 +833,112 @@ def _overlap_circle_polygon(circ, poly):
     return (min_overlap, best_nx, best_ny)
 
 
+# ── Fast wall overlap ──────────────────────────────────────────────
+
+def _overlap_wall_body(wall, body):
+    """Fast axis-aligned wall vs body overlap. Returns (overlap, nx, ny) or None.
+
+    Normal points from wall toward body (push direction).
+    """
+    nx, ny = wall._wall_normal  # points away from solid
+    pos = wall._wall_pos
+    # Project body extent onto wall normal axis
+    if body.shape == 'circle':
+        extent = body.radius
+    else:
+        rverts = _rotated_local_verts(body)
+        # Max projection toward the wall (into the solid)
+        extent = max(lx * (-nx) + ly * (-ny) for lx, ly in rverts) if rverts else body.radius
+    # For y-wall with ny=-outward, wall_pos = y
+    if wall._wall_axis == 'y':
+        outward = -ny  # +1 for floor, -1 for ceiling
+        if outward > 0:  # floor: body penetrates if body_bottom > wall_pos
+            body_edge = body.y + extent
+            overlap = body_edge - pos
+        else:  # ceiling: body penetrates if body_top < wall_pos
+            body_edge = body.y - extent
+            overlap = pos - body_edge
+    else:  # x-wall
+        outward = -nx
+        if outward > 0:  # right wall
+            body_edge = body.x + extent
+            overlap = body_edge - pos
+        else:  # left wall
+            body_edge = body.x - extent
+            overlap = pos - body_edge
+    if overlap <= 0:
+        return None
+    return (overlap, nx, ny)
+
+
+def _collide_wall(wall, body):
+    """Resolve collision between an axis-aligned wall and a dynamic body."""
+    result = _overlap_wall_body(wall, body)
+    if result is None:
+        return
+    overlap, ux, uy = result
+    # Separate: push body away from wall
+    body.x += ux * overlap
+    body.y += uy * overlap
+    # Impulse (wall is fixed, so only body changes)
+    ra_x, ra_y = _contact_offset(body, -ux, -uy)
+    omega = math.radians(body.angular_velocity)
+    inv_I = (1 / body.moment_of_inertia) if body.moment_of_inertia > 0 else 0
+    inv_m = 1 / body.mass
+    # Velocity of contact point
+    va_cx = body.vx + (-omega * ra_y)
+    va_cy = body.vy + (omega * ra_x)
+    # Normal velocity (toward wall = negative of push direction)
+    dvn = -(va_cx * ux + va_cy * uy)
+    if dvn < 0:
+        return
+    ra_cross_n = ra_x * (-uy) - ra_y * (-ux)
+    denom = inv_m + ra_cross_n * ra_cross_n * inv_I
+    if denom == 0:
+        return
+    e = min(body.restitution, wall.restitution)
+    jn = (1 + e) * dvn / denom
+    body.vx += jn * inv_m * ux
+    body.vy += jn * inv_m * uy
+    if inv_I > 0:
+        body.angular_velocity -= math.degrees(jn * ra_cross_n * inv_I)
+    # Tangential friction
+    fric = min(body.friction, wall.friction)
+    if fric > 0:
+        tx, ty = uy, -ux
+        dvt = va_cx * tx + va_cy * ty
+        ra_cross_t = ra_x * ty - ra_y * tx
+        denom_t = inv_m + ra_cross_t * ra_cross_t * inv_I
+        if denom_t > 0:
+            jt = -fric * dvt / denom_t
+            max_jt = abs(jn) * fric
+            jt = max(-max_jt, min(max_jt, jt))
+            body.vx += jt * inv_m * tx
+            body.vy += jt * inv_m * ty
+            if inv_I > 0:
+                body.angular_velocity += math.degrees(jt * ra_cross_t * inv_I)
+
+
+def _separate_wall(wall, body):
+    """Position-only wall separation (no impulse)."""
+    result = _overlap_wall_body(wall, body)
+    if result is None:
+        return
+    overlap, ux, uy = result
+    body.x += ux * overlap
+    body.y += uy * overlap
+
+
 # ── Body-body collision ─────────────────────────────────────────────
 
-def _collide_bodies(a, b):
-    """Resolve elastic collision between two bodies using SAT."""
-    sa = getattr(a, 'shape', 'circle')
-    sb = getattr(b, 'shape', 'circle')
 
+def _collide_bodies(a, b):
+    """Resolve elastic collision between two non-wall bodies using SAT."""
     # Quick bounding-radius rejection
     dx, dy = b.x - a.x, b.y - a.y
     if dx * dx + dy * dy > (a.radius + b.radius + 1) ** 2:
         return
-
-    # Detect overlap
+    sa, sb = a.shape, b.shape
     if sa == 'circle' and sb == 'circle':
         result = _overlap_circle_circle(a, b)
     elif sa == 'polygon' and sb == 'polygon':
@@ -820,7 +949,7 @@ def _collide_bodies(a, b):
         result = _overlap_circle_polygon(b, a)
         if result:
             overlap, nx, ny = result
-            result = (overlap, -nx, -ny)  # flip: a → b
+            result = (overlap, -nx, -ny)
     else:
         return
     if result is None:
@@ -843,44 +972,81 @@ def _collide_bodies(a, b):
         b.x += ux * overlap * wb
         b.y += uy * overlap * wb
 
-    # Impulse-based velocity resolution
-    e = min(a.restitution, b.restitution)
-    dvx, dvy = a.vx - b.vx, a.vy - b.vy
+    # Contact offsets from each body's center (toward the other body)
+    ra_x, ra_y = _contact_offset(a, ux, uy)
+    rb_x, rb_y = _contact_offset(b, -ux, -uy)
+
+    omega_a = math.radians(a.angular_velocity) if not a.fixed else 0
+    omega_b = math.radians(b.angular_velocity) if not b.fixed else 0
+    inv_Ia = (1 / a.moment_of_inertia) if (not a.fixed and a.moment_of_inertia > 0) else 0
+    inv_Ib = (1 / b.moment_of_inertia) if (not b.fixed and b.moment_of_inertia > 0) else 0
+
+    # Velocity of each contact point
+    va_cx = a.vx + (-omega_a * ra_y)
+    va_cy = a.vy + (omega_a * ra_x)
+    vb_cx = b.vx + (-omega_b * rb_y)
+    vb_cy = b.vy + (omega_b * rb_x)
+
+    # Relative velocity at contact point
+    dvx, dvy = va_cx - vb_cx, va_cy - vb_cy
     dvn = dvx * ux + dvy * uy
     if dvn < 0:  # already separating
         return
 
     inv_ma = 0 if a.fixed else 1 / a.mass
     inv_mb = 0 if b.fixed else 1 / b.mass
-    denom = inv_ma + inv_mb
+
+    # Effective mass with rotational contribution: 1/ma + 1/mb + (ra×n)²/Ia + (rb×n)²/Ib
+    ra_cross_n = ra_x * uy - ra_y * ux
+    rb_cross_n = rb_x * uy - rb_y * ux
+    denom = inv_ma + inv_mb + ra_cross_n * ra_cross_n * inv_Ia + rb_cross_n * rb_cross_n * inv_Ib
     if denom == 0:
         return
-    j = -(1 + e) * dvn / denom
-    if not a.fixed:
-        a.vx += j * inv_ma * ux
-        a.vy += j * inv_ma * uy
-    if not b.fixed:
-        b.vx -= j * inv_mb * ux
-        b.vy -= j * inv_mb * uy
 
-    # Friction-induced torque
+    e = min(a.restitution, b.restitution)
+    jn = -(1 + e) * dvn / denom
+
+    if not a.fixed:
+        a.vx += jn * inv_ma * ux
+        a.vy += jn * inv_ma * uy
+        if inv_Ia > 0:
+            a.angular_velocity += math.degrees(jn * ra_cross_n * inv_Ia)
+    if not b.fixed:
+        b.vx -= jn * inv_mb * ux
+        b.vy -= jn * inv_mb * uy
+        if inv_Ib > 0:
+            b.angular_velocity -= math.degrees(jn * rb_cross_n * inv_Ib)
+
+    # Tangential friction impulse
     fric = min(a.friction, b.friction)
     if fric > 0:
         tx, ty = -uy, ux
-        jt = fric * (dvx * tx + dvy * ty)
-        if not a.fixed and a.moment_of_inertia > 0:
-            a.angular_velocity += math.degrees(jt * a.radius / a.moment_of_inertia)
-        if not b.fixed and b.moment_of_inertia > 0:
-            b.angular_velocity -= math.degrees(jt * b.radius / b.moment_of_inertia)
+        dvt = dvx * tx + dvy * ty
+        ra_cross_t = ra_x * ty - ra_y * tx
+        rb_cross_t = rb_x * ty - rb_y * tx
+        denom_t = inv_ma + inv_mb + ra_cross_t * ra_cross_t * inv_Ia + rb_cross_t * rb_cross_t * inv_Ib
+        if denom_t > 0:
+            jt = -fric * dvt / denom_t
+            max_jt = abs(jn) * fric
+            jt = max(-max_jt, min(max_jt, jt))
+            if not a.fixed:
+                a.vx += jt * inv_ma * tx
+                a.vy += jt * inv_ma * ty
+                if inv_Ia > 0:
+                    a.angular_velocity += math.degrees(jt * ra_cross_t * inv_Ia)
+            if not b.fixed:
+                b.vx -= jt * inv_mb * tx
+                b.vy -= jt * inv_mb * ty
+                if inv_Ib > 0:
+                    b.angular_velocity -= math.degrees(jt * rb_cross_t * inv_Ib)
 
 
 def _separate_bodies(a, b):
-    """Position-only separation pass (no impulse). Used for iterative overlap resolution."""
-    sa = getattr(a, 'shape', 'circle')
-    sb = getattr(b, 'shape', 'circle')
+    """Position-only separation pass for non-wall body pairs."""
     dx, dy = b.x - a.x, b.y - a.y
     if dx * dx + dy * dy > (a.radius + b.radius + 1) ** 2:
         return
+    sa, sb = a.shape, b.shape
     if sa == 'circle' and sb == 'circle':
         result = _overlap_circle_circle(a, b)
     elif sa == 'polygon' and sb == 'polygon':
@@ -969,7 +1135,8 @@ def _bake_trajectory(body, start, dt):
             def _rot_at(t, _atr=ang_traj, _ptr=traj):
                 angle = _traj_at(_atr, start, dt, t)
                 px, py = _traj_at(_ptr, start, dt, t)
-                return (angle, px, py)
+                # Negate: styling convention is positive=CCW, physics uses CW
+                return (-angle, px, py)
             obj.styling.rotation.set_onward(start, _rot_at)
             obj.styling.rotation.last_change = max(obj.styling.rotation.last_change, end_time)
 

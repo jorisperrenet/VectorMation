@@ -15,14 +15,12 @@ title.write(0, 1)
 
 # Create a cloth: top row pinned, draping under gravity
 # Centered horizontally, starting near the top of the canvas
-# Stiffness must be high enough to resist gravity across the chain:
-# total stretch ≈ m*g/(2k) * n*(n+1); with k=15, ~176px of drape
 cloth = Cloth(
-    x=460, y=120,
-    width=1000, height=350,
-    cols=20, rows=12,
+    x=510, y=120,
+    width=900, height=300,
+    cols=18, rows=10,
     pin_top=True,
-    stiffness=15,
+    stiffness=18,
     color='#58C4DD',
 )
 
@@ -30,12 +28,12 @@ cloth = Cloth(
 import math
 def wind_force(body, t):
     # Oscillating horizontal wind with some vertical turbulence
-    wind_x = 60 * math.sin(t * 1.2) + 20 * math.sin(t * 3.7)
-    wind_y = 15 * math.cos(t * 2.5)
+    wind_x = 30 * math.sin(t * 1.2) + 10 * math.sin(t * 3.7)
+    wind_y = 8 * math.cos(t * 2.5)
     return (wind_x, wind_y)
 
 cloth.space.add_force(wind_force)
-cloth.space.add_drag(coefficient=0.01)
+cloth.space.add_drag(coefficient=0.02)
 
 # Run the simulation
 cloth.simulate(duration=duration)

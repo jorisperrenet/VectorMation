@@ -35,7 +35,7 @@ class TestArrangeInGrid:
 class TestFanOut:
     def test_spreads_objects(self):
         dots = VCollection(*[Dot(cx=500, cy=500) for _ in range(5)])
-        dots.fan_out(cx=500, cy=500, radius=100, start=0, end=1)
+        dots.distribute_radial(cx=500, cy=500, radius=100, start=0, end=1)
         positions = [dots.objects[i].center(1) for i in range(5)]
         distances = [math.hypot(p[0] - 500, p[1] - 500) for p in positions]
         for d in distances:

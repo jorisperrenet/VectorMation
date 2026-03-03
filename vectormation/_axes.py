@@ -2119,7 +2119,7 @@ class NumberPlane(VCollection):
 class ComplexPlane(Axes):
     """Complex number plane with Re/Im axes."""
     def __init__(self, x_range=(-5, 5), y_range=(-5, 5),
-                 x_label='Re', y_label='Im', show_grid=True,
+                 x_label=r'$\mathrm{Re}$', y_label=r'$\mathrm{Im}$', show_grid=True,
                  creation: float = 0, z: float = 0, **kwargs):
         super().__init__(x_range=x_range, y_range=y_range,
                          x_label=x_label, y_label=y_label,

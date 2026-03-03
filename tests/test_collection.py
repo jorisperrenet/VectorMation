@@ -1992,13 +1992,13 @@ class TestFanOut:
     def test_returns_self(self):
         children = [Circle(r=10, cx=500, cy=500) for _ in range(3)]
         col = VCollection(*children)
-        result = col.fan_out(start=0, end=1)
+        result = col.distribute_radial(start=0, end=1)
         assert result is col
 
     def test_children_spread_radially(self):
         children = [Circle(r=10, cx=500, cy=500) for _ in range(4)]
         col = VCollection(*children)
-        col.fan_out(cx=500, cy=500, radius=100, start=0, end=1, easing=easings.linear)
+        col.distribute_radial(cx=500, cy=500, radius=100, start=0, end=1, easing=easings.linear)
         # After animation, children should be at compass points
         # Child 0: angle=0 -> (600, 500)
         p0 = children[0].c.at_time(1)
@@ -2012,7 +2012,7 @@ class TestFanOut:
     def test_children_start_at_original_position(self):
         children = [Circle(r=10, cx=500, cy=500) for _ in range(3)]
         col = VCollection(*children)
-        col.fan_out(cx=500, cy=500, radius=100, start=0, end=1, easing=easings.linear)
+        col.distribute_radial(cx=500, cy=500, radius=100, start=0, end=1, easing=easings.linear)
         # At start, children should still be at original position
         p0 = children[0].c.at_time(0)
         assert p0[0] == pytest.approx(500, abs=5)
@@ -2021,14 +2021,14 @@ class TestFanOut:
     def test_custom_center(self):
         children = [Circle(r=10, cx=300, cy=300) for _ in range(2)]
         col = VCollection(*children)
-        col.fan_out(cx=300, cy=300, radius=50, start=0, end=1, easing=easings.linear)
+        col.distribute_radial(cx=300, cy=300, radius=50, start=0, end=1, easing=easings.linear)
         # Child 0 at angle 0: (350, 300)
         p0 = children[0].c.at_time(1)
         assert p0[0] == pytest.approx(350, abs=5)
 
     def test_empty_collection(self):
         col = VCollection()
-        result = col.fan_out(start=0, end=1)
+        result = col.distribute_radial(start=0, end=1)
         assert result is col
 
     def test_default_center_from_bbox(self):
@@ -2036,7 +2036,7 @@ class TestFanOut:
         c1 = Circle(r=10, cx=400, cy=500)
         c2 = Circle(r=10, cx=600, cy=500)
         col = VCollection(c1, c2)
-        col.fan_out(radius=100, start=0, end=1, easing=easings.linear)
+        col.distribute_radial(radius=100, start=0, end=1, easing=easings.linear)
         # Collection center is (500, 500)
         # Child 0: angle=0 -> (600, 500)
         p0 = c1.c.at_time(1)
@@ -2045,7 +2045,7 @@ class TestFanOut:
     def test_custom_radius(self):
         children = [Circle(r=10, cx=500, cy=500) for _ in range(2)]
         col = VCollection(*children)
-        col.fan_out(cx=500, cy=500, radius=200, start=0, end=1, easing=easings.linear)
+        col.distribute_radial(cx=500, cy=500, radius=200, start=0, end=1, easing=easings.linear)
         # Child 0 at angle 0: (700, 500)
         p0 = children[0].c.at_time(1)
         assert p0[0] == pytest.approx(700, abs=5)
@@ -2129,7 +2129,7 @@ class TestRadialArrange:
         c1 = Circle(r=10, cx=0, cy=0)
         c2 = Circle(r=10, cx=0, cy=0)
         col = VCollection(c1, c2)
-        result = col.radial_arrange(radius=100)
+        result = col.distribute_radial(radius=100)
         assert result is col
 
     def test_children_on_circle(self):
@@ -2137,7 +2137,7 @@ class TestRadialArrange:
         circles = [Circle(r=5, cx=0, cy=0) for _ in range(4)]
         col = VCollection(*circles)
         center = (500, 500)
-        col.radial_arrange(radius=200, center=center)
+        col.distribute_radial(radius=200, cx=center[0], cy=center[1])
         for c in circles:
             cx, cy = c.c.at_time(0)
             dist = math.sqrt((cx - 500) ** 2 + (cy - 500) ** 2)
@@ -2147,7 +2147,7 @@ class TestRadialArrange:
         """Children should be evenly spaced around the circle."""
         circles = [Circle(r=5, cx=0, cy=0) for _ in range(4)]
         col = VCollection(*circles)
-        col.radial_arrange(radius=100, center=(500, 500))
+        col.distribute_radial(radius=100, cx=500, cy=500)
         # 4 objects: angles 0, pi/2, pi, 3pi/2
         positions = [c.c.at_time(0) for c in circles]
         # First child at angle 0 (to the right)
@@ -2161,7 +2161,7 @@ class TestRadialArrange:
         """start_angle should rotate the arrangement."""
         circles = [Circle(r=5, cx=0, cy=0) for _ in range(4)]
         col = VCollection(*circles)
-        col.radial_arrange(radius=100, start_angle=math.pi / 2, center=(500, 500))
+        col.distribute_radial(radius=100, start_angle=math.pi / 2, cx=500, cy=500)
         # First child at angle pi/2 (below)
         pos = circles[0].c.at_time(0)
         assert pos[0] == pytest.approx(500, abs=2)
@@ -2173,7 +2173,7 @@ class TestRadialArrange:
         c2 = Circle(r=10, cx=200, cy=200)
         col = VCollection(c1, c2)
         # bbox center is (150, 150)
-        col.radial_arrange(radius=50)
+        col.distribute_radial(radius=50)
         # Both children should be 50px from (150, 150)
         for c in [c1, c2]:
             cx, cy = c.c.at_time(0)
@@ -2182,14 +2182,14 @@ class TestRadialArrange:
 
     def test_empty_collection(self):
         col = VCollection()
-        result = col.radial_arrange(radius=100)
+        result = col.distribute_radial(radius=100)
         assert result is col
 
     def test_single_child(self):
         """A single child should be placed at start_angle on the circle."""
         c = Circle(r=5, cx=0, cy=0)
         col = VCollection(c)
-        col.radial_arrange(radius=100, center=(500, 500))
+        col.distribute_radial(radius=100, cx=500, cy=500)
         pos = c.c.at_time(0)
         assert pos[0] == pytest.approx(600, abs=2)
         assert pos[1] == pytest.approx(500, abs=2)
@@ -3416,7 +3416,7 @@ class TestArrangeInCircle:
         c1 = Circle(r=10, cx=0, cy=0)
         c2 = Circle(r=10, cx=0, cy=0)
         col = VCollection(c1, c2)
-        result = col.arrange_in_circle(radius=100)
+        result = col.distribute_radial(radius=100)
         assert result is col
 
     def test_positions_on_circle(self):
@@ -3426,7 +3426,7 @@ class TestArrangeInCircle:
         c3 = Circle(r=10, cx=0, cy=0)
         c4 = Circle(r=10, cx=0, cy=0)
         col = VCollection(c1, c2, c3, c4)
-        col.arrange_in_circle(radius=200, center=(500, 500), start_angle=0)
+        col.distribute_radial(radius=200, cx=500, cy=500, start_angle=0)
         # Child 0: angle=0 -> (700, 500)
         cx0, cy0 = c1.center(0)
         assert cx0 == pytest.approx(700, abs=2)
@@ -3444,21 +3444,21 @@ class TestArrangeInCircle:
         assert cx3 == pytest.approx(500, abs=2)
         assert cy3 == pytest.approx(300, abs=2)
 
-    def test_default_center_is_canvas_center(self):
-        """Default center should be (960, 540)."""
+    def test_default_center_is_group_center(self):
+        """Default center should be the group's own center."""
         c1 = Circle(r=10, cx=0, cy=0)
         col = VCollection(c1)
-        col.arrange_in_circle(radius=100)
+        col.distribute_radial(radius=100)
         cx, cy = c1.center(0)
-        # Single child at angle 0: (960 + 100, 540)
-        assert cx == pytest.approx(1060, abs=2)
-        assert cy == pytest.approx(540, abs=2)
+        # Single child at angle 0: group center (0,0) + radius along x
+        assert cx == pytest.approx(100, abs=2)
+        assert cy == pytest.approx(0, abs=2)
 
     def test_custom_start_angle(self):
         """start_angle should offset all children."""
         c1 = Circle(r=10, cx=0, cy=0)
         col = VCollection(c1)
-        col.arrange_in_circle(radius=100, center=(500, 500), start_angle=math.pi)
+        col.distribute_radial(radius=100, cx=500, cy=500, start_angle=math.pi)
         cx, cy = c1.center(0)
         # angle=pi -> (400, 500)
         assert cx == pytest.approx(400, abs=2)
@@ -3469,7 +3469,7 @@ class TestArrangeInCircle:
         c1 = Circle(r=10, cx=0, cy=0)
         c2 = Circle(r=10, cx=0, cy=0)
         col = VCollection(c1, c2)
-        col.arrange_in_circle(radius=200, center=(500, 500),
+        col.distribute_radial(radius=200, cx=500, cy=500,
                               start=0, end=2, easing=easings.linear)
         # At t=0, objects are at their starting positions
         cx_start = c1.center(0)[0]
@@ -3481,14 +3481,14 @@ class TestArrangeInCircle:
     def test_empty_collection(self):
         """Empty collection should not raise."""
         col = VCollection()
-        result = col.arrange_in_circle(radius=100)
+        result = col.distribute_radial(radius=100)
         assert result is col
 
     def test_equidistant_spacing(self):
         """All children should be equidistant from the center."""
         circles = [Circle(r=5, cx=i*50, cy=i*50) for i in range(6)]
         col = VCollection(*circles)
-        col.arrange_in_circle(radius=150, center=(400, 400))
+        col.distribute_radial(radius=150, cx=400, cy=400)
         for c in circles:
             cx, cy = c.center(0)
             dist = math.sqrt((cx - 400)**2 + (cy - 400)**2)

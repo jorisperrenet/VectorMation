@@ -1,23 +1,16 @@
-"""1x2 grid showcasing Code syntax highlighting (static + animated)."""
+"""Code syntax highlighting with animated line highlights."""
 import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from vectormation.objects import *
 args = parse_args()
 
-COLS = 2
-COL_W = 1920 // COLS
-TITLE_Y = 50
-FIRST_ROW = 120
-
-canvas = VectorMathAnim(width=1920, height=900, verbose=args.verbose,
+W, H = 1100, 400
+canvas = VectorMathAnim(width=W, height=H, verbose=args.verbose,
                         save_dir='svgs/code_highlight')
 canvas.set_background()
 
-def col_x(c): return COL_W // 2 + c * COL_W
-
-title = Text(text='Code Highlighting', x=960, y=TITLE_Y, font_size=44,
+title = Text(text='Code Highlighting', x=W // 2, y=40, font_size=40,
              fill='#58C4DD', stroke_width=0, text_anchor='middle')
 title.write(0, 0.5)
-objs = [title]
 
 CODE_SRC = """def fibonacci(n):
     if n <= 1:
@@ -27,36 +20,32 @@ CODE_SRC = """def fibonacci(n):
         a, b = b, a + b
     return b"""
 
-# ── (0) Static syntax-highlighted Code ───────────────────────────────────
+# ── Static syntax-highlighted Code (left) ─────────────────────────────
 
-lbl = Text(text='Code (syntax highlighting)', x=col_x(0), y=FIRST_ROW - 10,
-           font_size=18, fill='#999', stroke_width=0, text_anchor='middle')
-objs.append(lbl)
+lbl_static = Text(text='Code (syntax highlighting)', x=W // 4, y=90,
+                  font_size=16, fill='#999', stroke_width=0, text_anchor='middle')
 
-code_static = Code(CODE_SRC, language='python', font_size=24,
-                   x=col_x(0) - 220, y=FIRST_ROW + 40)
-objs.append(code_static)
+code_static = Code(CODE_SRC, language='python', font_size=20,
+                   x=W // 4 - 180, y=120)
 
-# ── (1) Animated highlight_lines walkthrough ─────────────────────────────
+# ── Animated highlight_lines walkthrough (right) ──────────────────────
 
-lbl = Text(text='highlight_lines walkthrough', x=col_x(1), y=FIRST_ROW - 10,
-           font_size=18, fill='#999', stroke_width=0, text_anchor='middle')
+lbl_anim = Text(text='highlight_lines walkthrough', x=3 * W // 4, y=90,
+                font_size=16, fill='#999', stroke_width=0, text_anchor='middle')
 
-code_anim = Code(CODE_SRC, language='python', font_size=24,
-                 x=col_x(1) - 220, y=FIRST_ROW + 40, line_height=1.6)
+code_anim = Code(CODE_SRC, language='python', font_size=20,
+                 x=3 * W // 4 - 180, y=120, line_height=1.6)
 
 # Highlight base case (lines 2-3)
-hl1 = code_anim.highlight_lines([2, 3], start=2, end=3.5, color='#83C167', opacity=0.2)
+code_anim.highlight_lines([2, 3], start=2, end=3.5, color='#2d5a1e', opacity=0.9)
 # Highlight loop (lines 5-6)
-hl2 = code_anim.highlight_lines([5, 6], start=4, end=5.5, color='#58C4DD', opacity=0.2)
+code_anim.highlight_lines([5, 6], start=4, end=5.5, color='#1a4a5c', opacity=0.9)
 # Highlight return (line 7)
-hl3 = code_anim.highlight_lines(7, start=6, end=7.5, color='#FFFF00', opacity=0.2)
+code_anim.highlight_lines(7, start=6, end=7.5, color='#5c5a0a', opacity=0.9)
 
-objs.extend([lbl, hl1, hl2, hl3, code_anim])
+# ── Output ────────────────────────────────────────────────────────────
 
-# ── Output ────────────────────────────────────────────────────────────────
-
-canvas.add_objects(*objs)
+canvas.add_objects(title, lbl_static, code_static, lbl_anim, code_anim)
 
 if args.for_docs:
     canvas.export_video('docs/source/_static/videos/code_highlight.mp4', fps=30, end=8)

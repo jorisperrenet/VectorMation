@@ -3,7 +3,6 @@ import math
 from typing import Any
 
 import vectormation.easings as easings
-import vectormation.morphing as morphing
 from vectormation._constants import (
     CANVAS_WIDTH, CANVAS_HEIGHT, ORIGIN,
     UP, DOWN, LEFT, RIGHT, UL, UR, DL, DR,
@@ -84,22 +83,6 @@ def _parse_path(d) -> tuple[Any, float]:
     parsed = svgpathtools.parse_path(d)
     return parsed, parsed.length()  # type: ignore[return-value]
 
-
-def _path_prefix(path, t):
-    """Return the first t-fraction (0-1) of a morphing.Path by arc length."""
-    length_to_keep = t * path.length()
-    segs, idx = [], 0
-    while length_to_keep > 0 and idx < len(path):
-        s = path[idx]
-        l = s.length()
-        if l <= length_to_keep:
-            segs.append(s)
-            length_to_keep -= l
-        else:
-            segs.append(s.split(length_to_keep / l)[0])
-            length_to_keep = 0
-        idx += 1
-    return morphing.Path(*segs)
 
 
 # Map direction tuples to string names

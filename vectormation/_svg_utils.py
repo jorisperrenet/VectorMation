@@ -724,6 +724,8 @@ class StreamLines(VCollection):
                  y_range=(60, CANVAS_HEIGHT - 60, 200),
                  n_steps=40, step_size=5, creation: float = 0, z: float = 0, **styling_kwargs):
         style_kw = {'stroke': '#58C4DD', 'stroke_width': 2, 'fill_opacity': 0} | styling_kwargs
+        x_lo, x_hi = x_range[0], x_range[1]
+        y_lo, y_hi = y_range[0], y_range[1]
         objects = []
         for sx, sy in _sample_grid(x_range, y_range):
             pts = [(sx, sy)]
@@ -735,7 +737,7 @@ class StreamLines(VCollection):
                     break
                 cx += vx / mag * step_size
                 cy += vy / mag * step_size
-                if cx < 0 or cx > CANVAS_WIDTH or cy < 0 or cy > CANVAS_HEIGHT:
+                if cx < x_lo or cx > x_hi or cy < y_lo or cy > y_hi:
                     break
                 pts.append((cx, cy))
             if len(pts) > 1:

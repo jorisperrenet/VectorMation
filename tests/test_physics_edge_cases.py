@@ -217,14 +217,14 @@ class TestAddBulk:
         b = Body(Dot(cx=100, cy=100))
         w = Wall(y=500)
         space.add(b, w)
-        assert len(space.bodies) == 1
-        assert len(space.walls) == 1
+        assert len(space.bodies) == 1 + 1  # 1 dynamic + 1 wall body
+        assert space._wall_count == 1
 
     def test_add_walls_convenience(self):
         """add_walls() should create walls on all four sides."""
         space = PhysicsSpace()
         space.add_walls(left=0, right=1920, top=0, bottom=1080)
-        assert len(space.walls) == 4
+        assert space._wall_count == 4
 
 
 class TestAngularDynamics:

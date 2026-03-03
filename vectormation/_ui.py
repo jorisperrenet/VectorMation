@@ -205,7 +205,7 @@ class Code(VCollection):
             # Line number (right-aligned in gutter)
             num_str = str(i + 1).rjust(num_gutter)
             ln = Text(text=num_str, x=x, y=ly, font_size=font_size,
-                      font_family=mono, creation=creation, z=z,
+                      font_family=mono, creation=creation, z=z + 0.1,
                       fill='#636d83', stroke_width=0)
             objects.append(ln)
             line_objs.append(ln)
@@ -215,7 +215,7 @@ class Code(VCollection):
                 expanded = value.replace('\t', ' ' * tab_width)
                 color = _token_color(ttype)
                 t = Text(text=expanded, x=wx, y=ly, font_size=font_size,
-                         font_family=mono, creation=creation, z=z,
+                         font_family=mono, creation=creation, z=z + 0.1,
                          fill=color, stroke_width=0)
                 objects.append(t)
                 line_objs.append(t)
@@ -235,24 +235,28 @@ class Code(VCollection):
         return f'Code({self._num_lines} lines, lang={self._language!r})'
 
     def highlight_lines(self, line_nums, start: float = 0, end: float = 1, color='#FFFF00', opacity: float = 0.2,
-                        easing=easings.there_and_back):
-        """Highlight specific code lines with a colored overlay."""
+                        easing=easings.smooth):
+        """Highlight specific code lines with a colored overlay.
+
+        The highlight rectangles are inserted into this Code object's children
+        (between background and text via z-ordering) so they render correctly.
+        A VCollection wrapping the rects is also returned for external reference.
+        """
         if isinstance(line_nums, int):
             line_nums = [line_nums]
         rects = []
+        z_val = self.z.at_time(0) + 0.05
         for ln in line_nums:
             if ln < 1 or ln > self._num_lines:
                 continue
             ry = self._code_y + (ln - 1) * self._font_size * self._line_height - self._font_size
             rect = Rectangle(self._bg_width, self._font_size * self._line_height,
                              x=self._code_x - 10, y=ry,
-                             creation=start, fill=color, fill_opacity=0, stroke_width=0)
-            dur = end - start
-            if dur > 0:
-                rect.styling.fill_opacity.set(start, end,
-                    _ramp(start, dur, opacity, easing), stay=True)
+                             creation=start, fill=color, fill_opacity=opacity, stroke_width=0,
+                             z=z_val)
             rects.append(rect)
-        return VCollection(*rects) if rects else VCollection()
+            self.objects.append(rect)
+        return VCollection(*rects, z=z_val) if rects else VCollection()
 
     def reveal_lines(self, start: float = 0, end: float = 1, overlap: float = 0.5):
         """Reveal code lines sequentially with staggered fadein."""

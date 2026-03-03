@@ -17,6 +17,48 @@ logger = logging.getLogger('vectormation')
 
 _SVG_FLOAT_RE = re.compile(r'-?\d+\.\d{3,}')
 
+
+class _ProgressBar:
+    """Minimal terminal progress bar with no external dependencies."""
+
+    __slots__ = ('_total', '_width', '_label', '_start', '_current', '_file')
+
+    def __init__(self, total, label='', width=40, file=None):
+        import time as _time
+        self._total = max(total, 1)
+        self._width = width
+        self._label = label
+        self._start = _time.monotonic()
+        self._current = 0
+        self._file = file or sys.stderr
+        self._draw()
+
+    def update(self, n=1):
+        self._current = min(self._current + n, self._total)
+        self._draw()
+
+    def _draw(self):
+        import time as _time
+        frac = self._current / self._total
+        filled = int(self._width * frac)
+        bar = '\u2588' * filled + '\u2591' * (self._width - filled)
+        pct = frac * 100
+        elapsed = _time.monotonic() - self._start
+        if self._current > 0 and frac < 1:
+            eta = elapsed / frac * (1 - frac)
+            time_str = f'{elapsed:.1f}s eta {eta:.1f}s'
+        else:
+            time_str = f'{elapsed:.1f}s'
+        line = f'\r{self._label}|{bar}| {self._current}/{self._total} {pct:5.1f}% {time_str}'
+        self._file.write(line)
+        self._file.flush()
+
+    def finish(self):
+        self._current = self._total
+        self._draw()
+        self._file.write('\n')
+        self._file.flush()
+
 class VectorMathAnim:
     """Canvas/video where we can ask a frame at a certain time."""
     def __init__(self, save_dir, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, scale: float = 1, verbose=False):
@@ -47,6 +89,9 @@ class VectorMathAnim:
         self.speed_multiplier = 1.0  # Playback speed multiplier
         self.single_picture = False  # If True, display a single static frame
         self.snap_enabled = False  # If True, send snap points to browser
+        self.loop_enabled = False  # If True, loop animation at end
+        self._last_visible = []  # Last sorted visible objects from generate_frame_svg
+        self._pending_responses = []  # Queue of messages to send back to browser
 
         logger.info('Initialized canvas %dx%d, saving to %s', width, height, save_dir)
 
@@ -294,10 +339,12 @@ class VectorMathAnim:
         # Run updaters and add objects sorted by z-order
         visible = [(obj.z.at_time(time), obj)
                    for obj in self.objects.values() if obj.show.at_time(time)]
-        for _, obj in sorted(visible, key=lambda x: x[0]):
+        sorted_visible = sorted(visible, key=lambda x: x[0])
+        self._last_visible = [obj for _, obj in sorted_visible]
+        for idx, (_, obj) in enumerate(sorted_visible):
             if hasattr(obj, '_run_updaters'):
                 obj._run_updaters(time)
-            parts.append(obj.to_svg(time) + '\n')
+            parts.append(f"<g data-obj-idx='{idx}'>" + obj.to_svg(time) + '</g>\n')
 
         # Close the header
         parts.append("</svg>")
@@ -377,6 +424,221 @@ class VectorMathAnim:
         self._sync_frame_count()
         logger.info('Jumped to %.0f%%', pct * 100)
 
+    def _handle_jump_start(self, _msg):
+        self.time = self.start_anim
+        self._sync_frame_count()
+
+    def _handle_jump_end(self, _msg):
+        self.time = self.end_anim
+        self._sync_frame_count()
+        self.animate = False
+
+    def _handle_loop_toggle(self, _msg):
+        self.loop_enabled = not self.loop_enabled
+
+    def _handle_inspect_object(self, msg):
+        """Return detailed info for an object by its visible-list index."""
+        import vectormation.style as vstyle
+        import vectormation.attributes as vattrs
+        idx = msg.get('idx', -1)
+        if idx < 0 or idx >= len(self._last_visible):
+            return
+        obj = self._last_visible[idx]
+        time = self.time or 0
+
+        def _fmt(val):
+            if isinstance(val, (int, float)):
+                return str(round(float(val), 3))
+            if isinstance(val, tuple):
+                return '(' + ', '.join(str(round(float(x), 2)) if isinstance(x, (int, float)) else str(x) for x in val) + ')'
+            return str(val)
+
+        def _kind(attr_obj):
+            if isinstance(attr_obj, vattrs.Color): return 'color'
+            if isinstance(attr_obj, vattrs.String): return 'string'
+            if isinstance(attr_obj, vattrs.Coor): return 'coor'
+            if isinstance(attr_obj, vattrs.Tup): return 'tup'
+            return 'real'
+
+        def _make(name, attr_obj):
+            try:
+                val = attr_obj.at_time(time)
+            except Exception:
+                return None
+            return {'name': name, 'value': _fmt(val), 'type': _kind(attr_obj)}
+
+        # Object attributes (sorted: position-like first, then others, then show/z)
+        obj_attrs = []
+        seen = set()
+
+        # Collect all named attributes from the object
+        named = {}
+        for name in dir(obj):
+            if name.startswith('_') or name == 'styling':
+                continue
+            val = getattr(obj, name, None)
+            if val is not None and hasattr(val, 'at_time') and hasattr(val, 'last_change'):
+                named[name] = val
+
+        # Sort by importance: position attrs first, then geometry, then misc
+        _priority = ['x', 'y', 'x1', 'y1', 'x2', 'y2', 'cx', 'cy',
+                      'r', 'rx', 'ry', 'width', 'height', 'font_size',
+                      'p1', 'p2', 'd', 'show', 'z']
+        def _sort_key(name):
+            try:
+                return _priority.index(name)
+            except ValueError:
+                return len(_priority)
+
+        for name in sorted(named, key=_sort_key):
+            entry = _make(name, named[name])
+            if entry:
+                obj_attrs.append(entry)
+                seen.add(name)
+
+        # Bbox/center (computed, graphable)
+        try:
+            bx, by, bw, bh = obj.bbox(time)
+            obj_attrs.append({'name': 'bbox', 'value': f'({bx:.1f}, {by:.1f}, {bw:.1f}, {bh:.1f})', 'type': 'tup'})
+            obj_attrs.append({'name': 'center', 'value': f'({bx + bw/2:.1f}, {by + bh/2:.1f})', 'type': 'coor'})
+        except Exception:
+            pass
+
+        # Styling attributes (sorted by importance)
+        _style_priority = ['fill', 'stroke', 'stroke_width', 'opacity',
+                           'fill_opacity', 'stroke_opacity',
+                           'dx', 'dy', 'scale_x', 'scale_y', 'rotation',
+                           'fill_rule', 'stroke_dasharray', 'stroke_dashoffset',
+                           'stroke_linecap', 'stroke_linejoin', 'clip_path',
+                           'skew_x', 'skew_y', 'skew_x_after', 'skew_y_after', 'matrix']
+        style_attrs = []
+        for attr_name in sorted(vstyle._ATTR_NAMES,
+                                key=lambda n: _style_priority.index(n) if n in _style_priority else 99):
+            attr_obj = getattr(obj.styling, attr_name, None)
+            if attr_obj is not None:
+                entry = _make('style.' + attr_name, attr_obj)
+                if entry:
+                    style_attrs.append(entry)
+
+        self._pending_responses.append({
+            'type': 'inspect_result',
+            'idx': idx,
+            'class': obj.__class__.__name__,
+            'obj_attrs': obj_attrs,
+            'style_attrs': style_attrs,
+        })
+
+    def _handle_inspect_attribute(self, msg):
+        """Sample an attribute over the scene duration and return time series."""
+        import vectormation.attributes as vattrs
+        idx = msg.get('idx', -1)
+        attr_name = msg.get('attr', '')
+        if idx < 0 or idx >= len(self._last_visible):
+            return
+        obj = self._last_visible[idx]
+
+        # Sample over the scene duration
+        start = self.start_anim or 0
+        end = self.end_anim or 1
+        n = 200
+        dt = (end - start) / max(n - 1, 1)
+        times = []
+        data = []
+
+        # Handle computed attributes (bbox, center)
+        if attr_name == 'bbox':
+            for i in range(n):
+                t = start + i * dt
+                times.append(round(t, 4))
+                try:
+                    bx, by, bw, bh = obj.bbox(t)
+                    data.append([round(bx, 4), round(by, 4), round(bw, 4), round(bh, 4)])
+                except Exception:
+                    data.append([0, 0, 0, 0])
+            self._pending_responses.append({
+                'type': 'inspect_graph', 'attr': attr_name,
+                'kind': 'tup', 'times': times, 'data': data,
+                'labels': ['x', 'y', 'w', 'h'],
+            })
+            return
+
+        if attr_name == 'center':
+            for i in range(n):
+                t = start + i * dt
+                times.append(round(t, 4))
+                try:
+                    bx, by, bw, bh = obj.bbox(t)
+                    data.append([round(bx + bw / 2, 4), round(by + bh / 2, 4)])
+                except Exception:
+                    data.append([0, 0])
+            self._pending_responses.append({
+                'type': 'inspect_graph', 'attr': attr_name,
+                'kind': 'coor', 'times': times, 'data': data,
+            })
+            return
+
+        # Resolve the attribute object
+        attr_obj = None
+        if attr_name.startswith('style.'):
+            attr_obj = getattr(obj.styling, attr_name[6:], None)
+        else:
+            attr_obj = getattr(obj, attr_name, None)
+
+        if attr_obj is None or not hasattr(attr_obj, 'at_time'):
+            return
+
+        # Determine graph kind
+        if isinstance(attr_obj, vattrs.Color):
+            graph_kind = 'color'
+        elif isinstance(attr_obj, vattrs.String):
+            graph_kind = 'string'
+        elif isinstance(attr_obj, vattrs.Coor):
+            graph_kind = 'coor'
+        elif isinstance(attr_obj, vattrs.Tup):
+            graph_kind = 'tup'
+        else:
+            graph_kind = 'real'
+
+        for i in range(n):
+            t = start + i * dt
+            try:
+                v = attr_obj.at_time(t)
+            except Exception:
+                return
+
+            times.append(round(t, 4))
+            if graph_kind == 'color':
+                try:
+                    raw = attr_obj.time_func(t)
+                    if isinstance(raw, tuple) and len(raw) >= 3:
+                        data.append([int(raw[0]), int(raw[1]), int(raw[2])])
+                    else:
+                        data.append([0, 0, 0])
+                except Exception:
+                    data.append([0, 0, 0])
+            elif graph_kind == 'string':
+                data.append(str(v))
+            elif graph_kind == 'coor':
+                if isinstance(v, tuple) and len(v) >= 2:
+                    data.append([round(float(v[0]), 4), round(float(v[1]), 4)])
+                else:
+                    data.append([0, 0])
+            elif graph_kind == 'tup':
+                if isinstance(v, tuple):
+                    data.append([round(float(x), 4) for x in v])
+                else:
+                    data.append([round(float(v), 4)])
+            else:
+                data.append(round(float(v), 4))
+
+        self._pending_responses.append({
+            'type': 'inspect_graph',
+            'attr': attr_name,
+            'kind': graph_kind,
+            'times': times,
+            'data': data,
+        })
+
     _control_handlers = {
         'quit': _handle_quit, 'restart': _handle_restart,
         'fit': _handle_fit, 'pause': _handle_pause,
@@ -385,17 +647,23 @@ class VectorMathAnim:
         'step_backward': lambda self, msg: self._handle_step(msg, -1),
         'speed': _handle_speed,
         'snap_toggle': _handle_snap_toggle, 'snap_enable': _handle_snap_enable,
-        'jump': _handle_jump,
+        'jump': _handle_jump, 'jump_start': _handle_jump_start,
+        'jump_end': _handle_jump_end, 'loop_toggle': _handle_loop_toggle,
+        'inspect_object': _handle_inspect_object,
+        'inspect_attribute': _handle_inspect_attribute,
     }
 
     def export_sections(self, prefix='section'):
         """Export each section as a standalone SVG file.
         Writes one SVG per section boundary (plus the start time)."""
         times = [self.start_anim or 0] + self.sections
+        progress = _ProgressBar(len(times), label='Exporting sections ')
         for i, t in enumerate(times):
             filename = os.path.join(self.save_dir, f'{prefix}_{i:03d}.svg')
             self.write_frame(time=t, filename=filename)
             logger.info('Exported section %d at t=%.2f to %s', i, t, filename)
+            progress.update()
+        progress.finish()
 
     @staticmethod
     def _require_cairosvg():
@@ -436,6 +704,12 @@ class VectorMathAnim:
             yield t
             t += dt
 
+    @staticmethod
+    def _count_frames(start, end, fps):
+        """Count the number of frames between start and end at given fps."""
+        fps = max(fps, 1)
+        return max(1, int(round((end - start) * fps)) + 1)
+
     def export_video(self, filename='animation.mp4', start: float = 0, end: float | None = None, fps: int = 60, scale=None):
         """Export animation as video using cairosvg + ffmpeg."""
         cairosvg = self._require_cairosvg()
@@ -444,8 +718,10 @@ class VectorMathAnim:
 
         end = self._resolve_end(end)
         scale, output_w, output_h = self._export_dims(scale)
+        total = self._count_frames(start, end, fps)
         tmpdir = tempfile.mkdtemp(prefix='vectormation_')
         try:
+            progress = _ProgressBar(total, label='Rendering frames ')
             n_frames = 0
             for i, t in enumerate(self._frame_times(start, end, fps)):
                 svg = self.generate_frame_svg(t)
@@ -453,6 +729,10 @@ class VectorMathAnim:
                                  output_width=output_w, output_height=output_h,
                                  write_to=os.path.join(tmpdir, f'frame_{i:05d}.png'))
                 n_frames = i + 1
+                progress.update()
+            progress.finish()
+            sys.stderr.write('Encoding video...\n')
+            sys.stderr.flush()
             subprocess.run([
                 'ffmpeg', '-y', '-framerate', str(fps),
                 '-i', os.path.join(tmpdir, 'frame_%05d.png'),
@@ -473,6 +753,8 @@ class VectorMathAnim:
 
         end = self._resolve_end(end)
         scale, output_w, output_h = self._export_dims(scale)
+        total = self._count_frames(start, end, fps)
+        progress = _ProgressBar(total, label='Rendering frames ')
         frames = []
         for t in self._frame_times(start, end, fps):
             svg = self.generate_frame_svg(t)
@@ -482,25 +764,50 @@ class VectorMathAnim:
             rgb = PILImage.new('RGB', rgba.size, (255, 255, 255))
             rgb.paste(rgba, mask=rgba.split()[3])
             frames.append(rgb)
+            progress.update()
+        progress.finish()
 
         if not frames:
             logger.warning('No frames generated for GIF export')
             return
 
+        sys.stderr.write('Encoding GIF...\n')
+        sys.stderr.flush()
         frames[0].save(filename, save_all=True, append_images=frames[1:],
                        duration=int(1000 / fps), loop=loop, optimize=True)
         logger.info('Exported GIF to %s (%d frames, %dx%d)', filename, len(frames), output_w, output_h)
 
     def get_visible_objects_info(self, time=None):
         """Return info about visible objects at the given time.
-        Returns a list of dicts with 'class' and 'id' keys."""
+        Uses _last_visible so indices match generate_frame_svg exactly."""
         if time is None:
             time = self.time
-        return [{'class': obj.__class__.__name__, 'id': id(obj)}
-                for obj in self._visible_objects(time)]
+        # Use _last_visible if available (matches generate_frame_svg indices),
+        # otherwise build the list directly for standalone calls.
+        if self._last_visible:
+            objects = self._last_visible
+        else:
+            visible = [(obj.z.at_time(time), obj)
+                       for obj in self._visible_objects(time)]
+            objects = [obj for _, obj in sorted(visible, key=lambda x: x[0])]
+        result = []
+        for obj in objects:
+            info = {'class': obj.__class__.__name__, 'id': id(obj)}
+            try:
+                bx, by, bw, bh = obj.bbox(time)
+                info['bbox'] = [round(bx, 1), round(by, 1), round(bw, 1), round(bh, 1)]
+                info['center'] = [round(bx + bw / 2, 1), round(by + bh / 2, 1)]
+            except Exception:
+                pass
+            if hasattr(obj, 'text_content'):
+                tc = obj.text_content
+                if tc and len(tc) <= 30:
+                    info['name'] = tc
+            result.append(info)
+        return result
 
     def browser_display(self, start: float = 0, end: float | None = None, fps: int = 60,
-                        port=8765, hot_reload=False):
+                        port=8765, hot_reload=True):
         """View the animation in a browser via WebSocket.
         If end == 0, displays a single static picture (no animation)."""
         import inspect

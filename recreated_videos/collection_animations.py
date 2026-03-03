@@ -38,13 +38,13 @@ squares.stagger('fadein', start=1, end=2)
 canvas.add(squares)
 
 # ── Fan Out ─────────────────────────────────────────────────────
-label3 = Text(text='fan_out', x=1620, y=130, font_size=20,
+label3 = Text(text='distribute_radial', x=1620, y=130, font_size=20,
               fill='#888', text_anchor='middle', creation=0.5)
 canvas.add(label3)
 
 dots = VCollection(*[Dot(r=15, fill=c, creation=0.5) for c in colors])
 dots.center_to_pos(1620, 230, start=0.5)
-dots.fan_out(cx=1620, cy=230, radius=80, start=1, end=2)
+dots.distribute_radial(cx=1620, cy=230, radius=80, start=1, end=2)
 canvas.add(dots)
 
 # ── Arrange in Grid ─────────────────────────────────────────────

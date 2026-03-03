@@ -1,4 +1,4 @@
-"""VCollection Advanced Methods: arrange_in_circle, converge/diverge,
+"""VCollection Advanced Methods: distribute_radial, converge/diverge,
 scatter_from/gather_to, orbit_around, rotate_children, shuffle_animate,
 show_one_by_one, pop_in/pop_out, snake_layout, stagger_scale, cascade_scale,
 connect_children, label_children, distribute_radial, flip_all, space_evenly."""
@@ -43,14 +43,14 @@ title1.write(0, 0.5)
 title1.fadeout(5.0, 5.5)
 v.add(title1)
 
-# --- arrange_in_circle ---
-lbl1 = Text(text='arrange_in_circle', x=350, y=160, font_size=22,
+# --- distribute_radial ---
+lbl1 = Text(text='distribute_radial', x=350, y=160, font_size=22,
             fill='#888', stroke_width=0, text_anchor='middle', creation=0.3)
 lbl1.fadeout(5.0, 5.5)
 v.add(lbl1)
 
 circ1 = make_shapes(8, 'circle', 20)
-circ1.arrange_in_circle(radius=100)
+circ1.distribute_radial(radius=100)
 circ1.center_to_pos(350, 350, start=0)
 circ1.stagger('fadein', start=0.5, end=1.5)
 circ1.fadeout(5.0, 5.5)
@@ -76,7 +76,7 @@ lbl3.fadeout(5.0, 5.5)
 v.add(lbl3)
 
 orb = make_shapes(5, 'circle', 15)
-orb.arrange_in_circle(radius=80)
+orb.distribute_radial(radius=80)
 orb.center_to_pos(1570, 350, start=0)
 orb.stagger('fadein', start=0.5, end=1.2)
 orb.orbit_around(cx=1570, cy=350, start=1.5, end=5.0, degrees=720)
@@ -117,7 +117,7 @@ lbl6.fadeout(5.0, 5.5)
 v.add(lbl6)
 
 conn = make_shapes(5, 'dot', 10)
-conn.arrange_in_circle(radius=80)
+conn.distribute_radial(radius=80)
 conn.center_to_pos(1570, 700, start=0)
 conn.stagger('fadein', start=0.5, end=1.3)
 lines = conn.connect_children(stroke='#555', stroke_width=1, start=1.5)
@@ -143,7 +143,7 @@ lbl7.fadeout(11.0, 11.5)
 v.add(lbl7)
 
 conv = make_shapes(7, 'circle', 18)
-conv.arrange_in_circle(radius=100)
+conv.distribute_radial(radius=100)
 conv.center_to_pos(350, 350, start=6)
 conv.stagger('fadein', start=6.3, end=7)
 conv.converge(x=350, y=350, start=7.5, end=8.5)
@@ -183,7 +183,7 @@ lbl10.fadeout(11.0, 11.5)
 v.add(lbl10)
 
 gath = make_shapes(8, 'dot', 12)
-gath.arrange_in_circle(radius=100)
+gath.distribute_radial(radius=100)
 gath.center_to_pos(350, 700, start=6)
 gath.stagger('fadein', start=6.3, end=7)
 gath.gather_to(cx=350, cy=700, start=8, end=9)

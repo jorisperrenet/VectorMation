@@ -2,7 +2,7 @@ import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')
 from vectormation.objects import *
 args = parse_args()
 
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/gradient')
+canvas = VectorMathAnim(width=1200, height=600, verbose=args.verbose, save_dir='svgs/gradient')
 canvas.set_background()
 
 # Create gradients
@@ -27,25 +27,28 @@ glow = RadialGradient([
 ])
 canvas.add_def(glow)
 
-# Apply gradients to shapes
-r1 = Rectangle(400, 300, x=100, y=200, fill=sunset.fill_ref(),
-               fill_opacity=1, stroke_width=0)
+# Apply gradients to shapes — evenly spaced across the canvas
+col_w = 1200 // 3
+shape_size = 200
 
-r2 = Rectangle(400, 300, x=600, y=200, fill=ocean.fill_ref(),
-               fill_opacity=1, stroke_width=0)
+r1 = Rectangle(shape_size, shape_size, x=col_w * 0 + (col_w - shape_size) // 2, y=180,
+               fill=sunset.fill_ref(), fill_opacity=1, stroke_width=0)
 
-c1 = Circle(r=150, cx=1500, cy=350, fill=glow.fill_ref(),
-            fill_opacity=1, stroke_width=0)
+r2 = Rectangle(shape_size, shape_size, x=col_w * 1 + (col_w - shape_size) // 2, y=180,
+               fill=ocean.fill_ref(), fill_opacity=1, stroke_width=0)
+
+c1 = Circle(r=shape_size // 2, cx=col_w * 2 + col_w // 2, cy=180 + shape_size // 2,
+            fill=glow.fill_ref(), fill_opacity=1, stroke_width=0)
 
 # Labels
-l1 = Text(text='Linear (horizontal)', x=300, y=560, font_size=24,
+l1 = Text(text='Linear (horizontal)', x=col_w * 0 + col_w // 2, y=420, font_size=22,
           fill='#aaa', stroke_width=0, text_anchor='middle')
-l2 = Text(text='Linear (vertical)', x=800, y=560, font_size=24,
+l2 = Text(text='Linear (vertical)', x=col_w * 1 + col_w // 2, y=420, font_size=22,
           fill='#aaa', stroke_width=0, text_anchor='middle')
-l3 = Text(text='Radial', x=1500, y=560, font_size=24,
+l3 = Text(text='Radial', x=col_w * 2 + col_w // 2, y=420, font_size=22,
           fill='#aaa', stroke_width=0, text_anchor='middle')
 
-title = Text(text='SVG Gradient Support', x=960, y=80,
+title = Text(text='SVG Gradient Support', x=600, y=80,
              font_size=48, fill='#fff', stroke_width=0, text_anchor='middle')
 
 canvas.add_objects(r1, r2, c1, l1, l2, l3, title)

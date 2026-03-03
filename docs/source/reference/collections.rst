@@ -251,9 +251,9 @@ VCollection
 
       Place children along an arc.
 
-   .. py:method:: fan_out(cx=960, cy=540, radius=300, start_angle=-45, end_angle=45, start=0)
+   .. py:method:: distribute_radial(cx=None, cy=None, radius=200, start_angle=0, start=0, end=None, easing=smooth)
 
-      Spread children in a fan pattern.
+      Arrange children in a circle around (cx, cy). Defaults to group center. With end, animates.
 
    .. py:method:: stagger_scale(start=0, end=1, scale_factor=1.5, delay=0.2, easing=smooth)
 

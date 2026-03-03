@@ -76,17 +76,6 @@ def _ensure_glyph(token, tex_dir=None, text_mode=False):
         return False
 
 
-def ensure_glyphs(tokens, tex_dir=None):
-    """Ensure a list of tokens are available in the glyph cache.
-
-    Built-in glyphs (digits, letters, signs, Greek, etc.) need no LaTeX.
-    Other tokens are compiled via LaTeX on demand.
-    """
-    tex_dir = _resolve_tex_dir(tex_dir)
-    for token in tokens:
-        _ensure_glyph(token, tex_dir)
-
-
 def _get_glyph(token, tex_dir, text_mode=False):
     """Look up a glyph: built-in first, then LaTeX cache.
 
@@ -277,17 +266,6 @@ def assemble_tex_glyphs(text, x, y, font_size, creation=0, tex_dir=None,
                      v_anchor=v_anchor, text_mode=text_mode)
 
 
-def assemble_tex_tokens(tokens, x, y, font_size, creation=0, tex_dir=None,
-                         anchor='center', v_anchor='baseline',
-                         text_mode=False, **styles):
-    """Assemble a list of LaTeX tokens from cached glyphs.
-
-    Like :func:`assemble_tex_glyphs` but takes a list of tokens (for
-    multi-char commands like ``\\pi``).
-    """
-    tex_dir = _resolve_tex_dir(tex_dir)
-    return _assemble(list(tokens), x, y, font_size, creation, tex_dir, anchor, styles,
-                     v_anchor=v_anchor, text_mode=text_mode)
 
 
 # Command aliases: \degree → °, etc.

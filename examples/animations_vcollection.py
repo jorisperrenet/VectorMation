@@ -247,10 +247,10 @@ g.gather_to(col_x(c), obj_y(r), start=a, end=a + ANIM_DUR)
 objs += [lbl, g]
 
 c = 2; a = row_t(r) + c * STAGGER
-lbl = make_lbl('fan_out', c, r)
+lbl = make_lbl('distribute_radial', c, r)
 g = make_group(c, r, spacing=8)
 g.stagger_fadein(start=a - FADE_IN_BEFORE, end=a)
-g.fan_out(col_x(c), obj_y(r), radius=70, start=a, end=a + ANIM_DUR)
+g.distribute_radial(cx=col_x(c), cy=obj_y(r), radius=70, start=a, end=a + ANIM_DUR)
 objs += [lbl, g]
 
 c = 3; a = row_t(r) + c * STAGGER
@@ -321,10 +321,10 @@ g.shuffle_positions(start=a, end=a + ANIM_DUR, seed=42)
 objs += [lbl, g]
 
 c = 3; a = row_t(r) + c * STAGGER
-lbl = make_lbl('distribute_radial', c, r)
-g = make_group(c, r)
-g.stagger_fadein(a - FADE_IN_BEFORE, a)
-g.distribute_radial(cx=col_x(c), cy=obj_y(r), radius=70, start=a, end=a + ANIM_DUR)
+lbl = make_lbl('animated_arrange_in_grid', c, r)
+g = make_group(c, r, spacing=8)
+g.stagger_fadein(start=a - FADE_IN_BEFORE, end=a)
+g.animated_arrange_in_grid(rows=2, cols=3, buff=20, start=a, end=a + ANIM_DUR)
 objs += [lbl, g]
 
 # == Row 8: Styling & tracing ================================================
@@ -354,10 +354,14 @@ trace = dot.trace_path(start=a, end=a + ANIM_DUR, stroke='#58C4DD', stroke_width
 objs += [lbl, dot, trace]
 
 c = 3; a = row_t(r) + c * STAGGER
-lbl = make_lbl('arrange_in_circle', c, r)
-g = make_group(c, r)
+lbl = make_lbl('align_centers', c, r)
+g = VCollection(*[
+    Dot(cx=col_x(c) - 40 + i * 20, cy=obj_y(r) - 25 + (i % 3) * 25,
+        r=12, fill=DOT_COLORS[i % len(DOT_COLORS)])
+    for i in range(5)
+])
 g.stagger_fadein(a - FADE_IN_BEFORE, a)
-g.arrange_in_circle(radius=70, start=a, end=a + ANIM_DUR)
+g.align_centers(axis='y', start=a, end=a + ANIM_DUR)
 objs += [lbl, g]
 
 # == Row 9: Connections & subsets =============================================

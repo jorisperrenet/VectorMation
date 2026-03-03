@@ -97,7 +97,5 @@ class TestWall:
     def test_add_wall_with_wall_object(self):
         space = PhysicsSpace()
         w = Wall(x=500)
-        returned = space.add_wall(w)
-        assert returned is w
-        assert w in space.walls
-        assert len(space.walls) == 1
+        space.add_wall(w)
+        assert space._wall_count == 1

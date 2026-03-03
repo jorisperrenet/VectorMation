@@ -126,6 +126,7 @@ class Array(VCollection):
             return self
         cx = self._x + index * self._cell_width + self._cell_width / 2
         arrow = Arrow(x1=cx, y1=self._y - 50, x2=cx, y2=self._y - 8,
+                      tip_length=14, tip_width=12,
                       creation=creation, z=z, stroke=color, fill=color)
         self.objects.append(arrow)
         if label:
@@ -232,7 +233,7 @@ class LinkedList(VCollection):
                  fill='#1e1e2e', text_color='#fff', border_color='#58C4DD',
                  arrow_color='#fff', creation: float = 0, z: float = 0):
         Arrow = _get_arrow()
-        self._nodes, objects = [], []
+        self._nodes, self._arrows, objects = [], [], []
         self._x, self._y = x, y
         self._node_width, self._node_height = node_width, node_height
         self._gap, self._font_size = gap, font_size
@@ -247,13 +248,18 @@ class LinkedList(VCollection):
             objects.extend([node, lbl])
             if i < len(values) - 1:
                 ay = y + node_height / 2
-                objects.append(Arrow(x1=nx + node_width, y1=ay, x2=nx + step, y2=ay,
-                                     creation=creation, z=z, stroke=arrow_color, fill=arrow_color))
+                arrow = Arrow(x1=nx + node_width, y1=ay, x2=nx + step, y2=ay,
+                              tip_length=14, tip_width=12,
+                              creation=creation, z=z, stroke=arrow_color, fill=arrow_color)
+                self._arrows.append(arrow)
+                objects.append(arrow)
+        self._null_text = None
         if values:
             nx = x + (len(values) - 1) * step + node_width + 10
-            objects.append(Text(text='null', x=nx, y=y + node_height / 2 + font_size * TEXT_Y_OFFSET,
-                                font_size=font_size - 4, fill='#888', stroke_width=0,
-                                creation=creation, z=z))
+            self._null_text = Text(text='null', x=nx, y=y + node_height / 2 + font_size * TEXT_Y_OFFSET,
+                                   font_size=font_size - 4, fill='#888', stroke_width=0,
+                                   creation=creation, z=z)
+            objects.append(self._null_text)
         super().__init__(*objects, creation=creation, z=z)
 
     def __repr__(self): return f'LinkedList({len(self._nodes)} nodes)'
@@ -277,21 +283,46 @@ class LinkedList(VCollection):
                                self._text_color, start, 0)
         if n > 0:
             ax1 = self._x + (n - 1) * step + self._node_width
-            self.objects.append(Arrow(x1=ax1, y1=ay, x2=nx, y2=ay,
-                                      creation=start, z=0, stroke=self._arrow_color,
-                                      fill=self._arrow_color))
+            arrow = Arrow(x1=ax1, y1=ay, x2=nx, y2=ay,
+                          tip_length=14, tip_width=12,
+                          creation=start, z=0, stroke=self._arrow_color,
+                          fill=self._arrow_color)
+            self._arrows.append(arrow)
+            self.objects.append(arrow)
         self._nodes.append((node, lbl))
         node.fadein(start=start, end=end)
         lbl.fadein(start=start, end=end)
         self.objects.extend([node, lbl])
+        if self._null_text is not None:
+            self._null_text.shift(dx=step, start=start, end=end)
         return self
 
     def remove_node(self, index, start: float = 0, end: float = 0.5):
-        """Animate removing a node by index (fades it out)."""
+        """Animate removing a node by index (fades out, shifts remaining nodes left)."""
         if index < 0 or index >= len(self._nodes):
             return self
+        n = len(self._nodes)
+        step = self._node_width + self._gap
         node, lbl = self._nodes.pop(index)
-        _fadeout_pair(node, lbl, start, end)
+        _fadeout_pair(node, lbl, start, end, change_existence=True)
+        # Remove the appropriate arrow
+        if n > 1:
+            if index == n - 1:
+                # Last node: remove the arrow pointing to it
+                self._arrows.pop(index - 1).fadeout(start, end, change_existence=True)
+            else:
+                # First or middle node: remove the arrow going from it
+                self._arrows.pop(index).fadeout(start, end, change_existence=True)
+        # Shift subsequent nodes left
+        for i in range(index, len(self._nodes)):
+            ni, li = self._nodes[i]
+            _shift_pair(ni, li, dx=-step, start=start, end=end, easing=easings.smooth)
+        # Shift subsequent arrows left
+        for i in range(index, len(self._arrows)):
+            self._arrows[i].shift(dx=-step, start=start, end=end, easing=easings.smooth)
+        # Shift null text left
+        if self._null_text is not None:
+            self._null_text.shift(dx=-step, start=start, end=end, easing=easings.smooth)
         return self
 
 class BinaryTree(VCollection):

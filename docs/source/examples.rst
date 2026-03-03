@@ -703,16 +703,16 @@ Games
 Physics
 -------
 
-.. admonition:: Example: PhysicsBouncingBalls
+.. admonition:: Example: PhysicsBouncingObjects
    :class: example
 
    .. raw:: html
 
-      <video src="_static/videos/physics_bouncing_balls.mp4" controls autoplay loop muted></video>
+      <video src="_static/videos/physics_bouncing_objects.mp4" controls autoplay loop muted></video>
 
-   Multiple coloured balls bouncing with gravity, walls, and ball-ball collisions using ``PhysicsSpace``.
+   Various shapes bouncing with gravity, walls, and collisions using ``PhysicsSpace``.
 
-   .. literalinclude:: ../../examples/physics_bouncing_balls.py
+   .. literalinclude:: ../../examples/physics_bouncing_objects.py
       :language: python
       :start-after: set_background
       :end-before: if not

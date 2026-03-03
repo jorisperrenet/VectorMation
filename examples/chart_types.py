@@ -95,7 +95,7 @@ lbl = Text(text='SankeyDiagram', x=col_x(3), y=lbl_y(1), font_size=20, fill='#99
            stroke_width=0, text_anchor='middle')
 obj = SankeyDiagram(flows=[('A', 'X', 30), ('A', 'Y', 20), ('B', 'X', 15),
                            ('B', 'Y', 25), ('B', 'Z', 10)],
-                    x=col_x(3) - 120, y=obj_y(1), width=240, height=150,
+                    x=col_x(3) - 120, y=obj_y(1) - 10, width=240, height=120,
                     node_width=12, font_size=10)
 objs += [lbl, obj]
 

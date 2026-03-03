@@ -61,13 +61,81 @@ def _circular_layout(keys, cx, cy, radius):
 # ChessBoard
 # ---------------------------------------------------------------------------
 
+def _scale_path(d, sx, sy, tx, ty):
+    """Scale and translate an SVG path d-string (handles M, L, C, Q, Z commands)."""
+    import re
+    out = []
+    is_x = True
+    for tok in re.findall(r'[MLCQZmlcqz]|[-+]?\d*\.?\d+', d):
+        if tok.isalpha():
+            out.append(tok)
+            is_x = True
+        else:
+            v = float(tok)
+            out.append(f'{v * sx + tx:.1f}' if is_x else f'{v * sy + ty:.1f}')
+            is_x = not is_x
+    return ' '.join(out)
+
+
+# Chess piece SVG paths — designed in a 0–100 unit box.
+# Smooth Staunton-style silhouettes using cubic Bezier curves.
+_CHESS_PATHS = {
+    # King — cross finial, rounded collar, tapered body, stepped base
+    'k': ('M 46 6 L 46 14 L 40 14 L 40 20 L 46 20 L 46 26 L 54 26 L 54 20 L 60 20 '
+          'L 60 14 L 54 14 L 54 6 Z '
+          'M 32 30 C 36 27 44 26 50 26 C 56 26 64 27 68 30 '
+          'C 70 32 71 36 70 40 L 67 56 C 66 62 64 68 60 72 '
+          'L 60 76 L 40 76 L 40 72 C 36 68 34 62 33 56 L 30 40 '
+          'C 29 36 30 32 32 30 Z '
+          'M 28 78 L 72 78 L 74 84 L 26 84 Z '
+          'M 24 86 L 76 86 L 76 92 L 24 92 Z'),
+    # Queen — crown with orbs, curved body, stepped base
+    'q': ('M 50 6 C 48 6 46 8 46 10 C 46 12 48 14 50 14 C 52 14 54 12 54 10 '
+          'C 54 8 52 6 50 6 Z '
+          'M 26 16 C 24 16 22 18 22 20 C 22 22 24 24 26 24 C 28 24 30 22 30 20 '
+          'C 30 18 28 16 26 16 Z '
+          'M 74 16 C 72 16 70 18 70 20 C 70 22 72 24 74 24 C 76 24 78 22 78 20 '
+          'C 78 18 76 16 74 16 Z '
+          'M 50 14 L 48 28 M 26 24 L 32 28 M 74 24 L 68 28 '
+          'M 30 28 C 34 26 44 25 50 25 C 56 25 66 26 70 28 '
+          'L 68 56 C 67 64 64 70 60 74 L 60 78 L 40 78 L 40 74 '
+          'C 36 70 33 64 32 56 L 30 28 Z '
+          'M 28 80 L 72 80 L 74 86 L 26 86 Z '
+          'M 24 88 L 76 88 L 76 94 L 24 94 Z'),
+    # Rook — crenellated parapet, straight tower, wide base
+    'r': ('M 26 16 L 26 28 L 34 28 L 34 16 L 42 16 L 42 28 L 50 28 '
+          'L 50 16 L 58 16 L 58 28 L 66 28 L 66 16 L 74 16 L 74 32 '
+          'L 26 32 Z '
+          'M 30 34 L 70 34 L 68 72 L 32 72 Z '
+          'M 26 74 L 74 74 L 76 82 L 24 82 Z '
+          'M 22 84 L 78 84 L 78 92 L 22 92 Z'),
+    # Bishop — pointed mitre with slit, rounded body, collar, base
+    'b': ('M 50 6 C 48 6 47 8 47 10 C 47 12 48 13 50 13 C 52 13 53 12 53 10 '
+          'C 53 8 52 6 50 6 Z '
+          'M 50 14 C 38 18 32 28 32 42 C 32 56 38 66 42 72 '
+          'L 42 76 L 58 76 L 58 72 C 62 66 68 56 68 42 C 68 28 62 18 50 14 Z '
+          'M 48 28 L 52 28 L 52 48 L 48 48 Z '
+          'M 28 78 L 72 78 L 74 84 L 26 84 Z '
+          'M 24 86 L 76 86 L 76 92 L 24 92 Z'),
+    # Knight — horse head profile with ear, muzzle, mane, base
+    'n': ('M 36 82 L 36 62 C 36 48 38 38 44 30 C 42 26 40 22 40 18 '
+          'C 40 14 44 12 48 14 L 50 18 C 52 14 56 12 60 12 '
+          'C 66 12 70 16 70 22 C 70 28 66 32 62 36 '
+          'C 68 44 70 54 70 64 L 70 82 Z '
+          'M 48 28 C 48 28 46 30 46 30 C 46 30 48 30 48 28 Z '
+          'M 24 84 L 76 84 L 76 92 L 24 92 Z'),
+    # Pawn — spherical head, narrow neck, cone body, stepped base
+    'p': ('M 50 14 C 44 14 38 18 38 24 C 38 30 44 34 50 34 '
+          'C 56 34 62 30 62 24 C 62 18 56 14 50 14 Z '
+          'M 42 36 C 46 35 54 35 58 36 L 62 64 C 63 70 60 74 58 76 '
+          'L 42 76 C 40 74 37 70 38 64 L 42 36 Z '
+          'M 30 78 L 70 78 L 72 84 L 28 84 Z '
+          'M 26 86 L 74 86 L 74 92 L 26 92 Z'),
+}
+
+
 class ChessBoard(VCollection):
     """Chess board visualization."""
-    # Use filled (black) symbols for all pieces — color via fill/stroke
-    _PIECE_SYMBOLS = {
-        'K': '\u265a', 'Q': '\u265b', 'R': '\u265c', 'B': '\u265d', 'N': '\u265e', 'P': '\u265f',
-        'k': '\u265a', 'q': '\u265b', 'r': '\u265c', 'b': '\u265d', 'n': '\u265e', 'p': '\u265f',
-    }
 
     def __init__(self, fen='rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR',
                  cx=ORIGIN[0], cy=ORIGIN[1], size: float = 600, show_coordinates=True,
@@ -107,26 +175,26 @@ class ChessBoard(VCollection):
                            creation=creation, z=z, fill='#aaa', stroke_width=0)
                 objects.append(lbl)
 
-        # Place pieces from FEN
+        # Place pieces from FEN using SVG paths
         rows = fen.split('/')
         for row_idx, row_str in enumerate(rows):
             col_idx = 0
             for ch in row_str:
                 if ch.isdigit():
                     col_idx += int(ch)
-                elif ch in self._PIECE_SYMBOLS:
-                    px = x0 + col_idx * cell + cell / 2
-                    py = y0 + row_idx * cell + cell / 2 + cell * 0.15
+                elif ch.lower() in _CHESS_PATHS:
+                    pad = cell * 0.08
+                    piece_size = cell - 2 * pad
+                    sc = piece_size / 100.0
+                    tx = x0 + col_idx * cell + pad
+                    ty = y0 + row_idx * cell + pad
+                    d = _scale_path(_CHESS_PATHS[ch.lower()], sc, sc, tx, ty)
                     is_white = ch.isupper()
-                    piece_kw = dict(x=px, y=py, font_size=cell * 0.75,
-                                    text_anchor='middle',
-                                    creation=creation, z=z + 1,
-                                    fill='#fff' if is_white else '#222')
-                    if is_white:
-                        piece_kw.update(stroke='#333', stroke_width=0.5)
-                    else:
-                        piece_kw['stroke_width'] = 0
-                    piece = Text(text=self._PIECE_SYMBOLS[ch], **piece_kw)
+                    piece = Path(d, creation=creation, z=z + 1,
+                                 fill='#fff' if is_white else '#222',
+                                 fill_opacity=1,
+                                 stroke='#333' if is_white else '#000',
+                                 stroke_width=1.5 if is_white else 0.8)
                     sq_name = chr(ord('a') + col_idx) + str(8 - row_idx)
                     self._pieces[sq_name] = piece
                     objects.append(piece)

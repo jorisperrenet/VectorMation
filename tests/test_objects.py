@@ -12578,7 +12578,7 @@ def test_physics_space_creation_defaults():
     assert space.dt == pytest.approx(1 / 120)
     assert space.start == 0.0
     assert space.bodies == []
-    assert space.walls == []
+    assert space._wall_count == 0
     assert space.springs == []
 
 
@@ -12680,7 +12680,7 @@ def test_physics_wall_left():
     space = PhysicsSpace(gravity=(0, 0), dt=1/120)
     dot = Dot(r=5, cx=200, cy=540)
     b = space.add_body(dot, vx=-300)
-    space.add_wall(x=50)  # left wall
+    space.add_walls(left=50)  # left wall
     space.simulate(duration=0.2)
     assert b.x >= 50 + b.radius - 1
 
@@ -13066,8 +13066,9 @@ def test_physics_rotation_baked():
     # Should return (angle, cx, cy) tuple
     assert isinstance(rot, tuple)
     assert len(rot) == 3
-    # angle at t=0.5 should be ~90 degrees (180 deg/s * 0.5s)
-    assert abs(rot[0] - 90) < 5
+    # angle at t=0.5 should be ~-90 in styling (physics: 180 deg/s * 0.5s = 90 CW,
+    # negated to match styling's positive=CCW convention)
+    assert abs(rot[0] + 90) < 5
 
 def test_physics_no_rotation_no_bake():
     """Bodies with no rotation should not get a custom rotation function."""
@@ -14330,13 +14331,13 @@ class TestPhysicsSpaceConvenience:
         from vectormation._physics import PhysicsSpace
         space = PhysicsSpace()
         space.add_walls(left=50, right=1900, top=50, bottom=1030)
-        assert len(space.walls) == 4
+        assert space._wall_count == 4
 
     def test_add_walls_partial(self):
         from vectormation._physics import PhysicsSpace
         space = PhysicsSpace()
         space.add_walls(bottom=1030)
-        assert len(space.walls) == 1
+        assert space._wall_count == 1
 
     def test_add_bodies(self):
         from vectormation._physics import PhysicsSpace, Body
@@ -15333,35 +15334,50 @@ class TestRequireCairosvg:
 
 class TestWallCollisionFix:
     """Test horizontal wall collision from both sides."""
-    def test_floor_collision(self):
-        from vectormation._physics import Body, Wall, _collide_wall
+    @staticmethod
+    def _make_circle_body(x, y, vx, vy, radius=10, restitution=1.0, friction=0.0):
+        from vectormation._physics import Body
         b = Body.__new__(Body)
-        b.x, b.y, b.vx, b.vy = 100, 492, 0, 50
-        b.radius, b.restitution, b.friction, b.fixed = 10, 1.0, 0.0, False
-        w = Wall(y=500, restitution=1.0)
-        _collide_wall(b, w)
-        assert b.y == 490  # pushed back to wall surface
-        assert b.vy < 0  # velocity reversed
+        b.x, b.y, b.vx, b.vy = x, y, vx, vy
+        b.radius, b.restitution, b.friction, b.fixed = radius, restitution, friction, False
+        b.shape, b.mass = 'circle', 1.0
+        b.angular_velocity, b.moment_of_inertia = 0.0, 0.5 * radius ** 2
+        b._local_verts = []
+        b.angle = 0.0
+        return b
+
+    def test_floor_collision(self):
+        """A ball falling toward a floor wall should bounce back."""
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 0))
+        c = Circle(r=10, cx=100, cy=480)
+        b = space.add_body(c, mass=1.0, restitution=1.0, vy=200)
+        space.add_wall(y=500, restitution=1.0)
+        space.simulate(duration=0.5)
+        # Body should have bounced off the floor
+        assert b.vy < 0  # velocity reversed upward
 
     def test_ceiling_collision(self):
-        from vectormation._physics import Body, Wall, _collide_wall
-        b = Body.__new__(Body)
-        b.x, b.y, b.vx, b.vy = 100, 108, 0, -50
-        b.radius, b.restitution, b.friction, b.fixed = 10, 1.0, 0.0, False
-        w = Wall(y=100, restitution=1.0)
-        _collide_wall(b, w)
-        assert b.y == 110  # pushed back from ceiling
-        assert b.vy > 0  # velocity reversed
+        """A ball moving upward toward a ceiling wall should bounce back."""
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 0))
+        c = Circle(r=10, cx=100, cy=120)
+        b = space.add_body(c, mass=1.0, restitution=1.0, vy=-200)
+        space.add_walls(top=100, restitution=1.0)
+        space.simulate(duration=0.5)
+        # Body should have bounced off the ceiling
+        assert b.vy > 0  # velocity reversed downward
 
     def test_no_collision_when_away(self):
-        from vectormation._physics import Body, Wall, _collide_wall
-        b = Body.__new__(Body)
-        b.x, b.y, b.vx, b.vy = 100, 200, 0, 50
-        b.radius, b.restitution, b.friction, b.fixed = 10, 1.0, 0.0, False
-        w = Wall(y=500, restitution=1.0)
-        _collide_wall(b, w)
-        assert b.y == 200  # unchanged
-        assert b.vy == 50  # unchanged
+        """A ball far from a wall should not be affected."""
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 0))
+        c = Circle(r=10, cx=100, cy=200)
+        b = space.add_body(c, mass=1.0, restitution=1.0, vy=50)
+        space.add_wall(y=500, restitution=1.0)
+        space.simulate(duration=0.1)
+        # Body should have moved but not reached the wall
+        assert b.y < 500 - 10  # still above wall
 
 
 class TestShortenedEndpoints:
@@ -18674,7 +18690,7 @@ class TestPhysicsSpaceAddWall:
         space = PhysicsSpace()
         wall = Wall(x=0, restitution=0.8)
         space.add(wall)
-        assert wall in space.walls
+        assert space._wall_count == 1
 
     def test_add_body_via_add(self):
         from vectormation._physics import PhysicsSpace, Body
@@ -18702,7 +18718,7 @@ class TestPhysicsSpaceAddWall:
         wall = Wall(y=500, restitution=0.9)
         space.add(body, wall)
         assert body in space.bodies
-        assert wall in space.walls
+        assert space._wall_count == 1
 
 
 class TestPercentDegreeFormat:
@@ -19337,17 +19353,17 @@ class TestCollectionStaggerEdgeCases:
 
 
 class TestArrangeInCircle:
-    """Tests for VCollection.arrange_in_circle()."""
+    """Tests for VCollection.distribute_radial()."""
 
     def test_arranges_children(self):
         items = VCollection(Circle(r=10), Circle(r=10), Circle(r=10))
-        result = items.arrange_in_circle(radius=100)
+        result = items.distribute_radial(radius=100)
         assert result is items
 
     def test_children_spread_apart(self):
         c1, c2, c3 = Circle(r=10), Circle(r=10), Circle(r=10)
         items = VCollection(c1, c2, c3)
-        items.arrange_in_circle(radius=100, center=(500, 500))
+        items.distribute_radial(radius=100, cx=500, cy=500)
         p1 = c1.center(0)
         p2 = c2.center(0)
         dist = ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**0.5
@@ -19487,16 +19503,16 @@ class TestDistributeAlongArc:
 
 
 class TestFanOut:
-    """Tests for VCollection.fan_out()."""
+    """Tests for VCollection.distribute_radial()."""
 
     def test_returns_self(self):
         items = VCollection(Circle(r=10, cx=500, cy=500), Circle(r=10, cx=510, cy=500))
-        result = items.fan_out(radius=200, start=0, end=1)
+        result = items.distribute_radial(radius=200, start=0, end=1)
         assert result is items
 
     def test_renders(self):
         items = VCollection(Circle(r=10, cx=500, cy=500), Circle(r=10, cx=510, cy=500))
-        items.fan_out(radius=200, start=0, end=1)
+        items.distribute_radial(radius=200, start=0, end=1)
         canvas = VectorMathAnim(tempfile.mkdtemp())
         canvas.add(items)
         svg = canvas.generate_frame_svg(time=0.5)
@@ -20147,7 +20163,7 @@ class TestPhysicsEdgeCases:
         space = PhysicsSpace()
         result = space.add_walls(left=0, right=1920, top=0, bottom=1080)
         assert result is space
-        assert len(space.walls) == 4
+        assert space._wall_count == 4
 
     def test_add_force(self):
         from vectormation._physics import PhysicsSpace
@@ -20170,6 +20186,6 @@ class TestPhysicsEdgeCases:
         s = Spring(b1, b2)
         result = space.add(b1, b2, w, s)
         assert result is space
-        assert len(space.bodies) == 2
-        assert len(space.walls) == 1
+        assert len(space.bodies) == 2 + 1  # 2 dynamic + 1 wall body
+        assert space._wall_count == 1
         assert len(space.springs) == 1

@@ -561,17 +561,17 @@ class Charge(VCollection):
         bar_w = radius * 0.8
         bar_h = radius * 0.15
         if is_positive:
-            # Horizontal bar
-            objects.append(Rectangle(bar_w, bar_h, x=cx, y=cy,
+            # Horizontal bar (centered)
+            objects.append(Rectangle(bar_w, bar_h, x=cx - bar_w / 2, y=cy - bar_h / 2,
                                      fill='#fff', fill_opacity=1, stroke_width=0,
                                      creation=creation, z=z + 0.2))
-            # Vertical bar
-            objects.append(Rectangle(bar_h, bar_w, x=cx, y=cy,
+            # Vertical bar (centered)
+            objects.append(Rectangle(bar_h, bar_w, x=cx - bar_h / 2, y=cy - bar_w / 2,
                                      fill='#fff', fill_opacity=1, stroke_width=0,
                                      creation=creation, z=z + 0.2))
         else:
-            # Just horizontal bar for minus
-            objects.append(Rectangle(bar_w, bar_h, x=cx, y=cy,
+            # Just horizontal bar for minus (centered)
+            objects.append(Rectangle(bar_w, bar_h, x=cx - bar_w / 2, y=cy - bar_h / 2,
                                      fill='#fff', fill_opacity=1, stroke_width=0,
                                      creation=creation, z=z + 0.2))
 

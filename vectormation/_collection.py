@@ -493,12 +493,20 @@ class VCollection(_BBoxMethodsMixin):
             return self
         horizontal = direction in ('right', 'left')
         sign = 1 if direction in ('right', 'down') else -1
+        old_center = self.center(start)
         cursor = 0
         for obj in self.objects:
             x, y, w, h = obj.bbox(start)
             size = w if horizontal else h
             self._hshift(obj, horizontal, sign * (cursor - (x if horizontal else y)), start)
             cursor += size + buff
+        # Re-center the group at its original position
+        new_center = self.center(start)
+        dx = old_center[0] - new_center[0]
+        dy = old_center[1] - new_center[1]
+        if dx or dy:
+            for obj in self.objects:
+                obj.shift(dx=dx, dy=dy, start=start)
         return self
 
     def animated_arrange(self, direction=RIGHT, buff=SMALL_BUFF, start: float = 0, end: float = 1, easing=None):
@@ -508,6 +516,7 @@ class VCollection(_BBoxMethodsMixin):
             return self
         horizontal = dir_name in ('right', 'left')
         sign = 1 if dir_name in ('right', 'down') else -1
+        old_center = self.center(start)
         cursor, targets = 0, []
         for obj in self.objects:
             x, y, w, h = obj.bbox(start)
@@ -516,6 +525,13 @@ class VCollection(_BBoxMethodsMixin):
             offset = sign * (cursor - (x if horizontal else y))
             targets.append((cx + offset, cy) if horizontal else (cx, cy + offset))
             cursor += size + buff
+        # Re-center targets around the group's original center
+        if targets:
+            avg_x = sum(t[0] for t in targets) / len(targets)
+            avg_y = sum(t[1] for t in targets) / len(targets)
+            dx = old_center[0] - avg_x
+            dy = old_center[1] - avg_y
+            targets = [(tx + dx, ty + dy) for tx, ty in targets]
         _easing = easing or easings.smooth
         for obj, (tx, ty) in zip(self.objects, targets):
             obj.center_to_pos(posx=tx, posy=ty, start=start, end=end, easing=_easing)
@@ -561,25 +577,21 @@ class VCollection(_BBoxMethodsMixin):
             cursor += size + gap
         return self
 
-    def arrange_in_circle(self, radius: float = 150, center=None, start_angle: float = 0,
-                          start=0, end=None, easing=None):
-        """Arrange children in a circle (delegates to :meth:`distribute_radial`)."""
-        if center is None:
-            center = ORIGIN
-        cx, cy = center
-        return self.distribute_radial(cx=cx, cy=cy, radius=radius,
-                                      start_angle=start_angle,
-                                      start=start, end=end,
-                                      easing=easing or easings.smooth)
-
-    def distribute_radial(self, cx: float = ORIGIN[0], cy: float = ORIGIN[1], radius: float = 200, start_angle: float = 0,
+    def distribute_radial(self, cx: float | None = None, cy: float | None = None, radius: float = 200, start_angle: float = 0,
                            start: float = 0, end: float | None = None,
                            easing=easings.smooth):
         """Arrange children in a circle around (cx, cy).
+        Defaults to the group's current center.
         With end=None, positions instantly. With end, animates."""
         n = len(self.objects)
         if n == 0:
             return self
+        if cx is None or cy is None:
+            gcx, gcy = self.center(start)
+            if cx is None:
+                cx = gcx
+            if cy is None:
+                cy = gcy
         for i, obj in enumerate(self.objects):
             angle = start_angle + math.tau * i / n
             tx = cx + radius * math.cos(angle)
@@ -588,15 +600,6 @@ class VCollection(_BBoxMethodsMixin):
             dx, dy = tx - obj_cx, ty - obj_cy
             obj.shift(dx=dx, dy=dy, start=start, end=end, easing=easing)
         return self
-
-    def radial_arrange(self, radius: float = 200, start_angle: float = 0, center=None,
-                       start: float = 0):
-        """Arrange children in a circle instantly (defaults center to collection bbox center)."""
-        if center is None:
-            center = self.center(start)
-        cx, cy = center
-        return self.distribute_radial(cx=cx, cy=cy, radius=radius,
-                                      start_angle=start_angle, start=start)
 
     @staticmethod
     def _grid_dims(n, rows, cols):
@@ -623,24 +626,43 @@ class VCollection(_BBoxMethodsMixin):
         """Lay out children in a grid. If rows/cols omitted, picks a square-ish grid."""
         if not self.objects:
             return self
+        old_center = self.center(start)
         cols, cell_w, cell_h, max_w, max_h, boxes = self._grid_targets(rows, cols, buff, start)
         for idx, (obj, box) in enumerate(zip(self.objects, boxes)):
             r, c = divmod(idx, cols)
             obj.shift(dx=c * cell_w + max_w / 2 - (box[0] + box[2] / 2),
                        dy=r * cell_h + max_h / 2 - (box[1] + box[3] / 2), start=start)
+        # Re-center the grid at the group's original position
+        new_center = self.center(start)
+        dx = old_center[0] - new_center[0]
+        dy = old_center[1] - new_center[1]
+        if dx or dy:
+            for obj in self.objects:
+                obj.shift(dx=dx, dy=dy, start=start)
         return self
 
     def animated_arrange_in_grid(self, rows=None, cols=None, buff=SMALL_BUFF, start: float = 0, end: float = 1, easing=None):
         """Animated version of :meth:`arrange_in_grid` -- smoothly moves children to grid positions."""
         if not self.objects:
             return self
+        old_center = self.center(start)
         cols, cell_w, cell_h, max_w, max_h, _ = self._grid_targets(rows, cols, buff, start)
+        targets = []
+        for idx, obj in enumerate(self.objects):
+            r, c = divmod(idx, cols)
+            targets.append((c * cell_w + max_w / 2, r * cell_h + max_h / 2))
+        # Re-center targets around the group's original center
+        if targets:
+            avg_x = sum(t[0] for t in targets) / len(targets)
+            avg_y = sum(t[1] for t in targets) / len(targets)
+            dx = old_center[0] - avg_x
+            dy = old_center[1] - avg_y
+            targets = [(tx + dx, ty + dy) for tx, ty in targets]
         kw: dict = {'start': start, 'end': end}
         if easing is not None:
             kw['easing'] = easing
-        for idx, obj in enumerate(self.objects):
-            r, c = divmod(idx, cols)
-            obj.center_to_pos(c * cell_w + max_w / 2, r * cell_h + max_h / 2, **kw)
+        for obj, (tx, ty) in zip(self.objects, targets):
+            obj.center_to_pos(tx, ty, **kw)
         return self
 
     def stagger(self, method_name, start: float = 0, end: float = 1, overlap: float = 0.5, **kwargs):
@@ -1280,11 +1302,6 @@ class VCollection(_BBoxMethodsMixin):
                       dy=cy + radius * math.sin(angle) - obj_cy,
                       start=start, end=end, easing=easing)
         return self
-
-    def fan_out(self, cx=None, cy=None, radius: float = 200, start: float = 0, end: float = 1, easing=easings.smooth):
-        """Animate children spreading radially from a center point to evenly spaced positions."""
-        cx, cy = self._resolve_center(start, cx, cy)
-        return self.distribute_radial(cx=cx, cy=cy, radius=radius, start=start, end=end, easing=easing)
 
     def align_centers(self, axis='x', value: float | None = None,
                       start: float = 0, end: float | None = None,

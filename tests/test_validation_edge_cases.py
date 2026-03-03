@@ -1078,13 +1078,13 @@ class TestClothValidation:
 
 class TestFrictionClamping:
     def test_friction_above_one_clamped_in_collision(self):
-        """Friction > 1 should not cause velocity reversal."""
-        from vectormation._physics import _collide_wall, Body, Wall
-        b = Body(Circle(cx=500, cy=500), friction=1.5, vx=100, vy=-200)
-        b.y = 500  # at wall position
-        b.radius = 10
-        w = Wall(y=510)  # horizontal floor
-        _collide_wall(b, w)
+        """Friction > 1 should not cause velocity reversal in wall collision."""
+        from vectormation._physics import PhysicsSpace
+        space = PhysicsSpace(gravity=(0, 0))
+        c = Circle(r=10, cx=500, cy=500)
+        b = space.add_body(c, mass=1.0, friction=1.5, vx=100, vy=200)
+        space.add_wall(y=510, restitution=0.9)
+        space.simulate(duration=0.5)
         # After collision with high friction, tangential velocity (vx) should
         # NOT be reversed (which would happen without clamping)
         assert b.vx >= 0  # should stay non-negative (was +100)
