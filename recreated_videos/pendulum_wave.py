@@ -65,6 +65,5 @@ title = Text(text='Pendulum Wave', x=960, y=60,
 title.fadein(0, 0.5)
 canvas.add(title)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 8,
+canvas.browser_display(start=args.start or 0, end=args.end or 8,
                            fps=args.fps, port=args.port)

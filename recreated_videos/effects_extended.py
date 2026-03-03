@@ -145,6 +145,5 @@ c7.fadein(start=14, end=14.5)
 
 if __name__ == '__main__':
     args = parse_args()
-    if not args.no_display:
         v.browser_display(start=args.start or 0, end=args.end or 16,
                           fps=args.fps, port=args.port)

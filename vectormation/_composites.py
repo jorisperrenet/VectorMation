@@ -1253,69 +1253,102 @@ class IntegerMatrix(Matrix):
     def __repr__(self):
         return f'IntegerMatrix({self.rows}x{self.cols})'
 
-class TexCountAnimation(DynamicObject):
-    """Animated number display using pre-rendered LaTeX digit glyphs."""
+class TexCountAnimation(VCollection):
+    """Animated number display using pre-rendered LaTeX digit glyphs.
+
+    Driven by a ``value`` attribute (``attributes.Real``) and a format
+    string.  The displayed text is ``fmt.format(value.at_time(t))`` each
+    frame.
+
+    *value* can be:
+    - an ``attributes.Real`` instance (used directly),
+    - a ``ValueTracker`` (its ``.value`` attribute is used),
+    - omitted, in which case an internal ``attributes.Real`` is created
+      and animated from *start_val* to *end_val* over [*start*, *end*].
+    """
 
     def __init__(self, start_val: float = 0, end_val: float = 100, start: float = 0, end: float = 1,
                  fmt='{:.0f}', easing=easings.smooth,
                  x: float = ORIGIN[0], y: float = ORIGIN[1], font_size: float = 48,
-                 text_anchor=None, creation: float = 0, z: float = 0, **styles):
+                 text_anchor=None, value=None,
+                 creation: float = 0, z: float = 0, **styles):
         from vectormation._tex_glyphs import _resolve_tex_dir
 
+        super().__init__(creation=creation, z=z)
         self._tex_dir = _resolve_tex_dir()
-        self._x, self._y, self._font_size = x, y, font_size
+        self.x = attributes.Real(creation, x)
+        self.y = attributes.Real(creation, y)
+        self.font_size = attributes.Real(creation, font_size)
         self._text_anchor = text_anchor
         self._styles = {'stroke_width': 0, 'fill': '#fff'} | styles
-        self._fmt, self._start_val, self._end_val = fmt, start_val, end_val
-        self._anim_start, self._anim_dur = start, max(end - start, 1e-9)
-        self._easing, self._last_val = easing, end_val
-        self._extra_segments = []  # [(from_val, to_val, start, dur, easing)]
-        super().__init__(lambda t: self._build_number(self._compute_value(t), creation=t),
-                         creation=creation, z=z)
+        self._fmt = fmt
+
+        if value is not None:
+            if isinstance(value, attributes.Real):
+                self.value = value
+            elif hasattr(value, 'value') and isinstance(value.value, attributes.Real):
+                self.value = value.value
+            else:
+                raise TypeError(f'value must be a ValueTracker or attributes.Real, got {type(value).__name__}')
+        else:
+            self.value = attributes.Real(creation, start_val)
+            dur = max(end - start, 1e-9)
+            self.value.set(start, start + dur,
+                           lambda t, _s=start, _d=dur, _sv=start_val, _ev=end_val, _e=easing:
+                               _sv + (_ev - _sv) * _e((t - _s) / _d),
+                           stay=True)
+
+        self._last_val = end_val if value is None else self.value.at_time(creation)
+        self._glyph_cache = [None, None]  # [time, svg_string]
 
     def __repr__(self):
         return f'TexCountAnimation({self._last_val})'
 
-    def _compute_value(self, t):
-        """Compute the displayed number at time t."""
-        # Check extra segments in reverse order (latest wins)
-        for from_val, to_val, seg_start, seg_dur, seg_easing in reversed(self._extra_segments):
-            if t >= seg_start:
-                if t >= seg_start + seg_dur:
-                    return to_val
-                alpha = seg_easing((t - seg_start) / seg_dur)
-                return from_val + (to_val - from_val) * alpha
-
-        # Base animation
-        if t >= self._anim_start + self._anim_dur:
-            return self._end_val
-        if t < self._anim_start:
-            return self._start_val
-        alpha = self._easing((t - self._anim_start) / self._anim_dur)
-        return self._start_val + (self._end_val - self._start_val) * alpha
-
-    def _build_number(self, val, creation: float = 0):
-        """Assemble digit glyphs into a VCollection for the given numeric value."""
+    def _render_glyphs(self, t):
+        """Build glyph SVG for the current time, with per-frame caching."""
+        if self._glyph_cache[0] == t:
+            return self._glyph_cache[1]
         from vectormation._tex_glyphs import assemble_tex_glyphs
 
+        val = self.value.at_time(t)
         text = self._fmt.format(val)
-        # Map text_anchor to assemble_tex_glyphs anchor names
         anchor = 'left'
         if self._text_anchor == 'middle':
             anchor = 'center'
         elif self._text_anchor == 'end':
             anchor = 'right'
-        result = assemble_tex_glyphs(text, self._x, self._y, self._font_size,
-                                     creation=creation, tex_dir=self._tex_dir,
+        result = assemble_tex_glyphs(text,
+                                     float(self.x.at_time(t)),
+                                     float(self.y.at_time(t)),
+                                     float(self.font_size.at_time(t)),
+                                     creation=t, tex_dir=self._tex_dir,
                                      anchor=anchor, **self._styles)
-        if result is None:
-            return VCollection(creation=creation)
+        self._glyph_cache[0] = t
+        self._glyph_cache[1] = result
         return result
+
+    def to_svg(self, time):
+        if not self.show.at_time(time):
+            return ''
+        result = self._render_glyphs(time)
+        if result is None:
+            return ''
+        return result.to_svg(time)
+
+    def bbox(self, time: float = 0, start_idx: int = 0, end_idx=None):
+        result = self._render_glyphs(time)
+        if result is None:
+            return (0, 0, 0, 0)
+        return result.bbox(time)
 
     def count_to(self, target: float, start: float = 0, end: float = 1, easing=easings.smooth):
         """Animate counting from the current value to a new target."""
+        from_val = self._last_val
         dur = max(end - start, 1e-9)
-        self._extra_segments.append((self._last_val, target, start, dur, easing))
+        self.value.set(start, start + dur,
+                       lambda t, _s=start, _d=dur, _fv=from_val, _tv=target, _e=easing:
+                           _fv + (_tv - _fv) * _e((t - _s) / _d),
+                       stay=True)
         self._last_val = target
         return self
 
@@ -1368,7 +1401,6 @@ def parse_args():
     parser.add_argument('--for-docs', action='store_true', help='Export video/SVG for documentation')
     parser.add_argument('--port', type=int, default=8765, help='Browser viewer port')
     parser.add_argument('--fps', type=int, default=60, help='Frames per second')
-    parser.add_argument('--no-display', action='store_true', help='Skip browser display')
     parser.add_argument('-o', '--output', type=str, default=None, help='Output file path (e.g. out.mp4)')
     parser.add_argument('-d', '--duration', type=float, default=None, help='Animation duration in seconds')
     parser.add_argument('--start', type=float, default=None, help='Start time in seconds')

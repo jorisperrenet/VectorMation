@@ -85,6 +85,5 @@ canvas.add(ll)
 # Traverse animation
 ll.traverse(start=6.0, delay=0.6, color='#50FA7B')
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 9,
+canvas.browser_display(start=args.start or 0, end=args.end or 9,
                            fps=args.fps, port=args.port)

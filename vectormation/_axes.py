@@ -1,4 +1,5 @@
 """Axes, Graph, NumberPlane, and ComplexPlane classes."""
+import inspect
 import math
 
 import vectormation.easings as easings
@@ -25,6 +26,18 @@ from vectormation._shapes import (
     Text, Path,
 )
 from vectormation._axes_ext import _AxesExtMixin
+
+
+def _is_time_func(func):
+    """Return True if *func* accepts two positional parameters (x, time)."""
+    try:
+        params = inspect.signature(func).parameters
+        positional = [p for p in params.values()
+                      if p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)
+                      and p.default is p.empty]
+        return len(positional) >= 2
+    except (ValueError, TypeError):
+        return False
 
 
 def _color_to_stroke(kw):
@@ -125,7 +138,8 @@ class Axes(_AxesExtMixin, VCollection):
             self._deferred_axes = (x_label, y_label, creation, z)
             super().__init__(creation=creation, z=z)
 
-        self.axes = _get_dynamic_object()(self._build_axes_at, creation=creation, z=z)
+        self.axes = _get_dynamic_object()(self._build_axes_at, creation=creation, z=z - 0.001)
+        self.objects.insert(0, self.axes)
 
     def _build_label_objects(self, x_label, y_label, creation, z):
         """Build axis title labels with dynamic position, using built-in glyphs when possible."""
@@ -219,9 +233,14 @@ class Axes(_AxesExtMixin, VCollection):
 
     def _make_curve(self, func, creation, z, num_points=None, x_range=None,
                     lincl=True, rincl=True, **style_kwargs):
-        """Create a Path whose 'd' attribute resamples func each frame."""
+        """Create a Path whose 'd' attribute resamples func each frame.
+
+        *func* may be ``func(x)`` or ``func(x, time)``; the two-argument
+        form is detected automatically and receives the current frame time.
+        """
         if num_points is None:
             num_points = self.num_points
+        _time_aware = _is_time_func(func)
         curve = Path('', x=0, y=0, creation=creation, z=z, **style_kwargs)
         if x_range is not None:
             curve._domain_min = attributes.Real(creation, x_range[0])
@@ -229,20 +248,21 @@ class Axes(_AxesExtMixin, VCollection):
         else:
             curve._domain_min = None
             curve._domain_max = None
-        def _compute_d(time, _func=func, _np=num_points):
+        def _compute_d(time, _func=func, _np=num_points, _ta=_time_aware):
             xmin = self.x_min.at_time(time)
             xmax = self.x_max.at_time(time)
             ymin = self.y_min.at_time(time)
             ymax = self.y_max.at_time(time)
             # Wrap function to return NaN outside domain bounds
-            f = _func
+            f = (lambda x: _func(x, time)) if _ta else _func
             extra_xs = None
             if curve._domain_min is not None or curve._domain_max is not None:
                 lo = curve._domain_min.at_time(time) if curve._domain_min else xmin
                 hi = curve._domain_max.at_time(time) if curve._domain_max else xmax
                 def _in_domain(x, _lo=lo, _hi=hi, _li=lincl, _ri=rincl):
                     return (_lo <= x if _li else _lo < x) and (x <= _hi if _ri else x < _hi)
-                f = lambda x, _f=_func: _f(x) if _in_domain(x) else float('nan')
+                _f_inner = f
+                f = lambda x, _f=_f_inner: _f(x) if _in_domain(x) else float('nan')
                 # Inject domain boundaries so the curve starts/ends exactly there
                 extra_xs = [v for v in (lo, hi) if xmin <= v <= xmax]
             _, _, segments, _ = _sample_function(
@@ -265,18 +285,9 @@ class Axes(_AxesExtMixin, VCollection):
         return obj
 
     def to_svg(self, time):
-        parts = []
-        # Render axis decorations
-        if self.axes.show.at_time(time):
-            parts.append(self.axes.to_svg(time))
-
-        # Render child objects (curves, areas, labels, etc.)
         visible = [((z.at_time(time) if (z := getattr(o, 'z', None)) is not None else 0), o)
                     for o in self.objects if o.show.at_time(time)]
-        for _, obj in sorted(visible, key=lambda x: x[0]):
-            parts.append(obj.to_svg(time))
-
-        inner = '\n'.join(parts)
+        inner = '\n'.join(o.to_svg(time) for _, o in sorted(visible, key=lambda x: x[0]))
         transform = _scale_transform(self._scale_x.at_time(time),
                                      self._scale_y.at_time(time), self._scale_origin)
         return f'<g{transform}>\n{inner}\n</g>'
@@ -397,8 +408,13 @@ class Axes(_AxesExtMixin, VCollection):
     def animate_draw_function(self, func, start: float = 0, end: float = 1, x_range=None,
                                num_points=200, easing=easings.smooth,
                                creation: float = 0, z: float = 0, **styling_kwargs):
-        """Draw a function curve progressively from left to right."""
-        def _make_d(time, _axes=self, _x_range=x_range, _easing=easing):
+        """Draw a function curve progressively from left to right.
+
+        *func* may be ``func(x)`` or ``func(x, time)``.
+        """
+        _ta = _is_time_func(func)
+        def _make_d(time, _axes=self, _x_range=x_range, _easing=easing,
+                    _ta=_ta):
             if _x_range:
                 xmin, xmax = _x_range[0], _x_range[1]
             else:
@@ -415,9 +431,10 @@ class Axes(_AxesExtMixin, VCollection):
             cur_xhi = xlo + (xhi - xlo) * progress
             pts = []
             n = max(2, int(num_points * progress))
+            _f = (lambda x: func(x, time)) if _ta else func
             for i in range(n + 1):
                 xv = xlo + i * (cur_xhi - xlo) / n
-                yv = func(xv)
+                yv = _f(xv)
                 if not math.isfinite(yv):
                     continue
                 sx, sy = _axes.coords_to_point(xv, yv, time)
@@ -1081,13 +1098,20 @@ class Axes(_AxesExtMixin, VCollection):
 
     def get_area(self, curve_or_func, x_range=None, bounded_graph=None, creation: float = 0, z: float = 0, **styling_kwargs):
         """Create a shaded area under a curve/function (or between two curves).
-        Returns a dynamic Path object."""
+        Returns a dynamic Path object.
+
+        *curve_or_func* may be ``func(x)`` or ``func(x, time)``; the
+        two-argument form receives the current frame time automatically.
+        """
         style_kw = _AREA_STYLE | styling_kwargs
         func = self._resolve_func(curve_or_func, 'curve_or_func')
+        _ta = _is_time_func(func)
         bound_func = self._resolve_func(bounded_graph, 'bounded_graph') if bounded_graph is not None else None
+        _ta_b = _is_time_func(bound_func) if bound_func is not None else False
 
         area = Path('', x=0, y=0, creation=creation, z=z, **style_kw)
-        def _compute_area_d(time, _func=func, _bfunc=bound_func, _xr=x_range):
+        def _compute_area_d(time, _func=func, _bfunc=bound_func, _xr=x_range,
+                            _ta=_ta, _ta_b=_ta_b):
             xmin, xmax = self.x_min.at_time(time), self.x_max.at_time(time)
             lo = _xr[0] if _xr else xmin
             hi = _xr[1] if _xr else xmax
@@ -1108,9 +1132,10 @@ class Axes(_AxesExtMixin, VCollection):
                     sy = max(self.plot_y, min(self.plot_y + self.plot_height, sy))
                     pts.append((sx, sy))
                 return pts
-            verts = _sample(_func)
+            verts = _sample((lambda x: _func(x, time)) if _ta else _func)
             if _bfunc is not None:
-                all_verts = verts + list(reversed(_sample(_bfunc)))
+                all_verts = verts + list(reversed(_sample(
+                    (lambda x: _bfunc(x, time)) if _ta_b else _bfunc)))
             else:
                 by = self._baseline_y(time)
                 all_verts = verts + [(verts[-1][0], by), (verts[0][0], by)]

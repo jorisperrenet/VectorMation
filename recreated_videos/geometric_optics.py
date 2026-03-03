@@ -103,6 +103,5 @@ formula = Text(text='1/f = 1/dₒ + 1/dᵢ', x=ORIGIN[0], y=940,
 formula.write(5, 6)
 canvas.add(formula)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 7,
+canvas.browser_display(start=args.start or 0, end=args.end or 7,
                            fps=args.fps, port=args.port)

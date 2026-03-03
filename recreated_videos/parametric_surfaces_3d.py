@@ -88,6 +88,5 @@ ax4.add_surface(sphere)
 ax4.begin_ambient_camera_rotation(start=6.5, end=12, rate=0.4)
 ax4.set_camera_zoom(1.5, start=8, end=10)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 12,
+canvas.browser_display(start=args.start or 0, end=args.end or 12,
                            fps=args.fps, port=args.port)

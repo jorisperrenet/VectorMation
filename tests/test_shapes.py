@@ -11168,11 +11168,6 @@ class TestEffectBehavior:
         svg = c.to_svg(2.0)
         assert svg  # renders
 
-    def test_domino_hides_at_end(self):
-        c = Rectangle(50, 100, x=100, y=100)
-        c.domino(start=0, end=1)
-        assert c.show.at_time(1.5) is False
-
     def test_unfold_shows_from_start(self):
         c = Rectangle(200, 100, x=100, y=100)
         c.unfold(start=0, end=1, change_existence=True)

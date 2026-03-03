@@ -78,6 +78,5 @@ groups = [
 ax4.plot_swarm([1, 2, 3], groups, r=5, creation=4, fill='#BD93F9')
 v.add(ax4)
 
-if not args.no_display:
-    v.browser_display(start=args.start or 0, end=args.end or 6,
+v.browser_display(start=args.start or 0, end=args.end or 6,
                       fps=args.fps, port=args.port)

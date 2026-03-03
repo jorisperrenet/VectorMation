@@ -68,6 +68,5 @@ info.fadeout(7, 7.5)
 
 canvas.add(plane, i_hat, j_hat, i_label, j_label, title, subtitle1, info)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 8,
+canvas.browser_display(start=args.start or 0, end=args.end or 8,
                            fps=args.fps, port=args.port)

@@ -220,8 +220,7 @@ v.add(scr)
 # =============================================================================
 # Display
 # =============================================================================
-if not args.no_display:
-    v.browser_display(
+v.browser_display(
         start=args.start or 0,
         end=args.end or T,
         fps=args.fps,

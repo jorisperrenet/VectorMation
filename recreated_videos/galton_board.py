@@ -198,8 +198,7 @@ v.add_objects(title, subtitle, buckets, pegs, *balls, normal_curve, curve_label)
 
 # --- Run ---
 args = parse_args()
-if not args.no_display:
-    total_time = curve_start + 3
+total_time = curve_start + 3
     v.browser_display(start=0, end=total_time, fps=args.fps, port=args.port)
 if args.output:
     v.export_video(args.output, start=0, end=curve_start + 3, fps=args.fps)

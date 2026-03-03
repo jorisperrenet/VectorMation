@@ -309,6 +309,5 @@ canvas.add(title, subtitle, eq1, eq2, eq3)
 canvas.add(legend_title, *legend_rects, legend_fast, legend_slow)
 canvas.add(release_label)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or T,
+canvas.browser_display(start=args.start or 0, end=args.end or T,
                            fps=args.fps, port=args.port)

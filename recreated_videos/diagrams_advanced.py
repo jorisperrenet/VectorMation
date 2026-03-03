@@ -221,8 +221,7 @@ show.add(sub6)
 # =============================================================================
 # Display
 # =============================================================================
-if not args.no_display:
-    show.browser_display(
+show.browser_display(
         start=args.start or 0,
         end=args.end or T,
         fps=args.fps,

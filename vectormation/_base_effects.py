@@ -268,26 +268,6 @@ class _VObjectEffectsMixin:
         canvas.vb_h.move_to(start, end, target_h, easing=easing)
         return self
 
-    def domino(self, start: float = 0, end: float = 1, direction='right',
-               angle: float = 90, easing=easings.smooth):
-        """Tip the object over like a falling domino, rotating around its bottom edge."""
-        direction = _norm_dir(direction)
-        dur = end - start
-        if dur <= 0:
-            return self
-        self._hide_from(end)
-        bx, by, bw, bh = self.bbox(start)
-        if direction == 'left':
-            pivot_x, pivot_y, target_angle = bx, by + bh, -angle
-        else:
-            pivot_x, pivot_y, target_angle = bx + bw, by + bh, angle
-        _d = max(dur, 1e-9)
-        self.styling.rotation.set(start, end,
-            lambda t, _s=start, _d=_d, _ta=target_angle, _px=pivot_x, _py=pivot_y, _e=easing: (
-                _ta * _e((t - _s) / _d), _px, _py),
-            stay=True)
-        return self
-
     def stamp_trail(self, start: float = 0, end: float = 1, count: int = 8,
                     fade_duration=0.5, opacity: float = 0.4):
         """Leave ghostly fading copies along the path. Returns a list of ghost VObjects."""

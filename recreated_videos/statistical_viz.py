@@ -109,6 +109,5 @@ ax9.annotate_area(sin_curve, x_range=(0, math.pi), label='A', creation=12,
 
 if __name__ == '__main__':
     args = parse_args()
-    if not args.no_display:
         v.browser_display(start=args.start or 0, end=args.end or 15,
                           fps=args.fps, port=args.port)

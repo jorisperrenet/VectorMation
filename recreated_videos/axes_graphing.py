@@ -62,7 +62,7 @@ axes.animate_range(4.0, 4.5, x_range=(-4, 4), y_range=(-3, 3))
 area_between = axes.get_area(
     sine, bounded_graph=cosine,
     x_range=(-math.pi / 2, math.pi / 2),
-    fill='#A855F7', fill_opacity=0.3, stroke_width=0, z=-1,
+    fill='#A855F7', fill_opacity=0.3, stroke_width=0, z=1,
     creation=4.5,
 )
 area_between.set_opacity(0, start=0)
@@ -118,133 +118,20 @@ riemann_label.fadeout(7.6, 8.0)
 riemann.fadeout(7.5, 8.0)
 legend.fadeout(7.5, 8.0)
 
-# =====================================================================
-# Phase 3 (8-12s): Polar plot and NumberLine
-# =====================================================================
-
 # Fade out phase 2 content
 sin_curve.fadeout(7.8, 8.2)
 cos_curve.fadeout(7.8, 8.2)
-axes.fadeout(7.8, 8.3)
+axes.fadeout(7.8, 8.2)
 title.fadeout(7.8, 8.2)
-
-# -- Polar axes with a rose curve (top half) --
-polar = PolarAxes(
-    cx=500, cy=500,
-    max_radius=300, r_range=(0, 4),
-    n_rings=4, n_sectors=12,
-    creation=8.3,
-)
-polar.fadein(8.3, 8.8)
-
-# Plot a rose curve: r = 3 * cos(2*theta)
-def rose(theta_deg):
-    theta = math.radians(theta_deg)
-    return 3 * abs(math.cos(2 * theta))
-
-rose_curve = polar.plot_polar(rose, theta_range=(0, 360), num_points=300,
-                               creation=8.3, stroke='#FF6B6B', stroke_width=3)
-rose_curve.draw_along(8.5, 10.0)
-
-polar_title = Text(
-    text='Polar: r = 3|cos(2\u03b8)|',
-    x=500, y=870,
-    font_size=24, fill='#FF6B6B', stroke_width=0, text_anchor='middle',
-    creation=8.5,
-)
-polar_title.fadein(8.5, 9.0)
-
-# -- Number line with animated pointer (bottom right) --
-nline = NumberLine(
-    x_range=(-5, 5, 1), length=600,
-    x=1050, y=750,
-    include_arrows=True, include_numbers=True,
-    creation=8.3,
-)
-nline.fadein(8.3, 8.8)
-
-nline_title = Text(
-    text='NumberLine with Pointer',
-    x=1350, y=680,
-    font_size=24, fill='#ddd', stroke_width=0, text_anchor='middle',
-    creation=8.3,
-)
-nline_title.fadein(8.3, 8.8)
-
-# Add a pointer that will animate along the number line
-import vectormation.attributes as attributes
-ptr_value = attributes.Real(8.5, -4)
-pointer = nline.add_pointer(ptr_value, label='x', color='#FFFF00', creation=8.5)
-pointer.fadein(8.5, 9.0)
-
-# Animate the pointer from -4 to 4
-ptr_value.move_to(9.0, 11.0, 4)
-
-# Highlight a range on the number line
-highlight = nline.highlight_range(-2, 2, color='#58C4DD', opacity=0.3, creation=9.5)
-highlight.fadein(9.5, 10.0)
-
-hl_label = Text(
-    text='[-2, 2]',
-    x=1350, y=820,
-    font_size=20, fill='#58C4DD', stroke_width=0, text_anchor='middle',
-    creation=9.5,
-)
-hl_label.fadein(9.5, 10.0)
-
-# Add dots at key points
-dot_neg = nline.add_dot_at(-2, color='#83C167', radius=6, creation=9.5)
-dot_neg.fadein(9.5, 10.0)
-dot_pos = nline.add_dot_at(2, color='#83C167', radius=6, creation=9.5)
-dot_pos.fadein(9.5, 10.0)
-
-# -- Small Axes in upper right with a quadratic function --
-small_axes = Axes(
-    x_range=(-3, 3), y_range=(-2, 3),
-    x=1050, y=100, plot_width=550, plot_height=400,
-    show_grid=True, creation=8.3,
-)
-small_axes.fadein(8.3, 8.8)
-
-quad_curve = small_axes.plot(quadratic, stroke='#83C167', stroke_width=3, creation=8.5)
-quad_curve.draw_along(8.5, 10.0)
-
-# Add area under the quadratic
-quad_area = small_axes.get_area(
-    quadratic, x_range=(-2, 2),
-    fill='#83C167', fill_opacity=0.25, stroke_width=0, z=-1,
-    creation=10.0,
-)
-quad_area.set_opacity(0, start=0)
-quad_area.set_opacity(1, start=10.0, end=10.8)
-
-# Cursor moving along the quadratic
-cursor = small_axes.add_cursor(
-    quadratic, x_start=-2.5, x_end=2.5,
-    start=10.5, end=12.0,
-    r=5, fill='#FFFF00', creation=10.5, z=5,
-)
-
-small_title = Text(
-    text='f(x) = 0.25x\u00b2 - 1',
-    x=1325, y=530,
-    font_size=20, fill='#83C167', stroke_width=0, text_anchor='middle',
-    creation=8.5,
-)
-small_title.fadein(8.5, 9.0)
 
 # ── Add everything to canvas ────────────────────────────────────────
 canvas.add(axes)
 canvas.add(area_between, area_label)
 canvas.add(riemann_label)
-canvas.add(polar, rose_curve, polar_title)
-canvas.add(nline, nline_title, pointer, highlight, hl_label, dot_neg, dot_pos)
-canvas.add(small_axes, small_title)
 
-if not args.no_display:
-    canvas.browser_display(
+canvas.browser_display(
         start=args.start or 0,
-        end=args.end or 12,
+        end=args.end,
         fps=args.fps, port=args.port,
         hot_reload=args.hot_reload,
     )

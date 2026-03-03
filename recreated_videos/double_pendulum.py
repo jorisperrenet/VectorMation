@@ -164,5 +164,4 @@ for i, cfg in enumerate(configs):
 
 canvas.add_objects(*all_objects)
 
-if not args.no_display:
-    canvas.browser_display(start=0, end=T, fps=60, port=args.port)
+canvas.browser_display(start=0, end=T, fps=60, port=args.port)

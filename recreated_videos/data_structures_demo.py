@@ -184,8 +184,7 @@ ll.fadeout(11.6, 12.0)
 canvas.add(ll)
 
 # -- Render -------------------------------------------------------------------
-if not args.no_display:
-    canvas.browser_display(
+canvas.browser_display(
         start=args.start or 0,
         end=args.end or T,
         fps=args.fps,

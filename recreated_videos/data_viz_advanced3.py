@@ -74,6 +74,5 @@ ax4.plot(lambda x: [2, 3, 5, 4, 6, 7, 6, 8, 9, 8, 10][min(int(x), 10)]
          creation=4, stroke='#fff', stroke_width=2)
 v.add(ax4)
 
-if not args.no_display:
-    v.browser_display(start=args.start or 0, end=args.end or 6,
+v.browser_display(start=args.start or 0, end=args.end or 6,
                       fps=args.fps, port=args.port)

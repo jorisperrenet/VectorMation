@@ -364,7 +364,7 @@ Helper Functions
    :no-index:
 
    Common CLI argument parser. Returns an object with:
-   ``verbose``, ``port``, ``fps``, ``no_display``, ``output``,
+   ``verbose``, ``port``, ``fps``, ``output``,
    ``duration``, ``start``, ``end``, ``hot_reload``.
 
 .. py:function:: path_bbox(d)

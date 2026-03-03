@@ -7,7 +7,7 @@ All examples are in the ``examples/`` directory. Run any example with:
 
    python examples/<example_name>.py
 
-Use ``python examples/<name>.py -v`` for verbose logging or ``--no-display`` to skip the browser viewer.
+Use ``python examples/<name>.py -v`` for verbose logging.
 
 Manim comparison examples are in ``examples/manim/`` (see :doc:`vs Manim <vs_manim>`).
 

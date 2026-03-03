@@ -158,6 +158,5 @@ canvas.add(axes)
 canvas.add(title, subtitle, eq1, eq2)
 canvas.add(phase1_dot, phase2_dot, curve_label)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or T,
+canvas.browser_display(start=args.start or 0, end=args.end or T,
                            fps=args.fps, port=args.port)

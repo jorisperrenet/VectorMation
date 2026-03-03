@@ -127,6 +127,5 @@ ratio_text = Text(text=f'\u03c6 = {phi:.6f}...', x=960, y=1030,
 ratio_text.fadein(t, t + 0.5)
 canvas.add(ratio_text)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 6,
+canvas.browser_display(start=args.start or 0, end=args.end or 6,
                            fps=args.fps, port=args.port)

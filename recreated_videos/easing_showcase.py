@@ -292,8 +292,7 @@ for i, (name, easing_fn, color) in enumerate(compare_easings):
 # =============================================================================
 # Display
 # =============================================================================
-if not args.no_display:
-    v.browser_display(
+v.browser_display(
         start=args.start or 0,
         end=args.end or T,
         fps=args.fps,

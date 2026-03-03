@@ -282,6 +282,5 @@ for lbl in row_labels:
 for lbl in col_labels:
     v.add(lbl)
 
-if not args.no_display:
-    v.browser_display(start=args.start or 0, end=args.end or TOTAL,
+v.browser_display(start=args.start or 0, end=args.end or TOTAL,
                       fps=args.fps, port=args.port)

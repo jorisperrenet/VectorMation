@@ -48,10 +48,10 @@ python generate_diagrams/generate_all.py
 
 ### Regenerate a single example
 
-Run the example script with `-v --no-display` from the repository root:
+Run the example script with `-v` from the repository root:
 
 ```bash
-python examples/manim/square_to_circle.py -v --no-display
+python examples/manim/square_to_circle.py -v
 ```
 
 ### Deploy

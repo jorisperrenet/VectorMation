@@ -107,6 +107,5 @@ counter = CountAnimation(0, 1000, start=t + 0.3, end=t + 3.0,
 counter.fadein(t, t + 0.3)
 canvas.add(counter)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 14,
+canvas.browser_display(start=args.start or 0, end=args.end or 14,
                            fps=args.fps, port=args.port)

@@ -137,6 +137,5 @@ def mid_updater(obj, t):
 mid_label.add_updater(mid_updater, start=2, end=8)
 canvas.add(mid_label)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 8,
+canvas.browser_display(start=args.start or 0, end=args.end or 8,
                            fps=args.fps, port=args.port)

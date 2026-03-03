@@ -72,6 +72,5 @@ ax4.plot_contour(lambda x, y: math.sin(x) * math.cos(y),
                  levels=6, x_samples=30, y_samples=30, creation=4)
 v.add(ax4)
 
-if not args.no_display:
-    v.browser_display(start=args.start or 0, end=args.end or 6,
+v.browser_display(start=args.start or 0, end=args.end or 6,
                       fps=args.fps, port=args.port)

@@ -520,10 +520,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Scale to target with spring-like overshoot that settles.
 
-   .. py:method:: domino(start=0, end=1, direction='right', angle=90, easing=smooth)
-
-      Tip over like a falling domino.
-
    .. py:method:: unfold(start=0, end=1, direction='right', change_existence=True, easing=smooth)
 
       Unfold from zero width to full size along one axis.

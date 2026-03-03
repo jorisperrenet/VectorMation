@@ -93,6 +93,5 @@ grad_field = ax4.plot_vector_field(lambda x, y: (x, y),
                                     creation=10.5, stroke='#FF6B6B', fill='#FF6B6B')
 grad_field.stagger('fadein', start=10.5, end=12)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 13,
+canvas.browser_display(start=args.start or 0, end=args.end or 13,
                            fps=args.fps, port=args.port)

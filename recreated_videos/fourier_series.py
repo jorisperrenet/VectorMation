@@ -70,6 +70,5 @@ subtitle.fadein(0.5, 1)
 
 canvas.add(axes, target, *curves, *labels, title, subtitle)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 8,
+canvas.browser_display(start=args.start or 0, end=args.end or 8,
                            fps=args.fps, port=args.port)

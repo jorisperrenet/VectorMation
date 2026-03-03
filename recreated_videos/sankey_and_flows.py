@@ -71,6 +71,5 @@ waterfall = WaterfallChart(
 waterfall.stagger('fadein', start=4.5, end=6)
 canvas.add(waterfall)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 7,
+canvas.browser_display(start=args.start or 0, end=args.end or 7,
                            fps=args.fps, port=args.port)

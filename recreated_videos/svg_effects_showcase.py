@@ -158,6 +158,5 @@ combo_boundary = AnimatedBoundary(combo_circle,
                                   cycle_rate=1, creation=6.5)
 canvas.add(combo_boundary)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 8,
+canvas.browser_display(start=args.start or 0, end=args.end or 8,
                            fps=args.fps, port=args.port)

@@ -51,7 +51,8 @@ class Real:
 
         Example: ``real.set(0, 1, lambda t: t * 10)``
         """
-        self.time_func = _wrap(self.time_func, func_inner, start, end, lincl, rincl, stay)
+        inner = func_inner if callable(func_inner) else lambda t: func_inner
+        self.time_func = _wrap(self.time_func, inner, start, end, lincl, rincl, stay)
         self.last_change = max(self.last_change, end)
 
     def add(self, start, end, func_inner, lincl=True, rincl=True, stay=False):

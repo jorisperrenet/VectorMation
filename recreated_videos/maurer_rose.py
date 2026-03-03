@@ -116,6 +116,5 @@ params.fadeout(5.8, 6.2)
 
 canvas.add(maurer, rose, title, params, params2, formula)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 10,
+canvas.browser_display(start=args.start or 0, end=args.end or 10,
                            fps=args.fps, port=args.port)

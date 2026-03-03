@@ -256,6 +256,5 @@ canvas.add(separator, trail_path, trace_path, epicycles_dynamic, harmonic_label)
 canvas.add(title, subtitle, formula, wave_label, circle_label)
 canvas.add(*phase_labels)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or TOTAL_DURATION,
+canvas.browser_display(start=args.start or 0, end=args.end or TOTAL_DURATION,
                            fps=args.fps, port=args.port)

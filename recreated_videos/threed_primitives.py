@@ -437,6 +437,5 @@ canvas.add(axes3)
 canvas.add(title)
 canvas.add(phase1_label, phase2_label, phase3_label)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or T,
+canvas.browser_display(start=args.start or 0, end=args.end or T,
                            fps=args.fps, port=args.port)

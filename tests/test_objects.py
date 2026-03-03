@@ -439,9 +439,9 @@ class TestAxes:
 
     def test_deferred_axes_from_add_function(self):
         ax = Axes(x_range=(-5, 5))
-        assert len(ax) == 0
+        initial_len = len(ax)
         ax.add_function(lambda x: x**2)
-        assert len(ax) > 0
+        assert len(ax) > initial_len
         svg = ax.to_svg(0)
         assert '<line' in svg
 
@@ -8173,60 +8173,6 @@ class TestZoomTo:
         vb_h = canvas.vb_h.at_time(1)
         canvas_aspect = 1920 / 1080
         assert vb_w / vb_h == pytest.approx(canvas_aspect, abs=0.01)
-
-
-class TestDomino:
-    """Tests for VObject.domino — tipping-over rotation effect."""
-
-
-    def test_hidden_after_end(self):
-        r = Rectangle(width=50, height=100, x=400, y=300)
-        r.domino(start=0, end=1)
-        assert r.show.at_time(1.5) is False
-
-    def test_no_rotation_at_start(self):
-        r = Rectangle(width=50, height=100, x=400, y=300)
-        r.domino(start=0, end=1, easing=easings.linear)
-        rot = r.styling.rotation.at_time(0)
-        assert rot[0] == pytest.approx(0, abs=0.1)
-
-    def test_full_rotation_at_end(self):
-        r = Rectangle(width=50, height=100, x=400, y=300)
-        r.domino(start=0, end=1, angle=90, easing=easings.linear)
-        rot = r.styling.rotation.at_time(1)
-        assert rot[0] == pytest.approx(90, abs=0.1)
-
-    def test_direction_left(self):
-        r = Rectangle(width=50, height=100, x=400, y=300)
-        r.domino(start=0, end=1, direction='left', angle=90, easing=easings.linear)
-        rot = r.styling.rotation.at_time(1)
-        # Left direction should rotate negatively
-        assert rot[0] == pytest.approx(-90, abs=0.1)
-
-    def test_pivot_point_right(self):
-        r = Rectangle(width=50, height=100, x=400, y=300)
-        r.domino(start=0, end=1, direction='right', easing=easings.linear)
-        rot = r.styling.rotation.at_time(0.5)
-        # Pivot should be at bottom-right of bbox
-        bx, by, bw, bh = r.bbox(0)
-        assert rot[1] == pytest.approx(bx + bw, abs=0.1)
-        assert rot[2] == pytest.approx(by + bh, abs=0.1)
-
-    def test_pivot_point_left(self):
-        r = Rectangle(width=50, height=100, x=400, y=300)
-        r.domino(start=0, end=1, direction='left', easing=easings.linear)
-        rot = r.styling.rotation.at_time(0.5)
-        # Pivot should be at bottom-left of bbox
-        bx, by, _, bh = r.bbox(0)
-        assert rot[1] == pytest.approx(bx, abs=0.1)
-        assert rot[2] == pytest.approx(by + bh, abs=0.1)
-
-
-    def test_mid_animation_rotation(self):
-        r = Rectangle(width=50, height=100, x=400, y=300)
-        r.domino(start=0, end=1, angle=90, easing=easings.linear)
-        rot = r.styling.rotation.at_time(0.5)
-        assert rot[0] == pytest.approx(45, abs=1)
 
 
 # ---------------------------------------------------------------------------

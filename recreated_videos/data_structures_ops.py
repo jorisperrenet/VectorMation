@@ -76,6 +76,5 @@ ll.append_node(5, start=10.2, end=10.7)
 for i in range(5):
     ll.highlight_node(i, start=11 + i * 0.4, end=11 + i * 0.4 + 0.35, color='#E9C46A')
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 13,
+canvas.browser_display(start=args.start or 0, end=args.end or 13,
                            fps=args.fps, port=args.port)

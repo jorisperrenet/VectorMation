@@ -145,6 +145,5 @@ canvas.add(t_dst)
 ghost_copy = t_src.transform_from_copy(t_dst, start=7.0, end=8.0)
 canvas.add(ghost_copy)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 9,
+canvas.browser_display(start=args.start or 0, end=args.end or 9,
                            fps=args.fps, port=args.port)

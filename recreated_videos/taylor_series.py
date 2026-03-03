@@ -57,6 +57,5 @@ v.add(sin_label)
 
 v.add(ax)
 
-if not args.no_display:
-    v.browser_display(start=args.start or 0, end=args.end or 11,
+v.browser_display(start=args.start or 0, end=args.end or 11,
                       fps=args.fps, port=args.port)

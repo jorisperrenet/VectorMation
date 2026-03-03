@@ -296,6 +296,5 @@ canvas.add(zoom_label)
 # Render
 # =============================================================================
 
-if not args.no_display:
-    canvas.browser_display(0, T, fps=args.fps, port=args.port, hot_reload=args.hot_reload)
+canvas.browser_display(0, T, fps=args.fps, port=args.port, hot_reload=args.hot_reload)
 

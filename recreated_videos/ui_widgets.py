@@ -429,8 +429,7 @@ canvas.add(si_label)
 # =============================================================================
 # Render
 # =============================================================================
-if not args.no_display:
-    canvas.browser_display(
+canvas.browser_display(
         start=args.start or 0,
         end=args.end or T,
         fps=args.fps,

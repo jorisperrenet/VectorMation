@@ -354,6 +354,5 @@ canvas.add(title, subtitle)
 canvas.add(law1, law2, law3, ecc_text)
 canvas.add(area_note)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or T,
+canvas.browser_display(start=args.start or 0, end=args.end or T,
                            fps=args.fps, port=args.port)

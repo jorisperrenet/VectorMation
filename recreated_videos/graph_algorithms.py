@@ -346,8 +346,7 @@ for lbl in node_text_objs.values():
 for obj in legend_objects:
     canvas.add(obj)
 
-if not args.no_display:
-    canvas.browser_display(
+canvas.browser_display(
         start=args.start or 0,
         end=args.end or T,
         fps=args.fps,

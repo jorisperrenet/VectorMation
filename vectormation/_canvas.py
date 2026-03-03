@@ -801,7 +801,7 @@ class VectorMathAnim:
                 pass
             if hasattr(obj, 'text_content'):
                 tc = obj.text_content
-                if tc and len(tc) <= 30:
+                if isinstance(tc, str) and len(tc) <= 30:
                     info['name'] = tc
             result.append(info)
         return result

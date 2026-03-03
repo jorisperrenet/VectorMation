@@ -129,6 +129,5 @@ radius_labels = VCollection(
 radius_labels.stagger_fadein(start=6, end=6.5)
 canvas.add(radius_labels)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 7,
+canvas.browser_display(start=args.start or 0, end=args.end or 7,
                            fps=args.fps, port=args.port)

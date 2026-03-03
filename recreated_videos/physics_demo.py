@@ -235,8 +235,7 @@ canvas.add(field, q_pos, q_neg)
 canvas.add(q_pos_label, q_neg_label, p4_eq)
 
 # -- Render -------------------------------------------------------------------
-if not args.no_display:
-    canvas.browser_display(
+canvas.browser_display(
         start=args.start or 0,
         end=args.end or T,
         fps=args.fps,

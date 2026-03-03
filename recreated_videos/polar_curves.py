@@ -65,6 +65,5 @@ for i, ((label, func), (px, py)) in enumerate(zip(curves, positions)):
 
     t += 0.8
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 6,
+canvas.browser_display(start=args.start or 0, end=args.end or 6,
                            fps=args.fps, port=args.port)

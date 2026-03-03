@@ -435,10 +435,6 @@ CLI Utility
         - int
         - ``60``
         - Frames per second
-      * - ``--no-display``
-        - bool
-        - ``False``
-        - Skip browser display (useful for export-only runs)
       * - ``-o`` / ``--output``
         - str
         - ``None``
@@ -470,7 +466,7 @@ CLI Utility
    From the command line::
 
       python my_script.py -v --fps 30 --hot-reload
-      python my_script.py --no-display -o animation.mp4
+      python my_script.py -o animation.mp4
 
 ----
 
@@ -497,8 +493,7 @@ and opens the browser viewer.
 
    canvas.add(circle)
 
-   if not args.no_display:
-       canvas.browser_display(fps=args.fps, port=args.port, hot_reload=args.hot_reload)
+   canvas.browser_display(fps=args.fps, port=args.port, hot_reload=args.hot_reload)
 
 Camera animation
 ~~~~~~~~~~~~~~~~
@@ -531,8 +526,7 @@ Combine camera methods to guide the viewer's attention through a scene.
    canvas.camera_reset(7, 8)
 
    canvas.add(c1, c2)
-   if not args.no_display:
-       canvas.browser_display(fps=args.fps, port=args.port)
+   canvas.browser_display(fps=args.fps, port=args.port)
 
 Browser preview with hot reload
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -563,7 +557,7 @@ Export video
 ~~~~~~~~~~~~
 
 Use ``export_video`` for MP4 output or ``export_gif`` for animated GIFs.
-Combine with ``--no-display`` for headless render pipelines.
+Use ``export_video`` for headless render pipelines.
 
 .. code-block:: python
 
@@ -613,8 +607,7 @@ presentation-style animations.
    canvas.add_section(4)  # pause here again
 
    canvas.add(title, subtitle)
-   if not args.no_display:
-       canvas.browser_display(fps=args.fps, port=args.port)
+   canvas.browser_display(fps=args.fps, port=args.port)
 
 ----
 
@@ -625,9 +618,9 @@ Tips and Best Practices
 ``VectorMathAnim`` instance. The canvas manages a global save directory
 used by TeX caching and frame output.
 
-**Use parse_args() for flexibility.** Wrapping ``browser_display`` and
-``export_video`` calls behind ``args.no_display`` and ``args.output``
-makes your script usable both interactively and in CI pipelines.
+**Use parse_args() for flexibility.** Using ``args.output`` to
+conditionally call ``export_video`` makes your script usable both
+interactively and in CI pipelines.
 
 **Add objects before displaying.** All objects must be registered with
 ``add_objects`` (or ``add``) before calling ``browser_display`` or

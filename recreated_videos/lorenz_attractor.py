@@ -178,6 +178,5 @@ canvas.add(path_a, path_b, dot_a, dot_b)
 canvas.add(title, subtitle, eq1, eq2, eq3, params)
 canvas.add(legend_a_dot, legend_a_txt, legend_b_dot, legend_b_txt)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or T,
+canvas.browser_display(start=args.start or 0, end=args.end or T,
                            fps=args.fps, port=args.port)

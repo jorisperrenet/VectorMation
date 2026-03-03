@@ -67,6 +67,5 @@ field3 = ElectricField(*charges,
 field3.fadein(4.0, 5.0)
 canvas.add(field3)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 6,
+canvas.browser_display(start=args.start or 0, end=args.end or 6,
                            fps=args.fps, port=args.port)

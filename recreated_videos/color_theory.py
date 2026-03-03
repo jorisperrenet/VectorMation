@@ -421,8 +421,7 @@ canvas.add(wheel_center_label)
 # =============================================================================
 # Display
 # =============================================================================
-if not args.no_display:
-    canvas.browser_display(
+canvas.browser_display(
         start=args.start or 0,
         end=args.end or T,
         fps=args.fps,

@@ -187,6 +187,5 @@ for rects in all_rect_groups:
 canvas.add(*n_labels, *area_labels)
 canvas.add(shaded_area, exact_label, exact_value, convergence_note)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 14,
+canvas.browser_display(start=args.start or 0, end=args.end or 14,
                            fps=args.fps, port=args.port)

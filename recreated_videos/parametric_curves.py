@@ -79,6 +79,5 @@ for i, ((label, func, xr, yr, tr), (px, py)) in enumerate(zip(curves_data, posit
 
     t += 0.8
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 6,
+canvas.browser_display(start=args.start or 0, end=args.end or 6,
                            fps=args.fps, port=args.port)

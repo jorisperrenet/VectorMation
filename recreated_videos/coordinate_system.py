@@ -116,8 +116,7 @@ canvas.add(sine_label, parabola_label)
 canvas.add(area, area_label)
 canvas.add(tangent_label, zoom_label)
 
-if not args.no_display:
-    canvas.browser_display(
+canvas.browser_display(
         start=args.start or 0,
         end=args.end or 12,
         fps=args.fps, port=args.port,

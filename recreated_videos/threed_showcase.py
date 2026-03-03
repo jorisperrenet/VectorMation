@@ -210,6 +210,5 @@ canvas.add(title, subtitle)
 canvas.add(eq_label, dot_indicator)
 canvas.add(prim_label, prim_dot)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or T,
+canvas.browser_display(start=args.start or 0, end=args.end or T,
                            fps=args.fps, port=args.port)

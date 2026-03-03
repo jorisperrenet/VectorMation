@@ -162,6 +162,5 @@ canvas.add(time_axes, disp_path, env_upper, env_lower)
 canvas.add(phase_axes, phase_path, phase_dot)
 canvas.add(title, eq_text)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or T,
+canvas.browser_display(start=args.start or 0, end=args.end or T,
                            fps=args.fps, port=args.port)

@@ -202,6 +202,5 @@ canvas.add(title_bg, title, subtitle)
 canvas.add(zoom_live)
 canvas.add(info_bg, coord_label, zoom_label, max_iter_label)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or T,
+canvas.browser_display(start=args.start or 0, end=args.end or T,
                            fps=args.fps, port=args.port)

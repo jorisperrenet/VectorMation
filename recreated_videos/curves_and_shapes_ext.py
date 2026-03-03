@@ -199,6 +199,5 @@ dashed = DashedLine(1500, 780, 1700, 780,
 dashed.create(6, 6.5)
 canvas.add(dashed)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or 7,
+canvas.browser_display(start=args.start or 0, end=args.end or 7,
                            fps=args.fps, port=args.port)

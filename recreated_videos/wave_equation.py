@@ -93,6 +93,5 @@ equation.fadein(0.5, 1)
 
 canvas.add(title, equation)
 
-if not args.no_display:
-    canvas.browser_display(start=args.start or 0, end=args.end or T,
+canvas.browser_display(start=args.start or 0, end=args.end or T,
                            fps=args.fps, port=args.port)
