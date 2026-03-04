@@ -1,9 +1,7 @@
 """Manim equivalent: VectorArrow -- arrow with labeled endpoints on a grid."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/manim/vector_arrow')
+canvas = VectorMathAnim()
 canvas.set_background()
 plane = NumberPlane()
 
@@ -19,7 +17,5 @@ tip_text = Text('(2, 2)', font_size=36)
 tip_text.center_to_pos(posx=tx + 50, posy=ty - 10)
 
 canvas.add_objects(plane, origin, arrow, origin_text, tip_text)
-if args.for_docs:
-    canvas.write_frame(0, 'docs/source/_static/videos/vector_arrow.svg')
-if not args.for_docs:
-    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)
+
+canvas.show()

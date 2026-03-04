@@ -1,9 +1,7 @@
 """ZoomedInset with animated source position."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
-v = VectorMathAnim('_ref_out', verbose=args.verbose)
+v = VectorMathAnim()
 v.set_background()
 
 # Small scene to magnify
@@ -24,7 +22,4 @@ v.add(inset)
 # Animate the source region position
 inset.move_source(400, 480, start=0.5, end=2.5)
 
-if args.for_docs:
-    v.export_video('docs/source/_static/videos/ref_zoomed_inset_animated.mp4', fps=30, end=3)
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=3)
+v.show(end=3)

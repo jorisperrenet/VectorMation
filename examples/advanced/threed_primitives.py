@@ -4,12 +4,10 @@ Showcases 3D primitive objects (Line3D, Dot3D, Arrow3D, Text3D),
 solid shapes (Cube, Cylinder3D, Cone3D, Torus3D, Prism3D),
 and all four Platonic solids (Tetrahedron, Octahedron, Icosahedron, Dodecahedron).
 """
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 import math
 from vectormation.objects import *
 
-args = parse_args()
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/threed_primitives')
+canvas = VectorMathAnim()
 canvas.set_background()
 
 T = 12
@@ -437,8 +435,4 @@ canvas.add(axes3)
 canvas.add(title)
 canvas.add(phase1_label, phase2_label, phase3_label)
 
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/threed_primitives.mp4', fps=30, end=T)
-if not args.for_docs:
-    canvas.browser_display(start=args.start or 0, end=args.end or T,
-    fps=args.fps, port=args.port)
+canvas.show(end=T)

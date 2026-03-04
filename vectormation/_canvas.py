@@ -61,12 +61,17 @@ class _ProgressBar:
 
 class VectorMathAnim:
     """Canvas/video where we can ask a frame at a certain time."""
-    def __init__(self, save_dir, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, scale: float = 1, verbose=False):
+    def __init__(self, save_dir=None, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, scale: float = 1, verbose=False):
         if verbose:
             logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
         else:
             logging.basicConfig(level=logging.WARNING)
 
+        if save_dir is None:
+            save_dir = tempfile.mkdtemp(prefix='vectormation_')
+            self._tmp_save_dir = True
+        else:
+            self._tmp_save_dir = False
         self.save_dir = save_dir  # Directory to save frames in
         os.makedirs(save_dir, exist_ok=True)
         self.filename = f'{save_dir}/gen.svg'
@@ -806,8 +811,53 @@ class VectorMathAnim:
             result.append(info)
         return result
 
+    def show(self, **kwargs):
+        """Display the animation in the browser, or export if requested.
+
+        Checks the ``VECTORMATION_EXPORT`` environment variable first: if set,
+        its value is used as the output path (format inferred from extension).
+        Otherwise falls back to the ``-o`` CLI argument, or opens the browser
+        viewer.  CLI arguments (``--fps``, ``--port``, ``-d``, etc.) are
+        honoured automatically.
+        """
+        import inspect
+        from vectormation._composites import parse_args
+        args = parse_args()
+        if args.verbose:
+            logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
+
+        # Determine output path: env var > CLI arg > None (browser)
+        export_path = os.environ.get('VECTORMATION_EXPORT') or args.output
+
+        # Merge CLI / kwargs for timing
+        start = kwargs.get('start', args.start or 0)
+        end = kwargs.get('end', args.end or args.duration)
+        fps = kwargs.get('fps', args.fps)
+
+        if export_path:
+            ext = os.path.splitext(export_path)[1].lower()
+            if ext == '.svg':
+                self.write_frame(time=float(start), filename=export_path)
+            elif ext == '.gif':
+                self.export_gif(export_path, start=start, end=end, fps=fps)
+            elif ext == '.png':
+                self.export_png(time=float(start), filename=export_path)
+            else:
+                # Default to video (.mp4, .webm, etc.)
+                self.export_video(export_path, start=start, end=end, fps=fps)
+        else:
+            # Hot-reload: detect the *caller's* script, not show() itself
+            caller_frame = inspect.stack()[1]
+            script_path = os.path.abspath(caller_frame.filename)
+            self.browser_display(
+                start=start, end=end, fps=fps,
+                port=kwargs.get('port', args.port),
+                hot_reload=kwargs.get('hot_reload', True),
+                _script_path=script_path,
+            )
+
     def browser_display(self, start: float = 0, end: float | None = None, fps: int = 60,
-                        port=8765, hot_reload=True):
+                        port=8765, hot_reload=True, _script_path=None):
         """View the animation in a browser via WebSocket.
         If end == 0, displays a single static picture (no animation)."""
         import inspect
@@ -832,8 +882,8 @@ class VectorMathAnim:
 
         logger.info('Starting browser viewer on port %d', port)
 
-        script_path = None
-        if hot_reload:
+        script_path = _script_path
+        if hot_reload and script_path is None:
             # Detect the calling script
             frame = inspect.stack()[1]
             script_path = os.path.abspath(frame.filename)

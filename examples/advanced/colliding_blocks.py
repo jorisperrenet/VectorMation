@@ -3,11 +3,9 @@
 A small block sliding into a larger block against a wall. The number of
 collisions encodes digits of pi when the mass ratio is a power of 100.
 """
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from vectormation.objects import *
 
-args = parse_args()
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/colliding_blocks')
+canvas = VectorMathAnim()
 canvas.set_background()
 
 # ── Parameters ────────────────────────────────────────────────────────
@@ -120,8 +118,4 @@ pi_text.fadein(1, 2)
 canvas.add(ground, wall, small_block, big_block, m1_label, m2_label,
            title, counter, ratio_text, pi_text)
 
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/colliding_blocks.mp4', fps=30, end=8)
-if not args.for_docs:
-    canvas.browser_display(start=args.start or 0, end=args.end or 8,
-    fps=args.fps, port=args.port)
+canvas.show(end=8)

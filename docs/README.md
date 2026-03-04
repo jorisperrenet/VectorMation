@@ -5,9 +5,10 @@ This directory contains the Sphinx documentation for VectorMation, using the [Fu
 ### Prerequisites
 
 ```bash
-pip install sphinx furo sphinx-design sphinx-copybutton sphinx-autobuild ghp-import
-pip install vectormation[export]   # cairosvg, Pillow (ffmpeg must be on PATH)
+pip install -r docs/requirements.txt
 ```
+
+This installs Sphinx, the Furo theme, and the asset-building dependencies (cairosvg, Pillow, etc.). You also need `ffmpeg` on your PATH for video export, and `ghp-import` if you want to deploy.
 
 ### Quick build
 
@@ -16,7 +17,7 @@ From the `docs/` directory:
 ```bash
 make html       # regenerate changed assets, then build HTML
 make serve      # build + serve on http://localhost:8000
-make live        # live-reload (auto-rebuilds on file changes)
+make live       # live-reload (auto-rebuilds on file changes)
 ```
 
 ### Regenerate assets
@@ -24,34 +25,17 @@ make live        # live-reload (auto-rebuilds on file changes)
 The Makefile tracks dependencies so only scripts that changed (or whose library code changed) are re-rendered:
 
 ```bash
-make assets     # regenerate all changed videos and SVG frames
-make videos     # regenerate only changed videos
-make svgs       # regenerate only changed SVG frames
-make diagrams   # regenerate SVG parameter diagrams
-```
-
-To force a full rebuild of all assets, touch the library files:
-
-```bash
-touch ../vectormation/*.py && make assets
-```
-
-### Regenerate SVG diagrams
-
-The parameter diagrams in `source/_static/images/` are generated using VectorMation itself:
-
-```bash
-make diagrams
-# or directly:
-python generate_diagrams/generate_all.py
+make assets         # regenerate all changed videos and SVG frames
+make assets-force   # rebuild all assets unconditionally
+make diagrams       # regenerate SVG parameter diagrams only
 ```
 
 ### Regenerate a single example
 
-Run the example script with `-v` from the repository root:
+Run the example script with `-o` from the repository root:
 
 ```bash
-python examples/manim/square_to_circle.py -v
+PYTHONPATH=. python examples/reference/circle.py -o docs/source/_static/videos/circle.mp4
 ```
 
 ### Deploy

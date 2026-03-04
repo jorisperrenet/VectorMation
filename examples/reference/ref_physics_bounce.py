@@ -1,10 +1,8 @@
 """PhysicsSpace: bouncing objects with walls."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 import random
 from vectormation.objects import *
-args = parse_args()
 
-v = VectorMathAnim('_ref_out', verbose=args.verbose)
+v = VectorMathAnim()
 v.set_background()
 
 duration = 6
@@ -41,7 +39,5 @@ space.add_drag(coefficient=0.002)
 space.simulate(duration=duration)
 
 v.add(*walls, *objects)
-if args.for_docs:
-    v.export_video('docs/source/_static/videos/ref_physics_bounce.mp4', fps=30, end=duration)
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=duration)
+
+v.show(end=duration)

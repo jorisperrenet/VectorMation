@@ -171,8 +171,6 @@ Spring
 
       .. literalinclude:: ../../../examples/reference/ref_physics_spring.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
 ----
 
@@ -210,8 +208,6 @@ Cloth
 
       .. literalinclude:: ../../../examples/reference/ref_physics_cloth.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
 .. admonition:: Example: Bouncing balls
    :class: example
@@ -222,5 +218,3 @@ Cloth
 
    .. literalinclude:: ../../../examples/reference/ref_physics_bounce.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display

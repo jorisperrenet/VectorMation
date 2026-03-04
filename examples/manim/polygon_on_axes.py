@@ -1,10 +1,8 @@
 """Manim equivalent: PolygonOnAxes -- dynamic rectangle under a 1/x curve."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
 from vectormation import attributes
-args = parse_args()
 
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/manim/polygon_on_axes')
+canvas = VectorMathAnim()
 canvas.set_background()
 ax = Axes(x_range=(0, 10), y_range=(0, 10), tex_ticks=True)
 
@@ -36,7 +34,5 @@ dot.fadeout(6, 7)
 
 canvas.add_objects(ax, dot)
 canvas.add_objects(morph, morph2, morph3, coll)
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/polygon_on_axes.mp4', fps=30)
-if not args.for_docs:
-    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)
+
+canvas.show()

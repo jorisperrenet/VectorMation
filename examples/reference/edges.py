@@ -1,10 +1,8 @@
 """get_edge() positions diagram."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
 W, H = 440, 320
-v = VectorMathAnim('_ref_out', verbose=args.verbose, width=W, height=H)
+v = VectorMathAnim(width=W, height=H)
 v.set_background(fill='#1e1e2e')
 
 RX, RY, RW, RH = 120, 80, 200, 140
@@ -33,7 +31,4 @@ for name, ex, ey, lx, ly in edges:
 v.add(Text('get_edge() positions', x=145, y=275, font_size=14, fill='#cdd6f4'))
 v.add(Text("obj.get_edge('top_right')  →  (x, y)", x=90, y=300, font_size=11, fill='#585b70'))
 
-if args.for_docs:
-    v.write_frame(filename='docs/source/_static/images/edges.svg')
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=2)
+v.show(end=2)

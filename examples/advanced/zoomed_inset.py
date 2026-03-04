@@ -1,9 +1,7 @@
 """ZoomedInset Demo — magnify a region of the canvas."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from vectormation.objects import *
 
-args = parse_args()
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/zoomed_inset')
+canvas = VectorMathAnim()
 canvas.set_background()
 
 title = TexObject(r'ZoomedInset', x=960, y=70, font_size=52,
@@ -52,7 +50,4 @@ zoom_label = TexObject(r'Magnified detail', x=950, y=830, font_size=24,
                        fill='#FFFF00', stroke_width=0, anchor='center')
 canvas.add(zoom_label)
 
-if args.for_docs:
-    canvas.write_frame(filename='docs/source/_static/videos/zoomed_inset.svg')
-if not args.for_docs:
-    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=0)
+canvas.show(end=0)

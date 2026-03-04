@@ -1,9 +1,7 @@
 """Manim equivalent: BraceAnnotation -- brace with text label."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/manim/brace_annotation')
+canvas = VectorMathAnim()
 canvas.set_background()
 # Manim: dot at [-2,-1] and [2,1] => centered on canvas
 dot1 = Dot(cx=660, cy=690, fill='#fff', fill_opacity=1)
@@ -13,7 +11,5 @@ b1 = Brace(line, direction='down', label='Horizontal distance')
 b2 = Brace(line, direction='right', label=r'$x-x_1$')
 
 canvas.add_objects(line, dot1, dot2, b1, b2)
-if args.for_docs:
-    canvas.write_frame(0, 'docs/source/_static/videos/brace_annotation.svg')
-if not args.for_docs:
-    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)
+
+canvas.show()

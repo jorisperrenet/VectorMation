@@ -16,6 +16,15 @@ Or install from source:
    cd VectorMation
    pip install -e .
 
+To run examples without installing, set ``PYTHONPATH``:
+
+.. code-block:: bash
+
+   git clone https://github.com/jorisperrenet/VectorMation.git
+   cd VectorMation
+   pip install numpy svgpathtools beautifulsoup4 lxml websockets
+   PYTHONPATH=. python examples/showcase/spiral.py
+
 **Requires Python 3.10 or later.**
 
 .. tip::
@@ -42,11 +51,11 @@ Or create a quick test script:
 .. code-block:: python
 
    from vectormation.objects import *
-   v = VectorMathAnim('test_output')
+   v = VectorMathAnim()
    v.set_background()
    c = Circle(r=100, cx=960, cy=540, fill='#58C4DD')
    v.add(c)
-   v.browser_display(end=0)
+   v.show(end=0)
 
 Python Dependencies
 -------------------
@@ -92,7 +101,7 @@ Install the optional Python packages with:
 
 .. code-block:: bash
 
-   pip install cairosvg Pillow
+   pip install vectormation[export]   # installs cairosvg and Pillow
 
 .. note::
 

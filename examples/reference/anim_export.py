@@ -1,9 +1,7 @@
 """Static composed scene for frame export."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
-v = VectorMathAnim('_ref_out', verbose=args.verbose)
+v = VectorMathAnim()
 v.set_background()
 
 # A composed static scene
@@ -14,7 +12,5 @@ star = Star(n=5, outer_radius=100, inner_radius=50, cx=1440, cy=440,
 title = Text('Static Frame Export', x=700, y=700, font_size=56, fill='WHITE')
 
 v.add(circle, rect, star, title)
-if args.for_docs:
-    v.write_frame(filename='docs/source/_static/videos/anim_export.svg')
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=1)
+
+v.show(end=1)

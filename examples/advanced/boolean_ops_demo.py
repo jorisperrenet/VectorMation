@@ -1,9 +1,7 @@
 """Boolean Operations Demo — Union, Intersection, Difference, Exclusion."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from vectormation.objects import *
 
-args = parse_args()
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/boolean_ops')
+canvas = VectorMathAnim()
 canvas.set_background()
 
 title = TexObject(r'Boolean Operations', x=960, y=70, font_size=52,
@@ -56,7 +54,5 @@ for i, (name, cx, color, OpClass) in enumerate(ops):
     canvas.add(label)
 
 T = 5.0
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/boolean_ops_demo.mp4', fps=30, end=T)
-if not args.for_docs:
-    canvas.browser_display(start=args.start or 0, end=args.end or T, fps=args.fps, port=args.port)
+
+canvas.show(end=T)

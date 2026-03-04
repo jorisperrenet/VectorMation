@@ -3,12 +3,10 @@
 A ripple surface z = sin(r - t) * exp(-r^2) animates over time,
 showing the wave propagating outward with ambient camera rotation.
 """
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 import math
 from vectormation.objects import *
 
-args = parse_args()
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/animated_3d_ripple')
+canvas = VectorMathAnim()
 canvas.set_background()
 
 T = 12
@@ -60,8 +58,4 @@ axes.begin_ambient_camera_rotation(start=2, end=T, rate=0.3)
 canvas.add(axes)
 canvas.add(title, eq)
 
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/animated_3d_ripple.mp4', fps=30, end=T)
-if not args.for_docs:
-    canvas.browser_display(start=args.start or 0, end=args.end or T,
-    fps=args.fps or 30, port=args.port)
+canvas.show(end=T)

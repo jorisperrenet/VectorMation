@@ -1417,7 +1417,6 @@ def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='VectorMation animation script')
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose logging')
-    parser.add_argument('--for-docs', action='store_true', help='Export video/SVG for documentation')
     parser.add_argument('--port', type=int, default=8765, help='Browser viewer port')
     parser.add_argument('--fps', type=int, default=60, help='Frames per second')
     parser.add_argument('-o', '--output', type=str, default=None, help='Output file path (e.g. out.mp4)')

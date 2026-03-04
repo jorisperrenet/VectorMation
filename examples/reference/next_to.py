@@ -1,10 +1,8 @@
 """next_to positioning diagram."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
 W, H = 440, 320
-v = VectorMathAnim('_ref_out', verbose=args.verbose, width=W, height=H)
+v = VectorMathAnim(width=W, height=H)
 v.set_background(fill='#1e1e2e')
 
 CX, CY = 220, 145
@@ -51,7 +49,4 @@ v.add(
 v.add(Text("obj.next_to(target, direction, buff)", x=80, y=275, font_size=13, fill='#cdd6f4'))
 v.add(Text("obj.next_to(target, 'right', buff=12)", x=80, y=298, font_size=11, fill='#585b70'))
 
-if args.for_docs:
-    v.write_frame(filename='docs/source/_static/images/next_to.svg')
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=2)
+v.show(end=2)

@@ -33,8 +33,6 @@ Colours & Gradients
 
       .. literalinclude:: ../../../examples/reference/gradient.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
    .. py:method:: fill_ref()
 
@@ -340,8 +338,6 @@ Helper Functions
 
       .. literalinclude:: ../../../examples/reference/ref_counterclockwise_morph.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
 .. py:function:: transform_matching_tex(source, target, start=0, end=1)
 

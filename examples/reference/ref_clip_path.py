@@ -1,9 +1,7 @@
 """ClipPath clipping a rectangle with a circle."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
-v = VectorMathAnim('_ref_out', verbose=args.verbose)
+v = VectorMathAnim()
 v.set_background()
 
 clip = ClipPath(Circle(r=150, cx=960, cy=540))
@@ -19,7 +17,4 @@ outline = Circle(r=150, cx=960, cy=540, fill_opacity=0,
                  stroke='#FFFF00', stroke_width=2, stroke_dasharray='8,6')
 v.add(rect, outline)
 
-if args.for_docs:
-    v.write_frame(filename='docs/source/_static/videos/ref_clip_path.svg')
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=0)
+v.show(end=0)

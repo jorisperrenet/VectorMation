@@ -1,12 +1,10 @@
 """Cutout & ConvexHull Demo — spotlight overlay and convex hull wrapping."""
 import random
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from vectormation.objects import *
 
 random.seed(42)
 
-args = parse_args()
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/cutout_convexhull')
+canvas = VectorMathAnim()
 canvas.set_background()
 
 title = TexObject(r'Cutout \& ConvexHull', x=960, y=70, font_size=52,
@@ -54,7 +52,5 @@ hull.create(1.5, 2.5)
 canvas.add(hull)
 
 T = 5.0
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/cutout_convexhull.mp4', fps=30, end=T)
-if not args.for_docs:
-    canvas.browser_display(start=args.start or 0, end=args.end or T, fps=args.fps, port=args.port)
+
+canvas.show(end=T)

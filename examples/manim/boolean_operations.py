@@ -1,9 +1,7 @@
 """Manim equivalent: BooleanOperations -- boolean ops on overlapping ellipses."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation import *
-args = parse_args()
 
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/manim/boolean_operations')
+canvas = VectorMathAnim()
 canvas.set_background(fill='#1a1a2e')
 
 ellipse1 = Ellipse(rx=270, ry=338, cx=825, cy=540,
@@ -40,7 +38,4 @@ for name, cls, color, tx, ty in ops:
     label.fadein(start=t, end=t + 0.5)
     t += 1.5
 
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/boolean_operations.mp4', fps=30)
-if not args.for_docs:
-    canvas.browser_display(start=0, end=t + 0.5, fps=args.fps, port=args.port, hot_reload=True)
+canvas.show(end=t + 0.5)

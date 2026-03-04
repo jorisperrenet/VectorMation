@@ -1,10 +1,8 @@
 """Manim equivalent: ManimCELogo -- community edition logo with shapes and M."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
 # Initialize the animation frame
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/community_logo')
+canvas = VectorMathAnim()
 canvas.set_background(fill='#ece6e2')
 # 1 manim unit = 135px
 unit = 135
@@ -24,7 +22,5 @@ logo = VCollection(tr, sq, cir, char)
 logo.center_to_pos()
 
 canvas.add_objects(logo)
-if args.for_docs:
-    canvas.write_frame(0, 'docs/source/_static/videos/manim_community_logo.svg')
-if not args.for_docs:
-    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)
+
+canvas.show()

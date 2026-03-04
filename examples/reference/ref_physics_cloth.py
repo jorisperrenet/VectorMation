@@ -1,10 +1,8 @@
 """PhysicsSpace: cloth simulation with wind."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 import math
 from vectormation.objects import *
-args = parse_args()
 
-v = VectorMathAnim('_ref_out', verbose=args.verbose)
+v = VectorMathAnim()
 v.set_background()
 
 duration = 5
@@ -31,7 +29,5 @@ cloth.space.add_drag(coefficient=0.02)
 cloth.simulate(duration=duration)
 
 v.add(*cloth.objects())
-if args.for_docs:
-    v.export_video('docs/source/_static/videos/ref_physics_cloth.mp4', fps=30, end=duration)
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=duration)
+
+v.show(end=duration)

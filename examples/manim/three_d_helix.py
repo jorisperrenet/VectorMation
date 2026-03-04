@@ -1,10 +1,8 @@
 """Demonstrate ParametricCurve3D with a helix."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
 import math
-args = parse_args()
 
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/manim/three_d_helix')
+canvas = VectorMathAnim()
 canvas.set_background()
 
 axes = ThreeDAxes(x_range=(-2, 2), y_range=(-2, 2), z_range=(-1, 2.5))
@@ -21,7 +19,5 @@ axes.add_3d(curve)
 axes.add_3d(Dot3D((1, 0, 0), radius=6, fill='#FC6255'))
 
 canvas.add_objects(axes)
-if args.for_docs:
-    canvas.write_frame(0, 'docs/source/_static/videos/three_d_helix.svg')
-if not args.for_docs:
-    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)
+
+canvas.show()

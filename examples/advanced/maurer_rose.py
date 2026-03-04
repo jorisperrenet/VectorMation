@@ -3,13 +3,11 @@
 A Maurer rose connects points on a rose curve r = sin(n*theta) at
 evenly-spaced angular steps, creating stunning geometric patterns.
 """
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from vectormation.objects import *
 from vectormation import attributes
 import math
 
-args = parse_args()
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/maurer_rose')
+canvas = VectorMathAnim()
 canvas.set_background()
 
 # ── Parameters ────────────────────────────────────────────────────────
@@ -59,8 +57,4 @@ params.fadein(0.3, 0.8)
 
 canvas.add(maurer, title, params)
 
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/maurer_rose.mp4', fps=30, end=10)
-if not args.for_docs:
-    canvas.browser_display(start=args.start or 0, end=args.end or 10,
-    fps=args.fps, port=args.port)
+canvas.show(end=10)

@@ -18,8 +18,6 @@ Basic Usage
 
    .. literalinclude:: ../../examples/reference/graphing_basic.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 Constructor
 ^^^^^^^^^^^
@@ -146,8 +144,6 @@ You can also animate individual bounds directly:
 
    .. literalinclude:: ../../examples/reference/graphing_zoom.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 Example: Animated Graph
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -163,8 +159,6 @@ Example: Animated Graph
 
    .. literalinclude:: ../../examples/reference/graphing_animated.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 ----
 
@@ -219,5 +213,3 @@ Example
 
    .. literalinclude:: ../../examples/reference/graphing_functiongraph.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display

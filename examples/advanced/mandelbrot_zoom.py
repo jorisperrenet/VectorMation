@@ -4,7 +4,6 @@ Renders the Mandelbrot set on the GPU (numba CUDA) and displays it as
 an inline PNG image, smoothly zooming into the seahorse valley region
 near -0.75 + 0.1i.
 """
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from vectormation.objects import *
 import math
 import numpy as np
@@ -13,10 +12,9 @@ from numba import cuda
 from PIL import Image as PILImage
 import io, base64
 
-args = parse_args()
 
 W, H = 960, 540
-canvas = VectorMathAnim(verbose=args.verbose, width=W, height=H, save_dir='svgs/mandelbrot_zoom')
+canvas = VectorMathAnim(width=W, height=H)
 canvas.set_background()
 
 # ── Constants ────────────────────────────────────────────────────────
@@ -233,7 +231,4 @@ canvas.add(title_bg, title, subtitle)
 canvas.add(zoom_bg, zoom_live)
 canvas.add(info_bg, coord_label, zoom_label, max_iter_label)
 
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/mandelbrot_zoom.mp4', fps=30)
-if not args.for_docs:
-    canvas.browser_display(start=args.start, end=args.end, fps=args.fps, port=args.port)
+canvas.show()

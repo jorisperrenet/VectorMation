@@ -1,10 +1,8 @@
 """Easing Functions Showcase — visual comparison of all easing families."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 from vectormation.objects import *
 from vectormation import easings
 
-args = parse_args()
-v = VectorMathAnim(verbose=args.verbose, save_dir='svgs/easing_showcase')
+v = VectorMathAnim()
 v.set_background()
 T = 24.0
 
@@ -275,12 +273,5 @@ easing_row(v, [
 # =============================================================================
 # Display
 # =============================================================================
-if args.for_docs:
-    v.export_video('docs/source/_static/videos/easing_showcase.mp4', fps=30, end=T)
-if not args.for_docs:
-    v.browser_display(
-    start=args.start or 0,
-    end=args.end or T,
-    fps=args.fps,
-    port=args.port,
-    )
+
+v.show(end=T)

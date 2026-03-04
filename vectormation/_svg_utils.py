@@ -883,6 +883,7 @@ class Spotlight(VObject):
     def __init__(self, target=ORIGIN, radius: float = 120, color='#000', opacity: float = 0.7,
                  creation: float = 0, z: float = 10, **kw):
         super().__init__(creation=creation, z=z, **kw)
+        self.styling = style.Styling({}, creation=creation)
         if isinstance(target, VObject):
             tx, ty = target.center(creation)
         elif isinstance(target, (tuple, list)):
@@ -977,6 +978,7 @@ class AnimatedBoundary(VObject):
     def __init__(self, target, colors=None, cycle_rate: float = 1.0, buff: float = 8,
                  stroke_width: float = 3, creation: float = 0, z: float = 0):
         super().__init__(creation=creation, z=z)
+        self.styling = style.Styling({}, creation=creation)
         self._target = target
         self._buff = buff
         self._stroke_width = stroke_width

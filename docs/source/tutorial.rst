@@ -26,7 +26,7 @@ Every VectorMation script starts by creating a canvas:
 
    from vectormation.objects import *
 
-   canvas = VectorMathAnim(save_dir='svgs/tutorial')
+   canvas = VectorMathAnim()
    canvas.set_background()
 
 Create some shapes, add entrance animations, and display them:
@@ -43,8 +43,6 @@ Create some shapes, add entrance animations, and display them:
 
    .. literalinclude:: ../../examples/reference/tutorial_shapes.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 The Timing Model
 ----------------
@@ -73,8 +71,6 @@ time happen simultaneously.
 
    .. literalinclude:: ../../examples/reference/tutorial_timing.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 Building a Spiral
 -----------------
@@ -85,27 +81,27 @@ make it move rightward:
 .. code-block:: python
 
    point = Dot(cx=960, cy=540)
-   point.c.set(start=0, end=5, func_inner=lambda t: (t * 80 + 960, 540))
+   point.c.set(0, 5, lambda t: (t * 80 + 960, 540))
 
 Add rotation around the canvas centre -- combined with the linear motion this
 creates a spiral:
 
 .. code-block:: python
 
-   point.c.rotate_around(0, 5, pivot_point=(960, 540), degrees=360 * 4)
+   point.c.rotate_around(0, 5, (960, 540), 360 * 4)
 
 A ``Trace`` follows a coordinate over time, drawing a polyline trail:
 
 .. code-block:: python
 
-   trace = Trace(point.c, stroke_width=4)
+   trace = Trace(point.c)
 
 Register objects and open the browser viewer:
 
 .. code-block:: python
 
    canvas.add(trace, point)
-   canvas.browser_display(fps=60)
+   canvas.show(end=6)
 
 .. admonition:: Example: spiral animation
    :class: example
@@ -118,8 +114,6 @@ Register objects and open the browser viewer:
 
    .. literalinclude:: ../../examples/reference/tutorial_spiral.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 Next Steps
 ----------

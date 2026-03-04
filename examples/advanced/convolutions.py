@@ -4,12 +4,10 @@ Inspired by 3Blue1Brown's video on convolutions. Shows a Gaussian kernel
 sliding across a rectangular (box) function, with the overlapping product
 area building up the convolution result in real time.
 """
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from vectormation.objects import *
 import math
 
-args = parse_args()
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/convolutions')
+canvas = VectorMathAnim()
 canvas.set_background()
 
 # ── Math helpers ─────────────────────────────────────────────────────
@@ -72,7 +70,5 @@ s_display.fadein(2, 2.5)
 
 # ── Canvas ───────────────────────────────────────────────────────────
 canvas.add(axes_top, axes_bot, guide, title, s_display)
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/convolutions.mp4', fps=30, end=10)
-if not args.for_docs:
-    canvas.browser_display(start=args.start or 0, end=args.end or 10, fps=args.fps, port=args.port)
+
+canvas.show(end=10)

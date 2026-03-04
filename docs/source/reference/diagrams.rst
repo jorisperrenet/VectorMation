@@ -52,8 +52,6 @@ ChessBoard
 
    .. literalinclude:: ../../../examples/reference/ref_chessboard.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 ----
 
@@ -69,8 +67,6 @@ PeriodicTable
 
    .. literalinclude:: ../../../examples/reference/ref_periodic_table.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: PeriodicTable(cx=960, cy=540, cell_size=48, creation=0, z=0)
 
@@ -132,8 +128,6 @@ BohrAtom
 
    .. literalinclude:: ../../../examples/reference/ref_bohr_carbon.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: BohrAtom(protons=1, neutrons=0, electrons=None, cx=960, cy=540, nucleus_r=30, shell_spacing=40, creation=0, z=0)
 
@@ -260,8 +254,6 @@ Automaton
 
    .. literalinclude:: ../../../examples/reference/ref_automaton.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 ----
 
@@ -325,8 +317,6 @@ NetworkGraph
 
    .. literalinclude:: ../../../examples/reference/ref_network_graph.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 ----
 
@@ -391,8 +381,6 @@ Tree
 
       .. literalinclude:: ../../../examples/reference/tree.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
    .. admonition:: Example: horizontal layout
       :class: example
@@ -482,8 +470,6 @@ TimelineBar
 
    .. literalinclude:: ../../../examples/reference/ref_timeline.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 ----
 
@@ -525,8 +511,6 @@ FlowChart
 
       .. literalinclude:: ../../../examples/reference/flowchart.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
 ----
 
@@ -566,8 +550,6 @@ VennDiagram
 
    .. literalinclude:: ../../../examples/reference/ref_venn.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 ----
 
@@ -607,8 +589,6 @@ OrgChart
 
    .. literalinclude:: ../../../examples/reference/ref_org_chart.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 ----
 
@@ -648,6 +628,4 @@ MindMap
 
    .. literalinclude:: ../../../examples/reference/ref_mind_map.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 

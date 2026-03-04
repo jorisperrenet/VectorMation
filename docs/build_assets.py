@@ -44,7 +44,6 @@ ASSETS = [
     (_v('moving_dots.mp4'),                    'examples/manim/moving_dots.py'),
     (_v('moving_frame_box.mp4'),               'examples/manim/moving_frame_box.py'),
     (_v('moving_group.mp4'),                   'examples/manim/moving_group.py'),
-    (_v('opening_manim.mp4'),                  'examples/manim/opening_manim.py'),
     (_v('point_moving_on_shapes.mp4'),         'examples/manim/point_moving_on_shapes.py'),
     (_v('point_with_trace.mp4'),               'examples/manim/point_with_trace.py'),
     (_v('polygon_on_axes.mp4'),                'examples/manim/polygon_on_axes.py'),
@@ -58,52 +57,52 @@ ASSETS = [
     (_v('three_d_surface_plot.svg'),           'examples/manim/three_d_surface_plot.py'),
     (_v('vector_arrow.svg'),                   'examples/manim/vector_arrow.py'),
     (_v('zoomed_inset_manim.mp4'),             'examples/manim/zoomed_inset_manim.py'),
-    # ── Examples ─────────────────────────────────────────────────────
-    (_v('animations_color.mp4'),               'examples/animations_color.py'),
-    (_v('animations_counters.mp4'),            'examples/animations_counters.py'),
-    (_v('animations_creation.mp4'),            'examples/animations_creation.py'),
-    (_v('animations_effects.mp4'),             'examples/animations_effects.py'),
-    (_v('animations_movement.mp4'),            'examples/animations_movement.py'),
-    (_v('animations_text.mp4'),                'examples/animations_text.py'),
-    (_v('animations_vcollection.mp4'),         'examples/animations_vcollection.py'),
-    (_v('automaton_example.mp4'),              'examples/automaton_example.py'),
-    (_v('axes_annotations.svg'),               'examples/axes_annotations.py'),
-    (_v('axes_formatters.svg'),                'examples/axes_formatters.py'),
-    (_v('axes_overlays.svg'),                  'examples/axes_overlays.py'),
-    (_v('axes_plot_types.svg'),                'examples/axes_plot_types.py'),
-    (_v('axes_zoom.mp4'),                      'examples/axes_zoom.py'),
-    (_v('chart_methods.mp4'),                  'examples/chart_methods.py'),
-    (_v('chart_types.svg'),                    'examples/chart_types.py'),
-    (_v('chess_example.mp4'),                  'examples/chess_example.py'),
-    (_v('circuit_components.svg'),             'examples/circuit_components.py'),
-    (_v('code_explanation.svg'),               'examples/code_explanation.py'),
-    (_v('code_highlight.mp4'),                 'examples/code_highlight.py'),
-    (_v('complex_plane_example.svg'),          'examples/complex_plane_example.py'),
-    (_v('data_structure_methods.mp4'),         'examples/data_structure_methods.py'),
-    (_v('diagram_types.svg'),                  'examples/diagram_types.py'),
-    (_v('focus_camera_example.mp4'),           'examples/focus_camera_example.py'),
-    (_v('gradient_example.svg'),               'examples/gradient_example.py'),
-    (_v('graph_animated.mp4'),                 'examples/graph_animated.py'),
-    (_v('graph_structures.mp4'),               'examples/graph_structures.py'),
-    (_v('heart.mp4'),                          'examples/heart.py'),
-    (_v('morphing_example.mp4'),               'examples/morphing_example.py'),
-    (_v('neural_network_example.mp4'),         'examples/neural_network_example.py'),
-    (_v('number_plane_transform_example.mp4'), 'examples/number_plane_transform_example.py'),
-    (_v('numberline_features.mp4'),            'examples/numberline_features.py'),
-    (_v('parametric_curve_example.svg'),       'examples/parametric_curve_example.py'),
-    (_v('pendulum_example.mp4'),               'examples/pendulum_example.py'),
-    (_v('physics_bouncing_objects.mp4'),         'examples/physics_bouncing_objects.py'),
-    (_v('physics_cloth.mp4'),                  'examples/physics_cloth.py'),
-    (_v('physics_spring.mp4'),                 'examples/physics_spring.py'),
-    (_v('polar_plot_example.svg'),             'examples/polar_plot_example.py'),
-    (_v('shapes.svg'),                         'examples/shapes.py'),
-    (_v('speed_and_sections.mp4'),             'examples/speed_and_sections.py'),
-    (_v('spiral.mp4'),                         'examples/spiral.py'),
-    (_v('table_highlight_example.mp4'),        'examples/table_highlight_example.py'),
-    (_v('threed.svg'),                         'examples/threed.py'),
-    (_v('transform_from_copy_example.mp4'),    'examples/transform_from_copy_example.py'),
-    (_v('ui_widgets.svg'),                     'examples/ui_widgets.py'),
-    (_v('vector_fields.svg'),                  'examples/vector_fields.py'),
+    # ── Showcase examples ──────────────────────────────────────────────
+    (_v('animations_color.mp4'),               'examples/showcase/animations_color.py'),
+    (_v('animations_counters.mp4'),            'examples/showcase/animations_counters.py'),
+    (_v('animations_creation.mp4'),            'examples/showcase/animations_creation.py'),
+    (_v('animations_effects.mp4'),             'examples/showcase/animations_effects.py'),
+    (_v('animations_movement.mp4'),            'examples/showcase/animations_movement.py'),
+    (_v('animations_text.mp4'),                'examples/showcase/animations_text.py'),
+    (_v('animations_vcollection.mp4'),         'examples/showcase/animations_vcollection.py'),
+    (_v('automaton_example.mp4'),              'examples/showcase/automaton_example.py'),
+    (_v('axes_annotations.svg'),               'examples/showcase/axes_annotations.py'),
+    (_v('axes_formatters.svg'),                'examples/showcase/axes_formatters.py'),
+    (_v('axes_overlays.svg'),                  'examples/showcase/axes_overlays.py'),
+    (_v('axes_plot_types.svg'),                'examples/showcase/axes_plot_types.py'),
+    (_v('axes_zoom.mp4'),                      'examples/showcase/axes_zoom.py'),
+    (_v('chart_methods.mp4'),                  'examples/showcase/chart_methods.py'),
+    (_v('chart_types.svg'),                    'examples/showcase/chart_types.py'),
+    (_v('chess_example.mp4'),                  'examples/showcase/chess_example.py'),
+    (_v('circuit_components.svg'),             'examples/showcase/circuit_components.py'),
+    (_v('code_explanation.svg'),               'examples/showcase/code_explanation.py'),
+    (_v('code_highlight.mp4'),                 'examples/showcase/code_highlight.py'),
+    (_v('complex_plane_example.svg'),          'examples/showcase/complex_plane_example.py'),
+    (_v('data_structure_methods.mp4'),         'examples/showcase/data_structure_methods.py'),
+    (_v('diagram_types.svg'),                  'examples/showcase/diagram_types.py'),
+    (_v('focus_camera_example.mp4'),           'examples/showcase/focus_camera_example.py'),
+    (_v('gradient_example.svg'),               'examples/showcase/gradient_example.py'),
+    (_v('graph_animated.mp4'),                 'examples/showcase/graph_animated.py'),
+    (_v('graph_structures.mp4'),               'examples/showcase/graph_structures.py'),
+    (_v('heart.mp4'),                          'examples/showcase/heart.py'),
+    (_v('morphing_example.mp4'),               'examples/showcase/morphing_example.py'),
+    (_v('neural_network_example.mp4'),         'examples/showcase/neural_network_example.py'),
+    (_v('number_plane_transform_example.mp4'), 'examples/showcase/number_plane_transform_example.py'),
+    (_v('numberline_features.mp4'),            'examples/showcase/numberline_features.py'),
+    (_v('parametric_curve_example.svg'),       'examples/showcase/parametric_curve_example.py'),
+    (_v('pendulum_example.mp4'),               'examples/showcase/pendulum_example.py'),
+    (_v('physics_bouncing_objects.mp4'),       'examples/showcase/physics_bouncing_objects.py'),
+    (_v('physics_cloth.mp4'),                  'examples/showcase/physics_cloth.py'),
+    (_v('physics_spring.mp4'),                 'examples/showcase/physics_spring.py'),
+    (_v('polar_plot_example.svg'),             'examples/showcase/polar_plot_example.py'),
+    (_v('shapes.svg'),                         'examples/showcase/shapes.py'),
+    (_v('speed_and_sections.mp4'),             'examples/showcase/speed_and_sections.py'),
+    (_v('spiral.mp4'),                         'examples/showcase/spiral.py'),
+    (_v('table_highlight_example.mp4'),        'examples/showcase/table_highlight_example.py'),
+    (_v('threed.svg'),                         'examples/showcase/threed.py'),
+    (_v('transform_from_copy_example.mp4'),    'examples/showcase/transform_from_copy_example.py'),
+    (_v('ui_widgets.svg'),                     'examples/showcase/ui_widgets.py'),
+    (_v('vector_fields.svg'),                  'examples/showcase/vector_fields.py'),
     # ── Advanced examples ────────────────────────────────────────────
     (_v('animated_3d_ripple.mp4'),             'examples/advanced/animated_3d_ripple.py'),
     (_v('axes_graphing.mp4'),                  'examples/advanced/axes_graphing.py'),
@@ -462,12 +461,18 @@ def _needs_rebuild(output, script, lib_mtime):
     return lib_mtime > out_mtime
 
 
-def _run_one(script):
-    """Run a single script with --for-docs.  Returns (script, ok, stderr)."""
+def _run_one(item):
+    """Run a single script with VECTORMATION_EXPORT env var.  Returns (script, ok, stderr)."""
+    output, script = item
     try:
+        env = os.environ.copy()
+        # Set the export path so show() exports instead of opening browser
+        env['VECTORMATION_EXPORT'] = os.path.abspath(output)
+        # Ensure the library is importable without sys.path hacks
+        env['PYTHONPATH'] = os.path.abspath('.') + os.pathsep + env.get('PYTHONPATH', '')
         r = subprocess.run(
-            [sys.executable, script, '--for-docs'],
-            capture_output=True, text=True,
+            [sys.executable, script, '--fps', '30'],
+            capture_output=True, text=True, env=env,
         )
         return (script, r.returncode == 0, r.stderr)
     except Exception as exc:
@@ -565,7 +570,7 @@ def main():
         futures = {}
         for output, script in todo:
             name = os.path.basename(output)
-            fut = pool.submit(_run_one, script)
+            fut = pool.submit(_run_one, (output, script))
             futures[fut] = (name, output)
             building.add(name)
 

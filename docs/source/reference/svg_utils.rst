@@ -47,7 +47,6 @@ ClipPath
 
       .. literalinclude:: ../../../examples/reference/ref_clip_path.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -83,7 +82,6 @@ BlurFilter
 
       .. literalinclude:: ../../../examples/reference/ref_gaussian_blur.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -122,7 +120,6 @@ DropShadowFilter
 
       .. literalinclude:: ../../../examples/reference/ref_drop_shadow.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -179,7 +176,6 @@ Angle
 
       .. literalinclude:: ../../../examples/reference/ref_angle.py
          :language: python
-         :end-before: v.write_frame
 
    .. admonition:: Angle with Label
       :class: example
@@ -190,7 +186,6 @@ Angle
 
       .. literalinclude:: ../../../examples/reference/ref_angle_label.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -226,7 +221,6 @@ RightAngle
 
       .. literalinclude:: ../../../examples/reference/ref_right_angle.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -261,7 +255,6 @@ Cross
 
       .. literalinclude:: ../../../examples/reference/ref_cross_mark.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -336,7 +329,6 @@ ZoomedInset
 
       .. literalinclude:: ../../../examples/reference/ref_zoomed_inset_animated.py
          :language: python
-         :end-before: v.browser_display
 
 ----
 
@@ -384,7 +376,6 @@ Spotlight
 
       .. literalinclude:: ../../../examples/reference/ref_spotlight.py
          :language: python
-         :end-before: v.browser_display
 
 ----
 
@@ -450,7 +441,6 @@ Cutout
 
       .. literalinclude:: ../../../examples/reference/ref_cutout_overlay.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -489,7 +479,6 @@ AnimatedBoundary
 
       .. literalinclude:: ../../../examples/reference/ref_color_cycle_border.py
          :language: python
-         :end-before: v.browser_display
 
 ----
 
@@ -511,8 +500,6 @@ classes inherit from a common ``_BooleanOp`` base (itself a
 
    .. literalinclude:: ../../../examples/reference/boolean_ops.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 Union
 ~~~~~
@@ -610,7 +597,6 @@ ArrowVectorField
 
       .. literalinclude:: ../../../examples/reference/ref_vector_field.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -651,7 +637,6 @@ StreamLines
 
       .. literalinclude:: ../../../examples/reference/ref_stream_lines.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -691,7 +676,6 @@ ConvexHull
 
       .. literalinclude:: ../../../examples/reference/ref_convex_hull.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -730,7 +714,6 @@ brace_between_points
 
       .. literalinclude:: ../../../examples/reference/ref_brace_between.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 

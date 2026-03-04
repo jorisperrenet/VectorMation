@@ -1,9 +1,7 @@
 """Typewriter effect with cursor."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
-v = VectorMathAnim('_ref_out', verbose=args.verbose)
+v = VectorMathAnim()
 v.set_background()
 
 title = Text('$ pip install vectormation', x=200, y=400,
@@ -15,7 +13,5 @@ subtitle = Text('Installation complete.', x=200, y=480,
 subtitle.typewrite(start=2.5, end=3.5, cursor='_')
 
 v.add(title, subtitle)
-if args.for_docs:
-    v.export_video('docs/source/_static/videos/typewrite.mp4', fps=30, end=4)
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=4)
+
+v.show(end=4)

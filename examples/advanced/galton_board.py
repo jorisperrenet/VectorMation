@@ -5,13 +5,11 @@ Inspired by 3Blue1Brown's Central Limit Theorem video (2023).
 """
 import math
 import random
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from vectormation.objects import *
 
 random.seed(42)
 
-args = parse_args()
 
 # --- Configuration ---
 N_ROWS = 7
@@ -22,7 +20,7 @@ BALL_RADIUS = 10
 TOP_Y = 120
 N_BALLS = 400
 
-v = VectorMathAnim(verbose=args.verbose, save_dir='svgs/galton_board')
+v = VectorMathAnim()
 v.set_background(fill='#1a1a2e')
 
 # --- Build pegs ---
@@ -218,8 +216,5 @@ curve_label.fadein(start=curve_start, end=curve_start + 1)
 v.add_objects(title, subtitle, buckets, pegs, *balls, normal_curve, curve_label)
 
 total_time = curve_start + 3
-if args.for_docs:
-    v.export_video('docs/source/_static/videos/galton_board.mp4', fps=30, end=total_time)
-if not args.for_docs:
-    v.browser_display(start=args.start or 0, end=args.end or total_time,
-    fps=args.fps, port=args.port)
+
+v.show(end=total_time)

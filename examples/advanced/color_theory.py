@@ -1,9 +1,7 @@
 """Color Theory Demo — Gradients, Color Manipulation, Color Harmonies."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from vectormation.objects import *
 
-args = parse_args()
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/color_theory')
+canvas = VectorMathAnim()
 canvas.set_background()
 
 T = 12.0
@@ -423,12 +421,5 @@ canvas.add(wheel_center_label)
 # =============================================================================
 # Display
 # =============================================================================
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/color_theory.mp4', fps=30, end=T)
-if not args.for_docs:
-    canvas.browser_display(
-    start=args.start or 0,
-    end=args.end or T,
-    fps=args.fps,
-    port=args.port,
-    )
+
+canvas.show(end=T)

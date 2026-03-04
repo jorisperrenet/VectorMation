@@ -3,12 +3,10 @@
 Demonstrates: function plotting, area shading, Riemann rectangles,
 animated axis ranges, and legends.
 """
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from vectormation.objects import *
 import math
 
-args = parse_args()
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/axes_graphing')
+canvas = VectorMathAnim()
 canvas.set_background()
 
 # ── Functions ────────────────────────────────────────────────────────
@@ -100,12 +98,4 @@ title.fadeout(7.8, 8.2)
 canvas.add(axes)
 canvas.add(area_between)
 
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/axes_graphing.mp4', fps=30)
-if not args.for_docs:
-    canvas.browser_display(
-    start=args.start or 0,
-    end=args.end,
-    fps=args.fps, port=args.port,
-    hot_reload=args.hot_reload,
-    )
+canvas.show()

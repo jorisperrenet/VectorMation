@@ -93,8 +93,6 @@ VCollection
 
       .. literalinclude:: ../../../examples/reference/arrange.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
    .. image:: ../_static/images/arrange.svg
       :width: 500
@@ -127,8 +125,6 @@ VCollection
 
       .. literalinclude:: ../../../examples/reference/stagger.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
    .. admonition:: Example: ref_stagger
       :class: example
@@ -139,7 +135,6 @@ VCollection
 
       .. literalinclude:: ../../../examples/reference/ref_stagger.py
          :language: python
-         :end-before: v.browser_display
 
    .. rubric:: Measurement
 
@@ -200,8 +195,6 @@ VCollection
 
       .. literalinclude:: ../../../examples/reference/ref_spread.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
    .. py:method:: align_submobjects(edge='left', start=0)
 
@@ -222,7 +215,6 @@ VCollection
 
       .. literalinclude:: ../../../examples/reference/ref_write_collection.py
          :language: python
-         :end-before: v.browser_display
 
    .. py:method:: stagger_fadein_sorted(start=0, end=1, direction='left_to_right', easing=smooth)
 
@@ -242,8 +234,6 @@ VCollection
 
       .. literalinclude:: ../../../examples/reference/ref_swap_children.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
    .. py:method:: shuffle_animate(start=0, end=1)
 
@@ -258,8 +248,6 @@ VCollection
 
       .. literalinclude:: ../../../examples/reference/ref_shuffle_animate.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
    .. py:method:: reveal(start=0, end=1, direction='left', easing=smooth)
 
@@ -274,7 +262,6 @@ VCollection
 
       .. literalinclude:: ../../../examples/reference/ref_reveal.py
          :language: python
-         :end-before: v.browser_display
 
    .. py:method:: stagger_fadein(start=0, end=1, shift_dir=None, shift_amount=50, overlap=0.5, easing=smooth)
 
@@ -289,7 +276,6 @@ VCollection
 
       .. literalinclude:: ../../../examples/reference/ref_stagger_fadein.py
          :language: python
-         :end-before: v.browser_display
 
    .. py:method:: wave_anim(start=0, end=1, amplitude=20, waves=1)
 
@@ -304,7 +290,6 @@ VCollection
 
       .. literalinclude:: ../../../examples/reference/ref_wave_anim.py
          :language: python
-         :end-before: v.browser_display
 
    .. py:method:: highlight_child(index, start=0, end=1, dim_opacity=0.2, easing=smooth)
 
@@ -385,7 +370,6 @@ VCollection
 
       .. literalinclude:: ../../../examples/reference/ref_distribute_radial.py
          :language: python
-         :end-before: v.write_frame
 
    .. py:method:: stagger_scale(start=0, end=1, scale_factor=1.5, delay=0.2, easing=smooth)
 
@@ -425,8 +409,6 @@ MorphObject
 
       .. literalinclude:: ../../../examples/reference/ref_morph.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
    .. admonition:: Example: MorphObject (collection to collection)
       :class: example
@@ -437,7 +419,6 @@ MorphObject
 
       .. literalinclude:: ../../../examples/reference/ref_morph2.py
          :language: python
-         :end-before: v.browser_display
 
    .. admonition:: Example: MorphObject with scale
       :class: example
@@ -448,7 +429,6 @@ MorphObject
 
       .. literalinclude:: ../../../examples/reference/ref_morph_scale.py
          :language: python
-         :end-before: v.browser_display
 
 ----
 
@@ -507,8 +487,6 @@ Arrow
 
       .. literalinclude:: ../../../examples/reference/ref_arrow.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -551,7 +529,6 @@ Vector
 
       .. literalinclude:: ../../../examples/reference/ref_vector_on_axes.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -573,8 +550,6 @@ DoubleArrow
 
       .. literalinclude:: ../../../examples/reference/ref_double_arrow.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -602,8 +577,6 @@ CurvedArrow
 
       .. literalinclude:: ../../../examples/reference/ref_curved_arrow.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -644,8 +617,6 @@ Brace
 
       .. literalinclude:: ../../../examples/reference/ref_brace.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -696,7 +667,6 @@ LabeledLine
 
       .. literalinclude:: ../../../examples/reference/ref_labeled_line.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -719,7 +689,6 @@ LabeledArrow
 
       .. literalinclude:: ../../../examples/reference/ref_labeled_arrow.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -770,8 +739,6 @@ Array
 
       .. literalinclude:: ../../../examples/reference/array_example.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
 Stack
 ~~~~~
@@ -984,8 +951,6 @@ Table
 
       .. literalinclude:: ../../../examples/reference/ref_table.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 Matrix
 ~~~~~~
@@ -1027,8 +992,6 @@ Matrix
 
       .. literalinclude:: ../../../examples/reference/ref_matrix.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 DecimalMatrix
 ~~~~~~~~~~~~~

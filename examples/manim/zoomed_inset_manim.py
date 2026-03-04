@@ -1,13 +1,10 @@
 """Zoomed inset camera: magnify a region of the canvas."""
-import sys, os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation import (
-    VectorMathAnim, Dot, Text, ZoomedInset, parse_args,
+    VectorMathAnim, Dot, Text, ZoomedInset,
     LinearGradient, Circle
 )
 
-args = parse_args()
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/manim/zoomed_inset')
+canvas = VectorMathAnim()
 
 # Gradient canvas background (mimics the pixelated ImageMobject in Manim)
 grad = LinearGradient(
@@ -47,7 +44,4 @@ zi.fadein(start=0.5, end=1)
 # Animate the source sweeping across the canvas
 zi.move_source(800, 300, start=2, end=4)
 
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/zoomed_inset_manim.mp4', fps=30, end=5)
-if not args.for_docs:
-    canvas.browser_display(start=0, end=5, fps=args.fps, port=args.port)
+canvas.show(end=5)

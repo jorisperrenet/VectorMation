@@ -4,12 +4,10 @@ Inspired by 3b1b's Laplace transform series. Shows a mass on a spring
 oscillating with damping, alongside a phase-space diagram and the
 governing equation.
 """
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from vectormation.objects import *
 import math
 
-args = parse_args()
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/spring_mass')
+canvas = VectorMathAnim()
 canvas.set_background()
 
 # ── Parameters ────────────────────────────────────────────────────────
@@ -161,8 +159,4 @@ canvas.add(time_axes, disp_path, env_upper, env_lower)
 canvas.add(phase_axes, phase_path, phase_dot)
 canvas.add(title, eq_text)
 
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/spring_mass.mp4', fps=30, end=T)
-if not args.for_docs:
-    canvas.browser_display(start=args.start or 0, end=args.end or T,
-    fps=args.fps, port=args.port)
+canvas.show(end=T)

@@ -22,8 +22,6 @@ Ellipse
 
    .. literalinclude:: ../../../examples/reference/ref_ellipse.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: Ellipse(rx=120, ry=60, cx=960, cy=540, **styling)
 
@@ -123,8 +121,6 @@ Circle
 
    .. literalinclude:: ../../../examples/reference/ref_circle.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: Circle(r=120, cx=960, cy=540, **styling)
 
@@ -283,8 +279,6 @@ Circle
 
    .. literalinclude:: ../../../examples/reference/circle.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 ----
 
@@ -300,8 +294,6 @@ Dot
 
    .. literalinclude:: ../../../examples/reference/ref_dot.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: Dot(r=11, cx=960, cy=540, **styling)
 
@@ -343,8 +335,6 @@ Square
 
    .. literalinclude:: ../../../examples/reference/ref_square.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: Square(side=200, x=960, y=540, **styling)
 
@@ -372,8 +362,6 @@ Rectangle
 
    .. literalinclude:: ../../../examples/reference/ref_rectangle.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: Rectangle(width, height, x=960, y=540, rx=0, ry=0, **styling)
 
@@ -533,8 +521,6 @@ RoundedRectangle
 
    .. literalinclude:: ../../../examples/reference/ref_rounded_rect.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: RoundedRectangle(width, height, x=960, y=540, corner_radius=12, **styling)
 
@@ -568,8 +554,6 @@ Line
 
    .. literalinclude:: ../../../examples/reference/ref_line.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: Line(x1=0, y1=0, x2=100, y2=100, **styling)
 
@@ -801,8 +785,6 @@ DashedLine
 
    .. literalinclude:: ../../../examples/reference/ref_dashed_line.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: DashedLine(x1=0, y1=0, x2=100, y2=100, dash='10,5', **styling)
 
@@ -830,8 +812,6 @@ Polygon
 
    .. literalinclude:: ../../../examples/reference/ref_polygon.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: Polygon(*vertices, closed=True, **styling)
 
@@ -1022,8 +1002,6 @@ Polygon
 
    .. literalinclude:: ../../../examples/reference/polygon.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 ----
 
@@ -1039,8 +1017,6 @@ Lines
 
    .. literalinclude:: ../../../examples/reference/ref_lines.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: Lines(*vertices, **styling)
 
@@ -1063,8 +1039,6 @@ RegularPolygon
 
    .. literalinclude:: ../../../examples/reference/ref_regular_polygon.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. image:: ../_static/images/regular_polygon_params.svg
    :width: 400
@@ -1116,8 +1090,6 @@ Star
 
    .. literalinclude:: ../../../examples/reference/ref_star_shape.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. image:: ../_static/images/star_params.svg
    :width: 400
@@ -1149,8 +1121,6 @@ Star
 
    .. literalinclude:: ../../../examples/reference/star.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 ----
 
@@ -1166,8 +1136,6 @@ Arc
 
    .. literalinclude:: ../../../examples/reference/ref_arc_shape.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. image:: ../_static/images/arc_params.svg
    :width: 400
@@ -1228,8 +1196,6 @@ Arc
 
    .. literalinclude:: ../../../examples/reference/arc.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 ----
 
@@ -1249,8 +1215,6 @@ Wedge / Sector
 
    .. literalinclude:: ../../../examples/reference/ref_wedge.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: Wedge(cx=960, cy=540, r=120, start_angle=0, end_angle=90, **styling)
 
@@ -1280,8 +1244,6 @@ Annulus
 
    .. literalinclude:: ../../../examples/reference/ref_annulus.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: Annulus(inner_radius=60, outer_radius=120, cx=960, cy=540, **styling)
 
@@ -1384,8 +1346,6 @@ Angle
 
    .. literalinclude:: ../../../examples/reference/ref_angle.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: Angle(vertex, p1, p2, radius=36, label=None, label_radius=None, label_font_size=36, **styling)
 
@@ -1426,8 +1386,6 @@ Cross
 
    .. literalinclude:: ../../../examples/reference/ref_cross.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: Cross(size=36, cx=960, cy=540, **styling)
 
@@ -1447,8 +1405,6 @@ Text
 
    .. literalinclude:: ../../../examples/reference/ref_text.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: Text(text='', x=960, y=540, font_size=48, text_anchor=None, font_family=None, **styling)
 
@@ -1594,8 +1550,6 @@ Path
 
    .. literalinclude:: ../../../examples/reference/ref_path.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 .. py:class:: Path(path, x=0, y=0, **styling)
 

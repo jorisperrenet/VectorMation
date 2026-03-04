@@ -42,7 +42,6 @@ Graph
 
       .. literalinclude:: ../../../examples/reference/ref_sine_curve.py
          :language: python
-         :end-before: v.write_frame
 
    .. admonition:: Example: quadratic with annotations
       :class: example
@@ -65,7 +64,6 @@ Graph
 
       .. literalinclude:: ../../../examples/reference/ref_quadratic_annotations.py
          :language: python
-         :end-before: v.write_frame
 
    .. admonition:: Example: Graph with area shading
       :class: example
@@ -78,8 +76,6 @@ Graph
 
       .. literalinclude:: ../../../examples/reference/graph_plot.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
    .. rubric:: Adding Curves
 
@@ -119,7 +115,6 @@ Graph
 
          .. literalinclude:: ../../../examples/reference/ref_line_graph_data.py
             :language: python
-            :end-before: v.write_frame
 
    .. rubric:: Coordinate Conversion
 
@@ -162,7 +157,6 @@ Graph
 
       .. literalinclude:: ../../../examples/reference/ref_dot_on_curve.py
          :language: python
-         :end-before: v.browser_display
 
    .. rubric:: Areas and Shading
 
@@ -194,7 +188,6 @@ Graph
 
          .. literalinclude:: ../../../examples/reference/ref_shaded_area_sine.py
             :language: python
-            :end-before: v.write_frame
 
    .. py:method:: get_area_between(func1, func2, x_range=None, **styling)
 
@@ -220,7 +213,6 @@ Graph
 
          .. literalinclude:: ../../../examples/reference/ref_area_between_curves.py
             :language: python
-            :end-before: v.write_frame
 
    .. py:method:: get_riemann_rectangles(func, x_range, dx=0.1, **styling)
 
@@ -250,7 +242,6 @@ Graph
 
          .. literalinclude:: ../../../examples/reference/ref_riemann_sum.py
             :language: python
-            :end-before: v.write_frame
 
    .. rubric:: Lines and Markers
 
@@ -291,8 +282,6 @@ Graph
 
       .. literalinclude:: ../../../examples/reference/tangent_line.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
    .. py:method:: get_secant_line(func, x1, x2, length=200, **styling)
 
@@ -353,7 +342,6 @@ Graph
 
          .. literalinclude:: ../../../examples/reference/ref_legend_curves.py
             :language: python
-            :end-before: v.write_frame
 
    .. py:method:: add_dot_label(x, y, label=None, **styling)
 
@@ -414,8 +402,6 @@ Graph
 
       .. literalinclude:: ../../../examples/reference/graph_scatter.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
    .. py:method:: plot_step(x_values, y_values, **styling)
 
@@ -444,8 +430,6 @@ Graph
 
       .. literalinclude:: ../../../examples/reference/graph_histogram.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
    .. py:method:: plot_vector_field(func, **styling)
 
@@ -462,8 +446,6 @@ Graph
 
       .. literalinclude:: ../../../examples/reference/graph_vector_field.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
    .. rubric:: Calculus Visualizations
 
@@ -490,8 +472,6 @@ Graph
 
       .. literalinclude:: ../../../examples/reference/graph_calculus.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
    .. py:method:: get_trapezoidal_rule(func, x_range, dx=0.5, **styling)
 
@@ -562,7 +542,6 @@ Graph
 
          .. literalinclude:: ../../../examples/reference/ref_animated_axis_range.py
             :language: python
-            :end-before: v.browser_display
 
 ----
 
@@ -601,7 +580,6 @@ Axes
 
       .. literalinclude:: ../../../examples/reference/ref_incremental_plot.py
          :language: python
-         :end-before: v.browser_display
 
    .. admonition:: Example: Axes
       :class: example
@@ -612,8 +590,6 @@ Axes
 
       .. literalinclude:: ../../../examples/reference/ref_axes_basic.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -648,7 +624,6 @@ FunctionGraph
 
       .. literalinclude:: ../../../examples/reference/ref_function_graph.py
          :language: python
-         :end-before: v.write_frame
 
    .. admonition:: Example: Damped Sine Wave
       :class: example
@@ -659,7 +634,6 @@ FunctionGraph
 
       .. literalinclude:: ../../../examples/reference/ref_damped_sine.py
          :language: python
-         :end-before: v.write_frame
 
 ParametricFunction
 ------------------
@@ -699,7 +673,6 @@ ParametricFunction
 
       .. literalinclude:: ../../../examples/reference/ref_parametric_spiral.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -769,8 +742,6 @@ NumberLine
 
       .. literalinclude:: ../../../examples/reference/numberline.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
 ----
 
@@ -821,7 +792,6 @@ NumberPlane
 
       .. literalinclude:: ../../../examples/reference/ref_complex_transform.py
          :language: python
-         :end-before: v.write_frame
 
    .. admonition:: Example: NumberPlane
       :class: example
@@ -832,8 +802,6 @@ NumberPlane
 
       .. literalinclude:: ../../../examples/reference/ref_number_plane.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -881,7 +849,6 @@ ComplexPlane
 
       .. literalinclude:: ../../../examples/reference/ref_labelled_complex.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -923,8 +890,6 @@ PolarAxes
 
       .. literalinclude:: ../../../examples/reference/ref_polar_axes.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -1063,8 +1028,6 @@ RadarChart
 
    .. literalinclude:: ../../../examples/reference/graph_donut_radar.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 ----
 
@@ -1128,4 +1091,3 @@ Custom tick label formatters for axes and number lines:
 
    .. literalinclude:: ../../../examples/reference/ref_pi_ticks.py
       :language: python
-      :end-before: v.write_frame

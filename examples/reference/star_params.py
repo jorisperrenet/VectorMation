@@ -1,10 +1,9 @@
 """Star parameter diagram."""
-import sys, os, math; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
+import math
 from vectormation.objects import *
-args = parse_args()
 
 W, H = 400, 340
-v = VectorMathAnim('_ref_out', verbose=args.verbose, width=W, height=H)
+v = VectorMathAnim(width=W, height=H)
 v.set_background(fill='#1e1e2e')
 
 CX, CY = 200, 160
@@ -36,7 +35,4 @@ v.add(
 
 v.add(Text('n = 5 (number of points)', x=110, y=315, font_size=13, fill='#f9e2af'))
 
-if args.for_docs:
-    v.write_frame(filename='docs/source/_static/images/star_params.svg')
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=2)
+v.show(end=2)

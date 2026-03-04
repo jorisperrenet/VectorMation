@@ -74,8 +74,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/shift.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: move_to(x, y, start=0, end=None, easing=smooth)
 
@@ -100,8 +98,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/along_path.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: next_to(other, direction='right', buff=14, start=0)
 
@@ -178,8 +174,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/fadein.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: fadeout(start=0, end=1, change_existence=True, easing=smooth)
 
@@ -273,8 +267,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_indicate.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: flash(start=0, end=1, color='#FFFF00', easing=there_and_back)
 
@@ -289,8 +281,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_flash.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
 
    .. py:method:: pulse(start=0, end=1, scale_factor=1.5, easing=there_and_back)
@@ -306,8 +296,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_pulse.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: pulsate(start=0, end=1, scale_factor=1.3, n_pulses=3, easing=smooth)
 
@@ -322,8 +310,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_pulsate.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: blink(start=0, end=None, count=1, duration=0.3, easing=smooth, num_blinks=None)
 
@@ -338,8 +324,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_blink.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: wiggle(start=0, end=1, amplitude=12, n_wiggles=4, easing=there_and_back)
 
@@ -354,8 +338,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_wiggle.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: wave(start=0, end=1, amplitude=20, n_waves=2, direction='up', easing=there_and_back)
 
@@ -370,8 +352,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_wave.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: circumscribe(start=0, end=1, buff=14, color=None, easing=smooth, **styling)
 
@@ -386,8 +366,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_circumscribe.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: show_passing_flash(start=0, end=1, flash_width=0.15, color='#FFFF00', stroke_width=6, easing=linear)
 
@@ -402,8 +380,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_show_passing_flash.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: spiral_in(start=0, end=1, n_turns=1, change_existence=True, easing=smooth)
 
@@ -418,8 +394,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_spiral_in.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: spiral_out(start=0, end=1, n_turns=1, change_existence=True, easing=smooth)
 
@@ -438,8 +412,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_bounce.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: orbit(cx, cy, radius=None, start=0, end=1, degrees=360, easing=linear)
 
@@ -456,8 +428,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/orbit.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: ripple(start=0, count=3, duration=0.5, max_radius=100, color='#58C4DD', stroke_width=2)
 
@@ -472,8 +442,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_ripple.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: spring(start=0, end=1, amplitude=30, damping=5, frequency=4, axis='y')
 
@@ -488,8 +456,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_spring.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: shake(start=0, end=0.5, amplitude=5, frequency=20, easing=there_and_back)
 
@@ -504,8 +470,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_shake.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: rubber_band(start=0, end=1, easing=smooth)
 
@@ -520,8 +484,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_rubber_band.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: float_anim(start=0, end=1, amplitude=10, speed=1.0)
 
@@ -536,8 +498,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_float_anim.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: trail(start=0, end=1, num_copies=5, fade=True)
 
@@ -552,8 +512,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_trail.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: cross_out(start=0, end=0.5, color='#FC6255', stroke_width=4)
 
@@ -568,8 +526,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_cross_out.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: shimmer(start=0, end=1, passes=2, easing=smooth)
 
@@ -584,8 +540,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_shimmer.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: swing(start=0, end=1, amplitude=15, cx=None, cy=None, easing=smooth)
 
@@ -600,8 +554,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_swing.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: undulate(start=0, end=1, amplitude=0.15, waves=2, easing=smooth)
 
@@ -616,8 +568,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_undulate.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: glitch(start=0, end=1, intensity=10, flashes=5)
 
@@ -632,8 +582,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_glitch.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: highlight_border(start=0, duration=0.5, color='#FFFF00', width=4)
 
@@ -648,8 +596,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_highlight_border.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: flash_color(color='#FFFF00', start=0, duration=0.4, attr='fill')
 
@@ -664,8 +610,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_flash_color.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: pulse_color(color='#FFFF00', start=0, end=1, pulses=3, attr='fill')
 
@@ -680,8 +624,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_pulse_color.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: pulse_outline(start=0, end=1, color='#FFFF00', max_width=8, cycles=2, easing=smooth)
 
@@ -696,8 +638,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_pulse_outline.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: emphasize(start=0, duration=0.8, color='#FFFF00', scale_factor=1.15, easing=there_and_back)
 
@@ -712,8 +652,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_emphasize.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: breathe(start=0, end=1, amplitude=0.08, speed=1.0, easing=smooth)
 
@@ -728,8 +666,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_breathe.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: heartbeat(start=0, end=1, beats=3, scale_factor=1.3, easing=smooth)
 
@@ -744,8 +680,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_heartbeat.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: dim(start=0, end=None, opacity=0.3, easing=smooth)
 
@@ -814,8 +748,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/save_restore.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: trace_path(start=0, end=1, stroke='#fff')
 
@@ -832,8 +764,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/trace_path.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. rubric:: Transform
 
@@ -919,10 +849,8 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          ``transform_from_copy`` morphs a ghost duplicate while the original object stays in place.
 
-         .. literalinclude:: ../../../examples/transform_from_copy_example.py
+         .. literalinclude:: ../../../examples/showcase/transform_from_copy_example.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. rubric:: Advanced Effects
 
@@ -940,8 +868,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_apply_wave.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: scale_in_place(factor, start=0, end=1, easing=smooth)
 
@@ -960,8 +886,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_telegraph.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: skate(tx, ty, start=0, end=1, degrees=360, easing=smooth)
 
@@ -976,8 +900,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_skate.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: slingshot(tx, ty, start=0, end=1, pullback=0.3, overshoot=0.15, easing=smooth)
 
@@ -992,8 +914,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_slingshot.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: elastic_bounce(start=0, end=1, height=100, bounces=3, squash_factor=1.4)
 
@@ -1008,8 +928,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_elastic_bounce.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: morph_scale(target_scale=2.0, start=0, end=1, overshoot=0.3, oscillations=2)
 
@@ -1028,8 +946,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_unfold.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: stamp_trail(start=0, end=1, count=8, fade_duration=0.5, opacity=0.4)
 
@@ -1044,8 +960,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_stamp_trail.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: homotopy(func, start=0, end=1)
 
@@ -1076,8 +990,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_flicker.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: strobe(start=0, end=1, flashes=5, duty=0.5)
 
@@ -1092,8 +1004,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_strobe.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: wobble(start=0, end=1, intensity=5, frequency=3, easing=smooth)
 
@@ -1108,8 +1018,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_wobble.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: focus_zoom(start=0, end=1, zoom_factor=1.3, easing=smooth)
 
@@ -1124,8 +1032,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_focus_zoom.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. py:method:: match_style(other, time=0)
 
@@ -1187,8 +1093,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/updater.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.browser_display
 
    .. rubric:: Measurement (continued)
 
@@ -1217,8 +1121,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
          .. literalinclude:: ../../../examples/reference/ref_drop_shadow.py
             :language: python
-            :start-after: parse_args()
-            :end-before: v.write_frame
 
    .. rubric:: Filters
 
@@ -1231,8 +1133,6 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       .. literalinclude:: ../../../examples/reference/ref_gaussian_blur.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
    .. rubric:: Color Cycle Border
 
@@ -1245,5 +1145,3 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       .. literalinclude:: ../../../examples/reference/ref_color_cycle_border.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display

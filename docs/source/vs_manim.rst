@@ -62,8 +62,6 @@ Basic Concepts
 
          .. literalinclude:: ../../examples/manim/manim_community_logo.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -96,8 +94,6 @@ Basic Concepts
 
          .. literalinclude:: ../../examples/manim/brace_annotation.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -129,8 +125,6 @@ Basic Concepts
 
          .. literalinclude:: ../../examples/manim/vector_arrow.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -165,8 +159,6 @@ Animations
 
          .. literalinclude:: ../../examples/manim/point_moving_on_shapes.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -200,8 +192,6 @@ Animations
 
          .. literalinclude:: ../../examples/manim/moving_around.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -230,8 +220,6 @@ Animations
 
          .. literalinclude:: ../../examples/manim/moving_angle.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -280,8 +268,6 @@ Animations
 
          .. literalinclude:: ../../examples/manim/moving_dots.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -316,8 +302,6 @@ Animations
 
          .. literalinclude:: ../../examples/manim/moving_group.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -345,8 +329,6 @@ Animations
 
          .. literalinclude:: ../../examples/manim/moving_frame_box.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -379,8 +361,6 @@ Animations
 
          .. literalinclude:: ../../examples/manim/rotation_updater.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -416,8 +396,6 @@ Animations
 
          .. literalinclude:: ../../examples/manim/point_with_trace.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -453,8 +431,6 @@ Animations
 
          .. literalinclude:: ../../examples/manim/sine_curve_unit_circle.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -490,8 +466,6 @@ Plotting
 
          .. literalinclude:: ../../examples/manim/sin_cos_plot.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -526,8 +500,6 @@ Plotting
 
          .. literalinclude:: ../../examples/manim/arg_min.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -566,8 +538,6 @@ Plotting
 
          .. literalinclude:: ../../examples/manim/graph_area_plot.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -604,8 +574,6 @@ Plotting
 
          .. literalinclude:: ../../examples/manim/polygon_on_axes.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -649,8 +617,6 @@ Plotting
 
          .. literalinclude:: ../../examples/manim/heat_diagram.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -692,8 +658,6 @@ Advanced
 
          .. literalinclude:: ../../examples/manim/gradient_image.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -724,8 +688,6 @@ Advanced
 
          .. literalinclude:: ../../examples/manim/boolean_operations.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -781,8 +743,6 @@ Advanced
 
          .. literalinclude:: ../../examples/manim/zoomed_inset_manim.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -841,8 +801,6 @@ VectorMation renders 3D scenes using orthographic projection to SVG, with animat
 
          .. literalinclude:: ../../examples/manim/three_d_axes.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -872,8 +830,6 @@ VectorMation renders 3D scenes using orthographic projection to SVG, with animat
 
          .. literalinclude:: ../../examples/manim/three_d_surface_plot.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -913,8 +869,6 @@ VectorMation renders 3D scenes using orthographic projection to SVG, with animat
 
          .. literalinclude:: ../../examples/manim/three_d_sphere.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -949,8 +903,6 @@ VectorMation renders 3D scenes using orthographic projection to SVG, with animat
 
          .. literalinclude:: ../../examples/manim/three_d_camera.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -979,8 +931,6 @@ VectorMation renders 3D scenes using orthographic projection to SVG, with animat
 
          .. literalinclude:: ../../examples/manim/three_d_helix.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 
@@ -1012,8 +962,6 @@ VectorMation renders 3D scenes using orthographic projection to SVG, with animat
 
          .. literalinclude:: ../../examples/manim/following_graph_camera.py
             :language: python
-            :start-after: set_background
-            :end-before: if args
 
       .. tab-item:: Manim
 

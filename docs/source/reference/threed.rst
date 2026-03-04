@@ -33,8 +33,6 @@ both the coordinate system and the renderer. Surfaces are registered with
 
    .. literalinclude:: ../../../examples/reference/ref_3d_axes.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 ----
 
@@ -99,7 +97,6 @@ ThreeDAxes
 
       .. literalinclude:: ../../../examples/reference/ref_3d_camera_rotation.py
          :language: python
-         :end-before: v.browser_display
 
    .. py:method:: begin_ambient_camera_rotation(start=0, end=None, rate=0.1)
 
@@ -125,7 +122,6 @@ ThreeDAxes
 
       .. literalinclude:: ../../../examples/reference/ref_3d_ambient_rotation.py
          :language: python
-         :end-before: v.browser_display
 
    .. py:method:: set_camera_preset(name, start=0, end=0.5, easing=smooth)
 
@@ -169,7 +165,6 @@ ThreeDAxes
 
       .. literalinclude:: ../../../examples/reference/ref_3d_zoom.py
          :language: python
-         :end-before: v.browser_display
 
    .. rubric:: Projection
 
@@ -215,7 +210,6 @@ ThreeDAxes
 
       .. literalinclude:: ../../../examples/reference/ref_3d_light_direction.py
          :language: python
-         :end-before: v.write_frame
 
    .. rubric:: Adding Surfaces
 
@@ -242,7 +236,6 @@ ThreeDAxes
 
       .. literalinclude:: ../../../examples/reference/ref_3d_sphere_surface.py
          :language: python
-         :end-before: v.write_frame
 
    .. py:method:: plot_surface(func, u_range=None, v_range=None, resolution=(20, 20), fill_color='#4488ff', checkerboard_colors=None, stroke_color='#333', stroke_width=0.5, fill_opacity=0.8)
 
@@ -276,7 +269,6 @@ ThreeDAxes
 
       .. literalinclude:: ../../../examples/reference/ref_3d_gaussian.py
          :language: python
-         :end-before: v.write_frame
 
    .. rubric:: Adding Primitives
 
@@ -323,7 +315,6 @@ ThreeDAxes
 
       .. literalinclude:: ../../../examples/reference/ref_3d_function_curve.py
          :language: python
-         :end-before: v.write_frame
 
    .. rubric:: Wireframe Surfaces
 
@@ -358,8 +349,6 @@ ThreeDAxes
 
       .. literalinclude:: ../../../examples/reference/3d_surface.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
 ----
 
@@ -439,7 +428,6 @@ Surface
 
       .. literalinclude:: ../../../examples/reference/ref_3d_heightmap.py
          :language: python
-         :end-before: v.write_frame
 
    .. admonition:: Example: Mobius Strip
       :class: example
@@ -450,7 +438,6 @@ Surface
 
       .. literalinclude:: ../../../examples/reference/ref_3d_mobius.py
          :language: python
-         :end-before: v.write_frame
 
    .. admonition:: Example: Checkerboard Surface
       :class: example
@@ -461,7 +448,6 @@ Surface
 
       .. literalinclude:: ../../../examples/reference/ref_3d_checkerboard.py
          :language: python
-         :end-before: v.write_frame
 
    .. admonition:: Example: Wireframe Surface
       :class: example
@@ -472,7 +458,6 @@ Surface
 
       .. literalinclude:: ../../../examples/reference/ref_3d_wireframe.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -528,8 +513,6 @@ All primitives support ``show``, ``z``, ``copy()``, ``shift(dx, dy, dz)``,
 
    .. literalinclude:: ../../../examples/reference/3d_primitives.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 .. admonition:: Example: 3D Primitives
    :class: example
@@ -540,7 +523,6 @@ All primitives support ``show``, ``z``, ``copy()``, ``shift(dx, dy, dz)``,
 
    .. literalinclude:: ../../../examples/reference/ref_3d_primitives.py
       :language: python
-      :end-before: v.write_frame
 
 Line3D
 ^^^^^^
@@ -579,7 +561,6 @@ Line3D
 
       .. literalinclude:: ../../../examples/reference/ref_3d_line.py
          :language: python
-         :end-before: v.write_frame
 
 Arrow3D
 ^^^^^^^
@@ -620,7 +601,6 @@ Arrow3D
 
       .. literalinclude:: ../../../examples/reference/ref_3d_arrow.py
          :language: python
-         :end-before: v.write_frame
 
 Dot3D
 ^^^^^
@@ -658,7 +638,6 @@ Dot3D
 
       .. literalinclude:: ../../../examples/reference/ref_3d_dot.py
          :language: python
-         :end-before: v.write_frame
 
 ParametricCurve3D
 ^^^^^^^^^^^^^^^^^
@@ -699,7 +678,6 @@ ParametricCurve3D
 
       .. literalinclude:: ../../../examples/reference/ref_3d_helix.py
          :language: python
-         :end-before: v.write_frame
 
 Text3D
 ^^^^^^
@@ -739,7 +717,6 @@ Text3D
 
       .. literalinclude:: ../../../examples/reference/ref_3d_text.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -783,8 +760,6 @@ Sphere3D
 
       .. literalinclude:: ../../../examples/reference/ref_3d_sphere.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 Cube
 ^^^^
@@ -817,8 +792,6 @@ Cube
 
       .. literalinclude:: ../../../examples/reference/ref_3d_cube.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 Cylinder3D
 ^^^^^^^^^^
@@ -844,7 +817,6 @@ Cylinder3D
 
       .. literalinclude:: ../../../examples/reference/ref_3d_cylinder.py
          :language: python
-         :end-before: v.write_frame
 
 Cone3D
 ^^^^^^
@@ -870,7 +842,6 @@ Cone3D
 
       .. literalinclude:: ../../../examples/reference/ref_3d_cone.py
          :language: python
-         :end-before: v.write_frame
 
 Torus3D
 ^^^^^^^
@@ -896,8 +867,6 @@ Torus3D
 
       .. literalinclude:: ../../../examples/reference/ref_3d_torus.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 Prism3D
 ^^^^^^^
@@ -925,7 +894,6 @@ Prism3D
 
       .. literalinclude:: ../../../examples/reference/ref_3d_prism.py
          :language: python
-         :end-before: v.write_frame
 
 ----
 
@@ -969,7 +937,6 @@ Tetrahedron
 
       .. literalinclude:: ../../../examples/reference/ref_3d_tetrahedron.py
          :language: python
-         :end-before: v.write_frame
 
 Octahedron
 ^^^^^^^^^^
@@ -993,7 +960,6 @@ Octahedron
 
       .. literalinclude:: ../../../examples/reference/ref_3d_octahedron.py
          :language: python
-         :end-before: v.write_frame
 
 Icosahedron
 ^^^^^^^^^^^
@@ -1017,7 +983,6 @@ Icosahedron
 
       .. literalinclude:: ../../../examples/reference/ref_3d_icosahedron.py
          :language: python
-         :end-before: v.write_frame
 
 Dodecahedron
 ^^^^^^^^^^^^
@@ -1041,5 +1006,4 @@ Dodecahedron
 
       .. literalinclude:: ../../../examples/reference/ref_3d_dodecahedron.py
          :language: python
-         :end-before: v.write_frame
 

@@ -1,9 +1,7 @@
 """Timing model demo: sequential start/end animations."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
-v = VectorMathAnim('_ref_out', verbose=args.verbose)
+v = VectorMathAnim()
 v.set_background()
 
 dot = Dot(cx=300, cy=540, r=20, fill='#58C4DD')
@@ -22,7 +20,5 @@ for i, t in enumerate([0.5, 1.5, 2.5, 3.5, 4.5]):
     v.add(label)
 
 v.add(dot)
-if args.for_docs:
-    v.export_video('docs/source/_static/videos/tutorial_timing.mp4', fps=30, end=5)
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=5)
+
+v.show(end=5)

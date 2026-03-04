@@ -1,9 +1,7 @@
 """Manim equivalent: MovingGroupToDestination -- move a group to align with a target."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/manim/moving_group')
+canvas = VectorMathAnim()
 canvas.set_background()
 d1 = Dot(cx=660, cy=540)
 d2 = Dot(cx=760, cy=540)
@@ -19,7 +17,5 @@ ref_x, ref_y = d3.c.at_time(0)
 group.shift(dx=target_x - ref_x, dy=target_y - ref_y, start=0.5, end=2)
 
 canvas.add_objects(group, dest)
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/moving_group.mp4', fps=30)
-if not args.for_docs:
-    canvas.browser_display(fps=args.fps, port=args.port, hot_reload=True)
+
+canvas.show()

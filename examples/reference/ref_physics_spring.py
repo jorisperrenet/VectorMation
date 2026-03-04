@@ -1,9 +1,7 @@
 """PhysicsSpace: spring pendulum with visual spring line."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
-v = VectorMathAnim('_ref_out', verbose=args.verbose)
+v = VectorMathAnim()
 v.set_background()
 
 duration = 5
@@ -64,7 +62,5 @@ def bob_pos(t, _traj=traj, _start=start_t, _dt=dt_sim, _n=n):
 spring_line.p2.set_onward(0, bob_pos)
 
 v.add(spring_line, anchor_dot, bob)
-if args.for_docs:
-    v.export_video('docs/source/_static/videos/ref_physics_spring.mp4', fps=30, end=duration)
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=duration)
+
+v.show(end=duration)

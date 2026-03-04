@@ -1,9 +1,7 @@
 """Animated tangent line sliding along a curve."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
-v = VectorMathAnim('_ref_out', verbose=args.verbose)
+v = VectorMathAnim()
 v.set_background()
 
 func = lambda x: x ** 3 - 3 * x
@@ -17,7 +15,5 @@ tangent = g.animated_tangent_line(func, -2.5, 2.5, start=1, end=4,
 tangent.fadein(start=1, end=1.3)
 
 v.add(g, tangent)
-if args.for_docs:
-    v.export_video('docs/source/_static/videos/tangent_line.mp4', fps=30, end=5)
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=5)
+
+v.show(end=5)

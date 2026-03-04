@@ -1,9 +1,7 @@
 """Arrange and arrange_in_grid layout."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
-v = VectorMathAnim('_ref_out', verbose=args.verbose)
+v = VectorMathAnim()
 v.set_background()
 
 # Row arrangement
@@ -27,7 +25,5 @@ grid.center_to_pos(posy=650)
 grid.stagger('fadein', start=1, end=2.5, overlap=0.5)
 
 v.add(row, grid)
-if args.for_docs:
-    v.export_video('docs/source/_static/videos/arrange.mp4', fps=30, end=3)
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=3)
+
+v.show(end=3)

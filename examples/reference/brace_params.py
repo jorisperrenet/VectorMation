@@ -1,10 +1,8 @@
 """Brace parameter diagram."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
 W, H = 440, 280
-v = VectorMathAnim('_ref_out', verbose=args.verbose, width=W, height=H)
+v = VectorMathAnim(width=W, height=H)
 v.set_background(fill='#1e1e2e')
 
 target = Rectangle(240, 60, x=220, y=105, rx=4, ry=4,
@@ -31,7 +29,4 @@ v.add(
     Text("'down'", x=32, y=rect_bottom + 58, font_size=10, fill='#585b70'),
 )
 
-if args.for_docs:
-    v.write_frame(filename='docs/source/_static/images/brace_params.svg')
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=2)
+v.show(end=2)

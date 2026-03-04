@@ -1,10 +1,8 @@
 """Manim equivalent: SineCurveUnitCircle -- sine wave traced from a unit circle."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
 import math
-args = parse_args()
 
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/manim/sine_curve_unit_circle')
+canvas = VectorMathAnim()
 canvas.set_background()
 
 ax = Axes(x_range=(-3, 14), y_range=(-1.5, 1.5), equal_aspect=True, x_tick_type='pi_tex')
@@ -38,9 +36,5 @@ h_line.p1.set_onward(0, lambda t: dot.c.at_time(t))
 h_line.p2.set_onward(0, lambda t: curve_dot.c.at_time(t))
 
 canvas.add_objects(ax, circle, radius_line, h_line, dot, curve_dot)
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/sine_curve_unit_circle.mp4',
-                         fps=30, end=DURATION)
-if not args.for_docs:
-    canvas.browser_display(start=0, end=DURATION, fps=args.fps,
-                           port=args.port, hot_reload=True)
+
+canvas.show(end=DURATION)

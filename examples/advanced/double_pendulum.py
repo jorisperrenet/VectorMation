@@ -4,12 +4,10 @@ Two connected pendulums produce wildly different trajectories from
 nearly identical initial conditions, illustrating sensitive dependence
 (chaos). The simulation uses the exact Lagrangian equations of motion.
 """
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from vectormation.objects import *
 import math
 
-args = parse_args()
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/double_pendulum')
+canvas = VectorMathAnim()
 canvas.set_background()
 
 # ── Parameters ────────────────────────────────────────────────────────
@@ -166,7 +164,4 @@ for i, cfg in enumerate(configs):
 
 canvas.add_objects(*all_objects)
 
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/double_pendulum.mp4', fps=30, end=T)
-if not args.for_docs:
-    canvas.browser_display(start=0, end=T, fps=60, port=args.port)
+canvas.show(end=T)

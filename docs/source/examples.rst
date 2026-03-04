@@ -1,13 +1,13 @@
 Examples
 ========
 
-All examples are in the ``examples/`` directory. Run any example with:
+All examples are in the ``examples/`` directory, organized into ``showcase/``, ``reference/``, ``advanced/``, and ``manim/`` subdirectories. Run any example from the repository root:
 
 .. code-block:: bash
 
-   python examples/<example_name>.py
+   PYTHONPATH=. python examples/showcase/<example_name>.py
 
-Use ``python examples/<name>.py -v`` for verbose logging.
+Use ``-v`` for verbose logging, ``-o out.mp4`` to export to video. If VectorMation is installed (``pip install -e .``), you can omit ``PYTHONPATH=.``.
 
 Manim comparison examples are in ``examples/manim/`` (see :doc:`vs Manim <vs_manim>`).
 
@@ -26,10 +26,8 @@ Animations
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/animations_creation.py
+      .. literalinclude:: ../../examples/showcase/animations_creation.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 .. admonition:: Example: AnimationsMovement
    :class: example
@@ -43,10 +41,8 @@ Animations
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/animations_movement.py
+      .. literalinclude:: ../../examples/showcase/animations_movement.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 .. admonition:: Example: AnimationsEffects
    :class: example
@@ -60,10 +56,8 @@ Animations
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/animations_effects.py
+      .. literalinclude:: ../../examples/showcase/animations_effects.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 .. admonition:: Example: AnimationsColor
    :class: example
@@ -77,10 +71,8 @@ Animations
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/animations_color.py
+      .. literalinclude:: ../../examples/showcase/animations_color.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 .. admonition:: Example: AnimationsText
    :class: example
@@ -94,10 +86,8 @@ Animations
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/animations_text.py
+      .. literalinclude:: ../../examples/showcase/animations_text.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 .. admonition:: Example: AnimationsVCollection
    :class: example
@@ -111,10 +101,8 @@ Animations
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/animations_vcollection.py
+      .. literalinclude:: ../../examples/showcase/animations_vcollection.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 .. admonition:: Example: AnimationsCounters
    :class: example
@@ -128,10 +116,8 @@ Animations
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/animations_counters.py
+      .. literalinclude:: ../../examples/showcase/animations_counters.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 .. admonition:: Example: Morphing
    :class: example
@@ -145,10 +131,8 @@ Animations
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/morphing_example.py
+      .. literalinclude:: ../../examples/showcase/morphing_example.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 
 Plotting
@@ -163,10 +147,8 @@ Plotting
 
    Sine and cosine curves drawn progressively with ``create`` animations.
 
-   .. literalinclude:: ../../examples/graph_animated.py
+   .. literalinclude:: ../../examples/showcase/graph_animated.py
       :language: python
-      :start-after: set_background
-      :end-before: if not
 
 .. admonition:: Example: AxesZoom
    :class: example
@@ -177,10 +159,8 @@ Plotting
 
    Animated axis ranges: draw a parabola, zoom into a region of interest, pan across the curve, and track a dot — all by animating ``x_min``, ``x_max``, ``y_min``, ``y_max`` as ``Real`` attributes.
 
-   .. literalinclude:: ../../examples/axes_zoom.py
+   .. literalinclude:: ../../examples/showcase/axes_zoom.py
       :language: python
-      :start-after: set_background
-      :end-before: if args
 
 .. admonition:: Example: ParametricCurve
    :class: example
@@ -191,10 +171,8 @@ Plotting
 
    A Lissajous figure plotted as a parametric curve on axes.
 
-   .. literalinclude:: ../../examples/parametric_curve_example.py
+   .. literalinclude:: ../../examples/showcase/parametric_curve_example.py
       :language: python
-      :start-after: set_background
-      :end-before: if not
 
 .. admonition:: Example: PolarPlot
    :class: example
@@ -205,10 +183,8 @@ Plotting
 
    A 4-petal rose curve drawn on polar axes with ``plot_polar``.
 
-   .. literalinclude:: ../../examples/polar_plot_example.py
+   .. literalinclude:: ../../examples/showcase/polar_plot_example.py
       :language: python
-      :start-after: set_background
-      :end-before: if not
 
 .. admonition:: Example: AxesPlotTypes
    :class: example
@@ -222,10 +198,8 @@ Plotting
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/axes_plot_types.py
+      .. literalinclude:: ../../examples/showcase/axes_plot_types.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 .. admonition:: Example: AxesAnnotations
    :class: example
@@ -239,10 +213,8 @@ Plotting
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/axes_annotations.py
+      .. literalinclude:: ../../examples/showcase/axes_annotations.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 .. admonition:: Example: AxesOverlays
    :class: example
@@ -256,10 +228,8 @@ Plotting
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/axes_overlays.py
+      .. literalinclude:: ../../examples/showcase/axes_overlays.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 .. admonition:: Example: AxesFormatters
    :class: example
@@ -273,10 +243,8 @@ Plotting
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/axes_formatters.py
+      .. literalinclude:: ../../examples/showcase/axes_formatters.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 Advanced
 --------
@@ -290,10 +258,8 @@ Advanced
 
    A dot traces a spiral path outward from the centre using parametric motion and rotation.
 
-   .. literalinclude:: ../../examples/spiral.py
+   .. literalinclude:: ../../examples/showcase/spiral.py
       :language: python
-      :start-after: set_background
-      :end-before: if not
 
 .. admonition:: Example: HeartCurve
    :class: example
@@ -304,10 +270,8 @@ Advanced
 
    A parametric heart curve traced by a moving dot, then filled with red.
 
-   .. literalinclude:: ../../examples/heart.py
+   .. literalinclude:: ../../examples/showcase/heart.py
       :language: python
-      :start-after: set_background
-      :end-before: if not
 
 .. admonition:: Example: SectionsAndSpeedControl
    :class: example
@@ -318,10 +282,8 @@ Advanced
 
    Shapes appear one at a time, pausing at section breaks. Press Space to advance, +/- to change speed.
 
-   .. literalinclude:: ../../examples/speed_and_sections.py
+   .. literalinclude:: ../../examples/showcase/speed_and_sections.py
       :language: python
-      :start-after: set_background
-      :end-before: if not
 
 Concepts
 --------
@@ -338,10 +300,8 @@ Concepts
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/code_explanation.py
+      .. literalinclude:: ../../examples/showcase/code_explanation.py
          :language: python
-         :start-after: set_background
-         :end-before: if not
 
 .. admonition:: Example: Logo
    :class: example
@@ -355,9 +315,8 @@ Concepts
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/logo.py
+      .. literalinclude:: ../../examples/showcase/logo.py
          :language: python
-         :start-after: width=1000, height=1000)
 
 Data Structures
 ---------------
@@ -374,10 +333,8 @@ Data Structures
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/data_structure_methods.py
+      .. literalinclude:: ../../examples/showcase/data_structure_methods.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 Animation Effects
 -----------------
@@ -394,10 +351,8 @@ Animation Effects
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/numberline_features.py
+      .. literalinclude:: ../../examples/showcase/numberline_features.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 Text & Code
 -----------
@@ -414,10 +369,8 @@ Text & Code
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/code_highlight.py
+      .. literalinclude:: ../../examples/showcase/code_highlight.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 Charts & Data
 -------------
@@ -431,10 +384,8 @@ Charts & Data
 
    Data table with animated cell highlighting and value changes.
 
-   .. literalinclude:: ../../examples/table_highlight_example.py
+   .. literalinclude:: ../../examples/showcase/table_highlight_example.py
       :language: python
-      :start-after: set_background
-      :end-before: if not
 
 .. admonition:: Example: ChartTypes
    :class: example
@@ -448,10 +399,8 @@ Charts & Data
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/chart_types.py
+      .. literalinclude:: ../../examples/showcase/chart_types.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 .. admonition:: Example: ChartMethods
    :class: example
@@ -465,10 +414,8 @@ Charts & Data
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/chart_methods.py
+      .. literalinclude:: ../../examples/showcase/chart_methods.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 Graphs & Diagrams
 -----------------
@@ -485,10 +432,8 @@ Graphs & Diagrams
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/graph_structures.py
+      .. literalinclude:: ../../examples/showcase/graph_structures.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 .. admonition:: Example: Automaton
    :class: example
@@ -499,10 +444,8 @@ Graphs & Diagrams
 
    Deterministic finite automaton (DFA) accepting strings ending in "ab", with state highlighting.
 
-   .. literalinclude:: ../../examples/automaton_example.py
+   .. literalinclude:: ../../examples/showcase/automaton_example.py
       :language: python
-      :start-after: set_background
-      :end-before: if not
 
 .. admonition:: Example: DiagramTypes
    :class: example
@@ -516,10 +459,8 @@ Graphs & Diagrams
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/diagram_types.py
+      .. literalinclude:: ../../examples/showcase/diagram_types.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 Math & Science
 --------------
@@ -536,10 +477,8 @@ Math & Science
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/vector_fields.py
+      .. literalinclude:: ../../examples/showcase/vector_fields.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 .. admonition:: Example: ComplexPlane
    :class: example
@@ -550,10 +489,8 @@ Math & Science
 
    Complex plane with 5th roots of unity plotted as a pentagon.
 
-   .. literalinclude:: ../../examples/complex_plane_example.py
+   .. literalinclude:: ../../examples/showcase/complex_plane_example.py
       :language: python
-      :start-after: set_background
-      :end-before: if not
 
 .. admonition:: Example: NeuralNetwork
    :class: example
@@ -564,10 +501,8 @@ Math & Science
 
    Feed-forward neural network diagram with forward propagation animation.
 
-   .. literalinclude:: ../../examples/neural_network_example.py
+   .. literalinclude:: ../../examples/showcase/neural_network_example.py
       :language: python
-      :start-after: set_background
-      :end-before: if not
 
 .. admonition:: Example: Pendulum
    :class: example
@@ -578,10 +513,8 @@ Math & Science
 
    Damped pendulum with path trace — rod swings from a pivot point.
 
-   .. literalinclude:: ../../examples/pendulum_example.py
+   .. literalinclude:: ../../examples/showcase/pendulum_example.py
       :language: python
-      :start-after: set_background
-      :end-before: if not
 
 .. admonition:: Example: NumberPlaneTransform
    :class: example
@@ -592,10 +525,8 @@ Math & Science
 
    NumberPlane grid transformed by a 2x2 matrix with animated basis vectors (i-hat, j-hat) using ``apply_matrix``.
 
-   .. literalinclude:: ../../examples/number_plane_transform_example.py
+   .. literalinclude:: ../../examples/showcase/number_plane_transform_example.py
       :language: python
-      :start-after: set_background
-      :end-before: if not
 
 .. admonition:: Example: ScienceComponents
    :class: example
@@ -609,10 +540,8 @@ Math & Science
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/circuit_components.py
+      .. literalinclude:: ../../examples/showcase/circuit_components.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 .. admonition:: Example: ThreeDObjects
    :class: example
@@ -626,10 +555,8 @@ Math & Science
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/threed.py
+      .. literalinclude:: ../../examples/showcase/threed.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 
 Styling & Effects
@@ -644,10 +571,8 @@ Styling & Effects
 
    Linear and radial SVG gradients applied to shapes.
 
-   .. literalinclude:: ../../examples/gradient_example.py
+   .. literalinclude:: ../../examples/showcase/gradient_example.py
       :language: python
-      :start-after: set_background
-      :end-before: if not
 
 .. admonition:: Example: ShapeTypes
    :class: example
@@ -661,10 +586,8 @@ Styling & Effects
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/shapes.py
+      .. literalinclude:: ../../examples/showcase/shapes.py
          :language: python
-         :start-after: set_background
-         :end-before: if args
 
 Camera
 ------
@@ -678,10 +601,8 @@ Camera
 
    Camera focus/zoom on individual objects, then reset to full view.
 
-   .. literalinclude:: ../../examples/focus_camera_example.py
+   .. literalinclude:: ../../examples/showcase/focus_camera_example.py
       :language: python
-      :start-after: set_background
-      :end-before: if not
 
 Games
 -----
@@ -695,10 +616,8 @@ Games
 
    Chess board with the starting position and piece movement.
 
-   .. literalinclude:: ../../examples/chess_example.py
+   .. literalinclude:: ../../examples/showcase/chess_example.py
       :language: python
-      :start-after: set_background
-      :end-before: if not
 
 Physics
 -------
@@ -715,10 +634,8 @@ Physics
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-       .. literalinclude:: ../../examples/physics_bouncing_objects.py
+       .. literalinclude:: ../../examples/showcase/physics_bouncing_objects.py
           :language: python
-          :start-after: set_background
-          :end-before: if not
 
 .. admonition:: Example: PhysicsSpring
    :class: example
@@ -732,10 +649,8 @@ Physics
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-       .. literalinclude:: ../../examples/physics_spring.py
+       .. literalinclude:: ../../examples/showcase/physics_spring.py
           :language: python
-          :start-after: set_background
-          :end-before: if not
 
 .. admonition:: Example: PhysicsCloth
    :class: example
@@ -746,10 +661,8 @@ Physics
 
    Cloth simulation with the top row pinned, fluttering under gravity using spring constraints.
 
-   .. literalinclude:: ../../examples/physics_cloth.py
+   .. literalinclude:: ../../examples/showcase/physics_cloth.py
       :language: python
-      :start-after: set_background
-      :end-before: if not
 
 UI Components
 -------------
@@ -766,7 +679,5 @@ UI Components
    .. dropdown:: Show code
       :class-container: sd-shadow-none
 
-      .. literalinclude:: ../../examples/ui_widgets.py
+      .. literalinclude:: ../../examples/showcase/ui_widgets.py
          :language: python
-         :start-after: set_background
-         :end-before: if args

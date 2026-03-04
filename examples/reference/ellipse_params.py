@@ -1,10 +1,8 @@
 """Ellipse parameter diagram."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
 W, H = 400, 300
-v = VectorMathAnim('_ref_out', verbose=args.verbose, width=W, height=H)
+v = VectorMathAnim(width=W, height=H)
 v.set_background(fill='#1e1e2e')
 
 CX, CY, RX, RY = 200, 145, 120, 70
@@ -35,7 +33,4 @@ v.add(
     Text('cy', x=20, y=85, font_size=12, fill='#a6adc8'),
 )
 
-if args.for_docs:
-    v.write_frame(filename='docs/source/_static/images/ellipse_params.svg')
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=2)
+v.show(end=2)

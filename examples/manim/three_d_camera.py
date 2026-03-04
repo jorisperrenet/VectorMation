@@ -1,10 +1,8 @@
 """Demonstrate 3D camera rotation animation."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
 import math
-args = parse_args()
 
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/manim/three_d_camera')
+canvas = VectorMathAnim()
 canvas.set_background()
 
 axes = ThreeDAxes(x_range=(-3, 3), y_range=(-3, 3), z_range=(-2, 2))
@@ -20,8 +18,5 @@ axes.plot_surface(saddle, resolution=(20, 20),
 axes.set_camera_orientation(0, 6, theta=axes.theta.at_time(0) + math.tau)
 
 canvas.add_objects(axes)
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/three_d_camera.mp4', fps=30)
-if not args.for_docs:
-    canvas.browser_display(start=0, end=6, fps=args.fps, port=args.port,
-                           hot_reload=True)
+
+canvas.show(end=6)

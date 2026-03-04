@@ -1,9 +1,7 @@
 """Sections demo -- objects appear in phases."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
-v = VectorMathAnim('_ref_out', verbose=args.verbose)
+v = VectorMathAnim()
 v.set_background()
 
 # Phase 1: circle fades in
@@ -25,7 +23,5 @@ txt = Text('VectorMation', x=1300, y=540, font_size=48, fill='WHITE')
 txt.fadein(start=4, end=5)
 
 v.add(circle, rect, txt)
-if args.for_docs:
-    v.export_video('docs/source/_static/videos/anim_sections.mp4', fps=30, end=6)
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=6)
+
+v.show(end=6)

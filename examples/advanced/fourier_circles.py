@@ -4,12 +4,10 @@ Demonstrates Fourier series approximation using rotating circles (epicycles).
 Starts with a single circle (fundamental frequency) and progressively adds
 harmonics. The tip of the last circle traces out a square-wave-like path.
 """
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from vectormation.objects import *
 import math
 
-args = parse_args()
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/fourier_circles')
+canvas = VectorMathAnim()
 canvas.set_background(fill='#1a1a2e')
 
 # ── Fourier coefficients for a square wave ───────────────────────────
@@ -229,8 +227,4 @@ separator.fadein(0, 0.5)
 canvas.add(separator, trail_path, trace_path, epicycles_dynamic, harmonic_counter)
 canvas.add(title, subtitle, formula, wave_label, circle_label)
 
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/fourier_circles.mp4', fps=30, end=TOTAL_DURATION)
-if not args.for_docs:
-    canvas.browser_display(start=args.start or 0, end=args.end or TOTAL_DURATION,
-    fps=args.fps, port=args.port)
+canvas.show(end=TOTAL_DURATION)

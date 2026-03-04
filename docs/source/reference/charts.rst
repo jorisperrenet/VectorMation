@@ -54,8 +54,6 @@ PieChart
 
    .. literalinclude:: ../../../examples/reference/piechart.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 .. admonition:: Example: Animated PieChart
    :class: example
@@ -66,7 +64,6 @@ PieChart
 
    .. literalinclude:: ../../../examples/reference/ref_animated_pie.py
       :language: python
-      :end-before: v.browser_display
 
 ----
 
@@ -105,8 +102,6 @@ DonutChart
 
    .. literalinclude:: ../../../examples/reference/ref_donut_chart.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 ----
 
@@ -192,8 +187,6 @@ BarChart
 
    .. literalinclude:: ../../../examples/reference/barchart.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 ----
 
@@ -225,8 +218,6 @@ RadarChart
 
    .. literalinclude:: ../../../examples/reference/ref_radar_chart.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 ----
 
@@ -292,8 +283,6 @@ ProgressBar
 
    .. literalinclude:: ../../../examples/reference/ref_progress_bar.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 ----
 
@@ -321,7 +310,6 @@ SampleSpace
 
    .. literalinclude:: ../../../examples/reference/ref_sample_space.py
       :language: python
-      :end-before: v.write_frame
 
 ----
 
@@ -350,8 +338,6 @@ WaterfallChart
 
    .. literalinclude:: ../../../examples/reference/ref_waterfall.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 ----
 
@@ -374,8 +360,6 @@ GanttChart
 
    .. literalinclude:: ../../../examples/reference/ref_gantt.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 ----
 
@@ -399,7 +383,6 @@ SankeyDiagram
 
    .. literalinclude:: ../../../examples/reference/ref_sankey.py
       :language: python
-      :end-before: v.write_frame
 
 ----
 
@@ -422,7 +405,6 @@ FunnelChart
 
    .. literalinclude:: ../../../examples/reference/ref_funnel.py
       :language: python
-      :end-before: v.write_frame
 
 ----
 
@@ -445,7 +427,6 @@ TreeMap
 
    .. literalinclude:: ../../../examples/reference/ref_treemap.py
       :language: python
-      :end-before: v.write_frame
 
 ----
 
@@ -472,8 +453,6 @@ GaugeChart
 
    .. literalinclude:: ../../../examples/reference/ref_gauge.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 ----
 
@@ -498,7 +477,6 @@ SparkLine
 
    .. literalinclude:: ../../../examples/reference/ref_sparkline.py
       :language: python
-      :end-before: v.write_frame
 
 ----
 
@@ -533,7 +511,6 @@ KPICard
 
    .. literalinclude:: ../../../examples/reference/ref_kpi_card.py
       :language: python
-      :end-before: v.write_frame
 
 ----
 
@@ -559,7 +536,6 @@ BulletChart
 
    .. literalinclude:: ../../../examples/reference/ref_bullet_chart.py
       :language: python
-      :end-before: v.write_frame
 
 ----
 
@@ -582,7 +558,6 @@ CalendarHeatmap
 
    .. literalinclude:: ../../../examples/reference/ref_calendar_heatmap.py
       :language: python
-      :end-before: v.write_frame
 
 ----
 
@@ -606,7 +581,6 @@ WaffleChart
 
    .. literalinclude:: ../../../examples/reference/ref_waffle.py
       :language: python
-      :end-before: v.write_frame
 
 ----
 
@@ -629,7 +603,6 @@ CircularProgressBar
 
    .. literalinclude:: ../../../examples/reference/ref_circular_progress.py
       :language: python
-      :end-before: v.write_frame
 
 ----
 
@@ -652,7 +625,6 @@ Scoreboard
 
    .. literalinclude:: ../../../examples/reference/ref_scoreboard.py
       :language: python
-      :end-before: v.write_frame
 
 ----
 
@@ -678,8 +650,6 @@ MatrixHeatmap
 
    .. literalinclude:: ../../../examples/reference/ref_matrix_heatmap.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 ----
 
@@ -703,5 +673,3 @@ BoxPlot
 
    .. literalinclude:: ../../../examples/reference/ref_box_plot.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame

@@ -1,10 +1,9 @@
 """Angle / RightAngle parameter diagram."""
-import sys, os, math; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
+import math
 from vectormation.objects import *
-args = parse_args()
 
 W, H = 440, 260
-v = VectorMathAnim('_ref_out', verbose=args.verbose, width=W, height=H)
+v = VectorMathAnim(width=W, height=H)
 v.set_background(fill='#1e1e2e')
 
 # --- Angle indicator (left side) ---
@@ -54,7 +53,4 @@ v.add(
 
 v.add(Text('RightAngle', x=290, y=30, font_size=14, fill='#cdd6f4'))
 
-if args.for_docs:
-    v.write_frame(filename='docs/source/_static/images/angle_params.svg')
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=2)
+v.show(end=2)

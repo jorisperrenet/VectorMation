@@ -1,10 +1,8 @@
 """Curved arrow parameter diagram."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
 W, H = 440, 260
-v = VectorMathAnim('_ref_out', verbose=args.verbose, width=W, height=H)
+v = VectorMathAnim(width=W, height=H)
 v.set_background(fill='#1e1e2e')
 
 X1, Y1, X2, Y2 = 70, 170, 350, 170
@@ -33,7 +31,4 @@ v.add(
     Text('(curvature)', x=mid_x + 8, y=Y1 - 30, font_size=10, fill='#585b70'),
 )
 
-if args.for_docs:
-    v.write_frame(filename='docs/source/_static/images/curved_arrow_params.svg')
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=2)
+v.show(end=2)

@@ -1,9 +1,7 @@
 """Geometry Showcase — Polygon decomposition, circle constructions, rectangle operations."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 from vectormation.objects import *
 
-args = parse_args()
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/geometry_showcase')
+canvas = VectorMathAnim()
 canvas.set_background()
 T = 24.0
 
@@ -322,13 +320,5 @@ canvas.add(polys, poly_labels)
 # =============================================================================
 # Display
 # =============================================================================
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/geometry_showcase.mp4', fps=30, end=T)
-if not args.for_docs:
-    canvas.browser_display(
-        start=args.start or 0,
-        end=args.end or T,
-        fps=args.fps,
-        port=args.port,
-        hot_reload=args.hot_reload or True,
-    )
+
+canvas.show(end=T)

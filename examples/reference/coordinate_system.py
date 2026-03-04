@@ -1,10 +1,8 @@
 """Canvas coordinate system showing directions and origin."""
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 from vectormation.objects import *
-args = parse_args()
 
 W, H = 520, 360
-v = VectorMathAnim('_ref_out', verbose=args.verbose, width=W, height=H)
+v = VectorMathAnim(width=W, height=H)
 v.set_background(fill='#1e1e2e')
 
 # Canvas border
@@ -56,7 +54,4 @@ v.add(
     Text('Y increases downward', x=355, y=180, font_size=10, fill='#f9e2af'),
 )
 
-if args.for_docs:
-    v.write_frame(filename='docs/source/_static/images/coordinate_system.svg')
-if not args.for_docs:
-    v.browser_display(fps=args.fps, port=args.port, hot_reload=True, end=2)
+v.show(end=2)

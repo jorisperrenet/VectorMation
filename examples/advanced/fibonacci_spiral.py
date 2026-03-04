@@ -3,11 +3,9 @@
 Draws successive Fibonacci squares and the inscribed quarter-circle arcs
 that form the classic golden spiral. Numbers and proportions animate in.
 """
-import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from vectormation.objects import *
 
-args = parse_args()
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/fibonacci_spiral')
+canvas = VectorMathAnim()
 canvas.set_background()
 
 fibs = [1, 1, 2, 3, 5, 8]
@@ -53,7 +51,4 @@ for i, (sx, sy, s) in enumerate(pos):
     canvas.add(sq, arc)
     t += 0.4
 
-if args.for_docs:
-    canvas.export_video('docs/source/_static/videos/fibonacci_spiral.mp4', fps=30, end=6)
-if not args.for_docs:
-    canvas.browser_display(start=args.start or 0, end=args.end or 6, fps=args.fps, port=args.port)
+canvas.show(end=6)

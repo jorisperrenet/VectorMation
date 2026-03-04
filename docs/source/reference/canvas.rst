@@ -55,8 +55,6 @@ Constructor
 
    .. literalinclude:: ../../../examples/reference/ref_canvas_basic.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.write_frame
 
 ----
 
@@ -203,8 +201,6 @@ the visible region. They return ``self`` for chaining.
 
       .. literalinclude:: ../../../examples/reference/ref_camera_zoom.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
    Zoom the camera by *factor* around the point ``(cx, cy)`` over
    ``[start, end]``. ``factor > 1`` zooms in; ``factor < 1`` zooms out.
@@ -240,8 +236,6 @@ the visible region. They return ``self`` for chaining.
 
       .. literalinclude:: ../../../examples/reference/ref_camera_follow.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
 .. py:method:: VectorMathAnim.camera_reset(start, end, easing=smooth)
 
@@ -299,20 +293,44 @@ Display
 
       * - Key
         - Action
-      * - ``Space``
+      * - ``Space`` / ``P``
         - Pause / resume playback
       * - ``R``
         - Restart from the beginning
-      * - ``N``
-        - Jump to next section break
+      * - ``,`` / ``.``
+        - Step backward / forward one frame
+      * - ``Left`` / ``Right``
+        - Previous / next section
+      * - ``-`` / ``+`` / ``Up`` / ``Down``
+        - Slower / faster (0.25x increments)
+      * - ``0``--``9``
+        - Jump to 0%--90%
+      * - ``Home`` / ``End``
+        - Jump to start / end
       * - ``F``
-        - Fit the view to the full canvas
+        - Reset zoom to fit
+      * - ``S`` / ``Shift+S``
+        - Save SVG / PNG
+      * - ``C``
+        - Copy SVG to clipboard
+      * - ``L``
+        - Toggle loop
+      * - ``B``
+        - Cycle background
+      * - ``G``
+        - Toggle grid overlay
+      * - ``I``
+        - Inspect mode
+      * - ``M``
+        - Measure tool
+      * - ``N``
+        - Toggle snap
+      * - ``D``
+        - Debug panel
+      * - ``?``
+        - Help overlay
       * - ``Q``
         - Quit the server
-      * - ``Right``
-        - Step forward one frame (while paused)
-      * - ``Left``
-        - Step backward one frame (while paused)
 
    **Single-picture mode:**
 
