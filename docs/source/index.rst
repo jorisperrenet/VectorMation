@@ -60,4 +60,3 @@ Next Steps
    examples
    advanced_examples
    vs_manim
-   release_notes
