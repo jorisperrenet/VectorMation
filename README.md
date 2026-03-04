@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-    <video src="https://raw.githubusercontent.com/jorisperrenet/VectorMation/main/examples/svgs/convolutions.mp4" width="700" autoplay loop muted></video>
+    <img width="700" src="./examples/svgs/convolutions.gif">
 </p>
 
 > *Continuous convolution — a Gaussian kernel slides across a box function, building the convolution result in real time. Generated with ~70 lines of VectorMation code ([source](examples/advanced/convolutions.py)).*

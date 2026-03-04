@@ -8,7 +8,7 @@ examples/svgs/*
 !examples/svgs/moving_frame_box.svg
 !examples/svgs/sierpinski_triangle.svg
 !examples/svgs/spiral.svg
-!examples/svgs/convolutions.mp4
+!examples/svgs/convolutions.gif
 .coverage
 *.egg-info/
 dist/
