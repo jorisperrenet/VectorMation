@@ -1,3 +1,10 @@
+beautifulsoup4>=4.12
+lxml>=5.0
+numpy>=2.0
+svgpathtools>=1.6
+websockets>=16.0
+
+# For the docs
 sphinx>=7.0
 furo
 sphinx-design
