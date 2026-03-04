@@ -121,7 +121,6 @@ Class Hierarchy
    +-- Filmstrip                Storyboard filmstrip
    +-- Bracket                  Bracket decoration
    +-- IconGrid                 Icon grid
-   +-- RoundedCornerPolygon     Polygon with rounded corners
    +-- VennDiagram              Venn diagram
    +-- OrgChart                 Organization chart
    +-- MindMap                  Radial mind map

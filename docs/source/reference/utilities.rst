@@ -9,10 +9,17 @@ Easings
 Easing functions control the pace of animations. Each accepts ``t`` in [0, 1]
 and returns a value in [0, 1].
 
-.. code-block:: python
+.. admonition:: Example: Using an easing function
+   :class: example
 
-   import vectormation.easings as easings
-   circle.shift(dx=2, start=0, end=1, easing=easings.ease_out_bounce)
+   .. code-block:: python
+
+      import vectormation.easings as easings
+      circle.shift(dx=2, start=0, end=1, easing=easings.ease_out_bounce)
+
+.. image:: ../_static/images/easing_curves.svg
+   :width: 520
+   :align: center
 
 .. rubric:: Basic
 
@@ -126,12 +133,29 @@ Colours & Gradients
 
    :param list stops: List of ``(offset, color)`` or ``(offset, color, opacity)`` tuples.
 
-   .. code-block:: python
+   .. admonition:: Example: Linear gradient fill
+      :class: example
 
-      from vectormation.colors import LinearGradient
-      lg = LinearGradient([('0%', '#ff0000'), ('100%', '#0000ff')])
-      canvas.add_def(lg)
-      circle = Circle(fill=lg, fill_opacity=1)
+      .. code-block:: python
+
+         from vectormation.colors import LinearGradient
+         lg = LinearGradient([('0%', '#ff0000'), ('100%', '#0000ff')])
+         canvas.add_def(lg)
+         circle = Circle(fill=lg, fill_opacity=1)
+
+   .. admonition:: Example: Gradients
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/gradient.svg" style="width:100%; max-width:800px;" />
+
+      Linear and radial gradients on shapes.
+
+      .. literalinclude:: ../../../examples/reference/gradient.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
    .. py:method:: fill_ref()
 
@@ -173,11 +197,11 @@ Colours & Gradients
 
    Rotate the hue of a colour by *degrees*.
 
-.. py:function:: saturate(color, amount=0.3)
+.. py:function:: saturate(color, amount=0.2)
 
    Increase saturation of a colour.
 
-.. py:function:: desaturate(color, amount=0.3)
+.. py:function:: desaturate(color, amount=0.2)
 
    Decrease saturation of a colour.
 
@@ -199,15 +223,15 @@ Colours & Gradients
 
 .. py:function:: triadic(color)
 
-   Return a list of three colours forming a triadic scheme (120-degree spacing).
+   Return a list of two colours forming a triadic scheme (hue +120° and +240°).
 
-.. py:function:: analogous(color, spread=30)
+.. py:function:: analogous(color, angle=30)
 
-   Return a list of three colours forming an analogous scheme.
+   Return a list of two colours at hue ± *angle* degrees from the input.
 
-.. py:function:: split_complementary(color, spread=30)
+.. py:function:: split_complementary(color)
 
-   Return a list of three colours forming a split-complementary scheme.
+   Return a list of two split-complementary colours (hue +150° and +210°).
 
 ----
 
@@ -219,11 +243,14 @@ Filters & Definitions
 
    SVG clip path definition. Pass one or more shape objects.
 
-   .. code-block:: python
+   .. admonition:: Example: Using a clip path
+      :class: example
 
-      clip = ClipPath(Circle(r=120, cx=960, cy=540))
-      canvas.add_def(clip)
-      rect = Rectangle(3, 3, clip_path=clip.clip_ref())
+      .. code-block:: python
+
+         clip = ClipPath(Circle(r=120, cx=960, cy=540))
+         canvas.add_def(clip)
+         rect = Rectangle(3, 3, clip_path=clip.clip_ref())
 
    .. py:method:: clip_ref()
       :no-index:
@@ -370,12 +397,9 @@ Helper Functions
 .. py:function:: path_bbox(d)
 
    Bounding box of an SVG path string.
+   Available via ``from vectormation.pathbbox import path_bbox``.
 
    :returns: ``(xmin, xmax, ymin, ymax)``
-
-.. py:function:: path_length(d)
-
-   Length of an SVG path string.
 
 .. py:function:: from_svg(soup_element)
    :no-index:
@@ -397,14 +421,17 @@ Helper Functions
    :param float start: Start time.
    :param float lag_ratio: Overlap fraction (0 = sequential, 0.5 = 50% overlap).
 
-   .. code-block:: python
+   .. admonition:: Example: Chaining animations in sequence
+      :class: example
 
-      succession(
-          (circle, 'fadein'),
-          (square, 'write'),
-          (text, 'fadein', {'shift_dir': 'up'}),
-          start=0, lag_ratio=0.2,
-      )
+      .. code-block:: python
+
+         succession(
+             (circle, 'fadein'),
+             (square, 'write'),
+             (text, 'fadein', {'shift_dir': 'up'}),
+             start=0, lag_ratio=0.2,
+         )
 
 .. py:function:: transform_matching_shapes(source, target, start=0, end=1, key=None)
 

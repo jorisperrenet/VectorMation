@@ -4,7 +4,6 @@ UI Components
 User interface and annotation classes. All inherit from :py:class:`VCollection`
 (unless noted) and support the full set of animation methods.
 
-----
 
 Title
 -----
@@ -18,9 +17,12 @@ Title
 
    :param str text: Title string.
 
-   .. code-block:: python
+   .. admonition:: Example: Creating a title
+      :class: example
 
-      title = Title('Introduction to Calculus')
+      .. code-block:: python
+
+         title = Title('Introduction to Calculus')
 
 ----
 
@@ -93,12 +95,15 @@ Code
 
       Reveal code lines sequentially with staggered fade-in.
 
-   .. code-block:: python
+   .. admonition:: Example: Syntax-highlighted code block
+      :class: example
 
-      code = Code('''
-      def greet(name):
-          return f"Hello, {name}!"
-      ''', language='python')
+      .. code-block:: python
+
+         code = Code('''
+         def greet(name):
+             return f"Hello, {name}!"
+         ''', language='python')
 
 ----
 
@@ -285,12 +290,15 @@ Checklist
 
       Cascade items into view sequentially.
 
-   .. code-block:: python
+   .. admonition:: Example: Checklist with animated check
+      :class: example
 
-      cl = Checklist('Buy groceries',
-                     ('Walk the dog', True),
-                     'Write docs')
-      cl.check_item(0, start=1, end=1.5)
+      .. code-block:: python
+
+         cl = Checklist('Buy groceries',
+                        ('Walk the dog', True),
+                        'Write docs')
+         cl.check_item(0, start=1, end=1.5)
 
 ----
 
@@ -394,17 +402,3 @@ Filmstrip
 
       Flash-highlight a frame by index.
 
-----
-
-RoundedCornerPolygon
---------------------
-
-.. py:class:: RoundedCornerPolygon(*vertices, radius=20, creation=0, z=0, **styling)
-
-   Bases: :py:class:`VObject`
-
-   Polygon with rounded (filleted) corners. Each corner is replaced by a
-   circular arc of the given *radius*.
-
-   :param vertices: ``(x, y)`` tuples for each vertex.
-   :param float radius: Corner rounding radius (clamped to half the shortest edge).

@@ -27,6 +27,19 @@ VectorMation displays animations in a browser via WebSocket:
    * - ``hot_reload``
      - Re-run script on file save
 
+.. tip::
+
+   Use ``parse_args()`` to get CLI flags for common options:
+
+   .. code-block:: bash
+
+      python my_scene.py -v           # verbose logging
+      python my_scene.py --fps 30     # set frame rate
+      python my_scene.py --port 9000  # custom port
+      python my_scene.py --hot-reload # auto-reload on save
+      python my_scene.py -o out.mp4   # export to file
+      python my_scene.py -d 5         # set duration to 5 seconds
+
 Keyboard Shortcuts
 ------------------
 
@@ -89,10 +102,40 @@ Sections let you pause the animation at specific times, useful for presentations
 
 During playback, the animation pauses at each section boundary. Press **Arrow Right** to continue to the next section.
 
+.. admonition:: Example: sections demo
+   :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/anim_sections.mp4" controls autoplay loop muted></video>
+
+   Objects appear in phases separated by section breaks. During playback
+   the animation pauses at each ``add_section`` time.
+
+   .. literalinclude:: ../../examples/reference/anim_sections.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display
+
 Playback Speed
 --------------
 
 Speed can be adjusted during playback with **+** / **-** keys, or via the toolbar buttons. The current speed and FPS are shown in the toolbar.
+
+.. admonition:: Example: animation timing
+   :class: example
+
+   .. raw:: html
+
+      <video src="_static/videos/anim_speed.mp4" controls autoplay loop muted></video>
+
+   The same shift animation with different ``start``/``end`` durations.
+   Shorter intervals mean faster motion.
+
+   .. literalinclude:: ../../examples/reference/anim_speed.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display
 
 Static Pictures
 ---------------
@@ -143,6 +186,12 @@ Export the animation as an MP4 video (requires ``cairosvg`` and ``ffmpeg``):
 
    canvas.export_video(filename='animation.mp4', start=0, end=None, fps=60)
 
+.. note::
+
+   Video export requires **ffmpeg** to be installed and available on your
+   ``PATH``. On Debian/Ubuntu: ``sudo apt install ffmpeg``. On macOS:
+   ``brew install ffmpeg``. On Arch: ``sudo pacman -S ffmpeg``.
+
 Animated GIF
 ^^^^^^^^^^^^
 
@@ -162,6 +211,20 @@ Export the animation as a GIF (requires ``cairosvg`` and ``Pillow``):
      - Scale factor for output dimensions (e.g. ``0.5`` for half size)
    * - ``loop``
      - Number of loops (``0`` = infinite)
+
+.. admonition:: Example: static frame export
+   :class: example
+
+   .. raw:: html
+
+      <img src="_static/videos/anim_export.svg" style="width:100%; max-width:800px;" />
+
+   A composed scene exported as a single SVG frame with ``write_frame``.
+
+   .. literalinclude:: ../../examples/reference/anim_export.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display
 
 ----
 

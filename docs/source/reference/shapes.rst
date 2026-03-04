@@ -248,16 +248,19 @@ Circle
 
       Create the unique circle through three non-collinear points.
 
-   **Example — animated circle with tangent**
+.. admonition:: Example: Circle
+   :class: example
 
-   .. code-block:: python
+   .. raw:: html
 
-      c = Circle(r=100, cx=960, cy=540, stroke='#3498DB', fill_opacity=0.1)
-      c.set_radius(200, start=1, end=3)
+      <img src="../_static/videos/circle.svg" style="width:100%; max-width:800px;" />
 
-      # Tangent line that follows the circle
-      tl = c.tangent_line(45, length=250, stroke='#E74C3C')
-      tl.fadein(start=0.5, end=1.5)
+   Circle with grow_from_center animation.
+
+   .. literalinclude:: ../../../examples/reference/circle.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display
 
 ----
 
@@ -268,7 +271,8 @@ Dot
 
    Bases: :py:class:`Circle`
 
-   Small circle with default green fill (``#83C167``).
+   Small filled circle with no stroke. Default: white fill (``#fff``),
+   ``fill_opacity=1``, ``stroke_width=0``.
 
    :param float r: Radius (default ``11``).
 
@@ -282,12 +286,12 @@ Dot
 AnnotationDot
 -------------
 
-.. py:class:: AnnotationDot(r=14, cx=960, cy=540, **styling)
+.. py:class:: AnnotationDot(r=14.3, cx=960, cy=540, **styling)
 
    Bases: :py:class:`Dot`
 
    Slightly larger dot with an outline stroke, designed for annotations.
-   Default styling: yellow fill (``#FFFF00``), black stroke, stroke_width=2.
+   Default styling: white stroke (``#fff``), ``stroke_width=5``.
 
 ----
 
@@ -899,6 +903,20 @@ Polygon
 
       Create from an SVG path ``d`` string.
 
+.. admonition:: Example: Polygon gallery
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/polygon.svg" style="width:100%; max-width:800px;" />
+
+   Regular polygons: triangle, pentagon, hexagon.
+
+   .. literalinclude:: ../../../examples/reference/polygon.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display
+
 ----
 
 Lines
@@ -909,6 +927,7 @@ Lines
    Bases: :py:class:`Polygon` (with ``closed=False``)
 
    Open polyline.
+
 
 ----
 
@@ -968,12 +987,26 @@ Star
 
    :param int n: Number of points.
    :param float outer_radius: Outer radius.
-   :param float inner_radius: Inner radius (defaults to ``outer_radius / 2``, i.e. ``60``).
+   :param float inner_radius: Inner radius (defaults to ``outer_radius * 0.4``, i.e. ``48``).
 
    .. py:method:: get_outer_radius()
    .. py:method:: get_inner_radius()
 
       Return the stored radius values.
+
+.. admonition:: Example: Star
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/star.svg" style="width:100%; max-width:800px;" />
+
+   Stars with varying point counts.
+
+   .. literalinclude:: ../../../examples/reference/star.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display
 
 ----
 
@@ -1027,6 +1060,20 @@ Arc
    .. py:method:: set_angles(start_angle, end_angle, start=0, end_time=None, easing=smooth)
 
       Animate the arc angles.
+
+.. admonition:: Example: Arc & Wedge
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/arc.svg" style="width:100%; max-width:800px;" />
+
+   Arc sweeps and pie-wedge shapes.
+
+   .. literalinclude:: ../../../examples/reference/arc.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display
 
 ----
 
@@ -1148,7 +1195,7 @@ Angle
    :width: 440
    :align: center
 
-.. py:class:: Angle(vertex, p1, p2, radius=36, **styling)
+.. py:class:: Angle(vertex, p1, p2, radius=36, label=None, label_radius=None, label_font_size=36, **styling)
 
    Bases: :py:class:`VCollection`
 
@@ -1160,6 +1207,9 @@ Angle
    :param p1: First ray endpoint.
    :param p2: Second ray endpoint.
    :param float radius: Arc radius.
+   :param str label: Optional text label displayed inside the arc (e.g. ``'θ'``).
+   :param float label_radius: Distance from vertex to label (defaults to ``radius``).
+   :param float label_font_size: Font size for the label.
 
 ----
 
@@ -1266,17 +1316,18 @@ Text
 CountAnimation
 --------------
 
-.. py:class:: CountAnimation(start_value, end_value, fmt='{:.0f}', x=960, y=540, font_size=48, start=0, end=1, **styling)
+.. py:class:: CountAnimation(start_val=0, end_val=100, start=0, end=1, fmt='{:.0f}', easing=smooth, x=960, y=540, font_size=60, **styling)
 
    Bases: :py:class:`Text`
 
    Animated counter that interpolates between two numeric values.
 
-   :param float start_value: Starting number.
-   :param float end_value: Ending number.
-   :param str fmt: Format string (e.g. ``'{:.2f}'`` or ``'${:,.0f}'``).
+   :param float start_val: Starting number.
+   :param float end_val: Ending number.
    :param float start: Animation start time.
    :param float end: Animation end time.
+   :param str fmt: Format string (e.g. ``'{:.2f}'`` or ``'${:,.0f}'``).
+   :param easing: Easing function (default ``smooth``).
 
    **Example**
 
@@ -1444,47 +1495,6 @@ Elbow
 
 ----
 
-Paragraph
----------
-
-.. py:class:: Paragraph(*lines, x=960, y=540, font_size=36, alignment='left', line_spacing=1.4, **styling)
-
-   Multi-line text with alignment and line spacing.
-
-   :param lines: Text strings, one per line.
-   :param str alignment: ``'left'``, ``'center'``, or ``'right'``.
-   :param float line_spacing: Multiplier for vertical spacing between lines.
-
-----
-
-BulletedList
-------------
-
-.. py:class:: BulletedList(*items, x=200, y=200, font_size=36, bullet='•', indent=40, **styling)
-
-   List of items with bullet points.
-
-   :param items: Text strings.
-   :param str bullet: Bullet character.
-   :param float indent: Pixel indentation for each item.
-
-----
-
-NumberedList
-------------
-
-.. py:class:: NumberedList(*items, x=200, y=200, font_size=36, indent=50, start_number=1, **styling)
-
-   Bases: similar to :py:class:`BulletedList`
-
-   List of items with numeric labels (1. 2. 3. …).
-
-   :param items: Text strings.
-   :param float indent: Pixel indentation after the number.
-   :param int start_number: First number in the sequence.
-
-----
-
 Fractals & Spirals
 ------------------
 
@@ -1550,6 +1560,19 @@ SurroundingRectangle
    :param VObject target: Object to surround.
    :param float buff: Padding around the target.
    :param bool follow: Track target position dynamically.
+
+.. admonition:: Example
+   :class: example
+
+   **SurroundingRectangle** — highlight an object with a border.
+
+   .. code-block:: python
+
+      from vectormation.objects import *
+      text = Text('Important', font_size=60)
+      text.center_to_pos()
+      sr = SurroundingRectangle(text, buff=15, stroke='#FF6B6B', rx=8, ry=8)
+      sr.create(start=0, end=1)
 
 ----
 
@@ -1636,3 +1659,61 @@ DecimalNumber
       :type: Real
 
       The underlying tracked value.
+
+----
+
+Paragraph
+---------
+
+.. py:class:: Paragraph(*lines, x=960, y=540, font_size=36, alignment='left', line_spacing=1.4, **styling)
+
+   Multi-line text with configurable alignment and line spacing.
+
+   :param lines: Text strings, one per line.
+   :param str alignment: ``'left'``, ``'center'``, or ``'right'``.
+   :param float line_spacing: Vertical spacing multiplier.
+
+   .. code-block:: python
+
+      p = Paragraph('First line of text.',
+                    'Second line here.',
+                    'And a third.',
+                    alignment='center', font_size=32)
+
+----
+
+BulletedList
+------------
+
+.. py:class:: BulletedList(*items, x=200, y=200, font_size=36, bullet='\u2022', indent=40, line_spacing=1.6, **styling)
+
+   List of items with bullet characters.
+
+   :param items: Text strings for each list item.
+   :param str bullet: Bullet character (default ``'•'``).
+   :param float indent: Horizontal indent for the text after the bullet.
+
+   .. code-block:: python
+
+      bl = BulletedList('First point',
+                        'Second point',
+                        'Third point')
+
+----
+
+NumberedList
+------------
+
+.. py:class:: NumberedList(*items, x=200, y=200, font_size=36, indent=50, line_spacing=1.6, start_number=1, **styling)
+
+   List of items with numeric labels (1. 2. 3. ...).
+
+   :param items: Text strings for each list item.
+   :param float indent: Horizontal indent for text after the number.
+   :param int start_number: First number in the sequence.
+
+   .. code-block:: python
+
+      nl = NumberedList('Install the package',
+                        'Import the module',
+                        'Create your animation')

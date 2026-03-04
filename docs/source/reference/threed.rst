@@ -10,23 +10,26 @@ both the coordinate system and the renderer. Surfaces are registered with
 :py:meth:`~ThreeDAxes.add_surface`, primitives with
 :py:meth:`~ThreeDAxes.add_3d`.
 
-.. code-block:: python
+.. admonition:: Example: Creating 3D axes
+   :class: example
 
-   from vectormation.objects import *
-   import math
+   .. code-block:: python
 
-   canvas = VectorMathAnim()
-   canvas.set_background()
+      from vectormation.objects import *
+      import math
 
-   axes = ThreeDAxes(x_range=(-3, 3), y_range=(-3, 3), z_range=(-3, 3))
-   canvas.add_objects(axes)
+      canvas = VectorMathAnim()
+      canvas.set_background()
+
+      axes = ThreeDAxes(x_range=(-3, 3), y_range=(-3, 3), z_range=(-2, 2))
+      canvas.add_objects(axes)
 
 ----
 
 ThreeDAxes
 ----------
 
-.. py:class:: ThreeDAxes(x_range=(-3, 3), y_range=(-3, 3), z_range=(-3, 3), cx=960, cy=540, scale=160, phi=75deg, theta=-30deg, show_ticks=True, show_labels=True, show_grid=False, x_label='x', y_label='y', z_label='z', **styling)
+.. py:class:: ThreeDAxes(x_range=(-3, 3), y_range=(-3, 3), z_range=(-2, 2), cx=960, cy=540, scale=160, phi=75deg, theta=-30deg, show_ticks=True, show_labels=True, show_grid=False, x_label='x', y_label='y', z_label='z', **styling)
 
    Three-dimensional coordinate axes with camera control, ticks, labels, and
    depth-sorted rendering.
@@ -67,10 +70,13 @@ ThreeDAxes
       :param float phi: Target elevation in radians, or ``None`` to keep current.
       :param float theta: Target azimuth in radians, or ``None`` to keep current.
 
-      .. code-block:: python
+      .. admonition:: Example: Rotating camera to top-down view
+         :class: example
 
-         # Rotate camera to a top-down view over 3 seconds
-         axes.set_camera_orientation(0, 3, phi=0, theta=0)
+         .. code-block:: python
+
+            # Rotate camera to a top-down view over 3 seconds
+            axes.set_camera_orientation(0, 3, phi=0, theta=0)
 
    .. py:method:: begin_ambient_camera_rotation(start=0, end=None, rate=0.1)
 
@@ -79,10 +85,13 @@ ThreeDAxes
 
       :param float rate: Angular velocity in radians/second.
 
-      .. code-block:: python
+      .. admonition:: Example: Ambient camera rotation
+         :class: example
 
-         # Slowly orbit the scene for the entire animation
-         axes.begin_ambient_camera_rotation(start=0, rate=0.15)
+         .. code-block:: python
+
+            # Slowly orbit the scene for the entire animation
+            axes.begin_ambient_camera_rotation(start=0, rate=0.15)
 
    .. py:method:: set_camera_preset(name, start=0, end=0.5, easing=smooth)
 
@@ -109,10 +118,13 @@ ThreeDAxes
 
       :param float factor: Multiply the current scale by this factor.
 
-      .. code-block:: python
+      .. admonition:: Example: Zooming in on a 3D scene
+         :class: example
 
-         # Zoom in 2x over 2 seconds
-         axes.set_camera_zoom(2.0, start=0, end=2)
+         .. code-block:: python
+
+            # Zoom in 2x over 2 seconds
+            axes.set_camera_zoom(2.0, start=0, end=2)
 
    .. rubric:: Projection
 
@@ -141,10 +153,13 @@ ThreeDAxes
 
       The default light direction is ``(0.5, -0.5, 0.7071)``.
 
-      .. code-block:: python
+      .. admonition:: Example: Setting light direction
+         :class: example
 
-         # Light from directly above
-         axes.set_light_direction(0, 0, 1)
+         .. code-block:: python
+
+            # Light from directly above
+            axes.set_light_direction(0, 0, 1)
 
    .. rubric:: Adding Surfaces
 
@@ -154,10 +169,13 @@ ThreeDAxes
 
       :param Surface surface: The surface to add.
 
-      .. code-block:: python
+      .. admonition:: Example: Adding a sphere surface
+         :class: example
 
-         sphere = Sphere3D(radius=1.5)
-         axes.add_surface(sphere)
+         .. code-block:: python
+
+            sphere = Sphere3D(radius=1.5)
+            axes.add_surface(sphere)
 
    .. py:method:: plot_surface(func, u_range=None, v_range=None, resolution=(20, 20), fill_color='#4488ff', checkerboard_colors=None, stroke_color='#333', stroke_width=0.5, fill_opacity=0.8)
 
@@ -169,15 +187,18 @@ ThreeDAxes
       :param str fill_color: Base fill colour.
       :param tuple checkerboard_colors: Optional ``(color_a, color_b)`` pair.
 
-      .. code-block:: python
+      .. admonition:: Example: Plotting a Gaussian surface
+         :class: example
 
-         import math
+         .. code-block:: python
 
-         def gaussian(x, y):
-             return math.exp(-(x**2 + y**2) / 0.32)
+            import math
 
-         axes.plot_surface(gaussian, resolution=(24, 24),
-                           checkerboard_colors=('#FF862F', '#4488ff'))
+            def gaussian(x, y):
+                return math.exp(-(x**2 + y**2) / 0.32)
+
+            axes.plot_surface(gaussian, resolution=(24, 24),
+                              checkerboard_colors=('#FF862F', '#4488ff'))
 
    .. rubric:: Adding Primitives
 
@@ -187,10 +208,13 @@ ThreeDAxes
       :py:class:`Arrow3D`, :py:class:`ParametricCurve3D`, :py:class:`Text3D`)
       for depth-sorted rendering.
 
-      .. code-block:: python
+      .. admonition:: Example: Adding 3D primitives
+         :class: example
 
-         axes.add_3d(Dot3D((1, 0, 0), radius=6, fill='#FC6255'))
-         axes.add_3d(Line3D((0, 0, 0), (2, 1, 3), stroke='#FFFF00'))
+         .. code-block:: python
+
+            axes.add_3d(Dot3D((1, 0, 0), radius=6, fill='#FC6255'))
+            axes.add_3d(Line3D((0, 0, 0), (2, 1, 3), stroke='#FFFF00'))
 
    .. rubric:: 3D Curves
 
@@ -202,12 +226,15 @@ ThreeDAxes
       :param callable func: ``y = func(x)`` or ``z = func(x)`` depending on plane.
       :param str plane: ``'xz'`` (default), ``'xy'``, or ``'yz'``.
 
-      .. code-block:: python
+      .. admonition:: Example: 3D function curve
+         :class: example
 
-         import math
+         .. code-block:: python
 
-         curve = axes.get_graph_3d(math.sin, plane='xz',
-                                   stroke='#83C167')
+            import math
+
+            curve = axes.get_graph_3d(math.sin, plane='xz',
+                                      stroke='#83C167')
 
    .. rubric:: Wireframe Surfaces
 
@@ -245,32 +272,38 @@ Surface
 
    **Height-map** -- ``func(x, y) -> z``:
 
-   .. code-block:: python
+   .. admonition:: Example: Height-map surface
+      :class: example
 
-      def paraboloid(x, y):
-          return x**2 + y**2
+      .. code-block:: python
 
-      surface = Surface(paraboloid, u_range=(-2, 2), v_range=(-2, 2))
-      axes.add_surface(surface)
+         def paraboloid(x, y):
+             return x**2 + y**2
+
+         surface = Surface(paraboloid, u_range=(-2, 2), v_range=(-2, 2))
+         axes.add_surface(surface)
 
    **Parametric** -- ``func(u, v) -> (x, y, z)``:
 
-   .. code-block:: python
+   .. admonition:: Example: Parametric Mobius strip
+      :class: example
 
-      import math
+      .. code-block:: python
 
-      def mobius(u, v):
-          x = (1 + v/2 * math.cos(u/2)) * math.cos(u)
-          y = (1 + v/2 * math.cos(u/2)) * math.sin(u)
-          z = v/2 * math.sin(u/2)
-          return (x, y, z)
+         import math
 
-      surface = Surface(mobius,
-                         u_range=(0, math.tau),
-                         v_range=(-0.5, 0.5),
-                         resolution=(40, 8),
-                         fill_color='#58C4DD')
-      axes.add_surface(surface)
+         def mobius(u, v):
+             x = (1 + v/2 * math.cos(u/2)) * math.cos(u)
+             y = (1 + v/2 * math.cos(u/2)) * math.sin(u)
+             z = v/2 * math.sin(u/2)
+             return (x, y, z)
+
+         surface = Surface(mobius,
+                            u_range=(0, math.tau),
+                            v_range=(-0.5, 0.5),
+                            resolution=(40, 8),
+                            fill_color='#58C4DD')
+         axes.add_surface(surface)
 
    :param callable func: Height-map or parametric function.
    :param tuple u_range: ``(min, max)`` for the u parameter.
@@ -287,9 +320,12 @@ Surface
 
       Update the checkerboard colours for this surface. Returns self.
 
-      .. code-block:: python
+      .. admonition:: Example: Setting checkerboard colours
+         :class: example
 
-         surface.set_checkerboard('#FC6255', '#c44030')
+         .. code-block:: python
+
+            surface.set_checkerboard('#FC6255', '#c44030')
 
 ----
 
@@ -309,19 +345,22 @@ SurfaceMesh
    :param float stroke_width: Line width (default ``1``).
    :param float stroke_opacity: Line opacity (default ``0.4``).
 
-   .. code-block:: python
+   .. admonition:: Example: Surface with wireframe mesh overlay
+      :class: example
 
-      import math
+      .. code-block:: python
 
-      def saddle(x, y):
-          return (x**2 - y**2) / 4
+         import math
 
-      surface = Surface(saddle, resolution=(20, 20),
-                         fill_color='#58C4DD', fill_opacity=0.8)
-      mesh = SurfaceMesh(surface, stroke_color='#ffffff',
-                          stroke_opacity=0.3)
-      axes.add_surface(surface)
-      axes.add_surface(mesh)
+         def saddle(x, y):
+             return (x**2 - y**2) / 4
+
+         surface = Surface(saddle, resolution=(20, 20),
+                            fill_color='#58C4DD', fill_opacity=0.8)
+         mesh = SurfaceMesh(surface, stroke_color='#ffffff',
+                             stroke_opacity=0.3)
+         axes.add_surface(surface)
+         axes.add_surface(mesh)
 
 ----
 
@@ -351,10 +390,13 @@ Line3D
 
       Return the Euclidean length.
 
-   .. code-block:: python
+   .. admonition:: Example: Line segment in 3D
+      :class: example
 
-      line = Line3D((0, 0, 0), (2, 1, 3), stroke='#FFFF00')
-      axes.add_3d(line)
+      .. code-block:: python
+
+         line = Line3D((0, 0, 0), (2, 1, 3), stroke='#FFFF00')
+         axes.add_3d(line)
 
 Arrow3D
 ^^^^^^^
@@ -377,11 +419,14 @@ Arrow3D
 
       Return the Euclidean length of the shaft.
 
-   .. code-block:: python
+   .. admonition:: Example: Arrow in 3D space
+      :class: example
 
-      arrow = Arrow3D((0, 0, 0), (1, 1, 2), stroke='#FC6255',
-                       tip_length=14, tip_radius=5)
-      axes.add_3d(arrow)
+      .. code-block:: python
+
+         arrow = Arrow3D((0, 0, 0), (1, 1, 2), stroke='#FC6255',
+                          tip_length=14, tip_radius=5)
+         axes.add_3d(arrow)
 
 Dot3D
 ^^^^^
@@ -402,10 +447,13 @@ Dot3D
 
       Set the dot radius. Returns self.
 
-   .. code-block:: python
+   .. admonition:: Example: Dot in 3D space
+      :class: example
 
-      dot = Dot3D((1, 0, 0), radius=6, fill='#83C167')
-      axes.add_3d(dot)
+      .. code-block:: python
+
+         dot = Dot3D((1, 0, 0), radius=6, fill='#83C167')
+         axes.add_3d(dot)
 
 ParametricCurve3D
 ^^^^^^^^^^^^^^^^^
@@ -420,19 +468,22 @@ ParametricCurve3D
    :param str stroke: Stroke colour.
    :param float stroke_width: Stroke width.
 
-   .. code-block:: python
+   .. admonition:: Example: Parametric helix curve
+      :class: example
 
-      import math
+      .. code-block:: python
 
-      def helix(t):
-          return (math.cos(t), math.sin(t), t / (2 * math.pi))
+         import math
 
-      curve = ParametricCurve3D(helix,
-                                 t_range=(0, 4 * math.pi),
-                                 num_points=200,
-                                 stroke='#FFFF00',
-                                 stroke_width=3)
-      axes.add_3d(curve)
+         def helix(t):
+             return (math.cos(t), math.sin(t), t / (2 * math.pi))
+
+         curve = ParametricCurve3D(helix,
+                                    t_range=(0, 4 * math.pi),
+                                    num_points=200,
+                                    stroke='#FFFF00',
+                                    stroke_width=3)
+         axes.add_3d(curve)
 
 Text3D
 ^^^^^^
@@ -455,10 +506,13 @@ Text3D
 
       Update the displayed text. Returns self.
 
-   .. code-block:: python
+   .. admonition:: Example: Text label in 3D
+      :class: example
 
-      label = Text3D('Origin', point=(0, 0, 0), font_size=18)
-      axes.add_3d(label)
+      .. code-block:: python
+
+         label = Text3D('Origin', point=(0, 0, 0), font_size=18)
+         axes.add_3d(label)
 
 ----
 
@@ -484,11 +538,14 @@ Sphere3D
 
    Default fill: ``#FC6255``.
 
-   .. code-block:: python
+   .. admonition:: Example: Creating a sphere
+      :class: example
 
-      sphere = Sphere3D(radius=1.5,
-                         checkerboard_colors=('#FC6255', '#c44030'))
-      axes.add_surface(sphere)
+      .. code-block:: python
+
+         sphere = Sphere3D(radius=1.5,
+                            checkerboard_colors=('#FC6255', '#c44030'))
+         axes.add_surface(sphere)
 
 Cube
 ^^^^
@@ -503,11 +560,14 @@ Cube
 
    Default fill: ``#58C4DD``.
 
-   .. code-block:: python
+   .. admonition:: Example: Creating a cube
+      :class: example
 
-      faces = Cube(side_length=2)
-      for face in faces:
-          axes.add_surface(face)
+      .. code-block:: python
+
+         faces = Cube(side_length=2)
+         for face in faces:
+             axes.add_surface(face)
 
 Cylinder3D
 ^^^^^^^^^^
@@ -595,11 +655,14 @@ Tetrahedron
 
    Default fill: ``#58C4DD``, default stroke: ``#FFFFFF``.
 
-   .. code-block:: python
+   .. admonition:: Example: Creating a tetrahedron
+      :class: example
 
-      faces = Tetrahedron(size=1.2, fill_color='#FC6255')
-      for face in faces:
-          axes.add_surface(face)
+      .. code-block:: python
+
+         faces = Tetrahedron(size=1.2, fill_color='#FC6255')
+         for face in faces:
+             axes.add_surface(face)
 
 Octahedron
 ^^^^^^^^^^
@@ -640,123 +703,31 @@ Dodecahedron
    :param float size: Scale factor applied to vertex coordinates.
    :returns: ``list[Surface]``
 
-----
+.. admonition:: Example: 3D surface with camera rotation
+   :class: example
 
-Full Example
-------------
+   .. raw:: html
 
-The following example creates a 3D scene with a surface, a helix curve, and
-an animated camera:
+      <video src="../_static/videos/3d_surface.mp4" controls autoplay loop muted></video>
 
-.. code-block:: python
+   Gaussian surface with ambient camera rotation.
 
-   from vectormation.objects import *
-   import math
+   .. literalinclude:: ../../../examples/reference/3d_surface.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display
 
-   canvas = VectorMathAnim()
-   canvas.set_background()
+.. admonition:: Example: 3D primitives
+   :class: example
 
-   axes = ThreeDAxes(x_range=(-3, 3), y_range=(-3, 3), z_range=(-1, 3))
+   .. raw:: html
 
-   # Height-map surface
-   def saddle(x, y):
-       return (x**2 - y**2) / 6
+      <img src="../_static/videos/3d_primitives.svg" style="width:100%; max-width:800px;" />
 
-   axes.plot_surface(saddle, resolution=(20, 20),
-                     fill_color='#58C4DD', fill_opacity=0.8)
+   Dot, line, and arrow in 3D space.
 
-   # Parametric helix curve
-   def helix(t):
-       return (math.cos(t), math.sin(t), t / (2 * math.pi))
+   .. literalinclude:: ../../../examples/reference/3d_primitives.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display
 
-   curve = ParametricCurve3D(helix,
-                              t_range=(0, 4 * math.pi),
-                              num_points=200,
-                              stroke='#FFFF00', stroke_width=3)
-   axes.add_3d(curve)
-
-   # Dot at the helix start
-   axes.add_3d(Dot3D((1, 0, 0), radius=6, fill='#FC6255'))
-
-   # Animate the camera: full 360-degree rotation over 6 seconds
-   axes.begin_ambient_camera_rotation(start=0, rate=math.tau / 6)
-
-   # Adjust lighting
-   axes.set_light_direction(0, 0, 1)
-
-   canvas.add_objects(axes)
-   canvas.browser_display(start=0, end=6, fps=30)
-
-----
-
-3D Primitive Factory Functions
-------------------------------
-
-These factory functions create common 3D shapes as collections of patches
-that can be added to a :py:class:`ThreeDAxes` with ``axes.add_3d()``.
-
-.. py:function:: Sphere3D(cx=0, cy=0, cz=0, radius=1, resolution=(20, 20), fill_color='#58C4DD', fill_opacity=0.8, stroke_width=0.5)
-   :no-index:
-
-   Create a sphere at ``(cx, cy, cz)`` with the given radius.
-
-.. py:function:: Cube(cx=0, cy=0, cz=0, side=2, fill_color='#58C4DD', fill_opacity=0.8)
-   :no-index:
-
-   Create an axis-aligned cube centered at ``(cx, cy, cz)``.
-
-.. py:function:: Cylinder3D(cx=0, cy=0, cz=0, radius=1, height=2, resolution=(20, 2), fill_color='#58C4DD', fill_opacity=0.8)
-   :no-index:
-
-   Create a cylinder along the z-axis.
-
-.. py:function:: Cone3D(cx=0, cy=0, cz=0, radius=1, height=2, resolution=(20, 1), fill_color='#58C4DD', fill_opacity=0.8)
-   :no-index:
-
-   Create a cone with its apex pointing up the z-axis.
-
-.. py:function:: Torus3D(cx=0, cy=0, cz=0, major_radius=2, minor_radius=0.5, resolution=(30, 15), fill_color='#58C4DD', fill_opacity=0.8)
-   :no-index:
-
-   Create a torus (donut) in the xy-plane.
-
-.. py:function:: Prism3D(cx=0, cy=0, cz=0, sides=6, radius=1, height=2, fill_color='#58C4DD', fill_opacity=0.8)
-   :no-index:
-
-   Create a regular prism (hexagonal by default).
-
-.. py:function:: Tetrahedron(cx=0, cy=0, cz=0, side=2, fill_color='#58C4DD', fill_opacity=0.8)
-   :no-index:
-
-   Create a regular tetrahedron (4 equilateral triangle faces).
-
-.. py:function:: Octahedron(cx=0, cy=0, cz=0, side=2, fill_color='#58C4DD', fill_opacity=0.8)
-   :no-index:
-
-   Create a regular octahedron (8 equilateral triangle faces).
-
-.. py:function:: Icosahedron(cx=0, cy=0, cz=0, side=2, fill_color='#58C4DD', fill_opacity=0.8)
-   :no-index:
-
-   Create a regular icosahedron (20 equilateral triangle faces).
-
-.. py:function:: Dodecahedron(cx=0, cy=0, cz=0, side=2, fill_color='#58C4DD', fill_opacity=0.8)
-   :no-index:
-
-   Create a regular dodecahedron (12 pentagonal faces).
-
-.. code-block:: python
-
-   from vectormation.objects import *
-
-   canvas = VectorMathAnim()
-   canvas.set_background()
-
-   axes = ThreeDAxes(x_range=(-3, 3), y_range=(-3, 3), z_range=(-3, 3))
-   axes.add_3d(Sphere3D(cx=-1.5, cy=0, cz=0, radius=0.8, fill_color='#FF6B6B'))
-   axes.add_3d(Cube(cx=1.5, cy=0, cz=0, side=1.2, fill_color='#58C4DD'))
-   axes.add_3d(Torus3D(cy=2, major_radius=1, minor_radius=0.3, fill_color='#83C167'))
-
-   axes.begin_ambient_camera_rotation(start=0, rate=1)
-   canvas.add_objects(axes)
-   canvas.browser_display(start=0, end=6, fps=30)

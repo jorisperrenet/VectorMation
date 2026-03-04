@@ -1,172 +1,9 @@
-Science & Electronics
-=====================
+Science
+=======
 
-Scientific visualization and electronic component classes. Circuit components
-(Resistor, Capacitor, etc.) draw standard schematic symbols between two
-endpoints and support arbitrary rotation via the ``(x1, y1) -> (x2, y2)``
-convention. Higher-level classes such as :py:class:`NeuralNetwork`,
-:py:class:`Pendulum`, and :py:class:`StandingWave` combine geometry with
-time-varying animation.
-
-.. code-block:: python
-
-   from vectormation.objects import *
-
-----
-
-Resistor
---------
-
-.. py:class:: Resistor(x1=400, y1=540, x2=600, y2=540, label='R', creation=0, z=0, **styling_kwargs)
-   :no-index:
-
-   Electrical resistor schematic symbol drawn as a zigzag line between two
-   endpoints, with optional lead wires on each side.
-
-   :param float x1: Start x-coordinate.
-   :param float y1: Start y-coordinate.
-   :param float x2: End x-coordinate.
-   :param float y2: End y-coordinate.
-   :param str label: Text label placed beside the symbol. Pass ``''`` to hide.
-   :param float creation: Creation time.
-   :param float z: Z-index for layering.
-   :param styling_kwargs: Additional SVG styling (default ``stroke='#fff'``,
-      ``stroke_width=2``).
-
-   .. code-block:: python
-
-      r = Resistor(x1=400, y1=540, x2=700, y2=540, label='R1')
-
-   The component can be placed at any angle by choosing different endpoints:
-
-   .. code-block:: python
-
-      # Vertical resistor
-      r_vert = Resistor(x1=960, y1=300, x2=960, y2=600, label='R2')
-
-----
-
-Capacitor
----------
-
-.. py:class:: Capacitor(x1=400, y1=540, x2=600, y2=540, label='C', creation=0, z=0, **styling_kwargs)
-   :no-index:
-
-   Electrical capacitor symbol: two parallel plates with lead wires.
-
-   :param float x1: Start x-coordinate.
-   :param float y1: Start y-coordinate.
-   :param float x2: End x-coordinate.
-   :param float y2: End y-coordinate.
-   :param str label: Text label placed beside the symbol. Pass ``''`` to hide.
-   :param float creation: Creation time.
-   :param float z: Z-index for layering.
-   :param styling_kwargs: Additional SVG styling (default ``stroke='#fff'``,
-      ``stroke_width=2``).
-
-   .. code-block:: python
-
-      c = Capacitor(x1=400, y1=540, x2=600, y2=540, label='C1')
-
-----
-
-Inductor
---------
-
-.. py:class:: Inductor(x1=400, y1=540, x2=600, y2=540, label='L', n_loops=4, creation=0, z=0, **styling_kwargs)
-   :no-index:
-
-   Electrical inductor symbol drawn as a series of semicircular arcs
-   (coil / solenoid) between two endpoints.
-
-   :param float x1: Start x-coordinate.
-   :param float y1: Start y-coordinate.
-   :param float x2: End x-coordinate.
-   :param float y2: End y-coordinate.
-   :param str label: Text label placed beside the symbol. Pass ``''`` to hide.
-   :param int n_loops: Number of coil loops.
-   :param float creation: Creation time.
-   :param float z: Z-index for layering.
-   :param styling_kwargs: Additional SVG styling (default ``stroke='#fff'``,
-      ``stroke_width=2``).
-
-   .. code-block:: python
-
-      ind = Inductor(x1=400, y1=540, x2=700, y2=540, n_loops=6, label='L1')
-
-----
-
-Diode
------
-
-.. py:class:: Diode(x1=400, y1=540, x2=600, y2=540, label='D', creation=0, z=0, **styling_kwargs)
-   :no-index:
-
-   Electrical diode symbol: a triangle pointing in the direction of current
-   flow with a bar at the tip, plus lead wires.
-
-   :param float x1: Start (anode side) x-coordinate.
-   :param float y1: Start (anode side) y-coordinate.
-   :param float x2: End (cathode side) x-coordinate.
-   :param float y2: End (cathode side) y-coordinate.
-   :param str label: Text label placed beside the symbol. Pass ``''`` to hide.
-   :param float creation: Creation time.
-   :param float z: Z-index for layering.
-   :param styling_kwargs: Additional SVG styling (default ``stroke='#fff'``,
-      ``stroke_width=2``).
-
-   .. code-block:: python
-
-      d = Diode(x1=400, y1=540, x2=600, y2=540, label='D1')
-
-----
-
-LED
----
-
-.. py:class:: LED(x1=400, y1=540, x2=600, y2=540, label='LED', color='#FF0000', creation=0, z=0, **styling_kwargs)
-   :no-index:
-
-   Light-emitting diode symbol: a :py:class:`Diode` with two small rays
-   emanating from the junction to indicate light emission.
-
-   :param float x1: Start (anode side) x-coordinate.
-   :param float y1: Start (anode side) y-coordinate.
-   :param float x2: End (cathode side) x-coordinate.
-   :param float y2: End (cathode side) y-coordinate.
-   :param str label: Text label placed beside the symbol. Pass ``''`` to hide.
-   :param str color: Stroke color for the light rays (e.g. ``'#FF0000'``
-      for red, ``'#00FF00'`` for green).
-   :param float creation: Creation time.
-   :param float z: Z-index for layering.
-   :param styling_kwargs: Passed through to the underlying :py:class:`Diode`.
-
-   .. code-block:: python
-
-      led = LED(x1=400, y1=540, x2=600, y2=540, color='#00FF00', label='LED1')
-
-----
-
-Circuit example
-^^^^^^^^^^^^^^^
-
-All five electronic components can be chained to form a schematic:
-
-.. code-block:: python
-
-   from vectormation.objects import *
-
-   canvas = VectorMathAnim()
-   canvas.set_background()
-
-   r = Resistor(x1=200, y1=400, x2=500, y2=400, label='R')
-   c = Capacitor(x1=500, y1=400, x2=800, y2=400, label='C')
-   ind = Inductor(x1=800, y1=400, x2=1100, y2=400, label='L')
-   d = Diode(x1=1100, y1=400, x2=1400, y2=400, label='D')
-   led = LED(x1=1400, y1=400, x2=1700, y2=400, label='LED', color='#FF0000')
-
-   canvas.add_objects(r, c, ind, d, led)
-   canvas.browser_display()
+Scientific visualization classes. Higher-level classes such as
+:py:class:`NeuralNetwork`, :py:class:`Pendulum`, and :py:class:`StandingWave`
+combine geometry with time-varying animation.
 
 ----
 
@@ -195,9 +32,12 @@ UnitInterval
       ``UnitInterval`` uses ``__new__`` and returns a ``NumberLine`` instance
       directly, so ``isinstance(UnitInterval(), NumberLine)`` is ``True``.
 
-   .. code-block:: python
+   .. admonition:: Example: Create a unit interval
+      :class: example
 
-      ui = UnitInterval(x=360, y=540, tick_step=0.25)
+      .. code-block:: python
+
+         ui = UnitInterval(x=360, y=540, tick_step=0.25)
 
 ----
 
@@ -242,21 +82,26 @@ Molecule2D
    I       ``#8800FF``  Iodine
    ======= ============ ============
 
-   .. code-block:: python
+   .. admonition:: Example: Water molecule
+      :class: example
 
-      # Water molecule (H2O)
-      water = Molecule2D(
-          atoms=[('O', 0, 0), ('H', -0.8, 0.6), ('H', 0.8, 0.6)],
-          bonds=[(0, 1), (0, 2)],
-      )
+      .. code-block:: python
 
-   .. code-block:: python
+         # Water molecule (H2O)
+         water = Molecule2D(
+             atoms=[('O', 0, 0), ('H', -0.8, 0.6), ('H', 0.8, 0.6)],
+             bonds=[(0, 1), (0, 2)],
+         )
 
-      # Carbon dioxide with double bonds
-      co2 = Molecule2D(
-          atoms=[('O', -1.2, 0), ('C', 0, 0), ('O', 1.2, 0)],
-          bonds=[(0, 1, 2), (1, 2, 2)],
-      )
+   .. admonition:: Example: Carbon dioxide with double bonds
+      :class: example
+
+      .. code-block:: python
+
+         co2 = Molecule2D(
+             atoms=[('O', -1.2, 0), ('C', 0, 0), ('O', 1.2, 0)],
+             bonds=[(0, 1, 2), (1, 2, 2)],
+         )
 
 ----
 
@@ -332,12 +177,29 @@ NeuralNetwork
       :param str color: Neuron flash color.
       :param str edge_color: Edge flash color.
 
-   .. code-block:: python
+   .. admonition:: Example: Basic neural network with propagation
+      :class: example
 
-      nn = NeuralNetwork([3, 5, 4, 2])
-      nn.label_input(['x1', 'x2', 'x3'])
-      nn.label_output(['y1', 'y2'])
-      nn.propagate(start=0, duration=3)
+      .. code-block:: python
+
+         nn = NeuralNetwork([3, 5, 4, 2])
+         nn.label_input(['x1', 'x2', 'x3'])
+         nn.label_output(['y1', 'y2'])
+         nn.propagate(start=0, duration=3)
+
+   .. admonition:: Example: NeuralNetwork propagation
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/neuralnet.mp4" controls autoplay loop muted></video>
+
+      Neural network with forward propagation animation.
+
+      .. literalinclude:: ../../../examples/reference/neuralnet.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
 ----
 
@@ -378,27 +240,45 @@ Pendulum
 
       The bob circle at the end of the rod.
 
-   .. code-block:: python
+   .. admonition:: Example: Damped pendulum
+      :class: example
 
-      from vectormation.objects import *
+      .. code-block:: python
 
-      canvas = VectorMathAnim()
-      canvas.set_background()
+         from vectormation.objects import *
 
-      p = Pendulum(angle=45, period=1.5, damping=0.1, start=0, end=10)
-      canvas.add_objects(p)
-      canvas.browser_display()
+         canvas = VectorMathAnim()
+         canvas.set_background()
 
-   Multiple pendulums with different periods can illustrate phase relationships:
+         p = Pendulum(angle=45, period=1.5, damping=0.1, start=0, end=10)
+         canvas.add_objects(p)
+         canvas.browser_display()
 
-   .. code-block:: python
+   .. admonition:: Example: Pendulum with trail
+      :class: example
 
-      pendulums = [
-          Pendulum(pivot_x=400 + i * 200, angle=30,
-                   period=1.0 + i * 0.2, end=10)
-          for i in range(5)
-      ]
-      canvas.add_objects(*pendulums)
+      .. raw:: html
+
+         <video src="../_static/videos/pendulum.mp4" controls autoplay loop muted></video>
+
+      Damped pendulum with traced path.
+
+      .. literalinclude:: ../../../examples/reference/pendulum.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
+
+   .. admonition:: Example: Multiple pendulums with phase relationships
+      :class: example
+
+      .. code-block:: python
+
+         pendulums = [
+             Pendulum(pivot_x=400 + i * 200, angle=30,
+                      period=1.0 + i * 0.2, end=10)
+             for i in range(5)
+         ]
+         canvas.add_objects(*pendulums)
 
 ----
 
@@ -443,142 +323,34 @@ StandingWave
 
       The animated wave path whose ``d`` attribute is recomputed each frame.
 
-   .. code-block:: python
+   .. admonition:: Example: Third harmonic standing wave
+      :class: example
 
-      from vectormation.objects import *
+      .. code-block:: python
 
-      canvas = VectorMathAnim()
-      canvas.set_background()
+         from vectormation.objects import *
 
-      wave = StandingWave(harmonics=3, frequency=2.0, amplitude=80,
-                          start=0, end=6)
-      canvas.add_objects(wave)
-      canvas.browser_display()
+         canvas = VectorMathAnim()
+         canvas.set_background()
 
-   Display multiple harmonics stacked vertically:
+         wave = StandingWave(harmonics=3, frequency=2.0, amplitude=80,
+                             start=0, end=6)
+         canvas.add_objects(wave)
+         canvas.browser_display()
 
-   .. code-block:: python
+   .. admonition:: Example: Multiple harmonics stacked vertically
+      :class: example
 
-      waves = [
-          StandingWave(y1=200 + i * 150, y2=200 + i * 150,
-                       harmonics=i + 1, frequency=1.0, end=8,
-                       stroke=['#58C4DD', '#FF6B6B', '#83C167',
-                               '#FFFF00'][i])
-          for i in range(4)
-      ]
-      canvas.add_objects(*waves)
+      .. code-block:: python
 
-----
-
-Examples
---------
-
-RLC circuit with component labels
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   from vectormation.objects import *
-
-   canvas = VectorMathAnim()
-   canvas.set_background()
-
-   y = 540
-   r = Resistor(x1=200, y1=y, x2=500, y2=y, label='100\u03A9')
-   ind = Inductor(x1=500, y1=y, x2=850, y2=y, label='10mH')
-   c = Capacitor(x1=850, y1=y, x2=1100, y2=y, label='47\u00B5F')
-
-   canvas.add_objects(r, ind, c)
-   canvas.browser_display()
-
-Neural network with activation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   from vectormation.objects import *
-
-   canvas = VectorMathAnim()
-   canvas.set_background()
-
-   nn = NeuralNetwork([4, 6, 6, 3], width=900, height=500)
-   nn.label_input(['x1', 'x2', 'x3', 'x4'])
-   nn.label_output(['cat', 'dog', 'bird'])
-   nn.propagate(start=0, duration=4, color='#FFFF00')
-   nn.highlight_path([1, 3, 2, 0], start=5, delay=0.5)
-
-   canvas.add_objects(nn)
-   canvas.browser_display()
-
-Damped pendulum
-^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   from vectormation.objects import *
-
-   canvas = VectorMathAnim()
-   canvas.set_background()
-
-   p = Pendulum(pivot_x=960, pivot_y=150, length=350, angle=60,
-                period=2.0, damping=0.15, start=0, end=12)
-
-   # Trace the path of the bob
-   trail = p.bob.trace_path(start=0, end=12, stroke='#FF6B6B',
-                             stroke_width=1, stroke_opacity=0.5)
-
-   canvas.add_objects(p, trail)
-   canvas.browser_display()
-
-Charge
-------
-
-.. py:class:: Charge(magnitude=1, cx=960, cy=540, radius=None, color=None, add_glow=True, glow_layers=12, creation=0, z=0, **styling_kwargs)
-
-   Electrostatic point charge with a colored circle and +/- symbol.
-   Positive charges are drawn in red with a "+" sign, negative charges
-   in blue with a "-" sign.  Optional concentric translucent rings
-   create a glow effect.
-
-   :param float magnitude: Charge strength. Positive = red "+", negative = blue "-".
-   :param float cx: Center x-coordinate.
-   :param float cy: Center y-coordinate.
-   :param float radius: Circle radius. ``None`` auto-scales from magnitude.
-   :param str color: Override the automatic red/blue color.
-   :param bool add_glow: Draw concentric translucent rings for a glow effect.
-   :param int glow_layers: Number of glow rings (more = smoother but heavier).
-   :param float creation: Creation time.
-   :param float z: Z-index for layering.
-
-   .. code-block:: python
-
-      q_pos = Charge(magnitude=3, cx=600, cy=540)
-      q_neg = Charge(magnitude=-2, cx=1300, cy=540)
-
-----
-
-ElectricField
--------------
-
-.. py:class:: ElectricField(*charges, x_range=(60, 1860, 120), y_range=(60, 1020, 120), max_length=80, color='#58C4DD', creation=0, z=0, **styling_kwargs)
-
-   Electric field visualization from a list of :py:class:`Charge` objects.
-   Computes Coulomb superposition at grid points and renders arrows
-   via ``ArrowVectorField``.
-
-   :param Charge charges: One or more Charge instances (positional args).
-   :param tuple x_range: Grid sampling x-range as ``(min, max, step)``.
-   :param tuple y_range: Grid sampling y-range as ``(min, max, step)``.
-   :param float max_length: Maximum arrow length in pixels.
-   :param str color: Arrow color.
-   :param float creation: Creation time.
-   :param float z: Z-index for layering.
-
-   .. code-block:: python
-
-      q1 = Charge(magnitude=3, cx=600, cy=540)
-      q2 = Charge(magnitude=-3, cx=1300, cy=540)
-      field = ElectricField(q1, q2)
+         waves = [
+             StandingWave(y1=200 + i * 150, y2=200 + i * 150,
+                          harmonics=i + 1, frequency=1.0, end=8,
+                          stroke=['#58C4DD', '#FF6B6B', '#83C167',
+                                  '#FFFF00'][i])
+             for i in range(4)
+         ]
+         canvas.add_objects(*waves)
 
 ----
 
@@ -613,11 +385,14 @@ Lens
       :param float obj_y: Object y-coordinate.
       :returns: ``(image_x, image_y)`` or ``None``.
 
-   .. code-block:: python
+   .. admonition:: Example: Compute image point through a lens
+      :class: example
 
-      lens = Lens(focal_length=200, height=400)
-      # Compute where an object at (400, 400) forms its image:
-      img = lens.image_point(400, 400)
+      .. code-block:: python
+
+         lens = Lens(focal_length=200, height=400)
+         # Compute where an object at (400, 400) forms its image:
+         img = lens.image_point(400, 400)
 
 ----
 
@@ -641,80 +416,10 @@ Ray
    :param float creation: Creation time.
    :param float z: Z-index for layering.
 
-   .. code-block:: python
+   .. admonition:: Example: Ray refracting through a lens
+      :class: example
 
-      lens = Lens(focal_length=200)
-      ray = Ray(x1=200, y1=400, angle=5, lenses=[lens], show_arrow=True)
+      .. code-block:: python
 
-----
-
-Electrostatics example
-^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   from vectormation.objects import *
-
-   canvas = VectorMathAnim()
-   canvas.set_background()
-
-   q1 = Charge(magnitude=3, cx=600, cy=540)
-   q2 = Charge(magnitude=-3, cx=1300, cy=540)
-   field = ElectricField(q1, q2)
-
-   canvas.add_objects(field, q1, q2)
-   canvas.browser_display()
-
-Optics example
-^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   from vectormation.objects import *
-
-   canvas = VectorMathAnim()
-   canvas.set_background()
-
-   lens = Lens(focal_length=200, height=400)
-
-   # Three parallel rays at different heights
-   rays = [
-       Ray(x1=200, y1=440, lenses=[lens], show_arrow=True),
-       Ray(x1=200, y1=540, lenses=[lens], show_arrow=True),
-       Ray(x1=200, y1=640, lenses=[lens], show_arrow=True),
-   ]
-
-   canvas.add_objects(lens, *rays)
-   canvas.browser_display()
-
-----
-
-Molecule gallery
-^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   from vectormation.objects import *
-
-   canvas = VectorMathAnim()
-   canvas.set_background()
-
-   # Methane (CH4) - tetrahedral layout approximation
-   methane = Molecule2D(
-       atoms=[('C', 0, 0), ('H', -1, -0.7), ('H', 1, -0.7),
-              ('H', -0.7, 0.9), ('H', 0.7, 0.9)],
-       bonds=[(0, 1), (0, 2), (0, 3), (0, 4)],
-       cx=480, cy=540,
-   )
-
-   # Ethylene (C2H4) with double bond
-   ethylene = Molecule2D(
-       atoms=[('C', -0.6, 0), ('C', 0.6, 0),
-              ('H', -1.3, -0.6), ('H', -1.3, 0.6),
-              ('H', 1.3, -0.6), ('H', 1.3, 0.6)],
-       bonds=[(0, 1, 2), (0, 2), (0, 3), (1, 4), (1, 5)],
-       cx=1440, cy=540,
-   )
-
-   canvas.add_objects(methane, ethylene)
-   canvas.browser_display()
+         lens = Lens(focal_length=200)
+         ray = Ray(x1=200, y1=400, angle=5, lenses=[lens], show_arrow=True)

@@ -781,7 +781,7 @@ class Text(VObject):
         self._font_family = family
         return self
 
-    def set_text(self, start: float = 0, end: float = 1, new_text='', easing=easings.smooth):
+    def set_text(self, new_text='', start: float = 0, end: float = 1, easing=easings.smooth):
         """Fade out old text and fade in new text over [start, end].
         Opacity goes to 0 at midpoint, text changes, opacity returns."""
         if start >= end:
@@ -1443,8 +1443,13 @@ class Image(VObject):
         return f'Image({self.width.at_time(0):.0f}x{self.height.at_time(0):.0f})'
 
     def to_svg(self, time):
-        """Return the SVG <image> element string."""
-        href = _xml_escape(str(self.href)).replace("'", '&apos;')
+        """Return the SVG <image> element string.
+
+        ``href`` may be a string or a callable ``f(time) -> str`` for
+        per-frame dynamic images (e.g. data-URI PNGs).
+        """
+        raw = self.href(time) if callable(self.href) else self.href
+        href = _xml_escape(str(raw)).replace("'", '&apos;')
         return (f"<image href='{href}' x='{self.x.at_time(time)}' y='{self.y.at_time(time)}'"
                 f" width='{self.width.at_time(time)}' height='{self.height.at_time(time)}'"
                 f"{self.styling.svg_style(time)} />")

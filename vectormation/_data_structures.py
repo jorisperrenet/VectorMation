@@ -93,7 +93,7 @@ class Array(VCollection):
     def set_value(self, index, value, start: float = 0, end: float = 0.5):
         """Animate changing a cell's displayed value."""
         self._check_index(index)
-        self._labels[index].set_text(start, end, str(value))
+        self._labels[index].set_text(str(value), start, end)
         return self
 
     def sort(self, start: float = 0, end: float = 2, easing=easings.smooth, delay: float = 0.15):
@@ -435,7 +435,7 @@ class ArrayViz(VCollection):
         if 0 <= index < len(self._labels):
             lbl = self._labels[index]
             if end is not None:
-                lbl.set_text(start, end, str(new_val))
+                lbl.set_text(str(new_val), start, end)
             else:
                 lbl.text.set_onward(start, str(new_val))
             self.values[index] = new_val

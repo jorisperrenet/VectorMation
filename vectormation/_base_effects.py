@@ -138,7 +138,7 @@ class _VObjectEffectsMixin:
             flicker = (math.sin(math.tau * _freq * p) *
                        math.sin(3.7 * math.pi * _freq * p) *
                        math.sin(5.3 * math.pi * _freq * p))
-            depth = (1 - _mo) * max(0, -flicker) * (1 - _e(p))
+            depth = (1 - _mo) * abs(flicker) * (1 - _e(p))
             return 1 - depth
         self.styling.opacity.set(start, end, _opacity, stay=True)
         return self
@@ -461,13 +461,17 @@ class _VObjectEffectsMixin:
 
     def show_if(self, condition_func, start: float = 0, end: float | None = None):
         """Show the object only when *condition_func(time)* returns True."""
+        # Capture original values before overwriting so the reset at `end` is correct.
+        if end is not None:
+            orig_opacity = self.styling.opacity.at_time(end)
+            orig_fill_opacity = self.styling.fill_opacity.at_time(end)
         def _opacity(t):
             return 1 if condition_func(t) else 0
         self.styling.opacity.set_onward(start, _opacity)
         self.styling.fill_opacity.set_onward(start, _opacity)
         if end is not None:
-            self.styling.opacity.set_onward(end, self.styling.opacity.at_time(end))
-            self.styling.fill_opacity.set_onward(end, self.styling.fill_opacity.at_time(end))
+            self.styling.opacity.set_onward(end, orig_opacity)
+            self.styling.fill_opacity.set_onward(end, orig_fill_opacity)
         return self
 
     @staticmethod
@@ -595,7 +599,7 @@ class _VObjectEffectsMixin:
             seg_e = start + dur * (i + 1) / (n - 1)
             _d = max(seg_e - seg_s, 1e-9)
             src.set(seg_s, seg_e, _make_interp(parsed[i], parsed[i + 1], seg_s, _d, easing),
-                    stay=(i == n - 2))
+                    stay=True)
         return self
 
     def freeze(self, start: float = 0, end: float | None = None):
@@ -679,7 +683,7 @@ class _VObjectEffectsMixin:
         tx, ty = target if isinstance(target, tuple) else target.get_center(start)
         cx, cy = self.get_center(start)
         angle_deg = math.degrees(math.atan2(ty - cy, tx - cx))
-        return self.rotate_to(start, end or start, angle_deg, easing=easing)
+        return self.rotate_to(start, end if end is not None else start, angle_deg, easing=easing)
 
     def animate_to(self, target_obj, start: float = 0, end: float = 1, easing=None):
         """Animate position, scale, and colors to match *target_obj*."""

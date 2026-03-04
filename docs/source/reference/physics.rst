@@ -6,22 +6,25 @@ VObject attributes. Physics bodies are stepped via semi-implicit Euler
 integration at a configurable ``dt``, then positions are baked as time
 functions so the SVG renderer can sample any frame.
 
-.. code-block:: python
+.. admonition:: Example: Basic bouncing ball
+   :class: example
 
-   from vectormation.objects import *
-   from vectormation._physics import PhysicsSpace
+   .. code-block:: python
 
-   canvas = VectorMathAnim()
-   canvas.set_background()
+      from vectormation.objects import *
+      from vectormation._physics import PhysicsSpace
 
-   space = PhysicsSpace(gravity=(0, 980), dt=1/120)
-   ball = Circle(r=20, cx=960, cy=100, fill='#58C4DD')
-   b = space.add_body(ball, mass=1, restitution=0.7)
-   space.add_wall(y=900)     # floor
-   space.simulate(duration=5)
+      canvas = VectorMathAnim()
+      canvas.set_background()
 
-   canvas.add_objects(ball)
-   canvas.browser_display(fps=60)
+      space = PhysicsSpace(gravity=(0, 980), dt=1/120)
+      ball = Circle(r=20, cx=960, cy=100, fill='#58C4DD')
+      b = space.add_body(ball, mass=1, restitution=0.7)
+      space.add_wall(y=900)     # floor
+      space.simulate(duration=5)
+
+      canvas.add_objects(ball)
+      canvas.browser_display(fps=60)
 
 ----
 
@@ -37,16 +40,24 @@ PhysicsSpace
    :param float dt: Simulation timestep in seconds.
    :param float start: Animation start time (offsets baked trajectories).
 
-   .. py:method:: add_body(obj, mass=1.0, restitution=0.8, friction=0.0, radius=None, vx=0.0, vy=0.0, fixed=False) -> Body
+   .. py:method:: add_body(obj, mass=1.0, restitution=0.8, friction=0.0, radius=None, vx=0.0, vy=0.0, fixed=False, angle=0.0, angular_velocity=0.0, moment_of_inertia=None) -> Body
 
       Register a VObject as a physics body and return a :py:class:`Body` handle.
       If *radius* is ``None`` it is auto-detected from the object (e.g. ``Circle.r``).
       Set *fixed=True* for immovable obstacles.
 
-   .. py:method:: add_wall(x=None, y=None, restitution=0.9) -> Wall
+      :param float angle: Initial rotation angle in radians.
+      :param float angular_velocity: Initial angular velocity (rad/s).
+      :param float moment_of_inertia: Rotational inertia (auto-computed if ``None``).
+
+   .. py:method:: add_wall(x=None, y=None, restitution=0.9, friction=1.0) -> Wall
 
       Add an infinite axis-aligned wall. Specify *x* for a vertical wall or
       *y* for a horizontal wall.
+
+   .. py:method:: add_walls(left=40, right=1880, top=40, bottom=1040, restitution=0.9)
+
+      Convenience method: add four walls forming a bounding box.
 
    .. py:method:: add_spring(a, b, stiffness=0.5, rest_length=None, damping=0.02) -> Spring
 
@@ -85,7 +96,7 @@ PhysicsSpace
 Body
 ----
 
-.. py:class:: Body(obj, mass=1.0, restitution=0.8, friction=0.0, radius=None, vx=0.0, vy=0.0, fixed=False)
+.. py:class:: Body(obj, mass=1.0, restitution=0.8, friction=0.0, radius=None, vx=0.0, vy=0.0, fixed=False, angle=0.0, angular_velocity=0.0, moment_of_inertia=None)
 
    A physics body wrapping a VObject. Created via
    :py:meth:`PhysicsSpace.add_body`.
@@ -116,6 +127,10 @@ Body
    .. py:method:: apply_force(fx, fy)
 
       Accumulate a force for the current simulation step.
+
+   .. py:method:: apply_torque(torque)
+
+      Accumulate a torque for the current simulation step.
 
 ----
 
@@ -174,80 +189,33 @@ Cloth
 
       Return a list of all VObjects (lines and dots) for adding to the canvas.
 
-   .. code-block:: python
+   .. admonition:: Example: Cloth simulation
+      :class: example
 
-      from vectormation.objects import *
-      from vectormation._physics import Cloth
+      .. code-block:: python
 
-      canvas = VectorMathAnim()
-      canvas.set_background()
+         from vectormation.objects import *
+         from vectormation._physics import Cloth
 
-      cloth = Cloth(cols=20, rows=12, stiffness=3.0)
-      cloth.simulate(duration=4)
+         canvas = VectorMathAnim()
+         canvas.set_background()
 
-      canvas.add_objects(*cloth.objects())
-      canvas.browser_display(fps=60)
+         cloth = Cloth(cols=20, rows=12, stiffness=3.0)
+         cloth.simulate(duration=4)
 
-----
+         canvas.add_objects(*cloth.objects())
+         canvas.browser_display(fps=60)
 
-Examples
---------
+.. admonition:: Example: Bouncing balls
+   :class: example
 
-Bouncing balls with walls
-^^^^^^^^^^^^^^^^^^^^^^^^^
+   .. raw:: html
 
-.. code-block:: python
+      <video src="../_static/videos/physics_bounce.mp4" controls autoplay loop muted></video>
 
-   from vectormation.objects import *
-   from vectormation._physics import PhysicsSpace
+   Balls bouncing with walls.
 
-   canvas = VectorMathAnim()
-   canvas.set_background()
-
-   space = PhysicsSpace(gravity=(0, 600))
-   # Walls on all sides
-   space.add_wall(y=1040)   # floor
-   space.add_wall(y=40)     # ceiling
-   space.add_wall(x=40)     # left
-   space.add_wall(x=1880)   # right
-
-   balls = []
-   for i in range(5):
-       c = Circle(r=25, cx=300 + i * 150, cy=200,
-                  fill=['#58C4DD', '#FF6B6B', '#83C167', '#FFFF00', '#C55F73'][i])
-       b = space.add_body(c, mass=1, vx=(i - 2) * 100, vy=-200)
-       balls.append(c)
-
-   space.simulate(duration=8)
-   canvas.add_objects(*balls)
-   canvas.browser_display(fps=60)
-
-Spring-connected bodies
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   from vectormation.objects import *
-   from vectormation._physics import PhysicsSpace
-
-   canvas = VectorMathAnim()
-   canvas.set_background()
-
-   space = PhysicsSpace(gravity=(0, 400))
-
-   anchor = Dot(cx=960, cy=100, fill='#aaa')
-   a = space.add_body(anchor, fixed=True)
-
-   pendulum = Circle(r=20, cx=1100, cy=300, fill='#FF6B6B')
-   p = space.add_body(pendulum, mass=2)
-
-   space.add_spring(a, p, stiffness=1.0, damping=0.01)
-   space.add_drag(0.005)
-   space.simulate(duration=10)
-
-   line = Line(x1=960, y1=100, x2=1100, y2=300, stroke='#888')
-   line.p1.set_onward(0, lambda t: (a.x, a.y))
-   line.p2.set_onward(0, lambda t: (p.x, p.y))
-
-   canvas.add_objects(line, anchor, pendulum)
-   canvas.browser_display(fps=60)
+   .. literalinclude:: ../../../examples/reference/physics_bounce.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display

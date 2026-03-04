@@ -597,14 +597,14 @@ Math & Science
       :start-after: set_background
       :end-before: if not
 
-.. admonition:: Example: CircuitComponents
+.. admonition:: Example: ScienceComponents
    :class: example
 
    .. raw:: html
 
       <img src="_static/videos/circuit_components.svg" style="width:100%">
 
-   Circuit and science components: ``Resistor``, ``Capacitor``, ``Inductor``, ``Diode``, ``LED``, ``Molecule2D``, ``BohrAtom``, ``ElectricField``, ``Charge``, ``StandingWave``, ``Lens``, ``Ray``.
+   Science components: ``Molecule2D``, ``BohrAtom``, ``NeuralNetwork``, ``StandingWave``, ``Lens``, ``Ray``, ``Pendulum``.
 
    .. dropdown:: Show code
       :class-container: sd-shadow-none

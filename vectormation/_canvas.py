@@ -822,6 +822,8 @@ class VectorMathAnim:
             end = self._resolve_end(None)
             logger.info('Found that the ending time is %s', end)
         self.end_anim = end
+        if start is None:
+            start = 0
         self.start_anim = end + start if start < 0 else start
         self.animate = not self.single_picture
         self.time = start

@@ -252,14 +252,13 @@ class Polygon(VObject):
             dx2 = float(pts[next_idx][0] - pts[i][0])
             dy2 = float(pts[next_idx][1] - pts[i][1])
             len2 = math.hypot(dx2, dy2)
-            # Outward normals (rotate edge direction 90 degrees CCW: (-dy, dx))
-            # In SVG coords (y-down), "outward" for a CW polygon is (-dy, dx)
+            # Outward normals: (dy, -dx) for CW polygons in SVG coords (y-down).
             if len1 > 0:
-                n1x, n1y = -dy1 / len1, dx1 / len1
+                n1x, n1y = dy1 / len1, -dx1 / len1
             else:
                 n1x, n1y = 0.0, 0.0
             if len2 > 0:
-                n2x, n2y = -dy2 / len2, dx2 / len2
+                n2x, n2y = dy2 / len2, -dx2 / len2
             else:
                 n2x, n2y = 0.0, 0.0
             # Average normal
@@ -653,14 +652,12 @@ class Polygon(VObject):
         if not self.closed:
             raise ValueError("triangulate requires a closed polygon")
 
-        # Ensure counter-clockwise winding (positive signed area).
-        sa = 0
-        for i in range(n):
-            x0, y0 = pts[i]
-            x1, y1 = pts[(i + 1) % n]
-            sa += (x1 - x0) * (y1 + y0)
+        # Ensure consistent winding for ear-clipping using the shoelace formula
+        # (same as signed_area). Positive = CW in SVG coords; reverse to get CCW.
+        sa = sum(pts[i][0] * pts[(i+1) % n][1] - pts[(i+1) % n][0] * pts[i][1]
+                 for i in range(n))
         indices = list(range(n))
-        if sa > 0:
+        if sa < 0:
             indices.reverse()
 
         def _point_in_triangle(p, a, b, c):
@@ -959,7 +956,7 @@ class Ellipse(VObject):
         """Return (x, y) on the ellipse at parameter t in [0, 1]."""
         cx, cy, rx, ry = self._ep(time)
         angle = math.tau * t
-        return (cx + rx * math.cos(angle), cy + ry * math.sin(angle))
+        return (cx + rx * math.cos(angle), cy - ry * math.sin(angle))
 
     def contains_point(self, px, py, time: float = 0):
         """Return True if point (px, py) is inside the ellipse."""
@@ -1245,6 +1242,8 @@ class Circle(Ellipse):
         """Point-in-circle test."""
         cx, cy = self.c.at_time(time)
         r = self.rx.at_time(time)
+        if r == 0:
+            return False
         return _distance(cx, cy, px, py) <= r
 
     def circumscribed_polygon(self, n: int, angle: float = 0, time: float = 0, **kwargs):

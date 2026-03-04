@@ -912,7 +912,8 @@ class VObject(_BBoxMethodsMixin, _VObjectEffectsMixin, ABC):  # Vector Object
             return Path('', creation=start)
         dur = end - start
         if dur <= 0:
-            dur = 1
+            from vectormation._shapes import Path
+            return Path('', creation=start)
         from vectormation._shapes import Path
         flash = Path(self.path(start), creation=start,
                      stroke=color, stroke_width=stroke_width, fill_opacity=0)

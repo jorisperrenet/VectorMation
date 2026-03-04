@@ -143,8 +143,9 @@ class TexObject(VCollection):
     Uses built-in Computer Modern glyphs when possible (no LaTeX needed).
     Falls back to full LaTeX compilation via dvisvgm for complex expressions.
     """
-    def __init__(self, to_render, x: float = 0, y: float = 0, font_size: float = 48, creation: float = 0, z: float = 0, **styles):
+    def __init__(self, to_render, x: float = 0, y: float = 0, font_size: float = 48, creation: float = 0, z: float = 0, anchor: str = 'left', **styles):
         self._tex = to_render
+        self._anchor = anchor
         t2c = styles.pop('t2c', None)
 
         chars = self._try_glyph_assembly(to_render, font_size, creation, styles)
@@ -158,9 +159,13 @@ class TexObject(VCollection):
         self.x = attributes.Real(creation, x)
         self.y = attributes.Real(creation, y)
 
-        xmin, ymin, _, _ = self.bbox(creation)
+        xmin, ymin, xmax, _ = self.bbox(creation)
+        if self._anchor == 'center':
+            xref = (xmin + xmax) / 2
+        else:
+            xref = xmin
         for obj in self.objects:
-            obj.styling.dx.add_onward(creation, lambda t, _xm=xmin: self.x.at_time(t) - _xm)
+            obj.styling.dx.add_onward(creation, lambda t, _xr=xref: self.x.at_time(t) - _xr)
             obj.styling.dy.add_onward(creation, lambda t, _ym=ymin: self.y.at_time(t) - _ym)
 
         if t2c is not None:
@@ -740,6 +745,10 @@ class Table(_GridAccessMixin, VCollection):
         line_kw = {'stroke': '#fff', 'stroke_width': 2} | styling_kwargs
         objects: list = []
 
+        # Top border of header row (only needed when col_labels add a header)
+        if col_labels:
+            objects.append(Line(x1=x, y1=y, x2=x + total_w, y2=y,
+                                creation=creation, z=z, **line_kw))
         for r in range(rows + 1):
             ly = y + y_off + r * cell_height
             objects.append(Line(x1=x, y1=ly, x2=x + total_w, y2=ly,

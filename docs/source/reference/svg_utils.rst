@@ -29,11 +29,14 @@ ClipPath
 
       Returns the ``<clipPath>`` SVG element string.
 
-   .. code-block:: python
+   .. admonition:: Example: Clipping a rectangle with a circle
+      :class: example
 
-      clip = ClipPath(Circle(r=120, cx=960, cy=540))
-      canvas.add_def(clip)
-      rect = Rectangle(400, 400, clip_path=clip.clip_ref())
+      .. code-block:: python
+
+         clip = ClipPath(Circle(r=120, cx=960, cy=540))
+         canvas.add_def(clip)
+         rect = Rectangle(400, 400, clip_path=clip.clip_ref())
 
 ----
 
@@ -51,11 +54,14 @@ BlurFilter
 
       Returns the ``url(#...)`` reference string.
 
-   .. code-block:: python
+   .. admonition:: Example: Applying a Gaussian blur
+      :class: example
 
-      blur = BlurFilter(std_deviation=8)
-      canvas.add_def(blur)
-      text = Text('Blurred', filter=blur.filter_ref())
+      .. code-block:: python
+
+         blur = BlurFilter(std_deviation=8)
+         canvas.add_def(blur)
+         text = Text('Blurred', filter=blur.filter_ref())
 
 ----
 
@@ -76,11 +82,14 @@ DropShadowFilter
 
       Returns the ``url(#...)`` reference string.
 
-   .. code-block:: python
+   .. admonition:: Example: Adding a drop shadow
+      :class: example
 
-      shadow = DropShadowFilter(dx=6, dy=6, std_deviation=4, color='#000')
-      canvas.add_def(shadow)
-      rect = Rectangle(200, 100, filter=shadow.filter_ref())
+      .. code-block:: python
+
+         shadow = DropShadowFilter(dx=6, dy=6, std_deviation=4, color='#000')
+         canvas.add_def(shadow)
+         rect = Rectangle(200, 100, filter=shadow.filter_ref())
 
 ----
 
@@ -118,12 +127,15 @@ Angle
 
       Animate the angle arc radius to *new_radius*.
 
-   .. code-block:: python
+   .. admonition:: Example: Angle indicator with label
+      :class: example
 
-      v = (960, 540)
-      a = (1100, 540)
-      b = (1060, 400)
-      angle = Angle(v, a, b, radius=50, label=True)
+      .. code-block:: python
+
+         v = (960, 540)
+         a = (1100, 540)
+         b = (1060, 400)
+         angle = Angle(v, a, b, radius=50, label=True)
 
 ----
 
@@ -143,9 +155,12 @@ RightAngle
    :param tuple p2: Second ray endpoint.
    :param float size: Side length of the square indicator.
 
-   .. code-block:: python
+   .. admonition:: Example: Right angle indicator
+      :class: example
 
-      right = RightAngle((500, 500), (600, 500), (500, 400), size=20)
+      .. code-block:: python
+
+         right = RightAngle((500, 500), (600, 500), (500, 400), size=20)
 
 ----
 
@@ -164,9 +179,12 @@ Cross
    :param float cx: Centre x.
    :param float cy: Centre y.
 
-   .. code-block:: python
+   .. admonition:: Example: Cross mark
+      :class: example
 
-      x_mark = Cross(size=50, cx=400, cy=300, stroke='#FF0000')
+      .. code-block:: python
+
+         x_mark = Cross(size=50, cx=400, cy=300, stroke='#FF0000')
 
 ----
 
@@ -219,15 +237,18 @@ ZoomedInset
 
       Animate the source region position to ``(x, y)``.
 
-   .. code-block:: python
+   .. admonition:: Example: Zoomed inset with animated source
+      :class: example
 
-      inset = ZoomedInset(
-          canvas,
-          source=(800, 400, 200, 200),
-          display=(1400, 100, 400, 400),
-      )
-      canvas.add(inset)
-      inset.move_source(900, 450, start=0, end=2)
+      .. code-block:: python
+
+         inset = ZoomedInset(
+             canvas,
+             source=(800, 400, 200, 200),
+             display=(1400, 100, 400, 400),
+         )
+         canvas.add(inset)
+         inset.move_source(900, 450, start=0, end=2)
 
 ----
 
@@ -256,12 +277,15 @@ Spotlight
 
       Animate the spotlight radius.
 
-   .. code-block:: python
+   .. admonition:: Example: Animated spotlight
+      :class: example
 
-      dot = Dot(cx=400, cy=300)
-      spot = Spotlight(target=dot, radius=80, opacity=0.8)
-      spot.set_target((960, 540), start=1, end=3)
-      spot.set_radius(200, start=1, end=3)
+      .. code-block:: python
+
+         dot = Dot(cx=400, cy=300)
+         spot = Spotlight(target=dot, radius=80, opacity=0.8)
+         spot.set_target((960, 540), start=1, end=3)
+         spot.set_radius(200, start=1, end=3)
 
 ----
 
@@ -307,13 +331,16 @@ Cutout
       Move the cutout hole to surround a VObject's bounding box with
       *buff* pixels of padding.
 
-   .. code-block:: python
+   .. admonition:: Example: Rectangular cutout overlay
+      :class: example
 
-      title = Text('Important', x=960, y=300, font_size=72)
-      cutout = Cutout(opacity=0.8, rx=12, ry=12)
-      cutout.surround(title, buff=30)
-      # Animate the cutout to a new position
-      cutout.set_hole(x=200, y=200, w=400, h=200, start=1, end=3)
+      .. code-block:: python
+
+         title = Text('Important', x=960, y=300, font_size=72)
+         cutout = Cutout(opacity=0.8, rx=12, ry=12)
+         cutout.surround(title, buff=30)
+         # Animate the cutout to a new position
+         cutout.set_hole(x=200, y=200, w=400, h=200, start=1, end=3)
 
 ----
 
@@ -335,10 +362,13 @@ AnimatedBoundary
    :param float buff: Extra padding around the target's bounding box.
    :param float stroke_width: Border stroke width.
 
-   .. code-block:: python
+   .. admonition:: Example: Animated colour-cycling border
+      :class: example
 
-      rect = Rectangle(300, 200)
-      border = AnimatedBoundary(rect, cycle_rate=0.5, buff=12)
+      .. code-block:: python
+
+         rect = Rectangle(300, 200)
+         border = AnimatedBoundary(rect, cycle_rate=0.5, buff=12)
 
 ----
 
@@ -348,6 +378,20 @@ Boolean Shape Operations
 Boolean operations combine two shapes using SVG clip paths. All four
 classes inherit from a common ``_BooleanOp`` base (itself a
 :py:class:`VObject`) and support the standard animation methods.
+
+.. admonition:: Example: Boolean operations
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/boolean_ops.svg" style="width:100%; max-width:800px;" />
+
+   Union, Difference, Intersection, and Exclusion of two circles.
+
+   .. literalinclude:: ../../../examples/reference/boolean_ops.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display
 
 Union
 ~~~~~
@@ -360,12 +404,6 @@ Union
 
    :param VObject shape_a: First shape.
    :param VObject shape_b: Second shape.
-
-   .. code-block:: python
-
-      c1 = Circle(r=100, cx=900, cy=540, fill='#58C4DD')
-      c2 = Circle(r=100, cx=1020, cy=540, fill='#FC6255')
-      u = Union(c1, c2, fill='#83C167', fill_opacity=0.8)
 
 ----
 
@@ -382,12 +420,6 @@ Difference
    :param VObject shape_a: Shape to subtract from.
    :param VObject shape_b: Shape to subtract.
 
-   .. code-block:: python
-
-      rect = Rectangle(200, 200, x=860, y=440)
-      circle = Circle(r=80, cx=960, cy=540)
-      diff = Difference(rect, circle, fill='#FF8C00')
-
 ----
 
 Intersection
@@ -401,12 +433,6 @@ Intersection
 
    :param VObject shape_a: First shape.
    :param VObject shape_b: Second shape.
-
-   .. code-block:: python
-
-      c1 = Circle(r=100, cx=900, cy=540)
-      c2 = Circle(r=100, cx=1020, cy=540)
-      inter = Intersection(c1, c2, fill='#FFFF00', fill_opacity=0.9)
 
 ----
 
@@ -422,12 +448,6 @@ Exclusion
 
    :param VObject shape_a: First shape.
    :param VObject shape_b: Second shape.
-
-   .. code-block:: python
-
-      c1 = Circle(r=100, cx=900, cy=540)
-      c2 = Circle(r=100, cx=1020, cy=540)
-      xor = Exclusion(c1, c2, fill='#A855F7')
 
 ----
 
@@ -449,13 +469,16 @@ ArrowVectorField
    :param tuple y_range: ``(min, max, step)`` for vertical sampling.
    :param float max_length: Maximum arrow length in pixels.
 
-   .. code-block:: python
+   .. admonition:: Example: Arrow vector field
+      :class: example
 
-      def field(x, y):
-          return (y - 540, -(x - 960))
+      .. code-block:: python
 
-      vf = ArrowVectorField(field, x_range=(100, 1820, 150),
-                            y_range=(100, 980, 150))
+         def field(x, y):
+             return (y - 540, -(x - 960))
+
+         vf = ArrowVectorField(field, x_range=(100, 1820, 150),
+                               y_range=(100, 980, 150))
 
 ----
 
@@ -475,14 +498,17 @@ StreamLines
    :param int n_steps: Number of integration steps per stream line.
    :param float step_size: Step size per integration step.
 
-   .. code-block:: python
+   .. admonition:: Example: Stream lines for a swirl field
+      :class: example
 
-      def swirl(x, y):
-          dx, dy = x - 960, y - 540
-          return (-dy, dx)
+      .. code-block:: python
 
-      streams = StreamLines(swirl, n_steps=60, step_size=8,
-                            stroke='#83C167')
+         def swirl(x, y):
+             dx, dy = x - 960, y - 540
+             return (-dy, dx)
+
+         streams = StreamLines(swirl, n_steps=60, step_size=8,
+                               stroke='#83C167')
 
 ----
 
@@ -502,13 +528,16 @@ ConvexHull
    :param items: ``(x, y)`` tuples or VObject instances (their centres are
       used).
 
-   .. code-block:: python
+   .. admonition:: Example: Convex hull around dots
+      :class: example
 
-      d1 = Dot(cx=300, cy=300)
-      d2 = Dot(cx=600, cy=200)
-      d3 = Dot(cx=500, cy=500)
-      hull = ConvexHull(d1, d2, d3, (400, 450),
-                        stroke='#58C4DD', fill_opacity=0.1)
+      .. code-block:: python
+
+         d1 = Dot(cx=300, cy=300)
+         d2 = Dot(cx=600, cy=200)
+         d3 = Dot(cx=500, cy=500)
+         hull = ConvexHull(d1, d2, d3, (400, 450),
+                           stroke='#58C4DD', fill_opacity=0.1)
 
 ----
 
@@ -530,10 +559,13 @@ brace_between_points
    :param float depth: Depth of the brace curve.
    :returns: A :py:class:`Brace` object.
 
-   .. code-block:: python
+   .. admonition:: Example: Brace between two points
+      :class: example
 
-      brace = brace_between_points((400, 500), (800, 500),
-                                   direction='down', label='width')
+      .. code-block:: python
+
+         brace = brace_between_points((400, 500), (800, 500),
+                                      direction='down', label='width')
 
 ----
 
@@ -558,13 +590,16 @@ from_svg
    :returns: A VObject corresponding to the SVG element.
    :raises NotImplementedError: For unsupported SVG tags.
 
-   .. code-block:: python
+   .. admonition:: Example: Parsing an SVG element
+      :class: example
 
-      from bs4 import BeautifulSoup
-      from vectormation.objects import from_svg
+      .. code-block:: python
 
-      soup = BeautifulSoup('<circle cx="100" cy="100" r="50"/>', 'xml')
-      circle = from_svg(soup.find('circle'), fill='#FF0000')
+         from bs4 import BeautifulSoup
+         from vectormation.objects import from_svg
+
+         soup = BeautifulSoup('<circle cx="100" cy="100" r="50"/>', 'xml')
+         circle = from_svg(soup.find('circle'), fill='#FF0000')
 
 ----
 
@@ -586,10 +621,13 @@ from_svg_file
 
       Requires the ``beautifulsoup4`` and ``lxml`` packages (lazy-imported).
 
-   .. code-block:: python
+   .. admonition:: Example: Loading an SVG file
+      :class: example
 
-      from vectormation.objects import from_svg_file
+      .. code-block:: python
 
-      logo = from_svg_file('logo.svg', creation=0)
-      logo.center_to_pos(posx=960, posy=540)
-      logo.scale(factor=0.5, start=0)
+         from vectormation.objects import from_svg_file
+
+         logo = from_svg_file('logo.svg', creation=0)
+         logo.center_to_pos(posx=960, posy=540)
+         logo.scale(factor=0.5, start=0)

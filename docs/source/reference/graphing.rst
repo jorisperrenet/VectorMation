@@ -5,10 +5,6 @@ Graphing
    :width: 520
    :align: center
 
-.. code-block:: python
-
-   from vectormation.objects import *
-
 Graph
 -----
 
@@ -27,21 +23,41 @@ Graph
    :param float plot_width: Plot area width in pixels.
    :param float plot_height: Plot area height in pixels.
 
-   .. code-block:: python
+   .. admonition:: Example: sine curve
+      :class: example
 
-      # Simple sine curve
-      g = Graph(math.sin, x_range=(-2*math.pi, 2*math.pi), y_range=(-1.5, 1.5))
-      g.fadein(start=0, end=1)
-      v.add(g)
+      .. code-block:: python
 
-   .. code-block:: python
+         # Simple sine curve
+         g = Graph(math.sin, x_range=(-2*math.pi, 2*math.pi), y_range=(-1.5, 1.5))
+         g.fadein(start=0, end=1)
+         v.add(g)
 
-      # Quadratic with annotations
-      g = Graph(lambda x: x**2 - 3, x_range=(-4, 4), y_range=(-4, 14))
-      g.add_coordinates()
-      g.add_grid(stroke='#333', stroke_width=0.5)
-      g.add_dot_label(2, lambda x: x**2 - 3, "min", fill='#E74C3C')
-      v.add(g)
+   .. admonition:: Example: quadratic with annotations
+      :class: example
+
+      .. code-block:: python
+
+         # Quadratic with annotations
+         g = Graph(lambda x: x**2 - 3, x_range=(-4, 4), y_range=(-4, 14))
+         g.add_coordinates()
+         g.add_grid()
+         g.add_dot_label(2, lambda x: x**2 - 3, "min", fill='#E74C3C')
+         v.add(g)
+
+   .. admonition:: Example: Graph with area shading
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/graph_plot.svg" style="width:100%; max-width:800px;" />
+
+      Graph with shaded area under the curve.
+
+      .. literalinclude:: ../../../examples/reference/graph_plot.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
    .. rubric:: Adding Curves
 
@@ -64,10 +80,13 @@ Graph
 
       Plot a line graph from data points. Connects the points with line segments.
 
-      .. code-block:: python
+      .. admonition:: Example: line graph from data points
+         :class: example
 
-         g = Axes(x_range=(0, 10), y_range=(0, 100))
-         g.plot_line_graph([1, 3, 5, 7, 9], [20, 45, 30, 80, 60], stroke='#E74C3C')
+         .. code-block:: python
+
+            g = Axes(x_range=(0, 10), y_range=(0, 100))
+            g.plot_line_graph([1, 3, 5, 7, 9], [20, 45, 30, 80, 60], stroke='#E74C3C')
 
    .. rubric:: Coordinate Conversion
 
@@ -92,11 +111,14 @@ Graph
       Return a lambda that gives the SVG position of a point following a function
       curve as *x_attr* changes over time. Useful for animating dots along curves.
 
-      .. code-block:: python
+      .. admonition:: Example: dot following a curve
+         :class: example
 
-         x_val = attributes.Real(0, 0)
-         x_val.move_to(0, 3, 5)  # animate x from 0 to 5 over t=0..3
-         dot.c.set_onward(0, graph.graph_position(func, x_val))
+         .. code-block:: python
+
+            x_val = attributes.Real(0, 0)
+            x_val.move_to(0, 3, 5)  # animate x from 0 to 5 over t=0..3
+            dot.c.set_onward(0, graph.graph_position(func, x_val))
 
    .. rubric:: Areas and Shading
 
@@ -109,24 +131,30 @@ Graph
       :param tuple x_range: ``(x_min, x_max)`` to restrict the shaded region.
       :param bounded_graph: Another curve to shade between.
 
-      .. code-block:: python
+      .. admonition:: Example: shaded area under sine curve
+         :class: example
 
-         g = Graph(math.sin, x_range=(0, 2*math.pi), y_range=(-1.5, 1.5))
-         curve = g.plot(math.sin, stroke='#3498DB')
-         area = g.get_area(curve, x_range=(0, math.pi), fill='#3498DB', fill_opacity=0.3)
-         v.add(g, area)
+         .. code-block:: python
+
+            g = Graph(math.sin, x_range=(0, 2*math.pi), y_range=(-1.5, 1.5))
+            curve = g.plot(math.sin, stroke='#3498DB')
+            area = g.get_area(curve, x_range=(0, math.pi), fill='#3498DB', fill_opacity=0.3)
+            v.add(g, area)
 
    .. py:method:: get_area_between(func1, func2, x_range=None, **styling)
 
       Shaded area between two curves. Returns a :py:class:`Path`.
 
-      .. code-block:: python
+      .. admonition:: Example: area between two curves
+         :class: example
 
-         g = Axes(x_range=(-3, 3), y_range=(-2, 10))
-         g.plot(lambda x: x**2, stroke='#E74C3C')
-         g.plot(lambda x: 2*x + 1, stroke='#3498DB')
-         area = g.get_area_between(lambda x: x**2, lambda x: 2*x + 1,
-                                    x_range=(-1, 3), fill='#F39C12', fill_opacity=0.3)
+         .. code-block:: python
+
+            g = Axes(x_range=(-3, 3), y_range=(-2, 10))
+            g.plot(lambda x: x**2, stroke='#E74C3C')
+            g.plot(lambda x: 2*x + 1, stroke='#3498DB')
+            area = g.get_area_between(lambda x: x**2, lambda x: 2*x + 1,
+                                       x_range=(-1, 3), fill='#F39C12', fill_opacity=0.3)
 
    .. py:method:: get_riemann_rectangles(func, x_range, dx=0.1, **styling)
 
@@ -137,12 +165,15 @@ Graph
       :param tuple x_range: ``(x_min, x_max)`` range for rectangles.
       :param float dx: Width of each rectangle in math units.
 
-      .. code-block:: python
+      .. admonition:: Example: Riemann sum
+         :class: example
 
-         g = Graph(lambda x: x**2, x_range=(0, 3), y_range=(0, 10))
-         rects = g.get_riemann_rectangles(lambda x: x**2, (0, 3), dx=0.3,
-                                           fill='#3498DB', fill_opacity=0.4)
-         v.add(g, rects)
+         .. code-block:: python
+
+            g = Graph(lambda x: x**2, x_range=(0, 3), y_range=(0, 10))
+            rects = g.get_riemann_rectangles(lambda x: x**2, (0, 3), dx=0.3,
+                                              fill='#3498DB', fill_opacity=0.4)
+            v.add(g, rects)
 
    .. rubric:: Lines and Markers
 
@@ -163,11 +194,28 @@ Graph
 
       Tangent line to a function at *x* (numerical derivative). Returns a :py:class:`Line`.
 
-      .. code-block:: python
+      .. admonition:: Example: tangent line on sine curve
+         :class: example
 
-         g = Graph(math.sin, x_range=(0, 2*math.pi))
-         tangent = g.get_tangent_line(math.sin, math.pi/4, stroke='#E74C3C')
-         v.add(g, tangent)
+         .. code-block:: python
+
+            g = Graph(math.sin, x_range=(0, 2*math.pi))
+            tangent = g.get_tangent_line(math.sin, math.pi/4, stroke='#E74C3C')
+            v.add(g, tangent)
+
+   .. admonition:: Example: animated tangent line
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/tangent_line.mp4" controls autoplay loop muted></video>
+
+      Tangent line sweeping along a curve.
+
+      .. literalinclude:: ../../../examples/reference/tangent_line.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
    .. py:method:: get_secant_line(func, x1, x2, length=200, **styling)
 
@@ -209,12 +257,15 @@ Graph
 
       :param list entries: List of ``(label, color)`` pairs.
 
-      .. code-block:: python
+      .. admonition:: Example: legend with multiple curves
+         :class: example
 
-         g = Axes(x_range=(-5, 5), y_range=(-2, 2))
-         g.plot(math.sin, stroke='#E74C3C', label='sin(x)')
-         g.plot(math.cos, stroke='#3498DB', label='cos(x)')
-         g.add_legend([('sin(x)', '#E74C3C'), ('cos(x)', '#3498DB')])
+         .. code-block:: python
+
+            g = Axes(x_range=(-5, 5), y_range=(-2, 2))
+            g.plot(math.sin, stroke='#E74C3C', label='sin(x)')
+            g.plot(math.cos, stroke='#3498DB', label='cos(x)')
+            g.add_legend([('sin(x)', '#E74C3C'), ('cos(x)', '#3498DB')])
 
    .. py:method:: add_dot_label(x, y, label=None, **styling)
 
@@ -264,6 +315,20 @@ Graph
 
       Scatter plot with dots at each data point.
 
+   .. admonition:: Example: scatter plot with regression line
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/graph_scatter.svg" style="width:100%; max-width:800px;" />
+
+      Scatter data with a least-squares regression line overlay.
+
+      .. literalinclude:: ../../../examples/reference/graph_scatter.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
+
    .. py:method:: plot_step(x_values, y_values, **styling)
 
       Step function plot from paired x/y value lists.
@@ -280,9 +345,37 @@ Graph
 
       Histogram from raw data values.
 
+   .. admonition:: Example: histogram
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/graph_histogram.svg" style="width:100%; max-width:800px;" />
+
+      Histogram of normally-distributed data.
+
+      .. literalinclude:: ../../../examples/reference/graph_histogram.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
+
    .. py:method:: plot_vector_field(func, **styling)
 
       Vector field overlay on axes. *func* takes ``(x, y)`` and returns ``(dx, dy)``.
+
+   .. admonition:: Example: vector field
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/graph_vector_field.svg" style="width:100%; max-width:800px;" />
+
+      A rotational vector field ``(-y, x)`` plotted on axes.
+
+      .. literalinclude:: ../../../examples/reference/graph_vector_field.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
    .. rubric:: Calculus Visualizations
 
@@ -296,6 +389,21 @@ Graph
       Plot the numerical antiderivative (cumulative integral) of *func*
       using the trapezoidal rule.  *x0* defaults to x_min.
       Default style: dashed red line.
+
+   .. admonition:: Example: derivative and antiderivative
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/graph_calculus.svg" style="width:100%; max-width:800px;" />
+
+      A sine curve with its numerical derivative (cosine) and antiderivative
+      (-cosine) plotted as dashed lines.
+
+      .. literalinclude:: ../../../examples/reference/graph_calculus.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
    .. py:method:: get_trapezoidal_rule(func, x_range, dx=0.5, **styling)
 
@@ -349,10 +457,13 @@ Graph
       :param tuple x_range: ``(new_xmin, new_xmax)`` or ``None``.
       :param tuple y_range: ``(new_ymin, new_ymax)`` or ``None``.
 
-      .. code-block:: python
+      .. admonition:: Example: animated axis range
+         :class: example
 
-         g = Graph(math.sin, x_range=(-5, 5), y_range=(-2, 2))
-         g.animate_range(start=1, end=3, x_range=(-1, 1), y_range=(-1.5, 1.5))
+         .. code-block:: python
+
+            g = Graph(math.sin, x_range=(-5, 5), y_range=(-2, 2))
+            g.animate_range(start=1, end=3, x_range=(-1, 1), y_range=(-1.5, 1.5))
 
 ----
 
@@ -369,15 +480,18 @@ Axes
    Use when you want to build up a plot incrementally by adding functions,
    scatter plots, and annotations separately.
 
-   .. code-block:: python
+   .. admonition:: Example: incremental plot with multiple curves
+      :class: example
 
-      ax = Axes(x_range=(0, 10), y_range=(0, 100))
-      ax.add_grid()
-      ax.add_coordinates()
-      curve1 = ax.plot(lambda x: x**2, stroke='#E74C3C', label='x²')
-      curve2 = ax.plot(lambda x: 10*x, stroke='#3498DB', label='10x')
-      ax.add_legend([('#E74C3C', 'x²'), ('#3498DB', '10x')])
-      v.add(ax)
+      .. code-block:: python
+
+         ax = Axes(x_range=(0, 10), y_range=(0, 100))
+         ax.add_grid()
+         ax.add_coordinates()
+         curve1 = ax.plot(lambda x: x**2, stroke='#E74C3C', label='x²')
+         curve2 = ax.plot(lambda x: 10*x, stroke='#3498DB', label='10x')
+         ax.add_legend([('#E74C3C', 'x²'), ('#3498DB', '10x')])
+         v.add(ax)
 
 ----
 
@@ -394,11 +508,14 @@ FunctionGraph
    :param callable func: Function to plot.
    :param int num_points: Number of sample points.
 
-   .. code-block:: python
+   .. admonition:: Example: damped sine wave
+      :class: example
 
-      curve = FunctionGraph(lambda x: math.sin(x) * math.exp(-x/5),
-                            x_range=(0, 20), stroke='#2ECC71', stroke_width=3)
-      curve.create(start=0, end=2)
+      .. code-block:: python
+
+         curve = FunctionGraph(lambda x: math.sin(x) * math.exp(-x/5),
+                               x_range=(0, 20), stroke='#2ECC71', stroke_width=3)
+         curve.create(start=0, end=2)
 
 ParametricFunction
 ------------------
@@ -417,14 +534,17 @@ ParametricFunction
 
       Return ``(x, y)`` at parameter value *t*.
 
-   .. code-block:: python
+   .. admonition:: Example: parametric spiral
+      :class: example
 
-      import math
-      spiral = ParametricFunction(
-          lambda t: (960 + 200*t*math.cos(6*t), 540 + 200*t*math.sin(6*t)),
-          t_range=(0, math.pi), num_points=300,
-          stroke='#FC6255', stroke_width=3)
-      spiral.create(start=0, end=2)
+      .. code-block:: python
+
+         import math
+         spiral = ParametricFunction(
+             lambda t: (960 + 200*t*math.cos(6*t), 540 + 200*t*math.sin(6*t)),
+             t_range=(0, math.pi), num_points=300,
+             stroke='#FC6255', stroke_width=3)
+         spiral.create(start=0, end=2)
 
 ----
 
@@ -473,12 +593,29 @@ NumberLine
 
       Highlight a segment of the line between two values.
 
-   .. code-block:: python
+   .. admonition:: Example: number line with pointer and segment
+      :class: example
 
-      nl = NumberLine(x_range=(-3, 3, 1), length=800)
-      nl.add_pointer(1.5, label='x')
-      nl.add_segment(-1, 2, fill='#3498DB', fill_opacity=0.3)
-      v.add(nl)
+      .. code-block:: python
+
+         nl = NumberLine(x_range=(-3, 3, 1), length=800)
+         nl.add_pointer(1.5, label='x')
+         nl.add_segment(-1, 2, color='#3498DB')
+         v.add(nl)
+
+   .. admonition:: Example: NumberLine with pointer
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/numberline.svg" style="width:100%; max-width:800px;" />
+
+      Number line with a pointer indicator.
+
+      .. literalinclude:: ../../../examples/reference/numberline.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
 ----
 
@@ -511,11 +648,14 @@ NumberPlane
 
       Animate a complex-valued transformation of the grid.
 
-   .. code-block:: python
+   .. admonition:: Example: complex function transformation
+      :class: example
 
-      plane = NumberPlane(x_range=(-5, 5), y_range=(-5, 5))
-      plane.apply_complex_function(lambda z: z**2, start=1, end=3)
-      v.add(plane)
+      .. code-block:: python
+
+         plane = NumberPlane(x_range=(-5, 5), y_range=(-5, 5))
+         plane.apply_complex_function(lambda z: z**2, start=1, end=3)
+         v.add(plane)
 
 ----
 
@@ -544,12 +684,15 @@ ComplexPlane
 
       Add a labelled dot at the complex number *z*.
 
-   .. code-block:: python
+   .. admonition:: Example: labelled complex numbers
+      :class: example
 
-      cp = ComplexPlane(x_range=(-3, 3), y_range=(-3, 3))
-      cp.add_complex_label(1+2j, 'z₁')
-      cp.add_complex_label(-1+1j, 'z₂')
-      v.add(cp)
+      .. code-block:: python
+
+         cp = ComplexPlane(x_range=(-3, 3), y_range=(-3, 3))
+         cp.add_complex_label(1+2j, 'z₁')
+         cp.add_complex_label(-1+1j, 'z₂')
+         v.add(cp)
 
 ----
 
@@ -573,11 +716,14 @@ PolarAxes
 
       Convert polar coordinates ``(r, theta)`` to SVG coordinates.
 
-   .. code-block:: python
+   .. admonition:: Example: polar axes
+      :class: example
 
-      pa = PolarAxes(r_range=(0, 3), radius=300)
-      pa.fadein(start=0, end=1)
-      v.add(pa)
+      .. code-block:: python
+
+         pa = PolarAxes(r_range=(0, 3), radius=300)
+         pa.fadein(start=0, end=1)
+         v.add(pa)
 
 ----
 
@@ -600,11 +746,14 @@ PieChart
 
       Smoothly transition slice sizes to new values.
 
-   .. code-block:: python
+   .. admonition:: Example: animated pie chart
+      :class: example
 
-      pie = PieChart([30, 20, 50], labels=['A', 'B', 'C'])
-      pie.fadein(start=0, end=1)
-      pie.animate_values([40, 40, 20], start=2, end=3)
+      .. code-block:: python
+
+         pie = PieChart([30, 20, 50], labels=['A', 'B', 'C'])
+         pie.fadein(start=0, end=1)
+         pie.animate_values([40, 40, 20], start=2, end=3)
 
 ----
 
@@ -656,12 +805,15 @@ BarChart
 
       Return the shortest bar Rectangle.
 
-   .. code-block:: python
+   .. admonition:: Example: bar chart with sorting animation
+      :class: example
 
-      bc = BarChart([3, 7, 2, 5], labels=['Q1', 'Q2', 'Q3', 'Q4'],
-                    colors=['#E74C3C', '#3498DB', '#2ECC71', '#F39C12'])
-      bc.fadein(start=0, end=1)
-      bc.animate_sort(start=2, end=3)
+      .. code-block:: python
+
+         bc = BarChart([3, 7, 2, 5], labels=['Q1', 'Q2', 'Q3', 'Q4'],
+                       colors=['#E74C3C', '#3498DB', '#2ECC71', '#F39C12'])
+         bc.fadein(start=0, end=1)
+         bc.animate_sort(start=2, end=3)
 
 ----
 
@@ -691,10 +843,27 @@ RadarChart
    :param list labels: Axis labels.
    :param float max_val: Maximum value (default: ``max(values)``).
 
-   .. code-block:: python
+   .. admonition:: Example: radar chart
+      :class: example
 
-      rc = RadarChart(labels=['Speed', 'Power', 'Defense', 'Magic', 'HP'],
-                      values=[0.8, 0.5, 0.9, 0.3, 0.7])
+      .. code-block:: python
+
+         rc = RadarChart(labels=['Speed', 'Power', 'Defense', 'Magic', 'HP'],
+                         values=[0.8, 0.5, 0.9, 0.3, 0.7])
+
+.. admonition:: Example: DonutChart and RadarChart
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/graph_donut_radar.svg" style="width:100%; max-width:800px;" />
+
+   A donut chart and a radar chart displayed side by side.
+
+   .. literalinclude:: ../../../examples/reference/graph_donut_radar.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display
 
 ----
 
@@ -707,97 +876,44 @@ Custom tick label formatters for axes and number lines:
 
    Format values as multiples of π (e.g. ``0.5`` → ``π/2``).
 
-.. py:function:: pi_ticks(n=4)
+.. py:function:: pi_ticks(vmin, vmax, step=None)
 
-   Generate tick positions at multiples of π.
+   Generate tick positions at multiples of π in the range ``[vmin, vmax]``.
+   Auto-selects *step* if ``None``.
 
 .. py:function:: pi_tex_format(value)
 
    Format values as LaTeX multiples of π.
 
-.. py:function:: log_tex_format(base=10)
+.. py:function:: log_tex_format(value)
 
-   Return a formatter for logarithmic tick labels (e.g. ``10²``).
+   Format a numeric value as a LaTeX power of 10 (e.g. ``$10^{3}$``).
 
-.. py:function:: scientific_format(precision=2)
+.. py:function:: scientific_format(value)
 
-   Scientific notation formatter (e.g. ``1.23 × 10³``).
+   Scientific notation formatter (e.g. ``2.5×10³``).
 
-.. py:function:: engineering_format(precision=2)
+.. py:function:: engineering_format(value)
 
-   Engineering notation (exponents are multiples of 3).
+   Engineering notation with SI prefixes (e.g. ``2.5k``, ``300μ``).
 
-.. py:function:: percent_format(precision=0)
+.. py:function:: percent_format(value)
 
    Format as percentage (e.g. ``0.5`` → ``50%``).
 
-.. py:function:: degree_format(precision=0)
+.. py:function:: degree_format(value)
 
-   Format as degrees (e.g. ``90`` → ``90°``).
+   Format as degrees (e.g. ``π/2`` → ``90°``). Values below 2π are
+   treated as radians and converted automatically.
 
-.. code-block:: python
+.. admonition:: Example: pi-formatted tick labels
+   :class: example
 
-   from vectormation.objects import pi_format, pi_ticks
+   .. code-block:: python
 
-   g = Graph(math.sin, x_range=(-2*math.pi, 2*math.pi))
-   g.x_tick_format = pi_format
-   g.x_tick_positions = pi_ticks(4)
+      from vectormation.objects import pi_format, pi_ticks
+      import math
 
-----
-
-Examples
---------
-
-**Animated Function with Tangent Line**
-
-.. code-block:: python
-
-   v = VectorMathAnim(duration=6)
-   g = Graph(lambda x: x**3 - 3*x, x_range=(-3, 3), y_range=(-5, 5))
-   g.add_coordinates()
-   g.add_grid(stroke='#222')
-   g.fadein(start=0, end=1)
-
-   # Animated tangent
-   x_val = attributes.Real(0, -2)
-   x_val.move_to(0, 5, 2)
-   tangent = g.get_tangent_line(lambda x: x**3 - 3*x, -2, stroke='#E74C3C')
-   v.add(g, tangent)
-
-**Riemann Sum Convergence**
-
-.. code-block:: python
-
-   v = VectorMathAnim(duration=5)
-   g = Graph(lambda x: x**2, x_range=(0, 3), y_range=(0, 10))
-   g.fadein(start=0, end=1)
-   rects = g.get_riemann_rectangles(lambda x: x**2, (0, 3), dx=0.5,
-                                     fill='#3498DB', fill_opacity=0.4)
-   v.add(g, rects)
-
-**Multiple Curves with Legend**
-
-.. code-block:: python
-
-   v = VectorMathAnim(duration=4)
-   ax = Axes(x_range=(-5, 5), y_range=(-3, 3))
-   ax.plot(math.sin, stroke='#E74C3C')
-   ax.plot(math.cos, stroke='#3498DB')
-   ax.plot(lambda x: math.sin(2*x), stroke='#2ECC71')
-   ax.add_legend([
-       ('#E74C3C', 'sin(x)'),
-       ('#3498DB', 'cos(x)'),
-       ('#2ECC71', 'sin(2x)'),
-   ])
-   ax.fadein(start=0, end=1)
-   v.add(ax)
-
-**Complex Plane Transformation**
-
-.. code-block:: python
-
-   v = VectorMathAnim(duration=5)
-   cp = ComplexPlane(x_range=(-3, 3), y_range=(-3, 3))
-   cp.fadein(start=0, end=1)
-   cp.apply_complex_function(lambda z: z**2, start=2, end=4)
-   v.add(cp)
+      g = Graph(math.sin, x_range=(-2*math.pi, 2*math.pi))
+      g.x_tick_format = pi_format
+      g.x_tick_positions = pi_ticks(-2*math.pi, 2*math.pi)

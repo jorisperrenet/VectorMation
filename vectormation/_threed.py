@@ -1,5 +1,6 @@
 """3D objects: ThreeDAxes, Surface, primitives (Line3D, Dot3D, Arrow3D, etc.)."""
 import math
+import inspect
 from copy import deepcopy
 from xml.sax.saxutils import escape as _xml_escape
 
@@ -8,6 +9,18 @@ import vectormation.attributes as attributes
 from vectormation._base import VObject, VCollection, _lerp
 from vectormation._constants import TEXT_Y_OFFSET, ORIGIN, _normalize
 from vectormation._axes import _nice_ticks
+
+
+def _is_time_func_3d(func):
+    """Return True if *func* accepts three positional parameters (u, v, time)."""
+    try:
+        params = inspect.signature(func).parameters
+        positional = [p for p in params.values()
+                      if p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)
+                      and p.default is p.empty]
+        return len(positional) >= 3
+    except (ValueError, TypeError):
+        return False
 
 # ---------------------------------------------------------------------------
 # Projection helpers
@@ -509,6 +522,7 @@ class Surface(VObject):
         self._stroke_width = stroke_width
         self._fill_opacity = fill_opacity
         self._is_parametric = None  # auto-detect
+        self._time_aware = _is_time_func_3d(func)
 
     def __repr__(self) -> str:
         return 'Surface()'
@@ -517,9 +531,12 @@ class Surface(VObject):
     def last_change(self):
         return max(self.show.last_change, self.z.last_change)
 
-    def _eval(self, u, v):
+    def _eval(self, u, v, time=0):
         """Evaluate func and return (x, y, z)."""
-        result = self._func(u, v)
+        if self._time_aware:
+            result = self._func(u, v, time)
+        else:
+            result = self._func(u, v)
         if isinstance(result, (tuple, list)) and len(result) == 3:
             if self._is_parametric is None:
                 self._is_parametric = True
@@ -544,7 +561,7 @@ class Surface(VObject):
             for j in range(v_steps + 1):
                 u = u0 + i * du
                 v = v0 + j * dv
-                row.append(self._eval(u, v))
+                row.append(self._eval(u, v, time))
             grid.append(row)
 
         # Parse colors
@@ -573,8 +590,11 @@ class Surface(VObject):
                 # Average depth
                 depth = (s00[2] + s10[2] + s11[2] + s01[2]) / 4
 
-                # Face normal for shading
+                # Face normal for shading (fallback for degenerate quads
+                # where p00 == p10, e.g. fan-triangulated polyhedra)
                 normal = _face_normal(p00, p10, p01)
+                if normal[0] == 0 and normal[1] == 0 and normal[2] == 0:
+                    normal = _face_normal(p00, p01, p11)
 
                 # Pick color
                 base_rgb = rgb_a if (i + j) % 2 == 0 else rgb_b
@@ -663,7 +683,7 @@ class SurfaceMesh(Surface):
             for j in range(v_steps + 1):
                 u = u0 + i * du
                 v = v0 + j * dv
-                row.append(self._eval(u, v))
+                row.append(self._eval(u, v, time))
             grid.append(row)
 
         sc = self._stroke_color
@@ -1128,7 +1148,7 @@ def _polyhedron_faces(vertices, face_indices, *,
             return f
 
         faces.append(Surface(_make_face(), u_range=(0, 1), v_range=(0, 1),
-                             resolution=(1, 1),
+                             resolution=(len(pts) - 2, 1),
                              fill_color=fill_color, stroke_color=stroke_color,
                              stroke_width=stroke_width, fill_opacity=fill_opacity,
                              creation=creation, z=z))

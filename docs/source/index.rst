@@ -55,5 +55,6 @@ Next Steps
    animation
    graphing
    examples
+   advanced_examples
    vs_manim
    release_notes

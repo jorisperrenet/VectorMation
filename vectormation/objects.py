@@ -106,7 +106,6 @@ from vectormation._ui import (
     Checklist, Stepper, TagCloud,
     StatusIndicator, Meter, Breadcrumb,
     Countdown, Filmstrip,
-    RoundedCornerPolygon,
 )
 
 from vectormation._data_structures import (
@@ -115,9 +114,9 @@ from vectormation._data_structures import (
 )
 
 from vectormation._science import (
-    Resistor, Capacitor, Inductor, Diode, LED, UnitInterval, Molecule2D,
+    UnitInterval, Molecule2D,
     NeuralNetwork, Pendulum, StandingWave,
-    Charge, ElectricField, Lens, Ray,
+    Lens, Ray,
 )
 
 from vectormation.colors import (LinearGradient, RadialGradient,

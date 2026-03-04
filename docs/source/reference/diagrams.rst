@@ -4,10 +4,6 @@ Diagrams
 Diagram and domain-specific visualization classes. All inherit from
 :py:class:`VCollection` and support the full set of animation methods.
 
-.. code-block:: python
-
-   from vectormation.objects import *
-
 ----
 
 ChessBoard
@@ -47,22 +43,26 @@ ChessBoard
       :param float end: Animation end time.
       :param easing: Easing function.
 
-   .. code-block:: python
+   .. admonition:: Example: chess board
+      :class: example
 
-      board = ChessBoard()
-      board.move_piece('e2', 'e4', start=0, end=1)
-      board.move_piece('e7', 'e5', start=1, end=2)
+      .. code-block:: python
 
-   A custom position using FEN notation:
+         board = ChessBoard()
+         board.move_piece('e2', 'e4', start=0, end=1)
+         board.move_piece('e7', 'e5', start=1, end=2)
 
-   .. code-block:: python
+   .. admonition:: Example: custom position using FEN notation
+      :class: example
 
-      # Fool's Mate final position
-      board = ChessBoard(
-          fen='rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR',
-          size=500,
-          show_coordinates=True,
-      )
+      .. code-block:: python
+
+         # Fool's Mate final position
+         board = ChessBoard(
+             fen='rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR',
+             size=500,
+             show_coordinates=True,
+         )
 
 ----
 
@@ -105,11 +105,14 @@ PeriodicTable
       :param str color: Flash color for the symbol text.
       :param easing: Easing function.
 
-   .. code-block:: python
+   .. admonition:: Example: highlighting elements
+      :class: example
 
-      table = PeriodicTable()
-      table.highlight('Fe', start=0, end=1.5)
-      table.highlight('O', start=1, end=2.5)
+      .. code-block:: python
+
+         table = PeriodicTable()
+         table.highlight('Fe', start=0, end=1.5)
+         table.highlight('O', start=1, end=2.5)
 
 ----
 
@@ -147,19 +150,23 @@ BohrAtom
       :param float end: Animation end time (``None`` for indefinite).
       :param float speed: Rotation speed in degrees per second.
 
-   .. code-block:: python
+   .. admonition:: Example: carbon atom
+      :class: example
 
-      # Carbon atom with 6 protons, 6 neutrons
-      carbon = BohrAtom(protons=6, neutrons=6)
-      carbon.orbit(start=0, end=5)
+      .. code-block:: python
 
-   Custom electron configuration:
+         # Carbon atom with 6 protons, 6 neutrons
+         carbon = BohrAtom(protons=6, neutrons=6)
+         carbon.orbit(start=0, end=5)
 
-   .. code-block:: python
+   .. admonition:: Example: custom electron configuration
+      :class: example
 
-      # Sodium with explicit shell configuration
-      sodium = BohrAtom(protons=11, neutrons=12, electrons=[2, 8, 1])
-      sodium.orbit(start=0, end=8, speed=60)
+      .. code-block:: python
+
+         # Sodium with explicit shell configuration
+         sodium = BohrAtom(protons=11, neutrons=12, electrons=[2, 8, 1])
+         sodium.orbit(start=0, end=8, speed=60)
 
 ----
 
@@ -228,37 +235,43 @@ Automaton
       :param list transitions: Optional override for the transition list.
          Defaults to the transitions passed at construction.
 
-   .. code-block:: python
+   .. admonition:: Example: DFA construction
+      :class: example
 
-      dfa = Automaton(
-          states=['q0', 'q1', 'q2'],
-          transitions=[
-              ('q0', 'q1', 'a'),
-              ('q1', 'q2', 'b'),
-              ('q2', 'q0', 'c'),
-          ],
-          accept_states={'q2'},
-          initial_state='q0',
-      )
+      .. code-block:: python
 
-   Simulating input on a DFA that accepts strings ending in ``'ab'``:
+         dfa = Automaton(
+             states=['q0', 'q1', 'q2'],
+             transitions=[
+                 ('q0', 'q1', 'a'),
+                 ('q1', 'q2', 'b'),
+                 ('q2', 'q0', 'c'),
+             ],
+             accept_states={'q2'},
+             initial_state='q0',
+         )
 
-   .. code-block:: python
+   .. admonition:: Example: DFA simulation
+      :class: example
 
-      dfa = Automaton(
-          states=['q0', 'q1', 'q2'],
-          transitions=[
-              ('q0', 'q0', 'b'),
-              ('q0', 'q1', 'a'),
-              ('q1', 'q0', 'a'),
-              ('q1', 'q2', 'b'),
-              ('q2', 'q0', 'b'),
-              ('q2', 'q1', 'a'),
-          ],
-          accept_states={'q2'},
-          initial_state='q0',
-      )
-      dfa.simulate_input('aab', start=0, delay=0.4)
+      Simulating input on a DFA that accepts strings ending in ``'ab'``:
+
+      .. code-block:: python
+
+         dfa = Automaton(
+             states=['q0', 'q1', 'q2'],
+             transitions=[
+                 ('q0', 'q0', 'b'),
+                 ('q0', 'q1', 'a'),
+                 ('q1', 'q0', 'a'),
+                 ('q1', 'q2', 'b'),
+                 ('q2', 'q0', 'b'),
+                 ('q2', 'q1', 'a'),
+             ],
+             accept_states={'q2'},
+             initial_state='q0',
+         )
+         dfa.simulate_input('aab', start=0, delay=0.4)
 
 ----
 
@@ -313,30 +326,34 @@ NetworkGraph
       :param node_id: The node identifier.
       :rtype: tuple[float, float]
 
-   .. code-block:: python
+   .. admonition:: Example: circular graph
+      :class: example
 
-      graph = NetworkGraph(
-          nodes=['A', 'B', 'C', 'D'],
-          edges=[(0, 1), (1, 2), (2, 3), (3, 0)],
-          layout='circular',
-      )
+      .. code-block:: python
 
-   A directed graph with edge labels using spring layout:
+         graph = NetworkGraph(
+             nodes=['A', 'B', 'C', 'D'],
+             edges=[(0, 1), (1, 2), (2, 3), (3, 0)],
+             layout='circular',
+         )
 
-   .. code-block:: python
+   .. admonition:: Example: directed graph with spring layout
+      :class: example
 
-      graph = NetworkGraph(
-          nodes=['S', 'A', 'B', 'T'],
-          edges=[
-              (0, 1, '4'), (0, 2, '3'),
-              (1, 2, '1'), (1, 3, '2'),
-              (2, 3, '5'),
-          ],
-          layout='spring',
-          directed=True,
-      )
-      graph.highlight_node(0, start=0, end=1)
-      graph.highlight_node(3, start=1, end=2)
+      .. code-block:: python
+
+         graph = NetworkGraph(
+             nodes=['S', 'A', 'B', 'T'],
+             edges=[
+                 (0, 1, '4'), (0, 2, '3'),
+                 (1, 2, '1'), (1, 3, '2'),
+                 (2, 3, '5'),
+             ],
+             layout='spring',
+             directed=True,
+         )
+         graph.highlight_node(0, start=0, end=1)
+         graph.highlight_node(3, start=1, end=2)
 
 ----
 
@@ -390,36 +407,32 @@ Tree
       :param str color: Flash color.
       :param easing: Easing function.
 
-   .. code-block:: python
+   .. admonition:: Example: Tree
+      :class: example
 
-      tree = Tree(('root', [
-          ('A', [('A1', []), ('A2', [])]),
-          ('B', [('B1', [])]),
-      ]))
+      .. raw:: html
 
-   A binary search tree with highlighted search path:
+         <img src="../_static/videos/tree.svg" style="width:100%; max-width:800px;" />
 
-   .. code-block:: python
+      Hierarchical tree with highlighted path.
 
-      bst = Tree(('8', [
-          ('3', [('1', []), ('6', [('4', []), ('7', [])])]),
-          ('10', [('', []), ('14', [('13', [])])]),
-      ]))
-      # Highlight search path for value 4
-      for i, label in enumerate(['8', '3', '6', '4']):
-          bst.highlight_node(label, start=i * 0.5, end=i * 0.5 + 0.4)
+      .. literalinclude:: ../../../examples/reference/tree.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
-   Horizontal layout (root at left):
+   .. admonition:: Example: horizontal layout
+      :class: example
 
-   .. code-block:: python
+      .. code-block:: python
 
-      tree = Tree(
-          ('CEO', [
-              ('CTO', [('Eng', []), ('QA', [])]),
-              ('CFO', [('Finance', [])]),
-          ]),
-          layout='right',
-      )
+         tree = Tree(
+             ('CEO', [
+                 ('CTO', [('Eng', []), ('QA', [])]),
+                 ('CFO', [('Finance', [])]),
+             ]),
+             layout='right',
+         )
 
 ----
 
@@ -438,26 +451,28 @@ Stamp
    :param float creation: Creation time.
    :param float z: Z-index for layering.
 
-   .. code-block:: python
+   .. admonition:: Example: stamping stars
+      :class: example
 
-      from vectormation.objects import *
+      .. code-block:: python
 
-      star = Polygon.regular(5, r=20, fill='#FFFF00', fill_opacity=0.8)
-      positions = [(300, 300), (600, 200), (900, 350), (1200, 250)]
-      stamps = Stamp(star, positions)
+         star = RegularPolygon(5, radius=20, fill='#FFFF00', fill_opacity=0.8)
+         positions = [(300, 300), (600, 200), (900, 350), (1200, 250)]
+         stamps = Stamp(star, positions)
 
-   Stamping dots along a curve:
+   .. admonition:: Example: stamping dots along a curve
+      :class: example
 
-   .. code-block:: python
+      .. code-block:: python
 
-      import math
+         import math
 
-      dot = Dot(r=8, fill='#58C4DD')
-      points = [
-          (960 + 300 * math.cos(t), 540 + 200 * math.sin(t))
-          for t in [i * math.pi / 6 for i in range(12)]
-      ]
-      ring = Stamp(dot, points)
+         dot = Dot(r=8, fill='#58C4DD')
+         points = [
+             (960 + 300 * math.cos(t), 540 + 200 * math.sin(t))
+             for t in [i * math.pi / 6 for i in range(12)]
+         ]
+         ring = Stamp(dot, points)
 
 ----
 
@@ -485,23 +500,27 @@ TimelineBar
    :param float creation: Creation time.
    :param float z: Z-index for layering.
 
-   .. code-block:: python
+   .. admonition:: Example: basic timeline
+      :class: example
 
-      tl = TimelineBar(
-          {0: 'Start', 3: 'Phase 1', 7: 'Phase 2', 10: 'End'},
-          total_duration=10,
-      )
+      .. code-block:: python
 
-   A video production timeline:
+         tl = TimelineBar(
+             {0: 'Start', 3: 'Phase 1', 7: 'Phase 2', 10: 'End'},
+             total_duration=10,
+         )
 
-   .. code-block:: python
+   .. admonition:: Example: video production timeline
+      :class: example
 
-      tl = TimelineBar(
-          {0: 'Intro', 2: 'Problem', 5: 'Solution', 8: 'Demo', 10: 'Outro'},
-          total_duration=10,
-          y=1000,
-          marker_color='#58C4DD',
-      )
+      .. code-block:: python
+
+         tl = TimelineBar(
+             {0: 'Intro', 2: 'Problem', 5: 'Solution', 8: 'Demo', 10: 'Outro'},
+             total_duration=10,
+             y=1000,
+             marker_color='#58C4DD',
+         )
 
 ----
 
@@ -532,22 +551,19 @@ FlowChart
    :param float creation: Creation time.
    :param float z: Z-index for layering.
 
-   .. code-block:: python
+   .. admonition:: Example: FlowChart
+      :class: example
 
-      flow = FlowChart(['Input', 'Process', 'Output'])
+      .. raw:: html
 
-   A vertical software development flow:
+         <img src="../_static/videos/flowchart.svg" style="width:100%; max-width:800px;" />
 
-   .. code-block:: python
+      Simple horizontal flow chart.
 
-      flow = FlowChart(
-          ['Requirements', 'Design', 'Implement', 'Test', 'Deploy'],
-          direction='down',
-          x=800,
-          y=100,
-          box_color='#83C167',
-          spacing=60,
-      )
+      .. literalinclude:: ../../../examples/reference/flowchart.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
 ----
 
@@ -578,28 +594,33 @@ VennDiagram
    separation. For 3-circle diagrams, circles are arranged in a triangular
    pattern with 65% radius separation.
 
-   .. code-block:: python
+   .. admonition:: Example: two-set Venn diagram
+      :class: example
 
-      venn2 = VennDiagram(['Python', 'JavaScript'])
+      .. code-block:: python
 
-   A three-set Venn diagram:
+         venn2 = VennDiagram(['Python', 'JavaScript'])
 
-   .. code-block:: python
+   .. admonition:: Example: three-set Venn diagram
+      :class: example
 
-      venn3 = VennDiagram(
-          ['Math', 'CS', 'Art'],
-          radius=180,
-          colors=['#FC6255', '#58C4DD', '#83C167'],
-      )
+      .. code-block:: python
 
-   With different circle sizes:
+         venn3 = VennDiagram(
+             ['Math', 'CS', 'Art'],
+             radius=180,
+             colors=['#FC6255', '#58C4DD', '#83C167'],
+         )
 
-   .. code-block:: python
+   .. admonition:: Example: different circle sizes
+      :class: example
 
-      venn = VennDiagram(
-          ['Large Set', 'Small Set'],
-          sizes=[200, 120],
-      )
+      .. code-block:: python
+
+         venn = VennDiagram(
+             ['Large Set', 'Small Set'],
+             sizes=[200, 120],
+         )
 
 ----
 
@@ -630,36 +651,40 @@ OrgChart
    :param float creation: Creation time.
    :param float z: Z-index for layering.
 
-   .. code-block:: python
+   .. admonition:: Example: organization chart
+      :class: example
 
-      org = OrgChart(('CEO', [
-          ('CTO', [('Dev Lead', []), ('QA Lead', [])]),
-          ('CFO', [('Accounting', [])]),
-      ]))
+      .. code-block:: python
 
-   A larger organization with custom colors:
+         org = OrgChart(('CEO', [
+             ('CTO', [('Dev Lead', []), ('QA Lead', [])]),
+             ('CFO', [('Accounting', [])]),
+         ]))
 
-   .. code-block:: python
+   .. admonition:: Example: larger organization with custom colors
+      :class: example
 
-      org = OrgChart(
-          ('Director', [
-              ('Manager A', [
-                  ('Team 1', []),
-                  ('Team 2', []),
-                  ('Team 3', []),
-              ]),
-              ('Manager B', [
-                  ('Team 4', []),
-                  ('Team 5', []),
-              ]),
-              ('Manager C', [
-                  ('Team 6', []),
-              ]),
-          ]),
-          h_spacing=160,
-          v_spacing=120,
-          colors=['#FC6255', '#58C4DD', '#83C167'],
-      )
+      .. code-block:: python
+
+         org = OrgChart(
+             ('Director', [
+                 ('Manager A', [
+                     ('Team 1', []),
+                     ('Team 2', []),
+                     ('Team 3', []),
+                 ]),
+                 ('Manager B', [
+                     ('Team 4', []),
+                     ('Team 5', []),
+                 ]),
+                 ('Manager C', [
+                     ('Team 6', []),
+                 ]),
+             ]),
+             h_spacing=160,
+             v_spacing=120,
+             colors=['#FC6255', '#58C4DD', '#83C167'],
+         )
 
 ----
 
@@ -690,144 +715,41 @@ MindMap
    :param float creation: Creation time.
    :param float z: Z-index for layering.
 
-   .. code-block:: python
+   .. admonition:: Example: project mind map
+      :class: example
 
-      mindmap = MindMap(('Project', [
-          ('Design', [('UI', []), ('UX', [])]),
-          ('Dev', [('Frontend', []), ('Backend', []), ('DB', [])]),
-          ('Test', [('Unit', []), ('E2E', [])]),
-          ('Deploy', []),
-      ]))
+      .. code-block:: python
 
-   A study notes mind map with custom colors:
+         mindmap = MindMap(('Project', [
+             ('Design', [('UI', []), ('UX', [])]),
+             ('Dev', [('Frontend', []), ('Backend', []), ('DB', [])]),
+             ('Test', [('Unit', []), ('E2E', [])]),
+             ('Deploy', []),
+         ]))
 
-   .. code-block:: python
+   .. admonition:: Example: study notes with custom colors
+      :class: example
 
-      mindmap = MindMap(
-          ('Physics', [
-              ('Mechanics', [
-                  ('Kinematics', []),
-                  ('Dynamics', []),
-                  ('Energy', []),
-              ]),
-              ('Waves', [
-                  ('Sound', []),
-                  ('Light', []),
-              ]),
-              ('Thermo', [
-                  ('Heat', []),
-                  ('Entropy', []),
-              ]),
-              ('E&M', []),
-          ]),
-          radius=280,
-          colors=['#FC6255', '#58C4DD', '#83C167', '#FFFF00', '#9A72AC'],
-      )
+      .. code-block:: python
 
-----
+         mindmap = MindMap(
+             ('Physics', [
+                 ('Mechanics', [
+                     ('Kinematics', []),
+                     ('Dynamics', []),
+                     ('Energy', []),
+                 ]),
+                 ('Waves', [
+                     ('Sound', []),
+                     ('Light', []),
+                 ]),
+                 ('Thermo', [
+                     ('Heat', []),
+                     ('Entropy', []),
+                 ]),
+                 ('E&M', []),
+             ]),
+             radius=280,
+             colors=['#FC6255', '#58C4DD', '#83C167', '#FFFF00', '#9A72AC'],
+         )
 
-Examples
---------
-
-Chess game animation
-^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   from vectormation.objects import *
-
-   canvas = VectorMathAnim()
-   canvas.set_background()
-
-   board = ChessBoard()
-   board.move_piece('e2', 'e4', start=0, end=1)
-   board.move_piece('e7', 'e5', start=1, end=2)
-   board.move_piece('g1', 'f3', start=2, end=3)
-   board.move_piece('b8', 'c6', start=3, end=4)
-
-   canvas.add_objects(board)
-   canvas.browser_display()
-
-DFA simulation
-^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   from vectormation.objects import *
-
-   canvas = VectorMathAnim()
-   canvas.set_background()
-
-   # DFA that accepts binary strings divisible by 3
-   dfa = Automaton(
-       states=['q0', 'q1', 'q2'],
-       transitions=[
-           ('q0', 'q0', '0'), ('q0', 'q1', '1'),
-           ('q1', 'q2', '0'), ('q1', 'q0', '1'),
-           ('q2', 'q1', '0'), ('q2', 'q2', '1'),
-       ],
-       accept_states={'q0'},
-       initial_state='q0',
-   )
-   dfa.simulate_input('110', start=0, delay=0.5)
-
-   canvas.add_objects(dfa)
-   canvas.browser_display()
-
-Graph with spring layout
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   from vectormation.objects import *
-
-   canvas = VectorMathAnim()
-   canvas.set_background()
-
-   graph = NetworkGraph(
-       nodes={0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E'},
-       edges=[(0, 1), (0, 2), (1, 3), (2, 3), (3, 4), (1, 4)],
-       layout='spring',
-       directed=True,
-   )
-   graph.highlight_node(0, start=0, end=1)
-   graph.highlight_node(4, start=1, end=2)
-
-   canvas.add_objects(graph)
-   canvas.browser_display()
-
-Atomic model animation
-^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   from vectormation.objects import *
-
-   canvas = VectorMathAnim()
-   canvas.set_background()
-
-   oxygen = BohrAtom(protons=8, neutrons=8, shell_spacing=50)
-   oxygen.orbit(start=0, end=10, speed=30)
-
-   canvas.add_objects(oxygen)
-   canvas.browser_display()
-
-Mind map with animation
-^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   from vectormation.objects import *
-
-   canvas = VectorMathAnim()
-   canvas.set_background()
-
-   mm = MindMap(('ML', [
-       ('Supervised', [('Classification', []), ('Regression', [])]),
-       ('Unsupervised', [('Clustering', []), ('PCA', [])]),
-       ('RL', [('Q-Learning', []), ('Policy Grad', [])]),
-   ]))
-   mm.write(start=0, end=2)
-
-   canvas.add_objects(mm)
-   canvas.browser_display()

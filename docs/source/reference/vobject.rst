@@ -63,6 +63,20 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Translate by ``(dx, dy)``. If *end* is given, the shift is animated.
 
+      .. admonition:: Example: shift
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/shift.mp4" controls autoplay loop muted></video>
+
+         Shift a circle across the screen.
+
+         .. literalinclude:: ../../../examples/reference/shift.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: move_to(x, y, start=0, end=None, easing=smooth)
 
       Move the object's centre to ``(x, y)``.
@@ -74,6 +88,20 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
    .. py:method:: along_path(start, end, path_d, easing=smooth)
 
       Move the object's centre along an SVG path string over ``[start, end]``.
+
+      .. admonition:: Example: along_path
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/along_path.mp4" controls autoplay loop muted></video>
+
+         Move a dot along a Bezier path.
+
+         .. literalinclude:: ../../../examples/reference/along_path.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: next_to(other, direction='right', buff=14, start=0)
 
@@ -139,6 +167,20 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Fade opacity from 0 to current value.
 
+      .. admonition:: Example: fadein / write / create
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/fadein.mp4" controls autoplay loop muted></video>
+
+         Three creation methods side by side.
+
+         .. literalinclude:: ../../../examples/reference/fadein.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: fadeout(start=0, end=1, change_existence=True, easing=smooth)
 
       Fade opacity to 0.
@@ -146,6 +188,7 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
    .. py:method:: write(start=0, end=1, max_stroke_width=2, change_existence=True)
 
       Handwriting reveal: strokes the outline then fills.
+
 
    .. py:method:: create(start=0, end=1, change_existence=True, easing=smooth)
 
@@ -174,6 +217,7 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
    .. py:method:: slide_in(direction='right', start=0, end=1, easing=smooth, change_existence=True)
 
       Slide in from off-screen.
+
 
    .. py:method:: slide_out(direction='right', start=0, end=1, easing=smooth, change_existence=True)
 
@@ -220,9 +264,24 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Brief scale-up highlight.
 
+      .. admonition:: Example: indicate / flash
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/indicate.mp4" controls autoplay loop muted></video>
+
+         Indicate and flash effects on objects.
+
+         .. literalinclude:: ../../../examples/reference/indicate.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: flash(start=0, end=1, color='#FFFF00', easing=there_and_back)
 
       Flash the fill colour then return to original.
+
 
    .. py:method:: pulse(start=0, end=1, scale_factor=1.5, easing=there_and_back)
 
@@ -267,6 +326,20 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
    .. py:method:: orbit(cx, cy, radius=None, start=0, end=1, degrees=360, easing=linear)
 
       Orbit around a centre point.
+
+      .. admonition:: Example: orbit
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/orbit.mp4" controls autoplay loop muted></video>
+
+         Planet orbiting around a point.
+
+         .. literalinclude:: ../../../examples/reference/orbit.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: ripple(start=0, count=3, duration=0.5, max_radius=100, color='#58C4DD', stroke_width=2)
 
@@ -396,9 +469,37 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Animate back to the saved state.
 
+      .. admonition:: Example: save_state / restore
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/save_restore.mp4" controls autoplay loop muted></video>
+
+         Save state, modify, then restore to original.
+
+         .. literalinclude:: ../../../examples/reference/save_restore.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: trace_path(start=0, end=1, stroke='#fff')
 
       Returns a :py:class:`Path` tracing this object's centre over time.
+
+      .. admonition:: Example: trace_path
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/trace_path.mp4" controls autoplay loop muted></video>
+
+         Dot moving with a visible trail.
+
+         .. literalinclude:: ../../../examples/reference/trace_path.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. rubric:: Transform
 
@@ -608,6 +709,20 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
    .. py:method:: add_updater(func, start=0, end=None)
 
       Add a custom updater function ``func(obj, time)`` called each frame.
+
+      .. admonition:: Example: add_updater
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/updater.mp4" controls autoplay loop muted></video>
+
+         Updater-driven pulsing opacity.
+
+         .. literalinclude:: ../../../examples/reference/updater.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. rubric:: Measurement (continued)
 

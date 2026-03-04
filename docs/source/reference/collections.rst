@@ -83,6 +83,20 @@ VCollection
       :param str direction: ``'right'``, ``'left'``, ``'up'``, or ``'down'``.
       :param float buff: Spacing between children.
 
+   .. admonition:: Example: arrange
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/arrange.mp4" controls autoplay loop muted></video>
+
+      Arrange and distribute shapes in a row.
+
+      .. literalinclude:: ../../../examples/reference/arrange.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
+
    .. py:method:: distribute(direction='right', buff=0, start=0)
 
       Distribute children evenly across the group's bounding box.
@@ -92,9 +106,26 @@ VCollection
       Call an animation method on children with overlapping timing.
       ``overlap``: 0 = sequential, 1 = all simultaneous.
 
-      .. code-block:: python
+      .. admonition:: Example: Staggered animation across children
+         :class: example
 
-         group.stagger('fadein', start=0, end=1, overlap=0.5)
+         .. code-block:: python
+
+            group.stagger('fadein', start=0, end=1, overlap=0.5)
+
+   .. admonition:: Example: stagger
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/stagger.mp4" controls autoplay loop muted></video>
+
+      Staggered fade-in across children.
+
+      .. literalinclude:: ../../../examples/reference/stagger.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
    .. rubric:: Measurement
 
@@ -137,10 +168,6 @@ VCollection
    .. py:method:: animated_arrange_in_grid(rows=None, cols=None, buff=14, start=0, end=1)
 
       Animated version of :py:meth:`arrange_in_grid`.
-
-   .. py:method:: distribute_radial(cx=960, cy=540, radius=300, start=0)
-
-      Place children in a circle.
 
    .. py:method:: space_evenly(direction='right', total_span=None, start=0)
 
@@ -284,10 +311,13 @@ MorphObject
    :param float end: End time.
    :param float rotation_degrees: Spiral morph rotation (0 = straight morph).
 
-   .. code-block:: python
+   .. admonition:: Example: Morphing one shape into another
+      :class: example
 
-      morph = MorphObject(circle, square, start=1, end=3)
-      canvas.add_objects(morph)
+      .. code-block:: python
+
+         morph = MorphObject(circle, square, start=1, end=3)
+         canvas.add_objects(morph)
 
 ----
 
@@ -355,13 +385,16 @@ Vector
 
       Return the vector components ``(dx, dy)`` from start to end.
 
-   .. code-block:: python
+   .. admonition:: Example: Creating a vector on axes
+      :class: example
 
-      from vectormation.objects import *
+      .. code-block:: python
 
-      axes = Axes(x_range=(-3, 3), y_range=(-3, 3))
-      v = Vector(x=2 * 135, y=-1 * 135)   # 2 units right, 1 unit down
-      v.fadein(0, 1)
+         from vectormation.objects import *
+
+         axes = Axes(x_range=(-3, 3), y_range=(-3, 3))
+         v = Vector(x=2 * 135, y=-1 * 135)   # 2 units right, 1 unit down
+         v.fadein(0, 1)
 
 ----
 
@@ -442,9 +475,12 @@ BraceBetweenPoints
    :param float buff: Distance from segment.
    :param float depth: Brace depth.
 
-   .. code-block:: python
+   .. admonition:: Example: Brace spanning two points
+      :class: example
 
-      brace = BraceBetweenPoints(300, 400, 800, 400, label='500px')
+      .. code-block:: python
+
+         brace = BraceBetweenPoints(300, 400, 800, 400, label='500px')
 
 ----
 
@@ -484,6 +520,20 @@ Array
 
       Add a pointer arrow above a cell.
 
+   .. admonition:: Example: Array
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/array.mp4" controls autoplay loop muted></video>
+
+      Array highlight and swap operations.
+
+      .. literalinclude:: ../../../examples/reference/array_example.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
+
 Stack
 ~~~~~
 
@@ -508,7 +558,7 @@ Stack
 Queue
 ~~~~~
 
-.. py:class:: Queue(values=None, x=660, y=440, cell_width=80, cell_height=50, **styling)
+.. py:class:: Queue(values=None, x=360, y=440, cell_width=80, cell_height=60, **styling)
 
    Bases: :py:class:`VCollection`
 
@@ -525,27 +575,28 @@ Queue
 LinkedList
 ~~~~~~~~~~
 
-.. py:class:: LinkedList(values=None, x=260, y=500, cell_width=80, cell_height=50, **styling)
+.. py:class:: LinkedList(values, x=200, y=440, node_width=80, node_height=50, gap=40, font_size=22, fill='#1e1e2e', text_color='#fff', border_color='#58C4DD', arrow_color='#fff')
 
    Bases: :py:class:`VCollection`
 
-   Visual singly linked list with insert/delete animations.
+   Visual singly linked list with node and arrow animations.
 
-   .. py:method:: insert(value, index=None, start=0, end=0.5)
+   :param list values: Initial node values (required).
+   :param float node_width: Width of each node box.
+   :param float node_height: Height of each node box.
+   :param float gap: Horizontal gap between nodes.
 
-      Insert a new node at *index* (default: append).
+   .. py:method:: append_node(value, start=0, end=0.5)
 
-   .. py:method:: delete(index, start=0, end=0.5)
+      Animate appending a new node at the end of the list.
 
-      Remove the node at *index*.
+   .. py:method:: remove_node(index, start=0, end=0.5)
 
-   .. py:method:: traverse(start=0, delay=0.3, color='#58C4DD')
+      Animate removing the node at *index*.
 
-      Animate traversal through all nodes.
+   .. py:method:: highlight_node(index, start=0, end=1, color='#FF6B6B')
 
-   .. py:method:: get_length()
-
-      Return the number of nodes.
+      Flash-highlight a node by index.
 
 ArrayViz
 ~~~~~~~~
@@ -728,9 +779,12 @@ DecimalMatrix
    :param list data: 2D list of numeric values.
    :param int decimals: Number of decimal places (default ``1``).
 
-   .. code-block:: python
+   .. admonition:: Example: Matrix with fixed decimal places
+      :class: example
 
-      m = DecimalMatrix([[1.234, 5.678], [9.012, 3.456]], decimals=2)
+      .. code-block:: python
+
+         m = DecimalMatrix([[1.234, 5.678], [9.012, 3.456]], decimals=2)
 
 IntegerMatrix
 ~~~~~~~~~~~~~
@@ -743,10 +797,13 @@ IntegerMatrix
 
    :param list data: 2D list of numeric values.
 
-   .. code-block:: python
+   .. admonition:: Example: Matrix with integer-rounded entries
+      :class: example
 
-      m = IntegerMatrix([[1.7, 2.3], [3.9, 4.1]])
-      # Displays: [[2, 2], [4, 4]]
+      .. code-block:: python
+
+         m = IntegerMatrix([[1.7, 2.3], [3.9, 4.1]])
+         # Displays: [[2, 2], [4, 4]]
 
 Code
 ~~~~
@@ -808,221 +865,41 @@ DynamicObject
    VObject whose SVG is regenerated every frame by calling ``func(time)``.
    The function should return a VObject.
 
-   .. code-block:: python
+   .. admonition:: Example: Rebuilding SVG every frame
+      :class: example
 
-      def my_clock(time):
-          angle = time * 360
-          hand = Line(960, 540, 960 + 100 * math.cos(math.radians(angle)),
-                      540 + 100 * math.sin(math.radians(angle)))
-          return hand
+      .. code-block:: python
 
-      clock = DynamicObject(my_clock)
+         def my_clock(time):
+             angle = time * 360
+             hand = Line(960, 540, 960 + 100 * math.cos(math.radians(angle)),
+                         540 + 100 * math.sin(math.radians(angle)))
+             return hand
+
+         clock = DynamicObject(my_clock)
 
 .. py:function:: always_redraw(func, creation=0, z=0)
 
    Convenience wrapper: create a :py:class:`DynamicObject` from a callable.
    ``func(time)`` should return a VObject.
 
-   .. code-block:: python
+   .. admonition:: Example: Line that follows a moving dot
+      :class: example
 
-      dot = Dot()
-      dot.shift(dx=200, start=0, end=2)
+      .. code-block:: python
 
-      line = always_redraw(lambda t: Line(960, 540, *dot.center(t)))
+         dot = Dot()
+         dot.shift(dx=200, start=0, end=2)
 
-NetworkGraph
-~~~~~~~~~~~~
+         line = always_redraw(lambda t: Line(960, 540, *dot.center(t)))
 
-.. py:class:: NetworkGraph(nodes, edges, x=960, y=540, node_radius=25, **styling)
+.. seealso::
 
-   Bases: :py:class:`VCollection`
+   Additional VCollection-based classes are documented in their dedicated
+   reference pages:
 
-   Graph/network diagram with automatic force-directed layout.
-
-   :param list nodes: List of node labels.
-   :param list edges: List of ``(from, to)`` or ``(from, to, label)`` tuples.
-
-   .. py:method:: highlight_node(node, color='#E9C46A', start=0, end=0.5)
-
-      Temporarily highlight a node.
-
-   .. py:method:: highlight_edge(from_node, to_node, color='#E76F51', start=0, end=0.5)
-
-      Temporarily highlight an edge.
-
-NeuralNetwork
-~~~~~~~~~~~~~
-
-.. py:class:: NeuralNetwork(layers, x=960, y=540, node_radius=15, h_spacing=200, v_spacing=50, **styling)
-
-   Bases: :py:class:`VCollection`
-
-   Neural network diagram with layers of nodes and weighted connections.
-
-   :param list layers: List of integers giving the number of nodes per layer.
-
-   .. py:method:: activate(layer, node, start=0, end=0.5, color='#E9C46A')
-
-      Highlight a specific neuron.
-
-----
-
-Circuit Components
-~~~~~~~~~~~~~~~~~~
-
-.. py:class:: Resistor(x1=860, y1=540, x2=1060, y2=540, **styling)
-
-   Bases: :py:class:`VCollection`
-
-   Resistor symbol (zigzag).
-
-.. py:class:: Capacitor(x1=860, y1=540, x2=1060, y2=540, **styling)
-
-   Bases: :py:class:`VCollection`
-
-   Capacitor symbol (two parallel plates).
-
-.. py:class:: Inductor(x1=860, y1=540, x2=1060, y2=540, **styling)
-
-   Bases: :py:class:`VCollection`
-
-   Inductor symbol (coil).
-
-.. py:class:: Diode(x1=860, y1=540, x2=1060, y2=540, **styling)
-
-   Bases: :py:class:`VCollection`
-
-   Diode symbol (triangle + line).
-
-.. py:class:: LED(x1=860, y1=540, x2=1060, y2=540, **styling)
-
-   Bases: :py:class:`VCollection`
-
-   LED symbol (diode with arrows).
-
-----
-
-Physics
-~~~~~~~
-
-.. py:class:: Pendulum(length=200, angle=30, x=960, y=200, start=0, end=5, damping=0.98, **styling)
-
-   Bases: :py:class:`VCollection`
-
-   Animated pendulum with damped oscillation.
-
-.. py:class:: StandingWave(n=3, width=600, amplitude=80, x=660, y=540, start=0, end=3, frequency=1, **styling)
-
-   Bases: :py:class:`VCollection`
-
-   Animated standing wave with *n* antinodes.
-
-.. py:class:: Molecule2D(atoms, bonds, x=960, y=540, scale=100, **styling)
-
-   Bases: :py:class:`VCollection`
-
-   2D molecular structure diagram.
-
-   :param list atoms: List of ``(element, x, y)`` tuples.
-   :param list bonds: List of ``(atom_idx1, atom_idx2)`` or ``(atom_idx1, atom_idx2, order)`` tuples.
-
-.. py:class:: UnitInterval(x_range=(0, 1, 0.25), **kwargs)
-
-   Bases: :py:class:`NumberLine`
-
-   A NumberLine pre-configured for the unit interval [0, 1].
-
-SampleSpace
-~~~~~~~~~~~~
-
-.. py:class:: SampleSpace(width=600, height=400, x=660, y=340, **styling)
-   :no-index:
-
-   Bases: :py:class:`VCollection`
-
-   Rectangular probability sample space diagram.
-
-----
-
-Legend
-~~~~~~
-
-.. py:class:: Legend(items, x=None, y=None, **styling)
-   :no-index:
-
-   Bases: :py:class:`VCollection`
-
-   Chart legend with coloured swatches and labels.
-
-   :param list items: List of ``(color, label)`` tuples.
-
-ProgressBar
-~~~~~~~~~~~
-
-.. py:class:: ProgressBar(width=600, height=40, progress=0, x=660, y=520, **styling)
-   :no-index:
-
-   Bases: :py:class:`VCollection`
-
-   Animated progress bar that fills from left to right.
-
-   .. py:method:: animate_to(value, start=0, end=1)
-      :no-index:
-
-      Animate progress to a target value (0–1).
-
-FlowChart
-~~~~~~~~~
-
-.. py:class:: FlowChart(steps, x=None, y=540, direction='right', **styling)
-
-   Bases: :py:class:`VCollection`
-
-   Flow chart with labelled boxes connected by arrows.
-
-   :param list steps: List of string labels for each box.
-
-----
-
-Annotations
------------
-
-Label
-~~~~~
-
-.. py:class:: Label(text, x=960, y=540, font_size=36, padding=10, **styling)
-
-   Bases: :py:class:`VCollection`
-
-   Text label with a surrounding box/frame.
-
-Callout
-~~~~~~~
-
-.. py:class:: Callout(text, target, x=None, y=None, **styling)
-
-   Bases: :py:class:`VCollection`
-
-   Text callout with a pointer line to a target position.
-
-DimensionLine
-~~~~~~~~~~~~~
-
-.. py:class:: DimensionLine(p1, p2, label='', **styling)
-
-   Bases: :py:class:`VCollection`
-
-   Technical dimension line between two points with measurement label.
-
-   :param tuple p1: Start ``(x, y)`` point.
-   :param tuple p2: End ``(x, y)`` point.
-   :param str label: Measurement text.
-
-Tooltip
-~~~~~~~
-
-.. py:class:: Tooltip(text, target, start=0, end=1, **styling)
-
-   Bases: :py:class:`VCollection`
-
-   Small animated tooltip that appears near a target.
+   - :doc:`graphing` — Axes, Graph, NumberPlane, ComplexPlane, PolarAxes, NumberLine
+   - :doc:`charts` — PieChart, BarChart, DonutChart, RadarChart, Legend, ProgressBar, and more
+   - :doc:`diagrams` — NetworkGraph, FlowChart, Tree, Automaton, and more
+   - :doc:`ui` — Label, Callout, DimensionLine, Tooltip, Code, Title, Variable, and more
+   - :doc:`science` — NeuralNetwork, Pendulum, StandingWave, Molecule2D, Lens, Ray

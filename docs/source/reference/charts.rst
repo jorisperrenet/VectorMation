@@ -43,10 +43,19 @@ PieChart
 
       Add percentage text inside each sector.
 
-   .. code-block:: python
+.. admonition:: Example: PieChart
+   :class: example
 
-      pie = PieChart([30, 20, 50], labels=['A', 'B', 'C'])
-      pie.highlight_sector(2, start=0, end=1)
+   .. raw:: html
+
+      <img src="../_static/videos/piechart.svg" style="width:100%; max-width:800px;" />
+
+   Pie chart with sector highlight.
+
+   .. literalinclude:: ../../../examples/reference/piechart.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display
 
 ----
 
@@ -149,10 +158,19 @@ BarChart
 
       Smoothly slide bars into sorted order. Alias: ``sort_bars``.
 
-   .. code-block:: python
+.. admonition:: Example: BarChart
+   :class: example
 
-      chart = BarChart.from_dict({'Q1': 40, 'Q2': 65, 'Q3': 50})
-      chart.grow_from_zero(start=0, end=1.5)
+   .. raw:: html
+
+      <video src="../_static/videos/barchart.mp4" controls autoplay loop muted></video>
+
+   Bar chart growing from zero with sort animation.
+
+   .. literalinclude:: ../../../examples/reference/barchart.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display
 
 ----
 
@@ -230,10 +248,13 @@ ProgressBar
 
       Return the current progress value (0--1) at the given time.
 
-   .. code-block:: python
+   .. admonition:: Example: Animating a progress bar
+      :class: example
 
-      bar = ProgressBar()
-      bar.animate_to(0.75, start=0, end=2)
+      .. code-block:: python
+
+         bar = ProgressBar()
+         bar.animate_to(0.75, start=0, end=2)
 
 ----
 
@@ -282,13 +303,16 @@ GanttChart
    :param list tasks: List of ``(label, start, end)`` or ``(label, start, end, color)`` tuples.
    :param float bar_height: Height of each task bar.
 
-   .. code-block:: python
+   .. admonition:: Example: Creating a Gantt chart
+      :class: example
 
-      gantt = GanttChart([
-          ('Design', 0, 3),
-          ('Build',  2, 7),
-          ('Test',   6, 9),
-      ])
+      .. code-block:: python
+
+         gantt = GanttChart([
+             ('Design', 0, 3),
+             ('Build',  2, 7),
+             ('Test',   6, 9),
+         ])
 
 ----
 
@@ -372,11 +396,14 @@ KPICard
    :param str subtitle: Optional secondary text.
    :param list trend_data: Data points for the embedded ``SparkLine``.
 
-   .. code-block:: python
+   .. admonition:: Example: KPI card with sparkline
+      :class: example
 
-      card = KPICard('Revenue', '$1.2M',
-                     subtitle='+12% MoM',
-                     trend_data=[10, 12, 11, 14, 13, 16])
+      .. code-block:: python
+
+         card = KPICard('Revenue', '$1.2M',
+                        subtitle='+12% MoM',
+                        trend_data=[10, 12, 11, 14, 13, 16])
 
 ----
 

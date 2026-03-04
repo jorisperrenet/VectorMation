@@ -194,6 +194,34 @@ Text
 
       :param str charset: Character set for scrambled characters.
 
+   .. admonition:: Example: Typewrite & Scramble
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/typewrite.mp4" controls autoplay loop muted></video>
+
+      Typewriter effect with blinking cursor.
+
+      .. literalinclude:: ../../../examples/reference/typewrite.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
+
+   .. admonition:: Example: Scramble decode
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/scramble.mp4" controls autoplay loop muted></video>
+
+      Characters settle left-to-right from random glyphs.
+
+      .. literalinclude:: ../../../examples/reference/scramble.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
+
    .. py:method:: set_text(start, end, new_text, easing=smooth)
       :no-index:
 
@@ -222,53 +250,6 @@ Text
 
       :param str substring: The substring to highlight.
 
-   .. rubric:: Examples
-
-   .. code-block:: python
-
-      from vectormation.objects import *
-
-      v = VectorMathAnim()
-
-      # Basic text with typewriter reveal
-      title = Text('Hello, World!', font_size=72, text_anchor='middle')
-      title.center_to_pos()
-      title.typing(0, 1.5)
-      v.add(title)
-
-      # Word-by-word reveal
-      msg = Text('This appears word by word', y=640, text_anchor='middle')
-      msg.center_to_pos()
-      msg.reveal_by_word(1.5, 3)
-      v.add(msg)
-
-      # Cross-fade text change
-      label = Text('Before', font_size=60, text_anchor='middle')
-      label.center_to_pos()
-      label.fadein(0, 0.5)
-      label.set_text(2, 3, 'After')
-      v.add(label)
-
-   .. code-block:: python
-
-      # Scramble decode effect
-      code = Text('ACCESS GRANTED', font_size=48, fill='#0f0')
-      code.center_to_pos()
-      code.scramble(0, 2)
-      v.add(code)
-
-      # Typewriter with cursor
-      terminal = Text('$ pip install vectormation', x=100, y=300,
-                       font_size=32, font_family='monospace')
-      terminal.typewrite(0, 2, cursor='_')
-      v.add(terminal)
-
-      # Highlight a substring
-      sentence = Text('The quick brown fox', font_size=48)
-      sentence.center_to_pos()
-      sentence.fadein(0, 0.5)
-      highlight_rect = sentence.highlight_substring('quick', start=1, end=3)
-      v.add(sentence, highlight_rect)
 
 ----
 
@@ -299,18 +280,21 @@ CountAnimation
       :param float start: Animation start time.
       :param float end: Animation end time.
 
-   .. code-block:: python
+   .. admonition:: Example: Counting animations
+      :class: example
 
-      # Count from 0 to 100 over the first two seconds
-      counter = CountAnimation(0, 100, start=0, end=2, fmt='{:.0f}')
-      counter.center_to_pos()
-      v.add(counter)
+      .. code-block:: python
 
-      # Chain: count 0 -> 50, then 50 -> 200
-      counter = CountAnimation(0, 50, start=0, end=1)
-      counter.count_to(200, start=1.5, end=3)
-      counter.center_to_pos()
-      v.add(counter)
+         # Count from 0 to 100 over the first two seconds
+         counter = CountAnimation(0, 100, start=0, end=2, fmt='{:.0f}')
+         counter.center_to_pos()
+         v.add(counter)
+
+         # Chain: count 0 -> 50, then 50 -> 200
+         counter = CountAnimation(0, 50, start=0, end=1)
+         counter.count_to(200, start=1.5, end=3)
+         counter.center_to_pos()
+         v.add(counter)
 
 ----
 
@@ -343,20 +327,23 @@ DecimalNumber
 
       Animate the tracked value to *target* over ``[start, end]``.
 
-   .. code-block:: python
+   .. admonition:: Example: Tracking a ValueTracker
+      :class: example
 
-      # DecimalNumber tracking a ValueTracker
-      vt = ValueTracker(0)
-      vt.animate_value(3.14159, start=0, end=2)
-      label = DecimalNumber(vt, fmt='{:.4f}', font_size=60)
-      label.center_to_pos()
-      v.add(label)
+      .. code-block:: python
 
-      # Standalone DecimalNumber
-      dn = DecimalNumber(0, fmt='{:.1f}')
-      dn.center_to_pos()
-      dn.animate_value(99.9, start=0, end=3)
-      v.add(dn)
+         # DecimalNumber tracking a ValueTracker
+         vt = ValueTracker(0)
+         vt.animate_value(3.14159, start=0, end=2)
+         label = DecimalNumber(vt, fmt='{:.4f}', font_size=60)
+         label.center_to_pos()
+         v.add(label)
+
+         # Standalone DecimalNumber
+         dn = DecimalNumber(0, fmt='{:.1f}')
+         dn.center_to_pos()
+         dn.animate_value(99.9, start=0, end=3)
+         v.add(dn)
 
 ----
 
@@ -373,12 +360,15 @@ Integer
 
    :param value: Initial value, or a :py:class:`Real` / :py:class:`ValueTracker` to track.
 
-   .. code-block:: python
+   .. admonition:: Example: Animated integer display
+      :class: example
 
-      n = Integer(0)
-      n.center_to_pos()
-      n.animate_value(42, start=0, end=2)
-      v.add(n)
+      .. code-block:: python
+
+         n = Integer(0)
+         n.center_to_pos()
+         n.animate_value(42, start=0, end=2)
+         v.add(n)
 
 ----
 
@@ -433,46 +423,19 @@ TexObject
 
       :param dict tex_to_color_map: ``{tex_substring: color}`` mapping.
 
-   .. rubric:: Examples
+   .. admonition:: Example: TexObject
+      :class: example
 
-   .. code-block:: python
+      .. raw:: html
 
-      # Basic formula with handwriting reveal
-      formula = TexObject(r'$$\sum_{n=1}^{\infty} \frac{1}{n^2}$$',
-                          font_size=60)
-      formula.center_to_pos()
-      formula.write(0, 1.5)
-      v.add(formula)
+         <video src="../_static/videos/tex.mp4" controls autoplay loop muted></video>
 
-   .. code-block:: python
+      TeX formula with colored parts via ``t2c``.
 
-      # Color specific parts using t2c in the constructor
-      eq = TexObject(r'$$E = mc^2$$', font_size=80,
-                     t2c={'E': '#FF6666', 'm': '#66FF66', 'c': '#6666FF'})
-      eq.center_to_pos()
-      eq.fadein(0, 1)
-      v.add(eq)
-
-   .. code-block:: python
-
-      # Color parts after construction
-      integral = TexObject(r'$$\int_0^1 x^2 \, dx$$', font_size=60)
-      integral.center_to_pos()
-
-      # Highlight the integrand
-      integrand = integral.get_part_by_tex('x')
-      integrand.set_color('#FFCC00', start=0)
-
-      integral.write(0, 2)
-      v.add(integral)
-
-   .. code-block:: python
-
-      # Animate individual glyphs
-      tex = TexObject(r'$$a^2 + b^2 = c^2$$', font_size=60)
-      tex.center_to_pos()
-      tex.stagger('fadein', delay=0.1)  # each glyph fades in sequentially
-      v.add(tex)
+      .. literalinclude:: ../../../examples/reference/tex.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
 ----
 
@@ -492,18 +455,21 @@ SplitTexObject
    Each line is a full :py:class:`TexObject` and can be animated
    independently.
 
-   .. code-block:: python
+   .. admonition:: Example: Multi-line LaTeX derivation
+      :class: example
 
-      equations = SplitTexObject(
-          r'$$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$',
-          r'$$\Delta = b^2 - 4ac$$',
-          line_spacing=80, font_size=48,
-      )
-      for i, line in enumerate(equations):
-          line.center_to_pos()
-          line.shift(0, 0, 0, i * 80 - 40)
-          line.write(i * 0.8, i * 0.8 + 1.5)
-          v.add(line)
+      .. code-block:: python
+
+         equations = SplitTexObject(
+             r'$$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$',
+             r'$$\Delta = b^2 - 4ac$$',
+             line_spacing=80, font_size=48,
+         )
+         for i, line in enumerate(equations):
+             line.center_to_pos()
+             line.shift(0, 0, 0, i * 80 - 40)
+             line.write(i * 0.8, i * 0.8 + 1.5)
+             v.add(line)
 
 ----
 
@@ -534,12 +500,15 @@ TexCountAnimation
       Animate counting from the current value to a new *target*. Can be
       chained for multi-step counting sequences.
 
-   .. code-block:: python
+   .. admonition:: Example: LaTeX-styled counter
+      :class: example
 
-      # LaTeX-styled counter
-      counter = TexCountAnimation(0, 100, start=0, end=3, font_size=72)
-      counter.center_to_pos()
-      v.add(counter)
+      .. code-block:: python
+
+         # LaTeX-styled counter
+         counter = TexCountAnimation(0, 100, start=0, end=3, font_size=72)
+         counter.center_to_pos()
+         v.add(counter)
 
 ----
 
@@ -561,17 +530,20 @@ Paragraph
 
       List of line strings (alias for ``items``).
 
-   .. code-block:: python
+   .. admonition:: Example: Centered multi-line paragraph
+      :class: example
 
-      p = Paragraph(
-          'First line of text.',
-          'Second line continues here.',
-          'Third and final line.',
-          alignment='center', font_size=40,
-      )
-      p.center_to_pos()
-      p.fadein(0, 1)
-      v.add(p)
+      .. code-block:: python
+
+         p = Paragraph(
+             'First line of text.',
+             'Second line continues here.',
+             'Third and final line.',
+             alignment='center', font_size=40,
+         )
+         p.center_to_pos()
+         p.fadein(0, 1)
+         v.add(p)
 
 ----
 
@@ -588,16 +560,19 @@ BulletedList
    :param float indent: Pixel indentation for each item (default ``40``).
    :param float line_spacing: Multiplier for vertical spacing (default ``1.6``).
 
-   .. code-block:: python
+   .. admonition:: Example: Bulleted list with fade-in
+      :class: example
 
-      bl = BulletedList(
-          'Install dependencies',
-          'Configure settings',
-          'Run the application',
-          font_size=36,
-      )
-      bl.fadein(0, 1)
-      v.add(bl)
+      .. code-block:: python
+
+         bl = BulletedList(
+             'Install dependencies',
+             'Configure settings',
+             'Run the application',
+             font_size=36,
+         )
+         bl.fadein(0, 1)
+         v.add(bl)
 
 ----
 
@@ -614,79 +589,18 @@ NumberedList
    :param float line_spacing: Multiplier for vertical spacing (default ``1.6``).
    :param int start_number: First number in the sequence (default ``1``).
 
-   .. code-block:: python
+   .. admonition:: Example: Numbered list with fade-in
+      :class: example
 
-      nl = NumberedList(
-          'Define the problem',
-          'Gather data',
-          'Build a model',
-          'Evaluate results',
-          font_size=36,
-      )
-      nl.fadein(0, 1)
-      v.add(nl)
+      .. code-block:: python
 
-----
+         nl = NumberedList(
+             'Define the problem',
+             'Gather data',
+             'Build a model',
+             'Evaluate results',
+             font_size=36,
+         )
+         nl.fadein(0, 1)
+         v.add(nl)
 
-Common Patterns
----------------
-
-.. rubric:: Animated Label Following a Graph Point
-
-.. code-block:: python
-
-   from vectormation.objects import *
-
-   v = VectorMathAnim()
-
-   axes = Axes(x_range=(-2, 5), y_range=(-1, 10))
-   f = lambda x: x ** 2
-   curve = axes.plot(f, stroke='#58C4DD')
-
-   # Dot that moves along the curve
-   dot = Dot()
-   x_val = ValueTracker(0)
-   x_val.animate_value(4, start=0, end=3)
-   dot.c.set_onward(0, axes.graph_position(f, x_val.value))
-
-   # Label that shows the current y-value
-   label = DecimalNumber(x_val, fmt='y = {:.1f}', font_size=32)
-   label.add_updater(lambda obj, t: obj.next_to(dot, 'up', buff=20, time=t))
-
-   v.add(axes, curve, dot, label)
-
-.. rubric:: Equation Derivation with SplitTexObject
-
-.. code-block:: python
-
-   steps = SplitTexObject(
-       r'$$F = ma$$',
-       r'$$a = \frac{F}{m}$$',
-       r'$$a = \frac{10}{2} = 5 \; \text{m/s}^2$$',
-       line_spacing=80, font_size=48,
-   )
-
-   for i, eq in enumerate(steps):
-       eq.center_to_pos()
-       eq.shift(0, 0, 0, (i - 1) * 80)
-       eq.write(i, i + 1.2)
-       v.add(eq)
-
-.. rubric:: Typewriter Terminal Effect
-
-.. code-block:: python
-
-   lines = [
-       '$ python train.py --epochs 100',
-       'Loading dataset...',
-       'Epoch 1/100: loss=2.341',
-       'Epoch 100/100: loss=0.023',
-       'Training complete.',
-   ]
-
-   y_pos = 200
-   for i, line in enumerate(lines):
-       t = Text(line, x=100, y=y_pos + i * 50, font_size=28,
-                font_family='monospace', fill='#0f0')
-       t.typewrite(start=i * 0.8, end=i * 0.8 + 0.6, cursor='_')
-       v.add(t)
