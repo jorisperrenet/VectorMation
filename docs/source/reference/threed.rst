@@ -24,6 +24,18 @@ both the coordinate system and the renderer. Surfaces are registered with
       axes = ThreeDAxes(x_range=(-3, 3), y_range=(-3, 3), z_range=(-2, 2))
       canvas.add_objects(axes)
 
+.. admonition:: Example: ThreeDAxes
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_3d_axes.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_3d_axes.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 ----
 
 ThreeDAxes
@@ -78,6 +90,17 @@ ThreeDAxes
             # Rotate camera to a top-down view over 3 seconds
             axes.set_camera_orientation(0, 3, phi=0, theta=0)
 
+   .. admonition:: Example: Camera Rotation
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_3d_camera_rotation.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_camera_rotation.py
+         :language: python
+         :end-before: v.browser_display
+
    .. py:method:: begin_ambient_camera_rotation(start=0, end=None, rate=0.1)
 
       Continuously rotate the camera theta at *rate* radians per second.
@@ -92,6 +115,17 @@ ThreeDAxes
 
             # Slowly orbit the scene for the entire animation
             axes.begin_ambient_camera_rotation(start=0, rate=0.15)
+
+   .. admonition:: Example: Ambient Camera Rotation
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_3d_ambient_rotation.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_ambient_rotation.py
+         :language: python
+         :end-before: v.browser_display
 
    .. py:method:: set_camera_preset(name, start=0, end=0.5, easing=smooth)
 
@@ -125,6 +159,17 @@ ThreeDAxes
 
             # Zoom in 2x over 2 seconds
             axes.set_camera_zoom(2.0, start=0, end=2)
+
+   .. admonition:: Example: 3D Camera Zoom
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_3d_zoom.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_zoom.py
+         :language: python
+         :end-before: v.browser_display
 
    .. rubric:: Projection
 
@@ -161,6 +206,17 @@ ThreeDAxes
             # Light from directly above
             axes.set_light_direction(0, 0, 1)
 
+   .. admonition:: Example: Light Direction
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_light_direction.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_light_direction.py
+         :language: python
+         :end-before: v.write_frame
+
    .. rubric:: Adding Surfaces
 
    .. py:method:: add_surface(surface)
@@ -176,6 +232,17 @@ ThreeDAxes
 
             sphere = Sphere3D(radius=1.5)
             axes.add_surface(sphere)
+
+   .. admonition:: Example: Sphere Surface
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_sphere_surface.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_sphere_surface.py
+         :language: python
+         :end-before: v.write_frame
 
    .. py:method:: plot_surface(func, u_range=None, v_range=None, resolution=(20, 20), fill_color='#4488ff', checkerboard_colors=None, stroke_color='#333', stroke_width=0.5, fill_opacity=0.8)
 
@@ -199,6 +266,17 @@ ThreeDAxes
 
             axes.plot_surface(gaussian, resolution=(24, 24),
                               checkerboard_colors=('#FF862F', '#4488ff'))
+
+   .. admonition:: Example: Gaussian Surface
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_gaussian.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_gaussian.py
+         :language: python
+         :end-before: v.write_frame
 
    .. rubric:: Adding Primitives
 
@@ -236,6 +314,17 @@ ThreeDAxes
             curve = axes.get_graph_3d(math.sin, plane='xz',
                                       stroke='#83C167')
 
+   .. admonition:: Example: 3D Function Curve
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_function_curve.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_function_curve.py
+         :language: python
+         :end-before: v.write_frame
+
    .. rubric:: Wireframe Surfaces
 
    .. py:method:: plot_surface_wireframe(func, x_steps=20, y_steps=20, **styling)
@@ -257,6 +346,20 @@ ThreeDAxes
 
       :param str plane: ``'xz'``, ``'xy'``, or ``'yz'``.
       :param float step: Grid line spacing in math units.
+
+   .. admonition:: Example: 3D surface with camera rotation
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/3d_surface.mp4" controls autoplay loop muted></video>
+
+      Gaussian surface with ambient camera rotation.
+
+      .. literalinclude:: ../../../examples/reference/3d_surface.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
 ----
 
@@ -327,6 +430,50 @@ Surface
 
             surface.set_checkerboard('#FC6255', '#c44030')
 
+   .. admonition:: Example: Height-map Surface
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_heightmap.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_heightmap.py
+         :language: python
+         :end-before: v.write_frame
+
+   .. admonition:: Example: Mobius Strip
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_mobius.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_mobius.py
+         :language: python
+         :end-before: v.write_frame
+
+   .. admonition:: Example: Checkerboard Surface
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_checkerboard.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_checkerboard.py
+         :language: python
+         :end-before: v.write_frame
+
+   .. admonition:: Example: Wireframe Surface
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_wireframe.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_wireframe.py
+         :language: python
+         :end-before: v.write_frame
+
 ----
 
 SurfaceMesh
@@ -370,6 +517,31 @@ SurfaceMesh
 All primitives support ``show``, ``z``, ``copy()``, ``shift(dx, dy, dz)``,
 ``move_to(x, y, z)``, and ``set_color(color)``.
 
+.. admonition:: Example: 3D primitives
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/3d_primitives.svg" style="width:100%; max-width:800px;" />
+
+   Dot, line, and arrow in 3D space.
+
+   .. literalinclude:: ../../../examples/reference/3d_primitives.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display
+
+.. admonition:: Example: 3D Primitives
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_3d_primitives.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_3d_primitives.py
+      :language: python
+      :end-before: v.write_frame
+
 Line3D
 ^^^^^^
 
@@ -397,6 +569,17 @@ Line3D
 
          line = Line3D((0, 0, 0), (2, 1, 3), stroke='#FFFF00')
          axes.add_3d(line)
+
+   .. admonition:: Example: Line3D
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_line.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_line.py
+         :language: python
+         :end-before: v.write_frame
 
 Arrow3D
 ^^^^^^^
@@ -428,6 +611,17 @@ Arrow3D
                           tip_length=14, tip_radius=5)
          axes.add_3d(arrow)
 
+   .. admonition:: Example: Arrow3D
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_arrow.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_arrow.py
+         :language: python
+         :end-before: v.write_frame
+
 Dot3D
 ^^^^^
 
@@ -454,6 +648,17 @@ Dot3D
 
          dot = Dot3D((1, 0, 0), radius=6, fill='#83C167')
          axes.add_3d(dot)
+
+   .. admonition:: Example: Dot3D
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_dot.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_dot.py
+         :language: python
+         :end-before: v.write_frame
 
 ParametricCurve3D
 ^^^^^^^^^^^^^^^^^
@@ -485,6 +690,17 @@ ParametricCurve3D
                                     stroke_width=3)
          axes.add_3d(curve)
 
+   .. admonition:: Example: Helix Curve
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_helix.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_helix.py
+         :language: python
+         :end-before: v.write_frame
+
 Text3D
 ^^^^^^
 
@@ -513,6 +729,17 @@ Text3D
 
          label = Text3D('Origin', point=(0, 0, 0), font_size=18)
          axes.add_3d(label)
+
+   .. admonition:: Example: Text3D
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_text.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_text.py
+         :language: python
+         :end-before: v.write_frame
 
 ----
 
@@ -547,6 +774,18 @@ Sphere3D
                             checkerboard_colors=('#FC6255', '#c44030'))
          axes.add_surface(sphere)
 
+   .. admonition:: Example: Sphere3D
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_sphere.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_sphere.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 Cube
 ^^^^
 
@@ -569,6 +808,18 @@ Cube
          for face in faces:
              axes.add_surface(face)
 
+   .. admonition:: Example: Cube
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_cube.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_cube.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 Cylinder3D
 ^^^^^^^^^^
 
@@ -583,6 +834,17 @@ Cylinder3D
    :returns: :py:class:`Surface`
 
    Default fill: ``#58C4DD``.
+
+   .. admonition:: Example: Cylinder3D
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_cylinder.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_cylinder.py
+         :language: python
+         :end-before: v.write_frame
 
 Cone3D
 ^^^^^^
@@ -599,6 +861,17 @@ Cone3D
 
    Default fill: ``#58C4DD``.
 
+   .. admonition:: Example: Cone3D
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_cone.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_cone.py
+         :language: python
+         :end-before: v.write_frame
+
 Torus3D
 ^^^^^^^
 
@@ -613,6 +886,18 @@ Torus3D
    :returns: :py:class:`Surface`
 
    Default fill: ``#58C4DD``.
+
+   .. admonition:: Example: Torus3D
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_torus.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_torus.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 Prism3D
 ^^^^^^^
@@ -630,6 +915,17 @@ Prism3D
    :returns: ``list[Surface]``
 
    Default fill: ``#58C4DD``.
+
+   .. admonition:: Example: Prism3D
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_prism.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_prism.py
+         :language: python
+         :end-before: v.write_frame
 
 ----
 
@@ -664,6 +960,17 @@ Tetrahedron
          for face in faces:
              axes.add_surface(face)
 
+   .. admonition:: Example: Tetrahedron
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_tetrahedron.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_tetrahedron.py
+         :language: python
+         :end-before: v.write_frame
+
 Octahedron
 ^^^^^^^^^^
 
@@ -676,6 +983,17 @@ Octahedron
    :param float cz: Centre z.
    :param float size: Scale factor applied to vertex coordinates.
    :returns: ``list[Surface]``
+
+   .. admonition:: Example: Octahedron
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_octahedron.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_octahedron.py
+         :language: python
+         :end-before: v.write_frame
 
 Icosahedron
 ^^^^^^^^^^^
@@ -690,6 +1008,17 @@ Icosahedron
    :param float size: Scale factor applied to vertex coordinates.
    :returns: ``list[Surface]``
 
+   .. admonition:: Example: Icosahedron
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_3d_icosahedron.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_3d_icosahedron.py
+         :language: python
+         :end-before: v.write_frame
+
 Dodecahedron
 ^^^^^^^^^^^^
 
@@ -703,31 +1032,14 @@ Dodecahedron
    :param float size: Scale factor applied to vertex coordinates.
    :returns: ``list[Surface]``
 
-.. admonition:: Example: 3D surface with camera rotation
-   :class: example
+   .. admonition:: Example: Dodecahedron
+      :class: example
 
-   .. raw:: html
+      .. raw:: html
 
-      <video src="../_static/videos/3d_surface.mp4" controls autoplay loop muted></video>
+         <img src="../_static/videos/ref_3d_dodecahedron.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
 
-   Gaussian surface with ambient camera rotation.
-
-   .. literalinclude:: ../../../examples/reference/3d_surface.py
-      :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
-
-.. admonition:: Example: 3D primitives
-   :class: example
-
-   .. raw:: html
-
-      <img src="../_static/videos/3d_primitives.svg" style="width:100%; max-width:800px;" />
-
-   Dot, line, and arrow in 3D space.
-
-   .. literalinclude:: ../../../examples/reference/3d_primitives.py
-      :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
+      .. literalinclude:: ../../../examples/reference/ref_3d_dodecahedron.py
+         :language: python
+         :end-before: v.write_frame
 

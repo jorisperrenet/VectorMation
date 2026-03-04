@@ -1,8 +1,11 @@
-Collections & Arrows
-====================
+Collections, Arrows & Data Structures
+======================================
+
+Collections
+-----------
 
 VCollection
------------
+~~~~~~~~~~~
 
 .. py:class:: VCollection(*objects, creation=0, z=0)
 
@@ -72,10 +75,6 @@ VCollection
 
    .. rubric:: Layout
 
-   .. image:: ../_static/images/arrange.svg
-      :width: 500
-      :align: center
-
    .. py:method:: arrange(direction='right', buff=14, start=0)
 
       Lay out children in a row or column.
@@ -96,6 +95,10 @@ VCollection
          :language: python
          :start-after: parse_args()
          :end-before: v.browser_display
+
+   .. image:: ../_static/images/arrange.svg
+      :width: 500
+      :align: center
 
    .. py:method:: distribute(direction='right', buff=0, start=0)
 
@@ -125,6 +128,17 @@ VCollection
       .. literalinclude:: ../../../examples/reference/stagger.py
          :language: python
          :start-after: parse_args()
+         :end-before: v.browser_display
+
+   .. admonition:: Example: ref_stagger
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_stagger.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_stagger.py
+         :language: python
          :end-before: v.browser_display
 
    .. rubric:: Measurement
@@ -177,6 +191,18 @@ VCollection
 
       Distribute children evenly between two points.
 
+   .. admonition:: Example: spread
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_spread.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_spread.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
    .. py:method:: align_submobjects(edge='left', start=0)
 
       Align all children's edges.
@@ -187,6 +213,17 @@ VCollection
 
       Staggered write animation across all children.
 
+   .. admonition:: Example: write (collection)
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_write_collection.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_write_collection.py
+         :language: python
+         :end-before: v.browser_display
+
    .. py:method:: stagger_fadein_sorted(start=0, end=1, direction='left_to_right', easing=smooth)
 
       Fade in children based on spatial ordering.
@@ -196,21 +233,78 @@ VCollection
 
       Animate swapping positions of children *i* and *j* using arc paths.
 
+   .. admonition:: Example: swap_children
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_swap_children.mp4" controls autoplay loop muted></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_swap_children.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
+
    .. py:method:: shuffle_animate(start=0, end=1)
 
       Animated random shuffle of children.
+
+   .. admonition:: Example: shuffle_animate
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_shuffle_animate.mp4" controls autoplay loop muted></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_shuffle_animate.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
    .. py:method:: reveal(start=0, end=1, direction='left', easing=smooth)
 
       Staggered reveal of children sliding into view.
 
+   .. admonition:: Example: reveal
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_reveal.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_reveal.py
+         :language: python
+         :end-before: v.browser_display
+
    .. py:method:: stagger_fadein(start=0, end=1, shift_dir=None, shift_amount=50, overlap=0.5, easing=smooth)
 
       Staggered fade-in of children with optional directional shift.
 
+   .. admonition:: Example: stagger_fadein
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_stagger_fadein.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_stagger_fadein.py
+         :language: python
+         :end-before: v.browser_display
+
    .. py:method:: wave_anim(start=0, end=1, amplitude=20, waves=1)
 
       Wave animation through children.
+
+   .. admonition:: Example: wave_anim
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_wave_anim.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_wave_anim.py
+         :language: python
+         :end-before: v.browser_display
 
    .. py:method:: highlight_child(index, start=0, end=1, dim_opacity=0.2, easing=smooth)
 
@@ -282,6 +376,17 @@ VCollection
 
       Arrange children in a circle around (cx, cy). Defaults to group center. With end, animates.
 
+   .. admonition:: Example: distribute_radial
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_distribute_radial.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_distribute_radial.py
+         :language: python
+         :end-before: v.write_frame
+
    .. py:method:: stagger_scale(start=0, end=1, scale_factor=1.5, delay=0.2, easing=smooth)
 
       Scale each child up then back down with stagger delay (popping wave).
@@ -297,7 +402,7 @@ VCollection
 ----
 
 MorphObject
------------
+~~~~~~~~~~~
 
 .. py:class:: MorphObject(morph_from, morph_to, start=0, end=1, easing=smooth, change_existence=True, rotation_degrees=0)
 
@@ -311,18 +416,44 @@ MorphObject
    :param float end: End time.
    :param float rotation_degrees: Spiral morph rotation (0 = straight morph).
 
-   .. admonition:: Example: Morphing one shape into another
+   .. admonition:: Example: MorphObject
       :class: example
 
-      .. code-block:: python
+      .. raw:: html
 
-         morph = MorphObject(circle, square, start=1, end=3)
-         canvas.add_objects(morph)
+         <video src="../_static/videos/ref_morph.mp4" controls autoplay loop muted></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_morph.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
+
+   .. admonition:: Example: MorphObject (collection to collection)
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_morph2.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_morph2.py
+         :language: python
+         :end-before: v.browser_display
+
+   .. admonition:: Example: MorphObject with scale
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_morph_scale.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_morph_scale.py
+         :language: python
+         :end-before: v.browser_display
 
 ----
 
 LabeledDot
-----------
+~~~~~~~~~~~
 
 .. py:class:: LabeledDot(label='', r=24, cx=960, cy=540, font_size=None, **styling)
 
@@ -338,8 +469,11 @@ LabeledDot
 
 ----
 
+Arrows
+------
+
 Arrow
------
+~~~~~
 
 .. image:: ../_static/images/arrow_params.svg
    :width: 440
@@ -364,10 +498,22 @@ Arrow
    .. py:attribute:: tip
       :type: Polygon
 
+   .. admonition:: Example: Arrow
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_arrow.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_arrow.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 ----
 
 Vector
-------
+~~~~~~
 
 .. py:class:: Vector(x=100, y=0, origin_x=960, origin_y=540, **styling)
 
@@ -396,10 +542,21 @@ Vector
          v = Vector(x=2 * 135, y=-1 * 135)   # 2 units right, 1 unit down
          v.fadein(0, 1)
 
+   .. admonition:: Example: Vector on Axes
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_vector_on_axes.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_vector_on_axes.py
+         :language: python
+         :end-before: v.write_frame
+
 ----
 
 DoubleArrow
------------
+~~~~~~~~~~~
 
 .. py:class:: DoubleArrow(x1=0, y1=0, x2=100, y2=100, tip_length=47, tip_width=47, **styling)
 
@@ -407,10 +564,22 @@ DoubleArrow
 
    Arrow with heads on both ends.
 
+   .. admonition:: Example: DoubleArrow
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_double_arrow.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_double_arrow.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 ----
 
 CurvedArrow
-------------
+~~~~~~~~~~~
 
 .. image:: ../_static/images/curved_arrow_params.svg
    :width: 440
@@ -424,10 +593,22 @@ CurvedArrow
 
    :param float angle: Curvature angle.
 
+   .. admonition:: Example: CurvedArrow
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_curved_arrow.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_curved_arrow.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 ----
 
 Brace
------
+~~~~~
 
 .. image:: ../_static/images/brace_params.svg
    :width: 400
@@ -454,10 +635,22 @@ Brace
       :param float start_val: Start of the range.
       :param float end_val: End of the range.
 
+   .. admonition:: Example: Brace
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_brace.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_brace.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 ----
 
 BraceBetweenPoints
-------------------
+~~~~~~~~~~~~~~~~~~
 
 .. py:class:: BraceBetweenPoints(x1, y1, x2, y2, label=None, buff=14, depth=18, **styling)
 
@@ -481,6 +674,52 @@ BraceBetweenPoints
       .. code-block:: python
 
          brace = BraceBetweenPoints(300, 400, 800, 400, label='500px')
+
+----
+
+LabeledLine
+~~~~~~~~~~~
+
+.. py:class:: LabeledLine(x1, y1, x2, y2, label='', **styling)
+   :no-index:
+
+   Bases: :py:class:`VCollection`
+
+   A line with a text label positioned at its midpoint.
+
+   .. admonition:: Example: LabeledLine
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_labeled_line.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_labeled_line.py
+         :language: python
+         :end-before: v.write_frame
+
+----
+
+LabeledArrow
+~~~~~~~~~~~~~
+
+.. py:class:: LabeledArrow(x1, y1, x2, y2, label='', **styling)
+   :no-index:
+
+   Bases: :py:class:`VCollection`
+
+   An arrow with a text label positioned at its midpoint.
+
+   .. admonition:: Example: LabeledArrow
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_labeled_arrow.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_labeled_arrow.py
+         :language: python
+         :end-before: v.write_frame
 
 ----
 
@@ -736,6 +975,18 @@ Table
 
       Highlight all cells in a row.
 
+   .. admonition:: Example: Table
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_table.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_table.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 Matrix
 ~~~~~~
 
@@ -766,6 +1017,18 @@ Matrix
    .. py:method:: highlight_column(col, start=0, end=1, color='#FFD700')
 
       Flash-highlight all entries in a column.
+
+   .. admonition:: Example: Matrix
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_matrix.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_matrix.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 DecimalMatrix
 ~~~~~~~~~~~~~

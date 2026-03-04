@@ -7,7 +7,7 @@ v = VectorMathAnim('_ref_out', verbose=args.verbose)
 v.set_background()
 
 path_d = 'M 200,540 C 500,200 1400,200 1700,540'
-guide = Path(path_d, stroke='#444', stroke_width=2, fill_opacity=0)
+guide = Path(path_d, stroke='#444', stroke_width=6, fill_opacity=0)
 guide.fadein(start=0, end=0.5)
 
 dot = Dot(cx=200, cy=540, r=12, fill='#FF6B6B')

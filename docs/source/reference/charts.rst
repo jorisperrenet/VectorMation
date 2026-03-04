@@ -57,6 +57,17 @@ PieChart
       :start-after: parse_args()
       :end-before: v.browser_display
 
+.. admonition:: Example: Animated PieChart
+   :class: example
+
+   .. raw:: html
+
+      <video src="../_static/videos/ref_animated_pie.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+   .. literalinclude:: ../../../examples/reference/ref_animated_pie.py
+      :language: python
+      :end-before: v.browser_display
+
 ----
 
 DonutChart
@@ -84,6 +95,18 @@ DonutChart
    .. py:method:: animate_values(new_values, start=0, end=1, easing=smooth)
 
       Animate sector paths to new proportions.
+
+.. admonition:: Example: DonutChart
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_donut_chart.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_donut_chart.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 ----
 
@@ -193,6 +216,18 @@ RadarChart
 
       Add an additional data polygon overlay to the radar chart.
 
+.. admonition:: Example: RadarChart
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_radar_chart.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_radar_chart.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 ----
 
 PolarAxes
@@ -248,13 +283,17 @@ ProgressBar
 
       Return the current progress value (0--1) at the given time.
 
-   .. admonition:: Example: Animating a progress bar
-      :class: example
+.. admonition:: Example: ProgressBar
+   :class: example
 
-      .. code-block:: python
+   .. raw:: html
 
-         bar = ProgressBar()
-         bar.animate_to(0.75, start=0, end=2)
+      <img src="../_static/videos/ref_progress_bar.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_progress_bar.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 ----
 
@@ -272,6 +311,17 @@ SampleSpace
    .. py:method:: divide_vertically(proportion, colors=('#58C4DD', '#FC6255'), labels=None, creation=0, z=0)
 
       Split the space top/bottom by *proportion* (0--1).
+
+.. admonition:: Example: SampleSpace
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_sample_space.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_sample_space.py
+      :language: python
+      :end-before: v.write_frame
 
 ----
 
@@ -291,6 +341,18 @@ WaterfallChart
 
       Create a ``WaterfallChart`` from a ``{label: value}`` dictionary.
 
+.. admonition:: Example: WaterfallChart
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_waterfall.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_waterfall.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 ----
 
 GanttChart
@@ -303,16 +365,17 @@ GanttChart
    :param list tasks: List of ``(label, start, end)`` or ``(label, start, end, color)`` tuples.
    :param float bar_height: Height of each task bar.
 
-   .. admonition:: Example: Creating a Gantt chart
-      :class: example
+.. admonition:: Example: GanttChart
+   :class: example
 
-      .. code-block:: python
+   .. raw:: html
 
-         gantt = GanttChart([
-             ('Design', 0, 3),
-             ('Build',  2, 7),
-             ('Test',   6, 9),
-         ])
+      <img src="../_static/videos/ref_gantt.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_gantt.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 ----
 
@@ -327,6 +390,17 @@ SankeyDiagram
    :param list flows: List of ``(source, target, value)`` tuples.
    :param float node_width: Width of the node rectangles.
 
+.. admonition:: Example: SankeyDiagram
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_sankey.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_sankey.py
+      :language: python
+      :end-before: v.write_frame
+
 ----
 
 FunnelChart
@@ -339,6 +413,17 @@ FunnelChart
    :param list stages: List of ``(label, value)`` tuples, from widest to narrowest.
    :param float gap: Vertical gap between trapezoids.
 
+.. admonition:: Example: FunnelChart
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_funnel.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_funnel.py
+      :language: python
+      :end-before: v.write_frame
+
 ----
 
 TreeMap
@@ -350,6 +435,17 @@ TreeMap
 
    :param list data: List of ``(label, value)`` tuples.
    :param float padding: Gap between cells.
+
+.. admonition:: Example: TreeMap
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_treemap.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_treemap.py
+      :language: python
+      :end-before: v.write_frame
 
 ----
 
@@ -367,6 +463,18 @@ GaugeChart
    :param list colors: Color stops as ``[(hex_color, position), ...]`` where position is 0--1.
    :param str label: Optional label below the value.
 
+.. admonition:: Example: GaugeChart
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_gauge.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_gauge.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 ----
 
 SparkLine
@@ -380,6 +488,17 @@ SparkLine
 
    :param list data: Numeric data points.
    :param bool show_endpoint: Draw a dot at the last data point.
+
+.. admonition:: Example: SparkLine
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_sparkline.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_sparkline.py
+      :language: python
+      :end-before: v.write_frame
 
 ----
 
@@ -405,6 +524,17 @@ KPICard
                         subtitle='+12% MoM',
                         trend_data=[10, 12, 11, 14, 13, 16])
 
+.. admonition:: Example: KPICard
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_kpi_card.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_kpi_card.py
+      :language: python
+      :end-before: v.write_frame
+
 ----
 
 BulletChart
@@ -420,6 +550,17 @@ BulletChart
    :param list ranges: ``[(threshold, color), ...]`` background bands.
    :param str label: Label text to the left.
 
+.. admonition:: Example: BulletChart
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_bullet_chart.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_bullet_chart.py
+      :language: python
+      :end-before: v.write_frame
+
 ----
 
 CalendarHeatmap
@@ -431,6 +572,17 @@ CalendarHeatmap
 
    :param data: A ``dict`` mapping ``(row, col)`` to values, or a flat iterable.
    :param list colormap: List of color strings from low to high.
+
+.. admonition:: Example: CalendarHeatmap
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_calendar_heatmap.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_calendar_heatmap.py
+      :language: python
+      :end-before: v.write_frame
 
 ----
 
@@ -445,6 +597,17 @@ WaffleChart
    :param list categories: List of ``(label, value, color)`` tuples.
    :param int grid_size: Number of cells per row/column.
 
+.. admonition:: Example: WaffleChart
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_waffle.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_waffle.py
+      :language: python
+      :end-before: v.write_frame
+
 ----
 
 CircularProgressBar
@@ -457,6 +620,17 @@ CircularProgressBar
    :param float value: Progress percentage (0--100).
    :param bool show_text: Display the percentage as text.
 
+.. admonition:: Example: CircularProgressBar
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_circular_progress.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_circular_progress.py
+      :language: python
+      :end-before: v.write_frame
+
 ----
 
 Scoreboard
@@ -468,6 +642,17 @@ Scoreboard
 
    :param list entries: List of ``(label, value)`` tuples.
    :param int cols: Number of columns (defaults to ``min(len(entries), 4)``).
+
+.. admonition:: Example: Scoreboard
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_scoreboard.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_scoreboard.py
+      :language: python
+      :end-before: v.write_frame
 
 ----
 
@@ -484,6 +669,18 @@ MatrixHeatmap
    :param list colormap: Color scale from low to high.
    :param bool show_values: Display cell values as text.
 
+.. admonition:: Example: MatrixHeatmap
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_matrix_heatmap.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_matrix_heatmap.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 ----
 
 BoxPlot
@@ -496,3 +693,15 @@ BoxPlot
 
    :param list data_groups: List of lists, each containing numeric data for one group.
    :param list positions: X-axis positions for each group (defaults to 1, 2, 3, ...).
+
+.. admonition:: Example: BoxPlot
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_box_plot.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_box_plot.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame

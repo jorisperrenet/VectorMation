@@ -14,42 +14,21 @@ title = TexObject(r'Cutout \& ConvexHull', x=960, y=70, font_size=52,
 title.fadein(0.0, 0.5)
 canvas.add(title)
 
-# --- Cutout (spotlight effect, left half of screen) ---
-cutout_sub_title = TexObject(r'Cutout (spotlight)', x=440, y=170, font_size=28,
-                             fill='#FFFFFF', stroke_width=0, anchor='center')
-cutout_sub_title.fadein(0.2, 0.6)
-canvas.add(cutout_sub_title)
-
-# Background content behind the cutout
-bg_star = Star(n=5, outer_radius=100, inner_radius=45, cx=350, cy=430,
-               fill='#E84D60', stroke='#E84D60', stroke_width=2)
-bg_star.fadein(0.0, 0.5)
-canvas.add(bg_star)
-
-bg_hex = RegularPolygon(n=6, radius=70, cx=530, cy=500,
-                        fill='#58C4DD', stroke='#58C4DD', stroke_width=2)
-bg_hex.fadein(0.0, 0.5)
-canvas.add(bg_hex)
-
-bg_circle = Circle(r=50, cx=400, cy=600, fill='#83C167',
-                   stroke='#83C167', stroke_width=2)
-bg_circle.fadein(0.0, 0.5)
-canvas.add(bg_circle)
-
 # The cutout overlay — starts covering everything, then reveals shapes
 cutout = Cutout(
-    hole_x=300, hole_y=350, hole_w=200, hole_h=200,
+    hole_x=800, hole_y=350, hole_w=200, hole_h=200,
     color='#111122', opacity=0.85, rx=15, ry=15,
     creation=0, z=50,
 )
-cutout.fadein(0.3, 0.8)
+cutout.fadein(0.5, 1.0)
 # Animate the hole to grow and sweep across the shapes
-cutout.set_hole(x=230, y=320, w=350, h=330, start=1.0, end=2.0)
-cutout.set_hole(x=180, y=280, w=500, h=420, start=2.0, end=3.0)
+cutout.set_hole(x=730, y=320, w=350, h=330, start=1.0, end=2.0)
+cutout.set_hole(x=680, y=280, w=500, h=420, start=2.0, end=3.0)
+cutout.fadeout(3, 4)
 canvas.add(cutout)
 
 # --- ConvexHull (right half of screen) ---
-hull_sub_title = TexObject(r'ConvexHull', x=1350, y=170, font_size=28,
+hull_sub_title = TexObject(r'ConvexHull', x=960, y=170, font_size=28,
                            fill='#FFFFFF', stroke_width=0, anchor='center')
 hull_sub_title.fadein(0.2, 0.6)
 canvas.add(hull_sub_title)
@@ -58,8 +37,8 @@ canvas.add(hull_sub_title)
 dot_positions = []
 dots_colors = ['#E84D60', '#58C4DD', '#83C167', '#F5A623', '#9B59B6', '#4ECDC4']
 for i in range(14):
-    dx = random.uniform(1050, 1650)
-    dy = random.uniform(250, 700)
+    dx = random.uniform(960-200, 960+200)
+    dy = random.uniform(200, 500)*2 - 100
     dot_positions.append((dx, dy))
     d = Dot(cx=dx, cy=dy, r=8, fill=dots_colors[i % len(dots_colors)],
             stroke_width=0)
@@ -69,15 +48,10 @@ for i in range(14):
 # ConvexHull polygon wrapping all dots
 hull = ConvexHull(
     *dot_positions,
-    fill='#58C4DD', fill_opacity=0.12, stroke='#58C4DD', stroke_width=2.5,
+    fill='#58C4DD', fill_opacity=0.2, stroke='#58C4DD', stroke_width=3,
 )
-hull.fadein(1.5, 2.0)
+hull.create(1.5, 2.5)
 canvas.add(hull)
-
-hull_label = TexObject(r'Hull wraps all points', x=1350, y=760, font_size=22,
-                       fill='#58C4DD', stroke_width=0, anchor='center')
-hull_label.fadein(2.0, 2.4)
-canvas.add(hull_label)
 
 T = 5.0
 if args.for_docs:

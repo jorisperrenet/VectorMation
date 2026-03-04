@@ -7,44 +7,49 @@ W, H = 440, 320
 v = VectorMathAnim('_ref_out', verbose=args.verbose, width=W, height=H)
 v.set_background(fill='#1e1e2e')
 
-CX, CY = 220, 155
-ref = Rectangle(70, 50, x=CX - 35, y=CY - 25,
+CX, CY = 220, 145
+RW, RH = 70, 50  # reference rect size
+SW, SH = 50, 25  # small rect size
+BUFF = 12
+
+ref = Rectangle(RW, RH, x=CX - RW // 2, y=CY - RH // 2,
                 fill='#58C4DD', fill_opacity=0.2, stroke='#58C4DD', stroke_width=2)
 v.add(ref)
 v.add(Text('target', x=CX - 19, y=CY + 5, font_size=11, fill='#58C4DD'))
 
-BUFF = 12
+# Each positioned rect is placed using the same buff logic as next_to
 positions = [
-    ('right', CX + 35 + BUFF,     CY,     '#a6e3a1'),
-    ('left',  CX - 35 - BUFF - 50, CY,    '#f38ba8'),
-    ('up',    CX,                  CY - 25 - BUFF - 25, '#89b4fa'),
-    ('down',  CX,                  CY + 25 + BUFF,      '#f9e2af'),
+    ('right', CX + RW // 2 + BUFF,            CY - SH // 2,              '#a6e3a1'),
+    ('left',  CX - RW // 2 - BUFF - SW,       CY - SH // 2,              '#f38ba8'),
+    ('up',    CX - SW // 2,                    CY - RH // 2 - BUFF - SH,  '#89b4fa'),
+    ('down',  CX - SW // 2,                    CY + RH // 2 + BUFF,       '#f9e2af'),
 ]
 
-for direction, px, py, color in positions:
-    rx, ry = px - 25, py - 12
-    if direction == 'left':
-        rx = px
-    v.add(Rectangle(50, 25, x=rx, y=ry,
+for direction, rx, ry, color in positions:
+    v.add(Rectangle(SW, SH, x=rx, y=ry,
                     fill=color, fill_opacity=0.2, stroke=color, stroke_width=1.5))
 
-    label_offsets = {
-        'right': (px + 30, py + 4),
-        'left':  (px - 40, py + 4),
-        'up':    (px + 30, py),
-        'down':  (px + 30, py + 10),
+    # Place labels outside the diagram
+    label_map = {
+        'right': (rx + SW + 6, ry + SH // 2 + 4),
+        'left':  (rx - 42, ry + SH // 2 + 4),
+        'up':    (rx + SW + 6, ry + SH // 2 + 4),
+        'down':  (rx + SW + 6, ry + SH // 2 + 4),
     }
-    lx, ly = label_offsets[direction]
+    lx, ly = label_map[direction]
     v.add(Text(f"'{direction}'", x=lx, y=ly, font_size=10, fill=color))
 
+# buff annotation
+bx = CX + RW // 2
+by = CY + RH // 2 + 8
 v.add(
-    DashedLine(x1=CX + 35, y1=CY + 30, x2=CX + 35, y2=CY + 45, dash='3,2', stroke='#cdd6f4', stroke_width=0.8),
-    DashedLine(x1=CX + 35 + BUFF, y1=CY + 30, x2=CX + 35 + BUFF, y2=CY + 45, dash='3,2', stroke='#cdd6f4', stroke_width=0.8),
-    Text('buff', x=CX + 37, y=CY + 55, font_size=10, fill='#cdd6f4'),
+    DashedLine(x1=bx, y1=by, x2=bx, y2=by + 18, dash='3,2', stroke='#cdd6f4', stroke_width=0.8),
+    DashedLine(x1=bx + BUFF, y1=by, x2=bx + BUFF, y2=by + 18, dash='3,2', stroke='#cdd6f4', stroke_width=0.8),
+    Text('buff', x=bx + 1, y=by + 30, font_size=10, fill='#cdd6f4'),
 )
 
-v.add(Text("next_to(target, direction, buff)", x=100, y=270, font_size=13, fill='#cdd6f4'))
-v.add(Text("obj.next_to(target, 'right', buff=12)", x=95, y=295, font_size=11, fill='#585b70'))
+v.add(Text("obj.next_to(target, direction, buff)", x=80, y=275, font_size=13, fill='#cdd6f4'))
+v.add(Text("obj.next_to(target, 'right', buff=12)", x=80, y=298, font_size=11, fill='#585b70'))
 
 if args.for_docs:
     v.write_frame(filename='docs/source/_static/images/next_to.svg')

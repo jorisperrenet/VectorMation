@@ -21,7 +21,6 @@ canvas.add(title1)
 hexagon = RegularPolygon(6, radius=140, cx=480, cy=400,
                          fill='#58C4DD', fill_opacity=0.15, stroke='#58C4DD', stroke_width=3)
 hexagon.grow_from_center(start=0.3, end=1.0)
-hexagon.always_rotate(start=1.0, end=5.5, degrees_per_second=15)
 hexagon.fadeout(5.5, 6.0)
 canvas.add(hexagon)
 
@@ -31,7 +30,7 @@ hex_label.fadein(0.5, 1.0)
 hex_label.fadeout(5.5, 6.0)
 canvas.add(hex_label)
 
-# Colored edges — batch with VCollection + stagger
+# Colored edges
 edges = hexagon.get_edges()
 edge_colors = ['#FC6255', '#FF862F', '#FFFF00', '#83C167', '#58C4DD', '#9A72AC']
 edge_coll = VCollection(creation=0)
@@ -42,7 +41,7 @@ edge_coll.stagger_fadein(start=1.2, end=2.2)
 edge_coll.fadeout(5.5, 6.0)
 canvas.add(edge_coll)
 
-# Interior angle labels — batch with VCollection
+# Interior angle labels
 angles = hexagon.interior_angles()
 verts = hexagon.get_vertices()
 angle_labels = VCollection(creation=0)
@@ -63,7 +62,6 @@ canvas.add(angle_labels)
 hex2 = RegularPolygon(6, radius=140, cx=1440, cy=400,
                       fill='#9A72AC', fill_opacity=0.15, stroke='#9A72AC', stroke_width=3)
 hex2.grow_from_center(start=0.5, end=1.2)
-hex2.always_rotate(start=1.2, end=5.5, degrees_per_second=-15)
 hex2.fadeout(5.5, 6.0)
 canvas.add(hex2)
 
@@ -106,16 +104,16 @@ title2.write(6.0, 6.8)
 title2.fadeout(11.5, 12.0)
 canvas.add(title2)
 
-# Inscribed & circumscribed polygons (left)
+# Inscribed & circumscribed polygons (left) — no rotation
 circ1 = Circle(r=130, cx=480, cy=420,
                fill_opacity=0, stroke='#58C4DD', stroke_width=3)
 circ1.grow_from_center(start=6.3, end=6.9)
 circ1.fadeout(11.5, 12.0)
 canvas.add(circ1)
 
-inscribed = circ1.inscribed_polygon(5, fill_opacity=0, stroke='#83C167', stroke_width=2)
+inscribed = circ1.inscribed_polygon(5, angle=90, fill_opacity=0,
+                                    stroke='#83C167', stroke_width=2)
 inscribed.fadein(start=7.2, end=7.7)
-inscribed.always_rotate(start=7.7, end=11.5, degrees_per_second=20)
 inscribed.fadeout(11.5, 12.0)
 canvas.add(inscribed)
 
@@ -125,9 +123,9 @@ insc_label.fadein(7.2, 7.7)
 insc_label.fadeout(11.5, 12.0)
 canvas.add(insc_label)
 
-circumscribed = circ1.circumscribed_polygon(5, fill_opacity=0, stroke='#FF862F', stroke_width=2)
+circumscribed = circ1.circumscribed_polygon(5, angle=90, fill_opacity=0,
+                                            stroke='#FF862F', stroke_width=2)
 circumscribed.fadein(start=8.2, end=8.7)
-circumscribed.always_rotate(start=8.7, end=11.5, degrees_per_second=-20)
 circumscribed.fadeout(11.5, 12.0)
 canvas.add(circumscribed)
 
@@ -204,8 +202,8 @@ sub_grid.stagger_fadein(start=13.0, end=14.5)
 sub_grid.fadeout(17.5, 18.0)
 canvas.add(sub_grid)
 
-grid_label = TexObject(r'subdivide(3, 4)', x=480, y=610, font_size=22,
-                       fill='#FFFFFF', stroke_width=0, anchor='center')
+grid_label = Text(text='subdivide(3, 4)', x=480, y=610, font_size=22,
+                  fill='#FFFFFF', stroke_width=0, text_anchor='middle')
 grid_label.fadein(13.5, 14.0)
 grid_label.fadeout(17.5, 18.0)
 canvas.add(grid_label)
@@ -225,8 +223,8 @@ strips.stagger_fadein(start=14.0, end=15.2)
 strips.fadeout(17.5, 18.0)
 canvas.add(strips)
 
-strip_label = TexObject(r'split\_horizontal(3)', x=960, y=610, font_size=22,
-                        fill='#FFFFFF', stroke_width=0, anchor='center')
+strip_label = Text(text='split_horizontal(3)', x=960, y=610, font_size=22,
+                   fill='#FFFFFF', stroke_width=0, text_anchor='middle')
 strip_label.fadein(14.3, 14.8)
 strip_label.fadeout(17.5, 18.0)
 canvas.add(strip_label)
@@ -250,8 +248,8 @@ inset_rect2.fadein(start=15.5, end=16.0)
 inset_rect2.fadeout(17.5, 18.0)
 canvas.add(inset_rect2)
 
-inset_label = TexObject(r'inset(30) \& inset(60)', x=1440, y=610, font_size=22,
-                        fill='#FFFFFF', stroke_width=0, anchor='center')
+inset_label = Text(text='inset(30) & inset(60)', x=1440, y=610, font_size=22,
+                   fill='#FFFFFF', stroke_width=0, text_anchor='middle')
 inset_label.fadein(15.3, 15.8)
 inset_label.fadeout(17.5, 18.0)
 canvas.add(inset_label)
@@ -266,63 +264,59 @@ title4.write(18.0, 18.8)
 title4.fadeout(23.5, 24.0)
 canvas.add(title4)
 
-# Stars row — VCollection + arrange for clean layout
-star_ns = [3, 4, 5, 6, 7]
 colors = DEFAULT_CHART_COLORS
+star_ns = [3, 4, 5, 6, 7]
+
+# Stars row
 stars = VCollection(creation=0)
-star_labels = VCollection(creation=0)
-
 for i, n in enumerate(star_ns):
-    s = Star(n=n, outer_radius=90, cx=0, cy=0,
-             fill=colors[i], fill_opacity=0.7, stroke='#FFFFFF', stroke_width=2)
-    stars.add(s)
-    s_label = TexObject(rf'Star($n={n}$)', x=0, y=130, font_size=20,
-                        fill=colors[i], stroke_width=0, anchor='center')
-    star_labels.add(s_label)
-
+    stars.add(Star(n=n, outer_radius=90, cx=0, cy=0,
+                   fill=colors[i], fill_opacity=0.7, stroke='#FFFFFF', stroke_width=2))
 stars.arrange(direction=RIGHT, buff=100)
 stars.center_to_pos(960, 350)
-star_labels.arrange(direction=RIGHT, buff=100)
-star_labels.center_to_pos(960, 480)
 
-# Staggered entrance with pulsate + varied rotation speeds
-for i, (s, lbl) in enumerate(zip(stars.objects, star_labels.objects)):
+for i, s in enumerate(stars.objects):
     delay = i * 0.25
     s.grow_from_center(start=18.3 + delay, end=19.0 + delay)
     s.pulsate(start=19.0 + delay, end=19.5 + delay, scale_factor=1.15)
     s.always_rotate(start=19.5 + delay, end=23.0, degrees_per_second=25 + i * 8)
     s.fadeout(23.5, 24.0)
-    lbl.fadein(18.5 + delay, 19.0 + delay)
-    lbl.fadeout(23.5, 24.0)
 
+# Star labels centered below each star
+star_labels = VCollection(creation=0)
+for i, (n, s) in enumerate(zip(star_ns, stars.objects)):
+    sx = s.get_x()
+    lbl = Text(text=f'Star(n={n})', x=sx, y=470, font_size=20,
+               fill=colors[i], stroke_width=0, text_anchor='middle')
+    lbl.fadein(18.5 + i * 0.25, 19.0 + i * 0.25)
+    lbl.fadeout(23.5, 24.0)
+    star_labels.add(lbl)
 canvas.add(stars, star_labels)
 
-# Polygons row below — also using arrange
+# Polygons row
 polys = VCollection(creation=0)
-poly_labels = VCollection(creation=0)
-
 for i, n in enumerate(star_ns):
-    p = RegularPolygon(n, radius=80, cx=0, cy=0,
-                       fill=colors[(i + 3) % len(colors)], fill_opacity=0.5,
-                       stroke='#FFFFFF', stroke_width=2)
-    polys.add(p)
-    p_label = TexObject(rf'${n}$-gon', x=0, y=120, font_size=20,
-                        fill=colors[(i + 3) % len(colors)], stroke_width=0, anchor='center')
-    poly_labels.add(p_label)
-
+    polys.add(RegularPolygon(n, radius=80, cx=0, cy=0,
+                             fill=colors[(i + 3) % len(colors)], fill_opacity=0.5,
+                             stroke='#FFFFFF', stroke_width=2))
 polys.arrange(direction=RIGHT, buff=100)
 polys.center_to_pos(960, 680)
-poly_labels.arrange(direction=RIGHT, buff=100)
-poly_labels.center_to_pos(960, 800)
 
-for i, (p, lbl) in enumerate(zip(polys.objects, poly_labels.objects)):
+for i, p in enumerate(polys.objects):
     delay = i * 0.25
     p.grow_from_center(start=20.0 + delay, end=20.7 + delay)
     p.always_rotate(start=20.7 + delay, end=23.0, degrees_per_second=20 + i * 6)
     p.fadeout(23.5, 24.0)
-    lbl.fadein(20.2 + delay, 20.7 + delay)
-    lbl.fadeout(23.5, 24.0)
 
+# Polygon labels centered below each polygon
+poly_labels = VCollection(creation=0)
+for i, (n, p) in enumerate(zip(star_ns, polys.objects)):
+    px = p.get_x()
+    lbl = Text(text=f'{n}-gon', x=px, y=790, font_size=20,
+               fill=colors[(i + 3) % len(colors)], stroke_width=0, text_anchor='middle')
+    lbl.fadein(20.2 + i * 0.25, 20.7 + i * 0.25)
+    lbl.fadeout(23.5, 24.0)
+    poly_labels.add(lbl)
 canvas.add(polys, poly_labels)
 
 # =============================================================================
@@ -336,5 +330,5 @@ if not args.for_docs:
         end=args.end or T,
         fps=args.fps,
         port=args.port,
-        hot_reload=args.hot_reload,
+        hot_reload=args.hot_reload or True,
     )

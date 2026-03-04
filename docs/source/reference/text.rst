@@ -7,6 +7,17 @@ of animation methods (movement, styling, effects, etc.).
 Text
 ----
 
+.. admonition:: Text
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_text.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_text.py
+      :language: python
+      :end-before: v.write_frame
+
 .. py:class:: Text(text='', x=960, y=540, font_size=48, text_anchor=None, font_family=None, **styling)
    :no-index:
 
@@ -194,7 +205,7 @@ Text
 
       :param str charset: Character set for scrambled characters.
 
-   .. admonition:: Example: Typewrite & Scramble
+   .. admonition:: Example: Typewrite
       :class: example
 
       .. raw:: html
@@ -204,20 +215,6 @@ Text
       Typewriter effect with blinking cursor.
 
       .. literalinclude:: ../../../examples/reference/typewrite.py
-         :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
-
-   .. admonition:: Example: Scramble decode
-      :class: example
-
-      .. raw:: html
-
-         <video src="../_static/videos/scramble.mp4" controls autoplay loop muted></video>
-
-      Characters settle left-to-right from random glyphs.
-
-      .. literalinclude:: ../../../examples/reference/scramble.py
          :language: python
          :start-after: parse_args()
          :end-before: v.browser_display
@@ -283,18 +280,14 @@ CountAnimation
    .. admonition:: Example: Counting animations
       :class: example
 
-      .. code-block:: python
+      .. raw:: html
 
-         # Count from 0 to 100 over the first two seconds
-         counter = CountAnimation(0, 100, start=0, end=2, fmt='{:.0f}')
-         counter.center_to_pos()
-         v.add(counter)
+         <video src="../_static/videos/ref_count_anim.mp4" controls autoplay loop muted></video>
 
-         # Chain: count 0 -> 50, then 50 -> 200
-         counter = CountAnimation(0, 50, start=0, end=1)
-         counter.count_to(200, start=1.5, end=3)
-         counter.center_to_pos()
-         v.add(counter)
+      .. literalinclude:: ../../../examples/reference/ref_count_anim.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
 ----
 
@@ -330,20 +323,14 @@ DecimalNumber
    .. admonition:: Example: Tracking a ValueTracker
       :class: example
 
-      .. code-block:: python
+      .. raw:: html
 
-         # DecimalNumber tracking a ValueTracker
-         vt = ValueTracker(0)
-         vt.animate_value(3.14159, start=0, end=2)
-         label = DecimalNumber(vt, fmt='{:.4f}', font_size=60)
-         label.center_to_pos()
-         v.add(label)
+         <video src="../_static/videos/ref_value_tracker.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
 
-         # Standalone DecimalNumber
-         dn = DecimalNumber(0, fmt='{:.1f}')
-         dn.center_to_pos()
-         dn.animate_value(99.9, start=0, end=3)
-         v.add(dn)
+      .. literalinclude:: ../../../examples/reference/ref_value_tracker.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
 ----
 
@@ -363,12 +350,14 @@ Integer
    .. admonition:: Example: Animated integer display
       :class: example
 
-      .. code-block:: python
+      .. raw:: html
 
-         n = Integer(0)
-         n.center_to_pos()
-         n.animate_value(42, start=0, end=2)
-         v.add(n)
+         <video src="../_static/videos/ref_animated_integer.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_animated_integer.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
 ----
 
@@ -458,18 +447,14 @@ SplitTexObject
    .. admonition:: Example: Multi-line LaTeX derivation
       :class: example
 
-      .. code-block:: python
+      .. raw:: html
 
-         equations = SplitTexObject(
-             r'$$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$',
-             r'$$\Delta = b^2 - 4ac$$',
-             line_spacing=80, font_size=48,
-         )
-         for i, line in enumerate(equations):
-             line.center_to_pos()
-             line.shift(0, 0, 0, i * 80 - 40)
-             line.write(i * 0.8, i * 0.8 + 1.5)
-             v.add(line)
+         <img src="../_static/videos/ref_multiline_latex.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_multiline_latex.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -503,12 +488,14 @@ TexCountAnimation
    .. admonition:: Example: LaTeX-styled counter
       :class: example
 
-      .. code-block:: python
+      .. raw:: html
 
-         # LaTeX-styled counter
-         counter = TexCountAnimation(0, 100, start=0, end=3, font_size=72)
-         counter.center_to_pos()
-         v.add(counter)
+         <video src="../_static/videos/ref_tex_counter.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_tex_counter.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
 ----
 
@@ -530,20 +517,17 @@ Paragraph
 
       List of line strings (alias for ``items``).
 
-   .. admonition:: Example: Centered multi-line paragraph
+   .. admonition:: Example: Paragraph
       :class: example
 
-      .. code-block:: python
+      .. raw:: html
 
-         p = Paragraph(
-             'First line of text.',
-             'Second line continues here.',
-             'Third and final line.',
-             alignment='center', font_size=40,
-         )
-         p.center_to_pos()
-         p.fadein(0, 1)
-         v.add(p)
+         <img src="../_static/videos/ref_paragraph.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_paragraph.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -560,19 +544,17 @@ BulletedList
    :param float indent: Pixel indentation for each item (default ``40``).
    :param float line_spacing: Multiplier for vertical spacing (default ``1.6``).
 
-   .. admonition:: Example: Bulleted list with fade-in
+   .. admonition:: Example: BulletedList
       :class: example
 
-      .. code-block:: python
+      .. raw:: html
 
-         bl = BulletedList(
-             'Install dependencies',
-             'Configure settings',
-             'Run the application',
-             font_size=36,
-         )
-         bl.fadein(0, 1)
-         v.add(bl)
+         <img src="../_static/videos/ref_bulleted_list.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_bulleted_list.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -589,18 +571,15 @@ NumberedList
    :param float line_spacing: Multiplier for vertical spacing (default ``1.6``).
    :param int start_number: First number in the sequence (default ``1``).
 
-   .. admonition:: Example: Numbered list with fade-in
+   .. admonition:: Example: NumberedList
       :class: example
 
-      .. code-block:: python
+      .. raw:: html
 
-         nl = NumberedList(
-             'Define the problem',
-             'Gather data',
-             'Build a model',
-             'Evaluate results',
-             font_size=36,
-         )
-         nl.fadein(0, 1)
-         v.add(nl)
+         <img src="../_static/videos/ref_numbered_list.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_numbered_list.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 

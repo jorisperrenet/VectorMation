@@ -32,12 +32,17 @@ UnitInterval
       ``UnitInterval`` uses ``__new__`` and returns a ``NumberLine`` instance
       directly, so ``isinstance(UnitInterval(), NumberLine)`` is ``True``.
 
-   .. admonition:: Example: Create a unit interval
+   .. admonition:: Example: UnitInterval
       :class: example
 
-      .. code-block:: python
+      .. raw:: html
 
-         ui = UnitInterval(x=360, y=540, tick_step=0.25)
+         <img src="../_static/videos/ref_unit_interval.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_unit_interval.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -82,26 +87,17 @@ Molecule2D
    I       ``#8800FF``  Iodine
    ======= ============ ============
 
-   .. admonition:: Example: Water molecule
+   .. admonition:: Example: Molecule2D
       :class: example
 
-      .. code-block:: python
+      .. raw:: html
 
-         # Water molecule (H2O)
-         water = Molecule2D(
-             atoms=[('O', 0, 0), ('H', -0.8, 0.6), ('H', 0.8, 0.6)],
-             bonds=[(0, 1), (0, 2)],
-         )
+         <img src="../_static/videos/ref_molecule.svg" style="width:100%; max-width:800px;" />
 
-   .. admonition:: Example: Carbon dioxide with double bonds
-      :class: example
-
-      .. code-block:: python
-
-         co2 = Molecule2D(
-             atoms=[('O', -1.2, 0), ('C', 0, 0), ('O', 1.2, 0)],
-             bonds=[(0, 1, 2), (1, 2, 2)],
-         )
+      .. literalinclude:: ../../../examples/reference/ref_molecule.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -176,16 +172,6 @@ NeuralNetwork
       :param float delay: Time offset between successive layers.
       :param str color: Neuron flash color.
       :param str edge_color: Edge flash color.
-
-   .. admonition:: Example: Basic neural network with propagation
-      :class: example
-
-      .. code-block:: python
-
-         nn = NeuralNetwork([3, 5, 4, 2])
-         nn.label_input(['x1', 'x2', 'x3'])
-         nn.label_output(['y1', 'y2'])
-         nn.propagate(start=0, duration=3)
 
    .. admonition:: Example: NeuralNetwork propagation
       :class: example
@@ -268,18 +254,6 @@ Pendulum
          :start-after: parse_args()
          :end-before: v.browser_display
 
-   .. admonition:: Example: Multiple pendulums with phase relationships
-      :class: example
-
-      .. code-block:: python
-
-         pendulums = [
-             Pendulum(pivot_x=400 + i * 200, angle=30,
-                      period=1.0 + i * 0.2, end=10)
-             for i in range(5)
-         ]
-         canvas.add_objects(*pendulums)
-
 ----
 
 StandingWave
@@ -323,34 +297,17 @@ StandingWave
 
       The animated wave path whose ``d`` attribute is recomputed each frame.
 
-   .. admonition:: Example: Third harmonic standing wave
+   .. admonition:: Example: StandingWave
       :class: example
 
-      .. code-block:: python
+      .. raw:: html
 
-         from vectormation.objects import *
+         <img src="../_static/videos/ref_standing_wave.svg" style="width:100%; max-width:800px;" />
 
-         canvas = VectorMathAnim()
-         canvas.set_background()
-
-         wave = StandingWave(harmonics=3, frequency=2.0, amplitude=80,
-                             start=0, end=6)
-         canvas.add_objects(wave)
-         canvas.browser_display()
-
-   .. admonition:: Example: Multiple harmonics stacked vertically
-      :class: example
-
-      .. code-block:: python
-
-         waves = [
-             StandingWave(y1=200 + i * 150, y2=200 + i * 150,
-                          harmonics=i + 1, frequency=1.0, end=8,
-                          stroke=['#58C4DD', '#FF6B6B', '#83C167',
-                                  '#FFFF00'][i])
-             for i in range(4)
-         ]
-         canvas.add_objects(*waves)
+      .. literalinclude:: ../../../examples/reference/ref_standing_wave.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -385,14 +342,17 @@ Lens
       :param float obj_y: Object y-coordinate.
       :returns: ``(image_x, image_y)`` or ``None``.
 
-   .. admonition:: Example: Compute image point through a lens
+   .. admonition:: Example: Lens
       :class: example
 
-      .. code-block:: python
+      .. raw:: html
 
-         lens = Lens(focal_length=200, height=400)
-         # Compute where an object at (400, 400) forms its image:
-         img = lens.image_point(400, 400)
+         <img src="../_static/videos/ref_lens.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_lens.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 

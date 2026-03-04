@@ -46,6 +46,18 @@ Constructor
 
       canvas = VectorMathAnim(save_dir='svgs/my_animation', verbose=True)
 
+.. admonition:: Example: Basic scene
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_canvas_basic.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_canvas_basic.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 ----
 
 Scene Setup
@@ -182,6 +194,18 @@ the visible region. They return ``self`` for chaining.
 
 .. py:method:: VectorMathAnim.camera_zoom(factor, start, end, cx=None, cy=None, easing=smooth)
 
+   .. admonition:: Example: camera_zoom
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_camera_zoom.mp4" controls autoplay loop muted></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_camera_zoom.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
+
    Zoom the camera by *factor* around the point ``(cx, cy)`` over
    ``[start, end]``. ``factor > 1`` zooms in; ``factor < 1`` zooms out.
 
@@ -207,11 +231,17 @@ the visible region. They return ``self`` for chaining.
    :param float start: When tracking begins.
    :param float end: When tracking ends (``None`` = track indefinitely).
 
-   .. code-block:: python
+   .. admonition:: Example: camera_follow
+      :class: example
 
-      dot = Dot(cx=100, cy=540)
-      dot.shift(dx=1600, start=0, end=5)
-      canvas.camera_follow(dot, start=0, end=5)
+      .. raw:: html
+
+         <video src="../_static/videos/ref_camera_follow.mp4" controls autoplay loop muted></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_camera_follow.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
 .. py:method:: VectorMathAnim.camera_reset(start, end, easing=smooth)
 

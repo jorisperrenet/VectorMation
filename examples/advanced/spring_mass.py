@@ -32,7 +32,7 @@ for _ in range(n_steps + 1):
     x += v * dt
 
 # ── Spring visualization ─────────────────────────────────────────────
-anchor_x, anchor_y = 400, 220
+anchor_x, anchor_y = 810, 220
 eq_length = 300  # equilibrium spring length
 
 def _make_interp(idx):

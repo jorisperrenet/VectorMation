@@ -82,7 +82,7 @@ title.center_to_pos(960, 60)
 title.fadein(0, 0.5)
 
 subtitle = TexObject(r'Nearly identical initial conditions diverge rapidly',
-                     x=960, y=110, font_size=22, fill='#888', stroke_width=0)
+                     x=960, y=110, font_size=28, fill='#aaa', stroke_width=0)
 subtitle.center_to_pos(960, 110)
 subtitle.fadein(0.2, 0.7)
 
@@ -160,7 +160,7 @@ for i, cfg in enumerate(configs):
     all_objects.append(Circle(r=10, cx=lx, cy=ly, fill=cfg['color'], stroke_width=0))
     angle_str = f"{cfg['theta1']:.2f}"
     label_tex = TexObject(rf'Pendulum {cfg["label"]}: $\theta_1 = {angle_str}$ rad',
-                          x=lx + 24, y=ly, font_size=28, fill=cfg['color'],
+                          x=lx + 24, y=ly, font_size=34, fill=cfg['color'],
                           stroke_width=0)
     all_objects.append(label_tex)
 

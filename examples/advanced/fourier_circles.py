@@ -185,7 +185,7 @@ trail_path.d.set_onward(0, build_trail_path)
 
 # ── Harmonic counter ─────────────────────────────────────────────────
 harmonic_counter = TexCountAnimation(start_val=1, end_val=1, start=0, end=0,
-                                     fmt='Harmonics: {:.0f}', x=960, y=55,
+                                     fmt=r'\text{Harmonics:} {:.0f}', x=960, y=55,
                                      font_size=28, fill='#ffffff', stroke_width=0,
                                      text_anchor='middle', creation=0, z=2)
 harmonic_counter.fadein(0, 0.5)
@@ -204,7 +204,7 @@ subtitle.fadein(0.3, 1.3)
 
 # ── Formula ──────────────────────────────────────────────────────────
 formula = TexObject(r'$f(t) = \sum_{k \text{ odd}} \frac{4}{\pi k} \sin(k\omega t)$',
-                    x=960, y=100, font_size=36, fill='#ffffff', anchor='center',
+                    x=960, y=100, font_size=42, fill='#ffffff', anchor='center',
                     creation=0)
 formula.fadein(0.5, 1.5)
 

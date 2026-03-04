@@ -43,37 +43,41 @@ ChessBoard
       :param float end: Animation end time.
       :param easing: Easing function.
 
-   .. admonition:: Example: chess board
-      :class: example
+.. admonition:: Example: ChessBoard
+   :class: example
 
-      .. code-block:: python
+   .. raw:: html
 
-         board = ChessBoard()
-         board.move_piece('e2', 'e4', start=0, end=1)
-         board.move_piece('e7', 'e5', start=1, end=2)
+      <img src="../_static/videos/ref_chessboard.svg" style="width:100%; max-width:800px;" />
 
-   .. admonition:: Example: custom position using FEN notation
-      :class: example
-
-      .. code-block:: python
-
-         # Fool's Mate final position
-         board = ChessBoard(
-             fen='rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR',
-             size=500,
-             show_coordinates=True,
-         )
+   .. literalinclude:: ../../../examples/reference/ref_chessboard.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 ----
 
 PeriodicTable
 -------------
 
+.. admonition:: Example: PeriodicTable
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_periodic_table.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_periodic_table.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 .. py:class:: PeriodicTable(cx=960, cy=540, cell_size=48, creation=0, z=0)
 
-   Periodic table of elements (first 36 elements, hydrogen through krypton)
-   with color-coded categories. Each element cell shows its atomic number and
-   chemical symbol. Categories and their colors:
+   Periodic table of all 118 elements with color-coded categories. Each
+   element cell shows its atomic number and chemical symbol. Lanthanides
+   and actinides are shown in separate rows below the main table.
+   Categories and their colors:
 
    ==================== ===========
    Category             Color
@@ -118,6 +122,18 @@ PeriodicTable
 
 BohrAtom
 --------
+
+.. admonition:: Example: Carbon Atom (BohrAtom)
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_bohr_carbon.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_bohr_carbon.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 .. py:class:: BohrAtom(protons=1, neutrons=0, electrons=None, cx=960, cy=540, nucleus_r=30, shell_spacing=40, creation=0, z=0)
 
@@ -235,43 +251,17 @@ Automaton
       :param list transitions: Optional override for the transition list.
          Defaults to the transitions passed at construction.
 
-   .. admonition:: Example: DFA construction
-      :class: example
+.. admonition:: Example: Automaton
+   :class: example
 
-      .. code-block:: python
+   .. raw:: html
 
-         dfa = Automaton(
-             states=['q0', 'q1', 'q2'],
-             transitions=[
-                 ('q0', 'q1', 'a'),
-                 ('q1', 'q2', 'b'),
-                 ('q2', 'q0', 'c'),
-             ],
-             accept_states={'q2'},
-             initial_state='q0',
-         )
+      <img src="../_static/videos/ref_automaton.svg" style="width:100%; max-width:800px;" />
 
-   .. admonition:: Example: DFA simulation
-      :class: example
-
-      Simulating input on a DFA that accepts strings ending in ``'ab'``:
-
-      .. code-block:: python
-
-         dfa = Automaton(
-             states=['q0', 'q1', 'q2'],
-             transitions=[
-                 ('q0', 'q0', 'b'),
-                 ('q0', 'q1', 'a'),
-                 ('q1', 'q0', 'a'),
-                 ('q1', 'q2', 'b'),
-                 ('q2', 'q0', 'b'),
-                 ('q2', 'q1', 'a'),
-             ],
-             accept_states={'q2'},
-             initial_state='q0',
-         )
-         dfa.simulate_input('aab', start=0, delay=0.4)
+   .. literalinclude:: ../../../examples/reference/ref_automaton.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 ----
 
@@ -326,34 +316,17 @@ NetworkGraph
       :param node_id: The node identifier.
       :rtype: tuple[float, float]
 
-   .. admonition:: Example: circular graph
-      :class: example
+.. admonition:: Example: NetworkGraph
+   :class: example
 
-      .. code-block:: python
+   .. raw:: html
 
-         graph = NetworkGraph(
-             nodes=['A', 'B', 'C', 'D'],
-             edges=[(0, 1), (1, 2), (2, 3), (3, 0)],
-             layout='circular',
-         )
+      <img src="../_static/videos/ref_network_graph.svg" style="width:100%; max-width:800px;" />
 
-   .. admonition:: Example: directed graph with spring layout
-      :class: example
-
-      .. code-block:: python
-
-         graph = NetworkGraph(
-             nodes=['S', 'A', 'B', 'T'],
-             edges=[
-                 (0, 1, '4'), (0, 2, '3'),
-                 (1, 2, '1'), (1, 3, '2'),
-                 (2, 3, '5'),
-             ],
-             layout='spring',
-             directed=True,
-         )
-         graph.highlight_node(0, start=0, end=1)
-         graph.highlight_node(3, start=1, end=2)
+   .. literalinclude:: ../../../examples/reference/ref_network_graph.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 ----
 
@@ -500,27 +473,17 @@ TimelineBar
    :param float creation: Creation time.
    :param float z: Z-index for layering.
 
-   .. admonition:: Example: basic timeline
-      :class: example
+.. admonition:: Example: TimelineBar
+   :class: example
 
-      .. code-block:: python
+   .. raw:: html
 
-         tl = TimelineBar(
-             {0: 'Start', 3: 'Phase 1', 7: 'Phase 2', 10: 'End'},
-             total_duration=10,
-         )
+      <img src="../_static/videos/ref_timeline.svg" style="width:100%; max-width:800px;" />
 
-   .. admonition:: Example: video production timeline
-      :class: example
-
-      .. code-block:: python
-
-         tl = TimelineBar(
-             {0: 'Intro', 2: 'Problem', 5: 'Solution', 8: 'Demo', 10: 'Outro'},
-             total_duration=10,
-             y=1000,
-             marker_color='#58C4DD',
-         )
+   .. literalinclude:: ../../../examples/reference/ref_timeline.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 ----
 
@@ -594,33 +557,17 @@ VennDiagram
    separation. For 3-circle diagrams, circles are arranged in a triangular
    pattern with 65% radius separation.
 
-   .. admonition:: Example: two-set Venn diagram
-      :class: example
+.. admonition:: Example: VennDiagram
+   :class: example
 
-      .. code-block:: python
+   .. raw:: html
 
-         venn2 = VennDiagram(['Python', 'JavaScript'])
+      <img src="../_static/videos/ref_venn.svg" style="width:100%; max-width:800px;" />
 
-   .. admonition:: Example: three-set Venn diagram
-      :class: example
-
-      .. code-block:: python
-
-         venn3 = VennDiagram(
-             ['Math', 'CS', 'Art'],
-             radius=180,
-             colors=['#FC6255', '#58C4DD', '#83C167'],
-         )
-
-   .. admonition:: Example: different circle sizes
-      :class: example
-
-      .. code-block:: python
-
-         venn = VennDiagram(
-             ['Large Set', 'Small Set'],
-             sizes=[200, 120],
-         )
+   .. literalinclude:: ../../../examples/reference/ref_venn.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 ----
 
@@ -651,40 +598,17 @@ OrgChart
    :param float creation: Creation time.
    :param float z: Z-index for layering.
 
-   .. admonition:: Example: organization chart
-      :class: example
+.. admonition:: Example: OrgChart
+   :class: example
 
-      .. code-block:: python
+   .. raw:: html
 
-         org = OrgChart(('CEO', [
-             ('CTO', [('Dev Lead', []), ('QA Lead', [])]),
-             ('CFO', [('Accounting', [])]),
-         ]))
+      <img src="../_static/videos/ref_org_chart.svg" style="width:100%; max-width:800px;" />
 
-   .. admonition:: Example: larger organization with custom colors
-      :class: example
-
-      .. code-block:: python
-
-         org = OrgChart(
-             ('Director', [
-                 ('Manager A', [
-                     ('Team 1', []),
-                     ('Team 2', []),
-                     ('Team 3', []),
-                 ]),
-                 ('Manager B', [
-                     ('Team 4', []),
-                     ('Team 5', []),
-                 ]),
-                 ('Manager C', [
-                     ('Team 6', []),
-                 ]),
-             ]),
-             h_spacing=160,
-             v_spacing=120,
-             colors=['#FC6255', '#58C4DD', '#83C167'],
-         )
+   .. literalinclude:: ../../../examples/reference/ref_org_chart.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 ----
 
@@ -715,41 +639,15 @@ MindMap
    :param float creation: Creation time.
    :param float z: Z-index for layering.
 
-   .. admonition:: Example: project mind map
-      :class: example
+.. admonition:: Example: MindMap
+   :class: example
 
-      .. code-block:: python
+   .. raw:: html
 
-         mindmap = MindMap(('Project', [
-             ('Design', [('UI', []), ('UX', [])]),
-             ('Dev', [('Frontend', []), ('Backend', []), ('DB', [])]),
-             ('Test', [('Unit', []), ('E2E', [])]),
-             ('Deploy', []),
-         ]))
+      <img src="../_static/videos/ref_mind_map.svg" style="width:100%; max-width:800px;" />
 
-   .. admonition:: Example: study notes with custom colors
-      :class: example
-
-      .. code-block:: python
-
-         mindmap = MindMap(
-             ('Physics', [
-                 ('Mechanics', [
-                     ('Kinematics', []),
-                     ('Dynamics', []),
-                     ('Energy', []),
-                 ]),
-                 ('Waves', [
-                     ('Sound', []),
-                     ('Light', []),
-                 ]),
-                 ('Thermo', [
-                     ('Heat', []),
-                     ('Entropy', []),
-                 ]),
-                 ('E&M', []),
-             ]),
-             radius=280,
-             colors=['#FC6255', '#58C4DD', '#83C167', '#FFFF00', '#9A72AC'],
-         )
+   .. literalinclude:: ../../../examples/reference/ref_mind_map.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 

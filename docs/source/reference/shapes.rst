@@ -13,6 +13,18 @@ Ellipse
    :width: 400
    :align: center
 
+.. admonition:: Example: Ellipse
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_ellipse.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_ellipse.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 .. py:class:: Ellipse(rx=120, ry=60, cx=960, cy=540, **styling)
 
    Ellipse centred at ``(cx, cy)`` with radii ``rx`` and ``ry``.
@@ -101,6 +113,18 @@ Circle
 .. image:: ../_static/images/circle_params.svg
    :width: 400
    :align: center
+
+.. admonition:: Example: Circle
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_circle.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_circle.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 .. py:class:: Circle(r=120, cx=960, cy=540, **styling)
 
@@ -267,6 +291,18 @@ Circle
 Dot
 ---
 
+.. admonition:: Example: Dot & AnnotationDot
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_dot.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_dot.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 .. py:class:: Dot(r=11, cx=960, cy=540, **styling)
 
    Bases: :py:class:`Circle`
@@ -298,6 +334,18 @@ AnnotationDot
 Square
 ------
 
+.. admonition:: Example: Square
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_square.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_square.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 .. py:class:: Square(side=200, x=960, y=540, **styling)
 
    Bases: :py:class:`Rectangle`
@@ -314,6 +362,18 @@ Rectangle
 .. image:: ../_static/images/rectangle_params.svg
    :width: 440
    :align: center
+
+.. admonition:: Example: Rectangle
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_rectangle.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_rectangle.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 .. py:class:: Rectangle(width, height, x=960, y=540, rx=0, ry=0, **styling)
 
@@ -464,6 +524,18 @@ Rectangle
 RoundedRectangle
 ----------------
 
+.. admonition:: Example: RoundedRectangle
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_rounded_rect.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_rounded_rect.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 .. py:class:: RoundedRectangle(width, height, x=960, y=540, corner_radius=12, **styling)
 
    Bases: :py:class:`Rectangle`
@@ -486,6 +558,18 @@ Line
 .. image:: ../_static/images/line_params.svg
    :width: 400
    :align: center
+
+.. admonition:: Example: Line
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_line.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_line.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 .. py:class:: Line(x1=0, y1=0, x2=100, y2=100, **styling)
 
@@ -708,6 +792,18 @@ Line
 DashedLine
 ----------
 
+.. admonition:: Example: DashedLine
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_dashed_line.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_dashed_line.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 .. py:class:: DashedLine(x1=0, y1=0, x2=100, y2=100, dash='10,5', **styling)
 
    Bases: :py:class:`Line`
@@ -724,6 +820,18 @@ DashedLine
 
 Polygon
 -------
+
+.. admonition:: Example: Polygon
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_polygon.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_polygon.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 .. py:class:: Polygon(*vertices, closed=True, **styling)
 
@@ -922,6 +1030,18 @@ Polygon
 Lines
 -----
 
+.. admonition:: Example: Lines (open polyline)
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_lines.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_lines.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 .. py:class:: Lines(*vertices, **styling)
 
    Bases: :py:class:`Polygon` (with ``closed=False``)
@@ -933,6 +1053,18 @@ Lines
 
 RegularPolygon
 --------------
+
+.. admonition:: Example: RegularPolygon
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_regular_polygon.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_regular_polygon.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 .. image:: ../_static/images/regular_polygon_params.svg
    :width: 400
@@ -975,6 +1107,18 @@ EquilateralTriangle
 Star
 ----
 
+.. admonition:: Example: Star
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_star_shape.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_star_shape.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 .. image:: ../_static/images/star_params.svg
    :width: 400
    :align: center
@@ -1012,6 +1156,18 @@ Star
 
 Arc
 ---
+
+.. admonition:: Example: Arc
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_arc_shape.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_arc_shape.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 .. image:: ../_static/images/arc_params.svg
    :width: 400
@@ -1084,6 +1240,18 @@ Wedge / Sector
    :width: 400
    :align: center
 
+.. admonition:: Example: Wedge
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_wedge.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_wedge.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 .. py:class:: Wedge(cx=960, cy=540, r=120, start_angle=0, end_angle=90, **styling)
 
    Bases: :py:class:`Arc`
@@ -1102,6 +1270,18 @@ Annulus
 .. image:: ../_static/images/annulus_params.svg
    :width: 400
    :align: center
+
+.. admonition:: Example: Annulus
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_annulus.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_annulus.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 .. py:class:: Annulus(inner_radius=60, outer_radius=120, cx=960, cy=540, **styling)
 
@@ -1195,6 +1375,18 @@ Angle
    :width: 440
    :align: center
 
+.. admonition:: Example: Angle
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_angle.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_angle.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 .. py:class:: Angle(vertex, p1, p2, radius=36, label=None, label_radius=None, label_font_size=36, **styling)
 
    Bases: :py:class:`VCollection`
@@ -1225,6 +1417,18 @@ RightAngle
 Cross
 -----
 
+.. admonition:: Example: Cross
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_cross.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_cross.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 .. py:class:: Cross(size=36, cx=960, cy=540, **styling)
 
    X-mark shape (two crossing lines).
@@ -1233,6 +1437,18 @@ Cross
 
 Text
 ----
+
+.. admonition:: Example: Text
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_text.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_text.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
 
 .. py:class:: Text(text='', x=960, y=540, font_size=48, text_anchor=None, font_family=None, **styling)
 
@@ -1369,6 +1585,18 @@ ComplexValueTracker
 Path
 ----
 
+.. admonition:: Example: Path
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_path.svg" style="width:100%; max-width:800px;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_path.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.write_frame
+
 .. py:class:: Path(path, x=0, y=0, **styling)
 
    Raw SVG ``<path>`` element.
@@ -1424,31 +1652,6 @@ Trace
    .. py:method:: to_polygon(time)
 
       Convert the trace to a :py:class:`Polygon`.
-
-----
-
-FunctionGraph
--------------
-
-.. py:class:: FunctionGraph(func, x_range=(-5, 5), y_range=None, num_points=200, x=120, y=60, width=1440, height=840, **styling)
-   :no-index:
-
-   Bases: :py:class:`Lines`
-
-   Plot a function as a polyline (no axes, ticks, or labels).
-
-   :param callable func: ``f(x) → y`` function.
-   :param tuple x_range: ``(start, end)`` in math coordinates.
-   :param tuple y_range: ``(min, max)`` or ``None`` for auto.
-   :param int num_points: Sampling resolution.
-
-   .. py:method:: get_point_from_x(math_x)
-
-      Return ``(svg_x, svg_y)`` for a math x value.
-
-   .. py:method:: get_slope_at(math_x, dx=1e-6)
-
-      Return the numerical slope at a math x value.
 
 ----
 

@@ -33,6 +33,17 @@ Graph
          g.fadein(start=0, end=1)
          v.add(g)
 
+   .. admonition:: Example: Sine Curve
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_sine_curve.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_sine_curve.py
+         :language: python
+         :end-before: v.write_frame
+
    .. admonition:: Example: quadratic with annotations
       :class: example
 
@@ -44,6 +55,17 @@ Graph
          g.add_grid()
          g.add_dot_label(2, lambda x: x**2 - 3, "min", fill='#E74C3C')
          v.add(g)
+
+   .. admonition:: Example: Quadratic with Annotations
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_quadratic_annotations.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_quadratic_annotations.py
+         :language: python
+         :end-before: v.write_frame
 
    .. admonition:: Example: Graph with area shading
       :class: example
@@ -88,6 +110,17 @@ Graph
             g = Axes(x_range=(0, 10), y_range=(0, 100))
             g.plot_line_graph([1, 3, 5, 7, 9], [20, 45, 30, 80, 60], stroke='#E74C3C')
 
+      .. admonition:: Example: Line Graph from Data
+         :class: example
+
+         .. raw:: html
+
+            <img src="../_static/videos/ref_line_graph_data.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+         .. literalinclude:: ../../../examples/reference/ref_line_graph_data.py
+            :language: python
+            :end-before: v.write_frame
+
    .. rubric:: Coordinate Conversion
 
    .. py:method:: coords_to_point(x, y, time=0)
@@ -120,6 +153,17 @@ Graph
             x_val.move_to(0, 3, 5)  # animate x from 0 to 5 over t=0..3
             dot.c.set_onward(0, graph.graph_position(func, x_val))
 
+   .. admonition:: Example: Dot on Curve
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_dot_on_curve.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_dot_on_curve.py
+         :language: python
+         :end-before: v.browser_display
+
    .. rubric:: Areas and Shading
 
    .. py:method:: get_area(curve_or_func, x_range=None, bounded_graph=None, **styling)
@@ -141,6 +185,17 @@ Graph
             area = g.get_area(curve, x_range=(0, math.pi), fill='#3498DB', fill_opacity=0.3)
             v.add(g, area)
 
+      .. admonition:: Example: Shaded Area under Sine
+         :class: example
+
+         .. raw:: html
+
+            <img src="../_static/videos/ref_shaded_area_sine.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+         .. literalinclude:: ../../../examples/reference/ref_shaded_area_sine.py
+            :language: python
+            :end-before: v.write_frame
+
    .. py:method:: get_area_between(func1, func2, x_range=None, **styling)
 
       Shaded area between two curves. Returns a :py:class:`Path`.
@@ -155,6 +210,17 @@ Graph
             g.plot(lambda x: 2*x + 1, stroke='#3498DB')
             area = g.get_area_between(lambda x: x**2, lambda x: 2*x + 1,
                                        x_range=(-1, 3), fill='#F39C12', fill_opacity=0.3)
+
+      .. admonition:: Example: Area Between Curves
+         :class: example
+
+         .. raw:: html
+
+            <img src="../_static/videos/ref_area_between_curves.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+         .. literalinclude:: ../../../examples/reference/ref_area_between_curves.py
+            :language: python
+            :end-before: v.write_frame
 
    .. py:method:: get_riemann_rectangles(func, x_range, dx=0.1, **styling)
 
@@ -174,6 +240,17 @@ Graph
             rects = g.get_riemann_rectangles(lambda x: x**2, (0, 3), dx=0.3,
                                               fill='#3498DB', fill_opacity=0.4)
             v.add(g, rects)
+
+      .. admonition:: Example: Riemann Sum
+         :class: example
+
+         .. raw:: html
+
+            <img src="../_static/videos/ref_riemann_sum.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+         .. literalinclude:: ../../../examples/reference/ref_riemann_sum.py
+            :language: python
+            :end-before: v.write_frame
 
    .. rubric:: Lines and Markers
 
@@ -266,6 +343,17 @@ Graph
             g.plot(math.sin, stroke='#E74C3C', label='sin(x)')
             g.plot(math.cos, stroke='#3498DB', label='cos(x)')
             g.add_legend([('sin(x)', '#E74C3C'), ('cos(x)', '#3498DB')])
+
+      .. admonition:: Example: Legend with Curves
+         :class: example
+
+         .. raw:: html
+
+            <img src="../_static/videos/ref_legend_curves.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+         .. literalinclude:: ../../../examples/reference/ref_legend_curves.py
+            :language: python
+            :end-before: v.write_frame
 
    .. py:method:: add_dot_label(x, y, label=None, **styling)
 
@@ -465,6 +553,17 @@ Graph
             g = Graph(math.sin, x_range=(-5, 5), y_range=(-2, 2))
             g.animate_range(start=1, end=3, x_range=(-1, 1), y_range=(-1.5, 1.5))
 
+      .. admonition:: Example: Animated Axis Range
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_animated_axis_range.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_animated_axis_range.py
+            :language: python
+            :end-before: v.browser_display
+
 ----
 
 Axes
@@ -493,6 +592,29 @@ Axes
          ax.add_legend([('#E74C3C', 'x²'), ('#3498DB', '10x')])
          v.add(ax)
 
+   .. admonition:: Example: Incremental Plot
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_incremental_plot.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_incremental_plot.py
+         :language: python
+         :end-before: v.browser_display
+
+   .. admonition:: Example: Axes
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_axes_basic.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_axes_basic.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 ----
 
 FunctionGraph
@@ -516,6 +638,28 @@ FunctionGraph
          curve = FunctionGraph(lambda x: math.sin(x) * math.exp(-x/5),
                                x_range=(0, 20), stroke='#2ECC71', stroke_width=3)
          curve.create(start=0, end=2)
+
+   .. admonition:: Example: Function Graph
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_function_graph.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_function_graph.py
+         :language: python
+         :end-before: v.write_frame
+
+   .. admonition:: Example: Damped Sine Wave
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_damped_sine.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_damped_sine.py
+         :language: python
+         :end-before: v.write_frame
 
 ParametricFunction
 ------------------
@@ -545,6 +689,17 @@ ParametricFunction
              t_range=(0, math.pi), num_points=300,
              stroke='#FC6255', stroke_width=3)
          spiral.create(start=0, end=2)
+
+   .. admonition:: Example: Parametric Spiral
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_parametric_spiral.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_parametric_spiral.py
+         :language: python
+         :end-before: v.write_frame
 
 ----
 
@@ -657,6 +812,29 @@ NumberPlane
          plane.apply_complex_function(lambda z: z**2, start=1, end=3)
          v.add(plane)
 
+   .. admonition:: Example: Complex Transform
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_complex_transform.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_complex_transform.py
+         :language: python
+         :end-before: v.write_frame
+
+   .. admonition:: Example: NumberPlane
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_number_plane.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_number_plane.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 ----
 
 ComplexPlane
@@ -694,6 +872,17 @@ ComplexPlane
          cp.add_complex_label(-1+1j, 'z₂')
          v.add(cp)
 
+   .. admonition:: Example: Labelled Complex Plane
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_labelled_complex.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_labelled_complex.py
+         :language: python
+         :end-before: v.write_frame
+
 ----
 
 PolarAxes
@@ -724,6 +913,18 @@ PolarAxes
          pa = PolarAxes(r_range=(0, 3), radius=300)
          pa.fadein(start=0, end=1)
          v.add(pa)
+
+   .. admonition:: Example: PolarAxes
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_polar_axes.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_polar_axes.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -917,3 +1118,14 @@ Custom tick label formatters for axes and number lines:
       g = Graph(math.sin, x_range=(-2*math.pi, 2*math.pi))
       g.x_tick_format = pi_format
       g.x_tick_positions = pi_ticks(-2*math.pi, 2*math.pi)
+
+.. admonition:: Example: Pi-formatted Tick Labels
+   :class: example
+
+   .. raw:: html
+
+      <img src="../_static/videos/ref_pi_ticks.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+   .. literalinclude:: ../../../examples/reference/ref_pi_ticks.py
+      :language: python
+      :end-before: v.write_frame

@@ -13,7 +13,7 @@ import tempfile
 from vectormation._tex_glyphs_data import BUILTIN_GLYPHS, BUILTIN_TEXT_GLYPHS
 
 # Glyph cache for on-demand LaTeX-compiled glyphs: {tex_dir: {token: (vb, [Tags])}}
-_latex_glyph_cache: dict[str, dict[str, tuple[list, list]]] = {}
+_latex_glyph_cache: dict[str, dict[str, tuple[list, list] | None]] = {}
 
 _fallback_tex_dir: str | None = None
 
@@ -54,7 +54,7 @@ def _ensure_glyph(token, tex_dir=None, text_mode=False):
     tex_dir = _resolve_tex_dir(tex_dir)
     cache = _latex_glyph_cache.setdefault(tex_dir, {})
     if token in cache:
-        return True
+        return cache[token] is not None
     try:
         from vectormation.tex_file_writing import get_characters
         import sys
@@ -73,6 +73,7 @@ def _ensure_glyph(token, tex_dir=None, text_mode=False):
     except Exception as exc:
         import sys
         print(f'[tex_glyphs] LaTeX compilation failed for ${token}$: {exc}', file=sys.stderr)
+        cache[token] = None  # cache the failure so we don't retry
         return False
 
 
@@ -142,9 +143,15 @@ def _assemble(tokens, x, y, font_size, creation, tex_dir, anchor, styles,
         if tok == ' ':
             glyph_list.append(None)
             continue
-        # ('text', char) tuples force text-mode (upright) glyph lookup
+        # ('space', multiplier) tuples from spacing commands (\quad, etc.)
+        if isinstance(tok, tuple) and tok[0] == 'space':
+            glyph_list.append(tok)
+            continue
+        # ('text', char) forces text-mode; ('math', char) forces math-mode
         if isinstance(tok, tuple) and tok[0] == 'text':
             lookup_tok, lookup_tm = tok[1], True
+        elif isinstance(tok, tuple) and tok[0] == 'math':
+            lookup_tok, lookup_tm = tok[1], False
         else:
             lookup_tok, lookup_tm = tok, text_mode
         g = _get_glyph(lookup_tok, tex_dir, text_mode=lookup_tm)
@@ -166,8 +173,14 @@ def _assemble(tokens, x, y, font_size, creation, tex_dir, anchor, styles,
     base_scale = font_size / _REF_HEIGHT
     space_width = font_size * 0.45
 
-    total_w = sum(space_width if g is None else _char_width(g, font_size)
-                  for g in glyph_list)
+    def _glyph_width(g):
+        if g is None:
+            return space_width
+        if isinstance(g, tuple) and len(g) == 2 and g[0] == 'space':
+            return space_width * g[1]
+        return _char_width(g, font_size)
+
+    total_w = sum(_glyph_width(g) for g in glyph_list)
     if anchor == 'center':
         offset_x = -total_w / 2
     elif anchor == 'right':
@@ -207,6 +220,10 @@ def _assemble(tokens, x, y, font_size, creation, tex_dir, anchor, styles,
     for tok, glyph_data in zip(tokens, glyph_list):
         if glyph_data is None:
             cursor_x += space_width
+            continue
+        # Spacing commands (\quad, etc.)
+        if isinstance(glyph_data, tuple) and len(glyph_data) == 2 and glyph_data[0] == 'space':
+            cursor_x += space_width * glyph_data[1]
             continue
 
         builtin = _is_builtin(glyph_data)
@@ -251,19 +268,72 @@ def assemble_tex_glyphs(text, x, y, font_size, creation=0, tex_dir=None,
     Returns None only if a character cannot be resolved at all
     (e.g. LaTeX not installed and character not built-in).
 
+    When *text_mode* is True, letters outside ``$...$`` use upright (Roman)
+    glyphs.  Sections wrapped in ``$...$`` switch to math (italic) mode.
+    ``\\text{}``, ``\\mathrm{}``, etc. switch back to text mode within math.
+
     *v_anchor*: ``'baseline'`` (default) or ``'center'`` for vertical alignment.
-    *text_mode*: when True, ASCII letters use upright (Roman) glyphs.
     """
     tex_dir = _resolve_tex_dir(tex_dir)
-    # Use tokenizer if text contains backslash commands or TeX constructs
-    if '\\' in text or any(c in text for c in '^_{}'):
-        tokens = _tokenize_tex(text)
-        if tokens is None:
-            return None
-    else:
-        tokens = list(text)
+    tokens = _tokenize_with_modes(text, text_mode)
+    if tokens is None:
+        return None
     return _assemble(tokens, x, y, font_size, creation, tex_dir, anchor, styles,
                      v_anchor=v_anchor, text_mode=text_mode)
+
+
+def _tokenize_with_modes(text, text_mode):
+    """Tokenize text with ``$...$`` mode switching.
+
+    In *text_mode*, plain characters are emitted as ``('text', ch)`` tuples
+    and ``$...$`` sections emit plain strings (math-mode).  Outside text_mode,
+    plain characters are emitted as plain strings and ``$...$`` would be
+    unusual but still handled.  ``\\text{}``, ``\\mathrm{}`` etc. always
+    force text-mode for their brace contents (handled by ``_tokenize_tex``).
+    """
+    if '$' not in text:
+        # No mode switching — use simple tokenizer
+        if '\\' in text or any(c in text for c in '^_{}'):
+            return _tokenize_tex(text)
+        return list(text)
+
+    parts = text.split('$')
+    if len(parts) % 2 == 0:
+        # Unmatched dollar sign
+        return None
+
+    tokens = []
+    for i, part in enumerate(parts):
+        if not part:
+            continue
+        is_math = (i % 2 == 1)
+        # Determine the effective mode for this segment
+        if text_mode:
+            seg_is_text = not is_math
+        else:
+            seg_is_text = is_math  # in math-mode default, $...$ would toggle to text
+
+        if '\\' in part or any(c in part for c in '^_{}'):
+            seg_tokens = _tokenize_tex(part)
+            if seg_tokens is None:
+                return None
+        else:
+            seg_tokens = list(part)
+
+        if seg_is_text:
+            for tok in seg_tokens:
+                if tok == ' ' or isinstance(tok, tuple):
+                    tokens.append(tok)
+                else:
+                    tokens.append(('text', tok))
+        else:
+            for tok in seg_tokens:
+                if tok == ' ' or isinstance(tok, tuple):
+                    tokens.append(tok)
+                else:
+                    tokens.append(('math', tok))
+
+    return tokens
 
 
 
@@ -285,6 +355,18 @@ _COMMAND_ALIASES = {
 
 # LaTeX operator names rendered as upright (text-mode) letters.
 # Tokens are emitted as ('text', char) tuples so _assemble uses text-mode glyphs.
+# LaTeX spacing commands mapped to space multipliers (relative to space_width).
+_TEX_SPACES = {
+    '\\quad': 2.0,
+    '\\qquad': 4.0,
+    '\\,': 0.5,
+    '\\;': 0.7,
+    '\\:': 0.6,
+    '\\!': -0.25,
+    '\\enspace': 1.0,
+    '\\hspace': 1.0,
+}
+
 _TEX_OPERATORS = {
     '\\sin', '\\cos', '\\tan', '\\cot', '\\sec', '\\csc',
     '\\arcsin', '\\arccos', '\\arctan',
@@ -296,41 +378,72 @@ _TEX_OPERATORS = {
 }
 
 
+# Commands that switch to text (upright) mode for their brace argument.
+_TEXT_MODE_COMMANDS = {'\\text', '\\mathrm', '\\textrm', '\\textbf', '\\textit',
+                       '\\mbox', '\\hbox'}
+
+
 def _tokenize_tex(inner):
     """Split a TeX inner string into tokens for glyph assembly.
 
     Handles backslash commands (``\\pi``, ``\\alpha``) and single characters.
     Command aliases like ``\\degree`` are resolved to their Unicode equivalents.
+    ``\\text{}``, ``\\mathrm{}`` etc. emit their contents as ``('text', ch)``
+    tuples (upright glyphs).
     Returns None for complex expressions that can't be tokenized (e.g.
     commands with brace arguments like ``\\frac{1}{2}``).
     """
     tokens = []
     i = 0
+
     while i < len(inner):
         if inner[i] == '\\':
-            # Collect the command name
             j = i + 1
             while j < len(inner) and inner[j].isalpha():
                 j += 1
             cmd = inner[i:j]
-            # If the command is followed by a brace, it takes arguments
-            # and can't be rendered as a single glyph
+            # Text/mathrm commands: extract brace content as text-mode tokens
+            if cmd in _TEXT_MODE_COMMANDS:
+                if j >= len(inner) or inner[j] != '{':
+                    return None
+                # Find matching closing brace
+                depth = 1
+                k = j + 1
+                while k < len(inner) and depth > 0:
+                    if inner[k] == '{':
+                        depth += 1
+                    elif inner[k] == '}':
+                        depth -= 1
+                    k += 1
+                brace_content = inner[j + 1:k - 1]
+                for ch in brace_content:
+                    if ch in ' \t':
+                        tokens.append(' ')
+                    else:
+                        tokens.append(('text', ch))
+                i = k
+                continue
+            # Other commands with brace args — too complex
             if j < len(inner) and inner[j] == '{':
                 return None
-            # Expand operator names (\sin, \cos, …) to upright letters
+            # Spacing commands
+            if cmd in _TEX_SPACES:
+                tokens.append(('space', _TEX_SPACES[cmd]))
+                i = j
+                continue
+            # Operator names (\sin, \cos, …) — always upright
             if cmd in _TEX_OPERATORS:
-                for ch in cmd[1:]:  # skip the backslash
+                for ch in cmd[1:]:
                     tokens.append(('text', ch))
                 i = j
                 continue
-            # Resolve aliases to Unicode characters
+            # Resolve aliases or keep as-is
             tokens.append(_COMMAND_ALIASES.get(cmd, cmd))
             i = j
         elif inner[i] in ' \t':
             tokens.append(' ')
             i += 1
         elif inner[i] in '{}^_':
-            # Braces, superscript/subscript — too complex for glyph assembly
             return None
         else:
             tokens.append(inner[i])

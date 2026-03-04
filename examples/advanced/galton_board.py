@@ -20,7 +20,7 @@ SPACING = 90  # px between pegs
 PEG_RADIUS = 8
 BALL_RADIUS = 10
 TOP_Y = 120
-N_BALLS = 100
+N_BALLS = 400
 
 v = VectorMathAnim(verbose=args.verbose, save_dir='svgs/galton_board')
 v.set_background(fill='#1a1a2e')
@@ -84,7 +84,7 @@ def simulate_ball():
     y = TOP_Y - 60  # start above pegs
     waypoints = [(x, y, 0)]
     t = 0
-    fall_time = 0.15
+    fall_time = 0.10
 
     for row in range(N_ROWS):
         row_pegs = peg_positions[row]
@@ -134,8 +134,8 @@ ball_start = 2.0
 # First 15 balls: slow (interval=0.3) so viewer can follow trajectories
 # Remaining 45: fast (interval=0.08) to fill up quickly
 SLOW_COUNT = 15
-SLOW_INTERVAL = 0.3
-FAST_INTERVAL = 0.08
+SLOW_INTERVAL = 0.2
+FAST_INTERVAL = 0.005
 
 for i in range(N_BALLS):
     waypoints, bucket_idx = simulate_ball()
@@ -143,7 +143,7 @@ for i in range(N_BALLS):
     bucket_counts[bucket_idx] += 1
 
     bx = bucket_centers[bucket_idx]
-    final_y = bucket_y_top + bucket_height - BALL_RADIUS - ball_count * BALL_RADIUS * 2
+    final_y = bucket_y_top + bucket_height - BALL_RADIUS - ball_count * BALL_RADIUS * 0.3
 
     if i < SLOW_COUNT:
         start_t = ball_start + i * SLOW_INTERVAL

@@ -264,16 +264,14 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Brief scale-up highlight.
 
-      .. admonition:: Example: indicate / flash
+      .. admonition:: Example: indicate
          :class: example
 
          .. raw:: html
 
-            <video src="../_static/videos/indicate.mp4" controls autoplay loop muted></video>
+            <video src="../_static/videos/ref_indicate.mp4" controls autoplay loop muted></video>
 
-         Indicate and flash effects on objects.
-
-         .. literalinclude:: ../../../examples/reference/indicate.py
+         .. literalinclude:: ../../../examples/reference/ref_indicate.py
             :language: python
             :start-after: parse_args()
             :end-before: v.browser_display
@@ -282,46 +280,166 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Flash the fill colour then return to original.
 
+      .. admonition:: Example: flash
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_flash.mp4" controls autoplay loop muted></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_flash.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
 
    .. py:method:: pulse(start=0, end=1, scale_factor=1.5, easing=there_and_back)
 
       Scale-with-fade pulse.
 
-   .. py:method:: pulsate(start=0, end=1, scale_factor=1.3, pulses=3, easing=smooth)
+      .. admonition:: Example: pulse
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_pulse.mp4" controls autoplay loop muted></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_pulse.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
+   .. py:method:: pulsate(start=0, end=1, scale_factor=1.3, n_pulses=3, easing=smooth)
 
       Repeated scale pulses.
+
+      .. admonition:: Example: pulsate
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_pulsate.mp4" controls autoplay loop muted></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_pulsate.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: blink(start=0, end=None, count=1, duration=0.3, easing=smooth, num_blinks=None)
 
       Opacity blink. *count* (or *num_blinks*) sets repetitions.
 
+      .. admonition:: Example: blink
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_blink.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_blink.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: wiggle(start=0, end=1, amplitude=12, n_wiggles=4, easing=there_and_back)
 
       Horizontal shake.
+
+      .. admonition:: Example: wiggle
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_wiggle.mp4" controls autoplay loop muted></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_wiggle.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: wave(start=0, end=1, amplitude=20, n_waves=2, direction='up', easing=there_and_back)
 
       Wave distortion.
 
+      .. admonition:: Example: wave
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_wave.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_wave.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: circumscribe(start=0, end=1, buff=14, color=None, easing=smooth, **styling)
 
       Draw then remove a tracing rectangle. Returns a :py:class:`Path`.
+
+      .. admonition:: Example: circumscribe
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_circumscribe.mp4" controls autoplay loop muted></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_circumscribe.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: show_passing_flash(start=0, end=1, flash_width=0.15, color='#FFFF00', stroke_width=6, easing=linear)
 
       Travelling highlight along stroke.
 
+      .. admonition:: Example: show_passing_flash
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_show_passing_flash.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_show_passing_flash.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: spiral_in(start=0, end=1, n_turns=1, change_existence=True, easing=smooth)
 
       Spiral in with rotation.
+
+      .. admonition:: Example: spiral_in
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_spiral_in.mp4" controls autoplay loop muted></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_spiral_in.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: spiral_out(start=0, end=1, n_turns=1, change_existence=True, easing=smooth)
 
       Spiral out with rotation.
 
-   .. py:method:: bounce(start=0, end=1, height=50, bounces=3, easing=smooth)
+   .. py:method:: bounce(start=0, end=1, height=50, n_bounces=3, easing=smooth)
 
       Bouncing ball effect.
+
+      .. admonition:: Example: bounce
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_bounce.mp4" controls autoplay loop muted></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_bounce.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: orbit(cx, cy, radius=None, start=0, end=1, degrees=360, easing=linear)
 
@@ -345,73 +463,289 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Expanding rings from the object.
 
+      .. admonition:: Example: ripple
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_ripple.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_ripple.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: spring(start=0, end=1, amplitude=30, damping=5, frequency=4, axis='y')
 
       Damped spring oscillation.
+
+      .. admonition:: Example: spring
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_spring.mp4" controls autoplay loop muted></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_spring.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: shake(start=0, end=0.5, amplitude=5, frequency=20, easing=there_and_back)
 
       Random jitter.
 
+      .. admonition:: Example: shake
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_shake.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_shake.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: rubber_band(start=0, end=1, easing=smooth)
 
       Rubber-band stretch and snap.
+
+      .. admonition:: Example: rubber_band
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_rubber_band.mp4" controls autoplay loop muted></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_rubber_band.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: float_anim(start=0, end=1, amplitude=10, speed=1.0)
 
       Gentle floating up/down animation.
 
+      .. admonition:: Example: float_anim
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_float_anim.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_float_anim.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: trail(start=0, end=1, num_copies=5, fade=True)
 
       Ghostly trail of fading copies following the object.
+
+      .. admonition:: Example: trail
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_trail.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_trail.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: cross_out(start=0, end=0.5, color='#FC6255', stroke_width=4)
 
       Draw an X through the object.
 
+      .. admonition:: Example: cross_out
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_cross_out.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_cross_out.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: shimmer(start=0, end=1, passes=2, easing=smooth)
 
       Shimmer the fill — briefly tints toward white and back.
+
+      .. admonition:: Example: shimmer
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_shimmer.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_shimmer.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: swing(start=0, end=1, amplitude=15, cx=None, cy=None, easing=smooth)
 
       Single damped pendulum swing.
 
+      .. admonition:: Example: swing
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_swing.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_swing.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: undulate(start=0, end=1, amplitude=0.15, waves=2, easing=smooth)
 
       Decaying scale wave.
+
+      .. admonition:: Example: undulate
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_undulate.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_undulate.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: glitch(start=0, end=1, intensity=10, flashes=5)
 
       Random offset glitch flickers.
 
+      .. admonition:: Example: glitch
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_glitch.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_glitch.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: highlight_border(start=0, duration=0.5, color='#FFFF00', width=4)
 
       Briefly flash the object's border.
+
+      .. admonition:: Example: highlight_border
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_highlight_border.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_highlight_border.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: flash_color(color='#FFFF00', start=0, duration=0.4, attr='fill')
 
       Briefly flash a fill color (uses ``duration``).
 
+      .. admonition:: Example: flash_color
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_flash_color.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_flash_color.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: pulse_color(color='#FFFF00', start=0, end=1, pulses=3, attr='fill')
 
       Periodic color pulsing between current color and *color*.
+
+      .. admonition:: Example: pulse_color
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_pulse_color.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_pulse_color.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: pulse_outline(start=0, end=1, color='#FFFF00', max_width=8, cycles=2, easing=smooth)
 
       Pulsating outline glow.
 
+      .. admonition:: Example: pulse_outline
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_pulse_outline.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_pulse_outline.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: emphasize(start=0, duration=0.8, color='#FFFF00', scale_factor=1.15, easing=there_and_back)
 
       Combined flash + scale emphasis (uses ``duration``).
+
+      .. admonition:: Example: emphasize
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_emphasize.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_emphasize.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: breathe(start=0, end=1, amplitude=0.08, speed=1.0, easing=smooth)
 
       Gentle continuous breathing — steady scale oscillation.
 
+      .. admonition:: Example: breathe
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_breathe.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_breathe.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: heartbeat(start=0, end=1, beats=3, scale_factor=1.3, easing=smooth)
 
       Heartbeat-style double-pulse.
+
+      .. admonition:: Example: heartbeat
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_heartbeat.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_heartbeat.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: dim(start=0, end=None, opacity=0.3, easing=smooth)
 
@@ -597,6 +931,18 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
       Apply a sinusoidal wave distortion that travels across the object.
       Returns to original shape at both start and end.
 
+      .. admonition:: Example: apply_wave
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_apply_wave.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_apply_wave.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: scale_in_place(factor, start=0, end=1, easing=smooth)
 
       Scale the object without moving its center (anchored at current center).
@@ -605,17 +951,65 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Quick attention-grabbing burst: scale spike + shake + opacity dip.
 
+      .. admonition:: Example: telegraph
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_telegraph.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_telegraph.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: skate(tx, ty, start=0, end=1, degrees=360, easing=smooth)
 
       Slide to a target position while spinning.
+
+      .. admonition:: Example: skate
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_skate.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_skate.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: slingshot(tx, ty, start=0, end=1, pullback=0.3, overshoot=0.15, easing=smooth)
 
       Pull back then launch toward target with overshoot.
 
+      .. admonition:: Example: slingshot
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_slingshot.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_slingshot.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: elastic_bounce(start=0, end=1, height=100, bounces=3, squash_factor=1.4)
 
       Bounce with squash-and-stretch deformation.
+
+      .. admonition:: Example: elastic_bounce
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_elastic_bounce.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_elastic_bounce.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: morph_scale(target_scale=2.0, start=0, end=1, overshoot=0.3, oscillations=2)
 
@@ -625,9 +1019,33 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Unfold from zero width to full size along one axis.
 
+      .. admonition:: Example: unfold
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_unfold.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_unfold.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: stamp_trail(start=0, end=1, count=8, fade_duration=0.5, opacity=0.4)
 
       Leave ghostly fading copies along the path. Returns a list of ghost VObjects.
+
+      .. admonition:: Example: stamp_trail
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_stamp_trail.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_stamp_trail.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: homotopy(func, start=0, end=1)
 
@@ -649,17 +1067,65 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
 
       Random-looking opacity flickering, like a failing light bulb.
 
+      .. admonition:: Example: flicker
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_flicker.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_flicker.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: strobe(start=0, end=1, flashes=5, duty=0.5)
 
       Rapid hard on/off blink effect like a strobe light.
+
+      .. admonition:: Example: strobe
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_strobe.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_strobe.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: wobble(start=0, end=1, intensity=5, frequency=3, easing=smooth)
 
       Organic wobbling motion combining small rotations and position shifts.
 
+      .. admonition:: Example: wobble
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_wobble.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_wobble.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
+
    .. py:method:: focus_zoom(start=0, end=1, zoom_factor=1.3, easing=smooth)
 
       Zoom in slightly then back to normal, like a camera focus.
+
+      .. admonition:: Example: focus_zoom
+         :class: example
+
+         .. raw:: html
+
+            <video src="../_static/videos/ref_focus_zoom.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+         .. literalinclude:: ../../../examples/reference/ref_focus_zoom.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.browser_display
 
    .. py:method:: match_style(other, time=0)
 
@@ -737,3 +1203,47 @@ the centre at ``(960, 540)``. Direction constants use screen conventions where
    .. py:method:: point_from_proportion(t, time=0)
 
       Return the ``(x, y)`` point at proportion *t* (0-1) along this object's path outline.
+
+   .. py:method:: drop_shadow(color='#000000', dx=4, dy=4, blur=6, start=0)
+
+      Apply a drop shadow SVG filter to this object.
+
+      .. admonition:: Example: drop_shadow
+         :class: example
+
+         .. raw:: html
+
+            <img src="../_static/videos/ref_drop_shadow.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+         .. literalinclude:: ../../../examples/reference/ref_drop_shadow.py
+            :language: python
+            :start-after: parse_args()
+            :end-before: v.write_frame
+
+   .. rubric:: Filters
+
+   .. admonition:: Example: gaussian_blur
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_gaussian_blur.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_gaussian_blur.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
+   .. rubric:: Color Cycle Border
+
+   .. admonition:: Example: color_cycle_border (AnimatedBoundary)
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_color_cycle_border.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_color_cycle_border.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display

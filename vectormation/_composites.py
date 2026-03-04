@@ -174,50 +174,20 @@ class TexObject(VCollection):
     @staticmethod
     def _try_glyph_assembly(to_render, font_size, creation, styles):
         """Try to assemble from built-in/cached glyphs. Returns list of VObjects or None."""
-        from vectormation._tex_glyphs import _tokenize_tex, _assemble, _resolve_tex_dir
+        from vectormation._tex_glyphs import _assemble, _resolve_tex_dir, _tokenize_with_modes
 
         inner = to_render
         # $...$ wrapping means explicit math mode (italic letters)
         if inner.startswith('$') and inner.endswith('$'):
             inner = inner[1:-1]
             text_mode = False
-            tokens = _tokenize_tex(inner)
-            if tokens is None:
-                return None
-        elif '$' in inner:
-            # Inline $...$ segments: split into text-mode and math-mode parts.
-            # Even-indexed parts are text mode, odd-indexed are math mode.
-            parts = inner.split('$')
-            if len(parts) % 2 == 0:
-                # Unmatched dollar sign — can't glyph-assemble
-                return None
-            tokens = []
-            for i, part in enumerate(parts):
-                if not part:
-                    continue
-                is_math = (i % 2 == 1)
-                seg_tokens = _tokenize_tex(part)
-                if seg_tokens is None:
-                    return None
-                if is_math:
-                    # Math-mode tokens are passed as plain strings
-                    tokens.extend(seg_tokens)
-                else:
-                    # Text-mode tokens are wrapped as ('text', char) tuples
-                    for tok in seg_tokens:
-                        if tok == ' ':
-                            tokens.append(' ')
-                        elif isinstance(tok, tuple):
-                            tokens.append(tok)
-                        else:
-                            tokens.append(('text', tok))
-            text_mode = False
         else:
-            # Plain text: use upright (text-mode) letters
+            # Plain text or mixed: text-mode default, $...$ switches to math
             text_mode = True
-            tokens = _tokenize_tex(inner)
-            if tokens is None:
-                return None
+
+        tokens = _tokenize_with_modes(inner, text_mode)
+        if tokens is None:
+            return None
 
         tex_dir = _resolve_tex_dir()
         result = _assemble(tokens, 0, 0, font_size, creation, tex_dir, 'left', styles,
@@ -1279,7 +1249,7 @@ class TexCountAnimation(VCollection):
     def __init__(self, start_val: float = 0, end_val: float = 100, start: float = 0, end: float = 1,
                  fmt='{:.0f}', easing=easings.smooth,
                  x: float = ORIGIN[0], y: float = ORIGIN[1], font_size: float = 48,
-                 text_anchor=None, value=None,
+                 text_anchor=None, value=None, text_mode=True,
                  creation: float = 0, z: float = 0, **styles):
         from vectormation._tex_glyphs import _resolve_tex_dir
 
@@ -1289,6 +1259,7 @@ class TexCountAnimation(VCollection):
         self.y = attributes.Real(creation, y)
         self.font_size = attributes.Real(creation, font_size)
         self._text_anchor = text_anchor
+        self._text_mode = text_mode
         self._styles = {'stroke_width': 0, 'fill': '#fff'} | styles
         self._fmt = fmt
 
@@ -1320,7 +1291,18 @@ class TexCountAnimation(VCollection):
         from vectormation._tex_glyphs import assemble_tex_glyphs
 
         val = self.value.at_time(t)
-        text = self._fmt.format(val)
+        # Escape TeX braces so str.format() only sees format specifiers.
+        # Replace \cmd{...} brace pairs with placeholders, format, then restore.
+        import re
+        fmt = self._fmt
+        tex_braces = []
+        def _save_brace(m):
+            tex_braces.append(m.group(0))
+            return f'\x00TEX{len(tex_braces) - 1}\x00'
+        fmt = re.sub(r'\\[a-zA-Z]+\{[^}]*\}', _save_brace, fmt)
+        text = fmt.format(val)
+        for i, orig in enumerate(tex_braces):
+            text = text.replace(f'\x00TEX{i}\x00', orig)
         anchor = 'left'
         if self._text_anchor == 'middle':
             anchor = 'center'
@@ -1331,7 +1313,8 @@ class TexCountAnimation(VCollection):
                                      float(self.y.at_time(t)),
                                      float(self.font_size.at_time(t)),
                                      creation=t, tex_dir=self._tex_dir,
-                                     anchor=anchor, **self._styles)
+                                     anchor=anchor, text_mode=self._text_mode,
+                                     **self._styles)
         self._glyph_cache[0] = t
         self._glyph_cache[1] = result
         return result
@@ -1359,6 +1342,33 @@ class TexCountAnimation(VCollection):
                            _fv + (_tv - _fv) * _e((t - _s) / _d),
                        stay=True)
         self._last_val = target
+        return self
+
+    def set_value(self, source, start: float = 0, end: float | None = None):
+        """Bind the displayed value to a function, ValueTracker, or Real.
+
+        *source* can be:
+        - a callable ``f(t) -> float`` (called each frame with the current time),
+        - a ``ValueTracker`` (its ``.value`` Real is tracked),
+        - an ``attributes.Real`` (its ``at_time`` is tracked).
+
+        The binding is active from *start* onward. If *end* is given the
+        binding is limited to [start, end] (with ``stay=True`` so the last
+        value persists).
+        """
+        if isinstance(source, attributes.Real):
+            func = source.at_time
+        elif hasattr(source, 'value') and isinstance(source.value, attributes.Real):
+            func = source.value.at_time
+        elif callable(source):
+            func = source
+        else:
+            raise TypeError(f'source must be callable, ValueTracker, or attributes.Real, got {type(source).__name__}')
+
+        if end is None:
+            self.value.set_onward(start, func)
+        else:
+            self.value.set(start, end, func, stay=True)
         return self
 
 def always_redraw(func, creation: float = 0, z: float = 0):

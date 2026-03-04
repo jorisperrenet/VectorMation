@@ -1147,11 +1147,36 @@ def _polyhedron_faces(vertices, face_indices, *,
                         a[2] + v * (edge[2] - a[2]))
             return f
 
-        faces.append(Surface(_make_face(), u_range=(0, 1), v_range=(0, 1),
-                             resolution=(len(pts) - 2, 1),
-                             fill_color=fill_color, stroke_color=stroke_color,
-                             stroke_width=stroke_width, fill_opacity=fill_opacity,
-                             creation=creation, z=z))
+        n = len(pts)
+        surf = Surface(_make_face(), u_range=(0, 1), v_range=(0, 1),
+                        resolution=(n - 2, 1),
+                        fill_color=fill_color,
+                        stroke_color=stroke_color if n <= 3 else fill_color,
+                        stroke_width=stroke_width if n <= 3 else 0,
+                        fill_opacity=fill_opacity,
+                        creation=creation, z=z)
+
+        # For faces with >3 vertices, the fan triangulation creates internal
+        # diagonal strokes.  Suppress them and render boundary edges manually.
+        if n > 3 and stroke_width > 0:
+            _edges = [(pts[i], pts[(i + 1) % n]) for i in range(n)]
+            _orig_tp = surf.to_patches
+            _sc, _sw = stroke_color, stroke_width
+
+            def _patched(axes, time, _orig=_orig_tp, _e=_edges, _c=_sc, _w=_sw):
+                patches = _orig(axes, time)
+                for p1, p2 in _e:
+                    s1 = axes.project_point(*p1, time)
+                    s2 = axes.project_point(*p2, time)
+                    depth = (s1[2] + s2[2]) / 2
+                    svg = (f'<line x1="{s1[0]:.1f}" y1="{s1[1]:.1f}" '
+                           f'x2="{s2[0]:.1f}" y2="{s2[1]:.1f}" '
+                           f'stroke="{_c}" stroke-width="{_w}"/>')
+                    patches.append((depth, svg))
+                return patches
+            surf.to_patches = _patched
+
+        faces.append(surf)
     return faces
 
 

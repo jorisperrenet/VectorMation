@@ -712,10 +712,13 @@ Physics
 
    Various shapes bouncing with gravity, walls, and collisions using ``PhysicsSpace``.
 
-   .. literalinclude:: ../../examples/physics_bouncing_objects.py
-      :language: python
-      :start-after: set_background
-      :end-before: if not
+   .. dropdown:: Show code
+      :class-container: sd-shadow-none
+
+       .. literalinclude:: ../../examples/physics_bouncing_objects.py
+          :language: python
+          :start-after: set_background
+          :end-before: if not
 
 .. admonition:: Example: PhysicsSpring
    :class: example
@@ -726,10 +729,13 @@ Physics
 
    A spring pendulum: a bob attached to a fixed anchor oscillates under gravity, leaving a trace path.
 
-   .. literalinclude:: ../../examples/physics_spring.py
-      :language: python
-      :start-after: set_background
-      :end-before: if not
+   .. dropdown:: Show code
+      :class-container: sd-shadow-none
+
+       .. literalinclude:: ../../examples/physics_spring.py
+          :language: python
+          :start-after: set_background
+          :end-before: if not
 
 .. admonition:: Example: PhysicsCloth
    :class: example

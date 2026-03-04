@@ -162,6 +162,18 @@ Spring
    :param float rest_length: Natural length in pixels (uses initial distance if ``None``).
    :param float damping: Damping coefficient.
 
+   .. admonition:: Example: Spring
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_physics_spring.mp4" controls autoplay loop muted></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_physics_spring.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
+
 ----
 
 Cloth
@@ -189,33 +201,26 @@ Cloth
 
       Return a list of all VObjects (lines and dots) for adding to the canvas.
 
-   .. admonition:: Example: Cloth simulation
+   .. admonition:: Example: Cloth
       :class: example
 
-      .. code-block:: python
+      .. raw:: html
 
-         from vectormation.objects import *
-         from vectormation._physics import Cloth
+         <video src="../_static/videos/ref_physics_cloth.mp4" controls autoplay loop muted></video>
 
-         canvas = VectorMathAnim()
-         canvas.set_background()
-
-         cloth = Cloth(cols=20, rows=12, stiffness=3.0)
-         cloth.simulate(duration=4)
-
-         canvas.add_objects(*cloth.objects())
-         canvas.browser_display(fps=60)
+      .. literalinclude:: ../../../examples/reference/ref_physics_cloth.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
 
 .. admonition:: Example: Bouncing balls
    :class: example
 
    .. raw:: html
 
-      <video src="../_static/videos/physics_bounce.mp4" controls autoplay loop muted></video>
+      <video src="../_static/videos/ref_physics_bounce.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
 
-   Balls bouncing with walls.
-
-   .. literalinclude:: ../../../examples/reference/physics_bounce.py
+   .. literalinclude:: ../../../examples/reference/ref_physics_bounce.py
       :language: python
       :start-after: parse_args()
       :end-before: v.browser_display

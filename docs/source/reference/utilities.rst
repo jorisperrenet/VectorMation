@@ -1,127 +1,6 @@
 Utilities
 =========
 
-Easings
--------
-
-*Module:* ``vectormation.easings``
-
-Easing functions control the pace of animations. Each accepts ``t`` in [0, 1]
-and returns a value in [0, 1].
-
-.. admonition:: Example: Using an easing function
-   :class: example
-
-   .. code-block:: python
-
-      import vectormation.easings as easings
-      circle.shift(dx=2, start=0, end=1, easing=easings.ease_out_bounce)
-
-.. image:: ../_static/images/easing_curves.svg
-   :width: 520
-   :align: center
-
-.. rubric:: Basic
-
-.. py:function:: linear(t)
-
-   Constant speed. No acceleration.
-
-.. py:function:: smooth(t, inflection=10.0)
-
-   Sigmoid-based smooth curve. Default for most animations.
-
-.. py:function:: rush_into(t, inflection=10.0)
-
-   Fast start, gradual stop.
-
-.. py:function:: rush_from(t, inflection=10.0)
-
-   Gradual start, fast end.
-
-.. py:function:: there_and_back(t, inflection=10.0)
-
-   Go out and come back. Used for effects like ``indicate`` and ``flash``.
-
-.. py:function:: there_and_back_with_pause(t, pause_ratio=1.0/3)
-
-   Out, pause, then back.
-
-.. py:function:: wiggle(t, wiggles=2)
-
-   Oscillating ease-out.
-
-.. py:function:: lingering(t)
-
-   Slow start, fast end.
-
-.. py:function:: exponential_decay(t, half_life=0.1)
-
-   Exponential decay.
-
-.. rubric:: Sine
-
-.. py:function:: ease_in_sine(t)
-.. py:function:: ease_out_sine(t)
-.. py:function:: ease_in_out_sine(t)
-
-.. rubric:: Power (quad, cubic, quart, quint)
-
-.. py:function:: ease_in_quad(t)
-.. py:function:: ease_out_quad(t)
-.. py:function:: ease_in_out_quad(t)
-.. py:function:: ease_in_cubic(t)
-.. py:function:: ease_out_cubic(t)
-.. py:function:: ease_in_out_cubic(t)
-.. py:function:: ease_in_quart(t)
-.. py:function:: ease_out_quart(t)
-.. py:function:: ease_in_out_quart(t)
-.. py:function:: ease_in_quint(t)
-.. py:function:: ease_out_quint(t)
-.. py:function:: ease_in_out_quint(t)
-
-.. rubric:: Exponential
-
-.. py:function:: ease_in_expo(t)
-.. py:function:: ease_out_expo(t)
-.. py:function:: ease_in_out_expo(t)
-
-.. rubric:: Circular
-
-.. py:function:: ease_in_circ(t)
-.. py:function:: ease_out_circ(t)
-.. py:function:: ease_in_out_circ(t)
-
-.. rubric:: Back (overshoot)
-
-.. py:function:: ease_in_back(t)
-.. py:function:: ease_out_back(t)
-.. py:function:: ease_in_out_back(t)
-
-.. rubric:: Elastic (oscillation)
-
-.. py:function:: ease_in_elastic(t)
-.. py:function:: ease_out_elastic(t)
-.. py:function:: ease_in_out_elastic(t)
-
-.. rubric:: Bounce
-
-.. py:function:: ease_in_bounce(t)
-.. py:function:: ease_out_bounce(t)
-.. py:function:: ease_in_out_bounce(t)
-
-.. rubric:: Combinators
-
-.. py:function:: not_quite_there(func=smooth, proportion=0.7)
-
-   Scale an easing's output to a proportion of the full range.
-
-.. py:function:: squish_rate_func(func, a=0.4, b=0.6)
-
-   Compress an easing into the interval ``[a, b]`` within [0, 1].
-
-----
-
 Colours & Gradients
 -------------------
 
@@ -452,6 +331,18 @@ Helper Functions
    :param VObject source: Source object.
    :param VObject target: Target object.
 
+   .. admonition:: Example: counterclockwise_morph
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_counterclockwise_morph.mp4" controls autoplay loop muted></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_counterclockwise_morph.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.browser_display
+
 .. py:function:: transform_matching_tex(source, target, start=0, end=1)
 
    Animate morphing between two TexObjects by matching character content.
@@ -475,3 +366,124 @@ Helper Functions
 
    :param list lst: List of numeric values or coordinate tuples.
    :param float real_index: Index in [0, 1].
+
+----
+
+Easings
+-------
+
+*Module:* ``vectormation.easings``
+
+Easing functions control the pace of animations. Each accepts ``t`` in [0, 1]
+and returns a value in [0, 1].
+
+.. admonition:: Example: Using an easing function
+   :class: example
+
+   .. code-block:: python
+
+      import vectormation.easings as easings
+      circle.shift(dx=2, start=0, end=1, easing=easings.ease_out_bounce)
+
+.. image:: ../_static/images/easing_curves.svg
+   :width: 520
+   :align: center
+
+.. rubric:: Basic
+
+.. py:function:: linear(t)
+
+   Constant speed. No acceleration.
+
+.. py:function:: smooth(t, inflection=10.0)
+
+   Sigmoid-based smooth curve. Default for most animations.
+
+.. py:function:: rush_into(t, inflection=10.0)
+
+   Fast start, gradual stop.
+
+.. py:function:: rush_from(t, inflection=10.0)
+
+   Gradual start, fast end.
+
+.. py:function:: there_and_back(t, inflection=10.0)
+
+   Go out and come back. Used for effects like ``indicate`` and ``flash``.
+
+.. py:function:: there_and_back_with_pause(t, pause_ratio=1.0/3)
+
+   Out, pause, then back.
+
+.. py:function:: wiggle(t, wiggles=2)
+
+   Oscillating ease-out.
+
+.. py:function:: lingering(t)
+
+   Slow start, fast end.
+
+.. py:function:: exponential_decay(t, half_life=0.1)
+
+   Exponential decay.
+
+.. rubric:: Sine
+
+.. py:function:: ease_in_sine(t)
+.. py:function:: ease_out_sine(t)
+.. py:function:: ease_in_out_sine(t)
+
+.. rubric:: Power (quad, cubic, quart, quint)
+
+.. py:function:: ease_in_quad(t)
+.. py:function:: ease_out_quad(t)
+.. py:function:: ease_in_out_quad(t)
+.. py:function:: ease_in_cubic(t)
+.. py:function:: ease_out_cubic(t)
+.. py:function:: ease_in_out_cubic(t)
+.. py:function:: ease_in_quart(t)
+.. py:function:: ease_out_quart(t)
+.. py:function:: ease_in_out_quart(t)
+.. py:function:: ease_in_quint(t)
+.. py:function:: ease_out_quint(t)
+.. py:function:: ease_in_out_quint(t)
+
+.. rubric:: Exponential
+
+.. py:function:: ease_in_expo(t)
+.. py:function:: ease_out_expo(t)
+.. py:function:: ease_in_out_expo(t)
+
+.. rubric:: Circular
+
+.. py:function:: ease_in_circ(t)
+.. py:function:: ease_out_circ(t)
+.. py:function:: ease_in_out_circ(t)
+
+.. rubric:: Back (overshoot)
+
+.. py:function:: ease_in_back(t)
+.. py:function:: ease_out_back(t)
+.. py:function:: ease_in_out_back(t)
+
+.. rubric:: Elastic (oscillation)
+
+.. py:function:: ease_in_elastic(t)
+.. py:function:: ease_out_elastic(t)
+.. py:function:: ease_in_out_elastic(t)
+
+.. rubric:: Bounce
+
+.. py:function:: ease_in_bounce(t)
+.. py:function:: ease_out_bounce(t)
+.. py:function:: ease_in_out_bounce(t)
+
+.. rubric:: Combinators
+
+.. py:function:: not_quite_there(func=smooth, proportion=0.7)
+
+   Scale an easing's output to a proportion of the full range.
+
+.. py:function:: squish_rate_func(func, a=0.4, b=0.6)
+
+   Compress an easing into the interval ``[a, b]`` within [0, 1].

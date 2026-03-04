@@ -9,19 +9,17 @@ Graph
 Basic Usage
 ^^^^^^^^^^^
 
-.. code-block:: python
+.. admonition:: Example: Basic sin graph
+   :class: example
 
-   from vectormation.objects import *
-   import math
+   .. raw:: html
 
-   canvas = VectorMathAnim(save_dir='svgs/graph', width=1000, height=1000)
-   canvas.set_background()
+      <img src="_static/videos/graph_basic.svg" style="width:100%">
 
-   graph = Graph(math.sin, x_range=(-2 * math.pi, 2 * math.pi),
-                 y_range=(-1.5, 1.5))
-
-   canvas.add_objects(graph)
-   canvas.browser_display(end=0)
+   .. literalinclude:: ../../examples/reference/graphing_basic.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display
 
 Constructor
 ^^^^^^^^^^^
@@ -136,50 +134,37 @@ You can also animate individual bounds directly:
 
    ax.x_max.move_to(0, 2, 20)  # only change the upper x bound
 
-Full example:
+.. admonition:: Example: Animated axis zoom
+   :class: example
 
-.. code-block:: python
+   .. raw:: html
 
-   from vectormation.objects import *
+      <video src="_static/videos/graph_zoom.mp4" controls autoplay loop muted></video>
 
-   canvas = VectorMathAnim(save_dir='svgs/zoom')
-   canvas.set_background()
+   Axis decorations (lines, ticks, tick labels, grid) automatically re-render each frame to match the
+   current range. Curves resample the function at each frame too, so everything stays in sync.
 
-   ax = Axes(x_range=(-5, 5), y_range=(-2, 26))
-   curve = ax.plot(lambda x: x ** 2, stroke='#58C4DD')
-
-   # Zoom into x=[1, 4], y=[0, 18]
-   ax.set_ranges((1, 4), (0, 18), start=0, end=2)
-
-   canvas.add_objects(ax)
-   canvas.browser_display(fps=60)
-
-Axis decorations (lines, ticks, tick labels, grid) automatically re-render each frame to match the
-current range. Curves resample the function at each frame too, so everything stays in sync.
+   .. literalinclude:: ../../examples/reference/graphing_zoom.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display
 
 Example: Animated Graph
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code-block:: python
+.. admonition:: Example: Animated sin + cos
+   :class: example
 
-   import math
-   from vectormation.objects import *
+   .. raw:: html
 
-   canvas = VectorMathAnim(save_dir='svgs/graph_anim')
-   canvas.set_background()
+      <video src="_static/videos/graph_animated_ref.mp4" controls autoplay loop muted></video>
 
-   graph = Graph(math.sin, x_range=(-2 * math.pi, 2 * math.pi),
-                 y_range=(-1.5, 1.5))
+   Draw a sin curve, then add and animate a cos curve on the same axes.
 
-   # Draw sin curve
-   graph.curve.create(start=0, end=2)
-
-   # Add and draw cos curve
-   cos_curve = graph.add_function(math.cos, stroke='#FC6255')
-   cos_curve.create(start=2.5, end=4.5)
-
-   canvas.add_objects(graph)
-   canvas.browser_display(fps=60)
+   .. literalinclude:: ../../examples/reference/graphing_animated.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display
 
 ----
 
@@ -223,19 +208,16 @@ The default curve style is ``stroke='#58C4DD'``, ``stroke_width=3``, ``fill_opac
 Example
 ^^^^^^^
 
-.. code-block:: python
+.. admonition:: Example: FunctionGraph with draw_along
+   :class: example
 
-   import math
-   from vectormation.objects import *
+   .. raw:: html
 
-   canvas = VectorMathAnim(save_dir='svgs/func_graph')
-   canvas.set_background()
+      <video src="_static/videos/graph_functiongraph.mp4" controls autoplay loop muted></video>
 
-   curve = FunctionGraph(math.sin, x_range=(0, 2 * math.pi),
-                         width=600, height=300, x=200, y=350)
-   curve.draw_along(start=0, end=2)
+   ``FunctionGraph`` extends ``Lines``, so all ``VObject`` animation methods (fadein, write, shift, etc.) work directly on it.
 
-   canvas.add_objects(curve)
-   canvas.browser_display(fps=60)
-
-``FunctionGraph`` extends ``Lines``, so all ``VObject`` animation methods (fadein, write, shift, etc.) work directly on it.
+   .. literalinclude:: ../../examples/reference/graphing_functiongraph.py
+      :language: python
+      :start-after: parse_args()
+      :end-before: v.browser_display

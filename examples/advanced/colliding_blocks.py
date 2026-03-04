@@ -79,12 +79,12 @@ for i in range(frame_skip, len(traj_x1), frame_skip):
     prev_t = t
 
 # ── Labels (follow blocks) ────────────────────────────────────────────
-m1_label = Text(text=f'{m1} kg', x=traj_x1[0], y=700 - small_h - 15,
-                font_size=20, fill='#fff', stroke_width=0, text_anchor='middle',
-                creation=0)
-m2_label = Text(text=f'{m2} kg', x=traj_x2[0],
-                y=700 - big_h - 15, font_size=20, fill='#fff',
-                stroke_width=0, text_anchor='middle', creation=0)
+m1_label = TexObject('1 kg', x=traj_x1[0], y=700 - small_h - 50,
+                     font_size=28, fill='#fff', stroke_width=0, anchor='center',
+                     creation=0)
+m2_label = TexObject('100 kg', x=traj_x2[0],
+                     y=700 - big_h - 50, font_size=28, fill='#fff',
+                     stroke_width=0, anchor='center', creation=0)
 
 prev_t = 0
 for i in range(frame_skip, len(traj_x1), frame_skip):
@@ -94,25 +94,25 @@ for i in range(frame_skip, len(traj_x1), frame_skip):
     prev_t = t
 
 # ── Title + collision counter ─────────────────────────────────────────
-title = TexObject(r'$\text{Colliding Blocks Compute } \pi$', x=960, y=60,
+title = TexObject(r'Colliding Blocks Compute $\pi$', x=960, y=60,
                   font_size=42, fill='#fff', stroke_width=0, anchor='center',
                   creation=0)
 title.fadein(0, 1)
 
 counter = TexCountAnimation(start_val=0, end_val=0, start=0, end=0,
-                            fmt='Collisions: {:.0f}', x=960, y=120,
+                            fmt='Collisions: {:.0f}', x=960, y=160,
                             font_size=28, fill='#83C167', stroke_width=0,
                             text_anchor='middle', creation=0)
 counter.fadein(0.5, 1.5)
 for col_t, col_count in collision_times:
     counter.count_to(col_count, col_t, col_t + 0.01)
 
-ratio_text = TexObject(rf'$\text{{Mass ratio}} = {mass_ratio}:1$', x=960, y=160,
+ratio_text = TexObject(rf'$\text{{Mass ratio}} = {mass_ratio}:1$', x=960, y=180,
                        font_size=22, fill='#aaa', stroke_width=0,
                        anchor='center', creation=0)
 ratio_text.fadein(0.5, 1.5)
 
-pi_text = TexObject(r'$\pi \approx 3.1415\ldots$', x=960, y=200,
+pi_text = TexObject(r'$\pi \approx 3.1415$', x=960, y=220,
                     font_size=22, fill='#FFFF00', stroke_width=0,
                     anchor='center', creation=0)
 pi_text.fadein(1, 2)

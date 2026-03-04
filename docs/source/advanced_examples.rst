@@ -268,7 +268,7 @@ Geometry & Shapes
 
    .. raw:: html
 
-      <video src="_static/videos/zoomed_inset.mp4" controls autoplay loop muted></video>
+      <img src="_static/videos/zoomed_inset.svg" controls autoplay loop muted></img>
 
    Magnify a region of the canvas with a zoomed inset display.
 

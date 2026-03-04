@@ -38,6 +38,17 @@ ClipPath
          canvas.add_def(clip)
          rect = Rectangle(400, 400, clip_path=clip.clip_ref())
 
+   .. admonition:: ClipPath
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_clip_path.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_clip_path.py
+         :language: python
+         :end-before: v.write_frame
+
 ----
 
 BlurFilter
@@ -62,6 +73,17 @@ BlurFilter
          blur = BlurFilter(std_deviation=8)
          canvas.add_def(blur)
          text = Text('Blurred', filter=blur.filter_ref())
+
+   .. admonition:: Gaussian Blur
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_gaussian_blur.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_gaussian_blur.py
+         :language: python
+         :end-before: v.write_frame
 
 ----
 
@@ -90,6 +112,17 @@ DropShadowFilter
          shadow = DropShadowFilter(dx=6, dy=6, std_deviation=4, color='#000')
          canvas.add_def(shadow)
          rect = Rectangle(200, 100, filter=shadow.filter_ref())
+
+   .. admonition:: Drop Shadow
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_drop_shadow.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_drop_shadow.py
+         :language: python
+         :end-before: v.write_frame
 
 ----
 
@@ -137,6 +170,28 @@ Angle
          b = (1060, 400)
          angle = Angle(v, a, b, radius=50, label=True)
 
+   .. admonition:: Angle
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_angle.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_angle.py
+         :language: python
+         :end-before: v.write_frame
+
+   .. admonition:: Angle with Label
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_angle_label.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_angle_label.py
+         :language: python
+         :end-before: v.write_frame
+
 ----
 
 RightAngle
@@ -162,6 +217,17 @@ RightAngle
 
          right = RightAngle((500, 500), (600, 500), (500, 400), size=20)
 
+   .. admonition:: Right Angle
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_right_angle.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_right_angle.py
+         :language: python
+         :end-before: v.write_frame
+
 ----
 
 Cross
@@ -185,6 +251,17 @@ Cross
       .. code-block:: python
 
          x_mark = Cross(size=50, cx=400, cy=300, stroke='#FF0000')
+
+   .. admonition:: Cross Mark
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_cross_mark.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_cross_mark.py
+         :language: python
+         :end-before: v.write_frame
 
 ----
 
@@ -250,6 +327,17 @@ ZoomedInset
          canvas.add(inset)
          inset.move_source(900, 450, start=0, end=2)
 
+   .. admonition:: Zoomed Inset (Animated)
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_zoomed_inset_animated.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_zoomed_inset_animated.py
+         :language: python
+         :end-before: v.browser_display
+
 ----
 
 Spotlight
@@ -286,6 +374,17 @@ Spotlight
          spot = Spotlight(target=dot, radius=80, opacity=0.8)
          spot.set_target((960, 540), start=1, end=3)
          spot.set_radius(200, start=1, end=3)
+
+   .. admonition:: Spotlight
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_spotlight.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_spotlight.py
+         :language: python
+         :end-before: v.browser_display
 
 ----
 
@@ -342,6 +441,17 @@ Cutout
          # Animate the cutout to a new position
          cutout.set_hole(x=200, y=200, w=400, h=200, start=1, end=3)
 
+   .. admonition:: Cutout Overlay
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_cutout_overlay.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_cutout_overlay.py
+         :language: python
+         :end-before: v.write_frame
+
 ----
 
 AnimatedBoundary
@@ -369,6 +479,17 @@ AnimatedBoundary
 
          rect = Rectangle(300, 200)
          border = AnimatedBoundary(rect, cycle_rate=0.5, buff=12)
+
+   .. admonition:: Colour-Cycling Border
+      :class: example
+
+      .. raw:: html
+
+         <video src="../_static/videos/ref_color_cycle_border.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video>
+
+      .. literalinclude:: ../../../examples/reference/ref_color_cycle_border.py
+         :language: python
+         :end-before: v.browser_display
 
 ----
 
@@ -480,6 +601,17 @@ ArrowVectorField
          vf = ArrowVectorField(field, x_range=(100, 1820, 150),
                                y_range=(100, 980, 150))
 
+   .. admonition:: Arrow Vector Field
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_vector_field.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_vector_field.py
+         :language: python
+         :end-before: v.write_frame
+
 ----
 
 StreamLines
@@ -510,6 +642,17 @@ StreamLines
          streams = StreamLines(swirl, n_steps=60, step_size=8,
                                stroke='#83C167')
 
+   .. admonition:: Stream Lines
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_stream_lines.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_stream_lines.py
+         :language: python
+         :end-before: v.write_frame
+
 ----
 
 Geometry Helpers
@@ -539,6 +682,17 @@ ConvexHull
          hull = ConvexHull(d1, d2, d3, (400, 450),
                            stroke='#58C4DD', fill_opacity=0.1)
 
+   .. admonition:: Convex Hull
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_convex_hull.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_convex_hull.py
+         :language: python
+         :end-before: v.write_frame
+
 ----
 
 brace_between_points
@@ -566,6 +720,17 @@ brace_between_points
 
          brace = brace_between_points((400, 500), (800, 500),
                                       direction='down', label='width')
+
+   .. admonition:: Brace Between Points
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_brace_between.svg" style="width:100%;max-width:800px;display:block;margin:auto;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_brace_between.py
+         :language: python
+         :end-before: v.write_frame
 
 ----
 

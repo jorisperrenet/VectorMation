@@ -12,20 +12,13 @@ title.fadein(0.0, 0.5)
 canvas.add(title)
 
 # --- Reference circles (faded, shown briefly at center) ---
-ref_a = Circle(r=80, cx=910, cy=250, fill='#58C4DD', fill_opacity=0.25,
+ref_a = Circle(r=80, cx=910, cy=320, fill='#58C4DD', fill_opacity=0.25,
                stroke='#58C4DD', stroke_width=1.5, stroke_dasharray='6 4')
-ref_b = Circle(r=80, cx=1000, cy=250, fill='#E84D60', fill_opacity=0.25,
+ref_b = Circle(r=80, cx=1000, cy=320, fill='#E84D60', fill_opacity=0.25,
                stroke='#E84D60', stroke_width=1.5, stroke_dasharray='6 4')
 for obj in [ref_a, ref_b]:
     obj.fadein(0.2, 0.6)
-    obj.fadeout(1.2, 1.5)
     canvas.add(obj)
-
-ref_label = TexObject(r'$A \cup B$', x=955, y=370, font_size=24,
-                      fill='#FFFFFF', stroke_width=0, anchor='center')
-ref_label.fadein(0.3, 0.6)
-ref_label.fadeout(1.2, 1.5)
-canvas.add(ref_label)
 
 # Column positions for the four operations
 cols = [270, 690, 1110, 1530]

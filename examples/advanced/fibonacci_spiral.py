@@ -5,7 +5,6 @@ that form the classic golden spiral. Numbers and proportions animate in.
 """
 import sys, os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from vectormation.objects import *
-import math
 
 args = parse_args()
 canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/fibonacci_spiral')
@@ -46,26 +45,13 @@ for i, (sx, sy, s) in enumerate(pos):
                    fill=colors[i], fill_opacity=0.25, stroke=colors[i], stroke_width=2)
     sq.grow_from_center(t, t + 0.5)
 
-    lbl = TexObject(str(fibs[i]), x=sx + s / 2, y=sy + s / 2,
-                    font_size=min(s * 0.4, 36), fill='#fff', stroke_width=0,
-                    anchor='center', creation=t + 0.2)
-    lbl.center_to_pos(sx + s / 2, sy + s / 2)
-    lbl.fadein(t + 0.2, t + 0.5)
-
     (cdx, cdy), sa, ea = ARC[i % 4]
     arc = Arc(cx=sx + cdx * s, cy=sy + cdy * s, r=s, start_angle=sa, end_angle=ea,
               stroke='#FFB86C', stroke_width=3, fill_opacity=0, creation=t + 0.3)
     arc.create(t + 0.3, t + 0.45)
 
-    canvas.add(sq, lbl, arc)
+    canvas.add(sq, arc)
     t += 0.4
-
-phi_str = f'{(1 + math.sqrt(5)) / 2:.6f}'
-phi_lbl = TexObject(rf'$\varphi = {phi_str}\ldots$', x=960, y=1030,
-                    font_size=28, fill='#fff', stroke_width=0, anchor='center',
-                    creation=t)
-phi_lbl.fadein(t, t + 0.5)
-canvas.add(phi_lbl)
 
 if args.for_docs:
     canvas.export_video('docs/source/_static/videos/fibonacci_spiral.mp4', fps=30, end=6)

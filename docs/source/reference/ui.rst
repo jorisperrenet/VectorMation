@@ -17,12 +17,17 @@ Title
 
    :param str text: Title string.
 
-   .. admonition:: Example: Creating a title
+   .. admonition:: Example: Title
       :class: example
 
-      .. code-block:: python
+      .. raw:: html
 
-         title = Title('Introduction to Calculus')
+         <img src="../_static/videos/ref_title.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_title.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -55,6 +60,18 @@ Variable
 
       Animate the value to *target* over ``[start, end]``.
 
+   .. admonition:: Example: Variable
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_variable.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_variable.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 ----
 
 Underline
@@ -68,6 +85,18 @@ Underline
    :param VObject target: Object to underline.
    :param float buff: Gap below the target.
    :param bool follow: Dynamically follow the target.
+
+   .. admonition:: Example: Underline
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_underline.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_underline.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -95,15 +124,17 @@ Code
 
       Reveal code lines sequentially with staggered fade-in.
 
-   .. admonition:: Example: Syntax-highlighted code block
+   .. admonition:: Example: Code
       :class: example
 
-      .. code-block:: python
+      .. raw:: html
 
-         code = Code('''
-         def greet(name):
-             return f"Hello, {name}!"
-         ''', language='python')
+         <img src="../_static/videos/ref_code.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_code.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -118,6 +149,18 @@ Label
    :param str text: Label content.
    :param float padding: Padding around the text.
 
+   .. admonition:: Example: Label
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_label.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_label.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 ----
 
 LabeledLine
@@ -131,6 +174,18 @@ LabeledLine
    :param str label: Midpoint label text.
    :param float label_buff: Perpendicular offset distance.
 
+   .. admonition:: Example: LabeledLine
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_labeled_line.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_labeled_line.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 ----
 
 LabeledArrow
@@ -142,6 +197,18 @@ LabeledArrow
 
    :param str label: Midpoint label text.
    :param float label_buff: Perpendicular offset distance.
+
+   .. admonition:: Example: LabeledArrow
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_labeled_arrow.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_labeled_arrow.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -157,6 +224,18 @@ Callout
    :param target: A VObject (uses its center) or an ``(x, y)`` tuple.
    :param str direction: ``'up'``, ``'down'``, ``'left'``, or ``'right'``.
    :param float distance: Distance from the target to the callout box.
+
+   .. admonition:: Example: Callout
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_callout.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_callout.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -174,6 +253,18 @@ DimensionLine
    :param str label: Measurement text (auto-computed from distance if ``None``).
    :param float offset: Perpendicular offset from the measured line.
 
+   .. admonition:: Example: DimensionLine
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_dimension_line.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_dimension_line.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 ----
 
 Tooltip
@@ -190,6 +281,18 @@ Tooltip
    :param float start: Time to begin the tooltip.
    :param float duration: Total visible duration (fade-in + hold + fade-out).
 
+   .. admonition:: Example: Tooltip
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_tooltip.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_tooltip.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 ----
 
 TextBox
@@ -204,6 +307,18 @@ TextBox
    :param str box_fill: Background color.
    :param str text_color: Text fill color.
 
+   .. admonition:: Example: TextBox
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_textbox.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_textbox.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 ----
 
 Bracket
@@ -215,6 +330,18 @@ Bracket
 
    :param str direction: ``'down'``, ``'up'``, ``'left'``, or ``'right'``.
    :param str text: Label placed outside the bracket.
+
+   .. admonition:: Example: Bracket
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_bracket.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_bracket.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -228,6 +355,18 @@ IconGrid
    :param list data: List of ``(count, color)`` tuples.
    :param int cols: Number of columns.
    :param str shape: ``'circle'`` or ``'square'``.
+
+   .. admonition:: Example: IconGrid
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_icon_grid.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_icon_grid.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -244,6 +383,18 @@ SpeechBubble
    :param float tail_width: Width of the triangular tail.
    :param float tail_height: Height of the triangular tail.
 
+   .. admonition:: Example: SpeechBubble
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_speech_bubble.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_speech_bubble.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 ----
 
 Badge
@@ -255,6 +406,18 @@ Badge
 
    :param str text: Badge text.
    :param str bg_color: Background fill color.
+
+   .. admonition:: Example: Badge
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_badge.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_badge.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -269,6 +432,18 @@ Divider
 
    :param str direction: ``'horizontal'`` or ``'vertical'``.
    :param str label: Optional centered label text.
+
+   .. admonition:: Example: Divider
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_divider.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_divider.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -290,15 +465,17 @@ Checklist
 
       Cascade items into view sequentially.
 
-   .. admonition:: Example: Checklist with animated check
+   .. admonition:: Example: Checklist
       :class: example
 
-      .. code-block:: python
+      .. raw:: html
 
-         cl = Checklist('Buy groceries',
-                        ('Walk the dog', True),
-                        'Write docs')
-         cl.check_item(0, start=1, end=1.5)
+         <img src="../_static/videos/ref_checklist.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_checklist.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -319,6 +496,18 @@ Stepper
 
       Animate transitioning the active highlight from one step to another.
 
+   .. admonition:: Example: Stepper
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_stepper.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_stepper.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 ----
 
 TagCloud
@@ -331,6 +520,18 @@ TagCloud
    :param list data: List of ``(text, weight)`` tuples.
    :param float min_font: Minimum font size.
    :param float max_font: Maximum font size.
+
+   .. admonition:: Example: TagCloud
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_tag_cloud.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_tag_cloud.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -346,6 +547,18 @@ StatusIndicator
       ``'ok'``, ``'error'``, ``'success'``, ``'fail'``, ``'warn'``, ``'unknown'``,
       or a raw hex color string.
 
+   .. admonition:: Example: StatusIndicator
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_status_indicator.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_status_indicator.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 ----
 
 Meter
@@ -357,6 +570,18 @@ Meter
 
    :param float value: Initial fill level (0--1).
    :param str direction: ``'vertical'`` or ``'horizontal'``.
+
+   .. admonition:: Example: Meter
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_meter.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_meter.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -371,6 +596,18 @@ Breadcrumb
    :param int active_index: Highlighted item (defaults to the last item).
    :param str separator: Character between items.
 
+   .. admonition:: Example: Breadcrumb
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_breadcrumb.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_breadcrumb.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
+
 ----
 
 Countdown
@@ -384,6 +621,18 @@ Countdown
    :param int end_value: Ending number.
    :param float start: Animation start time.
    :param float end: Animation end time.
+
+   .. admonition:: Example: Countdown
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_countdown.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_countdown.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 
 ----
 
@@ -401,4 +650,16 @@ Filmstrip
    .. py:method:: highlight_frame(index, start=0, end=1, color='#58C4DD', easing=there_and_back)
 
       Flash-highlight a frame by index.
+
+   .. admonition:: Example: Filmstrip
+      :class: example
+
+      .. raw:: html
+
+         <img src="../_static/videos/ref_filmstrip.svg" style="width:100%; max-width:800px;" />
+
+      .. literalinclude:: ../../../examples/reference/ref_filmstrip.py
+         :language: python
+         :start-after: parse_args()
+         :end-before: v.write_frame
 

@@ -14,12 +14,13 @@ from PIL import Image as PILImage
 import io, base64
 
 args = parse_args()
-canvas = VectorMathAnim(verbose=args.verbose, save_dir='svgs/mandelbrot_zoom')
+
+W, H = 960, 540
+canvas = VectorMathAnim(verbose=args.verbose, width=W, height=H, save_dir='svgs/mandelbrot_zoom')
 canvas.set_background()
 
 # ── Constants ────────────────────────────────────────────────────────
-W, H = 1920, 1080
-IMG_W, IMG_H = 960, 540  # render resolution (upscaled to 1920x1080 in SVG)
+IMG_W, IMG_H = W, H
 BASE_ITER = 100
 
 # ── Zoom parameters ──────────────────────────────────────────────────
@@ -155,11 +156,11 @@ def _mandelbrot_href(t):
 fractal = Image(href=_mandelbrot_href, x=0, y=0, width=W, height=H, creation=0)
 
 # ── Title ────────────────────────────────────────────────────────────
-title = Text(text='The Mandelbrot Set', x=960, y=52,
-             font_size=48, fill='#ffffff', stroke_width=0,
+title = Text(text='The Mandelbrot Set', x=W//2, y=30,
+             font_size=24, fill='#ffffff', stroke_width=0,
              text_anchor='middle', creation=0)
-subtitle = Text(text='Zooming into the Seahorse Valley', x=960, y=98,
-                font_size=26, fill='#cccccc', stroke_width=0,
+subtitle = Text(text='Zooming into the Seahorse Valley', x=W//2, y=50,
+                font_size=13, fill='#cccccc', stroke_width=0,
                 text_anchor='middle', creation=0)
 title_group = VCollection(title, subtitle)
 title_bg = SurroundingRectangle(title_group, buff=20, corner_radius=14,
@@ -183,7 +184,7 @@ def _fmt_zoom(t):
     else:
         return f'{zoom:.2f}x'
 
-zoom_live = Text(text='', x=1820, y=1050, font_size=20, fill='#ffffff',
+zoom_live = Text(text='', x=910, y=525, font_size=20, fill='#ffffff',
                  stroke_width=0, text_anchor='middle', creation=ZOOM_START)
 zoom_live.text.set_onward(ZOOM_START, _fmt_zoom)
 zoom_bg = SurroundingRectangle(zoom_live, buff=12, corner_radius=8,
@@ -206,14 +207,14 @@ def _fmt_max_iter(t):
     radius = _get_radius(t)
     return f'max iterations = {_get_max_iter(radius)}'
 
-coord_label = Text(text='', x=960, y=985, font_size=26, fill='#58C4DD',
+coord_label = Text(text='', x=W//2, y=985//2, font_size=13, fill='#58C4DD',
                    stroke_width=0, text_anchor='middle', creation=INFO_START)
 coord_label.text.set_onward(INFO_START, _fmt_coord)
-zoom_label = Text(text='', x=960, y=1018, font_size=22, fill='#ffffff',
+zoom_label = Text(text='', x=W//2, y=1018//2, font_size=11, fill='#ffffff',
                   stroke_width=0, text_anchor='middle', creation=INFO_START)
 zoom_label.text.set_onward(INFO_START, lambda t: f'Zoom: {_fmt_zoom(t)}')
-max_iter_label = Text(text='', x=960, y=1048,
-                      font_size=18, fill='#999999', stroke_width=0,
+max_iter_label = Text(text='', x=W//2, y=1048//2,
+                      font_size=9, fill='#999999', stroke_width=0,
                       text_anchor='middle', creation=INFO_START)
 max_iter_label.text.set_onward(INFO_START, _fmt_max_iter)
 

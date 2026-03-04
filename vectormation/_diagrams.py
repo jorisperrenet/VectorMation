@@ -228,15 +228,20 @@ class ChessBoard(VCollection):
 # ---------------------------------------------------------------------------
 
 _ELEMENT_DATA = [
+    # (atomic_number, symbol, name, column, row)
+    # Row 1
     (1, 'H', 'Hydrogen', 1, 1), (2, 'He', 'Helium', 18, 1),
+    # Row 2
     (3, 'Li', 'Lithium', 1, 2), (4, 'Be', 'Beryllium', 2, 2),
     (5, 'B', 'Boron', 13, 2), (6, 'C', 'Carbon', 14, 2),
     (7, 'N', 'Nitrogen', 15, 2), (8, 'O', 'Oxygen', 16, 2),
     (9, 'F', 'Fluorine', 17, 2), (10, 'Ne', 'Neon', 18, 2),
+    # Row 3
     (11, 'Na', 'Sodium', 1, 3), (12, 'Mg', 'Magnesium', 2, 3),
     (13, 'Al', 'Aluminium', 13, 3), (14, 'Si', 'Silicon', 14, 3),
     (15, 'P', 'Phosphorus', 15, 3), (16, 'S', 'Sulfur', 16, 3),
     (17, 'Cl', 'Chlorine', 17, 3), (18, 'Ar', 'Argon', 18, 3),
+    # Row 4
     (19, 'K', 'Potassium', 1, 4), (20, 'Ca', 'Calcium', 2, 4),
     (21, 'Sc', 'Scandium', 3, 4), (22, 'Ti', 'Titanium', 4, 4),
     (23, 'V', 'Vanadium', 5, 4), (24, 'Cr', 'Chromium', 6, 4),
@@ -246,30 +251,82 @@ _ELEMENT_DATA = [
     (31, 'Ga', 'Gallium', 13, 4), (32, 'Ge', 'Germanium', 14, 4),
     (33, 'As', 'Arsenic', 15, 4), (34, 'Se', 'Selenium', 16, 4),
     (35, 'Br', 'Bromine', 17, 4), (36, 'Kr', 'Krypton', 18, 4),
+    # Row 5
+    (37, 'Rb', 'Rubidium', 1, 5), (38, 'Sr', 'Strontium', 2, 5),
+    (39, 'Y', 'Yttrium', 3, 5), (40, 'Zr', 'Zirconium', 4, 5),
+    (41, 'Nb', 'Niobium', 5, 5), (42, 'Mo', 'Molybdenum', 6, 5),
+    (43, 'Tc', 'Technetium', 7, 5), (44, 'Ru', 'Ruthenium', 8, 5),
+    (45, 'Rh', 'Rhodium', 9, 5), (46, 'Pd', 'Palladium', 10, 5),
+    (47, 'Ag', 'Silver', 11, 5), (48, 'Cd', 'Cadmium', 12, 5),
+    (49, 'In', 'Indium', 13, 5), (50, 'Sn', 'Tin', 14, 5),
+    (51, 'Sb', 'Antimony', 15, 5), (52, 'Te', 'Tellurium', 16, 5),
+    (53, 'I', 'Iodine', 17, 5), (54, 'Xe', 'Xenon', 18, 5),
+    # Row 6
+    (55, 'Cs', 'Caesium', 1, 6), (56, 'Ba', 'Barium', 2, 6),
+    # La-Lu → lanthanide row (row 9)
+    (57, 'La', 'Lanthanum', 3, 9), (58, 'Ce', 'Cerium', 4, 9),
+    (59, 'Pr', 'Praseodymium', 5, 9), (60, 'Nd', 'Neodymium', 6, 9),
+    (61, 'Pm', 'Promethium', 7, 9), (62, 'Sm', 'Samarium', 8, 9),
+    (63, 'Eu', 'Europium', 9, 9), (64, 'Gd', 'Gadolinium', 10, 9),
+    (65, 'Tb', 'Terbium', 11, 9), (66, 'Dy', 'Dysprosium', 12, 9),
+    (67, 'Ho', 'Holmium', 13, 9), (68, 'Er', 'Erbium', 14, 9),
+    (69, 'Tm', 'Thulium', 15, 9), (70, 'Yb', 'Ytterbium', 16, 9),
+    (71, 'Lu', 'Lutetium', 17, 9),
+    (72, 'Hf', 'Hafnium', 4, 6), (73, 'Ta', 'Tantalum', 5, 6),
+    (74, 'W', 'Tungsten', 6, 6), (75, 'Re', 'Rhenium', 7, 6),
+    (76, 'Os', 'Osmium', 8, 6), (77, 'Ir', 'Iridium', 9, 6),
+    (78, 'Pt', 'Platinum', 10, 6), (79, 'Au', 'Gold', 11, 6),
+    (80, 'Hg', 'Mercury', 12, 6), (81, 'Tl', 'Thallium', 13, 6),
+    (82, 'Pb', 'Lead', 14, 6), (83, 'Bi', 'Bismuth', 15, 6),
+    (84, 'Po', 'Polonium', 16, 6), (85, 'At', 'Astatine', 17, 6),
+    (86, 'Rn', 'Radon', 18, 6),
+    # Row 7
+    (87, 'Fr', 'Francium', 1, 7), (88, 'Ra', 'Radium', 2, 7),
+    # Ac-Lr → actinide row (row 10)
+    (89, 'Ac', 'Actinium', 3, 10), (90, 'Th', 'Thorium', 4, 10),
+    (91, 'Pa', 'Protactinium', 5, 10), (92, 'U', 'Uranium', 6, 10),
+    (93, 'Np', 'Neptunium', 7, 10), (94, 'Pu', 'Plutonium', 8, 10),
+    (95, 'Am', 'Americium', 9, 10), (96, 'Cm', 'Curium', 10, 10),
+    (97, 'Bk', 'Berkelium', 11, 10), (98, 'Cf', 'Californium', 12, 10),
+    (99, 'Es', 'Einsteinium', 13, 10), (100, 'Fm', 'Fermium', 14, 10),
+    (101, 'Md', 'Mendelevium', 15, 10), (102, 'No', 'Nobelium', 16, 10),
+    (103, 'Lr', 'Lawrencium', 17, 10),
+    (104, 'Rf', 'Rutherfordium', 4, 7), (105, 'Db', 'Dubnium', 5, 7),
+    (106, 'Sg', 'Seaborgium', 6, 7), (107, 'Bh', 'Bohrium', 7, 7),
+    (108, 'Hs', 'Hassium', 8, 7), (109, 'Mt', 'Meitnerium', 9, 7),
+    (110, 'Ds', 'Darmstadtium', 10, 7), (111, 'Rg', 'Roentgenium', 11, 7),
+    (112, 'Cn', 'Copernicium', 12, 7), (113, 'Nh', 'Nihonium', 13, 7),
+    (114, 'Fl', 'Flerovium', 14, 7), (115, 'Mc', 'Moscovium', 15, 7),
+    (116, 'Lv', 'Livermorium', 16, 7), (117, 'Ts', 'Tennessine', 17, 7),
+    (118, 'Og', 'Oganesson', 18, 7),
 ]
 
 _CATEGORY_COLORS = {
     'nonmetal': '#58C4DD', 'noble_gas': '#9A72AC', 'alkali': '#FC6255',
     'alkaline': '#F0AC5F', 'metalloid': '#5CD0B3', 'halogen': '#FFFF00',
     'transition': '#C55F73', 'post_transition': '#83C167',
+    'lanthanide': '#E48F72', 'actinide': '#D4A76A',
 }
 
 def _element_category(z):
     if z in (1, 6, 7, 8, 15, 16, 34): return 'nonmetal'
-    if z in (2, 10, 18, 36): return 'noble_gas'
-    if z in (3, 11, 19): return 'alkali'
-    if z in (4, 12, 20): return 'alkaline'
-    if z in (5, 14, 32, 33): return 'metalloid'
-    if z in (9, 17, 35): return 'halogen'
-    if 21 <= z <= 30: return 'transition'
+    if z in (2, 10, 18, 36, 54, 86, 118): return 'noble_gas'
+    if z in (3, 11, 19, 37, 55, 87): return 'alkali'
+    if z in (4, 12, 20, 38, 56, 88): return 'alkaline'
+    if z in (5, 14, 32, 33, 51, 52): return 'metalloid'
+    if z in (9, 17, 35, 53, 85, 117): return 'halogen'
+    if 57 <= z <= 71: return 'lanthanide'
+    if 89 <= z <= 103: return 'actinide'
+    if (21 <= z <= 30) or (39 <= z <= 48) or (72 <= z <= 80) or (104 <= z <= 112): return 'transition'
     return 'post_transition'
 
 class PeriodicTable(VCollection):
-    """Periodic table of elements (first 36 elements)."""
+    """Periodic table of the elements (all 118 elements)."""
     def __init__(self, cx=ORIGIN[0], cy=ORIGIN[1], cell_size: float = 48, creation: float = 0, z: float = 0):
         objects = []
         total_w = 18 * cell_size
-        total_h = 4 * cell_size
+        # 7 main rows + 1 gap row + 2 f-block rows = 10 rows
+        total_h = 10 * cell_size
         x0 = cx - total_w / 2
         y0 = cy - total_h / 2
 
