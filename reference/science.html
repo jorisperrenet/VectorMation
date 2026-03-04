@@ -226,7 +226,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../vs_manim.html">vs Manim</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
 </ul>
 
 </div>
@@ -301,14 +300,17 @@ directly, so <code class="docutils literal notranslate"><span class="pre">isinst
 </div>
 <div class="example admonition">
 <p class="admonition-title">Example: UnitInterval</p>
-<img src="../_static/videos/ref_unit_interval.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_unit_interval.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;UnitInterval: probability axis.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">ui</span> <span class="o">=</span> <span class="n">UnitInterval</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">360</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">1200</span><span class="p">,</span> <span class="n">tick_step</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ui</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -398,8 +400,10 @@ and <em>y</em> are in abstract units (scaled by <em>scale</em>).</p></li>
 </div>
 <div class="example admonition">
 <p class="admonition-title">Example: Molecule2D</p>
-<img src="../_static/videos/ref_molecule.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_molecule.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Molecule2D: caffeine molecule.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="c1"># Caffeine (C8H10N4O2) - approximate 2D layout</span>
@@ -428,7 +432,8 @@ and <em>y</em> are in abstract units (scaled by <em>scale</em>).</p></li>
 <span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">caffeine</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -548,8 +553,10 @@ for a 3-layer network). Length must match the number of layers.</p></li>
 <div class="example admonition">
 <p class="admonition-title">Example: NeuralNetwork propagation</p>
 <video src="../_static/videos/neuralnet.mp4" controls autoplay loop muted></video><p>Neural network with forward propagation animation.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Neural network with forward propagation.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">nn</span> <span class="o">=</span> <span class="n">NeuralNetwork</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">width</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
@@ -559,9 +566,8 @@ for a 3-layer network). Length must match the number of layers.</p></li>
 <span class="n">nn</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">4.5</span><span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">nn</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/neuralnet.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -628,8 +634,10 @@ a circular bob. The bob oscillates according to <code class="docutils literal no
 <div class="example admonition">
 <p class="admonition-title">Example: Pendulum with trail</p>
 <video src="../_static/videos/pendulum.mp4" controls autoplay loop muted></video><p>Damped pendulum with traced path.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Pendulum with trail.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">p</span> <span class="o">=</span> <span class="n">Pendulum</span><span class="p">(</span><span class="n">pivot_x</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">pivot_y</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">350</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>
@@ -638,9 +646,8 @@ a circular bob. The bob oscillates according to <code class="docutils literal no
                          <span class="n">stroke_width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">stroke_opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">trail</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/pendulum.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -697,8 +704,10 @@ depends on the harmonic number.</p>
 
 <div class="example admonition">
 <p class="admonition-title">Example: StandingWave</p>
-<img src="../_static/videos/ref_standing_wave.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_standing_wave.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;StandingWave: third harmonic.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">wave</span> <span class="o">=</span> <span class="n">StandingWave</span><span class="p">(</span>
@@ -708,7 +717,8 @@ depends on the harmonic number.</p>
 <span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">wave</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -762,8 +772,10 @@ if the object is at the focal point (image at infinity).</p>
 
 <div class="example admonition">
 <p class="admonition-title">Example: Lens</p>
-<img src="../_static/videos/ref_lens.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_lens.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Lens with rays refracting through it.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">lens</span> <span class="o">=</span> <span class="n">Lens</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">focal_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">)</span>
@@ -772,7 +784,8 @@ if the object is at the focal point (image at infinity).</p>
 <span class="n">ray3</span> <span class="o">=</span> <span class="n">Ray</span><span class="p">(</span><span class="n">x1</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="mi">640</span><span class="p">,</span> <span class="n">angle</span><span class="o">=-</span><span class="mi">3</span><span class="p">,</span> <span class="n">lenses</span><span class="o">=</span><span class="p">[</span><span class="n">lens</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#2ECC71&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">lens</span><span class="p">,</span> <span class="n">ray1</span><span class="p">,</span> <span class="n">ray2</span><span class="p">,</span> <span class="n">ray3</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

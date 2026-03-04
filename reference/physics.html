@@ -226,7 +226,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../vs_manim.html">vs Manim</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
 </ul>
 
 </div>
@@ -482,8 +481,10 @@ body and a fixed <code class="docutils literal notranslate"><span class="pre">(x
 </dl>
 <div class="example admonition">
 <p class="admonition-title">Example: Spring</p>
-<video src="../_static/videos/ref_physics_spring.mp4" controls autoplay loop muted></video><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<video src="../_static/videos/ref_physics_spring.mp4" controls autoplay loop muted></video><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;PhysicsSpace: spring pendulum with visual spring line.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">duration</span> <span class="o">=</span> <span class="mi">5</span>
@@ -544,9 +545,8 @@ body and a fixed <code class="docutils literal notranslate"><span class="pre">(x
 <span class="n">spring_line</span><span class="o">.</span><span class="n">p2</span><span class="o">.</span><span class="n">set_onward</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">bob_pos</span><span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">spring_line</span><span class="p">,</span> <span class="n">anchor_dot</span><span class="p">,</span> <span class="n">bob</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/ref_physics_spring.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -589,8 +589,11 @@ The top row can be pinned (fixed) to create a hanging curtain effect.</p>
 
 <div class="example admonition">
 <p class="admonition-title">Example: Cloth</p>
-<video src="../_static/videos/ref_physics_cloth.mp4" controls autoplay loop muted></video><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<video src="../_static/videos/ref_physics_cloth.mp4" controls autoplay loop muted></video><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;PhysicsSpace: cloth simulation with wind.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">duration</span> <span class="o">=</span> <span class="mi">5</span>
@@ -617,9 +620,8 @@ The top row can be pinned (fixed) to create a hanging curtain effect.</p>
 <span class="n">cloth</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="o">*</span><span class="n">cloth</span><span class="o">.</span><span class="n">objects</span><span class="p">())</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/ref_physics_cloth.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -627,8 +629,11 @@ The top row can be pinned (fixed) to create a hanging curtain effect.</p>
 
 <div class="example admonition">
 <p class="admonition-title">Example: Bouncing balls</p>
-<video src="../_static/videos/ref_physics_bounce.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<video src="../_static/videos/ref_physics_bounce.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;PhysicsSpace: bouncing objects with walls.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">duration</span> <span class="o">=</span> <span class="mi">6</span>
@@ -665,9 +670,8 @@ The top row can be pinned (fixed) to create a hanging curtain effect.</p>
 <span class="n">space</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="o">*</span><span class="n">walls</span><span class="p">,</span> <span class="o">*</span><span class="n">objects</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/ref_physics_bounce.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="n">duration</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

@@ -103,8 +103,6 @@ Smoothly animate from the current value to ``end_val``:
 
    .. literalinclude:: ../../examples/reference/attr_move_to.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 Composing Attribute Calls
 -------------------------
@@ -125,8 +123,6 @@ primitives:
 
    .. literalinclude:: ../../examples/reference/attr_composition.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 Coordinate-Specific Methods
 ----------------------------
@@ -199,8 +195,6 @@ And many more -- see ``vectormation/easings.py`` for the full list.
 
    .. literalinclude:: ../../examples/reference/attr_easing.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 Color Attributes
 ----------------
@@ -238,5 +232,3 @@ The ``color_space`` parameter is available on ``set_color()`` and ``Color.interp
 
    .. literalinclude:: ../../examples/reference/attr_color.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display

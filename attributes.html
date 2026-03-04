@@ -226,7 +226,6 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced_examples.html">Advanced Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vs_manim.html">vs Manim</a></li>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
 </ul>
 
 </div>
@@ -357,8 +356,10 @@ You can animate any of these by calling methods like <code class="docutils liter
 <div class="example admonition">
 <p class="admonition-title">Example: animating radius with move_to</p>
 <video src="_static/videos/attr_move_to.mp4" controls autoplay loop muted></video><p>Smoothly grow and shrink a circle’s radius using <code class="docutils literal notranslate"><span class="pre">move_to</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Animate a circle&#39;s radius with move_to.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">circle</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -370,9 +371,8 @@ You can animate any of these by calling methods like <code class="docutils liter
 <span class="n">circle</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">circle</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/attr_move_to.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -387,8 +387,10 @@ primitives:</p>
 <p class="admonition-title">Example: chaining attribute calls</p>
 <video src="_static/videos/attr_composition.mp4" controls autoplay loop muted></video><p>A dot slides to the centre, jumps up instantly with <code class="docutils literal notranslate"><span class="pre">set_onward</span></code>, then
 slides to the right with another <code class="docutils literal notranslate"><span class="pre">move_to</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Chaining multiple attribute calls over time.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">dot</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">360</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">)</span>
@@ -400,9 +402,8 @@ slides to the right with another <code class="docutils literal notranslate"><spa
 <span class="n">dot</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="p">(</span><span class="mi">1560</span><span class="p">,</span> <span class="mi">540</span><span class="p">))</span>      <span class="c1"># slide to right</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">dot</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/attr_composition.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">4.5</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mf">4.5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -473,8 +474,11 @@ slides to the right with another <code class="docutils literal notranslate"><spa
 <p class="admonition-title">Example: comparing easings</p>
 <video src="_static/videos/attr_easing.mp4" controls autoplay loop muted></video><p>Three circles shift across the screen using <code class="docutils literal notranslate"><span class="pre">linear</span></code>, <code class="docutils literal notranslate"><span class="pre">smooth</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">ease_out_bounce</span></code> easings.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Side-by-side circles shifting with different easings.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.easings</span><span class="w"> </span><span class="kn">import</span> <span class="n">linear</span><span class="p">,</span> <span class="n">smooth</span><span class="p">,</span> <span class="n">ease_out_bounce</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="s1">&#39;smooth&#39;</span><span class="p">,</span> <span class="s1">&#39;bounce&#39;</span><span class="p">]</span>
@@ -492,9 +496,7 @@ slides to the right with another <code class="docutils literal notranslate"><spa
     <span class="n">c</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">easing</span><span class="o">=</span><span class="n">easing</span><span class="p">)</span>
     <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/attr_easing.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">3.5</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mf">3.5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -519,8 +521,10 @@ slides to the right with another <code class="docutils literal notranslate"><spa
 <p class="admonition-title">Example: RGB vs HSL interpolation</p>
 <video src="_static/videos/attr_color.mp4" controls autoplay loop muted></video><p>Top circle interpolates from red to blue in RGB (goes through purple).
 Bottom circle interpolates in HSL (sweeps through the hue spectrum).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Color interpolation: RGB vs HSL.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="c1"># Top: RGB interpolation (goes through muddy middle)</span>
@@ -534,9 +538,8 @@ Bottom circle interpolates in HSL (sweeps through the hue spectrum).</p>
 <span class="n">hsl_circle</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#0000FF&#39;</span><span class="p">,</span> <span class="n">color_space</span><span class="o">=</span><span class="s1">&#39;hsl&#39;</span><span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">rgb_label</span><span class="p">,</span> <span class="n">rgb_circle</span><span class="p">,</span> <span class="n">hsl_label</span><span class="p">,</span> <span class="n">hsl_circle</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/attr_color.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

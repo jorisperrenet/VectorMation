@@ -226,7 +226,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../vs_manim.html">vs Manim</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
 </ul>
 
 </div>
@@ -276,14 +275,16 @@ animation methods.</p>
 </a>
 <div class="example admonition">
 <p class="admonition-title">Example: Ellipse</p>
-<img src="../_static/videos/ref_ellipse.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_ellipse.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Ellipse shape.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">e</span> <span class="o">=</span> <span class="n">Ellipse</span><span class="p">(</span><span class="n">rx</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">ry</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">)</span>
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -418,14 +419,16 @@ animation methods.</p>
 </a>
 <div class="example admonition">
 <p class="admonition-title">Example: Circle</p>
-<img src="../_static/videos/ref_circle.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_circle.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Circle shape.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">c</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">)</span>
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -644,8 +647,10 @@ animation methods.</p>
 <div class="example admonition">
 <p class="admonition-title">Example: Circle</p>
 <img src="../_static/videos/circle.svg" style="width:100%; max-width:800px;" /><p>Circle with grow_from_center animation.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Circle with grow_from_center.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">c1</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">480</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -653,9 +658,8 @@ animation methods.</p>
 <span class="n">c3</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">1440</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#83C167&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c3</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">v</span><span class="o">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;docs/source/_static/videos/circle.svg&#39;</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -665,8 +669,10 @@ animation methods.</p>
 <h2>Dot<a class="headerlink" href="#dot" title="Link to this heading">¶</a></h2>
 <div class="example admonition">
 <p class="admonition-title">Example: Dot &amp; AnnotationDot</p>
-<img src="../_static/videos/ref_dot.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_dot.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Dot: small filled circle.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">dots</span> <span class="o">=</span> <span class="n">VCollection</span><span class="p">(</span>
@@ -679,7 +685,8 @@ animation methods.</p>
 <span class="n">dots</span><span class="o">.</span><span class="n">center_to_pos</span><span class="p">()</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">dots</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -720,8 +727,10 @@ Default styling: white stroke (<code class="docutils literal notranslate"><span 
 <h2>Square<a class="headerlink" href="#square" title="Link to this heading">¶</a></h2>
 <div class="example admonition">
 <p class="admonition-title">Example: Square</p>
-<img src="../_static/videos/ref_square.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_square.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Square shape.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">squares</span> <span class="o">=</span> <span class="n">VCollection</span><span class="p">(</span>
@@ -733,7 +742,8 @@ Default styling: white stroke (<code class="docutils literal notranslate"><span 
 <span class="n">squares</span><span class="o">.</span><span class="n">center_to_pos</span><span class="p">()</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">squares</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -757,14 +767,16 @@ Default styling: white stroke (<code class="docutils literal notranslate"><span 
 </a>
 <div class="example admonition">
 <p class="admonition-title">Example: Rectangle</p>
-<img src="../_static/videos/ref_rectangle.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_rectangle.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Rectangle shape.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">r</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">)</span>
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -982,14 +994,16 @@ Default styling: white stroke (<code class="docutils literal notranslate"><span 
 <h2>RoundedRectangle<a class="headerlink" href="#roundedrectangle" title="Link to this heading">¶</a></h2>
 <div class="example admonition">
 <p class="admonition-title">Example: RoundedRectangle</p>
-<img src="../_static/videos/ref_rounded_rect.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_rounded_rect.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;RoundedRectangle shape.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">r</span> <span class="o">=</span> <span class="n">RoundedRectangle</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="n">corner_radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#9B59B6&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#9B59B6&#39;</span><span class="p">)</span>
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1020,14 +1034,16 @@ Default styling: white stroke (<code class="docutils literal notranslate"><span 
 </a>
 <div class="example admonition">
 <p class="admonition-title">Example: Line</p>
-<img src="../_static/videos/ref_line.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_line.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Line shape.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">l</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="n">x1</span><span class="o">=</span><span class="mi">560</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="mi">640</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="mi">1360</span><span class="p">,</span> <span class="n">y2</span><span class="o">=</span><span class="mi">440</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#2ECC71&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1365,14 +1381,16 @@ Default styling: white stroke (<code class="docutils literal notranslate"><span 
 <h2>DashedLine<a class="headerlink" href="#dashedline" title="Link to this heading">¶</a></h2>
 <div class="example admonition">
 <p class="admonition-title">Example: DashedLine</p>
-<img src="../_static/videos/ref_dashed_line.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_dashed_line.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;DashedLine shape.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">l</span> <span class="o">=</span> <span class="n">DashedLine</span><span class="p">(</span><span class="n">x1</span><span class="o">=</span><span class="mi">560</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="mi">640</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="mi">1360</span><span class="p">,</span> <span class="n">y2</span><span class="o">=</span><span class="mi">440</span><span class="p">,</span> <span class="n">dash</span><span class="o">=</span><span class="s1">&#39;12,6&#39;</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#F39C12&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1400,15 +1418,17 @@ Default styling: white stroke (<code class="docutils literal notranslate"><span 
 <h2>Polygon<a class="headerlink" href="#polygon" title="Link to this heading">¶</a></h2>
 <div class="example admonition">
 <p class="admonition-title">Example: Polygon</p>
-<img src="../_static/videos/ref_polygon.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_polygon.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Polygon shape.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">pts</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">760</span><span class="p">,</span> <span class="mi">640</span><span class="p">),</span> <span class="p">(</span><span class="mi">860</span><span class="p">,</span> <span class="mi">400</span><span class="p">),</span> <span class="p">(</span><span class="mi">1060</span><span class="p">,</span> <span class="mi">380</span><span class="p">),</span> <span class="p">(</span><span class="mi">1160</span><span class="p">,</span> <span class="mi">600</span><span class="p">),</span> <span class="p">(</span><span class="mi">960</span><span class="p">,</span> <span class="mi">700</span><span class="p">)]</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">Polygon</span><span class="p">(</span><span class="o">*</span><span class="n">pts</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#3498DB&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#3498DB&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1680,8 +1700,10 @@ Returns a new <a class="reference internal" href="#Lines" title="Lines"><code cl
 <div class="example admonition">
 <p class="admonition-title">Example: Polygon gallery</p>
 <img src="../_static/videos/polygon.svg" style="width:100%; max-width:800px;" /><p>Regular polygons: triangle, pentagon, hexagon.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Regular polygon gallery: triangle, pentagon, hexagon.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">tri</span> <span class="o">=</span> <span class="n">RegularPolygon</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">380</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
@@ -1693,9 +1715,8 @@ Returns a new <a class="reference internal" href="#Lines" title="Lines"><code cl
 <span class="n">l3</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Hexagon&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">1540</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">680</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#aaa&#39;</span><span class="p">,</span> <span class="n">text_anchor</span><span class="o">=</span><span class="s1">&#39;middle&#39;</span><span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tri</span><span class="p">,</span> <span class="n">pent</span><span class="p">,</span> <span class="n">hexa</span><span class="p">,</span> <span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">,</span> <span class="n">l3</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">v</span><span class="o">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;docs/source/_static/videos/polygon.svg&#39;</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1705,8 +1726,10 @@ Returns a new <a class="reference internal" href="#Lines" title="Lines"><code cl
 <h2>Lines<a class="headerlink" href="#lines" title="Link to this heading">¶</a></h2>
 <div class="example admonition">
 <p class="admonition-title">Example: Lines (open polyline)</p>
-<img src="../_static/videos/ref_lines.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_lines.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Lines: open polyline through vertices.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">zigzag</span> <span class="o">=</span> <span class="n">Lines</span><span class="p">(</span>
@@ -1715,7 +1738,8 @@ Returns a new <a class="reference internal" href="#Lines" title="Lines"><code cl
 <span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">zigzag</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1732,8 +1756,10 @@ Returns a new <a class="reference internal" href="#Lines" title="Lines"><code cl
 <h2>RegularPolygon<a class="headerlink" href="#regularpolygon" title="Link to this heading">¶</a></h2>
 <div class="example admonition">
 <p class="admonition-title">Example: RegularPolygon</p>
-<img src="../_static/videos/ref_regular_polygon.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_regular_polygon.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;RegularPolygon shapes.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">,</span> <span class="s1">&#39;#F39C12&#39;</span><span class="p">,</span> <span class="s1">&#39;#2ECC71&#39;</span><span class="p">,</span> <span class="s1">&#39;#3498DB&#39;</span><span class="p">,</span> <span class="s1">&#39;#9B59B6&#39;</span><span class="p">]</span>
@@ -1742,7 +1768,7 @@ Returns a new <a class="reference internal" href="#Lines" title="Lines"><code cl
     <span class="n">p</span> <span class="o">=</span> <span class="n">RegularPolygon</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
     <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1803,15 +1829,17 @@ Returns a new <a class="reference internal" href="#Lines" title="Lines"><code cl
 <h2>Star<a class="headerlink" href="#star" title="Link to this heading">¶</a></h2>
 <div class="example admonition">
 <p class="admonition-title">Example: Star</p>
-<img src="../_static/videos/ref_star_shape.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_star_shape.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Star shape.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">s</span> <span class="o">=</span> <span class="n">Star</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">140</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span>
          <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#F1C40F&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#F1C40F&#39;</span><span class="p">)</span>
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1847,8 +1875,10 @@ Returns a new <a class="reference internal" href="#Lines" title="Lines"><code cl
 <div class="example admonition">
 <p class="admonition-title">Example: Star</p>
 <img src="../_static/videos/star.svg" style="width:100%; max-width:800px;" /><p>Stars with varying point counts.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Star creation.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">s5</span> <span class="o">=</span> <span class="n">Star</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">480</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span>
@@ -1859,9 +1889,8 @@ Returns a new <a class="reference internal" href="#Lines" title="Lines"><code cl
           <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#9B59B6&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">s5</span><span class="p">,</span> <span class="n">s6</span><span class="p">,</span> <span class="n">s8</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">v</span><span class="o">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;docs/source/_static/videos/star.svg&#39;</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1871,15 +1900,17 @@ Returns a new <a class="reference internal" href="#Lines" title="Lines"><code cl
 <h2>Arc<a class="headerlink" href="#arc" title="Link to this heading">¶</a></h2>
 <div class="example admonition">
 <p class="admonition-title">Example: Arc</p>
-<img src="../_static/videos/ref_arc_shape.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_arc_shape.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Arc shape.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">a</span> <span class="o">=</span> <span class="n">Arc</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">140</span><span class="p">,</span> <span class="n">start_angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end_angle</span><span class="o">=</span><span class="mi">270</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span>
         <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#1ABC9C&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1960,8 +1991,10 @@ Returns a new <a class="reference internal" href="#Lines" title="Lines"><code cl
 <div class="example admonition">
 <p class="admonition-title">Example: Arc &amp; Wedge</p>
 <img src="../_static/videos/arc.svg" style="width:100%; max-width:800px;" /><p>Arc sweeps and pie-wedge shapes.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Arc and wedge drawing.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">a</span> <span class="o">=</span> <span class="n">Arc</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">start_angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end_angle</span><span class="o">=</span><span class="mi">270</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span>
@@ -1973,9 +2006,8 @@ Returns a new <a class="reference internal" href="#Lines" title="Lines"><code cl
 <span class="n">l2</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Wedge&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">1320</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">700</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#aaa&#39;</span><span class="p">,</span> <span class="n">text_anchor</span><span class="o">=</span><span class="s1">&#39;middle&#39;</span><span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">v</span><span class="o">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;docs/source/_static/videos/arc.svg&#39;</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1987,15 +2019,17 @@ Returns a new <a class="reference internal" href="#Lines" title="Lines"><code cl
 </a>
 <div class="example admonition">
 <p class="admonition-title">Example: Wedge</p>
-<img src="../_static/videos/ref_wedge.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_wedge.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Wedge (Sector) shape.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">w</span> <span class="o">=</span> <span class="n">Wedge</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">160</span><span class="p">,</span> <span class="n">start_angle</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end_angle</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span>
           <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#E67E22&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#E67E22&#39;</span><span class="p">)</span>
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2020,15 +2054,17 @@ Returns a new <a class="reference internal" href="#Lines" title="Lines"><code cl
 </a>
 <div class="example admonition">
 <p class="admonition-title">Example: Annulus</p>
-<img src="../_static/videos/ref_annulus.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_annulus.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Annulus shape.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">a</span> <span class="o">=</span> <span class="n">Annulus</span><span class="p">(</span><span class="n">inner_radius</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">160</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span>
             <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">)</span>
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2176,8 +2212,10 @@ Positive = left of travel, negative = right, 0 = straight.</p></li>
 </a>
 <div class="example admonition">
 <p class="admonition-title">Example: Angle</p>
-<img src="../_static/videos/ref_angle.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_angle.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Angle shape.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">vertex</span> <span class="o">=</span> <span class="p">(</span><span class="mi">960</span><span class="p">,</span> <span class="mi">540</span><span class="p">)</span>
@@ -2188,7 +2226,7 @@ Positive = left of travel, negative = right, 0 = straight.</p></li>
 <span class="n">angle</span> <span class="o">=</span> <span class="n">Angle</span><span class="p">(</span><span class="n">vertex</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2230,14 +2268,16 @@ objects for time-varying angles.</p>
 <h2>Cross<a class="headerlink" href="#cross" title="Link to this heading">¶</a></h2>
 <div class="example admonition">
 <p class="admonition-title">Example: Cross</p>
-<img src="../_static/videos/ref_cross.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_cross.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Cross shape.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">c</span> <span class="o">=</span> <span class="n">Cross</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2253,15 +2293,17 @@ objects for time-varying angles.</p>
 <h2>Text<a class="headerlink" href="#text" title="Link to this heading">¶</a></h2>
 <div class="example admonition">
 <p class="admonition-title">Example: Text</p>
-<img src="../_static/videos/ref_text.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_text.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Text shape.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">t</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Hello, World!&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">72</span><span class="p">,</span>
          <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#fff&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">text_anchor</span><span class="o">=</span><span class="s1">&#39;middle&#39;</span><span class="p">)</span>
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2446,15 +2488,17 @@ objects for time-varying angles.</p>
 <h2>Path<a class="headerlink" href="#path" title="Link to this heading">¶</a></h2>
 <div class="example admonition">
 <p class="admonition-title">Example: Path</p>
-<img src="../_static/videos/ref_path.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<img src="../_static/videos/ref_path.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Path shape.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">d</span> <span class="o">=</span> <span class="s1">&#39;M 560,640 C 660,300 1260,300 1360,640&#39;</span>
 <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

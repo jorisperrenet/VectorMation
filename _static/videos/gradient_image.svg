@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
 <defs>
-<linearGradient id='lg140357527664832' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='#000'/><stop offset='100%' stop-color='#fff'/></linearGradient>
+<linearGradient id='lg140422722112544' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='#000'/><stop offset='100%' stop-color='#fff'/></linearGradient>
 </defs>
 <g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
-<g data-obj-idx='1'><rect x='660' y='340' width='600' height='400' rx='0' ry='0' fill='url(#lg140357527664832)' fill-opacity='0.7' stroke='rgb(255,255,255)' stroke-width='0' /></g>
+<g data-obj-idx='1'><rect x='660' y='340' width='600' height='400' rx='0' ry='0' fill='url(#lg140422722112544)' fill-opacity='0.7' stroke='rgb(255,255,255)' stroke-width='0' /></g>
 <g data-obj-idx='2'><rect x='660.0' y='340.0' width='600.0' height='400.0' rx='6' ry='6' fill-opacity='0' stroke='rgb(0,255,0)' stroke-width='4' /></g>
 </svg>

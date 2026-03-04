@@ -41,8 +41,6 @@ UnitInterval
 
       .. literalinclude:: ../../../examples/reference/ref_unit_interval.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -96,8 +94,6 @@ Molecule2D
 
       .. literalinclude:: ../../../examples/reference/ref_molecule.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -184,8 +180,6 @@ NeuralNetwork
 
       .. literalinclude:: ../../../examples/reference/neuralnet.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
 ----
 
@@ -251,8 +245,6 @@ Pendulum
 
       .. literalinclude:: ../../../examples/reference/pendulum.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
 ----
 
@@ -306,8 +298,6 @@ StandingWave
 
       .. literalinclude:: ../../../examples/reference/ref_standing_wave.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -351,8 +341,6 @@ Lens
 
       .. literalinclude:: ../../../examples/reference/ref_lens.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 

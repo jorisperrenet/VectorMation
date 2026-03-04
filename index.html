@@ -226,7 +226,6 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced_examples.html">Advanced Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vs_manim.html">vs Manim</a></li>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
 </ul>
 
 </div>
@@ -273,16 +272,16 @@
 <h2>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 
-<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="s1">&#39;svgs/spiral&#39;</span><span class="p">)</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">point</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">()</span>
-<span class="n">trace</span> <span class="o">=</span> <span class="n">Trace</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="n">point</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">func_inner</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="mi">80</span> <span class="o">+</span> <span class="mi">560</span><span class="p">,</span> <span class="mi">540</span><span class="p">))</span>
-<span class="n">point</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">rotate_around</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">pivot_point</span><span class="o">=</span><span class="p">(</span><span class="mi">960</span><span class="p">,</span> <span class="mi">540</span><span class="p">),</span> <span class="n">degrees</span><span class="o">=</span><span class="mi">360</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">trace</span> <span class="o">=</span> <span class="n">Trace</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
+<span class="n">point</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="mi">80</span> <span class="o">+</span> <span class="mi">960</span><span class="p">,</span> <span class="mi">540</span><span class="p">))</span>
+<span class="n">point</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">rotate_around</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="p">(</span><span class="mi">960</span><span class="p">,</span> <span class="mi">540</span><span class="p">),</span> <span class="mi">360</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
 
-<span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span>
-<span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">fps</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This opens a browser window showing a spiral being drawn in real time.</p>
@@ -294,9 +293,12 @@
 <li><p><strong>Browser-based viewer</strong> – real-time playback with zoom, speed control, debug panel, and keyboard shortcuts</p></li>
 <li><p><strong>Morphing</strong> – smoothly morph any shape into any other shape, with optional rotation</p></li>
 <li><p><strong>LaTeX support</strong> – render LaTeX expressions as animatable SVG objects</p></li>
-<li><p><strong>Graph plotting</strong> – plot mathematical functions with axes, ticks, and labels (<code class="docutils literal notranslate"><span class="pre">Graph</span></code> and <code class="docutils literal notranslate"><span class="pre">FunctionGraph</span></code>)</p></li>
+<li><p><strong>Graph plotting</strong> – axes, function graphs, scatter plots, vector fields, polar plots, and more</p></li>
+<li><p><strong>3D rendering</strong> – 3D axes, surfaces, primitives, and camera rotation with depth-sorted SVG output</p></li>
+<li><p><strong>Charts and diagrams</strong> – bar charts, pie charts, flowcharts, tree diagrams, Sankey diagrams, and more</p></li>
+<li><p><strong>Physics simulations</strong> – pendulums, springs, cloth, bouncing objects</p></li>
 <li><p><strong>Sections</strong> – pause the animation at section breaks for presentation-style delivery</p></li>
-<li><p><strong>Export</strong> – SVG frames, PNG, MP4 video (via ffmpeg), and animated GIF</p></li>
+<li><p><strong>Export</strong> – SVG frames, PNG, MP4/WebM video (via ffmpeg), and animated GIF</p></li>
 </ul>
 </section>
 <section id="next-steps">

@@ -226,7 +226,6 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced_examples.html">Advanced Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vs_manim.html">vs Manim</a></li>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
 </ul>
 
 </div>
@@ -269,31 +268,51 @@
 <h1>Animation &amp; Playback<a class="headerlink" href="#animation-playback" title="Link to this heading">¶</a></h1>
 <section id="browser-viewer">
 <h2>Browser Viewer<a class="headerlink" href="#browser-viewer" title="Link to this heading">¶</a></h2>
-<p>VectorMation displays animations in a browser via WebSocket:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8765</span><span class="p">,</span> <span class="n">hot_reload</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<p>The simplest way to display an animation is <code class="docutils literal notranslate"><span class="pre">canvas.show()</span></code>, which
+automatically parses CLI arguments and either opens the browser viewer or
+exports to a file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="table-wrapper colwidths-auto docutils container">
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<tr class="row-odd"><th class="head"><p>CLI Flag</p></th>
+<th class="head"><p>Default</p></th>
 <th class="head"><p>Description</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">start</span></code></p></td>
-<td><p>Animation start time (seconds)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-v</span></code>, <code class="docutils literal notranslate"><span class="pre">--verbose</span></code></p></td>
+<td><p>off</p></td>
+<td><p>Enable debug logging</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">end</span></code></p></td>
-<td><p>Animation end time (<code class="docutils literal notranslate"><span class="pre">None</span></code> = auto-detect, <code class="docutils literal notranslate"><span class="pre">0</span></code> = static picture)</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">fps</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--fps</span> <span class="pre">FPS</span></code></p></td>
+<td><p>60</p></td>
 <td><p>Frames per second</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">port</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--port</span> <span class="pre">PORT</span></code></p></td>
+<td><p>8765</p></td>
 <td><p>WebSocket server port</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hot_reload</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span></code>, <code class="docutils literal notranslate"><span class="pre">--output</span> <span class="pre">PATH</span></code></p></td>
+<td><p>none</p></td>
+<td><p>Export to file (format inferred from extension: <code class="docutils literal notranslate"><span class="pre">.mp4</span></code>, <code class="docutils literal notranslate"><span class="pre">.gif</span></code>, <code class="docutils literal notranslate"><span class="pre">.svg</span></code>, <code class="docutils literal notranslate"><span class="pre">.png</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-d</span></code>, <code class="docutils literal notranslate"><span class="pre">--duration</span> <span class="pre">SECS</span></code></p></td>
+<td><p>none</p></td>
+<td><p>Animation duration in seconds</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--start</span> <span class="pre">SECS</span></code></p></td>
+<td><p>0</p></td>
+<td><p>Start time</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--end</span> <span class="pre">SECS</span></code></p></td>
+<td><p>none</p></td>
+<td><p>End time</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--hot-reload</span></code></p></td>
+<td><p>off</p></td>
 <td><p>Re-run script on file save</p></td>
 </tr>
 </tbody>
@@ -301,15 +320,20 @@
 </div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Use <code class="docutils literal notranslate"><span class="pre">parse_args()</span></code> to get CLI flags for common options:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>my_scene.py<span class="w"> </span>-v<span class="w">           </span><span class="c1"># verbose logging</span>
+<p>Examples:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>my_scene.py<span class="w">              </span><span class="c1"># open browser viewer</span>
+python<span class="w"> </span>my_scene.py<span class="w"> </span>-v<span class="w">           </span><span class="c1"># verbose logging</span>
 python<span class="w"> </span>my_scene.py<span class="w"> </span>--fps<span class="w"> </span><span class="m">30</span><span class="w">     </span><span class="c1"># set frame rate</span>
 python<span class="w"> </span>my_scene.py<span class="w"> </span>--port<span class="w"> </span><span class="m">9000</span><span class="w">  </span><span class="c1"># custom port</span>
-python<span class="w"> </span>my_scene.py<span class="w"> </span>--hot-reload<span class="w"> </span><span class="c1"># auto-reload on save</span>
-python<span class="w"> </span>my_scene.py<span class="w"> </span>-o<span class="w"> </span>out.mp4<span class="w">   </span><span class="c1"># export to file</span>
+python<span class="w"> </span>my_scene.py<span class="w"> </span>-o<span class="w"> </span>out.mp4<span class="w">   </span><span class="c1"># export to video</span>
+python<span class="w"> </span>my_scene.py<span class="w"> </span>-o<span class="w"> </span>frame.svg<span class="w"> </span><span class="c1"># export single SVG frame</span>
 python<span class="w"> </span>my_scene.py<span class="w"> </span>-d<span class="w"> </span><span class="m">5</span><span class="w">         </span><span class="c1"># set duration to 5 seconds</span>
 </pre></div>
 </div>
+</div>
+<p>You can also call <code class="docutils literal notranslate"><span class="pre">browser_display()</span></code> directly for more control:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8765</span><span class="p">,</span> <span class="n">hot_reload</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
 </div>
 </section>
 <section id="keyboard-shortcuts">
@@ -322,43 +346,76 @@ python<span class="w"> </span>my_scene.py<span class="w"> </span>-d<span class="
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><strong>P</strong></p></td>
+<tr class="row-even"><td><p><strong>Space</strong> / <strong>P</strong></p></td>
 <td><p>Pause / Resume</p></td>
 </tr>
 <tr class="row-odd"><td><p><strong>R</strong></p></td>
 <td><p>Restart from beginning</p></td>
 </tr>
-<tr class="row-even"><td><p><strong>Arrow Right</strong></p></td>
-<td><p>Jump to next section</p></td>
+<tr class="row-even"><td><p><strong>,</strong> / <strong>.</strong></p></td>
+<td><p>Step backward / forward one frame</p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>Arrow Left</strong></p></td>
-<td><p>Step backward</p></td>
+<tr class="row-odd"><td><p><strong>Left</strong> / <strong>Right</strong></p></td>
+<td><p>Previous / next section</p></td>
 </tr>
-<tr class="row-even"><td><p><strong>S</strong></p></td>
-<td><p>Save current frame as SVG</p></td>
+<tr class="row-even"><td><p><strong>-</strong> / <strong>+</strong> / <strong>Up</strong> / <strong>Down</strong></p></td>
+<td><p>Slower / faster (0.25x increments)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>0</strong>–<strong>9</strong></p></td>
+<td><p>Jump to 0%–90% of the animation</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Home</strong> / <strong>End</strong></p></td>
+<td><p>Jump to start / end</p></td>
 </tr>
 <tr class="row-odd"><td><p><strong>F</strong></p></td>
 <td><p>Reset zoom to fit</p></td>
 </tr>
+<tr class="row-even"><td><p><strong>S</strong></p></td>
+<td><p>Save current frame as SVG</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Shift+S</strong></p></td>
+<td><p>Save current frame as PNG</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>C</strong></p></td>
+<td><p>Copy SVG to clipboard</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>L</strong></p></td>
+<td><p>Toggle loop</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>B</strong></p></td>
+<td><p>Cycle background (dark / white / checker)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Ctrl+B</strong></p></td>
+<td><p>Add / remove bookmark</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>[</strong> / <strong>]</strong></p></td>
+<td><p>Previous / next bookmark</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>H</strong></p></td>
+<td><p>Hide / show toolbars</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>G</strong></p></td>
+<td><p>Toggle grid overlay</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>I</strong></p></td>
+<td><p>Inspect mode (nearest object)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>M</strong></p></td>
+<td><p>Measure tool (click two points)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>N</strong></p></td>
+<td><p>Toggle snap mode</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>D</strong></p></td>
+<td><p>Toggle debug panel</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>?</strong></p></td>
+<td><p>Help overlay</p></td>
+</tr>
 <tr class="row-even"><td><p><strong>Q</strong></p></td>
 <td><p>Quit</p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>D</strong></p></td>
-<td><p>Toggle debug panel</p></td>
-</tr>
-<tr class="row-even"><td><p><strong>N</strong></p></td>
-<td><p>Toggle snap mode</p></td>
-</tr>
-<tr class="row-odd"><td><p><strong>+</strong> / <strong>=</strong></p></td>
-<td><p>Increase playback speed by 0.25x</p></td>
-</tr>
-<tr class="row-even"><td><p><strong>-</strong> / <strong>_</strong></p></td>
-<td><p>Decrease playback speed by 0.25x</p></td>
-</tr>
-<tr class="row-odd"><td><p><strong>1</strong>–<strong>9</strong></p></td>
-<td><p>Jump to 10%–90% of the animation</p></td>
-</tr>
-<tr class="row-even"><td><p><strong>Scroll wheel</strong></p></td>
+<tr class="row-odd"><td><p><strong>Scroll wheel</strong></p></td>
 <td><p>Zoom in/out at cursor position</p></td>
 </tr>
 </tbody>
@@ -390,8 +447,10 @@ python<span class="w"> </span>my_scene.py<span class="w"> </span>-d<span class="
 <p class="admonition-title">Example: sections demo</p>
 <video src="_static/videos/anim_sections.mp4" controls autoplay loop muted></video><p>Objects appear in phases separated by section breaks. During playback
 the animation pauses at each <code class="docutils literal notranslate"><span class="pre">add_section</span></code> time.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Sections demo -- objects appear in phases.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="c1"># Phase 1: circle fades in</span>
@@ -413,9 +472,8 @@ the animation pauses at each <code class="docutils literal notranslate"><span cl
 <span class="n">txt</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">circle</span><span class="p">,</span> <span class="n">rect</span><span class="p">,</span> <span class="n">txt</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/anim_sections.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -427,8 +485,10 @@ the animation pauses at each <code class="docutils literal notranslate"><span cl
 <p class="admonition-title">Example: animation timing</p>
 <video src="_static/videos/anim_speed.mp4" controls autoplay loop muted></video><p>The same shift animation with different <code class="docutils literal notranslate"><span class="pre">start</span></code>/<code class="docutils literal notranslate"><span class="pre">end</span></code> durations.
 Shorter intervals mean faster motion.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Animation timing -- same motion at different durations.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;1 second&#39;</span><span class="p">,</span> <span class="s1">&#39;2 seconds&#39;</span><span class="p">,</span> <span class="s1">&#39;4 seconds&#39;</span><span class="p">]</span>
@@ -442,9 +502,7 @@ Shorter intervals mean faster motion.</p>
     <span class="n">c</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">dur</span><span class="p">)</span>
     <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/anim_speed.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -519,8 +577,10 @@ Shorter intervals mean faster motion.</p>
 <div class="example admonition">
 <p class="admonition-title">Example: static frame export</p>
 <img src="_static/videos/anim_export.svg" style="width:100%; max-width:800px;" /><p>A composed scene exported as a single SVG frame with <code class="docutils literal notranslate"><span class="pre">write_frame</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Static composed scene for frame export.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
 <span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="c1"># A composed static scene</span>
@@ -531,9 +591,8 @@ Shorter intervals mean faster motion.</p>
 <span class="n">title</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Static Frame Export&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">700</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">700</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">56</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;WHITE&#39;</span><span class="p">)</span>
 
 <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">circle</span><span class="p">,</span> <span class="n">rect</span><span class="p">,</span> <span class="n">star</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">v</span><span class="o">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;docs/source/_static/videos/anim_export.svg&#39;</span><span class="p">)</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

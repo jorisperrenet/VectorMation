@@ -226,7 +226,6 @@
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced_examples.html">Advanced Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vs_manim.html">vs Manim</a></li>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
 </ul>
 
 </div>
@@ -267,11 +266,11 @@
         <article role="main" id="furo-main-content">
           <section id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h1>
-<p>All examples are in the <code class="docutils literal notranslate"><span class="pre">examples/</span></code> directory. Run any example with:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>examples/&lt;example_name&gt;.py
+<p>All examples are in the <code class="docutils literal notranslate"><span class="pre">examples/</span></code> directory, organized into <code class="docutils literal notranslate"><span class="pre">showcase/</span></code>, <code class="docutils literal notranslate"><span class="pre">reference/</span></code>, <code class="docutils literal notranslate"><span class="pre">advanced/</span></code>, and <code class="docutils literal notranslate"><span class="pre">manim/</span></code> subdirectories. Run any example from the repository root:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">PYTHONPATH</span><span class="o">=</span>.<span class="w"> </span>python<span class="w"> </span>examples/showcase/&lt;example_name&gt;.py
 </pre></div>
 </div>
-<p>Use <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">examples/&lt;name&gt;.py</span> <span class="pre">-v</span></code> for verbose logging.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">-v</span></code> for verbose logging, <code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">out.mp4</span></code> to export to video. If VectorMation is installed (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code>), you can omit <code class="docutils literal notranslate"><span class="pre">PYTHONPATH=.</span></code>.</p>
 <p>Manim comparison examples are in <code class="docutils literal notranslate"><span class="pre">examples/manim/</span></code> (see <a class="reference internal" href="vs_manim.html"><span class="doc">vs Manim</span></a>).</p>
 <section id="animations">
 <h2>Animations<a class="headerlink" href="#animations" title="Link to this heading">¶</a></h2>
@@ -281,7 +280,25 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Layout</span>
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">160</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">130</span>
+<span class="n">ROW_DUR</span> <span class="o">=</span> <span class="mf">3.5</span>
+<span class="n">ANIM_DUR</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">STAGGER</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="n">FADE_IN_BEFORE</span> <span class="o">=</span> <span class="mf">0.8</span>
+<span class="n">COLORS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="s1">&#39;#83C167&#39;</span><span class="p">,</span> <span class="s1">&#39;#FC6255&#39;</span><span class="p">,</span> <span class="s1">&#39;#F0AC5F&#39;</span><span class="p">,</span> <span class="s1">&#39;#9A72AC&#39;</span><span class="p">,</span> <span class="s1">&#39;#5CD0B3&#39;</span><span class="p">]</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">7</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
@@ -575,6 +592,8 @@
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
 <span class="n">total_dur</span> <span class="o">=</span> <span class="n">row_t</span><span class="p">(</span><span class="n">N_ROWS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">COLS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">STAGGER</span> <span class="o">+</span> <span class="n">ANIM_DUR</span> <span class="o">+</span> <span class="mf">1.0</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="n">total_dur</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -585,7 +604,26 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Layout</span>
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">170</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">130</span>
+<span class="n">ROW_DUR</span> <span class="o">=</span> <span class="mf">3.5</span>
+<span class="n">ANIM_DUR</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">STAGGER</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="n">FADE_IN_BEFORE</span> <span class="o">=</span> <span class="mf">0.8</span>
+<span class="n">COLORS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="s1">&#39;#83C167&#39;</span><span class="p">,</span> <span class="s1">&#39;#FC6255&#39;</span><span class="p">,</span> <span class="s1">&#39;#F0AC5F&#39;</span><span class="p">,</span> <span class="s1">&#39;#9A72AC&#39;</span><span class="p">,</span> <span class="s1">&#39;#5CD0B3&#39;</span><span class="p">]</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">6</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
@@ -899,6 +937,8 @@
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
 <span class="n">total_dur</span> <span class="o">=</span> <span class="n">row_t</span><span class="p">(</span><span class="n">N_ROWS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">COLS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">STAGGER</span> <span class="o">+</span> <span class="n">ANIM_DUR</span> <span class="o">+</span> <span class="mf">1.0</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="n">total_dur</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -909,7 +949,25 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Layout</span>
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">160</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">130</span>
+<span class="n">ROW_DUR</span> <span class="o">=</span> <span class="mf">3.5</span>
+<span class="n">ANIM_DUR</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">STAGGER</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="n">FADE_IN_BEFORE</span> <span class="o">=</span> <span class="mf">0.8</span>
+<span class="n">COLORS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="s1">&#39;#83C167&#39;</span><span class="p">,</span> <span class="s1">&#39;#FC6255&#39;</span><span class="p">,</span> <span class="s1">&#39;#F0AC5F&#39;</span><span class="p">,</span> <span class="s1">&#39;#9A72AC&#39;</span><span class="p">,</span> <span class="s1">&#39;#5CD0B3&#39;</span><span class="p">]</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
@@ -1237,6 +1295,8 @@
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
 <span class="n">total_dur</span> <span class="o">=</span> <span class="n">row_t</span><span class="p">(</span><span class="n">N_ROWS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">COLS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">STAGGER</span> <span class="o">+</span> <span class="n">ANIM_DUR</span> <span class="o">+</span> <span class="mf">1.0</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="n">total_dur</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1247,7 +1307,25 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Layout</span>
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">170</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">130</span>
+<span class="n">ROW_DUR</span> <span class="o">=</span> <span class="mf">3.5</span>
+<span class="n">ANIM_DUR</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">STAGGER</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="n">FADE_IN_BEFORE</span> <span class="o">=</span> <span class="mf">0.8</span>
+<span class="n">COLORS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="s1">&#39;#83C167&#39;</span><span class="p">,</span> <span class="s1">&#39;#FC6255&#39;</span><span class="p">,</span> <span class="s1">&#39;#F0AC5F&#39;</span><span class="p">,</span> <span class="s1">&#39;#9A72AC&#39;</span><span class="p">,</span> <span class="s1">&#39;#5CD0B3&#39;</span><span class="p">]</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
@@ -1478,6 +1556,8 @@
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
 <span class="n">total_dur</span> <span class="o">=</span> <span class="n">row_t</span><span class="p">(</span><span class="n">N_ROWS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">COLS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">STAGGER</span> <span class="o">+</span> <span class="n">ANIM_DUR</span> <span class="o">+</span> <span class="mf">1.0</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="n">total_dur</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1488,7 +1568,25 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Layout — fewer columns, wider cells for text demos</span>
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">140</span>
+<span class="n">ROW_DUR</span> <span class="o">=</span> <span class="mf">3.5</span>
+<span class="n">ANIM_DUR</span> <span class="o">=</span> <span class="mf">1.2</span>
+<span class="n">STAGGER</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">FADE_IN_BEFORE</span> <span class="o">=</span> <span class="mf">0.8</span>
+<span class="n">COLORS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="s1">&#39;#83C167&#39;</span><span class="p">,</span> <span class="s1">&#39;#FC6255&#39;</span><span class="p">,</span> <span class="s1">&#39;#F0AC5F&#39;</span><span class="p">,</span> <span class="s1">&#39;#9A72AC&#39;</span><span class="p">,</span> <span class="s1">&#39;#5CD0B3&#39;</span><span class="p">]</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
@@ -1648,6 +1746,8 @@
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
 <span class="n">total_dur</span> <span class="o">=</span> <span class="n">row_t</span><span class="p">(</span><span class="n">N_ROWS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">COLS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">STAGGER</span> <span class="o">+</span> <span class="n">ANIM_DUR</span> <span class="o">+</span> <span class="mf">1.0</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="n">total_dur</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1658,7 +1758,25 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Layout</span>
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">140</span>
+<span class="n">ROW_DUR</span> <span class="o">=</span> <span class="mf">3.5</span>
+<span class="n">ANIM_DUR</span> <span class="o">=</span> <span class="mf">1.5</span>
+<span class="n">STAGGER</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">FADE_IN_BEFORE</span> <span class="o">=</span> <span class="mf">0.8</span>
+<span class="n">DOT_COLORS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="s1">&#39;#83C167&#39;</span><span class="p">,</span> <span class="s1">&#39;#FC6255&#39;</span><span class="p">,</span> <span class="s1">&#39;#F0AC5F&#39;</span><span class="p">,</span> <span class="s1">&#39;#9A72AC&#39;</span><span class="p">]</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">11</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
@@ -2087,6 +2205,8 @@
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
 <span class="n">total_dur</span> <span class="o">=</span> <span class="n">row_t</span><span class="p">(</span><span class="n">N_ROWS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">COLS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">STAGGER</span> <span class="o">+</span> <span class="n">ANIM_DUR</span> <span class="o">+</span> <span class="mf">1.0</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="n">total_dur</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2097,7 +2217,11 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="n">title</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Counter Animations&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
              <span class="n">font_size</span><span class="o">=</span><span class="mi">52</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#83C167&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">text_anchor</span><span class="o">=</span><span class="s1">&#39;middle&#39;</span><span class="p">)</span>
 <span class="n">title</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -2211,6 +2335,7 @@
     <span class="n">label5</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">tex_var</span><span class="p">,</span>
 <span class="p">)</span>
 
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2221,7 +2346,19 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;1x2 animated grid showcasing MorphObject.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">700</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">120</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span> <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
 
 <span class="n">title</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;MorphObject&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">TITLE_Y</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">44</span><span class="p">,</span>
@@ -2264,6 +2401,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2274,7 +2412,13 @@
 <div class="example admonition">
 <p class="admonition-title">Example: AnimatedGraph</p>
 <video src="_static/videos/graph_animated.mp4" controls autoplay loop muted></video><p>Sine and cosine curves drawn progressively with <code class="docutils literal notranslate"><span class="pre">create</span></code> animations.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="c1"># Initialize the animation frame</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="c1"># Plot sin(x) with animated curve drawing</span>
 <span class="n">graph</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span>
               <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span> <span class="n">x_label</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">y_label</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
@@ -2287,15 +2431,22 @@
 <span class="n">cos_path</span> <span class="o">=</span> <span class="n">cos_curve</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">4.5</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">sin_path</span><span class="p">,</span> <span class="n">cos_path</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/graph_animated.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">5.5</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mf">5.5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="example admonition">
 <p class="admonition-title">Example: AxesZoom</p>
 <video src="_static/videos/axes_zoom.mp4" controls autoplay loop muted></video><p>Animated axis ranges: draw a parabola, zoom into a region of interest, pan across the curve, and track a dot — all by animating <code class="docutils literal notranslate"><span class="pre">x_min</span></code>, <code class="docutils literal notranslate"><span class="pre">x_max</span></code>, <code class="docutils literal notranslate"><span class="pre">y_min</span></code>, <code class="docutils literal notranslate"><span class="pre">y_max</span></code> as <code class="docutils literal notranslate"><span class="pre">Real</span></code> attributes.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Animated axis zoom and pan — showcasing animated Real ranges on Axes.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation</span><span class="w"> </span><span class="kn">import</span> <span class="n">attributes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation</span><span class="w"> </span><span class="kn">import</span> <span class="n">easings</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="n">ax</span> <span class="o">=</span> <span class="n">Axes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">26</span><span class="p">),</span> <span class="n">x_label</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">y_label</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">add_coordinates</span><span class="p">(</span><span class="n">tex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -2326,13 +2477,20 @@
 <span class="n">dot</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">10.5</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">create_anim</span><span class="p">,</span> <span class="n">dot</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="example admonition">
 <p class="admonition-title">Example: ParametricCurve</p>
 <img src="_static/videos/parametric_curve_example.svg" style="width:100%"><p>A Lissajous figure plotted as a parametric curve on axes.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="c1"># Plot a Lissajous figure as a parametric curve</span>
 <span class="n">axes</span> <span class="o">=</span> <span class="n">Axes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">show_grid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">plot_height</span><span class="o">=</span><span class="mi">900</span><span class="p">)</span>
@@ -2350,15 +2508,19 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;docs/source/_static/videos/parametric_curve_example.svg&#39;</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="example admonition">
 <p class="admonition-title">Example: PolarPlot</p>
 <img src="_static/videos/polar_plot_example.svg" style="width:100%"><p>A 4-petal rose curve drawn on polar axes with <code class="docutils literal notranslate"><span class="pre">plot_polar</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="c1"># Create polar axes and plot a rose curve</span>
 <span class="n">polar</span> <span class="o">=</span> <span class="n">PolarAxes</span><span class="p">(</span><span class="n">r_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">n_rings</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">n_sectors</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 
@@ -2375,8 +2537,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">polar</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;docs/source/_static/videos/polar_plot_example.svg&#39;</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2386,7 +2547,22 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;5x5 grid showcasing Axes plot types (static SVG output).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span><span class="o">,</span><span class="w"> </span><span class="nn">math</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">270</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">120</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span> <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">lbl_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">-</span> <span class="mi">10</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">obj_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">30</span>
@@ -2645,6 +2821,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -2655,7 +2832,21 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;5x5 grid showcasing Axes annotation methods (static SVG output).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">260</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">120</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">5</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span> <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">lbl_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">-</span> <span class="mi">10</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">obj_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">30</span>
@@ -2861,6 +3052,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -2871,7 +3063,22 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Static 4x4 grid showing Axes overlay methods.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span><span class="o">,</span><span class="w"> </span><span class="nn">random</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">280</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">120</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span> <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">lbl_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">-</span> <span class="mi">10</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">obj_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">30</span>
@@ -3010,6 +3217,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -3020,7 +3228,20 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">300</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">120</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span> <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">lbl_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">-</span> <span class="mi">10</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">obj_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">30</span>
@@ -3141,6 +3362,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -3151,7 +3373,13 @@
 <div class="example admonition">
 <p class="admonition-title">Example: Spiral</p>
 <video src="_static/videos/spiral.mp4" controls autoplay loop muted></video><p>A dot traces a spiral path outward from the centre using parametric motion and rotation.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+
+<span class="c1"># Initialize the animation frame</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="c1"># Draw the objects</span>
 <span class="n">point</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">()</span>
 <span class="n">trace</span> <span class="o">=</span> <span class="n">Trace</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
@@ -3162,15 +3390,22 @@
 <span class="c1"># Add the objects to the canvas</span>
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/spiral.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="example admonition">
 <p class="admonition-title">Example: HeartCurve</p>
 <video src="_static/videos/heart.mp4" controls autoplay loop muted></video><p>A parametric heart curve traced by a moving dot, then filled with red.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="kn">import</span> <span class="n">sin</span><span class="p">,</span> <span class="n">cos</span>
+
+
+<span class="c1"># Initialize the animation frame</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="c1"># Draw the objects</span>
 <span class="n">point</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">()</span>
 <span class="n">point</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span>
@@ -3187,15 +3422,19 @@
 <span class="c1"># Add the objects to the canvas</span>
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">pol</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/heart.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="example admonition">
 <p class="admonition-title">Example: SectionsAndSpeedControl</p>
 <video src="_static/videos/speed_and_sections.mp4" controls autoplay loop muted></video><p>Shapes appear one at a time, pausing at section breaks. Press Space to advance, +/- to change speed.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Initialize the animation frame</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="c1"># Section 1: A circle appears</span>
 <span class="n">circle</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">760</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">)</span>
 <span class="n">circle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
@@ -3217,8 +3456,8 @@
             <span class="n">x</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">950</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#888&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">text_anchor</span><span class="o">=</span><span class="s1">&#39;middle&#39;</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">circle</span><span class="p">,</span> <span class="n">square</span><span class="p">,</span> <span class="n">tri</span><span class="p">,</span> <span class="n">hint</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/speed_and_sections.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -3231,7 +3470,13 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+
+<span class="c1"># Initialize the animation frame</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="c1">### Draw the objects</span>
 <span class="c1">## Making the upper SVG Video part</span>
 <span class="n">video_frame</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;grey&#39;</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -3290,8 +3535,8 @@
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">video</span><span class="p">,</span> <span class="n">frames</span><span class="p">,</span> <span class="nb">object</span><span class="p">)</span>
 
 <span class="c1"># Display the window</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;docs/source/_static/videos/code_explanation.svg&#39;</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -3302,7 +3547,11 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Initialize the canvas</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
 <span class="c1"># --- Crystal V shape made of triangular facets ---</span>
 <span class="c1"># Scaled to fill the 1000x1000 canvas</span>
 <span class="n">TL</span>  <span class="o">=</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>      <span class="c1"># top left</span>
@@ -3346,12 +3595,8 @@
 <span class="p">))</span>
 
 <span class="c1"># Export to all logo locations</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;..&#39;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;examples/svgs/logo.svg&#39;</span><span class="p">,</span> <span class="s1">&#39;docs/source/_static/logo.svg&#39;</span><span class="p">]:</span>
-        <span class="n">canvas</span><span class="o">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">path</span><span class="p">))</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">fps</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">fps</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">hot_reload</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -3365,7 +3610,24 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Animated 3x4 grid showcasing data structure methods.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">350</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">130</span>
+<span class="n">ROW_DUR</span> <span class="o">=</span> <span class="mf">5.0</span>
+<span class="n">ANIM_DUR</span> <span class="o">=</span> <span class="mf">2.5</span>
+<span class="n">STAGGER</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="n">FADE_IN_BEFORE</span> <span class="o">=</span> <span class="mf">0.8</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span> <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">lbl_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">-</span> <span class="mi">10</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">obj_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">80</span>
@@ -3565,6 +3827,8 @@
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
 <span class="n">total_dur</span> <span class="o">=</span> <span class="n">row_t</span><span class="p">(</span><span class="n">N_ROWS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">COLS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">STAGGER</span> <span class="o">+</span> <span class="n">ANIM_DUR</span> <span class="o">+</span> <span class="mf">1.0</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="n">total_dur</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -3578,7 +3842,22 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">ROWS</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">400</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">130</span>
+<span class="n">ANIM_DUR</span> <span class="o">=</span> <span class="mf">3.0</span>
+<span class="n">STAGGER</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">FADE_IN_BEFORE</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span> <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">lbl_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">-</span> <span class="mi">10</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">obj_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">100</span>
@@ -3708,6 +3987,8 @@
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
 <span class="n">total_dur</span> <span class="o">=</span> <span class="p">(</span><span class="n">COLS</span> <span class="o">*</span> <span class="n">ROWS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">STAGGER</span> <span class="o">+</span> <span class="n">ANIM_DUR</span> <span class="o">+</span> <span class="mf">2.0</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="n">total_dur</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -3721,7 +4002,13 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Code syntax highlighting with animated line highlights.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">W</span><span class="p">,</span> <span class="n">H</span> <span class="o">=</span> <span class="mi">1100</span><span class="p">,</span> <span class="mi">400</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="n">W</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">H</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="n">title</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Code Highlighting&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">W</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
              <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">text_anchor</span><span class="o">=</span><span class="s1">&#39;middle&#39;</span><span class="p">)</span>
 <span class="n">title</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
@@ -3761,6 +4048,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">lbl_static</span><span class="p">,</span> <span class="n">code_static</span><span class="p">,</span> <span class="n">lbl_anim</span><span class="p">,</span> <span class="n">code_anim</span><span class="p">)</span>
 
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -3771,7 +4059,11 @@
 <div class="example admonition">
 <p class="admonition-title">Example: TableHighlight</p>
 <video src="_static/videos/table_highlight_example.mp4" controls autoplay loop muted></video><p>Data table with animated cell highlighting and value changes.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="c1"># Create a multiplication table</span>
 <span class="n">data</span> <span class="o">=</span> <span class="p">[[</span><span class="n">i</span> <span class="o">*</span> <span class="n">j</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)]</span>
 <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="n">data</span><span class="p">,</span>
@@ -3797,8 +4089,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/table_highlight_example.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -3808,7 +4099,22 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">280</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">120</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">COLORS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="s1">&#39;#83C167&#39;</span><span class="p">,</span> <span class="s1">&#39;#FC6255&#39;</span><span class="p">,</span> <span class="s1">&#39;#F0AC5F&#39;</span><span class="p">,</span> <span class="s1">&#39;#9A72AC&#39;</span><span class="p">,</span> <span class="s1">&#39;#5CD0B3&#39;</span><span class="p">]</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span> <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">lbl_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">-</span> <span class="mi">10</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">obj_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">60</span>
@@ -3981,6 +4287,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -3991,7 +4298,24 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Animated 3x4 grid showcasing PieChart and BarChart methods.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">350</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">130</span>
+<span class="n">ROW_DUR</span> <span class="o">=</span> <span class="mf">3.5</span>
+<span class="n">ANIM_DUR</span> <span class="o">=</span> <span class="mf">2.0</span>
+<span class="n">STAGGER</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="n">FADE_IN_BEFORE</span> <span class="o">=</span> <span class="mf">0.6</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span> <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">lbl_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">-</span> <span class="mi">10</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">obj_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">100</span>
@@ -4135,6 +4459,8 @@
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
 <span class="n">total_dur</span> <span class="o">=</span> <span class="n">row_t</span><span class="p">(</span><span class="n">N_ROWS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">COLS</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">STAGGER</span> <span class="o">+</span> <span class="n">ANIM_DUR</span> <span class="o">+</span> <span class="mf">1.0</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="n">total_dur</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -4148,7 +4474,21 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;2x2 animated grid showcasing graph and tree structures.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">450</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">120</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">ROW_DUR</span> <span class="o">=</span> <span class="mf">4.0</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span> <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">lbl_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">-</span> <span class="mi">10</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">obj_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">30</span>
@@ -4240,6 +4580,8 @@
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
 <span class="n">total_dur</span> <span class="o">=</span> <span class="n">row_t</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">ROW_DUR</span> <span class="o">+</span> <span class="mf">0.5</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="n">total_dur</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -4247,7 +4589,11 @@
 <div class="example admonition">
 <p class="admonition-title">Example: Automaton</p>
 <video src="_static/videos/automaton_example.mp4" controls autoplay loop muted></video><p>Deterministic finite automaton (DFA) accepting strings ending in “ab”, with state highlighting.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="c1"># Build a simple DFA that accepts strings ending in &quot;ab&quot;</span>
 <span class="n">fsm</span> <span class="o">=</span> <span class="n">Automaton</span><span class="p">(</span>
     <span class="n">states</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;q0&#39;</span><span class="p">,</span> <span class="s1">&#39;q1&#39;</span><span class="p">,</span> <span class="s1">&#39;q2&#39;</span><span class="p">],</span>
@@ -4274,8 +4620,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">fsm</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/automaton_example.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -4285,7 +4630,19 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">350</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">120</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span> <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">lbl_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">-</span> <span class="mi">10</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">obj_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">80</span>
@@ -4364,6 +4721,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -4377,7 +4735,19 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;1x3 static grid showcasing vector field visualizations.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">600</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">120</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span> <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">lbl_y</span><span class="p">():</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">-</span> <span class="mi">10</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">obj_y</span><span class="p">():</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="mi">30</span>
@@ -4446,6 +4816,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -4453,7 +4824,12 @@
 <div class="example admonition">
 <p class="admonition-title">Example: ComplexPlane</p>
 <img src="_static/videos/complex_plane_example.svg" style="width:100%"><p>Complex plane with 5th roots of unity plotted as a pentagon.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="c1"># Create a complex plane with equal aspect (square plot area)</span>
 <span class="n">plane</span> <span class="o">=</span> <span class="n">ComplexPlane</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">),</span>
                      <span class="n">plot_width</span><span class="o">=</span><span class="mi">700</span><span class="p">,</span> <span class="n">plot_height</span><span class="o">=</span><span class="mi">700</span><span class="p">,</span>
@@ -4483,15 +4859,19 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">plane</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">roots</span><span class="p">],</span> <span class="o">*</span><span class="n">lines</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;docs/source/_static/videos/complex_plane_example.svg&#39;</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="example admonition">
 <p class="admonition-title">Example: NeuralNetwork</p>
 <video src="_static/videos/neural_network_example.mp4" controls autoplay loop muted></video><p>Feed-forward neural network diagram with forward propagation animation.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Neural network diagram with layer labels and forward propagation.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="n">nn</span> <span class="o">=</span> <span class="n">NeuralNetwork</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
                    <span class="n">neuron_radius</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">neuron_fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span>
                    <span class="n">edge_color</span><span class="o">=</span><span class="s1">&#39;#555&#39;</span><span class="p">,</span> <span class="n">edge_width</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -4506,16 +4886,20 @@
 <span class="n">nn</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#FFFF00&#39;</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">nn</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
-<span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/neural_network_example.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="example admonition">
 <p class="admonition-title">Example: Pendulum</p>
 <video src="_static/videos/pendulum_example.mp4" controls autoplay loop muted></video><p>Damped pendulum with path trace — rod swings from a pivot point.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Animated pendulum with a bob tracing its path.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="n">p</span> <span class="o">=</span> <span class="n">Pendulum</span><span class="p">(</span><span class="n">pivot_x</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">pivot_y</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">350</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
              <span class="n">bob_radius</span><span class="o">=</span><span class="mi">22</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">damping</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
              <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
@@ -4529,16 +4913,23 @@
 <span class="n">title</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
-<span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/pendulum_example.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="example admonition">
 <p class="admonition-title">Example: NumberPlaneTransform</p>
 <video src="_static/videos/number_plane_transform_example.mp4" controls autoplay loop muted></video><p>NumberPlane grid transformed by a 2x2 matrix with animated basis vectors (i-hat, j-hat) using <code class="docutils literal notranslate"><span class="pre">apply_matrix</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Demonstrates NumberPlane transformations, coordinate labels, and apply_matrix.</span>
+
+<span class="sd">Shows a grid being transformed by a 2x2 matrix, with basis vectors i-hat and j-hat.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="c1"># Create number plane with coordinate labels</span>
 <span class="n">plane</span> <span class="o">=</span> <span class="n">NumberPlane</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 <span class="n">plane</span><span class="o">.</span><span class="n">add_coordinate_labels</span><span class="p">(</span><span class="n">font_size</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
@@ -4569,8 +4960,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">plane</span><span class="p">,</span> <span class="n">i_hat</span><span class="p">,</span> <span class="n">j_hat</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/number_plane_transform_example.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -4580,7 +4970,20 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Static 3x3 grid showcasing science components.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">300</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">120</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span> <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">lbl_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">-</span> <span class="mi">10</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">obj_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">60</span>
@@ -4639,6 +5042,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -4649,7 +5053,21 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Static 2x3 grid showcasing 3D objects rendered with ThreeDAxes.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">400</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">120</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span> <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">lbl_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">-</span> <span class="mi">10</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">obj_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">160</span>
@@ -4734,6 +5152,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -4744,7 +5163,11 @@
 <div class="example admonition">
 <p class="admonition-title">Example: Gradients</p>
 <img src="_static/videos/gradient_example.svg" style="width:100%"><p>Linear and radial SVG gradients applied to shapes.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1200</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="c1"># Create gradients</span>
 <span class="n">sunset</span> <span class="o">=</span> <span class="n">LinearGradient</span><span class="p">([</span>
     <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;#FC6255&#39;</span><span class="p">),</span>
@@ -4793,8 +5216,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">,</span> <span class="n">c1</span><span class="p">,</span> <span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">,</span> <span class="n">l3</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;docs/source/_static/videos/gradient_example.svg&#39;</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -4804,7 +5226,20 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Grid showcase of special shape types.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">280</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">120</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="n">COLORS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="s1">&#39;#83C167&#39;</span><span class="p">,</span> <span class="s1">&#39;#FC6255&#39;</span><span class="p">,</span> <span class="s1">&#39;#F0AC5F&#39;</span><span class="p">,</span> <span class="s1">&#39;#9A72AC&#39;</span><span class="p">,</span> <span class="s1">&#39;#5CD0B3&#39;</span><span class="p">]</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span> <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
@@ -4891,6 +5326,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -4901,7 +5337,11 @@
 <div class="example admonition">
 <p class="admonition-title">Example: FocusCamera</p>
 <video src="_static/videos/focus_camera_example.mp4" controls autoplay loop muted></video><p>Camera focus/zoom on individual objects, then reset to full view.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="c1"># Objects scattered across the canvas</span>
 <span class="n">c1</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
 <span class="n">c1</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
@@ -4934,8 +5374,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">,</span> <span class="n">label1</span><span class="p">,</span> <span class="n">label2</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/focus_camera_example.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -4945,7 +5384,11 @@
 <div class="example admonition">
 <p class="admonition-title">Example: ChessBoard</p>
 <video src="_static/videos/chess_example.mp4" controls autoplay loop muted></video><p>Chess board with the starting position and piece movement.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="c1"># Create a chess board with the starting position</span>
 <span class="n">board</span> <span class="o">=</span> <span class="n">ChessBoard</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">640</span><span class="p">)</span>
 <span class="n">board</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -4959,8 +5402,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/chess_example.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -4974,7 +5416,13 @@
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <blockquote>
-<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Various shapes bouncing with gravity, walls, and collisions.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="n">duration</span> <span class="o">=</span> <span class="mi">8</span>
 <span class="n">rng</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 
@@ -5051,8 +5499,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">walls</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="o">*</span><span class="n">objects</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/physics_bouncing_objects.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -5065,7 +5512,12 @@
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <blockquote>
-<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Spring pendulum: a ball attached to a fixed anchor by a spring, oscillating under gravity.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="n">duration</span> <span class="o">=</span> <span class="mi">10</span>
 
 <span class="c1"># Title</span>
@@ -5151,8 +5603,7 @@
 <span class="c1"># Add everything to canvas</span>
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">spring_line</span><span class="p">,</span> <span class="n">anchor_dot</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/physics_spring.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -5161,7 +5612,12 @@
 <div class="example admonition">
 <p class="admonition-title">Example: PhysicsCloth</p>
 <video src="_static/videos/physics_cloth.mp4" controls autoplay loop muted></video><p>Cloth simulation with the top row pinned, fluttering under gravity using spring constraints.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Cloth simulation with the top row pinned, fluttering under gravity.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="n">duration</span> <span class="o">=</span> <span class="mi">8</span>
 
 <span class="c1"># Title</span>
@@ -5200,8 +5656,7 @@
 <span class="c1"># Add everything to canvas</span>
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="o">*</span><span class="n">cloth_objects</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
-    <span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/physics_cloth.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -5214,7 +5669,20 @@
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3 sd-shadow-none">
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">Show code</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">COLS</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">ROW_H</span> <span class="o">=</span> <span class="mi">220</span>
+<span class="n">COL_W</span> <span class="o">=</span> <span class="mi">1920</span> <span class="o">//</span> <span class="n">COLS</span>
+<span class="n">TITLE_Y</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">FIRST_ROW</span> <span class="o">=</span> <span class="mi">120</span>
+<span class="n">N_ROWS</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">COLORS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="s1">&#39;#83C167&#39;</span><span class="p">,</span> <span class="s1">&#39;#FC6255&#39;</span><span class="p">,</span> <span class="s1">&#39;#F0AC5F&#39;</span><span class="p">,</span> <span class="s1">&#39;#9A72AC&#39;</span><span class="p">,</span> <span class="s1">&#39;#5CD0B3&#39;</span><span class="p">]</span>
+
+<span class="n">canvas_h</span> <span class="o">=</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">N_ROWS</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">40</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">canvas_h</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="k">def</span><span class="w"> </span><span class="nf">col_x</span><span class="p">(</span><span class="n">c</span><span class="p">):</span> <span class="k">return</span> <span class="n">COL_W</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">COL_W</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">lbl_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">-</span> <span class="mi">10</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">obj_y</span><span class="p">(</span><span class="n">r</span><span class="p">):</span> <span class="k">return</span> <span class="n">FIRST_ROW</span> <span class="o">+</span> <span class="n">r</span> <span class="o">*</span> <span class="n">ROW_H</span> <span class="o">+</span> <span class="mi">60</span>
@@ -5441,6 +5909,7 @@
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="o">*</span><span class="n">objs</span><span class="p">)</span>
 
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>

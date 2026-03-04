@@ -4,41 +4,65 @@ Animation & Playback
 Browser Viewer
 --------------
 
-VectorMation displays animations in a browser via WebSocket:
+The simplest way to display an animation is ``canvas.show()``, which
+automatically parses CLI arguments and either opens the browser viewer or
+exports to a file:
 
 .. code-block:: python
 
-   canvas.browser_display(start=0, end=None, fps=60, port=8765, hot_reload=False)
+   canvas.show(end=5)
 
 .. list-table::
    :header-rows: 1
    :widths: auto
 
-   * - Parameter
+   * - CLI Flag
+     - Default
      - Description
-   * - ``start``
-     - Animation start time (seconds)
-   * - ``end``
-     - Animation end time (``None`` = auto-detect, ``0`` = static picture)
-   * - ``fps``
+   * - ``-v``, ``--verbose``
+     - off
+     - Enable debug logging
+   * - ``--fps FPS``
+     - 60
      - Frames per second
-   * - ``port``
+   * - ``--port PORT``
+     - 8765
      - WebSocket server port
-   * - ``hot_reload``
+   * - ``-o``, ``--output PATH``
+     - none
+     - Export to file (format inferred from extension: ``.mp4``, ``.gif``, ``.svg``, ``.png``)
+   * - ``-d``, ``--duration SECS``
+     - none
+     - Animation duration in seconds
+   * - ``--start SECS``
+     - 0
+     - Start time
+   * - ``--end SECS``
+     - none
+     - End time
+   * - ``--hot-reload``
+     - off
      - Re-run script on file save
 
 .. tip::
 
-   Use ``parse_args()`` to get CLI flags for common options:
+   Examples:
 
    .. code-block:: bash
 
+      python my_scene.py              # open browser viewer
       python my_scene.py -v           # verbose logging
       python my_scene.py --fps 30     # set frame rate
       python my_scene.py --port 9000  # custom port
-      python my_scene.py --hot-reload # auto-reload on save
-      python my_scene.py -o out.mp4   # export to file
+      python my_scene.py -o out.mp4   # export to video
+      python my_scene.py -o frame.svg # export single SVG frame
       python my_scene.py -d 5         # set duration to 5 seconds
+
+You can also call ``browser_display()`` directly for more control:
+
+.. code-block:: python
+
+   canvas.browser_display(start=0, end=None, fps=60, port=8765, hot_reload=False)
 
 Keyboard Shortcuts
 ------------------
@@ -49,30 +73,52 @@ Keyboard Shortcuts
 
    * - Key
      - Action
-   * - **P**
+   * - **Space** / **P**
      - Pause / Resume
    * - **R**
      - Restart from beginning
-   * - **Arrow Right**
-     - Jump to next section
-   * - **Arrow Left**
-     - Step backward
-   * - **S**
-     - Save current frame as SVG
+   * - **,** / **.**
+     - Step backward / forward one frame
+   * - **Left** / **Right**
+     - Previous / next section
+   * - **-** / **+** / **Up** / **Down**
+     - Slower / faster (0.25x increments)
+   * - **0**--**9**
+     - Jump to 0%--90% of the animation
+   * - **Home** / **End**
+     - Jump to start / end
    * - **F**
      - Reset zoom to fit
-   * - **Q**
-     - Quit
-   * - **D**
-     - Toggle debug panel
+   * - **S**
+     - Save current frame as SVG
+   * - **Shift+S**
+     - Save current frame as PNG
+   * - **C**
+     - Copy SVG to clipboard
+   * - **L**
+     - Toggle loop
+   * - **B**
+     - Cycle background (dark / white / checker)
+   * - **Ctrl+B**
+     - Add / remove bookmark
+   * - **[** / **]**
+     - Previous / next bookmark
+   * - **H**
+     - Hide / show toolbars
+   * - **G**
+     - Toggle grid overlay
+   * - **I**
+     - Inspect mode (nearest object)
+   * - **M**
+     - Measure tool (click two points)
    * - **N**
      - Toggle snap mode
-   * - **+** / **=**
-     - Increase playback speed by 0.25x
-   * - **-** / **_**
-     - Decrease playback speed by 0.25x
-   * - **1**--**9**
-     - Jump to 10%--90% of the animation
+   * - **D**
+     - Toggle debug panel
+   * - **?**
+     - Help overlay
+   * - **Q**
+     - Quit
    * - **Scroll wheel**
      - Zoom in/out at cursor position
 
@@ -114,8 +160,6 @@ During playback, the animation pauses at each section boundary. Press **Arrow Ri
 
    .. literalinclude:: ../../examples/reference/anim_sections.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 Playback Speed
 --------------
@@ -134,8 +178,6 @@ Speed can be adjusted during playback with **+** / **-** keys, or via the toolba
 
    .. literalinclude:: ../../examples/reference/anim_speed.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 Static Pictures
 ---------------
@@ -223,8 +265,6 @@ Export the animation as a GIF (requires ``cairosvg`` and ``Pillow``):
 
    .. literalinclude:: ../../examples/reference/anim_export.py
       :language: python
-      :start-after: parse_args()
-      :end-before: v.browser_display
 
 ----
 

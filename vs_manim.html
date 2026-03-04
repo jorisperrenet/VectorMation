@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Release Notes" href="release_notes.html"><link rel="prev" title="Advanced Examples" href="advanced_examples.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="Advanced Examples" href="advanced_examples.html">
         <link rel="prefetch" href="_static/logo.svg" as="image">
 
     <link rel="shortcut icon" href="_static/logo.svg"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
@@ -226,7 +226,6 @@
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="advanced_examples.html">Advanced Examples</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">vs Manim</a></li>
-<li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
 </ul>
 
 </div>
@@ -326,7 +325,13 @@
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-0">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1 manim unit = 135px</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: ManimCELogo -- community edition logo with shapes and M.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="c1"># Initialize the animation frame</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#ece6e2&#39;</span><span class="p">)</span>
+<span class="c1"># 1 manim unit = 135px</span>
 <span class="n">unit</span> <span class="o">=</span> <span class="mi">135</span>
 
 <span class="c1"># Shapes at manim default sizes (radius=1u, side=2u), centered at screen center</span>
@@ -344,6 +349,8 @@ VectorMation</label><div class="sd-tab-content docutils">
 <span class="n">logo</span><span class="o">.</span><span class="n">center_to_pos</span><span class="p">()</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">logo</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -373,7 +380,12 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-2">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Manim: dot at [-2,-1] and [2,1] =&gt; centered on canvas</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: BraceAnnotation -- brace with text label.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<span class="c1"># Manim: dot at [-2,-1] and [2,1] =&gt; centered on canvas</span>
 <span class="n">dot1</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">660</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">690</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#fff&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">dot2</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">1260</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">390</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#fff&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">line</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="n">x1</span><span class="o">=</span><span class="mi">660</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="mi">690</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="mi">1260</span><span class="p">,</span> <span class="n">y2</span><span class="o">=</span><span class="mi">390</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#FF862F&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
@@ -381,6 +393,8 @@ VectorMation</label><div class="sd-tab-content docutils">
 <span class="n">b2</span> <span class="o">=</span> <span class="n">Brace</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$x-x_1$&#39;</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">dot1</span><span class="p">,</span> <span class="n">dot2</span><span class="p">,</span> <span class="n">b1</span><span class="p">,</span> <span class="n">b2</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -409,7 +423,12 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-4">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plane</span> <span class="o">=</span> <span class="n">NumberPlane</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: VectorArrow -- arrow with labeled endpoints on a grid.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<span class="n">plane</span> <span class="o">=</span> <span class="n">NumberPlane</span><span class="p">()</span>
 
 <span class="c1"># Arrow from origin (0,0) to (2,2) in logical coordinates</span>
 <span class="n">ox</span><span class="p">,</span> <span class="n">oy</span> <span class="o">=</span> <span class="n">plane</span><span class="o">.</span><span class="n">coords_to_point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -423,6 +442,8 @@ VectorMation</label><div class="sd-tab-content docutils">
 <span class="n">tip_text</span><span class="o">.</span><span class="n">center_to_pos</span><span class="p">(</span><span class="n">posx</span><span class="o">=</span><span class="n">tx</span> <span class="o">+</span> <span class="mi">50</span><span class="p">,</span> <span class="n">posy</span><span class="o">=</span><span class="n">ty</span> <span class="o">-</span> <span class="mi">10</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">plane</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">arrow</span><span class="p">,</span> <span class="n">origin_text</span><span class="p">,</span> <span class="n">tip_text</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -453,7 +474,12 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-6" name="sd-tab-set-3" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-6">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cir</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: PointMovingOnShapes -- dot moving along and around shapes.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<span class="n">cir</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">cir</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">150</span><span class="p">)</span>
 <span class="n">dot</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#fff&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">dot</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="mi">1110</span><span class="p">,</span> <span class="mi">540</span><span class="p">))</span>
@@ -462,6 +488,8 @@ VectorMation</label><div class="sd-tab-content docutils">
 <span class="n">l</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="mi">960</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">540</span><span class="p">,</span> <span class="mi">960</span> <span class="o">+</span> <span class="mi">5</span> <span class="o">*</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">540</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">cir</span><span class="p">,</span> <span class="n">dot</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -492,7 +520,12 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-8" name="sd-tab-set-4" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-8">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">square</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: MovingAround -- chain of shift, set_fill, scale, rotate.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<span class="n">square</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">square</span><span class="o">.</span><span class="n">center_to_pos</span><span class="p">(</span><span class="n">posx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">posy</span><span class="o">=</span><span class="mi">540</span><span class="p">)</span>
 <span class="n">square</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dx</span><span class="o">=-</span><span class="mi">200</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">square</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;#FF862F&#39;</span><span class="p">)</span>
@@ -500,6 +533,8 @@ VectorMation</label><div class="sd-tab-content docutils">
 <span class="n">square</span><span class="o">.</span><span class="n">rotate_by</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">23</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">square</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -525,7 +560,12 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-10" name="sd-tab-set-5" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-10">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cx</span><span class="p">,</span> <span class="n">cy</span> <span class="o">=</span> <span class="mi">960</span><span class="p">,</span> <span class="mi">540</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: MovingAngle -- angle arc between two lines, animated via updater.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<span class="n">cx</span><span class="p">,</span> <span class="n">cy</span> <span class="o">=</span> <span class="mi">960</span><span class="p">,</span> <span class="mi">540</span>
 <span class="n">l1</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="n">x1</span><span class="o">=</span><span class="n">cx</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="n">cy</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="n">cx</span> <span class="o">+</span> <span class="mi">200</span><span class="p">,</span> <span class="n">y2</span><span class="o">=</span><span class="n">cy</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#fff&#39;</span><span class="p">)</span>
 <span class="n">l2</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="n">x1</span><span class="o">=</span><span class="n">cx</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="n">cy</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="n">cx</span> <span class="o">+</span> <span class="mi">200</span><span class="p">,</span> <span class="n">y2</span><span class="o">=</span><span class="n">cy</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#FFFF00&#39;</span><span class="p">)</span>
 <span class="n">l2</span><span class="o">.</span><span class="n">p2</span><span class="o">.</span><span class="n">rotate_around</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">),</span> <span class="n">degrees</span><span class="o">=-</span><span class="mi">110</span><span class="p">)</span>
@@ -536,6 +576,8 @@ VectorMation</label><div class="sd-tab-content docutils">
               <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\theta$&#39;</span><span class="p">,</span> <span class="n">label_font_size</span><span class="o">=</span><span class="mi">36</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -581,7 +623,12 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-12" name="sd-tab-set-6" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-12">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">d1</span><span class="p">,</span> <span class="n">d2</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">Dot</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#83C167&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: MovingDots -- two dots linked by a line, each moving independently.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<span class="n">d1</span><span class="p">,</span> <span class="n">d2</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">Dot</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#83C167&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">l</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="n">x1</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="mi">860</span><span class="p">,</span> <span class="n">y2</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#FC6255&#39;</span><span class="p">)</span>
 <span class="n">d1</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">set_to</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">p1</span><span class="p">)</span>
 <span class="n">d2</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">set_to</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">p2</span><span class="p">)</span>
@@ -589,6 +636,8 @@ VectorMation</label><div class="sd-tab-content docutils">
 <span class="n">l</span><span class="o">.</span><span class="n">p2</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="p">(</span><span class="mi">1260</span><span class="p">,</span> <span class="mi">540</span><span class="p">))</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">d1</span><span class="p">,</span> <span class="n">d2</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -620,7 +669,12 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-14" name="sd-tab-set-7" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-14">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">d1</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">660</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: MovingGroupToDestination -- move a group to align with a target.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<span class="n">d1</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">660</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">)</span>
 <span class="n">d2</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">760</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">)</span>
 <span class="n">d3</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">860</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#FC6255&#39;</span><span class="p">)</span>
 <span class="n">d4</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">)</span>
@@ -634,6 +688,8 @@ VectorMation</label><div class="sd-tab-content docutils">
 <span class="n">group</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="n">target_x</span> <span class="o">-</span> <span class="n">ref_x</span><span class="p">,</span> <span class="n">dy</span><span class="o">=</span><span class="n">target_y</span> <span class="o">-</span> <span class="n">ref_y</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -658,7 +714,12 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-16" name="sd-tab-set-8" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-16">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">text</span> <span class="o">=</span> <span class="n">TexObject</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$$\frac</span><span class="si">{d}{dx}</span><span class="s1">f(x)g(x)=f(x)\frac</span><span class="si">{d}{dx}</span><span class="s1">g(x)+g(x)\frac</span><span class="si">{d}{dx}</span><span class="s1">f(x)$$&#39;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: MovingFrameBox -- LaTeX with animated bounding rectangles.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1920</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">540</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">TexObject</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$$\frac</span><span class="si">{d}{dx}</span><span class="s1">f(x)g(x)=f(x)\frac</span><span class="si">{d}{dx}</span><span class="s1">g(x)+g(x)\frac</span><span class="si">{d}{dx}</span><span class="s1">f(x)$$&#39;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
 <span class="n">text</span><span class="o">.</span><span class="n">center_to_pos</span><span class="p">(</span><span class="n">posx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">posy</span><span class="o">=</span><span class="mi">270</span><span class="p">)</span>
 <span class="n">text</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">rect1</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">brect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="n">follow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">buff</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
@@ -666,6 +727,8 @@ VectorMation</label><div class="sd-tab-content docutils">
 <span class="n">obj</span> <span class="o">=</span> <span class="n">MorphObject</span><span class="p">(</span><span class="n">rect1</span><span class="p">,</span> <span class="n">rect2</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">rect1</span><span class="p">,</span> <span class="n">rect2</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -695,12 +758,19 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-18" name="sd-tab-set-9" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-18">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">l1</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="n">x1</span><span class="o">=</span><span class="mi">760</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">y2</span><span class="o">=</span><span class="mi">540</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: RotationUpdater -- line rotating forward and backward.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<span class="n">l1</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="n">x1</span><span class="o">=</span><span class="mi">760</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">y2</span><span class="o">=</span><span class="mi">540</span><span class="p">)</span>
 <span class="n">l2</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="n">x1</span><span class="o">=</span><span class="mi">760</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">y2</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 <span class="n">l2</span><span class="o">.</span><span class="n">p1</span><span class="o">.</span><span class="n">rotate_around</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">l2</span><span class="o">.</span><span class="n">p2</span><span class="o">.</span><span class="n">at_time</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">degrees</span><span class="o">=</span><span class="mi">130</span><span class="p">)</span>
 <span class="n">l2</span><span class="o">.</span><span class="n">p1</span><span class="o">.</span><span class="n">rotate_around</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">l2</span><span class="o">.</span><span class="n">p2</span><span class="o">.</span><span class="n">at_time</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">degrees</span><span class="o">=</span><span class="mi">130</span><span class="p">,</span> <span class="n">clockwise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -733,13 +803,20 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-20" name="sd-tab-set-10" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-20">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">point</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: PointWithTrace -- dot leaves a traced path as it moves.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<span class="n">point</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">)</span>
 <span class="n">point</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">rotate_around</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="mi">1060</span><span class="p">,</span> <span class="mi">540</span><span class="p">),</span> <span class="mi">180</span><span class="p">,</span> <span class="n">clockwise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">point</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="p">(</span><span class="mi">1160</span><span class="p">,</span> <span class="mi">440</span><span class="p">))</span>
 <span class="n">point</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="p">(</span><span class="mi">1060</span><span class="p">,</span> <span class="mi">440</span><span class="p">))</span>
 <span class="n">trace</span> <span class="o">=</span> <span class="n">Trace</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mi">60</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -772,7 +849,13 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-22" name="sd-tab-set-11" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-22">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: SineCurveUnitCircle -- sine wave traced from a unit circle.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="n">ax</span> <span class="o">=</span> <span class="n">Axes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">14</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span> <span class="n">equal_aspect</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">x_tick_type</span><span class="o">=</span><span class="s1">&#39;pi_tex&#39;</span><span class="p">)</span>
 <span class="n">c2p</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">coords_to_point</span>
 
@@ -804,6 +887,8 @@ VectorMation</label><div class="sd-tab-content docutils">
 <span class="n">h_line</span><span class="o">.</span><span class="n">p2</span><span class="o">.</span><span class="n">set_onward</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">curve_dot</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">at_time</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">circle</span><span class="p">,</span> <span class="n">radius_line</span><span class="p">,</span> <span class="n">h_line</span><span class="p">,</span> <span class="n">dot</span><span class="p">,</span> <span class="n">curve_dot</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="n">DURATION</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -835,12 +920,20 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-24" name="sd-tab-set-12" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-24">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">axes</span> <span class="o">=</span> <span class="n">Axes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: SinAndCosFunctionPlot -- sin and cos on axes.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<span class="n">axes</span> <span class="o">=</span> <span class="n">Axes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
             <span class="n">x_label</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">y_label</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">)</span>
 <span class="n">axes</span><span class="o">.</span><span class="n">add_function</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\sin(x)$&#39;</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">)</span>
 <span class="n">axes</span><span class="o">.</span><span class="n">add_function</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\cos(x)$&#39;</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#FC6255&#39;</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -872,7 +965,13 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-26" name="sd-tab-set-13" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-26">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">Axes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">55</span><span class="p">),</span> <span class="n">tex_ticks</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: ArgMinExample -- dot moving along a parabola to its minimum.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation</span><span class="w"> </span><span class="kn">import</span> <span class="n">easings</span><span class="p">,</span> <span class="n">attributes</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">Axes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">55</span><span class="p">),</span> <span class="n">tex_ticks</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="n">func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="mi">5</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
 <span class="n">curve</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#C55F73&#39;</span><span class="p">)</span>
@@ -884,6 +983,8 @@ VectorMation</label><div class="sd-tab-content docutils">
 <span class="n">dot</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">set_onward</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ax</span><span class="o">.</span><span class="n">graph_position</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">x_val</span><span class="p">))</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">dot</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -919,7 +1020,12 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-28" name="sd-tab-set-14" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-28">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">Axes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: GraphAreaPlot -- two curves with Riemann rects and area between curves.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">Axes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
 
 <span class="n">f1</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span>
 <span class="n">f2</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mf">0.8</span> <span class="o">*</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">4</span>
@@ -939,6 +1045,8 @@ VectorMation</label><div class="sd-tab-content docutils">
 <span class="n">vline2</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_vertical_line</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">y_val</span><span class="o">=</span><span class="n">f1</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -972,7 +1080,13 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-30" name="sd-tab-set-15" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-30">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">Axes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">tex_ticks</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: PolygonOnAxes -- dynamic rectangle under a 1/x curve.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation</span><span class="w"> </span><span class="kn">import</span> <span class="n">attributes</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">Axes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">tex_ticks</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="n">f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">25</span> <span class="o">/</span> <span class="n">x</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mf">0.1</span> <span class="k">else</span> <span class="mi">100</span>
 <span class="n">curve</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;yellow&#39;</span><span class="p">)</span>
@@ -1002,6 +1116,8 @@ VectorMation</label><div class="sd-tab-content docutils">
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">dot</span><span class="p">)</span>
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">morph</span><span class="p">,</span> <span class="n">morph2</span><span class="p">,</span> <span class="n">morph3</span><span class="p">,</span> <span class="n">coll</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1042,13 +1158,20 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-32" name="sd-tab-set-16" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-32">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">Axes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: HeatDiagramPlot -- line graph from discrete data points.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">Axes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span>
           <span class="n">x_label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\Delta Q$&#39;</span><span class="p">,</span> <span class="n">y_label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$T[^\circ C]$&#39;</span><span class="p">)</span>
 
 <span class="n">x_vals</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">38</span><span class="p">,</span> <span class="mi">39</span><span class="p">]</span>
 <span class="n">y_vals</span> <span class="o">=</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">]</span>
 <span class="n">graph</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot_line_graph</span><span class="p">(</span><span class="n">x_vals</span><span class="p">,</span> <span class="n">y_vals</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#FFFF00&#39;</span><span class="p">)</span>
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1086,7 +1209,13 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-34" name="sd-tab-set-17" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-34">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: GradientImageFromArray -- linear gradient with bounding rectangle.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearGradient</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="c1"># Black-to-white linear gradient</span>
 <span class="n">grad</span> <span class="o">=</span> <span class="n">LinearGradient</span><span class="p">([(</span><span class="s1">&#39;0%&#39;</span><span class="p">,</span> <span class="s1">&#39;#000&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;100%&#39;</span><span class="p">,</span> <span class="s1">&#39;#fff&#39;</span><span class="p">)])</span>
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_gradient</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span>
@@ -1099,6 +1228,8 @@ VectorMation</label><div class="sd-tab-content docutils">
                               <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">rect</span><span class="p">,</span> <span class="n">border</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1126,7 +1257,12 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-36" name="sd-tab-set-18" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-36">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: BooleanOperations -- boolean ops on overlapping ellipses.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#1a1a2e&#39;</span><span class="p">)</span>
+
 <span class="n">ellipse1</span> <span class="o">=</span> <span class="n">Ellipse</span><span class="p">(</span><span class="n">rx</span><span class="o">=</span><span class="mi">270</span><span class="p">,</span> <span class="n">ry</span><span class="o">=</span><span class="mi">338</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">825</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span>
                    <span class="n">fill</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="n">ellipse2</span> <span class="o">=</span> <span class="n">Ellipse</span><span class="p">(</span><span class="n">rx</span><span class="o">=</span><span class="mi">270</span><span class="p">,</span> <span class="n">ry</span><span class="o">=</span><span class="mi">338</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">1095</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span>
@@ -1161,6 +1297,7 @@ VectorMation</label><div class="sd-tab-content docutils">
     <span class="n">label</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">t</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">t</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span>
     <span class="n">t</span> <span class="o">+=</span> <span class="mf">1.5</span>
 
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="n">t</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1213,7 +1350,23 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-38" name="sd-tab-set-19" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-38">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Zoomed inset camera: magnify a region of the canvas.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">VectorMathAnim</span><span class="p">,</span> <span class="n">Dot</span><span class="p">,</span> <span class="n">Text</span><span class="p">,</span> <span class="n">ZoomedInset</span><span class="p">,</span>
+    <span class="n">LinearGradient</span><span class="p">,</span> <span class="n">Circle</span>
+<span class="p">)</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+
+<span class="c1"># Gradient canvas background (mimics the pixelated ImageMobject in Manim)</span>
+<span class="n">grad</span> <span class="o">=</span> <span class="n">LinearGradient</span><span class="p">(</span>
+    <span class="p">[(</span><span class="s1">&#39;0%&#39;</span><span class="p">,</span> <span class="s1">&#39;#001430&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;25%&#39;</span><span class="p">,</span> <span class="s1">&#39;#643200&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;50%&#39;</span><span class="p">,</span> <span class="s1">&#39;#1e6400&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;75%&#39;</span><span class="p">,</span> <span class="s1">&#39;#0000c8&#39;</span><span class="p">),</span>
+     <span class="p">(</span><span class="s1">&#39;100%&#39;</span><span class="p">,</span> <span class="s1">&#39;#ff0021&#39;</span><span class="p">)],</span>
+    <span class="n">x1</span><span class="o">=</span><span class="s1">&#39;0%&#39;</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="s1">&#39;0%&#39;</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="s1">&#39;100%&#39;</span><span class="p">,</span> <span class="n">y2</span><span class="o">=</span><span class="s1">&#39;100%&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">add_def</span><span class="p">(</span><span class="n">grad</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="n">grad</span><span class="p">)</span>
+
 <span class="c1"># Create some small objects that benefit from zooming</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">400</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">30</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#e94560&#39;</span><span class="p">)</span>
@@ -1243,6 +1396,7 @@ VectorMation</label><div class="sd-tab-content docutils">
 <span class="c1"># Animate the source sweeping across the canvas</span>
 <span class="n">zi</span><span class="o">.</span><span class="n">move_source</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1296,13 +1450,20 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-40" name="sd-tab-set-20" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-40">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: FixedInFrameMObjectTest -- labeled 3D axes.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="n">axes</span> <span class="o">=</span> <span class="n">ThreeDAxes</span><span class="p">()</span>
 
 <span class="n">title</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;3D Axes&#39;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#fff&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">title</span><span class="o">.</span><span class="n">to_corner</span><span class="p">(</span><span class="s1">&#39;UL&#39;</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1329,7 +1490,13 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-42" name="sd-tab-set-21" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-42">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: ThreeDSurfacePlot -- Gaussian surface on 3D axes.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="n">axes</span> <span class="o">=</span> <span class="n">ThreeDAxes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">z_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">))</span>
 
 <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.4</span>
@@ -1343,6 +1510,8 @@ VectorMation</label><div class="sd-tab-content docutils">
                   <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.85</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1379,7 +1548,12 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-44" name="sd-tab-set-22" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-44">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: ThreeDLightSourcePosition -- sphere on 3D axes.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="n">axes</span> <span class="o">=</span> <span class="n">ThreeDAxes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">z_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 
 <span class="n">sphere</span> <span class="o">=</span> <span class="n">Sphere3D</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">fill_color</span><span class="o">=</span><span class="s1">&#39;#FC6255&#39;</span><span class="p">,</span>
@@ -1388,6 +1562,8 @@ VectorMation</label><div class="sd-tab-content docutils">
 <span class="n">axes</span><span class="o">.</span><span class="n">add_surface</span><span class="p">(</span><span class="n">sphere</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1419,7 +1595,13 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-46" name="sd-tab-set-23" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-46">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Demonstrate 3D camera rotation animation.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="n">axes</span> <span class="o">=</span> <span class="n">ThreeDAxes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">z_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 
 <span class="c1"># Add a filled surface</span>
@@ -1433,6 +1615,8 @@ VectorMation</label><div class="sd-tab-content docutils">
 <span class="n">axes</span><span class="o">.</span><span class="n">set_camera_orientation</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="n">theta</span><span class="o">=</span><span class="n">axes</span><span class="o">.</span><span class="n">theta</span><span class="o">.</span><span class="n">at_time</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">tau</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1458,7 +1642,13 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-48" name="sd-tab-set-24" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-48">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Demonstrate ParametricCurve3D with a helix.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="n">axes</span> <span class="o">=</span> <span class="n">ThreeDAxes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">z_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">))</span>
 
 <span class="c1"># A helix wrapping around the z-axis</span>
@@ -1473,6 +1663,8 @@ VectorMation</label><div class="sd-tab-content docutils">
 <span class="n">axes</span><span class="o">.</span><span class="n">add_3d</span><span class="p">(</span><span class="n">Dot3D</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">radius</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#FC6255&#39;</span><span class="p">))</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1501,7 +1693,13 @@ Manim</label><div class="sd-tab-content docutils">
 <input checked="checked" id="sd-tab-item-50" name="sd-tab-set-25" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-50">
 VectorMation</label><div class="sd-tab-content docutils">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Manim equivalent: FollowingGraphCamera -- camera follows a dot along a graph.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
 <span class="n">ax</span> <span class="o">=</span> <span class="n">Axes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
 <span class="n">func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">)</span>
@@ -1517,6 +1715,8 @@ VectorMation</label><div class="sd-tab-content docutils">
 <span class="n">canvas</span><span class="o">.</span><span class="n">camera_reset</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
 
 <span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">dot</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1558,15 +1758,7 @@ Manim</label><div class="sd-tab-content docutils">
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="release_notes.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">Release Notes</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
+          
           <a class="prev-page" href="advanced_examples.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">

@@ -26,8 +26,6 @@ Title
 
       .. literalinclude:: ../../../examples/reference/ref_title.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -69,8 +67,6 @@ Variable
 
       .. literalinclude:: ../../../examples/reference/ref_variable.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -95,8 +91,6 @@ Underline
 
       .. literalinclude:: ../../../examples/reference/ref_underline.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -133,8 +127,6 @@ Code
 
       .. literalinclude:: ../../../examples/reference/ref_code.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -158,8 +150,6 @@ Label
 
       .. literalinclude:: ../../../examples/reference/ref_label.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -183,8 +173,6 @@ LabeledLine
 
       .. literalinclude:: ../../../examples/reference/ref_labeled_line.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -207,8 +195,6 @@ LabeledArrow
 
       .. literalinclude:: ../../../examples/reference/ref_labeled_arrow.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -234,8 +220,6 @@ Callout
 
       .. literalinclude:: ../../../examples/reference/ref_callout.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -262,8 +246,6 @@ DimensionLine
 
       .. literalinclude:: ../../../examples/reference/ref_dimension_line.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -290,8 +272,6 @@ Tooltip
 
       .. literalinclude:: ../../../examples/reference/ref_tooltip.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -316,8 +296,6 @@ TextBox
 
       .. literalinclude:: ../../../examples/reference/ref_textbox.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -340,8 +318,6 @@ Bracket
 
       .. literalinclude:: ../../../examples/reference/ref_bracket.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -365,8 +341,6 @@ IconGrid
 
       .. literalinclude:: ../../../examples/reference/ref_icon_grid.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -392,8 +366,6 @@ SpeechBubble
 
       .. literalinclude:: ../../../examples/reference/ref_speech_bubble.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -416,8 +388,6 @@ Badge
 
       .. literalinclude:: ../../../examples/reference/ref_badge.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -442,8 +412,6 @@ Divider
 
       .. literalinclude:: ../../../examples/reference/ref_divider.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -474,8 +442,6 @@ Checklist
 
       .. literalinclude:: ../../../examples/reference/ref_checklist.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -505,8 +471,6 @@ Stepper
 
       .. literalinclude:: ../../../examples/reference/ref_stepper.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -530,8 +494,6 @@ TagCloud
 
       .. literalinclude:: ../../../examples/reference/ref_tag_cloud.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -556,8 +518,6 @@ StatusIndicator
 
       .. literalinclude:: ../../../examples/reference/ref_status_indicator.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -580,8 +540,6 @@ Meter
 
       .. literalinclude:: ../../../examples/reference/ref_meter.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -605,8 +563,6 @@ Breadcrumb
 
       .. literalinclude:: ../../../examples/reference/ref_breadcrumb.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -631,8 +587,6 @@ Countdown
 
       .. literalinclude:: ../../../examples/reference/ref_countdown.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -660,6 +614,4 @@ Filmstrip
 
       .. literalinclude:: ../../../examples/reference/ref_filmstrip.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 

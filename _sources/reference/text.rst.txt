@@ -16,7 +16,6 @@ Text
 
    .. literalinclude:: ../../../examples/reference/ref_text.py
       :language: python
-      :end-before: v.write_frame
 
 .. py:class:: Text(text='', x=960, y=540, font_size=48, text_anchor=None, font_family=None, **styling)
    :no-index:
@@ -216,8 +215,6 @@ Text
 
       .. literalinclude:: ../../../examples/reference/typewrite.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
    .. py:method:: set_text(start, end, new_text, easing=smooth)
       :no-index:
@@ -286,8 +283,6 @@ CountAnimation
 
       .. literalinclude:: ../../../examples/reference/ref_count_anim.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
 ----
 
@@ -329,8 +324,6 @@ DecimalNumber
 
       .. literalinclude:: ../../../examples/reference/ref_value_tracker.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
 ----
 
@@ -356,8 +349,6 @@ Integer
 
       .. literalinclude:: ../../../examples/reference/ref_animated_integer.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
 ----
 
@@ -423,8 +414,6 @@ TexObject
 
       .. literalinclude:: ../../../examples/reference/tex.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
 ----
 
@@ -453,8 +442,6 @@ SplitTexObject
 
       .. literalinclude:: ../../../examples/reference/ref_multiline_latex.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -494,8 +481,6 @@ TexCountAnimation
 
       .. literalinclude:: ../../../examples/reference/ref_tex_counter.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.browser_display
 
 ----
 
@@ -526,8 +511,6 @@ Paragraph
 
       .. literalinclude:: ../../../examples/reference/ref_paragraph.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -553,8 +536,6 @@ BulletedList
 
       .. literalinclude:: ../../../examples/reference/ref_bulleted_list.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 
 ----
 
@@ -580,6 +561,4 @@ NumberedList
 
       .. literalinclude:: ../../../examples/reference/ref_numbered_list.py
          :language: python
-         :start-after: parse_args()
-         :end-before: v.write_frame
 

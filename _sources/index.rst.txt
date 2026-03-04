@@ -12,16 +12,16 @@ Quick Start
 
    from vectormation.objects import *
 
-   canvas = VectorMathAnim(save_dir='svgs/spiral')
+   canvas = VectorMathAnim()
    canvas.set_background()
 
    point = Dot()
-   trace = Trace(point.c, stroke_width=5)
-   point.c.set(start=0, end=5, func_inner=lambda t: (t * 80 + 560, 540))
-   point.c.rotate_around(0, 5, pivot_point=(960, 540), degrees=360 * 4)
+   trace = Trace(point.c)
+   point.c.set(0, 5, lambda t: (t * 80 + 960, 540))
+   point.c.rotate_around(0, 5, (960, 540), 360 * 4)
 
-   canvas.add_objects(trace, point)
-   canvas.browser_display(fps=60)
+   canvas.add(trace, point)
+   canvas.show(end=6)
 
 This opens a browser window showing a spiral being drawn in real time.
 
@@ -32,9 +32,12 @@ Key Features
 - **Browser-based viewer** -- real-time playback with zoom, speed control, debug panel, and keyboard shortcuts
 - **Morphing** -- smoothly morph any shape into any other shape, with optional rotation
 - **LaTeX support** -- render LaTeX expressions as animatable SVG objects
-- **Graph plotting** -- plot mathematical functions with axes, ticks, and labels (``Graph`` and ``FunctionGraph``)
+- **Graph plotting** -- axes, function graphs, scatter plots, vector fields, polar plots, and more
+- **3D rendering** -- 3D axes, surfaces, primitives, and camera rotation with depth-sorted SVG output
+- **Charts and diagrams** -- bar charts, pie charts, flowcharts, tree diagrams, Sankey diagrams, and more
+- **Physics simulations** -- pendulums, springs, cloth, bouncing objects
 - **Sections** -- pause the animation at section breaks for presentation-style delivery
-- **Export** -- SVG frames, PNG, MP4 video (via ffmpeg), and animated GIF
+- **Export** -- SVG frames, PNG, MP4/WebM video (via ffmpeg), and animated GIF
 
 Next Steps
 ----------
@@ -57,4 +60,3 @@ Next Steps
    examples
    advanced_examples
    vs_manim
-   release_notes
