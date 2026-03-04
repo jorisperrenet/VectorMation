@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<rect x='860' y='520' width='66.4' height='28' rx='14.0' ry='14.0' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='893.2' y='539.6' font-size='16' text-anchor='middle' stroke='rgb(0,0,0)' stroke-width='0'>v2.0</text>
+</g></g>
+<g data-obj-idx='2'><g>
+<rect x='960' y='520' width='85.6' height='28' rx='14.0' ry='14.0' fill='rgb(46,204,113)' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='1002.8' y='539.6' font-size='16' text-anchor='middle' stroke='rgb(0,0,0)' stroke-width='0'>stable</text>
+</g></g>
+<g data-obj-idx='3'><g>
+<rect x='1050' y='520' width='66.4' height='28' rx='14.0' ry='14.0' fill='rgb(243,156,18)' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='1083.2' y='539.6' font-size='16' text-anchor='middle' stroke='rgb(0,0,0)' stroke-width='0'>beta</text>
+</g></g>
+</svg>

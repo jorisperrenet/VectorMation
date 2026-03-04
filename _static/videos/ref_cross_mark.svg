@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<line x1='540.0' y1='480.0' x2='660.0' y2='600.0' stroke='rgb(252,98,85)' stroke-width='6' />
+<line x1='540.0' y1='600.0' x2='660.0' y2='480.0' stroke='rgb(252,98,85)' stroke-width='6' />
+</g></g>
+<g data-obj-idx='2'><g>
+<line x1='920.0' y1='500.0' x2='1000.0' y2='580.0' stroke='rgb(255,255,0)' stroke-width='4' />
+<line x1='920.0' y1='580.0' x2='1000.0' y2='500.0' stroke='rgb(255,255,0)' stroke-width='4' />
+</g></g>
+<g data-obj-idx='3'><g>
+<line x1='1240.0' y1='460.0' x2='1400.0' y2='620.0' stroke='rgb(131,193,103)' stroke-width='8' />
+<line x1='1240.0' y1='620.0' x2='1400.0' y2='460.0' stroke='rgb(131,193,103)' stroke-width='8' />
+</g></g>
+<g data-obj-idx='4'><text x='600' y='660' font-size='22' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>size=120</text></g>
+<g data-obj-idx='5'><text x='960' y='660' font-size='22' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>size=80</text></g>
+<g data-obj-idx='6'><text x='1320' y='660' font-size='22' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>size=160</text></g>
+</svg>

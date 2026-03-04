@@ -207,16 +207,24 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/vobject.html">VObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html">Shapes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/text.html">Text &amp; LaTeX</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/collections.html">Collections &amp; Arrows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/collections.html">Collections, Arrows &amp; Data Structures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/graphing.html">Graphing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html">Charts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html">UI Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html">Diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/physics.html">Physics Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/science.html">Science</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/threed.html">3D Objects</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/attributes.html">Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/svg_utils.html">SVG Utilities</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="attributes.html">Attributes: Time-Varying Values</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Animation &amp; Playback</a></li>
 <li class="toctree-l1"><a class="reference internal" href="graphing.html">Graphing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_examples.html">Advanced Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vs_manim.html">vs Manim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
 </ul>
@@ -262,7 +270,7 @@
 <section id="browser-viewer">
 <h2>Browser Viewer<a class="headerlink" href="#browser-viewer" title="Link to this heading">¶</a></h2>
 <p>VectorMation displays animations in a browser via WebSocket:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">start_time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8765</span><span class="p">,</span> <span class="n">hot_reload</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8765</span><span class="p">,</span> <span class="n">hot_reload</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="table-wrapper colwidths-auto docutils container">
@@ -273,10 +281,10 @@
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">start_time</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">start</span></code></p></td>
 <td><p>Animation start time (seconds)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">end_time</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">end</span></code></p></td>
 <td><p>Animation end time (<code class="docutils literal notranslate"><span class="pre">None</span></code> = auto-detect, <code class="docutils literal notranslate"><span class="pre">0</span></code> = static picture)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">fps</span></code></p></td>
@@ -290,6 +298,18 @@
 </tr>
 </tbody>
 </table>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">parse_args()</span></code> to get CLI flags for common options:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>my_scene.py<span class="w"> </span>-v<span class="w">           </span><span class="c1"># verbose logging</span>
+python<span class="w"> </span>my_scene.py<span class="w"> </span>--fps<span class="w"> </span><span class="m">30</span><span class="w">     </span><span class="c1"># set frame rate</span>
+python<span class="w"> </span>my_scene.py<span class="w"> </span>--port<span class="w"> </span><span class="m">9000</span><span class="w">  </span><span class="c1"># custom port</span>
+python<span class="w"> </span>my_scene.py<span class="w"> </span>--hot-reload<span class="w"> </span><span class="c1"># auto-reload on save</span>
+python<span class="w"> </span>my_scene.py<span class="w"> </span>-o<span class="w"> </span>out.mp4<span class="w">   </span><span class="c1"># export to file</span>
+python<span class="w"> </span>my_scene.py<span class="w"> </span>-d<span class="w"> </span><span class="m">5</span><span class="w">         </span><span class="c1"># set duration to 5 seconds</span>
+</pre></div>
+</div>
 </div>
 </section>
 <section id="keyboard-shortcuts">
@@ -366,15 +386,73 @@
 </pre></div>
 </div>
 <p>During playback, the animation pauses at each section boundary. Press <strong>Arrow Right</strong> to continue to the next section.</p>
+<div class="example admonition">
+<p class="admonition-title">Example: sections demo</p>
+<video src="_static/videos/anim_sections.mp4" controls autoplay loop muted></video><p>Objects appear in phases separated by section breaks. During playback
+the animation pauses at each <code class="docutils literal notranslate"><span class="pre">add_section</span></code> time.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="c1"># Phase 1: circle fades in</span>
+<span class="n">circle</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">480</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">circle</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Section break at t=2</span>
+<span class="n">v</span><span class="o">.</span><span class="n">add_section</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Phase 2: rectangle fades in</span>
+<span class="n">rect</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">880</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">460</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">rect</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Section break at t=4</span>
+<span class="n">v</span><span class="o">.</span><span class="n">add_section</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="c1"># Phase 3: text fades in</span>
+<span class="n">txt</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;VectorMation&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">1300</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;WHITE&#39;</span><span class="p">)</span>
+<span class="n">txt</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">circle</span><span class="p">,</span> <span class="n">rect</span><span class="p">,</span> <span class="n">txt</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/anim_sections.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
 </section>
 <section id="playback-speed">
 <h2>Playback Speed<a class="headerlink" href="#playback-speed" title="Link to this heading">¶</a></h2>
 <p>Speed can be adjusted during playback with <strong>+</strong> / <strong>-</strong> keys, or via the toolbar buttons. The current speed and FPS are shown in the toolbar.</p>
+<div class="example admonition">
+<p class="admonition-title">Example: animation timing</p>
+<video src="_static/videos/anim_speed.mp4" controls autoplay loop muted></video><p>The same shift animation with different <code class="docutils literal notranslate"><span class="pre">start</span></code>/<code class="docutils literal notranslate"><span class="pre">end</span></code> durations.
+Shorter intervals mean faster motion.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;1 second&#39;</span><span class="p">,</span> <span class="s1">&#39;2 seconds&#39;</span><span class="p">,</span> <span class="s1">&#39;4 seconds&#39;</span><span class="p">]</span>
+<span class="n">durations</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">,</span> <span class="s1">&#39;#3498DB&#39;</span><span class="p">,</span> <span class="s1">&#39;#2ECC71&#39;</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">dur</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">durations</span><span class="p">,</span> <span class="n">colors</span><span class="p">)):</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">270</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">270</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">dur</span><span class="p">)</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/anim_speed.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
 </section>
 <section id="static-pictures">
 <h2>Static Pictures<a class="headerlink" href="#static-pictures" title="Link to this heading">¶</a></h2>
-<p>Pass <code class="docutils literal notranslate"><span class="pre">end_time=0</span></code> to display a single static frame with no animation:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">end_time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<p>Pass <code class="docutils literal notranslate"><span class="pre">end=0</span></code> to display a single static frame with no animation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -405,14 +483,20 @@
 <section id="video-mp4">
 <h3>Video (MP4)<a class="headerlink" href="#video-mp4" title="Link to this heading">¶</a></h3>
 <p>Export the animation as an MP4 video (requires <code class="docutils literal notranslate"><span class="pre">cairosvg</span></code> and <code class="docutils literal notranslate"><span class="pre">ffmpeg</span></code>):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;animation.mp4&#39;</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;animation.mp4&#39;</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Video export requires <strong>ffmpeg</strong> to be installed and available on your
+<code class="docutils literal notranslate"><span class="pre">PATH</span></code>. On Debian/Ubuntu: <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt</span> <span class="pre">install</span> <span class="pre">ffmpeg</span></code>. On macOS:
+<code class="docutils literal notranslate"><span class="pre">brew</span> <span class="pre">install</span> <span class="pre">ffmpeg</span></code>. On Arch: <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">pacman</span> <span class="pre">-S</span> <span class="pre">ffmpeg</span></code>.</p>
 </div>
 </section>
 <section id="animated-gif">
 <h3>Animated GIF<a class="headerlink" href="#animated-gif" title="Link to this heading">¶</a></h3>
 <p>Export the animation as a GIF (requires <code class="docutils literal notranslate"><span class="pre">cairosvg</span></code> and <code class="docutils literal notranslate"><span class="pre">Pillow</span></code>):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">canvas</span><span class="o">.</span><span class="n">export_gif</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;animation.gif&#39;</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">canvas</span><span class="o">.</span><span class="n">export_gif</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;animation.gif&#39;</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">loop</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="table-wrapper colwidths-auto docutils container">
@@ -431,6 +515,27 @@
 </tr>
 </tbody>
 </table>
+</div>
+<div class="example admonition">
+<p class="admonition-title">Example: static frame export</p>
+<img src="_static/videos/anim_export.svg" style="width:100%; max-width:800px;" /><p>A composed scene exported as a single SVG frame with <code class="docutils literal notranslate"><span class="pre">write_frame</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="c1"># A composed static scene</span>
+<span class="n">circle</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">480</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">440</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">rect</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">140</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">860</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">370</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">star</span> <span class="o">=</span> <span class="n">Star</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">1440</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">440</span><span class="p">,</span>
+            <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#F39C12&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">title</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Static Frame Export&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">700</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">700</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">56</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;WHITE&#39;</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">circle</span><span class="p">,</span> <span class="n">rect</span><span class="p">,</span> <span class="n">star</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;docs/source/_static/videos/anim_export.svg&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
 </div>
 </section>
 </section>

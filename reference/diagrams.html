@@ -1,0 +1,1287 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Physics Engine" href="physics.html"><link rel="prev" title="UI Components" href="ui.html">
+        <link rel="prefetch" href="../_static/logo.svg" as="image">
+
+    <link rel="shortcut icon" href="../_static/logo.svg"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Diagrams - VectorMation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=0df419bc" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #000000;
+  --color-brand-content: #000000;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">VectorMation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/logo.svg" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">VectorMation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial: Your First Animation</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../reference.html">Reference Manual</a><input aria-label="Toggle navigation of Reference Manual" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="canvas.html">VectorMathAnim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vobject.html">VObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shapes.html">Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">Text &amp; LaTeX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collections.html">Collections, Arrows &amp; Data Structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graphing.html">Graphing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="charts.html">Charts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ui.html">UI Components</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physics.html">Physics Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l2"><a class="reference internal" href="threed.html">3D Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attributes.html">Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="svg_utils.html">SVG Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../attributes.html">Attributes: Time-Varying Values</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../animation.html">Animation &amp; Playback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../graphing.html">Graphing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vs_manim.html">vs Manim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/reference/diagrams.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="diagrams">
+<h1>Diagrams<a class="headerlink" href="#diagrams" title="Link to this heading">¶</a></h1>
+<p>Diagram and domain-specific visualization classes. All inherit from
+<a class="reference internal" href="collections.html#VCollection" title="VCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VCollection</span></code></a> and support the full set of animation methods.</p>
+<hr class="docutils" />
+<section id="chessboard">
+<h2>ChessBoard<a class="headerlink" href="#chessboard" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ChessBoard">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ChessBoard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fen</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_coordinates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">light_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#f0d9b5'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dark_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#b58863'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ChessBoard" title="Link to this definition">¶</a></dt>
+<dd><p>Chess board visualization with pieces from a FEN string. The board is
+drawn as an 8x8 grid of alternating light and dark squares, with pieces
+rendered as Unicode chess symbols. White pieces are displayed in white
+(<code class="docutils literal notranslate"><span class="pre">#fff</span></code>), black pieces in dark grey (<code class="docutils literal notranslate"><span class="pre">#222</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fen</strong> (<em>str</em>) – Piece placement in FEN notation (rows separated by <code class="docutils literal notranslate"><span class="pre">/</span></code>).
+Only the piece-placement portion of FEN is used. Digits represent
+empty squares. Default is the standard starting position.</p></li>
+<li><p><strong>cx</strong> (<em>float</em>) – Center x-coordinate of the board.</p></li>
+<li><p><strong>cy</strong> (<em>float</em>) – Center y-coordinate of the board.</p></li>
+<li><p><strong>size</strong> (<em>float</em>) – Board side length in pixels. Each cell is <code class="docutils literal notranslate"><span class="pre">size</span> <span class="pre">/</span> <span class="pre">8</span></code>
+pixels.</p></li>
+<li><p><strong>show_coordinates</strong> (<em>bool</em>) – Show file (a–h) and rank (1–8) labels
+around the board edges.</p></li>
+<li><p><strong>light_color</strong> (<em>str</em>) – Fill color for light squares.</p></li>
+<li><p><strong>dark_color</strong> (<em>str</em>) – Fill color for dark squares.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ChessBoard.move_piece">
+<span class="sig-name descname"><span class="pre">move_piece</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_sq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_sq</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ChessBoard.move_piece" title="Link to this definition">¶</a></dt>
+<dd><p>Animate moving a piece from one square to another using algebraic
+notation (e.g. <code class="docutils literal notranslate"><span class="pre">'e2'</span></code> to <code class="docutils literal notranslate"><span class="pre">'e4'</span></code>). The piece is shifted in pixel
+space based on the difference in file and rank. The internal piece
+mapping is updated so subsequent moves reference the new square.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_sq</strong> (<em>str</em>) – Source square in algebraic notation (e.g. <code class="docutils literal notranslate"><span class="pre">'e2'</span></code>).</p></li>
+<li><p><strong>to_sq</strong> (<em>str</em>) – Target square in algebraic notation (e.g. <code class="docutils literal notranslate"><span class="pre">'e4'</span></code>).</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Animation end time.</p></li>
+<li><p><strong>easing</strong> – Easing function.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: ChessBoard</p>
+<img src="../_static/videos/ref_chessboard.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">board</span> <span class="o">=</span> <span class="n">ChessBoard</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="periodictable">
+<h2>PeriodicTable<a class="headerlink" href="#periodictable" title="Link to this heading">¶</a></h2>
+<div class="example admonition">
+<p class="admonition-title">Example: PeriodicTable</p>
+<img src="../_static/videos/ref_periodic_table.svg" style="width:100%;max-width:800px;display:block;margin:auto;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">table</span> <span class="o">=</span> <span class="n">PeriodicTable</span><span class="p">(</span><span class="n">cell_size</span><span class="o">=</span><span class="mi">52</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="PeriodicTable">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PeriodicTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">48</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PeriodicTable" title="Link to this definition">¶</a></dt>
+<dd><p>Periodic table of all 118 elements with color-coded categories. Each
+element cell shows its atomic number and chemical symbol. Lanthanides
+and actinides are shown in separate rows below the main table.
+Categories and their colors:</p>
+<div class="table-wrapper docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Category</p></th>
+<th class="head"><p>Color</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Nonmetal</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#58C4DD</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Noble gas</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#9A72AC</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Alkali metal</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#FC6255</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Alkaline earth metal</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#F0AC5F</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Metalloid</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#5CD0B3</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Halogen</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#FFFF00</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Transition metal</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#C55F73</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Post-transition</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#83C167</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cx</strong> (<em>float</em>) – Center x-coordinate of the table.</p></li>
+<li><p><strong>cy</strong> (<em>float</em>) – Center y-coordinate of the table.</p></li>
+<li><p><strong>cell_size</strong> (<em>float</em>) – Size of each element cell in pixels.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="PeriodicTable.highlight">
+<span class="sig-name descname"><span class="pre">highlight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">symbol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#FFFF00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">there_and_back</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#PeriodicTable.highlight" title="Link to this definition">¶</a></dt>
+<dd><p>Highlight an element by its chemical symbol. The cell background is
+indicated (scale pulse) and the symbol text flashes in the given color.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symbol</strong> (<em>str</em>) – Chemical symbol (e.g. <code class="docutils literal notranslate"><span class="pre">'Fe'</span></code>, <code class="docutils literal notranslate"><span class="pre">'O'</span></code>, <code class="docutils literal notranslate"><span class="pre">'He'</span></code>).</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Animation end time.</p></li>
+<li><p><strong>color</strong> (<em>str</em>) – Flash color for the symbol text.</p></li>
+<li><p><strong>easing</strong> – Easing function.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: highlighting elements</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">table</span> <span class="o">=</span> <span class="n">PeriodicTable</span><span class="p">()</span>
+<span class="n">table</span><span class="o">.</span><span class="n">highlight</span><span class="p">(</span><span class="s1">&#39;Fe&#39;</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="n">table</span><span class="o">.</span><span class="n">highlight</span><span class="p">(</span><span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="bohratom">
+<h2>BohrAtom<a class="headerlink" href="#bohratom" title="Link to this heading">¶</a></h2>
+<div class="example admonition">
+<p class="admonition-title">Example: Carbon Atom (BohrAtom)</p>
+<img src="../_static/videos/ref_bohr_carbon.svg" style="width:100%;max-width:800px;display:block;margin:auto;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">carbon</span> <span class="o">=</span> <span class="n">BohrAtom</span><span class="p">(</span><span class="n">protons</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">neutrons</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">nucleus_r</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">shell_spacing</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">carbon</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="BohrAtom">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">BohrAtom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neutrons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electrons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nucleus_r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shell_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#BohrAtom" title="Link to this definition">¶</a></dt>
+<dd><p>Bohr model of an atom with a nucleus and concentric electron shells.
+The nucleus shows the proton (and neutron) count. Electron shells are
+drawn as circles with evenly spaced electron dots. If <em>electrons</em> is
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, shells are auto-filled using the sequence 2, 8, 8, 18, 18, 32.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>protons</strong> (<em>int</em>) – Number of protons (shown in the nucleus label).</p></li>
+<li><p><strong>neutrons</strong> (<em>int</em>) – Number of neutrons. When <code class="docutils literal notranslate"><span class="pre">0</span></code>, the nucleus label
+shows only protons (e.g. <code class="docutils literal notranslate"><span class="pre">6p+</span></code>); otherwise both are shown
+(e.g. <code class="docutils literal notranslate"><span class="pre">6p</span> <span class="pre">6n</span></code>).</p></li>
+<li><p><strong>electrons</strong> (<em>list</em>) – List of electron counts per shell (e.g.
+<code class="docutils literal notranslate"><span class="pre">[2,</span> <span class="pre">4]</span></code> for carbon), or <code class="docutils literal notranslate"><span class="pre">None</span></code> for automatic filling based on
+the proton count.</p></li>
+<li><p><strong>cx</strong> (<em>float</em>) – Center x-coordinate.</p></li>
+<li><p><strong>cy</strong> (<em>float</em>) – Center y-coordinate.</p></li>
+<li><p><strong>nucleus_r</strong> (<em>float</em>) – Radius of the nucleus circle in pixels.</p></li>
+<li><p><strong>shell_spacing</strong> (<em>float</em>) – Spacing between concentric orbit rings
+in pixels.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="BohrAtom.orbit">
+<span class="sig-name descname"><span class="pre">orbit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">45</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#BohrAtom.orbit" title="Link to this definition">¶</a></dt>
+<dd><p>Animate all electrons orbiting the nucleus. Each electron dot
+rotates continuously around the center using <code class="docutils literal notranslate"><span class="pre">always_rotate</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Animation end time (<code class="docutils literal notranslate"><span class="pre">None</span></code> for indefinite).</p></li>
+<li><p><strong>speed</strong> (<em>float</em>) – Rotation speed in degrees per second.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: carbon atom</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Carbon atom with 6 protons, 6 neutrons</span>
+<span class="n">carbon</span> <span class="o">=</span> <span class="n">BohrAtom</span><span class="p">(</span><span class="n">protons</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">neutrons</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">carbon</span><span class="o">.</span><span class="n">orbit</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="example admonition">
+<p class="admonition-title">Example: custom electron configuration</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Sodium with explicit shell configuration</span>
+<span class="n">sodium</span> <span class="o">=</span> <span class="n">BohrAtom</span><span class="p">(</span><span class="n">protons</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">neutrons</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">electrons</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">sodium</span><span class="o">.</span><span class="n">orbit</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">speed</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="automaton">
+<h2>Automaton<a class="headerlink" href="#automaton" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="Automaton">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Automaton</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transitions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accept_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">35</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Automaton" title="Link to this definition">¶</a></dt>
+<dd><p>Finite state machine / automaton visualization. States are arranged in a
+circle and drawn as labeled circles. Transitions are drawn as arrows
+between states; self-loops are rendered as arcs above the state. Accept
+states are shown with a double circle (inner ring). The initial state
+receives an entry arrow from the left.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>states</strong> (<em>list</em>) – List of state name strings (e.g. <code class="docutils literal notranslate"><span class="pre">['q0',</span> <span class="pre">'q1',</span> <span class="pre">'q2']</span></code>).</p></li>
+<li><p><strong>transitions</strong> (<em>list</em>) – List of <code class="docutils literal notranslate"><span class="pre">(from_state,</span> <span class="pre">to_state,</span> <span class="pre">label)</span></code> tuples.
+Each tuple describes a labeled directed edge in the automaton.</p></li>
+<li><p><strong>accept_states</strong> (<em>set</em>) – Set of state names drawn with a double circle
+to indicate acceptance.</p></li>
+<li><p><strong>initial_state</strong> (<em>str</em>) – Name of the starting state. An entry arrow is
+drawn pointing into this state.</p></li>
+<li><p><strong>cx</strong> (<em>float</em>) – Center x-coordinate of the state circle layout.</p></li>
+<li><p><strong>cy</strong> (<em>float</em>) – Center y-coordinate of the state circle layout.</p></li>
+<li><p><strong>radius</strong> (<em>float</em>) – Radius of the circular layout (distance from center
+to states).</p></li>
+<li><p><strong>state_r</strong> (<em>float</em>) – Radius of each state circle.</p></li>
+<li><p><strong>font_size</strong> (<em>float</em>) – Font size for state labels and transition labels.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="Automaton.highlight_state">
+<span class="sig-name descname"><span class="pre">highlight_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#FFFF00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">there_and_back</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Automaton.highlight_state" title="Link to this definition">¶</a></dt>
+<dd><p>Flash-highlight a state by name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state_name</strong> (<em>str</em>) – Name of the state to highlight.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Animation end time.</p></li>
+<li><p><strong>color</strong> (<em>str</em>) – Flash color.</p></li>
+<li><p><strong>easing</strong> – Easing function.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Automaton.highlight_transition">
+<span class="sig-name descname"><span class="pre">highlight_transition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">from_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#FFFF00'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Automaton.highlight_transition" title="Link to this definition">¶</a></dt>
+<dd><p>Highlight the arrow (or arc for self-loops) between two states by
+flashing its color. For normal arrows, both the shaft and tip are
+flashed. For self-loop arcs, the stroke color is flashed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>from_state</strong> (<em>str</em>) – Source state name.</p></li>
+<li><p><strong>to_state</strong> (<em>str</em>) – Target state name.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Animation end time.</p></li>
+<li><p><strong>color</strong> (<em>str</em>) – Flash color.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Automaton.simulate_input">
+<span class="sig-name descname"><span class="pre">simulate_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">word</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#FFFF00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Automaton.simulate_input" title="Link to this definition">¶</a></dt>
+<dd><p>Animate stepping through the automaton one character at a time. For
+each character in <em>word</em>, the method highlights the current state,
+then the transition arrow, then the next state. If no transition
+exists for a character, the current state flashes red (rejected).
+At the end, the final state is highlighted green if it is an accept
+state, or red otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>word</strong> (<em>str</em>) – Input string to process character by character.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>delay</strong> (<em>float</em>) – Duration of each highlight step in seconds.</p></li>
+<li><p><strong>color</strong> (<em>str</em>) – Highlight color during traversal.</p></li>
+<li><p><strong>transitions</strong> (<em>list</em>) – Optional override for the transition list.
+Defaults to the transitions passed at construction.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: Automaton</p>
+<img src="../_static/videos/ref_automaton.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">fsm</span> <span class="o">=</span> <span class="n">Automaton</span><span class="p">(</span>
+    <span class="n">states</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;q0&#39;</span><span class="p">,</span> <span class="s1">&#39;q1&#39;</span><span class="p">,</span> <span class="s1">&#39;q2&#39;</span><span class="p">],</span>
+    <span class="n">transitions</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;q0&#39;</span><span class="p">,</span> <span class="s1">&#39;q1&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;q1&#39;</span><span class="p">,</span> <span class="s1">&#39;q2&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;q2&#39;</span><span class="p">,</span> <span class="s1">&#39;q0&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s1">&#39;q1&#39;</span><span class="p">,</span> <span class="s1">&#39;q1&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">),</span>
+    <span class="p">],</span>
+    <span class="n">accept_states</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;q2&#39;</span><span class="p">},</span>
+    <span class="n">initial_state</span><span class="o">=</span><span class="s1">&#39;q0&#39;</span><span class="p">,</span>
+    <span class="n">radius</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">fsm</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="networkgraph">
+<h2>NetworkGraph<a class="headerlink" href="#networkgraph" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NetworkGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'circular'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Network/graph visualization with labeled nodes and edges. Supports
+three layout algorithms and both directed (arrow) and undirected (line)
+edge rendering. Edge labels are displayed at the midpoint of each edge.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nodes</strong> – A list of labels (indexed 0, 1, …) or a <code class="docutils literal notranslate"><span class="pre">{id:</span> <span class="pre">label}</span></code>
+dictionary. When a list is provided, each element’s index becomes its ID.</p></li>
+<li><p><strong>edges</strong> (<em>list</em>) – List of <code class="docutils literal notranslate"><span class="pre">(from_id,</span> <span class="pre">to_id)</span></code> or
+<code class="docutils literal notranslate"><span class="pre">(from_id,</span> <span class="pre">to_id,</span> <span class="pre">label)</span></code> tuples. Edge labels are optional.</p></li>
+<li><p><strong>cx</strong> (<em>float</em>) – Center x-coordinate of the layout.</p></li>
+<li><p><strong>cy</strong> (<em>float</em>) – Center y-coordinate of the layout.</p></li>
+<li><p><strong>radius</strong> (<em>float</em>) – Layout radius for circular layout, or half-extent
+for grid and spring layouts.</p></li>
+<li><p><strong>node_r</strong> (<em>float</em>) – Radius of each node circle.</p></li>
+<li><p><strong>font_size</strong> (<em>float</em>) – Font size for node and edge labels.</p></li>
+<li><p><strong>layout</strong> (<em>str</em>) – <p>Layout algorithm:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">'circular'</span></code> – nodes evenly spaced on a circle (default).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'grid'</span></code> – nodes arranged in a square grid.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'spring'</span></code> – force-directed layout (50 iterations of repulsion
+and edge attraction with a fixed random seed of 42).</p></li>
+</ul>
+</p></li>
+<li><p><strong>directed</strong> (<em>bool</em>) – Draw edges as arrows when <code class="docutils literal notranslate"><span class="pre">True</span></code>, as plain lines
+when <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">highlight_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#FFFF00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">there_and_back</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Flash-highlight a node by its ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>node_id</strong> – The node identifier (integer index or dict key).</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Animation end time.</p></li>
+<li><p><strong>color</strong> (<em>str</em>) – Flash color.</p></li>
+<li><p><strong>easing</strong> – Easing function.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="NetworkGraph.get_node_position">
+<span class="sig-name descname"><span class="pre">get_node_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#NetworkGraph.get_node_position" title="Link to this definition">¶</a></dt>
+<dd><p>Return the <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y)</span></code> pixel position of a node. Returns <code class="docutils literal notranslate"><span class="pre">ORIGIN</span></code>
+if the node ID is not found.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node_id</strong> – The node identifier.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[float, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: NetworkGraph</p>
+<img src="../_static/videos/ref_network_graph.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">graph</span> <span class="o">=</span> <span class="n">NetworkGraph</span><span class="p">(</span>
+    <span class="n">nodes</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="s1">&#39;E&#39;</span><span class="p">},</span>
+    <span class="n">edges</span><span class="o">=</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)],</span>
+    <span class="n">radius</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span>
+    <span class="n">directed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="tree">
+<h2>Tree<a class="headerlink" href="#tree" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="Tree">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">18</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'down'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Tree" title="Link to this definition">¶</a></dt>
+<dd><p>Hierarchical tree layout visualization. Nodes are drawn as labeled
+circles connected by straight-line edges. The tree is automatically
+laid out using a width-accumulating algorithm that avoids overlapping
+subtrees.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – <p>Tree structure in one of two formats:</p>
+<ul>
+<li><p><strong>Tuple format</strong>: <code class="docutils literal notranslate"><span class="pre">(label,</span> <span class="pre">[child_tuples,</span> <span class="pre">...])</span></code> where each child
+is itself a <code class="docutils literal notranslate"><span class="pre">(label,</span> <span class="pre">children)</span></code> tuple. Leaf nodes use an empty
+list: <code class="docutils literal notranslate"><span class="pre">('leaf',</span> <span class="pre">[])</span></code>.</p></li>
+<li><p><strong>Dictionary format</strong>: A nested dict <code class="docutils literal notranslate"><span class="pre">{key:</span> <span class="pre">{child_key:</span> <span class="pre">...}}</span></code>.
+Converted internally to tuple format.</p></li>
+</ul>
+</p></li>
+<li><p><strong>cx</strong> (<em>float</em>) – X-coordinate for the root node.</p></li>
+<li><p><strong>cy</strong> (<em>float</em>) – Y-coordinate for the root node.</p></li>
+<li><p><strong>h_spacing</strong> (<em>float</em>) – Minimum horizontal spacing between siblings
+in pixels.</p></li>
+<li><p><strong>v_spacing</strong> (<em>float</em>) – Vertical spacing between levels in pixels.</p></li>
+<li><p><strong>node_r</strong> (<em>float</em>) – Radius of each node circle.</p></li>
+<li><p><strong>font_size</strong> (<em>float</em>) – Font size for node labels.</p></li>
+<li><p><strong>layout</strong> (<em>str</em>) – <code class="docutils literal notranslate"><span class="pre">'down'</span></code> places the root at the top with children
+below; <code class="docutils literal notranslate"><span class="pre">'right'</span></code> places the root at the left with children to the
+right.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="Tree.get_node_position">
+<span class="sig-name descname"><span class="pre">get_node_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Tree.get_node_position" title="Link to this definition">¶</a></dt>
+<dd><p>Return the <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y)</span></code> pixel position of a node by its label. If
+there are duplicate labels, returns the position of the first
+occurrence. Returns <code class="docutils literal notranslate"><span class="pre">ORIGIN</span></code> if the label is not found.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>label</strong> (<em>str</em>) – Node label.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[float, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Tree.highlight_node">
+<span class="sig-name descname"><span class="pre">highlight_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#FFFF00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">there_and_back</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Tree.highlight_node" title="Link to this definition">¶</a></dt>
+<dd><p>Flash-highlight a node by label.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> (<em>str</em>) – Node label to highlight.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Animation end time.</p></li>
+<li><p><strong>color</strong> (<em>str</em>) – Flash color.</p></li>
+<li><p><strong>easing</strong> – Easing function.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: Tree</p>
+<img src="../_static/videos/tree.svg" style="width:100%; max-width:800px;" /><p>Hierarchical tree with highlighted path.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">tree</span> <span class="o">=</span> <span class="n">Tree</span><span class="p">((</span><span class="s1">&#39;8&#39;</span><span class="p">,</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="p">[]),</span> <span class="p">(</span><span class="s1">&#39;6&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;4&#39;</span><span class="p">,</span> <span class="p">[]),</span> <span class="p">(</span><span class="s1">&#39;7&#39;</span><span class="p">,</span> <span class="p">[])])]),</span>
+    <span class="p">(</span><span class="s1">&#39;10&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="p">[]),</span> <span class="p">(</span><span class="s1">&#39;14&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;13&#39;</span><span class="p">,</span> <span class="p">[])])]),</span>
+<span class="p">]))</span>
+<span class="n">tree</span><span class="o">.</span><span class="n">center_to_pos</span><span class="p">()</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;docs/source/_static/videos/tree.svg&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+<div class="example admonition">
+<p class="admonition-title">Example: horizontal layout</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">tree</span> <span class="o">=</span> <span class="n">Tree</span><span class="p">(</span>
+    <span class="p">(</span><span class="s1">&#39;CEO&#39;</span><span class="p">,</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;CTO&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;Eng&#39;</span><span class="p">,</span> <span class="p">[]),</span> <span class="p">(</span><span class="s1">&#39;QA&#39;</span><span class="p">,</span> <span class="p">[])]),</span>
+        <span class="p">(</span><span class="s1">&#39;CFO&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;Finance&#39;</span><span class="p">,</span> <span class="p">[])]),</span>
+    <span class="p">]),</span>
+    <span class="n">layout</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="stamp">
+<h2>Stamp<a class="headerlink" href="#stamp" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="Stamp">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Stamp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Stamp" title="Link to this definition">¶</a></dt>
+<dd><p>Place deep copies of a template object at specified positions. Each copy
+is shifted so its center aligns with the given point. Useful for
+repeating a shape or symbol at multiple locations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>template</strong> (<a class="reference internal" href="vobject.html#VObject" title="VObject"><em>VObject</em></a>) – Object to deep-copy and place. Can be any
+<code class="docutils literal notranslate"><span class="pre">VObject</span></code> or <code class="docutils literal notranslate"><span class="pre">VCollection</span></code>.</p></li>
+<li><p><strong>points</strong> (<em>list</em>) – List of <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y)</span></code> positions for each copy.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="example admonition">
+<p class="admonition-title">Example: stamping stars</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">star</span> <span class="o">=</span> <span class="n">RegularPolygon</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#FFFF00&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">positions</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span> <span class="p">(</span><span class="mi">600</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="p">(</span><span class="mi">900</span><span class="p">,</span> <span class="mi">350</span><span class="p">),</span> <span class="p">(</span><span class="mi">1200</span><span class="p">,</span> <span class="mi">250</span><span class="p">)]</span>
+<span class="n">stamps</span> <span class="o">=</span> <span class="n">Stamp</span><span class="p">(</span><span class="n">star</span><span class="p">,</span> <span class="n">positions</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="example admonition">
+<p class="admonition-title">Example: stamping dots along a curve</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="n">dot</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">)</span>
+<span class="n">points</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="mi">960</span> <span class="o">+</span> <span class="mi">300</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="mi">540</span> <span class="o">+</span> <span class="mi">200</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">6</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">12</span><span class="p">)]</span>
+<span class="p">]</span>
+<span class="n">ring</span> <span class="o">=</span> <span class="n">Stamp</span><span class="p">(</span><span class="n">dot</span><span class="p">,</span> <span class="n">points</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="timelinebar">
+<h2>TimelineBar<a class="headerlink" href="#timelinebar" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="TimelineBar">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TimelineBar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">markers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">900</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1520</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#FFFF00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#TimelineBar" title="Link to this definition">¶</a></dt>
+<dd><p>Horizontal timeline bar with labeled markers at specific times. A thin
+track rectangle is drawn along the full width, with circular dots and
+tick lines placed at each marker position. Labels appear above each
+marker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>markers</strong> (<em>dict</em>) – <code class="docutils literal notranslate"><span class="pre">{time_value:</span> <span class="pre">label_text}</span></code> dictionary. Each key
+is a numeric time that determines the marker’s horizontal position.</p></li>
+<li><p><strong>total_duration</strong> (<em>float</em>) – Total timeline duration (determines the
+scale). A marker at <code class="docutils literal notranslate"><span class="pre">time_value</span></code> is placed at fraction
+<code class="docutils literal notranslate"><span class="pre">time_value</span> <span class="pre">/</span> <span class="pre">total_duration</span></code> along the bar.</p></li>
+<li><p><strong>x</strong> (<em>float</em>) – Left edge x-coordinate of the bar.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Y-coordinate (vertical center) of the bar.</p></li>
+<li><p><strong>width</strong> (<em>float</em>) – Total bar width in pixels.</p></li>
+<li><p><strong>height</strong> (<em>float</em>) – Height of the track rectangle.</p></li>
+<li><p><strong>marker_color</strong> (<em>str</em>) – Color for marker dots and tick lines.</p></li>
+<li><p><strong>font_size</strong> (<em>float</em>) – Font size for marker labels.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: TimelineBar</p>
+<img src="../_static/videos/ref_timeline.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">timeline</span> <span class="o">=</span> <span class="n">TimelineBar</span><span class="p">(</span>
+    <span class="n">markers</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;Start&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;Design&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="s1">&#39;Build&#39;</span><span class="p">,</span> <span class="mi">8</span><span class="p">:</span> <span class="s1">&#39;Test&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="s1">&#39;Launch&#39;</span><span class="p">},</span>
+    <span class="n">total_duration</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">x</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1520</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">timeline</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="flowchart">
+<h2>FlowChart<a class="headerlink" href="#flowchart" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FlowChart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'right'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#58C4DD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#fff'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arrow_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#999'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corner_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Simple flow chart with labeled rounded-rectangle boxes connected by
+arrows. Boxes are arranged in a linear sequence either horizontally
+or vertically.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>steps</strong> (<em>list</em>) – List of step label strings (e.g.
+<code class="docutils literal notranslate"><span class="pre">['Input',</span> <span class="pre">'Process',</span> <span class="pre">'Output']</span></code>).</p></li>
+<li><p><strong>direction</strong> (<em>str</em>) – <code class="docutils literal notranslate"><span class="pre">'right'</span></code> for horizontal layout or <code class="docutils literal notranslate"><span class="pre">'down'</span></code>
+for vertical layout.</p></li>
+<li><p><strong>x</strong> (<em>float</em>) – X-coordinate of the first box’s top-left corner.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Y-coordinate of the first box’s top-left corner.</p></li>
+<li><p><strong>box_width</strong> (<em>float</em>) – Width of each box in pixels.</p></li>
+<li><p><strong>box_height</strong> (<em>float</em>) – Height of each box in pixels.</p></li>
+<li><p><strong>spacing</strong> (<em>float</em>) – Gap between consecutive boxes in pixels.</p></li>
+<li><p><strong>box_color</strong> (<em>str</em>) – Fill and stroke color for boxes.</p></li>
+<li><p><strong>text_color</strong> (<em>str</em>) – Text color for step labels.</p></li>
+<li><p><strong>arrow_color</strong> (<em>str</em>) – Stroke color for connecting arrows.</p></li>
+<li><p><strong>font_size</strong> (<em>float</em>) – Font size for step labels.</p></li>
+<li><p><strong>corner_radius</strong> (<em>float</em>) – Corner radius for rounded rectangles.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="example admonition">
+<p class="admonition-title">Example: FlowChart</p>
+<img src="../_static/videos/flowchart.svg" style="width:100%; max-width:800px;" /><p>Simple horizontal flow chart.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">flow</span> <span class="o">=</span> <span class="n">FlowChart</span><span class="p">([</span><span class="s1">&#39;Input&#39;</span><span class="p">,</span> <span class="s1">&#39;Validate&#39;</span><span class="p">,</span> <span class="s1">&#39;Process&#39;</span><span class="p">,</span> <span class="s1">&#39;Output&#39;</span><span class="p">],</span>
+                 <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">box_color</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">flow</span><span class="o">.</span><span class="n">center_to_pos</span><span class="p">()</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">flow</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;docs/source/_static/videos/flowchart.svg&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="venndiagram">
+<h2>VennDiagram<a class="headerlink" href="#venndiagram" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="VennDiagram">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VennDiagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sizes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">150</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">24</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VennDiagram" title="Link to this definition">¶</a></dt>
+<dd><p>Venn diagram with 2 or 3 overlapping semi-transparent circles. Labels
+are positioned outside each circle. The circles overlap with 25% fill
+opacity so intersection regions are visible as blended colors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> (<em>list</em>) – 2 or 3 set labels (e.g. <code class="docutils literal notranslate"><span class="pre">['Set</span> <span class="pre">A',</span> <span class="pre">'Set</span> <span class="pre">B']</span></code> or
+<code class="docutils literal notranslate"><span class="pre">['A',</span> <span class="pre">'B',</span> <span class="pre">'C']</span></code>).</p></li>
+<li><p><strong>sizes</strong> (<em>list</em>) – Per-circle radii (e.g. <code class="docutils literal notranslate"><span class="pre">[150,</span> <span class="pre">200]</span></code>). Defaults to
+<em>radius</em> for all circles.</p></li>
+<li><p><strong>x</strong> (<em>float</em>) – Center x-coordinate of the diagram.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Center y-coordinate of the diagram.</p></li>
+<li><p><strong>radius</strong> (<em>float</em>) – Default radius for all circles when <em>sizes</em> is
+<code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>colors</strong> (<em>list</em>) – List of circle colors. Defaults to
+<code class="docutils literal notranslate"><span class="pre">['#58C4DD',</span> <span class="pre">'#FF6B6B',</span> <span class="pre">'#83C167']</span></code>.</p></li>
+<li><p><strong>font_size</strong> (<em>float</em>) – Font size for labels.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+</ul>
+</dd>
+</dl>
+<p>For 2-circle diagrams, circles are placed side by side with 70% radius
+separation. For 3-circle diagrams, circles are arranged in a triangular
+pattern with 65% radius separation.</p>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: VennDiagram</p>
+<img src="../_static/videos/ref_venn.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">venn</span> <span class="o">=</span> <span class="n">VennDiagram</span><span class="p">(</span>
+    <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Math&#39;</span><span class="p">,</span> <span class="s1">&#39;Science&#39;</span><span class="p">,</span> <span class="s1">&#39;Art&#39;</span><span class="p">],</span>
+    <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="s1">&#39;#E74C3C&#39;</span><span class="p">,</span> <span class="s1">&#39;#2ECC71&#39;</span><span class="p">],</span>
+    <span class="n">radius</span><span class="o">=</span><span class="mi">180</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">venn</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="orgchart">
+<h2>OrgChart<a class="headerlink" href="#orgchart" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="OrgChart">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">OrgChart</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">180</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">120</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#OrgChart" title="Link to this definition">¶</a></dt>
+<dd><p>Organization chart from a tree structure. Nodes are rendered as
+color-coded rounded-rectangle boxes connected by L-shaped path
+connectors. Box colors vary by depth level, cycling through the
+provided color palette. Layout is computed using a breadth-first
+traversal to evenly distribute nodes at each level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – Tree structure as <code class="docutils literal notranslate"><span class="pre">(label,</span> <span class="pre">[children])</span></code> tuples, where
+each child is itself a <code class="docutils literal notranslate"><span class="pre">(label,</span> <span class="pre">children)</span></code> tuple and leaf nodes
+use an empty list.</p></li>
+<li><p><strong>x</strong> (<em>float</em>) – Center x-coordinate of the chart (root node position).</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Y-coordinate of the top (root) level.</p></li>
+<li><p><strong>h_spacing</strong> (<em>float</em>) – Horizontal spacing between boxes at the same
+level in pixels.</p></li>
+<li><p><strong>v_spacing</strong> (<em>float</em>) – Vertical spacing between levels in pixels.</p></li>
+<li><p><strong>box_width</strong> (<em>float</em>) – Width of each box in pixels.</p></li>
+<li><p><strong>box_height</strong> (<em>float</em>) – Height of each box in pixels.</p></li>
+<li><p><strong>font_size</strong> (<em>float</em>) – Font size for box labels.</p></li>
+<li><p><strong>colors</strong> (<em>list</em>) – List of colors to cycle through by depth. Defaults
+to the built-in <code class="docutils literal notranslate"><span class="pre">DEFAULT_CHART_COLORS</span></code> palette.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: OrgChart</p>
+<img src="../_static/videos/ref_org_chart.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">tree</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;CEO&#39;</span><span class="p">,</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s1">&#39;CTO&#39;</span><span class="p">,</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;Dev Lead&#39;</span><span class="p">,</span> <span class="p">[]),</span>
+        <span class="p">(</span><span class="s1">&#39;QA Lead&#39;</span><span class="p">,</span> <span class="p">[]),</span>
+    <span class="p">]),</span>
+    <span class="p">(</span><span class="s1">&#39;CFO&#39;</span><span class="p">,</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;Accounting&#39;</span><span class="p">,</span> <span class="p">[]),</span>
+    <span class="p">]),</span>
+    <span class="p">(</span><span class="s1">&#39;COO&#39;</span><span class="p">,</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;Operations&#39;</span><span class="p">,</span> <span class="p">[]),</span>
+        <span class="p">(</span><span class="s1">&#39;HR&#39;</span><span class="p">,</span> <span class="p">[]),</span>
+    <span class="p">]),</span>
+<span class="p">])</span>
+
+<span class="n">chart</span> <span class="o">=</span> <span class="n">OrgChart</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">h_spacing</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">v_spacing</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">chart</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="mindmap">
+<h2>MindMap<a class="headerlink" href="#mindmap" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="MindMap">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MindMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">250</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">18</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#MindMap" title="Link to this definition">¶</a></dt>
+<dd><p>Radial mind map diagram with a central node, branches, and
+grandchildren spread outward. The central topic is drawn as a large
+circle in the center, with first-level branches distributed evenly
+around it. Grandchildren (second-level nodes) fan out from their
+parent branch within a 60-degree arc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root</strong> – Tree structure as
+<code class="docutils literal notranslate"><span class="pre">(label,</span> <span class="pre">[(child_label,</span> <span class="pre">[grandchildren]),</span> <span class="pre">...])</span></code> tuples.
+Grandchildren follow the same <code class="docutils literal notranslate"><span class="pre">(label,</span> <span class="pre">children)</span></code> format but
+only two levels of depth are rendered.</p></li>
+<li><p><strong>cx</strong> (<em>float</em>) – Center x-coordinate.</p></li>
+<li><p><strong>cy</strong> (<em>float</em>) – Center y-coordinate.</p></li>
+<li><p><strong>radius</strong> (<em>float</em>) – Distance from center to branch nodes in pixels.
+Grandchildren are placed at <code class="docutils literal notranslate"><span class="pre">radius</span> <span class="pre">*</span> <span class="pre">0.5</span></code> beyond their parent.</p></li>
+<li><p><strong>font_size</strong> (<em>float</em>) – Font size for the central node and branches.
+Grandchild labels use <code class="docutils literal notranslate"><span class="pre">font_size</span> <span class="pre">*</span> <span class="pre">0.65</span></code>.</p></li>
+<li><p><strong>colors</strong> (<em>list</em>) – List of colors to cycle through for branches.
+The first color is used for the central node. Defaults to the
+built-in <code class="docutils literal notranslate"><span class="pre">DEFAULT_CHART_COLORS</span></code> palette.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: MindMap</p>
+<img src="../_static/videos/ref_mind_map.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">tree</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;AI&#39;</span><span class="p">,</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s1">&#39;ML&#39;</span><span class="p">,</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;Supervised&#39;</span><span class="p">,</span> <span class="p">[]),</span>
+        <span class="p">(</span><span class="s1">&#39;Unsupervised&#39;</span><span class="p">,</span> <span class="p">[]),</span>
+    <span class="p">]),</span>
+    <span class="p">(</span><span class="s1">&#39;NLP&#39;</span><span class="p">,</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;Transformers&#39;</span><span class="p">,</span> <span class="p">[]),</span>
+    <span class="p">]),</span>
+    <span class="p">(</span><span class="s1">&#39;Vision&#39;</span><span class="p">,</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;CNNs&#39;</span><span class="p">,</span> <span class="p">[]),</span>
+        <span class="p">(</span><span class="s1">&#39;GANs&#39;</span><span class="p">,</span> <span class="p">[]),</span>
+    <span class="p">]),</span>
+    <span class="p">(</span><span class="s1">&#39;Robotics&#39;</span><span class="p">,</span> <span class="p">[]),</span>
+<span class="p">])</span>
+
+<span class="n">chart</span> <span class="o">=</span> <span class="n">MindMap</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">280</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">chart</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="physics.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Physics Engine</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="ui.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">UI Components</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023-2025 Joris Perrenet
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Diagrams</a><ul>
+<li><a class="reference internal" href="#chessboard">ChessBoard</a><ul>
+<li><a class="reference internal" href="#ChessBoard"><code class="docutils literal notranslate"><span class="pre">ChessBoard</span></code></a><ul>
+<li><a class="reference internal" href="#ChessBoard.move_piece"><code class="docutils literal notranslate"><span class="pre">ChessBoard.move_piece()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#periodictable">PeriodicTable</a><ul>
+<li><a class="reference internal" href="#PeriodicTable"><code class="docutils literal notranslate"><span class="pre">PeriodicTable</span></code></a><ul>
+<li><a class="reference internal" href="#PeriodicTable.highlight"><code class="docutils literal notranslate"><span class="pre">PeriodicTable.highlight()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bohratom">BohrAtom</a><ul>
+<li><a class="reference internal" href="#BohrAtom"><code class="docutils literal notranslate"><span class="pre">BohrAtom</span></code></a><ul>
+<li><a class="reference internal" href="#BohrAtom.orbit"><code class="docutils literal notranslate"><span class="pre">BohrAtom.orbit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#automaton">Automaton</a><ul>
+<li><a class="reference internal" href="#Automaton"><code class="docutils literal notranslate"><span class="pre">Automaton</span></code></a><ul>
+<li><a class="reference internal" href="#Automaton.highlight_state"><code class="docutils literal notranslate"><span class="pre">Automaton.highlight_state()</span></code></a></li>
+<li><a class="reference internal" href="#Automaton.highlight_transition"><code class="docutils literal notranslate"><span class="pre">Automaton.highlight_transition()</span></code></a></li>
+<li><a class="reference internal" href="#Automaton.simulate_input"><code class="docutils literal notranslate"><span class="pre">Automaton.simulate_input()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#networkgraph">NetworkGraph</a><ul>
+<li><a class="reference internal" href="#NetworkGraph.get_node_position"><code class="docutils literal notranslate"><span class="pre">NetworkGraph.get_node_position()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tree">Tree</a><ul>
+<li><a class="reference internal" href="#Tree"><code class="docutils literal notranslate"><span class="pre">Tree</span></code></a><ul>
+<li><a class="reference internal" href="#Tree.get_node_position"><code class="docutils literal notranslate"><span class="pre">Tree.get_node_position()</span></code></a></li>
+<li><a class="reference internal" href="#Tree.highlight_node"><code class="docutils literal notranslate"><span class="pre">Tree.highlight_node()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#stamp">Stamp</a><ul>
+<li><a class="reference internal" href="#Stamp"><code class="docutils literal notranslate"><span class="pre">Stamp</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#timelinebar">TimelineBar</a><ul>
+<li><a class="reference internal" href="#TimelineBar"><code class="docutils literal notranslate"><span class="pre">TimelineBar</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#flowchart">FlowChart</a></li>
+<li><a class="reference internal" href="#venndiagram">VennDiagram</a><ul>
+<li><a class="reference internal" href="#VennDiagram"><code class="docutils literal notranslate"><span class="pre">VennDiagram</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#orgchart">OrgChart</a><ul>
+<li><a class="reference internal" href="#OrgChart"><code class="docutils literal notranslate"><span class="pre">OrgChart</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#mindmap">MindMap</a><ul>
+<li><a class="reference internal" href="#MindMap"><code class="docutils literal notranslate"><span class="pre">MindMap</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    </body>
+</html>

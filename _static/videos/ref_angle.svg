@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><line x1='960' y1='540' x2='1260' y2='540' stroke='rgb(170,170,170)' stroke-width='3' /></g>
+<g data-obj-idx='2'><line x1='960' y1='540' x2='1160' y2='340' stroke='rgb(170,170,170)' stroke-width='3' /></g>
+<g data-obj-idx='3'><g>
+<path d='M1020.0,540.0A60,60 0 0,0 1002.43,497.57' fill-opacity='0' stroke='rgb(88,196,221)' stroke-width='3' />
+</g></g>
+</svg>

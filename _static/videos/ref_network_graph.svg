@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<g>
+<line x1='984.27' y1='307.63' x2='1173.49' y2='445.11' stroke='rgb(136,136,136)' stroke-width='2' />
+<polygon points='1173.49,445.11 1160.85,442.1 1166.72,434.01' fill='rgb(136,136,136)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='969.27' y1='318.53' x2='1097.68' y2='713.72' stroke='rgb(136,136,136)' stroke-width='2' />
+<polygon points='1097.68,713.72 1089.21,703.85 1098.72,700.76' fill='rgb(136,136,136)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1173.49' y1='480.38' x2='837.32' y2='724.62' stroke='rgb(136,136,136)' stroke-width='2' />
+<polygon points='837.32,724.62 844.09,713.52 849.97,721.61' fill='rgb(136,136,136)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1076.95' y1='742.25' x2='843.05' y2='742.25' stroke='rgb(136,136,136)' stroke-width='2' />
+<polygon points='843.05,742.25 855.05,737.25 855.05,747.25' fill='rgb(136,136,136)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='803.78' y1='713.72' x2='731.51' y2='491.28' stroke='rgb(136,136,136)' stroke-width='2' />
+<polygon points='731.51,491.28 739.97,501.15 730.46,504.24' fill='rgb(136,136,136)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1167.76' y1='462.75' x2='752.24' y2='462.75' stroke='rgb(136,136,136)' stroke-width='2' />
+<polygon points='752.24,462.75 764.24,457.75 764.24,467.75' fill='rgb(136,136,136)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<circle cx='960.0' cy='290.0' r='30' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='1197.76' cy='462.75' r='30' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='1106.95' cy='742.25' r='30' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='813.05' cy='742.25' r='30' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='722.24' cy='462.75' r='30' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<text x='960.0' y='297.0' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>A</text>
+<text x='1197.76' y='469.75' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>B</text>
+<text x='1106.95' y='749.25' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>C</text>
+<text x='813.05' y='749.25' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>D</text>
+<text x='722.24' y='469.75' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>E</text>
+</g></g>
+</svg>

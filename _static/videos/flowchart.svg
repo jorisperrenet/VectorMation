@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<g>
+<line x1='610.0' y1='540.0' x2='710.0' y2='540.0' stroke='rgb(153,153,153)' stroke-width='5' />
+<polygon points='710.0,540.0 663.0,563.5 663.0,516.5' fill='rgb(153,153,153)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='910.0' y1='540.0' x2='1010.0' y2='540.0' stroke='rgb(153,153,153)' stroke-width='5' />
+<polygon points='1010.0,540.0 963.0,563.5 963.0,516.5' fill='rgb(153,153,153)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1210.0' y1='540.0' x2='1310.0' y2='540.0' stroke='rgb(153,153,153)' stroke-width='5' />
+<polygon points='1310.0,540.0 1263.0,563.5 1263.0,516.5' fill='rgb(153,153,153)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<rect x='410.0' y='510.0' width='200' height='60' rx='8' ry='8' fill='rgb(88,196,221)' fill-opacity='0.8' stroke='rgb(88,196,221)' stroke-width='5' />
+<rect x='710.0' y='510.0' width='200' height='60' rx='8' ry='8' fill='rgb(88,196,221)' fill-opacity='0.8' stroke='rgb(88,196,221)' stroke-width='5' />
+<rect x='1010.0' y='510.0' width='200' height='60' rx='8' ry='8' fill='rgb(88,196,221)' fill-opacity='0.8' stroke='rgb(88,196,221)' stroke-width='5' />
+<rect x='1310.0' y='510.0' width='200' height='60' rx='8' ry='8' fill='rgb(88,196,221)' fill-opacity='0.8' stroke='rgb(88,196,221)' stroke-width='5' />
+<text x='510.0' y='547.0' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Input</text>
+<text x='810.0' y='547.0' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Validate</text>
+<text x='1110.0' y='547.0' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Process</text>
+<text x='1410.0' y='547.0' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Output</text>
+</g></g>
+</svg>

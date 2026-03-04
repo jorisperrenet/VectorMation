@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<line x1='520' y1='240' x2='520' y2='690' stroke='rgb(136,136,136)' />
+<line x1='520' y1='690.0' x2='1460' y2='690.0' stroke='rgb(85,85,85)' stroke-dasharray='4 3' />
+<line x1='634.14' y1='408.75' x2='674.43' y2='408.75' stroke='rgb(102,102,102)' stroke-dasharray='3 2' />
+<line x1='768.43' y1='324.38' x2='808.71' y2='324.38' stroke='rgb(102,102,102)' stroke-dasharray='3 2' />
+<line x1='902.71' y1='380.62' x2='943.0' y2='380.62' stroke='rgb(102,102,102)' stroke-dasharray='3 2' />
+<line x1='1037.0' y1='240.0' x2='1077.29' y2='240.0' stroke='rgb(102,102,102)' stroke-dasharray='3 2' />
+<line x1='1171.29' y1='282.19' x2='1211.57' y2='282.19' stroke='rgb(102,102,102)' stroke-dasharray='3 2' />
+<line x1='1305.57' y1='310.31' x2='1345.86' y2='310.31' stroke='rgb(102,102,102)' stroke-dasharray='3 2' />
+<rect x='540.14' y='408.75' width='94' height='281.25' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.8' stroke='rgb(131,193,103)' />
+<rect x='674.43' y='324.38' width='94' height='84.38' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.8' stroke='rgb(131,193,103)' />
+<rect x='808.71' y='324.38' width='94' height='56.25' rx='0' ry='0' fill='rgb(255,107,107)' fill-opacity='0.8' stroke='rgb(255,107,107)' />
+<rect x='943.0' y='240.0' width='94' height='140.62' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.8' stroke='rgb(131,193,103)' />
+<rect x='1077.29' y='240.0' width='94' height='42.19' rx='0' ry='0' fill='rgb(255,107,107)' fill-opacity='0.8' stroke='rgb(255,107,107)' />
+<rect x='1211.57' y='282.19' width='94' height='28.12' rx='0' ry='0' fill='rgb(255,107,107)' fill-opacity='0.8' stroke='rgb(255,107,107)' />
+<rect x='1345.86' y='310.31' width='94' height='379.69' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.8' stroke='rgb(88,196,221)' />
+<text x='587.14' y='710' font-size='16' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Revenue</text>
+<text x='587.14' y='403.75' font-size='14' text-anchor='middle' fill='rgb(131,193,103)' stroke='rgb(0,0,0)' stroke-width='0'>+100</text>
+<text x='721.43' y='710' font-size='16' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Sales</text>
+<text x='721.43' y='319.38' font-size='14' text-anchor='middle' fill='rgb(131,193,103)' stroke='rgb(0,0,0)' stroke-width='0'>+30</text>
+<text x='855.71' y='710' font-size='16' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Returns</text>
+<text x='855.71' y='319.38' font-size='14' text-anchor='middle' fill='rgb(255,107,107)' stroke='rgb(0,0,0)' stroke-width='0'>-20</text>
+<text x='990.0' y='710' font-size='16' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Services</text>
+<text x='990.0' y='235.0' font-size='14' text-anchor='middle' fill='rgb(131,193,103)' stroke='rgb(0,0,0)' stroke-width='0'>+50</text>
+<text x='1124.29' y='710' font-size='16' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Tax</text>
+<text x='1124.29' y='235.0' font-size='14' text-anchor='middle' fill='rgb(255,107,107)' stroke='rgb(0,0,0)' stroke-width='0'>-15</text>
+<text x='1258.57' y='710' font-size='16' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Costs</text>
+<text x='1258.57' y='277.19' font-size='14' text-anchor='middle' fill='rgb(255,107,107)' stroke='rgb(0,0,0)' stroke-width='0'>-10</text>
+<text x='1392.86' y='710' font-size='16' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Net</text>
+<text x='1392.86' y='305.31' font-size='14' text-anchor='middle' fill='rgb(88,196,221)' stroke='rgb(0,0,0)' stroke-width='0'>135</text>
+</g></g>
+</svg>

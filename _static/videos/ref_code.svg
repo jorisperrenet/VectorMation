@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<rect x='550' y='317' width='559.2' height='188.0' rx='8' ry='8' fill='rgb(40,44,52)' fill-opacity='0.95' stroke='rgb(68,68,68)' />
+<text x='560' y='350.0' font-size='28' font-family='monospace' fill='rgb(99,109,131)' stroke='rgb(0,0,0)' stroke-width='0'> 1</text>
+<text x='618.8' y='350.0' font-size='28' font-family='monospace' fill='rgb(198,120,221)' stroke='rgb(0,0,0)' stroke-width='0'>def</text>
+<text x='669.2' y='350.0' font-size='28' font-family='monospace' fill='rgb(171,178,191)' stroke='rgb(0,0,0)' stroke-width='0'> </text>
+<text x='686' y='350.0' font-size='28' font-family='monospace' fill='rgb(97,175,239)' stroke='rgb(0,0,0)' stroke-width='0'>greet</text>
+<text x='770' y='350.0' font-size='28' font-family='monospace' fill='rgb(171,178,191)' stroke='rgb(0,0,0)' stroke-width='0'>(</text>
+<text x='786.8' y='350.0' font-size='28' font-family='monospace' fill='rgb(171,178,191)' stroke='rgb(0,0,0)' stroke-width='0'>name</text>
+<text x='854' y='350.0' font-size='28' font-family='monospace' fill='rgb(171,178,191)' stroke='rgb(0,0,0)' stroke-width='0'>)</text>
+<text x='870.8' y='350.0' font-size='28' font-family='monospace' fill='rgb(171,178,191)' stroke='rgb(0,0,0)' stroke-width='0'>:</text>
+<text x='560' y='392.0' font-size='28' font-family='monospace' fill='rgb(99,109,131)' stroke='rgb(0,0,0)' stroke-width='0'> 2</text>
+<text x='618.8' y='392.0' font-size='28' font-family='monospace' fill='rgb(171,178,191)' stroke='rgb(0,0,0)' stroke-width='0'>    </text>
+<text x='686.0' y='392.0' font-size='28' font-family='monospace' fill='rgb(198,120,221)' stroke='rgb(0,0,0)' stroke-width='0'>return</text>
+<text x='786.8' y='392.0' font-size='28' font-family='monospace' fill='rgb(171,178,191)' stroke='rgb(0,0,0)' stroke-width='0'> </text>
+<text x='803.6' y='392.0' font-size='28' font-family='monospace' fill='rgb(198,120,221)' stroke='rgb(0,0,0)' stroke-width='0'>f</text>
+<text x='820.4' y='392.0' font-size='28' font-family='monospace' fill='rgb(152,195,121)' stroke='rgb(0,0,0)' stroke-width='0'>"</text>
+<text x='837.2' y='392.0' font-size='28' font-family='monospace' fill='rgb(152,195,121)' stroke='rgb(0,0,0)' stroke-width='0'>Hello, </text>
+<text x='954.8' y='392.0' font-size='28' font-family='monospace' fill='rgb(86,182,194)' stroke='rgb(0,0,0)' stroke-width='0'>{</text>
+<text x='971.6' y='392.0' font-size='28' font-family='monospace' fill='rgb(171,178,191)' stroke='rgb(0,0,0)' stroke-width='0'>name</text>
+<text x='1038.8' y='392.0' font-size='28' font-family='monospace' fill='rgb(86,182,194)' stroke='rgb(0,0,0)' stroke-width='0'>}</text>
+<text x='1055.6' y='392.0' font-size='28' font-family='monospace' fill='rgb(152,195,121)' stroke='rgb(0,0,0)' stroke-width='0'>!</text>
+<text x='1072.4' y='392.0' font-size='28' font-family='monospace' fill='rgb(152,195,121)' stroke='rgb(0,0,0)' stroke-width='0'>"</text>
+<text x='560' y='434.0' font-size='28' font-family='monospace' fill='rgb(99,109,131)' stroke='rgb(0,0,0)' stroke-width='0'> 3</text>
+<text x='560' y='476.0' font-size='28' font-family='monospace' fill='rgb(99,109,131)' stroke='rgb(0,0,0)' stroke-width='0'> 4</text>
+<text x='618.8' y='476.0' font-size='28' font-family='monospace' fill='rgb(97,175,239)' stroke='rgb(0,0,0)' stroke-width='0'>print</text>
+<text x='702.8' y='476.0' font-size='28' font-family='monospace' fill='rgb(171,178,191)' stroke='rgb(0,0,0)' stroke-width='0'>(</text>
+<text x='719.6' y='476.0' font-size='28' font-family='monospace' fill='rgb(171,178,191)' stroke='rgb(0,0,0)' stroke-width='0'>greet</text>
+<text x='803.6' y='476.0' font-size='28' font-family='monospace' fill='rgb(171,178,191)' stroke='rgb(0,0,0)' stroke-width='0'>(</text>
+<text x='820.4' y='476.0' font-size='28' font-family='monospace' fill='rgb(152,195,121)' stroke='rgb(0,0,0)' stroke-width='0'>"</text>
+<text x='837.2' y='476.0' font-size='28' font-family='monospace' fill='rgb(152,195,121)' stroke='rgb(0,0,0)' stroke-width='0'>World</text>
+<text x='921.2' y='476.0' font-size='28' font-family='monospace' fill='rgb(152,195,121)' stroke='rgb(0,0,0)' stroke-width='0'>"</text>
+<text x='938' y='476.0' font-size='28' font-family='monospace' fill='rgb(171,178,191)' stroke='rgb(0,0,0)' stroke-width='0'>)</text>
+<text x='954.8' y='476.0' font-size='28' font-family='monospace' fill='rgb(171,178,191)' stroke='rgb(0,0,0)' stroke-width='0'>)</text>
+</g></g>
+</svg>

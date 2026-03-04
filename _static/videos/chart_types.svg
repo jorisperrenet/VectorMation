@@ -1,0 +1,612 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1560' viewBox='0 0 1920 1560'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1560' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><text x='960' y='50' font-size='44' text-anchor='middle' fill='rgb(88,196,221)' stroke='rgb(0,0,0)' stroke-width='0'>Chart Types</text></g>
+<g data-obj-idx='2'><text x='240' y='110' font-size='20' text-anchor='middle' fill='rgb(153,153,153)' stroke='rgb(0,0,0)' stroke-width='0'>GaugeChart</text></g>
+<g data-obj-idx='3'><g>
+<path d='M183.43,286.57A80,80 0 0,1 179.17,281.96' fill-opacity='0' stroke='rgb(131,193,103)' stroke-width='20' />
+<path d='M179.17,281.96A80,80 0 0,1 175.28,277.02' fill-opacity='0' stroke='rgb(135,195,99)' stroke-width='20' />
+<path d='M175.28,277.02A80,80 0 0,1 171.79,271.8' fill-opacity='0' stroke='rgb(139,197,96)' stroke-width='20' />
+<path d='M171.79,271.8A80,80 0 0,1 168.72,266.32' fill-opacity='0' stroke='rgb(143,199,92)' stroke-width='20' />
+<path d='M168.72,266.32A80,80 0 0,1 166.09,260.61' fill-opacity='0' stroke='rgb(147,201,89)' stroke-width='20' />
+<path d='M166.09,260.61A80,80 0 0,1 163.92,254.72' fill-opacity='0' stroke='rgb(151,203,85)' stroke-width='20' />
+<path d='M163.92,254.72A80,80 0 0,1 162.21,248.68' fill-opacity='0' stroke='rgb(155,205,82)' stroke-width='20' />
+<path d='M162.21,248.68A80,80 0 0,1 160.98,242.51' fill-opacity='0' stroke='rgb(159,207,78)' stroke-width='20' />
+<path d='M160.98,242.51A80,80 0 0,1 160.25,236.28' fill-opacity='0' stroke='rgb(164,209,75)' stroke-width='20' />
+<path d='M160.25,236.28A80,80 0 0,1 160.0,230.0' fill-opacity='0' stroke='rgb(168,211,72)' stroke-width='20' />
+<path d='M160.0,230.0A80,80 0 0,1 160.25,223.72' fill-opacity='0' stroke='rgb(172,213,68)' stroke-width='20' />
+<path d='M160.25,223.72A80,80 0 0,1 160.98,217.49' fill-opacity='0' stroke='rgb(176,215,65)' stroke-width='20' />
+<path d='M160.98,217.49A80,80 0 0,1 162.21,211.32' fill-opacity='0' stroke='rgb(180,217,61)' stroke-width='20' />
+<path d='M162.21,211.32A80,80 0 0,1 163.92,205.28' fill-opacity='0' stroke='rgb(184,219,58)' stroke-width='20' />
+<path d='M163.92,205.28A80,80 0 0,1 166.09,199.39' fill-opacity='0' stroke='rgb(188,221,54)' stroke-width='20' />
+<path d='M166.09,199.39A80,80 0 0,1 168.72,193.68' fill-opacity='0' stroke='rgb(193,224,51)' stroke-width='20' />
+<path d='M168.72,193.68A80,80 0 0,1 171.79,188.2' fill-opacity='0' stroke='rgb(197,226,48)' stroke-width='20' />
+<path d='M171.79,188.2A80,80 0 0,1 175.28,182.98' fill-opacity='0' stroke='rgb(201,228,44)' stroke-width='20' />
+<path d='M175.28,182.98A80,80 0 0,1 179.17,178.04' fill-opacity='0' stroke='rgb(205,230,41)' stroke-width='20' />
+<path d='M179.17,178.04A80,80 0 0,1 183.43,173.43' fill-opacity='0' stroke='rgb(209,232,37)' stroke-width='20' />
+<path d='M183.43,173.43A80,80 0 0,1 188.04,169.17' fill-opacity='0' stroke='rgb(213,234,34)' stroke-width='20' />
+<path d='M188.04,169.17A80,80 0 0,1 192.98,165.28' fill-opacity='0' stroke='rgb(217,236,30)' stroke-width='20' />
+<path d='M192.98,165.28A80,80 0 0,1 198.2,161.79' fill-opacity='0' stroke='rgb(221,238,27)' stroke-width='20' />
+<path d='M198.2,161.79A80,80 0 0,1 203.68,158.72' fill-opacity='0' stroke='rgb(226,240,24)' stroke-width='20' />
+<path d='M203.68,158.72A80,80 0 0,1 209.39,156.09' fill-opacity='0' stroke='rgb(230,242,20)' stroke-width='20' />
+<path d='M209.39,156.09A80,80 0 0,1 215.28,153.92' fill-opacity='0' stroke='rgb(234,244,17)' stroke-width='20' />
+<path d='M215.28,153.92A80,80 0 0,1 221.32,152.21' fill-opacity='0' stroke='rgb(238,246,13)' stroke-width='20' />
+<path d='M221.32,152.21A80,80 0 0,1 227.49,150.98' fill-opacity='0' stroke='rgb(242,248,10)' stroke-width='20' />
+<path d='M227.49,150.98A80,80 0 0,1 233.72,150.25' fill-opacity='0' stroke='rgb(246,250,6)' stroke-width='20' />
+<path d='M233.72,150.25A80,80 0 0,1 240.0,150.0' fill-opacity='0' stroke='rgb(250,252,3)' stroke-width='20' />
+<path d='M240.0,150.0A80,80 0 0,1 246.28,150.25' fill-opacity='0' stroke='rgb(255,255,0)' stroke-width='20' />
+<path d='M246.28,150.25A80,80 0 0,1 252.51,150.98' fill-opacity='0' stroke='rgb(255,250,3)' stroke-width='20' />
+<path d='M252.51,150.98A80,80 0 0,1 258.68,152.21' fill-opacity='0' stroke='rgb(255,245,7)' stroke-width='20' />
+<path d='M258.68,152.21A80,80 0 0,1 264.72,153.92' fill-opacity='0' stroke='rgb(255,240,10)' stroke-width='20' />
+<path d='M264.72,153.92A80,80 0 0,1 270.61,156.09' fill-opacity='0' stroke='rgb(255,235,14)' stroke-width='20' />
+<path d='M270.61,156.09A80,80 0 0,1 276.32,158.72' fill-opacity='0' stroke='rgb(255,230,17)' stroke-width='20' />
+<path d='M276.32,158.72A80,80 0 0,1 281.8,161.79' fill-opacity='0' stroke='rgb(255,225,21)' stroke-width='20' />
+<path d='M281.8,161.79A80,80 0 0,1 287.02,165.28' fill-opacity='0' stroke='rgb(255,220,24)' stroke-width='20' />
+<path d='M287.02,165.28A80,80 0 0,1 291.96,169.17' fill-opacity='0' stroke='rgb(255,215,28)' stroke-width='20' />
+<path d='M291.96,169.17A80,80 0 0,1 296.57,173.43' fill-opacity='0' stroke='rgb(255,210,32)' stroke-width='20' />
+<path d='M296.57,173.43A80,80 0 0,1 300.83,178.04' fill-opacity='0' stroke='rgb(255,205,35)' stroke-width='20' />
+<path d='M300.83,178.04A80,80 0 0,1 304.72,182.98' fill-opacity='0' stroke='rgb(255,200,39)' stroke-width='20' />
+<path d='M304.72,182.98A80,80 0 0,1 308.21,188.2' fill-opacity='0' stroke='rgb(255,195,42)' stroke-width='20' />
+<path d='M308.21,188.2A80,80 0 0,1 311.28,193.68' fill-opacity='0' stroke='rgb(255,190,46)' stroke-width='20' />
+<path d='M311.28,193.68A80,80 0 0,1 313.91,199.39' fill-opacity='0' stroke='rgb(255,185,49)' stroke-width='20' />
+<path d='M313.91,199.39A80,80 0 0,1 316.08,205.28' fill-opacity='0' stroke='rgb(255,181,53)' stroke-width='20' />
+<path d='M316.08,205.28A80,80 0 0,1 317.79,211.32' fill-opacity='0' stroke='rgb(255,176,57)' stroke-width='20' />
+<path d='M317.79,211.32A80,80 0 0,1 319.02,217.49' fill-opacity='0' stroke='rgb(255,171,60)' stroke-width='20' />
+<path d='M319.02,217.49A80,80 0 0,1 319.75,223.72' fill-opacity='0' stroke='rgb(255,166,64)' stroke-width='20' />
+<path d='M319.75,223.72A80,80 0 0,1 320.0,230.0' fill-opacity='0' stroke='rgb(255,161,67)' stroke-width='20' />
+<path d='M320.0,230.0A80,80 0 0,1 319.75,236.28' fill-opacity='0' stroke='rgb(255,156,71)' stroke-width='20' />
+<path d='M319.75,236.28A80,80 0 0,1 319.02,242.51' fill-opacity='0' stroke='rgb(255,151,74)' stroke-width='20' />
+<path d='M319.02,242.51A80,80 0 0,1 317.79,248.68' fill-opacity='0' stroke='rgb(255,146,78)' stroke-width='20' />
+<path d='M317.79,248.68A80,80 0 0,1 316.08,254.72' fill-opacity='0' stroke='rgb(255,141,82)' stroke-width='20' />
+<path d='M316.08,254.72A80,80 0 0,1 313.91,260.61' fill-opacity='0' stroke='rgb(255,136,85)' stroke-width='20' />
+<path d='M313.91,260.61A80,80 0 0,1 311.28,266.32' fill-opacity='0' stroke='rgb(255,131,89)' stroke-width='20' />
+<path d='M311.28,266.32A80,80 0 0,1 308.21,271.8' fill-opacity='0' stroke='rgb(255,126,92)' stroke-width='20' />
+<path d='M308.21,271.8A80,80 0 0,1 304.72,277.02' fill-opacity='0' stroke='rgb(255,121,96)' stroke-width='20' />
+<path d='M304.72,277.02A80,80 0 0,1 300.83,281.96' fill-opacity='0' stroke='rgb(255,116,99)' stroke-width='20' />
+<path d='M300.83,281.96A80,80 0 0,1 296.57,286.57' fill-opacity='0' stroke='rgb(255,111,103)' stroke-width='20' />
+<line x1='194.04' y1='275.96' x2='170.7' y2='299.3' stroke='rgb(136,136,136)' stroke-width='1.5' />
+<text x='158.68' y='314.92' font-size='7.2' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>0</text>
+<line x1='175.8' y1='219.83' x2='143.21' y2='214.67' stroke='rgb(136,136,136)' stroke-width='1.5' />
+<text x='126.42' y='215.61' font-size='7.2' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>20</text>
+<line x1='210.49' y1='172.08' x2='195.51' y2='142.68' stroke='rgb(136,136,136)' stroke-width='1.5' />
+<text x='187.79' y='131.13' font-size='7.2' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>40</text>
+<line x1='269.51' y1='172.08' x2='284.49' y2='142.68' stroke='rgb(136,136,136)' stroke-width='1.5' />
+<text x='292.21' y='131.13' font-size='7.2' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>60</text>
+<line x1='304.2' y1='219.83' x2='336.79' y2='214.67' stroke='rgb(136,136,136)' stroke-width='1.5' />
+<text x='353.58' y='215.61' font-size='7.2' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>80</text>
+<line x1='285.96' y1='275.96' x2='309.3' y2='299.3' stroke='rgb(136,136,136)' stroke-width='1.5' />
+<text x='321.32' y='314.92' font-size='7.2' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>100</text>
+<line x1='240' y1='230' x2='283.04' y2='204.55' stroke='rgb(255,255,255)' stroke-width='3' />
+<circle cx='240' cy='230' r='8' fill='rgb(255,255,255)' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='240' y='262.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>72</text>
+</g></g>
+<g data-obj-idx='4'><text x='720' y='110' font-size='20' text-anchor='middle' fill='rgb(153,153,153)' stroke='rgb(0,0,0)' stroke-width='0'>SparkLine</text></g>
+<g data-obj-idx='5'><path d="M620.0,275.5L626.9,286.9L633.8,253.6L640.7,257.8L647.6,260.9L654.5,272.3L661.4,276.5L668.3,218.3L675.2,278.6L682.1,212.1L689.0,233.9L695.9,285.8L702.8,286.9L709.7,278.6L716.6,261.9L723.4,259.9L730.3,223.5L737.2,210.0L744.1,286.9L751.0,216.2L757.9,264.0L764.8,218.3L771.7,234.9L778.6,260.9L785.5,230.8L792.4,212.1L799.3,253.6L806.2,290.0L813.1,269.2L820.0,233.9" fill-opacity='0' stroke='rgb(88,196,221)' stroke-width='2'/><circle cx="820.0" cy="233.9" r="2.5" fill="rgb(88,196,221)"/></g>
+<g data-obj-idx='6'><text x='1200' y='110' font-size='20' text-anchor='middle' fill='rgb(153,153,153)' stroke='rgb(0,0,0)' stroke-width='0'>DonutChart</text></g>
+<g data-obj-idx='7'><g>
+<path d='M1200.0,150.0 A90,90 0 0 0 1127.2,292.9 L1159.5,269.4 A50,50 0 0 1 1200.0,190.0 Z' fill='rgb(88,196,221)' fill-opacity='0.85' stroke='rgb(34,34,34)' stroke-width='2' />
+<path d='M1127.2,292.9 A90,90 0 0 0 1252.9,312.8 L1229.4,280.5 A50,50 0 0 1 1159.5,269.4 Z' fill='rgb(131,193,103)' fill-opacity='0.85' stroke='rgb(34,34,34)' stroke-width='2' />
+<path d='M1252.9,312.8 A90,90 0 0 0 1285.6,212.2 L1247.6,224.5 A50,50 0 0 1 1229.4,280.5 Z' fill='rgb(255,107,107)' fill-opacity='0.85' stroke='rgb(34,34,34)' stroke-width='2' />
+<path d='M1285.6,212.2 A90,90 0 0 0 1227.8,154.4 L1215.5,192.4 A50,50 0 0 1 1247.6,224.5 Z' fill='rgb(255,255,0)' fill-opacity='0.85' stroke='rgb(34,34,34)' stroke-width='2' />
+<path d='M1227.8,154.4 A90,90 0 0 0 1200.0,150.0 L1200.0,190.0 A50,50 0 0 1 1215.5,192.4 Z' fill='rgb(255,121,198)' fill-opacity='0.85' stroke='rgb(34,34,34)' stroke-width='2' />
+<text x='1137.63' y='208.22' font-size='12' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>A</text>
+<text x='1189.05' y='309.14' font-size='12' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>B</text>
+<text x='1266.57' y='261.63' font-size='12' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>C</text>
+<text x='1249.5' y='190.5' font-size='12' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>D</text>
+<text x='1210.95' y='170.86' font-size='12' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>E</text>
+</g></g>
+<g data-obj-idx='8'><text x='1680' y='110' font-size='20' text-anchor='middle' fill='rgb(153,153,153)' stroke='rgb(0,0,0)' stroke-width='0'>FunnelChart</text></g>
+<g data-obj-idx='9'><g>
+<polygon points='1530.0,170.0 1830.0,170.0 1830.0,217.0 1530.0,217.0' fill='rgb(88,196,221)' fill-opacity='0.85' stroke='rgb(88,196,221)' />
+<polygon points='1530.0,221.0 1830.0,221.0 1770.0,268.0 1590.0,268.0' fill='rgb(131,193,103)' fill-opacity='0.85' stroke='rgb(131,193,103)' />
+<polygon points='1590.0,272.0 1770.0,272.0 1725.0,319.0 1635.0,319.0' fill='rgb(255,107,107)' fill-opacity='0.85' stroke='rgb(255,107,107)' />
+<polygon points='1635.0,323.0 1725.0,323.0 1698.0,370.0 1662.0,370.0' fill='rgb(255,255,0)' fill-opacity='0.85' stroke='rgb(255,255,0)' />
+<text x='1680.0' y='198.05' font-size='13' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Visits (1000)</text>
+<text x='1680.0' y='249.05' font-size='13' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Leads (600)</text>
+<text x='1680.0' y='300.05' font-size='13' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Trials (300)</text>
+<text x='1680.0' y='351.05' font-size='13' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Sales (120)</text>
+</g></g>
+<g data-obj-idx='10'><text x='240' y='390' font-size='20' text-anchor='middle' fill='rgb(153,153,153)' stroke='rgb(0,0,0)' stroke-width='0'>TreeMap</text></g>
+<g data-obj-idx='11'><g>
+<rect x='91.0' y='451.0' width='95.56' height='178.0' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.8' stroke='rgb(34,34,34)' />
+<rect x='188.56' y='451.0' width='71.17' height='178.0' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.8' stroke='rgb(34,34,34)' />
+<rect x='261.73' y='451.0' width='127.27' height='65.92' rx='0' ry='0' fill='rgb(255,107,107)' fill-opacity='0.8' stroke='rgb(34,34,34)' />
+<rect x='261.73' y='518.92' width='56.76' height='110.08' rx='0' ry='0' fill='rgb(255,255,0)' fill-opacity='0.8' stroke='rgb(34,34,34)' />
+<rect x='320.49' y='518.92' width='68.51' height='60.26' rx='0' ry='0' fill='rgb(255,121,198)' fill-opacity='0.8' stroke='rgb(34,34,34)' />
+<rect x='320.49' y='581.19' width='68.51' height='47.81' rx='0' ry='0' fill='rgb(184,187,38)' fill-opacity='0.8' stroke='rgb(34,34,34)' />
+<text x='138.78' y='544.2' font-size='12' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Alpha</text>
+<text x='224.15' y='544.2' font-size='12' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Beta</text>
+<text x='325.37' y='488.16' font-size='12' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Gamma</text>
+<text x='290.11' y='578.16' font-size='12' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Delta</text>
+<text x='354.75' y='553.26' font-size='12' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Eps</text>
+<text x='354.75' y='609.29' font-size='12' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Zeta</text>
+</g></g>
+<g data-obj-idx='12'><text x='720' y='390' font-size='20' text-anchor='middle' fill='rgb(153,153,153)' stroke='rgb(0,0,0)' stroke-width='0'>WaffleChart</text></g>
+<g data-obj-idx='13'><g>
+<rect x='630' y='450' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='646' y='450' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='662' y='450' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='678' y='450' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='694' y='450' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='710' y='450' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='726' y='450' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='742' y='450' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='630' y='466' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='646' y='466' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='662' y='466' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='678' y='466' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='694' y='466' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='710' y='466' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='726' y='466' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='742' y='466' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='630' y='482' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='646' y='482' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='662' y='482' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='678' y='482' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='694' y='482' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='710' y='482' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='726' y='482' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='742' y='482' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='630' y='498' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='646' y='498' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='662' y='498' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='678' y='498' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='694' y='498' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='710' y='498' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='726' y='498' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='742' y='498' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='630' y='514' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='646' y='514' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='662' y='514' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='678' y='514' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='694' y='514' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='710' y='514' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='726' y='514' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='742' y='514' width='14' height='14' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='630' y='530' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='646' y='530' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='662' y='530' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='678' y='530' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='694' y='530' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='710' y='530' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='726' y='530' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='742' y='530' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='630' y='546' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='646' y='546' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='662' y='546' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='678' y='546' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='694' y='546' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='710' y='546' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='726' y='546' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='742' y='546' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='630' y='562' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='646' y='562' width='14' height='14' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='662' y='562' width='14' height='14' rx='0' ry='0' fill='rgb(240,172,95)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='678' y='562' width='14' height='14' rx='0' ry='0' fill='rgb(240,172,95)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='694' y='562' width='14' height='14' rx='0' ry='0' fill='rgb(240,172,95)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='710' y='562' width='14' height='14' rx='0' ry='0' fill='rgb(240,172,95)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='726' y='562' width='14' height='14' rx='0' ry='0' fill='rgb(240,172,95)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='742' y='562' width='14' height='14' rx='0' ry='0' fill='rgb(240,172,95)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='773' y='450.0' width='11' height='11' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='789' y='458.8' font-size='11' text-anchor='start' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Yes (62)</text>
+<rect x='773' y='483.0' width='11' height='11' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='789' y='491.8' font-size='11' text-anchor='start' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>No (28)</text>
+<rect x='773' y='516.0' width='11' height='11' rx='0' ry='0' fill='rgb(240,172,95)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='789' y='524.8' font-size='11' text-anchor='start' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Maybe (10)</text>
+</g></g>
+<g data-obj-idx='14'><text x='1200' y='390' font-size='20' text-anchor='middle' fill='rgb(153,153,153)' stroke='rgb(0,0,0)' stroke-width='0'>BulletChart</text></g>
+<g data-obj-idx='15'><g>
+<rect x='1100.0' y='510' width='150.0' height='35' rx='0' ry='0' fill='rgb(42,42,58)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1250.0' y='510' width='50.0' height='35' rx='0' ry='0' fill='rgb(58,58,74)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1300.0' y='510' width='50.0' height='35' rx='0' ry='0' fill='rgb(74,74,90)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1100' y='518.75' width='187.5' height='17.5' rx='0' ry='0' fill='rgb(51,51,51)' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='1090' y='532.05' font-size='13' text-anchor='end' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Revenue</text>
+<line x1='1325.0' y1='515.25' x2='1325.0' y2='539.75' stroke='rgb(255,255,255)' stroke-width='2.5' />
+</g></g>
+<g data-obj-idx='16'><text x='1680' y='390' font-size='20' text-anchor='middle' fill='rgb(153,153,153)' stroke='rgb(0,0,0)' stroke-width='0'>SankeyDiagram</text></g>
+<g data-obj-idx='17'><g>
+<path d='M1572.0,450.0 C1658.4,450.0 1701.6,450.0 1788.0,450.0 L1788.0,498.0 C1701.6,498.0 1658.4,510.0 1572.0,510.0 Z' fill='rgb(88,196,221)' fill-opacity='0.4' stroke='rgb(88,196,221)' stroke-width='0.5' stroke-opacity='0.6' />
+<path d='M1572.0,510.0 C1658.4,510.0 1701.6,542.0 1788.0,542.0 L1788.0,574.0 C1701.6,574.0 1658.4,550.0 1572.0,550.0 Z' fill='rgb(131,193,103)' fill-opacity='0.4' stroke='rgb(131,193,103)' stroke-width='0.5' stroke-opacity='0.6' />
+<path d='M1572.0,570.0 C1658.4,570.0 1701.6,498.0 1788.0,498.0 L1788.0,522.0 C1701.6,522.0 1658.4,600.0 1572.0,600.0 Z' fill='rgb(255,107,107)' fill-opacity='0.4' stroke='rgb(255,107,107)' stroke-width='0.5' stroke-opacity='0.6' />
+<path d='M1572.0,600.0 C1658.4,600.0 1701.6,574.0 1788.0,574.0 L1788.0,614.0 C1701.6,614.0 1658.4,650.0 1572.0,650.0 Z' fill='rgb(255,255,0)' fill-opacity='0.4' stroke='rgb(255,255,0)' stroke-width='0.5' stroke-opacity='0.6' />
+<path d='M1572.0,650.0 C1658.4,650.0 1701.6,634.0 1788.0,634.0 L1788.0,650.0 C1701.6,650.0 1658.4,670.0 1572.0,670.0 Z' fill='rgb(255,121,198)' fill-opacity='0.4' stroke='rgb(255,121,198)' stroke-width='0.5' stroke-opacity='0.6' />
+<rect x='1560' y='450' width='12' height='100.0' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1560' y='570.0' width='12' height='100.0' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1788' y='450' width='12' height='72.0' rx='0' ry='0' fill='rgb(255,107,107)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1788' y='542.0' width='12' height='72.0' rx='0' ry='0' fill='rgb(255,255,0)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1788' y='634.0' width='12' height='16.0' rx='0' ry='0' fill='rgb(255,121,198)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='1555' y='503.5' font-size='10' text-anchor='end' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>A</text>
+<text x='1555' y='623.5' font-size='10' text-anchor='end' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>B</text>
+<text x='1805' y='489.5' font-size='10' text-anchor='start' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>X</text>
+<text x='1805' y='581.5' font-size='10' text-anchor='start' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Y</text>
+<text x='1805' y='645.5' font-size='10' text-anchor='start' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Z</text>
+</g></g>
+<g data-obj-idx='18'><text x='240' y='670' font-size='20' text-anchor='middle' fill='rgb(153,153,153)' stroke='rgb(0,0,0)' stroke-width='0'>WaterfallChart</text></g>
+<g data-obj-idx='19'><g>
+<line x1='140' y1='720' x2='140' y2='870' stroke='rgb(136,136,136)' />
+<line x1='140' y1='870.0' x2='400' y2='870.0' stroke='rgb(85,85,85)' stroke-dasharray='4 3' />
+<line x1='176.83' y1='781.76' x2='189.83' y2='781.76' stroke='rgb(102,102,102)' stroke-dasharray='3 2' />
+<line x1='220.17' y1='728.82' x2='233.17' y2='728.82' stroke='rgb(102,102,102)' stroke-dasharray='3 2' />
+<line x1='263.5' y1='755.29' x2='276.5' y2='755.29' stroke='rgb(102,102,102)' stroke-dasharray='3 2' />
+<line x1='306.83' y1='720.0' x2='319.83' y2='720.0' stroke='rgb(102,102,102)' stroke-dasharray='3 2' />
+<line x1='350.17' y1='737.65' x2='363.17' y2='737.65' stroke='rgb(102,102,102)' stroke-dasharray='3 2' />
+<rect x='146.5' y='781.76' width='30.33' height='88.24' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.8' stroke='rgb(131,193,103)' />
+<rect x='189.83' y='728.82' width='30.33' height='52.94' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.8' stroke='rgb(131,193,103)' />
+<rect x='233.17' y='728.82' width='30.33' height='26.47' rx='0' ry='0' fill='rgb(255,107,107)' fill-opacity='0.8' stroke='rgb(255,107,107)' />
+<rect x='276.5' y='720.0' width='30.33' height='35.29' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.8' stroke='rgb(131,193,103)' />
+<rect x='319.83' y='720.0' width='30.33' height='17.65' rx='0' ry='0' fill='rgb(255,107,107)' fill-opacity='0.8' stroke='rgb(255,107,107)' />
+<rect x='363.17' y='737.65' width='30.33' height='132.35' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.8' stroke='rgb(88,196,221)' />
+<text x='161.67' y='890' font-size='11' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Q1</text>
+<text x='161.67' y='776.76' font-size='9' text-anchor='middle' fill='rgb(131,193,103)' stroke='rgb(0,0,0)' stroke-width='0'>+50</text>
+<text x='205.0' y='890' font-size='11' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Q2</text>
+<text x='205.0' y='723.82' font-size='9' text-anchor='middle' fill='rgb(131,193,103)' stroke='rgb(0,0,0)' stroke-width='0'>+30</text>
+<text x='248.33' y='890' font-size='11' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Q3</text>
+<text x='248.33' y='723.82' font-size='9' text-anchor='middle' fill='rgb(255,107,107)' stroke='rgb(0,0,0)' stroke-width='0'>-15</text>
+<text x='291.67' y='890' font-size='11' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Q4</text>
+<text x='291.67' y='715.0' font-size='9' text-anchor='middle' fill='rgb(131,193,103)' stroke='rgb(0,0,0)' stroke-width='0'>+20</text>
+<text x='335' y='890' font-size='11' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Adj</text>
+<text x='335' y='715.0' font-size='9' text-anchor='middle' fill='rgb(255,107,107)' stroke='rgb(0,0,0)' stroke-width='0'>-10</text>
+<text x='378.33' y='890' font-size='11' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Net</text>
+<text x='378.33' y='732.65' font-size='9' text-anchor='middle' fill='rgb(88,196,221)' stroke='rgb(0,0,0)' stroke-width='0'>75</text>
+</g></g>
+<g data-obj-idx='20'><text x='720' y='670' font-size='20' text-anchor='middle' fill='rgb(153,153,153)' stroke='rgb(0,0,0)' stroke-width='0'>GanttChart</text></g>
+<g data-obj-idx='21'><g>
+<line x1='660' y1='776.0' x2='900' y2='776.0' stroke='rgb(51,51,51)' stroke-width='0.5' />
+<line x1='660' y1='806.0' x2='900' y2='806.0' stroke='rgb(51,51,51)' stroke-width='0.5' />
+<line x1='660' y1='836.0' x2='900' y2='836.0' stroke='rgb(51,51,51)' stroke-width='0.5' />
+<line x1='660' y1='866.0' x2='900' y2='866.0' stroke='rgb(51,51,51)' stroke-width='0.5' />
+<line x1='660' y1='730' x2='900' y2='730' stroke='rgb(85,85,85)' />
+<line x1='660.0' y1='725' x2='660.0' y2='735' stroke='rgb(102,102,102)' />
+<line x1='684.0' y1='725' x2='684.0' y2='735' stroke='rgb(102,102,102)' />
+<line x1='708.0' y1='725' x2='708.0' y2='735' stroke='rgb(102,102,102)' />
+<line x1='732.0' y1='725' x2='732.0' y2='735' stroke='rgb(102,102,102)' />
+<line x1='756.0' y1='725' x2='756.0' y2='735' stroke='rgb(102,102,102)' />
+<line x1='780.0' y1='725' x2='780.0' y2='735' stroke='rgb(102,102,102)' />
+<line x1='804.0' y1='725' x2='804.0' y2='735' stroke='rgb(102,102,102)' />
+<line x1='828.0' y1='725' x2='828.0' y2='735' stroke='rgb(102,102,102)' />
+<line x1='852.0' y1='725' x2='852.0' y2='735' stroke='rgb(102,102,102)' />
+<line x1='876.0' y1='725' x2='876.0' y2='735' stroke='rgb(102,102,102)' />
+<line x1='900.0' y1='725' x2='900.0' y2='735' stroke='rgb(102,102,102)' />
+<text x='660.0' y='720' font-size='9' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>0</text>
+<text x='684.0' y='720' font-size='9' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>1</text>
+<text x='708.0' y='720' font-size='9' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>2</text>
+<text x='732.0' y='720' font-size='9' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>3</text>
+<text x='756.0' y='720' font-size='9' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>4</text>
+<text x='780.0' y='720' font-size='9' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>5</text>
+<text x='804.0' y='720' font-size='9' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>6</text>
+<text x='828.0' y='720' font-size='9' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>7</text>
+<text x='852.0' y='720' font-size='9' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>8</text>
+<text x='876.0' y='720' font-size='9' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>9</text>
+<text x='900.0' y='720' font-size='9' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>10</text>
+<rect x='660.0' y='750' width='72.0' height='22' rx='4' ry='4' fill='rgb(88,196,221)' fill-opacity='0.8' stroke='rgb(88,196,221)' />
+<text x='545' y='764.85' font-size='11' text-anchor='start' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Design</text>
+<rect x='708.0' y='780' width='120.0' height='22' rx='4' ry='4' fill='rgb(131,193,103)' fill-opacity='0.8' stroke='rgb(131,193,103)' />
+<text x='545' y='794.85' font-size='11' text-anchor='start' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Dev</text>
+<rect x='804.0' y='810' width='72.0' height='22' rx='4' ry='4' fill='rgb(255,107,107)' fill-opacity='0.8' stroke='rgb(255,107,107)' />
+<text x='545' y='824.85' font-size='11' text-anchor='start' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Test</text>
+<rect x='852.0' y='840' width='48.0' height='22' rx='4' ry='4' fill='rgb(255,255,0)' fill-opacity='0.8' stroke='rgb(255,255,0)' />
+<text x='545' y='854.85' font-size='11' text-anchor='start' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Launch</text>
+</g></g>
+<g data-obj-idx='22'><text x='1200' y='670' font-size='20' text-anchor='middle' fill='rgb(153,153,153)' stroke='rgb(0,0,0)' stroke-width='0'>CalendarHeatmap</text></g>
+<g data-obj-idx='23'><g>
+<rect x='1070' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1070' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1070' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1070' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1070' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1070' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1070' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1080' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1080' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1080' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1080' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1080' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1080' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1080' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1090' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1090' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1090' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1090' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1090' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1090' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1090' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1100' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1100' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1100' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1100' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1100' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1100' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1100' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1110' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1110' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1110' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1110' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1110' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1110' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1110' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1120' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1120' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1120' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1120' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1120' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1120' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1120' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1130' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1130' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1130' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1130' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1130' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1130' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1130' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1140' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1140' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1140' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1140' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1140' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1140' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1140' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1150' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1150' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1150' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1150' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1150' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1150' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1150' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1160' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1160' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1160' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1160' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1160' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1160' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1160' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1170' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1170' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1170' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1170' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1170' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1170' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1170' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1180' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1180' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1180' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1180' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1180' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1180' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1180' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1190' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1190' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1190' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1190' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1190' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1190' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1190' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1200' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1200' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1200' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1200' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1200' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1200' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1200' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1210' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1210' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1210' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1210' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1210' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1210' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1210' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1220' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1220' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1220' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1220' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1220' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1220' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1220' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1230' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1230' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1230' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1230' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1230' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1230' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1230' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1240' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1240' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1240' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1240' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1240' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1240' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1240' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1250' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1250' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1250' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1250' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1250' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1250' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1250' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1260' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1260' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1260' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1260' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1260' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1260' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1260' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1270' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1270' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1270' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1270' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1270' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1270' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1270' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1280' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1280' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1280' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1280' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1280' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1280' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1280' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1290' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1290' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1290' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1290' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1290' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1290' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1290' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1300' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1300' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1300' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1300' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1300' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1300' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1300' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1310' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1310' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1310' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1310' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1310' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1310' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1310' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(57,211,83)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1320' y='735' width='8' height='8' rx='0' ry='0' fill='rgb(0,109,50)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1320' y='745' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1320' y='755' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1320' y='765' width='8' height='8' rx='0' ry='0' fill='rgb(38,166,65)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1320' y='775' width='8' height='8' rx='0' ry='0' fill='rgb(22,27,34)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1320' y='785' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1320' y='795' width='8' height='8' rx='0' ry='0' fill='rgb(14,68,41)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g></g>
+<g data-obj-idx='24'><text x='1680' y='670' font-size='20' text-anchor='middle' fill='rgb(153,153,153)' stroke='rgb(0,0,0)' stroke-width='0'>MatrixHeatmap</text></g>
+<g data-obj-idx='25'><g>
+<rect x='1590.0' y='750' width='30' height='30' rx='0' ry='0' fill='rgb(49,54,149)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1622.0' y='750' width='30' height='30' rx='0' ry='0' fill='rgb(49,54,149)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1654.0' y='750' width='30' height='30' rx='0' ry='0' fill='rgb(254,224,144)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1686.0' y='750' width='30' height='30' rx='0' ry='0' fill='rgb(253,174,97)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1718.0' y='750' width='30' height='30' rx='0' ry='0' fill='rgb(49,54,149)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1590.0' y='782' width='30' height='30' rx='0' ry='0' fill='rgb(244,109,67)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1622.0' y='782' width='30' height='30' rx='0' ry='0' fill='rgb(49,54,149)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1654.0' y='782' width='30' height='30' rx='0' ry='0' fill='rgb(49,54,149)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1686.0' y='782' width='30' height='30' rx='0' ry='0' fill='rgb(49,54,149)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1718.0' y='782' width='30' height='30' rx='0' ry='0' fill='rgb(171,217,233)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1590.0' y='814' width='30' height='30' rx='0' ry='0' fill='rgb(254,224,144)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1622.0' y='814' width='30' height='30' rx='0' ry='0' fill='rgb(116,173,209)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1654.0' y='814' width='30' height='30' rx='0' ry='0' fill='rgb(254,224,144)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1686.0' y='814' width='30' height='30' rx='0' ry='0' fill='rgb(254,224,144)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1718.0' y='814' width='30' height='30' rx='0' ry='0' fill='rgb(244,109,67)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1590.0' y='846' width='30' height='30' rx='0' ry='0' fill='rgb(215,48,39)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1622.0' y='846' width='30' height='30' rx='0' ry='0' fill='rgb(253,174,97)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1654.0' y='846' width='30' height='30' rx='0' ry='0' fill='rgb(116,173,209)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1686.0' y='846' width='30' height='30' rx='0' ry='0' fill='rgb(254,224,144)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1718.0' y='846' width='30' height='30' rx='0' ry='0' fill='rgb(171,217,233)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1590.0' y='878' width='30' height='30' rx='0' ry='0' fill='rgb(69,117,180)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1622.0' y='878' width='30' height='30' rx='0' ry='0' fill='rgb(253,174,97)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1654.0' y='878' width='30' height='30' rx='0' ry='0' fill='rgb(171,217,233)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1686.0' y='878' width='30' height='30' rx='0' ry='0' fill='rgb(171,217,233)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<rect x='1718.0' y='878' width='30' height='30' rx='0' ry='0' fill='rgb(215,48,39)' fill-opacity='0.9' stroke='rgb(34,34,34)' stroke-width='0.5' />
+<text x='1605.0' y='768.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>0.6</text>
+<text x='1637.0' y='768.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>0.2</text>
+<text x='1669.0' y='768.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>5.5</text>
+<text x='1701.0' y='768.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>5.9</text>
+<text x='1733.0' y='768.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>0.1</text>
+<text x='1605.0' y='800.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>7.1</text>
+<text x='1637.0' y='800.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>0.6</text>
+<text x='1669.0' y='800.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>0.7</text>
+<text x='1701.0' y='800.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>0.3</text>
+<text x='1733.0' y='800.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>3.3</text>
+<text x='1605.0' y='832.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>5.1</text>
+<text x='1637.0' y='832.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>2.8</text>
+<text x='1669.0' y='832.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>4.9</text>
+<text x='1701.0' y='832.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>5.4</text>
+<text x='1733.0' y='832.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>7.2</text>
+<text x='1605.0' y='864.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>8.8</text>
+<text x='1637.0' y='864.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>5.8</text>
+<text x='1669.0' y='864.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>2.4</text>
+<text x='1701.0' y='864.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>4.7</text>
+<text x='1733.0' y='864.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>4.1</text>
+<text x='1605.0' y='896.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>0.9</text>
+<text x='1637.0' y='896.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>6.6</text>
+<text x='1669.0' y='896.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>3.5</text>
+<text x='1701.0' y='896.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>4.1</text>
+<text x='1733.0' y='896.5' font-size='8.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>8.6</text>
+<text x='1582.0' y='768.5' font-size='10' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>R1</text>
+<text x='1582.0' y='800.5' font-size='10' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>R2</text>
+<text x='1582.0' y='832.5' font-size='10' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>R3</text>
+<text x='1582.0' y='864.5' font-size='10' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>R4</text>
+<text x='1582.0' y='896.5' font-size='10' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>R5</text>
+<text x='1605.0' y='738.0' font-size='10' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>C1</text>
+<text x='1637.0' y='738.0' font-size='10' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>C2</text>
+<text x='1669.0' y='738.0' font-size='10' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>C3</text>
+<text x='1701.0' y='738.0' font-size='10' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>C4</text>
+<text x='1733.0' y='738.0' font-size='10' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>C5</text>
+</g></g>
+<g data-obj-idx='26'><text x='240' y='950' font-size='20' text-anchor='middle' fill='rgb(153,153,153)' stroke='rgb(0,0,0)' stroke-width='0'>Scoreboard</text></g>
+<g data-obj-idx='27'><g>
+<rect x='80' y='1000' width='320' height='120' rx='10' ry='10' fill='rgb(26,26,46)' fill-opacity='0.9' stroke='rgb(51,51,51)' />
+<line x1='240' y1='1015' x2='240' y2='1055' stroke='rgb(51,51,51)' />
+<line x1='240' y1='1065' x2='240' y2='1105' stroke='rgb(51,51,51)' />
+<text x='165.0' y='1028.0' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>12.4k</text>
+<text x='165.0' y='1042.0' font-size='8.0' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>Users</text>
+<text x='315.0' y='1028.0' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>$84k</text>
+<text x='315.0' y='1042.0' font-size='8.0' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>Revenue</text>
+<text x='165.0' y='1078.0' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>+18%</text>
+<text x='165.0' y='1092.0' font-size='8.0' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>Growth</text>
+<text x='315.0' y='1078.0' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>72</text>
+<text x='315.0' y='1092.0' font-size='8.0' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>NPS</text>
+</g></g>
+<g data-obj-idx='28'><text x='720' y='950' font-size='20' text-anchor='middle' fill='rgb(153,153,153)' stroke='rgb(0,0,0)' stroke-width='0'>KPICard</text></g>
+<g data-obj-idx='29'><g>
+<rect x='590' y='1010' width='260' height='150' rx='10' ry='10' fill='rgb(26,26,46)' fill-opacity='0.9' stroke='rgb(51,51,51)' />
+<text x='720.0' y='1040' font-size='18.0' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>Monthly Revenue</text>
+<text x='720.0' y='1097.6' font-size='36' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>$84.2k</text>
+<text x='720.0' y='1119.2' font-size='10.8' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>+12% vs prev</text>
+<path d="M642.0,1145.0L653.1,1127.7L664.3,1128.6L675.4,1128.6L686.6,1143.7L697.7,1145.0L708.9,1135.5L720.0,1126.4L731.1,1137.2L742.3,1124.2L753.4,1122.5L764.6,1143.7L775.7,1139.8L786.9,1141.1L798.0,1141.1" fill-opacity='0' stroke='rgb(88,196,221)'/><circle cx="798.0" cy="1141.1" r="2.5" fill="rgb(88,196,221)"/>
+</g></g>
+<g data-obj-idx='30'><text x='1200' y='950' font-size='20' text-anchor='middle' fill='rgb(153,153,153)' stroke='rgb(0,0,0)' stroke-width='0'>SampleSpace</text></g>
+<g data-obj-idx='31'><g>
+<rect x='1060' y='1010' width='280' height='170' rx='0' ry='0' fill='rgb(34,34,34)' fill-opacity='0.5' stroke='rgb(255,255,255)' stroke-width='2' />
+<rect x='1060' y='1010' width='168.0' height='170' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.4' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1228.0' y='1010' width='112.0' height='170' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.4' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='1144.0' y='1103.4' font-size='24' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>P(A)=0.6</text>
+<text x='1284.0' y='1103.4' font-size='24' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>P(B)=0.4</text>
+</g></g>
+<g data-obj-idx='32'><text x='1680' y='950' font-size='20' text-anchor='middle' fill='rgb(153,153,153)' stroke='rgb(0,0,0)' stroke-width='0'>TimelineBar</text></g>
+<g data-obj-idx='33'><g>
+<rect x='1510' y='1077.5' width='340' height='5' rx='0' ry='0' fill='rgb(68,68,68)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='1510.0' y1='1065' x2='1510.0' y2='1095' stroke='rgb(255,255,0)' stroke-width='2' />
+<text x='1510.0' y='1058' font-size='11' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Start</text>
+<line x1='1612.0' y1='1065' x2='1612.0' y2='1095' stroke='rgb(255,255,0)' stroke-width='2' />
+<text x='1612.0' y='1058' font-size='11' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Alpha</text>
+<line x1='1714.0' y1='1065' x2='1714.0' y2='1095' stroke='rgb(255,255,0)' stroke-width='2' />
+<text x='1714.0' y='1058' font-size='11' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Beta</text>
+<line x1='1782.0' y1='1065' x2='1782.0' y2='1095' stroke='rgb(255,255,0)' stroke-width='2' />
+<text x='1782.0' y='1058' font-size='11' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>RC</text>
+<line x1='1850.0' y1='1065' x2='1850.0' y2='1095' stroke='rgb(255,255,0)' stroke-width='2' />
+<text x='1850.0' y='1058' font-size='11' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Release</text>
+<circle cx='1510.0' cy='1080' r='4' fill='rgb(255,255,0)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1612.0' cy='1080' r='4' fill='rgb(255,255,0)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1714.0' cy='1080' r='4' fill='rgb(255,255,0)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1782.0' cy='1080' r='4' fill='rgb(255,255,0)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1850.0' cy='1080' r='4' fill='rgb(255,255,0)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g></g>
+<g data-obj-idx='34'><text x='240' y='1230' font-size='20' text-anchor='middle' fill='rgb(153,153,153)' stroke='rgb(0,0,0)' stroke-width='0'>RadarChart</text></g>
+<g data-obj-idx='35'><g>
+<circle cx='240' cy='1360' r='26.67' fill-opacity='0' stroke='rgb(68,68,68)' />
+<circle cx='240' cy='1360' r='53.33' fill-opacity='0' stroke='rgb(68,68,68)' />
+<circle cx='240' cy='1360' r='80.0' fill-opacity='0' stroke='rgb(68,68,68)' />
+<line x1='240' y1='1360' x2='240.0' y2='1280.0' stroke='rgb(85,85,85)' />
+<line x1='240' y1='1360' x2='309.28' y2='1320.0' stroke='rgb(85,85,85)' />
+<line x1='240' y1='1360' x2='309.28' y2='1400.0' stroke='rgb(85,85,85)' />
+<line x1='240' y1='1360' x2='240.0' y2='1440.0' stroke='rgb(85,85,85)' />
+<line x1='240' y1='1360' x2='170.72' y2='1400.0' stroke='rgb(85,85,85)' />
+<line x1='240' y1='1360' x2='170.72' y2='1320.0' stroke='rgb(85,85,85)' />
+<polygon points='240.0,1292.0 288.5,1332.0 302.35,1396.0 240.0,1408.0 174.18,1398.0 188.04,1330.0' fill='rgb(88,196,221)' fill-opacity='0.3' stroke='rgb(88,196,221)' stroke-width='2' />
+<text x='240.0' y='1253.5' font-size='10' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Spd</text>
+<text x='335.26' y='1308.5' font-size='10' text-anchor='start' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Pow</text>
+<text x='335.26' y='1418.5' font-size='10' text-anchor='start' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Acc</text>
+<text x='240.0' y='1473.5' font-size='10' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Def</text>
+<text x='144.74' y='1418.5' font-size='10' text-anchor='end' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Sta</text>
+<text x='144.74' y='1308.5' font-size='10' text-anchor='end' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Agi</text>
+<circle cx='240.0' cy='1292.0' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='288.5' cy='1332.0' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='302.35' cy='1396.0' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='240.0' cy='1408.0' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='174.18' cy='1398.0' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='188.04' cy='1330.0' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g></g>
+</svg>

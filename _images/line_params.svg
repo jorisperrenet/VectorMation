@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='400' height='260' viewBox='0 0 400 260'>
-<rect x='0' y='0' width='400' height='260' rx='0' ry='0' fill='rgb(30,30,46)' stroke='rgb(0,0,0)' stroke-width='0' />
-<line x1='60' y1='190' x2='340' y2='60' stroke='rgb(88,196,221)' stroke-width='2.5' />
-<circle cx='60' cy='190' r='5' fill='rgb(243,139,168)' stroke='rgb(255,255,255)' stroke-width='0' />
-<text x='50' y='212' font-size='12' fill='rgb(243,139,168)' stroke='rgb(0,0,0)' stroke-width='0'>p1 (x1, y1)</text>
-<circle cx='340' cy='60' r='5' fill='rgb(166,227,161)' stroke='rgb(255,255,255)' stroke-width='0' />
-<text x='310' y='45' font-size='12' fill='rgb(166,227,161)' stroke='rgb(0,0,0)' stroke-width='0'>p2 (x2, y2)</text>
-<circle cx='200.0' cy='125.0' r='3' fill='rgb(249,226,175)' stroke='rgb(255,255,255)' stroke-width='0' />
-<text x='208.0' y='117.0' font-size='10' fill='rgb(249,226,175)' stroke='rgb(0,0,0)' stroke-width='0'>center()</text>
+<g data-obj-idx='0'><rect x='0' y='0' width='400' height='260' rx='0' ry='0' fill='rgb(30,30,46)' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><line x1='60' y1='190' x2='340' y2='60' stroke='rgb(88,196,221)' stroke-width='2.5' /></g>
+<g data-obj-idx='2'><circle cx='60' cy='190' r='5' fill='rgb(243,139,168)' stroke='rgb(255,255,255)' stroke-width='0' /></g>
+<g data-obj-idx='3'><text x='50' y='212' font-size='12' fill='rgb(243,139,168)' stroke='rgb(0,0,0)' stroke-width='0'>p1 (x1, y1)</text></g>
+<g data-obj-idx='4'><circle cx='340' cy='60' r='5' fill='rgb(166,227,161)' stroke='rgb(255,255,255)' stroke-width='0' /></g>
+<g data-obj-idx='5'><text x='310' y='45' font-size='12' fill='rgb(166,227,161)' stroke='rgb(0,0,0)' stroke-width='0'>p2 (x2, y2)</text></g>
+<g data-obj-idx='6'><circle cx='200.0' cy='125.0' r='3' fill='rgb(249,226,175)' stroke='rgb(255,255,255)' stroke-width='0' /></g>
+<g data-obj-idx='7'><text x='208.0' y='117.0' font-size='10' fill='rgb(249,226,175)' stroke='rgb(0,0,0)' stroke-width='0'>center()</text></g>
 </svg>

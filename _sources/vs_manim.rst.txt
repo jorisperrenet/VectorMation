@@ -709,50 +709,6 @@ Advanced
                     image.background_rectangle = SurroundingRectangle(image, GREEN)
                     self.add(image, image.background_rectangle)
 
-.. admonition:: Example: OpeningManim
-   :class: example
-
-   .. raw:: html
-
-      <video src="_static/videos/opening_manim.mp4" controls autoplay loop muted></video>
-
-   LaTeX formulas with write and fade animations.
-
-   .. tab-set::
-
-      .. tab-item:: VectorMation
-
-         .. literalinclude:: ../../examples/manim/opening_manim.py
-            :language: python
-            :start-after: set_background
-            :end-before: if args
-
-      .. tab-item:: Manim
-
-         .. code-block:: python
-
-            class OpeningManim(Scene):
-                def construct(self):
-                    title = Tex(r"This is some \LaTeX")
-                    basel = MathTex(r"\sum_{n=1}^\infty \frac{1}{n^2} = \frac{\pi^2}{6}")
-                    VGroup(title, basel).arrange(DOWN)
-                    self.play(Write(title), FadeIn(basel, shift=DOWN))
-                    self.wait()
-                    transform_title = Tex("That was a transform")
-                    transform_title.to_corner(UP + LEFT)
-                    self.play(
-                        Transform(title, transform_title),
-                        LaggedStart(*[FadeOut(obj, shift=DOWN) for obj in basel]),
-                    )
-                    grid = NumberPlane()
-                    grid_title = Tex("This is a grid", font_size=72)
-                    grid_title.move_to(transform_title)
-                    self.add(grid, grid_title)
-                    self.play(
-                        FadeOut(title), FadeIn(grid_title, shift=UP),
-                        Create(grid, run_time=3, lag_ratio=0.1),
-                    )
-
 .. admonition:: Example: BooleanOperations
    :class: example
 
@@ -815,7 +771,7 @@ Advanced
 
    .. raw:: html
 
-      <video src="_static/videos/zoomed_inset.mp4" controls autoplay loop muted></video>
+      <video src="_static/videos/zoomed_inset_manim.mp4" controls autoplay loop muted></video>
 
    A zoomed inset magnifies a small region of the canvas.
 
@@ -823,7 +779,7 @@ Advanced
 
       .. tab-item:: VectorMation
 
-         .. literalinclude:: ../../examples/manim/zoomed_inset.py
+         .. literalinclude:: ../../examples/manim/zoomed_inset_manim.py
             :language: python
             :start-after: set_background
             :end-before: if args
@@ -1085,6 +1041,6 @@ VectorMation renders 3D scenes using orthographic projection to SVG, with animat
 Summary
 -------
 
-VectorMation recreates **all 26** Manim example gallery scenes.
+VectorMation recreates **all 25** Manim example gallery scenes.
 
 VectorMation replaces Manim's imperative ``self.play()`` pattern with a **declarative, time-based** approach. Animations are defined by their time interval and the library can render any frame instantly. This makes iteration faster (browser hot-reload) and code shorter (no ceremony of classes and play calls).

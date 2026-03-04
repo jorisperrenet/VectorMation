@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><circle cx='480' cy='440' r='100' fill='rgb(88,196,221)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='3' /></g>
+<g data-obj-idx='2'><rect x='860' y='370' width='200' height='140' rx='0' ry='0' fill='rgb(231,76,60)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='3' /></g>
+<g data-obj-idx='3'><polygon points='1440.0,340.0 1410.61,399.55 1344.89,409.1 1392.45,455.45 1381.22,520.9 1440.0,490.0 1498.78,520.9 1487.55,455.45 1535.11,409.1 1469.39,399.55' fill='rgb(243,156,18)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='3' /></g>
+<g data-obj-idx='4'><text x='700' y='700' font-size='56' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Static Frame Export</text></g>
+</svg>

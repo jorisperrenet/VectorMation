@@ -27,7 +27,7 @@ Camera Improvements
 
 - ``camera_zoom()`` now centres the viewBox on the target point and clamps to canvas bounds
 - ``camera_follow()`` clamps the viewBox to stay within canvas bounds (no negative offsets)
-- ``_resolve_end_time()`` now considers camera viewBox attributes (``vb_x``, ``vb_y``, ``vb_w``, ``vb_h``), so camera-only animations are included in auto-detected end times
+- ``_resolve_end()`` now considers camera viewBox attributes (``vb_x``, ``vb_y``, ``vb_w``, ``vb_h``), so camera-only animations are included in auto-detected end times
 
 Bug Fixes
 ^^^^^^^^^
@@ -244,8 +244,8 @@ Export
 ^^^^^^
 
 - **PNG export**: ``canvas.export_png(time, filename, width, height)`` via cairosvg
-- **Video export**: ``canvas.export_video(filename, start_time, end_time, fps)`` via cairosvg + ffmpeg
-- **GIF export**: ``canvas.export_gif(filename, start_time, end_time, fps, scale, loop)`` via cairosvg + Pillow
+- **Video export**: ``canvas.export_video(filename, start, end, fps)`` via cairosvg + ffmpeg
+- **GIF export**: ``canvas.export_gif(filename, start, end, fps, scale, loop)`` via cairosvg + Pillow
 
 Browser Viewer
 ^^^^^^^^^^^^^^

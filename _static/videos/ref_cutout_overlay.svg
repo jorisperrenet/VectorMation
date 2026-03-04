@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><text x='960' y='400' font-size='72' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Important</text></g>
+<g data-obj-idx='2'><text x='960' y='700' font-size='36' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>Focus here</text></g>
+<g data-obj-idx='3'><path d='M0,0 H1920 V1080 H0 Z M748.32,298 h423.36 a12,12 0 0 1 12,12 v108 a12,12 0 0 1 -12,12 h-423.36 a12,12 0 0 1 -12,-12 v-108 a12,12 0 0 1 12,-12 Z' fill-opacity='0.8' stroke='rgb(0,0,0)' stroke-width='0' fill-rule='evenodd' /></g>
+</svg>

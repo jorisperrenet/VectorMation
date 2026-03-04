@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<circle cx='960' cy='540' r='100' fill-opacity='0' stroke='rgb(88,196,221)' stroke-opacity='0.4' />
+<circle cx='960' cy='540' r='160' fill-opacity='0' stroke='rgb(88,196,221)' stroke-opacity='0.4' />
+<circle cx='960' cy='540' r='40' fill='rgb(252,98,85)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='2' />
+<circle cx='1060.0' cy='540.0' r='5' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='860.0' cy='540.0' r='5' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1120.0' cy='540.0' r='5' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='960.0' cy='380.0' r='5' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='800.0' cy='540.0' r='5' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='960.0' cy='700.0' r='5' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='960' y='546' font-size='20.0' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>6p 6n</text>
+</g></g>
+</svg>

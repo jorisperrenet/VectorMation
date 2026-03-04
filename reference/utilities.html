@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Attributes: Time-Varying Values" href="../attributes.html"><link rel="prev" title="Attributes" href="attributes.html">
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="SVG Utilities" href="svg_utils.html"><link rel="prev" title="Attributes" href="attributes.html">
         <link rel="prefetch" href="../_static/logo.svg" as="image">
 
     <link rel="shortcut icon" href="../_static/logo.svg"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
@@ -207,16 +207,24 @@
 <li class="toctree-l2"><a class="reference internal" href="vobject.html">VObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="shapes.html">Shapes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="text.html">Text &amp; LaTeX</a></li>
-<li class="toctree-l2"><a class="reference internal" href="collections.html">Collections &amp; Arrows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collections.html">Collections, Arrows &amp; Data Structures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="graphing.html">Graphing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="charts.html">Charts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ui.html">UI Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="diagrams.html">Diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physics.html">Physics Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l2"><a class="reference internal" href="threed.html">3D Objects</a></li>
 <li class="toctree-l2"><a class="reference internal" href="attributes.html">Attributes</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="svg_utils.html">SVG Utilities</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../attributes.html">Attributes: Time-Varying Values</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../animation.html">Animation &amp; Playback</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../graphing.html">Graphing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../vs_manim.html">vs Manim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
 </ul>
@@ -259,15 +267,507 @@
         <article role="main" id="furo-main-content">
           <section id="utilities">
 <h1>Utilities<a class="headerlink" href="#utilities" title="Link to this heading">¶</a></h1>
+<section id="colours-gradients">
+<h2>Colours &amp; Gradients<a class="headerlink" href="#colours-gradients" title="Link to this heading">¶</a></h2>
+<p><em>Module:</em> <code class="docutils literal notranslate"><span class="pre">vectormation.colors</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="LinearGradient">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LinearGradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'100%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0%'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#LinearGradient" title="Link to this definition">¶</a></dt>
+<dd><p>SVG linear gradient. Register with <code class="docutils literal notranslate"><span class="pre">canvas.add_def(lg)</span></code> before use.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>stops</strong> (<em>list</em>) – List of <code class="docutils literal notranslate"><span class="pre">(offset,</span> <span class="pre">color)</span></code> or <code class="docutils literal notranslate"><span class="pre">(offset,</span> <span class="pre">color,</span> <span class="pre">opacity)</span></code> tuples.</p>
+</dd>
+</dl>
+<div class="example admonition">
+<p class="admonition-title">Example: Linear gradient fill</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearGradient</span>
+<span class="n">lg</span> <span class="o">=</span> <span class="n">LinearGradient</span><span class="p">([(</span><span class="s1">&#39;0%&#39;</span><span class="p">,</span> <span class="s1">&#39;#ff0000&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;100%&#39;</span><span class="p">,</span> <span class="s1">&#39;#0000ff&#39;</span><span class="p">)])</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">add_def</span><span class="p">(</span><span class="n">lg</span><span class="p">)</span>
+<span class="n">circle</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="n">lg</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="example admonition">
+<p class="admonition-title">Example: Gradients</p>
+<img src="../_static/videos/gradient.svg" style="width:100%; max-width:800px;" /><p>Linear and radial gradients on shapes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">lg</span> <span class="o">=</span> <span class="n">LinearGradient</span><span class="p">([(</span><span class="s1">&#39;0%&#39;</span><span class="p">,</span> <span class="s1">&#39;#ff0000&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;50%&#39;</span><span class="p">,</span> <span class="s1">&#39;#ffff00&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;100%&#39;</span><span class="p">,</span> <span class="s1">&#39;#0000ff&#39;</span><span class="p">)])</span>
+<span class="n">v</span><span class="o">.</span><span class="n">add_def</span><span class="p">(</span><span class="n">lg</span><span class="p">)</span>
+
+<span class="n">rg</span> <span class="o">=</span> <span class="n">RadialGradient</span><span class="p">([(</span><span class="s1">&#39;0%&#39;</span><span class="p">,</span> <span class="s1">&#39;#ffffff&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;100%&#39;</span><span class="p">,</span> <span class="s1">&#39;#58C4DD&#39;</span><span class="p">)])</span>
+<span class="n">v</span><span class="o">.</span><span class="n">add_def</span><span class="p">(</span><span class="n">rg</span><span class="p">)</span>
+
+<span class="n">rect</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">330</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">440</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">lg</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">stroke_opacity</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">circ</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">1320</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">rg</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">stroke_opacity</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">l1</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;LinearGradient&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">480</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">700</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#aaa&#39;</span><span class="p">,</span> <span class="n">text_anchor</span><span class="o">=</span><span class="s1">&#39;middle&#39;</span><span class="p">)</span>
+<span class="n">l2</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;RadialGradient&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">1320</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">700</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#aaa&#39;</span><span class="p">,</span> <span class="n">text_anchor</span><span class="o">=</span><span class="s1">&#39;middle&#39;</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">rect</span><span class="p">,</span> <span class="n">circ</span><span class="p">,</span> <span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;docs/source/_static/videos/gradient.svg&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="LinearGradient.fill_ref">
+<span class="sig-name descname"><span class="pre">fill_ref</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#LinearGradient.fill_ref" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the URL reference for use in fill attributes.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="RadialGradient">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">RadialGradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'50%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'50%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'50%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RadialGradient" title="Link to this definition">¶</a></dt>
+<dd><p>SVG radial gradient.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>stops</strong> (<em>list</em>) – List of <code class="docutils literal notranslate"><span class="pre">(offset,</span> <span class="pre">color)</span></code> or <code class="docutils literal notranslate"><span class="pre">(offset,</span> <span class="pre">color,</span> <span class="pre">opacity)</span></code> tuples.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="RadialGradient.fill_ref">
+<span class="sig-name descname"><span class="pre">fill_ref</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RadialGradient.fill_ref" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the URL reference for use in fill attributes.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p class="rubric">Utility Functions</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="color_from_name">
+<span class="sig-name descname"><span class="pre">color_from_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#color_from_name" title="Link to this definition">¶</a></dt>
+<dd><p>Get hex code from a named colour (e.g. <code class="docutils literal notranslate"><span class="pre">'RED'</span></code>, <code class="docutils literal notranslate"><span class="pre">'BLUE'</span></code>).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="color_gradient">
+<span class="sig-name descname"><span class="pre">color_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#color_gradient" title="Link to this definition">¶</a></dt>
+<dd><p>Generate <em>n</em> interpolated hex colours between <em>color1</em> and <em>color2</em>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="interpolate_color">
+<span class="sig-name descname"><span class="pre">interpolate_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interpolate_color" title="Link to this definition">¶</a></dt>
+<dd><p>Interpolate between two colours at <code class="docutils literal notranslate"><span class="pre">t</span></code> (0–1).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="lighten">
+<span class="sig-name descname"><span class="pre">lighten</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#lighten" title="Link to this definition">¶</a></dt>
+<dd><p>Lighten a hex colour by blending towards white.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="darken">
+<span class="sig-name descname"><span class="pre">darken</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#darken" title="Link to this definition">¶</a></dt>
+<dd><p>Darken a hex colour by blending towards black.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="adjust_hue">
+<span class="sig-name descname"><span class="pre">adjust_hue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">degrees</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#adjust_hue" title="Link to this definition">¶</a></dt>
+<dd><p>Rotate the hue of a colour by <em>degrees</em>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="saturate">
+<span class="sig-name descname"><span class="pre">saturate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#saturate" title="Link to this definition">¶</a></dt>
+<dd><p>Increase saturation of a colour.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="desaturate">
+<span class="sig-name descname"><span class="pre">desaturate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#desaturate" title="Link to this definition">¶</a></dt>
+<dd><p>Decrease saturation of a colour.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="set_saturation">
+<span class="sig-name descname"><span class="pre">set_saturation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#set_saturation" title="Link to this definition">¶</a></dt>
+<dd><p>Set saturation of a colour to a specific value (0–1).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="set_lightness">
+<span class="sig-name descname"><span class="pre">set_lightness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#set_lightness" title="Link to this definition">¶</a></dt>
+<dd><p>Set lightness of a colour to a specific value (0–1).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="invert">
+<span class="sig-name descname"><span class="pre">invert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#invert" title="Link to this definition">¶</a></dt>
+<dd><p>Return the inverted (complementary via RGB inversion) colour.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="complementary">
+<span class="sig-name descname"><span class="pre">complementary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#complementary" title="Link to this definition">¶</a></dt>
+<dd><p>Return the complementary colour (180-degree hue rotation).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="triadic">
+<span class="sig-name descname"><span class="pre">triadic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#triadic" title="Link to this definition">¶</a></dt>
+<dd><p>Return a list of two colours forming a triadic scheme (hue +120° and +240°).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="analogous">
+<span class="sig-name descname"><span class="pre">analogous</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#analogous" title="Link to this definition">¶</a></dt>
+<dd><p>Return a list of two colours at hue ± <em>angle</em> degrees from the input.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="split_complementary">
+<span class="sig-name descname"><span class="pre">split_complementary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#split_complementary" title="Link to this definition">¶</a></dt>
+<dd><p>Return a list of two split-complementary colours (hue +150° and +210°).</p>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="filters-definitions">
+<h2>Filters &amp; Definitions<a class="headerlink" href="#filters-definitions" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ClipPath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">objects</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>SVG clip path definition. Pass one or more shape objects.</p>
+<div class="example admonition">
+<p class="admonition-title">Example: Using a clip path</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">clip</span> <span class="o">=</span> <span class="n">ClipPath</span><span class="p">(</span><span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">))</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">add_def</span><span class="p">(</span><span class="n">clip</span><span class="p">)</span>
+<span class="n">rect</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">clip_path</span><span class="o">=</span><span class="n">clip</span><span class="o">.</span><span class="n">clip_ref</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">clip_ref</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Returns the <code class="docutils literal notranslate"><span class="pre">url(#...)</span></code> reference string.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">BlurFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">std_deviation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Gaussian blur filter.</p>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">filter_ref</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Returns the <code class="docutils literal notranslate"><span class="pre">url(#...)</span></code> reference string.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DropShadowFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std_deviation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#000'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Drop shadow filter.</p>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">filter_ref</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Returns the <code class="docutils literal notranslate"><span class="pre">url(#...)</span></code> reference string.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="styling-attributes">
+<h2>Styling Attributes<a class="headerlink" href="#styling-attributes" title="Link to this heading">¶</a></h2>
+<p>Every VObject has a <code class="docutils literal notranslate"><span class="pre">styling</span></code> attribute with these time-varying properties:</p>
+<p class="rubric">Visual (SVG presentation attributes)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.opacity">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">opacity</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#styling.opacity" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.fill">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">fill</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Color" title="Color"><span class="pre">Color</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'#000'</span></span><a class="headerlink" href="#styling.fill" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.fill_opacity">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">fill_opacity</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#styling.fill_opacity" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.stroke">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">stroke</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Color" title="Color"><span class="pre">Color</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'#000'</span></span><a class="headerlink" href="#styling.stroke" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.stroke_width">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">stroke_width</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></span><a class="headerlink" href="#styling.stroke_width" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.stroke_opacity">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">stroke_opacity</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#styling.stroke_opacity" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.fill_rule">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">fill_rule</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#String" title="String"><span class="pre">String</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'nonzero'</span></span><a class="headerlink" href="#styling.fill_rule" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.stroke_dasharray">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">stroke_dasharray</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#String" title="String"><span class="pre">String</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></span><a class="headerlink" href="#styling.stroke_dasharray" title="Link to this definition">¶</a></dt>
+<dd><p>Dash pattern (e.g. <code class="docutils literal notranslate"><span class="pre">'10,5'</span></code>).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.stroke_dashoffset">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">stroke_dashoffset</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#styling.stroke_dashoffset" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.stroke_linecap">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">stroke_linecap</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#String" title="String"><span class="pre">String</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'butt'</span></span><a class="headerlink" href="#styling.stroke_linecap" title="Link to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">'butt'</span></code>, <code class="docutils literal notranslate"><span class="pre">'round'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'square'</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.stroke_linejoin">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">stroke_linejoin</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#String" title="String"><span class="pre">String</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'miter'</span></span><a class="headerlink" href="#styling.stroke_linejoin" title="Link to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">'miter'</span></code>, <code class="docutils literal notranslate"><span class="pre">'round'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'bevel'</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.clip_path">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">clip_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#String" title="String"><span class="pre">String</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></span><a class="headerlink" href="#styling.clip_path" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Transform attributes</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.dx">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">dx</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#styling.dx" title="Link to this definition">¶</a></dt>
+<dd><p>Translation x offset.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.dy">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">dy</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#styling.dy" title="Link to this definition">¶</a></dt>
+<dd><p>Translation y offset.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.scale_x">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">scale_x</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#styling.scale_x" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.scale_y">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">scale_y</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#styling.scale_y" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.rotation">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">rotation</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Tup" title="Tup"><span class="pre">Tup</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span><a class="headerlink" href="#styling.rotation" title="Link to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">(degrees,</span> <span class="pre">cx,</span> <span class="pre">cy)</span></code> – counterclockwise positive.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.skew_x">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">skew_x</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#styling.skew_x" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.skew_y">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">skew_y</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#styling.skew_y" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="styling.matrix">
+<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">matrix</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Tup" title="Tup"><span class="pre">Tup</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span><a class="headerlink" href="#styling.matrix" title="Link to this definition">¶</a></dt>
+<dd><p>SVG matrix transform <code class="docutils literal notranslate"><span class="pre">(a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d,</span> <span class="pre">e,</span> <span class="pre">f)</span></code>.</p>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="helper-functions">
+<h2>Helper Functions<a class="headerlink" href="#helper-functions" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">parse_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Common CLI argument parser. Returns an object with:
+<code class="docutils literal notranslate"><span class="pre">verbose</span></code>, <code class="docutils literal notranslate"><span class="pre">port</span></code>, <code class="docutils literal notranslate"><span class="pre">fps</span></code>, <code class="docutils literal notranslate"><span class="pre">output</span></code>,
+<code class="docutils literal notranslate"><span class="pre">duration</span></code>, <code class="docutils literal notranslate"><span class="pre">start</span></code>, <code class="docutils literal notranslate"><span class="pre">end</span></code>, <code class="docutils literal notranslate"><span class="pre">hot_reload</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="path_bbox">
+<span class="sig-name descname"><span class="pre">path_bbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#path_bbox" title="Link to this definition">¶</a></dt>
+<dd><p>Bounding box of an SVG path string.
+Available via <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">vectormation.pathbbox</span> <span class="pre">import</span> <span class="pre">path_bbox</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">(xmin,</span> <span class="pre">xmax,</span> <span class="pre">ymin,</span> <span class="pre">ymax)</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">from_svg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soup_element</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Parse a single BeautifulSoup element into a VObject.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">from_svg_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Load an entire SVG file into a <a class="reference internal" href="collections.html#VCollection" title="VCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VCollection</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="succession">
+<span class="sig-name descname"><span class="pre">succession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lag_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#succession" title="Link to this definition">¶</a></dt>
+<dd><p>Chain multiple animation steps in sequence. Each step is a tuple
+<code class="docutils literal notranslate"><span class="pre">(obj,</span> <span class="pre">method_name)</span></code> or <code class="docutils literal notranslate"><span class="pre">(obj,</span> <span class="pre">method_name,</span> <span class="pre">kwargs)</span></code>. Steps share the
+total time equally; <code class="docutils literal notranslate"><span class="pre">lag_ratio</span></code> controls overlap between consecutive steps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>steps</strong> (<em>tuple</em>) – <code class="docutils literal notranslate"><span class="pre">(vobject,</span> <span class="pre">method_name[,</span> <span class="pre">kwargs])</span></code> tuples.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Start time.</p></li>
+<li><p><strong>lag_ratio</strong> (<em>float</em>) – Overlap fraction (0 = sequential, 0.5 = 50% overlap).</p></li>
+</ul>
+</dd>
+</dl>
+<div class="example admonition">
+<p class="admonition-title">Example: Chaining animations in sequence</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">succession</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">circle</span><span class="p">,</span> <span class="s1">&#39;fadein&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">square</span><span class="p">,</span> <span class="s1">&#39;write&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;fadein&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;shift_dir&#39;</span><span class="p">:</span> <span class="s1">&#39;up&#39;</span><span class="p">}),</span>
+    <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">lag_ratio</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transform_matching_shapes">
+<span class="sig-name descname"><span class="pre">transform_matching_shapes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transform_matching_shapes" title="Link to this definition">¶</a></dt>
+<dd><p>Animate morphing between two VCollections by matching sub-objects.
+Unmatched source objects are faded out; unmatched target objects are faded in.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> – Source VCollection or list of VObjects.</p></li>
+<li><p><strong>target</strong> – Target VCollection or list of VObjects.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – End time.</p></li>
+<li><p><strong>key</strong> – Optional function <code class="docutils literal notranslate"><span class="pre">key(obj)</span> <span class="pre">-&gt;</span> <span class="pre">hashable</span></code> for matching.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="counterclockwise_morph">
+<span class="sig-name descname"><span class="pre">counterclockwise_morph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#counterclockwise_morph" title="Link to this definition">¶</a></dt>
+<dd><p>Convenience wrapper: morph with a 180-degree counterclockwise rotation.
+Equivalent to <code class="docutils literal notranslate"><span class="pre">MorphObject(source,</span> <span class="pre">target,</span> <span class="pre">rotation_degrees=-180,</span> <span class="pre">...)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<a class="reference internal" href="vobject.html#VObject" title="VObject"><em>VObject</em></a>) – Source object.</p></li>
+<li><p><strong>target</strong> (<a class="reference internal" href="vobject.html#VObject" title="VObject"><em>VObject</em></a>) – Target object.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="example admonition">
+<p class="admonition-title">Example: counterclockwise_morph</p>
+<video src="../_static/videos/ref_counterclockwise_morph.mp4" controls autoplay loop muted></video><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">circle</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">)</span>
+<span class="n">square</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span><span class="mi">240</span><span class="p">,</span> <span class="mi">240</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">)</span>
+
+<span class="n">morph</span> <span class="o">=</span> <span class="n">counterclockwise_morph</span><span class="p">(</span><span class="n">circle</span><span class="p">,</span> <span class="n">square</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">morph</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/ref_counterclockwise_morph.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="transform_matching_tex">
+<span class="sig-name descname"><span class="pre">transform_matching_tex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#transform_matching_tex" title="Link to this definition">¶</a></dt>
+<dd><p>Animate morphing between two TexObjects by matching character content.
+Matched glyph paths are morphed; unmatched ones are faded out/in.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<a class="reference internal" href="text.html#TexObject" title="TexObject"><em>TexObject</em></a>) – The TexObject to morph from.</p></li>
+<li><p><strong>target</strong> (<a class="reference internal" href="text.html#TexObject" title="TexObject"><em>TexObject</em></a>) – The TexObject to morph to.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="interpolate_value">
+<span class="sig-name descname"><span class="pre">interpolate_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interpolate_value" title="Link to this definition">¶</a></dt>
+<dd><p>Linearly interpolate between two scalar values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>float</em>) – Start value.</p></li>
+<li><p><strong>b</strong> (<em>float</em>) – End value.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Interpolation factor (0 = <em>a</em>, 1 = <em>b</em>).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="smooth_index">
+<span class="sig-name descname"><span class="pre">smooth_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">real_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#smooth_index" title="Link to this definition">¶</a></dt>
+<dd><p>Smoothly index into a list with a float index in [0, 1].
+Returns the linearly interpolated value between adjacent items.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lst</strong> (<em>list</em>) – List of numeric values or coordinate tuples.</p></li>
+<li><p><strong>real_index</strong> (<em>float</em>) – Index in [0, 1].</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
 <section id="easings">
 <h2>Easings<a class="headerlink" href="#easings" title="Link to this heading">¶</a></h2>
 <p><em>Module:</em> <code class="docutils literal notranslate"><span class="pre">vectormation.easings</span></code></p>
 <p>Easing functions control the pace of animations. Each accepts <code class="docutils literal notranslate"><span class="pre">t</span></code> in [0, 1]
 and returns a value in [0, 1].</p>
+<div class="example admonition">
+<p class="admonition-title">Example: Using an easing function</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">vectormation.easings</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">easings</span>
-<span class="n">circle</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">start_time</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end_time</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">easing</span><span class="o">=</span><span class="n">easings</span><span class="o">.</span><span class="n">ease_out_bounce</span><span class="p">)</span>
+<span class="n">circle</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">easing</span><span class="o">=</span><span class="n">easings</span><span class="o">.</span><span class="n">ease_out_bounce</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<a class="reference internal image-reference" href="../_images/easing_curves.svg"><img alt="../_images/easing_curves.svg" class="align-center" src="../_images/easing_curves.svg" width="520" />
+</a>
 <p class="rubric">Basic</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="linear">
@@ -494,269 +994,6 @@ and returns a value in [0, 1].</p>
 </dd></dl>
 
 </section>
-<hr class="docutils" />
-<section id="colours-gradients">
-<h2>Colours &amp; Gradients<a class="headerlink" href="#colours-gradients" title="Link to this heading">¶</a></h2>
-<p><em>Module:</em> <code class="docutils literal notranslate"><span class="pre">vectormation.colors</span></code></p>
-<dl class="py class">
-<dt class="sig sig-object py" id="LinearGradient">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LinearGradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'100%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0%'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#LinearGradient" title="Link to this definition">¶</a></dt>
-<dd><p>SVG linear gradient. Register with <code class="docutils literal notranslate"><span class="pre">canvas.add_def(lg)</span></code> before use.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>stops</strong> (<em>list</em>) – List of <code class="docutils literal notranslate"><span class="pre">(offset,</span> <span class="pre">color)</span></code> or <code class="docutils literal notranslate"><span class="pre">(offset,</span> <span class="pre">color,</span> <span class="pre">opacity)</span></code> tuples.</p>
-</dd>
-</dl>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearGradient</span>
-<span class="n">lg</span> <span class="o">=</span> <span class="n">LinearGradient</span><span class="p">([(</span><span class="s1">&#39;0%&#39;</span><span class="p">,</span> <span class="s1">&#39;#ff0000&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;100%&#39;</span><span class="p">,</span> <span class="s1">&#39;#0000ff&#39;</span><span class="p">)])</span>
-<span class="n">canvas</span><span class="o">.</span><span class="n">add_def</span><span class="p">(</span><span class="n">lg</span><span class="p">)</span>
-<span class="n">circle</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="n">lg</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="py method">
-<dt class="sig sig-object py" id="LinearGradient.fill_ref">
-<span class="sig-name descname"><span class="pre">fill_ref</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#LinearGradient.fill_ref" title="Link to this definition">¶</a></dt>
-<dd><p>Returns the URL reference for use in fill attributes.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="RadialGradient">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">RadialGradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stops</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'50%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'50%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'50%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#RadialGradient" title="Link to this definition">¶</a></dt>
-<dd><p>SVG radial gradient.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>stops</strong> (<em>list</em>) – List of <code class="docutils literal notranslate"><span class="pre">(offset,</span> <span class="pre">color)</span></code> or <code class="docutils literal notranslate"><span class="pre">(offset,</span> <span class="pre">color,</span> <span class="pre">opacity)</span></code> tuples.</p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="RadialGradient.fill_ref">
-<span class="sig-name descname"><span class="pre">fill_ref</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#RadialGradient.fill_ref" title="Link to this definition">¶</a></dt>
-<dd><p>Returns the URL reference for use in fill attributes.</p>
-</dd></dl>
-
-</dd></dl>
-
-<p class="rubric">Utility Functions</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="color_from_name">
-<span class="sig-name descname"><span class="pre">color_from_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#color_from_name" title="Link to this definition">¶</a></dt>
-<dd><p>Get hex code from a named colour (e.g. <code class="docutils literal notranslate"><span class="pre">'RED'</span></code>, <code class="docutils literal notranslate"><span class="pre">'BLUE'</span></code>).</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="color_gradient">
-<span class="sig-name descname"><span class="pre">color_gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#color_gradient" title="Link to this definition">¶</a></dt>
-<dd><p>Generate <em>n</em> interpolated hex colours between <em>color1</em> and <em>color2</em>.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="interpolate_color">
-<span class="sig-name descname"><span class="pre">interpolate_color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#interpolate_color" title="Link to this definition">¶</a></dt>
-<dd><p>Interpolate between two colours at <code class="docutils literal notranslate"><span class="pre">t</span></code> (0–1).</p>
-</dd></dl>
-
-</section>
-<hr class="docutils" />
-<section id="filters-definitions">
-<h2>Filters &amp; Definitions<a class="headerlink" href="#filters-definitions" title="Link to this heading">¶</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="ClipPath">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ClipPath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">objects</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ClipPath" title="Link to this definition">¶</a></dt>
-<dd><p>SVG clip path definition. Pass one or more shape objects.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">clip</span> <span class="o">=</span> <span class="n">ClipPath</span><span class="p">(</span><span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">))</span>
-<span class="n">canvas</span><span class="o">.</span><span class="n">add_def</span><span class="p">(</span><span class="n">clip</span><span class="p">)</span>
-<span class="n">rect</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">clip_path</span><span class="o">=</span><span class="n">clip</span><span class="o">.</span><span class="n">clip_ref</span><span class="p">())</span>
-</pre></div>
-</div>
-<dl class="py method">
-<dt class="sig sig-object py" id="ClipPath.clip_ref">
-<span class="sig-name descname"><span class="pre">clip_ref</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ClipPath.clip_ref" title="Link to this definition">¶</a></dt>
-<dd><p>Returns the <code class="docutils literal notranslate"><span class="pre">url(#...)</span></code> reference string.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="BlurFilter">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">BlurFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">std_deviation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#BlurFilter" title="Link to this definition">¶</a></dt>
-<dd><p>Gaussian blur filter.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="BlurFilter.filter_ref">
-<span class="sig-name descname"><span class="pre">filter_ref</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#BlurFilter.filter_ref" title="Link to this definition">¶</a></dt>
-<dd><p>Returns the <code class="docutils literal notranslate"><span class="pre">url(#...)</span></code> reference string.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="DropShadowFilter">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DropShadowFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std_deviation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#000'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#DropShadowFilter" title="Link to this definition">¶</a></dt>
-<dd><p>Drop shadow filter.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="DropShadowFilter.filter_ref">
-<span class="sig-name descname"><span class="pre">filter_ref</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#DropShadowFilter.filter_ref" title="Link to this definition">¶</a></dt>
-<dd><p>Returns the <code class="docutils literal notranslate"><span class="pre">url(#...)</span></code> reference string.</p>
-</dd></dl>
-
-</dd></dl>
-
-</section>
-<hr class="docutils" />
-<section id="styling-attributes">
-<h2>Styling Attributes<a class="headerlink" href="#styling-attributes" title="Link to this heading">¶</a></h2>
-<p>Every VObject has a <code class="docutils literal notranslate"><span class="pre">styling</span></code> attribute with these time-varying properties:</p>
-<p class="rubric">Visual (SVG presentation attributes)</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.opacity">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">opacity</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#styling.opacity" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.fill">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">fill</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Color" title="Color"><span class="pre">Color</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'#000'</span></span><a class="headerlink" href="#styling.fill" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.fill_opacity">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">fill_opacity</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#styling.fill_opacity" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.stroke">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">stroke</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Color" title="Color"><span class="pre">Color</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'#000'</span></span><a class="headerlink" href="#styling.stroke" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.stroke_width">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">stroke_width</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></span><a class="headerlink" href="#styling.stroke_width" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.stroke_opacity">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">stroke_opacity</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#styling.stroke_opacity" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.fill_rule">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">fill_rule</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#String" title="String"><span class="pre">String</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'nonzero'</span></span><a class="headerlink" href="#styling.fill_rule" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.stroke_dasharray">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">stroke_dasharray</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#String" title="String"><span class="pre">String</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></span><a class="headerlink" href="#styling.stroke_dasharray" title="Link to this definition">¶</a></dt>
-<dd><p>Dash pattern (e.g. <code class="docutils literal notranslate"><span class="pre">'10,5'</span></code>).</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.stroke_dashoffset">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">stroke_dashoffset</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#styling.stroke_dashoffset" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.stroke_linecap">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">stroke_linecap</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#String" title="String"><span class="pre">String</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'butt'</span></span><a class="headerlink" href="#styling.stroke_linecap" title="Link to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">'butt'</span></code>, <code class="docutils literal notranslate"><span class="pre">'round'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'square'</span></code>.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.stroke_linejoin">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">stroke_linejoin</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#String" title="String"><span class="pre">String</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'miter'</span></span><a class="headerlink" href="#styling.stroke_linejoin" title="Link to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">'miter'</span></code>, <code class="docutils literal notranslate"><span class="pre">'round'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'bevel'</span></code>.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.clip_path">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">clip_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#String" title="String"><span class="pre">String</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></span><a class="headerlink" href="#styling.clip_path" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<p class="rubric">Transform attributes</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.dx">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">dx</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#styling.dx" title="Link to this definition">¶</a></dt>
-<dd><p>Translation x offset.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.dy">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">dy</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#styling.dy" title="Link to this definition">¶</a></dt>
-<dd><p>Translation y offset.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.scale_x">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">scale_x</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#styling.scale_x" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.scale_y">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">scale_y</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#styling.scale_y" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.rotation">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">rotation</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Tup" title="Tup"><span class="pre">Tup</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span><a class="headerlink" href="#styling.rotation" title="Link to this definition">¶</a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">(degrees,</span> <span class="pre">cx,</span> <span class="pre">cy)</span></code> – counterclockwise positive.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.skew_x">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">skew_x</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#styling.skew_x" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.skew_y">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">skew_y</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#styling.skew_y" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="styling.matrix">
-<span class="sig-prename descclassname"><span class="pre">styling.</span></span><span class="sig-name descname"><span class="pre">matrix</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Tup" title="Tup"><span class="pre">Tup</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span><a class="headerlink" href="#styling.matrix" title="Link to this definition">¶</a></dt>
-<dd><p>SVG matrix transform <code class="docutils literal notranslate"><span class="pre">(a,</span> <span class="pre">b,</span> <span class="pre">c,</span> <span class="pre">d,</span> <span class="pre">e,</span> <span class="pre">f)</span></code>.</p>
-</dd></dl>
-
-</section>
-<hr class="docutils" />
-<section id="helper-functions">
-<h2>Helper Functions<a class="headerlink" href="#helper-functions" title="Link to this heading">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="parse_args">
-<span class="sig-name descname"><span class="pre">parse_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#parse_args" title="Link to this definition">¶</a></dt>
-<dd><p>Common CLI argument parser. Returns an object with:
-<code class="docutils literal notranslate"><span class="pre">verbose</span></code>, <code class="docutils literal notranslate"><span class="pre">port</span></code>, <code class="docutils literal notranslate"><span class="pre">fps</span></code>, <code class="docutils literal notranslate"><span class="pre">no_display</span></code>.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="path_bbox">
-<span class="sig-name descname"><span class="pre">path_bbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#path_bbox" title="Link to this definition">¶</a></dt>
-<dd><p>Bounding box of an SVG path string.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">(xmin,</span> <span class="pre">xmax,</span> <span class="pre">ymin,</span> <span class="pre">ymax)</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="path_length">
-<span class="sig-name descname"><span class="pre">path_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#path_length" title="Link to this definition">¶</a></dt>
-<dd><p>Length of an SVG path string.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="from_svg">
-<span class="sig-name descname"><span class="pre">from_svg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soup_element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#from_svg" title="Link to this definition">¶</a></dt>
-<dd><p>Parse a single BeautifulSoup element into a VObject.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="from_svg_file">
-<span class="sig-name descname"><span class="pre">from_svg_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#from_svg_file" title="Link to this definition">¶</a></dt>
-<dd><p>Load an entire SVG file into a <a class="reference internal" href="collections.html#VCollection" title="VCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VCollection</span></code></a>.</p>
-</dd></dl>
-
-</section>
 </section>
 
         </article>
@@ -764,12 +1001,12 @@ and returns a value in [0, 1].</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../attributes.html">
+          <a class="next-page" href="svg_utils.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Attributes: Time-Varying Values</div>
+                <div class="title">SVG Utilities</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -815,6 +1052,66 @@ and returns a value in [0, 1].</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Utilities</a><ul>
+<li><a class="reference internal" href="#colours-gradients">Colours &amp; Gradients</a><ul>
+<li><a class="reference internal" href="#LinearGradient"><code class="docutils literal notranslate"><span class="pre">LinearGradient</span></code></a><ul>
+<li><a class="reference internal" href="#LinearGradient.fill_ref"><code class="docutils literal notranslate"><span class="pre">LinearGradient.fill_ref()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#RadialGradient"><code class="docutils literal notranslate"><span class="pre">RadialGradient</span></code></a><ul>
+<li><a class="reference internal" href="#RadialGradient.fill_ref"><code class="docutils literal notranslate"><span class="pre">RadialGradient.fill_ref()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#color_from_name"><code class="docutils literal notranslate"><span class="pre">color_from_name()</span></code></a></li>
+<li><a class="reference internal" href="#color_gradient"><code class="docutils literal notranslate"><span class="pre">color_gradient()</span></code></a></li>
+<li><a class="reference internal" href="#interpolate_color"><code class="docutils literal notranslate"><span class="pre">interpolate_color()</span></code></a></li>
+<li><a class="reference internal" href="#lighten"><code class="docutils literal notranslate"><span class="pre">lighten()</span></code></a></li>
+<li><a class="reference internal" href="#darken"><code class="docutils literal notranslate"><span class="pre">darken()</span></code></a></li>
+<li><a class="reference internal" href="#adjust_hue"><code class="docutils literal notranslate"><span class="pre">adjust_hue()</span></code></a></li>
+<li><a class="reference internal" href="#saturate"><code class="docutils literal notranslate"><span class="pre">saturate()</span></code></a></li>
+<li><a class="reference internal" href="#desaturate"><code class="docutils literal notranslate"><span class="pre">desaturate()</span></code></a></li>
+<li><a class="reference internal" href="#set_saturation"><code class="docutils literal notranslate"><span class="pre">set_saturation()</span></code></a></li>
+<li><a class="reference internal" href="#set_lightness"><code class="docutils literal notranslate"><span class="pre">set_lightness()</span></code></a></li>
+<li><a class="reference internal" href="#invert"><code class="docutils literal notranslate"><span class="pre">invert()</span></code></a></li>
+<li><a class="reference internal" href="#complementary"><code class="docutils literal notranslate"><span class="pre">complementary()</span></code></a></li>
+<li><a class="reference internal" href="#triadic"><code class="docutils literal notranslate"><span class="pre">triadic()</span></code></a></li>
+<li><a class="reference internal" href="#analogous"><code class="docutils literal notranslate"><span class="pre">analogous()</span></code></a></li>
+<li><a class="reference internal" href="#split_complementary"><code class="docutils literal notranslate"><span class="pre">split_complementary()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#filters-definitions">Filters &amp; Definitions</a></li>
+<li><a class="reference internal" href="#styling-attributes">Styling Attributes</a><ul>
+<li><a class="reference internal" href="#styling.opacity"><code class="docutils literal notranslate"><span class="pre">styling.opacity</span></code></a></li>
+<li><a class="reference internal" href="#styling.fill"><code class="docutils literal notranslate"><span class="pre">styling.fill</span></code></a></li>
+<li><a class="reference internal" href="#styling.fill_opacity"><code class="docutils literal notranslate"><span class="pre">styling.fill_opacity</span></code></a></li>
+<li><a class="reference internal" href="#styling.stroke"><code class="docutils literal notranslate"><span class="pre">styling.stroke</span></code></a></li>
+<li><a class="reference internal" href="#styling.stroke_width"><code class="docutils literal notranslate"><span class="pre">styling.stroke_width</span></code></a></li>
+<li><a class="reference internal" href="#styling.stroke_opacity"><code class="docutils literal notranslate"><span class="pre">styling.stroke_opacity</span></code></a></li>
+<li><a class="reference internal" href="#styling.fill_rule"><code class="docutils literal notranslate"><span class="pre">styling.fill_rule</span></code></a></li>
+<li><a class="reference internal" href="#styling.stroke_dasharray"><code class="docutils literal notranslate"><span class="pre">styling.stroke_dasharray</span></code></a></li>
+<li><a class="reference internal" href="#styling.stroke_dashoffset"><code class="docutils literal notranslate"><span class="pre">styling.stroke_dashoffset</span></code></a></li>
+<li><a class="reference internal" href="#styling.stroke_linecap"><code class="docutils literal notranslate"><span class="pre">styling.stroke_linecap</span></code></a></li>
+<li><a class="reference internal" href="#styling.stroke_linejoin"><code class="docutils literal notranslate"><span class="pre">styling.stroke_linejoin</span></code></a></li>
+<li><a class="reference internal" href="#styling.clip_path"><code class="docutils literal notranslate"><span class="pre">styling.clip_path</span></code></a></li>
+<li><a class="reference internal" href="#styling.dx"><code class="docutils literal notranslate"><span class="pre">styling.dx</span></code></a></li>
+<li><a class="reference internal" href="#styling.dy"><code class="docutils literal notranslate"><span class="pre">styling.dy</span></code></a></li>
+<li><a class="reference internal" href="#styling.scale_x"><code class="docutils literal notranslate"><span class="pre">styling.scale_x</span></code></a></li>
+<li><a class="reference internal" href="#styling.scale_y"><code class="docutils literal notranslate"><span class="pre">styling.scale_y</span></code></a></li>
+<li><a class="reference internal" href="#styling.rotation"><code class="docutils literal notranslate"><span class="pre">styling.rotation</span></code></a></li>
+<li><a class="reference internal" href="#styling.skew_x"><code class="docutils literal notranslate"><span class="pre">styling.skew_x</span></code></a></li>
+<li><a class="reference internal" href="#styling.skew_y"><code class="docutils literal notranslate"><span class="pre">styling.skew_y</span></code></a></li>
+<li><a class="reference internal" href="#styling.matrix"><code class="docutils literal notranslate"><span class="pre">styling.matrix</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#helper-functions">Helper Functions</a><ul>
+<li><a class="reference internal" href="#path_bbox"><code class="docutils literal notranslate"><span class="pre">path_bbox()</span></code></a></li>
+<li><a class="reference internal" href="#succession"><code class="docutils literal notranslate"><span class="pre">succession()</span></code></a></li>
+<li><a class="reference internal" href="#transform_matching_shapes"><code class="docutils literal notranslate"><span class="pre">transform_matching_shapes()</span></code></a></li>
+<li><a class="reference internal" href="#counterclockwise_morph"><code class="docutils literal notranslate"><span class="pre">counterclockwise_morph()</span></code></a></li>
+<li><a class="reference internal" href="#transform_matching_tex"><code class="docutils literal notranslate"><span class="pre">transform_matching_tex()</span></code></a></li>
+<li><a class="reference internal" href="#interpolate_value"><code class="docutils literal notranslate"><span class="pre">interpolate_value()</span></code></a></li>
+<li><a class="reference internal" href="#smooth_index"><code class="docutils literal notranslate"><span class="pre">smooth_index()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#easings">Easings</a><ul>
 <li><a class="reference internal" href="#linear"><code class="docutils literal notranslate"><span class="pre">linear()</span></code></a></li>
 <li><a class="reference internal" href="#smooth"><code class="docutils literal notranslate"><span class="pre">smooth()</span></code></a></li>
@@ -857,66 +1154,6 @@ and returns a value in [0, 1].</p>
 <li><a class="reference internal" href="#ease_in_out_bounce"><code class="docutils literal notranslate"><span class="pre">ease_in_out_bounce()</span></code></a></li>
 <li><a class="reference internal" href="#not_quite_there"><code class="docutils literal notranslate"><span class="pre">not_quite_there()</span></code></a></li>
 <li><a class="reference internal" href="#squish_rate_func"><code class="docutils literal notranslate"><span class="pre">squish_rate_func()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#colours-gradients">Colours &amp; Gradients</a><ul>
-<li><a class="reference internal" href="#LinearGradient"><code class="docutils literal notranslate"><span class="pre">LinearGradient</span></code></a><ul>
-<li><a class="reference internal" href="#LinearGradient.fill_ref"><code class="docutils literal notranslate"><span class="pre">LinearGradient.fill_ref()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#RadialGradient"><code class="docutils literal notranslate"><span class="pre">RadialGradient</span></code></a><ul>
-<li><a class="reference internal" href="#RadialGradient.fill_ref"><code class="docutils literal notranslate"><span class="pre">RadialGradient.fill_ref()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#color_from_name"><code class="docutils literal notranslate"><span class="pre">color_from_name()</span></code></a></li>
-<li><a class="reference internal" href="#color_gradient"><code class="docutils literal notranslate"><span class="pre">color_gradient()</span></code></a></li>
-<li><a class="reference internal" href="#interpolate_color"><code class="docutils literal notranslate"><span class="pre">interpolate_color()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#filters-definitions">Filters &amp; Definitions</a><ul>
-<li><a class="reference internal" href="#ClipPath"><code class="docutils literal notranslate"><span class="pre">ClipPath</span></code></a><ul>
-<li><a class="reference internal" href="#ClipPath.clip_ref"><code class="docutils literal notranslate"><span class="pre">ClipPath.clip_ref()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#BlurFilter"><code class="docutils literal notranslate"><span class="pre">BlurFilter</span></code></a><ul>
-<li><a class="reference internal" href="#BlurFilter.filter_ref"><code class="docutils literal notranslate"><span class="pre">BlurFilter.filter_ref()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#DropShadowFilter"><code class="docutils literal notranslate"><span class="pre">DropShadowFilter</span></code></a><ul>
-<li><a class="reference internal" href="#DropShadowFilter.filter_ref"><code class="docutils literal notranslate"><span class="pre">DropShadowFilter.filter_ref()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#styling-attributes">Styling Attributes</a><ul>
-<li><a class="reference internal" href="#styling.opacity"><code class="docutils literal notranslate"><span class="pre">styling.opacity</span></code></a></li>
-<li><a class="reference internal" href="#styling.fill"><code class="docutils literal notranslate"><span class="pre">styling.fill</span></code></a></li>
-<li><a class="reference internal" href="#styling.fill_opacity"><code class="docutils literal notranslate"><span class="pre">styling.fill_opacity</span></code></a></li>
-<li><a class="reference internal" href="#styling.stroke"><code class="docutils literal notranslate"><span class="pre">styling.stroke</span></code></a></li>
-<li><a class="reference internal" href="#styling.stroke_width"><code class="docutils literal notranslate"><span class="pre">styling.stroke_width</span></code></a></li>
-<li><a class="reference internal" href="#styling.stroke_opacity"><code class="docutils literal notranslate"><span class="pre">styling.stroke_opacity</span></code></a></li>
-<li><a class="reference internal" href="#styling.fill_rule"><code class="docutils literal notranslate"><span class="pre">styling.fill_rule</span></code></a></li>
-<li><a class="reference internal" href="#styling.stroke_dasharray"><code class="docutils literal notranslate"><span class="pre">styling.stroke_dasharray</span></code></a></li>
-<li><a class="reference internal" href="#styling.stroke_dashoffset"><code class="docutils literal notranslate"><span class="pre">styling.stroke_dashoffset</span></code></a></li>
-<li><a class="reference internal" href="#styling.stroke_linecap"><code class="docutils literal notranslate"><span class="pre">styling.stroke_linecap</span></code></a></li>
-<li><a class="reference internal" href="#styling.stroke_linejoin"><code class="docutils literal notranslate"><span class="pre">styling.stroke_linejoin</span></code></a></li>
-<li><a class="reference internal" href="#styling.clip_path"><code class="docutils literal notranslate"><span class="pre">styling.clip_path</span></code></a></li>
-<li><a class="reference internal" href="#styling.dx"><code class="docutils literal notranslate"><span class="pre">styling.dx</span></code></a></li>
-<li><a class="reference internal" href="#styling.dy"><code class="docutils literal notranslate"><span class="pre">styling.dy</span></code></a></li>
-<li><a class="reference internal" href="#styling.scale_x"><code class="docutils literal notranslate"><span class="pre">styling.scale_x</span></code></a></li>
-<li><a class="reference internal" href="#styling.scale_y"><code class="docutils literal notranslate"><span class="pre">styling.scale_y</span></code></a></li>
-<li><a class="reference internal" href="#styling.rotation"><code class="docutils literal notranslate"><span class="pre">styling.rotation</span></code></a></li>
-<li><a class="reference internal" href="#styling.skew_x"><code class="docutils literal notranslate"><span class="pre">styling.skew_x</span></code></a></li>
-<li><a class="reference internal" href="#styling.skew_y"><code class="docutils literal notranslate"><span class="pre">styling.skew_y</span></code></a></li>
-<li><a class="reference internal" href="#styling.matrix"><code class="docutils literal notranslate"><span class="pre">styling.matrix</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#helper-functions">Helper Functions</a><ul>
-<li><a class="reference internal" href="#parse_args"><code class="docutils literal notranslate"><span class="pre">parse_args()</span></code></a></li>
-<li><a class="reference internal" href="#path_bbox"><code class="docutils literal notranslate"><span class="pre">path_bbox()</span></code></a></li>
-<li><a class="reference internal" href="#path_length"><code class="docutils literal notranslate"><span class="pre">path_length()</span></code></a></li>
-<li><a class="reference internal" href="#from_svg"><code class="docutils literal notranslate"><span class="pre">from_svg()</span></code></a></li>
-<li><a class="reference internal" href="#from_svg_file"><code class="docutils literal notranslate"><span class="pre">from_svg_file()</span></code></a></li>
 </ul>
 </li>
 </ul>

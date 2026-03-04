@@ -1,0 +1,1163 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1510' viewBox='0 0 1920 1510'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1510' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><text x='960' y='50' font-size='44' text-anchor='middle' fill='rgb(88,196,221)' stroke='rgb(0,0,0)' stroke-width='0'>Axes Plot Types</text></g>
+<g data-obj-idx='2'><text x='192' y='110' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_bar</text></g>
+<g data-obj-idx='3'><g>
+<g>
+<line x1='52' y1='330.0' x2='332' y2='330.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='52.0' y1='150' x2='52.0' y2='330' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='52.0' y1='316.0' x2='52.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='92.0' y1='316.0' x2='92.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='132.0' y1='316.0' x2='132.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='172.0' y1='316.0' x2='172.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='212.0' y1='316.0' x2='212.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='252.0' y1='316.0' x2='252.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='292.0' y1='316.0' x2='292.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='332.0' y1='316.0' x2='332.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='330.0' x2='66.0' y2='330.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='312.0' x2='66.0' y2='312.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='294.0' x2='66.0' y2='294.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='276.0' x2='66.0' y2='276.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='258.0' x2='66.0' y2='258.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='240.0' x2='66.0' y2='240.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='222.0' x2='66.0' y2='222.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='204.0' x2='66.0' y2='204.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='186.0' x2='66.0' y2='186.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='168.0' x2='66.0' y2='168.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='150.0' x2='66.0' y2='150.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<g>
+<rect x='80.0' y='213.43' width='24.0' height='116.57' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.7' stroke='rgb(88,196,221)' />
+<rect x='120.0' y='290.85' width='24.0' height='39.15' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.7' stroke='rgb(88,196,221)' />
+<rect x='160.0' y='259.35' width='24.0' height='70.65' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.7' stroke='rgb(88,196,221)' />
+<rect x='200.0' y='265.88' width='24' height='64.12' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.7' stroke='rgb(88,196,221)' />
+<rect x='240' y='201.2' width='24' height='128.8' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.7' stroke='rgb(88,196,221)' />
+<rect x='280.0' y='208.74' width='24.0' height='121.26' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.7' stroke='rgb(88,196,221)' />
+</g>
+</g></g>
+<g data-obj-idx='4'><text x='576' y='110' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_scatter</text></g>
+<g data-obj-idx='5'><g>
+<g>
+<line x1='436' y1='330.0' x2='716' y2='330.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='436.0' y1='150' x2='436.0' y2='330' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='436.0' y1='316.0' x2='436.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='464.0' y1='316.0' x2='464.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='492.0' y1='316.0' x2='492.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='520.0' y1='316.0' x2='520.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='548.0' y1='316.0' x2='548.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='576.0' y1='316.0' x2='576.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='604.0' y1='316.0' x2='604.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='632.0' y1='316.0' x2='632.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='660.0' y1='316.0' x2='660.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='688.0' y1='316.0' x2='688.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='716.0' y1='316.0' x2='716.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='330.0' x2='450.0' y2='330.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='312.0' x2='450.0' y2='312.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='294.0' x2='450.0' y2='294.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='276.0' x2='450.0' y2='276.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='258.0' x2='450.0' y2='258.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='240.0' x2='450.0' y2='240.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='222.0' x2='450.0' y2='222.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='204.0' x2='450.0' y2='204.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='186.0' x2='450.0' y2='186.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='168.0' x2='450.0' y2='168.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='150.0' x2='450.0' y2='150.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<g>
+<circle cx='674.83' cy='186.64' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='471.91' cy='220.8' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='556.32' cy='181.4' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='457.51' cy='227.47' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='505.1' cy='206.86' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='577.35' cy='313.58' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='456.69' cy='284.08' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='500.11' cy='274.12' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='613.77' cy='308.07' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='587.33' cy='283.29' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='505.55' cy='304.64' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='598.49' cy='275.97' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='653.98' cy='218.02' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='451.64' cy='261.9' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='653.07' cy='261.03' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='625.93' cy='287.06' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='535.74' cy='277.75' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='489.18' cy='169.26' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='691.22' cy='216.02' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='534.82' cy='222.32' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='473.37' cy='293.28' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='474.37' cy='202.88' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='663.57' cy='294.53' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='602.14' cy='259.53' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='653.4' cy='160.7' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='633.89' cy='217.32' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='585.13' cy='230.77' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='695.23' cy='210.09' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='545.39' cy='184.46' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='589.11' cy='195.29' r='3' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+</g></g>
+<g data-obj-idx='6'><text x='960' y='110' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_histogram</text></g>
+<g data-obj-idx='7'><g>
+<g>
+<line x1='820' y1='330.0' x2='1100' y2='330.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='820.0' y1='150' x2='820.0' y2='330' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='820.0' y1='316.0' x2='820.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='848.0' y1='316.0' x2='848.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='876.0' y1='316.0' x2='876.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='904.0' y1='316.0' x2='904.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='932.0' y1='316.0' x2='932.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='960.0' y1='316.0' x2='960.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='988.0' y1='316.0' x2='988.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1016.0' y1='316.0' x2='1016.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1044.0' y1='316.0' x2='1044.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1072.0' y1='316.0' x2='1072.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1100.0' y1='316.0' x2='1100.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='330.0' x2='834.0' y2='330.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='300.0' x2='834.0' y2='300.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='270.0' x2='834.0' y2='270.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='240.0' x2='834.0' y2='240.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='210.0' x2='834.0' y2='210.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='180.0' x2='834.0' y2='180.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='150.0' x2='834.0' y2='150.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<g>
+<rect x='860.21' y='300.0' width='24.66' height='30.0' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.6' stroke='rgb(88,196,221)' />
+<rect x='909.53' y='225.0' width='24.66' height='105.0' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.6' stroke='rgb(88,196,221)' />
+<rect x='934.2' y='150.0' width='24.66' height='180.0' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.6' stroke='rgb(88,196,221)' />
+<rect x='958.86' y='165.0' width='24.66' height='165.0' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.6' stroke='rgb(88,196,221)' />
+<rect x='983.52' y='165.0' width='24.66' height='165.0' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.6' stroke='rgb(88,196,221)' />
+<rect x='1008.18' y='255.0' width='24.66' height='75.0' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.6' stroke='rgb(88,196,221)' />
+<rect x='1032.84' y='300.0' width='24.66' height='30.0' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.6' stroke='rgb(88,196,221)' />
+</g>
+</g></g>
+<g data-obj-idx='8'><text x='1344' y='110' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_stem</text></g>
+<g data-obj-idx='9'><g>
+<g>
+<line x1='1204' y1='240.0' x2='1484' y2='240.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1204.0' y1='150' x2='1204.0' y2='330' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1204.0' y1='226.0' x2='1204.0' y2='254.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1239.0' y1='226.0' x2='1239.0' y2='254.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1274.0' y1='226.0' x2='1274.0' y2='254.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1309.0' y1='226.0' x2='1309.0' y2='254.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1344.0' y1='226.0' x2='1344.0' y2='254.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1379.0' y1='226.0' x2='1379.0' y2='254.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1414.0' y1='226.0' x2='1414.0' y2='254.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1449.0' y1='226.0' x2='1449.0' y2='254.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1484.0' y1='226.0' x2='1484.0' y2='254.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='330.0' x2='1218.0' y2='330.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='312.0' x2='1218.0' y2='312.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='294.0' x2='1218.0' y2='294.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='276.0' x2='1218.0' y2='276.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='258.0' x2='1218.0' y2='258.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='240.0' x2='1218.0' y2='240.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='222.0' x2='1218.0' y2='222.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='204.0' x2='1218.0' y2='204.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='186.0' x2='1218.0' y2='186.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='168.0' x2='1218.0' y2='168.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='150.0' x2='1218.0' y2='150.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<line x1='1239.0' y1='240.0' x2='1239.0' y2='175.44' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<line x1='1274.0' y1='240.0' x2='1274.0' y2='150.04' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<line x1='1309.0' y1='240.0' x2='1309.0' y2='179.21' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<line x1='1344.0' y1='240.0' x2='1344.0' y2='245.25' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<line x1='1379.0' y1='240.0' x2='1379.0' y2='308.11' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<line x1='1414.0' y1='240.0' x2='1414.0' y2='329.65' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<line x1='1449.0' y1='240.0' x2='1449.0' y2='296.81' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<circle cx='1239.0' cy='175.44' r='4' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1274.0' cy='150.04' r='4' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1309.0' cy='179.21' r='4' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1344.0' cy='245.25' r='4' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1379.0' cy='308.11' r='4' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1414.0' cy='329.65' r='4' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1449.0' cy='296.81' r='4' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g></g>
+<g data-obj-idx='10'><text x='1728' y='110' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_grouped_bar</text></g>
+<g data-obj-idx='11'><g>
+<g>
+<line x1='1588' y1='330.0' x2='1868' y2='330.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1588.0' y1='150' x2='1588.0' y2='330' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1588.0' y1='316.0' x2='1588.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1616.0' y1='316.0' x2='1616.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1644.0' y1='316.0' x2='1644.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1672.0' y1='316.0' x2='1672.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1700.0' y1='316.0' x2='1700.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1728.0' y1='316.0' x2='1728.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1756.0' y1='316.0' x2='1756.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1784.0' y1='316.0' x2='1784.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1812.0' y1='316.0' x2='1812.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1840.0' y1='316.0' x2='1840.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1868.0' y1='316.0' x2='1868.0' y2='344.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='330.0' x2='1602.0' y2='330.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='312.0' x2='1602.0' y2='312.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='294.0' x2='1602.0' y2='294.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='276.0' x2='1602.0' y2='276.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='258.0' x2='1602.0' y2='258.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='240.0' x2='1602.0' y2='240.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='222.0' x2='1602.0' y2='222.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='204.0' x2='1602.0' y2='204.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='186.0' x2='1602.0' y2='186.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='168.0' x2='1602.0' y2='168.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='150.0' x2='1602.0' y2='150.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<g>
+<rect x='1627.2' y='249.14' width='11.2' height='80.86' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.7' stroke='rgb(88,196,221)' />
+<rect x='1683.2' y='218.49' width='11.2' height='111.51' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.7' stroke='rgb(88,196,221)' />
+<rect x='1739.2' y='221.19' width='11.2' height='108.81' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.7' stroke='rgb(88,196,221)' />
+<rect x='1795.2' y='262.24' width='11.2' height='67.76' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.7' stroke='rgb(88,196,221)' />
+<rect x='1638.4' y='225.37' width='11.2' height='104.63' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.7' stroke='rgb(252,98,85)' />
+<rect x='1694.4' y='245.46' width='11.2' height='84.54' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.7' stroke='rgb(252,98,85)' />
+<rect x='1750.4' y='223.92' width='11.2' height='106.08' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.7' stroke='rgb(252,98,85)' />
+<rect x='1806.4' y='246.27' width='11.2' height='83.73' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.7' stroke='rgb(252,98,85)' />
+<rect x='1649.6' y='311.95' width='11.2' height='18.05' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.7' stroke='rgb(131,193,103)' />
+<rect x='1705.6' y='282.83' width='11.2' height='47.17' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.7' stroke='rgb(131,193,103)' />
+<rect x='1761.6' y='310.25' width='11.2' height='19.75' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.7' stroke='rgb(131,193,103)' />
+<rect x='1817.6' y='228.38' width='11.2' height='101.62' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.7' stroke='rgb(131,193,103)' />
+</g>
+</g></g>
+<g data-obj-idx='12'><text x='192' y='380' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_lollipop</text></g>
+<g data-obj-idx='13'><g>
+<g>
+<line x1='52' y1='600.0' x2='332' y2='600.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='52.0' y1='420' x2='52.0' y2='600' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='52.0' y1='586.0' x2='52.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='87.0' y1='586.0' x2='87.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='122.0' y1='586.0' x2='122.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='157.0' y1='586.0' x2='157.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='192.0' y1='586.0' x2='192.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='227.0' y1='586.0' x2='227.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='262.0' y1='586.0' x2='262.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='297.0' y1='586.0' x2='297.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='332.0' y1='586.0' x2='332.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='600.0' x2='66.0' y2='600.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='570.0' x2='66.0' y2='570.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='540.0' x2='66.0' y2='540.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='510.0' x2='66.0' y2='510.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='480.0' x2='66.0' y2='480.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='450.0' x2='66.0' y2='450.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='420.0' x2='66.0' y2='420.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<line x1='52.0' y1='570.0' x2='271.53' y2='570.0' fill='rgb(154,114,172)' stroke='rgb(88,196,221)' stroke-width='2' />
+<line x1='52.0' y1='540.0' x2='261.65' y2='540.0' fill='rgb(154,114,172)' stroke='rgb(88,196,221)' stroke-width='2' />
+<line x1='52.0' y1='510.0' x2='151.58' y2='510.0' fill='rgb(154,114,172)' stroke='rgb(88,196,221)' stroke-width='2' />
+<line x1='52.0' y1='480.0' x2='99.16' y2='480.0' fill='rgb(154,114,172)' stroke='rgb(88,196,221)' stroke-width='2' />
+<line x1='52.0' y1='450.0' x2='271.38' y2='450.0' fill='rgb(154,114,172)' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='271.53' cy='570.0' r='4' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='261.65' cy='540.0' r='4' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='151.58' cy='510.0' r='4' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='99.16' cy='480.0' r='4' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='271.38' cy='450.0' r='4' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g></g>
+<g data-obj-idx='14'><text x='576' y='380' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_bubble</text></g>
+<g data-obj-idx='15'><g>
+<g>
+<line x1='436' y1='600.0' x2='716' y2='600.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='436.0' y1='420' x2='436.0' y2='600' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='436.0' y1='586.0' x2='436.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='464.0' y1='586.0' x2='464.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='492.0' y1='586.0' x2='492.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='520.0' y1='586.0' x2='520.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='548.0' y1='586.0' x2='548.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='576.0' y1='586.0' x2='576.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='604.0' y1='586.0' x2='604.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='632.0' y1='586.0' x2='632.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='660.0' y1='586.0' x2='660.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='688.0' y1='586.0' x2='688.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='716.0' y1='586.0' x2='716.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='600.0' x2='450.0' y2='600.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='582.0' x2='450.0' y2='582.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='564.0' x2='450.0' y2='564.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='546.0' x2='450.0' y2='546.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='528.0' x2='450.0' y2='528.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='510.0' x2='450.0' y2='510.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='492.0' x2='450.0' y2='492.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='474.0' x2='450.0' y2='474.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='456.0' x2='450.0' y2='456.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='438.0' x2='450.0' y2='438.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='420.0' x2='450.0' y2='420.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<circle cx='676.12' cy='551.5' r='9.45' fill='rgb(88,196,221)' fill-opacity='0.5' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='483.19' cy='504.34' r='5.24' fill='rgb(88,196,221)' fill-opacity='0.5' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='572.86' cy='476.89' r='5.08' fill='rgb(88,196,221)' fill-opacity='0.5' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='479.5' cy='553.03' r='3' fill='rgb(88,196,221)' fill-opacity='0.5' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='634.37' cy='537.11' r='9.83' fill='rgb(88,196,221)' fill-opacity='0.5' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='635.55' cy='438.7' r='5.22' fill='rgb(88,196,221)' fill-opacity='0.5' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='492.76' cy='488.42' r='12.0' fill='rgb(88,196,221)' fill-opacity='0.5' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='570.46' cy='518.91' r='11.67' fill='rgb(88,196,221)' fill-opacity='0.5' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='587.16' cy='507.47' r='3' fill='rgb(88,196,221)' fill-opacity='0.5' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='523.37' cy='564.58' r='5.37' fill='rgb(88,196,221)' fill-opacity='0.5' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='659.43' cy='549.64' r='10.16' fill='rgb(88,196,221)' fill-opacity='0.5' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='558.78' cy='533.32' r='4.97' fill='rgb(88,196,221)' fill-opacity='0.5' stroke='rgb(255,255,255)' stroke-width='0' />
+</g></g>
+<g data-obj-idx='16'><text x='960' y='380' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_dot_plot</text></g>
+<g data-obj-idx='17'><g>
+<g>
+<line x1='820' y1='600.0' x2='1100' y2='600.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='820.0' y1='420' x2='820.0' y2='600' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='820.0' y1='586.0' x2='820.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='855.0' y1='586.0' x2='855.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='890.0' y1='586.0' x2='890.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='925.0' y1='586.0' x2='925.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='960.0' y1='586.0' x2='960.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='995.0' y1='586.0' x2='995.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1030.0' y1='586.0' x2='1030.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1065.0' y1='586.0' x2='1065.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1100.0' y1='586.0' x2='1100.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='600.0' x2='834.0' y2='600.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='570.0' x2='834.0' y2='570.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='540.0' x2='834.0' y2='540.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='510.0' x2='834.0' y2='510.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='480.0' x2='834.0' y2='480.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='450.0' x2='834.0' y2='450.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='420.0' x2='834.0' y2='420.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<circle cx='855.0' cy='595.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='855.0' cy='586.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='855.0' cy='577.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='890.0' cy='595.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='890.0' cy='586.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='890.0' cy='577.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='925.0' cy='595.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='960.0' cy='595.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='960.0' cy='586.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='960.0' cy='577.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='960.0' cy='568.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='960.0' cy='559.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='960.0' cy='550.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='960.0' cy='541.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='995.0' cy='595.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='995.0' cy='586.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1030.0' cy='595.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1030.0' cy='586.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1030.0' cy='577.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1030.0' cy='568.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1030.0' cy='559.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1030.0' cy='550.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1065.0' cy='595.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1065.0' cy='586.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1065.0' cy='577.5' r='3' fill='rgb(92,208,179)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g></g>
+<g data-obj-idx='18'><text x='1344' y='380' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_candlestick</text></g>
+<g data-obj-idx='19'><g>
+<g>
+<line x1='1204' y1='600.0' x2='1484' y2='600.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1204.0' y1='420' x2='1204.0' y2='600' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1204.0' y1='586.0' x2='1204.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1244.0' y1='586.0' x2='1244.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1284.0' y1='586.0' x2='1284.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1324.0' y1='586.0' x2='1324.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1364.0' y1='586.0' x2='1364.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1404.0' y1='586.0' x2='1404.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1444.0' y1='586.0' x2='1444.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1484.0' y1='586.0' x2='1484.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='600.0' x2='1218.0' y2='600.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='582.0' x2='1218.0' y2='582.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='564.0' x2='1218.0' y2='564.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='546.0' x2='1218.0' y2='546.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='528.0' x2='1218.0' y2='528.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='510.0' x2='1218.0' y2='510.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='492.0' x2='1218.0' y2='492.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='474.0' x2='1218.0' y2='474.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='456.0' x2='1218.0' y2='456.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='438.0' x2='1218.0' y2='438.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='420.0' x2='1218.0' y2='420.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<line x1='1244.0' y1='502.75' x2='1244.0' y2='537.79' stroke='rgb(255,107,107)' stroke-width='1.5' />
+<line x1='1284.0' y1='507.68' x2='1284.0' y2='535.11' stroke='rgb(131,193,103)' stroke-width='1.5' />
+<line x1='1324.0' y1='504.56' x2='1324.0' y2='519.94' stroke='rgb(255,107,107)' stroke-width='1.5' />
+<line x1='1364.0' y1='498.31' x2='1364.0' y2='536.42' stroke='rgb(255,107,107)' stroke-width='1.5' />
+<line x1='1404.0' y1='499.02' x2='1404.0' y2='529.35' stroke='rgb(131,193,103)' stroke-width='1.5' />
+<line x1='1444.0' y1='466.92' x2='1444.0' y2='526.37' stroke='rgb(131,193,103)' stroke-width='1.5' />
+<rect x='1234.0' y='510.0' width='20.0' height='21.69' rx='0' ry='0' fill='rgb(255,107,107)' fill-opacity='0.8' stroke='rgb(255,107,107)' />
+<rect x='1274.0' y='512.16' width='20.0' height='19.53' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.8' stroke='rgb(131,193,103)' />
+<rect x='1314.0' y='512.16' width='20.0' height='2.77' rx='0' ry='0' fill='rgb(255,107,107)' fill-opacity='0.8' stroke='rgb(255,107,107)' />
+<rect x='1354.0' y='514.93' width='20.0' height='13.51' rx='0' ry='0' fill='rgb(255,107,107)' fill-opacity='0.8' stroke='rgb(255,107,107)' />
+<rect x='1394.0' y='508.93' width='20.0' height='19.51' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.8' stroke='rgb(131,193,103)' />
+<rect x='1434.0' y='481.97' width='20.0' height='26.96' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.8' stroke='rgb(131,193,103)' />
+</g></g>
+<g data-obj-idx='20'><text x='1728' y='380' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_dumbbell</text></g>
+<g data-obj-idx='21'><g>
+<g>
+<line x1='1588' y1='600.0' x2='1868' y2='600.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1588.0' y1='420' x2='1588.0' y2='600' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1588.0' y1='586.0' x2='1588.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1616.0' y1='586.0' x2='1616.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1644.0' y1='586.0' x2='1644.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1672.0' y1='586.0' x2='1672.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1700.0' y1='586.0' x2='1700.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1728.0' y1='586.0' x2='1728.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1756.0' y1='586.0' x2='1756.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1784.0' y1='586.0' x2='1784.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1812.0' y1='586.0' x2='1812.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1840.0' y1='586.0' x2='1840.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1868.0' y1='586.0' x2='1868.0' y2='614.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='600.0' x2='1602.0' y2='600.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='570.0' x2='1602.0' y2='570.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='540.0' x2='1602.0' y2='540.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='510.0' x2='1602.0' y2='510.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='480.0' x2='1602.0' y2='480.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='450.0' x2='1602.0' y2='450.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='420.0' x2='1602.0' y2='420.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<line x1='1693.81' y1='570.0' x2='1755.5' y2='570.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='1687.29' y1='540.0' x2='1720.22' y2='540.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='1629.97' y1='510.0' x2='1689.8' y2='510.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='1656.79' y1='480.0' x2='1767.56' y2='480.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='1633.95' y1='450.0' x2='1684.23' y2='450.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<circle cx='1693.81' cy='570.0' r='6' fill='rgb(255,107,107)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1755.5' cy='570.0' r='6' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1687.29' cy='540.0' r='6' fill='rgb(255,107,107)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1720.22' cy='540.0' r='6' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1629.97' cy='510.0' r='6' fill='rgb(255,107,107)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1689.8' cy='510.0' r='6' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1656.79' cy='480.0' r='6' fill='rgb(255,107,107)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1767.56' cy='480.0' r='6' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1633.95' cy='450.0' r='6' fill='rgb(255,107,107)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1684.23' cy='450.0' r='6' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g></g>
+<g data-obj-idx='22'><text x='192' y='650' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_population_pyramid</text></g>
+<g data-obj-idx='23'><g>
+<g>
+<line x1='52' y1='870.0' x2='332' y2='870.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='192.0' y1='690' x2='192.0' y2='870' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='52.0' y1='856.0' x2='52.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='80.0' y1='856.0' x2='80.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='108.0' y1='856.0' x2='108.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='136.0' y1='856.0' x2='136.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='164.0' y1='856.0' x2='164.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='192.0' y1='856.0' x2='192.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='220.0' y1='856.0' x2='220.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='248.0' y1='856.0' x2='248.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='276.0' y1='856.0' x2='276.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='304.0' y1='856.0' x2='304.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='332.0' y1='856.0' x2='332.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='178.0' y1='870.0' x2='206.0' y2='870.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='178.0' y1='840.0' x2='206.0' y2='840.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='178.0' y1='810.0' x2='206.0' y2='810.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='178.0' y1='780.0' x2='206.0' y2='780.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='178.0' y1='750.0' x2='206.0' y2='750.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='178.0' y1='720.0' x2='206.0' y2='720.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='178.0' y1='690.0' x2='206.0' y2='690.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<rect x='84.14' y='831.0' width='107.86' height='18.0' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='192.0' y='831.0' width='88.68' height='18.0' rx='0' ry='0' fill='rgb(255,121,198)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='111.78' y='801.0' width='80.22' height='18.0' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='192.0' y='801.0' width='102.35' height='18.0' rx='0' ry='0' fill='rgb(255,121,198)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='114.47' y='771.0' width='77.53' height='18.0' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='192.0' y='771.0' width='55' height='18.0' rx='0' ry='0' fill='rgb(255,121,198)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='69.59' y='741.0' width='122.41' height='18.0' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='192.0' y='741.0' width='66.92' height='18.0' rx='0' ry='0' fill='rgb(255,121,198)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='66.38' y='711.0' width='125.62' height='18.0' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='192.0' y='711.0' width='123.37' height='18.0' rx='0' ry='0' fill='rgb(255,121,198)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='0' />
+</g></g>
+<g data-obj-idx='24'><text x='576' y='650' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_stacked_area</text></g>
+<g data-obj-idx='25'><g>
+<path d='M436.0,845.4L471.0,846.4L506.0,840.8L541.0,859.5L576.0,845.2L611.0,847.4L646.0,838.0L681.0,856.7L681.0,870.0L646.0,870.0L611.0,870.0L576.0,870.0L541.0,870.0L506.0,870.0L471.0,870.0L436.0,870.0Z' fill='rgb(88,196,221)' fill-opacity='0.6' stroke='rgb(88,196,221)' />
+<path d='M436.0,810.4L471.0,835.2L506.0,826.8L541.0,834.4L576.0,818.0L611.0,832.1L646.0,825.7L681.0,823.7L681.0,856.7L646.0,838.0L611.0,847.4L576.0,845.2L541.0,859.5L506.0,840.8L471.0,846.4L436.0,845.4Z' fill='rgb(131,193,103)' fill-opacity='0.6' stroke='rgb(131,193,103)' />
+<path d='M436.0,794.8L471.0,810.1L506.0,801.1L541.0,814.1L576.0,793.2L611.0,809.0L646.0,791.5L681.0,809.2L681.0,823.7L646.0,825.7L611.0,832.1L576.0,818.0L541.0,834.4L506.0,826.8L471.0,835.2L436.0,810.4Z' fill='rgb(252,98,85)' fill-opacity='0.6' stroke='rgb(252,98,85)' />
+<g>
+<line x1='436' y1='870.0' x2='716' y2='870.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='436.0' y1='690' x2='436.0' y2='870' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='436.0' y1='856.0' x2='436.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='471.0' y1='856.0' x2='471.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='506.0' y1='856.0' x2='506.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='541.0' y1='856.0' x2='541.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='576.0' y1='856.0' x2='576.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='611.0' y1='856.0' x2='611.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='646.0' y1='856.0' x2='646.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='681.0' y1='856.0' x2='681.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='716.0' y1='856.0' x2='716.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='870.0' x2='450.0' y2='870.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='852.0' x2='450.0' y2='852.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='834.0' x2='450.0' y2='834.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='816.0' x2='450.0' y2='816.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='798.0' x2='450.0' y2='798.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='780.0' x2='450.0' y2='780.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='762.0' x2='450.0' y2='762.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='744.0' x2='450.0' y2='744.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='726.0' x2='450.0' y2='726.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='708.0' x2='450.0' y2='708.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='690.0' x2='450.0' y2='690.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+</g></g>
+<g data-obj-idx='26'><text x='960' y='650' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_filled_step</text></g>
+<g data-obj-idx='27'><g>
+<g>
+<line x1='820' y1='870.0' x2='1100' y2='870.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='820.0' y1='690' x2='820.0' y2='870' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='820.0' y1='856.0' x2='820.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='855.0' y1='856.0' x2='855.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='890.0' y1='856.0' x2='890.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='925.0' y1='856.0' x2='925.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='960.0' y1='856.0' x2='960.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='995.0' y1='856.0' x2='995.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1030.0' y1='856.0' x2='1030.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1065.0' y1='856.0' x2='1065.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1100.0' y1='856.0' x2='1100.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='870.0' x2='834.0' y2='870.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='847.5' x2='834.0' y2='847.5' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='825.0' x2='834.0' y2='825.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='802.5' x2='834.0' y2='802.5' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='780.0' x2='834.0' y2='780.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='757.5' x2='834.0' y2='757.5' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='735.0' x2='834.0' y2='735.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='712.5' x2='834.0' y2='712.5' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='690.0' x2='834.0' y2='690.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<path d='M855.0,870.0L855.0,750.81L890.0,750.81L890.0,815.28L925.0,815.28L925.0,794.07L960.0,794.07L960.0,756.82L995.0,756.82L995.0,807L1030.0,807L1030.0,804.82L1065.0,804.82L1065.0,746L1065.0,870.0Z' fill='rgb(240,172,95)' fill-opacity='0.4' stroke='rgb(88,196,221)' stroke-width='2' />
+</g></g>
+<g data-obj-idx='28'><text x='1344' y='650' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_area</text></g>
+<g data-obj-idx='29'><g>
+<g>
+<line x1='1204' y1='780.0' x2='1484' y2='780.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1204.0' y1='690' x2='1204.0' y2='870' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1204.0' y1='766.0' x2='1204.0' y2='794.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1250.67' y1='766.0' x2='1250.67' y2='794.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1297.33' y1='766.0' x2='1297.33' y2='794.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1344.0' y1='766.0' x2='1344.0' y2='794.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1390.67' y1='766.0' x2='1390.67' y2='794.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1437.33' y1='766.0' x2='1437.33' y2='794.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1484.0' y1='766.0' x2='1484.0' y2='794.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='870.0' x2='1218.0' y2='870.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='852.0' x2='1218.0' y2='852.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='834.0' x2='1218.0' y2='834.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='816.0' x2='1218.0' y2='816.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='798.0' x2='1218.0' y2='798.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='780.0' x2='1218.0' y2='780.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='762.0' x2='1218.0' y2='762.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='744.0' x2='1218.0' y2='744.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='726.0' x2='1218.0' y2='726.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='708.0' x2='1218.0' y2='708.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='690.0' x2='1218.0' y2='690.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<path d='M1204.0,780.0L1206.8,773.5L1209.7,767.0L1212.5,760.5L1215.3,754.2L1218.1,748.0L1221.0,742.0L1223.8,736.1L1226.6,730.5L1229.5,725.2L1232.3,720.2L1235.1,715.4L1237.9,711.1L1240.8,707.0L1243.6,703.4L1246.4,700.2L1249.3,697.4L1252.1,695.0L1254.9,693.1L1257.7,691.6L1260.6,690.6L1263.4,690.1L1266.2,690.0L1269.1,690.5L1271.9,691.4L1274.7,692.7L1277.5,694.6L1280.4,696.9L1283.2,699.6L1286.0,702.7L1288.8,706.3L1291.7,710.2L1294.5,714.5L1297.3,719.2L1300.2,724.2L1303.0,729.5L1305.8,735.0L1308.6,740.8L1311.5,746.8L1314.3,753.0L1317.1,759.3L1320.0,765.7L1322.8,772.2L1325.6,778.7L1328.4,785.3L1331.3,791.8L1334.1,798.2L1336.9,804.6L1339.8,810.8L1342.6,816.9L1345.4,822.7L1348.2,828.4L1351.1,833.8L1353.9,838.9L1356.7,843.7L1359.6,848.1L1362.4,852.2L1365.2,855.9L1368.0,859.2L1370.9,862.1L1373.7,864.6L1376.5,866.6L1379.4,868.1L1382.2,869.2L1385.0,869.8L1387.8,870.0L1390.7,869.7L1393.5,868.8L1396.3,867.6L1399.2,865.8L1402.0,863.6L1404.8,861.0L1407.6,857.9L1410.5,854.4L1413.3,850.6L1416.1,846.3L1418.9,841.7L1421.8,836.8L1424.6,831.6L1427.4,826.1L1430.3,820.4L1433.1,814.4L1435.9,808.3L1438.7,802.0L1441.6,795.6L1444.4,789.1L1447.2,782.6L1450.1,776.0L1452.9,769.5L1455.7,763.0L1458.5,756.7L1461.4,750.4L1464.2,744.3L1467.0,738.4L1469.9,732.7L1472.7,727.3L1475.5,722.1L1478.3,717.3L1481.2,712.7L1484.0,708.6L1484.0,780.0L1204.0,780.0Z' fill='rgb(154,114,172)' fill-opacity='0.3' stroke='rgb(154,114,172)' stroke-width='1.5' />
+</g></g>
+<g data-obj-idx='30'><text x='1728' y='650' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_density</text></g>
+<g data-obj-idx='31'><g>
+<g>
+<line x1='1588' y1='870.0' x2='1868' y2='870.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1588.0' y1='690' x2='1588.0' y2='870' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1588.0' y1='856.0' x2='1588.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1616.0' y1='856.0' x2='1616.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1644.0' y1='856.0' x2='1644.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1672.0' y1='856.0' x2='1672.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1700.0' y1='856.0' x2='1700.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1728.0' y1='856.0' x2='1728.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1756.0' y1='856.0' x2='1756.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1784.0' y1='856.0' x2='1784.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1812.0' y1='856.0' x2='1812.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1840.0' y1='856.0' x2='1840.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1868.0' y1='856.0' x2='1868.0' y2='884.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='870.0' x2='1602.0' y2='870.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='852.0' x2='1602.0' y2='852.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='834.0' x2='1602.0' y2='834.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='816.0' x2='1602.0' y2='816.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='798.0' x2='1602.0' y2='798.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='780.0' x2='1602.0' y2='780.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='762.0' x2='1602.0' y2='762.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='744.0' x2='1602.0' y2='744.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='726.0' x2='1602.0' y2='726.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='708.0' x2='1602.0' y2='708.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1574.0' y1='690.0' x2='1602.0' y2='690.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<path d='M1593.1,869.9L1594.6,869.9L1596.2,869.8L1597.7,869.8L1599.3,869.7L1600.8,869.6L1602.3,869.5L1603.9,869.4L1605.4,869.3L1606.9,869.2L1608.5,869.0L1610.0,868.8L1611.5,868.5L1613.1,868.3L1614.6,867.9L1616.2,867.6L1617.7,867.2L1619.2,866.7L1620.8,866.2L1622.3,865.6L1623.8,865.0L1625.4,864.3L1626.9,863.6L1628.5,862.7L1630.0,861.9L1631.5,861.0L1633.1,860.0L1634.6,858.9L1636.1,857.9L1637.7,856.8L1639.2,855.6L1640.8,854.5L1642.3,853.3L1643.8,852.1L1645.4,850.9L1646.9,849.7L1648.4,848.5L1650.0,847.4L1651.5,846.2L1653.1,845.1L1654.6,844.0L1656.1,843.0L1657.7,842.0L1659.2,841.0L1660.7,840.1L1662.3,839.2L1663.8,838.3L1665.4,837.4L1666.9,836.6L1668.4,835.7L1670.0,834.8L1671.5,833.9L1673.0,833.0L1674.6,832.0L1676.1,830.9L1677.6,829.8L1679.2,828.6L1680.7,827.3L1682.3,825.9L1683.8,824.5L1685.3,822.8L1686.9,821.1L1688.4,819.3L1689.9,817.3L1691.5,815.2L1693.0,813.0L1694.6,810.7L1696.1,808.3L1697.6,805.8L1699.2,803.2L1700.7,800.6L1702.2,797.9L1703.8,795.2L1705.3,792.4L1706.9,789.7L1708.4,786.9L1709.9,784.2L1711.5,781.6L1713.0,779.1L1714.5,776.7L1716.1,774.4L1717.6,772.2L1719.2,770.3L1720.7,768.5L1722.2,766.9L1723.8,765.6L1725.3,764.5L1726.8,763.6L1728.4,763.0L1729.9,762.7L1731.5,762.6L1733.0,762.8L1734.5,763.3L1736.1,764.1L1737.6,765.1L1739.1,766.4L1740.7,767.9L1742.2,769.7L1743.7,771.6L1745.3,773.8L1746.8,776.2L1748.4,778.7L1749.9,781.3L1751.4,784.1L1753.0,786.9L1754.5,789.8L1756.0,792.8L1757.6,795.8L1759.1,798.8L1760.7,801.8L1762.2,804.8L1763.7,807.8L1765.3,810.7L1766.8,813.5L1768.3,816.2L1769.9,818.9L1771.4,821.5L1773.0,824.0L1774.5,826.3L1776.0,828.6L1777.6,830.8L1779.1,832.9L1780.6,834.9L1782.2,836.8L1783.7,838.6L1785.3,840.4L1786.8,842.0L1788.3,843.5L1789.9,845.0L1791.4,846.4L1792.9,847.7L1794.5,848.9L1796.0,850.1L1797.6,851.2L1799.1,852.2L1800.6,853.2L1802.2,854.1L1803.7,855.0L1805.2,855.8L1806.8,856.5L1808.3,857.2L1809.8,857.8L1811.4,858.4L1812.9,858.9L1814.5,859.4L1816.0,859.9L1817.5,860.3L1819.1,860.6L1820.6,860.9L1822.1,861.2L1823.7,861.5L1825.2,861.8L1826.8,862.0L1828.3,862.2L1829.8,862.4L1831.4,862.6L1832.9,862.7L1834.4,862.9L1836.0,863.1L1837.5,863.3L1839.1,863.5L1840.6,863.7L1842.1,863.9L1843.7,864.1L1845.2,864.3L1846.7,864.5L1848.3,864.8L1849.8,865.0L1851.4,865.3L1852.9,865.6L1854.4,865.9L1856.0,866.1L1857.5,866.4L1859.0,866.7L1860.6,866.9L1862.1,867.2L1863.7,867.5L1865.2,867.7L1866.7,867.9L1868.3,868.2L1869.8,868.4L1871.3,868.6L1872.9,868.7L1874.4,868.9L1875.9,869.0L1877.5,869.2L1879.0,869.3L1880.6,869.4L1882.1,869.5L1883.6,869.6L1885.2,869.6L1886.7,869.7L1888.2,869.7L1889.8,869.8L1891.3,869.8L1892.9,869.9L1894.4,869.9L1895.9,869.9L1897.5,869.9L1899.0,869.9' fill='rgb(92,208,179)' fill-opacity='0.3' stroke='rgb(92,208,179)' stroke-width='2' />
+</g></g>
+<g data-obj-idx='32'><text x='192' y='920' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_ribbon</text></g>
+<g data-obj-idx='33'><g>
+<g>
+<line x1='52' y1='1140.0' x2='332' y2='1140.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='52.0' y1='960' x2='52.0' y2='1140' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='52.0' y1='1126.0' x2='52.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='87.0' y1='1126.0' x2='87.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='122.0' y1='1126.0' x2='122.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='157.0' y1='1126.0' x2='157.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='192.0' y1='1126.0' x2='192.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='227.0' y1='1126.0' x2='227.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='262.0' y1='1126.0' x2='262.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='297.0' y1='1126.0' x2='297.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='332.0' y1='1126.0' x2='332.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1140.0' x2='66.0' y2='1140.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1122.0' x2='66.0' y2='1122.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1104.0' x2='66.0' y2='1104.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1086.0' x2='66.0' y2='1086.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1068.0' x2='66.0' y2='1068.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1050.0' x2='66.0' y2='1050.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1032.0' x2='66.0' y2='1032.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1014.0' x2='66.0' y2='1014.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='996.0' x2='66.0' y2='996.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='978.0' x2='66.0' y2='978.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='960.0' x2='66.0' y2='960.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<path d='M87.0,1025.6L122.0,1042.0L157.0,1009.3L192.0,1021.8L227.0,1030.0L262.0,1072.5L297.0,1067.1L297.0,1091.9L262.0,1097.0L227.0,1074.7L192.0,1070.3L157.0,1051.5L122.0,1092.4L87.0,1065.0Z' fill='rgb(88,196,221)' fill-opacity='0.3' stroke='rgb(88,196,221)' />
+</g></g>
+<g data-obj-idx='34'><text x='576' y='920' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_swarm</text></g>
+<g data-obj-idx='35'><g>
+<g>
+<line x1='436' y1='1140.0' x2='716' y2='1140.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='436.0' y1='960' x2='436.0' y2='1140' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='436.0' y1='1126.0' x2='436.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='471.0' y1='1126.0' x2='471.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='506.0' y1='1126.0' x2='506.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='541.0' y1='1126.0' x2='541.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='576.0' y1='1126.0' x2='576.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='611.0' y1='1126.0' x2='611.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='646.0' y1='1126.0' x2='646.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='681.0' y1='1126.0' x2='681.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='716.0' y1='1126.0' x2='716.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='1140.0' x2='450.0' y2='1140.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='1122.0' x2='450.0' y2='1122.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='1104.0' x2='450.0' y2='1104.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='1086.0' x2='450.0' y2='1086.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='1068.0' x2='450.0' y2='1068.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='1050.0' x2='450.0' y2='1050.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='1032.0' x2='450.0' y2='1032.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='1014.0' x2='450.0' y2='1014.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='996.0' x2='450.0' y2='996.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='978.0' x2='450.0' y2='978.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='422.0' y1='960.0' x2='450.0' y2='960.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<circle cx='511.86' cy='1074.18' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='486.05' cy='1073.03' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='496.55' cy='1068.35' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='494.37' cy='1061.36' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='515.93' cy='1060.76' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='513.42' cy='1057.34' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='522.47' cy='1054.1' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='488.65' cy='1052.05' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='502.72' cy='1045.55' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='486.25' cy='1029.42' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='494.18' cy='1021.71' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='506.22' cy='1012.47' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='486.11' cy='1005.91' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='493.35' cy='1001.28' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='512.3' cy='1001.16' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='577.89' cy='1087.15' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='564.26' cy='1077.4' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='579.75' cy='1070.47' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='589' cy='1066.35' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='555.27' cy='1064.86' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='588.84' cy='1055.01' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='584.32' cy='1049.17' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='569.29' cy='1044.15' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='561.53' cy='1037.92' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='595.2' cy='1037.82' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='569.14' cy='1017.64' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='558.9' cy='1015.6' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='559.06' cy='1007.39' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='590.59' cy='1004.77' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='580.36' cy='1002.75' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='658.9' cy='1112.26' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='655.65' cy='1111.47' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='647.52' cy='1103.06' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='665.87' cy='1064.42' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='640.9' cy='1057.04' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='648.19' cy='1051.25' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='659.83' cy='1041.58' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='650.98' cy='1027.44' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='661.19' cy='1019.97' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='649.25' cy='1011.97' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='654.59' cy='1005.15' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='626.92' cy='1003.6' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='634.57' cy='1002.51' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='637.15' cy='996.36' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='628.35' cy='987.65' r='2' fill='rgb(252,98,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g></g>
+<g data-obj-idx='36'><text x='960' y='920' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_error_bar</text></g>
+<g data-obj-idx='37'><g>
+<g>
+<line x1='820' y1='1140.0' x2='1100' y2='1140.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='820.0' y1='960' x2='820.0' y2='1140' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='820.0' y1='1126.0' x2='820.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='855.0' y1='1126.0' x2='855.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='890.0' y1='1126.0' x2='890.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='925.0' y1='1126.0' x2='925.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='960.0' y1='1126.0' x2='960.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='995.0' y1='1126.0' x2='995.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1030.0' y1='1126.0' x2='1030.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1065.0' y1='1126.0' x2='1065.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1100.0' y1='1126.0' x2='1100.0' y2='1154.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='1140.0' x2='834.0' y2='1140.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='1122.0' x2='834.0' y2='1122.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='1104.0' x2='834.0' y2='1104.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='1086.0' x2='834.0' y2='1086.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='1068.0' x2='834.0' y2='1068.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='1050.0' x2='834.0' y2='1050.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='1032.0' x2='834.0' y2='1032.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='1014.0' x2='834.0' y2='1014.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='996.0' x2='834.0' y2='996.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='978.0' x2='834.0' y2='978.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='806.0' y1='960.0' x2='834.0' y2='960.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<path d='M851.0,1066.27L859.0,1066.27M855.0,1066.27L855.0,1027.51M851.0,1027.51L859.0,1027.51' fill-opacity='0' stroke='rgb(131,193,103)' stroke-width='1.5' />
+<path d='M886.0,1034.02L894.0,1034.02M890.0,1034.02L890.0,1006.85M886.0,1006.85L894.0,1006.85' fill-opacity='0' stroke='rgb(131,193,103)' stroke-width='1.5' />
+<path d='M921.0,1079.53L929.0,1079.53M925.0,1079.53L925.0,1036.01M921.0,1036.01L929.0,1036.01' fill-opacity='0' stroke='rgb(131,193,103)' stroke-width='1.5' />
+<path d='M956.0,1040.47L964.0,1040.47M960.0,1040.47L960.0,1022.41M956.0,1022.41L964.0,1022.41' fill-opacity='0' stroke='rgb(131,193,103)' stroke-width='1.5' />
+<path d='M991.0,1065.63L999.0,1065.63M995.0,1065.63L995.0,1014.31M991.0,1014.31L999.0,1014.31' fill-opacity='0' stroke='rgb(131,193,103)' stroke-width='1.5' />
+<path d='M1026.0,1070.02L1034.0,1070.02M1030.0,1070.02L1030.0,1032.64M1026.0,1032.64L1034.0,1032.64' fill-opacity='0' stroke='rgb(131,193,103)' stroke-width='1.5' />
+<circle cx='855.0' cy='1046.89' r='3' fill='rgb(131,193,103)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='890.0' cy='1020.43' r='3' fill='rgb(131,193,103)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='925.0' cy='1057.77' r='3' fill='rgb(131,193,103)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='960.0' cy='1031.44' r='3' fill='rgb(131,193,103)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='995.0' cy='1039.97' r='3' fill='rgb(131,193,103)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1030.0' cy='1051.33' r='3' fill='rgb(131,193,103)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g></g>
+<g data-obj-idx='38'><text x='1344' y='920' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_contour</text></g>
+<g data-obj-idx='39'><g>
+<g>
+<line x1='1204' y1='1050.0' x2='1484' y2='1050.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1344.0' y1='960' x2='1344.0' y2='1140' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1204.0' y1='1036.0' x2='1204.0' y2='1064.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1250.67' y1='1036.0' x2='1250.67' y2='1064.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1297.33' y1='1036.0' x2='1297.33' y2='1064.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1344.0' y1='1036.0' x2='1344.0' y2='1064.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1390.67' y1='1036.0' x2='1390.67' y2='1064.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1437.33' y1='1036.0' x2='1437.33' y2='1064.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1484.0' y1='1036.0' x2='1484.0' y2='1064.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1330.0' y1='1140.0' x2='1358.0' y2='1140.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1330.0' y1='1110.0' x2='1358.0' y2='1110.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1330.0' y1='1080.0' x2='1358.0' y2='1080.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1330.0' y1='1050.0' x2='1358.0' y2='1050.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1330.0' y1='1020.0' x2='1358.0' y2='1020.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1330.0' y1='990.0' x2='1358.0' y2='990.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1330.0' y1='960.0' x2='1358.0' y2='960.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<path d='M1383.2,1135.4L1381.5,1140.0M1453.1,1140.0L1451.3,1135.4M1383.2,1135.4L1383.5,1134.9M1386.7,1130.8L1383.5,1134.9M1451.3,1135.4L1448.1,1130.8M1386.7,1130.8L1390.7,1127.5M1392.9,1126.2L1390.7,1127.5M1448.1,1130.8L1441.8,1126.2M1448.1,1130.8L1448.1,1130.8M1392.9,1126.2L1397.8,1124.0M1405.0,1122.0L1397.8,1124.0M1408.3,1121.5L1405.0,1122.0M1433.7,1123.0L1426.8,1121.5M1440.9,1125.7L1433.7,1123.0M1441.8,1126.2L1440.9,1125.7M1408.3,1121.5L1412.2,1121.1M1419.4,1120.9L1412.2,1121.1M1426.6,1121.5L1419.4,1120.9M1426.8,1121.5L1426.6,1121.5M1254.3,1071.3L1252.6,1070.8M1254.3,1071.3L1261.4,1072.7M1261.4,1072.7L1268.6,1073.3M1268.6,1073.3L1275.8,1073.1M1275.8,1073.1L1283.0,1072.2M1283.0,1072.2L1288.8,1070.8M1247.1,1068.5L1243.2,1066.2M1247.1,1068.5L1252.6,1070.8M1288.8,1070.8L1290.2,1070.3M1290.2,1070.3L1297.3,1066.8M1297.3,1066.8L1298.3,1066.2M1239.9,1063.3L1238.3,1061.5M1239.9,1063.3L1243.2,1066.2M1298.3,1066.2L1303.1,1061.5M1235.8,1056.9L1238.3,1061.5M1303.1,1061.5L1304.5,1059.2M1304.5,1059.2L1305.7,1056.9M1234.6,1052.3L1235.8,1056.9M1305.7,1056.9L1306.8,1052.3M1234.6,1047.7L1234.6,1052.3M1306.8,1052.3L1306.8,1047.7M1235.8,1043.1L1234.6,1047.7M1306.8,1047.7L1305.7,1043.1M1238.3,1038.5L1235.8,1043.1M1304.5,1040.8L1303.1,1038.5M1305.7,1043.1L1304.5,1040.8M1238.3,1038.5L1239.9,1036.7M1243.2,1033.8L1239.9,1036.7M1303.1,1038.5L1298.3,1033.8M1243.2,1033.8L1247.1,1031.5M1252.6,1029.2L1247.1,1031.5M1290.2,1029.7L1288.8,1029.2M1297.3,1033.2L1290.2,1029.7M1298.3,1033.8L1297.3,1033.2M1252.6,1029.2L1254.3,1028.7M1261.4,1027.3L1254.3,1028.7M1268.6,1026.7L1261.4,1027.3M1275.8,1026.9L1268.6,1026.7M1283.0,1027.8L1275.8,1026.9M1288.8,1029.2L1283.0,1027.8M1412.2,978.9L1408.3,978.5M1412.2,978.9L1419.4,979.1M1419.4,979.1L1426.6,978.5M1426.6,978.5L1426.8,978.5M1397.8,976.0L1392.9,973.8M1397.8,976.0L1405.0,978.0M1405.0,978.0L1408.3,978.5M1426.8,978.5L1433.7,977.0M1433.7,977.0L1440.9,974.3M1440.9,974.3L1441.8,973.8M1390.7,972.5L1386.7,969.2M1390.7,972.5L1392.9,973.8M1441.8,973.8L1448.1,969.2M1448.1,969.2L1448.1,969.2M1383.5,965.1L1383.2,964.6M1383.5,965.1L1386.7,969.2M1448.1,969.2L1451.3,964.6M1381.5,960.0L1383.2,964.6M1451.3,964.6L1453.1,960.0' fill-opacity='0' stroke='rgb(49,54,149)' stroke-width='1.5' />
+<path d='M1365.7,1135.4L1364.9,1140.0M1469.6,1139.0L1469.0,1135.4M1469.8,1140.0L1469.6,1139.0M1367.1,1130.8L1365.7,1135.4M1469.0,1135.4L1467.5,1130.8M1367.1,1130.8L1369.1,1126.7M1369.4,1126.2L1369.1,1126.7M1467.5,1130.8L1465.1,1126.2M1373.4,1121.5L1369.4,1126.2M1462.5,1122.8L1461.3,1121.5M1465.1,1126.2L1462.5,1122.8M1373.4,1121.5L1376.3,1119.2M1380.1,1116.9L1376.3,1119.2M1455.3,1117.3L1454.6,1116.9M1461.3,1121.5L1455.3,1117.3M1380.1,1116.9L1383.5,1115.4M1390.7,1113.1L1383.5,1115.4M1394.5,1112.3L1390.7,1113.1M1440.9,1112.4L1440.3,1112.3M1448.1,1114.3L1440.9,1112.4M1454.6,1116.9L1448.1,1114.3M1394.5,1112.3L1397.8,1111.7M1405.0,1110.9L1397.8,1111.7M1412.2,1110.5L1405.0,1110.9M1419.4,1110.4L1412.2,1110.5M1426.6,1110.7L1419.4,1110.4M1433.7,1111.3L1426.6,1110.7M1440.3,1112.3L1433.7,1111.3M1247.1,1081.8L1239.9,1080.0M1247.1,1081.8L1254.3,1082.9M1254.3,1082.9L1261.4,1083.6M1261.4,1083.6L1268.6,1083.9M1268.6,1083.9L1275.8,1083.8M1275.8,1083.8L1283.0,1083.3M1283.0,1083.3L1290.2,1082.5M1290.2,1082.5L1297.3,1081.1M1297.3,1081.1L1301.3,1080.0M1232.7,1076.9L1230.2,1075.4M1232.7,1076.9L1239.9,1080.0M1239.9,1080.0L1239.9,1080.0M1301.3,1080.0L1304.5,1078.9M1304.5,1078.9L1311.3,1075.4M1225.5,1071.5L1224.9,1070.8M1225.5,1071.5L1230.2,1075.4M1311.3,1075.4L1311.7,1075.1M1311.7,1075.1L1316.5,1070.8M1221.8,1066.2L1224.9,1070.8M1316.5,1070.8L1318.9,1067.5M1318.9,1067.5L1319.7,1066.2M1219.8,1061.5L1221.8,1066.2M1319.7,1066.2L1321.6,1061.5M1218.6,1056.9L1219.8,1061.5M1321.6,1061.5L1322.7,1056.9M1218.4,1055.1L1218.0,1052.3M1218.4,1055.1L1218.6,1056.9M1322.7,1056.9L1323.3,1052.3M1218.0,1047.7L1218.0,1052.3M1323.3,1052.3L1323.3,1047.7M1218.0,1047.7L1218.4,1044.9M1218.6,1043.1L1218.4,1044.9M1323.3,1047.7L1322.7,1043.1M1219.8,1038.5L1218.6,1043.1M1322.7,1043.1L1321.6,1038.5M1221.8,1033.8L1219.8,1038.5M1321.6,1038.5L1319.7,1033.8M1224.9,1029.2L1221.8,1033.8M1318.9,1032.5L1316.5,1029.2M1319.7,1033.8L1318.9,1032.5M1224.9,1029.2L1225.5,1028.5M1230.2,1024.6L1225.5,1028.5M1311.7,1024.9L1311.3,1024.6M1316.5,1029.2L1311.7,1024.9M1230.2,1024.6L1232.7,1023.1M1239.9,1020.0L1232.7,1023.1M1239.9,1020.0L1239.9,1020.0M1304.5,1021.1L1301.3,1020.0M1311.3,1024.6L1304.5,1021.1M1239.9,1020.0L1247.1,1018.2M1254.3,1017.1L1247.1,1018.2M1261.4,1016.4L1254.3,1017.1M1268.6,1016.1L1261.4,1016.4M1275.8,1016.2L1268.6,1016.1M1283.0,1016.7L1275.8,1016.2M1290.2,1017.5L1283.0,1016.7M1297.3,1018.9L1290.2,1017.5M1301.3,1020.0L1297.3,1018.9M1397.8,988.3L1394.5,987.7M1397.8,988.3L1405.0,989.1M1405.0,989.1L1412.2,989.5M1412.2,989.5L1419.4,989.6M1419.4,989.6L1426.6,989.3M1426.6,989.3L1433.7,988.7M1433.7,988.7L1440.3,987.7M1383.5,984.6L1380.1,983.1M1383.5,984.6L1390.7,986.9M1390.7,986.9L1394.5,987.7M1440.3,987.7L1440.9,987.6M1440.9,987.6L1448.1,985.7M1448.1,985.7L1454.6,983.1M1376.3,980.8L1373.4,978.5M1376.3,980.8L1380.1,983.1M1454.6,983.1L1455.3,982.7M1455.3,982.7L1461.3,978.5M1369.4,973.8L1373.4,978.5M1461.3,978.5L1462.5,977.2M1462.5,977.2L1465.1,973.8M1369.1,973.3L1367.1,969.2M1369.1,973.3L1369.4,973.8M1465.1,973.8L1467.5,969.2M1365.7,964.6L1367.1,969.2M1467.5,969.2L1469.0,964.6M1364.9,960.0L1365.7,964.6M1469.0,964.6L1469.6,961.0M1469.6,961.0L1469.8,960.0' fill-opacity='0' stroke='rgb(69,117,180)' stroke-width='1.5' />
+<path d='M1351.0,1135.4L1350.8,1140.0M1483.9,1140.0L1483.6,1135.4M1351.4,1130.8L1351.0,1135.4M1483.6,1135.4L1483.2,1130.8M1352.1,1126.2L1351.4,1130.8M1483.2,1130.8L1482.5,1126.2M1353.2,1121.5L1352.1,1126.2M1482.5,1126.2L1481.4,1121.5M1353.2,1121.5L1354.8,1117.3M1354.9,1116.9L1354.8,1117.3M1481.4,1121.5L1479.6,1116.9M1357.9,1112.3L1354.9,1116.9M1476.8,1112.4L1476.7,1112.3M1479.6,1116.9L1476.8,1112.4M1357.9,1112.3L1361.9,1108.8M1363.9,1107.7L1361.9,1108.8M1476.7,1112.3L1470.7,1107.7M1363.9,1107.7L1369.1,1105.6M1376.3,1103.9L1369.1,1105.6M1381.7,1103.1L1376.3,1103.9M1455.3,1103.4L1452.8,1103.1M1462.5,1104.8L1455.3,1103.4M1469.6,1107.1L1462.5,1104.8M1470.7,1107.7L1469.6,1107.1M1381.7,1103.1L1383.5,1102.9M1390.7,1102.2L1383.5,1102.9M1397.8,1101.8L1390.7,1102.2M1405.0,1101.6L1397.8,1101.8M1412.2,1101.4L1405.0,1101.6M1419.4,1101.4L1412.2,1101.4M1426.6,1101.5L1419.4,1101.4M1433.7,1101.7L1426.6,1101.5M1440.9,1102.0L1433.7,1101.7M1448.1,1102.6L1440.9,1102.0M1452.8,1103.1L1448.1,1102.6M1225.5,1089.5L1224.5,1089.2M1225.5,1089.5L1232.7,1090.8M1232.7,1090.8L1239.9,1091.7M1239.9,1091.7L1247.1,1092.2M1247.1,1092.2L1254.3,1092.5M1254.3,1092.5L1261.4,1092.7M1261.4,1092.7L1268.6,1092.8M1268.6,1092.8L1275.8,1092.8M1275.8,1092.8L1283.0,1092.7M1283.0,1092.7L1290.2,1092.4M1290.2,1092.4L1297.3,1092.0M1297.3,1092.0L1304.5,1091.4M1304.5,1091.4L1311.7,1090.4M1311.7,1090.4L1316.9,1089.2M1218.4,1087.1L1214.2,1084.6M1218.4,1087.1L1224.5,1089.2M1316.9,1089.2L1318.9,1088.7M1318.9,1088.7L1326.1,1085.4M1326.1,1085.4L1327.2,1084.6M1211.2,1081.8L1209.8,1080.0M1211.2,1081.8L1214.2,1084.6M1327.2,1084.6L1331.5,1080.0M1207.5,1075.4L1209.8,1080.0M1331.5,1080.0L1333.2,1076.9M1333.2,1076.9L1333.9,1075.4M1206.1,1070.8L1207.5,1075.4M1333.9,1075.4L1335.3,1070.8M1205.2,1066.2L1206.1,1070.8M1335.3,1070.8L1336.2,1066.2M1204.6,1061.5L1205.2,1066.2M1336.2,1066.2L1336.8,1061.5M1204.2,1056.9L1204.6,1061.5M1336.8,1061.5L1337.1,1056.9M1204.1,1052.3L1204.2,1056.9M1337.1,1056.9L1337.3,1052.3M1204.1,1047.7L1204.1,1052.3M1337.3,1052.3L1337.3,1047.7M1204.2,1043.1L1204.1,1047.7M1337.3,1047.7L1337.1,1043.1M1204.6,1038.5L1204.2,1043.1M1337.1,1043.1L1336.8,1038.5M1205.2,1033.8L1204.6,1038.5M1336.8,1038.5L1336.2,1033.8M1206.1,1029.2L1205.2,1033.8M1336.2,1033.8L1335.3,1029.2M1207.5,1024.6L1206.1,1029.2M1335.3,1029.2L1333.9,1024.6M1209.8,1020.0L1207.5,1024.6M1333.2,1023.1L1331.5,1020.0M1333.9,1024.6L1333.2,1023.1M1209.8,1020.0L1211.2,1018.2M1214.2,1015.4L1211.2,1018.2M1331.5,1020.0L1327.2,1015.4M1214.2,1015.4L1218.4,1012.9M1224.5,1010.8L1218.4,1012.9M1318.9,1011.3L1316.9,1010.8M1326.1,1014.6L1318.9,1011.3M1327.2,1015.4L1326.1,1014.6M1224.5,1010.8L1225.5,1010.5M1232.7,1009.2L1225.5,1010.5M1239.9,1008.3L1232.7,1009.2M1247.1,1007.8L1239.9,1008.3M1254.3,1007.5L1247.1,1007.8M1261.4,1007.3L1254.3,1007.5M1268.6,1007.2L1261.4,1007.3M1275.8,1007.2L1268.6,1007.2M1283.0,1007.3L1275.8,1007.2M1290.2,1007.6L1283.0,1007.3M1297.3,1008.0L1290.2,1007.6M1304.5,1008.6L1297.3,1008.0M1311.7,1009.6L1304.5,1008.6M1316.9,1010.8L1311.7,1009.6M1383.5,997.1L1381.7,996.9M1383.5,997.1L1390.7,997.8M1390.7,997.8L1397.8,998.2M1397.8,998.2L1405.0,998.4M1405.0,998.4L1412.2,998.6M1412.2,998.6L1419.4,998.6M1419.4,998.6L1426.6,998.5M1426.6,998.5L1433.7,998.3M1433.7,998.3L1440.9,998.0M1440.9,998.0L1448.1,997.4M1448.1,997.4L1452.8,996.9M1369.1,994.4L1363.9,992.3M1369.1,994.4L1376.3,996.1M1376.3,996.1L1381.7,996.9M1452.8,996.9L1455.3,996.6M1455.3,996.6L1462.5,995.2M1462.5,995.2L1469.6,992.9M1469.6,992.9L1470.7,992.3M1361.9,991.2L1357.9,987.7M1361.9,991.2L1363.9,992.3M1470.7,992.3L1476.7,987.7M1354.9,983.1L1357.9,987.7M1476.7,987.7L1476.8,987.6M1476.8,987.6L1479.6,983.1M1354.8,982.7L1353.2,978.5M1354.8,982.7L1354.9,983.1M1479.6,983.1L1481.4,978.5M1352.1,973.8L1353.2,978.5M1481.4,978.5L1482.5,973.8M1351.4,969.2L1352.1,973.8M1482.5,973.8L1483.2,969.2M1351.0,964.6L1351.4,969.2M1483.2,969.2L1483.6,964.6M1350.8,960.0L1351.0,964.6M1483.6,964.6L1483.9,960.0' fill-opacity='0' stroke='rgb(171,217,233)' stroke-width='1.5' />
+<path d='M1204.1,1140.0L1204.4,1135.4M1337.0,1135.4L1337.2,1140.0M1204.4,1135.4L1204.8,1130.8M1336.6,1130.8L1337.0,1135.4M1204.8,1130.8L1205.5,1126.2M1335.9,1126.2L1336.6,1130.8M1205.5,1126.2L1206.6,1121.5M1334.8,1121.5L1335.9,1126.2M1206.6,1121.5L1208.4,1116.9M1333.2,1117.3L1333.1,1116.9M1333.2,1117.3L1334.8,1121.5M1208.4,1116.9L1211.2,1112.4M1211.2,1112.4L1211.3,1112.3M1330.1,1112.3L1333.1,1116.9M1211.3,1112.3L1217.3,1107.7M1326.1,1108.8L1324.1,1107.7M1326.1,1108.8L1330.1,1112.3M1217.3,1107.7L1218.4,1107.1M1218.4,1107.1L1225.5,1104.8M1225.5,1104.8L1232.7,1103.4M1232.7,1103.4L1235.2,1103.1M1311.7,1103.9L1306.3,1103.1M1311.7,1103.9L1318.9,1105.6M1318.9,1105.6L1324.1,1107.7M1235.2,1103.1L1239.9,1102.6M1239.9,1102.6L1247.1,1102.0M1247.1,1102.0L1254.3,1101.7M1254.3,1101.7L1261.4,1101.5M1261.4,1101.5L1268.6,1101.4M1268.6,1101.4L1275.8,1101.4M1275.8,1101.4L1283.0,1101.6M1283.0,1101.6L1290.2,1101.8M1290.2,1101.8L1297.3,1102.2M1297.3,1102.2L1304.5,1102.9M1304.5,1102.9L1306.3,1103.1M1376.3,1090.4L1371.1,1089.2M1383.5,1091.4L1376.3,1090.4M1390.7,1092.0L1383.5,1091.4M1397.8,1092.4L1390.7,1092.0M1405.0,1092.7L1397.8,1092.4M1412.2,1092.8L1405.0,1092.7M1419.4,1092.8L1412.2,1092.8M1426.6,1092.7L1419.4,1092.8M1433.7,1092.5L1426.6,1092.7M1440.9,1092.2L1433.7,1092.5M1448.1,1091.7L1440.9,1092.2M1455.3,1090.8L1448.1,1091.7M1462.5,1089.5L1455.3,1090.8M1463.5,1089.2L1462.5,1089.5M1361.9,1085.4L1360.8,1084.6M1369.1,1088.7L1361.9,1085.4M1371.1,1089.2L1369.1,1088.7M1463.5,1089.2L1469.6,1087.1M1473.8,1084.6L1469.6,1087.1M1360.8,1084.6L1356.5,1080.0M1473.8,1084.6L1476.8,1081.8M1478.2,1080.0L1476.8,1081.8M1354.8,1076.9L1354.1,1075.4M1356.5,1080.0L1354.8,1076.9M1480.5,1075.4L1478.2,1080.0M1354.1,1075.4L1352.7,1070.8M1481.9,1070.8L1480.5,1075.4M1352.7,1070.8L1351.8,1066.2M1482.8,1066.2L1481.9,1070.8M1351.8,1066.2L1351.2,1061.5M1483.4,1061.5L1482.8,1066.2M1351.2,1061.5L1350.9,1056.9M1483.8,1056.9L1483.4,1061.5M1350.9,1056.9L1350.7,1052.3M1483.9,1052.3L1483.8,1056.9M1350.7,1052.3L1350.7,1047.7M1483.9,1047.7L1483.9,1052.3M1350.7,1047.7L1350.9,1043.1M1483.8,1043.1L1483.9,1047.7M1350.9,1043.1L1351.2,1038.5M1483.4,1038.5L1483.8,1043.1M1351.2,1038.5L1351.8,1033.8M1482.8,1033.8L1483.4,1038.5M1351.8,1033.8L1352.7,1029.2M1481.9,1029.2L1482.8,1033.8M1352.7,1029.2L1354.1,1024.6M1480.5,1024.6L1481.9,1029.2M1354.1,1024.6L1354.8,1023.1M1354.8,1023.1L1356.5,1020.0M1478.2,1020.0L1480.5,1024.6M1356.5,1020.0L1360.8,1015.4M1476.8,1018.2L1473.8,1015.4M1476.8,1018.2L1478.2,1020.0M1360.8,1015.4L1361.9,1014.6M1361.9,1014.6L1369.1,1011.3M1369.1,1011.3L1371.1,1010.8M1469.6,1012.9L1463.5,1010.8M1469.6,1012.9L1473.8,1015.4M1371.1,1010.8L1376.3,1009.6M1376.3,1009.6L1383.5,1008.6M1383.5,1008.6L1390.7,1008.0M1390.7,1008.0L1397.8,1007.6M1397.8,1007.6L1405.0,1007.3M1405.0,1007.3L1412.2,1007.2M1412.2,1007.2L1419.4,1007.2M1419.4,1007.2L1426.6,1007.3M1426.6,1007.3L1433.7,1007.5M1433.7,1007.5L1440.9,1007.8M1440.9,1007.8L1448.1,1008.3M1448.1,1008.3L1455.3,1009.2M1455.3,1009.2L1462.5,1010.5M1462.5,1010.5L1463.5,1010.8M1239.9,997.4L1235.2,996.9M1247.1,998.0L1239.9,997.4M1254.3,998.3L1247.1,998.0M1261.4,998.5L1254.3,998.3M1268.6,998.6L1261.4,998.5M1275.8,998.6L1268.6,998.6M1283.0,998.4L1275.8,998.6M1290.2,998.2L1283.0,998.4M1297.3,997.8L1290.2,998.2M1304.5,997.1L1297.3,997.8M1306.3,996.9L1304.5,997.1M1218.4,992.9L1217.3,992.3M1225.5,995.2L1218.4,992.9M1232.7,996.6L1225.5,995.2M1235.2,996.9L1232.7,996.6M1306.3,996.9L1311.7,996.1M1318.9,994.4L1311.7,996.1M1324.1,992.3L1318.9,994.4M1217.3,992.3L1211.3,987.7M1324.1,992.3L1326.1,991.2M1330.1,987.7L1326.1,991.2M1211.2,987.6L1208.4,983.1M1211.3,987.7L1211.2,987.6M1333.1,983.1L1330.1,987.7M1208.4,983.1L1206.6,978.5M1333.1,983.1L1333.2,982.7M1334.8,978.5L1333.2,982.7M1206.6,978.5L1205.5,973.8M1335.9,973.8L1334.8,978.5M1205.5,973.8L1204.8,969.2M1336.6,969.2L1335.9,973.8M1204.8,969.2L1204.4,964.6M1337.0,964.6L1336.6,969.2M1204.4,964.6L1204.1,960.0M1337.2,960.0L1337.0,964.6' fill-opacity='0' stroke='rgb(254,224,144)' stroke-width='1.5' />
+<path d='M1218.2,1140.0L1218.4,1139.0M1218.4,1139.0L1219.0,1135.4M1322.3,1135.4L1323.1,1140.0M1219.0,1135.4L1220.5,1130.8M1320.9,1130.8L1322.3,1135.4M1220.5,1130.8L1222.9,1126.2M1318.9,1126.7L1318.6,1126.2M1318.9,1126.7L1320.9,1130.8M1222.9,1126.2L1225.5,1122.8M1225.5,1122.8L1226.7,1121.5M1314.6,1121.5L1318.6,1126.2M1226.7,1121.5L1232.7,1117.3M1232.7,1117.3L1233.4,1116.9M1311.7,1119.2L1307.9,1116.9M1311.7,1119.2L1314.6,1121.5M1233.4,1116.9L1239.9,1114.3M1239.9,1114.3L1247.1,1112.4M1247.1,1112.4L1247.7,1112.3M1297.3,1113.1L1293.5,1112.3M1297.3,1113.1L1304.5,1115.4M1304.5,1115.4L1307.9,1116.9M1247.7,1112.3L1254.3,1111.3M1254.3,1111.3L1261.4,1110.7M1261.4,1110.7L1268.6,1110.4M1268.6,1110.4L1275.8,1110.5M1275.8,1110.5L1283.0,1110.9M1283.0,1110.9L1290.2,1111.7M1290.2,1111.7L1293.5,1112.3M1390.7,1081.1L1386.7,1080.0M1397.8,1082.5L1390.7,1081.1M1405.0,1083.3L1397.8,1082.5M1412.2,1083.8L1405.0,1083.3M1419.4,1083.9L1412.2,1083.8M1426.6,1083.6L1419.4,1083.9M1433.7,1082.9L1426.6,1083.6M1440.9,1081.8L1433.7,1082.9M1448.1,1080.0L1440.9,1081.8M1383.5,1078.9L1376.7,1075.4M1386.7,1080.0L1383.5,1078.9M1448.1,1080.0L1448.1,1080.0M1455.3,1076.9L1448.1,1080.0M1457.8,1075.4L1455.3,1076.9M1376.3,1075.1L1371.5,1070.8M1376.7,1075.4L1376.3,1075.1M1457.8,1075.4L1462.5,1071.5M1463.1,1070.8L1462.5,1071.5M1369.1,1067.5L1368.3,1066.2M1371.5,1070.8L1369.1,1067.5M1466.2,1066.2L1463.1,1070.8M1368.3,1066.2L1366.4,1061.5M1468.2,1061.5L1466.2,1066.2M1366.4,1061.5L1365.3,1056.9M1469.4,1056.9L1468.2,1061.5M1365.3,1056.9L1364.7,1052.3M1469.4,1056.9L1469.6,1055.1M1470.0,1052.3L1469.6,1055.1M1364.7,1052.3L1364.7,1047.7M1470.0,1047.7L1470.0,1052.3M1364.7,1047.7L1365.3,1043.1M1469.6,1044.9L1469.4,1043.1M1469.6,1044.9L1470.0,1047.7M1365.3,1043.1L1366.4,1038.5M1468.2,1038.5L1469.4,1043.1M1366.4,1038.5L1368.3,1033.8M1466.2,1033.8L1468.2,1038.5M1368.3,1033.8L1369.1,1032.5M1369.1,1032.5L1371.5,1029.2M1463.1,1029.2L1466.2,1033.8M1371.5,1029.2L1376.3,1024.9M1376.3,1024.9L1376.7,1024.6M1462.5,1028.5L1457.8,1024.6M1462.5,1028.5L1463.1,1029.2M1376.7,1024.6L1383.5,1021.1M1383.5,1021.1L1386.7,1020.0M1448.1,1020.0L1448.1,1020.0M1448.1,1020.0L1455.3,1023.1M1455.3,1023.1L1457.8,1024.6M1386.7,1020.0L1390.7,1018.9M1390.7,1018.9L1397.8,1017.5M1397.8,1017.5L1405.0,1016.7M1405.0,1016.7L1412.2,1016.2M1412.2,1016.2L1419.4,1016.1M1419.4,1016.1L1426.6,1016.4M1426.6,1016.4L1433.7,1017.1M1433.7,1017.1L1440.9,1018.2M1440.9,1018.2L1448.1,1020.0M1254.3,988.7L1247.7,987.7M1261.4,989.3L1254.3,988.7M1268.6,989.6L1261.4,989.3M1275.8,989.5L1268.6,989.6M1283.0,989.1L1275.8,989.5M1290.2,988.3L1283.0,989.1M1293.5,987.7L1290.2,988.3M1239.9,985.7L1233.4,983.1M1247.1,987.6L1239.9,985.7M1247.7,987.7L1247.1,987.6M1293.5,987.7L1297.3,986.9M1304.5,984.6L1297.3,986.9M1307.9,983.1L1304.5,984.6M1232.7,982.7L1226.7,978.5M1233.4,983.1L1232.7,982.7M1307.9,983.1L1311.7,980.8M1314.6,978.5L1311.7,980.8M1225.5,977.2L1222.9,973.8M1226.7,978.5L1225.5,977.2M1318.6,973.8L1314.6,978.5M1222.9,973.8L1220.5,969.2M1318.6,973.8L1318.9,973.3M1320.9,969.2L1318.9,973.3M1220.5,969.2L1219.0,964.6M1322.3,964.6L1320.9,969.2M1218.4,961.0L1218.2,960.0M1219.0,964.6L1218.4,961.0M1323.1,960.0L1322.3,964.6' fill-opacity='0' stroke='rgb(244,109,67)' stroke-width='1.5' />
+<path d='M1234.9,1140.0L1236.7,1135.4M1304.8,1135.4L1306.5,1140.0M1236.7,1135.4L1239.9,1130.8M1304.5,1134.9L1301.3,1130.8M1304.5,1134.9L1304.8,1135.4M1239.9,1130.8L1239.9,1130.8M1239.9,1130.8L1246.2,1126.2M1297.3,1127.5L1295.1,1126.2M1297.3,1127.5L1301.3,1130.8M1246.2,1126.2L1247.1,1125.7M1247.1,1125.7L1254.3,1123.0M1254.3,1123.0L1261.2,1121.5M1283.0,1122.0L1279.7,1121.5M1283.0,1122.0L1290.2,1124.0M1290.2,1124.0L1295.1,1126.2M1261.2,1121.5L1261.4,1121.5M1261.4,1121.5L1268.6,1120.9M1268.6,1120.9L1275.8,1121.1M1275.8,1121.1L1279.7,1121.5M1405.0,1072.2L1399.2,1070.8M1412.2,1073.1L1405.0,1072.2M1419.4,1073.3L1412.2,1073.1M1426.6,1072.7L1419.4,1073.3M1433.7,1071.3L1426.6,1072.7M1435.4,1070.8L1433.7,1071.3M1390.7,1066.8L1389.7,1066.2M1397.8,1070.3L1390.7,1066.8M1399.2,1070.8L1397.8,1070.3M1435.4,1070.8L1440.9,1068.5M1444.8,1066.2L1440.9,1068.5M1389.7,1066.2L1384.9,1061.5M1444.8,1066.2L1448.1,1063.3M1449.7,1061.5L1448.1,1063.3M1383.5,1059.2L1382.3,1056.9M1384.9,1061.5L1383.5,1059.2M1452.2,1056.9L1449.7,1061.5M1382.3,1056.9L1381.2,1052.3M1453.4,1052.3L1452.2,1056.9M1381.2,1052.3L1381.2,1047.7M1453.4,1047.7L1453.4,1052.3M1381.2,1047.7L1382.3,1043.1M1452.2,1043.1L1453.4,1047.7M1382.3,1043.1L1383.5,1040.8M1383.5,1040.8L1384.9,1038.5M1449.7,1038.5L1452.2,1043.1M1384.9,1038.5L1389.7,1033.8M1448.1,1036.7L1444.8,1033.8M1448.1,1036.7L1449.7,1038.5M1389.7,1033.8L1390.7,1033.2M1390.7,1033.2L1397.8,1029.7M1397.8,1029.7L1399.2,1029.2M1440.9,1031.5L1435.4,1029.2M1440.9,1031.5L1444.8,1033.8M1399.2,1029.2L1405.0,1027.8M1405.0,1027.8L1412.2,1026.9M1412.2,1026.9L1419.4,1026.7M1419.4,1026.7L1426.6,1027.3M1426.6,1027.3L1433.7,1028.7M1433.7,1028.7L1435.4,1029.2M1261.4,978.5L1261.2,978.5M1268.6,979.1L1261.4,978.5M1275.8,978.9L1268.6,979.1M1279.7,978.5L1275.8,978.9M1247.1,974.3L1246.2,973.8M1254.3,977.0L1247.1,974.3M1261.2,978.5L1254.3,977.0M1279.7,978.5L1283.0,978.0M1290.2,976.0L1283.0,978.0M1295.1,973.8L1290.2,976.0M1239.9,969.2L1239.9,969.2M1246.2,973.8L1239.9,969.2M1295.1,973.8L1297.3,972.5M1301.3,969.2L1297.3,972.5M1239.9,969.2L1236.7,964.6M1301.3,969.2L1304.5,965.1M1304.8,964.6L1304.5,965.1M1236.7,964.6L1234.9,960.0M1306.5,960.0L1304.8,964.6' fill-opacity='0' stroke='rgb(215,48,39)' stroke-width='1.5' />
+</g></g>
+<g data-obj-idx='40'><text x='1728' y='920' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_quiver</text></g>
+<g data-obj-idx='41'><g>
+<g>
+<line x1='1588' y1='1050.0' x2='1868' y2='1050.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1728.0' y1='960' x2='1728.0' y2='1140' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1588.0' y1='1036.0' x2='1588.0' y2='1064.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1634.67' y1='1036.0' x2='1634.67' y2='1064.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1681.33' y1='1036.0' x2='1681.33' y2='1064.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1728.0' y1='1036.0' x2='1728.0' y2='1064.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1774.67' y1='1036.0' x2='1774.67' y2='1064.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1821.33' y1='1036.0' x2='1821.33' y2='1064.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1868.0' y1='1036.0' x2='1868.0' y2='1064.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1714.0' y1='1140.0' x2='1742.0' y2='1140.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1714.0' y1='1110.0' x2='1742.0' y2='1110.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1714.0' y1='1080.0' x2='1742.0' y2='1080.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1714.0' y1='1050.0' x2='1742.0' y2='1050.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1714.0' y1='1020.0' x2='1742.0' y2='1020.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1714.0' y1='990.0' x2='1742.0' y2='990.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1714.0' y1='960.0' x2='1742.0' y2='960.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<g>
+<line x1='1588.0' y1='1140.0' x2='1616.0' y2='1158.0' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1588.0' y1='1116.0' x2='1608.53' y2='1134.0' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1588.0' y1='1092.0' x2='1601.07' y2='1110.0' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1588.0' y1='1068.0' x2='1593.6' y2='1086.0' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1588.0' y1='1044.0' x2='1586.13' y2='1062.0' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1588.0' y1='1020.0' x2='1578.67' y2='1038.0' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1588.0' y1='996.0' x2='1571.2' y2='1014.0' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1588.0' y1='972.0' x2='1563.73' y2='990.0' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1625.33' y1='1140.0' x2='1653.33' y2='1153.2' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1625.33' y1='1116.0' x2='1645.87' y2='1129.2' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1625.33' y1='1092.0' x2='1638.4' y2='1105.2' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1625.33' y1='1068.0' x2='1630.93' y2='1081.2' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1625.33' y1='1044.0' x2='1623.47' y2='1057.2' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1625.33' y1='1020.0' x2='1616.0' y2='1033.2' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1625.33' y1='996.0' x2='1608.53' y2='1009.2' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1625.33' y1='972.0' x2='1601.07' y2='985.2' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1662.67' y1='1140.0' x2='1690.67' y2='1148.4' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1662.67' y1='1116.0' x2='1683.2' y2='1124.4' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1662.67' y1='1092.0' x2='1675.73' y2='1100.4' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1662.67' y1='1068.0' x2='1668.27' y2='1076.4' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1662.67' y1='1044.0' x2='1660.8' y2='1052.4' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1662.67' y1='1020.0' x2='1653.33' y2='1028.4' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1662.67' y1='996.0' x2='1645.87' y2='1004.4' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1662.67' y1='972.0' x2='1638.4' y2='980.4' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1700.0' y1='1140.0' x2='1728.0' y2='1143.6' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1700.0' y1='1116.0' x2='1720.53' y2='1119.6' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1700.0' y1='1092.0' x2='1713.07' y2='1095.6' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1700.0' y1='1068.0' x2='1705.6' y2='1071.6' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1700.0' y1='1044.0' x2='1698.13' y2='1047.6' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1700.0' y1='1020.0' x2='1690.67' y2='1023.6' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1700.0' y1='996.0' x2='1683.2' y2='999.6' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1700.0' y1='972.0' x2='1675.73' y2='975.6' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1737.33' y1='1140.0' x2='1765.33' y2='1138.8' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1737.33' y1='1116.0' x2='1757.87' y2='1114.8' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1737.33' y1='1092.0' x2='1750.4' y2='1090.8' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1737.33' y1='1068.0' x2='1742.93' y2='1066.8' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1737.33' y1='1044.0' x2='1735.47' y2='1042.8' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1737.33' y1='1020.0' x2='1728.0' y2='1018.8' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1737.33' y1='996.0' x2='1720.53' y2='994.8' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1737.33' y1='972.0' x2='1713.07' y2='970.8' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1774.67' y1='1140.0' x2='1802.67' y2='1134.0' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1774.67' y1='1116.0' x2='1795.2' y2='1110.0' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1774.67' y1='1092.0' x2='1787.73' y2='1086.0' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1774.67' y1='1068.0' x2='1780.27' y2='1062.0' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1774.67' y1='1044.0' x2='1772.8' y2='1038.0' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1774.67' y1='1020.0' x2='1765.33' y2='1014.0' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1774.67' y1='996.0' x2='1757.87' y2='990.0' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1774.67' y1='972.0' x2='1750.4' y2='966.0' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1812.0' y1='1140.0' x2='1840.0' y2='1129.2' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1812.0' y1='1116.0' x2='1832.53' y2='1105.2' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1812.0' y1='1092.0' x2='1825.07' y2='1081.2' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1812.0' y1='1068.0' x2='1817.6' y2='1057.2' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1812.0' y1='1044.0' x2='1810.13' y2='1033.2' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1812.0' y1='1020.0' x2='1802.67' y2='1009.2' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1812.0' y1='996.0' x2='1795.2' y2='985.2' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1812.0' y1='972.0' x2='1787.73' y2='961.2' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1849.33' y1='1140.0' x2='1877.33' y2='1124.4' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1849.33' y1='1116.0' x2='1869.87' y2='1100.4' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1849.33' y1='1092.0' x2='1862.4' y2='1076.4' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1849.33' y1='1068.0' x2='1854.93' y2='1052.4' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1849.33' y1='1044.0' x2='1847.47' y2='1028.4' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1849.33' y1='1020.0' x2='1840.0' y2='1004.4' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1849.33' y1='996.0' x2='1832.53' y2='980.4' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1849.33' y1='972.0' x2='1825.07' y2='956.4' stroke='rgb(240,172,95)' stroke-width='1.5' />
+<polygon points='1,0 -7.0,3.0 -7.0,-3.0' fill='rgb(240,172,95)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+</g></g>
+<g data-obj-idx='42'><text x='192' y='1190' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_step</text></g>
+<g data-obj-idx='43'><g>
+<g>
+<line x1='52' y1='1410.0' x2='332' y2='1410.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='52.0' y1='1230' x2='52.0' y2='1410' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='52.0' y1='1396.0' x2='52.0' y2='1424.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='87.0' y1='1396.0' x2='87.0' y2='1424.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='122.0' y1='1396.0' x2='122.0' y2='1424.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='157.0' y1='1396.0' x2='157.0' y2='1424.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='192.0' y1='1396.0' x2='192.0' y2='1424.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='227.0' y1='1396.0' x2='227.0' y2='1424.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='262.0' y1='1396.0' x2='262.0' y2='1424.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='297.0' y1='1396.0' x2='297.0' y2='1424.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='332.0' y1='1396.0' x2='332.0' y2='1424.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1410.0' x2='66.0' y2='1410.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1392.0' x2='66.0' y2='1392.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1374.0' x2='66.0' y2='1374.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1356.0' x2='66.0' y2='1356.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1338.0' x2='66.0' y2='1338.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1320.0' x2='66.0' y2='1320.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1302.0' x2='66.0' y2='1302.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1284.0' x2='66.0' y2='1284.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1266.0' x2='66.0' y2='1266.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1248.0' x2='66.0' y2='1248.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='38.0' y1='1230.0' x2='66.0' y2='1230.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<path d='M52.0,1374.0L87.0,1374.0L87.0,1374.0L122.0,1374.0L122.0,1320.0L157.0,1320.0L157.0,1320.0L192.0,1320.0L192.0,1356.0L227.0,1356.0L227.0,1284.0L262.0,1284.0L262.0,1284.0L297.0,1284.0L297.0,1338.0' fill-opacity='0' stroke='rgb(131,193,103)' stroke-width='2' />
+</g></g>
+<g data-obj-idx='44'><text x='576' y='1190' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_implicit</text></g>
+<g data-obj-idx='45'><g>
+<g>
+<line x1='436' y1='1320.0' x2='716' y2='1320.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='576.0' y1='1230' x2='576.0' y2='1410' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='436.0' y1='1306.0' x2='436.0' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='482.67' y1='1306.0' x2='482.67' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='529.33' y1='1306.0' x2='529.33' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='576.0' y1='1306.0' x2='576.0' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='622.67' y1='1306.0' x2='622.67' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='669.33' y1='1306.0' x2='669.33' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='716.0' y1='1306.0' x2='716.0' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='562.0' y1='1410.0' x2='590.0' y2='1410.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='562.0' y1='1380.0' x2='590.0' y2='1380.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='562.0' y1='1350.0' x2='590.0' y2='1350.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='562.0' y1='1320.0' x2='590.0' y2='1320.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='562.0' y1='1290.0' x2='590.0' y2='1290.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='562.0' y1='1260.0' x2='590.0' y2='1260.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='562.0' y1='1230.0' x2='590.0' y2='1230.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<path d='M485.0,1333.32L484.33,1331.25M484.33,1331.25L483.74,1329.0M483.74,1329.0L483.28,1326.75M483.28,1326.75L482.95,1324.5M482.95,1324.5L482.75,1322.25M482.75,1322.25L482.68,1320.0M482.68,1320.0L482.75,1317.75M482.75,1317.75L482.95,1315.5M482.95,1315.5L483.28,1313.25M483.28,1313.25L483.74,1311.0M483.74,1311.0L484.33,1308.75M484.33,1308.75L485.0,1306.68M488.5,1340.86L488.15,1340.25M488.15,1340.25L486.98,1338.0M486.98,1338.0L485.95,1335.75M485.95,1335.75L485.06,1333.5M485.06,1333.5L485.0,1333.32M485.06,1306.5L485.0,1306.68M485.06,1306.5L485.95,1304.25M485.95,1304.25L486.98,1302.0M486.98,1302.0L488.15,1299.75M488.15,1299.75L488.5,1299.14M492.0,1346.13L490.99,1344.75M490.99,1344.75L489.49,1342.5M489.49,1342.5L488.5,1340.86M489.49,1297.5L488.5,1299.14M489.49,1297.5L490.99,1295.25M490.99,1295.25L492.0,1293.87M495.5,1350.34L494.52,1349.25M494.52,1349.25L492.66,1347.0M492.66,1347.0L492.0,1346.13M492.66,1293.0L492.0,1293.87M492.66,1293.0L494.52,1290.75M494.52,1290.75L495.5,1289.66M499.0,1353.9L498.84,1353.75M498.84,1353.75L496.58,1351.5M496.58,1351.5L495.5,1350.34M496.58,1288.5L495.5,1289.66M496.58,1288.5L498.84,1286.25M498.84,1286.25L499.0,1286.1M502.5,1356.96L501.35,1356.0M501.35,1356.0L499.0,1353.9M501.35,1284.0L499.0,1286.1M501.35,1284.0L502.5,1283.04M506.0,1359.67L504.11,1358.25M504.11,1358.25L502.5,1356.96M504.11,1281.75L502.5,1283.04M504.11,1281.75L506.0,1280.33M509.5,1362.09L507.16,1360.5M507.16,1360.5L506.0,1359.67M507.16,1279.5L506.0,1280.33M507.16,1279.5L509.5,1277.91M513.0,1364.26L510.53,1362.75M510.53,1362.75L509.5,1362.09M510.53,1277.25L509.5,1277.91M510.53,1277.25L513.0,1275.74M516.5,1366.21L514.29,1365.0M514.29,1365.0L513.0,1364.26M514.29,1275.0L513.0,1275.74M514.29,1275.0L516.5,1273.79M520.0,1367.99L518.5,1367.25M518.5,1367.25L516.5,1366.21M518.5,1272.75L516.5,1273.79M518.5,1272.75L520.0,1272.01M523.5,1369.61L523.26,1369.5M523.26,1369.5L520.0,1367.99M523.26,1270.5L520.0,1272.01M523.26,1270.5L523.5,1270.39M527.0,1371.06L523.5,1369.61M527.0,1268.94L523.5,1270.39M530.5,1372.38L528.8,1371.75M528.8,1371.75L527.0,1371.06M528.8,1268.25L527.0,1268.94M528.8,1268.25L530.5,1267.62M534.0,1373.57L530.5,1372.38M534.0,1266.43L530.5,1267.62M537.5,1374.65L535.35,1374.0M535.35,1374.0L534.0,1373.57M535.35,1266.0L534.0,1266.43M535.35,1266.0L537.5,1265.35M541.0,1375.61L537.5,1374.65M541.0,1264.39L537.5,1265.35M544.5,1376.48L543.56,1376.25M543.56,1376.25L541.0,1375.61M543.56,1263.75L541.0,1264.39M543.56,1263.75L544.5,1263.52M548.0,1377.23L544.5,1376.48M548.0,1262.77L544.5,1263.52M551.5,1377.89L548.0,1377.23M551.5,1262.11L548.0,1262.77M555.0,1378.46L551.5,1377.89M555.0,1261.54L551.5,1262.11M558.5,1378.93L555.28,1378.5M555.28,1378.5L555.0,1378.46M555.28,1261.5L555.0,1261.54M555.28,1261.5L558.5,1261.07M562.0,1379.31L558.5,1378.93M562.0,1260.69L558.5,1261.07M565.5,1379.61L562.0,1379.31M565.5,1260.39L562.0,1260.69M569.0,1379.82L565.5,1379.61M569.0,1260.18L565.5,1260.39M572.5,1379.95L569.0,1379.82M572.5,1260.05L569.0,1260.18M576.0,1379.99L572.5,1379.95M576.0,1260.01L572.5,1260.05M579.5,1379.95L576.0,1379.99M579.5,1260.05L576.0,1260.01M583.0,1379.82L579.5,1379.95M583.0,1260.18L579.5,1260.05M586.5,1379.61L583.0,1379.82M586.5,1260.39L583.0,1260.18M590.0,1379.31L586.5,1379.61M590.0,1260.69L586.5,1260.39M593.5,1378.93L590.0,1379.31M593.5,1261.07L590.0,1260.69M596.72,1378.5L593.5,1378.93M596.72,1378.5L597.0,1378.46M597.0,1261.54L596.72,1261.5M596.72,1261.5L593.5,1261.07M600.5,1377.89L597.0,1378.46M600.5,1262.11L597.0,1261.54M604.0,1377.23L600.5,1377.89M604.0,1262.77L600.5,1262.11M607.5,1376.48L604.0,1377.23M607.5,1263.52L604.0,1262.77M608.44,1376.25L607.5,1376.48M608.44,1376.25L611.0,1375.61M611.0,1264.39L608.44,1263.75M608.44,1263.75L607.5,1263.52M614.5,1374.65L611.0,1375.61M614.5,1265.35L611.0,1264.39M616.65,1374.0L614.5,1374.65M616.65,1374.0L618.0,1373.57M618.0,1266.43L616.65,1266.0M616.65,1266.0L614.5,1265.35M621.5,1372.38L618.0,1373.57M621.5,1267.62L618.0,1266.43M623.2,1371.75L621.5,1372.38M623.2,1371.75L625.0,1371.06M625.0,1268.94L623.2,1268.25M623.2,1268.25L621.5,1267.62M628.5,1369.61L625.0,1371.06M628.5,1270.39L625.0,1268.94M628.74,1369.5L628.5,1369.61M628.74,1369.5L632.0,1367.99M632.0,1272.01L628.74,1270.5M628.74,1270.5L628.5,1270.39M633.5,1367.25L632.0,1367.99M633.5,1367.25L635.5,1366.21M635.5,1273.79L633.5,1272.75M633.5,1272.75L632.0,1272.01M637.71,1365.0L635.5,1366.21M637.71,1365.0L639.0,1364.26M639.0,1275.74L637.71,1275.0M637.71,1275.0L635.5,1273.79M641.47,1362.75L639.0,1364.26M641.47,1362.75L642.5,1362.09M642.5,1277.91L641.47,1277.25M641.47,1277.25L639.0,1275.74M644.84,1360.5L642.5,1362.09M644.84,1360.5L646.0,1359.67M646.0,1280.33L644.84,1279.5M644.84,1279.5L642.5,1277.91M647.89,1358.25L646.0,1359.67M647.89,1358.25L649.5,1356.96M649.5,1283.04L647.89,1281.75M647.89,1281.75L646.0,1280.33M650.65,1356.0L649.5,1356.96M650.65,1356.0L653.0,1353.9M653.0,1286.1L650.65,1284.0M650.65,1284.0L649.5,1283.04M653.16,1353.75L653.0,1353.9M653.16,1353.75L655.42,1351.5M655.42,1351.5L656.5,1350.34M656.5,1289.66L655.42,1288.5M655.42,1288.5L653.16,1286.25M653.16,1286.25L653.0,1286.1M657.48,1349.25L656.5,1350.34M657.48,1349.25L659.34,1347.0M659.34,1347.0L660.0,1346.13M660.0,1293.87L659.34,1293.0M659.34,1293.0L657.48,1290.75M657.48,1290.75L656.5,1289.66M661.01,1344.75L660.0,1346.13M661.01,1344.75L662.51,1342.5M662.51,1342.5L663.5,1340.86M663.5,1299.14L662.51,1297.5M662.51,1297.5L661.01,1295.25M661.01,1295.25L660.0,1293.87M663.85,1340.25L663.5,1340.86M663.85,1340.25L665.02,1338.0M665.02,1338.0L666.05,1335.75M666.05,1335.75L666.94,1333.5M666.94,1333.5L667.0,1333.32M667.0,1306.68L666.94,1306.5M666.94,1306.5L666.05,1304.25M666.05,1304.25L665.02,1302.0M665.02,1302.0L663.85,1299.75M663.85,1299.75L663.5,1299.14M667.67,1331.25L667.0,1333.32M667.67,1331.25L668.26,1329.0M668.26,1329.0L668.72,1326.75M668.72,1326.75L669.05,1324.5M669.05,1324.5L669.25,1322.25M669.25,1322.25L669.32,1320.0M669.32,1320.0L669.25,1317.75M669.25,1317.75L669.05,1315.5M669.05,1315.5L668.72,1313.25M668.72,1313.25L668.26,1311.0M668.26,1311.0L667.67,1308.75M667.67,1308.75L667.0,1306.68' fill-opacity='0' stroke='rgb(252,98,85)' stroke-width='2' />
+<path d='M445.33,1326.86L445.02,1326.0M445.02,1326.0L444.59,1324.5M444.59,1324.5L444.28,1323.0M444.28,1323.0L444.09,1321.5M444.09,1321.5L444.03,1320.0M444.03,1320.0L444.09,1318.5M444.09,1318.5L444.28,1317.0M444.28,1317.0L444.59,1315.5M444.59,1315.5L445.02,1314.0M445.02,1314.0L445.33,1313.14M447.67,1331.29L447.16,1330.5M447.16,1330.5L446.31,1329.0M446.31,1329.0L445.59,1327.5M445.59,1327.5L445.33,1326.86M445.59,1312.5L445.33,1313.14M445.59,1312.5L446.31,1311.0M446.31,1311.0L447.16,1309.5M447.16,1309.5L447.67,1308.71M450.0,1334.27L449.34,1333.5M449.34,1333.5L448.16,1332.0M448.16,1332.0L447.67,1331.29M448.16,1308.0L447.67,1308.71M448.16,1308.0L449.34,1306.5M449.34,1306.5L450.0,1305.73M452.33,1336.62L452.2,1336.5M452.2,1336.5L450.68,1335.0M450.68,1335.0L450.0,1334.27M450.68,1305.0L450.0,1305.73M450.68,1305.0L452.2,1303.5M452.2,1303.5L452.33,1303.38M454.67,1338.54L453.98,1338.0M453.98,1338.0L452.33,1336.62M453.98,1302.0L452.33,1303.38M453.98,1302.0L454.67,1301.46M457.0,1340.19L455.98,1339.5M455.98,1339.5L454.67,1338.54M455.98,1300.5L454.67,1301.46M455.98,1300.5L457.0,1299.81M459.33,1341.63L458.28,1341.0M458.28,1341.0L457.0,1340.19M458.28,1299.0L457.0,1299.81M458.28,1299.0L459.33,1298.37M461.67,1342.88L460.93,1342.5M460.93,1342.5L459.33,1341.63M460.93,1297.5L459.33,1298.37M460.93,1297.5L461.67,1297.12M464.0,1344.0L461.67,1342.88M464.0,1296.0L461.67,1297.12M466.33,1344.97L464.0,1344.0M464.0,1296.0L464.0,1296.0M464.0,1296.0L466.33,1295.03M468.67,1345.83L467.75,1345.5M467.75,1345.5L466.33,1344.97M467.75,1294.5L466.33,1295.03M467.75,1294.5L468.67,1294.17M471.0,1346.59L468.67,1345.83M471.0,1293.41L468.67,1294.17M473.33,1347.27L472.39,1347.0M472.39,1347.0L471.0,1346.59M472.39,1293.0L471.0,1293.41M472.39,1293.0L473.33,1292.73M475.67,1347.85L473.33,1347.27M475.67,1292.15L473.33,1292.73M478.0,1348.36L475.67,1347.85M478.0,1291.64L475.67,1292.15M480.33,1348.78L478.76,1348.5M478.76,1348.5L478.0,1348.36M478.76,1291.5L478.0,1291.64M478.76,1291.5L480.33,1291.22M482.67,1349.14L480.33,1348.78M482.67,1290.86L480.33,1291.22M485.0,1349.43L482.67,1349.14M485.0,1290.57L482.67,1290.86M487.33,1349.67L485.0,1349.43M487.33,1290.33L485.0,1290.57M489.67,1349.84L487.33,1349.67M489.67,1290.16L487.33,1290.33M492.0,1349.95L489.67,1349.84M492.0,1290.05L489.67,1290.16M494.33,1350L492.0,1349.95M494.33,1290L492.0,1290.05M496.67,1349.99L494.33,1350M496.67,1290.01L494.33,1290M499.0,1349.92L496.67,1349.99M499.0,1290.08L496.67,1290.01M501.33,1349.8L499.0,1349.92M501.33,1290.2L499.0,1290.08M503.67,1349.63L501.33,1349.8M503.67,1290.37L501.33,1290.2M506.0,1349.4L503.67,1349.63M506.0,1290.6L503.67,1290.37M508.33,1349.12L506.0,1349.4M508.33,1290.88L506.0,1290.6M510.67,1348.8L508.33,1349.12M510.67,1291.2L508.33,1290.88M512.54,1348.5L510.67,1348.8M512.54,1348.5L513.0,1348.42M513.0,1291.58L512.54,1291.5M512.54,1291.5L510.67,1291.2M515.33,1347.98L513.0,1348.42M515.33,1292.02L513.0,1291.58M517.67,1347.49L515.33,1347.98M517.67,1292.51L515.33,1292.02M519.87,1347.0L517.67,1347.49M519.87,1347.0L520.0,1346.97M520.0,1293.03L519.87,1293.0M519.87,1293.0L517.67,1292.51M522.33,1346.37L520.0,1346.97M522.33,1293.63L520.0,1293.03M524.67,1345.74L522.33,1346.37M524.67,1294.26L522.33,1293.63M525.51,1345.5L524.67,1345.74M525.51,1345.5L527.0,1345.04M527.0,1294.96L525.51,1294.5M525.51,1294.5L524.67,1294.26M529.33,1344.3L527.0,1345.04M529.33,1295.7L527.0,1294.96M530.28,1344.0L529.33,1344.3M530.28,1344.0L531.67,1343.51M531.67,1296.49L530.28,1296.0M530.28,1296.0L529.33,1295.7M534.0,1342.67L531.67,1343.51M534.0,1297.33L531.67,1296.49M534.48,1342.5L534.0,1342.67M534.48,1342.5L536.33,1341.77M536.33,1298.23L534.48,1297.5M534.48,1297.5L534.0,1297.33M538.28,1341.0L536.33,1341.77M538.28,1341.0L538.67,1340.83M538.67,1299.17L538.28,1299.0M538.28,1299.0L536.33,1298.23M541.0,1339.83L538.67,1340.83M541.0,1300.17L538.67,1299.17M541.79,1339.5L541.0,1339.83M541.79,1339.5L543.33,1338.78M543.33,1301.22L541.79,1300.5M541.79,1300.5L541.0,1300.17M545.06,1338.0L543.33,1338.78M545.06,1338.0L545.67,1337.69M545.67,1302.31L545.06,1302.0M545.06,1302.0L543.33,1301.22M548.0,1336.56L545.67,1337.69M548.0,1303.44L545.67,1302.31M548.13,1336.5L548.0,1336.56M548.13,1336.5L550.33,1335.36M550.33,1304.64L548.13,1303.5M548.13,1303.5L548.0,1303.44M551.07,1335.0L550.33,1335.36M551.07,1335.0L552.67,1334.12M552.67,1305.88L551.07,1305.0M551.07,1305.0L550.33,1304.64M553.87,1333.5L552.67,1334.12M553.87,1333.5L555.0,1332.84M555.0,1307.16L553.87,1306.5M553.87,1306.5L552.67,1305.88M556.57,1332.0L555.0,1332.84M556.57,1332.0L557.33,1331.52M557.33,1308.48L556.57,1308.0M556.57,1308.0L555.0,1307.16M559.17,1330.5L557.33,1331.52M559.17,1330.5L559.67,1330.17M559.67,1309.83L559.17,1309.5M559.17,1309.5L557.33,1308.48M561.69,1329.0L559.67,1330.17M561.69,1329.0L562.0,1328.79M562.0,1311.21L561.69,1311.0M561.69,1311.0L559.67,1309.83M564.16,1327.5L562.0,1328.79M564.16,1327.5L564.33,1327.37M564.33,1312.63L564.16,1312.5M564.16,1312.5L562.0,1311.21M566.58,1326.0L564.33,1327.37M566.58,1326.0L566.67,1325.93M566.67,1314.07L566.58,1314.0M566.58,1314.0L564.33,1312.63M568.97,1324.5L566.67,1325.93M568.97,1324.5L569.0,1324.47M569.0,1315.53L568.97,1315.5M568.97,1315.5L566.67,1314.07M571.32,1323.0L569.0,1324.47M571.32,1323.0L571.33,1322.99M571.33,1317.01L571.32,1317.0M571.32,1317.0L569.0,1315.53M573.67,1321.5L571.33,1322.99M573.67,1321.5L573.67,1321.5M573.67,1318.5L573.67,1318.5M573.67,1318.5L571.33,1317.01M576.0,1320.0L573.67,1321.5M576.0,1320.0L573.67,1318.5M578.33,1321.5L576.0,1320.0M578.33,1318.5L576.0,1320.0M580.67,1322.99L578.33,1321.5M578.33,1321.5L578.33,1321.5M578.33,1318.5L578.33,1318.5M578.33,1318.5L580.67,1317.01M583.0,1324.47L580.68,1323.0M580.68,1323.0L580.67,1322.99M580.68,1317.0L580.67,1317.01M580.68,1317.0L583.0,1315.53M585.33,1325.93L583.03,1324.5M583.03,1324.5L583.0,1324.47M583.03,1315.5L583.0,1315.53M583.03,1315.5L585.33,1314.07M587.67,1327.37L585.42,1326.0M585.42,1326.0L585.33,1325.93M585.42,1314.0L585.33,1314.07M585.42,1314.0L587.67,1312.63M590.0,1328.79L587.84,1327.5M587.84,1327.5L587.67,1327.37M587.84,1312.5L587.67,1312.63M587.84,1312.5L590.0,1311.21M592.33,1330.17L590.31,1329.0M590.31,1329.0L590.0,1328.79M590.31,1311.0L590.0,1311.21M590.31,1311.0L592.33,1309.83M594.67,1331.52L592.83,1330.5M592.83,1330.5L592.33,1330.17M592.83,1309.5L592.33,1309.83M592.83,1309.5L594.67,1308.48M597.0,1332.84L595.43,1332.0M595.43,1332.0L594.67,1331.52M595.43,1308.0L594.67,1308.48M595.43,1308.0L597.0,1307.16M599.33,1334.12L598.13,1333.5M598.13,1333.5L597.0,1332.84M598.13,1306.5L597.0,1307.16M598.13,1306.5L599.33,1305.88M601.67,1335.36L600.93,1335.0M600.93,1335.0L599.33,1334.12M600.93,1305.0L599.33,1305.88M600.93,1305.0L601.67,1304.64M604.0,1336.56L603.87,1336.5M603.87,1336.5L601.67,1335.36M603.87,1303.5L601.67,1304.64M603.87,1303.5L604.0,1303.44M606.33,1337.69L604.0,1336.56M606.33,1302.31L604.0,1303.44M608.67,1338.78L606.94,1338.0M606.94,1338.0L606.33,1337.69M606.94,1302.0L606.33,1302.31M606.94,1302.0L608.67,1301.22M611.0,1339.83L610.21,1339.5M610.21,1339.5L608.67,1338.78M610.21,1300.5L608.67,1301.22M610.21,1300.5L611.0,1300.17M613.33,1340.83L611.0,1339.83M613.33,1299.17L611.0,1300.17M615.67,1341.77L613.72,1341.0M613.72,1341.0L613.33,1340.83M613.72,1299.0L613.33,1299.17M613.72,1299.0L615.67,1298.23M618.0,1342.67L617.52,1342.5M617.52,1342.5L615.67,1341.77M617.52,1297.5L615.67,1298.23M617.52,1297.5L618.0,1297.33M620.33,1343.51L618.0,1342.67M620.33,1296.49L618.0,1297.33M622.67,1344.3L621.72,1344.0M621.72,1344.0L620.33,1343.51M621.72,1296.0L620.33,1296.49M621.72,1296.0L622.67,1295.7M625.0,1345.04L622.67,1344.3M625.0,1294.96L622.67,1295.7M627.33,1345.74L626.49,1345.5M626.49,1345.5L625.0,1345.04M626.49,1294.5L625.0,1294.96M626.49,1294.5L627.33,1294.26M629.67,1346.37L627.33,1345.74M629.67,1293.63L627.33,1294.26M632.0,1346.97L629.67,1346.37M632.0,1293.03L629.67,1293.63M634.33,1347.49L632.13,1347.0M632.13,1347.0L632.0,1346.97M632.13,1293.0L632.0,1293.03M632.13,1293.0L634.33,1292.51M636.67,1347.98L634.33,1347.49M636.67,1292.02L634.33,1292.51M639.0,1348.42L636.67,1347.98M639.0,1291.58L636.67,1292.02M641.33,1348.8L639.46,1348.5M639.46,1348.5L639.0,1348.42M639.46,1291.5L639.0,1291.58M639.46,1291.5L641.33,1291.2M643.67,1349.12L641.33,1348.8M643.67,1290.88L641.33,1291.2M646.0,1349.4L643.67,1349.12M646.0,1290.6L643.67,1290.88M648.33,1349.63L646.0,1349.4M648.33,1290.37L646.0,1290.6M650.67,1349.8L648.33,1349.63M650.67,1290.2L648.33,1290.37M653.0,1349.92L650.67,1349.8M653.0,1290.08L650.67,1290.2M655.33,1349.99L653.0,1349.92M655.33,1290.01L653.0,1290.08M657.67,1350L655.33,1349.99M657.67,1290L655.33,1290.01M660.0,1349.95L657.67,1350M660.0,1290.05L657.67,1290M662.33,1349.84L660.0,1349.95M662.33,1290.16L660.0,1290.05M664.67,1349.67L662.33,1349.84M664.67,1290.33L662.33,1290.16M667.0,1349.43L664.67,1349.67M667.0,1290.57L664.67,1290.33M669.33,1349.14L667.0,1349.43M669.33,1290.86L667.0,1290.57M671.67,1348.78L669.33,1349.14M671.67,1291.22L669.33,1290.86M673.24,1348.5L671.67,1348.78M673.24,1348.5L674.0,1348.36M674.0,1291.64L673.24,1291.5M673.24,1291.5L671.67,1291.22M676.33,1347.85L674.0,1348.36M676.33,1292.15L674.0,1291.64M678.67,1347.27L676.33,1347.85M678.67,1292.73L676.33,1292.15M679.61,1347.0L678.67,1347.27M679.61,1347.0L681.0,1346.59M681.0,1293.41L679.61,1293.0M679.61,1293.0L678.67,1292.73M683.33,1345.83L681.0,1346.59M683.33,1294.17L681.0,1293.41M684.25,1345.5L683.33,1345.83M684.25,1345.5L685.67,1344.97M685.67,1295.03L684.25,1294.5M684.25,1294.5L683.33,1294.17M688.0,1344.0L685.67,1344.97M688.0,1296.0L688.0,1296.0M688.0,1296.0L685.67,1295.03M688.0,1344.0L690.33,1342.88M690.33,1297.12L688.0,1296.0M691.07,1342.5L690.33,1342.88M691.07,1342.5L692.67,1341.63M692.67,1298.37L691.07,1297.5M691.07,1297.5L690.33,1297.12M693.72,1341.0L692.67,1341.63M693.72,1341.0L695.0,1340.19M695.0,1299.81L693.72,1299.0M693.72,1299.0L692.67,1298.37M696.02,1339.5L695.0,1340.19M696.02,1339.5L697.33,1338.54M697.33,1301.46L696.02,1300.5M696.02,1300.5L695.0,1299.81M698.02,1338.0L697.33,1338.54M698.02,1338.0L699.67,1336.62M699.67,1303.38L698.02,1302.0M698.02,1302.0L697.33,1301.46M699.8,1336.5L699.67,1336.62M699.8,1336.5L701.32,1335.0M701.32,1335.0L702.0,1334.27M702.0,1305.73L701.32,1305.0M701.32,1305.0L699.8,1303.5M699.8,1303.5L699.67,1303.38M702.66,1333.5L702.0,1334.27M702.66,1333.5L703.84,1332.0M703.84,1332.0L704.33,1331.29M704.33,1308.71L703.84,1308.0M703.84,1308.0L702.66,1306.5M702.66,1306.5L702.0,1305.73M704.84,1330.5L704.33,1331.29M704.84,1330.5L705.69,1329.0M705.69,1329.0L706.41,1327.5M706.41,1327.5L706.67,1326.86M706.67,1313.14L706.41,1312.5M706.41,1312.5L705.69,1311.0M705.69,1311.0L704.84,1309.5M704.84,1309.5L704.33,1308.71M706.98,1326.0L706.67,1326.86M706.98,1326.0L707.41,1324.5M707.41,1324.5L707.72,1323.0M707.72,1323.0L707.91,1321.5M707.91,1321.5L707.97,1320.0M707.97,1320.0L707.91,1318.5M707.91,1318.5L707.72,1317.0M707.72,1317.0L707.41,1315.5M707.41,1315.5L706.98,1314.0M706.98,1314.0L706.67,1313.14' fill-opacity='0' stroke='rgb(88,196,221)' stroke-width='2' />
+</g></g>
+<g data-obj-idx='46'><text x='960' y='1190' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_polar</text></g>
+<g data-obj-idx='47'><g>
+<g>
+<line x1='820' y1='1320.0' x2='1100' y2='1320.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='960.0' y1='1230' x2='960.0' y2='1410' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='820.0' y1='1306.0' x2='820.0' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='866.67' y1='1306.0' x2='866.67' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='913.33' y1='1306.0' x2='913.33' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='960.0' y1='1306.0' x2='960.0' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1006.67' y1='1306.0' x2='1006.67' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1053.33' y1='1306.0' x2='1053.33' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1100.0' y1='1306.0' x2='1100.0' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='946.0' y1='1410.0' x2='974.0' y2='1410.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='946.0' y1='1380.0' x2='974.0' y2='1380.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='946.0' y1='1350.0' x2='974.0' y2='1350.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='946.0' y1='1320.0' x2='974.0' y2='1320.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='946.0' y1='1290.0' x2='974.0' y2='1290.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='946.0' y1='1260.0' x2='974.0' y2='1260.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='946.0' y1='1230.0' x2='974.0' y2='1230.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<path d='M1053.33,1320.0L1053.26,1318.12L1053.06,1316.24L1052.71,1314.37L1052.23,1312.51L1051.62,1310.67L1050.87,1308.86L1049.99,1307.07L1048.98,1305.31L1047.85,1303.59L1046.59,1301.91L1045.22,1300.28L1043.73,1298.69L1042.13,1297.15L1040.43,1295.67L1038.63,1294.25L1036.73,1292.88L1034.74,1291.58L1032.67,1290.35L1030.52,1289.19L1028.3,1288.1L1026.01,1287.08L1023.66,1286.14L1021.26,1285.28L1018.82,1284.49L1016.33,1283.79L1013.81,1283.16L1011.27,1282.61L1008.71,1282.15L1006.13,1281.77L1003.55,1281.46L1000.97,1281.24L998.4,1281.1L995.85,1281.03L993.31,1281.05L990.8,1281.13L988.33,1281.3L985.89,1281.53L983.5,1281.84L981.16,1282.21L978.88,1282.65L976.65,1283.15L974.49,1283.72L972.4,1284.34L970.38,1285.01L968.44,1285.73L966.58,1286.51L964.81,1287.32L963.11,1288.18L961.51,1289.07L960.0,1290.0L958.58,1290.96L957.25,1291.94L956.02,1292.94L954.88,1293.97L953.84,1295L952.89,1296.05L952.04,1297.11L951.28,1298.17L950.61,1299.23L950.04,1300.29L949.55,1301.33L949.14,1302.37L948.83,1303.4L948.59,1304.41L948.43,1305.41L948.35,1306.38L948.34,1307.32L948.39,1308.24L948.51,1309.13L948.69,1310L948.93,1310.82L949.21,1311.62L949.55,1312.38L949.92,1313.1L950.34,1313.79L950.78,1314.43L951.25,1315.04L951.75,1315.61L952.26,1316.14L952.79,1316.63L953.33,1317.08L953.87,1317.5L954.41,1317.87L954.94,1318.21L955.47,1318.52L955.98,1318.78L956.48,1319.02L956.95,1319.22L957.4,1319.4L957.83,1319.55L958.22,1319.67L958.58,1319.77L958.9,1319.84L959.19,1319.9L959.43,1319.94L959.63,1319.97L959.79,1319.99L959.91,1320L959.98,1320L960.0,1320.0L959.98,1320L959.91,1320L959.79,1320.01L959.63,1320.03L959.43,1320.06L959.19,1320.1L958.9,1320.16L958.58,1320.23L958.22,1320.33L957.83,1320.45L957.4,1320.6L956.95,1320.78L956.48,1320.98L955.98,1321.22L955.47,1321.48L954.94,1321.79L954.41,1322.13L953.87,1322.5L953.33,1322.92L952.79,1323.37L952.26,1323.86L951.75,1324.39L951.25,1324.96L950.78,1325.57L950.34,1326.21L949.92,1326.9L949.55,1327.62L949.21,1328.38L948.93,1329.18L948.69,1330L948.51,1330.87L948.39,1331.76L948.34,1332.68L948.35,1333.62L948.43,1334.59L948.59,1335.59L948.83,1336.6L949.14,1337.63L949.55,1338.67L950.04,1339.71L950.61,1340.77L951.28,1341.83L952.04,1342.89L952.89,1343.95L953.84,1345L954.88,1346.03L956.02,1347.06L957.25,1348.06L958.58,1349.04L960.0,1350.0L961.51,1350.93L963.11,1351.82L964.81,1352.68L966.58,1353.49L968.44,1354.27L970.38,1354.99L972.4,1355.66L974.49,1356.28L976.65,1356.85L978.88,1357.35L981.16,1357.79L983.5,1358.16L985.89,1358.47L988.33,1358.7L990.8,1358.87L993.31,1358.95L995.85,1358.97L998.4,1358.9L1000.97,1358.76L1003.55,1358.54L1006.13,1358.23L1008.71,1357.85L1011.27,1357.39L1013.81,1356.84L1016.33,1356.21L1018.82,1355.51L1021.26,1354.72L1023.66,1353.86L1026.01,1352.92L1028.3,1351.9L1030.52,1350.81L1032.67,1349.65L1034.74,1348.42L1036.73,1347.12L1038.63,1345.75L1040.43,1344.33L1042.13,1342.85L1043.73,1341.31L1045.22,1339.72L1046.59,1338.09L1047.85,1336.41L1048.98,1334.69L1049.99,1332.93L1050.87,1331.14L1051.62,1329.33L1052.23,1327.49L1052.71,1325.63L1053.06,1323.76L1053.26,1321.88L1053.33,1320.0' fill-opacity='0' stroke='rgb(240,172,95)' stroke-width='2' />
+</g></g>
+<g data-obj-idx='48'><text x='1344' y='1190' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot_heatmap</text></g>
+<g data-obj-idx='49'><g>
+<g>
+<rect x='1204.0' y='1230.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(252,252,2)' fill-opacity='0.85' stroke='rgb(252,252,2)' stroke-width='0.5' />
+<rect x='1250.67' y='1230.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,157,0)' fill-opacity='0.85' stroke='rgb(255,157,0)' stroke-width='0.5' />
+<rect x='1297.33' y='1230.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,72,0)' fill-opacity='0.85' stroke='rgb(255,72,0)' stroke-width='0.5' />
+<rect x='1344.0' y='1230.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,17,0)' fill-opacity='0.85' stroke='rgb(255,17,0)' stroke-width='0.5' />
+<rect x='1390.67' y='1230.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,0,0)' fill-opacity='0.85' stroke='rgb(255,0,0)' stroke-width='0.5' />
+<rect x='1437.33' y='1230.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,23,0)' fill-opacity='0.85' stroke='rgb(255,23,0)' stroke-width='0.5' />
+<rect x='1204.0' y='1260.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,134,0)' fill-opacity='0.85' stroke='rgb(255,134,0)' stroke-width='0.5' />
+<rect x='1250.67' y='1260.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,55,0)' fill-opacity='0.85' stroke='rgb(255,55,0)' stroke-width='0.5' />
+<rect x='1297.33' y='1260.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,9,0)' fill-opacity='0.85' stroke='rgb(255,9,0)' stroke-width='0.5' />
+<rect x='1344.0' y='1260.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,2,0)' fill-opacity='0.85' stroke='rgb(255,2,0)' stroke-width='0.5' />
+<rect x='1390.67' y='1260.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,35,0)' fill-opacity='0.85' stroke='rgb(255,35,0)' stroke-width='0.5' />
+<rect x='1437.33' y='1260.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,103,0)' fill-opacity='0.85' stroke='rgb(255,103,0)' stroke-width='0.5' />
+<rect x='1204.0' y='1290.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,40,0)' fill-opacity='0.85' stroke='rgb(255,40,0)' stroke-width='0.5' />
+<rect x='1250.67' y='1290.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,3,0)' fill-opacity='0.85' stroke='rgb(255,3,0)' stroke-width='0.5' />
+<rect x='1297.33' y='1290.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,6,0)' fill-opacity='0.85' stroke='rgb(255,6,0)' stroke-width='0.5' />
+<rect x='1344.0' y='1290.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,49,0)' fill-opacity='0.85' stroke='rgb(255,49,0)' stroke-width='0.5' />
+<rect x='1390.67' y='1290.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,124,0)' fill-opacity='0.85' stroke='rgb(255,124,0)' stroke-width='0.5' />
+<rect x='1437.33' y='1290.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,221,0)' fill-opacity='0.85' stroke='rgb(255,221,0)' stroke-width='0.5' />
+<rect x='1204.0' y='1320.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,0,0)' fill-opacity='0.85' stroke='rgb(255,0,0)' stroke-width='0.5' />
+<rect x='1250.67' y='1320.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,13,0)' fill-opacity='0.85' stroke='rgb(255,13,0)' stroke-width='0.5' />
+<rect x='1297.33' y='1320.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,65,0)' fill-opacity='0.85' stroke='rgb(255,65,0)' stroke-width='0.5' />
+<rect x='1344.0' y='1320.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,147,0)' fill-opacity='0.85' stroke='rgb(255,147,0)' stroke-width='0.5' />
+<rect x='1390.67' y='1320.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,247,0)' fill-opacity='0.85' stroke='rgb(255,247,0)' stroke-width='0.5' />
+<rect x='1437.33' y='1320.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(161,161,93)' fill-opacity='0.85' stroke='rgb(161,161,93)' stroke-width='0.5' />
+<rect x='1204.0' y='1350.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,23,0)' fill-opacity='0.85' stroke='rgb(255,23,0)' stroke-width='0.5' />
+<rect x='1250.67' y='1350.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,83,0)' fill-opacity='0.85' stroke='rgb(255,83,0)' stroke-width='0.5' />
+<rect x='1297.33' y='1350.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,171,0)' fill-opacity='0.85' stroke='rgb(255,171,0)' stroke-width='0.5' />
+<rect x='1344.0' y='1350.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(237,237,17)' fill-opacity='0.85' stroke='rgb(237,237,17)' stroke-width='0.5' />
+<rect x='1390.67' y='1350.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(138,138,116)' fill-opacity='0.85' stroke='rgb(138,138,116)' stroke-width='0.5' />
+<rect x='1437.33' y='1350.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(56,56,198)' fill-opacity='0.85' stroke='rgb(56,56,198)' stroke-width='0.5' />
+<rect x='1204.0' y='1380.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,103,0)' fill-opacity='0.85' stroke='rgb(255,103,0)' stroke-width='0.5' />
+<rect x='1250.67' y='1380.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(255,196,0)' fill-opacity='0.85' stroke='rgb(255,196,0)' stroke-width='0.5' />
+<rect x='1297.33' y='1380.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(211,211,43)' fill-opacity='0.85' stroke='rgb(211,211,43)' stroke-width='0.5' />
+<rect x='1344.0' y='1380.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(115,115,139)' fill-opacity='0.85' stroke='rgb(115,115,139)' stroke-width='0.5' />
+<rect x='1390.67' y='1380.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(41,41,213)' fill-opacity='0.85' stroke='rgb(41,41,213)' stroke-width='0.5' />
+<rect x='1437.33' y='1380.0' width='46.67' height='30.0' rx='0' ry='0' fill='rgb(0,0,255)' fill-opacity='0.85' stroke='rgb(0,0,255)' stroke-width='0.5' />
+</g>
+<g>
+<line x1='1204' y1='1410.0' x2='1484' y2='1410.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1204.0' y1='1230' x2='1204.0' y2='1410' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1204.0' y1='1396.0' x2='1204.0' y2='1424.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1250.67' y1='1396.0' x2='1250.67' y2='1424.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1297.33' y1='1396.0' x2='1297.33' y2='1424.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1344.0' y1='1396.0' x2='1344.0' y2='1424.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1390.67' y1='1396.0' x2='1390.67' y2='1424.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1437.33' y1='1396.0' x2='1437.33' y2='1424.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1484.0' y1='1396.0' x2='1484.0' y2='1424.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='1410.0' x2='1218.0' y2='1410.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='1380.0' x2='1218.0' y2='1380.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='1350.0' x2='1218.0' y2='1350.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='1320.0' x2='1218.0' y2='1320.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='1290.0' x2='1218.0' y2='1290.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='1260.0' x2='1218.0' y2='1260.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1190.0' y1='1230.0' x2='1218.0' y2='1230.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+</g></g>
+<g data-obj-idx='50'><text x='1728' y='1190' font-size='18' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>plot (function)</text></g>
+<g data-obj-idx='51'><g>
+<g>
+<line x1='1588' y1='1320.0' x2='1868' y2='1320.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1728.0' y1='1230' x2='1728.0' y2='1410' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1588.0' y1='1306.0' x2='1588.0' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1634.67' y1='1306.0' x2='1634.67' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1681.33' y1='1306.0' x2='1681.33' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1728.0' y1='1306.0' x2='1728.0' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1774.67' y1='1306.0' x2='1774.67' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1821.33' y1='1306.0' x2='1821.33' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1868.0' y1='1306.0' x2='1868.0' y2='1334.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1714.0' y1='1410.0' x2='1742.0' y2='1410.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1714.0' y1='1380.0' x2='1742.0' y2='1380.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1714.0' y1='1350.0' x2='1742.0' y2='1350.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1714.0' y1='1320.0' x2='1742.0' y2='1320.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1714.0' y1='1290.0' x2='1742.0' y2='1290.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1714.0' y1='1260.0' x2='1742.0' y2='1260.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1714.0' y1='1230.0' x2='1742.0' y2='1230.0' stroke='rgb(255,255,255)' stroke-width='3' />
+</g>
+<path d='M1588.0,1328.47L1589.4,1330.25L1590.8,1332.01L1592.2,1333.77L1593.6,1335.52L1595.0,1337.25L1596.4,1338.96L1597.8,1340.66L1599.2,1342.34L1600.6,1344L1602.0,1345.64L1603.4,1347.26L1604.8,1348.85L1606.2,1350.41L1607.6,1351.95L1609.0,1353.46L1610.4,1354.94L1611.8,1356.39L1613.2,1357.8L1614.6,1359.18L1616.0,1360.53L1617.4,1361.84L1618.8,1363.11L1620.2,1364.34L1621.6,1365.53L1623.0,1366.68L1624.4,1367.79L1625.8,1368.86L1627.2,1369.88L1628.6,1370.86L1630.0,1371.79L1631.4,1372.68L1632.8,1373.52L1634.2,1374.31L1635.6,1375.05L1637.0,1375.74L1638.4,1376.38L1639.8,1376.97L1641.2,1377.51L1642.6,1378L1644.0,1378.43L1645.4,1378.81L1646.8,1379.14L1648.2,1379.42L1649.6,1379.64L1651.0,1379.81L1652.4,1379.93L1653.8,1379.99L1655.2,1380L1656.6,1379.95L1658.0,1379.85L1659.4,1379.7L1660.8,1379.49L1662.2,1379.23L1663.6,1378.91L1665.0,1378.54L1666.4,1378.12L1667.8,1377.65L1669.2,1377.13L1670.6,1376.55L1672.0,1375.92L1673.4,1375.25L1674.8,1374.52L1676.2,1373.74L1677.6,1372.92L1679.0,1372.05L1680.4,1371.13L1681.8,1370.16L1683.2,1369.15L1684.6,1368.1L1686.0,1367L1687.4,1365.86L1688.8,1364.68L1690.2,1363.46L1691.6,1362.2L1693.0,1360.9L1694.4,1359.56L1695.8,1358.19L1697.2,1356.79L1698.6,1355.35L1700.0,1353.88L1701.4,1352.38L1702.8,1350.85L1704.2,1349.29L1705.6,1347.71L1707.0,1346.1L1708.4,1344.47L1709.8,1342.81L1711.2,1341.14L1712.6,1339.44L1714.0,1337.73L1715.4,1336L1716.8,1334.26L1718.2,1332.51L1719.6,1330.74L1721.0,1328.97L1722.4,1327.18L1723.8,1325.39L1725.2,1323.6L1726.6,1321.8L1728.0,1320.0L1729.4,1318.2L1730.8,1316.4L1732.2,1314.61L1733.6,1312.82L1735.0,1311.03L1736.4,1309.26L1737.8,1307.49L1739.2,1305.74L1740.6,1304L1742.0,1302.27L1743.4,1300.56L1744.8,1298.86L1746.2,1297.19L1747.6,1295.53L1749.0,1293.9L1750.4,1292.29L1751.8,1290.71L1753.2,1289.15L1754.6,1287.62L1756.0,1286.12L1757.4,1284.65L1758.8,1283.21L1760.2,1281.81L1761.6,1280.44L1763.0,1279.1L1764.4,1277.8L1765.8,1276.54L1767.2,1275.32L1768.6,1274.14L1770.0,1273L1771.4,1271.9L1772.8,1270.85L1774.2,1269.84L1775.6,1268.87L1777.0,1267.95L1778.4,1267.08L1779.8,1266.26L1781.2,1265.48L1782.6,1264.75L1784.0,1264.08L1785.4,1263.45L1786.8,1262.87L1788.2,1262.35L1789.6,1261.88L1791.0,1261.46L1792.4,1261.09L1793.8,1260.77L1795.2,1260.51L1796.6,1260.3L1798.0,1260.15L1799.4,1260.05L1800.8,1260L1802.2,1260.01L1803.6,1260.07L1805.0,1260.19L1806.4,1260.36L1807.8,1260.58L1809.2,1260.86L1810.6,1261.19L1812.0,1261.57L1813.4,1262L1814.8,1262.49L1816.2,1263.03L1817.6,1263.62L1819.0,1264.26L1820.4,1264.95L1821.8,1265.69L1823.2,1266.48L1824.6,1267.32L1826.0,1268.21L1827.4,1269.14L1828.8,1270.12L1830.2,1271.14L1831.6,1272.21L1833.0,1273.32L1834.4,1274.47L1835.8,1275.66L1837.2,1276.89L1838.6,1278.16L1840.0,1279.47L1841.4,1280.82L1842.8,1282.2L1844.2,1283.61L1845.6,1285.06L1847.0,1286.54L1848.4,1288.05L1849.8,1289.59L1851.2,1291.15L1852.6,1292.74L1854.0,1294.36L1855.4,1296L1856.8,1297.66L1858.2,1299.34L1859.6,1301.04L1861.0,1302.75L1862.4,1304.48L1863.8,1306.23L1865.2,1307.99L1866.6,1309.75L1868.0,1311.53' fill-opacity='0' stroke='rgb(154,114,172)' stroke-width='2' />
+<path d='M1588.0,1379.4L1589.4,1379.12L1590.8,1378.78L1592.2,1378.4L1593.6,1377.96L1595.0,1377.47L1596.4,1376.92L1597.8,1376.33L1599.2,1375.68L1600.6,1374.99L1602.0,1374.24L1603.4,1373.45L1604.8,1372.61L1606.2,1371.72L1607.6,1370.78L1609.0,1369.8L1610.4,1368.78L1611.8,1367.71L1613.2,1366.59L1614.6,1365.44L1616.0,1364.24L1617.4,1363.01L1618.8,1361.73L1620.2,1360.42L1621.6,1359.07L1623.0,1357.69L1624.4,1356.27L1625.8,1354.82L1627.2,1353.34L1628.6,1351.83L1630.0,1350.29L1631.4,1348.72L1632.8,1347.13L1634.2,1345.51L1635.6,1343.87L1637.0,1342.21L1638.4,1340.53L1639.8,1338.83L1641.2,1337.11L1642.6,1335.38L1644.0,1333.63L1645.4,1331.87L1646.8,1330.1L1648.2,1328.33L1649.6,1326.54L1651.0,1324.75L1652.4,1322.95L1653.8,1321.15L1655.2,1319.35L1656.6,1317.55L1658.0,1315.76L1659.4,1313.96L1660.8,1312.17L1662.2,1310.39L1663.6,1308.62L1665.0,1306.86L1666.4,1305.11L1667.8,1303.37L1669.2,1301.65L1670.6,1299.95L1672.0,1298.26L1673.4,1296.59L1674.8,1294.94L1676.2,1293.32L1677.6,1291.72L1679.0,1290.15L1680.4,1288.6L1681.8,1287.08L1683.2,1285.59L1684.6,1284.13L1686.0,1282.7L1687.4,1281.31L1688.8,1279.95L1690.2,1278.63L1691.6,1277.35L1693.0,1276.1L1694.4,1274.89L1695.8,1273.73L1697.2,1272.6L1698.6,1271.52L1700.0,1270.48L1701.4,1269.49L1702.8,1268.54L1704.2,1267.64L1705.6,1266.78L1707.0,1265.97L1708.4,1265.21L1709.8,1264.51L1711.2,1263.85L1712.6,1263.24L1714.0,1262.68L1715.4,1262.17L1716.8,1261.72L1718.2,1261.32L1719.6,1260.97L1721.0,1260.67L1722.4,1260.43L1723.8,1260.24L1725.2,1260.11L1726.6,1260.03L1728.0,1260.0L1729.4,1260.03L1730.8,1260.11L1732.2,1260.24L1733.6,1260.43L1735.0,1260.67L1736.4,1260.97L1737.8,1261.32L1739.2,1261.72L1740.6,1262.17L1742.0,1262.68L1743.4,1263.24L1744.8,1263.85L1746.2,1264.51L1747.6,1265.21L1749.0,1265.97L1750.4,1266.78L1751.8,1267.64L1753.2,1268.54L1754.6,1269.49L1756.0,1270.48L1757.4,1271.52L1758.8,1272.6L1760.2,1273.73L1761.6,1274.89L1763.0,1276.1L1764.4,1277.35L1765.8,1278.63L1767.2,1279.95L1768.6,1281.31L1770.0,1282.7L1771.4,1284.13L1772.8,1285.59L1774.2,1287.08L1775.6,1288.6L1777.0,1290.15L1778.4,1291.72L1779.8,1293.32L1781.2,1294.94L1782.6,1296.59L1784.0,1298.26L1785.4,1299.95L1786.8,1301.65L1788.2,1303.37L1789.6,1305.11L1791.0,1306.86L1792.4,1308.62L1793.8,1310.39L1795.2,1312.17L1796.6,1313.96L1798.0,1315.76L1799.4,1317.55L1800.8,1319.35L1802.2,1321.15L1803.6,1322.95L1805.0,1324.75L1806.4,1326.54L1807.8,1328.33L1809.2,1330.1L1810.6,1331.87L1812.0,1333.63L1813.4,1335.38L1814.8,1337.11L1816.2,1338.83L1817.6,1340.53L1819.0,1342.21L1820.4,1343.87L1821.8,1345.51L1823.2,1347.13L1824.6,1348.72L1826.0,1350.29L1827.4,1351.83L1828.8,1353.34L1830.2,1354.82L1831.6,1356.27L1833.0,1357.69L1834.4,1359.07L1835.8,1360.42L1837.2,1361.73L1838.6,1363.01L1840.0,1364.24L1841.4,1365.44L1842.8,1366.59L1844.2,1367.71L1845.6,1368.78L1847.0,1369.8L1848.4,1370.78L1849.8,1371.72L1851.2,1372.61L1852.6,1373.45L1854.0,1374.24L1855.4,1374.99L1856.8,1375.68L1858.2,1376.33L1859.6,1376.92L1861.0,1377.47L1862.4,1377.96L1863.8,1378.4L1865.2,1378.78L1866.6,1379.12L1868.0,1379.4' fill-opacity='0' stroke='rgb(92,208,179)' stroke-width='2' />
+</g></g>
+</svg>

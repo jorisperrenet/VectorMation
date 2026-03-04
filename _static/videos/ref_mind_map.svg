@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<line x1='960' y1='540' x2='960.0' y2='260.0' stroke='rgb(131,193,103)' stroke-width='2' stroke-opacity='0.5' />
+<line x1='960.0' y1='260.0' x2='846.74' y2='177.71' stroke='rgb(131,193,103)' stroke-opacity='0.4' />
+<line x1='960.0' y1='260.0' x2='1073.26' y2='177.71' stroke='rgb(131,193,103)' stroke-opacity='0.4' />
+<line x1='960' y1='540' x2='1240.0' y2='540.0' stroke='rgb(255,107,107)' stroke-width='2' stroke-opacity='0.5' />
+<line x1='1240.0' y1='540.0' x2='1380.0' y2='540.0' stroke='rgb(255,107,107)' stroke-opacity='0.4' />
+<line x1='960' y1='540' x2='960.0' y2='820.0' stroke='rgb(255,255,0)' stroke-width='2' stroke-opacity='0.5' />
+<line x1='960.0' y1='820.0' x2='1073.26' y2='902.29' stroke='rgb(255,255,0)' stroke-opacity='0.4' />
+<line x1='960.0' y1='820.0' x2='846.74' y2='902.29' stroke='rgb(255,255,0)' stroke-opacity='0.4' />
+<line x1='960' y1='540' x2='680.0' y2='540.0' stroke='rgb(255,121,198)' stroke-width='2' stroke-opacity='0.5' />
+<circle cx='960' cy='540' r='35' fill='rgb(88,196,221)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='960.0' cy='260.0' r='25' fill='rgb(131,193,103)' fill-opacity='0.85' stroke='rgb(131,193,103)' stroke-width='1.5' />
+<circle cx='846.74' cy='177.71' r='15' fill='rgb(131,193,103)' fill-opacity='0.7' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1073.26' cy='177.71' r='15' fill='rgb(131,193,103)' fill-opacity='0.7' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1240.0' cy='540.0' r='25' fill='rgb(255,107,107)' fill-opacity='0.85' stroke='rgb(255,107,107)' stroke-width='1.5' />
+<circle cx='1380.0' cy='540.0' r='15' fill='rgb(255,107,107)' fill-opacity='0.7' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='960.0' cy='820.0' r='25' fill='rgb(255,255,0)' fill-opacity='0.85' stroke='rgb(255,255,0)' stroke-width='1.5' />
+<circle cx='1073.26' cy='902.29' r='15' fill='rgb(255,255,0)' fill-opacity='0.7' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='846.74' cy='902.29' r='15' fill='rgb(255,255,0)' fill-opacity='0.7' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='680.0' cy='540.0' r='25' fill='rgb(255,121,198)' fill-opacity='0.85' stroke='rgb(255,121,198)' stroke-width='1.5' />
+<text x='960' y='546.3' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>AI</text>
+<text x='960.0' y='265.36' font-size='15.3' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>ML</text>
+<text x='846.74' y='181.81' font-size='11.7' text-anchor='middle' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Supervised</text>
+<text x='1073.26' y='181.81' font-size='11.7' text-anchor='middle' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Unsupervised</text>
+<text x='1240.0' y='545.36' font-size='15.3' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>NLP</text>
+<text x='1380.0' y='544.1' font-size='11.7' text-anchor='middle' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Transformers</text>
+<text x='960.0' y='825.36' font-size='15.3' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Vision</text>
+<text x='1073.26' y='906.38' font-size='11.7' text-anchor='middle' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>CNNs</text>
+<text x='846.74' y='906.38' font-size='11.7' text-anchor='middle' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>GANs</text>
+<text x='680.0' y='545.36' font-size='15.3' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Robotics</text>
+</g></g>
+</svg>

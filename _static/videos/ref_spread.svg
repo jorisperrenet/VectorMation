@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<circle cx='260.0' cy='540.0' r='40' fill='rgb(88,196,221)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='5' />
+<rect x='575.0' y='505.0' width='70' height='70' rx='0' ry='0' fill='rgb(231,76,60)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='5' />
+<polygon points='990.0,540.0 930.0,505.36 930.0,574.64' fill='rgb(46,204,113)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='5' />
+<polygon points='1346.18,540.0 1318.54,501.96 1273.82,516.49 1273.82,563.51 1318.54,578.04' fill='rgb(243,156,18)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='5' />
+<circle cx='1660.0' cy='540.0' r='40' fill='rgb(155,89,182)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='5' />
+</g></g>
+</svg>

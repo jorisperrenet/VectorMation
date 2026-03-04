@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<path d='M190.0,140.0 C806.0,140.0 1114.0,140.0 1730.0,140.0 L1730.0,394.1 C1114.0,394.1 806.0,441.2 190.0,441.2 Z' fill='rgb(88,196,221)' fill-opacity='0.4' stroke='rgb(88,196,221)' stroke-width='0.5' stroke-opacity='0.6' />
+<path d='M190.0,441.2 C806.0,441.2 1114.0,414.1 1730.0,414.1 L1730.0,572.9 C1114.0,572.9 806.0,629.4 190.0,629.4 Z' fill='rgb(131,193,103)' fill-opacity='0.4' stroke='rgb(131,193,103)' stroke-width='0.5' stroke-opacity='0.6' />
+<path d='M190.0,629.4 C806.0,629.4 1114.0,592.9 1730.0,592.9 L1730.0,720.0 C1114.0,720.0 806.0,780.0 190.0,780.0 Z' fill='rgb(255,107,107)' fill-opacity='0.4' stroke='rgb(255,107,107)' stroke-width='0.5' stroke-opacity='0.6' />
+<path d='M190.0,800.0 C806.0,800.0 1114.0,740.0 1730.0,740.0 L1730.0,930.6 C1114.0,930.6 806.0,1025.9 190.0,1025.9 Z' fill='rgb(255,255,0)' fill-opacity='0.4' stroke='rgb(255,255,0)' stroke-width='0.5' stroke-opacity='0.6' />
+<path d='M190.0,1025.9 C806.0,1025.9 1114.0,950.6 1730.0,950.6 L1730.0,1014.1 C1114.0,1014.1 806.0,1101.2 190.0,1101.2 Z' fill='rgb(255,121,198)' fill-opacity='0.4' stroke='rgb(255,121,198)' stroke-width='0.5' stroke-opacity='0.6' />
+<path d='M190.0,1121.2 C806.0,1121.2 1114.0,1034.1 1730.0,1034.1 L1730.0,1129.4 C1114.0,1129.4 806.0,1234.1 190.0,1234.1 Z' fill='rgb(184,187,38)' fill-opacity='0.4' stroke='rgb(184,187,38)' stroke-width='0.5' stroke-opacity='0.6' />
+<path d='M190.0,1234.1 C806.0,1234.1 1114.0,1149.4 1730.0,1149.4 L1730.0,1212.9 C1114.0,1212.9 806.0,1309.4 190.0,1309.4 Z' fill='rgb(189,147,249)' fill-opacity='0.4' stroke='rgb(189,147,249)' stroke-width='0.5' stroke-opacity='0.6' />
+<path d='M190.0,1329.4 C806.0,1329.4 1114.0,1232.9 1730.0,1232.9 L1730.0,1309.2 C1114.0,1309.2 806.0,1419.8 190.0,1419.8 Z' fill='rgb(255,184,108)' fill-opacity='0.4' stroke='rgb(255,184,108)' stroke-width='0.5' stroke-opacity='0.6' />
+<path d='M190.0,1419.8 C806.0,1419.8 1114.0,1329.2 1730.0,1329.2 L1730.0,1380.0 C1114.0,1380.0 806.0,1480.0 190.0,1480.0 Z' fill='rgb(88,196,221)' fill-opacity='0.4' stroke='rgb(88,196,221)' stroke-width='0.5' stroke-opacity='0.6' />
+<rect x='160' y='140' width='30' height='640.0' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='160' y='800.0' width='30' height='301.18' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='160' y='1121.18' width='30' height='188.24' rx='0' ry='0' fill='rgb(255,107,107)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='160' y='1329.41' width='30' height='150.59' rx='0' ry='0' fill='rgb(255,255,0)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1730' y='140' width='30' height='254.12' rx='0' ry='0' fill='rgb(255,121,198)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1730' y='414.12' width='30' height='158.82' rx='0' ry='0' fill='rgb(184,187,38)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1730' y='592.94' width='30' height='127.06' rx='0' ry='0' fill='rgb(189,147,249)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1730' y='740.0' width='30' height='190.59' rx='0' ry='0' fill='rgb(255,184,108)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1730' y='950.59' width='30' height='63.53' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1730' y='1034.12' width='30' height='95.29' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1730' y='1149.41' width='30' height='63.53' rx='0' ry='0' fill='rgb(255,107,107)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1730' y='1232.94' width='30' height='76.24' rx='0' ry='0' fill='rgb(255,255,0)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1730' y='1329.18' width='30' height='50.82' rx='0' ry='0' fill='rgb(255,121,198)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='155' y='466.3' font-size='18' text-anchor='end' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Budget</text>
+<text x='155' y='956.89' font-size='18' text-anchor='end' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Engineering</text>
+<text x='155' y='1221.59' font-size='18' text-anchor='end' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Marketing</text>
+<text x='155' y='1411.01' font-size='18' text-anchor='end' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Sales</text>
+<text x='1765' y='273.36' font-size='18' text-anchor='start' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Engineering</text>
+<text x='1765' y='499.83' font-size='18' text-anchor='start' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Marketing</text>
+<text x='1765' y='662.77' font-size='18' text-anchor='start' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Sales</text>
+<text x='1765' y='841.59' font-size='18' text-anchor='start' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Product</text>
+<text x='1765' y='988.65' font-size='18' text-anchor='start' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Infra</text>
+<text x='1765' y='1088.06' font-size='18' text-anchor='start' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Ads</text>
+<text x='1765' y='1187.48' font-size='18' text-anchor='start' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Content</text>
+<text x='1765' y='1277.36' font-size='18' text-anchor='start' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Direct</text>
+<text x='1765' y='1360.89' font-size='18' text-anchor='start' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Partners</text>
+</g></g>
+</svg>

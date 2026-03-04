@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<rect x='780' y='400.0' width='18.0' height='18.0' rx='3' ry='3' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='808.0' y='413.5' font-size='24' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Buy groceries</text>
+<rect x='780' y='438.4' width='18.0' height='18.0' rx='3' ry='3' fill='rgb(131,193,103)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='808.0' y='451.9' font-size='24' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Walk the dog</text>
+<rect x='780' y='476.8' width='18.0' height='18.0' rx='3' ry='3' fill='rgb(85,85,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='808.0' y='490.3' font-size='24' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Write docs</text>
+<rect x='780' y='515.2' width='18.0' height='18.0' rx='3' ry='3' fill='rgb(85,85,85)' fill-opacity='0.9' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='808.0' y='528.7' font-size='24' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Deploy app</text>
+<text x='789.0' y='414.4' font-size='16.8' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>✓</text>
+<text x='789.0' y='452.8' font-size='16.8' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>✓</text>
+<text x='789.0' y='491.2' font-size='16.8' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'></text>
+<text x='789.0' y='529.6' font-size='16.8' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'></text>
+</g></g>
+</svg>

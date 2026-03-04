@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<circle cx='960' cy='540' r='70.0' fill-opacity='0' stroke='rgb(68,68,68)' />
+<text x='1035.0' y='535' font-size='14' fill='rgb(102,102,102)' stroke='rgb(0,0,0)' stroke-width='0'>0.6</text>
+<circle cx='960' cy='540' r='140.0' fill-opacity='0' stroke='rgb(68,68,68)' />
+<text x='1105.0' y='535' font-size='14' fill='rgb(102,102,102)' stroke='rgb(0,0,0)' stroke-width='0'>1.2</text>
+<circle cx='960' cy='540' r='210.0' fill-opacity='0' stroke='rgb(68,68,68)' />
+<text x='1175.0' y='535' font-size='14' fill='rgb(102,102,102)' stroke='rgb(0,0,0)' stroke-width='0'>1.8</text>
+<circle cx='960' cy='540' r='280.0' fill-opacity='0' stroke='rgb(68,68,68)' />
+<text x='1245.0' y='535' font-size='14' fill='rgb(102,102,102)' stroke='rgb(0,0,0)' stroke-width='0'>2.4</text>
+<circle cx='960' cy='540' r='350.0' fill-opacity='0' stroke='rgb(68,68,68)' />
+<text x='1315.0' y='535' font-size='14' fill='rgb(102,102,102)' stroke='rgb(0,0,0)' stroke-width='0'>3</text>
+<line x1='960' y1='540' x2='1310.0' y2='540.0' stroke='rgb(68,68,68)' />
+<text x='1330.0' y='545.0' font-size='14' text-anchor='middle' fill='rgb(136,136,136)' stroke='rgb(0,0,0)' stroke-width='0'>0°</text>
+<line x1='960' y1='540' x2='1263.11' y2='365.0' stroke='rgb(68,68,68)' />
+<text x='1280.43' y='360.0' font-size='14' text-anchor='middle' fill='rgb(136,136,136)' stroke='rgb(0,0,0)' stroke-width='0'>30°</text>
+<line x1='960' y1='540' x2='1135.0' y2='236.89' stroke='rgb(68,68,68)' />
+<text x='1145.0' y='224.57' font-size='14' text-anchor='middle' fill='rgb(136,136,136)' stroke='rgb(0,0,0)' stroke-width='0'>60°</text>
+<line x1='960' y1='540' x2='960.0' y2='190.0' stroke='rgb(68,68,68)' />
+<text x='960.0' y='175.0' font-size='14' text-anchor='middle' fill='rgb(136,136,136)' stroke='rgb(0,0,0)' stroke-width='0'>90°</text>
+<line x1='960' y1='540' x2='785' y2='236.89' stroke='rgb(68,68,68)' />
+<text x='775' y='224.57' font-size='14' text-anchor='middle' fill='rgb(136,136,136)' stroke='rgb(0,0,0)' stroke-width='0'>120°</text>
+<line x1='960' y1='540' x2='656.89' y2='365.0' stroke='rgb(68,68,68)' />
+<text x='639.57' y='360.0' font-size='14' text-anchor='middle' fill='rgb(136,136,136)' stroke='rgb(0,0,0)' stroke-width='0'>150°</text>
+<line x1='960' y1='540' x2='610.0' y2='540.0' stroke='rgb(68,68,68)' />
+<text x='590.0' y='545.0' font-size='14' text-anchor='middle' fill='rgb(136,136,136)' stroke='rgb(0,0,0)' stroke-width='0'>180°</text>
+<line x1='960' y1='540' x2='656.89' y2='715' stroke='rgb(68,68,68)' />
+<text x='639.57' y='730' font-size='14' text-anchor='middle' fill='rgb(136,136,136)' stroke='rgb(0,0,0)' stroke-width='0'>210°</text>
+<line x1='960' y1='540' x2='785' y2='843.11' stroke='rgb(68,68,68)' />
+<text x='775' y='865.43' font-size='14' text-anchor='middle' fill='rgb(136,136,136)' stroke='rgb(0,0,0)' stroke-width='0'>240°</text>
+<line x1='960' y1='540' x2='960' y2='890.0' stroke='rgb(68,68,68)' />
+<text x='960' y='915.0' font-size='14' text-anchor='middle' fill='rgb(136,136,136)' stroke='rgb(0,0,0)' stroke-width='0'>270°</text>
+<line x1='960' y1='540' x2='1135.0' y2='843.11' stroke='rgb(68,68,68)' />
+<text x='1145.0' y='865.43' font-size='14' text-anchor='middle' fill='rgb(136,136,136)' stroke='rgb(0,0,0)' stroke-width='0'>300°</text>
+<line x1='960' y1='540' x2='1263.11' y2='715' stroke='rgb(68,68,68)' />
+<text x='1280.43' y='730' font-size='14' text-anchor='middle' fill='rgb(136,136,136)' stroke='rgb(0,0,0)' stroke-width='0'>330°</text>
+</g></g>
+</svg>

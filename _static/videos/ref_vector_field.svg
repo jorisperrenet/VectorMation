@@ -1,0 +1,294 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<g>
+<line x1='100' y1='100' x2='68.12' y2='162.32' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='68.12,162.32 69.13,149.36 78.03,153.91' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='100' y1='250' x2='78.99' y2='312.32' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='78.99,312.32 78.08,299.35 87.56,302.54' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='100' y1='400' x2='89.86' y2='462.32' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='89.86,462.32 86.85,449.67 96.72,451.28' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='100' y1='550' x2='100.72' y2='612.32' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='100.72,612.32 95.59,600.38 105.58,600.26' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='100' y1='700' x2='111.59' y2='762.32' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='111.59,762.32 104.48,751.43 114.31,749.61' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='100' y1='850' x2='122.46' y2='912.32' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='122.46,912.32 113.69,902.72 123.1,899.33' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='250' y1='100' x2='218.12' y2='151.45' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='218.12,151.45 220.19,138.61 228.69,143.88' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='250' y1='250' x2='228.99' y2='301.45' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='228.99,301.45 228.89,288.45 238.15,292.23' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='250' y1='400' x2='239.86' y2='451.45' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='239.86,451.45 237.27,438.71 247.08,440.64' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='250' y1='550' x2='250.72' y2='601.45' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='250.72,601.45 245.56,589.52 255.56,589.38' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='250' y1='700' x2='261.59' y2='751.45' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='261.59,751.45 254.08,740.84 263.83,738.64' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='250' y1='850' x2='272.46' y2='901.45' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='272.46,901.45 263.08,892.45 272.24,888.45' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='400' y1='100' x2='368.12' y2='140.58' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='368.12,140.58 371.6,128.05 379.46,134.23' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='400' y1='250' x2='378.99' y2='290.58' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='378.99,290.58 380.06,277.62 388.94,282.22' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='400' y1='400' x2='389.86' y2='440.58' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='389.86,440.58 387.92,427.72 397.62,430.15' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='400' y1='550' x2='400.72' y2='590.58' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='400.72,590.58 395.51,578.67 405.51,578.49' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='400' y1='700' x2='411.59' y2='740.58' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='411.59,740.58 403.49,730.41 413.1,727.67' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='400' y1='850' x2='422.46' y2='890.58' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='422.46,890.58 412.28,882.5 421.03,877.66' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='550' y1='100' x2='518.12' y2='129.71' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='518.12,129.71 523.49,117.87 530.3,125.19' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='550' y1='250' x2='528.99' y2='279.71' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='528.99,279.71 531.83,267.03 540,272.8' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='550' y1='400' x2='539.86' y2='429.71' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='539.86,429.71 539,416.74 548.46,419.97' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='550' y1='550' x2='550.72' y2='579.71' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='550.72,579.71 545.43,567.83 555.43,567.59' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='550' y1='700' x2='561.59' y2='729.71' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='561.59,729.71 552.57,720.35 561.89,716.71' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='550' y1='850' x2='572.46' y2='879.71' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='572.46,879.71 561.24,873.15 569.21,867.12' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='700' y1='100' x2='668.12' y2='118.84' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='668.12,118.84 675.9,108.43 680.99,117.04' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='700' y1='250' x2='678.99' y2='268.84' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='678.99,268.84 684.58,257.11 691.26,264.55' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='700' y1='400' x2='689.86' y2='418.84' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='689.86,418.84 691.14,405.9 699.95,410.64' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='700' y1='550' x2='700.72' y2='568.84' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='700.72,568.84 695.27,557.04 705.26,556.66' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='700' y1='700' x2='711.59' y2='718.84' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='711.59,718.84 701.05,711.24 709.56,706' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='700' y1='850' x2='722.46' y2='868.84' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='722.46,868.84 710.06,864.96 716.48,857.3' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='850' y1='100' x2='818.12' y2='107.97' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='818.12,107.97 828.55,100.21 830.97,109.91' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='850' y1='250' x2='828.99' y2='257.97' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='828.99,257.97 838.43,249.04 841.98,258.39' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='850' y1='400' x2='839.86' y2='407.97' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='839.86,407.97 846.2,396.63 852.38,404.49' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='850' y1='550' x2='850.72' y2='557.97' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='850.72,557.97 844.66,546.47 854.62,545.57' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='850' y1='700' x2='861.59' y2='707.97' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='861.59,707.97 848.87,705.29 854.54,697.05' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='850' y1='850' x2='872.46' y2='857.97' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='872.46,857.97 859.48,858.67 862.83,849.25' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1000' y1='100' x2='968.12' y2='97.1' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='968.12,97.1 980.52,93.21 979.61,103.17' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1000' y1='250' x2='978.99' y2='247.1' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='978.99,247.1 991.56,243.79 990.19,253.69' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1000' y1='400' x2='989.86' y2='397.1' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='989.86,397.1 1002.77,395.59 1000.02,405.21' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1000' y1='550' x2='1000.72' y2='547.1' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1000.72,547.1 1002.66,559.96 992.96,557.53' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1000' y1='700' x2='1011.59' y2='697.1' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1011.59,697.1 1001.16,704.86 998.74,695.16' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1000' y1='850' x2='1022.46' y2='847.1' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1022.46,847.1 1011.2,853.6 1009.92,843.68' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1150' y1='100' x2='1118.12' y2='86.23' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1118.12,86.23 1131.12,86.4 1127.15,95.58' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1150' y1='250' x2='1128.99' y2='236.23' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1128.99,236.23 1141.76,238.63 1136.28,246.99' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1150' y1='400' x2='1139.86' y2='386.23' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1139.86,386.23 1151,392.93 1142.95,398.86' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1150' y1='550' x2='1150.72' y2='536.23' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1150.72,536.23 1155.09,548.48 1145.1,547.95' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1150' y1='700' x2='1161.59' y2='686.23' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1161.59,686.23 1157.69,698.63 1150.04,692.19' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1150' y1='850' x2='1172.46' y2='836.23' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1172.46,836.23 1164.84,846.77 1159.62,838.24' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1300' y1='100' x2='1268.12' y2='75.36' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1268.12,75.36 1280.67,78.74 1274.55,86.66' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1300' y1='250' x2='1278.99' y2='225.36' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1278.99,225.36 1290.58,231.25 1282.97,237.74' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1300' y1='400' x2='1289.86' y2='375.36' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1289.86,375.36 1299.05,384.56 1289.8,388.36' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1300' y1='550' x2='1300.72' y2='525.36' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1300.72,525.36 1305.37,537.5 1295.37,537.21' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1300' y1='700' x2='1311.59' y2='675.36' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1311.59,675.36 1311.01,688.35 1301.96,684.09' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1300' y1='850' x2='1322.46' y2='825.36' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1322.46,825.36 1318.07,837.6 1310.68,830.86' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1450' y1='100' x2='1418.12' y2='64.49' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1418.12,64.49 1429.85,70.08 1422.41,76.76' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1450' y1='250' x2='1428.99' y2='214.49' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1428.99,214.49 1439.4,222.27 1430.79,227.37' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1450' y1='400' x2='1439.86' y2='364.49' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1439.86,364.49 1447.96,374.66 1438.34,377.41' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1450' y1='550' x2='1450.72' y2='514.49' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1450.72,514.49 1455.48,526.59 1445.48,526.39' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1450' y1='700' x2='1461.59' y2='664.49' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1461.59,664.49 1462.62,677.45 1453.12,674.35' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1450' y1='850' x2='1472.46' y2='814.49' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1472.46,814.49 1470.27,827.31 1461.82,821.96' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1600' y1='100' x2='1568.12' y2='53.62' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1568.12,53.62 1579.04,60.68 1570.79,66.35' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1600' y1='250' x2='1578.99' y2='203.62' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1578.99,203.62 1588.49,212.49 1579.38,216.62' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1600' y1='400' x2='1589.86' y2='353.62' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1589.86,353.62 1597.3,364.28 1587.54,366.42' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1600' y1='550' x2='1600.72' y2='503.62' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1600.72,503.62 1605.54,515.7 1595.54,515.54' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1600' y1='700' x2='1611.59' y2='653.62' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1611.59,653.62 1613.53,666.48 1603.83,664.05' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1600' y1='850' x2='1622.46' y2='803.62' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1622.46,803.62 1621.73,816.6 1612.73,812.24' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1750' y1='100' x2='1718.12' y2='42.75' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1718.12,42.75 1728.32,50.81 1719.59,55.67' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1750' y1='250' x2='1728.99' y2='192.75' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1728.99,192.75 1737.81,202.3 1728.43,205.74' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1750' y1='400' x2='1739.86' y2='342.75' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1739.86,342.75 1746.87,353.7 1737.03,355.44' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1750' y1='550' x2='1750.72' y2='492.75' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1750.72,492.75 1755.57,504.82 1745.57,504.69' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1750' y1='700' x2='1761.59' y2='642.75' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1761.59,642.75 1764.11,655.51 1754.31,653.52' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1750' y1='850' x2='1772.46' y2='792.75' stroke='rgb(88,196,221)' stroke-width='2' />
+<polygon points='1772.46,792.75 1772.73,805.75 1763.43,802.1' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+</g></g>
+</svg>

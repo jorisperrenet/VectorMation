@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<rect x='200' y='537.0' width='1520' height='6' rx='0' ry='0' fill='rgb(68,68,68)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='0' />
+<line x1='200.0' y1='525' x2='200.0' y2='555' stroke='rgb(255,255,0)' stroke-width='2' />
+<text x='200.0' y='518' font-size='14' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Start</text>
+<line x1='504.0' y1='525' x2='504.0' y2='555' stroke='rgb(255,255,0)' stroke-width='2' />
+<text x='504.0' y='518' font-size='14' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Design</text>
+<line x1='960.0' y1='525' x2='960.0' y2='555' stroke='rgb(255,255,0)' stroke-width='2' />
+<text x='960.0' y='518' font-size='14' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Build</text>
+<line x1='1416.0' y1='525' x2='1416.0' y2='555' stroke='rgb(255,255,0)' stroke-width='2' />
+<text x='1416.0' y='518' font-size='14' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Test</text>
+<line x1='1720.0' y1='525' x2='1720.0' y2='555' stroke='rgb(255,255,0)' stroke-width='2' />
+<text x='1720.0' y='518' font-size='14' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Launch</text>
+<circle cx='200.0' cy='540' r='4' fill='rgb(255,255,0)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='504.0' cy='540' r='4' fill='rgb(255,255,0)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='960.0' cy='540' r='4' fill='rgb(255,255,0)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1416.0' cy='540' r='4' fill='rgb(255,255,0)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1720.0' cy='540' r='4' fill='rgb(255,255,0)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g></g>
+</svg>

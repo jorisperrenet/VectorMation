@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<rect x='560' y='290' width='800' height='500' rx='0' ry='0' fill='rgb(34,34,34)' fill-opacity='0.5' stroke='rgb(255,255,255)' stroke-width='2' />
+<rect x='560' y='290' width='480.0' height='500' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.4' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1040.0' y='290' width='320.0' height='500' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.4' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='800.0' y='548.4' font-size='24' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>P(A) = 0.6</text>
+<text x='1200.0' y='548.4' font-size='24' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>P(B) = 0.4</text>
+</g></g>
+</svg>

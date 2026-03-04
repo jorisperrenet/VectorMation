@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><text x='960.0' y='491.6' text-anchor='middle' font-size='44' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>First line of text.</text>
+<text x='960.0' y='553.2' text-anchor='middle' font-size='44' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Second line continues here.</text>
+<text x='960.0' y='614.8' text-anchor='middle' font-size='44' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Third and final line.</text></g>
+</svg>

@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<rect x='185' y='440' width='260' height='160' rx='6' ry='6' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(85,85,85)' />
+<rect x='475' y='440' width='260' height='160' rx='6' ry='6' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(85,85,85)' />
+<rect x='765' y='440' width='260' height='160' rx='6' ry='6' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(85,85,85)' />
+<rect x='1055' y='440' width='260' height='160' rx='6' ry='6' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(85,85,85)' />
+<rect x='1345' y='440' width='260' height='160' rx='6' ry='6' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(85,85,85)' />
+<text x='315.0' y='610.6' font-size='16' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Intro</text>
+<text x='315.0' y='531.2' font-size='32' text-anchor='middle' fill='rgb(51,51,51)' stroke='rgb(0,0,0)' stroke-width='0'>1</text>
+<text x='605.0' y='610.6' font-size='16' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Setup</text>
+<text x='605.0' y='531.2' font-size='32' text-anchor='middle' fill='rgb(51,51,51)' stroke='rgb(0,0,0)' stroke-width='0'>2</text>
+<text x='895.0' y='610.6' font-size='16' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Conflict</text>
+<text x='895.0' y='531.2' font-size='32' text-anchor='middle' fill='rgb(51,51,51)' stroke='rgb(0,0,0)' stroke-width='0'>3</text>
+<text x='1185.0' y='610.6' font-size='16' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Climax</text>
+<text x='1185.0' y='531.2' font-size='32' text-anchor='middle' fill='rgb(51,51,51)' stroke='rgb(0,0,0)' stroke-width='0'>4</text>
+<text x='1475.0' y='610.6' font-size='16' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Resolution</text>
+<text x='1475.0' y='531.2' font-size='32' text-anchor='middle' fill='rgb(51,51,51)' stroke='rgb(0,0,0)' stroke-width='0'>5</text>
+</g></g>
+</svg>

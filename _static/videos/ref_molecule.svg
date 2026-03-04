@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<line x1='864.0' y1='596.0' x2='960.0' y2='636.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='960.0' y1='636.0' x2='1056.0' y2='596.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='1056.0' y1='596.0' x2='1056.0' y2='500.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='1056.0' y1='500.0' x2='960.0' y2='460.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='960.0' y1='460.0' x2='864.0' y2='500.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='864.0' y1='500.0' x2='864.0' y2='596.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='960.0' y1='460.0' x2='960.0' y2='364.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='960.0' y1='364.0' x2='1056.0' y2='396.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='1056.0' y1='396.0' x2='1136.0' y2='460.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='1136.0' y1='460.0' x2='1056.0' y2='500.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='862.76' y1='502.73' x2='774.76' y2='462.73' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='865.24' y1='497.27' x2='777.24' y2='457.27' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='963.0' y1='636.0' x2='963.0' y2='732.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='957.0' y1='636.0' x2='957.0' y2='732.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='960.95' y1='361.15' x2='1056.95' y2='393.15' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='959.05' y1='366.85' x2='1055.05' y2='398.85' stroke='rgb(136,136,136)' stroke-width='2' />
+<circle cx='864.0' cy='596.0' r='22' fill='rgb(68,68,255)' fill-opacity='0.9' stroke='rgb(68,68,68)' />
+<circle cx='960.0' cy='636.0' r='22' fill='rgb(85,85,85)' fill-opacity='0.9' stroke='rgb(68,68,68)' />
+<circle cx='1056.0' cy='596.0' r='22' fill='rgb(68,68,255)' fill-opacity='0.9' stroke='rgb(68,68,68)' />
+<circle cx='1056.0' cy='500.0' r='22' fill='rgb(85,85,85)' fill-opacity='0.9' stroke='rgb(68,68,68)' />
+<circle cx='960.0' cy='460.0' r='22' fill='rgb(85,85,85)' fill-opacity='0.9' stroke='rgb(68,68,68)' />
+<circle cx='864.0' cy='500.0' r='22' fill='rgb(85,85,85)' fill-opacity='0.9' stroke='rgb(68,68,68)' />
+<circle cx='960.0' cy='364.0' r='22' fill='rgb(68,68,255)' fill-opacity='0.9' stroke='rgb(68,68,68)' />
+<circle cx='1056.0' cy='396.0' r='22' fill='rgb(85,85,85)' fill-opacity='0.9' stroke='rgb(68,68,68)' />
+<circle cx='1136.0' cy='460.0' r='22' fill='rgb(68,68,255)' fill-opacity='0.9' stroke='rgb(68,68,68)' />
+<circle cx='776.0' cy='460.0' r='22' fill='rgb(255,68,68)' fill-opacity='0.9' stroke='rgb(68,68,68)' />
+<circle cx='960.0' cy='732.0' r='22' fill='rgb(255,68,68)' fill-opacity='0.9' stroke='rgb(68,68,68)' />
+<text x='864.0' y='601.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>N</text>
+<text x='960.0' y='641.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>C</text>
+<text x='1056.0' y='601.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>N</text>
+<text x='1056.0' y='505.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>C</text>
+<text x='960.0' y='465.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>C</text>
+<text x='864.0' y='505.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>C</text>
+<text x='960.0' y='369.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>N</text>
+<text x='1056.0' y='401.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>C</text>
+<text x='1136.0' y='465.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>N</text>
+<text x='776.0' y='465.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>O</text>
+<text x='960.0' y='737.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>O</text>
+</g></g>
+</svg>

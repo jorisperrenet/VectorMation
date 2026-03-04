@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<rect x='261.0' y='141.0' width='402.96' height='798.0' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.8' stroke='rgb(34,34,34)' />
+<rect x='665.96' y='141.0' width='321.97' height='798' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.8' stroke='rgb(34,34,34)' />
+<rect x='989.93' y='141.0' width='669.07' height='246.28' rx='0' ry='0' fill='rgb(255,107,107)' fill-opacity='0.8' stroke='rgb(34,34,34)' />
+<rect x='989.93' y='389.28' width='199.32' height='549.72' rx='0' ry='0' fill='rgb(255,255,0)' fill-opacity='0.8' stroke='rgb(34,34,34)' />
+<rect x='1191.25' y='389.28' width='467.75' height='195.04' rx='0' ry='0' fill='rgb(255,121,198)' fill-opacity='0.8' stroke='rgb(34,34,34)' />
+<rect x='1191.25' y='586.32' width='206.78' height='352.68' rx='0' ry='0' fill='rgb(184,187,38)' fill-opacity='0.8' stroke='rgb(34,34,34)' />
+<rect x='1400.03' y='586.32' width='258.97' height='210.81' rx='0' ry='0' fill='rgb(189,147,249)' fill-opacity='0.8' stroke='rgb(34,34,34)' />
+<rect x='1400.03' y='799.13' width='258.97' height='139.87' rx='0' ry='0' fill='rgb(255,184,108)' fill-opacity='0.8' stroke='rgb(34,34,34)' />
+<text x='462.48' y='546.3' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Python</text>
+<text x='826.94' y='546.3' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>JavaScript</text>
+<text x='1324.46' y='270.44' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>TypeScript</text>
+<text x='1089.59' y='670.44' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Rust</text>
+<text x='1425.12' y='493.1' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Go</text>
+<text x='1294.64' y='768.96' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Java</text>
+<text x='1529.51' y='698.02' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>C++</text>
+<text x='1529.51' y='875.36' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ruby</text>
+</g></g>
+</svg>

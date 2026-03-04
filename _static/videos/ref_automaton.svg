@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<circle cx='960.0' cy='340.0' r='35' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='1133.21' cy='640.0' r='35' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='786.79' cy='640' r='35' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='786.79' cy='640' r='30' fill-opacity='0' stroke='rgb(88,196,221)' stroke-width='2' />
+<g>
+<line x1='875.0' y1='340.0' x2='923.0' y2='340.0' stroke='rgb(255,255,255)' stroke-width='2' />
+<polygon points='923.0,340.0 911.0,345.0 911.0,335.0' fill='rgb(255,255,255)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='977.5' y1='370.31' x2='1115.71' y2='609.69' stroke='rgb(131,193,103)' stroke-width='2' />
+<polygon points='1115.71,609.69 1105.37,601.8 1114.04,596.8' fill='rgb(131,193,103)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='1098.21' y1='640.0' x2='821.79' y2='640' stroke='rgb(131,193,103)' stroke-width='2' />
+<polygon points='821.79,640 833.79,635 833.79,645' fill='rgb(131,193,103)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='804.29' y1='609.69' x2='942.5' y2='370.31' stroke='rgb(131,193,103)' stroke-width='2' />
+<polygon points='942.5,370.31 940.83,383.2 932.17,378.2' fill='rgb(131,193,103)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<path d='M1108.96,591.0A28.0,28.0 0 0,0 1157.45,591.0' fill-opacity='0' stroke='rgb(131,193,103)' stroke-width='2' />
+<text x='960.0' y='347.0' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>q0</text>
+<text x='1133.21' y='647.0' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>q1</text>
+<text x='786.79' y='647' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>q2</text>
+<text x='1033.61' y='504.5' font-size='16.0' text-anchor='middle' fill='rgb(131,193,103)' stroke='rgb(0,0,0)' stroke-width='0'>a</text>
+<text x='960.0' y='632.0' font-size='16.0' text-anchor='middle' fill='rgb(131,193,103)' stroke='rgb(0,0,0)' stroke-width='0'>b</text>
+<text x='886.39' y='504.5' font-size='16.0' text-anchor='middle' fill='rgb(131,193,103)' stroke='rgb(0,0,0)' stroke-width='0'>c</text>
+<text x='1133.21' y='541.0' font-size='16.0' text-anchor='middle' fill='rgb(131,193,103)' stroke='rgb(0,0,0)' stroke-width='0'>a</text>
+</g></g>
+</svg>

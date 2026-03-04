@@ -1,0 +1,926 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="3D Objects" href="threed.html"><link rel="prev" title="Physics Engine" href="physics.html">
+        <link rel="prefetch" href="../_static/logo.svg" as="image">
+
+    <link rel="shortcut icon" href="../_static/logo.svg"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Science - VectorMation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=0df419bc" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #000000;
+  --color-brand-content: #000000;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">VectorMation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/logo.svg" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">VectorMation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial: Your First Animation</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../reference.html">Reference Manual</a><input aria-label="Toggle navigation of Reference Manual" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="canvas.html">VectorMathAnim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vobject.html">VObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shapes.html">Shapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text.html">Text &amp; LaTeX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collections.html">Collections, Arrows &amp; Data Structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graphing.html">Graphing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="charts.html">Charts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ui.html">UI Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="diagrams.html">Diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physics.html">Physics Engine</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Science</a></li>
+<li class="toctree-l2"><a class="reference internal" href="threed.html">3D Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attributes.html">Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="svg_utils.html">SVG Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../attributes.html">Attributes: Time-Varying Values</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../animation.html">Animation &amp; Playback</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../graphing.html">Graphing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vs_manim.html">vs Manim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/reference/science.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="science">
+<h1>Science<a class="headerlink" href="#science" title="Link to this heading">¶</a></h1>
+<p>Scientific visualization classes. Higher-level classes such as
+<code class="xref py py-class docutils literal notranslate"><span class="pre">NeuralNetwork</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Pendulum</span></code>, and <code class="xref py py-class docutils literal notranslate"><span class="pre">StandingWave</span></code>
+combine geometry with time-varying animation.</p>
+<hr class="docutils" />
+<section id="unitinterval">
+<h2>UnitInterval<a class="headerlink" href="#unitinterval" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">UnitInterval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">360</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tick_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">18</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">styling_kwargs</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Convenience wrapper that returns a <a class="reference internal" href="graphing.html#NumberLine" title="NumberLine"><code class="xref py py-class docutils literal notranslate"><span class="pre">NumberLine</span></code></a> pre-configured
+for the <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> range – commonly used for probabilities and
+normalized parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) – Left edge x-position.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Y-position.</p></li>
+<li><p><strong>length</strong> (<em>float</em>) – Line length in pixels.</p></li>
+<li><p><strong>tick_step</strong> (<em>float</em>) – Spacing between ticks (in the 0–1 range).</p></li>
+<li><p><strong>show_labels</strong> (<em>bool</em>) – Show numeric tick labels.</p></li>
+<li><p><strong>font_size</strong> (<em>float</em>) – Font size for tick labels.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+<li><p><strong>styling_kwargs</strong> – Passed through to <a class="reference internal" href="graphing.html#NumberLine" title="NumberLine"><code class="xref py py-class docutils literal notranslate"><span class="pre">NumberLine</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">UnitInterval</span></code> uses <code class="docutils literal notranslate"><span class="pre">__new__</span></code> and returns a <code class="docutils literal notranslate"><span class="pre">NumberLine</span></code> instance
+directly, so <code class="docutils literal notranslate"><span class="pre">isinstance(UnitInterval(),</span> <span class="pre">NumberLine)</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</div>
+<div class="example admonition">
+<p class="admonition-title">Example: UnitInterval</p>
+<img src="../_static/videos/ref_unit_interval.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">ui</span> <span class="o">=</span> <span class="n">UnitInterval</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">360</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">1200</span><span class="p">,</span> <span class="n">tick_step</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ui</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="molecule2d">
+<h2>Molecule2D<a class="headerlink" href="#molecule2d" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Molecule2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bonds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">80</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atom_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Simple 2D molecule visualization built from atom positions and bond
+connectivity. Atoms are drawn as colored circles (element-specific
+palette) with text labels, and bonds are rendered as single, double,
+or triple parallel lines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>atoms</strong> (<em>list</em>) – List of <code class="docutils literal notranslate"><span class="pre">(element_symbol,</span> <span class="pre">x,</span> <span class="pre">y)</span></code> tuples where <em>x</em>
+and <em>y</em> are in abstract units (scaled by <em>scale</em>).</p></li>
+<li><p><strong>bonds</strong> (<em>list</em>) – List of <code class="docutils literal notranslate"><span class="pre">(i,</span> <span class="pre">j)</span></code> or <code class="docutils literal notranslate"><span class="pre">(i,</span> <span class="pre">j,</span> <span class="pre">order)</span></code> tuples.
+<em>i</em> and <em>j</em> are zero-based atom indices; <em>order</em> defaults to 1
+(single bond). Use 2 for double bonds and 3 for triple bonds.</p></li>
+<li><p><strong>scale</strong> (<em>float</em>) – Pixels per abstract unit.</p></li>
+<li><p><strong>cx</strong> (<em>float</em>) – Center x-position of the molecule on canvas.</p></li>
+<li><p><strong>cy</strong> (<em>float</em>) – Center y-position of the molecule on canvas.</p></li>
+<li><p><strong>atom_radius</strong> (<em>float</em>) – Radius of each atom circle.</p></li>
+<li><p><strong>font_size</strong> (<em>float</em>) – Font size for element labels.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Built-in atom color palette:</p>
+<div class="table-wrapper docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Symbol</p></th>
+<th class="head"><p>Color</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>C</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#555</span></code></p></td>
+<td><p>Carbon</p></td>
+</tr>
+<tr class="row-odd"><td><p>H</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#fff</span></code></p></td>
+<td><p>Hydrogen</p></td>
+</tr>
+<tr class="row-even"><td><p>O</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#FF4444</span></code></p></td>
+<td><p>Oxygen</p></td>
+</tr>
+<tr class="row-odd"><td><p>N</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#4444FF</span></code></p></td>
+<td><p>Nitrogen</p></td>
+</tr>
+<tr class="row-even"><td><p>S</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#FFFF00</span></code></p></td>
+<td><p>Sulfur</p></td>
+</tr>
+<tr class="row-odd"><td><p>P</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#FF8800</span></code></p></td>
+<td><p>Phosphorus</p></td>
+</tr>
+<tr class="row-even"><td><p>F</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#00FF00</span></code></p></td>
+<td><p>Fluorine</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cl</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#00FF00</span></code></p></td>
+<td><p>Chlorine</p></td>
+</tr>
+<tr class="row-even"><td><p>Br</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#882200</span></code></p></td>
+<td><p>Bromine</p></td>
+</tr>
+<tr class="row-odd"><td><p>I</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">#8800FF</span></code></p></td>
+<td><p>Iodine</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="example admonition">
+<p class="admonition-title">Example: Molecule2D</p>
+<img src="../_static/videos/ref_molecule.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="c1"># Caffeine (C8H10N4O2) - approximate 2D layout</span>
+<span class="n">caffeine</span> <span class="o">=</span> <span class="n">Molecule2D</span><span class="p">(</span>
+    <span class="n">atoms</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.2</span><span class="p">,</span>  <span class="mf">0.7</span><span class="p">),</span>   <span class="c1"># 0  N1</span>
+        <span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">,</span>  <span class="mf">0.0</span><span class="p">,</span>  <span class="mf">1.2</span><span class="p">),</span>   <span class="c1"># 1  C2</span>
+        <span class="p">(</span><span class="s1">&#39;N&#39;</span><span class="p">,</span>  <span class="mf">1.2</span><span class="p">,</span>  <span class="mf">0.7</span><span class="p">),</span>   <span class="c1"># 2  N3</span>
+        <span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">,</span>  <span class="mf">1.2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">),</span>   <span class="c1"># 3  C4</span>
+        <span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">,</span>  <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">),</span>   <span class="c1"># 4  C5</span>
+        <span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">),</span>   <span class="c1"># 5  C6</span>
+        <span class="p">(</span><span class="s1">&#39;N&#39;</span><span class="p">,</span>  <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.2</span><span class="p">),</span>   <span class="c1"># 6  N7</span>
+        <span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">,</span>  <span class="mf">1.2</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.8</span><span class="p">),</span>   <span class="c1"># 7  C8</span>
+        <span class="p">(</span><span class="s1">&#39;N&#39;</span><span class="p">,</span>  <span class="mf">2.2</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">),</span>   <span class="c1"># 8  N9</span>
+        <span class="p">(</span><span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.3</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">),</span>   <span class="c1"># 9  O (on C6)</span>
+        <span class="p">(</span><span class="s1">&#39;O&#39;</span><span class="p">,</span>  <span class="mf">0.0</span><span class="p">,</span>  <span class="mf">2.4</span><span class="p">),</span>   <span class="c1"># 10 O (on C2)</span>
+    <span class="p">],</span>
+    <span class="n">bonds</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>  <span class="c1"># six-membered ring</span>
+        <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>                    <span class="c1"># five-membered ring</span>
+        <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>                                          <span class="c1"># C6=O double bond</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>                                         <span class="c1"># C2=O double bond</span>
+        <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>                                          <span class="c1"># C8=N7 double bond</span>
+    <span class="p">],</span>
+    <span class="n">scale</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">atom_radius</span><span class="o">=</span><span class="mi">22</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">caffeine</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="neuralnetwork">
+<h2>NeuralNetwork<a class="headerlink" href="#neuralnetwork" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NeuralNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_sizes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">800</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neuron_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neuron_fill</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#58C4DD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#888'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Neural network diagram with layers of neurons connected by fully-connected
+edges. Supports labeling input/output layers, activating individual neurons,
+animating forward propagation, and highlighting specific paths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>layer_sizes</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – Number of neurons per layer
+(e.g. <code class="docutils literal notranslate"><span class="pre">[3,</span> <span class="pre">5,</span> <span class="pre">2]</span></code> for a 3-layer network).</p></li>
+<li><p><strong>cx</strong> (<em>float</em>) – Center x-position.</p></li>
+<li><p><strong>cy</strong> (<em>float</em>) – Center y-position.</p></li>
+<li><p><strong>width</strong> (<em>float</em>) – Total diagram width in pixels.</p></li>
+<li><p><strong>height</strong> (<em>float</em>) – Total diagram height in pixels.</p></li>
+<li><p><strong>neuron_radius</strong> (<em>float</em>) – Radius of each neuron circle.</p></li>
+<li><p><strong>neuron_fill</strong> (<em>str</em>) – Fill color for neurons.</p></li>
+<li><p><strong>edge_color</strong> (<em>str</em>) – Stroke color for connecting lines.</p></li>
+<li><p><strong>edge_width</strong> (<em>float</em>) – Stroke width for connecting lines.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="NeuralNetwork.label_input">
+<span class="sig-name descname"><span class="pre">label_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">NeuralNetwork</span></span></span><a class="headerlink" href="#NeuralNetwork.label_input" title="Link to this definition">¶</a></dt>
+<dd><p>Add text labels to the left of each input-layer neuron.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> (<em>list</em>) – List of label strings (one per input neuron).</p></li>
+<li><p><strong>font_size</strong> (<em>float</em>) – Font size for labels.</p></li>
+<li><p><strong>buff</strong> (<em>float</em>) – Horizontal buffer between neuron and label.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="NeuralNetwork.label_output">
+<span class="sig-name descname"><span class="pre">label_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">NeuralNetwork</span></span></span><a class="headerlink" href="#NeuralNetwork.label_output" title="Link to this definition">¶</a></dt>
+<dd><p>Add text labels to the right of each output-layer neuron.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> (<em>list</em>) – List of label strings (one per output neuron).</p></li>
+<li><p><strong>font_size</strong> (<em>float</em>) – Font size for labels.</p></li>
+<li><p><strong>buff</strong> (<em>float</em>) – Horizontal buffer between neuron and label.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">activate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neuron_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#FFFF00'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">NeuralNetwork</span></span></span></dt>
+<dd><p>Flash-animate a single neuron to indicate activation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>layer_idx</strong> (<em>int</em>) – Zero-based layer index.</p></li>
+<li><p><strong>neuron_idx</strong> (<em>int</em>) – Zero-based neuron index within the layer.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Animation end time.</p></li>
+<li><p><strong>color</strong> (<em>str</em>) – Flash color.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="NeuralNetwork.propagate">
+<span class="sig-name descname"><span class="pre">propagate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#FFFF00'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">NeuralNetwork</span></span></span><a class="headerlink" href="#NeuralNetwork.propagate" title="Link to this definition">¶</a></dt>
+<dd><p>Animate a forward-propagation signal that flashes each layer in
+sequence from input to output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>duration</strong> (<em>float</em>) – Total duration of the propagation animation.</p></li>
+<li><p><strong>delay</strong> (<em>float</em>) – Time offset between successive layers.</p></li>
+<li><p><strong>color</strong> (<em>str</em>) – Flash color.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="NeuralNetwork.highlight_path">
+<span class="sig-name descname"><span class="pre">highlight_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#FF6B6B'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#FF6B6B'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">NeuralNetwork</span></span></span><a class="headerlink" href="#NeuralNetwork.highlight_path" title="Link to this definition">¶</a></dt>
+<dd><p>Highlight a specific path through the network by flashing neurons
+and their connecting edges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – Neuron index per layer (e.g. <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">2,</span> <span class="pre">1]</span></code>
+for a 3-layer network). Length must match the number of layers.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>delay</strong> (<em>float</em>) – Time offset between successive layers.</p></li>
+<li><p><strong>color</strong> (<em>str</em>) – Neuron flash color.</p></li>
+<li><p><strong>edge_color</strong> (<em>str</em>) – Edge flash color.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: NeuralNetwork propagation</p>
+<video src="../_static/videos/neuralnet.mp4" controls autoplay loop muted></video><p>Neural network with forward propagation animation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">nn</span> <span class="o">=</span> <span class="n">NeuralNetwork</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">width</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">nn</span><span class="o">.</span><span class="n">label_input</span><span class="p">([</span><span class="s1">&#39;x1&#39;</span><span class="p">,</span> <span class="s1">&#39;x2&#39;</span><span class="p">,</span> <span class="s1">&#39;x3&#39;</span><span class="p">])</span>
+<span class="n">nn</span><span class="o">.</span><span class="n">label_output</span><span class="p">([</span><span class="s1">&#39;y1&#39;</span><span class="p">,</span> <span class="s1">&#39;y2&#39;</span><span class="p">])</span>
+<span class="n">nn</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">nn</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">4.5</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">nn</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/neuralnet.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="pendulum">
+<h2>Pendulum<a class="headerlink" href="#pendulum" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Pendulum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pivot_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pivot_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bob_radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Animated simple pendulum consisting of a pivot point, a rigid rod, and
+a circular bob. The bob oscillates according to <code class="docutils literal notranslate"><span class="pre">angle</span> <span class="pre">*</span> <span class="pre">exp(-damping</span> <span class="pre">*</span> <span class="pre">t)</span> <span class="pre">*</span> <span class="pre">cos(2*pi/period</span> <span class="pre">*</span> <span class="pre">t)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pivot_x</strong> (<em>float</em>) – Pivot point x-coordinate.</p></li>
+<li><p><strong>pivot_y</strong> (<em>float</em>) – Pivot point y-coordinate.</p></li>
+<li><p><strong>length</strong> (<em>float</em>) – Rod length in pixels.</p></li>
+<li><p><strong>angle</strong> (<em>float</em>) – Initial angle in <strong>degrees</strong> from vertical.</p></li>
+<li><p><strong>bob_radius</strong> (<em>float</em>) – Radius of the bob circle.</p></li>
+<li><p><strong>period</strong> (<em>float</em>) – Oscillation period in seconds.</p></li>
+<li><p><strong>damping</strong> (<em>float</em>) – Exponential damping factor. <code class="docutils literal notranslate"><span class="pre">0</span></code> means no damping
+(perpetual oscillation); larger values cause the amplitude to decay.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Animation end time.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Pendulum.pivot">
+<span class="sig-name descname"><span class="pre">pivot</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="shapes.html#Dot" title="Dot"><span class="pre">Dot</span></a></span><a class="headerlink" href="#Pendulum.pivot" title="Link to this definition">¶</a></dt>
+<dd><p>The pivot point dot (small grey circle).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Pendulum.rod">
+<span class="sig-name descname"><span class="pre">rod</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="shapes.html#Line" title="Line"><span class="pre">Line</span></a></span><a class="headerlink" href="#Pendulum.rod" title="Link to this definition">¶</a></dt>
+<dd><p>The rigid rod connecting the pivot to the bob.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Pendulum.bob">
+<span class="sig-name descname"><span class="pre">bob</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="shapes.html#Circle" title="Circle"><span class="pre">Circle</span></a></span><a class="headerlink" href="#Pendulum.bob" title="Link to this definition">¶</a></dt>
+<dd><p>The bob circle at the end of the rod.</p>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: Damped pendulum</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">()</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">Pendulum</span><span class="p">(</span><span class="n">angle</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">period</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">damping</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="example admonition">
+<p class="admonition-title">Example: Pendulum with trail</p>
+<video src="../_static/videos/pendulum.mp4" controls autoplay loop muted></video><p>Damped pendulum with traced path.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">Pendulum</span><span class="p">(</span><span class="n">pivot_x</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">pivot_y</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">350</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span>
+             <span class="n">period</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">damping</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">trail</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">bob</span><span class="o">.</span><span class="n">trace_path</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#FF6B6B&#39;</span><span class="p">,</span>
+                         <span class="n">stroke_width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">stroke_opacity</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">trail</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/pendulum.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="standingwave">
+<h2>StandingWave<a class="headerlink" href="#standingwave" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">StandingWave</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1620</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amplitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">harmonics</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Animated standing wave between two fixed endpoints. The wave displacement
+is computed as <code class="docutils literal notranslate"><span class="pre">amplitude</span> <span class="pre">*</span> <span class="pre">sin(k</span> <span class="pre">*</span> <span class="pre">x)</span> <span class="pre">*</span> <span class="pre">cos(omega</span> <span class="pre">*</span> <span class="pre">t)</span></code> where <em>k</em>
+depends on the harmonic number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x1</strong> (<em>float</em>) – Left endpoint x-coordinate.</p></li>
+<li><p><strong>y1</strong> (<em>float</em>) – Left endpoint y-coordinate.</p></li>
+<li><p><strong>x2</strong> (<em>float</em>) – Right endpoint x-coordinate.</p></li>
+<li><p><strong>y2</strong> (<em>float</em>) – Right endpoint y-coordinate.</p></li>
+<li><p><strong>amplitude</strong> (<em>float</em>) – Maximum displacement in pixels.</p></li>
+<li><p><strong>harmonics</strong> (<em>int</em>) – Number of half-wavelengths (harmonic number).
+<code class="docutils literal notranslate"><span class="pre">1</span></code> gives the fundamental mode, <code class="docutils literal notranslate"><span class="pre">2</span></code> the second harmonic, etc.</p></li>
+<li><p><strong>frequency</strong> (<em>float</em>) – Oscillation frequency in Hz.</p></li>
+<li><p><strong>num_points</strong> (<em>int</em>) – Number of sample points along the wave path.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Animation end time.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+<li><p><strong>kwargs</strong> – Additional SVG styling. Supports <code class="docutils literal notranslate"><span class="pre">stroke</span></code> (default
+<code class="docutils literal notranslate"><span class="pre">'#58C4DD'</span></code>) and <code class="docutils literal notranslate"><span class="pre">stroke_width</span></code> (default <code class="docutils literal notranslate"><span class="pre">3</span></code>).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="StandingWave.dot1">
+<span class="sig-name descname"><span class="pre">dot1</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="shapes.html#Dot" title="Dot"><span class="pre">Dot</span></a></span><a class="headerlink" href="#StandingWave.dot1" title="Link to this definition">¶</a></dt>
+<dd><p>Fixed endpoint dot at <code class="docutils literal notranslate"><span class="pre">(x1,</span> <span class="pre">y1)</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="StandingWave.dot2">
+<span class="sig-name descname"><span class="pre">dot2</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="shapes.html#Dot" title="Dot"><span class="pre">Dot</span></a></span><a class="headerlink" href="#StandingWave.dot2" title="Link to this definition">¶</a></dt>
+<dd><p>Fixed endpoint dot at <code class="docutils literal notranslate"><span class="pre">(x2,</span> <span class="pre">y2)</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="StandingWave.wave">
+<span class="sig-name descname"><span class="pre">wave</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="shapes.html#Path" title="Path"><span class="pre">Path</span></a></span><a class="headerlink" href="#StandingWave.wave" title="Link to this definition">¶</a></dt>
+<dd><p>The animated wave path whose <code class="docutils literal notranslate"><span class="pre">d</span></code> attribute is recomputed each frame.</p>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: StandingWave</p>
+<img src="../_static/videos/ref_standing_wave.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">wave</span> <span class="o">=</span> <span class="n">StandingWave</span><span class="p">(</span>
+    <span class="n">x1</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">x2</span><span class="o">=</span><span class="mi">1620</span><span class="p">,</span> <span class="n">y2</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span>
+    <span class="n">amplitude</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">harmonics</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">frequency</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">wave</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="lens">
+<h2>Lens<a class="headerlink" href="#lens" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="Lens">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Lens</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">focal_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.52</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#58C4DD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_focal_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">styling_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Lens" title="Link to this definition">¶</a></dt>
+<dd><p>Convex or concave lens for geometric optics diagrams.  Convex lenses
+(positive focal length) are drawn as a biconvex shape; concave lenses
+(negative focal length) are thin at the center and thick at the edges.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cx</strong> (<em>float</em>) – Center x-coordinate.</p></li>
+<li><p><strong>cy</strong> (<em>float</em>) – Center y-coordinate.</p></li>
+<li><p><strong>height</strong> (<em>float</em>) – Lens height in pixels.</p></li>
+<li><p><strong>focal_length</strong> (<em>float</em>) – Positive = convex, negative = concave.</p></li>
+<li><p><strong>thickness</strong> (<em>float</em>) – Maximum lens thickness in pixels.</p></li>
+<li><p><strong>n</strong> (<em>float</em>) – Refractive index (used by Ray for Snell’s law).</p></li>
+<li><p><strong>color</strong> (<em>str</em>) – Fill color.</p></li>
+<li><p><strong>show_focal_points</strong> (<em>bool</em>) – Draw dots at the focal points.</p></li>
+<li><p><strong>show_axis</strong> (<em>bool</em>) – Draw the principal axis as a dashed line.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="Lens.image_point">
+<span class="sig-name descname"><span class="pre">image_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj_y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Lens.image_point" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the image position using the thin-lens equation
+<code class="docutils literal notranslate"><span class="pre">1/f</span> <span class="pre">=</span> <span class="pre">1/do</span> <span class="pre">+</span> <span class="pre">1/di</span></code>.  Returns <code class="docutils literal notranslate"><span class="pre">(image_x,</span> <span class="pre">image_y)</span></code> or <code class="docutils literal notranslate"><span class="pre">None</span></code>
+if the object is at the focal point (image at infinity).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj_x</strong> (<em>float</em>) – Object x-coordinate.</p></li>
+<li><p><strong>obj_y</strong> (<em>float</em>) – Object y-coordinate.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(image_x,</span> <span class="pre">image_y)</span></code> or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: Lens</p>
+<img src="../_static/videos/ref_lens.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">lens</span> <span class="o">=</span> <span class="n">Lens</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">focal_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">)</span>
+<span class="n">ray1</span> <span class="o">=</span> <span class="n">Ray</span><span class="p">(</span><span class="n">x1</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="mi">440</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">lenses</span><span class="o">=</span><span class="p">[</span><span class="n">lens</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#F39C12&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">ray2</span> <span class="o">=</span> <span class="n">Ray</span><span class="p">(</span><span class="n">x1</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">lenses</span><span class="o">=</span><span class="p">[</span><span class="n">lens</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">ray3</span> <span class="o">=</span> <span class="n">Ray</span><span class="p">(</span><span class="n">x1</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="mi">640</span><span class="p">,</span> <span class="n">angle</span><span class="o">=-</span><span class="mi">3</span><span class="p">,</span> <span class="n">lenses</span><span class="o">=</span><span class="p">[</span><span class="n">lens</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#2ECC71&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">lens</span><span class="p">,</span> <span class="n">ray1</span><span class="p">,</span> <span class="n">ray2</span><span class="p">,</span> <span class="n">ray3</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="ray">
+<h2>Ray<a class="headerlink" href="#ray" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="Ray">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Ray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lenses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#FFFF00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stroke_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_arrow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">styling_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Ray" title="Link to this definition">¶</a></dt>
+<dd><p>A light ray that propagates in a straight line and refracts through
+<a class="reference internal" href="#Lens" title="Lens"><code class="xref py py-class docutils literal notranslate"><span class="pre">Lens</span></code></a> objects using Snell’s law (thin-lens paraxial
+approximation).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x1</strong> (<em>float</em>) – Starting x-coordinate.</p></li>
+<li><p><strong>y1</strong> (<em>float</em>) – Starting y-coordinate.</p></li>
+<li><p><strong>angle</strong> (<em>float</em>) – Initial direction in degrees (0 = rightward).</p></li>
+<li><p><strong>length</strong> (<em>float</em>) – Ray length in pixels.</p></li>
+<li><p><strong>lenses</strong> (<em>list</em>) – List of <a class="reference internal" href="#Lens" title="Lens"><code class="xref py py-class docutils literal notranslate"><span class="pre">Lens</span></code></a> instances to refract through.</p></li>
+<li><p><strong>color</strong> (<em>str</em>) – Ray stroke color.</p></li>
+<li><p><strong>stroke_width</strong> (<em>float</em>) – Ray line width.</p></li>
+<li><p><strong>show_arrow</strong> (<em>bool</em>) – Draw a small arrowhead at the tip.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Creation time.</p></li>
+<li><p><strong>z</strong> (<em>float</em>) – Z-index for layering.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="example admonition">
+<p class="admonition-title">Example: Ray refracting through a lens</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lens</span> <span class="o">=</span> <span class="n">Lens</span><span class="p">(</span><span class="n">focal_length</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="n">ray</span> <span class="o">=</span> <span class="n">Ray</span><span class="p">(</span><span class="n">x1</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">lenses</span><span class="o">=</span><span class="p">[</span><span class="n">lens</span><span class="p">],</span> <span class="n">show_arrow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="threed.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">3D Objects</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="physics.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Physics Engine</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023-2025 Joris Perrenet
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Science</a><ul>
+<li><a class="reference internal" href="#unitinterval">UnitInterval</a></li>
+<li><a class="reference internal" href="#molecule2d">Molecule2D</a></li>
+<li><a class="reference internal" href="#neuralnetwork">NeuralNetwork</a><ul>
+<li><a class="reference internal" href="#NeuralNetwork.label_input"><code class="docutils literal notranslate"><span class="pre">NeuralNetwork.label_input()</span></code></a></li>
+<li><a class="reference internal" href="#NeuralNetwork.label_output"><code class="docutils literal notranslate"><span class="pre">NeuralNetwork.label_output()</span></code></a></li>
+<li><a class="reference internal" href="#NeuralNetwork.propagate"><code class="docutils literal notranslate"><span class="pre">NeuralNetwork.propagate()</span></code></a></li>
+<li><a class="reference internal" href="#NeuralNetwork.highlight_path"><code class="docutils literal notranslate"><span class="pre">NeuralNetwork.highlight_path()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pendulum">Pendulum</a><ul>
+<li><a class="reference internal" href="#Pendulum.pivot"><code class="docutils literal notranslate"><span class="pre">Pendulum.pivot</span></code></a></li>
+<li><a class="reference internal" href="#Pendulum.rod"><code class="docutils literal notranslate"><span class="pre">Pendulum.rod</span></code></a></li>
+<li><a class="reference internal" href="#Pendulum.bob"><code class="docutils literal notranslate"><span class="pre">Pendulum.bob</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#standingwave">StandingWave</a><ul>
+<li><a class="reference internal" href="#StandingWave.dot1"><code class="docutils literal notranslate"><span class="pre">StandingWave.dot1</span></code></a></li>
+<li><a class="reference internal" href="#StandingWave.dot2"><code class="docutils literal notranslate"><span class="pre">StandingWave.dot2</span></code></a></li>
+<li><a class="reference internal" href="#StandingWave.wave"><code class="docutils literal notranslate"><span class="pre">StandingWave.wave</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#lens">Lens</a><ul>
+<li><a class="reference internal" href="#Lens"><code class="docutils literal notranslate"><span class="pre">Lens</span></code></a><ul>
+<li><a class="reference internal" href="#Lens.image_point"><code class="docutils literal notranslate"><span class="pre">Lens.image_point()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ray">Ray</a><ul>
+<li><a class="reference internal" href="#Ray"><code class="docutils literal notranslate"><span class="pre">Ray</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    </body>
+</html>

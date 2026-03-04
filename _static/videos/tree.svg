@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<line x1='960.0' y1='390.0' x2='840.0' y2='490.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='840.0' y1='490.0' x2='720.0' y2='590.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='840.0' y1='490.0' x2='900.0' y2='590.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='900.0' y1='590.0' x2='840.0' y2='690.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='900.0' y1='590.0' x2='960.0' y2='690.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='960.0' y1='390.0' x2='1140.0' y2='490.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='1140.0' y1='490.0' x2='1080.0' y2='590.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='1140.0' y1='490.0' x2='1200.0' y2='590.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='1200.0' y1='590.0' x2='1200.0' y2='690.0' stroke='rgb(136,136,136)' stroke-width='2' />
+<circle cx='960.0' cy='390.0' r='20' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='840.0' cy='490.0' r='20' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='720.0' cy='590.0' r='20' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='900.0' cy='590.0' r='20' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='840.0' cy='690.0' r='20' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='960.0' cy='690.0' r='20' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='1140.0' cy='490.0' r='20' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='1200.0' cy='590.0' r='20' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='1200.0' cy='690.0' r='20' fill='rgb(30,30,46)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<text x='960.0' y='396.3' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>8</text>
+<text x='840.0' y='496.3' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>3</text>
+<text x='720.0' y='596.3' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>1</text>
+<text x='900.0' y='596.3' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>6</text>
+<text x='840.0' y='696.3' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>4</text>
+<text x='960.0' y='696.3' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>7</text>
+<text x='1140.0' y='496.3' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>10</text>
+<text x='1200.0' y='596.3' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>14</text>
+<text x='1200.0' y='696.3' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>13</text>
+</g></g>
+</svg>

@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<line x1='330' y1='520' x2='570' y2='520' stroke='rgb(88,196,221)' stroke-width='2' />
+<line x1='610' y1='520' x2='850' y2='520' stroke='rgb(88,196,221)' stroke-width='2' />
+<line x1='890' y1='520' x2='1130' y2='520' stroke='rgb(85,85,85)' stroke-width='2' />
+<line x1='1170' y1='520' x2='1410' y2='520' stroke='rgb(85,85,85)' stroke-width='2' />
+<circle cx='310' cy='520' r='20' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='590' cy='520' r='20' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='870' cy='520' r='20' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1150' cy='520' r='20' fill='rgb(85,85,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1430' cy='520' r='20' fill='rgb(85,85,85)' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='310' y='525.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Plan</text>
+<text x='590' y='525.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Design</text>
+<text x='870' y='525.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Build</text>
+<text x='1150' y='525.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Test</text>
+<text x='1430' y='525.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ship</text>
+</g></g>
+</svg>

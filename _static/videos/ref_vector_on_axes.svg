@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<g>
+<line x1='260' y1='540.0' x2='1660' y2='540.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='960.0' y1='100' x2='960.0' y2='980' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='260.0' y1='526.0' x2='260.0' y2='554.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='260.0' y='576.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>-4</text>
+<line x1='435.0' y1='526.0' x2='435.0' y2='554.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='435.0' y='576.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>-3</text>
+<line x1='610.0' y1='526.0' x2='610.0' y2='554.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='610.0' y='576.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>-2</text>
+<line x1='785.0' y1='526.0' x2='785.0' y2='554.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='785.0' y='576.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>-1</text>
+<line x1='960.0' y1='526.0' x2='960.0' y2='554.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='1135.0' y1='526.0' x2='1135.0' y2='554.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='1135.0' y='576.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>1</text>
+<line x1='1310.0' y1='526.0' x2='1310.0' y2='554.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='1310.0' y='576.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>2</text>
+<line x1='1485.0' y1='526.0' x2='1485.0' y2='554.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='1485.0' y='576.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>3</text>
+<line x1='1660.0' y1='526.0' x2='1660.0' y2='554.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='1660.0' y='576.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>4</text>
+<line x1='946.0' y1='980.0' x2='974.0' y2='980.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='932.0' y='988.4' font-size='24' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>-3</text>
+<line x1='946.0' y1='833.33' x2='974.0' y2='833.33' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='932.0' y='841.73' font-size='24' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>-2</text>
+<line x1='946.0' y1='686.67' x2='974.0' y2='686.67' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='932.0' y='695.07' font-size='24' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>-1</text>
+<line x1='946.0' y1='540.0' x2='974.0' y2='540.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='946.0' y1='393.33' x2='974.0' y2='393.33' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='932.0' y='401.73' font-size='24' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>1</text>
+<line x1='946.0' y1='246.67' x2='974.0' y2='246.67' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='932.0' y='255.07' font-size='24' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>2</text>
+<line x1='946.0' y1='100.0' x2='974.0' y2='100.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='932.0' y='108.4' font-size='24' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>3</text>
+</g>
+<g>
+<line x1='960.0' y1='540.0' x2='1310.0' y2='393.33' fill='rgb(255,255,0)' stroke='rgb(255,255,0)' stroke-width='3' />
+<polygon points='1310.0,393.33 1294.26,407.52 1288.85,394.61' fill='rgb(255,255,0)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+<g>
+<line x1='960.0' y1='540.0' x2='785.0' y2='246.67' fill='rgb(88,196,221)' stroke='rgb(88,196,221)' stroke-width='3' />
+<polygon points='785.0,246.67 801.26,260.26 789.24,267.43' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+</g></g>
+</svg>

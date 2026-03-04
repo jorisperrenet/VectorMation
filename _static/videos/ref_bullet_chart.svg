@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<rect x='460.0' y='490' width='428.57' height='100' rx='0' ry='0' fill='rgb(42,42,58)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='888.57' y='490' width='285.71' height='100' rx='0' ry='0' fill='rgb(58,58,74)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='1174.29' y='490' width='285.71' height='100' rx='0' ry='0' fill='rgb(74,74,90)' stroke='rgb(255,255,255)' stroke-width='0' />
+<rect x='460' y='515.0' width='771.43' height='50.0' rx='0' ry='0' fill='rgb(51,51,51)' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='450' y='548.4' font-size='24' text-anchor='end' fill='rgb(221,221,221)' stroke='rgb(0,0,0)' stroke-width='0'>Revenue</text>
+<line x1='1317.14' y1='505.0' x2='1317.14' y2='575.0' stroke='rgb(255,255,255)' stroke-width='2.5' />
+</g></g>
+</svg>

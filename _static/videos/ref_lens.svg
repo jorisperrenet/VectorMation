@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<line x1='560' y1='540' x2='1360' y2='540' stroke='rgb(102,102,102)' stroke-dasharray='8 4' />
+<path d='M 960,340.0 C 993.0,480.0   993.0,600.0   960,740.0 C 927.0,600.0   927.0,480.0   960,340.0 Z' fill='rgb(88,196,221)' fill-opacity='0.3' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='760' cy='540' r='4' fill='rgb(255,255,0)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1160' cy='540' r='4' fill='rgb(255,255,0)' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='760' y='560' font-size='16' text-anchor='middle' fill='rgb(255,255,0)' stroke='rgb(0,0,0)' stroke-width='0'>F</text>
+<text x='1160' y='560' font-size='16' text-anchor='middle' fill='rgb(255,255,0)' stroke='rgb(0,0,0)' stroke-width='0'>F</text>
+</g></g>
+<g data-obj-idx='2'><g>
+<polyline points='200,440 960.0,479.83' fill-opacity='0' stroke='rgb(243,156,18)' stroke-width='2' />
+<polyline points='960.0,479.83 1747.17,770.03' fill-opacity='0' stroke='rgb(243,156,18)' stroke-width='2' />
+</g></g>
+<g data-obj-idx='3'><g>
+<polyline points='200,540 960.0,540.0' fill-opacity='0' stroke='rgb(231,76,60)' stroke-width='2' />
+<polyline points='960.0,540.0 1800.0,540.0' fill-opacity='0' stroke='rgb(231,76,60)' stroke-width='2' />
+</g></g>
+<g data-obj-idx='4'><g>
+<polyline points='200,640 960.0,600.17' fill-opacity='0' stroke='rgb(46,204,113)' stroke-width='2' />
+<polyline points='960.0,600.17 1747.17,309.97' fill-opacity='0' stroke='rgb(46,204,113)' stroke-width='2' />
+</g></g>
+</svg>

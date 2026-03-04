@@ -207,16 +207,24 @@
 <li class="toctree-l2"><a class="reference internal" href="vobject.html">VObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="shapes.html">Shapes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="text.html">Text &amp; LaTeX</a></li>
-<li class="toctree-l2"><a class="reference internal" href="collections.html">Collections &amp; Arrows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collections.html">Collections, Arrows &amp; Data Structures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="graphing.html">Graphing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="charts.html">Charts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ui.html">UI Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="diagrams.html">Diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physics.html">Physics Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l2"><a class="reference internal" href="threed.html">3D Objects</a></li>
 <li class="toctree-l2"><a class="reference internal" href="attributes.html">Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="svg_utils.html">SVG Utilities</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../attributes.html">Attributes: Time-Varying Values</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../animation.html">Animation &amp; Playback</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../graphing.html">Graphing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../vs_manim.html">vs Manim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
 </ul>
@@ -259,140 +267,880 @@
         <article role="main" id="furo-main-content">
           <section id="vectormathanim">
 <h1>VectorMathAnim<a class="headerlink" href="#vectormathanim" title="Link to this heading">¶</a></h1>
+<p>The canvas is the top-level object that manages all visual objects, camera
+controls, frame generation, and export. Every VectorMation script creates
+exactly one <code class="docutils literal notranslate"><span class="pre">VectorMathAnim</span></code> instance.</p>
+<hr class="docutils" />
+<section id="constructor">
+<h2>Constructor<a class="headerlink" href="#constructor" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="VectorMathAnim">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VectorMathAnim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1920</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1080</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim" title="Link to this definition">¶</a></dt>
-<dd><p>The top-level canvas that manages all objects and controls rendering.
-Creates a 1920x1080 SVG viewBox by default.</p>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VectorMathAnim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1920</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1080</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim" title="Link to this definition">¶</a></dt>
+<dd><p>Create a new canvas with a given save directory and viewport size.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>save_dir</strong> (<em>str</em>) – Directory for saved SVG frames.</p></li>
-<li><p><strong>width</strong> (<em>int</em>) – ViewBox width (default <code class="docutils literal notranslate"><span class="pre">1920</span></code>).</p></li>
-<li><p><strong>height</strong> (<em>int</em>) – ViewBox height (default <code class="docutils literal notranslate"><span class="pre">1080</span></code>).</p></li>
-<li><p><strong>verbose</strong> (<em>bool</em>) – Enable debug logging.</p></li>
+<li><p><strong>save_dir</strong> (<em>str</em>) – Directory where SVG frames are saved. Created
+automatically if it does not exist.</p></li>
+<li><p><strong>width</strong> (<em>int</em>) – ViewBox width in pixels (default <code class="docutils literal notranslate"><span class="pre">1920</span></code>).</p></li>
+<li><p><strong>height</strong> (<em>int</em>) – ViewBox height in pixels (default <code class="docutils literal notranslate"><span class="pre">1080</span></code>).</p></li>
+<li><p><strong>scale</strong> (<em>int</em>) – Pixel scale factor applied to the output <code class="docutils literal notranslate"><span class="pre">&lt;svg&gt;</span></code>
+element. <code class="docutils literal notranslate"><span class="pre">1</span></code> gives native resolution; <code class="docutils literal notranslate"><span class="pre">2</span></code> doubles it.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – When <code class="docutils literal notranslate"><span class="pre">True</span></code>, enable <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code>-level logging.</p></li>
 </ul>
 </dd>
 </dl>
-<p class="rubric">Scene Setup</p>
+<p>The canvas creates a default viewBox of <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">0</span> <span class="pre">width</span> <span class="pre">height</span></code> and
+maintains an internal clock (<code class="docutils literal notranslate"><span class="pre">canvas.time</span></code>) used by
+<a class="reference internal" href="#VectorMathAnim.generate_frame_svg" title="VectorMathAnim.generate_frame_svg"><code class="xref py py-meth docutils literal notranslate"><span class="pre">generate_frame_svg()</span></code></a> when no explicit time is given.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="VectorMathAnim.duration">
+<span class="sig-name descname"><span class="pre">duration</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#VectorMathAnim.duration" title="Link to this definition">¶</a></dt>
+<dd><p>Read-only property. Returns the total animation duration in seconds,
+auto-detected from the latest animation end time across all registered
+objects and camera keyframes.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="VectorMathAnim.viewbox">
+<span class="sig-name descname"><span class="pre">viewbox</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span></span><a class="headerlink" href="#VectorMathAnim.viewbox" title="Link to this definition">¶</a></dt>
+<dd><p>The current <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">width,</span> <span class="pre">height)</span></code> viewBox. Readable and writable.
+Writing sets all four viewBox attributes from the current canvas time
+onward.</p>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="s1">&#39;svgs/my_animation&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: Basic scene</p>
+<img src="../_static/videos/ref_canvas_basic.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#1a1a2e&#39;</span><span class="p">)</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">140</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">1220</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">470</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Hello!&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#fff&#39;</span><span class="p">,</span>
+         <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">text_anchor</span><span class="o">=</span><span class="s1">&#39;middle&#39;</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="scene-setup">
+<h2>Scene Setup<a class="headerlink" href="#scene-setup" title="Link to this heading">¶</a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="VectorMathAnim.set_background">
-<span class="sig-name descname"><span class="pre">set_background</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#333'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">styling</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.set_background" title="Link to this definition">¶</a></dt>
-<dd><p>Add a background rectangle with optional grid lines.</p>
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">set_background</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#333'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">styling</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.set_background" title="Link to this definition">¶</a></dt>
+<dd><p>Add a full-canvas background rectangle. Optional grid lines can be
+overlaid for alignment or debugging.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>grid</strong> (<em>bool</em>) – Show grid lines.</p></li>
-<li><p><strong>grid_spacing</strong> (<em>float</em>) – Distance between grid lines.</p></li>
+<li><p><strong>creation</strong> (<em>float</em>) – Time at which the background appears.</p></li>
+<li><p><strong>z</strong> (<em>int</em>) – Z-order (default <code class="docutils literal notranslate"><span class="pre">-1</span></code>, behind everything).</p></li>
+<li><p><strong>grid</strong> (<em>bool</em>) – Draw grid lines over the background.</p></li>
+<li><p><strong>grid_spacing</strong> (<em>float</em>) – Distance (pixels) between grid lines.</p></li>
 <li><p><strong>grid_color</strong> (<em>str</em>) – Grid line colour.</p></li>
+<li><p><strong>styling</strong> – Any additional SVG styling (<code class="docutils literal notranslate"><span class="pre">fill</span></code>, <code class="docutils literal notranslate"><span class="pre">fill_opacity</span></code>, etc.).
+When no fill is given the Styling defaults apply.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">self</span></code> (for chaining).</p>
+</dd>
+</dl>
+<p>Calling <code class="docutils literal notranslate"><span class="pre">set_background</span></code> again replaces the previous background.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#1a1a2e&#39;</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#0d1b2a&#39;</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">grid_spacing</span><span class="o">=</span><span class="mi">135</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="adding-and-removing-objects">
+<h2>Adding and Removing Objects<a class="headerlink" href="#adding-and-removing-objects" title="Link to this heading">¶</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="VectorMathAnim.add_objects">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">add_objects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.add_objects" title="Link to this definition">¶</a></dt>
+<dd><p>Register one or more objects for rendering. Objects are drawn each frame
+sorted by z-order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> – VObject or VCollection instances.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">self</span></code> (for chaining).</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">add</span></code> is an alias for <code class="docutils literal notranslate"><span class="pre">add_objects</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">circle</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">)</span>
+<span class="n">label</span>  <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Hello&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">540</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">circle</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+<span class="c1"># or equivalently:</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">circle</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VectorMathAnim.remove">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.remove" title="Link to this definition">¶</a></dt>
+<dd><p>Remove objects from the canvas so they are no longer rendered.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> – Objects previously added via <a class="reference internal" href="#VectorMathAnim.add_objects" title="VectorMathAnim.add_objects"><code class="xref py py-meth docutils literal notranslate"><span class="pre">add_objects()</span></code></a>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">self</span></code> (for chaining).</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="VectorMathAnim.add_objects">
-<span class="sig-name descname"><span class="pre">add_objects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.add_objects" title="Link to this definition">¶</a></dt>
-<dd><p>Register one or more objects for rendering. Objects are drawn in z-order.</p>
+<dt class="sig sig-object py" id="VectorMathAnim.clear">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.clear" title="Link to this definition">¶</a></dt>
+<dd><p>Remove all objects from the canvas except the background and defs.
+Useful for multi-scene scripts that rebuild the scene between segments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">self</span></code> (for chaining).</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="VectorMathAnim.add_def">
-<span class="sig-name descname"><span class="pre">add_def</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">def_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.add_def" title="Link to this definition">¶</a></dt>
-<dd><p>Register a gradient, clip path, or filter definition.
-Aliases: <code class="docutils literal notranslate"><span class="pre">add_gradient</span></code>, <code class="docutils literal notranslate"><span class="pre">add_clip_path</span></code>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="VectorMathAnim.add_section">
-<span class="sig-name descname"><span class="pre">add_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.add_section" title="Link to this definition">¶</a></dt>
-<dd><p>Add a section break at <em>time</em> for paused playback.</p>
-</dd></dl>
-
-<p class="rubric">Rendering</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="VectorMathAnim.generate_frame_svg">
-<span class="sig-name descname"><span class="pre">generate_frame_svg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.generate_frame_svg" title="Link to this definition">¶</a></dt>
-<dd><p>Return the complete SVG string for a single frame.</p>
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">add_def</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">def_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.add_def" title="Link to this definition">¶</a></dt>
+<dd><p>Register a gradient, clip path, or filter for the <code class="docutils literal notranslate"><span class="pre">&lt;defs&gt;</span></code> block.
+The object must have an <code class="docutils literal notranslate"><span class="pre">id</span></code> attribute and a <code class="docutils literal notranslate"><span class="pre">to_svg_def(time)</span></code> method.</p>
+<p>Aliases: <code class="docutils literal notranslate"><span class="pre">add_gradient</span></code>, <code class="docutils literal notranslate"><span class="pre">add_clip_path</span></code>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>time</strong> (<em>float</em>) – Timestamp to render (defaults to canvas time).</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>SVG string.</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">self</span></code> (for chaining).</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="VectorMathAnim.write_frame">
-<span class="sig-name descname"><span class="pre">write_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.write_frame" title="Link to this definition">¶</a></dt>
-<dd><p>Write an SVG frame to disk.</p>
+<dt class="sig sig-object py" id="VectorMathAnim.add_section">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">add_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.add_section" title="Link to this definition">¶</a></dt>
+<dd><p>Add a section break at the given time. Sections allow pausing playback
+in the browser viewer (press <code class="docutils literal notranslate"><span class="pre">N</span></code> to jump to the next section). They are
+also used by <a class="reference internal" href="#VectorMathAnim.export_sections" title="VectorMathAnim.export_sections"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export_sections()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>float</em>) – Section boundary time in seconds.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">self</span></code> (for chaining).</p>
+</dd>
+</dl>
 </dd></dl>
 
-<p class="rubric">Display</p>
+</section>
+<hr class="docutils" />
+<section id="frame-generation">
+<h2>Frame Generation<a class="headerlink" href="#frame-generation" title="Link to this heading">¶</a></h2>
 <dl class="py method">
-<dt class="sig sig-object py" id="VectorMathAnim.browser_display">
-<span class="sig-name descname"><span class="pre">browser_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8765</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hot_reload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.browser_display" title="Link to this definition">¶</a></dt>
-<dd><p>Open a browser-based viewer with real-time playback, zoom, speed control, and keyboard shortcuts.</p>
+<dt class="sig sig-object py" id="VectorMathAnim.generate_frame_svg">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">generate_frame_svg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.generate_frame_svg" title="Link to this definition">¶</a></dt>
+<dd><p>Return the complete SVG string for a single frame at the given time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>float</em>) – Timestamp to render. Defaults to <code class="docutils literal notranslate"><span class="pre">canvas.time</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SVG string (including XML declaration and <code class="docutils literal notranslate"><span class="pre">&lt;svg&gt;</span></code> wrapper).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<p>This is the core rendering method. It:</p>
+<ol class="arabic simple">
+<li><p>Evaluates the animated viewBox at <em>time</em>.</p></li>
+<li><p>Emits any <code class="docutils literal notranslate"><span class="pre">&lt;defs&gt;</span></code> (gradients, clip paths).</p></li>
+<li><p>Collects all objects whose <code class="docutils literal notranslate"><span class="pre">show</span></code> attribute is <code class="docutils literal notranslate"><span class="pre">True</span></code> at <em>time</em>.</p></li>
+<li><p>Sorts them by z-order.</p></li>
+<li><p>Runs updaters on each object.</p></li>
+<li><p>Calls <code class="docutils literal notranslate"><span class="pre">to_svg(time)</span></code> on each object and concatenates the result.</p></li>
+<li><p>Rounds floating-point numbers for compact output.</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VectorMathAnim.write_frame">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">write_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.write_frame" title="Link to this definition">¶</a></dt>
+<dd><p>Write an SVG frame to disk.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start_time</strong> (<em>float</em>) – Playback start.</p></li>
-<li><p><strong>end_time</strong> (<em>float</em>) – Playback end (<code class="docutils literal notranslate"><span class="pre">None</span></code> = auto-detect from last animation).</p></li>
-<li><p><strong>fps</strong> (<em>int</em>) – Frames per second.</p></li>
-<li><p><strong>port</strong> (<em>int</em>) – WebSocket port.</p></li>
-<li><p><strong>hot_reload</strong> (<em>bool</em>) – Re-run script on file change.</p></li>
+<li><p><strong>time</strong> (<em>float</em>) – Timestamp (defaults to <code class="docutils literal notranslate"><span class="pre">canvas.time</span></code>).</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – Output path. Defaults to <code class="docutils literal notranslate"><span class="pre">&lt;save_dir&gt;/gen.svg</span></code>.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
-<p class="rubric">Export</p>
+</section>
+<hr class="docutils" />
+<section id="camera-controls">
+<h2>Camera Controls<a class="headerlink" href="#camera-controls" title="Link to this heading">¶</a></h2>
+<p>All camera methods animate the SVG viewBox, which effectively pans and zooms
+the visible region. They return <code class="docutils literal notranslate"><span class="pre">self</span></code> for chaining.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="VectorMathAnim.export_png">
-<span class="sig-name descname"><span class="pre">export_png</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'frame.png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.export_png" title="Link to this definition">¶</a></dt>
-<dd><p>Export a single PNG frame. Requires <code class="docutils literal notranslate"><span class="pre">cairosvg</span></code>.</p>
+<dt class="sig sig-object py" id="VectorMathAnim.camera_shift">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">camera_shift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.camera_shift" title="Link to this definition">¶</a></dt>
+<dd><p>Pan the camera by <code class="docutils literal notranslate"><span class="pre">(dx,</span> <span class="pre">dy)</span></code> pixels over <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dx</strong> (<em>float</em>) – Horizontal shift in pixels.</p></li>
+<li><p><strong>dy</strong> (<em>float</em>) – Vertical shift in pixels.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Animation end time.</p></li>
+<li><p><strong>easing</strong> – Easing function (default <code class="docutils literal notranslate"><span class="pre">smooth</span></code>).</p></li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Slowly pan 400px to the right over 2 seconds</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">camera_shift</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="VectorMathAnim.export_video">
-<span class="sig-name descname"><span class="pre">export_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'animation.mp4'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.export_video" title="Link to this definition">¶</a></dt>
-<dd><p>Export an MP4 video. Requires <code class="docutils literal notranslate"><span class="pre">cairosvg</span></code> and <code class="docutils literal notranslate"><span class="pre">ffmpeg</span></code>.</p>
+<dt class="sig sig-object py" id="VectorMathAnim.camera_zoom">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">camera_zoom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.camera_zoom" title="Link to this definition">¶</a></dt>
+<dd><div class="example admonition">
+<p class="admonition-title">Example: camera_zoom</p>
+<video src="../_static/videos/ref_camera_zoom.mp4" controls autoplay loop muted></video><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#1a1a2e&#39;</span><span class="p">)</span>
+
+<span class="n">c1</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">c2</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">1420</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">640</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">c1</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">c2</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">camera_zoom</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">camera_reset</span><span class="p">(</span><span class="mf">3.5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/ref_camera_zoom.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+<p>Zoom the camera by <em>factor</em> around the point <code class="docutils literal notranslate"><span class="pre">(cx,</span> <span class="pre">cy)</span></code> over
+<code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code>. <code class="docutils literal notranslate"><span class="pre">factor</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> zooms in; <code class="docutils literal notranslate"><span class="pre">factor</span> <span class="pre">&lt;</span> <span class="pre">1</span></code> zooms out.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>scale</strong> (<em>int</em>) – Pixel scale factor (1 = native 1920x1080, 2 = 3840x2160).</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>factor</strong> (<em>float</em>) – Zoom factor.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Animation end time.</p></li>
+<li><p><strong>cx</strong> (<em>float</em>) – Zoom centre x (default: canvas centre).</p></li>
+<li><p><strong>cy</strong> (<em>float</em>) – Zoom centre y (default: canvas centre).</p></li>
+<li><p><strong>easing</strong> – Easing function (default <code class="docutils literal notranslate"><span class="pre">smooth</span></code>).</p></li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Zoom 2x into the upper-left quadrant</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">camera_zoom</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">480</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">270</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VectorMathAnim.camera_follow">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">camera_follow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.camera_follow" title="Link to this definition">¶</a></dt>
+<dd><p>Make the camera continuously track an object, keeping it centred in the
+viewport. If <em>end</em> is given, the camera freezes at its position at that
+time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> (<a class="reference internal" href="vobject.html#VObject" title="VObject"><em>VObject</em></a>) – Object to follow.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – When tracking begins.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – When tracking ends (<code class="docutils literal notranslate"><span class="pre">None</span></code> = track indefinitely).</p></li>
+</ul>
+</dd>
+</dl>
+<div class="example admonition">
+<p class="admonition-title">Example: camera_follow</p>
+<video src="../_static/videos/ref_camera_follow.mp4" controls autoplay loop muted></video><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#1a1a2e&#39;</span><span class="p">)</span>
+
+<span class="n">dot</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">)</span>
+<span class="n">dot</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">dot</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="mi">1600</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">4.5</span><span class="p">)</span>
+
+<span class="n">line</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">540</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">540</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">line</span><span class="o">.</span><span class="n">p2</span><span class="o">.</span><span class="n">set_onward</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dot</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">at_time</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">camera_zoom</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">camera_follow</span><span class="p">(</span><span class="n">dot</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">4.5</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">dot</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/ref_camera_follow.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VectorMathAnim.camera_reset">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">camera_reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.camera_reset" title="Link to this definition">¶</a></dt>
+<dd><p>Reset the camera to the default full-canvas viewBox (<code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">0</span> <span class="pre">width</span> <span class="pre">height</span></code>)
+over <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Animation end time.</p></li>
+<li><p><strong>easing</strong> – Easing function (default <code class="docutils literal notranslate"><span class="pre">smooth</span></code>).</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="VectorMathAnim.focus_on">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">focus_on</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">objects</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.focus_on" title="Link to this definition">¶</a></dt>
+<dd><p>Pan and zoom the camera to tightly frame the given objects (with padding),
+maintaining the canvas aspect ratio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>objects</strong> – One or more VObject/VCollection instances to frame.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Animation end time.</p></li>
+<li><p><strong>padding</strong> (<em>float</em>) – Extra padding (pixels) around the bounding box.</p></li>
+<li><p><strong>easing</strong> – Easing function (default <code class="docutils literal notranslate"><span class="pre">smooth</span></code>).</p></li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">canvas</span><span class="o">.</span><span class="n">focus_on</span><span class="p">(</span><span class="n">circle</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
+<span class="c1"># ... inspect detail ...</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">camera_reset</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="display">
+<h2>Display<a class="headerlink" href="#display" title="Link to this heading">¶</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="VectorMathAnim.browser_display">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">browser_display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8765</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hot_reload</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.browser_display" title="Link to this definition">¶</a></dt>
+<dd><p>Open a browser-based viewer with real-time playback over WebSocket.
+The viewer supports zoom (scroll wheel), playback speed control,
+keyboard shortcuts, and a timeline scrubber.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>float</em>) – Playback start time. Negative values are relative to
+the end (e.g. <code class="docutils literal notranslate"><span class="pre">-3</span></code> starts 3 seconds before the end).</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Playback end time. <code class="docutils literal notranslate"><span class="pre">None</span></code> auto-detects from the last
+animation. <code class="docutils literal notranslate"><span class="pre">0</span></code> displays a single static frame at <em>start</em> (no
+animation).</p></li>
+<li><p><strong>fps</strong> (<em>int</em>) – Frames per second.</p></li>
+<li><p><strong>port</strong> (<em>int</em>) – WebSocket server port.</p></li>
+<li><p><strong>hot_reload</strong> (<em>bool</em>) – When <code class="docutils literal notranslate"><span class="pre">True</span></code>, watches the calling script for
+file changes and automatically re-runs it, allowing a live development
+workflow.</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Keyboard shortcuts in the browser viewer:</strong></p>
+<div class="table-wrapper colwidths-given docutils container">
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 28.6%" />
+<col style="width: 71.4%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Action</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Space</span></code></p></td>
+<td><p>Pause / resume playback</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">R</span></code></p></td>
+<td><p>Restart from the beginning</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">N</span></code></p></td>
+<td><p>Jump to next section break</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">F</span></code></p></td>
+<td><p>Fit the view to the full canvas</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Q</span></code></p></td>
+<td><p>Quit the server</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Right</span></code></p></td>
+<td><p>Step forward one frame (while paused)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Left</span></code></p></td>
+<td><p>Step backward one frame (while paused)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Single-picture mode:</strong></p>
+<p>Pass <code class="docutils literal notranslate"><span class="pre">end=0</span></code> to display a static frame without animation. This is
+useful for debugging layouts.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Static preview at t=0</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="export">
+<h2>Export<a class="headerlink" href="#export" title="Link to this heading">¶</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="VectorMathAnim.export_png">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">export_png</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'frame.png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.export_png" title="Link to this definition">¶</a></dt>
+<dd><p>Export a single frame as a PNG image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> (<em>float</em>) – Timestamp to render.</p></li>
+<li><p><strong>filename</strong> (<em>str</em>) – Output file path.</p></li>
+<li><p><strong>scale</strong> (<em>int</em>) – Pixel scale factor. <code class="docutils literal notranslate"><span class="pre">None</span></code> uses the canvas <code class="docutils literal notranslate"><span class="pre">scale</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Requires <code class="docutils literal notranslate"><span class="pre">cairosvg</span></code> (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">cairosvg</span></code>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VectorMathAnim.export_video">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">export_video</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'animation.mp4'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.export_video" title="Link to this definition">¶</a></dt>
+<dd><p>Export the animation as an MP4 video.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Output file path.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – End time (<code class="docutils literal notranslate"><span class="pre">None</span></code> = auto-detect).</p></li>
+<li><p><strong>fps</strong> (<em>int</em>) – Frames per second.</p></li>
+<li><p><strong>scale</strong> (<em>int</em>) – Pixel scale factor (<code class="docutils literal notranslate"><span class="pre">1</span></code> = 1920x1080,
+<code class="docutils literal notranslate"><span class="pre">2</span></code> = 3840x2160).</p></li>
+</ul>
+</dd>
+</dl>
+<p>Requires <code class="docutils literal notranslate"><span class="pre">cairosvg</span></code> and <code class="docutils literal notranslate"><span class="pre">ffmpeg</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;output.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="VectorMathAnim.export_gif">
-<span class="sig-name descname"><span class="pre">export_gif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'animation.gif'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.export_gif" title="Link to this definition">¶</a></dt>
-<dd><p>Export an animated GIF. Requires <code class="docutils literal notranslate"><span class="pre">cairosvg</span></code> and <code class="docutils literal notranslate"><span class="pre">Pillow</span></code>.</p>
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">export_gif</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'animation.gif'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.export_gif" title="Link to this definition">¶</a></dt>
+<dd><p>Export the animation as an animated GIF.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – Output file path.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – End time (<code class="docutils literal notranslate"><span class="pre">None</span></code> = auto-detect).</p></li>
+<li><p><strong>fps</strong> (<em>int</em>) – Frames per second.</p></li>
+<li><p><strong>scale</strong> (<em>int</em>) – Pixel scale factor.</p></li>
+<li><p><strong>loop</strong> (<em>int</em>) – Number of loops (<code class="docutils literal notranslate"><span class="pre">0</span></code> = infinite).</p></li>
+</ul>
+</dd>
+</dl>
+<p>Requires <code class="docutils literal notranslate"><span class="pre">cairosvg</span></code> and <code class="docutils literal notranslate"><span class="pre">Pillow</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="VectorMathAnim.export_sections">
-<span class="sig-name descname"><span class="pre">export_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'section'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.export_sections" title="Link to this definition">¶</a></dt>
-<dd><p>Export each section as a separate SVG file.</p>
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">export_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'section'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.export_sections" title="Link to this definition">¶</a></dt>
+<dd><p>Export each section boundary as a standalone SVG file. Files are written
+to the canvas save directory as <code class="docutils literal notranslate"><span class="pre">&lt;prefix&gt;_000.svg</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;prefix&gt;_001.svg</span></code>,
+etc.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>prefix</strong> (<em>str</em>) – Filename prefix.</p>
+</dd>
+</dl>
 </dd></dl>
 
-<p class="rubric">Inspection</p>
+</section>
+<hr class="docutils" />
+<section id="inspection">
+<h2>Inspection<a class="headerlink" href="#inspection" title="Link to this heading">¶</a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="VectorMathAnim.get_all_objects">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">get_all_objects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.get_all_objects" title="Link to this definition">¶</a></dt>
+<dd><p>Return a list of all registered objects (excluding the background).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="vobject.html#VObject" title="VObject">VObject</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VectorMathAnim.find_by_type">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">find_by_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.find_by_type" title="Link to this definition">¶</a></dt>
+<dd><p>Return all objects matching a given class (including subclasses).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cls</strong> (<em>type</em>) – The class to filter by (e.g. <code class="docutils literal notranslate"><span class="pre">Circle</span></code>, <code class="docutils literal notranslate"><span class="pre">Text</span></code>).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[<a class="reference internal" href="vobject.html#VObject" title="VObject">VObject</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VectorMathAnim.find">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">find</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predicate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.find" title="Link to this definition">¶</a></dt>
+<dd><p>Return all objects where <code class="docutils literal notranslate"><span class="pre">predicate(obj)</span></code> returns <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>predicate</strong> (<em>callable</em>) – Filter function.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[<a class="reference internal" href="vobject.html#VObject" title="VObject">VObject</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VectorMathAnim.get_object_count">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">get_object_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.get_object_count" title="Link to this definition">¶</a></dt>
+<dd><p>Return the number of visible objects at the given time (excludes
+the background).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>float</em>) – Timestamp (default <code class="docutils literal notranslate"><span class="pre">0</span></code>).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VectorMathAnim.list_objects_by_type">
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">list_objects_by_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.list_objects_by_type" title="Link to this definition">¶</a></dt>
+<dd><p>Return a dict mapping class names to lists of visible objects of that
+type at the given time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>float</em>) – Timestamp (default <code class="docutils literal notranslate"><span class="pre">0</span></code>).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, list[<a class="reference internal" href="vobject.html#VObject" title="VObject">VObject</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="VectorMathAnim.get_visible_objects_info">
-<span class="sig-name descname"><span class="pre">get_visible_objects_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.get_visible_objects_info" title="Link to this definition">¶</a></dt>
-<dd><p>Return a list of visible objects and their bounding boxes at the given time.</p>
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">get_visible_objects_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.get_visible_objects_info" title="Link to this definition">¶</a></dt>
+<dd><p>Return a list of dicts with <code class="docutils literal notranslate"><span class="pre">'class'</span></code> and <code class="docutils literal notranslate"><span class="pre">'id'</span></code> keys for each
+visible object at the given time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>float</em>) – Timestamp (defaults to canvas time).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[dict]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="VectorMathAnim.get_snap_points">
-<span class="sig-name descname"><span class="pre">get_snap_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.get_snap_points" title="Link to this definition">¶</a></dt>
-<dd><p>Extract snappable points (centers, corners, endpoints) from all visible objects.</p>
+<span class="sig-prename descclassname"><span class="pre">VectorMathAnim.</span></span><span class="sig-name descname"><span class="pre">get_snap_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VectorMathAnim.get_snap_points" title="Link to this definition">¶</a></dt>
+<dd><p>Extract snappable points (vertices, endpoints, centres) from all
+visible objects at the given time. Used internally by the browser
+viewer’s snap-to-grid feature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>time</strong> (<em>float</em>) – Timestamp (defaults to canvas time).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[tuple]</p>
+</dd>
+</dl>
 </dd></dl>
 
+</section>
+<hr class="docutils" />
+<section id="cli-utility">
+<h2>CLI Utility<a class="headerlink" href="#cli-utility" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="parse_args">
+<span class="sig-name descname"><span class="pre">parse_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#parse_args" title="Link to this definition">¶</a></dt>
+<dd><p>Parse common command-line arguments for VectorMation scripts. Returns
+an <code class="docutils literal notranslate"><span class="pre">argparse.Namespace</span></code> with the following fields:</p>
+<div class="table-wrapper colwidths-given docutils container">
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 15.0%" />
+<col style="width: 15.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Flag</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-v</span></code> / <code class="docutils literal notranslate"><span class="pre">--verbose</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>Enable verbose (debug) logging</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--port</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">8765</span></code></p></td>
+<td><p>Browser viewer WebSocket port</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--fps</span></code></p></td>
+<td><p>int</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">60</span></code></p></td>
+<td><p>Frames per second</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span></code> / <code class="docutils literal notranslate"><span class="pre">--output</span></code></p></td>
+<td><p>str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>Output file path (e.g. <code class="docutils literal notranslate"><span class="pre">out.mp4</span></code>, <code class="docutils literal notranslate"><span class="pre">frame.png</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-d</span></code> / <code class="docutils literal notranslate"><span class="pre">--duration</span></code></p></td>
+<td><p>float</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>Animation duration override (seconds)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--start</span></code></p></td>
+<td><p>float</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>Playback start time</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--end</span></code></p></td>
+<td><p>float</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>Playback end time</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--hot-reload</span></code></p></td>
+<td><p>bool</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>Re-run script on file change in browser viewer</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="s1">&#39;svgs/demo&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>From the command line:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">my_script</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">v</span> <span class="o">--</span><span class="n">fps</span> <span class="mi">30</span> <span class="o">--</span><span class="n">hot</span><span class="o">-</span><span class="n">reload</span>
+<span class="n">python</span> <span class="n">my_script</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">o</span> <span class="n">animation</span><span class="o">.</span><span class="n">mp4</span>
+</pre></div>
+</div>
 </dd></dl>
 
+</section>
+<hr class="docutils" />
+<section id="workflow-examples">
+<h2>Workflow Examples<a class="headerlink" href="#workflow-examples" title="Link to this heading">¶</a></h2>
+<section id="basic-setup">
+<h3>Basic setup<a class="headerlink" href="#basic-setup" title="Link to this heading">¶</a></h3>
+<p>A minimal script that creates a canvas, adds an object with an animation,
+and opens the browser viewer.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="s1">&#39;svgs/basic&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#1a1a2e&#39;</span><span class="p">)</span>
+
+<span class="n">circle</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">circle</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">circle</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">circle</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">fps</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">fps</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">hot_reload</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">hot_reload</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="camera-animation">
+<h3>Camera animation<a class="headerlink" href="#camera-animation" title="Link to this heading">¶</a></h3>
+<p>Combine camera methods to guide the viewer’s attention through a scene.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="s1">&#39;svgs/camera&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">c1</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">)</span>
+<span class="n">c2</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">1600</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">700</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#83C167&#39;</span><span class="p">)</span>
+<span class="n">c1</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="n">c2</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># Focus on the first circle</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">focus_on</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span>
+
+<span class="c1"># Reset to full view</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">camera_reset</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+<span class="c1"># Zoom into the second circle</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">camera_zoom</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">1600</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">700</span><span class="p">)</span>
+
+<span class="c1"># Reset again</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">camera_reset</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">fps</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">fps</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="browser-preview-with-hot-reload">
+<h3>Browser preview with hot reload<a class="headerlink" href="#browser-preview-with-hot-reload" title="Link to this heading">¶</a></h3>
+<p>Hot reload watches the script file for changes and re-runs it
+automatically, enabling a rapid edit-save-preview loop.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="s1">&#39;svgs/dev&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#0d1b2a&#39;</span><span class="p">)</span>
+
+<span class="n">t</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Edit me!&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">72</span><span class="p">,</span>
+         <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#fff&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">text_anchor</span><span class="o">=</span><span class="s1">&#39;middle&#39;</span><span class="p">)</span>
+<span class="n">t</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">fps</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">fps</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="n">hot_reload</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Run with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">my_script</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">hot</span><span class="o">-</span><span class="n">reload</span>
+</pre></div>
+</div>
+</section>
+<section id="export-video">
+<h3>Export video<a class="headerlink" href="#export-video" title="Link to this heading">¶</a></h3>
+<p>Use <code class="docutils literal notranslate"><span class="pre">export_video</span></code> for MP4 output or <code class="docutils literal notranslate"><span class="pre">export_gif</span></code> for animated GIFs.
+Use <code class="docutils literal notranslate"><span class="pre">export_video</span></code> for headless render pipelines.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="s1">&#39;svgs/export&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#1a1a2e&#39;</span><span class="p">)</span>
+
+<span class="n">rect</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#E76F51&#39;</span><span class="p">)</span>
+<span class="n">rect</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">rect</span><span class="o">.</span><span class="n">rotate_by</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="mi">360</span><span class="p">)</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">rect</span><span class="p">)</span>
+
+<span class="c1"># Export a video</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;spinning_rect.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="c1"># Export a single PNG frame</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">export_png</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;frame_at_2.5s.png&#39;</span><span class="p">)</span>
+
+<span class="c1"># Export an animated GIF</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">export_gif</span><span class="p">(</span><span class="s1">&#39;spinning_rect.gif&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="sections-for-structured-playback">
+<h3>Sections for structured playback<a class="headerlink" href="#sections-for-structured-playback" title="Link to this heading">¶</a></h3>
+<p>Sections create pause points in the browser viewer, useful for
+presentation-style animations.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
+<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="s1">&#39;svgs/sections&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">title</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Part 1&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">72</span><span class="p">,</span>
+             <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#fff&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">text_anchor</span><span class="o">=</span><span class="s1">&#39;middle&#39;</span><span class="p">)</span>
+<span class="n">title</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">add_section</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># pause here</span>
+
+<span class="n">subtitle</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;Part 2&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">640</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
+                <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#aaa&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">text_anchor</span><span class="o">=</span><span class="s1">&#39;middle&#39;</span><span class="p">)</span>
+<span class="n">subtitle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">add_section</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>  <span class="c1"># pause here again</span>
+
+<span class="n">canvas</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">subtitle</span><span class="p">)</span>
+<span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">fps</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">fps</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="tips-and-best-practices">
+<h2>Tips and Best Practices<a class="headerlink" href="#tips-and-best-practices" title="Link to this heading">¶</a></h2>
+<p><strong>One canvas per script.</strong> Each script should create a single
+<code class="docutils literal notranslate"><span class="pre">VectorMathAnim</span></code> instance. The canvas manages a global save directory
+used by TeX caching and frame output.</p>
+<p><strong>Use parse_args() for flexibility.</strong> Using <code class="docutils literal notranslate"><span class="pre">args.output</span></code> to
+conditionally call <code class="docutils literal notranslate"><span class="pre">export_video</span></code> makes your script usable both
+interactively and in CI pipelines.</p>
+<p><strong>Add objects before displaying.</strong> All objects must be registered with
+<code class="docutils literal notranslate"><span class="pre">add_objects</span></code> (or <code class="docutils literal notranslate"><span class="pre">add</span></code>) before calling <code class="docutils literal notranslate"><span class="pre">browser_display</span></code> or
+<code class="docutils literal notranslate"><span class="pre">export_video</span></code>. Objects added after display starts will not appear.</p>
+<p><strong>Auto-detected end time.</strong> When <code class="docutils literal notranslate"><span class="pre">end=None</span></code>, the canvas scans every
+registered object’s <code class="docutils literal notranslate"><span class="pre">last_change</span></code> attribute plus its own camera
+keyframes to determine the animation duration. This means objects
+created but not added to the canvas do not contribute to the end time.</p>
+<p><strong>Z-ordering.</strong> Objects are drawn sorted by their <code class="docutils literal notranslate"><span class="pre">z</span></code> attribute.
+Lower values render first (behind); higher values render on top. The
+background defaults to <code class="docutils literal notranslate"><span class="pre">z=-1</span></code>. Use <code class="docutils literal notranslate"><span class="pre">obj.to_front()</span></code> or
+<code class="docutils literal notranslate"><span class="pre">obj.to_back()</span></code> for quick adjustments, or <code class="docutils literal notranslate"><span class="pre">obj.set_z(value)</span></code> for
+precise control.</p>
+<p><strong>Static previews.</strong> Use <code class="docutils literal notranslate"><span class="pre">browser_display(end=0)</span></code> to display a
+single frame at <code class="docutils literal notranslate"><span class="pre">start</span></code> without animation. This is handy for
+checking layouts and positioning before adding animations.</p>
+<p><strong>Camera methods chain.</strong> All camera methods return <code class="docutils literal notranslate"><span class="pre">self</span></code>, so you
+can chain them:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">canvas</span>
+    <span class="o">.</span><span class="n">camera_zoom</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">camera_shift</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">camera_reset</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+<p><strong>Scale for high-DPI export.</strong> Pass <code class="docutils literal notranslate"><span class="pre">scale=2</span></code> to the constructor or
+to <code class="docutils literal notranslate"><span class="pre">export_video</span></code> / <code class="docutils literal notranslate"><span class="pre">export_png</span></code> to render at 2x resolution
+(3840x2160 for the default 1920x1080 canvas).</p>
+<p><strong>Hot reload workflow.</strong> Run your script with <code class="docutils literal notranslate"><span class="pre">--hot-reload</span></code>, keep
+the browser tab open, and edit your script in a separate editor. On
+each file save the animation restarts with your changes.</p>
+</section>
 </section>
 
         </article>
@@ -451,22 +1199,73 @@ Aliases: <code class="docutils literal notranslate"><span class="pre">add_gradie
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">VectorMathAnim</a><ul>
+<li><a class="reference internal" href="#constructor">Constructor</a><ul>
 <li><a class="reference internal" href="#VectorMathAnim"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim</span></code></a><ul>
+<li><a class="reference internal" href="#VectorMathAnim.duration"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.duration</span></code></a></li>
+<li><a class="reference internal" href="#VectorMathAnim.viewbox"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.viewbox</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#scene-setup">Scene Setup</a><ul>
 <li><a class="reference internal" href="#VectorMathAnim.set_background"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.set_background()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#adding-and-removing-objects">Adding and Removing Objects</a><ul>
 <li><a class="reference internal" href="#VectorMathAnim.add_objects"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.add_objects()</span></code></a></li>
+<li><a class="reference internal" href="#VectorMathAnim.remove"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.remove()</span></code></a></li>
+<li><a class="reference internal" href="#VectorMathAnim.clear"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.clear()</span></code></a></li>
 <li><a class="reference internal" href="#VectorMathAnim.add_def"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.add_def()</span></code></a></li>
 <li><a class="reference internal" href="#VectorMathAnim.add_section"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.add_section()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#frame-generation">Frame Generation</a><ul>
 <li><a class="reference internal" href="#VectorMathAnim.generate_frame_svg"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.generate_frame_svg()</span></code></a></li>
 <li><a class="reference internal" href="#VectorMathAnim.write_frame"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.write_frame()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#camera-controls">Camera Controls</a><ul>
+<li><a class="reference internal" href="#VectorMathAnim.camera_shift"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.camera_shift()</span></code></a></li>
+<li><a class="reference internal" href="#VectorMathAnim.camera_zoom"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.camera_zoom()</span></code></a></li>
+<li><a class="reference internal" href="#VectorMathAnim.camera_follow"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.camera_follow()</span></code></a></li>
+<li><a class="reference internal" href="#VectorMathAnim.camera_reset"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.camera_reset()</span></code></a></li>
+<li><a class="reference internal" href="#VectorMathAnim.focus_on"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.focus_on()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#display">Display</a><ul>
 <li><a class="reference internal" href="#VectorMathAnim.browser_display"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.browser_display()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#export">Export</a><ul>
 <li><a class="reference internal" href="#VectorMathAnim.export_png"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.export_png()</span></code></a></li>
 <li><a class="reference internal" href="#VectorMathAnim.export_video"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.export_video()</span></code></a></li>
 <li><a class="reference internal" href="#VectorMathAnim.export_gif"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.export_gif()</span></code></a></li>
 <li><a class="reference internal" href="#VectorMathAnim.export_sections"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.export_sections()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#inspection">Inspection</a><ul>
+<li><a class="reference internal" href="#VectorMathAnim.get_all_objects"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.get_all_objects()</span></code></a></li>
+<li><a class="reference internal" href="#VectorMathAnim.find_by_type"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.find_by_type()</span></code></a></li>
+<li><a class="reference internal" href="#VectorMathAnim.find"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.find()</span></code></a></li>
+<li><a class="reference internal" href="#VectorMathAnim.get_object_count"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.get_object_count()</span></code></a></li>
+<li><a class="reference internal" href="#VectorMathAnim.list_objects_by_type"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.list_objects_by_type()</span></code></a></li>
 <li><a class="reference internal" href="#VectorMathAnim.get_visible_objects_info"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.get_visible_objects_info()</span></code></a></li>
 <li><a class="reference internal" href="#VectorMathAnim.get_snap_points"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim.get_snap_points()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#cli-utility">CLI Utility</a><ul>
+<li><a class="reference internal" href="#parse_args"><code class="docutils literal notranslate"><span class="pre">parse_args()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#workflow-examples">Workflow Examples</a><ul>
+<li><a class="reference internal" href="#basic-setup">Basic setup</a></li>
+<li><a class="reference internal" href="#camera-animation">Camera animation</a></li>
+<li><a class="reference internal" href="#browser-preview-with-hot-reload">Browser preview with hot reload</a></li>
+<li><a class="reference internal" href="#export-video">Export video</a></li>
+<li><a class="reference internal" href="#sections-for-structured-playback">Sections for structured playback</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tips-and-best-practices">Tips and Best Practices</a></li>
 </ul>
 </li>
 </ul>

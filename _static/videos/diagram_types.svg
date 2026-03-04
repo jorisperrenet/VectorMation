@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='860' viewBox='0 0 1920 860'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='860' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><text x='960' y='50' font-size='44' text-anchor='middle' fill='rgb(88,196,221)' stroke='rgb(0,0,0)' stroke-width='0'>Diagram Types</text></g>
+<g data-obj-idx='2'><text x='320' y='110' font-size='22' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>VennDiagram</text></g>
+<g data-obj-idx='3'><g>
+<circle cx='320.0' cy='201.5' r='90' fill='rgb(88,196,221)' fill-opacity='0.25' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='269.34' cy='289.25' r='90' fill='rgb(255,107,107)' fill-opacity='0.25' stroke='rgb(255,107,107)' stroke-width='2' />
+<circle cx='370.66' cy='289.25' r='90' fill='rgb(131,193,103)' fill-opacity='0.25' stroke='rgb(131,193,103)' stroke-width='2' />
+<text x='320.0' y='97.1' font-size='16' text-anchor='middle' fill='rgb(88,196,221)' stroke='rgb(0,0,0)' stroke-width='0'>Sets</text>
+<text x='174.07' y='349.85' font-size='16' text-anchor='middle' fill='rgb(255,107,107)' stroke='rgb(0,0,0)' stroke-width='0'>Logic</text>
+<text x='465.93' y='349.85' font-size='16' text-anchor='middle' fill='rgb(131,193,103)' stroke='rgb(0,0,0)' stroke-width='0'>Math</text>
+</g></g>
+<g data-obj-idx='4'><text x='960' y='110' font-size='22' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>OrgChart</text></g>
+<g data-obj-idx='5'><g>
+<path d='M960.0,210.0 L960.0,222.5 L905.0,222.5 L905.0,250.0' fill-opacity='0' stroke='rgb(102,102,102)' stroke-width='1.5' />
+<path d='M960.0,210.0 L960.0,222.5 L1015.0,222.5 L1015.0,250.0' fill-opacity='0' stroke='rgb(102,102,102)' stroke-width='1.5' />
+<path d='M905.0,280.0 L905.0,292.5 L850.0,292.5 L850.0,320.0' fill-opacity='0' stroke='rgb(102,102,102)' stroke-width='1.5' />
+<path d='M905.0,280.0 L905.0,292.5 L960.0,292.5 L960.0,320.0' fill-opacity='0' stroke='rgb(102,102,102)' stroke-width='1.5' />
+<path d='M1015.0,280.0 L1015.0,292.5 L1070.0,292.5 L1070.0,320.0' fill-opacity='0' stroke='rgb(102,102,102)' stroke-width='1.5' />
+<rect x='920.0' y='180' width='80' height='30' rx='6' ry='6' fill='rgb(88,196,221)' fill-opacity='0.85' stroke='rgb(88,196,221)' />
+<rect x='865.0' y='250' width='80' height='30' rx='6' ry='6' fill='rgb(131,193,103)' fill-opacity='0.85' stroke='rgb(131,193,103)' />
+<rect x='810.0' y='320' width='80' height='30' rx='6' ry='6' fill='rgb(255,107,107)' fill-opacity='0.85' stroke='rgb(255,107,107)' />
+<rect x='920.0' y='320' width='80' height='30' rx='6' ry='6' fill='rgb(255,107,107)' fill-opacity='0.85' stroke='rgb(255,107,107)' />
+<rect x='975.0' y='250' width='80' height='30' rx='6' ry='6' fill='rgb(131,193,103)' fill-opacity='0.85' stroke='rgb(131,193,103)' />
+<rect x='1030.0' y='320' width='80' height='30' rx='6' ry='6' fill='rgb(255,107,107)' fill-opacity='0.85' stroke='rgb(255,107,107)' />
+<text x='960.0' y='199.55' font-size='13' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>CEO</text>
+<text x='905.0' y='269.55' font-size='13' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>CTO</text>
+<text x='850.0' y='339.55' font-size='13' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Dev</text>
+<text x='960.0' y='339.55' font-size='13' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>QA</text>
+<text x='1015.0' y='269.55' font-size='13' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>CFO</text>
+<text x='1070.0' y='339.55' font-size='13' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Acct</text>
+</g></g>
+<g data-obj-idx='6'><text x='1600' y='110' font-size='22' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>MindMap</text></g>
+<g data-obj-idx='7'><g>
+<line x1='1600' y1='260' x2='1600.0' y2='140.0' stroke='rgb(131,193,103)' stroke-width='2' stroke-opacity='0.5' />
+<line x1='1600' y1='260' x2='1720.0' y2='260.0' stroke='rgb(255,107,107)' stroke-width='2' stroke-opacity='0.5' />
+<line x1='1600' y1='260' x2='1600.0' y2='380.0' stroke='rgb(255,255,0)' stroke-width='2' stroke-opacity='0.5' />
+<line x1='1600' y1='260' x2='1480.0' y2='260.0' stroke='rgb(255,121,198)' stroke-width='2' stroke-opacity='0.5' />
+<circle cx='1600' cy='260' r='35' fill='rgb(88,196,221)' fill-opacity='0.9' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='1600.0' cy='140.0' r='25' fill='rgb(131,193,103)' fill-opacity='0.85' stroke='rgb(131,193,103)' stroke-width='1.5' />
+<circle cx='1720.0' cy='260.0' r='25' fill='rgb(255,107,107)' fill-opacity='0.85' stroke='rgb(255,107,107)' stroke-width='1.5' />
+<circle cx='1600.0' cy='380.0' r='25' fill='rgb(255,255,0)' fill-opacity='0.85' stroke='rgb(255,255,0)' stroke-width='1.5' />
+<circle cx='1480.0' cy='260.0' r='25' fill='rgb(255,121,198)' fill-opacity='0.85' stroke='rgb(255,121,198)' stroke-width='1.5' />
+<text x='1600' y='264.9' font-size='14' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Core</text>
+<text x='1600.0' y='144.16' font-size='11.9' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Design</text>
+<text x='1720.0' y='264.17' font-size='11.9' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Code</text>
+<text x='1600.0' y='384.17' font-size='11.9' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Test</text>
+<text x='1480.0' y='264.17' font-size='11.9' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Deploy</text>
+</g></g>
+<g data-obj-idx='8'><text x='320' y='460' font-size='22' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>BoxPlot</text></g>
+<g data-obj-idx='9'><g>
+<rect x='169.17' y='670.91' width='35' height='24.44' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.3' stroke='rgb(88,196,221)' stroke-width='1.5' />
+<line x1='176.17' y1='732.02' x2='197.17' y2='732.02' stroke='rgb(170,170,170)' stroke-width='1.5' />
+<line x1='176.17' y1='643.47' x2='197.17' y2='643.47' stroke='rgb(170,170,170)' stroke-width='1.5' />
+<line x1='186.67' y1='695.35' x2='186.67' y2='732.02' stroke='rgb(170,170,170)' />
+<line x1='186.67' y1='670.91' x2='186.67' y2='643.47' stroke='rgb(170,170,170)' />
+<text x='186.67' y='785.0' font-size='11' text-anchor='middle' fill='rgb(136,136,136)' stroke='rgb(0,0,0)' stroke-width='0'>1</text>
+<rect x='302.5' y='603.84' width='35' height='69.3' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.3' stroke='rgb(88,196,221)' stroke-width='1.5' />
+<line x1='309.5' y1='768.56' x2='330.5' y2='768.56' stroke='rgb(170,170,170)' stroke-width='1.5' />
+<line x1='309.5' y1='520.0' x2='330.5' y2='520.0' stroke='rgb(170,170,170)' stroke-width='1.5' />
+<line x1='320.0' y1='673.13' x2='320.0' y2='768.56' stroke='rgb(170,170,170)' />
+<line x1='320.0' y1='603.84' x2='320.0' y2='520.0' stroke='rgb(170,170,170)' />
+<text x='320.0' y='785.0' font-size='11' text-anchor='middle' fill='rgb(136,136,136)' stroke='rgb(0,0,0)' stroke-width='0'>2</text>
+<rect x='435.83' y='704.16' width='35' height='31.77' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.3' stroke='rgb(88,196,221)' stroke-width='1.5' />
+<line x1='442.83' y1='770.0' x2='463.83' y2='770.0' stroke='rgb(170,170,170)' stroke-width='1.5' />
+<line x1='442.83' y1='658.65' x2='463.83' y2='658.65' stroke='rgb(170,170,170)' stroke-width='1.5' />
+<line x1='453.33' y1='735.93' x2='453.33' y2='770.0' stroke='rgb(170,170,170)' />
+<line x1='453.33' y1='704.16' x2='453.33' y2='658.65' stroke='rgb(170,170,170)' />
+<text x='453.33' y='785.0' font-size='11' text-anchor='middle' fill='rgb(136,136,136)' stroke='rgb(0,0,0)' stroke-width='0'>3</text>
+<line x1='169.17' y1='683.61' x2='204.17' y2='683.61' stroke='rgb(255,107,107)' stroke-width='2' />
+<line x1='302.5' y1='619.6' x2='337.5' y2='619.6' stroke='rgb(255,107,107)' stroke-width='2' />
+<line x1='435.83' y1='721.24' x2='470.83' y2='721.24' stroke='rgb(255,107,107)' stroke-width='2' />
+</g></g>
+<g data-obj-idx='10'><text x='960' y='460' font-size='22' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>BinaryTree</text></g>
+<g data-obj-idx='11'><g>
+<line x1='960' y1='530' x2='895.0' y2='610' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='895.0' y1='610' x2='862.5' y2='690' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='895.0' y1='610' x2='927.5' y2='690' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='960' y1='530' x2='1025.0' y2='610' stroke='rgb(136,136,136)' stroke-width='2' />
+<line x1='1025.0' y1='610' x2='1057.5' y2='690' stroke='rgb(136,136,136)' stroke-width='2' />
+<circle cx='960' cy='530' r='20' fill='rgb(30,30,46)' fill-opacity='0.7' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='895.0' cy='610' r='20' fill='rgb(30,30,46)' fill-opacity='0.7' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='862.5' cy='690' r='20' fill='rgb(30,30,46)' fill-opacity='0.7' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='927.5' cy='690' r='20' fill='rgb(30,30,46)' fill-opacity='0.7' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='1025.0' cy='610' r='20' fill='rgb(30,30,46)' fill-opacity='0.7' stroke='rgb(88,196,221)' stroke-width='2' />
+<circle cx='1057.5' cy='690' r='20' fill='rgb(30,30,46)' fill-opacity='0.7' stroke='rgb(88,196,221)' stroke-width='2' />
+<text x='960' y='535.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>A</text>
+<text x='895.0' y='615.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>B</text>
+<text x='862.5' y='695.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>D</text>
+<text x='927.5' y='695.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>E</text>
+<text x='1025.0' y='615.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>C</text>
+<text x='1057.5' y='695.6' font-size='16' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>F</text>
+</g></g>
+<g data-obj-idx='12'><text x='1600' y='460' font-size='22' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Stamp</text></g>
+<g data-obj-idx='13'><g>
+<polygon points='1500.0,532.86 1492.95,553.16 1471.47,553.59 1488.59,566.57 1482.37,587.14 1500.0,574.86 1517.63,587.14 1511.41,566.57 1528.53,553.59 1507.05,553.16' fill='rgb(255,215,0)' fill-opacity='0.85' stroke='rgb(255,165,0)' stroke-width='2' />
+<polygon points='1700.0,532.86 1692.95,553.16 1671.47,553.59 1688.59,566.57 1682.37,587.14 1700.0,574.86 1717.63,587.14 1711.41,566.57 1728.53,553.59 1707.05,553.16' fill='rgb(255,215,0)' fill-opacity='0.85' stroke='rgb(255,165,0)' stroke-width='2' />
+<polygon points='1600.0,642.86 1592.95,663.16 1571.47,663.59 1588.59,676.57 1582.37,697.14 1600.0,684.86 1617.63,697.14 1611.41,676.57 1628.53,663.59 1607.05,663.16' fill='rgb(255,215,0)' fill-opacity='0.85' stroke='rgb(255,165,0)' stroke-width='2' />
+<polygon points='1540.0,612.86 1532.95,633.16 1511.47,633.59 1528.59,646.57 1522.37,667.14 1540.0,654.86 1557.63,667.14 1551.41,646.57 1568.53,633.59 1547.05,633.16' fill='rgb(255,215,0)' fill-opacity='0.85' stroke='rgb(255,165,0)' stroke-width='2' />
+</g></g>
+</svg>

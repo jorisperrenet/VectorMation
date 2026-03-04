@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<polygon points='460.0,140.0 1460.0,140.0 1460.0,296.8 460.0,296.8' fill='rgb(88,196,221)' fill-opacity='0.85' stroke='rgb(88,196,221)' />
+<polygon points='460.0,300.8 1460.0,300.8 1210.0,457.6 710.0,457.6' fill='rgb(131,193,103)' fill-opacity='0.85' stroke='rgb(131,193,103)' />
+<polygon points='710.0,461.6 1210.0,461.6 1085.0,618.4 835.0,618.4' fill='rgb(255,107,107)' fill-opacity='0.85' stroke='rgb(255,107,107)' />
+<polygon points='835.0,622.4 1085.0,622.4 1020.0,779.2 900.0,779.2' fill='rgb(255,255,0)' fill-opacity='0.85' stroke='rgb(255,255,0)' />
+<polygon points='900.0,783.2 1020.0,783.2 980.0,940.0 940.0,940.0' fill='rgb(255,121,198)' fill-opacity='0.85' stroke='rgb(255,121,198)' />
+<text x='960.0' y='225.4' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Visitors (10000)</text>
+<text x='960.0' y='386.2' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Signups (5000)</text>
+<text x='960.0' y='547.0' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Active (2500)</text>
+<text x='960.0' y='707.8' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Paid (1200)</text>
+<text x='960.0' y='868.6' font-size='20' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Enterprise (400)</text>
+</g></g>
+</svg>

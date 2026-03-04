@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<rect x='640' y='340' width='640' height='400' rx='10' ry='10' fill='rgb(26,26,46)' fill-opacity='0.9' stroke='rgb(51,51,51)' />
+<text x='960.0' y='370' font-size='48.0' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>Revenue</text>
+<text x='960.0' y='573.6' font-size='96' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>$1.2M</text>
+<text x='960.0' y='631.2' font-size='28.8' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>+12% MoM</text>
+<path d="M768.0,725.0L810.7,715.0L853.3,720.0L896.0,705.0L938.7,710.0L981.3,695.0L1024.0,700.0L1066.7,680.0L1109.3,685.0L1152.0,665.0" fill-opacity='0' stroke='rgb(88,196,221)'/><circle cx="1152.0" cy="665.0" r="2.5" fill="rgb(88,196,221)"/>
+</g></g>
+</svg>

@@ -207,16 +207,24 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/vobject.html">VObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html">Shapes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/text.html">Text &amp; LaTeX</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/collections.html">Collections &amp; Arrows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/collections.html">Collections, Arrows &amp; Data Structures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/graphing.html">Graphing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html">Charts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html">UI Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html">Diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/physics.html">Physics Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/science.html">Science</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/threed.html">3D Objects</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/attributes.html">Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/svg_utils.html">SVG Utilities</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="attributes.html">Attributes: Time-Varying Values</a></li>
 <li class="toctree-l1"><a class="reference internal" href="animation.html">Animation &amp; Playback</a></li>
 <li class="toctree-l1"><a class="reference internal" href="graphing.html">Graphing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_examples.html">Advanced Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vs_manim.html">vs Manim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
 </ul>
@@ -259,7 +267,22 @@
         <article role="main" id="furo-main-content">
           <section id="tutorial-your-first-animation">
 <h1>Tutorial: Your First Animation<a class="headerlink" href="#tutorial-your-first-animation" title="Link to this heading">¶</a></h1>
-<p>This tutorial walks through building a spiral animation step by step.</p>
+<p>This tutorial walks through building animations step by step, starting from
+the very basics.</p>
+<section id="the-coordinate-system">
+<h2>The Coordinate System<a class="headerlink" href="#the-coordinate-system" title="Link to this heading">¶</a></h2>
+<p>VectorMation uses an SVG canvas of <strong>1920 x 1080</strong> pixels. The origin
+(<code class="docutils literal notranslate"><span class="pre">ORIGIN</span></code>) is at the <strong>centre</strong> of the canvas: <code class="docutils literal notranslate"><span class="pre">(960,</span> <span class="pre">540)</span></code>.</p>
+<ul class="simple">
+<li><p><strong>X</strong> increases to the right</p></li>
+<li><p><strong>Y</strong> increases downward (standard SVG convention)</p></li>
+<li><p>One abstract unit (<code class="docutils literal notranslate"><span class="pre">UNIT</span></code>) equals 135 pixels</p></li>
+</ul>
+<p>Direction constants like <code class="docutils literal notranslate"><span class="pre">UP</span></code>, <code class="docutils literal notranslate"><span class="pre">DOWN</span></code>, <code class="docutils literal notranslate"><span class="pre">LEFT</span></code>, <code class="docutils literal notranslate"><span class="pre">RIGHT</span></code> are available
+for convenience. Note that <code class="docutils literal notranslate"><span class="pre">UP</span> <span class="pre">=</span> <span class="pre">(0,</span> <span class="pre">-1)</span></code> because Y points down.</p>
+</section>
+<section id="hello-shapes">
+<h2>Hello Shapes<a class="headerlink" href="#hello-shapes" title="Link to this heading">¶</a></h2>
 <p>Every VectorMation script starts by creating a canvas:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 
@@ -267,12 +290,90 @@
 <span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Create a dot at the centre of the canvas and make it move rightward:</p>
+<p>Create some shapes, add entrance animations, and display them:</p>
+<div class="example admonition">
+<p class="admonition-title">Example: basic shapes</p>
+<video src="_static/videos/tutorial_shapes.mp4" controls autoplay loop muted></video><p>Create a circle, rectangle, and text. Fade them in one at a time,
+then shift them all upward together.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="c1"># Create three shapes</span>
+<span class="n">circle</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">rect</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span><span class="mi">160</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">880</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">460</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Hello!&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">1440</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;WHITE&#39;</span><span class="p">)</span>
+
+<span class="c1"># Fade them in one at a time</span>
+<span class="n">circle</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">rect</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Move them together</span>
+<span class="n">circle</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dy</span><span class="o">=-</span><span class="mi">150</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">3.5</span><span class="p">)</span>
+<span class="n">rect</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dy</span><span class="o">=-</span><span class="mi">150</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">3.5</span><span class="p">)</span>
+<span class="n">text</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dy</span><span class="o">=-</span><span class="mi">150</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">3.5</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">circle</span><span class="p">,</span> <span class="n">rect</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/tutorial_shapes.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="the-timing-model">
+<h2>The Timing Model<a class="headerlink" href="#the-timing-model" title="Link to this heading">¶</a></h2>
+<p>Animations are scheduled with <code class="docutils literal notranslate"><span class="pre">start=</span></code> and <code class="docutils literal notranslate"><span class="pre">end=</span></code> parameters. Every
+animation method accepts these two values (in seconds):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dot</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>        <span class="c1"># fade in during t=0..1</span>
+<span class="n">dot</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># slide right during t=1..2</span>
+<span class="n">dot</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dy</span><span class="o">=-</span><span class="mi">200</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># slide up during t=2..3</span>
+</pre></div>
+</div>
+<p>Animations at different times happen sequentially; animations at the same
+time happen simultaneously.</p>
+<div class="example admonition">
+<p class="admonition-title">Example: timing model</p>
+<video src="_static/videos/tutorial_timing.mp4" controls autoplay loop muted></video><p>Sequential <code class="docutils literal notranslate"><span class="pre">shift</span></code> calls with consecutive <code class="docutils literal notranslate"><span class="pre">start</span></code>/<code class="docutils literal notranslate"><span class="pre">end</span></code> values
+create a step-by-step path.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">dot</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">)</span>
+<span class="n">dot</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># Sequential animations using start= and end=</span>
+<span class="n">dot</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>   <span class="c1"># move right</span>
+<span class="n">dot</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dy</span><span class="o">=-</span><span class="mi">200</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>  <span class="c1"># move up</span>
+<span class="n">dot</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">3.5</span><span class="p">)</span>   <span class="c1"># move right again</span>
+<span class="n">dot</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dy</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">4.5</span><span class="p">)</span>   <span class="c1"># move down</span>
+
+<span class="c1"># Add time markers as text</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">]):</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;t=</span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">300</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">150</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#666666&#39;</span><span class="p">)</span>
+    <span class="n">label</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">t</span> <span class="o">-</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">t</span> <span class="o">+</span> <span class="mf">0.2</span><span class="p">)</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">dot</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/tutorial_timing.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="building-a-spiral">
+<h2>Building a Spiral<a class="headerlink" href="#building-a-spiral" title="Link to this heading">¶</a></h2>
+<p>Now let’s build something more interesting. Create a dot at the centre and
+make it move rightward:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">point</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">)</span>
 <span class="n">point</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">func_inner</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="mi">80</span> <span class="o">+</span> <span class="mi">960</span><span class="p">,</span> <span class="mi">540</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>Add rotation around the canvas centre – combined with the linear motion this creates a spiral:</p>
+<p>Add rotation around the canvas centre – combined with the linear motion this
+creates a spiral:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">point</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">rotate_around</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">pivot_point</span><span class="o">=</span><span class="p">(</span><span class="mi">960</span><span class="p">,</span> <span class="mi">540</span><span class="p">),</span> <span class="n">degrees</span><span class="o">=</span><span class="mi">360</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -281,25 +382,30 @@
 </pre></div>
 </div>
 <p>Register objects and open the browser viewer:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">canvas</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span>
 <span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">fps</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Complete script:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-
-<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="s1">&#39;svgs/tutorial&#39;</span><span class="p">)</span>
-<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<div class="example admonition">
+<p class="admonition-title">Example: spiral animation</p>
+<video src="_static/videos/tutorial_spiral.mp4" controls autoplay loop muted></video><p>A dot spirals outward for 4 revolutions while leaving a trace trail.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">point</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">)</span>
 <span class="n">trace</span> <span class="o">=</span> <span class="n">Trace</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 <span class="n">point</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">func_inner</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="mi">80</span> <span class="o">+</span> <span class="mi">960</span><span class="p">,</span> <span class="mi">540</span><span class="p">))</span>
 <span class="n">point</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">rotate_around</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">pivot_point</span><span class="o">=</span><span class="p">(</span><span class="mi">960</span><span class="p">,</span> <span class="mi">540</span><span class="p">),</span> <span class="n">degrees</span><span class="o">=</span><span class="mi">360</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
 
-<span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span>
-<span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">fps</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/tutorial_spiral.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
 </pre></div>
 </div>
+</div>
+</section>
 <section id="next-steps">
 <h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h2>
 <ul class="simple">
@@ -366,6 +472,10 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Tutorial: Your First Animation</a><ul>
+<li><a class="reference internal" href="#the-coordinate-system">The Coordinate System</a></li>
+<li><a class="reference internal" href="#hello-shapes">Hello Shapes</a></li>
+<li><a class="reference internal" href="#the-timing-model">The Timing Model</a></li>
+<li><a class="reference internal" href="#building-a-spiral">Building a Spiral</a></li>
 <li><a class="reference internal" href="#next-steps">Next Steps</a></li>
 </ul>
 </li>

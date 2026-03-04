@@ -207,16 +207,24 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/vobject.html">VObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html">Shapes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/text.html">Text &amp; LaTeX</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/collections.html">Collections &amp; Arrows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/collections.html">Collections, Arrows &amp; Data Structures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/graphing.html">Graphing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html">Charts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html">UI Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html">Diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/physics.html">Physics Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/science.html">Science</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/threed.html">3D Objects</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/attributes.html">Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/svg_utils.html">SVG Utilities</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="attributes.html">Attributes: Time-Varying Values</a></li>
 <li class="toctree-l1"><a class="reference internal" href="animation.html">Animation &amp; Playback</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Graphing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_examples.html">Advanced Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vs_manim.html">vs Manim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
 </ul>
@@ -264,18 +272,21 @@
 <h2>Graph<a class="headerlink" href="#graph" title="Link to this heading">¶</a></h2>
 <section id="basic-usage">
 <h3>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-
-<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="s1">&#39;svgs/graph&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
-<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<div class="example admonition">
+<p class="admonition-title">Example: Basic sin graph</p>
+<img src="_static/videos/graph_basic.svg" style="width:100%"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">graph</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span>
               <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">))</span>
 
-<span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
-<span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">end_time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">write_frame</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;docs/source/_static/videos/graph_basic.svg&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
 </pre></div>
+</div>
 </div>
 </section>
 <section id="constructor">
@@ -391,39 +402,43 @@
 animated like any other property. Use the convenience methods to animate both ends at once:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span><span class="o">.</span><span class="n">set_x_range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>           <span class="c1"># animate x-axis bounds</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_y_range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">18</span><span class="p">))</span>          <span class="c1"># animate y-axis bounds</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_ranges</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">18</span><span class="p">))</span>   <span class="c1"># animate both at once</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ranges</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>   <span class="c1"># animate both at once</span>
 </pre></div>
 </div>
 <p>You can also animate individual bounds directly:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span><span class="o">.</span><span class="n">x_max</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>  <span class="c1"># only change the upper x bound</span>
 </pre></div>
 </div>
-<p>Full example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-
-<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="s1">&#39;svgs/zoom&#39;</span><span class="p">)</span>
-<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<div class="example admonition">
+<p class="admonition-title">Example: Animated axis zoom</p>
+<video src="_static/videos/graph_zoom.mp4" controls autoplay loop muted></video><p>Axis decorations (lines, ticks, tick labels, grid) automatically re-render each frame to match the
+current range. Curves resample the function at each frame too, so everything stays in sync.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">ax</span> <span class="o">=</span> <span class="n">Axes</span><span class="p">(</span><span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">26</span><span class="p">))</span>
 <span class="n">curve</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">)</span>
 
 <span class="c1"># Zoom into x=[1, 4], y=[0, 18]</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_ranges</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">18</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ranges</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
-<span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
-<span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">fps</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/graph_zoom.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
 </pre></div>
 </div>
-<p>Axis decorations (lines, ticks, tick labels, grid) automatically re-render each frame to match the
-current range. Curves resample the function at each frame too, so everything stays in sync.</p>
+</div>
 </section>
 <section id="example-animated-graph">
 <h3>Example: Animated Graph<a class="headerlink" href="#example-animated-graph" title="Link to this heading">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-
-<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="s1">&#39;svgs/graph_anim&#39;</span><span class="p">)</span>
-<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<div class="example admonition">
+<p class="admonition-title">Example: Animated sin + cos</p>
+<video src="_static/videos/graph_animated_ref.mp4" controls autoplay loop muted></video><p>Draw a sin curve, then add and animate a cos curve on the same axes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">graph</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span>
               <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">))</span>
@@ -435,9 +450,12 @@ current range. Curves resample the function at each frame too, so everything sta
 <span class="n">cos_curve</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">add_function</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">,</span> <span class="n">stroke</span><span class="o">=</span><span class="s1">&#39;#FC6255&#39;</span><span class="p">)</span>
 <span class="n">cos_curve</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">4.5</span><span class="p">)</span>
 
-<span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
-<span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">fps</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/graph_animated_ref.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
 </pre></div>
+</div>
 </div>
 </section>
 </section>
@@ -488,21 +506,24 @@ current range. Curves resample the function at each frame too, so everything sta
 </section>
 <section id="example">
 <h3>Example<a class="headerlink" href="#example" title="Link to this heading">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-
-<span class="n">canvas</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="s1">&#39;svgs/func_graph&#39;</span><span class="p">)</span>
-<span class="n">canvas</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+<div class="example admonition">
+<p class="admonition-title">Example: FunctionGraph with draw_along</p>
+<video src="_static/videos/graph_functiongraph.mp4" controls autoplay loop muted></video><p><code class="docutils literal notranslate"><span class="pre">FunctionGraph</span></code> extends <code class="docutils literal notranslate"><span class="pre">Lines</span></code>, so all <code class="docutils literal notranslate"><span class="pre">VObject</span></code> animation methods (fadein, write, shift, etc.) work directly on it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
 
 <span class="n">curve</span> <span class="o">=</span> <span class="n">FunctionGraph</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">,</span> <span class="n">x_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span>
                       <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">350</span><span class="p">)</span>
 <span class="n">curve</span><span class="o">.</span><span class="n">draw_along</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
-<span class="n">canvas</span><span class="o">.</span><span class="n">add_objects</span><span class="p">(</span><span class="n">curve</span><span class="p">)</span>
-<span class="n">canvas</span><span class="o">.</span><span class="n">browser_display</span><span class="p">(</span><span class="n">fps</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">curve</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/graph_functiongraph.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">FunctionGraph</span></code> extends <code class="docutils literal notranslate"><span class="pre">Lines</span></code>, so all <code class="docutils literal notranslate"><span class="pre">VObject</span></code> animation methods (fadein, write, shift, etc.) work directly on it.</p>
+</div>
 </section>
 </section>
 </section>

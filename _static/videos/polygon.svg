@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><polygon points='460.0,540.0 340.0,470.72 340,609.28' fill='rgb(231,76,60)' fill-opacity='0.7' stroke='rgb(255,255,255)' stroke-width='5' /></g>
+<g data-obj-idx='2'><polygon points='1040.0,540.0 984.72,463.92 895.28,492.98 895.28,587.02 984.72,616.08' fill='rgb(88,196,221)' fill-opacity='0.7' stroke='rgb(255,255,255)' stroke-width='5' /></g>
+<g data-obj-idx='3'><polygon points='1620.0,540.0 1580.0,470.72 1500.0,470.72 1460.0,540.0 1500.0,609.28 1580.0,609.28' fill='rgb(131,193,103)' fill-opacity='0.7' stroke='rgb(255,255,255)' stroke-width='5' /></g>
+<g data-obj-idx='4'><text x='380' y='680' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>Triangle</text></g>
+<g data-obj-idx='5'><text x='960' y='680' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>Pentagon</text></g>
+<g data-obj-idx='6'><text x='1540' y='680' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>Hexagon</text></g>
+</svg>

@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Animation &amp; Playback" href="animation.html"><link rel="prev" title="Utilities" href="reference/utilities.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Animation &amp; Playback" href="animation.html"><link rel="prev" title="SVG Utilities" href="reference/svg_utils.html">
         <link rel="prefetch" href="_static/logo.svg" as="image">
 
     <link rel="shortcut icon" href="_static/logo.svg"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
@@ -207,16 +207,24 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/vobject.html">VObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html">Shapes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/text.html">Text &amp; LaTeX</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/collections.html">Collections &amp; Arrows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/collections.html">Collections, Arrows &amp; Data Structures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/graphing.html">Graphing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html">Charts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html">UI Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html">Diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/physics.html">Physics Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/science.html">Science</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/threed.html">3D Objects</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/attributes.html">Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/svg_utils.html">SVG Utilities</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Attributes: Time-Varying Values</a></li>
 <li class="toctree-l1"><a class="reference internal" href="animation.html">Animation &amp; Playback</a></li>
 <li class="toctree-l1"><a class="reference internal" href="graphing.html">Graphing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_examples.html">Advanced Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vs_manim.html">vs Manim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
 </ul>
@@ -294,6 +302,13 @@
 </tbody>
 </table>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Every shape exposes its properties as attributes. For example a <code class="docutils literal notranslate"><span class="pre">Circle</span></code>
+has <code class="docutils literal notranslate"><span class="pre">circle.r</span></code> (radius) and <code class="docutils literal notranslate"><span class="pre">circle.c</span></code> (centre), a <code class="docutils literal notranslate"><span class="pre">Rectangle</span></code> has
+<code class="docutils literal notranslate"><span class="pre">rect.width</span></code> and <code class="docutils literal notranslate"><span class="pre">rect.height</span></code>, and a <code class="docutils literal notranslate"><span class="pre">Text</span></code> has <code class="docutils literal notranslate"><span class="pre">text.font_size</span></code>.
+You can animate any of these by calling methods like <code class="docutils literal notranslate"><span class="pre">move_to</span></code> on them.</p>
+</div>
 </section>
 <section id="reading-values">
 <h2>Reading Values<a class="headerlink" href="#reading-values" title="Link to this heading">¶</a></h2>
@@ -324,18 +339,73 @@
 </section>
 <section id="add-onward-start-func-or-value">
 <h3><code class="docutils literal notranslate"><span class="pre">add_onward(start,</span> <span class="pre">func_or_value)</span></code><a class="headerlink" href="#add-onward-start-func-or-value" title="Link to this heading">¶</a></h3>
-<p>Add to the existing value from <code class="docutils literal notranslate"><span class="pre">start</span></code> onwards:</p>
+<p>Add to the existing value from <code class="docutils literal notranslate"><span class="pre">start</span></code> onwards. Accepts a constant or a function:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">circle</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">add_onward</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>  <span class="c1"># radius increases by 20 from t=2</span>
+
+<span class="c1"># With a function: oscillate the radius around its current value</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="n">circle</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">add_onward</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="mi">4</span><span class="p">))</span>
 </pre></div>
 </div>
 </section>
-<section id="move-to-start-time-end-time-end-val-easing-smooth">
-<h3><code class="docutils literal notranslate"><span class="pre">move_to(start_time,</span> <span class="pre">end_time,</span> <span class="pre">end_val,</span> <span class="pre">easing=smooth)</span></code><a class="headerlink" href="#move-to-start-time-end-time-end-val-easing-smooth" title="Link to this heading">¶</a></h3>
+<section id="move-to-start-end-end-val-easing-smooth">
+<h3><code class="docutils literal notranslate"><span class="pre">move_to(start,</span> <span class="pre">end,</span> <span class="pre">end_val,</span> <span class="pre">easing=smooth)</span></code><a class="headerlink" href="#move-to-start-end-end-val-easing-smooth" title="Link to this heading">¶</a></h3>
 <p>Smoothly animate from the current value to <code class="docutils literal notranslate"><span class="pre">end_val</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">circle</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>  <span class="c1"># smoothly grow radius to 200</span>
 </pre></div>
 </div>
+<div class="example admonition">
+<p class="admonition-title">Example: animating radius with move_to</p>
+<video src="_static/videos/attr_move_to.mp4" controls autoplay loop muted></video><p>Smoothly grow and shrink a circle’s radius using <code class="docutils literal notranslate"><span class="pre">move_to</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">circle</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">circle</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># Smoothly grow the radius from 40 to 200</span>
+<span class="n">circle</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="c1"># Then shrink it back</span>
+<span class="n">circle</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">circle</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/attr_move_to.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
 </section>
+</section>
+<section id="composing-attribute-calls">
+<h2>Composing Attribute Calls<a class="headerlink" href="#composing-attribute-calls" title="Link to this heading">¶</a></h2>
+<p>Attribute methods compose naturally over time. You can chain <code class="docutils literal notranslate"><span class="pre">move_to</span></code>,
+<code class="docutils literal notranslate"><span class="pre">set_onward</span></code>, and other calls to build complex animations from simple
+primitives:</p>
+<div class="example admonition">
+<p class="admonition-title">Example: chaining attribute calls</p>
+<video src="_static/videos/attr_composition.mp4" controls autoplay loop muted></video><p>A dot slides to the centre, jumps up instantly with <code class="docutils literal notranslate"><span class="pre">set_onward</span></code>, then
+slides to the right with another <code class="docutils literal notranslate"><span class="pre">move_to</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">dot</span> <span class="o">=</span> <span class="n">Dot</span><span class="p">(</span><span class="n">cx</span><span class="o">=</span><span class="mi">360</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">)</span>
+<span class="n">dot</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># Chain: move right, then set a constant position, then move again</span>
+<span class="n">dot</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="mi">960</span><span class="p">,</span> <span class="mi">540</span><span class="p">))</span>       <span class="c1"># slide to centre</span>
+<span class="n">dot</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">set_onward</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="mi">960</span><span class="p">,</span> <span class="mi">300</span><span class="p">))</span>          <span class="c1"># jump up instantly</span>
+<span class="n">dot</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="p">(</span><span class="mi">1560</span><span class="p">,</span> <span class="mi">540</span><span class="p">))</span>      <span class="c1"># slide to right</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">dot</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/attr_composition.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">4.5</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
 </section>
 <section id="coordinate-specific-methods">
 <h2>Coordinate-Specific Methods<a class="headerlink" href="#coordinate-specific-methods" title="Link to this heading">¶</a></h2>
@@ -347,8 +417,8 @@
 </div>
 <p>The coordinate rotates around the pivot point. <code class="docutils literal notranslate"><span class="pre">pivot_point</span></code> can be a tuple or a callable returning <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y)</span></code>.</p>
 </section>
-<section id="move-to-start-time-end-time-end-pos-easing-smooth">
-<h3><code class="docutils literal notranslate"><span class="pre">move_to(start_time,</span> <span class="pre">end_time,</span> <span class="pre">end_pos,</span> <span class="pre">easing=smooth)</span></code><a class="headerlink" href="#move-to-start-time-end-time-end-pos-easing-smooth" title="Link to this heading">¶</a></h3>
+<section id="move-to-start-end-end-pos-easing-smooth">
+<h3><code class="docutils literal notranslate"><span class="pre">move_to(start,</span> <span class="pre">end,</span> <span class="pre">end_pos,</span> <span class="pre">easing=smooth)</span></code><a class="headerlink" href="#move-to-start-end-end-pos-easing-smooth" title="Link to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dot</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">move_to</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span>  <span class="c1"># smoothly move to (800, 200)</span>
 </pre></div>
 </div>
@@ -399,6 +469,35 @@
 </table>
 </div>
 <p>And many more – see <code class="docutils literal notranslate"><span class="pre">vectormation/easings.py</span></code> for the full list.</p>
+<div class="example admonition">
+<p class="admonition-title">Example: comparing easings</p>
+<video src="_static/videos/attr_easing.mp4" controls autoplay loop muted></video><p>Three circles shift across the screen using <code class="docutils literal notranslate"><span class="pre">linear</span></code>, <code class="docutils literal notranslate"><span class="pre">smooth</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">ease_out_bounce</span></code> easings.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span> <span class="s1">&#39;smooth&#39;</span><span class="p">,</span> <span class="s1">&#39;bounce&#39;</span><span class="p">]</span>
+<span class="n">easings</span> <span class="o">=</span> <span class="p">[</span><span class="n">linear</span><span class="p">,</span> <span class="n">smooth</span><span class="p">,</span> <span class="n">ease_out_bounce</span><span class="p">]</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;#E74C3C&#39;</span><span class="p">,</span> <span class="s1">&#39;#3498DB&#39;</span><span class="p">,</span> <span class="s1">&#39;#2ECC71&#39;</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">easing</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">easings</span><span class="p">,</span> <span class="n">colors</span><span class="p">)):</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mi">270</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">270</span>
+    <span class="c1"># Label</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">36</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+    <span class="n">txt</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+    <span class="c1"># Circle that shifts right using this easing</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">fadein</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">easing</span><span class="o">=</span><span class="n">easing</span><span class="p">)</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/attr_easing.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">3.5</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
 </section>
 <section id="color-attributes">
 <h2>Color Attributes<a class="headerlink" href="#color-attributes" title="Link to this heading">¶</a></h2>
@@ -416,6 +515,31 @@
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">color_space</span></code> parameter is available on <code class="docutils literal notranslate"><span class="pre">set_color()</span></code> and <code class="docutils literal notranslate"><span class="pre">Color.interpolate()</span></code>.</p>
+<div class="example admonition">
+<p class="admonition-title">Example: RGB vs HSL interpolation</p>
+<video src="_static/videos/attr_color.mp4" controls autoplay loop muted></video><p>Top circle interpolates from red to blue in RGB (goes through purple).
+Bottom circle interpolates in HSL (sweeps through the hue spectrum).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="c1"># Top: RGB interpolation (goes through muddy middle)</span>
+<span class="n">rgb_label</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">340</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">36</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;WHITE&#39;</span><span class="p">)</span>
+<span class="n">rgb_circle</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">340</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#FF0000&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">rgb_circle</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#0000FF&#39;</span><span class="p">,</span> <span class="n">color_space</span><span class="o">=</span><span class="s1">&#39;rgb&#39;</span><span class="p">)</span>
+
+<span class="c1"># Bottom: HSL interpolation (smooth hue transition through rainbow)</span>
+<span class="n">hsl_label</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;HSL&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">740</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">36</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;WHITE&#39;</span><span class="p">)</span>
+<span class="n">hsl_circle</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">cx</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">cy</span><span class="o">=</span><span class="mi">740</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#FF0000&#39;</span><span class="p">,</span> <span class="n">fill_opacity</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">hsl_circle</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#0000FF&#39;</span><span class="p">,</span> <span class="n">color_space</span><span class="o">=</span><span class="s1">&#39;hsl&#39;</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">rgb_label</span><span class="p">,</span> <span class="n">rgb_circle</span><span class="p">,</span> <span class="n">hsl_label</span><span class="p">,</span> <span class="n">hsl_circle</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/attr_color.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
 </section>
 </section>
 </section>
@@ -434,14 +558,14 @@
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="reference/utilities.html">
+          <a class="prev-page" href="reference/svg_utils.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Utilities</div>
+                <div class="title">SVG Utilities</div>
                 
               </div>
             </a>
@@ -482,12 +606,13 @@
 <li><a class="reference internal" href="#set-start-end-func-inner"><code class="docutils literal notranslate"><span class="pre">set(start,</span> <span class="pre">end,</span> <span class="pre">func_inner)</span></code></a></li>
 <li><a class="reference internal" href="#set-onward-start-value"><code class="docutils literal notranslate"><span class="pre">set_onward(start,</span> <span class="pre">value)</span></code></a></li>
 <li><a class="reference internal" href="#add-onward-start-func-or-value"><code class="docutils literal notranslate"><span class="pre">add_onward(start,</span> <span class="pre">func_or_value)</span></code></a></li>
-<li><a class="reference internal" href="#move-to-start-time-end-time-end-val-easing-smooth"><code class="docutils literal notranslate"><span class="pre">move_to(start_time,</span> <span class="pre">end_time,</span> <span class="pre">end_val,</span> <span class="pre">easing=smooth)</span></code></a></li>
+<li><a class="reference internal" href="#move-to-start-end-end-val-easing-smooth"><code class="docutils literal notranslate"><span class="pre">move_to(start,</span> <span class="pre">end,</span> <span class="pre">end_val,</span> <span class="pre">easing=smooth)</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#composing-attribute-calls">Composing Attribute Calls</a></li>
 <li><a class="reference internal" href="#coordinate-specific-methods">Coordinate-Specific Methods</a><ul>
 <li><a class="reference internal" href="#rotate-around-start-end-pivot-point-degrees"><code class="docutils literal notranslate"><span class="pre">rotate_around(start,</span> <span class="pre">end,</span> <span class="pre">pivot_point,</span> <span class="pre">degrees)</span></code></a></li>
-<li><a class="reference internal" href="#move-to-start-time-end-time-end-pos-easing-smooth"><code class="docutils literal notranslate"><span class="pre">move_to(start_time,</span> <span class="pre">end_time,</span> <span class="pre">end_pos,</span> <span class="pre">easing=smooth)</span></code></a></li>
+<li><a class="reference internal" href="#move-to-start-end-end-pos-easing-smooth"><code class="docutils literal notranslate"><span class="pre">move_to(start,</span> <span class="pre">end,</span> <span class="pre">end_pos,</span> <span class="pre">easing=smooth)</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#easing-functions">Easing Functions</a></li>

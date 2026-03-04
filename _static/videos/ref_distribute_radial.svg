@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<polygon points='1232.5,540.0 1187.5,514.02 1187.5,565.98' fill='rgb(231,76,60)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='2' />
+<polygon points='1115.0,756.51 1085.0,726.51 1055.0,756.51 1085.0,786.51' fill='rgb(230,126,34)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='2' />
+<polygon points='862.14,756.51 841.41,727.97 807.86,738.87 807.86,774.14 841.41,785.04' fill='rgb(241,196,15)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='2' />
+<polygon points='740.0,540.0 725.0,514.02 695.0,514.02 680.0,540.0 695.0,565.98 725.0,565.98' fill='rgb(46,204,113)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='2' />
+<polygon points='863.51,323.49 852.22,300.04 826.84,294.25 806.49,310.48 806.49,336.51 826.84,352.74 852.22,346.95' fill='rgb(52,152,219)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='2' />
+<polygon points='1115.0,323.49 1106.21,302.28 1085.0,293.49 1063.79,302.28 1055.0,323.49 1063.79,344.71 1085.0,353.49 1106.21,344.71' fill='rgb(155,89,182)' fill-opacity='0.8' stroke='rgb(255,255,255)' stroke-width='2' />
+</g></g>
+</svg>

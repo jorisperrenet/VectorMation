@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<g>
+<line x1='260.0' y1='100' x2='260.0' y2='980' stroke='rgb(51,51,51)' />
+<line x1='400.0' y1='100' x2='400.0' y2='980' stroke='rgb(51,51,51)' />
+<line x1='540.0' y1='100' x2='540.0' y2='980' stroke='rgb(51,51,51)' />
+<line x1='680.0' y1='100' x2='680.0' y2='980' stroke='rgb(51,51,51)' />
+<line x1='820.0' y1='100' x2='820.0' y2='980' stroke='rgb(51,51,51)' />
+<line x1='960.0' y1='100' x2='960.0' y2='980' stroke='rgb(51,51,51)' />
+<line x1='1100.0' y1='100' x2='1100.0' y2='980' stroke='rgb(51,51,51)' />
+<line x1='1240.0' y1='100' x2='1240.0' y2='980' stroke='rgb(51,51,51)' />
+<line x1='1380.0' y1='100' x2='1380.0' y2='980' stroke='rgb(51,51,51)' />
+<line x1='1520.0' y1='100' x2='1520.0' y2='980' stroke='rgb(51,51,51)' />
+<line x1='1660.0' y1='100' x2='1660.0' y2='980' stroke='rgb(51,51,51)' />
+<line x1='260' y1='980.0' x2='1660' y2='980.0' stroke='rgb(51,51,51)' />
+<line x1='260' y1='892.0' x2='1660' y2='892.0' stroke='rgb(51,51,51)' />
+<line x1='260' y1='804.0' x2='1660' y2='804.0' stroke='rgb(51,51,51)' />
+<line x1='260' y1='716.0' x2='1660' y2='716.0' stroke='rgb(51,51,51)' />
+<line x1='260' y1='628.0' x2='1660' y2='628.0' stroke='rgb(51,51,51)' />
+<line x1='260' y1='540.0' x2='1660' y2='540.0' stroke='rgb(51,51,51)' />
+<line x1='260' y1='452.0' x2='1660' y2='452.0' stroke='rgb(51,51,51)' />
+<line x1='260' y1='364' x2='1660' y2='364' stroke='rgb(51,51,51)' />
+<line x1='260' y1='276.0' x2='1660' y2='276.0' stroke='rgb(51,51,51)' />
+<line x1='260' y1='188.0' x2='1660' y2='188.0' stroke='rgb(51,51,51)' />
+<line x1='260' y1='100.0' x2='1660' y2='100.0' stroke='rgb(51,51,51)' />
+<line x1='260' y1='980.0' x2='1660' y2='980.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='260.0' y1='100' x2='260.0' y2='980' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='260.0' y1='966.0' x2='260.0' y2='994.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='400.0' y1='966.0' x2='400.0' y2='994.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='400.0' y='1016.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>1</text>
+<line x1='540.0' y1='966.0' x2='540.0' y2='994.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='540.0' y='1016.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>2</text>
+<line x1='680.0' y1='966.0' x2='680.0' y2='994.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='680.0' y='1016.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>3</text>
+<line x1='820.0' y1='966.0' x2='820.0' y2='994.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='820.0' y='1016.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>4</text>
+<line x1='960.0' y1='966.0' x2='960.0' y2='994.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='960.0' y='1016.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>5</text>
+<line x1='1100.0' y1='966.0' x2='1100.0' y2='994.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='1100.0' y='1016.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>6</text>
+<line x1='1240.0' y1='966.0' x2='1240.0' y2='994.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='1240.0' y='1016.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>7</text>
+<line x1='1380.0' y1='966.0' x2='1380.0' y2='994.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='1380.0' y='1016.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>8</text>
+<line x1='1520.0' y1='966.0' x2='1520.0' y2='994.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='1520.0' y='1016.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>9</text>
+<line x1='1660.0' y1='966.0' x2='1660.0' y2='994.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='1660.0' y='1016.4' font-size='24' text-anchor='middle' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>10</text>
+<line x1='246.0' y1='980.0' x2='274.0' y2='980.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<line x1='246.0' y1='892.0' x2='274.0' y2='892.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='232.0' y='900.4' font-size='24' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>10</text>
+<line x1='246.0' y1='804.0' x2='274.0' y2='804.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='232.0' y='812.4' font-size='24' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>20</text>
+<line x1='246.0' y1='716.0' x2='274.0' y2='716.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='232.0' y='724.4' font-size='24' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>30</text>
+<line x1='246.0' y1='628.0' x2='274.0' y2='628.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='232.0' y='636.4' font-size='24' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>40</text>
+<line x1='246.0' y1='540.0' x2='274.0' y2='540.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='232.0' y='548.4' font-size='24' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>50</text>
+<line x1='246.0' y1='452.0' x2='274.0' y2='452.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='232.0' y='460.4' font-size='24' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>60</text>
+<line x1='246.0' y1='364' x2='274.0' y2='364' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='232.0' y='372.4' font-size='24' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>70</text>
+<line x1='246.0' y1='276.0' x2='274.0' y2='276.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='232.0' y='284.4' font-size='24' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>80</text>
+<line x1='246.0' y1='188.0' x2='274.0' y2='188.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='232.0' y='196.4' font-size='24' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>90</text>
+<line x1='246.0' y1='100.0' x2='274.0' y2='100.0' stroke='rgb(255,255,255)' stroke-width='3' />
+<text x='232.0' y='108.4' font-size='24' text-anchor='end' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>100</text>
+</g>
+<g>
+<path d='M400.0,804.0L680.0,584.0L960.0,716.0L1240.0,276.0L1520.0,452.0' fill-opacity='0' stroke='rgb(231,76,60)' stroke-width='3' />
+<circle cx='400.0' cy='804.0' r='3' fill='rgb(231,76,60)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='680.0' cy='584.0' r='3' fill='rgb(231,76,60)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='960.0' cy='716.0' r='3' fill='rgb(231,76,60)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1240.0' cy='276.0' r='3' fill='rgb(231,76,60)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1520.0' cy='452.0' r='3' fill='rgb(231,76,60)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g>
+</g></g>
+</svg>

@@ -1,0 +1,360 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<rect x='493.0' y='281.0' width='50' height='50' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.3' stroke='rgb(88,196,221)' />
+<text x='496.0' y='292.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>1</text>
+<text x='518.0' y='310.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>H</text>
+<rect x='1377.0' y='281.0' width='50' height='50' rx='0' ry='0' fill='rgb(154,114,172)' fill-opacity='0.3' stroke='rgb(154,114,172)' />
+<text x='1380.0' y='292.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>2</text>
+<text x='1402.0' y='310.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>He</text>
+<rect x='493.0' y='333.0' width='50' height='50' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.3' stroke='rgb(252,98,85)' />
+<text x='496.0' y='344.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>3</text>
+<text x='518.0' y='362.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Li</text>
+<rect x='545.0' y='333.0' width='50' height='50' rx='0' ry='0' fill='rgb(240,172,95)' fill-opacity='0.3' stroke='rgb(240,172,95)' />
+<text x='548.0' y='344.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>4</text>
+<text x='570.0' y='362.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Be</text>
+<rect x='1117.0' y='333.0' width='50' height='50' rx='0' ry='0' fill='rgb(92,208,179)' fill-opacity='0.3' stroke='rgb(92,208,179)' />
+<text x='1120.0' y='344.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>5</text>
+<text x='1142.0' y='362.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>B</text>
+<rect x='1169.0' y='333.0' width='50' height='50' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.3' stroke='rgb(88,196,221)' />
+<text x='1172.0' y='344.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>6</text>
+<text x='1194.0' y='362.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>C</text>
+<rect x='1221.0' y='333.0' width='50' height='50' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.3' stroke='rgb(88,196,221)' />
+<text x='1224.0' y='344.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>7</text>
+<text x='1246.0' y='362.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>N</text>
+<rect x='1273.0' y='333.0' width='50' height='50' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.3' stroke='rgb(88,196,221)' />
+<text x='1276.0' y='344.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>8</text>
+<text x='1298.0' y='362.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>O</text>
+<rect x='1325.0' y='333.0' width='50' height='50' rx='0' ry='0' fill='rgb(255,255,0)' fill-opacity='0.3' stroke='rgb(255,255,0)' />
+<text x='1328.0' y='344.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>9</text>
+<text x='1350.0' y='362.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>F</text>
+<rect x='1377.0' y='333.0' width='50' height='50' rx='0' ry='0' fill='rgb(154,114,172)' fill-opacity='0.3' stroke='rgb(154,114,172)' />
+<text x='1380.0' y='344.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>10</text>
+<text x='1402.0' y='362.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ne</text>
+<rect x='493.0' y='385.0' width='50' height='50' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.3' stroke='rgb(252,98,85)' />
+<text x='496.0' y='396.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>11</text>
+<text x='518.0' y='414.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Na</text>
+<rect x='545.0' y='385.0' width='50' height='50' rx='0' ry='0' fill='rgb(240,172,95)' fill-opacity='0.3' stroke='rgb(240,172,95)' />
+<text x='548.0' y='396.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>12</text>
+<text x='570.0' y='414.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Mg</text>
+<rect x='1117.0' y='385.0' width='50' height='50' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.3' stroke='rgb(131,193,103)' />
+<text x='1120.0' y='396.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>13</text>
+<text x='1142.0' y='414.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Al</text>
+<rect x='1169.0' y='385.0' width='50' height='50' rx='0' ry='0' fill='rgb(92,208,179)' fill-opacity='0.3' stroke='rgb(92,208,179)' />
+<text x='1172.0' y='396.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>14</text>
+<text x='1194.0' y='414.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Si</text>
+<rect x='1221.0' y='385.0' width='50' height='50' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.3' stroke='rgb(88,196,221)' />
+<text x='1224.0' y='396.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>15</text>
+<text x='1246.0' y='414.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>P</text>
+<rect x='1273.0' y='385.0' width='50' height='50' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.3' stroke='rgb(88,196,221)' />
+<text x='1276.0' y='396.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>16</text>
+<text x='1298.0' y='414.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>S</text>
+<rect x='1325.0' y='385.0' width='50' height='50' rx='0' ry='0' fill='rgb(255,255,0)' fill-opacity='0.3' stroke='rgb(255,255,0)' />
+<text x='1328.0' y='396.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>17</text>
+<text x='1350.0' y='414.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Cl</text>
+<rect x='1377.0' y='385.0' width='50' height='50' rx='0' ry='0' fill='rgb(154,114,172)' fill-opacity='0.3' stroke='rgb(154,114,172)' />
+<text x='1380.0' y='396.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>18</text>
+<text x='1402.0' y='414.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ar</text>
+<rect x='493.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.3' stroke='rgb(252,98,85)' />
+<text x='496.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>19</text>
+<text x='518.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>K</text>
+<rect x='545.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(240,172,95)' fill-opacity='0.3' stroke='rgb(240,172,95)' />
+<text x='548.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>20</text>
+<text x='570.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ca</text>
+<rect x='597.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='600.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>21</text>
+<text x='622.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Sc</text>
+<rect x='649.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='652.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>22</text>
+<text x='674.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ti</text>
+<rect x='701.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='704.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>23</text>
+<text x='726.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>V</text>
+<rect x='753.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='756.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>24</text>
+<text x='778.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Cr</text>
+<rect x='805.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='808.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>25</text>
+<text x='830.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Mn</text>
+<rect x='857.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='860.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>26</text>
+<text x='882.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Fe</text>
+<rect x='909.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='912.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>27</text>
+<text x='934.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Co</text>
+<rect x='961.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='964.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>28</text>
+<text x='986.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ni</text>
+<rect x='1013.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='1016.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>29</text>
+<text x='1038.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Cu</text>
+<rect x='1065.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='1068.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>30</text>
+<text x='1090.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Zn</text>
+<rect x='1117.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.3' stroke='rgb(131,193,103)' />
+<text x='1120.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>31</text>
+<text x='1142.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ga</text>
+<rect x='1169.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(92,208,179)' fill-opacity='0.3' stroke='rgb(92,208,179)' />
+<text x='1172.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>32</text>
+<text x='1194.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ge</text>
+<rect x='1221.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(92,208,179)' fill-opacity='0.3' stroke='rgb(92,208,179)' />
+<text x='1224.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>33</text>
+<text x='1246.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>As</text>
+<rect x='1273.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(88,196,221)' fill-opacity='0.3' stroke='rgb(88,196,221)' />
+<text x='1276.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>34</text>
+<text x='1298.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Se</text>
+<rect x='1325.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(255,255,0)' fill-opacity='0.3' stroke='rgb(255,255,0)' />
+<text x='1328.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>35</text>
+<text x='1350.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Br</text>
+<rect x='1377.0' y='437.0' width='50' height='50' rx='0' ry='0' fill='rgb(154,114,172)' fill-opacity='0.3' stroke='rgb(154,114,172)' />
+<text x='1380.0' y='448.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>36</text>
+<text x='1402.0' y='466.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Kr</text>
+<rect x='493.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.3' stroke='rgb(252,98,85)' />
+<text x='496.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>37</text>
+<text x='518.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Rb</text>
+<rect x='545.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(240,172,95)' fill-opacity='0.3' stroke='rgb(240,172,95)' />
+<text x='548.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>38</text>
+<text x='570.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Sr</text>
+<rect x='597.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='600.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>39</text>
+<text x='622.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Y</text>
+<rect x='649.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='652.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>40</text>
+<text x='674.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Zr</text>
+<rect x='701.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='704.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>41</text>
+<text x='726.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Nb</text>
+<rect x='753.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='756.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>42</text>
+<text x='778.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Mo</text>
+<rect x='805.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='808.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>43</text>
+<text x='830.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Tc</text>
+<rect x='857.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='860.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>44</text>
+<text x='882.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ru</text>
+<rect x='909.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='912.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>45</text>
+<text x='934.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Rh</text>
+<rect x='961.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='964.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>46</text>
+<text x='986.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Pd</text>
+<rect x='1013.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='1016.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>47</text>
+<text x='1038.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ag</text>
+<rect x='1065.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='1068.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>48</text>
+<text x='1090.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Cd</text>
+<rect x='1117.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.3' stroke='rgb(131,193,103)' />
+<text x='1120.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>49</text>
+<text x='1142.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>In</text>
+<rect x='1169.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.3' stroke='rgb(131,193,103)' />
+<text x='1172.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>50</text>
+<text x='1194.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Sn</text>
+<rect x='1221.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(92,208,179)' fill-opacity='0.3' stroke='rgb(92,208,179)' />
+<text x='1224.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>51</text>
+<text x='1246.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Sb</text>
+<rect x='1273.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(92,208,179)' fill-opacity='0.3' stroke='rgb(92,208,179)' />
+<text x='1276.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>52</text>
+<text x='1298.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Te</text>
+<rect x='1325.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(255,255,0)' fill-opacity='0.3' stroke='rgb(255,255,0)' />
+<text x='1328.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>53</text>
+<text x='1350.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>I</text>
+<rect x='1377.0' y='489.0' width='50' height='50' rx='0' ry='0' fill='rgb(154,114,172)' fill-opacity='0.3' stroke='rgb(154,114,172)' />
+<text x='1380.0' y='500.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>54</text>
+<text x='1402.0' y='518.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Xe</text>
+<rect x='493.0' y='541.0' width='50' height='50' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.3' stroke='rgb(252,98,85)' />
+<text x='496.0' y='552.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>55</text>
+<text x='518.0' y='570.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Cs</text>
+<rect x='545.0' y='541.0' width='50' height='50' rx='0' ry='0' fill='rgb(240,172,95)' fill-opacity='0.3' stroke='rgb(240,172,95)' />
+<text x='548.0' y='552.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>56</text>
+<text x='570.0' y='570.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ba</text>
+<rect x='597.0' y='697.0' width='50' height='50' rx='0' ry='0' fill='rgb(228,143,114)' fill-opacity='0.3' stroke='rgb(228,143,114)' />
+<text x='600.0' y='708.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>57</text>
+<text x='622.0' y='726.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>La</text>
+<rect x='649.0' y='697.0' width='50' height='50' rx='0' ry='0' fill='rgb(228,143,114)' fill-opacity='0.3' stroke='rgb(228,143,114)' />
+<text x='652.0' y='708.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>58</text>
+<text x='674.0' y='726.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ce</text>
+<rect x='701.0' y='697.0' width='50' height='50' rx='0' ry='0' fill='rgb(228,143,114)' fill-opacity='0.3' stroke='rgb(228,143,114)' />
+<text x='704.0' y='708.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>59</text>
+<text x='726.0' y='726.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Pr</text>
+<rect x='753.0' y='697.0' width='50' height='50' rx='0' ry='0' fill='rgb(228,143,114)' fill-opacity='0.3' stroke='rgb(228,143,114)' />
+<text x='756.0' y='708.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>60</text>
+<text x='778.0' y='726.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Nd</text>
+<rect x='805.0' y='697.0' width='50' height='50' rx='0' ry='0' fill='rgb(228,143,114)' fill-opacity='0.3' stroke='rgb(228,143,114)' />
+<text x='808.0' y='708.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>61</text>
+<text x='830.0' y='726.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Pm</text>
+<rect x='857.0' y='697.0' width='50' height='50' rx='0' ry='0' fill='rgb(228,143,114)' fill-opacity='0.3' stroke='rgb(228,143,114)' />
+<text x='860.0' y='708.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>62</text>
+<text x='882.0' y='726.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Sm</text>
+<rect x='909.0' y='697.0' width='50' height='50' rx='0' ry='0' fill='rgb(228,143,114)' fill-opacity='0.3' stroke='rgb(228,143,114)' />
+<text x='912.0' y='708.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>63</text>
+<text x='934.0' y='726.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Eu</text>
+<rect x='961.0' y='697.0' width='50' height='50' rx='0' ry='0' fill='rgb(228,143,114)' fill-opacity='0.3' stroke='rgb(228,143,114)' />
+<text x='964.0' y='708.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>64</text>
+<text x='986.0' y='726.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Gd</text>
+<rect x='1013.0' y='697.0' width='50' height='50' rx='0' ry='0' fill='rgb(228,143,114)' fill-opacity='0.3' stroke='rgb(228,143,114)' />
+<text x='1016.0' y='708.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>65</text>
+<text x='1038.0' y='726.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Tb</text>
+<rect x='1065.0' y='697.0' width='50' height='50' rx='0' ry='0' fill='rgb(228,143,114)' fill-opacity='0.3' stroke='rgb(228,143,114)' />
+<text x='1068.0' y='708.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>66</text>
+<text x='1090.0' y='726.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Dy</text>
+<rect x='1117.0' y='697.0' width='50' height='50' rx='0' ry='0' fill='rgb(228,143,114)' fill-opacity='0.3' stroke='rgb(228,143,114)' />
+<text x='1120.0' y='708.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>67</text>
+<text x='1142.0' y='726.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ho</text>
+<rect x='1169.0' y='697.0' width='50' height='50' rx='0' ry='0' fill='rgb(228,143,114)' fill-opacity='0.3' stroke='rgb(228,143,114)' />
+<text x='1172.0' y='708.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>68</text>
+<text x='1194.0' y='726.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Er</text>
+<rect x='1221.0' y='697.0' width='50' height='50' rx='0' ry='0' fill='rgb(228,143,114)' fill-opacity='0.3' stroke='rgb(228,143,114)' />
+<text x='1224.0' y='708.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>69</text>
+<text x='1246.0' y='726.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Tm</text>
+<rect x='1273.0' y='697.0' width='50' height='50' rx='0' ry='0' fill='rgb(228,143,114)' fill-opacity='0.3' stroke='rgb(228,143,114)' />
+<text x='1276.0' y='708.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>70</text>
+<text x='1298.0' y='726.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Yb</text>
+<rect x='1325.0' y='697.0' width='50' height='50' rx='0' ry='0' fill='rgb(228,143,114)' fill-opacity='0.3' stroke='rgb(228,143,114)' />
+<text x='1328.0' y='708.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>71</text>
+<text x='1350.0' y='726.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Lu</text>
+<rect x='649.0' y='541.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='652.0' y='552.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>72</text>
+<text x='674.0' y='570.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Hf</text>
+<rect x='701.0' y='541.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='704.0' y='552.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>73</text>
+<text x='726.0' y='570.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ta</text>
+<rect x='753.0' y='541.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='756.0' y='552.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>74</text>
+<text x='778.0' y='570.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>W</text>
+<rect x='805.0' y='541.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='808.0' y='552.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>75</text>
+<text x='830.0' y='570.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Re</text>
+<rect x='857.0' y='541.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='860.0' y='552.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>76</text>
+<text x='882.0' y='570.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Os</text>
+<rect x='909.0' y='541.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='912.0' y='552.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>77</text>
+<text x='934.0' y='570.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ir</text>
+<rect x='961.0' y='541.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='964.0' y='552.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>78</text>
+<text x='986.0' y='570.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Pt</text>
+<rect x='1013.0' y='541.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='1016.0' y='552.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>79</text>
+<text x='1038.0' y='570.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Au</text>
+<rect x='1065.0' y='541.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='1068.0' y='552.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>80</text>
+<text x='1090.0' y='570.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Hg</text>
+<rect x='1117.0' y='541.0' width='50' height='50' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.3' stroke='rgb(131,193,103)' />
+<text x='1120.0' y='552.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>81</text>
+<text x='1142.0' y='570.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Tl</text>
+<rect x='1169.0' y='541.0' width='50' height='50' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.3' stroke='rgb(131,193,103)' />
+<text x='1172.0' y='552.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>82</text>
+<text x='1194.0' y='570.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Pb</text>
+<rect x='1221.0' y='541.0' width='50' height='50' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.3' stroke='rgb(131,193,103)' />
+<text x='1224.0' y='552.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>83</text>
+<text x='1246.0' y='570.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Bi</text>
+<rect x='1273.0' y='541.0' width='50' height='50' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.3' stroke='rgb(131,193,103)' />
+<text x='1276.0' y='552.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>84</text>
+<text x='1298.0' y='570.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Po</text>
+<rect x='1325.0' y='541.0' width='50' height='50' rx='0' ry='0' fill='rgb(255,255,0)' fill-opacity='0.3' stroke='rgb(255,255,0)' />
+<text x='1328.0' y='552.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>85</text>
+<text x='1350.0' y='570.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>At</text>
+<rect x='1377.0' y='541.0' width='50' height='50' rx='0' ry='0' fill='rgb(154,114,172)' fill-opacity='0.3' stroke='rgb(154,114,172)' />
+<text x='1380.0' y='552.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>86</text>
+<text x='1402.0' y='570.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Rn</text>
+<rect x='493.0' y='593.0' width='50' height='50' rx='0' ry='0' fill='rgb(252,98,85)' fill-opacity='0.3' stroke='rgb(252,98,85)' />
+<text x='496.0' y='604.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>87</text>
+<text x='518.0' y='622.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Fr</text>
+<rect x='545.0' y='593.0' width='50' height='50' rx='0' ry='0' fill='rgb(240,172,95)' fill-opacity='0.3' stroke='rgb(240,172,95)' />
+<text x='548.0' y='604.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>88</text>
+<text x='570.0' y='622.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ra</text>
+<rect x='597.0' y='749.0' width='50' height='50' rx='0' ry='0' fill='rgb(212,167,106)' fill-opacity='0.3' stroke='rgb(212,167,106)' />
+<text x='600.0' y='760.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>89</text>
+<text x='622.0' y='778.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ac</text>
+<rect x='649.0' y='749.0' width='50' height='50' rx='0' ry='0' fill='rgb(212,167,106)' fill-opacity='0.3' stroke='rgb(212,167,106)' />
+<text x='652.0' y='760.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>90</text>
+<text x='674.0' y='778.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Th</text>
+<rect x='701.0' y='749.0' width='50' height='50' rx='0' ry='0' fill='rgb(212,167,106)' fill-opacity='0.3' stroke='rgb(212,167,106)' />
+<text x='704.0' y='760.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>91</text>
+<text x='726.0' y='778.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Pa</text>
+<rect x='753.0' y='749.0' width='50' height='50' rx='0' ry='0' fill='rgb(212,167,106)' fill-opacity='0.3' stroke='rgb(212,167,106)' />
+<text x='756.0' y='760.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>92</text>
+<text x='778.0' y='778.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>U</text>
+<rect x='805.0' y='749.0' width='50' height='50' rx='0' ry='0' fill='rgb(212,167,106)' fill-opacity='0.3' stroke='rgb(212,167,106)' />
+<text x='808.0' y='760.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>93</text>
+<text x='830.0' y='778.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Np</text>
+<rect x='857.0' y='749.0' width='50' height='50' rx='0' ry='0' fill='rgb(212,167,106)' fill-opacity='0.3' stroke='rgb(212,167,106)' />
+<text x='860.0' y='760.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>94</text>
+<text x='882.0' y='778.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Pu</text>
+<rect x='909.0' y='749.0' width='50' height='50' rx='0' ry='0' fill='rgb(212,167,106)' fill-opacity='0.3' stroke='rgb(212,167,106)' />
+<text x='912.0' y='760.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>95</text>
+<text x='934.0' y='778.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Am</text>
+<rect x='961.0' y='749.0' width='50' height='50' rx='0' ry='0' fill='rgb(212,167,106)' fill-opacity='0.3' stroke='rgb(212,167,106)' />
+<text x='964.0' y='760.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>96</text>
+<text x='986.0' y='778.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Cm</text>
+<rect x='1013.0' y='749.0' width='50' height='50' rx='0' ry='0' fill='rgb(212,167,106)' fill-opacity='0.3' stroke='rgb(212,167,106)' />
+<text x='1016.0' y='760.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>97</text>
+<text x='1038.0' y='778.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Bk</text>
+<rect x='1065.0' y='749.0' width='50' height='50' rx='0' ry='0' fill='rgb(212,167,106)' fill-opacity='0.3' stroke='rgb(212,167,106)' />
+<text x='1068.0' y='760.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>98</text>
+<text x='1090.0' y='778.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Cf</text>
+<rect x='1117.0' y='749.0' width='50' height='50' rx='0' ry='0' fill='rgb(212,167,106)' fill-opacity='0.3' stroke='rgb(212,167,106)' />
+<text x='1120.0' y='760.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>99</text>
+<text x='1142.0' y='778.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Es</text>
+<rect x='1169.0' y='749.0' width='50' height='50' rx='0' ry='0' fill='rgb(212,167,106)' fill-opacity='0.3' stroke='rgb(212,167,106)' />
+<text x='1172.0' y='760.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>100</text>
+<text x='1194.0' y='778.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Fm</text>
+<rect x='1221.0' y='749.0' width='50' height='50' rx='0' ry='0' fill='rgb(212,167,106)' fill-opacity='0.3' stroke='rgb(212,167,106)' />
+<text x='1224.0' y='760.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>101</text>
+<text x='1246.0' y='778.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Md</text>
+<rect x='1273.0' y='749.0' width='50' height='50' rx='0' ry='0' fill='rgb(212,167,106)' fill-opacity='0.3' stroke='rgb(212,167,106)' />
+<text x='1276.0' y='760.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>102</text>
+<text x='1298.0' y='778.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>No</text>
+<rect x='1325.0' y='749.0' width='50' height='50' rx='0' ry='0' fill='rgb(212,167,106)' fill-opacity='0.3' stroke='rgb(212,167,106)' />
+<text x='1328.0' y='760.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>103</text>
+<text x='1350.0' y='778.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Lr</text>
+<rect x='649.0' y='593.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='652.0' y='604.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>104</text>
+<text x='674.0' y='622.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Rf</text>
+<rect x='701.0' y='593.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='704.0' y='604.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>105</text>
+<text x='726.0' y='622.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Db</text>
+<rect x='753.0' y='593.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='756.0' y='604.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>106</text>
+<text x='778.0' y='622.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Sg</text>
+<rect x='805.0' y='593.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='808.0' y='604.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>107</text>
+<text x='830.0' y='622.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Bh</text>
+<rect x='857.0' y='593.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='860.0' y='604.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>108</text>
+<text x='882.0' y='622.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Hs</text>
+<rect x='909.0' y='593.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='912.0' y='604.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>109</text>
+<text x='934.0' y='622.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Mt</text>
+<rect x='961.0' y='593.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='964.0' y='604.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>110</text>
+<text x='986.0' y='622.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ds</text>
+<rect x='1013.0' y='593.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='1016.0' y='604.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>111</text>
+<text x='1038.0' y='622.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Rg</text>
+<rect x='1065.0' y='593.0' width='50' height='50' rx='0' ry='0' fill='rgb(197,95,115)' fill-opacity='0.3' stroke='rgb(197,95,115)' />
+<text x='1068.0' y='604.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>112</text>
+<text x='1090.0' y='622.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Cn</text>
+<rect x='1117.0' y='593.0' width='50' height='50' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.3' stroke='rgb(131,193,103)' />
+<text x='1120.0' y='604.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>113</text>
+<text x='1142.0' y='622.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Nh</text>
+<rect x='1169.0' y='593.0' width='50' height='50' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.3' stroke='rgb(131,193,103)' />
+<text x='1172.0' y='604.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>114</text>
+<text x='1194.0' y='622.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Fl</text>
+<rect x='1221.0' y='593.0' width='50' height='50' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.3' stroke='rgb(131,193,103)' />
+<text x='1224.0' y='604.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>115</text>
+<text x='1246.0' y='622.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Mc</text>
+<rect x='1273.0' y='593.0' width='50' height='50' rx='0' ry='0' fill='rgb(131,193,103)' fill-opacity='0.3' stroke='rgb(131,193,103)' />
+<text x='1276.0' y='604.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>116</text>
+<text x='1298.0' y='622.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Lv</text>
+<rect x='1325.0' y='593.0' width='50' height='50' rx='0' ry='0' fill='rgb(255,255,0)' fill-opacity='0.3' stroke='rgb(255,255,0)' />
+<text x='1328.0' y='604.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>117</text>
+<text x='1350.0' y='622.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Ts</text>
+<rect x='1377.0' y='593.0' width='50' height='50' rx='0' ry='0' fill='rgb(154,114,172)' fill-opacity='0.3' stroke='rgb(154,114,172)' />
+<text x='1380.0' y='604.0' font-size='10' fill='rgb(170,170,170)' stroke='rgb(0,0,0)' stroke-width='0'>118</text>
+<text x='1402.0' y='622.0' font-size='18' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Og</text>
+</g></g>
+</svg>

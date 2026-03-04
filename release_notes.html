@@ -207,16 +207,24 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/vobject.html">VObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html">Shapes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/text.html">Text &amp; LaTeX</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/collections.html">Collections &amp; Arrows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/collections.html">Collections, Arrows &amp; Data Structures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/graphing.html">Graphing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html">Charts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html">UI Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html">Diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/physics.html">Physics Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/science.html">Science</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/threed.html">3D Objects</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/attributes.html">Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/svg_utils.html">SVG Utilities</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="attributes.html">Attributes: Time-Varying Values</a></li>
 <li class="toctree-l1"><a class="reference internal" href="animation.html">Animation &amp; Playback</a></li>
 <li class="toctree-l1"><a class="reference internal" href="graphing.html">Graphing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_examples.html">Advanced Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vs_manim.html">vs Manim</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Release Notes</a></li>
 </ul>
@@ -286,7 +294,7 @@
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">camera_zoom()</span></code> now centres the viewBox on the target point and clamps to canvas bounds</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">camera_follow()</span></code> clamps the viewBox to stay within canvas bounds (no negative offsets)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">_resolve_end_time()</span></code> now considers camera viewBox attributes (<code class="docutils literal notranslate"><span class="pre">vb_x</span></code>, <code class="docutils literal notranslate"><span class="pre">vb_y</span></code>, <code class="docutils literal notranslate"><span class="pre">vb_w</span></code>, <code class="docutils literal notranslate"><span class="pre">vb_h</span></code>), so camera-only animations are included in auto-detected end times</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_resolve_end()</span></code> now considers camera viewBox attributes (<code class="docutils literal notranslate"><span class="pre">vb_x</span></code>, <code class="docutils literal notranslate"><span class="pre">vb_y</span></code>, <code class="docutils literal notranslate"><span class="pre">vb_w</span></code>, <code class="docutils literal notranslate"><span class="pre">vb_h</span></code>), so camera-only animations are included in auto-detected end times</p></li>
 </ul>
 </section>
 <section id="bug-fixes">
@@ -526,8 +534,8 @@
 <h3>Export<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><strong>PNG export</strong>: <code class="docutils literal notranslate"><span class="pre">canvas.export_png(time,</span> <span class="pre">filename,</span> <span class="pre">width,</span> <span class="pre">height)</span></code> via cairosvg</p></li>
-<li><p><strong>Video export</strong>: <code class="docutils literal notranslate"><span class="pre">canvas.export_video(filename,</span> <span class="pre">start_time,</span> <span class="pre">end_time,</span> <span class="pre">fps)</span></code> via cairosvg + ffmpeg</p></li>
-<li><p><strong>GIF export</strong>: <code class="docutils literal notranslate"><span class="pre">canvas.export_gif(filename,</span> <span class="pre">start_time,</span> <span class="pre">end_time,</span> <span class="pre">fps,</span> <span class="pre">scale,</span> <span class="pre">loop)</span></code> via cairosvg + Pillow</p></li>
+<li><p><strong>Video export</strong>: <code class="docutils literal notranslate"><span class="pre">canvas.export_video(filename,</span> <span class="pre">start,</span> <span class="pre">end,</span> <span class="pre">fps)</span></code> via cairosvg + ffmpeg</p></li>
+<li><p><strong>GIF export</strong>: <code class="docutils literal notranslate"><span class="pre">canvas.export_gif(filename,</span> <span class="pre">start,</span> <span class="pre">end,</span> <span class="pre">fps,</span> <span class="pre">scale,</span> <span class="pre">loop)</span></code> via cairosvg + Pillow</p></li>
 </ul>
 </section>
 <section id="id12">

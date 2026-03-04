@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<circle cx='960' cy='540' r='83.33' fill-opacity='0' stroke='rgb(68,68,68)' />
+<circle cx='960' cy='540' r='166.67' fill-opacity='0' stroke='rgb(68,68,68)' />
+<circle cx='960' cy='540' r='250.0' fill-opacity='0' stroke='rgb(68,68,68)' />
+<line x1='960' y1='540' x2='960.0' y2='290.0' stroke='rgb(85,85,85)' />
+<line x1='960' y1='540' x2='1176.51' y2='415.0' stroke='rgb(85,85,85)' />
+<line x1='960' y1='540' x2='1176.51' y2='665.0' stroke='rgb(85,85,85)' />
+<line x1='960' y1='540' x2='960.0' y2='790.0' stroke='rgb(85,85,85)' />
+<line x1='960' y1='540' x2='743.49' y2='665' stroke='rgb(85,85,85)' />
+<line x1='960' y1='540' x2='743.49' y2='415.0' stroke='rgb(85,85,85)' />
+<polygon points='960.0,327.5 1111.55,452.5 1154.86,652.5 960.0,690.0 797.62,633.75 786.79,440.0' fill='rgb(88,196,221)' fill-opacity='0.3' stroke='rgb(88,196,221)' stroke-width='2' />
+<text x='960.0' y='265.6' font-size='16' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Speed</text>
+<text x='1202.49' y='405.6' font-size='16' text-anchor='start' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Power</text>
+<text x='1202.49' y='685.6' font-size='16' text-anchor='start' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Accuracy</text>
+<text x='960.0' y='825.6' font-size='16' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Defense</text>
+<text x='717.51' y='685.6' font-size='16' text-anchor='end' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Stamina</text>
+<text x='717.51' y='405.6' font-size='16' text-anchor='end' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Agility</text>
+<circle cx='960.0' cy='327.5' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1111.55' cy='452.5' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1154.86' cy='652.5' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='960.0' cy='690.0' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='797.62' cy='633.75' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='786.79' cy='440.0' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g></g>
+</svg>

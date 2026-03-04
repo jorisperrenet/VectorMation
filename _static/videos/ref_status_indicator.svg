@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<circle cx='836' cy='470' r='6' fill='rgb(131,193,103)' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='852' y='476.3' font-size='18' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>API Server</text>
+</g></g>
+<g data-obj-idx='2'><g>
+<circle cx='836' cy='510' r='6' fill='rgb(255,255,0)' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='852' y='516.3' font-size='18' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Database</text>
+</g></g>
+<g data-obj-idx='3'><g>
+<circle cx='836' cy='550' r='6' fill='rgb(255,107,107)' stroke='rgb(255,255,255)' stroke-width='0' />
+<text x='852' y='556.3' font-size='18' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Cache</text>
+</g></g>
+</svg>

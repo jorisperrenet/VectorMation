@@ -207,16 +207,24 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/vobject.html">VObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html">Shapes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/text.html">Text &amp; LaTeX</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/collections.html">Collections &amp; Arrows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/collections.html">Collections, Arrows &amp; Data Structures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/graphing.html">Graphing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html">Charts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html">UI Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html">Diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/physics.html">Physics Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/science.html">Science</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/threed.html">3D Objects</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/attributes.html">Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/svg_utils.html">SVG Utilities</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="attributes.html">Attributes: Time-Varying Values</a></li>
 <li class="toctree-l1"><a class="reference internal" href="animation.html">Animation &amp; Playback</a></li>
 <li class="toctree-l1"><a class="reference internal" href="graphing.html">Graphing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_examples.html">Advanced Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="vs_manim.html">vs Manim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="release_notes.html">Release Notes</a></li>
 </ul>
@@ -297,22 +305,117 @@
 <span class="o">+--</span> <span class="n">TexObject</span>                <span class="n">LaTeX</span> <span class="n">rendered</span> <span class="k">as</span> <span class="n">SVG</span> <span class="n">paths</span>
 <span class="o">+--</span> <span class="n">Arrow</span>                    <span class="n">Line</span> <span class="k">with</span> <span class="n">arrowhead</span>
 <span class="o">|</span>   <span class="o">+--</span> <span class="n">DoubleArrow</span>          <span class="n">Both</span> <span class="n">ends</span>
+<span class="o">|</span>   <span class="o">+--</span> <span class="n">LabeledArrow</span>         <span class="n">Arrow</span> <span class="k">with</span> <span class="n">text</span> <span class="n">label</span>
 <span class="o">+--</span> <span class="n">CurvedArrow</span>              <span class="n">Bezier</span> <span class="n">curve</span> <span class="k">with</span> <span class="n">arrowhead</span>
 <span class="o">+--</span> <span class="n">Brace</span>                    <span class="n">Curly</span> <span class="n">brace</span> <span class="n">annotation</span>
 <span class="o">+--</span> <span class="n">Cross</span>                    <span class="n">X</span> <span class="n">mark</span>
+<span class="o">+--</span> <span class="n">Angle</span>                    <span class="n">Angle</span> <span class="n">arc</span> <span class="n">annotation</span>
 <span class="o">+--</span> <span class="n">RightAngle</span>               <span class="n">Right</span> <span class="n">angle</span> <span class="n">indicator</span>
 <span class="o">+--</span> <span class="n">NumberLine</span>               <span class="n">Number</span> <span class="n">line</span> <span class="k">with</span> <span class="n">ticks</span>
 <span class="o">+--</span> <span class="n">Graph</span>                    <span class="n">Full</span> <span class="n">plot</span> <span class="k">with</span> <span class="n">axes</span>
 <span class="o">|</span>   <span class="o">+--</span> <span class="n">Axes</span>                 <span class="n">Standalone</span> <span class="n">axes</span>
-<span class="o">+--</span> <span class="n">PieChart</span> <span class="o">/</span> <span class="n">BarChart</span>      <span class="n">Charts</span>
+<span class="o">+--</span> <span class="n">NumberPlane</span>              <span class="n">Coordinate</span> <span class="n">grid</span>
+<span class="o">+--</span> <span class="n">ComplexPlane</span>             <span class="n">Complex</span> <span class="n">number</span> <span class="n">plane</span>
+<span class="o">+--</span> <span class="n">PolarAxes</span>                <span class="n">Polar</span> <span class="n">coordinate</span> <span class="n">axes</span>
+<span class="o">+--</span> <span class="n">PieChart</span>                 <span class="n">Pie</span> <span class="n">chart</span>
+<span class="o">+--</span> <span class="n">DonutChart</span>               <span class="n">Donut</span> <span class="n">chart</span>
+<span class="o">+--</span> <span class="n">BarChart</span>                 <span class="n">Bar</span> <span class="n">chart</span>
+<span class="o">+--</span> <span class="n">RadarChart</span>               <span class="n">Radar</span><span class="o">/</span><span class="n">spider</span> <span class="n">chart</span>
+<span class="o">+--</span> <span class="n">Table</span>                    <span class="n">Data</span> <span class="n">table</span>
+<span class="o">+--</span> <span class="n">Matrix</span>                   <span class="n">Matrix</span> <span class="n">display</span>
+<span class="o">+--</span> <span class="n">NetworkGraph</span>             <span class="n">Network</span><span class="o">/</span><span class="n">graph</span> <span class="n">diagram</span>
+<span class="o">+--</span> <span class="n">FlowChart</span>                <span class="n">Flow</span> <span class="n">chart</span>
+<span class="o">+--</span> <span class="n">Tree</span>                     <span class="n">Tree</span> <span class="n">diagram</span>
+<span class="o">+--</span> <span class="n">NeuralNetwork</span>            <span class="n">Neural</span> <span class="n">network</span> <span class="n">diagram</span>
+<span class="o">+--</span> <span class="n">Pendulum</span>                 <span class="n">Animated</span> <span class="n">pendulum</span>
+<span class="o">+--</span> <span class="n">StandingWave</span>             <span class="n">Standing</span> <span class="n">wave</span> <span class="n">animation</span>
+<span class="o">+--</span> <span class="n">ArrayViz</span>                 <span class="n">Array</span> <span class="n">visualisation</span>
+<span class="o">+--</span> <span class="n">LinkedListViz</span>            <span class="n">Linked</span> <span class="nb">list</span> <span class="n">visualisation</span>
+<span class="o">+--</span> <span class="n">StackViz</span>                 <span class="n">Stack</span> <span class="p">(</span><span class="n">LIFO</span><span class="p">)</span> <span class="n">visualisation</span>
+<span class="o">+--</span> <span class="n">QueueViz</span>                 <span class="n">Queue</span> <span class="p">(</span><span class="n">FIFO</span><span class="p">)</span> <span class="n">visualisation</span>
+<span class="o">+--</span> <span class="n">Automaton</span>                <span class="n">Finite</span> <span class="n">state</span> <span class="n">machine</span>
+<span class="o">+--</span> <span class="n">BohrAtom</span>                 <span class="n">Bohr</span> <span class="n">atom</span> <span class="n">model</span>
+<span class="o">+--</span> <span class="n">ChessBoard</span>               <span class="n">Chess</span> <span class="n">board</span>
+<span class="o">+--</span> <span class="n">PeriodicTable</span>            <span class="n">Periodic</span> <span class="n">table</span>
+<span class="o">+--</span> <span class="n">ArrowVectorField</span>         <span class="n">Vector</span> <span class="n">field</span> <span class="p">(</span><span class="n">arrows</span><span class="p">)</span>
+<span class="o">+--</span> <span class="n">StreamLines</span>              <span class="n">Stream</span> <span class="n">lines</span>
+<span class="o">+--</span> <span class="n">Code</span>                     <span class="n">Syntax</span><span class="o">-</span><span class="n">highlighted</span> <span class="n">code</span>
+<span class="o">+--</span> <span class="n">Title</span>                    <span class="n">Styled</span> <span class="n">title</span> <span class="n">bar</span>
+<span class="o">+--</span> <span class="n">Variable</span>                 <span class="n">Live</span> <span class="n">variable</span> <span class="n">display</span>
+<span class="o">+--</span> <span class="n">Underline</span>                <span class="n">Text</span> <span class="n">underline</span>
+<span class="o">+--</span> <span class="n">Label</span>                    <span class="n">Positioned</span> <span class="n">text</span> <span class="n">label</span>
+<span class="o">+--</span> <span class="n">Callout</span>                  <span class="n">Speech</span> <span class="n">bubble</span> <span class="n">callout</span>
+<span class="o">+--</span> <span class="n">Tooltip</span>                  <span class="n">Hovering</span> <span class="n">tooltip</span>
+<span class="o">+--</span> <span class="n">DimensionLine</span>            <span class="n">Measurement</span> <span class="n">annotation</span>
+<span class="o">+--</span> <span class="n">Stamp</span>                    <span class="n">Repeated</span> <span class="n">copies</span> <span class="n">of</span> <span class="n">a</span> <span class="n">template</span>
+<span class="o">+--</span> <span class="n">TimelineBar</span>              <span class="n">Timeline</span> <span class="k">with</span> <span class="n">markers</span>
+<span class="o">+--</span> <span class="n">Legend</span>                   <span class="n">Chart</span> <span class="n">legend</span>
+<span class="o">+--</span> <span class="n">ProgressBar</span>              <span class="n">Animated</span> <span class="n">progress</span> <span class="n">bar</span>
+<span class="o">+--</span> <span class="n">WaterfallChart</span>           <span class="n">Waterfall</span> <span class="n">chart</span>
+<span class="o">+--</span> <span class="n">GanttChart</span>               <span class="n">Gantt</span> <span class="n">timeline</span> <span class="n">chart</span>
+<span class="o">+--</span> <span class="n">SankeyDiagram</span>            <span class="n">Sankey</span> <span class="n">flow</span> <span class="n">diagram</span>
+<span class="o">+--</span> <span class="n">FunnelChart</span>              <span class="n">Funnel</span> <span class="n">chart</span>
+<span class="o">+--</span> <span class="n">TreeMap</span>                  <span class="n">Treemap</span> <span class="n">visualization</span>
+<span class="o">+--</span> <span class="n">GaugeChart</span>               <span class="n">Speedometer</span> <span class="n">gauge</span>
+<span class="o">+--</span> <span class="n">BulletChart</span>              <span class="n">Bullet</span> <span class="n">chart</span>
+<span class="o">+--</span> <span class="n">CalendarHeatmap</span>          <span class="n">Calendar</span> <span class="n">heatmap</span>
+<span class="o">+--</span> <span class="n">WaffleChart</span>              <span class="n">Waffle</span> <span class="n">chart</span>
+<span class="o">+--</span> <span class="n">CircularProgressBar</span>      <span class="n">Circular</span> <span class="n">progress</span> <span class="n">indicator</span>
+<span class="o">+--</span> <span class="n">Scoreboard</span>               <span class="n">Metric</span> <span class="n">display</span> <span class="n">panel</span>
+<span class="o">+--</span> <span class="n">MatrixHeatmap</span>            <span class="n">Matrix</span> <span class="n">heatmap</span>
+<span class="o">+--</span> <span class="n">BoxPlot</span>                  <span class="n">Box</span><span class="o">-</span><span class="ow">and</span><span class="o">-</span><span class="n">whisker</span> <span class="n">plot</span>
+<span class="o">+--</span> <span class="n">SampleSpace</span>              <span class="n">Probability</span> <span class="n">sample</span> <span class="n">space</span>
+<span class="o">+--</span> <span class="n">KPICard</span>                  <span class="n">KPI</span> <span class="n">metric</span> <span class="n">card</span>
+<span class="o">+--</span> <span class="n">SparkLine</span>                <span class="n">Inline</span> <span class="n">sparkline</span>
+<span class="o">+--</span> <span class="n">TextBox</span>                  <span class="n">Text</span> <span class="k">with</span> <span class="n">box</span> <span class="n">background</span>
+<span class="o">+--</span> <span class="n">SpeechBubble</span>             <span class="n">Speech</span> <span class="n">bubble</span> <span class="n">annotation</span>
+<span class="o">+--</span> <span class="n">Badge</span>                    <span class="n">Pill</span><span class="o">-</span><span class="n">shaped</span> <span class="n">label</span>
+<span class="o">+--</span> <span class="n">Divider</span>                  <span class="n">Separator</span> <span class="n">line</span>
+<span class="o">+--</span> <span class="n">Checklist</span>                <span class="n">Checkbox</span> <span class="nb">list</span>
+<span class="o">+--</span> <span class="n">Stepper</span>                  <span class="n">Step</span> <span class="n">indicator</span>
+<span class="o">+--</span> <span class="n">TagCloud</span>                 <span class="n">Word</span> <span class="n">cloud</span>
+<span class="o">+--</span> <span class="n">StatusIndicator</span>          <span class="n">Status</span> <span class="n">dot</span> <span class="o">+</span> <span class="n">label</span>
+<span class="o">+--</span> <span class="n">Meter</span>                    <span class="n">Bar</span> <span class="n">meter</span>
+<span class="o">+--</span> <span class="n">Breadcrumb</span>               <span class="n">Breadcrumb</span> <span class="n">trail</span>
+<span class="o">+--</span> <span class="n">Countdown</span>                <span class="n">Animated</span> <span class="n">countdown</span>
+<span class="o">+--</span> <span class="n">Filmstrip</span>                <span class="n">Storyboard</span> <span class="n">filmstrip</span>
+<span class="o">+--</span> <span class="n">Bracket</span>                  <span class="n">Bracket</span> <span class="n">decoration</span>
+<span class="o">+--</span> <span class="n">IconGrid</span>                 <span class="n">Icon</span> <span class="n">grid</span>
+<span class="o">+--</span> <span class="n">VennDiagram</span>              <span class="n">Venn</span> <span class="n">diagram</span>
+<span class="o">+--</span> <span class="n">OrgChart</span>                 <span class="n">Organization</span> <span class="n">chart</span>
+<span class="o">+--</span> <span class="n">MindMap</span>                  <span class="n">Radial</span> <span class="n">mind</span> <span class="nb">map</span>
+<span class="o">+--</span> <span class="n">ZoomedInset</span>              <span class="n">Zoomed</span> <span class="n">inset</span> <span class="n">viewport</span>
+
+<span class="n">PhysicsSpace</span>                 <span class="mi">2</span><span class="n">D</span> <span class="n">physics</span> <span class="n">simulation</span>
+<span class="o">+--</span> <span class="n">Body</span>                     <span class="n">Physics</span> <span class="n">body</span> <span class="n">wrapper</span>
+<span class="o">+--</span> <span class="n">Spring</span>                   <span class="n">Spring</span> <span class="n">constraint</span>
+<span class="o">+--</span> <span class="n">Cloth</span>                    <span class="n">Cloth</span> <span class="n">simulation</span>
 
 <span class="n">SplitTexObject</span>               <span class="n">Multi</span><span class="o">-</span><span class="n">line</span> <span class="n">LaTeX</span> <span class="n">container</span>
+<span class="n">DynamicObject</span>                <span class="n">Object</span> <span class="n">rebuilt</span> <span class="n">each</span> <span class="n">frame</span>
+
+<span class="n">ThreeDAxes</span>                   <span class="mi">3</span><span class="n">D</span> <span class="n">coordinate</span> <span class="n">axes</span>
+<span class="o">+--</span> <span class="n">Surface</span>                  <span class="mi">3</span><span class="n">D</span> <span class="n">surface</span> <span class="n">plot</span>
+<span class="o">+--</span> <span class="n">Line3D</span> <span class="o">/</span> <span class="n">Arrow3D</span> <span class="o">/</span> <span class="n">Dot3D</span> <span class="mi">3</span><span class="n">D</span> <span class="n">primitives</span>
+<span class="o">+--</span> <span class="n">ParametricCurve3D</span>        <span class="mi">3</span><span class="n">D</span> <span class="n">parametric</span> <span class="n">curve</span>
+<span class="o">+--</span> <span class="n">Text3D</span>                   <span class="mi">3</span><span class="n">D</span> <span class="n">text</span>
+<span class="o">+--</span> <span class="n">Sphere3D</span> <span class="o">/</span> <span class="n">Cube</span> <span class="o">/</span> <span class="n">Cylinder3D</span> <span class="o">/</span> <span class="n">Cone3D</span> <span class="o">/</span> <span class="n">Torus3D</span> <span class="o">/</span> <span class="n">Prism3D</span>
 </pre></div>
 </div>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="reference/canvas.html">VectorMathAnim</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="reference/canvas.html#VectorMathAnim"><code class="docutils literal notranslate"><span class="pre">VectorMathAnim</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/canvas.html#constructor">Constructor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/canvas.html#scene-setup">Scene Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/canvas.html#adding-and-removing-objects">Adding and Removing Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/canvas.html#frame-generation">Frame Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/canvas.html#camera-controls">Camera Controls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/canvas.html#display">Display</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/canvas.html#export">Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/canvas.html#inspection">Inspection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/canvas.html#cli-utility">CLI Utility</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/canvas.html#workflow-examples">Workflow Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/canvas.html#tips-and-best-practices">Tips and Best Practices</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="reference/vobject.html">VObject</a><ul>
@@ -323,6 +426,8 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#ellipse">Ellipse</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#circle">Circle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#dot">Dot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#annotationdot">AnnotationDot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#square">Square</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#rectangle">Rectangle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#roundedrectangle">RoundedRectangle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#line">Line</a></li>
@@ -335,38 +440,161 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#arc">Arc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#wedge-sector">Wedge / Sector</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#annulus">Annulus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#annularsector">AnnularSector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#arcbetweenpoints">ArcBetweenPoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#arcpolygon">ArcPolygon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#angle">Angle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#rightangle">RightAngle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#cross">Cross</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#text">Text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#countanimation">CountAnimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#integer">Integer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#complexvaluetracker">ComplexValueTracker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#path">Path</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#image">Image</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#trace">Trace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#cubicbezier">CubicBezier</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#elbow">Elbow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#fractals-spirals">Fractals &amp; Spirals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#surroundingrectangle">SurroundingRectangle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#surroundingcircle">SurroundingCircle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#backgroundrectangle">BackgroundRectangle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#screenrectangle">ScreenRectangle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#valuetracker">ValueTracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#decimalnumber">DecimalNumber</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#paragraph">Paragraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#bulletedlist">BulletedList</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/shapes.html#numberedlist">NumberedList</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="reference/text.html">Text &amp; LaTeX</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="reference/text.html#text">Text</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/text.html#countanimation">CountAnimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/text.html#decimalnumber">DecimalNumber</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/text.html#integer">Integer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/text.html#texobject">TexObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/text.html#splittexobject">SplitTexObject</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/text.html#texcountanimation">TexCountAnimation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/text.html#paragraph">Paragraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/text.html#bulletedlist">BulletedList</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/text.html#numberedlist">NumberedList</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="reference/collections.html">Collections &amp; Arrows</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="reference/collections.html#vcollection">VCollection</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/collections.html#morphobject">MorphObject</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/collections.html#labeleddot">LabeledDot</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/collections.html#arrow">Arrow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/collections.html#doublearrow">DoubleArrow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/collections.html#curvedarrow">CurvedArrow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reference/collections.html#brace">Brace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/collections.html">Collections, Arrows &amp; Data Structures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/collections.html#collections">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/collections.html#arrows">Arrows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/collections.html#data-structures">Data Structures</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="reference/graphing.html">Graphing</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="reference/graphing.html#graph">Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/graphing.html#axes">Axes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/graphing.html#functiongraph">FunctionGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/graphing.html#parametricfunction">ParametricFunction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/graphing.html#numberline">NumberLine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/graphing.html#numberplane">NumberPlane</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/graphing.html#complexplane">ComplexPlane</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/graphing.html#polaraxes">PolarAxes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/graphing.html#piechart">PieChart</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/graphing.html#barchart">BarChart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/graphing.html#donutchart">DonutChart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/graphing.html#radarchart">RadarChart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/graphing.html#tick-formatters">Tick Formatters</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/charts.html">Charts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#piechart">PieChart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#donutchart">DonutChart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#barchart">BarChart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#radarchart">RadarChart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#polaraxes">PolarAxes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#legend">Legend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#progressbar">ProgressBar</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#samplespace">SampleSpace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#waterfallchart">WaterfallChart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#ganttchart">GanttChart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#sankeydiagram">SankeyDiagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#funnelchart">FunnelChart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#treemap">TreeMap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#gaugechart">GaugeChart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#sparkline">SparkLine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#kpicard">KPICard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#bulletchart">BulletChart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#calendarheatmap">CalendarHeatmap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#wafflechart">WaffleChart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#circularprogressbar">CircularProgressBar</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#scoreboard">Scoreboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#matrixheatmap">MatrixHeatmap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/charts.html#boxplot">BoxPlot</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/ui.html">UI Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#title">Title</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#variable">Variable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#underline">Underline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#code">Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#label">Label</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#labeledline">LabeledLine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#labeledarrow">LabeledArrow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#callout">Callout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#dimensionline">DimensionLine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#tooltip">Tooltip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#textbox">TextBox</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#bracket">Bracket</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#icongrid">IconGrid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#speechbubble">SpeechBubble</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#badge">Badge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#divider">Divider</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#checklist">Checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#stepper">Stepper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#tagcloud">TagCloud</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#statusindicator">StatusIndicator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#meter">Meter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#breadcrumb">Breadcrumb</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#countdown">Countdown</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/ui.html#filmstrip">Filmstrip</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/diagrams.html">Diagrams</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html#chessboard">ChessBoard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html#periodictable">PeriodicTable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html#bohratom">BohrAtom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html#automaton">Automaton</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html#networkgraph">NetworkGraph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html#tree">Tree</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html#stamp">Stamp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html#timelinebar">TimelineBar</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html#flowchart">FlowChart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html#venndiagram">VennDiagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html#orgchart">OrgChart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/diagrams.html#mindmap">MindMap</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/physics.html">Physics Engine</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/physics.html#physicsspace">PhysicsSpace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/physics.html#body">Body</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/physics.html#wall">Wall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/physics.html#spring">Spring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/physics.html#cloth">Cloth</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/science.html">Science</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/science.html#unitinterval">UnitInterval</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/science.html#molecule2d">Molecule2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/science.html#neuralnetwork">NeuralNetwork</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/science.html#pendulum">Pendulum</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/science.html#standingwave">StandingWave</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/science.html#lens">Lens</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/science.html#ray">Ray</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/threed.html">3D Objects</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/threed.html#threedaxes">ThreeDAxes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/threed.html#surface">Surface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/threed.html#surfacemesh">SurfaceMesh</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/threed.html#d-primitives">3D Primitives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/threed.html#d-factory-functions">3D Factory Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/threed.html#platonic-solids">Platonic Solids</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="reference/attributes.html">Attributes</a><ul>
@@ -378,11 +606,21 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="reference/utilities.html">Utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="reference/utilities.html#easings">Easings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/utilities.html#colours-gradients">Colours &amp; Gradients</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/utilities.html#filters-definitions">Filters &amp; Definitions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/utilities.html#styling-attributes">Styling Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/utilities.html#helper-functions">Helper Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/utilities.html#easings">Easings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference/svg_utils.html">SVG Utilities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="reference/svg_utils.html#filters-clip-paths">Filters &amp; Clip Paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/svg_utils.html#geometric-annotations">Geometric Annotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/svg_utils.html#zoomed-inset-overlays">Zoomed Inset &amp; Overlays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/svg_utils.html#boolean-shape-operations">Boolean Shape Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/svg_utils.html#vector-field-visualizations">Vector Field Visualizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/svg_utils.html#geometry-helpers">Geometry Helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reference/svg_utils.html#svg-import">SVG Import</a></li>
 </ul>
 </li>
 </ul>

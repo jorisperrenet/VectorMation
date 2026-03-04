@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Collections &amp; Arrows" href="collections.html"><link rel="prev" title="Shapes" href="shapes.html">
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Collections, Arrows &amp; Data Structures" href="collections.html"><link rel="prev" title="Shapes" href="shapes.html">
         <link rel="prefetch" href="../_static/logo.svg" as="image">
 
     <link rel="shortcut icon" href="../_static/logo.svg"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
@@ -207,16 +207,24 @@
 <li class="toctree-l2"><a class="reference internal" href="vobject.html">VObject</a></li>
 <li class="toctree-l2"><a class="reference internal" href="shapes.html">Shapes</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Text &amp; LaTeX</a></li>
-<li class="toctree-l2"><a class="reference internal" href="collections.html">Collections &amp; Arrows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collections.html">Collections, Arrows &amp; Data Structures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="graphing.html">Graphing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="charts.html">Charts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ui.html">UI Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="diagrams.html">Diagrams</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physics.html">Physics Engine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="science.html">Science</a></li>
+<li class="toctree-l2"><a class="reference internal" href="threed.html">3D Objects</a></li>
 <li class="toctree-l2"><a class="reference internal" href="attributes.html">Attributes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utilities.html">Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="svg_utils.html">SVG Utilities</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../attributes.html">Attributes: Time-Varying Values</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../animation.html">Animation &amp; Playback</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../graphing.html">Graphing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced_examples.html">Advanced Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../vs_manim.html">vs Manim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
 </ul>
@@ -259,26 +267,48 @@
         <article role="main" id="furo-main-content">
           <section id="text-latex">
 <h1>Text &amp; LaTeX<a class="headerlink" href="#text-latex" title="Link to this heading">¶</a></h1>
+<p>All text classes inherit from <a class="reference internal" href="vobject.html"><span class="doc">VObject</span></a> and share its full set
+of animation methods (movement, styling, effects, etc.).</p>
 <section id="text">
 <h2>Text<a class="headerlink" href="#text" title="Link to this heading">¶</a></h2>
+<div class="example admonition">
+<p class="admonition-title">Text</p>
+<img src="../_static/videos/ref_text.svg" style="width:100%;max-width:800px;display:block;margin:auto;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Text shape.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">os</span><span class="p">;</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;../..&#39;</span><span class="p">))</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vectormation.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">()</span>
+
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">t</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Hello, World!&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">960</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">540</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">72</span><span class="p">,</span>
+         <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#fff&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">text_anchor</span><span class="o">=</span><span class="s1">&#39;middle&#39;</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
 <dl class="py class">
-<dt class="sig sig-object py" id="Text">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">styling</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text" title="Link to this definition">¶</a></dt>
-<dd><p>Plain SVG <code class="docutils literal notranslate"><span class="pre">&lt;text&gt;</span></code> element.</p>
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">48</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_family</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">styling</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Plain SVG <code class="docutils literal notranslate"><span class="pre">&lt;text&gt;</span></code> element. Default fill is white (<code class="docutils literal notranslate"><span class="pre">#fff</span></code>) with no
+stroke.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>text</strong> (<em>str</em>) – Text content.</p></li>
 <li><p><strong>x</strong> (<em>float</em>) – X position.</p></li>
 <li><p><strong>y</strong> (<em>float</em>) – Y position (baseline).</p></li>
-<li><p><strong>font_size</strong> (<em>float</em>) – Font size in pixels.</p></li>
-<li><p><strong>text_anchor</strong> (<em>str</em>) – SVG <code class="docutils literal notranslate"><span class="pre">text-anchor</span></code> (<code class="docutils literal notranslate"><span class="pre">'start'</span></code>, <code class="docutils literal notranslate"><span class="pre">'middle'</span></code>, <code class="docutils literal notranslate"><span class="pre">'end'</span></code>).</p></li>
+<li><p><strong>font_size</strong> (<em>float</em>) – Font size in pixels (default <code class="docutils literal notranslate"><span class="pre">48</span></code>).</p></li>
+<li><p><strong>text_anchor</strong> (<em>str</em>) – SVG <code class="docutils literal notranslate"><span class="pre">text-anchor</span></code> – <code class="docutils literal notranslate"><span class="pre">'start'</span></code>, <code class="docutils literal notranslate"><span class="pre">'middle'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'end'</span></code>.</p></li>
+<li><p><strong>font_family</strong> (<em>str</em>) – CSS font family name.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="Text.text">
-<span class="sig-name descname"><span class="pre">text</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#String" title="String"><span class="pre">String</span></a></span><a class="headerlink" href="#Text.text" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">text</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#String" title="String"><span class="pre">String</span></a></span></dt>
 <dd><p>Text content (time-varying).</p>
 </dd></dl>
 
@@ -293,20 +323,286 @@
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="Text.font_size">
-<span class="sig-name descname"><span class="pre">font_size</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span><a class="headerlink" href="#Text.font_size" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">font_size</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span></dt>
 <dd></dd></dl>
 
+<p class="rubric">Querying</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="Text.typing">
-<span class="sig-name descname"><span class="pre">typing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_existence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.typing" title="Link to this definition">¶</a></dt>
-<dd><p>Typewriter effect: reveal characters one by one over <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code>.</p>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">get_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Return the text string at the given time.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="Text.set_text">
-<span class="sig-name descname"><span class="pre">set_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.set_text" title="Link to this definition">¶</a></dt>
-<dd><p>Cross-fade to <em>new_text</em>: opacity drops to 0, text changes, opacity returns.</p>
+<dt class="sig sig-object py" id="Text.char_count">
+<span class="sig-name descname"><span class="pre">char_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.char_count" title="Link to this definition">¶</a></dt>
+<dd><p>Return the number of characters.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.word_count">
+<span class="sig-name descname"><span class="pre">word_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.word_count" title="Link to this definition">¶</a></dt>
+<dd><p>Return the number of whitespace-separated words.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.word_at">
+<span class="sig-name descname"><span class="pre">word_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.word_at" title="Link to this definition">¶</a></dt>
+<dd><p>Return the word at the given index.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.char_at">
+<span class="sig-name descname"><span class="pre">char_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.char_at" title="Link to this definition">¶</a></dt>
+<dd><p>Return the character at the given index.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">starts_with</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the text starts with <em>prefix</em>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">ends_with</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">suffix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the text ends with <em>suffix</em>.</p>
+</dd></dl>
+
+<p class="rubric">Styling</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.bold">
+<span class="sig-name descname"><span class="pre">bold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bold'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.bold" title="Link to this definition">¶</a></dt>
+<dd><p>Set the font weight to bold. Returns <em>self</em> for chaining.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.italic">
+<span class="sig-name descname"><span class="pre">italic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'italic'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.italic" title="Link to this definition">¶</a></dt>
+<dd><p>Set the font style to italic. Returns <em>self</em> for chaining.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.set_font_family">
+<span class="sig-name descname"><span class="pre">set_font_family</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">family</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.set_font_family" title="Link to this definition">¶</a></dt>
+<dd><p>Set the CSS font family. Returns <em>self</em>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.set_font_size">
+<span class="sig-name descname"><span class="pre">set_font_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.set_font_size" title="Link to this definition">¶</a></dt>
+<dd><p>Animate font size to a new value over <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code>.</p>
+</dd></dl>
+
+<p class="rubric">Text Manipulation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.update_text">
+<span class="sig-name descname"><span class="pre">update_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.update_text" title="Link to this definition">¶</a></dt>
+<dd><p>Instantly change the displayed text from <em>start</em> onward (no animation).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.to_upper">
+<span class="sig-name descname"><span class="pre">to_upper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.to_upper" title="Link to this definition">¶</a></dt>
+<dd><p>Change the text to uppercase at the given time.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.to_lower">
+<span class="sig-name descname"><span class="pre">to_lower</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.to_lower" title="Link to this definition">¶</a></dt>
+<dd><p>Change the text to lowercase at the given time.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.reverse_text">
+<span class="sig-name descname"><span class="pre">reverse_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.reverse_text" title="Link to this definition">¶</a></dt>
+<dd><p>Reverse the text content in-place at the given time.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.truncate">
+<span class="sig-name descname"><span class="pre">truncate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ellipsis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'...'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.truncate" title="Link to this definition">¶</a></dt>
+<dd><p>Truncate the text to at most <em>n</em> characters, appending <em>ellipsis</em> if
+trimmed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.fit_to_box">
+<span class="sig-name descname"><span class="pre">fit_to_box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.fit_to_box" title="Link to this definition">¶</a></dt>
+<dd><p>Adjust <code class="docutils literal notranslate"><span class="pre">font_size</span></code> so the text fits within the given pixel dimensions.</p>
+</dd></dl>
+
+<p class="rubric">Splitting</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.split_words">
+<span class="sig-name descname"><span class="pre">split_words</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.split_words" title="Link to this definition">¶</a></dt>
+<dd><p>Split text into a <a class="reference internal" href="collections.html#VCollection" title="VCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VCollection</span></code></a> of individual word
+<a class="reference internal" href="shapes.html#Text" title="Text"><code class="xref py py-class docutils literal notranslate"><span class="pre">Text</span></code></a> objects, positioned to match the original layout.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.split_chars">
+<span class="sig-name descname"><span class="pre">split_chars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.split_chars" title="Link to this definition">¶</a></dt>
+<dd><p>Split text into a <a class="reference internal" href="collections.html#VCollection" title="VCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VCollection</span></code></a> of individual character
+<a class="reference internal" href="shapes.html#Text" title="Text"><code class="xref py py-class docutils literal notranslate"><span class="pre">Text</span></code></a> objects (spaces are excluded).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.split_lines">
+<span class="sig-name descname"><span class="pre">split_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.split_lines" title="Link to this definition">¶</a></dt>
+<dd><p>Split multi-line text (containing newline characters) into separate
+<a class="reference internal" href="shapes.html#Text" title="Text"><code class="xref py py-class docutils literal notranslate"><span class="pre">Text</span></code></a> objects.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.split_into_words">
+<span class="sig-name descname"><span class="pre">split_into_words</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.split_into_words" title="Link to this definition">¶</a></dt>
+<dd><p>Like <a class="reference internal" href="#Text.split_words" title="Text.split_words"><code class="xref py py-meth docutils literal notranslate"><span class="pre">split_words()</span></code></a> but accounts for <code class="docutils literal notranslate"><span class="pre">text_anchor</span></code> when
+positioning. Extra keyword arguments are forwarded to each child
+<a class="reference internal" href="shapes.html#Text" title="Text"><code class="xref py py-class docutils literal notranslate"><span class="pre">Text</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.wrap">
+<span class="sig-name descname"><span class="pre">wrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.wrap" title="Link to this definition">¶</a></dt>
+<dd><p>Word-wrap the text to fit within <em>max_width</em> pixels. Returns a
+<a class="reference internal" href="collections.html#VCollection" title="VCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VCollection</span></code></a> of line <a class="reference internal" href="shapes.html#Text" title="Text"><code class="xref py py-class docutils literal notranslate"><span class="pre">Text</span></code></a> objects.</p>
+</dd></dl>
+
+<p class="rubric">Background</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="Text.add_background_rectangle">
+<span class="sig-name descname"><span class="pre">add_background_rectangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#000000'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Text.add_background_rectangle" title="Link to this definition">¶</a></dt>
+<dd><p>Create a semi-transparent <a class="reference internal" href="shapes.html#Rectangle" title="Rectangle"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rectangle</span></code></a> behind the text. Returns
+a <a class="reference internal" href="collections.html#VCollection" title="VCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VCollection</span></code></a> containing the rectangle and the text.</p>
+</dd></dl>
+
+<p class="rubric">Text Animations</p>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">typing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_existence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Typewriter effect: reveal characters one by one over <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Animation end time.</p></li>
+<li><p><strong>change_existence</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the object appears at <em>start</em>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">typewrite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cursor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'|'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_existence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Reveal text character by character with a blinking cursor. Similar to
+<a class="reference internal" href="shapes.html#Text.typing" title="Text.typing"><code class="xref py py-meth docutils literal notranslate"><span class="pre">typing()</span></code></a> but appends a <em>cursor</em> character (e.g. <code class="docutils literal notranslate"><span class="pre">'|'</span></code>) after
+the revealed portion. The cursor is removed once all characters are shown.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cursor</strong> (<em>str</em>) – Cursor character displayed during reveal.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">untype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_existence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Reverse typewriter: remove characters right-to-left over
+<code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code>. Text becomes empty at the end. If
+<em>change_existence</em> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, the object is hidden after completion.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">reveal_by_word</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_existence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Reveal text word by word over <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code>. Words appear in order,
+separated by spaces. <code class="docutils literal notranslate"><span class="pre">word_by_word</span></code> is an alias.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>easing</strong> – Easing function for word timing (default: <code class="docutils literal notranslate"><span class="pre">linear</span></code>).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">scramble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">charset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">change_existence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Decode/reveal effect: characters settle left-to-right from random
+characters to the final text. Un-settled positions cycle through random
+characters from <em>charset</em> (defaults to alphanumeric + symbols). Uses a
+deterministic seed for reproducibility.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>charset</strong> (<em>str</em>) – Character set for scrambled characters.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: Typewrite</p>
+<video src="../_static/videos/typewrite.mp4" controls autoplay loop muted></video><p>Typewriter effect with blinking cursor.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">title</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;$ pip install vectormation&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span>
+             <span class="n">font_size</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">font_family</span><span class="o">=</span><span class="s1">&#39;monospace&#39;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#0f0&#39;</span><span class="p">)</span>
+<span class="n">title</span><span class="o">.</span><span class="n">typewrite</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">cursor</span><span class="o">=</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+
+<span class="n">subtitle</span> <span class="o">=</span> <span class="n">Text</span><span class="p">(</span><span class="s1">&#39;Installation complete.&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">480</span><span class="p">,</span>
+                <span class="n">font_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">font_family</span><span class="o">=</span><span class="s1">&#39;monospace&#39;</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#0f0&#39;</span><span class="p">)</span>
+<span class="n">subtitle</span><span class="o">.</span><span class="n">typewrite</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">cursor</span><span class="o">=</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">subtitle</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/typewrite.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">set_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Cross-fade to <em>new_text</em>: opacity drops to 0 at the midpoint, the text
+content changes, then opacity returns to 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>new_text</strong> (<em>str</em>) – The replacement text.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">highlight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#FFFF00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">there_and_back</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Highlight the text with a colored background rectangle that fades in and
+out. Returns the highlight <a class="reference internal" href="shapes.html#Rectangle" title="Rectangle"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rectangle</span></code></a> (must be added to the
+canvas separately).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>color</strong> (<em>str</em>) – Highlight fill color.</p></li>
+<li><p><strong>opacity</strong> (<em>float</em>) – Peak fill opacity.</p></li>
+<li><p><strong>padding</strong> (<em>float</em>) – Padding around the text bounding box.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">highlight_substring</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">substring</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#FFFF00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opacity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">there_and_back</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Highlight a specific substring within the text. The highlight rectangle
+is positioned over the approximate location of <em>substring</em>. Returns the
+highlight <a class="reference internal" href="shapes.html#Rectangle" title="Rectangle"><code class="xref py py-class docutils literal notranslate"><span class="pre">Rectangle</span></code></a> (must be added to the canvas separately).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>substring</strong> (<em>str</em>) – The substring to highlight.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -316,10 +612,11 @@
 <section id="countanimation">
 <h2>CountAnimation<a class="headerlink" href="#countanimation" title="Link to this heading">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="CountAnimation">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CountAnimation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'{:.0f}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">styling</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CountAnimation" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#Text" title="Text"><code class="xref py py-class docutils literal notranslate"><span class="pre">Text</span></code></a></p>
-<p>Animated number counter from <em>start_val</em> to <em>end_val</em>.</p>
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CountAnimation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'{:.0f}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">styling</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Bases: <a class="reference internal" href="shapes.html#Text" title="Text"><code class="xref py py-class docutils literal notranslate"><span class="pre">Text</span></code></a></p>
+<p>Animated number counter that displays a number transitioning from
+<em>start_val</em> to <em>end_val</em> over <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -327,10 +624,137 @@
 <li><p><strong>end_val</strong> (<em>float</em>) – Ending number.</p></li>
 <li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
 <li><p><strong>end</strong> (<em>float</em>) – Animation end time.</p></li>
-<li><p><strong>fmt</strong> (<em>str</em>) – Format string (e.g. <code class="docutils literal notranslate"><span class="pre">'{:.2f}'</span></code>).</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – Format string (e.g. <code class="docutils literal notranslate"><span class="pre">'{:.2f}'</span></code> for two decimal places).</p></li>
+<li><p><strong>easing</strong> – Easing function for the count progression.</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="CountAnimation.count_to">
+<span class="sig-name descname"><span class="pre">count_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#CountAnimation.count_to" title="Link to this definition">¶</a></dt>
+<dd><p>Animate counting from the current value to a new <em>target</em>. Can be
+chained for multi-step counting sequences.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>float</em>) – Target number.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Animation end time.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: Counting animations</p>
+<video src="../_static/videos/ref_count_anim.mp4" controls autoplay loop muted></video><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">counter</span> <span class="o">=</span> <span class="n">CountAnimation</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{:.0f}</span><span class="s1">&#39;</span><span class="p">,</span>
+                         <span class="n">font_size</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#58C4DD&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                         <span class="n">text_anchor</span><span class="o">=</span><span class="s1">&#39;middle&#39;</span><span class="p">)</span>
+<span class="n">counter</span><span class="o">.</span><span class="n">center_to_pos</span><span class="p">()</span>
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/ref_count_anim.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="decimalnumber">
+<h2>DecimalNumber<a class="headerlink" href="#decimalnumber" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DecimalNumber</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'{:.2f}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">48</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">styling</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Bases: <a class="reference internal" href="shapes.html#Text" title="Text"><code class="xref py py-class docutils literal notranslate"><span class="pre">Text</span></code></a></p>
+<p>Text that dynamically displays a numeric value, updating each frame.
+Can track a <a class="reference internal" href="attributes.html#Real" title="Real"><code class="xref py py-class docutils literal notranslate"><span class="pre">Real</span></code></a> attribute or a <a class="reference internal" href="shapes.html#ValueTracker" title="ValueTracker"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueTracker</span></code></a> so the
+displayed number follows an animated value automatically.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – Initial value, or a <a class="reference internal" href="attributes.html#Real" title="Real"><code class="xref py py-class docutils literal notranslate"><span class="pre">Real</span></code></a> / <a class="reference internal" href="shapes.html#ValueTracker" title="ValueTracker"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueTracker</span></code></a> to track.</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – Format string for display (default <code class="docutils literal notranslate"><span class="pre">'{:.2f}'</span></code>).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">tracker</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="attributes.html#Real" title="Real"><span class="pre">Real</span></a></span></dt>
+<dd><p>The underlying tracked value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="DecimalNumber.set_value">
+<span class="sig-name descname"><span class="pre">set_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#DecimalNumber.set_value" title="Link to this definition">¶</a></dt>
+<dd><p>Set the tracked value from <em>start</em> onward.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="DecimalNumber.animate_value">
+<span class="sig-name descname"><span class="pre">animate_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#DecimalNumber.animate_value" title="Link to this definition">¶</a></dt>
+<dd><p>Animate the tracked value to <em>target</em> over <code class="docutils literal notranslate"><span class="pre">[start,</span> <span class="pre">end]</span></code>.</p>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: Tracking a ValueTracker</p>
+<video src="../_static/videos/ref_value_tracker.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">vt</span> <span class="o">=</span> <span class="n">ValueTracker</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">vt</span><span class="o">.</span><span class="n">animate_value</span><span class="p">(</span><span class="mf">3.14159</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">label</span> <span class="o">=</span> <span class="n">DecimalNumber</span><span class="p">(</span><span class="n">vt</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">{:.4f}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">72</span><span class="p">)</span>
+<span class="n">label</span><span class="o">.</span><span class="n">center_to_pos</span><span class="p">()</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/ref_value_tracker.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="integer">
+<h2>Integer<a class="headerlink" href="#integer" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Integer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">48</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">styling</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Bases: <a class="reference internal" href="shapes.html#DecimalNumber" title="DecimalNumber"><code class="xref py py-class docutils literal notranslate"><span class="pre">DecimalNumber</span></code></a></p>
+<p><a class="reference internal" href="shapes.html#DecimalNumber" title="DecimalNumber"><code class="xref py py-class docutils literal notranslate"><span class="pre">DecimalNumber</span></code></a> pre-configured with <code class="docutils literal notranslate"><span class="pre">fmt='{:.0f}'</span></code> to display
+whole numbers only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> – Initial value, or a <a class="reference internal" href="attributes.html#Real" title="Real"><code class="xref py py-class docutils literal notranslate"><span class="pre">Real</span></code></a> / <a class="reference internal" href="shapes.html#ValueTracker" title="ValueTracker"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueTracker</span></code></a> to track.</p>
+</dd>
+</dl>
+<div class="example admonition">
+<p class="admonition-title">Example: Animated integer display</p>
+<video src="../_static/videos/ref_animated_integer.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">n</span> <span class="o">=</span> <span class="n">Integer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">96</span><span class="p">)</span>
+<span class="n">n</span><span class="o">.</span><span class="n">center_to_pos</span><span class="p">()</span>
+<span class="n">n</span><span class="o">.</span><span class="n">animate_value</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/ref_animated_integer.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
 </dd></dl>
 
 </section>
@@ -339,30 +763,81 @@
 <h2>TexObject<a class="headerlink" href="#texobject" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="TexObject">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TexObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">to_render</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">styles</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#TexObject" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TexObject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">to_render</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">48</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">styles</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#TexObject" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="collections.html#VCollection" title="VCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VCollection</span></code></a></p>
-<p>Renders a LaTeX string as SVG paths. Requires <code class="docutils literal notranslate"><span class="pre">latex</span></code> and <code class="docutils literal notranslate"><span class="pre">dvisvgm</span></code>
-on the system. Paths are auto-scaled so the rendered height matches
-<code class="docutils literal notranslate"><span class="pre">font_size</span></code> in pixels.</p>
+<p>Renders a LaTeX string as SVG paths via <code class="docutils literal notranslate"><span class="pre">dvisvgm</span></code>. Requires <code class="docutils literal notranslate"><span class="pre">latex</span></code>
+and <code class="docutils literal notranslate"><span class="pre">dvisvgm</span></code> on the system. Paths are auto-scaled so the rendered
+height matches <code class="docutils literal notranslate"><span class="pre">font_size</span></code> in pixels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>to_render</strong> (<em>str</em>) – LaTeX source (e.g. <code class="docutils literal notranslate"><span class="pre">r'$$E</span> <span class="pre">=</span> <span class="pre">mc^2$$'</span></code>).</p></li>
 <li><p><strong>x</strong> (<em>float</em>) – X offset.</p></li>
 <li><p><strong>y</strong> (<em>float</em>) – Y offset.</p></li>
-<li><p><strong>font_size</strong> (<em>float</em>) – Target height in pixels (default 30).</p></li>
+<li><p><strong>font_size</strong> (<em>float</em>) – Target height in pixels (default <code class="docutils literal notranslate"><span class="pre">48</span></code>).</p></li>
 </ul>
 </dd>
 </dl>
 <p>The result is a <a class="reference internal" href="collections.html#VCollection" title="VCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VCollection</span></code></a> of <a class="reference internal" href="shapes.html#Path" title="Path"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> objects, one
-per glyph. All VCollection and VObject methods work on it.</p>
-<p><code class="docutils literal notranslate"><span class="pre">scale_x</span></code> / <code class="docutils literal notranslate"><span class="pre">scale_y</span></code> in styles act as multipliers on the
+per glyph. All <a class="reference internal" href="collections.html#VCollection" title="VCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VCollection</span></code></a> and <a class="reference internal" href="vobject.html#VObject" title="VObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">VObject</span></code></a> methods
+work on it.</p>
+<p><code class="docutils literal notranslate"><span class="pre">scale_x</span></code> / <code class="docutils literal notranslate"><span class="pre">scale_y</span></code> in <em>styles</em> act as multipliers on the
 font-size-derived scale.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">formula</span> <span class="o">=</span> <span class="n">TexObject</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$$\sum_{n=1}^{\infty} \frac</span><span class="si">{1}</span><span class="s1">{n^2}$$&#39;</span><span class="p">,</span>
-                    <span class="n">font_size</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
-<span class="n">formula</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>   <span class="c1"># handwriting reveal</span>
-<span class="n">formula</span><span class="o">.</span><span class="n">center_to_pos</span><span class="p">()</span>  <span class="c1"># centre on canvas</span>
+<p class="rubric">Text-to-Color Mapping</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="TexObject.t2c">
+<span class="sig-name descname"><span class="pre">t2c</span></span><a class="headerlink" href="#TexObject.t2c" title="Link to this definition">¶</a></dt>
+<dd><p>Pass a <code class="docutils literal notranslate"><span class="pre">t2c</span></code> dictionary in the constructor to color specific parts of
+the LaTeX expression. Keys are TeX substrings, values are fill colors.
+This calls <a class="reference internal" href="#TexObject.set_color_by_tex" title="TexObject.set_color_by_tex"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_color_by_tex()</span></code></a> automatically.</p>
+</dd></dl>
+
+<p class="rubric">Part Selection</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="TexObject.get_part_by_tex">
+<span class="sig-name descname"><span class="pre">get_part_by_tex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">substring</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#TexObject.get_part_by_tex" title="Link to this definition">¶</a></dt>
+<dd><p>Return a <a class="reference internal" href="collections.html#VCollection" title="VCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VCollection</span></code></a> of glyph <a class="reference internal" href="shapes.html#Path" title="Path"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> objects
+whose source LaTeX matches <em>substring</em>. LaTeX commands are stripped from
+both the full TeX string and the query before matching.</p>
+<p>Returns an empty <a class="reference internal" href="collections.html#VCollection" title="VCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">VCollection</span></code></a> when no match is found.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>substring</strong> (<em>str</em>) – TeX substring to find.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="TexObject.set_color_by_tex">
+<span class="sig-name descname"><span class="pre">set_color_by_tex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tex_to_color_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#TexObject.set_color_by_tex" title="Link to this definition">¶</a></dt>
+<dd><p>Color glyph objects by matching TeX substrings. For each key in
+<em>tex_to_color_map</em>, calls <a class="reference internal" href="#TexObject.get_part_by_tex" title="TexObject.get_part_by_tex"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_part_by_tex()</span></code></a> and sets the fill
+color of the matched glyphs to the corresponding value. Returns <em>self</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tex_to_color_map</strong> (<em>dict</em>) – <code class="docutils literal notranslate"><span class="pre">{tex_substring:</span> <span class="pre">color}</span></code> mapping.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: TexObject</p>
+<video src="../_static/videos/tex.mp4" controls autoplay loop muted></video><p>TeX formula with colored parts via <code class="docutils literal notranslate"><span class="pre">t2c</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">eq</span> <span class="o">=</span> <span class="n">TexObject</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$$E = mc^2$$&#39;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
+               <span class="n">t2c</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;E&#39;</span><span class="p">:</span> <span class="s1">&#39;#FF6666&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">:</span> <span class="s1">&#39;#66FF66&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="s1">&#39;#6666FF&#39;</span><span class="p">})</span>
+<span class="n">eq</span><span class="o">.</span><span class="n">center_to_pos</span><span class="p">()</span>
+<span class="n">eq</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">eq</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/tex.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
 </pre></div>
+</div>
 </div>
 </dd></dl>
 
@@ -379,10 +854,207 @@ Supports indexing (<code class="docutils literal notranslate"><span class="pre">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lines</strong> – LaTeX strings, one per line.</p></li>
-<li><p><strong>line_spacing</strong> (<em>float</em>) – Vertical distance between lines.</p></li>
+<li><p><strong>x</strong> (<em>float</em>) – X offset for all lines.</p></li>
+<li><p><strong>y</strong> (<em>float</em>) – Y offset for the first line.</p></li>
+<li><p><strong>line_spacing</strong> (<em>float</em>) – Vertical distance between lines (default <code class="docutils literal notranslate"><span class="pre">60</span></code>).</p></li>
 </ul>
 </dd>
 </dl>
+<p>Each line is a full <a class="reference internal" href="#TexObject" title="TexObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">TexObject</span></code></a> and can be animated
+independently.</p>
+<div class="example admonition">
+<p class="admonition-title">Example: Multi-line LaTeX derivation</p>
+<img src="../_static/videos/ref_multiline_latex.svg" style="width:100%;max-width:800px;display:block;margin:auto;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">equations</span> <span class="o">=</span> <span class="n">SplitTexObject</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s1">&#39;$$\Delta = b^2 - 4ac$$&#39;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s1">&#39;$$x = \frac{-b \pm \sqrt{\Delta}}</span><span class="si">{2a}</span><span class="s1">$$&#39;</span><span class="p">,</span>
+    <span class="n">line_spacing</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">48</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">equations</span><span class="p">):</span>
+    <span class="n">line</span><span class="o">.</span><span class="n">center_to_pos</span><span class="p">(</span><span class="n">posy</span><span class="o">=</span><span class="mi">440</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">120</span><span class="p">)</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="texcountanimation">
+<h2>TexCountAnimation<a class="headerlink" href="#texcountanimation" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="TexCountAnimation">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TexCountAnimation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'{:.0f}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">48</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">styles</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#TexCountAnimation" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="collections.html#DynamicObject" title="DynamicObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">DynamicObject</span></code></a></p>
+<p>Animated number display using pre-rendered LaTeX digit glyphs. Unlike
+<a class="reference internal" href="shapes.html#CountAnimation" title="CountAnimation"><code class="xref py py-class docutils literal notranslate"><span class="pre">CountAnimation</span></code></a> (which uses plain SVG text),
+<code class="docutils literal notranslate"><span class="pre">TexCountAnimation</span></code> renders each digit as a LaTeX glyph path, giving a
+typographically consistent look that matches <a class="reference internal" href="#TexObject" title="TexObject"><code class="xref py py-class docutils literal notranslate"><span class="pre">TexObject</span></code></a> output.</p>
+<p>Digit glyphs are cached at the class level, so creating multiple
+<code class="docutils literal notranslate"><span class="pre">TexCountAnimation</span></code> instances is efficient.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_val</strong> (<em>float</em>) – Starting number.</p></li>
+<li><p><strong>end_val</strong> (<em>float</em>) – Ending number.</p></li>
+<li><p><strong>start</strong> (<em>float</em>) – Animation start time.</p></li>
+<li><p><strong>end</strong> (<em>float</em>) – Animation end time.</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – Format string (e.g. <code class="docutils literal notranslate"><span class="pre">'{:.2f}'</span></code>).</p></li>
+<li><p><strong>easing</strong> – Easing function for the count progression.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="TexCountAnimation.count_to">
+<span class="sig-name descname"><span class="pre">count_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">easing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">smooth</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#TexCountAnimation.count_to" title="Link to this definition">¶</a></dt>
+<dd><p>Animate counting from the current value to a new <em>target</em>. Can be
+chained for multi-step counting sequences.</p>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: LaTeX-styled counter</p>
+<video src="../_static/videos/ref_tex_counter.mp4" controls autoplay loop muted style="width:100%;max-width:800px;display:block;margin:auto;"></video><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">counter</span> <span class="o">=</span> <span class="n">TexCountAnimation</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">72</span><span class="p">)</span>
+<span class="n">counter</span><span class="o">.</span><span class="n">center_to_pos</span><span class="p">()</span>
+
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">export_video</span><span class="p">(</span><span class="s1">&#39;docs/source/_static/videos/ref_tex_counter.mp4&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">3.5</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="paragraph">
+<h2>Paragraph<a class="headerlink" href="#paragraph" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Paragraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">960</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">540</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">36</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alignment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'left'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.4</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">styling</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Multi-line text with alignment and line spacing. Each line is rendered as
+a separate SVG <code class="docutils literal notranslate"><span class="pre">&lt;text&gt;</span></code> element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lines</strong> – Text strings, one per line.</p></li>
+<li><p><strong>alignment</strong> (<em>str</em>) – <code class="docutils literal notranslate"><span class="pre">'left'</span></code>, <code class="docutils literal notranslate"><span class="pre">'center'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'right'</span></code>.</p></li>
+<li><p><strong>line_spacing</strong> (<em>float</em>) – Multiplier for vertical spacing between lines (default <code class="docutils literal notranslate"><span class="pre">1.4</span></code>).</p></li>
+<li><p><strong>font_size</strong> (<em>float</em>) – Font size in pixels.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Paragraph.lines">
+<span class="sig-name descname"><span class="pre">lines</span></span><a class="headerlink" href="#Paragraph.lines" title="Link to this definition">¶</a></dt>
+<dd><p>List of line strings (alias for <code class="docutils literal notranslate"><span class="pre">items</span></code>).</p>
+</dd></dl>
+
+<div class="example admonition">
+<p class="admonition-title">Example: Paragraph</p>
+<img src="../_static/videos/ref_paragraph.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">Paragraph</span><span class="p">(</span>
+    <span class="s1">&#39;First line of text.&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Second line continues here.&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Third and final line.&#39;</span><span class="p">,</span>
+    <span class="n">alignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">44</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#fff&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">p</span><span class="o">.</span><span class="n">center_to_pos</span><span class="p">()</span>
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="bulletedlist">
+<h2>BulletedList<a class="headerlink" href="#bulletedlist" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">BulletedList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">36</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bullet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'•'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.6</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">styling</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>List of items with bullet points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>items</strong> – Text strings.</p></li>
+<li><p><strong>bullet</strong> (<em>str</em>) – Bullet character (default <code class="docutils literal notranslate"><span class="pre">'\u2022'</span></code>).</p></li>
+<li><p><strong>indent</strong> (<em>float</em>) – Pixel indentation for each item (default <code class="docutils literal notranslate"><span class="pre">40</span></code>).</p></li>
+<li><p><strong>line_spacing</strong> (<em>float</em>) – Multiplier for vertical spacing (default <code class="docutils literal notranslate"><span class="pre">1.6</span></code>).</p></li>
+</ul>
+</dd>
+</dl>
+<div class="example admonition">
+<p class="admonition-title">Example: BulletedList</p>
+<img src="../_static/videos/ref_bulleted_list.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">bl</span> <span class="o">=</span> <span class="n">BulletedList</span><span class="p">(</span>
+    <span class="s1">&#39;Install dependencies&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Configure settings&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Run the application&#39;</span><span class="p">,</span>
+    <span class="n">font_size</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#fff&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">bl</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="numberedlist">
+<h2>NumberedList<a class="headerlink" href="#numberedlist" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">NumberedList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">items</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">36</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_spacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">styling</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>List of items with numeric labels (1. 2. 3. …).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>items</strong> – Text strings.</p></li>
+<li><p><strong>indent</strong> (<em>float</em>) – Pixel indentation after the number (default <code class="docutils literal notranslate"><span class="pre">50</span></code>).</p></li>
+<li><p><strong>line_spacing</strong> (<em>float</em>) – Multiplier for vertical spacing (default <code class="docutils literal notranslate"><span class="pre">1.6</span></code>).</p></li>
+<li><p><strong>start_number</strong> (<em>int</em>) – First number in the sequence (default <code class="docutils literal notranslate"><span class="pre">1</span></code>).</p></li>
+</ul>
+</dd>
+</dl>
+<div class="example admonition">
+<p class="admonition-title">Example: NumberedList</p>
+<img src="../_static/videos/ref_numbered_list.svg" style="width:100%; max-width:800px;" /><div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">VectorMathAnim</span><span class="p">(</span><span class="s1">&#39;_ref_out&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">set_background</span><span class="p">()</span>
+
+<span class="n">nl</span> <span class="o">=</span> <span class="n">NumberedList</span><span class="p">(</span>
+    <span class="s1">&#39;Define the problem&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Gather data&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Build a model&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Evaluate results&#39;</span><span class="p">,</span>
+    <span class="n">font_size</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="s1">&#39;#fff&#39;</span><span class="p">,</span> <span class="n">stroke_width</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">v</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">nl</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">for_docs</span><span class="p">:</span>
+</pre></div>
+</div>
+</div>
 </dd></dl>
 
 </section>
@@ -398,7 +1070,7 @@ Supports indexing (<code class="docutils literal notranslate"><span class="pre">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Collections &amp; Arrows</div>
+                <div class="title">Collections, Arrows &amp; Data Structures</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -445,29 +1117,66 @@ Supports indexing (<code class="docutils literal notranslate"><span class="pre">
             <ul>
 <li><a class="reference internal" href="#">Text &amp; LaTeX</a><ul>
 <li><a class="reference internal" href="#text">Text</a><ul>
-<li><a class="reference internal" href="#Text"><code class="docutils literal notranslate"><span class="pre">Text</span></code></a><ul>
-<li><a class="reference internal" href="#Text.text"><code class="docutils literal notranslate"><span class="pre">Text.text</span></code></a></li>
 <li><a class="reference internal" href="#Text.x"><code class="docutils literal notranslate"><span class="pre">Text.x</span></code></a></li>
 <li><a class="reference internal" href="#Text.y"><code class="docutils literal notranslate"><span class="pre">Text.y</span></code></a></li>
-<li><a class="reference internal" href="#Text.font_size"><code class="docutils literal notranslate"><span class="pre">Text.font_size</span></code></a></li>
-<li><a class="reference internal" href="#Text.typing"><code class="docutils literal notranslate"><span class="pre">Text.typing()</span></code></a></li>
-<li><a class="reference internal" href="#Text.set_text"><code class="docutils literal notranslate"><span class="pre">Text.set_text()</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#Text.char_count"><code class="docutils literal notranslate"><span class="pre">Text.char_count()</span></code></a></li>
+<li><a class="reference internal" href="#Text.word_count"><code class="docutils literal notranslate"><span class="pre">Text.word_count()</span></code></a></li>
+<li><a class="reference internal" href="#Text.word_at"><code class="docutils literal notranslate"><span class="pre">Text.word_at()</span></code></a></li>
+<li><a class="reference internal" href="#Text.char_at"><code class="docutils literal notranslate"><span class="pre">Text.char_at()</span></code></a></li>
+<li><a class="reference internal" href="#Text.bold"><code class="docutils literal notranslate"><span class="pre">Text.bold()</span></code></a></li>
+<li><a class="reference internal" href="#Text.italic"><code class="docutils literal notranslate"><span class="pre">Text.italic()</span></code></a></li>
+<li><a class="reference internal" href="#Text.set_font_family"><code class="docutils literal notranslate"><span class="pre">Text.set_font_family()</span></code></a></li>
+<li><a class="reference internal" href="#Text.set_font_size"><code class="docutils literal notranslate"><span class="pre">Text.set_font_size()</span></code></a></li>
+<li><a class="reference internal" href="#Text.update_text"><code class="docutils literal notranslate"><span class="pre">Text.update_text()</span></code></a></li>
+<li><a class="reference internal" href="#Text.to_upper"><code class="docutils literal notranslate"><span class="pre">Text.to_upper()</span></code></a></li>
+<li><a class="reference internal" href="#Text.to_lower"><code class="docutils literal notranslate"><span class="pre">Text.to_lower()</span></code></a></li>
+<li><a class="reference internal" href="#Text.reverse_text"><code class="docutils literal notranslate"><span class="pre">Text.reverse_text()</span></code></a></li>
+<li><a class="reference internal" href="#Text.truncate"><code class="docutils literal notranslate"><span class="pre">Text.truncate()</span></code></a></li>
+<li><a class="reference internal" href="#Text.fit_to_box"><code class="docutils literal notranslate"><span class="pre">Text.fit_to_box()</span></code></a></li>
+<li><a class="reference internal" href="#Text.split_words"><code class="docutils literal notranslate"><span class="pre">Text.split_words()</span></code></a></li>
+<li><a class="reference internal" href="#Text.split_chars"><code class="docutils literal notranslate"><span class="pre">Text.split_chars()</span></code></a></li>
+<li><a class="reference internal" href="#Text.split_lines"><code class="docutils literal notranslate"><span class="pre">Text.split_lines()</span></code></a></li>
+<li><a class="reference internal" href="#Text.split_into_words"><code class="docutils literal notranslate"><span class="pre">Text.split_into_words()</span></code></a></li>
+<li><a class="reference internal" href="#Text.wrap"><code class="docutils literal notranslate"><span class="pre">Text.wrap()</span></code></a></li>
+<li><a class="reference internal" href="#Text.add_background_rectangle"><code class="docutils literal notranslate"><span class="pre">Text.add_background_rectangle()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#countanimation">CountAnimation</a><ul>
-<li><a class="reference internal" href="#CountAnimation"><code class="docutils literal notranslate"><span class="pre">CountAnimation</span></code></a></li>
+<li><a class="reference internal" href="#CountAnimation.count_to"><code class="docutils literal notranslate"><span class="pre">CountAnimation.count_to()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#decimalnumber">DecimalNumber</a><ul>
+<li><a class="reference internal" href="#DecimalNumber.set_value"><code class="docutils literal notranslate"><span class="pre">DecimalNumber.set_value()</span></code></a></li>
+<li><a class="reference internal" href="#DecimalNumber.animate_value"><code class="docutils literal notranslate"><span class="pre">DecimalNumber.animate_value()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#integer">Integer</a></li>
 <li><a class="reference internal" href="#texobject">TexObject</a><ul>
-<li><a class="reference internal" href="#TexObject"><code class="docutils literal notranslate"><span class="pre">TexObject</span></code></a></li>
+<li><a class="reference internal" href="#TexObject"><code class="docutils literal notranslate"><span class="pre">TexObject</span></code></a><ul>
+<li><a class="reference internal" href="#TexObject.t2c"><code class="docutils literal notranslate"><span class="pre">TexObject.t2c</span></code></a></li>
+<li><a class="reference internal" href="#TexObject.get_part_by_tex"><code class="docutils literal notranslate"><span class="pre">TexObject.get_part_by_tex()</span></code></a></li>
+<li><a class="reference internal" href="#TexObject.set_color_by_tex"><code class="docutils literal notranslate"><span class="pre">TexObject.set_color_by_tex()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#splittexobject">SplitTexObject</a><ul>
 <li><a class="reference internal" href="#SplitTexObject"><code class="docutils literal notranslate"><span class="pre">SplitTexObject</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#texcountanimation">TexCountAnimation</a><ul>
+<li><a class="reference internal" href="#TexCountAnimation"><code class="docutils literal notranslate"><span class="pre">TexCountAnimation</span></code></a><ul>
+<li><a class="reference internal" href="#TexCountAnimation.count_to"><code class="docutils literal notranslate"><span class="pre">TexCountAnimation.count_to()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#paragraph">Paragraph</a><ul>
+<li><a class="reference internal" href="#Paragraph.lines"><code class="docutils literal notranslate"><span class="pre">Paragraph.lines</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#bulletedlist">BulletedList</a></li>
+<li><a class="reference internal" href="#numberedlist">NumberedList</a></li>
 </ul>
 </li>
 </ul>

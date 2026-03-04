@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<path d='M480.0,320.0 A220,220 0 0 0 350.7,718.0 L415.3,629.0 A110,110 0 0 1 480.0,430.0 Z' fill='rgb(88,196,221)' fill-opacity='0.85' stroke='rgb(34,34,34)' stroke-width='2' />
+<path d='M350.7,718.0 A220,220 0 0 0 658.0,669.3 L569.0,604.7 A110,110 0 0 1 415.3,629.0 Z' fill='rgb(131,193,103)' fill-opacity='0.85' stroke='rgb(34,34,34)' stroke-width='2' />
+<path d='M658.0,669.3 A220,220 0 0 0 658.0,410.7 L569.0,475.3 A110,110 0 0 1 569.0,604.7 Z' fill='rgb(255,107,107)' fill-opacity='0.85' stroke='rgb(34,34,34)' stroke-width='2' />
+<path d='M658.0,410.7 A220,220 0 0 0 480.0,320.0 L480.0,430.0 A110,110 0 0 1 569.0,475.3 Z' fill='rgb(255,255,0)' fill-opacity='0.85' stroke='rgb(34,34,34)' stroke-width='2' />
+<text x='323.08' y='489.01' font-size='17' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Python</text>
+<text x='505.81' y='702.97' font-size='17' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>JS</text>
+<text x='645.0' y='540.0' font-size='17' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Rust</text>
+<text x='554.91' y='392.98' font-size='17' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Go</text>
+</g></g>
+<g data-obj-idx='2'><g>
+<circle cx='1440' cy='540' r='73.33' fill-opacity='0' stroke='rgb(68,68,68)' />
+<circle cx='1440' cy='540' r='146.67' fill-opacity='0' stroke='rgb(68,68,68)' />
+<circle cx='1440' cy='540' r='220.0' fill-opacity='0' stroke='rgb(68,68,68)' />
+<line x1='1440' y1='540' x2='1440.0' y2='320.0' stroke='rgb(85,85,85)' />
+<line x1='1440' y1='540' x2='1649.23' y2='472.02' stroke='rgb(85,85,85)' />
+<line x1='1440' y1='540' x2='1569.31' y2='717.98' stroke='rgb(85,85,85)' />
+<line x1='1440' y1='540' x2='1310.69' y2='717.98' stroke='rgb(85,85,85)' />
+<line x1='1440' y1='540' x2='1230.77' y2='472.02' stroke='rgb(85,85,85)' />
+<polygon points='1440.0,320.0 1579.49,494.68 1554.94,698.21 1382.53,619.1 1277.26,487.12' fill='rgb(88,196,221)' fill-opacity='0.3' stroke='rgb(88,196,221)' stroke-width='2' />
+<text x='1440.0' y='295.6' font-size='16' text-anchor='middle' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Speed</text>
+<text x='1677.76' y='468.35' font-size='16' text-anchor='start' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Power</text>
+<text x='1586.95' y='747.85' font-size='16' text-anchor='start' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Defense</text>
+<text x='1293.05' y='747.85' font-size='16' text-anchor='end' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>Magic</text>
+<text x='1202.24' y='468.35' font-size='16' text-anchor='end' fill='rgb(204,204,204)' stroke='rgb(0,0,0)' stroke-width='0'>HP</text>
+<circle cx='1440.0' cy='320.0' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1579.49' cy='494.68' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1554.94' cy='698.21' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1382.53' cy='619.1' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+<circle cx='1277.26' cy='487.12' r='11' fill='rgb(88,196,221)' stroke='rgb(255,255,255)' stroke-width='0' />
+</g></g>
+</svg>

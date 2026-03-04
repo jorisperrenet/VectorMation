@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='1920' height='1080' viewBox='0 0 1920 1080'>
+<g data-obj-idx='0'><rect x='0' y='0' width='1920' height='1080' rx='0' ry='0' stroke='rgb(0,0,0)' stroke-width='0' /></g>
+<g data-obj-idx='1'><g>
+<path d='M960.0,300.0 A240,240 0 0 0 765.8,681.1 L862.9,610.5 A120,120 0 0 1 960.0,420.0 Z' fill='rgb(88,196,221)' fill-opacity='0.85' stroke='rgb(34,34,34)' stroke-width='2' />
+<path d='M765.8,681.1 A240,240 0 0 0 1101.1,734.2 L1030.5,637.1 A120,120 0 0 1 862.9,610.5 Z' fill='rgb(231,76,60)' fill-opacity='0.85' stroke='rgb(34,34,34)' stroke-width='2' />
+<path d='M1101.1,734.2 A240,240 0 0 0 1188.3,465.8 L1074.1,502.9 A120,120 0 0 1 1030.5,637.1 Z' fill='rgb(46,204,113)' fill-opacity='0.85' stroke='rgb(34,34,34)' stroke-width='2' />
+<path d='M1188.3,465.8 A240,240 0 0 0 1034.2,311.7 L997.1,425.9 A120,120 0 0 1 1074.1,502.9 Z' fill='rgb(243,156,18)' fill-opacity='0.85' stroke='rgb(34,34,34)' stroke-width='2' />
+<path d='M1034.2,311.7 A240,240 0 0 0 960.0,300.0 L960.0,420.0 A120,120 0 0 1 997.1,425.9 Z' fill='rgb(155,89,182)' fill-opacity='0.85' stroke='rgb(34,34,34)' stroke-width='2' />
+<text x='799.62' y='458.28' font-size='17' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Python</text>
+<text x='931.84' y='717.78' font-size='17' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>JS</text>
+<text x='1131.19' y='595.62' font-size='17' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Rust</text>
+<text x='1087.28' y='412.72' font-size='17' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Go</text>
+<text x='988.16' y='362.22' font-size='17' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Other</text>
+<text x='960' y='545.95' font-size='25' text-anchor='middle' fill='rgb(255,255,255)' stroke='rgb(0,0,0)' stroke-width='0'>Languages</text>
+</g></g>
+</svg>
