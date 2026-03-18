@@ -9,6 +9,7 @@ examples/svgs/*
 !examples/svgs/sierpinski_triangle.svg
 !examples/svgs/spiral.svg
 !examples/svgs/convolutions.gif
+!examples/svgs/explanation.svg
 .coverage
 *.egg-info/
 dist/
