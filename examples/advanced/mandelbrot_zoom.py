@@ -1,16 +1,28 @@
 """Mandelbrot Set Zoom — progressive zoom into the seahorse valley.
 
-Renders the Mandelbrot set on the GPU (numba CUDA) and displays it as
-an inline PNG image, smoothly zooming into the seahorse valley region
-near -0.75 + 0.1i.
+Renders the Mandelbrot set on the GPU (numba CUDA) — or, if CUDA is
+unavailable, on the CPU via a parallel numba @njit kernel — and displays
+it as an inline PNG image, smoothly zooming into the seahorse valley
+region near -0.75 + 0.1i.
 """
 from vectormation.objects import *
 import math
 import numpy as np
 import numba
-from numba import cuda
+from numba import cuda, njit, prange
 from PIL import Image as PILImage
 import io, base64
+
+def _probe_cuda():
+    try:
+        if not cuda.is_available():
+            return False
+        cuda.device_array(1, dtype=np.float32)
+        return True
+    except Exception:
+        return False
+
+_USE_CUDA = _probe_cuda()
 
 
 W, H = 960, 540
@@ -59,58 +71,95 @@ def _get_max_iter(radius):
     zoom = START_RADIUS / radius
     return int(BASE_ITER + 200 * math.log(max(zoom, 1)))
 
-# ── CUDA kernel (float32, outputs packed RGB as uint32) ──────────────
-@cuda.jit
-def _mandelbrot_kernel(cx_arr, cy_arr, max_iter, palette, n_colors, packed):
-    col, row = cuda.grid(2)
-    if row >= packed.shape[0] or col >= packed.shape[1]:
-        return
-    cx = cx_arr[col]
-    cy = cy_arr[row]
-    zx = numba.float32(0.0)
-    zy = numba.float32(0.0)
-    for i in range(max_iter):
-        zx2 = zx * zx
-        zy2 = zy * zy
-        if zx2 + zy2 > numba.float32(4.0):
-            log_zn = math.log(max(float(zx2 + zy2), 1.001)) * 0.5
-            iters = i + 1 - math.log(max(log_zn, 1e-10)) / math.log(2.0)
-            idx = int(math.log(iters + 1.0) * (n_colors / 3.5)) % n_colors
-            packed[row, col] = palette[idx]
-            return
-        zy = numba.float32(2.0) * zx * zy + cy
-        zx = zx2 - zy2 + cx
-    packed[row, col] = 0
-
 # Build packed uint32 palette (0x00RRGGBB)
 _PALETTE_PACKED = (
     _PALETTE_RGB[:, 0].astype(np.uint32) << 16 |
     _PALETTE_RGB[:, 1].astype(np.uint32) << 8 |
     _PALETTE_RGB[:, 2].astype(np.uint32)
 )
-
-# Pre-allocate device arrays
-_d_cx = cuda.device_array(IMG_W, dtype=np.float32)
-_d_cy = cuda.device_array(IMG_H, dtype=np.float32)
-_d_packed = cuda.device_array((IMG_H, IMG_W), dtype=np.uint32)
-_d_palette = cuda.to_device(_PALETTE_PACKED)
-
-_TPB = (16, 16)
-_BPG = ((IMG_W + 15) // 16, (IMG_H + 15) // 16)
 _N_COLORS = len(_PALETTE_RGB)
 
-def _compute_mandelbrot(cx_arr, cy_arr, max_iter):
-    """Run Mandelbrot on GPU, return RGB pixels."""
-    _d_cx.copy_to_device(cx_arr)
-    _d_cy.copy_to_device(cy_arr)
-    _mandelbrot_kernel[_BPG, _TPB](_d_cx, _d_cy, max_iter, _d_palette, _N_COLORS, _d_packed)
-    packed = _d_packed.copy_to_host()
-    # Unpack uint32 → (H, W, 3) uint8
-    pixels = np.empty((IMG_H, IMG_W, 3), dtype=np.uint8)
-    pixels[:, :, 0] = (packed >> 16) & 0xFF
-    pixels[:, :, 1] = (packed >> 8) & 0xFF
-    pixels[:, :, 2] = packed & 0xFF
-    return pixels
+if _USE_CUDA:
+    # ── CUDA kernel (float32, outputs packed RGB as uint32) ──────────
+    @cuda.jit
+    def _mandelbrot_kernel(cx_arr, cy_arr, max_iter, palette, n_colors, packed):
+        col, row = cuda.grid(2)
+        if row >= packed.shape[0] or col >= packed.shape[1]:
+            return
+        cx = cx_arr[col]
+        cy = cy_arr[row]
+        zx = numba.float32(0.0)
+        zy = numba.float32(0.0)
+        for i in range(max_iter):
+            zx2 = zx * zx
+            zy2 = zy * zy
+            if zx2 + zy2 > numba.float32(4.0):
+                log_zn = math.log(max(float(zx2 + zy2), 1.001)) * 0.5
+                iters = i + 1 - math.log(max(log_zn, 1e-10)) / math.log(2.0)
+                idx = int(math.log(iters + 1.0) * (n_colors / 3.5)) % n_colors
+                packed[row, col] = palette[idx]
+                return
+            zy = numba.float32(2.0) * zx * zy + cy
+            zx = zx2 - zy2 + cx
+        packed[row, col] = 0
+
+    _d_cx = cuda.device_array(IMG_W, dtype=np.float32)
+    _d_cy = cuda.device_array(IMG_H, dtype=np.float32)
+    _d_packed = cuda.device_array((IMG_H, IMG_W), dtype=np.uint32)
+    _d_palette = cuda.to_device(_PALETTE_PACKED)
+
+    _TPB = (16, 16)
+    _BPG = ((IMG_W + 15) // 16, (IMG_H + 15) // 16)
+
+    def _compute_mandelbrot(cx_arr, cy_arr, max_iter):
+        """Run Mandelbrot on GPU, return RGB pixels."""
+        _d_cx.copy_to_device(cx_arr)
+        _d_cy.copy_to_device(cy_arr)
+        _mandelbrot_kernel[_BPG, _TPB](_d_cx, _d_cy, max_iter, _d_palette, _N_COLORS, _d_packed)
+        packed = _d_packed.copy_to_host()
+        pixels = np.empty((IMG_H, IMG_W, 3), dtype=np.uint8)
+        pixels[:, :, 0] = (packed >> 16) & 0xFF
+        pixels[:, :, 1] = (packed >> 8) & 0xFF
+        pixels[:, :, 2] = packed & 0xFF
+        return pixels
+else:
+    # ── CPU fallback (parallel numba @njit) ──────────────────────────
+    @njit(parallel=True, fastmath=True, cache=True)
+    def _mandelbrot_kernel_cpu(cx_arr, cy_arr, max_iter, palette, n_colors, packed):
+        h = packed.shape[0]
+        w = packed.shape[1]
+        for row in prange(h):
+            cy = cy_arr[row]
+            for col in range(w):
+                cx = cx_arr[col]
+                zx = np.float32(0.0)
+                zy = np.float32(0.0)
+                escaped = False
+                for i in range(max_iter):
+                    zx2 = zx * zx
+                    zy2 = zy * zy
+                    if zx2 + zy2 > np.float32(4.0):
+                        log_zn = math.log(max(float(zx2 + zy2), 1.001)) * 0.5
+                        iters = i + 1 - math.log(max(log_zn, 1e-10)) / math.log(2.0)
+                        idx = int(math.log(iters + 1.0) * (n_colors / 3.5)) % n_colors
+                        packed[row, col] = palette[idx]
+                        escaped = True
+                        break
+                    zy = np.float32(2.0) * zx * zy + cy
+                    zx = zx2 - zy2 + cx
+                if not escaped:
+                    packed[row, col] = 0
+
+    _packed_host = np.empty((IMG_H, IMG_W), dtype=np.uint32)
+
+    def _compute_mandelbrot(cx_arr, cy_arr, max_iter):
+        """Run Mandelbrot on CPU, return RGB pixels."""
+        _mandelbrot_kernel_cpu(cx_arr, cy_arr, max_iter, _PALETTE_PACKED, _N_COLORS, _packed_host)
+        pixels = np.empty((IMG_H, IMG_W, 3), dtype=np.uint8)
+        pixels[:, :, 0] = (_packed_host >> 16) & 0xFF
+        pixels[:, :, 1] = (_packed_host >> 8) & 0xFF
+        pixels[:, :, 2] = _packed_host & 0xFF
+        return pixels
 
 # ── View ─────────────────────────────────────────────────────────────
 ZOOM_START, ZOOM_END = 2, 16  # zoom active during this time window
