@@ -1,6 +1,9 @@
 Tutorial: Your First Animation
 ==============================
 
+.. meta::
+   :description: Build your first VectorMation animation with an SVG canvas, vector objects, attributes, timelines, and browser preview.
+
 This tutorial walks through building animations step by step, starting from
 the very basics.
 
