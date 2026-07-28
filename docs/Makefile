@@ -10,7 +10,7 @@ help:  ## Show this help
 		awk -F ':.*## ' '{printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
 
 html: assets  ## Build HTML docs (regenerates changed assets first)
-	$(SPHINXBUILD) -b html $(SRCDIR) $(BUILDDIR)
+	$(SPHINXBUILD) -E -a -b html $(SRCDIR) $(BUILDDIR)
 	@echo "Build finished. Open $(BUILDDIR)/index.html"
 
 assets:  ## Regenerate all assets (videos, SVGs, diagrams)

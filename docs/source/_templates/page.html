@@ -1,0 +1,35 @@
+{% extends "!page.html" %}
+
+{% block htmltitle -%}
+  {% if seo_title %}
+    <title>{{ seo_title|e }}</title>
+  {% else %}
+    {{ super() }}
+  {% endif %}
+{%- endblock %}
+
+{% block extrahead -%}
+  {{ super() }}
+  {% if breadcrumb_jsonld %}
+  <script type="application/ld+json">{{ breadcrumb_jsonld|safe }}</script>
+  {% endif %}
+{%- endblock %}
+
+{% block content %}
+  {% if breadcrumbs %}
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <ol>
+      {% for crumb in breadcrumbs %}
+      <li>
+        {% if crumb.url %}
+        <a href="{{ crumb.url }}">{{ crumb.name }}</a>
+        {% else %}
+        <span aria-current="page">{{ crumb.name }}</span>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+  </nav>
+  {% endif %}
+  {{ super() }}
+{% endblock %}

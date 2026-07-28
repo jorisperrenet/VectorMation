@@ -1,3 +1,8 @@
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent / '_ext'))
+
 project = 'VectorMation'
 author = 'Joris Perrenet'
 copyright = '2023-2025 Joris Perrenet'
@@ -7,10 +12,12 @@ extensions = [
     'sphinx_copybutton',
     'sphinx.ext.mathjax',
     'sphinx_sitemap',
+    'vectormation_seo',
 ]
 
 exclude_patterns = ['_build']
 html_theme = 'furo'
+templates_path = ['_templates']
 html_static_path = ['_static']
 html_css_files = ['custom.css']
 html_logo = '_static/logo.svg'
@@ -38,3 +45,4 @@ mathjax_path = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
 
 # sphinx-sitemap settings — emits sitemap.xml at the docs root.
 sitemap_url_scheme = '{link}'
+sitemap_excludes = ['search.html', 'genindex.html']
