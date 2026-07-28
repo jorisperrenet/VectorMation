@@ -1,6 +1,9 @@
 Advanced Examples
 =================
 
+.. meta::
+   :description: Study complete VectorMation projects including physics simulations and 3Blue1Brown-inspired mathematical animations.
+
 These are longer, self-contained animations that recreate popular math and science videos (many inspired by 3Blue1Brown). They demonstrate how VectorMation can be used for real-world projects. All scripts are in the ``examples/advanced/`` directory.
 
 .. code-block:: bash
@@ -295,4 +298,3 @@ Styling & Effects
 
       .. literalinclude:: ../../examples/advanced/color_theory.py
          :language: python
-

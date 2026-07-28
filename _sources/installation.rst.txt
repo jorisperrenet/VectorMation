@@ -1,6 +1,9 @@
 Installation
 ============
 
+.. meta::
+   :description: Install VectorMation from PyPI or source and configure Python, FFmpeg, and browser-based SVG animation playback.
+
 Python Package
 --------------
 

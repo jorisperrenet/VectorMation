@@ -1,6 +1,9 @@
 Examples
 ========
 
+.. meta::
+   :description: Explore runnable VectorMation examples for mathematical graphs, text, geometry, physics simulations, and SVG animation.
+
 All examples are in the ``examples/`` directory, organized into ``showcase/``, ``reference/``, ``advanced/``, and ``manim/`` subdirectories. Run any example from the repository root:
 
 .. code-block:: bash

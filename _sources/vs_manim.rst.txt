@@ -1,6 +1,9 @@
 vs Manim
 ========
 
+.. meta::
+   :description: Compare VectorMation and Manim side by side: SVG output, Python APIs, rendering workflow, file sizes, and equivalent examples.
+
 This page compares VectorMation with `Manim Community <https://www.manim.community/>`_ side by side. Each example is taken from the `Manim examples gallery <https://docs.manim.community/en/stable/examples.html>`_. All VectorMation examples are runnable from ``examples/manim/``.
 
 Key Differences

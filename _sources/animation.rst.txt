@@ -1,6 +1,9 @@
 Animation & Playback
 ====================
 
+.. meta::
+   :description: Preview, control, and export VectorMation SVG animations with the browser viewer, timeline playback, and video output.
+
 Browser Viewer
 --------------
 
