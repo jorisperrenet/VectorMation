@@ -94,8 +94,13 @@ if _USE_CUDA:
             zx2 = zx * zx
             zy2 = zy * zy
             if zx2 + zy2 > numba.float32(4.0):
-                log_zn = math.log(max(float(zx2 + zy2), 1.001)) * 0.5
-                iters = i + 1 - math.log(max(log_zn, 1e-10)) / math.log(2.0)
+                magnitude_sq = float(zx2 + zy2)
+                if magnitude_sq < 1.001:
+                    magnitude_sq = 1.001
+                log_zn = math.log(magnitude_sq) * 0.5
+                if log_zn < 1e-10:
+                    log_zn = 1e-10
+                iters = i + 1 - math.log(log_zn) / math.log(2.0)
                 idx = int(math.log(iters + 1.0) * (n_colors / 3.5)) % n_colors
                 packed[row, col] = palette[idx]
                 return
@@ -139,8 +144,13 @@ else:
                     zx2 = zx * zx
                     zy2 = zy * zy
                     if zx2 + zy2 > np.float32(4.0):
-                        log_zn = math.log(max(float(zx2 + zy2), 1.001)) * 0.5
-                        iters = i + 1 - math.log(max(log_zn, 1e-10)) / math.log(2.0)
+                        magnitude_sq = float(zx2 + zy2)
+                        if magnitude_sq < 1.001:
+                            magnitude_sq = 1.001
+                        log_zn = math.log(magnitude_sq) * 0.5
+                        if log_zn < 1e-10:
+                            log_zn = 1e-10
+                        iters = i + 1 - math.log(log_zn) / math.log(2.0)
                         idx = int(math.log(iters + 1.0) * (n_colors / 3.5)) % n_colors
                         packed[row, col] = palette[idx]
                         escaped = True
