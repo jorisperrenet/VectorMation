@@ -39,3 +39,32 @@ video, img {
     margin: 0;
     font-size: 0.9rem;
 }
+.breadcrumbs {
+  color: var(--color-foreground-muted);
+  font-size: 0.875rem;
+  margin: 0 0 1rem;
+}
+
+.breadcrumbs ol {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.breadcrumbs li:not(:last-child)::after {
+  content: "›";
+  margin: 0 0.5rem;
+}
+
+.breadcrumbs a {
+  color: var(--color-link);
+  text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+  text-decoration: underline;
+}
